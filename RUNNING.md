@@ -1,10 +1,23 @@
 # Running Defender of Egril
 
-## Important Note
+## Platform Requirements
 
-This game requires access to the Google Maven Repository (dl.google.com) to download Compose Multiplatform dependencies at runtime. If you're in an environment where this domain is blocked, you'll need to use a different network or configure a proxy.
+### Desktop (JVM)
+- **Windows**: Windows 10 or later, JDK 11+
+- **macOS**: macOS 10.14 or later, JDK 11+
+- **Linux**: Any modern distribution, JDK 11+
+
+### Android
+- Android 7.0 (API 24) or later
+- ~10MB storage space
+
+### iOS
+- iOS 13.0 or later
+- Requires Xcode for building (macOS only)
 
 ## Running on Desktop
+
+### All Platforms (Windows, macOS, Linux)
 
 1. Ensure you have JDK 11 or higher installed
 2. Navigate to the project root directory
@@ -14,22 +27,83 @@ This game requires access to the Google Maven Repository (dl.google.com) to down
 ./gradlew :composeApp:run
 ```
 
-## Building a Distributable Package
-
-To create a native installer for your platform:
-
-```bash
-# For Windows (MSI):
-./gradlew :composeApp:packageMsi
-
-# For macOS (DMG):
-./gradlew :composeApp:packageDmg
-
-# For Linux (DEB):
-./gradlew :composeApp:packageDeb
+On Windows, use:
+```cmd
+gradlew.bat :composeApp:run
 ```
 
-The installer will be created in `composeApp/build/compose/binaries/main/`
+## Building a Distributable Package
+
+### Windows (MSI Installer)
+```bash
+./gradlew :composeApp:packageMsi
+```
+The installer will be created in `composeApp/build/compose/binaries/main/msi/`
+
+### macOS (DMG)
+```bash
+./gradlew :composeApp:packageDmg
+```
+The DMG will be created in `composeApp/build/compose/binaries/main/dmg/`
+
+### Linux (DEB Package)
+```bash
+./gradlew :composeApp:packageDeb
+```
+The package will be created in `composeApp/build/compose/binaries/main/deb/`
+
+## Running on Android
+
+### Option 1: Install Pre-built APK
+
+1. Build the APK:
+   ```bash
+   ./gradlew :composeApp:assembleDebug
+   ```
+
+2. The APK will be located at:
+   `composeApp/build/outputs/apk/debug/composeApp-debug.apk`
+
+3. Transfer the APK to your Android device
+
+4. Enable "Install from Unknown Sources" in your device settings
+
+5. Install the APK
+
+### Option 2: Using Android Studio
+
+1. Open the project in Android Studio
+2. Select the Android configuration
+3. Click Run or press Shift+F10
+
+## Running on iOS
+
+### Requirements
+- macOS with Xcode installed
+- iOS Simulator or a physical iOS device
+
+### Steps
+
+1. Open the project in Xcode:
+   ```bash
+   open iosApp/iosApp.xcodeproj
+   ```
+
+2. Select your target device (Simulator or physical device)
+
+3. Click the Run button or press Cmd+R
+
+### Building iOS Framework
+
+To build the iOS framework for integration:
+
+```bash
+# For iOS Simulator (ARM64)
+./gradlew :composeApp:linkDebugFrameworkIosSimulatorArm64
+
+# For physical devices
+./gradlew :composeApp:linkDebugFrameworkIosArm64
+```
 
 ## How to Play
 
