@@ -43,15 +43,21 @@ Defend the meadows of Egril against waves of attackers including goblins, orks, 
 
 ### Supported Platforms
 
-Currently supporting:
-- **JVM/Desktop** (primary platform)
-
-**Note**: Android and WASM targets are configured but require access to Google Maven Repository (dl.google.com) which may be blocked in some environments.
+- ✅ **JVM/Desktop**: Fully implemented and tested on Linux
+- ✅ **Android**: Fully implemented and tested (APK builds successfully)
+- ✅ **iOS**: Fully implemented (requires macOS with Xcode for building)
 
 ### Building
 
 ```bash
+# Build all platforms
 ./gradlew build
+
+# Build Android APK
+./gradlew :composeApp:assembleDebug
+
+# Build iOS framework (requires macOS)
+./gradlew :composeApp:linkDebugFrameworkIosSimulatorArm64
 ```
 
 ### Running Desktop Version
@@ -59,6 +65,16 @@ Currently supporting:
 ```bash
 ./gradlew :composeApp:run
 ```
+
+### Running Android
+
+Install the APK from `composeApp/build/outputs/apk/debug/composeApp-debug.apk` on an Android device or emulator.
+
+### Running iOS
+
+1. Open `iosApp/iosApp.xcodeproj` in Xcode (macOS required)
+2. Select a simulator or device
+3. Click Run
 
 ## Project Structure
 
