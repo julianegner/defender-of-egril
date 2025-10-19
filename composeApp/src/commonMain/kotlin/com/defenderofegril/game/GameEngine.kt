@@ -10,13 +10,22 @@ class GameEngine(private val state: GameState) {
         if (isPositionOccupied(position)) return false
         if (position == state.level.startPosition || position == state.level.targetPosition) return false
         
+        val buildTime = if (state.phase == GamePhase.INITIAL_BUILDING) 0 else type.buildTime
+        
         val defender = Defender(
             id = state.nextDefenderId++,
             type = type,
-            position = position
+            position = position,
+            buildTimeRemaining = buildTime
         )
         state.defenders.add(defender)
         state.coins -= type.baseCost
+        
+        // Reset actions if tower is ready
+        if (defender.isReady) {
+            defender.resetActions()
+        }
+        
         return true
     }
     
@@ -29,26 +38,48 @@ class GameEngine(private val state: GameState) {
         return true
     }
     
-    fun startCombatPhase() {
-        if (state.phase == GamePhase.COMBAT) return
-        state.phase = GamePhase.COMBAT
+    fun startFirstPlayerTurn() {
+        if (state.phase != GamePhase.INITIAL_BUILDING) return
+        state.phase = GamePhase.PLAYER_TURN
         
-        // Load first wave if not started
+        // Load first wave
         if (state.currentWaveIndex == 0 && state.attackersToSpawn.isEmpty()) {
             loadNextWave()
         }
+        
+        // Reset all defender actions
+        resetDefenderActions()
     }
     
-    fun executeTurn() {
-        if (state.phase != GamePhase.COMBAT) return
+    fun defenderAttack(defenderId: Int, targetId: Int): Boolean {
+        val defender = state.defenders.find { it.id == defenderId } ?: return false
+        val target = state.attackers.find { it.id == targetId && !it.isDefeated } ?: return false
+        
+        if (!defender.canAttack(target)) return false
+        
+        // Perform attack based on type
+        when (defender.type.attackType) {
+            AttackType.MELEE, AttackType.RANGED -> singleTargetAttack(defender, target)
+            AttackType.AOE -> aoeAttack(defender, target)
+            AttackType.DOT -> dotAttack(defender, target)
+        }
+        
+        defender.actionsRemaining--
+        
+        // Process defeated attackers immediately to give coins
+        processDefeatedAttackers()
+        
+        return true
+    }
+    
+    fun endPlayerTurn() {
+        if (state.phase != GamePhase.PLAYER_TURN) return
         
         state.turnNumber++
+        state.phase = GamePhase.ENEMY_TURN
         
         // Spawn new attackers
         spawnAttackers()
-        
-        // Defenders attack
-        defendersAttack()
         
         // Move attackers
         moveAttackers()
@@ -63,10 +94,26 @@ class GameEngine(private val state: GameState) {
         if (state.attackersToSpawn.isEmpty() && state.attackers.isEmpty()) {
             loadNextWave()
         }
+        
+        // Advance building timers and start next player turn
+        advanceBuildTimers()
+        state.phase = GamePhase.PLAYER_TURN
+        resetDefenderActions()
     }
     
-    fun returnToPlanning() {
-        state.phase = GamePhase.PLANNING
+    private fun resetDefenderActions() {
+        state.defenders.forEach { it.resetActions() }
+    }
+    
+    private fun advanceBuildTimers() {
+        state.defenders.forEach { defender ->
+            if (defender.buildTimeRemaining > 0) {
+                defender.buildTimeRemaining--
+                if (defender.buildTimeRemaining == 0) {
+                    defender.resetActions()
+                }
+            }
+        }
     }
     
     private fun isPositionOccupied(position: Position): Boolean {
@@ -103,35 +150,14 @@ class GameEngine(private val state: GameState) {
         }
     }
     
-    private fun defendersAttack() {
-        for (defender in state.defenders) {
-            when (defender.type.attackType) {
-                AttackType.MELEE, AttackType.RANGED -> singleTargetAttack(defender)
-                AttackType.AOE -> aoeAttack(defender)
-                AttackType.DOT -> dotAttack(defender)
-            }
-        }
-    }
-    
-    private fun singleTargetAttack(defender: Defender) {
-        val target = state.attackers
-            .filter { !it.isDefeated && defender.canAttack(it) }
-            .minByOrNull { it.position.distanceTo(state.level.targetPosition) }
-            ?: return
-        
+    private fun singleTargetAttack(defender: Defender, target: Attacker) {
         target.currentHealth -= defender.damage
         if (target.currentHealth <= 0) {
             target.isDefeated = true
         }
     }
     
-    private fun aoeAttack(defender: Defender) {
-        // Find primary target
-        val primaryTarget = state.attackers
-            .filter { !it.isDefeated && defender.canAttack(it) }
-            .minByOrNull { it.position.distanceTo(state.level.targetPosition) }
-            ?: return
-        
+    private fun aoeAttack(defender: Defender, primaryTarget: Attacker) {
         // Damage primary target and nearby enemies
         val targets = state.attackers.filter { 
             !it.isDefeated && it.position.distanceTo(primaryTarget.position) <= 1 
@@ -145,12 +171,7 @@ class GameEngine(private val state: GameState) {
         }
     }
     
-    private fun dotAttack(defender: Defender) {
-        val target = state.attackers
-            .filter { !it.isDefeated && defender.canAttack(it) }
-            .minByOrNull { it.position.distanceTo(state.level.targetPosition) }
-            ?: return
-        
+    private fun dotAttack(defender: Defender, target: Attacker) {
         // Apply initial damage
         target.currentHealth -= defender.damage
         // Mark for 3 more rounds of DOT

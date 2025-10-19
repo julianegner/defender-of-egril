@@ -76,13 +76,21 @@ class GameViewModel {
         return result
     }
     
-    fun startCombat() {
-        gameEngine?.startCombatPhase()
+    fun startFirstPlayerTurn() {
+        gameEngine?.startFirstPlayerTurn()
         _gameState.value = _gameState.value
     }
     
-    fun executeTurn() {
-        gameEngine?.executeTurn()
+    fun defenderAttack(defenderId: Int, targetId: Int): Boolean {
+        val result = gameEngine?.defenderAttack(defenderId, targetId) ?: false
+        if (result) {
+            _gameState.value = _gameState.value
+        }
+        return result
+    }
+    
+    fun endPlayerTurn() {
+        gameEngine?.endPlayerTurn()
         _gameState.value = _gameState.value
         
         val state = _gameState.value ?: return
@@ -91,11 +99,6 @@ class GameViewModel {
         } else if (state.isLevelLost()) {
             completeLevel(state.level.id, won = false)
         }
-    }
-    
-    fun returnToPlanning() {
-        gameEngine?.returnToPlanning()
-        _gameState.value = _gameState.value
     }
     
     private fun completeLevel(levelId: Int, won: Boolean) {

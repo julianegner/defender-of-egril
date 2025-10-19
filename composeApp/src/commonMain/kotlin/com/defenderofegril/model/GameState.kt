@@ -1,13 +1,14 @@
 package com.defenderofegril.model
 
 enum class GamePhase {
-    PLANNING,  // Player can place/upgrade towers
-    COMBAT     // Attackers move and towers attack
+    INITIAL_BUILDING,  // Initial building phase - towers build instantly
+    PLAYER_TURN,       // Player can place/upgrade towers and attack
+    ENEMY_TURN         // Enemies move
 }
 
 data class GameState(
     val level: Level,
-    var phase: GamePhase = GamePhase.PLANNING,
+    var phase: GamePhase = GamePhase.INITIAL_BUILDING,
     var coins: Int = level.initialCoins,
     var healthPoints: Int = level.healthPoints,
     val defenders: MutableList<Defender> = mutableListOf(),
@@ -17,7 +18,8 @@ data class GameState(
     var currentWaveIndex: Int = 0,
     var spawnCounter: Int = 0,
     var attackersToSpawn: MutableList<AttackerType> = mutableListOf(),
-    var turnNumber: Int = 0
+    var turnNumber: Int = 0,
+    var actionsRemainingThisTurn: Int = 0
 ) {
     fun isLevelWon(): Boolean {
         return currentWaveIndex >= level.attackerWaves.size &&
@@ -35,5 +37,9 @@ data class GameState(
     
     fun canUpgradeDefender(defender: Defender): Boolean {
         return coins >= defender.upgradeCost
+    }
+    
+    fun hasActionsRemaining(): Boolean {
+        return actionsRemainingThisTurn > 0
     }
 }
