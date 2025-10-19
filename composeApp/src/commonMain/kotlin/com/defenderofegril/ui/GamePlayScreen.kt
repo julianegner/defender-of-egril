@@ -21,13 +21,14 @@ fun GamePlayScreen(
     gameState: GameState,
     onPlaceDefender: (DefenderType, Position) -> Boolean,
     onUpgradeDefender: (Int) -> Boolean,
-    onStartCombat: () -> Unit,
-    onExecuteTurn: () -> Unit,
-    onReturnToPlanning: () -> Unit,
+    onStartFirstPlayerTurn: () -> Unit,
+    onDefenderAttack: (Int, Int) -> Boolean,
+    onEndPlayerTurn: () -> Unit,
     onBackToMap: () -> Unit
 ) {
     var selectedDefenderType by remember { mutableStateOf<DefenderType?>(null) }
     var selectedDefenderId by remember { mutableStateOf<Int?>(null) }
+    var selectedTargetId by remember { mutableStateOf<Int?>(null) }
     
     Column(
         modifier = Modifier.fillMaxSize().padding(16.dp),
@@ -42,6 +43,12 @@ fun GamePlayScreen(
                 Text("Level: ${gameState.level.name}", style = MaterialTheme.typography.titleLarge)
                 Text("Coins: ${gameState.coins}", style = MaterialTheme.typography.bodyLarge)
                 Text("Health: ${gameState.healthPoints}", style = MaterialTheme.typography.bodyLarge)
+                Text("Turn: ${gameState.turnNumber}", style = MaterialTheme.typography.bodyMedium)
+                Text("Phase: ${when(gameState.phase) {
+                    GamePhase.INITIAL_BUILDING -> "Initial Building"
+                    GamePhase.PLAYER_TURN -> "Your Turn"
+                    GamePhase.ENEMY_TURN -> "Enemy Turn"
+                }}", style = MaterialTheme.typography.bodyMedium)
             }
             
             Button(onClick = onBackToMap) {
@@ -55,36 +62,67 @@ fun GamePlayScreen(
         GameGrid(
             gameState = gameState,
             selectedDefenderType = selectedDefenderType,
+            selectedDefenderId = selectedDefenderId,
+            selectedTargetId = selectedTargetId,
             onCellClick = { position ->
+                // Try to place defender if one is selected
                 selectedDefenderType?.let { type ->
                     if (onPlaceDefender(type, position)) {
                         selectedDefenderType = null
                     }
+                    return@GameGrid
                 }
+                
                 // Check if there's a defender at this position
                 val defender = gameState.defenders.find { it.position == position }
-                selectedDefenderId = defender?.id
+                if (defender != null) {
+                    selectedDefenderId = defender.id
+                    selectedTargetId = null
+                    return@GameGrid
+                }
+                
+                // Check if there's an attacker at this position (for targeting)
+                val attacker = gameState.attackers.find { it.position == position && !it.isDefeated }
+                if (attacker != null && selectedDefenderId != null) {
+                    selectedTargetId = attacker.id
+                }
             },
             modifier = Modifier.weight(1f)
         )
         
         Spacer(modifier = Modifier.height(16.dp))
         
-        // Control Panel
-        if (gameState.phase == GamePhase.PLANNING) {
-            PlanningControls(
-                gameState = gameState,
-                selectedDefenderType = selectedDefenderType,
-                selectedDefenderId = selectedDefenderId,
-                onSelectDefenderType = { selectedDefenderType = it },
-                onUpgradeDefender = { onUpgradeDefender(it) },
-                onStartCombat = onStartCombat
-            )
-        } else {
-            CombatControls(
-                onExecuteTurn = onExecuteTurn,
-                onReturnToPlanning = onReturnToPlanning
-            )
+        // Control Panel based on phase
+        when (gameState.phase) {
+            GamePhase.INITIAL_BUILDING -> {
+                InitialBuildingControls(
+                    gameState = gameState,
+                    selectedDefenderType = selectedDefenderType,
+                    selectedDefenderId = selectedDefenderId,
+                    onSelectDefenderType = { selectedDefenderType = it },
+                    onUpgradeDefender = { onUpgradeDefender(it) },
+                    onStartFirstPlayerTurn = onStartFirstPlayerTurn
+                )
+            }
+            GamePhase.PLAYER_TURN -> {
+                PlayerTurnControls(
+                    gameState = gameState,
+                    selectedDefenderType = selectedDefenderType,
+                    selectedDefenderId = selectedDefenderId,
+                    selectedTargetId = selectedTargetId,
+                    onSelectDefenderType = { selectedDefenderType = it },
+                    onUpgradeDefender = { onUpgradeDefender(it) },
+                    onDefenderAttack = { defenderId, targetId ->
+                        if (onDefenderAttack(defenderId, targetId)) {
+                            selectedTargetId = null
+                        }
+                    },
+                    onEndPlayerTurn = onEndPlayerTurn
+                )
+            }
+            GamePhase.ENEMY_TURN -> {
+                EnemyTurnInfo()
+            }
         }
     }
 }
@@ -93,6 +131,8 @@ fun GamePlayScreen(
 fun GameGrid(
     gameState: GameState,
     selectedDefenderType: DefenderType?,
+    selectedDefenderId: Int?,
+    selectedTargetId: Int?,
     onCellClick: (Position) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -108,6 +148,8 @@ fun GameGrid(
                         position = position,
                         gameState = gameState,
                         isSelected = selectedDefenderType != null,
+                        isDefenderSelected = gameState.defenders.find { it.position == position }?.id == selectedDefenderId,
+                        isTargetSelected = gameState.attackers.find { it.position == position }?.id == selectedTargetId,
                         onClick = { onCellClick(position) }
                     )
                 }
@@ -121,6 +163,8 @@ fun GridCell(
     position: Position,
     gameState: GameState,
     isSelected: Boolean,
+    isDefenderSelected: Boolean,
+    isTargetSelected: Boolean,
     onClick: () -> Unit
 ) {
     val isStart = position == gameState.level.startPosition
@@ -129,9 +173,11 @@ fun GridCell(
     val attacker = gameState.attackers.find { it.position == position && !it.isDefeated }
     
     val backgroundColor = when {
+        isDefenderSelected -> Color(0xFF1565C0)
+        isTargetSelected -> Color(0xFFE91E63)
         isStart -> Color(0xFFFF9800)
         isTarget -> Color(0xFF4CAF50)
-        defender != null -> Color(0xFF2196F3)
+        defender != null -> if (defender.isReady) Color(0xFF2196F3) else Color(0xFF9E9E9E)
         attacker != null -> Color(0xFFF44336)
         isSelected -> Color(0xFFE0E0E0)
         else -> Color.White
@@ -145,34 +191,62 @@ fun GridCell(
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
-        when {
-            isStart -> Text("S", style = MaterialTheme.typography.labelSmall)
-            isTarget -> Text("T", style = MaterialTheme.typography.labelSmall)
-            defender != null -> Text(
-                defender.type.displayName.take(1) + defender.level,
-                style = MaterialTheme.typography.labelSmall,
-                textAlign = TextAlign.Center
-            )
-            attacker != null -> Text(
-                attacker.type.displayName.take(1),
-                style = MaterialTheme.typography.labelSmall,
-                color = Color.White
-            )
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            when {
+                isStart -> Text("S", style = MaterialTheme.typography.labelSmall)
+                isTarget -> Text("T", style = MaterialTheme.typography.labelSmall)
+                defender != null -> {
+                    Text(
+                        defender.type.displayName.take(1) + defender.level,
+                        style = MaterialTheme.typography.labelSmall,
+                        textAlign = TextAlign.Center,
+                        color = if (defender.isReady) Color.White else Color.Black
+                    )
+                    if (!defender.isReady) {
+                        Text(
+                            "⏱${defender.buildTimeRemaining}",
+                            style = MaterialTheme.typography.labelSmall,
+                            fontSize = MaterialTheme.typography.labelSmall.fontSize * 0.7f
+                        )
+                    } else if (defender.actionsRemaining > 0) {
+                        Text(
+                            "⚡${defender.actionsRemaining}",
+                            style = MaterialTheme.typography.labelSmall,
+                            fontSize = MaterialTheme.typography.labelSmall.fontSize * 0.7f,
+                            color = Color.Yellow
+                        )
+                    }
+                }
+                attacker != null -> {
+                    Text(
+                        attacker.type.displayName.take(1),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Color.White
+                    )
+                    Text(
+                        "${attacker.currentHealth}/${attacker.maxHealth}",
+                        style = MaterialTheme.typography.labelSmall,
+                        fontSize = MaterialTheme.typography.labelSmall.fontSize * 0.7f,
+                        color = Color.White
+                    )
+                }
+            }
         }
     }
 }
 
 @Composable
-fun PlanningControls(
+fun InitialBuildingControls(
     gameState: GameState,
     selectedDefenderType: DefenderType?,
     selectedDefenderId: Int?,
     onSelectDefenderType: (DefenderType?) -> Unit,
     onUpgradeDefender: (Int) -> Unit,
-    onStartCombat: () -> Unit
+    onStartFirstPlayerTurn: () -> Unit
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
-        Text("Place Defenders", style = MaterialTheme.typography.titleMedium)
+        Text("Initial Building Phase - Place towers (no build time)", 
+             style = MaterialTheme.typography.titleMedium)
         
         Spacer(modifier = Modifier.height(8.dp))
         
@@ -199,17 +273,74 @@ fun PlanningControls(
         selectedDefenderId?.let { id ->
             val defender = gameState.defenders.find { it.id == id }
             if (defender != null) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text("${defender.type.displayName} (Lvl ${defender.level})")
-                    Button(
-                        onClick = { onUpgradeDefender(id) },
-                        enabled = gameState.canUpgradeDefender(defender)
-                    ) {
-                        Text("Upgrade (${defender.upgradeCost} coins)")
+                DefenderInfo(defender, gameState, onUpgradeDefender)
+            }
+        }
+        
+        Spacer(modifier = Modifier.height(8.dp))
+        
+        Button(
+            onClick = onStartFirstPlayerTurn,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Start Battle")
+        }
+    }
+}
+
+@Composable
+fun PlayerTurnControls(
+    gameState: GameState,
+    selectedDefenderType: DefenderType?,
+    selectedDefenderId: Int?,
+    selectedTargetId: Int?,
+    onSelectDefenderType: (DefenderType?) -> Unit,
+    onUpgradeDefender: (Int) -> Unit,
+    onDefenderAttack: (Int, Int) -> Unit,
+    onEndPlayerTurn: () -> Unit
+) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text("Your Turn - Place towers and attack enemies", 
+             style = MaterialTheme.typography.titleMedium)
+        
+        Spacer(modifier = Modifier.height(8.dp))
+        
+        // Defender placement buttons
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(3),
+            modifier = Modifier.fillMaxWidth().height(120.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(DefenderType.entries.toTypedArray()) { type ->
+                DefenderButton(
+                    type = type,
+                    isSelected = selectedDefenderType == type,
+                    canAfford = gameState.canPlaceDefender(type),
+                    onClick = {
+                        onSelectDefenderType(if (selectedDefenderType == type) null else type)
+                    }
+                )
+            }
+        }
+        
+        Spacer(modifier = Modifier.height(8.dp))
+        
+        // Selected defender info and attack button
+        selectedDefenderId?.let { defenderId ->
+            val defender = gameState.defenders.find { it.id == defenderId }
+            if (defender != null) {
+                DefenderInfo(defender, gameState, onUpgradeDefender)
+                
+                if (defender.isReady && defender.actionsRemaining > 0 && selectedTargetId != null) {
+                    val target = gameState.attackers.find { it.id == selectedTargetId }
+                    if (target != null && defender.canAttack(target)) {
+                        Button(
+                            onClick = { onDefenderAttack(defenderId, selectedTargetId) },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text("Attack ${target.type.displayName} (${target.currentHealth}/${target.maxHealth} HP)")
+                        }
                     }
                 }
             }
@@ -218,11 +349,51 @@ fun PlanningControls(
         Spacer(modifier = Modifier.height(8.dp))
         
         Button(
-            onClick = onStartCombat,
-            modifier = Modifier.fillMaxWidth()
+            onClick = onEndPlayerTurn,
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF5722))
         ) {
-            Text("Start Combat")
+            Text("End Turn")
         }
+    }
+}
+
+@Composable
+fun DefenderInfo(
+    defender: Defender,
+    gameState: GameState,
+    onUpgradeDefender: (Int) -> Unit
+) {
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.padding(8.dp)) {
+            Text("${defender.type.displayName} (Lvl ${defender.level})")
+            if (!defender.isReady) {
+                Text("Building: ${defender.buildTimeRemaining} turns", 
+                     style = MaterialTheme.typography.bodySmall)
+            } else {
+                Text("Actions: ${defender.actionsRemaining}/${defender.type.actionsPerTurn}",
+                     style = MaterialTheme.typography.bodySmall)
+                Text("Damage: ${defender.damage}, Range: ${defender.range}",
+                     style = MaterialTheme.typography.bodySmall)
+                
+                Button(
+                    onClick = { onUpgradeDefender(defender.id) },
+                    enabled = gameState.canUpgradeDefender(defender),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Upgrade (${defender.upgradeCost} coins)")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun EnemyTurnInfo() {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text("Enemy Turn - Enemies are moving...", 
+             style = MaterialTheme.typography.titleMedium,
+             color = Color.Red)
     }
 }
 
@@ -242,33 +413,10 @@ fun DefenderButton(
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(type.displayName, style = MaterialTheme.typography.labelSmall)
-            Text("${type.baseCost} coins", style = MaterialTheme.typography.labelSmall)
-        }
-    }
-}
-
-@Composable
-fun CombatControls(
-    onExecuteTurn: () -> Unit,
-    onReturnToPlanning: () -> Unit
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        Button(
-            onClick = onExecuteTurn,
-            modifier = Modifier.weight(1f)
-        ) {
-            Text("Next Turn")
-        }
-        
-        Button(
-            onClick = onReturnToPlanning,
-            modifier = Modifier.weight(1f)
-        ) {
-            Text("Return to Planning")
+            Text(type.displayName.split(" ")[0], style = MaterialTheme.typography.labelSmall)
+            Text("${type.baseCost}c ⏱${type.buildTime}", 
+                 style = MaterialTheme.typography.labelSmall,
+                 fontSize = MaterialTheme.typography.labelSmall.fontSize * 0.8f)
         }
     }
 }
