@@ -12,7 +12,12 @@ Defend the meadows of Egril against waves of attackers including goblins, orks, 
 
 ### Game Mechanics
 
-- **Turn-Based Gameplay**: Strategic tower placement and upgrades between combat phases
+- **Single-Phase Turn System**: Place towers, upgrade them, and attack enemies all in the same turn
+- **Action Points**: Each tower has a limited number of actions per turn
+- **Manual Targeting**: Choose which enemies your towers attack
+- **Build Time**: Newly placed towers need time to be ready (except during initial building phase)
+- **Initial Building Phase**: Place towers instantly before the battle begins
+- **Separate Enemy Turns**: Enemies move during their own turn phase
 - **Tower Types**:
   - **Spike Tower**: Close-range melee defense
   - **Spear Tower**: Medium-range piercing attacks
@@ -33,6 +38,30 @@ Defend the meadows of Egril against waves of attackers including goblins, orks, 
 - **Health System**: Each enemy that reaches the end costs you one health point
 - **Level Progression**: Five levels with increasing difficulty
 - **World Map**: Track your progress and see which levels are unlocked
+
+## Quick Start
+
+### Running the Game
+
+**Desktop (Linux/macOS):**
+```bash
+./gradlew :composeApp:run
+```
+
+**Desktop (Windows):**
+```cmd
+gradlew.bat :composeApp:run
+```
+
+**Android:**
+```bash
+./gradlew :composeApp:installDebug
+```
+
+**iOS (requires macOS with Xcode):**
+Open `iosApp/iosApp.xcodeproj` in Xcode and click Run
+
+📖 **For detailed gameplay instructions, see [GAMEPLAY.md](GAMEPLAY.md)**
 
 ## Building and Running
 

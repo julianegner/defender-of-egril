@@ -33,9 +33,9 @@ fun App() {
                         gameState = state,
                         onPlaceDefender = { type, pos -> viewModel.placeDefender(type, pos) },
                         onUpgradeDefender = { id -> viewModel.upgradeDefender(id) },
-                        onStartCombat = { viewModel.startCombat() },
-                        onExecuteTurn = { viewModel.executeTurn() },
-                        onReturnToPlanning = { viewModel.returnToPlanning() },
+                        onStartFirstPlayerTurn = { viewModel.startFirstPlayerTurn() },
+                        onDefenderAttack = { defenderId, targetId -> viewModel.defenderAttack(defenderId, targetId) },
+                        onEndPlayerTurn = { viewModel.endPlayerTurn() },
                         onBackToMap = { viewModel.navigateToWorldMap() }
                     )
                 }
