@@ -26,11 +26,31 @@ data class Level(
     }
     
     fun isBuildArea(position: Position): Boolean {
-        // Build areas are ONLY the islands within the path
-        // Cannot build on path, spawn points, or target
-        return isBuildIsland(position) &&
-               !isSpawnPoint(position) && 
-               position != targetPosition
+        // Build areas are islands OR strips adjacent to paths
+        // Cannot build on path itself, spawn points, or target
+        if (isSpawnPoint(position) || position == targetPosition) return false
+        if (isOnPath(position)) return false
+        
+        // Can build on islands
+        if (isBuildIsland(position)) return true
+        
+        // Can also build on strips adjacent to paths
+        return isAdjacentToPath(position)
+    }
+    
+    private fun isAdjacentToPath(position: Position): Boolean {
+        // Check if any adjacent cell is a path cell
+        val adjacentPositions = listOf(
+            Position(position.x - 1, position.y),
+            Position(position.x + 1, position.y),
+            Position(position.x, position.y - 1),
+            Position(position.x, position.y + 1)
+        )
+        return adjacentPositions.any { pos ->
+            pos.x in 0 until gridWidth && 
+            pos.y in 0 until gridHeight && 
+            isOnPath(pos)
+        }
     }
     
     fun isSpawnPoint(position: Position): Boolean {

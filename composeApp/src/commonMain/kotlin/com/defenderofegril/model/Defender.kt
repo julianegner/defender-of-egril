@@ -7,13 +7,15 @@ enum class DefenderType(
     val baseRange: Int,
     val attackType: AttackType,
     val actionsPerTurn: Int,
-    val buildTime: Int  // Turns needed to build (0 = instant in initial phase)
+    val buildTime: Int,  // Turns needed to build (0 = instant in initial phase)
+    val minRange: Int = 0  // Minimum range for attacks (0 = can attack adjacent)
 ) {
     SPIKE_TOWER("Spike Tower", baseCost = 10, baseDamage = 5, baseRange = 1, attackType = AttackType.MELEE, actionsPerTurn = 1, buildTime = 1),
     SPEAR_TOWER("Spear Tower", baseCost = 15, baseDamage = 8, baseRange = 2, attackType = AttackType.RANGED, actionsPerTurn = 1, buildTime = 1),
     BOW_TOWER("Bow Tower", baseCost = 20, baseDamage = 10, baseRange = 3, attackType = AttackType.RANGED, actionsPerTurn = 1, buildTime = 1),
     WIZARD_TOWER("Wizard Tower", baseCost = 50, baseDamage = 30, baseRange = 3, attackType = AttackType.AOE, actionsPerTurn = 1, buildTime = 2),
-    ALCHEMY_TOWER("Alchemy Tower", baseCost = 40, baseDamage = 15, baseRange = 2, attackType = AttackType.DOT, actionsPerTurn = 1, buildTime = 1)
+    ALCHEMY_TOWER("Alchemy Tower", baseCost = 40, baseDamage = 15, baseRange = 2, attackType = AttackType.DOT, actionsPerTurn = 1, buildTime = 1),
+    BALLISTA_TOWER("Ballista Tower", baseCost = 60, baseDamage = 50, baseRange = 5, attackType = AttackType.RANGED, actionsPerTurn = 1, buildTime = 2, minRange = 3)
 }
 
 enum class AttackType {
@@ -38,7 +40,10 @@ data class Defender(
     val isReady: Boolean get() = buildTimeRemaining == 0
     
     fun canAttack(attacker: Attacker): Boolean {
-        return isReady && actionsRemaining > 0 && position.distanceTo(attacker.position) <= range
+        if (!isReady || actionsRemaining <= 0) return false
+        val distance = position.distanceTo(attacker.position)
+        // Check both minimum and maximum range
+        return distance >= type.minRange && distance <= range
     }
     
     fun resetActions() {
