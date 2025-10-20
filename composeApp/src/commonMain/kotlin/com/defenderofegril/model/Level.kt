@@ -11,7 +11,8 @@ data class Level(
         Position(0, 7)
     ),
     val targetPosition: Position = Position(gridWidth - 1, gridHeight / 2),
-    val pathCells: Set<Position> = generateCurvedPath(gridWidth, gridHeight),
+    val pathCells: Set<Position>,
+    val buildIslands: Set<Position>,
     val attackerWaves: List<AttackerWave>,
     val initialCoins: Int = 100,
     val healthPoints: Int = 10
@@ -20,12 +21,16 @@ data class Level(
         return pathCells.contains(position)
     }
     
+    fun isBuildIsland(position: Position): Boolean {
+        return buildIslands.contains(position)
+    }
+    
     fun isBuildArea(position: Position): Boolean {
-        // Build areas are cells that are on the path but not occupied by spawn/target
-        // and also cells off the path
-        return position.x >= 0 && position.x < gridWidth && 
-               position.y >= 0 && position.y < gridHeight &&
-               !isSpawnPoint(position) && position != targetPosition
+        // Build areas are ONLY the islands within the path
+        // Cannot build on path, spawn points, or target
+        return isBuildIsland(position) &&
+               !isSpawnPoint(position) && 
+               position != targetPosition
     }
     
     fun isSpawnPoint(position: Position): Boolean {
@@ -33,36 +38,99 @@ data class Level(
     }
     
     companion object {
-        fun generateCurvedPath(width: Int, height: Int): Set<Position> {
+        data class PathAndIslands(
+            val pathCells: Set<Position>,
+            val buildIslands: Set<Position>
+        )
+        
+        fun generateCurvedPathWithIslands(width: Int, height: Int): PathAndIslands {
+            val islands = mutableSetOf<Position>()
+            
+            // Create build islands at strategic points
+            // Islands are 2x2 blocks that the path will curve around
+            val islandPositions = listOf(
+                Pair(6, 1),   // Top path island
+                Pair(10, 4),  // Middle path island  
+                Pair(15, 2),  // Between top and middle
+                Pair(18, 6),  // Bottom path island
+                Pair(22, 4),  // Middle path island
+                Pair(25, 1)   // Top path island
+            )
+            
+            for ((x, y) in islandPositions) {
+                // Create 2x2 island
+                islands.add(Position(x, y))
+                islands.add(Position(x + 1, y))
+                islands.add(Position(x, y + 1))
+                islands.add(Position(x + 1, y + 1))
+            }
+            
+            // Generate path that curves around islands
             val path = mutableSetOf<Position>()
             
-            // Create 3 curved paths from left to right
-            // Top path (y = 0-2)
+            // Create 3 curved paths from left to right that avoid islands
+            // Top path (y = 1-2)
             for (x in 0 until width) {
-                val yOffset = when {
-                    x < width / 3 -> 0  // Straight at top
-                    x < 2 * width / 3 -> 1  // Curve down
-                    else -> 0  // Back to middle-top
+                val baseY = 1
+                var y = baseY
+                
+                // Check if we need to curve around an island
+                val pos = Position(x, y)
+                if (islands.contains(pos)) {
+                    // Try going above or below
+                    if (!islands.contains(Position(x, y - 1)) && y > 0) {
+                        y = y - 1
+                    } else if (!islands.contains(Position(x, y + 1)) && y < height - 1) {
+                        y = y + 1
+                    }
                 }
-                path.add(Position(x, 1 + yOffset))
-            }
-            
-            // Middle path (y = 3-4)
-            for (x in 0 until width) {
-                path.add(Position(x, 4))
-            }
-            
-            // Bottom path (y = 5-7)
-            for (x in 0 until width) {
-                val yOffset = when {
-                    x < width / 3 -> 0  // Straight at bottom
-                    x < 2 * width / 3 -> -1  // Curve up
-                    else -> 0  // Back to middle-bottom
+                
+                if (!islands.contains(Position(x, y))) {
+                    path.add(Position(x, y))
                 }
-                path.add(Position(x, 7 + yOffset))
             }
             
-            return path
+            // Middle path (y = 4)
+            for (x in 0 until width) {
+                val baseY = 4
+                var y = baseY
+                
+                val pos = Position(x, y)
+                if (islands.contains(pos)) {
+                    // Try going above or below
+                    if (!islands.contains(Position(x, y - 1)) && y > 0) {
+                        y = y - 1
+                    } else if (!islands.contains(Position(x, y + 1)) && y < height - 1) {
+                        y = y + 1
+                    }
+                }
+                
+                if (!islands.contains(Position(x, y))) {
+                    path.add(Position(x, y))
+                }
+            }
+            
+            // Bottom path (y = 6-7)
+            for (x in 0 until width) {
+                val baseY = 7
+                var y = baseY
+                
+                val pos = Position(x, y)
+                if (islands.contains(pos)) {
+                    // Try going above or below
+                    if (!islands.contains(Position(x, y - 1)) && y > 0) {
+                        y = y - 1
+                    } else if (!islands.contains(Position(x, y + 1)) && y < height - 1) {
+                        y = y + 1
+                    }
+                }
+                
+                if (!islands.contains(Position(x, y))) {
+                    path.add(Position(x, y))
+                }
+            }
+            
+            return PathAndIslands(path, islands)
         }
     }
 }
