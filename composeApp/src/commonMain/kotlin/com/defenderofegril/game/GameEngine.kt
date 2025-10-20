@@ -47,8 +47,27 @@ class GameEngine(private val state: GameState) {
             loadNextWave()
         }
         
+        // Spawn initial enemies immediately
+        spawnInitialEnemies()
+        
         // Reset all defender actions
         resetDefenderActions()
+    }
+    
+    private fun spawnInitialEnemies() {
+        // Spawn first 1-3 enemies immediately so the player has something to fight
+        val enemiesToSpawn = minOf(3, state.attackersToSpawn.size)
+        repeat(enemiesToSpawn) {
+            if (state.attackersToSpawn.isNotEmpty()) {
+                val type = state.attackersToSpawn.removeAt(0)
+                val attacker = Attacker(
+                    id = state.nextAttackerId++,
+                    type = type,
+                    position = state.level.startPosition
+                )
+                state.attackers.add(attacker)
+            }
+        }
     }
     
     fun defenderAttack(defenderId: Int, targetId: Int): Boolean {
