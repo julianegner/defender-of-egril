@@ -6,6 +6,10 @@ import com.defenderofegril.model.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 sealed class Screen {
     object MainMenu : Screen()
@@ -27,6 +31,7 @@ class GameViewModel {
     
     private var gameEngine: GameEngine? = null
     private var updateCounter = 0L
+    private val viewModelScope = CoroutineScope(Dispatchers.Main)
     
     init {
         initializeWorldMap()
@@ -108,11 +113,25 @@ class GameViewModel {
         gameEngine?.endPlayerTurn()
         triggerStateUpdate()
         
+        // Automatically process enemy turn after a delay
+        viewModelScope.launch {
+            delay(1500) // Match the delay in EnemyTurnInfo
+            processEnemyTurn()
+        }
+    }
+    
+    private fun processEnemyTurn() {
         val state = _gameState.value ?: return
+        
+        // Check win/loss conditions
         if (state.isLevelWon()) {
             completeLevel(state.level.id, won = true)
         } else if (state.isLevelLost()) {
             completeLevel(state.level.id, won = false)
+        } else {
+            // Enemy turn is already completed by endPlayerTurn calling gameEngine.endPlayerTurn()
+            // which sets phase back to PLAYER_TURN
+            triggerStateUpdate()
         }
     }
     
