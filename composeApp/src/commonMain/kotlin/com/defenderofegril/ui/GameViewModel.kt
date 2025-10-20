@@ -14,12 +14,6 @@ sealed class Screen {
     data class LevelComplete(val levelId: Int, val won: Boolean) : Screen()
 }
 
-// Wrapper to force state updates
-data class GameStateHolder(
-    val state: GameState,
-    val updateId: Long = 0
-)
-
 class GameViewModel {
     
     private val _currentScreen = MutableStateFlow<Screen>(Screen.MainMenu)
@@ -28,7 +22,6 @@ class GameViewModel {
     private val _worldLevels = MutableStateFlow<List<WorldLevel>>(emptyList())
     val worldLevels: StateFlow<List<WorldLevel>> = _worldLevels.asStateFlow()
     
-    private val _gameStateHolder = MutableStateFlow<GameStateHolder?>(null)
     private val _gameState = MutableStateFlow<GameState?>(null)
     val gameState: StateFlow<GameState?> = _gameState.asStateFlow()
     
@@ -61,7 +54,6 @@ class GameViewModel {
         val worldLevel = _worldLevels.value.find { it.level.id == levelId }
         if (worldLevel != null && worldLevel.status != LevelStatus.LOCKED) {
             val newGameState = GameState(level = worldLevel.level)
-            _gameStateHolder.value = GameStateHolder(newGameState, ++updateCounter)
             _gameState.value = newGameState
             gameEngine = GameEngine(newGameState)
             _currentScreen.value = Screen.GamePlay(levelId)
@@ -87,18 +79,22 @@ class GameViewModel {
     
     fun startFirstPlayerTurn() {
         println("DEBUG: startFirstPlayerTurn called")
-        val stateBefore = _gameStateHolder.value?.state
+        val stateBefore = _gameState.value
         println("DEBUG: Phase before: ${stateBefore?.phase}")
         println("DEBUG: Attackers before: ${stateBefore?.attackers?.size}")
         
         gameEngine?.startFirstPlayerTurn()
         
-        val stateAfter = _gameStateHolder.value?.state
+        val stateAfter = _gameState.value
         println("DEBUG: Phase after: ${stateAfter?.phase}")
         println("DEBUG: Attackers after: ${stateAfter?.attackers?.size}")
+        stateAfter?.attackers?.forEach { attacker ->
+            println("DEBUG: Enemy ${attacker.id} - Type: ${attacker.type}, Position: (${attacker.position.x}, ${attacker.position.y})")
+        }
         
         triggerStateUpdate()
         println("DEBUG: triggerStateUpdate completed")
+        println("DEBUG: _gameState.value reference: ${System.identityHashCode(_gameState.value)}")
     }
     
     fun defenderAttack(defenderId: Int, targetId: Int): Boolean {
@@ -113,7 +109,7 @@ class GameViewModel {
         gameEngine?.endPlayerTurn()
         triggerStateUpdate()
         
-        val state = _gameStateHolder.value?.state ?: return
+        val state = _gameState.value ?: return
         if (state.isLevelWon()) {
             completeLevel(state.level.id, won = true)
         } else if (state.isLevelLost()) {
@@ -122,11 +118,12 @@ class GameViewModel {
     }
     
     private fun triggerStateUpdate() {
-        // Force StateFlow to emit by creating new holder with updated counter
-        _gameStateHolder.value?.state?.let { currentState ->
-            _gameStateHolder.value = GameStateHolder(currentState, ++updateCounter)
-            _gameState.value = currentState
-        }
+        // Force StateFlow to emit by setting to null first, then back
+        // This creates distinct emissions that Compose can detect
+        val currentState = _gameState.value
+        _gameState.value = null
+        _gameState.value = currentState
+        println("DEBUG: triggerStateUpdate - Forced state emission, updateCounter=${++updateCounter}")
     }
     
     private fun completeLevel(levelId: Int, won: Boolean) {
