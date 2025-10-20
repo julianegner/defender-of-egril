@@ -193,34 +193,54 @@ fun GridCell(
     isTargetSelected: Boolean,
     onClick: () -> Unit
 ) {
-    val isStart = position == gameState.level.startPosition
+    val isSpawnPoint = gameState.level.isSpawnPoint(position)
     val isTarget = position == gameState.level.targetPosition
+    val isOnPath = gameState.level.isOnPath(position)
     val defender = gameState.defenders.find { it.position == position }
     val attacker = gameState.attackers.find { it.position == position && !it.isDefeated }
+    
+    // Base background color based on area type
+    val baseBackgroundColor = when {
+        isOnPath -> Color(0xFFFFF8DC)  // Cream/beige for path
+        else -> Color(0xFFE8F5E9)  // Light green for build area
+    }
     
     val backgroundColor = when {
         isDefenderSelected -> Color(0xFF1565C0)
         isTargetSelected -> Color(0xFFE91E63)
-        isStart -> Color(0xFFFF9800)
-        isTarget -> Color(0xFF4CAF50)
         defender != null -> if (defender.isReady) Color(0xFF2196F3) else Color(0xFF9E9E9E)
         attacker != null -> Color(0xFFF44336)
         isSelected -> Color(0xFFE0E0E0)
-        else -> Color.White
+        else -> baseBackgroundColor
     }
+    
+    // Border color - highlight spawn points and target
+    val borderColor = when {
+        isSpawnPoint -> Color(0xFFFF9800)  // Orange border for spawn
+        isTarget -> Color(0xFF4CAF50)  // Green border for target
+        else -> Color.Gray
+    }
+    
+    val borderWidth = if (isSpawnPoint || isTarget) 3.dp else 1.dp
     
     Box(
         modifier = Modifier
             .size(48.dp)
-            .border(1.dp, Color.Gray)
+            .border(borderWidth, borderColor)
             .background(backgroundColor)
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             when {
-                isStart -> Text("S", style = MaterialTheme.typography.labelSmall)
-                isTarget -> Text("T", style = MaterialTheme.typography.labelSmall)
+                isSpawnPoint && attacker == null && defender == null -> {
+                    // Show spawn indicator when cell is empty
+                    Text("S", style = MaterialTheme.typography.labelSmall, color = Color(0xFFFF9800))
+                }
+                isTarget && attacker == null && defender == null -> {
+                    // Show target indicator when cell is empty
+                    Text("T", style = MaterialTheme.typography.labelSmall, color = Color(0xFF4CAF50))
+                }
                 defender != null -> {
                     Text(
                         defender.type.displayName.take(1) + defender.level,
@@ -475,18 +495,27 @@ fun DefenderButton(
 @Composable
 fun GameLegend(modifier: Modifier = Modifier) {
     Card(modifier = modifier) {
-        Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Text("Legend", style = MaterialTheme.typography.titleMedium)
             
             Spacer(modifier = Modifier.height(4.dp))
             
-            LegendItem(color = Color(0xFFFF9800), label = "S", description = "Start Position")
-            LegendItem(color = Color(0xFF4CAF50), label = "T", description = "Target (Defend!)")
+            Text("Areas:", style = MaterialTheme.typography.labelMedium)
+            LegendItem(color = Color(0xFFFFF8DC), label = "Path", description = "Enemy Route", border = Color.Gray)
+            LegendItem(color = Color(0xFFE8F5E9), label = "Build", description = "Tower Zone", border = Color.Gray)
+            
+            Spacer(modifier = Modifier.height(4.dp))
+            
+            Text("Special:", style = MaterialTheme.typography.labelMedium)
+            LegendItem(color = Color(0xFFFFF8DC), label = "S", description = "Spawn Points (3)", border = Color(0xFFFF9800), borderWidth = 3.dp)
+            LegendItem(color = Color(0xFFFFF8DC), label = "T", description = "Target (Defend!)", border = Color(0xFF4CAF50), borderWidth = 3.dp)
+            
+            Spacer(modifier = Modifier.height(4.dp))
+            
+            Text("Units:", style = MaterialTheme.typography.labelMedium)
             LegendItem(color = Color(0xFF2196F3), label = "Tower", description = "Ready Tower")
             LegendItem(color = Color(0xFF9E9E9E), label = "⏱", description = "Building Tower")
             LegendItem(color = Color(0xFFF44336), label = "Enemy", description = "Attacker")
-            LegendItem(color = Color(0xFF1565C0), label = "→", description = "Selected Tower")
-            LegendItem(color = Color(0xFFE91E63), label = "✕", description = "Selected Target")
             
             Spacer(modifier = Modifier.height(4.dp))
             
@@ -498,16 +527,26 @@ fun GameLegend(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun LegendItem(color: Color, label: String, description: String) {
+fun LegendItem(
+    color: Color, 
+    label: String, 
+    description: String, 
+    border: Color = Color.Gray, 
+    borderWidth: androidx.compose.ui.unit.Dp = 1.dp
+) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Box(
             modifier = Modifier
                 .size(24.dp)
                 .background(color)
-                .border(1.dp, Color.Gray),
+                .border(borderWidth, border),
             contentAlignment = Alignment.Center
         ) {
-            Text(label, style = MaterialTheme.typography.labelSmall, color = Color.White)
+            Text(
+                label, 
+                style = MaterialTheme.typography.labelSmall, 
+                color = if (color == Color(0xFFFFF8DC) || color == Color(0xFFE8F5E9)) Color.Black else Color.White
+            )
         }
         Spacer(modifier = Modifier.width(8.dp))
         Text(description, style = MaterialTheme.typography.bodySmall)
