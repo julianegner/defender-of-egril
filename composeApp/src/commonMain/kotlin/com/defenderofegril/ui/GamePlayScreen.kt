@@ -16,6 +16,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.defenderofegril.model.*
@@ -196,15 +197,16 @@ fun GridCell(
     val isSpawnPoint = gameState.level.isSpawnPoint(position)
     val isTarget = position == gameState.level.targetPosition
     val isOnPath = gameState.level.isOnPath(position)
+    val isBuildIsland = gameState.level.isBuildIsland(position)
     val defender = gameState.defenders.find { it.position == position }
     val attacker = gameState.attackers.find { it.position == position && !it.isDefeated }
     
     // Base background color based on area type
-    // Path is cream, off-path is darker green for contrast
+    // Build islands are where towers can be placed, path is for enemies, off-path is neutral
     val baseBackgroundColor = when {
-        isOnPath && defender == null -> Color(0xFFFFF8DC)  // Cream/beige for path without towers
-        isOnPath && defender != null -> Color(0xFFFFE082)  // Golden yellow for path with tower
-        else -> Color(0xFFC8E6C9)  // Medium green for off-path areas
+        isBuildIsland -> Color(0xFF8BC34A)  // Light green for build islands
+        isOnPath -> Color(0xFFFFF8DC)  // Cream/beige for enemy path
+        else -> Color(0xFFE0E0E0)  // Light gray for off-path areas (non-playable)
     }
     
     val backgroundColor = when {
@@ -212,7 +214,7 @@ fun GridCell(
         isTargetSelected -> Color(0xFFE91E63)
         defender != null -> if (defender.isReady) Color(0xFF2196F3) else Color(0xFF9E9E9E)
         attacker != null -> Color(0xFFF44336)
-        isSelected -> Color(0xFFE0E0E0)
+        isSelected -> Color(0xFFBDBDBD)
         else -> baseBackgroundColor
     }
     
@@ -503,9 +505,9 @@ fun GameLegend(modifier: Modifier = Modifier) {
             Spacer(modifier = Modifier.height(4.dp))
             
             Text("Areas:", style = MaterialTheme.typography.labelMedium)
-            LegendItem(color = Color(0xFFFFF8DC), label = "Path", description = "Curved Enemy Route", border = Color.Gray)
-            LegendItem(color = Color(0xFFFFE082), label = "Path+T", description = "Tower on Path", border = Color.Gray)
-            LegendItem(color = Color(0xFFC8E6C9), label = "Off", description = "Off-Path Zone", border = Color.Gray)
+            LegendItem(color = Color(0xFF8BC34A), label = "Island", description = "Build Zone", border = Color.Gray)
+            LegendItem(color = Color(0xFFFFF8DC), label = "Path", description = "Enemy Route", border = Color.Gray)
+            LegendItem(color = Color(0xFFE0E0E0), label = "Off", description = "Non-Playable", border = Color.Gray)
             
             Spacer(modifier = Modifier.height(4.dp))
             
@@ -525,7 +527,7 @@ fun GameLegend(modifier: Modifier = Modifier) {
             Text("Symbols:", style = MaterialTheme.typography.labelMedium)
             Text("⚡ = Actions left", style = MaterialTheme.typography.bodySmall)
             Text("⏱ = Build time", style = MaterialTheme.typography.bodySmall)
-            Text("Towers can be placed on path!", style = MaterialTheme.typography.bodySmall, color = Color(0xFFFF6F00))
+            Text("Build on ISLANDS only!", style = MaterialTheme.typography.bodySmall, color = Color(0xFFFF6F00), fontWeight = FontWeight.Bold)
         }
     }
 }
