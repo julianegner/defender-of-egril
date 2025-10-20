@@ -4,6 +4,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -15,6 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.defenderofegril.model.*
+import kotlinx.coroutines.delay
 
 @Composable
 fun GamePlayScreen(
@@ -58,8 +63,9 @@ fun GamePlayScreen(
         
         Spacer(modifier = Modifier.height(16.dp))
         
-        // Game Grid with Legend
+        // Game Grid with Legend and Enemy List
         Row(modifier = Modifier.weight(1f).fillMaxWidth()) {
+            // Scrollable Game Grid
             GameGrid(
                 gameState = gameState,
                 selectedDefenderType = selectedDefenderType,
@@ -88,13 +94,21 @@ fun GamePlayScreen(
                         selectedTargetId = attacker.id
                     }
                 },
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(2f)
             )
             
             Spacer(modifier = Modifier.width(16.dp))
             
-            // Legend
-            GameLegend(modifier = Modifier.width(200.dp))
+            // Side panel with Legend and Enemy List
+            Column(modifier = Modifier.width(250.dp)) {
+                // Legend
+                GameLegend(modifier = Modifier.fillMaxWidth())
+                
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                // Enemy List
+                EnemyListPanel(gameState = gameState, modifier = Modifier.fillMaxWidth().weight(1f))
+            }
         }
         
         Spacer(modifier = Modifier.height(16.dp))
@@ -128,7 +142,10 @@ fun GamePlayScreen(
                 )
             }
             GamePhase.ENEMY_TURN -> {
-                EnemyTurnInfo()
+                EnemyTurnInfo(onComplete = {
+                    // This will be called after the delay, but we need the ViewModel to handle actual progression
+                    // The ViewModel should automatically progress through enemy turn
+                })
             }
         }
     }
@@ -143,9 +160,11 @@ fun GameGrid(
     onCellClick: (Position) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val scrollState = rememberScrollState()
+    
     Column(
-        modifier = modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally
+        modifier = modifier.fillMaxWidth().horizontalScroll(scrollState),
+        horizontalAlignment = Alignment.Start
     ) {
         for (y in 0 until gameState.level.gridHeight) {
             Row {
@@ -396,11 +415,36 @@ fun DefenderInfo(
 }
 
 @Composable
-fun EnemyTurnInfo() {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Text("Enemy Turn - Enemies are moving...", 
-             style = MaterialTheme.typography.titleMedium,
-             color = Color.Red)
+fun EnemyTurnInfo(onComplete: () -> Unit) {
+    LaunchedEffect(Unit) {
+        delay(1500) // Show enemy turn message for 1.5 seconds
+        onComplete()
+    }
+    
+    Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = Color(0xFFFFCDD2))
+        ) {
+            Column(
+                modifier = Modifier.padding(24.dp).fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    "Enemy Turn", 
+                    style = MaterialTheme.typography.titleLarge,
+                    color = Color.Red
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                CircularProgressIndicator(color = Color.Red)
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    "Enemies are moving...", 
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.Red
+                )
+            }
+        }
     }
 }
 
@@ -467,6 +511,70 @@ fun LegendItem(color: Color, label: String, description: String) {
         }
         Spacer(modifier = Modifier.width(8.dp))
         Text(description, style = MaterialTheme.typography.bodySmall)
+    }
+}
+
+@Composable
+fun EnemyListPanel(gameState: GameState, modifier: Modifier = Modifier) {
+    Card(modifier = modifier) {
+        Column(modifier = Modifier.padding(12.dp)) {
+            Text("Enemies", style = MaterialTheme.typography.titleMedium)
+            Text(
+                "Active: ${gameState.attackers.count { !it.isDefeated }} | Coming: ${gameState.attackersToSpawn.size}",
+                style = MaterialTheme.typography.bodySmall
+            )
+            
+            Spacer(modifier = Modifier.height(8.dp))
+            
+            LazyColumn(modifier = Modifier.fillMaxWidth()) {
+                items(gameState.attackers.filter { !it.isDefeated }.sortedBy { it.id }) { attacker ->
+                    EnemyItem(attacker)
+                    Spacer(modifier = Modifier.height(4.dp))
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun EnemyItem(attacker: Attacker) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFFFEBEE))
+    ) {
+        Column(modifier = Modifier.padding(8.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    attacker.type.displayName,
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                )
+                Text(
+                    "ID: ${attacker.id}",
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+            
+            Text(
+                "HP: ${attacker.currentHealth}/${attacker.maxHealth}",
+                style = MaterialTheme.typography.bodySmall
+            )
+            
+            Text(
+                "Reward: ${attacker.type.reward} coins",
+                style = MaterialTheme.typography.bodySmall,
+                color = Color(0xFFFF9800)
+            )
+            
+            Text(
+                "Position: (${attacker.position.x}, ${attacker.position.y})",
+                style = MaterialTheme.typography.bodySmall,
+                color = Color.Gray
+            )
+        }
     }
 }
 

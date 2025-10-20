@@ -158,15 +158,44 @@ class GameEngine(private val state: GameState) {
         val wave = state.level.attackerWaves.getOrNull(state.currentWaveIndex - 1) ?: return
         
         if (state.spawnCounter >= wave.spawnDelay) {
+            // Find a free position near the start position
+            val spawnPosition = findFreeSpawnPosition() ?: return
+            
             val type = state.attackersToSpawn.removeAt(0)
             val attacker = Attacker(
                 id = state.nextAttackerId++,
                 type = type,
-                position = state.level.startPosition
+                position = spawnPosition
             )
             state.attackers.add(attacker)
             state.spawnCounter = 0
         }
+    }
+    
+    private fun findFreeSpawnPosition(): Position? {
+        val startPos = state.level.startPosition
+        // Try the start position first
+        if (!state.attackers.any { it.position == startPos && !it.isDefeated }) {
+            return startPos
+        }
+        
+        // Try positions around the start
+        val offsets = listOf(
+            Position(0, -1), Position(0, 1),  // Above and below
+            Position(1, 0), Position(1, -1), Position(1, 1)  // To the right
+        )
+        
+        for (offset in offsets) {
+            val pos = Position(startPos.x + offset.x, startPos.y + offset.y)
+            if (pos.x >= 0 && pos.x < state.level.gridWidth && 
+                pos.y >= 0 && pos.y < state.level.gridHeight &&
+                !state.attackers.any { it.position == pos && !it.isDefeated } &&
+                !state.defenders.any { it.position == pos }) {
+                return pos
+            }
+        }
+        
+        return null  // No free position found
     }
     
     private fun singleTargetAttack(defender: Defender, target: Attacker) {
@@ -239,7 +268,19 @@ class GameEngine(private val state: GameState) {
             var remainingSpeed = attacker.type.speed
             while (remainingSpeed > 0 && current != target) {
                 val newPos = moveTowards(current, target)
-                attacker.position = newPos
+                
+                // Check if new position is occupied by another alive attacker
+                val isOccupied = state.attackers.any { 
+                    it.id != attacker.id && !it.isDefeated && it.position == newPos 
+                }
+                
+                if (!isOccupied) {
+                    attacker.position = newPos
+                } else {
+                    // Can't move, stop trying
+                    break
+                }
+                
                 remainingSpeed--
                 
                 // Check if reached target
