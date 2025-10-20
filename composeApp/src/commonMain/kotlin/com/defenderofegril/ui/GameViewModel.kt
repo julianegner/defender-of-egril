@@ -62,8 +62,8 @@ class GameViewModel {
     fun placeDefender(type: DefenderType, position: Position): Boolean {
         val result = gameEngine?.placeDefender(type, position) ?: false
         if (result) {
-            // Trigger state update
-            _gameState.value = _gameState.value
+            // Trigger state update by reassigning
+            triggerStateUpdate()
         }
         return result
     }
@@ -71,27 +71,27 @@ class GameViewModel {
     fun upgradeDefender(defenderId: Int): Boolean {
         val result = gameEngine?.upgradeDefender(defenderId) ?: false
         if (result) {
-            _gameState.value = _gameState.value
+            triggerStateUpdate()
         }
         return result
     }
     
     fun startFirstPlayerTurn() {
         gameEngine?.startFirstPlayerTurn()
-        _gameState.value = _gameState.value
+        triggerStateUpdate()
     }
     
     fun defenderAttack(defenderId: Int, targetId: Int): Boolean {
         val result = gameEngine?.defenderAttack(defenderId, targetId) ?: false
         if (result) {
-            _gameState.value = _gameState.value
+            triggerStateUpdate()
         }
         return result
     }
     
     fun endPlayerTurn() {
         gameEngine?.endPlayerTurn()
-        _gameState.value = _gameState.value
+        triggerStateUpdate()
         
         val state = _gameState.value ?: return
         if (state.isLevelWon()) {
@@ -99,6 +99,14 @@ class GameViewModel {
         } else if (state.isLevelLost()) {
             completeLevel(state.level.id, won = false)
         }
+    }
+    
+    private fun triggerStateUpdate() {
+        // Force StateFlow to emit by temporarily setting to null and back
+        // This creates distinct references that StateFlow can detect
+        val current = _gameState.value
+        _gameState.value = null
+        _gameState.value = current
     }
     
     private fun completeLevel(levelId: Int, won: Boolean) {
