@@ -200,9 +200,11 @@ fun GridCell(
     val attacker = gameState.attackers.find { it.position == position && !it.isDefeated }
     
     // Base background color based on area type
+    // Path is cream, off-path is darker green for contrast
     val baseBackgroundColor = when {
-        isOnPath -> Color(0xFFFFF8DC)  // Cream/beige for path
-        else -> Color(0xFFE8F5E9)  // Light green for build area
+        isOnPath && defender == null -> Color(0xFFFFF8DC)  // Cream/beige for path without towers
+        isOnPath && defender != null -> Color(0xFFFFE082)  // Golden yellow for path with tower
+        else -> Color(0xFFC8E6C9)  // Medium green for off-path areas
     }
     
     val backgroundColor = when {
@@ -501,8 +503,9 @@ fun GameLegend(modifier: Modifier = Modifier) {
             Spacer(modifier = Modifier.height(4.dp))
             
             Text("Areas:", style = MaterialTheme.typography.labelMedium)
-            LegendItem(color = Color(0xFFFFF8DC), label = "Path", description = "Enemy Route", border = Color.Gray)
-            LegendItem(color = Color(0xFFE8F5E9), label = "Build", description = "Tower Zone", border = Color.Gray)
+            LegendItem(color = Color(0xFFFFF8DC), label = "Path", description = "Curved Enemy Route", border = Color.Gray)
+            LegendItem(color = Color(0xFFFFE082), label = "Path+T", description = "Tower on Path", border = Color.Gray)
+            LegendItem(color = Color(0xFFC8E6C9), label = "Off", description = "Off-Path Zone", border = Color.Gray)
             
             Spacer(modifier = Modifier.height(4.dp))
             
@@ -522,6 +525,7 @@ fun GameLegend(modifier: Modifier = Modifier) {
             Text("Symbols:", style = MaterialTheme.typography.labelMedium)
             Text("⚡ = Actions left", style = MaterialTheme.typography.bodySmall)
             Text("⏱ = Build time", style = MaterialTheme.typography.bodySmall)
+            Text("Towers can be placed on path!", style = MaterialTheme.typography.bodySmall, color = Color(0xFFFF6F00))
         }
     }
 }
@@ -545,12 +549,17 @@ fun LegendItem(
             Text(
                 label, 
                 style = MaterialTheme.typography.labelSmall, 
-                color = if (color == Color(0xFFFFF8DC) || color == Color(0xFFE8F5E9)) Color.Black else Color.White
+                color = if (color.luminance() > 0.5f) Color.Black else Color.White
             )
         }
         Spacer(modifier = Modifier.width(8.dp))
         Text(description, style = MaterialTheme.typography.bodySmall)
     }
+}
+
+// Extension function to calculate color luminance
+private fun Color.luminance(): Float {
+    return (0.299f * red + 0.587f * green + 0.114f * blue)
 }
 
 @Composable

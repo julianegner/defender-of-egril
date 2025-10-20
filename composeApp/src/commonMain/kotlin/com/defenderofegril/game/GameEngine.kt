@@ -8,9 +8,9 @@ class GameEngine(private val state: GameState) {
     fun placeDefender(type: DefenderType, position: Position): Boolean {
         if (!state.canPlaceDefender(type)) return false
         if (isPositionOccupied(position)) return false
-        // Cannot place towers on path (where enemies move) or on target
-        if (state.level.isOnPath(position) || position == state.level.targetPosition) return false
-        // Can only place in build area
+        // Cannot place on spawn points or target
+        if (state.level.isSpawnPoint(position) || position == state.level.targetPosition) return false
+        // Can place in build areas (which now includes path cells)
         if (!state.level.isBuildArea(position)) return false
         
         val buildTime = if (state.phase == GamePhase.INITIAL_BUILDING) 0 else type.buildTime
