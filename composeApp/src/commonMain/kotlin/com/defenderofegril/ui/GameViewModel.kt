@@ -31,7 +31,7 @@ class GameViewModel {
     
     private var gameEngine: GameEngine? = null
     private var updateCounter = 0L
-    private val viewModelScope = CoroutineScope(Dispatchers.Main)
+    private val viewModelScope = CoroutineScope(Dispatchers.Default)
     
     init {
         initializeWorldMap()
