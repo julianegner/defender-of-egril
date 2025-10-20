@@ -14,6 +14,12 @@ sealed class Screen {
     data class LevelComplete(val levelId: Int, val won: Boolean) : Screen()
 }
 
+// Wrapper to force state updates
+data class GameStateHolder(
+    val state: GameState,
+    val updateId: Long = 0
+)
+
 class GameViewModel {
     
     private val _currentScreen = MutableStateFlow<Screen>(Screen.MainMenu)
@@ -22,10 +28,12 @@ class GameViewModel {
     private val _worldLevels = MutableStateFlow<List<WorldLevel>>(emptyList())
     val worldLevels: StateFlow<List<WorldLevel>> = _worldLevels.asStateFlow()
     
+    private val _gameStateHolder = MutableStateFlow<GameStateHolder?>(null)
     private val _gameState = MutableStateFlow<GameState?>(null)
     val gameState: StateFlow<GameState?> = _gameState.asStateFlow()
     
     private var gameEngine: GameEngine? = null
+    private var updateCounter = 0L
     
     init {
         initializeWorldMap()
@@ -53,6 +61,7 @@ class GameViewModel {
         val worldLevel = _worldLevels.value.find { it.level.id == levelId }
         if (worldLevel != null && worldLevel.status != LevelStatus.LOCKED) {
             val newGameState = GameState(level = worldLevel.level)
+            _gameStateHolder.value = GameStateHolder(newGameState, ++updateCounter)
             _gameState.value = newGameState
             gameEngine = GameEngine(newGameState)
             _currentScreen.value = Screen.GamePlay(levelId)
@@ -77,8 +86,19 @@ class GameViewModel {
     }
     
     fun startFirstPlayerTurn() {
+        println("DEBUG: startFirstPlayerTurn called")
+        val stateBefore = _gameStateHolder.value?.state
+        println("DEBUG: Phase before: ${stateBefore?.phase}")
+        println("DEBUG: Attackers before: ${stateBefore?.attackers?.size}")
+        
         gameEngine?.startFirstPlayerTurn()
+        
+        val stateAfter = _gameStateHolder.value?.state
+        println("DEBUG: Phase after: ${stateAfter?.phase}")
+        println("DEBUG: Attackers after: ${stateAfter?.attackers?.size}")
+        
         triggerStateUpdate()
+        println("DEBUG: triggerStateUpdate completed")
     }
     
     fun defenderAttack(defenderId: Int, targetId: Int): Boolean {
@@ -93,7 +113,7 @@ class GameViewModel {
         gameEngine?.endPlayerTurn()
         triggerStateUpdate()
         
-        val state = _gameState.value ?: return
+        val state = _gameStateHolder.value?.state ?: return
         if (state.isLevelWon()) {
             completeLevel(state.level.id, won = true)
         } else if (state.isLevelLost()) {
@@ -102,11 +122,11 @@ class GameViewModel {
     }
     
     private fun triggerStateUpdate() {
-        // Force StateFlow to emit by temporarily setting to null and back
-        // This creates distinct references that StateFlow can detect
-        val current = _gameState.value
-        _gameState.value = null
-        _gameState.value = current
+        // Force StateFlow to emit by creating new holder with updated counter
+        _gameStateHolder.value?.state?.let { currentState ->
+            _gameStateHolder.value = GameStateHolder(currentState, ++updateCounter)
+            _gameState.value = currentState
+        }
     }
     
     private fun completeLevel(levelId: Int, won: Boolean) {
