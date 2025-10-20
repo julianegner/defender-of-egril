@@ -198,13 +198,15 @@ fun GridCell(
     val isTarget = position == gameState.level.targetPosition
     val isOnPath = gameState.level.isOnPath(position)
     val isBuildIsland = gameState.level.isBuildIsland(position)
+    val isBuildArea = gameState.level.isBuildArea(position)
     val defender = gameState.defenders.find { it.position == position }
     val attacker = gameState.attackers.find { it.position == position && !it.isDefeated }
     
     // Base background color based on area type
-    // Build islands are where towers can be placed, path is for enemies, off-path is neutral
+    // Build islands + strips adjacent to path allow tower placement
     val baseBackgroundColor = when {
         isBuildIsland -> Color(0xFF8BC34A)  // Light green for build islands
+        isBuildArea -> Color(0xFFA5D6A7)  // Medium green for strips adjacent to path
         isOnPath -> Color(0xFFFFF8DC)  // Cream/beige for enemy path
         else -> Color(0xFFE0E0E0)  // Light gray for off-path areas (non-playable)
     }
@@ -423,8 +425,13 @@ fun DefenderInfo(
             } else {
                 Text("Actions: ${defender.actionsRemaining}/${defender.type.actionsPerTurn}",
                      style = MaterialTheme.typography.bodySmall)
-                Text("Damage: ${defender.damage}, Range: ${defender.range}",
-                     style = MaterialTheme.typography.bodySmall)
+                if (defender.type.minRange > 0) {
+                    Text("Damage: ${defender.damage}, Range: ${defender.type.minRange}-${defender.range}",
+                         style = MaterialTheme.typography.bodySmall)
+                } else {
+                    Text("Damage: ${defender.damage}, Range: ${defender.range}",
+                         style = MaterialTheme.typography.bodySmall)
+                }
                 
                 Button(
                     onClick = { onUpgradeDefender(defender.id) },
@@ -506,6 +513,7 @@ fun GameLegend(modifier: Modifier = Modifier) {
             
             Text("Areas:", style = MaterialTheme.typography.labelMedium)
             LegendItem(color = Color(0xFF8BC34A), label = "Island", description = "Build Zone", border = Color.Gray)
+            LegendItem(color = Color(0xFFA5D6A7), label = "Strip", description = "Build Zone", border = Color.Gray)
             LegendItem(color = Color(0xFFFFF8DC), label = "Path", description = "Enemy Route", border = Color.Gray)
             LegendItem(color = Color(0xFFE0E0E0), label = "Off", description = "Non-Playable", border = Color.Gray)
             
@@ -524,10 +532,10 @@ fun GameLegend(modifier: Modifier = Modifier) {
             
             Spacer(modifier = Modifier.height(4.dp))
             
-            Text("Symbols:", style = MaterialTheme.typography.labelMedium)
+            Text("Towers:", style = MaterialTheme.typography.labelMedium)
+            Text("Ballista: min range 3!", style = MaterialTheme.typography.bodySmall, color = Color(0xFFFF6F00), fontWeight = FontWeight.Bold)
             Text("⚡ = Actions left", style = MaterialTheme.typography.bodySmall)
             Text("⏱ = Build time", style = MaterialTheme.typography.bodySmall)
-            Text("Build on ISLANDS only!", style = MaterialTheme.typography.bodySmall, color = Color(0xFFFF6F00), fontWeight = FontWeight.Bold)
         }
     }
 }
