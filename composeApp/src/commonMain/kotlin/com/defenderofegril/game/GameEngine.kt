@@ -8,7 +8,10 @@ class GameEngine(private val state: GameState) {
     fun placeDefender(type: DefenderType, position: Position): Boolean {
         if (!state.canPlaceDefender(type)) return false
         if (isPositionOccupied(position)) return false
-        if (position == state.level.startPosition || position == state.level.targetPosition) return false
+        // Cannot place towers on path (where enemies move) or on target
+        if (state.level.isOnPath(position) || position == state.level.targetPosition) return false
+        // Can only place in build area
+        if (!state.level.isBuildArea(position)) return false
         
         val buildTime = if (state.phase == GamePhase.INITIAL_BUILDING) 0 else type.buildTime
         
@@ -55,15 +58,19 @@ class GameEngine(private val state: GameState) {
     }
     
     private fun spawnInitialEnemies() {
-        // Spawn first 1-3 enemies immediately so the player has something to fight
+        // Spawn first enemies immediately at different spawn points
         val enemiesToSpawn = minOf(3, state.attackersToSpawn.size)
-        repeat(enemiesToSpawn) {
-            if (state.attackersToSpawn.isNotEmpty()) {
+        val spawnPoints = state.level.startPositions.toMutableList()
+        
+        repeat(enemiesToSpawn) { index ->
+            if (state.attackersToSpawn.isNotEmpty() && spawnPoints.isNotEmpty()) {
+                // Use a different spawn point for each enemy
+                val spawnPos = spawnPoints[index % spawnPoints.size]
                 val type = state.attackersToSpawn.removeAt(0)
                 val attacker = Attacker(
                     id = state.nextAttackerId++,
                     type = type,
-                    position = state.level.startPosition
+                    position = spawnPos
                 )
                 state.attackers.add(attacker)
             }
@@ -173,25 +180,27 @@ class GameEngine(private val state: GameState) {
     }
     
     private fun findFreeSpawnPosition(): Position? {
-        val startPos = state.level.startPosition
-        // Try the start position first
-        if (!state.attackers.any { it.position == startPos && !it.isDefeated }) {
-            return startPos
+        // Try each spawn point to find a free one
+        for (spawnPos in state.level.startPositions) {
+            if (!state.attackers.any { it.position == spawnPos && !it.isDefeated }) {
+                return spawnPos
+            }
         }
         
-        // Try positions around the start
-        val offsets = listOf(
-            Position(0, -1), Position(0, 1),  // Above and below
-            Position(1, 0), Position(1, -1), Position(1, 1)  // To the right
-        )
-        
-        for (offset in offsets) {
-            val pos = Position(startPos.x + offset.x, startPos.y + offset.y)
-            if (pos.x >= 0 && pos.x < state.level.gridWidth && 
-                pos.y >= 0 && pos.y < state.level.gridHeight &&
-                !state.attackers.any { it.position == pos && !it.isDefeated } &&
-                !state.defenders.any { it.position == pos }) {
-                return pos
+        // If all spawn points are occupied, try positions along the path near spawn points
+        for (spawnPos in state.level.startPositions) {
+            val offsets = listOf(
+                Position(1, 0), Position(2, 0), Position(3, 0)  // Move along the path to the right
+            )
+            
+            for (offset in offsets) {
+                val pos = Position(spawnPos.x + offset.x, spawnPos.y + offset.y)
+                if (pos.x >= 0 && pos.x < state.level.gridWidth && 
+                    pos.y >= 0 && pos.y < state.level.gridHeight &&
+                    state.level.isOnPath(pos) &&
+                    !state.attackers.any { it.position == pos && !it.isDefeated }) {
+                    return pos
+                }
             }
         }
         
@@ -261,13 +270,18 @@ class GameEngine(private val state: GameState) {
         for (attacker in state.attackers) {
             if (attacker.isDefeated) continue
             
-            // Simple pathfinding: move towards target
+            // Simple pathfinding: move towards target along the path
             val current = attacker.position
             val target = state.level.targetPosition
             
             var remainingSpeed = attacker.type.speed
             while (remainingSpeed > 0 && current != target) {
                 val newPos = moveTowards(current, target)
+                
+                // Ensure new position is on the path (enemies can only move on path)
+                if (!state.level.isOnPath(newPos)) {
+                    break
+                }
                 
                 // Check if new position is occupied by another alive attacker
                 val isOccupied = state.attackers.any { 
