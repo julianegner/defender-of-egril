@@ -3,7 +3,7 @@ package com.defenderofegril.model
 data class Level(
     val id: Int,
     val name: String,
-    val gridWidth: Int = 10,
+    val gridWidth: Int = 30,
     val gridHeight: Int = 8,
     val startPosition: Position = Position(0, gridHeight / 2),
     val targetPosition: Position = Position(gridWidth - 1, gridHeight / 2),
