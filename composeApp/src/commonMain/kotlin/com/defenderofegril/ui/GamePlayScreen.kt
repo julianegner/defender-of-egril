@@ -58,37 +58,44 @@ fun GamePlayScreen(
         
         Spacer(modifier = Modifier.height(16.dp))
         
-        // Game Grid
-        GameGrid(
-            gameState = gameState,
-            selectedDefenderType = selectedDefenderType,
-            selectedDefenderId = selectedDefenderId,
-            selectedTargetId = selectedTargetId,
-            onCellClick = { position ->
-                // Try to place defender if one is selected
-                selectedDefenderType?.let { type ->
-                    if (onPlaceDefender(type, position)) {
-                        selectedDefenderType = null
+        // Game Grid with Legend
+        Row(modifier = Modifier.weight(1f).fillMaxWidth()) {
+            GameGrid(
+                gameState = gameState,
+                selectedDefenderType = selectedDefenderType,
+                selectedDefenderId = selectedDefenderId,
+                selectedTargetId = selectedTargetId,
+                onCellClick = { position ->
+                    // Try to place defender if one is selected
+                    selectedDefenderType?.let { type ->
+                        if (onPlaceDefender(type, position)) {
+                            selectedDefenderType = null
+                        }
+                        return@GameGrid
                     }
-                    return@GameGrid
-                }
-                
-                // Check if there's a defender at this position
-                val defender = gameState.defenders.find { it.position == position }
-                if (defender != null) {
-                    selectedDefenderId = defender.id
-                    selectedTargetId = null
-                    return@GameGrid
-                }
-                
-                // Check if there's an attacker at this position (for targeting)
-                val attacker = gameState.attackers.find { it.position == position && !it.isDefeated }
-                if (attacker != null && selectedDefenderId != null) {
-                    selectedTargetId = attacker.id
-                }
-            },
-            modifier = Modifier.weight(1f)
-        )
+                    
+                    // Check if there's a defender at this position
+                    val defender = gameState.defenders.find { it.position == position }
+                    if (defender != null) {
+                        selectedDefenderId = defender.id
+                        selectedTargetId = null
+                        return@GameGrid
+                    }
+                    
+                    // Check if there's an attacker at this position (for targeting)
+                    val attacker = gameState.attackers.find { it.position == position && !it.isDefeated }
+                    if (attacker != null && selectedDefenderId != null) {
+                        selectedTargetId = attacker.id
+                    }
+                },
+                modifier = Modifier.weight(1f)
+            )
+            
+            Spacer(modifier = Modifier.width(16.dp))
+            
+            // Legend
+            GameLegend(modifier = Modifier.width(200.dp))
+        }
         
         Spacer(modifier = Modifier.height(16.dp))
         
@@ -420,3 +427,46 @@ fun DefenderButton(
         }
     }
 }
+
+@Composable
+fun GameLegend(modifier: Modifier = Modifier) {
+    Card(modifier = modifier) {
+        Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text("Legend", style = MaterialTheme.typography.titleMedium)
+            
+            Spacer(modifier = Modifier.height(4.dp))
+            
+            LegendItem(color = Color(0xFFFF9800), label = "S", description = "Start Position")
+            LegendItem(color = Color(0xFF4CAF50), label = "T", description = "Target (Defend!)")
+            LegendItem(color = Color(0xFF2196F3), label = "Tower", description = "Ready Tower")
+            LegendItem(color = Color(0xFF9E9E9E), label = "⏱", description = "Building Tower")
+            LegendItem(color = Color(0xFFF44336), label = "Enemy", description = "Attacker")
+            LegendItem(color = Color(0xFF1565C0), label = "→", description = "Selected Tower")
+            LegendItem(color = Color(0xFFE91E63), label = "✕", description = "Selected Target")
+            
+            Spacer(modifier = Modifier.height(4.dp))
+            
+            Text("Symbols:", style = MaterialTheme.typography.labelMedium)
+            Text("⚡ = Actions left", style = MaterialTheme.typography.bodySmall)
+            Text("⏱ = Build time", style = MaterialTheme.typography.bodySmall)
+        }
+    }
+}
+
+@Composable
+fun LegendItem(color: Color, label: String, description: String) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Box(
+            modifier = Modifier
+                .size(24.dp)
+                .background(color)
+                .border(1.dp, Color.Gray),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(label, style = MaterialTheme.typography.labelSmall, color = Color.White)
+        }
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(description, style = MaterialTheme.typography.bodySmall)
+    }
+}
+

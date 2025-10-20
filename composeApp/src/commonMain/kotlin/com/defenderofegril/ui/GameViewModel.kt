@@ -94,7 +94,6 @@ class GameViewModel {
         
         triggerStateUpdate()
         println("DEBUG: triggerStateUpdate completed")
-        println("DEBUG: _gameState.value reference: ${System.identityHashCode(_gameState.value)}")
     }
     
     fun defenderAttack(defenderId: Int, targetId: Int): Boolean {
@@ -118,12 +117,16 @@ class GameViewModel {
     }
     
     private fun triggerStateUpdate() {
-        // Force StateFlow to emit by setting to null first, then back
-        // This creates distinct emissions that Compose can detect
-        val currentState = _gameState.value
-        _gameState.value = null
-        _gameState.value = currentState
-        println("DEBUG: triggerStateUpdate - Forced state emission, updateCounter=${++updateCounter}")
+        // Force StateFlow to emit by creating a new copy of the state
+        // This ensures Compose's collectAsState() detects the change
+        val currentState = _gameState.value ?: return
+        
+        // Create a shallow copy to trigger state change detection
+        // Note: Lists are still the same references, but the GameState object is new
+        _gameState.value = currentState.copy()
+        
+        println("DEBUG: triggerStateUpdate - New state instance created, updateCounter=${++updateCounter}")
+        println("DEBUG: State after update - Phase: ${_gameState.value?.phase}, Attackers: ${_gameState.value?.attackers?.size}")
     }
     
     private fun completeLevel(levelId: Int, won: Boolean) {
