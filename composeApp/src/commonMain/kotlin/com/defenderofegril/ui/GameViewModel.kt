@@ -121,12 +121,19 @@ class GameViewModel {
         // This ensures Compose's collectAsState() detects the change
         val currentState = _gameState.value ?: return
         
-        // Create a shallow copy to trigger state change detection
-        // Note: Lists are still the same references, but the GameState object is new
-        _gameState.value = currentState.copy()
+        // Create a deep copy with new list instances to trigger state change detection
+        // This is necessary because Compose's collectAsState() compares object references
+        _gameState.value = currentState.copy(
+            defenders = currentState.defenders.toMutableList(),
+            attackers = currentState.attackers.toMutableList(),
+            attackersToSpawn = currentState.attackersToSpawn.toMutableList()
+        )
         
         println("DEBUG: triggerStateUpdate - New state instance created, updateCounter=${++updateCounter}")
         println("DEBUG: State after update - Phase: ${_gameState.value?.phase}, Attackers: ${_gameState.value?.attackers?.size}")
+        _gameState.value?.attackers?.forEach { attacker ->
+            println("DEBUG: After update - Enemy ${attacker.id} - Type: ${attacker.type}, Position: (${attacker.position.x}, ${attacker.position.y})")
+        }
     }
     
     private fun completeLevel(levelId: Int, won: Boolean) {
