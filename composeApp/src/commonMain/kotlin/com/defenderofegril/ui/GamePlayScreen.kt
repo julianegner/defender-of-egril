@@ -285,7 +285,7 @@ fun GridCell(
                             "⏱${defender.buildTimeRemaining}",
                             style = MaterialTheme.typography.labelSmall,
                             fontSize = MaterialTheme.typography.labelSmall.fontSize * 0.6f,
-                            color = Color.Orange
+                            color = Color(0xFFFFA500)
                         )
                     } else if (defender.actionsRemaining > 0) {
                         Text(
@@ -504,9 +504,6 @@ fun EnemyTurnInfo() {
                     color = Color.Red
                 )
             }
-        }
-    }
-}
         }
     }
 }
