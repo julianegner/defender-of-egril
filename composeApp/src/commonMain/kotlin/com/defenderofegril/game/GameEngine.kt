@@ -274,18 +274,16 @@ class GameEngine(private val state: GameState) {
         for (attacker in state.attackers) {
             if (attacker.isDefeated) continue
             
-            // Simple pathfinding: move towards target along the path
-            val current = attacker.position
             val target = state.level.targetPosition
+            val path = findPath(attacker.position, target)
+            
+            if (path.isEmpty()) continue
             
             var remainingSpeed = attacker.type.speed
-            while (remainingSpeed > 0 && current != target) {
-                val newPos = moveTowards(current, target)
-                
-                // Ensure new position is on the path (enemies can only move on path)
-                if (!state.level.isOnPath(newPos)) {
-                    break
-                }
+            var pathIndex = 1 // Skip current position (index 0)
+            
+            while (remainingSpeed > 0 && pathIndex < path.size) {
+                val newPos = path[pathIndex]
                 
                 // Check if new position is occupied by another alive attacker
                 val isOccupied = state.attackers.any { 
@@ -294,8 +292,9 @@ class GameEngine(private val state: GameState) {
                 
                 if (!isOccupied) {
                     attacker.position = newPos
+                    pathIndex++
                 } else {
-                    // Can't move, stop trying
+                    // Can't move further, stop trying
                     break
                 }
                 
@@ -309,6 +308,72 @@ class GameEngine(private val state: GameState) {
                 }
             }
         }
+    }
+    
+    // A* pathfinding algorithm
+    private fun findPath(start: Position, goal: Position): List<Position> {
+        if (start == goal) return listOf(start)
+        
+        val openSet = mutableSetOf(start)
+        val cameFrom = mutableMapOf<Position, Position>()
+        val gScore = mutableMapOf(start to 0)
+        val fScore = mutableMapOf(start to start.distanceTo(goal))
+        
+        while (openSet.isNotEmpty()) {
+            val current = openSet.minByOrNull { fScore[it] ?: Int.MAX_VALUE } ?: break
+            
+            if (current == goal) {
+                return reconstructPath(cameFrom, current)
+            }
+            
+            openSet.remove(current)
+            
+            for (neighbor in getNeighbors(current)) {
+                val tentativeGScore = (gScore[current] ?: Int.MAX_VALUE) + 1
+                
+                if (tentativeGScore < (gScore[neighbor] ?: Int.MAX_VALUE)) {
+                    cameFrom[neighbor] = current
+                    gScore[neighbor] = tentativeGScore
+                    fScore[neighbor] = tentativeGScore + neighbor.distanceTo(goal)
+                    
+                    if (!openSet.contains(neighbor)) {
+                        openSet.add(neighbor)
+                    }
+                }
+            }
+        }
+        
+        // No path found, return simple path towards goal
+        return listOf(start, moveTowards(start, goal))
+    }
+    
+    private fun reconstructPath(cameFrom: Map<Position, Position>, current: Position): List<Position> {
+        val path = mutableListOf(current)
+        var node = current
+        while (cameFrom.containsKey(node)) {
+            node = cameFrom[node]!!
+            path.add(0, node)
+        }
+        return path
+    }
+    
+    private fun getNeighbors(pos: Position): List<Position> {
+        return listOf(
+            Position(pos.x + 1, pos.y),
+            Position(pos.x - 1, pos.y),
+            Position(pos.x, pos.y + 1),
+            Position(pos.x, pos.y - 1)
+        ).filter { neighbor ->
+            neighbor.x >= 0 && neighbor.x < state.level.gridWidth &&
+            neighbor.y >= 0 && neighbor.y < state.level.gridHeight &&
+            state.level.isOnPath(neighbor) &&
+            !isBlocked(neighbor)
+        }
+    }
+    
+    private fun isBlocked(pos: Position): Boolean {
+        // Check if position has a build island (these block enemies)
+        return state.level.isBuildIsland(pos)
     }
     
     private fun moveTowards(from: Position, to: Position): Position {
