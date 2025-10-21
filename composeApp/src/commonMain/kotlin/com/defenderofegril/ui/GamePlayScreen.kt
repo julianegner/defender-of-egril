@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.defenderofegril.model.*
 import kotlinx.coroutines.delay
 
@@ -300,16 +301,18 @@ fun GridCell(
                     Text(
                         attacker.type.displayName,
                         style = MaterialTheme.typography.labelSmall,
-                        fontSize = MaterialTheme.typography.labelSmall.fontSize * 0.7f,
+                        fontSize = 10.sp,
                         color = Color.White,
                         maxLines = 1,
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
+                        fontWeight = FontWeight.Bold
                     )
                     Text(
-                        "${attacker.currentHealth}/${attacker.maxHealth} HP",
+                        "HP: ${attacker.currentHealth}/${attacker.maxHealth}",
                         style = MaterialTheme.typography.labelSmall,
-                        fontSize = MaterialTheme.typography.labelSmall.fontSize * 0.6f,
-                        color = Color.White
+                        fontSize = 9.sp,
+                        color = Color.White,
+                        textAlign = TextAlign.Center
                     )
                 }
             }
