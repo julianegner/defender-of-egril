@@ -40,22 +40,37 @@ fun GamePlayScreen(
         modifier = Modifier.fillMaxSize().padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Header
+        // Header with prominent phase indicator
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Column {
                 Text("Level: ${gameState.level.name}", style = MaterialTheme.typography.titleLarge)
                 Text("Coins: ${gameState.coins}", style = MaterialTheme.typography.bodyLarge)
                 Text("Health: ${gameState.healthPoints}", style = MaterialTheme.typography.bodyLarge)
                 Text("Turn: ${gameState.turnNumber}", style = MaterialTheme.typography.bodyMedium)
-                Text("Phase: ${when(gameState.phase) {
-                    GamePhase.INITIAL_BUILDING -> "Initial Building"
-                    GamePhase.PLAYER_TURN -> "Your Turn"
-                    GamePhase.ENEMY_TURN -> "Enemy Turn"
-                }}", style = MaterialTheme.typography.bodyMedium)
             }
+            
+            // Prominent phase indicator
+            val phaseText = when(gameState.phase) {
+                GamePhase.INITIAL_BUILDING -> "Initial Building Phase"
+                GamePhase.PLAYER_TURN -> "YOUR TURN"
+                GamePhase.ENEMY_TURN -> "ENEMY TURN"
+            }
+            val phaseColor = when(gameState.phase) {
+                GamePhase.INITIAL_BUILDING -> Color(0xFF2196F3)
+                GamePhase.PLAYER_TURN -> Color(0xFF4CAF50)
+                GamePhase.ENEMY_TURN -> Color(0xFFF44336)
+            }
+            Text(
+                text = phaseText,
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                color = phaseColor,
+                modifier = Modifier.background(phaseColor.copy(alpha = 0.1f)).padding(12.dp)
+            )
             
             Button(onClick = onBackToMap) {
                 Text("Back to Map")
@@ -202,7 +217,7 @@ fun GridCell(
     val defender = gameState.defenders.find { it.position == position }
     val attacker = gameState.attackers.find { it.position == position && !it.isDefeated }
     
-    // Base background color based on area type
+    // Base background color based on area type - ALWAYS visible
     // Build islands + strips adjacent to path allow tower placement
     val baseBackgroundColor = when {
         isBuildIsland -> Color(0xFF8BC34A)  // Light green for build islands
@@ -211,23 +226,29 @@ fun GridCell(
         else -> Color(0xFFE0E0E0)  // Light gray for off-path areas (non-playable)
     }
     
+    // Apply slight tint for selection states, but keep base color visible
     val backgroundColor = when {
-        isDefenderSelected -> Color(0xFF1565C0)
-        isTargetSelected -> Color(0xFFE91E63)
-        defender != null -> if (defender.isReady) Color(0xFF2196F3) else Color(0xFF9E9E9E)
-        attacker != null -> Color(0xFFF44336)
-        isSelected -> Color(0xFFBDBDBD)
+        isDefenderSelected -> baseBackgroundColor.copy(alpha = 0.7f)
+        isTargetSelected -> baseBackgroundColor.copy(alpha = 0.8f)
+        isSelected -> baseBackgroundColor.copy(alpha = 0.9f)
         else -> baseBackgroundColor
     }
     
-    // Border color - highlight spawn points and target
+    // Border color - use borders to indicate entities instead of background
     val borderColor = when {
         isSpawnPoint -> Color(0xFFFF9800)  // Orange border for spawn
         isTarget -> Color(0xFF4CAF50)  // Green border for target
+        attacker != null -> Color(0xFFF44336)  // Red border for enemies
+        defender != null -> if (defender.isReady) Color(0xFF2196F3) else Color(0xFF9E9E9E)  // Blue/gray border for towers
         else -> Color.Gray
     }
     
-    val borderWidth = if (isSpawnPoint || isTarget) 3.dp else 1.dp
+    // Thicker borders for important elements
+    val borderWidth = when {
+        isSpawnPoint || isTarget -> 3.dp
+        attacker != null || defender != null -> 3.dp
+        else -> 1.dp
+    }
     
     Box(
         modifier = Modifier
