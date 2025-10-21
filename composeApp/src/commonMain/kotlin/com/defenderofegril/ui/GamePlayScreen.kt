@@ -158,10 +158,7 @@ fun GamePlayScreen(
                 )
             }
             GamePhase.ENEMY_TURN -> {
-                EnemyTurnInfo(onComplete = {
-                    // This will be called after the delay, but we need the ViewModel to handle actual progression
-                    // The ViewModel should automatically progress through enemy turn
-                })
+                EnemyTurnInfo()
             }
         }
     }
@@ -270,36 +267,48 @@ fun GridCell(
                 }
                 defender != null -> {
                     Text(
-                        defender.type.displayName.take(1) + defender.level,
+                        defender.type.displayName,
                         style = MaterialTheme.typography.labelSmall,
+                        fontSize = MaterialTheme.typography.labelSmall.fontSize * 0.65f,
                         textAlign = TextAlign.Center,
+                        color = if (defender.isReady) Color.White else Color.Black,
+                        maxLines = 1
+                    )
+                    Text(
+                        "Lvl ${defender.level}",
+                        style = MaterialTheme.typography.labelSmall,
+                        fontSize = MaterialTheme.typography.labelSmall.fontSize * 0.6f,
                         color = if (defender.isReady) Color.White else Color.Black
                     )
                     if (!defender.isReady) {
                         Text(
                             "⏱${defender.buildTimeRemaining}",
                             style = MaterialTheme.typography.labelSmall,
-                            fontSize = MaterialTheme.typography.labelSmall.fontSize * 0.7f
+                            fontSize = MaterialTheme.typography.labelSmall.fontSize * 0.6f,
+                            color = Color.Orange
                         )
                     } else if (defender.actionsRemaining > 0) {
                         Text(
                             "⚡${defender.actionsRemaining}",
                             style = MaterialTheme.typography.labelSmall,
-                            fontSize = MaterialTheme.typography.labelSmall.fontSize * 0.7f,
+                            fontSize = MaterialTheme.typography.labelSmall.fontSize * 0.6f,
                             color = Color.Yellow
                         )
                     }
                 }
                 attacker != null -> {
                     Text(
-                        attacker.type.displayName.take(1),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = Color.White
-                    )
-                    Text(
-                        "${attacker.currentHealth}/${attacker.maxHealth}",
+                        attacker.type.displayName,
                         style = MaterialTheme.typography.labelSmall,
                         fontSize = MaterialTheme.typography.labelSmall.fontSize * 0.7f,
+                        color = Color.White,
+                        maxLines = 1,
+                        textAlign = TextAlign.Center
+                    )
+                    Text(
+                        "${attacker.currentHealth}/${attacker.maxHealth} HP",
+                        style = MaterialTheme.typography.labelSmall,
+                        fontSize = MaterialTheme.typography.labelSmall.fontSize * 0.6f,
                         color = Color.White
                     )
                 }
@@ -330,10 +339,11 @@ fun InitialBuildingControls(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(DefenderType.entries.toTypedArray()) { type ->
+                val canAfford = gameState.canPlaceDefender(type) // Recalculate on every recomposition
                 DefenderButton(
                     type = type,
                     isSelected = selectedDefenderType == type,
-                    canAfford = gameState.canPlaceDefender(type),
+                    canAfford = canAfford,
                     onClick = {
                         onSelectDefenderType(if (selectedDefenderType == type) null else type)
                     }
@@ -386,10 +396,11 @@ fun PlayerTurnControls(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(DefenderType.entries.toTypedArray()) { type ->
+                val canAfford = gameState.canPlaceDefender(type) // Recalculate on every recomposition
                 DefenderButton(
                     type = type,
                     isSelected = selectedDefenderType == type,
-                    canAfford = gameState.canPlaceDefender(type),
+                    canAfford = canAfford,
                     onClick = {
                         onSelectDefenderType(if (selectedDefenderType == type) null else type)
                     }
@@ -467,12 +478,9 @@ fun DefenderInfo(
 }
 
 @Composable
-fun EnemyTurnInfo(onComplete: () -> Unit) {
-    LaunchedEffect(Unit) {
-        delay(1500) // Show enemy turn message for 1.5 seconds
-        onComplete()
-    }
-    
+fun EnemyTurnInfo() {
+    // The ViewModel automatically handles the 1.5s delay and phase progression
+    // This composable just displays the enemy turn indicator
     Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
         Card(
             modifier = Modifier.fillMaxWidth(),
@@ -496,6 +504,9 @@ fun EnemyTurnInfo(onComplete: () -> Unit) {
                     color = Color.Red
                 )
             }
+        }
+    }
+}
         }
     }
 }

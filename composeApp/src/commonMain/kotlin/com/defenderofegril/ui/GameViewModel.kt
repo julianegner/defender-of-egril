@@ -110,30 +110,29 @@ class GameViewModel {
     }
     
     fun endPlayerTurn() {
-        gameEngine?.endPlayerTurn()
+        val state = _gameState.value ?: return
         
-        // Force immediate UI update for enemy turn phase
+        // Set phase to ENEMY_TURN for UI feedback
+        state.phase = GamePhase.ENEMY_TURN
         triggerStateUpdate()
         
         // Automatically process enemy turn after a delay
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.Default) {
             delay(1500) // Give time to see "ENEMY TURN" indicator
-            processEnemyTurn()
-        }
-    }
-    
-    private fun processEnemyTurn() {
-        val state = _gameState.value ?: return
-        
-        // Check win/loss conditions
-        if (state.isLevelWon()) {
-            completeLevel(state.level.id, won = true)
-        } else if (state.isLevelLost()) {
-            completeLevel(state.level.id, won = false)
-        } else {
-            // Enemy turn is already completed by endPlayerTurn calling gameEngine.endPlayerTurn()
-            // which sets phase back to PLAYER_TURN
+            
+            // Now process the actual enemy turn logic
+            gameEngine?.endPlayerTurn()
+            
+            // Force UI update after enemy movements
             triggerStateUpdate()
+            
+            // Check win/loss conditions
+            val updatedState = _gameState.value ?: return@launch
+            if (updatedState.isLevelWon()) {
+                completeLevel(updatedState.level.id, won = true)
+            } else if (updatedState.isLevelLost()) {
+                completeLevel(updatedState.level.id, won = false)
+            }
         }
     }
     
