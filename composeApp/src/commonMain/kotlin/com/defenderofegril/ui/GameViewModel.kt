@@ -118,13 +118,16 @@ class GameViewModel {
         
         // Automatically process enemy turn after a delay
         viewModelScope.launch(Dispatchers.Default) {
-            delay(1500) // Give time to see "ENEMY TURN" indicator
+            delay(500) // Shorter delay to see "ENEMY TURN" indicator
             
             // Now process the actual enemy turn logic
             gameEngine?.endPlayerTurn()
             
-            // Force UI update after enemy movements
+            // Force UI update after enemy movements to show the changes
             triggerStateUpdate()
+            
+            // Add another small delay so user can see the enemy movements
+            delay(1000)
             
             // Check win/loss conditions
             val updatedState = _gameState.value ?: return@launch

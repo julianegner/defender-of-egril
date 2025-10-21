@@ -276,13 +276,23 @@ fun GridCell(
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             when {
-                isSpawnPoint && attacker == null && defender == null -> {
-                    // Show spawn indicator when cell is empty
-                    Text("S", style = MaterialTheme.typography.labelSmall, color = Color(0xFFFF9800))
-                }
-                isTarget && attacker == null && defender == null -> {
-                    // Show target indicator when cell is empty
-                    Text("T", style = MaterialTheme.typography.labelSmall, color = Color(0xFF4CAF50))
+                attacker != null -> {
+                    Text(
+                        attacker.type.displayName,
+                        style = MaterialTheme.typography.labelSmall,
+                        fontSize = 10.sp,
+                        color = Color.White,
+                        maxLines = 1,
+                        textAlign = TextAlign.Center,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        "HP: ${attacker.currentHealth}/${attacker.maxHealth}",
+                        style = MaterialTheme.typography.labelSmall,
+                        fontSize = 9.sp,
+                        color = Color.White,
+                        textAlign = TextAlign.Center
+                    )
                 }
                 defender != null -> {
                     Text(
@@ -315,23 +325,13 @@ fun GridCell(
                         )
                     }
                 }
-                attacker != null -> {
-                    Text(
-                        attacker.type.displayName,
-                        style = MaterialTheme.typography.labelSmall,
-                        fontSize = 10.sp,
-                        color = Color.White,
-                        maxLines = 1,
-                        textAlign = TextAlign.Center,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        "HP: ${attacker.currentHealth}/${attacker.maxHealth}",
-                        style = MaterialTheme.typography.labelSmall,
-                        fontSize = 9.sp,
-                        color = Color.White,
-                        textAlign = TextAlign.Center
-                    )
+                isSpawnPoint -> {
+                    // Show spawn indicator when cell is empty
+                    Text("S", style = MaterialTheme.typography.labelSmall, color = Color(0xFFFF9800))
+                }
+                isTarget -> {
+                    // Show target indicator when cell is empty
+                    Text("T", style = MaterialTheme.typography.labelSmall, color = Color(0xFF4CAF50))
                 }
             }
         }
