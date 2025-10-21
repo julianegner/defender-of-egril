@@ -69,12 +69,11 @@ data class Level(
             // Create build islands at strategic points
             // Islands are 2x2 blocks that the path will curve around
             val islandPositions = listOf(
-                Pair(6, 1),   // Top path island
-                Pair(10, 4),  // Middle path island  
-                Pair(15, 2),  // Between top and middle
-                Pair(18, 6),  // Bottom path island
-                Pair(22, 4),  // Middle path island
-                Pair(25, 1)   // Top path island
+                Pair(8, 3),   // Left middle island
+                Pair(12, 2),  // Upper middle island  
+                Pair(16, 5),  // Lower middle island
+                Pair(20, 3),  // Right middle island
+                Pair(24, 4)   // Far right island
             )
             
             for ((x, y) in islandPositions) {
@@ -85,68 +84,59 @@ data class Level(
                 islands.add(Position(x + 1, y + 1))
             }
             
-            // Generate path that curves around islands
+            // Generate SINGLE unified path that all enemies use
+            // Path starts wide at spawn points and converges to single lane
             val path = mutableSetOf<Position>()
             
-            // Create 3 curved paths from left to right that avoid islands
-            // Top path (y = 1-2)
             for (x in 0 until width) {
-                val baseY = 1
-                var y = baseY
-                
-                // Check if we need to curve around an island
-                val pos = Position(x, y)
-                if (islands.contains(pos)) {
-                    // Try going above or below
-                    if (!islands.contains(Position(x, y - 1)) && y > 0) {
-                        y = y - 1
-                    } else if (!islands.contains(Position(x, y + 1)) && y < height - 1) {
-                        y = y + 1
+                // Starting area: 3 lanes (y=1, 4, 7) for the 3 spawn points
+                if (x < 5) {
+                    // Wide starting area
+                    for (y in listOf(1, 2, 3, 4, 5, 6, 7)) {
+                        if (!islands.contains(Position(x, y))) {
+                            path.add(Position(x, y))
+                        }
                     }
                 }
-                
-                if (!islands.contains(Position(x, y))) {
-                    path.add(Position(x, y))
-                }
-            }
-            
-            // Middle path (y = 4)
-            for (x in 0 until width) {
-                val baseY = 4
-                var y = baseY
-                
-                val pos = Position(x, y)
-                if (islands.contains(pos)) {
-                    // Try going above or below
-                    if (!islands.contains(Position(x, y - 1)) && y > 0) {
-                        y = y - 1
-                    } else if (!islands.contains(Position(x, y + 1)) && y < height - 1) {
-                        y = y + 1
+                // Converging area: gradually narrow to single lane
+                else if (x < 10) {
+                    // Narrowing from 3 lanes to 2
+                    for (y in listOf(2, 3, 4, 5, 6)) {
+                        if (!islands.contains(Position(x, y))) {
+                            path.add(Position(x, y))
+                        }
                     }
                 }
-                
-                if (!islands.contains(Position(x, y))) {
-                    path.add(Position(x, y))
-                }
-            }
-            
-            // Bottom path (y = 6-7)
-            for (x in 0 until width) {
-                val baseY = 7
-                var y = baseY
-                
-                val pos = Position(x, y)
-                if (islands.contains(pos)) {
-                    // Try going above or below
-                    if (!islands.contains(Position(x, y - 1)) && y > 0) {
-                        y = y - 1
-                    } else if (!islands.contains(Position(x, y + 1)) && y < height - 1) {
-                        y = y + 1
+                // Single lane with curves around islands
+                else {
+                    // Main single path (y=4 as base) that curves around islands
+                    var y = 4
+                    
+                    // Check if island blocks the path
+                    if (islands.contains(Position(x, y))) {
+                        // Try alternative routes
+                        if (!islands.contains(Position(x, y - 1))) {
+                            y = y - 1
+                        } else if (!islands.contains(Position(x, y + 1))) {
+                            y = y + 1
+                        } else if (!islands.contains(Position(x, y - 2))) {
+                            y = y - 2
+                        } else if (!islands.contains(Position(x, y + 2))) {
+                            y = y + 2
+                        }
                     }
-                }
-                
-                if (!islands.contains(Position(x, y))) {
-                    path.add(Position(x, y))
+                    
+                    // Add path cell and adjacent cells for wider passage
+                    if (!islands.contains(Position(x, y))) {
+                        path.add(Position(x, y))
+                        // Add some width to the path
+                        if (y > 0 && !islands.contains(Position(x, y - 1))) {
+                            path.add(Position(x, y - 1))
+                        }
+                        if (y < height - 1 && !islands.contains(Position(x, y + 1))) {
+                            path.add(Position(x, y + 1))
+                        }
+                    }
                 }
             }
             

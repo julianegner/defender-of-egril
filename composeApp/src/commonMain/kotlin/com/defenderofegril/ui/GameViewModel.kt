@@ -111,11 +111,13 @@ class GameViewModel {
     
     fun endPlayerTurn() {
         gameEngine?.endPlayerTurn()
+        
+        // Force immediate UI update for enemy turn phase
         triggerStateUpdate()
         
         // Automatically process enemy turn after a delay
         viewModelScope.launch {
-            delay(1500) // Match the delay in EnemyTurnInfo
+            delay(1500) // Give time to see "ENEMY TURN" indicator
             processEnemyTurn()
         }
     }
