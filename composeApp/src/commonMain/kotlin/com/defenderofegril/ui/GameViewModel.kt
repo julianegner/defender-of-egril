@@ -83,22 +83,8 @@ class GameViewModel {
     }
     
     fun startFirstPlayerTurn() {
-        println("DEBUG: startFirstPlayerTurn called")
-        val stateBefore = _gameState.value
-        println("DEBUG: Phase before: ${stateBefore?.phase}")
-        println("DEBUG: Attackers before: ${stateBefore?.attackers?.size}")
-        
         gameEngine?.startFirstPlayerTurn()
-        
-        val stateAfter = _gameState.value
-        println("DEBUG: Phase after: ${stateAfter?.phase}")
-        println("DEBUG: Attackers after: ${stateAfter?.attackers?.size}")
-        stateAfter?.attackers?.forEach { attacker ->
-            println("DEBUG: Enemy ${attacker.id} - Type: ${attacker.type}, Position: (${attacker.position.x}, ${attacker.position.y})")
-        }
-        
         triggerStateUpdate()
-        println("DEBUG: triggerStateUpdate completed")
     }
     
     fun defenderAttack(defenderId: Int, targetId: Int): Boolean {
@@ -149,11 +135,7 @@ class GameViewModel {
             attackersToSpawn = currentState.attackersToSpawn.toMutableList()
         )
         
-        println("DEBUG: triggerStateUpdate - New state instance created, updateCounter=${++updateCounter}")
-        println("DEBUG: State after update - Phase: ${_gameState.value?.phase}, Attackers: ${_gameState.value?.attackers?.size}")
-        _gameState.value?.attackers?.forEach { attacker ->
-            println("DEBUG: After update - Enemy ${attacker.id} - Type: ${attacker.type}, Position: (${attacker.position.x}, ${attacker.position.y})")
-        }
+        updateCounter++
     }
     
     private fun completeLevel(levelId: Int, won: Boolean) {
