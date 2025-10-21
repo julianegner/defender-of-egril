@@ -99,9 +99,13 @@ class GameEngine(private val state: GameState) {
     }
     
     fun endPlayerTurn() {
-        if (state.phase != GamePhase.PLAYER_TURN) return
+        if (state.phase != GamePhase.PLAYER_TURN && state.phase != GamePhase.ENEMY_TURN) return
         
-        state.turnNumber++
+        // Only increment turn and process if we're actually starting enemy turn
+        if (state.phase == GamePhase.PLAYER_TURN) {
+            state.turnNumber++
+        }
+        
         state.phase = GamePhase.ENEMY_TURN
         
         // Spawn new attackers
