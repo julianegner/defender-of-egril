@@ -190,6 +190,7 @@ fun GameGrid(
                         isSelected = selectedDefenderType != null,
                         isDefenderSelected = gameState.defenders.find { it.position == position }?.id == selectedDefenderId,
                         isTargetSelected = gameState.attackers.find { it.position == position }?.id == selectedTargetId,
+                        selectedDefenderId = selectedDefenderId,
                         onClick = { onCellClick(position) }
                     )
                 }
@@ -205,6 +206,7 @@ fun GridCell(
     isSelected: Boolean,
     isDefenderSelected: Boolean,
     isTargetSelected: Boolean,
+    selectedDefenderId: Int?,
     onClick: () -> Unit
 ) {
     val isSpawnPoint = gameState.level.isSpawnPoint(position)
@@ -214,6 +216,19 @@ fun GridCell(
     val isBuildArea = gameState.level.isBuildArea(position)
     val defender = gameState.defenders.find { it.position == position }
     val attacker = gameState.attackers.find { it.position == position && !it.isDefeated }
+    
+    // Check if this cell is in range of the selected defender
+    val cellIsInRange = selectedDefenderId?.let { defenderId ->
+        val selectedDefender = gameState.defenders.find { it.id == defenderId }
+        selectedDefender?.let { sel ->
+            if (sel.position == position) {
+                false  // Don't highlight the defender's own cell
+            } else {
+                val distance = sel.position.distanceTo(position)
+                distance >= sel.type.minRange && distance <= sel.range
+            }
+        } ?: false
+    } ?: false
     
     // Base background color based on area type - ALWAYS visible
     // Build islands + strips adjacent to path allow tower placement
@@ -225,7 +240,10 @@ fun GridCell(
     }
     
     // Apply slight tint for selection states, but keep base color visible
+    // Override with red background for enemy units
     val backgroundColor = when {
+        attacker != null -> Color(0xFFF44336)  // Red background for enemies
+        cellIsInRange -> baseBackgroundColor.copy(red = baseBackgroundColor.red * 1.2f, green = baseBackgroundColor.green * 1.2f, alpha = 0.9f)  // Brighten cells in range
         isDefenderSelected -> baseBackgroundColor.copy(alpha = 0.7f)
         isTargetSelected -> baseBackgroundColor.copy(alpha = 0.8f)
         isSelected -> baseBackgroundColor.copy(alpha = 0.9f)
@@ -337,7 +355,7 @@ fun InitialBuildingControls(
         
         LazyVerticalGrid(
             columns = GridCells.Fixed(3),
-            modifier = Modifier.fillMaxWidth().height(150.dp),
+            modifier = Modifier.fillMaxWidth().height(180.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
@@ -394,7 +412,7 @@ fun PlayerTurnControls(
         // Defender placement buttons
         LazyVerticalGrid(
             columns = GridCells.Fixed(3),
-            modifier = Modifier.fillMaxWidth().height(120.dp),
+            modifier = Modifier.fillMaxWidth().height(150.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
@@ -524,13 +542,16 @@ fun DefenderButton(
         colors = ButtonDefaults.buttonColors(
             containerColor = if (isSelected) Color(0xFF1976D2) else MaterialTheme.colorScheme.primary
         ),
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth().height(65.dp)
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(type.displayName.split(" ")[0], style = MaterialTheme.typography.labelSmall)
+            Text(type.displayName.split(" ")[0], style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
             Text("${type.baseCost}c ⏱${type.buildTime}", 
                  style = MaterialTheme.typography.labelSmall,
-                 fontSize = MaterialTheme.typography.labelSmall.fontSize * 0.8f)
+                 fontSize = MaterialTheme.typography.labelSmall.fontSize * 0.75f)
+            Text("R:${if (type.minRange > 0) "${type.minRange}-" else ""}${type.baseRange} A:${type.actionsPerTurn}", 
+                 style = MaterialTheme.typography.labelSmall,
+                 fontSize = MaterialTheme.typography.labelSmall.fontSize * 0.7f)
         }
     }
 }
