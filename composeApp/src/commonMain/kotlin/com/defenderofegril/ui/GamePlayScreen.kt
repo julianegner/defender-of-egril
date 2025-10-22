@@ -44,16 +44,18 @@ class HexagonShape : Shape {
         layoutDirection: LayoutDirection,
         density: Density
     ): Outline {
-        val hexSize = size.width / 2f
+        // For flat-top hexagon: width = 2 * radius, height = sqrt(3) * radius
+        // So radius = width / 2
+        val hexRadius = size.width / 2f
         val centerX = size.width / 2f
         val centerY = size.height / 2f
         
         val path = Path().apply {
             for (i in 0..6) {
-                val angleDeg = 60f * i - 30f
+                val angleDeg = 60f * i - 30f  // -30° offset for flat-top
                 val angleRad = (PI / 180f * angleDeg).toFloat()
-                val x = centerX + hexSize * cos(angleRad)
-                val y = centerY + hexSize * sin(angleRad)
+                val x = centerX + hexRadius * cos(angleRad)
+                val y = centerY + hexRadius * sin(angleRad)
                 if (i == 0) {
                     moveTo(x, y)
                 } else {
@@ -260,11 +262,11 @@ fun GameGrid(
     
     // Calculate spacing for honeycomb pattern
     val horizontalSpacing = hexWidth * 0.75f // 3/4 of width for horizontal distance between centers
-    val verticalSpacing = hexHeight // vertical distance between row centers
+    val verticalSpacing = hexHeight * 0.75f // 3/4 of height for vertical distance (rows interlock)
     
     // Calculate total grid dimensions
     val totalWidth = (gameState.level.gridWidth * horizontalSpacing + hexWidth * 0.25f).dp
-    val totalHeight = (gameState.level.gridHeight * verticalSpacing).dp
+    val totalHeight = (gameState.level.gridHeight * verticalSpacing + hexHeight * 0.25f).dp
     
     Box(
         modifier = modifier
