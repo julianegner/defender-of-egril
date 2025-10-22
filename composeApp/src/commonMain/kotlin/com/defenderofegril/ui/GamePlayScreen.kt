@@ -327,11 +327,17 @@ fun GridCell(
         when {
             attacker != null -> {
                 // Use graphical icon for enemy units
-                EnemyIcon(attacker = attacker)
+                // Key by both id and currentHealth to force recomposition when health changes
+                key(attacker.id, attacker.currentHealth) {
+                    EnemyIcon(attacker = attacker)
+                }
             }
             defender != null -> {
                 // Use graphical icon for towers
-                TowerIcon(defender = defender)
+                // Key by id, level and actionsRemaining to force recomposition when these change
+                key(defender.id, defender.level, defender.actionsRemaining, defender.buildTimeRemaining) {
+                    TowerIcon(defender = defender)
+                }
             }
             isSpawnPoint -> {
                 // Show spawn indicator when cell is empty
