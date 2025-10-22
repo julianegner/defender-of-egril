@@ -358,12 +358,31 @@ class GameEngine(private val state: GameState) {
     }
     
     private fun getNeighbors(pos: Position): List<Position> {
-        return listOf(
-            Position(pos.x + 1, pos.y),
-            Position(pos.x - 1, pos.y),
-            Position(pos.x, pos.y + 1),
-            Position(pos.x, pos.y - 1)
-        ).filter { neighbor ->
+        // Hexagonal grid neighbors (using odd-row offset coordinates)
+        // Odd rows are shifted right, so neighbors differ based on row parity
+        val neighbors = if (pos.y % 2 == 1) {
+            // Odd row - shifted right
+            listOf(
+                Position(pos.x, pos.y - 1),      // top-left
+                Position(pos.x + 1, pos.y - 1),  // top-right
+                Position(pos.x + 1, pos.y),      // right
+                Position(pos.x + 1, pos.y + 1),  // bottom-right
+                Position(pos.x, pos.y + 1),      // bottom-left
+                Position(pos.x - 1, pos.y)       // left
+            )
+        } else {
+            // Even row
+            listOf(
+                Position(pos.x - 1, pos.y - 1),  // top-left
+                Position(pos.x, pos.y - 1),      // top-right
+                Position(pos.x + 1, pos.y),      // right
+                Position(pos.x, pos.y + 1),      // bottom-right
+                Position(pos.x - 1, pos.y + 1),  // bottom-left
+                Position(pos.x - 1, pos.y)       // left
+            )
+        }
+        
+        return neighbors.filter { neighbor ->
             neighbor.x >= 0 && neighbor.x < state.level.gridWidth &&
             neighbor.y >= 0 && neighbor.y < state.level.gridHeight &&
             state.level.isOnPath(neighbor) &&

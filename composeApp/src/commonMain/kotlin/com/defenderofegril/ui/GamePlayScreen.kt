@@ -1,5 +1,6 @@
 package com.defenderofegril.ui
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -15,13 +16,20 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.Fill
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.defenderofegril.model.*
 import kotlinx.coroutines.delay
+import kotlin.math.cos
+import kotlin.math.sin
+import kotlin.math.PI
 
 @Composable
 fun GamePlayScreen(
@@ -210,12 +218,19 @@ fun GameGrid(
 ) {
     val scrollState = rememberScrollState()
     
+    // Hexagon dimensions
+    val hexSize = 30f // radius of hexagon
+    val hexWidth = hexSize * 2f
+    val hexHeight = hexSize * kotlin.math.sqrt(3f)
+    
     Column(
         modifier = modifier.fillMaxWidth().horizontalScroll(scrollState),
         horizontalAlignment = Alignment.Start
     ) {
         for (y in 0 until gameState.level.gridHeight) {
-            Row {
+            Row(
+                modifier = Modifier.offset(x = if (y % 2 == 1) (hexWidth * 0.75f).dp else 0.dp)
+            ) {
                 for (x in 0 until gameState.level.gridWidth) {
                     val position = Position(x, y)
                     GridCell(
@@ -225,7 +240,8 @@ fun GameGrid(
                         isDefenderSelected = gameState.defenders.find { it.position == position }?.id == selectedDefenderId,
                         isTargetSelected = gameState.attackers.find { it.position == position }?.id == selectedTargetId,
                         selectedDefenderId = selectedDefenderId,
-                        onClick = { onCellClick(position) }
+                        onClick = { onCellClick(position) },
+                        hexSize = hexSize
                     )
                 }
             }
@@ -241,7 +257,8 @@ fun GridCell(
     isDefenderSelected: Boolean,
     isTargetSelected: Boolean,
     selectedDefenderId: Int?,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    hexSize: Float = 30f
 ) {
     val isSpawnPoint = gameState.level.isSpawnPoint(position)
     val isTarget = position == gameState.level.targetPosition
@@ -264,8 +281,7 @@ fun GridCell(
         } ?: false
     } ?: false
     
-    // Base background color based on area type - ALWAYS visible
-    // Build islands + strips adjacent to path allow tower placement
+    // Base background color based on area type
     val baseBackgroundColor = when {
         isBuildIsland -> Color(0xFF8BC34A)  // Light green for build islands
         isBuildArea -> Color(0xFFA5D6A7)  // Medium green for strips adjacent to path
@@ -273,9 +289,7 @@ fun GridCell(
         else -> Color(0xFFE0E0E0)  // Light gray for off-path areas (non-playable)
     }
     
-    // Apply slight tint for selection states, but keep base color visible
-    // Override with red background for enemy units and colored background for defenders
-    // During INITIAL_BUILDING phase, don't apply any selection tints
+    // Apply selection states
     val backgroundColor = when {
         attacker != null -> Color(0xFFF44336)  // Red background for enemies
         defender != null -> {
@@ -287,43 +301,60 @@ fun GridCell(
         }
         isDefenderSelected && gameState.phase != GamePhase.INITIAL_BUILDING -> baseBackgroundColor.copy(alpha = 0.7f)
         isTargetSelected && gameState.phase != GamePhase.INITIAL_BUILDING -> baseBackgroundColor.copy(alpha = 0.8f)
-        else -> baseBackgroundColor  // No selection highlighting during placement or in initial phase
+        else -> baseBackgroundColor
     }
     
-    // Border color - use borders to indicate entities instead of background
-    // For range visualization, show green border on path tiles in range (only if tower has actions)
+    // Border color
     val showRange = selectedDefenderId?.let { defenderId ->
         val selectedDefender = gameState.defenders.find { it.id == defenderId }
         selectedDefender?.isReady == true && selectedDefender.actionsRemaining > 0
     } ?: false
     
     val borderColor = when {
-        cellIsInRange && isOnPath && showRange -> Color(0xFF4CAF50)  // Green border for tiles in range (only on path, only if actions available)
-        isDefenderSelected && gameState.phase != GamePhase.INITIAL_BUILDING -> Color(0xFFFFEB3B)  // Yellow border for selected defender (not during initial building)
+        cellIsInRange && isOnPath && showRange -> Color(0xFF4CAF50)  // Green border for tiles in range
+        isDefenderSelected && gameState.phase != GamePhase.INITIAL_BUILDING -> Color(0xFFFFEB3B)  // Yellow border for selected defender
         isSpawnPoint -> Color(0xFFFF9800)  // Orange border for spawn
         isTarget -> Color(0xFF4CAF50)  // Green border for target
         attacker != null -> Color(0xFFF44336)  // Red border for enemies
         defender != null -> if (defender.isReady) Color(0xFF2196F3) else Color(0xFF9E9E9E)  // Blue/gray border for towers
-        else -> Color.Transparent  // No borders for empty cells
+        else -> Color.Transparent
     }
     
-    // Thicker borders for important elements
     val borderWidth = when {
-        isDefenderSelected && gameState.phase != GamePhase.INITIAL_BUILDING -> 5.dp  // Extra thick border for selected defender (not during initial building)
-        cellIsInRange && isOnPath && showRange -> 4.dp  // Thick border for cells in range
-        isSpawnPoint || isTarget -> 3.dp
-        attacker != null || defender != null -> 3.dp
-        else -> 0.dp  // No border for empty cells
+        isDefenderSelected && gameState.phase != GamePhase.INITIAL_BUILDING -> 3f
+        cellIsInRange && isOnPath && showRange -> 2.5f
+        isSpawnPoint || isTarget -> 2f
+        attacker != null || defender != null -> 2f
+        else -> 0f
     }
+    
+    // Hexagon width and height for layout
+    val hexWidth = hexSize * 2f
+    val hexHeight = hexSize * kotlin.math.sqrt(3f)
     
     Box(
         modifier = Modifier
-            .size(48.dp)
-            .border(borderWidth, borderColor)
-            .background(backgroundColor)
+            .size(width = (hexWidth * 1.5f).dp, height = hexHeight.dp)
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
+        // Draw hexagon
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            val centerX = size.width / 2f
+            val centerY = size.height / 2f
+            
+            val hexPath = createHexagonPath(centerX, centerY, hexSize)
+            
+            // Fill hexagon
+            drawPath(hexPath, backgroundColor, style = Fill)
+            
+            // Draw border
+            if (borderWidth > 0f) {
+                drawPath(hexPath, borderColor, style = Stroke(width = borderWidth))
+            }
+        }
+        
+        // Content overlay
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             when {
                 attacker != null -> {
@@ -350,14 +381,14 @@ fun GridCell(
                         style = MaterialTheme.typography.labelSmall,
                         fontSize = MaterialTheme.typography.labelSmall.fontSize * 0.65f,
                         textAlign = TextAlign.Center,
-                        color = Color.White,  // Always white on colored backgrounds
+                        color = Color.White,
                         maxLines = 1
                     )
                     Text(
                         "Lvl ${defender.level}",
                         style = MaterialTheme.typography.labelSmall,
                         fontSize = MaterialTheme.typography.labelSmall.fontSize * 0.6f,
-                        color = Color.White  // Always white on colored backgrounds
+                        color = Color.White
                     )
                     if (!defender.isReady) {
                         Text(
@@ -376,16 +407,32 @@ fun GridCell(
                     }
                 }
                 isSpawnPoint -> {
-                    // Show spawn indicator when cell is empty
                     Text("S", style = MaterialTheme.typography.labelSmall, color = Color(0xFFFF9800))
                 }
                 isTarget -> {
-                    // Show target indicator when cell is empty
                     Text("T", style = MaterialTheme.typography.labelSmall, color = Color(0xFF4CAF50))
                 }
             }
         }
     }
+}
+
+// Helper function to create hexagon path
+private fun createHexagonPath(centerX: Float, centerY: Float, size: Float): Path {
+    val path = Path()
+    for (i in 0..6) {
+        val angleDeg = 60f * i - 30f  // Start from top vertex
+        val angleRad = (PI / 180f * angleDeg).toFloat()
+        val x = centerX + size * cos(angleRad)
+        val y = centerY + size * sin(angleRad)
+        if (i == 0) {
+            path.moveTo(x, y)
+        } else {
+            path.lineTo(x, y)
+        }
+    }
+    path.close()
+    return path
 }
 
 @Composable
