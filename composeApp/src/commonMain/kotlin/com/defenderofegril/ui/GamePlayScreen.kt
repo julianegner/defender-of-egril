@@ -16,13 +16,19 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.defenderofegril.model.*
@@ -30,6 +36,35 @@ import kotlinx.coroutines.delay
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.PI
+
+// Custom hexagon shape for clipping Box to hexagon shape
+class HexagonShape : Shape {
+    override fun createOutline(
+        size: Size,
+        layoutDirection: LayoutDirection,
+        density: Density
+    ): Outline {
+        val hexSize = size.width / 2f
+        val centerX = size.width / 2f
+        val centerY = size.height / 2f
+        
+        val path = Path().apply {
+            for (i in 0..6) {
+                val angleDeg = 60f * i - 30f
+                val angleRad = (PI / 180f * angleDeg).toFloat()
+                val x = centerX + hexSize * cos(angleRad)
+                val y = centerY + hexSize * sin(angleRad)
+                if (i == 0) {
+                    moveTo(x, y)
+                } else {
+                    lineTo(x, y)
+                }
+            }
+            close()
+        }
+        return Outline.Generic(path)
+    }
+}
 
 @Composable
 fun GamePlayScreen(
@@ -347,25 +382,21 @@ fun GridCell(
     val hexWidth = hexSize * 2f
     val hexHeight = hexSize * kotlin.math.sqrt(3f)
     
-    // Draw hexagon directly without a Box container to avoid rectangular appearance
+    // Use hexagon-shaped Box to avoid rectangular appearance
     Box(
         modifier = Modifier
             .size(width = hexWidth.dp, height = hexHeight.dp)
+            .clip(HexagonShape()) // Clip Box to hexagon shape
+            .background(backgroundColor) // Background on the clipped shape
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
-        // Draw hexagon
-        Canvas(modifier = Modifier.fillMaxSize()) {
-            val centerX = size.width / 2f
-            val centerY = size.height / 2f
-            
-            val hexPath = createHexagonPath(centerX, centerY, hexSize)
-            
-            // Fill hexagon
-            drawPath(hexPath, backgroundColor, style = Fill)
-            
-            // Draw border
-            if (borderWidth > 0f) {
+        // Draw hexagon border if needed
+        if (borderWidth > 0f) {
+            Canvas(modifier = Modifier.fillMaxSize()) {
+                val centerX = size.width / 2f
+                val centerY = size.height / 2f
+                val hexPath = createHexagonPath(centerX, centerY, hexSize)
                 drawPath(hexPath, borderColor, style = Stroke(width = borderWidth))
             }
         }
