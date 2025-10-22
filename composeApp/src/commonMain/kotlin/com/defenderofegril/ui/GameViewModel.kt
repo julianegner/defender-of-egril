@@ -120,16 +120,15 @@ class GameViewModel {
         
         // Automatically process enemy turn after a delay
         viewModelScope.launch(Dispatchers.Default) {
-            // Set phase to ENEMY_TURN for UI feedback
-            state.phase = GamePhase.ENEMY_TURN
-            triggerStateUpdate()
-            
-            delay(500) // Shorter delay to see "ENEMY TURN" indicator
-            
-            // Now process the actual enemy turn logic (this will increment turn counter)
+            // Now process the actual enemy turn logic (this will increment turn counter and set phase to ENEMY_TURN)
             gameEngine?.endPlayerTurn()
             
-            // Force UI update after enemy movements to show the changes
+            // Force UI update to show ENEMY_TURN phase and enemy movements
+            triggerStateUpdate()
+            
+            delay(500) // Give time to see "ENEMY TURN" indicator
+            
+            // Force another UI update after delay to ensure changes are visible
             triggerStateUpdate()
             
             // Add another small delay so user can see the enemy movements
