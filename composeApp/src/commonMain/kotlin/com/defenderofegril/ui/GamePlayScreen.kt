@@ -260,36 +260,38 @@ fun GameGrid(
     modifier: Modifier = Modifier
 ) {
     val scrollState = rememberScrollState()
-    val hexSize = 48.dp
+    val hexSize = 40.dp  // Radius of hexagon (center to corner)
     
-    // Calculate hex dimensions
+    // Calculate hex dimensions for pointy-top hexagons
     val sqrt3 = sqrt(3.0).toFloat()
-    val hexWidth = hexSize.value * sqrt3
-    val hexHeight = hexSize.value * 2f
-    val verticalSpacing = hexHeight * 0.75f  // 3/4 of height for vertical overlap
+    val hexWidth = hexSize.value * sqrt3  // Width of hexagon
+    val hexHeight = hexSize.value * 2f    // Height of hexagon
+    val verticalSpacing = hexHeight * 0.75f  // 3/4 overlap for tight packing
     
-    Column(
-        modifier = modifier.fillMaxWidth().horizontalScroll(scrollState),
-        horizontalAlignment = Alignment.Start
+    Box(
+        modifier = modifier.fillMaxWidth().horizontalScroll(scrollState)
     ) {
-        for (y in 0 until gameState.level.gridHeight) {
-            Row(
-                modifier = Modifier
-                    .offset(x = if (y % 2 == 1) (hexWidth / 2).dp else 0.dp)  // Offset odd rows
-                    .offset(y = (-y * (hexHeight - verticalSpacing) / 2).dp)  // Overlap vertically
-            ) {
-                for (x in 0 until gameState.level.gridWidth) {
-                    val position = Position(x, y)
-                    GridCell(
-                        position = position,
-                        gameState = gameState,
-                        isSelected = selectedDefenderType != null,
-                        isDefenderSelected = gameState.defenders.find { it.position == position }?.id == selectedDefenderId,
-                        isTargetSelected = gameState.attackers.find { it.position == position }?.id == selectedTargetId,
-                        selectedDefenderId = selectedDefenderId,
-                        onClick = { onCellClick(position) },
-                        hexSize = hexSize
-                    )
+        Column(
+            verticalArrangement = Arrangement.spacedBy((-verticalSpacing / 4).dp)  // Negative spacing for overlap
+        ) {
+            for (y in 0 until gameState.level.gridHeight) {
+                Row(
+                    modifier = Modifier.offset(x = if (y % 2 == 1) (hexWidth / 2).dp else 0.dp),  // Offset odd rows by half hex width
+                    horizontalArrangement = Arrangement.spacedBy((-2).dp)  // Small negative spacing to eliminate gaps
+                ) {
+                    for (x in 0 until gameState.level.gridWidth) {
+                        val position = Position(x, y)
+                        GridCell(
+                            position = position,
+                            gameState = gameState,
+                            isSelected = selectedDefenderType != null,
+                            isDefenderSelected = gameState.defenders.find { it.position == position }?.id == selectedDefenderId,
+                            isTargetSelected = gameState.attackers.find { it.position == position }?.id == selectedTargetId,
+                            selectedDefenderId = selectedDefenderId,
+                            onClick = { onCellClick(position) },
+                            hexSize = hexSize
+                        )
+                    }
                 }
             }
         }
@@ -383,15 +385,15 @@ fun GridCell(
     // Calculate hex dimensions for proper sizing
     val sqrt3 = sqrt(3.0).toFloat()
     val hexWidth = hexSize.value * sqrt3
+    val hexHeight = hexSize.value * 2f
     
     Box(
         modifier = Modifier
             .width((hexWidth).dp)
-            .height(hexSize * 2)
-            .padding(1.dp)  // Small padding to prevent overlap
+            .height((hexHeight).dp)
             .clip(HexagonShape())
-            .border(borderWidth, borderColor, HexagonShape())
             .background(backgroundColor)
+            .border(borderWidth, borderColor, HexagonShape())
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
