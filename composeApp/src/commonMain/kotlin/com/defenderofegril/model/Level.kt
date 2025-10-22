@@ -39,13 +39,8 @@ data class Level(
     }
     
     private fun isAdjacentToPath(position: Position): Boolean {
-        // Check if any adjacent cell is a path cell
-        val adjacentPositions = listOf(
-            Position(position.x - 1, position.y),
-            Position(position.x + 1, position.y),
-            Position(position.x, position.y - 1),
-            Position(position.x, position.y + 1)
-        )
+        // Check if any adjacent cell (using hexagonal neighbors) is a path cell
+        val adjacentPositions = position.getHexNeighbors()
         return adjacentPositions.any { pos ->
             pos.x in 0 until gridWidth && 
             pos.y in 0 until gridHeight && 

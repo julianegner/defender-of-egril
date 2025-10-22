@@ -15,13 +15,64 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.defenderofegril.model.*
 import kotlinx.coroutines.delay
+import kotlin.math.sqrt
+
+/**
+ * A pointy-top hexagon shape for Compose
+ */
+class HexagonShape : Shape {
+    override fun createOutline(
+        size: Size,
+        layoutDirection: LayoutDirection,
+        density: Density
+    ): Outline {
+        val path = Path().apply {
+            val width = size.width
+            val height = size.height
+            val centerX = width / 2f
+            val centerY = height / 2f
+            
+            // For pointy-top hexagon:
+            // The hexagon has flat sides on left and right
+            // Points at top and bottom
+            val radius = minOf(width, height) / 2f
+            
+            // Calculate the 6 vertices of a pointy-top hexagon
+            // Starting from the top and going clockwise
+            val sqrt3 = sqrt(3.0).toFloat()
+            
+            // Top point
+            moveTo(centerX, centerY - radius)
+            // Top-right
+            lineTo(centerX + radius * sqrt3 / 2f, centerY - radius / 2f)
+            // Bottom-right
+            lineTo(centerX + radius * sqrt3 / 2f, centerY + radius / 2f)
+            // Bottom point
+            lineTo(centerX, centerY + radius)
+            // Bottom-left
+            lineTo(centerX - radius * sqrt3 / 2f, centerY + radius / 2f)
+            // Top-left
+            lineTo(centerX - radius * sqrt3 / 2f, centerY - radius / 2f)
+            // Close the path
+            close()
+        }
+        return Outline.Generic(path)
+    }
+}
 
 @Composable
 fun GamePlayScreen(
@@ -209,13 +260,24 @@ fun GameGrid(
     modifier: Modifier = Modifier
 ) {
     val scrollState = rememberScrollState()
+    val hexSize = 48.dp
+    
+    // Calculate hex dimensions
+    val sqrt3 = sqrt(3.0).toFloat()
+    val hexWidth = hexSize.value * sqrt3
+    val hexHeight = hexSize.value * 2f
+    val verticalSpacing = hexHeight * 0.75f  // 3/4 of height for vertical overlap
     
     Column(
         modifier = modifier.fillMaxWidth().horizontalScroll(scrollState),
         horizontalAlignment = Alignment.Start
     ) {
         for (y in 0 until gameState.level.gridHeight) {
-            Row {
+            Row(
+                modifier = Modifier
+                    .offset(x = if (y % 2 == 1) (hexWidth / 2).dp else 0.dp)  // Offset odd rows
+                    .offset(y = (-y * (hexHeight - verticalSpacing) / 2).dp)  // Overlap vertically
+            ) {
                 for (x in 0 until gameState.level.gridWidth) {
                     val position = Position(x, y)
                     GridCell(
@@ -225,7 +287,8 @@ fun GameGrid(
                         isDefenderSelected = gameState.defenders.find { it.position == position }?.id == selectedDefenderId,
                         isTargetSelected = gameState.attackers.find { it.position == position }?.id == selectedTargetId,
                         selectedDefenderId = selectedDefenderId,
-                        onClick = { onCellClick(position) }
+                        onClick = { onCellClick(position) },
+                        hexSize = hexSize
                     )
                 }
             }
@@ -241,7 +304,8 @@ fun GridCell(
     isDefenderSelected: Boolean,
     isTargetSelected: Boolean,
     selectedDefenderId: Int?,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    hexSize: androidx.compose.ui.unit.Dp = 48.dp
 ) {
     val isSpawnPoint = gameState.level.isSpawnPoint(position)
     val isTarget = position == gameState.level.targetPosition
@@ -316,10 +380,17 @@ fun GridCell(
         else -> 0.dp  // No border for empty cells
     }
     
+    // Calculate hex dimensions for proper sizing
+    val sqrt3 = sqrt(3.0).toFloat()
+    val hexWidth = hexSize.value * sqrt3
+    
     Box(
         modifier = Modifier
-            .size(48.dp)
-            .border(borderWidth, borderColor)
+            .width((hexWidth).dp)
+            .height(hexSize * 2)
+            .padding(1.dp)  // Small padding to prevent overlap
+            .clip(HexagonShape())
+            .border(borderWidth, borderColor, HexagonShape())
             .background(backgroundColor)
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
