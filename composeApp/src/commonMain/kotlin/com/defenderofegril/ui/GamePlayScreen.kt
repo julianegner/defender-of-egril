@@ -412,6 +412,7 @@ fun InitialBuildingControls(
                     type = type,
                     isSelected = selectedDefenderType == type,
                     canAfford = canAfford,
+                    coins = gameState.coins,  // Pass coins to force recomposition
                     onClick = {
                         onSelectDefenderType(if (selectedDefenderType == type) null else type)
                     }
@@ -471,6 +472,7 @@ fun PlayerTurnControls(
                     type = type,
                     isSelected = selectedDefenderType == type,
                     canAfford = canAfford,
+                    coins = gameState.coins,  // Pass coins to force recomposition
                     onClick = {
                         onSelectDefenderType(if (selectedDefenderType == type) null else type)
                     }
@@ -599,11 +601,15 @@ fun DefenderButton(
     type: DefenderType,
     isSelected: Boolean,
     canAfford: Boolean,
+    coins: Int,  // Add coins parameter to force recomposition
     onClick: () -> Unit
 ) {
+    // Recalculate canAfford based on current coins to ensure reactivity
+    val actuallyCanAfford = coins >= type.baseCost
+    
     Button(
         onClick = onClick,
-        enabled = canAfford,
+        enabled = actuallyCanAfford,  // Use recalculated value
         colors = ButtonDefaults.buttonColors(
             containerColor = if (isSelected) Color(0xFF1976D2) else MaterialTheme.colorScheme.primary
         ),
