@@ -33,7 +33,7 @@ object LevelData {
     }
     
     private fun createLevel2(): Level {
-        val pathAndIslands = Level.generateCurvedPathWithIslands(30, 8)
+        val pathAndIslands = Level.generateCurvedPathWithIslands(35, 9)
         return Level(
             id = 2,
             name = "Mixed Forces",
@@ -55,7 +55,7 @@ object LevelData {
     }
     
     private fun createLevel3(): Level {
-        val pathAndIslands = Level.generateCurvedPathWithIslands(30, 8)
+        val pathAndIslands = Level.generateCurvedPathWithIslands(40, 10)
         return Level(
             id = 3,
             name = "The Ork Invasion",
@@ -69,6 +69,10 @@ object LevelData {
                 AttackerWave(
                     attackers = List(3) { AttackerType.ORK } + List(2) { AttackerType.SKELETON },
                     spawnDelay = 2
+                ),
+                AttackerWave(
+                    attackers = List(2) { AttackerType.ORK } + List(1) { AttackerType.OGRE },
+                    spawnDelay = 2
                 )
             ),
             initialCoins = 150,
@@ -77,7 +81,7 @@ object LevelData {
     }
     
     private fun createLevel4(): Level {
-        val pathAndIslands = Level.generateCurvedPathWithIslands(30, 8)
+        val pathAndIslands = Level.generateCurvedPathWithIslands(45, 11)
         return Level(
             id = 4,
             name = "Dark Magic Rises",
@@ -93,8 +97,12 @@ object LevelData {
                     spawnDelay = 2
                 ),
                 AttackerWave(
-                    attackers = List(1) { AttackerType.OGRE },
+                    attackers = List(1) { AttackerType.OGRE } + List(2) { AttackerType.SKELETON },
                     spawnDelay = 3
+                ),
+                AttackerWave(
+                    attackers = List(1) { AttackerType.EVIL_WIZARD } + List(1) { AttackerType.WITCH },
+                    spawnDelay = 2
                 )
             ),
             initialCoins = 180,
@@ -103,7 +111,7 @@ object LevelData {
     }
     
     private fun createLevel5(): Level {
-        val pathAndIslands = Level.generateCurvedPathWithIslands(30, 8)
+        val pathAndIslands = Level.generateCurvedPathWithIslands(50, 12)
         return Level(
             id = 5,
             name = "The Final Stand",
@@ -120,6 +128,10 @@ object LevelData {
                 ),
                 AttackerWave(
                     attackers = List(2) { AttackerType.OGRE } + List(3) { AttackerType.GOBLIN },
+                    spawnDelay = 2
+                ),
+                AttackerWave(
+                    attackers = List(2) { AttackerType.OGRE } + List(2) { AttackerType.EVIL_WIZARD } + List(2) { AttackerType.WITCH },
                     spawnDelay = 2
                 )
             ),

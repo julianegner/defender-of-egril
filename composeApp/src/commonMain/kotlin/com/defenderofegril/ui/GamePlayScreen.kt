@@ -26,6 +26,33 @@ import kotlinx.coroutines.delay
 @Composable
 fun GamePlayScreen(
     gameState: GameState,
+    coins: State<Int>,  // Add coins State parameter
+    onPlaceDefender: (DefenderType, Position) -> Boolean,
+    onUpgradeDefender: (Int) -> Boolean,
+    onStartFirstPlayerTurn: () -> Unit,
+    onDefenderAttack: (Int, Int) -> Boolean,
+    onEndPlayerTurn: () -> Unit,
+    onBackToMap: () -> Unit
+) {
+    // Force recomposition when game state changes by using key properties
+    key(gameState.turnNumber, gameState.phase, gameState.attackers.size, gameState.defenders.size, gameState.coins) {
+        GamePlayScreenContent(
+            gameState = gameState,
+            coins = coins,  // Pass coins State
+            onPlaceDefender = onPlaceDefender,
+            onUpgradeDefender = onUpgradeDefender,
+            onStartFirstPlayerTurn = onStartFirstPlayerTurn,
+            onDefenderAttack = onDefenderAttack,
+            onEndPlayerTurn = onEndPlayerTurn,
+            onBackToMap = onBackToMap
+        )
+    }
+}
+
+@Composable
+private fun GamePlayScreenContent(
+    gameState: GameState,
+    coins: State<Int>,  // Add coins State parameter
     onPlaceDefender: (DefenderType, Position) -> Boolean,
     onUpgradeDefender: (Int) -> Boolean,
     onStartFirstPlayerTurn: () -> Unit,
@@ -52,6 +79,11 @@ fun GamePlayScreen(
                 Text("Coins: ${gameState.coins}", style = MaterialTheme.typography.bodyLarge)
                 Text("Health: ${gameState.healthPoints}", style = MaterialTheme.typography.bodyLarge)
                 Text("Turn: ${gameState.turnNumber}", style = MaterialTheme.typography.bodyMedium)
+                val activeEnemies = gameState.attackers.count { !it.isDefeated }
+                val remainingEnemies = gameState.attackersToSpawn.size
+                Text("Enemies: $activeEnemies active, $remainingEnemies to come", 
+                     style = MaterialTheme.typography.bodyMedium,
+                     color = Color(0xFFF44336))
             }
             
             // Prominent phase indicator
@@ -135,6 +167,7 @@ fun GamePlayScreen(
             GamePhase.INITIAL_BUILDING -> {
                 InitialBuildingControls(
                     gameState = gameState,
+                    coinsState = coins,
                     selectedDefenderType = selectedDefenderType,
                     selectedDefenderId = selectedDefenderId,
                     onSelectDefenderType = { selectedDefenderType = it },
@@ -145,6 +178,7 @@ fun GamePlayScreen(
             GamePhase.PLAYER_TURN -> {
                 PlayerTurnControls(
                     gameState = gameState,
+                    coinsState = coins,
                     selectedDefenderType = selectedDefenderType,
                     selectedDefenderId = selectedDefenderId,
                     selectedTargetId = selectedTargetId,
@@ -190,6 +224,7 @@ fun GameGrid(
                         isSelected = selectedDefenderType != null,
                         isDefenderSelected = gameState.defenders.find { it.position == position }?.id == selectedDefenderId,
                         isTargetSelected = gameState.attackers.find { it.position == position }?.id == selectedTargetId,
+                        selectedDefenderId = selectedDefenderId,
                         onClick = { onCellClick(position) }
                     )
                 }
@@ -205,6 +240,7 @@ fun GridCell(
     isSelected: Boolean,
     isDefenderSelected: Boolean,
     isTargetSelected: Boolean,
+    selectedDefenderId: Int?,
     onClick: () -> Unit
 ) {
     val isSpawnPoint = gameState.level.isSpawnPoint(position)
@@ -214,6 +250,19 @@ fun GridCell(
     val isBuildArea = gameState.level.isBuildArea(position)
     val defender = gameState.defenders.find { it.position == position }
     val attacker = gameState.attackers.find { it.position == position && !it.isDefeated }
+    
+    // Check if this cell is in range of the selected defender
+    val cellIsInRange = selectedDefenderId?.let { defenderId ->
+        val selectedDefender = gameState.defenders.find { it.id == defenderId }
+        selectedDefender?.let { sel ->
+            if (sel.position == position) {
+                false  // Don't highlight the defender's own cell
+            } else {
+                val distance = sel.position.distanceTo(position)
+                distance >= sel.type.minRange && distance <= sel.range
+            }
+        } ?: false
+    } ?: false
     
     // Base background color based on area type - ALWAYS visible
     // Build islands + strips adjacent to path allow tower placement
@@ -225,27 +274,46 @@ fun GridCell(
     }
     
     // Apply slight tint for selection states, but keep base color visible
+    // Override with red background for enemy units and colored background for defenders
+    // During INITIAL_BUILDING phase, don't apply any selection tints
     val backgroundColor = when {
-        isDefenderSelected -> baseBackgroundColor.copy(alpha = 0.7f)
-        isTargetSelected -> baseBackgroundColor.copy(alpha = 0.8f)
-        isSelected -> baseBackgroundColor.copy(alpha = 0.9f)
-        else -> baseBackgroundColor
+        attacker != null -> Color(0xFFF44336)  // Red background for enemies
+        defender != null -> {
+            when {
+                !defender.isReady -> Color(0xFF9E9E9E)  // Gray for building
+                defender.actionsRemaining <= 0 -> Color(0xFF7986CB)  // Blue-gray mix for used up actions
+                else -> Color(0xFF2196F3)  // Blue for ready with actions
+            }
+        }
+        isDefenderSelected && gameState.phase != GamePhase.INITIAL_BUILDING -> baseBackgroundColor.copy(alpha = 0.7f)
+        isTargetSelected && gameState.phase != GamePhase.INITIAL_BUILDING -> baseBackgroundColor.copy(alpha = 0.8f)
+        else -> baseBackgroundColor  // No selection highlighting during placement or in initial phase
     }
     
     // Border color - use borders to indicate entities instead of background
+    // For range visualization, show green border on path tiles in range (only if tower has actions)
+    val showRange = selectedDefenderId?.let { defenderId ->
+        val selectedDefender = gameState.defenders.find { it.id == defenderId }
+        selectedDefender?.isReady == true && selectedDefender.actionsRemaining > 0
+    } ?: false
+    
     val borderColor = when {
+        cellIsInRange && isOnPath && showRange -> Color(0xFF4CAF50)  // Green border for tiles in range (only on path, only if actions available)
+        isDefenderSelected && gameState.phase != GamePhase.INITIAL_BUILDING -> Color(0xFFFFEB3B)  // Yellow border for selected defender (not during initial building)
         isSpawnPoint -> Color(0xFFFF9800)  // Orange border for spawn
         isTarget -> Color(0xFF4CAF50)  // Green border for target
         attacker != null -> Color(0xFFF44336)  // Red border for enemies
         defender != null -> if (defender.isReady) Color(0xFF2196F3) else Color(0xFF9E9E9E)  // Blue/gray border for towers
-        else -> Color.Gray
+        else -> Color.Transparent  // No borders for empty cells
     }
     
     // Thicker borders for important elements
     val borderWidth = when {
+        isDefenderSelected && gameState.phase != GamePhase.INITIAL_BUILDING -> 5.dp  // Extra thick border for selected defender (not during initial building)
+        cellIsInRange && isOnPath && showRange -> 4.dp  // Thick border for cells in range
         isSpawnPoint || isTarget -> 3.dp
         attacker != null || defender != null -> 3.dp
-        else -> 1.dp
+        else -> 0.dp  // No border for empty cells
     }
     
     Box(
@@ -258,13 +326,23 @@ fun GridCell(
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             when {
-                isSpawnPoint && attacker == null && defender == null -> {
-                    // Show spawn indicator when cell is empty
-                    Text("S", style = MaterialTheme.typography.labelSmall, color = Color(0xFFFF9800))
-                }
-                isTarget && attacker == null && defender == null -> {
-                    // Show target indicator when cell is empty
-                    Text("T", style = MaterialTheme.typography.labelSmall, color = Color(0xFF4CAF50))
+                attacker != null -> {
+                    Text(
+                        attacker.type.displayName,
+                        style = MaterialTheme.typography.labelSmall,
+                        fontSize = 10.sp,
+                        color = Color.White,
+                        maxLines = 1,
+                        textAlign = TextAlign.Center,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        "${attacker.currentHealth}/${attacker.maxHealth}",
+                        style = MaterialTheme.typography.labelSmall,
+                        fontSize = 9.sp,
+                        color = Color.White,
+                        textAlign = TextAlign.Center
+                    )
                 }
                 defender != null -> {
                     Text(
@@ -272,14 +350,14 @@ fun GridCell(
                         style = MaterialTheme.typography.labelSmall,
                         fontSize = MaterialTheme.typography.labelSmall.fontSize * 0.65f,
                         textAlign = TextAlign.Center,
-                        color = if (defender.isReady) Color.White else Color.Black,
+                        color = Color.White,  // Always white on colored backgrounds
                         maxLines = 1
                     )
                     Text(
                         "Lvl ${defender.level}",
                         style = MaterialTheme.typography.labelSmall,
                         fontSize = MaterialTheme.typography.labelSmall.fontSize * 0.6f,
-                        color = if (defender.isReady) Color.White else Color.Black
+                        color = Color.White  // Always white on colored backgrounds
                     )
                     if (!defender.isReady) {
                         Text(
@@ -297,23 +375,13 @@ fun GridCell(
                         )
                     }
                 }
-                attacker != null -> {
-                    Text(
-                        attacker.type.displayName,
-                        style = MaterialTheme.typography.labelSmall,
-                        fontSize = 10.sp,
-                        color = Color.White,
-                        maxLines = 1,
-                        textAlign = TextAlign.Center,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        "HP: ${attacker.currentHealth}/${attacker.maxHealth}",
-                        style = MaterialTheme.typography.labelSmall,
-                        fontSize = 9.sp,
-                        color = Color.White,
-                        textAlign = TextAlign.Center
-                    )
+                isSpawnPoint -> {
+                    // Show spawn indicator when cell is empty
+                    Text("S", style = MaterialTheme.typography.labelSmall, color = Color(0xFFFF9800))
+                }
+                isTarget -> {
+                    // Show target indicator when cell is empty
+                    Text("T", style = MaterialTheme.typography.labelSmall, color = Color(0xFF4CAF50))
                 }
             }
         }
@@ -323,6 +391,7 @@ fun GridCell(
 @Composable
 fun InitialBuildingControls(
     gameState: GameState,
+    coinsState: State<Int>,
     selectedDefenderType: DefenderType?,
     selectedDefenderId: Int?,
     onSelectDefenderType: (DefenderType?) -> Unit,
@@ -337,16 +406,19 @@ fun InitialBuildingControls(
         
         LazyVerticalGrid(
             columns = GridCells.Fixed(3),
-            modifier = Modifier.fillMaxWidth().height(150.dp),
+            modifier = Modifier.fillMaxWidth().height(170.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(DefenderType.entries.toTypedArray()) { type ->
-                val canAfford = gameState.canPlaceDefender(type) // Recalculate on every recomposition
+            items(DefenderType.entries.toTypedArray(), key = { type -> "${type.name}_${coinsState.value}" }) { type ->
+                // Directly calculate canAfford using coinsState.value to ensure immediate reactivity
+                val canAfford = coinsState.value >= type.baseCost
+                println("DEBUG: InitialBuilding Button for ${type.displayName} - coins: ${coinsState.value}, cost: ${type.baseCost}, canAfford: $canAfford")
                 DefenderButton(
                     type = type,
                     isSelected = selectedDefenderType == type,
                     canAfford = canAfford,
+                    coinsState = coinsState,  // Pass State instead of Int
                     onClick = {
                         onSelectDefenderType(if (selectedDefenderType == type) null else type)
                     }
@@ -377,6 +449,7 @@ fun InitialBuildingControls(
 @Composable
 fun PlayerTurnControls(
     gameState: GameState,
+    coinsState: State<Int>,
     selectedDefenderType: DefenderType?,
     selectedDefenderId: Int?,
     selectedTargetId: Int?,
@@ -394,16 +467,19 @@ fun PlayerTurnControls(
         // Defender placement buttons
         LazyVerticalGrid(
             columns = GridCells.Fixed(3),
-            modifier = Modifier.fillMaxWidth().height(120.dp),
+            modifier = Modifier.fillMaxWidth().height(150.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(DefenderType.entries.toTypedArray()) { type ->
-                val canAfford = gameState.canPlaceDefender(type) // Recalculate on every recomposition
+            items(DefenderType.entries.toTypedArray(), key = { type -> "${type.name}_${coinsState.value}" }) { type ->
+                // Directly calculate canAfford using coinsState.value to ensure immediate reactivity
+                val canAfford = coinsState.value >= type.baseCost
+                println("DEBUG: PlayerTurn Button for ${type.displayName} - coins: ${coinsState.value}, cost: ${type.baseCost}, canAfford: $canAfford")
                 DefenderButton(
                     type = type,
                     isSelected = selectedDefenderType == type,
                     canAfford = canAfford,
+                    coinsState = coinsState,  // Pass State instead of Int
                     onClick = {
                         onSelectDefenderType(if (selectedDefenderType == type) null else type)
                     }
@@ -468,6 +544,14 @@ fun DefenderInfo(
                          style = MaterialTheme.typography.bodySmall)
                 }
                 
+                if (gameState.canUpgradeDefender(defender)) {
+                    val nextDamage = defender.damage + 5
+                    val nextRange = defender.range + (if (defender.level % 2 == 0) 1 else 0)
+                    Text("After upgrade: Damage ${nextDamage}, Range ${nextRange}",
+                         style = MaterialTheme.typography.bodySmall,
+                         color = Color(0xFF4CAF50))
+                }
+                
                 Button(
                     onClick = { onUpgradeDefender(defender.id) },
                     enabled = gameState.canUpgradeDefender(defender),
@@ -482,8 +566,8 @@ fun DefenderInfo(
 
 @Composable
 fun EnemyTurnInfo() {
-    // The ViewModel automatically handles the 1.5s delay and phase progression
-    // This composable just displays the enemy turn indicator
+    // The ViewModel automatically handles the delays and phase progression
+    // This composable displays the enemy turn indicator with animation
     Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
         Card(
             modifier = Modifier.fillMaxWidth(),
@@ -496,15 +580,23 @@ fun EnemyTurnInfo() {
                 Text(
                     "Enemy Turn", 
                     style = MaterialTheme.typography.titleLarge,
+                    color = Color.Red,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                CircularProgressIndicator(color = Color.Red)
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(
+                    "Enemies are spawning and moving...", 
+                    style = MaterialTheme.typography.bodyMedium,
                     color = Color.Red
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                CircularProgressIndicator(color = Color.Red)
-                Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    "Enemies are moving...", 
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.Red
+                    "Watch the grid for changes!", 
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color(0xFFD32F2F),
+                    fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
                 )
             }
         }
@@ -516,21 +608,28 @@ fun DefenderButton(
     type: DefenderType,
     isSelected: Boolean,
     canAfford: Boolean,
+    coinsState: State<Int>,  // Accept State instead of Int
     onClick: () -> Unit
 ) {
+    // Recalculate canAfford based on current coins.value to ensure reactivity
+    val actuallyCanAfford = coinsState.value >= type.baseCost
+    
     Button(
         onClick = onClick,
-        enabled = canAfford,
+        enabled = actuallyCanAfford,  // Use recalculated value
         colors = ButtonDefaults.buttonColors(
             containerColor = if (isSelected) Color(0xFF1976D2) else MaterialTheme.colorScheme.primary
         ),
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth().height(65.dp)
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(type.displayName.split(" ")[0], style = MaterialTheme.typography.labelSmall)
+            Text(type.displayName.split(" ")[0], style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
             Text("${type.baseCost}c ⏱${type.buildTime}", 
                  style = MaterialTheme.typography.labelSmall,
-                 fontSize = MaterialTheme.typography.labelSmall.fontSize * 0.8f)
+                 fontSize = MaterialTheme.typography.labelSmall.fontSize * 0.75f)
+            Text("Range:${if (type.minRange > 0) "${type.minRange}-" else ""}${type.baseRange} Actions:${type.actionsPerTurn}", 
+                 style = MaterialTheme.typography.labelSmall,
+                 fontSize = MaterialTheme.typography.labelSmall.fontSize * 0.65f)
         }
     }
 }
