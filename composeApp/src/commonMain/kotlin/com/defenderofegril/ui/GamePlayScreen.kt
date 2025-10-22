@@ -223,16 +223,31 @@ fun GameGrid(
     val hexWidth = hexSize * 2f
     val hexHeight = hexSize * kotlin.math.sqrt(3f)
     
-    Column(
-        modifier = modifier.fillMaxWidth().horizontalScroll(scrollState),
-        horizontalAlignment = Alignment.Start
+    // Calculate spacing for honeycomb pattern
+    val horizontalSpacing = hexWidth * 0.75f // 3/4 of width for horizontal distance between centers
+    val verticalSpacing = hexHeight // vertical distance between row centers
+    
+    // Calculate total grid dimensions
+    val totalWidth = (gameState.level.gridWidth * horizontalSpacing + hexWidth * 0.25f).dp
+    val totalHeight = (gameState.level.gridHeight * verticalSpacing).dp
+    
+    Box(
+        modifier = modifier
+            .size(width = totalWidth, height = totalHeight)
+            .horizontalScroll(scrollState)
     ) {
+        // Position each hexagon manually
         for (y in 0 until gameState.level.gridHeight) {
-            Row(
-                modifier = Modifier.offset(x = if (y % 2 == 1) (hexWidth * 0.75f).dp else 0.dp)
-            ) {
-                for (x in 0 until gameState.level.gridWidth) {
-                    val position = Position(x, y)
+            for (x in 0 until gameState.level.gridWidth) {
+                val position = Position(x, y)
+                
+                // Calculate position for this hexagon
+                val xOffset = x * horizontalSpacing + if (y % 2 == 1) horizontalSpacing / 2f else 0f
+                val yOffset = y * verticalSpacing
+                
+                Box(
+                    modifier = Modifier.offset(x = xOffset.dp, y = yOffset.dp)
+                ) {
                     GridCell(
                         position = position,
                         gameState = gameState,
@@ -332,9 +347,10 @@ fun GridCell(
     val hexWidth = hexSize * 2f
     val hexHeight = hexSize * kotlin.math.sqrt(3f)
     
+    // Draw hexagon directly without a Box container to avoid rectangular appearance
     Box(
         modifier = Modifier
-            .size(width = (hexWidth * 1.5f).dp, height = hexHeight.dp)
+            .size(width = hexWidth.dp, height = hexHeight.dp)
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
