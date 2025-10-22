@@ -144,16 +144,26 @@ class GameViewModel {
         // This ensures Compose's collectAsState() detects the change
         val currentState = _gameState.value ?: return
         
-        // Create a deep copy with new list instances to trigger state change detection
+        // Create a complete copy with all properties and new list instances
         // This is necessary because Compose's collectAsState() compares object references
-        _gameState.value = currentState.copy(
+        _gameState.value = GameState(
+            level = currentState.level,
+            phase = currentState.phase,
+            coins = currentState.coins,
+            healthPoints = currentState.healthPoints,
             defenders = currentState.defenders.toMutableList(),
-            attackers = currentState.attackers.toMutableList(),
-            attackersToSpawn = currentState.attackersToSpawn.toMutableList()
+            attackers = currentState.attackers.filter { !it.isDefeated }.toMutableList(),  // Filter out defeated enemies
+            nextDefenderId = currentState.nextDefenderId,
+            nextAttackerId = currentState.nextAttackerId,
+            currentWaveIndex = currentState.currentWaveIndex,
+            spawnCounter = currentState.spawnCounter,
+            attackersToSpawn = currentState.attackersToSpawn.toMutableList(),
+            turnNumber = currentState.turnNumber,
+            actionsRemainingThisTurn = currentState.actionsRemainingThisTurn
         )
         
         println("DEBUG: triggerStateUpdate - New state instance created, updateCounter=${++updateCounter}")
-        println("DEBUG: State after update - Phase: ${_gameState.value?.phase}, Attackers: ${_gameState.value?.attackers?.size}")
+        println("DEBUG: State after update - Phase: ${_gameState.value?.phase}, Turn: ${_gameState.value?.turnNumber}, Attackers: ${_gameState.value?.attackers?.size}, Coins: ${_gameState.value?.coins}")
         _gameState.value?.attackers?.forEach { attacker ->
             println("DEBUG: After update - Enemy ${attacker.id} - Type: ${attacker.type}, Position: (${attacker.position.x}, ${attacker.position.y})")
         }
