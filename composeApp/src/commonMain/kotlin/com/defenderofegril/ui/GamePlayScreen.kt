@@ -527,8 +527,8 @@ fun DefenderInfo(
 
 @Composable
 fun EnemyTurnInfo() {
-    // The ViewModel automatically handles the 1.5s delay and phase progression
-    // This composable just displays the enemy turn indicator
+    // The ViewModel automatically handles the delays and phase progression
+    // This composable displays the enemy turn indicator with animation
     Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
         Card(
             modifier = Modifier.fillMaxWidth(),
@@ -541,15 +541,23 @@ fun EnemyTurnInfo() {
                 Text(
                     "Enemy Turn", 
                     style = MaterialTheme.typography.titleLarge,
+                    color = Color.Red,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                CircularProgressIndicator(color = Color.Red)
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(
+                    "Enemies are spawning and moving...", 
+                    style = MaterialTheme.typography.bodyMedium,
                     color = Color.Red
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                CircularProgressIndicator(color = Color.Red)
-                Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    "Enemies are moving...", 
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.Red
+                    "Watch the grid for changes!", 
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color(0xFFD32F2F),
+                    fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
                 )
             }
         }
