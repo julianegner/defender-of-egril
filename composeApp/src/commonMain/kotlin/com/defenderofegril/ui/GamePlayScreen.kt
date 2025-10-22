@@ -34,7 +34,7 @@ fun GamePlayScreen(
     onBackToMap: () -> Unit
 ) {
     // Force recomposition when game state changes by using key properties
-    key(gameState.turnNumber, gameState.phase, gameState.attackers.size, gameState.defenders.size) {
+    key(gameState.turnNumber, gameState.phase, gameState.attackers.size, gameState.defenders.size, gameState.coins) {
         GamePlayScreenContent(
             gameState = gameState,
             onPlaceDefender = onPlaceDefender,
