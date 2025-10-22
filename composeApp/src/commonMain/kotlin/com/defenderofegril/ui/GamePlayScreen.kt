@@ -167,6 +167,7 @@ private fun GamePlayScreenContent(
             GamePhase.INITIAL_BUILDING -> {
                 InitialBuildingControls(
                     gameState = gameState,
+                    coinsState = coins,
                     selectedDefenderType = selectedDefenderType,
                     selectedDefenderId = selectedDefenderId,
                     onSelectDefenderType = { selectedDefenderType = it },
@@ -177,6 +178,7 @@ private fun GamePlayScreenContent(
             GamePhase.PLAYER_TURN -> {
                 PlayerTurnControls(
                     gameState = gameState,
+                    coinsState = coins,
                     selectedDefenderType = selectedDefenderType,
                     selectedDefenderId = selectedDefenderId,
                     selectedTargetId = selectedTargetId,
@@ -389,6 +391,7 @@ fun GridCell(
 @Composable
 fun InitialBuildingControls(
     gameState: GameState,
+    coinsState: State<Int>,
     selectedDefenderType: DefenderType?,
     selectedDefenderId: Int?,
     onSelectDefenderType: (DefenderType?) -> Unit,
@@ -407,15 +410,15 @@ fun InitialBuildingControls(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(DefenderType.entries.toTypedArray(), key = { type -> "${type.name}_${coins.value}" }) { type ->
-                // Directly calculate canAfford using coins.value to ensure immediate reactivity
-                val canAfford = coins.value >= type.baseCost
-                println("DEBUG: InitialBuilding Button for ${type.displayName} - coins: ${coins.value}, cost: ${type.baseCost}, canAfford: $canAfford")
+            items(DefenderType.entries.toTypedArray(), key = { type -> "${type.name}_${coinsState.value}" }) { type ->
+                // Directly calculate canAfford using coinsState.value to ensure immediate reactivity
+                val canAfford = coinsState.value >= type.baseCost
+                println("DEBUG: InitialBuilding Button for ${type.displayName} - coins: ${coinsState.value}, cost: ${type.baseCost}, canAfford: $canAfford")
                 DefenderButton(
                     type = type,
                     isSelected = selectedDefenderType == type,
                     canAfford = canAfford,
-                    coinsState = coins,  // Pass State instead of Int
+                    coinsState = coinsState,  // Pass State instead of Int
                     onClick = {
                         onSelectDefenderType(if (selectedDefenderType == type) null else type)
                     }
@@ -446,6 +449,7 @@ fun InitialBuildingControls(
 @Composable
 fun PlayerTurnControls(
     gameState: GameState,
+    coinsState: State<Int>,
     selectedDefenderType: DefenderType?,
     selectedDefenderId: Int?,
     selectedTargetId: Int?,
@@ -467,15 +471,15 @@ fun PlayerTurnControls(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(DefenderType.entries.toTypedArray(), key = { type -> "${type.name}_${coins.value}" }) { type ->
-                // Directly calculate canAfford using coins.value to ensure immediate reactivity
-                val canAfford = coins.value >= type.baseCost
-                println("DEBUG: PlayerTurn Button for ${type.displayName} - coins: ${coins.value}, cost: ${type.baseCost}, canAfford: $canAfford")
+            items(DefenderType.entries.toTypedArray(), key = { type -> "${type.name}_${coinsState.value}" }) { type ->
+                // Directly calculate canAfford using coinsState.value to ensure immediate reactivity
+                val canAfford = coinsState.value >= type.baseCost
+                println("DEBUG: PlayerTurn Button for ${type.displayName} - coins: ${coinsState.value}, cost: ${type.baseCost}, canAfford: $canAfford")
                 DefenderButton(
                     type = type,
                     isSelected = selectedDefenderType == type,
                     canAfford = canAfford,
-                    coinsState = coins,  // Pass State instead of Int
+                    coinsState = coinsState,  // Pass State instead of Int
                     onClick = {
                         onSelectDefenderType(if (selectedDefenderType == type) null else type)
                     }
