@@ -1,5 +1,7 @@
 package com.defenderofegril.ui
 
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import com.defenderofegril.game.GameEngine
 import com.defenderofegril.game.LevelData
 import com.defenderofegril.model.*
@@ -28,6 +30,10 @@ class GameViewModel {
     
     private val _gameState = MutableStateFlow<GameState?>(null)
     val gameState: StateFlow<GameState?> = _gameState.asStateFlow()
+    
+    // MutableState for coins to ensure UI reactivity
+    private val _coins = mutableStateOf(0)
+    val coins: State<Int> = _coins
     
     private var gameEngine: GameEngine? = null
     private var updateCounter = 0L
@@ -60,6 +66,7 @@ class GameViewModel {
         if (worldLevel != null && worldLevel.status != LevelStatus.LOCKED) {
             val newGameState = GameState(level = worldLevel.level)
             _gameState.value = newGameState
+            _coins.value = newGameState.coins  // Initialize coins MutableState
             gameEngine = GameEngine(newGameState)
             _currentScreen.value = Screen.GamePlay(levelId)
         }
@@ -152,6 +159,9 @@ class GameViewModel {
         
         // Filter out defeated enemies from the lists
         currentState.attackers.removeAll { it.isDefeated }
+        
+        // Update the coins MutableState for UI reactivity
+        _coins.value = currentState.coins
         
         // Force emission by creating a shallow copy that preserves the same state object internals
         // This is a workaround - ideally we'd use MutableState but that requires larger refactor
