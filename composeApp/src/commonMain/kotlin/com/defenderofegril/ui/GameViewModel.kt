@@ -105,6 +105,12 @@ class GameViewModel {
         val result = gameEngine?.defenderAttack(defenderId, targetId) ?: false
         if (result) {
             triggerStateUpdate()
+            
+            // Check for immediate victory after attack
+            val state = _gameState.value
+            if (state != null && state.isLevelWon()) {
+                completeLevel(state.level.id, won = true)
+            }
         }
         return result
     }
@@ -112,15 +118,15 @@ class GameViewModel {
     fun endPlayerTurn() {
         val state = _gameState.value ?: return
         
-        // Set phase to ENEMY_TURN for UI feedback
-        state.phase = GamePhase.ENEMY_TURN
-        triggerStateUpdate()
-        
         // Automatically process enemy turn after a delay
         viewModelScope.launch(Dispatchers.Default) {
+            // Set phase to ENEMY_TURN for UI feedback
+            state.phase = GamePhase.ENEMY_TURN
+            triggerStateUpdate()
+            
             delay(500) // Shorter delay to see "ENEMY TURN" indicator
             
-            // Now process the actual enemy turn logic
+            // Now process the actual enemy turn logic (this will increment turn counter)
             gameEngine?.endPlayerTurn()
             
             // Force UI update after enemy movements to show the changes

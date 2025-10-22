@@ -270,6 +270,7 @@ fun GridCell(
     
     // Apply slight tint for selection states, but keep base color visible
     // Override with red background for enemy units and colored background for defenders
+    // Don't apply selection tint during initial building phase
     val backgroundColor = when {
         attacker != null -> Color(0xFFF44336)  // Red background for enemies
         defender != null -> {
@@ -281,7 +282,7 @@ fun GridCell(
         }
         isDefenderSelected -> baseBackgroundColor.copy(alpha = 0.7f)
         isTargetSelected -> baseBackgroundColor.copy(alpha = 0.8f)
-        isSelected -> baseBackgroundColor.copy(alpha = 0.9f)
+        isSelected && gameState.phase != GamePhase.INITIAL_BUILDING -> baseBackgroundColor.copy(alpha = 0.9f)  // Don't highlight in initial phase
         else -> baseBackgroundColor
     }
     
@@ -332,7 +333,7 @@ fun GridCell(
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        "HP: ${attacker.currentHealth}/${attacker.maxHealth}",
+                        "${attacker.currentHealth}/${attacker.maxHealth}",
                         style = MaterialTheme.typography.labelSmall,
                         fontSize = 9.sp,
                         color = Color.White,
@@ -534,7 +535,7 @@ fun DefenderInfo(
                 if (gameState.canUpgradeDefender(defender)) {
                     val nextDamage = defender.damage + 5
                     val nextRange = defender.range + (if (defender.level % 2 == 0) 1 else 0)
-                    Text("After upgrade: Dmg ${nextDamage}, Rng ${nextRange}",
+                    Text("After upgrade: Damage ${nextDamage}, Range ${nextRange}",
                          style = MaterialTheme.typography.bodySmall,
                          color = Color(0xFF4CAF50))
                 }
@@ -610,7 +611,7 @@ fun DefenderButton(
             Text("${type.baseCost}c ⏱${type.buildTime}", 
                  style = MaterialTheme.typography.labelSmall,
                  fontSize = MaterialTheme.typography.labelSmall.fontSize * 0.75f)
-            Text("Rng:${if (type.minRange > 0) "${type.minRange}-" else ""}${type.baseRange} Act:${type.actionsPerTurn}", 
+            Text("Range:${if (type.minRange > 0) "${type.minRange}-" else ""}${type.baseRange} Actions:${type.actionsPerTurn}", 
                  style = MaterialTheme.typography.labelSmall,
                  fontSize = MaterialTheme.typography.labelSmall.fontSize * 0.65f)
         }
