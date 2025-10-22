@@ -163,6 +163,16 @@ class GameViewModel {
         
         println("DEBUG: triggerStateUpdate - State updated, updateCounter=${++updateCounter}")
         println("DEBUG: State after update - Phase: ${_gameState.value?.phase}, Turn: ${_gameState.value?.turnNumber}, Attackers: ${_gameState.value?.attackers?.size}, Coins: ${_gameState.value?.coins}")
+        
+        // Check affordability for all tower types
+        println("DEBUG: Tower affordability check:")
+        _gameState.value?.let { state ->
+            DefenderType.entries.forEach { type ->
+                val canAfford = state.coins >= type.baseCost
+                println("DEBUG:   ${type.displayName} (cost ${type.baseCost}): canAfford=$canAfford (coins=${state.coins})")
+            }
+        }
+        
         _gameState.value?.attackers?.forEach { attacker ->
             println("DEBUG: After update - Enemy ${attacker.id} - Type: ${attacker.type}, Position: (${attacker.position.x}, ${attacker.position.y})")
         }
