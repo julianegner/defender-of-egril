@@ -358,12 +358,8 @@ class GameEngine(private val state: GameState) {
     }
     
     private fun getNeighbors(pos: Position): List<Position> {
-        return listOf(
-            Position(pos.x + 1, pos.y),
-            Position(pos.x - 1, pos.y),
-            Position(pos.x, pos.y + 1),
-            Position(pos.x, pos.y - 1)
-        ).filter { neighbor ->
+        // Use hexagonal neighbors instead of square grid
+        return pos.getHexNeighbors().filter { neighbor ->
             neighbor.x >= 0 && neighbor.x < state.level.gridWidth &&
             neighbor.y >= 0 && neighbor.y < state.level.gridHeight &&
             state.level.isOnPath(neighbor) &&
