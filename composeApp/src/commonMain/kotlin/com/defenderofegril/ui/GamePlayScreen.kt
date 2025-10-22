@@ -299,8 +299,7 @@ fun GridCell(
         isTarget -> Color(0xFF4CAF50)  // Green border for target
         attacker != null -> Color(0xFFF44336)  // Red border for enemies
         defender != null -> if (defender.isReady) Color(0xFF2196F3) else Color(0xFF9E9E9E)  // Blue/gray border for towers
-        gameState.phase == GamePhase.INITIAL_BUILDING -> Color.Transparent  // No border during initial building for empty cells
-        else -> Color.Gray
+        else -> Color.Transparent  // No borders for empty cells
     }
     
     // Thicker borders for important elements
@@ -309,8 +308,7 @@ fun GridCell(
         cellIsInRange && isOnPath && showRange -> 4.dp  // Thick border for cells in range
         isSpawnPoint || isTarget -> 3.dp
         attacker != null || defender != null -> 3.dp
-        gameState.phase == GamePhase.INITIAL_BUILDING -> 0.dp  // No border during initial building for empty cells
-        else -> 1.dp
+        else -> 0.dp  // No border for empty cells
     }
     
     Box(
@@ -409,6 +407,7 @@ fun InitialBuildingControls(
             items(DefenderType.entries.toTypedArray(), key = { type -> "${type.name}_${gameState.coins}" }) { type ->
                 // Directly calculate canAfford without caching to ensure immediate reactivity
                 val canAfford = gameState.coins >= type.baseCost
+                println("DEBUG: InitialBuilding Button for ${type.displayName} - coins: ${gameState.coins}, cost: ${type.baseCost}, canAfford: $canAfford")
                 DefenderButton(
                     type = type,
                     isSelected = selectedDefenderType == type,
@@ -467,6 +466,7 @@ fun PlayerTurnControls(
             items(DefenderType.entries.toTypedArray(), key = { type -> "${type.name}_${gameState.coins}" }) { type ->
                 // Directly calculate canAfford without caching to ensure immediate reactivity
                 val canAfford = gameState.coins >= type.baseCost
+                println("DEBUG: PlayerTurn Button for ${type.displayName} - coins: ${gameState.coins}, cost: ${type.baseCost}, canAfford: $canAfford")
                 DefenderButton(
                     type = type,
                     isSelected = selectedDefenderType == type,
