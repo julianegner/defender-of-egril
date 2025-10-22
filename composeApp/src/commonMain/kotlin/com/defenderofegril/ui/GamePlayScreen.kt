@@ -262,11 +262,11 @@ fun GameGrid(
     
     // Calculate spacing for honeycomb pattern
     val horizontalSpacing = hexWidth * 0.75f // 3/4 of width for horizontal distance between centers
-    val verticalSpacing = hexHeight * 0.75f // 3/4 of height for vertical distance (rows interlock)
+    val verticalSpacing = hexHeight // Full height - flat sides touch perfectly
     
     // Calculate total grid dimensions
     val totalWidth = (gameState.level.gridWidth * horizontalSpacing + hexWidth * 0.25f).dp
-    val totalHeight = (gameState.level.gridHeight * verticalSpacing + hexHeight * 0.25f).dp
+    val totalHeight = (gameState.level.gridHeight * verticalSpacing).dp
     
     Box(
         modifier = modifier
