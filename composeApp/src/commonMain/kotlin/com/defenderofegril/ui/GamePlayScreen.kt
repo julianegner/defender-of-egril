@@ -26,6 +26,7 @@ import kotlinx.coroutines.delay
 @Composable
 fun GamePlayScreen(
     gameState: GameState,
+    coins: State<Int>,  // Add coins State parameter
     onPlaceDefender: (DefenderType, Position) -> Boolean,
     onUpgradeDefender: (Int) -> Boolean,
     onStartFirstPlayerTurn: () -> Unit,
@@ -37,6 +38,7 @@ fun GamePlayScreen(
     key(gameState.turnNumber, gameState.phase, gameState.attackers.size, gameState.defenders.size, gameState.coins) {
         GamePlayScreenContent(
             gameState = gameState,
+            coins = coins,  // Pass coins State
             onPlaceDefender = onPlaceDefender,
             onUpgradeDefender = onUpgradeDefender,
             onStartFirstPlayerTurn = onStartFirstPlayerTurn,
@@ -50,6 +52,7 @@ fun GamePlayScreen(
 @Composable
 private fun GamePlayScreenContent(
     gameState: GameState,
+    coins: State<Int>,  // Add coins State parameter
     onPlaceDefender: (DefenderType, Position) -> Boolean,
     onUpgradeDefender: (Int) -> Boolean,
     onStartFirstPlayerTurn: () -> Unit,
@@ -404,15 +407,15 @@ fun InitialBuildingControls(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(DefenderType.entries.toTypedArray(), key = { type -> "${type.name}_${gameState.coins}" }) { type ->
-                // Directly calculate canAfford without caching to ensure immediate reactivity
-                val canAfford = gameState.coins >= type.baseCost
-                println("DEBUG: InitialBuilding Button for ${type.displayName} - coins: ${gameState.coins}, cost: ${type.baseCost}, canAfford: $canAfford")
+            items(DefenderType.entries.toTypedArray(), key = { type -> "${type.name}_${coins.value}" }) { type ->
+                // Directly calculate canAfford using coins.value to ensure immediate reactivity
+                val canAfford = coins.value >= type.baseCost
+                println("DEBUG: InitialBuilding Button for ${type.displayName} - coins: ${coins.value}, cost: ${type.baseCost}, canAfford: $canAfford")
                 DefenderButton(
                     type = type,
                     isSelected = selectedDefenderType == type,
                     canAfford = canAfford,
-                    coins = gameState.coins,  // Pass coins to force recomposition
+                    coinsState = coins,  // Pass State instead of Int
                     onClick = {
                         onSelectDefenderType(if (selectedDefenderType == type) null else type)
                     }
@@ -464,15 +467,15 @@ fun PlayerTurnControls(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(DefenderType.entries.toTypedArray(), key = { type -> "${type.name}_${gameState.coins}" }) { type ->
-                // Directly calculate canAfford without caching to ensure immediate reactivity
-                val canAfford = gameState.coins >= type.baseCost
-                println("DEBUG: PlayerTurn Button for ${type.displayName} - coins: ${gameState.coins}, cost: ${type.baseCost}, canAfford: $canAfford")
+            items(DefenderType.entries.toTypedArray(), key = { type -> "${type.name}_${coins.value}" }) { type ->
+                // Directly calculate canAfford using coins.value to ensure immediate reactivity
+                val canAfford = coins.value >= type.baseCost
+                println("DEBUG: PlayerTurn Button for ${type.displayName} - coins: ${coins.value}, cost: ${type.baseCost}, canAfford: $canAfford")
                 DefenderButton(
                     type = type,
                     isSelected = selectedDefenderType == type,
                     canAfford = canAfford,
-                    coins = gameState.coins,  // Pass coins to force recomposition
+                    coinsState = coins,  // Pass State instead of Int
                     onClick = {
                         onSelectDefenderType(if (selectedDefenderType == type) null else type)
                     }
@@ -601,11 +604,11 @@ fun DefenderButton(
     type: DefenderType,
     isSelected: Boolean,
     canAfford: Boolean,
-    coins: Int,  // Add coins parameter to force recomposition
+    coinsState: State<Int>,  // Accept State instead of Int
     onClick: () -> Unit
 ) {
-    // Recalculate canAfford based on current coins to ensure reactivity
-    val actuallyCanAfford = coins >= type.baseCost
+    // Recalculate canAfford based on current coins.value to ensure reactivity
+    val actuallyCanAfford = coinsState.value >= type.baseCost
     
     Button(
         onClick = onClick,
