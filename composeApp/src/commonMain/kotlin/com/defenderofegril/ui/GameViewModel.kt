@@ -145,29 +145,23 @@ class GameViewModel {
     }
     
     private fun triggerStateUpdate() {
-        // Force StateFlow to emit by creating a new copy of the state
-        // This ensures Compose's collectAsState() detects the change
+        // Force StateFlow to emit by reassigning the same state
+        // StateFlow compares by reference, so we need to create a new reference
+        // but we can't create a completely new GameState because GameEngine holds a reference to the original
         val currentState = _gameState.value ?: return
         
-        // Create a complete copy with all properties and new list instances
-        // This is necessary because Compose's collectAsState() compares object references
-        _gameState.value = GameState(
-            level = currentState.level,
-            phase = currentState.phase,
-            coins = currentState.coins,
-            healthPoints = currentState.healthPoints,
-            defenders = currentState.defenders.toMutableList(),
-            attackers = currentState.attackers.filter { !it.isDefeated }.toMutableList(),  // Filter out defeated enemies
-            nextDefenderId = currentState.nextDefenderId,
-            nextAttackerId = currentState.nextAttackerId,
-            currentWaveIndex = currentState.currentWaveIndex,
-            spawnCounter = currentState.spawnCounter,
-            attackersToSpawn = currentState.attackersToSpawn.toMutableList(),
-            turnNumber = currentState.turnNumber,
-            actionsRemainingThisTurn = currentState.actionsRemainingThisTurn
+        // Filter out defeated enemies from the lists
+        currentState.attackers.removeAll { it.isDefeated }
+        
+        // Force emission by creating a shallow copy that preserves the same state object internals
+        // This is a workaround - ideally we'd use MutableState but that requires larger refactor
+        _gameState.value = currentState.copy(
+            defenders = currentState.defenders,  // Keep same list reference
+            attackers = currentState.attackers,  // Keep same list reference (already filtered)
+            attackersToSpawn = currentState.attackersToSpawn  // Keep same list reference
         )
         
-        println("DEBUG: triggerStateUpdate - New state instance created, updateCounter=${++updateCounter}")
+        println("DEBUG: triggerStateUpdate - State updated, updateCounter=${++updateCounter}")
         println("DEBUG: State after update - Phase: ${_gameState.value?.phase}, Turn: ${_gameState.value?.turnNumber}, Attackers: ${_gameState.value?.attackers?.size}, Coins: ${_gameState.value?.coins}")
         _gameState.value?.attackers?.forEach { attacker ->
             println("DEBUG: After update - Enemy ${attacker.id} - Type: ${attacker.type}, Position: (${attacker.position.x}, ${attacker.position.y})")
