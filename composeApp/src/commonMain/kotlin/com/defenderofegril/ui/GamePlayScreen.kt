@@ -294,20 +294,22 @@ fun GridCell(
     
     val borderColor = when {
         cellIsInRange && isOnPath && showRange -> Color(0xFF4CAF50)  // Green border for tiles in range (only on path, only if actions available)
-        isDefenderSelected -> Color(0xFFFFEB3B)  // Yellow border for selected defender
+        isDefenderSelected && gameState.phase != GamePhase.INITIAL_BUILDING -> Color(0xFFFFEB3B)  // Yellow border for selected defender (not during initial building)
         isSpawnPoint -> Color(0xFFFF9800)  // Orange border for spawn
         isTarget -> Color(0xFF4CAF50)  // Green border for target
         attacker != null -> Color(0xFFF44336)  // Red border for enemies
         defender != null -> if (defender.isReady) Color(0xFF2196F3) else Color(0xFF9E9E9E)  // Blue/gray border for towers
+        gameState.phase == GamePhase.INITIAL_BUILDING -> Color.Transparent  // No border during initial building for empty cells
         else -> Color.Gray
     }
     
     // Thicker borders for important elements
     val borderWidth = when {
-        isDefenderSelected -> 5.dp  // Extra thick border for selected defender
+        isDefenderSelected && gameState.phase != GamePhase.INITIAL_BUILDING -> 5.dp  // Extra thick border for selected defender (not during initial building)
         cellIsInRange && isOnPath && showRange -> 4.dp  // Thick border for cells in range
         isSpawnPoint || isTarget -> 3.dp
         attacker != null || defender != null -> 3.dp
+        gameState.phase == GamePhase.INITIAL_BUILDING -> 0.dp  // No border during initial building for empty cells
         else -> 1.dp
     }
     
@@ -405,8 +407,8 @@ fun InitialBuildingControls(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(DefenderType.entries.toTypedArray(), key = { type -> "${type.name}_${gameState.coins}" }) { type ->
-                // Force recomposition by using remember with coins as key
-                val canAfford = remember(gameState.coins) { gameState.canPlaceDefender(type) }
+                // Directly calculate canAfford without caching to ensure immediate reactivity
+                val canAfford = gameState.coins >= type.baseCost
                 DefenderButton(
                     type = type,
                     isSelected = selectedDefenderType == type,
@@ -463,8 +465,8 @@ fun PlayerTurnControls(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(DefenderType.entries.toTypedArray(), key = { type -> "${type.name}_${gameState.coins}" }) { type ->
-                // Force recomposition by using remember with coins as key
-                val canAfford = remember(gameState.coins) { gameState.canPlaceDefender(type) }
+                // Directly calculate canAfford without caching to ensure immediate reactivity
+                val canAfford = gameState.coins >= type.baseCost
                 DefenderButton(
                     type = type,
                     isSelected = selectedDefenderType == type,
