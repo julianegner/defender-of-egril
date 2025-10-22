@@ -218,8 +218,8 @@ fun GameGrid(
 ) {
     val scrollState = rememberScrollState()
     
-    // Hexagon dimensions
-    val hexSize = 30f // radius of hexagon
+    // Hexagon dimensions - doubled size for better visibility
+    val hexSize = 60f // radius of hexagon (doubled from 30)
     val hexWidth = hexSize * 2f
     val hexHeight = hexSize * kotlin.math.sqrt(3f)
     
@@ -258,7 +258,7 @@ fun GridCell(
     isTargetSelected: Boolean,
     selectedDefenderId: Int?,
     onClick: () -> Unit,
-    hexSize: Float = 30f
+    hexSize: Float = 60f
 ) {
     val isSpawnPoint = gameState.level.isSpawnPoint(position)
     val isTarget = position == gameState.level.targetPosition
@@ -334,7 +334,7 @@ fun GridCell(
     
     Box(
         modifier = Modifier
-            .size(width = (hexWidth * 1.5f).dp, height = hexHeight.dp)
+            .size(width = (hexWidth * 0.75f).dp, height = hexHeight.dp)
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
