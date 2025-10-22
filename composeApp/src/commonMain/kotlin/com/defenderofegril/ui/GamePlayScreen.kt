@@ -270,6 +270,7 @@ fun GridCell(
     
     // Apply slight tint for selection states, but keep base color visible
     // Override with red background for enemy units and colored background for defenders
+    // During INITIAL_BUILDING phase, don't apply any selection tints
     val backgroundColor = when {
         attacker != null -> Color(0xFFF44336)  // Red background for enemies
         defender != null -> {
@@ -279,9 +280,9 @@ fun GridCell(
                 else -> Color(0xFF2196F3)  // Blue for ready with actions
             }
         }
-        isDefenderSelected -> baseBackgroundColor.copy(alpha = 0.7f)
-        isTargetSelected -> baseBackgroundColor.copy(alpha = 0.8f)
-        else -> baseBackgroundColor  // No selection highlighting at all
+        isDefenderSelected && gameState.phase != GamePhase.INITIAL_BUILDING -> baseBackgroundColor.copy(alpha = 0.7f)
+        isTargetSelected && gameState.phase != GamePhase.INITIAL_BUILDING -> baseBackgroundColor.copy(alpha = 0.8f)
+        else -> baseBackgroundColor  // No selection highlighting during placement or in initial phase
     }
     
     // Border color - use borders to indicate entities instead of background
