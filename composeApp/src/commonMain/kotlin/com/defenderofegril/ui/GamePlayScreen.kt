@@ -218,8 +218,8 @@ fun GameGrid(
 ) {
     val scrollState = rememberScrollState()
     
-    // Hexagon dimensions - doubled size for better visibility
-    val hexSize = 60f // radius of hexagon (doubled from 30)
+    // Hexagon dimensions - larger size for better visibility
+    val hexSize = 55f // radius of hexagon (increased from 30 for better visibility)
     val hexWidth = hexSize * 2f
     val hexHeight = hexSize * kotlin.math.sqrt(3f)
     
@@ -258,7 +258,7 @@ fun GridCell(
     isTargetSelected: Boolean,
     selectedDefenderId: Int?,
     onClick: () -> Unit,
-    hexSize: Float = 60f
+    hexSize: Float = 55f
 ) {
     val isSpawnPoint = gameState.level.isSpawnPoint(position)
     val isTarget = position == gameState.level.targetPosition
@@ -328,18 +328,19 @@ fun GridCell(
         else -> 0f
     }
     
-    // Hexagon width and height for layout
+    // Hexagon width and height for layout  
     val hexWidth = hexSize * 2f
     val hexHeight = hexSize * kotlin.math.sqrt(3f)
     
+    // Box sized for proper honeycomb spacing, but hexagon drawn at full size
     Box(
         modifier = Modifier
             .size(width = (hexWidth * 0.75f).dp, height = hexHeight.dp)
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
-        // Draw hexagon
-        Canvas(modifier = Modifier.fillMaxSize()) {
+        // Draw hexagon at full size (will extend beyond Box bounds for proper tiling)
+        Canvas(modifier = Modifier.size(width = hexWidth.dp, height = hexHeight.dp)) {
             val centerX = size.width / 2f
             val centerY = size.height / 2f
             
