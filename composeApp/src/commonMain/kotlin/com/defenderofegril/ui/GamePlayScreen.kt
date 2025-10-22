@@ -33,6 +33,30 @@ fun GamePlayScreen(
     onEndPlayerTurn: () -> Unit,
     onBackToMap: () -> Unit
 ) {
+    // Force recomposition when game state changes by using key properties
+    key(gameState.turnNumber, gameState.phase, gameState.attackers.size, gameState.defenders.size) {
+        GamePlayScreenContent(
+            gameState = gameState,
+            onPlaceDefender = onPlaceDefender,
+            onUpgradeDefender = onUpgradeDefender,
+            onStartFirstPlayerTurn = onStartFirstPlayerTurn,
+            onDefenderAttack = onDefenderAttack,
+            onEndPlayerTurn = onEndPlayerTurn,
+            onBackToMap = onBackToMap
+        )
+    }
+}
+
+@Composable
+private fun GamePlayScreenContent(
+    gameState: GameState,
+    onPlaceDefender: (DefenderType, Position) -> Boolean,
+    onUpgradeDefender: (Int) -> Boolean,
+    onStartFirstPlayerTurn: () -> Unit,
+    onDefenderAttack: (Int, Int) -> Boolean,
+    onEndPlayerTurn: () -> Unit,
+    onBackToMap: () -> Unit
+) {
     var selectedDefenderType by remember { mutableStateOf<DefenderType?>(null) }
     var selectedDefenderId by remember { mutableStateOf<Int?>(null) }
     var selectedTargetId by remember { mutableStateOf<Int?>(null) }
