@@ -324,65 +324,22 @@ fun GridCell(
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            when {
-                attacker != null -> {
-                    Text(
-                        attacker.type.displayName,
-                        style = MaterialTheme.typography.labelSmall,
-                        fontSize = 10.sp,
-                        color = Color.White,
-                        maxLines = 1,
-                        textAlign = TextAlign.Center,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        "${attacker.currentHealth}/${attacker.maxHealth}",
-                        style = MaterialTheme.typography.labelSmall,
-                        fontSize = 9.sp,
-                        color = Color.White,
-                        textAlign = TextAlign.Center
-                    )
-                }
-                defender != null -> {
-                    Text(
-                        defender.type.displayName,
-                        style = MaterialTheme.typography.labelSmall,
-                        fontSize = MaterialTheme.typography.labelSmall.fontSize * 0.65f,
-                        textAlign = TextAlign.Center,
-                        color = Color.White,  // Always white on colored backgrounds
-                        maxLines = 1
-                    )
-                    Text(
-                        "Lvl ${defender.level}",
-                        style = MaterialTheme.typography.labelSmall,
-                        fontSize = MaterialTheme.typography.labelSmall.fontSize * 0.6f,
-                        color = Color.White  // Always white on colored backgrounds
-                    )
-                    if (!defender.isReady) {
-                        Text(
-                            "⏱${defender.buildTimeRemaining}",
-                            style = MaterialTheme.typography.labelSmall,
-                            fontSize = MaterialTheme.typography.labelSmall.fontSize * 0.6f,
-                            color = Color(0xFFFFA500)
-                        )
-                    } else if (defender.actionsRemaining > 0) {
-                        Text(
-                            "⚡${defender.actionsRemaining}",
-                            style = MaterialTheme.typography.labelSmall,
-                            fontSize = MaterialTheme.typography.labelSmall.fontSize * 0.6f,
-                            color = Color.Yellow
-                        )
-                    }
-                }
-                isSpawnPoint -> {
-                    // Show spawn indicator when cell is empty
-                    Text("S", style = MaterialTheme.typography.labelSmall, color = Color(0xFFFF9800))
-                }
-                isTarget -> {
-                    // Show target indicator when cell is empty
-                    Text("T", style = MaterialTheme.typography.labelSmall, color = Color(0xFF4CAF50))
-                }
+        when {
+            attacker != null -> {
+                // Use graphical icon for enemy units
+                EnemyIcon(attacker = attacker)
+            }
+            defender != null -> {
+                // Use graphical icon for towers
+                TowerIcon(defender = defender)
+            }
+            isSpawnPoint -> {
+                // Show spawn indicator when cell is empty
+                Text("S", style = MaterialTheme.typography.labelSmall, color = Color(0xFFFF9800))
+            }
+            isTarget -> {
+                // Show target indicator when cell is empty
+                Text("T", style = MaterialTheme.typography.labelSmall, color = Color(0xFF4CAF50))
             }
         }
     }
