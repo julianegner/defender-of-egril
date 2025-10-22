@@ -405,7 +405,7 @@ fun InitialBuildingControls(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(DefenderType.entries.toTypedArray()) { type ->
+            items(DefenderType.entries.toTypedArray(), key = { type -> "${type.name}_${gameState.coins}" }) { type ->
                 val canAfford = gameState.canPlaceDefender(type) // Recalculate on every recomposition
                 DefenderButton(
                     type = type,
@@ -462,7 +462,7 @@ fun PlayerTurnControls(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(DefenderType.entries.toTypedArray()) { type ->
+            items(DefenderType.entries.toTypedArray(), key = { type -> "${type.name}_${gameState.coins}" }) { type ->
                 val canAfford = gameState.canPlaceDefender(type) // Recalculate on every recomposition
                 DefenderButton(
                     type = type,
