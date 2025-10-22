@@ -240,10 +240,10 @@ fun GridCell(
     }
     
     // Apply slight tint for selection states, but keep base color visible
-    // Override with red background for enemy units
+    // Override with red background for enemy units and colored background for defenders
     val backgroundColor = when {
         attacker != null -> Color(0xFFF44336)  // Red background for enemies
-        cellIsInRange -> baseBackgroundColor.copy(red = baseBackgroundColor.red * 1.2f, green = baseBackgroundColor.green * 1.2f, alpha = 0.9f)  // Brighten cells in range
+        defender != null -> if (defender.isReady) Color(0xFF2196F3) else Color(0xFF9E9E9E)  // Blue for ready, gray for building
         isDefenderSelected -> baseBackgroundColor.copy(alpha = 0.7f)
         isTargetSelected -> baseBackgroundColor.copy(alpha = 0.8f)
         isSelected -> baseBackgroundColor.copy(alpha = 0.9f)
@@ -251,7 +251,9 @@ fun GridCell(
     }
     
     // Border color - use borders to indicate entities instead of background
+    // For range visualization, show green border on path tiles in range
     val borderColor = when {
+        cellIsInRange && isOnPath -> Color(0xFF4CAF50)  // Green border for tiles in range (only on path)
         isSpawnPoint -> Color(0xFFFF9800)  // Orange border for spawn
         isTarget -> Color(0xFF4CAF50)  // Green border for target
         attacker != null -> Color(0xFFF44336)  // Red border for enemies
@@ -261,6 +263,7 @@ fun GridCell(
     
     // Thicker borders for important elements
     val borderWidth = when {
+        cellIsInRange && isOnPath -> 4.dp  // Thick border for cells in range
         isSpawnPoint || isTarget -> 3.dp
         attacker != null || defender != null -> 3.dp
         else -> 1.dp
@@ -300,14 +303,14 @@ fun GridCell(
                         style = MaterialTheme.typography.labelSmall,
                         fontSize = MaterialTheme.typography.labelSmall.fontSize * 0.65f,
                         textAlign = TextAlign.Center,
-                        color = if (defender.isReady) Color.White else Color.Black,
+                        color = Color.White,  // Always white on colored backgrounds
                         maxLines = 1
                     )
                     Text(
                         "Lvl ${defender.level}",
                         style = MaterialTheme.typography.labelSmall,
                         fontSize = MaterialTheme.typography.labelSmall.fontSize * 0.6f,
-                        color = if (defender.isReady) Color.White else Color.Black
+                        color = Color.White  // Always white on colored backgrounds
                     )
                     if (!defender.isReady) {
                         Text(
@@ -355,7 +358,7 @@ fun InitialBuildingControls(
         
         LazyVerticalGrid(
             columns = GridCells.Fixed(3),
-            modifier = Modifier.fillMaxWidth().height(180.dp),
+            modifier = Modifier.fillMaxWidth().height(200.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
@@ -412,7 +415,7 @@ fun PlayerTurnControls(
         // Defender placement buttons
         LazyVerticalGrid(
             columns = GridCells.Fixed(3),
-            modifier = Modifier.fillMaxWidth().height(150.dp),
+            modifier = Modifier.fillMaxWidth().height(170.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
@@ -542,16 +545,19 @@ fun DefenderButton(
         colors = ButtonDefaults.buttonColors(
             containerColor = if (isSelected) Color(0xFF1976D2) else MaterialTheme.colorScheme.primary
         ),
-        modifier = Modifier.fillMaxWidth().height(65.dp)
+        modifier = Modifier.fillMaxWidth().height(75.dp)
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(type.displayName.split(" ")[0], style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
             Text("${type.baseCost}c ⏱${type.buildTime}", 
                  style = MaterialTheme.typography.labelSmall,
                  fontSize = MaterialTheme.typography.labelSmall.fontSize * 0.75f)
-            Text("R:${if (type.minRange > 0) "${type.minRange}-" else ""}${type.baseRange} A:${type.actionsPerTurn}", 
+            Text("Range:${if (type.minRange > 0) "${type.minRange}-" else ""}${type.baseRange}", 
                  style = MaterialTheme.typography.labelSmall,
-                 fontSize = MaterialTheme.typography.labelSmall.fontSize * 0.7f)
+                 fontSize = MaterialTheme.typography.labelSmall.fontSize * 0.65f)
+            Text("Actions:${type.actionsPerTurn}", 
+                 style = MaterialTheme.typography.labelSmall,
+                 fontSize = MaterialTheme.typography.labelSmall.fontSize * 0.65f)
         }
     }
 }
