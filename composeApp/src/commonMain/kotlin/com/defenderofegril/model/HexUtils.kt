@@ -8,6 +8,25 @@ import kotlin.math.sqrt
  * Hexagon utilities based on Red Blob Games hexagon guide
  * Using axial coordinates for pointy-top hexagons
  * https://www.redblobgames.com/grids/hexagons/
+ * 
+ * Coordinate System:
+ * - Uses axial coordinates (q, r) where q=x and r=y
+ * - Pointy-top orientation (vertical points at top and bottom)
+ * - Odd rows are offset to the right by half a hexagon width
+ * 
+ * Visualization:
+ *    /\    /\    /\        Row 0 (even - no offset)
+ *   /  \  /  \  /  \
+ *  |0,0||1,0||2,0|
+ *   \  /  \  /  \  /
+ *    \/    \/    \/
+ *      /\    /\    /\     Row 1 (odd - offset right)
+ *     /  \  /  \  /  \
+ *    |0,1||1,1||2,1|
+ *     \  /  \  /  \  /
+ *      \/    \/    \/
+ * 
+ * Each hexagon has 6 neighbors: E, NE, NW, W, SW, SE
  */
 
 /**
