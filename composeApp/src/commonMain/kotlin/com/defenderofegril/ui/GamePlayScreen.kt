@@ -6,11 +6,13 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -864,7 +866,7 @@ private fun Color.luminance(): Float {
 @Composable
 fun EnemyListPanel(gameState: GameState, modifier: Modifier = Modifier) {
     // Use key to force recomposition when attackers change
-    key(gameState.attackers.size, gameState.attackers.sumOf { it.currentHealth }) {
+    key(gameState.attackers.size, gameState.attackersToSpawn.size, gameState.attackers.sumOf { it.currentHealth }) {
         Card(modifier = modifier) {
             Column(modifier = Modifier.padding(12.dp)) {
                 Text("Enemies", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
@@ -876,14 +878,146 @@ fun EnemyListPanel(gameState: GameState, modifier: Modifier = Modifier) {
                 Spacer(modifier = Modifier.height(8.dp))
                 
                 LazyColumn(modifier = Modifier.fillMaxWidth()) {
+                    // Active enemies on the map
+                    val activeEnemies = gameState.attackers.filter { !it.isDefeated }.sortedBy { it.id }
+                    if (activeEnemies.isNotEmpty()) {
+                        item {
+                            Text(
+                                "On Map:",
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFFD32F2F)
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                        }
+                    }
                     items(
-                        items = gameState.attackers.filter { !it.isDefeated }.sortedBy { it.id },
-                        key = { attacker -> attacker.id }
+                        items = activeEnemies,
+                        key = { attacker -> "active-${attacker.id}" }
                     ) { attacker ->
-                        EnemyItem(attacker)
+                        EnemyItemDetailed(attacker, showPosition = true)
                         Spacer(modifier = Modifier.height(4.dp))
                     }
+                    
+                    // Upcoming enemies
+                    if (gameState.attackersToSpawn.isNotEmpty()) {
+                        item {
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                "Upcoming:",
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFFFF9800)
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                        }
+                        itemsIndexed(
+                            items = gameState.attackersToSpawn.take(10),  // Show up to 10 upcoming enemies
+                            key = { index, _ -> "upcoming-$index" }
+                        ) { index, attackerType ->
+                            UpcomingEnemyItem(attackerType)
+                            Spacer(modifier = Modifier.height(4.dp))
+                        }
+                    }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+fun EnemyItemDetailed(attacker: Attacker, showPosition: Boolean) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = Color(0xFFFFEBEE)
+        )
+    ) {
+        Row(
+            modifier = Modifier.padding(6.dp).fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Enemy icon (small version)
+            Box(
+                modifier = Modifier.size(32.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                EnemyIcon(attacker = attacker, modifier = Modifier.size(28.dp))
+            }
+            
+            Spacer(modifier = Modifier.width(6.dp))
+            
+            // Enemy details
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    attacker.type.displayName,
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight = FontWeight.Bold
+                )
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        "HP: ${attacker.currentHealth}/${attacker.maxHealth}",
+                        style = MaterialTheme.typography.bodySmall,
+                        fontSize = 10.sp
+                    )
+                    if (showPosition) {
+                        Text(
+                            "Pos: (${attacker.position.x},${attacker.position.y})",
+                            style = MaterialTheme.typography.bodySmall,
+                            fontSize = 10.sp,
+                            color = Color(0xFF1976D2)
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun UpcomingEnemyItem(attackerType: AttackerType) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = Color(0xFFFFF3E0)
+        )
+    ) {
+        Row(
+            modifier = Modifier.padding(6.dp).fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Enemy type icon placeholder (small colored box)
+            Box(
+                modifier = Modifier.size(32.dp).background(Color(0xFFFF5722), shape = CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    attackerType.displayName.take(1),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 14.sp
+                )
+            }
+            
+            Spacer(modifier = Modifier.width(6.dp))
+            
+            // Enemy details
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    attackerType.displayName,
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    "HP: ${attackerType.health}",
+                    style = MaterialTheme.typography.bodySmall,
+                    fontSize = 10.sp
+                )
             }
         }
     }
