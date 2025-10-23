@@ -37,7 +37,8 @@ fun App() {
                         onStartFirstPlayerTurn = { viewModel.startFirstPlayerTurn() },
                         onDefenderAttack = { defenderId, targetId -> viewModel.defenderAttack(defenderId, targetId) },
                         onEndPlayerTurn = { viewModel.endPlayerTurn() },
-                        onBackToMap = { viewModel.navigateToWorldMap() }
+                        onBackToMap = { viewModel.navigateToWorldMap() },
+                        onCheatCode = { code -> viewModel.applyCheatCode(code) }
                     )
                 }
             }

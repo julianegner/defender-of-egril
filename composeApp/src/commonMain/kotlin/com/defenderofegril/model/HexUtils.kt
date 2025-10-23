@@ -31,36 +31,65 @@ import kotlin.math.sqrt
 
 /**
  * Calculate Manhattan distance between two positions on a hexagonal grid
- * For hexagons, we use cube coordinates for distance calculation
+ * For hexagons with odd-row offset (pointy-top), we need to convert properly
  */
 fun Position.hexDistanceTo(other: Position): Int {
-    // Convert axial (q, r) to cube (x, y, z) coordinates
-    // In our case: q = position.x, r = position.y
-    val x1 = this.x
-    val z1 = this.y
+    // For odd-row offset coordinates (pointy-top), convert to cube coordinates
+    // Reference: https://www.redblobgames.com/grids/hexagons/#conversions-offset
+    
+    val col1 = this.x
+    val row1 = this.y
+    val q1 = col1 - (row1 - (row1 and 1)) / 2
+    val r1 = row1
+    
+    val col2 = other.x
+    val row2 = other.y
+    val q2 = col2 - (row2 - (row2 and 1)) / 2
+    val r2 = row2
+    
+    // Convert axial to cube coordinates
+    val x1 = q1
+    val z1 = r1
     val y1 = -x1 - z1
     
-    val x2 = other.x
-    val z2 = other.y
+    val x2 = q2
+    val z2 = r2
     val y2 = -x2 - z2
     
     return (abs(x1 - x2) + abs(y1 - y2) + abs(z1 - z2)) / 2
 }
 
 /**
- * Get the 6 neighbors of a hexagon in axial coordinates (pointy-top)
+ * Get the 6 neighbors of a hexagon in odd-row offset coordinates (pointy-top)
  * The directions are: E, NE, NW, W, SW, SE
  */
 fun Position.getHexNeighbors(): List<Position> {
-    // Pointy-top hexagon directions in axial coordinates (q, r)
-    val directions = listOf(
-        Position(1, 0),   // E
-        Position(1, -1),  // NE
-        Position(0, -1),  // NW
-        Position(-1, 0),  // W
-        Position(-1, 1),  // SW
-        Position(0, 1)    // SE
-    )
+    // For odd-row offset (pointy-top), neighbor offsets depend on whether row is even or odd
+    // Reference: https://www.redblobgames.com/grids/hexagons/#neighbors-offset
+    
+    val parity = this.y and 1  // 0 for even rows, 1 for odd rows
+    
+    val directions = if (parity == 0) {
+        // Even rows
+        listOf(
+            Position(1, 0),   // E
+            Position(0, -1),  // NE
+            Position(-1, -1), // NW
+            Position(-1, 0),  // W
+            Position(-1, 1),  // SW
+            Position(0, 1)    // SE
+        )
+    } else {
+        // Odd rows
+        listOf(
+            Position(1, 0),   // E
+            Position(1, -1),  // NE
+            Position(0, -1),  // NW
+            Position(-1, 0),  // W
+            Position(0, 1),   // SW
+            Position(1, 1)    // SE
+        )
+    }
     
     return directions.map { dir ->
         Position(this.x + dir.x, this.y + dir.y)

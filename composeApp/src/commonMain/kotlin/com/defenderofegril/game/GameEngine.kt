@@ -390,4 +390,9 @@ class GameEngine(private val state: GameState) {
         }
         state.attackers.removeAll { it.isDefeated }
     }
+    
+    // Cheat code support for testing
+    fun addCoins(amount: Int) {
+        state.coins += amount
+    }
 }

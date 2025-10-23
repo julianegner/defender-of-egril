@@ -83,7 +83,8 @@ fun GamePlayScreen(
     onStartFirstPlayerTurn: () -> Unit,
     onDefenderAttack: (Int, Int) -> Boolean,
     onEndPlayerTurn: () -> Unit,
-    onBackToMap: () -> Unit
+    onBackToMap: () -> Unit,
+    onCheatCode: ((String) -> Boolean)? = null  // Add cheat code callback
 ) {
     // Force recomposition when game state changes by using key properties
     key(gameState.turnNumber, gameState.phase, gameState.attackers.size, gameState.defenders.size, gameState.coins) {
@@ -95,7 +96,8 @@ fun GamePlayScreen(
             onStartFirstPlayerTurn = onStartFirstPlayerTurn,
             onDefenderAttack = onDefenderAttack,
             onEndPlayerTurn = onEndPlayerTurn,
-            onBackToMap = onBackToMap
+            onBackToMap = onBackToMap,
+            onCheatCode = onCheatCode
         )
     }
 }
@@ -109,11 +111,14 @@ private fun GamePlayScreenContent(
     onStartFirstPlayerTurn: () -> Unit,
     onDefenderAttack: (Int, Int) -> Boolean,
     onEndPlayerTurn: () -> Unit,
-    onBackToMap: () -> Unit
+    onBackToMap: () -> Unit,
+    onCheatCode: ((String) -> Boolean)? = null
 ) {
     var selectedDefenderType by remember { mutableStateOf<DefenderType?>(null) }
     var selectedDefenderId by remember { mutableStateOf<Int?>(null) }
     var selectedTargetId by remember { mutableStateOf<Int?>(null) }
+    var showCheatDialog by remember { mutableStateOf(false) }
+    var cheatCodeInput by remember { mutableStateOf("") }
     
     Column(
         modifier = Modifier.fillMaxSize().padding(16.dp),
@@ -127,7 +132,18 @@ private fun GamePlayScreenContent(
         ) {
             Column {
                 Text("Level: ${gameState.level.name}", style = MaterialTheme.typography.titleLarge)
-                Text("Coins: ${gameState.coins}", style = MaterialTheme.typography.bodyLarge)
+                // Clickable coins display for cheat codes
+                Text(
+                    "Coins: ${gameState.coins}", 
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.clickable(
+                        onClick = { 
+                            if (onCheatCode != null) {
+                                showCheatDialog = true
+                            }
+                        }
+                    )
+                )
                 Text("Health: ${gameState.healthPoints}", style = MaterialTheme.typography.bodyLarge)
                 Text("Turn: ${gameState.turnNumber}", style = MaterialTheme.typography.bodyMedium)
                 val activeEnemies = gameState.attackers.count { !it.isDefeated }
@@ -247,6 +263,51 @@ private fun GamePlayScreenContent(
                 EnemyTurnInfo()
             }
         }
+        
+        // Cheat code dialog
+        if (showCheatDialog && onCheatCode != null) {
+            AlertDialog(
+                onDismissRequest = { 
+                    showCheatDialog = false
+                    cheatCodeInput = ""
+                },
+                title = { Text("Cheat Code") },
+                text = {
+                    Column {
+                        Text("Enter cheat code:")
+                        Spacer(modifier = Modifier.height(8.dp))
+                        TextField(
+                            value = cheatCodeInput,
+                            onValueChange = { cheatCodeInput = it },
+                            singleLine = true,
+                            placeholder = { Text("e.g. moneybags") }
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text("Available codes:", style = MaterialTheme.typography.labelSmall)
+                        Text("• moneybags, 1000coins, cash - Get 1000 coins", style = MaterialTheme.typography.bodySmall)
+                    }
+                },
+                confirmButton = {
+                    Button(onClick = {
+                        val success = onCheatCode(cheatCodeInput)
+                        if (success) {
+                            showCheatDialog = false
+                            cheatCodeInput = ""
+                        }
+                    }) {
+                        Text("Apply")
+                    }
+                },
+                dismissButton = {
+                    Button(onClick = {
+                        showCheatDialog = false
+                        cheatCodeInput = ""
+                    }) {
+                        Text("Cancel")
+                    }
+                }
+            )
+        }
     }
 }
 
@@ -266,18 +327,17 @@ fun GameGrid(
     val sqrt3 = sqrt(3.0).toFloat()
     val hexWidth = hexSize.value * sqrt3  // Width of hexagon
     val hexHeight = hexSize.value * 2f    // Height of hexagon
-    val verticalSpacing = hexHeight * 0.75f  // 3/4 of height for tight vertical packing
     
     Box(
         modifier = modifier.fillMaxWidth().horizontalScroll(scrollState)
     ) {
         Column(
-            verticalArrangement = Arrangement.spacedBy((-hexHeight / 4).dp)  // Negative spacing = 3/4 overlap
+            verticalArrangement = Arrangement.spacedBy((-(hexHeight / 4) - 0.5f).dp)  // Tighter vertical spacing to eliminate gaps
         ) {
             for (y in 0 until gameState.level.gridHeight) {
                 Row(
                     modifier = Modifier.offset(x = if (y % 2 == 1) (hexWidth / 2).dp else 0.dp),  // Offset odd rows by half hex width
-                    horizontalArrangement = Arrangement.spacedBy((-(hexWidth - hexWidth * sqrt3 / 2)).dp)  // Tight horizontal packing
+                    horizontalArrangement = Arrangement.spacedBy((-hexWidth / 4 - 0.5f).dp)  // Tighter horizontal packing to eliminate gaps
                 ) {
                     for (x in 0 until gameState.level.gridWidth) {
                         val position = Position(x, y)
