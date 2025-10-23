@@ -1,7 +1,9 @@
 package com.defenderofegril.ui
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,6 +36,7 @@ fun TowerIcon(
         modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
+        // Draw tower graphics first (will be behind text)
         Canvas(modifier = Modifier.fillMaxSize()) {
             val centerX = size.width / 2
             val centerY = size.height / 2
@@ -53,7 +56,7 @@ fun TowerIcon(
             }
         }
         
-        // Actions indicator on the left side (lightning bolts)
+        // Actions indicator on the left side (lightning bolts) - drawn on top
         if (defender.isReady && defender.actionsRemaining > 0) {
             Row(
                 modifier = Modifier.align(Alignment.CenterStart).padding(start = 2.dp),
@@ -64,24 +67,26 @@ fun TowerIcon(
                         text = "⚡",
                         style = MaterialTheme.typography.labelSmall,
                         fontSize = 12.sp,
-                        color = Color.Yellow
+                        color = Color.Yellow,
+                        fontWeight = FontWeight.Bold
                     )
                 }
             }
         }
         
-        // Overlay with level and build time text at bottom
+        // Overlay with level and build time text at bottom - drawn on top
         Column(
             modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 2.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Level indicator
+            // Level indicator - always show
             Text(
                 text = "L${defender.level}",
                 style = MaterialTheme.typography.labelSmall,
-                fontSize = 8.sp,
+                fontSize = 9.sp,
                 color = Color.White,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.background(Color.Black.copy(alpha = 0.6f), shape = androidx.compose.foundation.shape.RoundedCornerShape(2.dp)).padding(horizontal = 2.dp)
             )
             
             // Build time indicator (only if not ready)
@@ -89,8 +94,10 @@ fun TowerIcon(
                 Text(
                     text = "⏱${defender.buildTimeRemaining}",
                     style = MaterialTheme.typography.labelSmall,
-                    fontSize = 7.sp,
-                    color = Color(0xFFFFA500)
+                    fontSize = 8.sp,
+                    color = Color(0xFFFFA500),
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.background(Color.Black.copy(alpha = 0.6f), shape = androidx.compose.foundation.shape.RoundedCornerShape(2.dp)).padding(horizontal = 2.dp)
                 )
             }
         }
@@ -362,6 +369,7 @@ fun EnemyIcon(
         modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
+        // Draw enemy graphics first (will be behind text)
         Canvas(modifier = Modifier.fillMaxSize()) {
             val centerX = size.width / 2
             val centerY = size.height / 2
@@ -377,7 +385,7 @@ fun EnemyIcon(
             }
         }
         
-        // Health number at bottom (current health only, no prefix)
+        // Health number at bottom (current health only, no prefix) - drawn on top
         Column(
             modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 1.dp),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -385,9 +393,10 @@ fun EnemyIcon(
             Text(
                 text = "${attacker.currentHealth}",
                 style = MaterialTheme.typography.labelSmall,
-                fontSize = 10.sp,
+                fontSize = 11.sp,
                 color = Color.White,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.background(Color.Black.copy(alpha = 0.7f), shape = androidx.compose.foundation.shape.RoundedCornerShape(2.dp)).padding(horizontal = 3.dp, vertical = 1.dp)
             )
         }
     }
