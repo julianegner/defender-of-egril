@@ -346,7 +346,7 @@ fun GameGrid(
         ) {
             for (y in 0 until gameState.level.gridHeight) {
                 Row(
-                    modifier = Modifier.offset(x = if (y % 2 == 1) (hexWidth * 0.46f).dp else 0.dp),  // Offset odd rows 46% (more to left than 48%)
+                    modifier = Modifier.offset(x = if (y % 2 == 1) (hexWidth * 0.44f).dp else 0.dp),  // Offset odd rows 46% (more to left than 48%)
                     horizontalArrangement = Arrangement.spacedBy((-10).dp)  // Even tighter horizontal spacing
                 ) {
                     for (x in 0 until gameState.level.gridWidth) {
@@ -873,16 +873,12 @@ private fun Color.luminance(): Float {
 
 @Composable
 fun EnemyListPanel(gameState: GameState, modifier: Modifier = Modifier) {
-    // Use derivedStateOf for reliable reactivity to gameState changes
-    val activeEnemies by remember {
-        derivedStateOf {
-            gameState.attackers.filter { !it.isDefeated }.sortedBy { it.id }
-        }
+    // Track state changes explicitly with keys
+    val activeEnemies = remember(gameState.attackers.size, gameState.turnNumber) {
+        gameState.attackers.filter { !it.isDefeated }.sortedBy { it.id }
     }
-    val toSpawnList by remember {
-        derivedStateOf {
-            gameState.attackersToSpawn.take(15)
-        }
+    val toSpawnList = remember(gameState.attackersToSpawn.size, gameState.turnNumber) {
+        gameState.attackersToSpawn.take(15)
     }
     
     Card(modifier = modifier) {
