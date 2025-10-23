@@ -333,16 +333,20 @@ fun GameGrid(
     // For pointy-top hexagons, vertical spacing between centers is 3/4 of height
     val verticalSpacing = hexHeight * 0.75f
     
+    // Calculate total grid width to ensure scrolling works
+    val totalGridWidth = (gameState.level.gridWidth * hexWidth + hexWidth / 2).dp
+    
     Box(
         modifier = modifier.fillMaxWidth().horizontalScroll(scrollState)
     ) {
         Column(
+            modifier = Modifier.width(totalGridWidth),  // Set explicit width for scrolling
             verticalArrangement = Arrangement.spacedBy((-hexHeight + verticalSpacing - 7f).dp)  // Extra tight spacing to eliminate all gaps
         ) {
             for (y in 0 until gameState.level.gridHeight) {
                 Row(
                     modifier = Modifier.offset(x = if (y % 2 == 1) (hexWidth / 2).dp else 0.dp),  // Offset odd rows by half hex width
-                    horizontalArrangement = Arrangement.spacedBy((-7).dp)  // Extra negative spacing to eliminate all gaps
+                    horizontalArrangement = Arrangement.spacedBy((-9).dp)  // Extra negative spacing to eliminate all gaps
                 ) {
                     for (x in 0 until gameState.level.gridWidth) {
                         val position = Position(x, y)
@@ -511,7 +515,7 @@ fun InitialBuildingControls(
             horizontalArrangement = Arrangement.spacedBy(4.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            items(DefenderType.entries.toTypedArray(), key = { type -> "${type.name}_${coinsState.value}" }) { type ->
+            items(DefenderType.entries.toTypedArray(), key = { type -> "${type.name}_${coinsState.value}_${gameState.defenders.count { it.type == type }}" }) { type ->
                 // Directly calculate canAfford using coinsState.value to ensure immediate reactivity
                 val canAfford = coinsState.value >= type.baseCost
                 println("DEBUG: InitialBuilding Button for ${type.displayName} - coins: ${coinsState.value}, cost: ${type.baseCost}, canAfford: $canAfford")
@@ -572,7 +576,7 @@ fun PlayerTurnControls(
             horizontalArrangement = Arrangement.spacedBy(4.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            items(DefenderType.entries.toTypedArray(), key = { type -> "${type.name}_${coinsState.value}" }) { type ->
+            items(DefenderType.entries.toTypedArray(), key = { type -> "${type.name}_${coinsState.value}_${gameState.defenders.count { it.type == type }}" }) { type ->
                 // Directly calculate canAfford using coinsState.value to ensure immediate reactivity
                 val canAfford = coinsState.value >= type.baseCost
                 println("DEBUG: PlayerTurn Button for ${type.displayName} - coins: ${coinsState.value}, cost: ${type.baseCost}, canAfford: $canAfford")
@@ -865,61 +869,58 @@ private fun Color.luminance(): Float {
 
 @Composable
 fun EnemyListPanel(gameState: GameState, modifier: Modifier = Modifier) {
-    // Use key to force recomposition when attackers change
-    key(gameState.attackers.size, gameState.attackersToSpawn.size, gameState.attackers.sumOf { it.currentHealth }) {
-        Card(modifier = modifier) {
-            Column(modifier = Modifier.padding(12.dp)) {
-                Text("Enemies", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                Text(
-                    "Active: ${gameState.attackers.count { !it.isDefeated }} | To Spawn: ${gameState.attackersToSpawn.size}",
-                    style = MaterialTheme.typography.bodySmall
-                )
-                
-                Spacer(modifier = Modifier.height(8.dp))
-                
-                LazyColumn(modifier = Modifier.fillMaxWidth().heightIn(max = 500.dp)) {
-                    // Active enemies on the map
-                    val activeEnemies = gameState.attackers.filter { !it.isDefeated }.sortedBy { it.id }
-                    if (activeEnemies.isNotEmpty()) {
-                        item {
-                            Text(
-                                "On Map:",
-                                style = MaterialTheme.typography.bodyMedium,
-                                fontWeight = FontWeight.Bold,
-                                color = Color(0xFFD32F2F)
-                            )
-                            Spacer(modifier = Modifier.height(4.dp))
-                        }
-                    }
-                    items(
-                        items = activeEnemies,
-                        key = { attacker -> "active-${attacker.id}" }
-                    ) { attacker ->
-                        EnemyItemDetailed(attacker, showPosition = true)
+    Card(modifier = modifier) {
+        Column(modifier = Modifier.padding(12.dp)) {
+            Text("Enemies", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Text(
+                "Active: ${gameState.attackers.count { !it.isDefeated }} | To Spawn: ${gameState.attackersToSpawn.size}",
+                style = MaterialTheme.typography.bodySmall
+            )
+            
+            Spacer(modifier = Modifier.height(8.dp))
+            
+            LazyColumn(modifier = Modifier.fillMaxWidth().heightIn(max = 500.dp)) {
+                // Active enemies on the map
+                val activeEnemies = gameState.attackers.filter { !it.isDefeated }.sortedBy { it.id }
+                if (activeEnemies.isNotEmpty()) {
+                    item {
+                        Text(
+                            "On Map:",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFFD32F2F)
+                        )
                         Spacer(modifier = Modifier.height(4.dp))
                     }
-                    
-                    // Planned enemy spawns (show what's left to spawn)
-                    if (gameState.attackersToSpawn.isNotEmpty()) {
-                        item {
-                            if (activeEnemies.isNotEmpty()) {
-                                Spacer(modifier = Modifier.height(8.dp))
-                            }
-                            Text(
-                                "To Spawn:",
-                                style = MaterialTheme.typography.bodyMedium,
-                                fontWeight = FontWeight.Bold,
-                                color = Color(0xFFFF9800)
-                            )
-                            Spacer(modifier = Modifier.height(4.dp))
+                }
+                items(
+                    items = activeEnemies,
+                    key = { attacker -> "active-${attacker.id}" }
+                ) { attacker ->
+                    EnemyItemDetailed(attacker, showPosition = true)
+                    Spacer(modifier = Modifier.height(4.dp))
+                }
+                
+                // Planned enemy spawns (show what's left to spawn)
+                if (gameState.attackersToSpawn.isNotEmpty()) {
+                    item {
+                        if (activeEnemies.isNotEmpty()) {
+                            Spacer(modifier = Modifier.height(8.dp))
                         }
-                        itemsIndexed(
-                            items = gameState.attackersToSpawn.take(15),  // Show up to 15 upcoming enemies
-                            key = { index, _ -> "tospawn-$index" }
-                        ) { index, attackerType ->
-                            UpcomingEnemyItem(attackerType)
-                            Spacer(modifier = Modifier.height(4.dp))
-                        }
+                        Text(
+                            "To Spawn:",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFFFF9800)
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                    }
+                    itemsIndexed(
+                        items = gameState.attackersToSpawn.take(15),  // Show up to 15 upcoming enemies
+                        key = { index, _ -> "tospawn-$index" }
+                    ) { index, attackerType ->
+                        UpcomingEnemyItem(attackerType)
+                        Spacer(modifier = Modifier.height(4.dp))
                     }
                 }
             }
