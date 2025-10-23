@@ -335,12 +335,12 @@ fun GameGrid(
         modifier = modifier.fillMaxWidth().horizontalScroll(scrollState)
     ) {
         Column(
-            verticalArrangement = Arrangement.spacedBy((-hexHeight + verticalSpacing).dp)  // Overlap to achieve 3/4 spacing
+            verticalArrangement = Arrangement.spacedBy((-hexHeight + verticalSpacing - 1f).dp)  // Tighter overlap to eliminate gaps
         ) {
             for (y in 0 until gameState.level.gridHeight) {
                 Row(
                     modifier = Modifier.offset(x = if (y % 2 == 1) (hexWidth / 2).dp else 0.dp),  // Offset odd rows by half hex width
-                    horizontalArrangement = Arrangement.spacedBy(0.dp)  // No horizontal spacing needed - hexagons touch
+                    horizontalArrangement = Arrangement.spacedBy((-1).dp)  // Slight negative spacing to eliminate gaps
                 ) {
                     for (x in 0 until gameState.level.gridWidth) {
                         val position = Position(x, y)
@@ -863,20 +863,26 @@ private fun Color.luminance(): Float {
 
 @Composable
 fun EnemyListPanel(gameState: GameState, modifier: Modifier = Modifier) {
-    Card(modifier = modifier) {
-        Column(modifier = Modifier.padding(12.dp)) {
-            Text("Enemies", style = MaterialTheme.typography.titleMedium)
-            Text(
-                "Active: ${gameState.attackers.count { !it.isDefeated }} | Coming: ${gameState.attackersToSpawn.size}",
-                style = MaterialTheme.typography.bodySmall
-            )
-            
-            Spacer(modifier = Modifier.height(8.dp))
-            
-            LazyColumn(modifier = Modifier.fillMaxWidth()) {
-                items(gameState.attackers.filter { !it.isDefeated }.sortedBy { it.id }) { attacker ->
-                    EnemyItem(attacker)
-                    Spacer(modifier = Modifier.height(4.dp))
+    // Use key to force recomposition when attackers change
+    key(gameState.attackers.size, gameState.attackers.sumOf { it.currentHealth }) {
+        Card(modifier = modifier) {
+            Column(modifier = Modifier.padding(12.dp)) {
+                Text("Enemies", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Text(
+                    "Active: ${gameState.attackers.count { !it.isDefeated }} | Coming: ${gameState.attackersToSpawn.size}",
+                    style = MaterialTheme.typography.bodySmall
+                )
+                
+                Spacer(modifier = Modifier.height(8.dp))
+                
+                LazyColumn(modifier = Modifier.fillMaxWidth()) {
+                    items(
+                        items = gameState.attackers.filter { !it.isDefeated }.sortedBy { it.id },
+                        key = { attacker -> attacker.id }
+                    ) { attacker ->
+                        EnemyItem(attacker)
+                        Spacer(modifier = Modifier.height(4.dp))
+                    }
                 }
             }
         }
