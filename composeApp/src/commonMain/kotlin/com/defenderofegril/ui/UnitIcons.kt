@@ -56,31 +56,12 @@ fun TowerIcon(
             }
         }
         
-        // Actions indicator on the top right (lightning bolts) - drawn on top, overlaying icon
-        if (defender.isReady && defender.actionsRemaining > 0) {
-            Row(
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(top = 6.dp, end = 6.dp),  // Extra padding to avoid hexagon edge
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                repeat(defender.actionsRemaining) {
-                    Text(
-                        text = "⚡",
-                        style = MaterialTheme.typography.labelSmall,
-                        fontSize = 16.sp,
-                        color = Color.Yellow,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            }
-        }
-        // Actions indicator at bottom end (lightning bolts for remaining actions) - 10dp from bottom
+        // Actions indicator at center left (lightning bolts for remaining actions)
         if (defender.isReady && defender.actionsRemaining > 0) {
             Box(
                 modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(bottom = 10.dp, end = 6.dp)  // 10dp from bottom as requested
+                    .align(Alignment.CenterStart)
+                    .padding(start = 6.dp)  // 6dp from left edge
             ) {
                 Text(
                     text = "⚡".repeat(defender.actionsRemaining),

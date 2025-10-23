@@ -337,12 +337,12 @@ fun GameGrid(
         modifier = modifier.fillMaxWidth().horizontalScroll(scrollState)
     ) {
         Column(
-            verticalArrangement = Arrangement.spacedBy((-hexHeight + verticalSpacing - 5f).dp)  // Extra tight spacing to eliminate all gaps
+            verticalArrangement = Arrangement.spacedBy((-hexHeight + verticalSpacing - 7f).dp)  // Extra tight spacing to eliminate all gaps
         ) {
             for (y in 0 until gameState.level.gridHeight) {
                 Row(
                     modifier = Modifier.offset(x = if (y % 2 == 1) (hexWidth / 2).dp else 0.dp),  // Offset odd rows by half hex width
-                    horizontalArrangement = Arrangement.spacedBy((-5).dp)  // Extra negative spacing to eliminate all gaps
+                    horizontalArrangement = Arrangement.spacedBy((-7).dp)  // Extra negative spacing to eliminate all gaps
                 ) {
                     for (x in 0 until gameState.level.gridWidth) {
                         val position = Position(x, y)
@@ -871,7 +871,7 @@ fun EnemyListPanel(gameState: GameState, modifier: Modifier = Modifier) {
             Column(modifier = Modifier.padding(12.dp)) {
                 Text("Enemies", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                 Text(
-                    "Active: ${gameState.attackers.count { !it.isDefeated }} | Planned: ${gameState.spawnPlan.size}",
+                    "Active: ${gameState.attackers.count { !it.isDefeated }} | To Spawn: ${gameState.attackersToSpawn.size}",
                     style = MaterialTheme.typography.bodySmall
                 )
                 
@@ -899,18 +899,14 @@ fun EnemyListPanel(gameState: GameState, modifier: Modifier = Modifier) {
                         Spacer(modifier = Modifier.height(4.dp))
                     }
                     
-                    // Planned enemy spawns
-                    // Calculate how many have already spawned (both active and defeated)
-                    val totalSpawned = gameState.spawnPlan.size - gameState.attackersToSpawn.size
-                    val upcomingSpawns = gameState.spawnPlan.drop(totalSpawned)
-                    
-                    if (upcomingSpawns.isNotEmpty()) {
+                    // Planned enemy spawns (show what's left to spawn)
+                    if (gameState.attackersToSpawn.isNotEmpty()) {
                         item {
                             if (activeEnemies.isNotEmpty()) {
                                 Spacer(modifier = Modifier.height(8.dp))
                             }
                             Text(
-                                "Scheduled Spawns:",
+                                "To Spawn:",
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = FontWeight.Bold,
                                 color = Color(0xFFFF9800)
@@ -918,10 +914,10 @@ fun EnemyListPanel(gameState: GameState, modifier: Modifier = Modifier) {
                             Spacer(modifier = Modifier.height(4.dp))
                         }
                         itemsIndexed(
-                            items = upcomingSpawns.take(15),  // Show up to 15 scheduled enemies
-                            key = { index, _ -> "scheduled-$index" }
-                        ) { index, plannedSpawn ->
-                            PlannedEnemyItem(plannedSpawn, gameState.turnNumber)
+                            items = gameState.attackersToSpawn.take(15),  // Show up to 15 upcoming enemies
+                            key = { index, _ -> "tospawn-$index" }
+                        ) { index, attackerType ->
+                            UpcomingEnemyItem(attackerType)
                             Spacer(modifier = Modifier.height(4.dp))
                         }
                     }
