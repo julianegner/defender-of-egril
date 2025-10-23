@@ -334,8 +334,8 @@ fun GameGrid(
     val verticalSpacing = hexHeight * 0.75f
     
     // Calculate total grid width: each column takes hexWidth, plus offset for odd rows
-    // Add extra padding at the end to ensure target is visible
-    val totalGridWidth = ((gameState.level.gridWidth) * hexWidth + hexWidth * 0.6f + 100f).dp
+    // Add significant padding at the end to ensure target is visible when scrolling
+    val totalGridWidth = ((gameState.level.gridWidth) * hexWidth + hexWidth + 200f).dp
     
     Box(
         modifier = modifier.fillMaxWidth().horizontalScroll(scrollState)
@@ -346,8 +346,8 @@ fun GameGrid(
         ) {
             for (y in 0 until gameState.level.gridHeight) {
                 Row(
-                    modifier = Modifier.offset(x = if (y % 2 == 1) (hexWidth * 0.48f).dp else 0.dp),  // Offset odd rows slightly less than half for tighter fit
-                    horizontalArrangement = Arrangement.spacedBy((-9).dp)  // Extra negative spacing to eliminate all gaps
+                    modifier = Modifier.offset(x = if (y % 2 == 1) (hexWidth * 0.46f).dp else 0.dp),  // Offset odd rows 46% (more to left than 48%)
+                    horizontalArrangement = Arrangement.spacedBy((-10).dp)  // Even tighter horizontal spacing
                 ) {
                     for (x in 0 until gameState.level.gridWidth) {
                         val position = Position(x, y)
@@ -873,12 +873,16 @@ private fun Color.luminance(): Float {
 
 @Composable
 fun EnemyListPanel(gameState: GameState, modifier: Modifier = Modifier) {
-    // Use remember with keys to ensure reactivity
-    val activeEnemies = remember(gameState.attackers, gameState.turnNumber) {
-        gameState.attackers.filter { !it.isDefeated }.sortedBy { it.id }
+    // Use derivedStateOf for reliable reactivity to gameState changes
+    val activeEnemies by remember {
+        derivedStateOf {
+            gameState.attackers.filter { !it.isDefeated }.sortedBy { it.id }
+        }
     }
-    val toSpawnList = remember(gameState.attackersToSpawn, gameState.turnNumber) {
-        gameState.attackersToSpawn.take(15)
+    val toSpawnList by remember {
+        derivedStateOf {
+            gameState.attackersToSpawn.take(15)
+        }
     }
     
     Card(modifier = modifier) {
