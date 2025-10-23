@@ -325,19 +325,22 @@ fun GameGrid(
     
     // Calculate hex dimensions for pointy-top hexagons
     val sqrt3 = sqrt(3.0).toFloat()
-    val hexWidth = hexSize.value * sqrt3  // Width of hexagon
-    val hexHeight = hexSize.value * 2f    // Height of hexagon
+    val hexWidth = hexSize.value * sqrt3  // Width of hexagon (flat-to-flat)
+    val hexHeight = hexSize.value * 2f    // Height of hexagon (point-to-point)
+    
+    // For pointy-top hexagons, vertical spacing between centers is 3/4 of height
+    val verticalSpacing = hexHeight * 0.75f
     
     Box(
         modifier = modifier.fillMaxWidth().horizontalScroll(scrollState)
     ) {
         Column(
-            verticalArrangement = Arrangement.spacedBy((-(hexHeight / 4) - 0.5f).dp)  // Tighter vertical spacing to eliminate gaps
+            verticalArrangement = Arrangement.spacedBy((-hexHeight + verticalSpacing).dp)  // Overlap to achieve 3/4 spacing
         ) {
             for (y in 0 until gameState.level.gridHeight) {
                 Row(
                     modifier = Modifier.offset(x = if (y % 2 == 1) (hexWidth / 2).dp else 0.dp),  // Offset odd rows by half hex width
-                    horizontalArrangement = Arrangement.spacedBy((-hexWidth / 4 - 0.5f).dp)  // Tighter horizontal packing to eliminate gaps
+                    horizontalArrangement = Arrangement.spacedBy(0.dp)  // No horizontal spacing needed - hexagons touch
                 ) {
                     for (x in 0 until gameState.level.gridWidth) {
                         val position = Position(x, y)
