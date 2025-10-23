@@ -898,50 +898,49 @@ fun EnemyListPanel(gameState: GameState, modifier: Modifier = Modifier) {
                 Spacer(modifier = Modifier.height(8.dp))
                 
                 LazyColumn(modifier = Modifier.fillMaxWidth().heightIn(max = 500.dp)) {
-                // Active enemies on the map
-                if (activeEnemies.isNotEmpty()) {
-                    item(key = "header-active") {
-                        Text(
-                            "On Map:",
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = Color(0xFFD32F2F)
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                    }
-                }
-                items(
-                    items = activeEnemies,
-                    key = { attacker -> "active-${attacker.id}" }
-                ) { attacker ->
-                    EnemyItemDetailed(attacker, showPosition = true)
-                    Spacer(modifier = Modifier.height(4.dp))
-                }
-                
-                // Planned enemy spawns (show what's left to spawn)
-                if (toSpawnList.isNotEmpty()) {
-                    item(key = "header-tospawn") {
-                        if (activeEnemies.isNotEmpty()) {
-                            Spacer(modifier = Modifier.height(8.dp))
+                    // Active enemies on the map
+                    if (activeEnemies.isNotEmpty()) {
+                        item(key = "header-active") {
+                            Text(
+                                "On Map:",
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFFD32F2F)
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
                         }
-                        Text(
-                            "To Spawn:",
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = Color(0xFFFF9800)
-                        )
+                    }
+                    items(
+                        items = activeEnemies,
+                        key = { attacker -> "active-${attacker.id}" }
+                    ) { attacker ->
+                        EnemyItemDetailed(attacker, showPosition = true)
                         Spacer(modifier = Modifier.height(4.dp))
                     }
-                    itemsIndexed(
-                        items = toSpawnList,  // Show up to 15 upcoming enemies
-                        key = { index, _ -> "tospawn-$index" }
-                    ) { index, attackerType ->
-                        UpcomingEnemyItem(attackerType)
-                        Spacer(modifier = Modifier.height(4.dp))
+                    
+                    // Planned enemy spawns (show what's left to spawn)
+                    if (toSpawnList.isNotEmpty()) {
+                        item(key = "header-tospawn") {
+                            if (activeEnemies.isNotEmpty()) {
+                                Spacer(modifier = Modifier.height(8.dp))
+                            }
+                            Text(
+                                "To Spawn:",
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFFFF9800)
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                        }
+                        itemsIndexed(
+                            items = toSpawnList,  // Show up to 15 upcoming enemies
+                            key = { index, _ -> "tospawn-$index" }
+                        ) { index, attackerType ->
+                            UpcomingEnemyItem(attackerType)
+                            Spacer(modifier = Modifier.height(4.dp))
+                        }
                     }
                 }
-            }
-        }
             }
         }
     }
