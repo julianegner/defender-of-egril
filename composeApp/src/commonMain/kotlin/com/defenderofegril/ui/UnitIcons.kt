@@ -53,7 +53,24 @@ fun TowerIcon(
             }
         }
         
-        // Overlay with level and actions text
+        // Actions indicator on the left side (lightning bolts)
+        if (defender.isReady && defender.actionsRemaining > 0) {
+            Row(
+                modifier = Modifier.align(Alignment.CenterStart).padding(start = 2.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                repeat(defender.actionsRemaining) {
+                    Text(
+                        text = "⚡",
+                        style = MaterialTheme.typography.labelSmall,
+                        fontSize = 12.sp,
+                        color = Color.Yellow
+                    )
+                }
+            }
+        }
+        
+        // Overlay with level and build time text at bottom
         Column(
             modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 2.dp),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -67,20 +84,13 @@ fun TowerIcon(
                 fontWeight = FontWeight.Bold
             )
             
-            // Actions or build time indicator
+            // Build time indicator (only if not ready)
             if (!defender.isReady) {
                 Text(
                     text = "⏱${defender.buildTimeRemaining}",
                     style = MaterialTheme.typography.labelSmall,
                     fontSize = 7.sp,
                     color = Color(0xFFFFA500)
-                )
-            } else if (defender.actionsRemaining > 0) {
-                Text(
-                    text = "⚡${defender.actionsRemaining}",
-                    style = MaterialTheme.typography.labelSmall,
-                    fontSize = 7.sp,
-                    color = Color.Yellow
                 )
             }
         }
@@ -367,15 +377,15 @@ fun EnemyIcon(
             }
         }
         
-        // Health bar at bottom
+        // Health number at bottom (current health only, no prefix)
         Column(
             modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 1.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "${attacker.currentHealth}/${attacker.maxHealth}",
+                text = "${attacker.currentHealth}",
                 style = MaterialTheme.typography.labelSmall,
-                fontSize = 8.sp,
+                fontSize = 10.sp,
                 color = Color.White,
                 fontWeight = FontWeight.Bold
             )
