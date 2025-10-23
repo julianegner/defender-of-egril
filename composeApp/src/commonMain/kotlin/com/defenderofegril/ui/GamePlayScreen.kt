@@ -337,12 +337,12 @@ fun GameGrid(
         modifier = modifier.fillMaxWidth().horizontalScroll(scrollState)
     ) {
         Column(
-            verticalArrangement = Arrangement.spacedBy((-hexHeight + verticalSpacing - 3f).dp)  // Proper tight spacing
+            verticalArrangement = Arrangement.spacedBy((-hexHeight + verticalSpacing - 5f).dp)  // Extra tight spacing to eliminate all gaps
         ) {
             for (y in 0 until gameState.level.gridHeight) {
                 Row(
                     modifier = Modifier.offset(x = if (y % 2 == 1) (hexWidth / 2).dp else 0.dp),  // Offset odd rows by half hex width
-                    horizontalArrangement = Arrangement.spacedBy((-3).dp)  // Proper negative spacing to eliminate gaps
+                    horizontalArrangement = Arrangement.spacedBy((-5).dp)  // Extra negative spacing to eliminate all gaps
                 ) {
                     for (x in 0 until gameState.level.gridWidth) {
                         val position = Position(x, y)
@@ -900,8 +900,9 @@ fun EnemyListPanel(gameState: GameState, modifier: Modifier = Modifier) {
                     }
                     
                     // Planned enemy spawns
-                    val spawnedCount = gameState.spawnPlan.size - gameState.attackersToSpawn.size - activeEnemies.size
-                    val upcomingSpawns = gameState.spawnPlan.drop(spawnedCount + activeEnemies.size)
+                    // Calculate how many have already spawned (both active and defeated)
+                    val totalSpawned = gameState.spawnPlan.size - gameState.attackersToSpawn.size
+                    val upcomingSpawns = gameState.spawnPlan.drop(totalSpawned)
                     
                     if (upcomingSpawns.isNotEmpty()) {
                         item {

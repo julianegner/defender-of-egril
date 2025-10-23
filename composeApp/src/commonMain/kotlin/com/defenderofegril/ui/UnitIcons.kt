@@ -75,8 +75,24 @@ fun TowerIcon(
                 }
             }
         }
+        // Actions indicator at bottom end (lightning bolts for remaining actions) - 10dp from bottom
+        if (defender.isReady && defender.actionsRemaining > 0) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(bottom = 10.dp, end = 6.dp)  // 10dp from bottom as requested
+            ) {
+                Text(
+                    text = "⚡".repeat(defender.actionsRemaining),
+                    style = MaterialTheme.typography.labelSmall,
+                    fontSize = 16.sp,
+                    color = Color.Yellow,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
         
-        // Level indicator at top center - overlaying icon, no background
+        // Level indicator at bottom center - 10dp from bottom edge
         Text(
             text = "L${defender.level}",
             style = MaterialTheme.typography.labelSmall,
@@ -84,8 +100,8 @@ fun TowerIcon(
             color = Color.White,
             fontWeight = FontWeight.Bold,
             modifier = Modifier
-                .align(Alignment.TopCenter)
-                .padding(top = 6.dp)  // Extra padding from top to avoid hexagon edge
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 10.dp)  // 10dp from bottom as requested
         )
         
         // Build time indicator at bottom center (only if not ready)
@@ -385,7 +401,7 @@ fun EnemyIcon(
             }
         }
         
-        // Health number at top center - overlaying icon, no background
+        // Health number at bottom center - 10dp from bottom edge
         Text(
             text = "${attacker.currentHealth}",
             style = MaterialTheme.typography.labelSmall,
@@ -393,8 +409,8 @@ fun EnemyIcon(
             color = Color.White,
             fontWeight = FontWeight.Bold,
             modifier = Modifier
-                .align(Alignment.TopCenter)
-                .padding(top = 6.dp)  // Extra padding from top to avoid hexagon edge
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 10.dp)  // 10dp from bottom as requested
         )
     }
 }
