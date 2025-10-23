@@ -337,12 +337,12 @@ fun GameGrid(
         modifier = modifier.fillMaxWidth().horizontalScroll(scrollState)
     ) {
         Column(
-            verticalArrangement = Arrangement.spacedBy((-hexHeight + verticalSpacing - 1f).dp)  // Tighter overlap to eliminate gaps
+            verticalArrangement = Arrangement.spacedBy((-hexHeight + verticalSpacing - 2f).dp)  // Extra tight to eliminate all gaps
         ) {
             for (y in 0 until gameState.level.gridHeight) {
                 Row(
                     modifier = Modifier.offset(x = if (y % 2 == 1) (hexWidth / 2).dp else 0.dp),  // Offset odd rows by half hex width
-                    horizontalArrangement = Arrangement.spacedBy((-1).dp)  // Slight negative spacing to eliminate gaps
+                    horizontalArrangement = Arrangement.spacedBy((-2).dp)  // Tighter negative spacing to eliminate all gaps
                 ) {
                     for (x in 0 until gameState.level.gridWidth) {
                         val position = Position(x, y)
@@ -871,13 +871,13 @@ fun EnemyListPanel(gameState: GameState, modifier: Modifier = Modifier) {
             Column(modifier = Modifier.padding(12.dp)) {
                 Text("Enemies", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                 Text(
-                    "Active: ${gameState.attackers.count { !it.isDefeated }} | Coming: ${gameState.attackersToSpawn.size}",
+                    "Active: ${gameState.attackers.count { !it.isDefeated }} | Planned: ${gameState.spawnPlan.size}",
                     style = MaterialTheme.typography.bodySmall
                 )
                 
                 Spacer(modifier = Modifier.height(8.dp))
                 
-                LazyColumn(modifier = Modifier.fillMaxWidth()) {
+                LazyColumn(modifier = Modifier.fillMaxWidth().heightIn(max = 500.dp)) {
                     // Active enemies on the map
                     val activeEnemies = gameState.attackers.filter { !it.isDefeated }.sortedBy { it.id }
                     if (activeEnemies.isNotEmpty()) {
@@ -899,12 +899,17 @@ fun EnemyListPanel(gameState: GameState, modifier: Modifier = Modifier) {
                         Spacer(modifier = Modifier.height(4.dp))
                     }
                     
-                    // Upcoming enemies
-                    if (gameState.attackersToSpawn.isNotEmpty()) {
+                    // Planned enemy spawns
+                    val spawnedCount = gameState.spawnPlan.size - gameState.attackersToSpawn.size - activeEnemies.size
+                    val upcomingSpawns = gameState.spawnPlan.drop(spawnedCount + activeEnemies.size)
+                    
+                    if (upcomingSpawns.isNotEmpty()) {
                         item {
-                            Spacer(modifier = Modifier.height(8.dp))
+                            if (activeEnemies.isNotEmpty()) {
+                                Spacer(modifier = Modifier.height(8.dp))
+                            }
                             Text(
-                                "Upcoming:",
+                                "Scheduled Spawns:",
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = FontWeight.Bold,
                                 color = Color(0xFFFF9800)
@@ -912,10 +917,10 @@ fun EnemyListPanel(gameState: GameState, modifier: Modifier = Modifier) {
                             Spacer(modifier = Modifier.height(4.dp))
                         }
                         itemsIndexed(
-                            items = gameState.attackersToSpawn.take(10),  // Show up to 10 upcoming enemies
-                            key = { index, _ -> "upcoming-$index" }
-                        ) { index, attackerType ->
-                            UpcomingEnemyItem(attackerType)
+                            items = upcomingSpawns.take(15),  // Show up to 15 scheduled enemies
+                            key = { index, _ -> "scheduled-$index" }
+                        ) { index, plannedSpawn ->
+                            PlannedEnemyItem(plannedSpawn, gameState.turnNumber)
                             Spacer(modifier = Modifier.height(4.dp))
                         }
                     }
@@ -1018,6 +1023,71 @@ fun UpcomingEnemyItem(attackerType: AttackerType) {
                     style = MaterialTheme.typography.bodySmall,
                     fontSize = 10.sp
                 )
+            }
+        }
+    }
+}
+
+@Composable
+fun PlannedEnemyItem(plannedSpawn: PlannedEnemySpawn, currentTurn: Int) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = Color(0xFFFFF3E0)
+        )
+    ) {
+        Row(
+            modifier = Modifier.padding(6.dp).fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Enemy type icon placeholder (small colored box)
+            Box(
+                modifier = Modifier.size(32.dp).background(Color(0xFFFF5722), shape = CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    plannedSpawn.attackerType.displayName.take(1),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 14.sp
+                )
+            }
+            
+            Spacer(modifier = Modifier.width(6.dp))
+            
+            // Enemy details
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    plannedSpawn.attackerType.displayName,
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    "HP: ${plannedSpawn.attackerType.health}",
+                    style = MaterialTheme.typography.bodySmall,
+                    fontSize = 10.sp
+                )
+            }
+            
+            // Spawn turn
+            Column(horizontalAlignment = Alignment.End) {
+                Text(
+                    "Turn ${plannedSpawn.spawnTurn}",
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 11.sp,
+                    color = if (plannedSpawn.spawnTurn == currentTurn + 1) Color(0xFFFF5722) else Color(0xFFFF9800)
+                )
+                if (plannedSpawn.spawnTurn > currentTurn) {
+                    Text(
+                        "in ${plannedSpawn.spawnTurn - currentTurn} turns",
+                        style = MaterialTheme.typography.bodySmall,
+                        fontSize = 9.sp,
+                        color = Color.Gray
+                    )
+                }
             }
         }
     }

@@ -145,6 +145,43 @@ data class AttackerWave(
     val spawnDelay: Int = 2 // turns between spawns
 )
 
+/**
+ * Represents a planned enemy spawn with the turn it will spawn
+ */
+data class PlannedEnemySpawn(
+    val attackerType: AttackerType,
+    val spawnTurn: Int
+)
+
+/**
+ * Generate a spawn plan for all waves in a level
+ * This calculates when each enemy will spawn based on wave delays
+ */
+fun generateSpawnPlan(waves: List<AttackerWave>): List<PlannedEnemySpawn> {
+    val plan = mutableListOf<PlannedEnemySpawn>()
+    var currentTurn = 1  // First enemies spawn at turn 1
+    
+    for (wave in waves) {
+        for ((index, attackerType) in wave.attackers.withIndex()) {
+            // First 3 enemies of first wave spawn immediately at turn 1
+            val spawnTurn = if (currentTurn == 1 && index < 3) {
+                1
+            } else {
+                currentTurn + (if (currentTurn == 1 && index < 3) 0 else wave.spawnDelay * (index - if (currentTurn == 1) 3 else 0))
+            }
+            plan.add(PlannedEnemySpawn(attackerType, spawnTurn))
+        }
+        // Move to next wave - add delay after last enemy of current wave
+        if (wave.attackers.isNotEmpty()) {
+            val lastIndex = wave.attackers.size - 1
+            val lastEnemyTurn = if (currentTurn == 1 && lastIndex < 3) 1 else currentTurn + wave.spawnDelay * (lastIndex - if (currentTurn == 1) 3 else 0)
+            currentTurn = lastEnemyTurn + wave.spawnDelay + 2  // Gap between waves
+        }
+    }
+    
+    return plan
+}
+
 enum class LevelStatus {
     LOCKED,
     UNLOCKED,
