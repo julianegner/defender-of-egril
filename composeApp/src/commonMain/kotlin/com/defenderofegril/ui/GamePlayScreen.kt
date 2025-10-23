@@ -337,12 +337,12 @@ fun GameGrid(
         modifier = modifier.fillMaxWidth().horizontalScroll(scrollState)
     ) {
         Column(
-            verticalArrangement = Arrangement.spacedBy((-hexHeight + verticalSpacing - 2f).dp)  // Extra tight to eliminate all gaps
+            verticalArrangement = Arrangement.spacedBy((-hexHeight + verticalSpacing - 3f).dp)  // Proper tight spacing
         ) {
             for (y in 0 until gameState.level.gridHeight) {
                 Row(
                     modifier = Modifier.offset(x = if (y % 2 == 1) (hexWidth / 2).dp else 0.dp),  // Offset odd rows by half hex width
-                    horizontalArrangement = Arrangement.spacedBy((-2).dp)  // Tighter negative spacing to eliminate all gaps
+                    horizontalArrangement = Arrangement.spacedBy((-3).dp)  // Proper negative spacing to eliminate gaps
                 ) {
                     for (x in 0 until gameState.level.gridWidth) {
                         val position = Position(x, y)
