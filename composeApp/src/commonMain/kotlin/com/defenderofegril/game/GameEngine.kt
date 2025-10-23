@@ -44,6 +44,7 @@ class GameEngine(private val state: GameState) {
     fun startFirstPlayerTurn() {
         if (state.phase != GamePhase.INITIAL_BUILDING) return
         state.phase = GamePhase.PLAYER_TURN
+        state.turnNumber = 1  // Start at turn 1 when game begins
         
         // Load first wave
         if (state.currentWaveIndex == 0 && state.attackersToSpawn.isEmpty()) {

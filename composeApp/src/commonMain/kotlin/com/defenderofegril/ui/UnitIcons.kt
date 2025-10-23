@@ -61,7 +61,7 @@ fun TowerIcon(
             Row(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
-                    .padding(top = 2.dp, end = 2.dp),
+                    .padding(top = 4.dp, end = 4.dp),  // Extra padding to avoid hexagon edge
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 repeat(defender.actionsRemaining) {
@@ -85,7 +85,7 @@ fun TowerIcon(
             fontWeight = FontWeight.Bold,
             modifier = Modifier
                 .align(Alignment.TopCenter)
-                .padding(top = 2.dp)
+                .padding(top = 4.dp)  // Extra padding from top to avoid hexagon edge
         )
         
         // Build time indicator at bottom center (only if not ready)
@@ -394,7 +394,7 @@ fun EnemyIcon(
             fontWeight = FontWeight.Bold,
             modifier = Modifier
                 .align(Alignment.TopCenter)
-                .padding(top = 2.dp)
+                .padding(top = 4.dp)  // Extra padding from top to avoid hexagon edge
         )
     }
 }
