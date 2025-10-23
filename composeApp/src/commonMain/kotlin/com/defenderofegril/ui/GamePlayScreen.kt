@@ -266,18 +266,18 @@ fun GameGrid(
     val sqrt3 = sqrt(3.0).toFloat()
     val hexWidth = hexSize.value * sqrt3  // Width of hexagon
     val hexHeight = hexSize.value * 2f    // Height of hexagon
-    val verticalSpacing = hexHeight * 0.75f  // 3/4 overlap for tight packing
+    val verticalSpacing = hexHeight * 0.75f  // 3/4 of height for tight vertical packing
     
     Box(
         modifier = modifier.fillMaxWidth().horizontalScroll(scrollState)
     ) {
         Column(
-            verticalArrangement = Arrangement.spacedBy((-verticalSpacing / 4).dp)  // Negative spacing for overlap
+            verticalArrangement = Arrangement.spacedBy((-hexHeight / 4).dp)  // Negative spacing = 3/4 overlap
         ) {
             for (y in 0 until gameState.level.gridHeight) {
                 Row(
                     modifier = Modifier.offset(x = if (y % 2 == 1) (hexWidth / 2).dp else 0.dp),  // Offset odd rows by half hex width
-                    horizontalArrangement = Arrangement.spacedBy((-2).dp)  // Small negative spacing to eliminate gaps
+                    horizontalArrangement = Arrangement.spacedBy((-(hexWidth - hexWidth * sqrt3 / 2)).dp)  // Tight horizontal packing
                 ) {
                     for (x in 0 until gameState.level.gridWidth) {
                         val position = Position(x, y)
@@ -441,10 +441,10 @@ fun InitialBuildingControls(
         Spacer(modifier = Modifier.height(8.dp))
         
         LazyVerticalGrid(
-            columns = GridCells.Fixed(3),
-            modifier = Modifier.fillMaxWidth().height(170.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            columns = GridCells.Fixed(6),
+            modifier = Modifier.fillMaxWidth().height(85.dp),
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             items(DefenderType.entries.toTypedArray(), key = { type -> "${type.name}_${coinsState.value}" }) { type ->
                 // Directly calculate canAfford using coinsState.value to ensure immediate reactivity
@@ -502,10 +502,10 @@ fun PlayerTurnControls(
         
         // Defender placement buttons
         LazyVerticalGrid(
-            columns = GridCells.Fixed(3),
-            modifier = Modifier.fillMaxWidth().height(150.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            columns = GridCells.Fixed(6),
+            modifier = Modifier.fillMaxWidth().height(75.dp),
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             items(DefenderType.entries.toTypedArray(), key = { type -> "${type.name}_${coinsState.value}" }) { type ->
                 // Directly calculate canAfford using coinsState.value to ensure immediate reactivity
@@ -656,59 +656,115 @@ fun DefenderButton(
         colors = ButtonDefaults.buttonColors(
             containerColor = if (isSelected) Color(0xFF1976D2) else MaterialTheme.colorScheme.primary
         ),
-        modifier = Modifier.fillMaxWidth().height(65.dp)
+        modifier = Modifier.fillMaxWidth().height(65.dp),
+        contentPadding = PaddingValues(2.dp)
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(type.displayName.split(" ")[0], style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
-            Text("${type.baseCost}c ⏱${type.buildTime}", 
+            Text(type.displayName.split(" ")[0], style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, fontSize = 9.sp)
+            Text("${type.baseCost}c", 
                  style = MaterialTheme.typography.labelSmall,
-                 fontSize = MaterialTheme.typography.labelSmall.fontSize * 0.75f)
-            Text("Range:${if (type.minRange > 0) "${type.minRange}-" else ""}${type.baseRange} Actions:${type.actionsPerTurn}", 
+                 fontSize = 8.sp)
+            Text("R:${if (type.minRange > 0) "${type.minRange}-" else ""}${type.baseRange}", 
                  style = MaterialTheme.typography.labelSmall,
-                 fontSize = MaterialTheme.typography.labelSmall.fontSize * 0.65f)
+                 fontSize = 7.sp)
         }
     }
 }
 
 @Composable
 fun GameLegend(modifier: Modifier = Modifier) {
+    var isExpanded by remember { mutableStateOf(false) }
+    
     Card(modifier = modifier) {
-        Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            Text("Legend", style = MaterialTheme.typography.titleMedium)
+        Column(modifier = Modifier.padding(12.dp)) {
+            // Header with expand/collapse button
+            Row(
+                modifier = Modifier.fillMaxWidth().clickable { isExpanded = !isExpanded },
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text("Legend", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Text(if (isExpanded) "▼" else "▶", style = MaterialTheme.typography.titleMedium)
+            }
             
-            Spacer(modifier = Modifier.height(4.dp))
-            
-            Text("Areas:", style = MaterialTheme.typography.labelMedium)
-            LegendItem(color = Color(0xFF8BC34A), label = "Island", description = "Build Zone", border = Color.Gray)
-            LegendItem(color = Color(0xFFA5D6A7), label = "Strip", description = "Build Zone", border = Color.Gray)
-            LegendItem(color = Color(0xFFFFF8DC), label = "Path", description = "Enemy Route", border = Color.Gray)
-            LegendItem(color = Color(0xFFE0E0E0), label = "Off", description = "Non-Playable", border = Color.Gray)
-            
-            Spacer(modifier = Modifier.height(4.dp))
-            
-            Text("Special:", style = MaterialTheme.typography.labelMedium)
-            LegendItem(color = Color(0xFFFFF8DC), label = "S", description = "Spawn Points (3)", border = Color(0xFFFF9800), borderWidth = 3.dp)
-            LegendItem(color = Color(0xFFFFF8DC), label = "T", description = "Target (Defend!)", border = Color(0xFF4CAF50), borderWidth = 3.dp)
-            
-            Spacer(modifier = Modifier.height(4.dp))
-            
-            Text("Units:", style = MaterialTheme.typography.labelMedium)
-            LegendItem(color = Color(0xFF2196F3), label = "Tower", description = "Ready Tower")
-            LegendItem(color = Color(0xFF9E9E9E), label = "⏱", description = "Building Tower")
-            LegendItem(color = Color(0xFFF44336), label = "Enemy", description = "Attacker")
-            
-            Spacer(modifier = Modifier.height(4.dp))
-            
-            Text("Towers:", style = MaterialTheme.typography.labelMedium)
-            Text("Ballista: min range 3!", style = MaterialTheme.typography.bodySmall, color = Color(0xFFFF6F00), fontWeight = FontWeight.Bold)
-            Text("⚡ = Actions left", style = MaterialTheme.typography.bodySmall)
-            Text("⏱ = Build time", style = MaterialTheme.typography.bodySmall)
+            if (isExpanded) {
+                LazyColumn(
+                    modifier = Modifier.fillMaxWidth().heightIn(max = 400.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    item {
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text("Areas:", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
+                    }
+                    
+                    item {
+                        LegendItemHex(color = Color(0xFF8BC34A), label = "⬡", description = "Build Island", border = Color.Gray)
+                    }
+                    item {
+                        LegendItemHex(color = Color(0xFFA5D6A7), label = "⬡", description = "Build Strip", border = Color.Gray)
+                    }
+                    item {
+                        LegendItemHex(color = Color(0xFFFFF8DC), label = "⬡", description = "Enemy Path", border = Color.Gray)
+                    }
+                    item {
+                        LegendItemHex(color = Color(0xFFE0E0E0), label = "⬡", description = "Non-Playable", border = Color.Gray)
+                    }
+                    
+                    item {
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text("Special:", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
+                    }
+                    
+                    item {
+                        LegendItemHex(color = Color(0xFFFFF8DC), label = "S", description = "Spawn (3 points)", border = Color(0xFFFF9800), borderWidth = 3.dp)
+                    }
+                    item {
+                        LegendItemHex(color = Color(0xFFFFF8DC), label = "T", description = "Target (Defend!)", border = Color(0xFF4CAF50), borderWidth = 3.dp)
+                    }
+                    
+                    item {
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text("Units:", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
+                    }
+                    
+                    item {
+                        LegendItemHex(color = Color(0xFF2196F3), label = "⬡", description = "Tower (Ready)", border = Color(0xFF2196F3), borderWidth = 3.dp)
+                    }
+                    item {
+                        LegendItemHex(color = Color(0xFF9E9E9E), label = "⬡", description = "Tower (Building)", border = Color(0xFF9E9E9E), borderWidth = 3.dp)
+                    }
+                    item {
+                        LegendItemHex(color = Color(0xFF7986CB), label = "⬡", description = "Tower (No Actions)", border = Color(0xFF2196F3), borderWidth = 3.dp)
+                    }
+                    item {
+                        LegendItemHex(color = Color(0xFFF44336), label = "⬡", description = "Enemy Unit", border = Color(0xFFF44336), borderWidth = 3.dp)
+                    }
+                    
+                    item {
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text("Info:", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
+                    }
+                    
+                    item {
+                        Text("• Ballista: min range 3", style = MaterialTheme.typography.bodySmall, color = Color(0xFFFF6F00))
+                    }
+                    item {
+                        Text("• Icons show tower/enemy type", style = MaterialTheme.typography.bodySmall)
+                    }
+                    item {
+                        Text("• Level & actions shown on towers", style = MaterialTheme.typography.bodySmall)
+                    }
+                    item {
+                        Text("• Health shown on enemies", style = MaterialTheme.typography.bodySmall)
+                    }
+                }
+            }
         }
     }
 }
 
 @Composable
-fun LegendItem(
+fun LegendItemHex(
     color: Color, 
     label: String, 
     description: String, 
@@ -718,15 +774,18 @@ fun LegendItem(
     Row(verticalAlignment = Alignment.CenterVertically) {
         Box(
             modifier = Modifier
-                .size(24.dp)
+                .size(32.dp, 28.dp)
+                .clip(HexagonShape())
                 .background(color)
-                .border(borderWidth, border),
+                .border(borderWidth, border, HexagonShape()),
             contentAlignment = Alignment.Center
         ) {
             Text(
                 label, 
-                style = MaterialTheme.typography.labelSmall, 
-                color = if (color.luminance() > 0.5f) Color.Black else Color.White
+                style = MaterialTheme.typography.labelMedium,
+                fontSize = 14.sp,
+                color = if (color.luminance() > 0.5f) Color.Black else Color.White,
+                fontWeight = FontWeight.Bold
             )
         }
         Spacer(modifier = Modifier.width(8.dp))
