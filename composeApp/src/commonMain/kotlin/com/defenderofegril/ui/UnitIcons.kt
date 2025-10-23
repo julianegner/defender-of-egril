@@ -56,17 +56,21 @@ fun TowerIcon(
             }
         }
         
-        // Actions indicator on the left side (lightning bolts) - drawn on top
+        // Actions indicator on the left side (lightning bolts) - drawn on top with higher z-index
         if (defender.isReady && defender.actionsRemaining > 0) {
             Row(
-                modifier = Modifier.align(Alignment.CenterStart).padding(start = 2.dp),
+                modifier = Modifier
+                    .align(Alignment.CenterStart)
+                    .padding(start = 1.dp)
+                    .background(Color.Black.copy(alpha = 0.5f), shape = RoundedCornerShape(3.dp))
+                    .padding(2.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 repeat(defender.actionsRemaining) {
                     Text(
                         text = "⚡",
                         style = MaterialTheme.typography.labelSmall,
-                        fontSize = 12.sp,
+                        fontSize = 14.sp,
                         color = Color.Yellow,
                         fontWeight = FontWeight.Bold
                     )
@@ -74,19 +78,23 @@ fun TowerIcon(
             }
         }
         
-        // Overlay with level and build time text at bottom - drawn on top
+        // Overlay with level and build time text at bottom - drawn on top with higher z-index
         Column(
-            modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 2.dp),
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 1.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Level indicator - always show
             Text(
                 text = "L${defender.level}",
                 style = MaterialTheme.typography.labelSmall,
-                fontSize = 9.sp,
+                fontSize = 10.sp,
                 color = Color.White,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.background(Color.Black.copy(alpha = 0.6f), shape = androidx.compose.foundation.shape.RoundedCornerShape(2.dp)).padding(horizontal = 2.dp)
+                modifier = Modifier
+                    .background(Color.Black.copy(alpha = 0.75f), shape = RoundedCornerShape(3.dp))
+                    .padding(horizontal = 4.dp, vertical = 1.dp)
             )
             
             // Build time indicator (only if not ready)
@@ -94,10 +102,12 @@ fun TowerIcon(
                 Text(
                     text = "⏱${defender.buildTimeRemaining}",
                     style = MaterialTheme.typography.labelSmall,
-                    fontSize = 8.sp,
+                    fontSize = 9.sp,
                     color = Color(0xFFFFA500),
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier.background(Color.Black.copy(alpha = 0.6f), shape = androidx.compose.foundation.shape.RoundedCornerShape(2.dp)).padding(horizontal = 2.dp)
+                    modifier = Modifier
+                        .background(Color.Black.copy(alpha = 0.75f), shape = RoundedCornerShape(3.dp))
+                        .padding(horizontal = 3.dp, vertical = 1.dp)
                 )
             }
         }
@@ -385,18 +395,21 @@ fun EnemyIcon(
             }
         }
         
-        // Health number at bottom (current health only, no prefix) - drawn on top
-        Column(
-            modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 1.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+        // Health number moved up from bottom to be more visible - drawn on top with higher z-index
+        Box(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 4.dp)  // Moved up from 1.dp to 4.dp for better visibility
         ) {
             Text(
                 text = "${attacker.currentHealth}",
                 style = MaterialTheme.typography.labelSmall,
-                fontSize = 11.sp,
+                fontSize = 12.sp,
                 color = Color.White,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.background(Color.Black.copy(alpha = 0.7f), shape = androidx.compose.foundation.shape.RoundedCornerShape(2.dp)).padding(horizontal = 3.dp, vertical = 1.dp)
+                modifier = Modifier
+                    .background(Color.Black.copy(alpha = 0.8f), shape = RoundedCornerShape(3.dp))
+                    .padding(horizontal = 4.dp, vertical = 2.dp)
             )
         }
     }
