@@ -346,7 +346,7 @@ fun GameGrid(
         ) {
             for (y in 0 until gameState.level.gridHeight) {
                 Row(
-                    modifier = Modifier.offset(x = if (y % 2 == 1) (hexWidth * 0.44f).dp else 0.dp),  // Offset odd rows 46% (more to left than 48%)
+                    modifier = Modifier.offset(x = if (y % 2 == 1) (hexWidth * 0.42f).dp else 0.dp),  // Offset odd rows 42% to eliminate final gaps
                     horizontalArrangement = Arrangement.spacedBy((-10).dp)  // Even tighter horizontal spacing
                 ) {
                     for (x in 0 until gameState.level.gridWidth) {
@@ -873,25 +873,31 @@ private fun Color.luminance(): Float {
 
 @Composable
 fun EnemyListPanel(gameState: GameState, modifier: Modifier = Modifier) {
-    // Track state changes explicitly with keys
-    val activeEnemies = remember(gameState.attackers.size, gameState.turnNumber) {
-        gameState.attackers.filter { !it.isDefeated }.sortedBy { it.id }
-    }
-    val toSpawnList = remember(gameState.attackersToSpawn.size, gameState.turnNumber) {
-        gameState.attackersToSpawn.take(15)
-    }
+    var isExpanded by remember { mutableStateOf(false) }
+    
+    // Direct observation - Compose will track changes
+    val activeEnemies = gameState.attackers.filter { !it.isDefeated }.sortedBy { it.id }
+    val toSpawnList = gameState.attackersToSpawn.take(15)
     
     Card(modifier = modifier) {
         Column(modifier = Modifier.padding(12.dp)) {
-            Text("Enemies", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Row(
+                modifier = Modifier.fillMaxWidth().clickable { isExpanded = !isExpanded },
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text("Enemies", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Text(if (isExpanded) "▼" else "▶", fontSize = 16.sp)
+            }
             Text(
-                "Active: ${activeEnemies.size} | To Spawn: ${gameState.attackersToSpawn.size}",
+                "Active: ${activeEnemies.size} | To Spawn: ${toSpawnList.size}",
                 style = MaterialTheme.typography.bodySmall
             )
             
-            Spacer(modifier = Modifier.height(8.dp))
-            
-            LazyColumn(modifier = Modifier.fillMaxWidth().heightIn(max = 500.dp)) {
+            if (isExpanded) {
+                Spacer(modifier = Modifier.height(8.dp))
+                
+                LazyColumn(modifier = Modifier.fillMaxWidth().heightIn(max = 500.dp)) {
                 // Active enemies on the map
                 if (activeEnemies.isNotEmpty()) {
                     item(key = "header-active") {
@@ -934,6 +940,8 @@ fun EnemyListPanel(gameState: GameState, modifier: Modifier = Modifier) {
                         Spacer(modifier = Modifier.height(4.dp))
                     }
                 }
+            }
+        }
             }
         }
     }
