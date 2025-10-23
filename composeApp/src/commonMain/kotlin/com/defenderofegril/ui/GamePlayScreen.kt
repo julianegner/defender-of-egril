@@ -333,8 +333,9 @@ fun GameGrid(
     // For pointy-top hexagons, vertical spacing between centers is 3/4 of height
     val verticalSpacing = hexHeight * 0.75f
     
-    // Calculate total grid width to ensure scrolling works
-    val totalGridWidth = (gameState.level.gridWidth * hexWidth + hexWidth / 2).dp
+    // Calculate total grid width: each column takes hexWidth, plus offset for odd rows
+    // Add extra padding at the end to ensure target is visible
+    val totalGridWidth = ((gameState.level.gridWidth) * hexWidth + hexWidth * 0.6f + 100f).dp
     
     Box(
         modifier = modifier.fillMaxWidth().horizontalScroll(scrollState)
@@ -345,7 +346,7 @@ fun GameGrid(
         ) {
             for (y in 0 until gameState.level.gridHeight) {
                 Row(
-                    modifier = Modifier.offset(x = if (y % 2 == 1) (hexWidth / 2).dp else 0.dp),  // Offset odd rows by half hex width
+                    modifier = Modifier.offset(x = if (y % 2 == 1) (hexWidth * 0.48f).dp else 0.dp),  // Offset odd rows slightly less than half for tighter fit
                     horizontalArrangement = Arrangement.spacedBy((-9).dp)  // Extra negative spacing to eliminate all gaps
                 ) {
                     for (x in 0 until gameState.level.gridWidth) {
@@ -632,37 +633,40 @@ fun DefenderInfo(
     gameState: GameState,
     onUpgradeDefender: (Int) -> Unit
 ) {
-    Card(modifier = Modifier.fillMaxWidth()) {
-        Column(modifier = Modifier.padding(8.dp)) {
-            Text("${defender.type.displayName} (Lvl ${defender.level})")
-            if (!defender.isReady) {
-                Text("Building: ${defender.buildTimeRemaining} turns", 
-                     style = MaterialTheme.typography.bodySmall)
-            } else {
-                Text("Actions: ${defender.actionsRemaining}/${defender.type.actionsPerTurn}",
-                     style = MaterialTheme.typography.bodySmall)
-                if (defender.type.minRange > 0) {
-                    Text("Damage: ${defender.damage}, Range: ${defender.type.minRange}-${defender.range}",
+    // Use key to force recomposition when defender stats change
+    key(defender.id, defender.level, defender.damage, defender.range, defender.actionsRemaining, defender.buildTimeRemaining, defender.isReady) {
+        Card(modifier = Modifier.fillMaxWidth()) {
+            Column(modifier = Modifier.padding(8.dp)) {
+                Text("${defender.type.displayName} (Lvl ${defender.level})")
+                if (!defender.isReady) {
+                    Text("Building: ${defender.buildTimeRemaining} turns", 
                          style = MaterialTheme.typography.bodySmall)
                 } else {
-                    Text("Damage: ${defender.damage}, Range: ${defender.range}",
+                    Text("Actions: ${defender.actionsRemaining}/${defender.type.actionsPerTurn}",
                          style = MaterialTheme.typography.bodySmall)
-                }
-                
-                if (gameState.canUpgradeDefender(defender)) {
-                    val nextDamage = defender.damage + 5
-                    val nextRange = defender.range + (if (defender.level % 2 == 0) 1 else 0)
-                    Text("After upgrade: Damage ${nextDamage}, Range ${nextRange}",
-                         style = MaterialTheme.typography.bodySmall,
-                         color = Color(0xFF4CAF50))
-                }
-                
-                Button(
-                    onClick = { onUpgradeDefender(defender.id) },
-                    enabled = gameState.canUpgradeDefender(defender),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Upgrade (${defender.upgradeCost} coins)")
+                    if (defender.type.minRange > 0) {
+                        Text("Damage: ${defender.damage}, Range: ${defender.type.minRange}-${defender.range}",
+                             style = MaterialTheme.typography.bodySmall)
+                    } else {
+                        Text("Damage: ${defender.damage}, Range: ${defender.range}",
+                             style = MaterialTheme.typography.bodySmall)
+                    }
+                    
+                    if (gameState.canUpgradeDefender(defender)) {
+                        val nextDamage = defender.damage + 5
+                        val nextRange = defender.range + (if (defender.level % 2 == 0) 1 else 0)
+                        Text("After upgrade: Damage ${nextDamage}, Range ${nextRange}",
+                             style = MaterialTheme.typography.bodySmall,
+                             color = Color(0xFF4CAF50))
+                    }
+                    
+                    Button(
+                        onClick = { onUpgradeDefender(defender.id) },
+                        enabled = gameState.canUpgradeDefender(defender),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Upgrade (${defender.upgradeCost} coins)")
+                    }
                 }
             }
         }
@@ -869,11 +873,19 @@ private fun Color.luminance(): Float {
 
 @Composable
 fun EnemyListPanel(gameState: GameState, modifier: Modifier = Modifier) {
+    // Use remember with keys to ensure reactivity
+    val activeEnemies = remember(gameState.attackers, gameState.turnNumber) {
+        gameState.attackers.filter { !it.isDefeated }.sortedBy { it.id }
+    }
+    val toSpawnList = remember(gameState.attackersToSpawn, gameState.turnNumber) {
+        gameState.attackersToSpawn.take(15)
+    }
+    
     Card(modifier = modifier) {
         Column(modifier = Modifier.padding(12.dp)) {
             Text("Enemies", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
             Text(
-                "Active: ${gameState.attackers.count { !it.isDefeated }} | To Spawn: ${gameState.attackersToSpawn.size}",
+                "Active: ${activeEnemies.size} | To Spawn: ${gameState.attackersToSpawn.size}",
                 style = MaterialTheme.typography.bodySmall
             )
             
@@ -881,9 +893,8 @@ fun EnemyListPanel(gameState: GameState, modifier: Modifier = Modifier) {
             
             LazyColumn(modifier = Modifier.fillMaxWidth().heightIn(max = 500.dp)) {
                 // Active enemies on the map
-                val activeEnemies = gameState.attackers.filter { !it.isDefeated }.sortedBy { it.id }
                 if (activeEnemies.isNotEmpty()) {
-                    item {
+                    item(key = "header-active") {
                         Text(
                             "On Map:",
                             style = MaterialTheme.typography.bodyMedium,
@@ -902,8 +913,8 @@ fun EnemyListPanel(gameState: GameState, modifier: Modifier = Modifier) {
                 }
                 
                 // Planned enemy spawns (show what's left to spawn)
-                if (gameState.attackersToSpawn.isNotEmpty()) {
-                    item {
+                if (toSpawnList.isNotEmpty()) {
+                    item(key = "header-tospawn") {
                         if (activeEnemies.isNotEmpty()) {
                             Spacer(modifier = Modifier.height(8.dp))
                         }
@@ -916,7 +927,7 @@ fun EnemyListPanel(gameState: GameState, modifier: Modifier = Modifier) {
                         Spacer(modifier = Modifier.height(4.dp))
                     }
                     itemsIndexed(
-                        items = gameState.attackersToSpawn.take(15),  // Show up to 15 upcoming enemies
+                        items = toSpawnList,  // Show up to 15 upcoming enemies
                         key = { index, _ -> "tospawn-$index" }
                     ) { index, attackerType ->
                         UpcomingEnemyItem(attackerType)
