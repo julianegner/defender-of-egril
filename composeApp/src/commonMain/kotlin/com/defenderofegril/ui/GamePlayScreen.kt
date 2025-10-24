@@ -79,8 +79,6 @@ class HexagonShape : Shape {
 @Composable
 fun GamePlayScreen(
     gameState: GameState,
-    stateVersion: State<Long>,  // Add stateVersion State parameter to trigger recomposition
-    coins: State<Int>,  // Add coins State parameter
     onPlaceDefender: (DefenderType, Position) -> Boolean,
     onUpgradeDefender: (Int) -> Boolean,
     onStartFirstPlayerTurn: () -> Unit,
@@ -89,13 +87,8 @@ fun GamePlayScreen(
     onBackToMap: () -> Unit,
     onCheatCode: ((String) -> Boolean)? = null  // Add cheat code callback
 ) {
-    // Just observe stateVersion to trigger recomposition - don't use key() wrapper
-    // Using key() would reset all remember states on every update
-    val _ = stateVersion.value  // Read to establish observation
-    
     GamePlayScreenContent(
         gameState = gameState,
-        coins = coins,  // Pass coins State
         onPlaceDefender = onPlaceDefender,
         onUpgradeDefender = onUpgradeDefender,
         onStartFirstPlayerTurn = onStartFirstPlayerTurn,
@@ -109,7 +102,6 @@ fun GamePlayScreen(
 @Composable
 private fun GamePlayScreenContent(
     gameState: GameState,
-    coins: State<Int>,  // Add coins State parameter
     onPlaceDefender: (DefenderType, Position) -> Boolean,
     onUpgradeDefender: (Int) -> Boolean,
     onStartFirstPlayerTurn: () -> Unit,
