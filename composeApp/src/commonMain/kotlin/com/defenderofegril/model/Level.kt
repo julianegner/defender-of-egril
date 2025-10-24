@@ -163,18 +163,15 @@ fun generateSpawnPlan(waves: List<AttackerWave>): List<PlannedEnemySpawn> {
     
     for (wave in waves) {
         for ((index, attackerType) in wave.attackers.withIndex()) {
-            // First 3 enemies of first wave spawn immediately at turn 1
-            val spawnTurn = if (currentTurn == 1 && index < 3) {
-                1
-            } else {
-                currentTurn + (if (currentTurn == 1 && index < 3) 0 else wave.spawnDelay * (index - if (currentTurn == 1) 3 else 0))
-            }
+            // Spawn 6 enemies at a time (2x spawn points), every turn based on spawnDelay
+            val groupIndex = index / 6
+            val spawnTurn = currentTurn + (groupIndex * wave.spawnDelay)
             plan.add(PlannedEnemySpawn(attackerType, spawnTurn))
         }
         // Move to next wave - add delay after last enemy of current wave
         if (wave.attackers.isNotEmpty()) {
-            val lastIndex = wave.attackers.size - 1
-            val lastEnemyTurn = if (currentTurn == 1 && lastIndex < 3) 1 else currentTurn + wave.spawnDelay * (lastIndex - if (currentTurn == 1) 3 else 0)
+            val lastGroupIndex = (wave.attackers.size - 1) / 6
+            val lastEnemyTurn = currentTurn + (lastGroupIndex * wave.spawnDelay)
             currentTurn = lastEnemyTurn + wave.spawnDelay + 2  // Gap between waves
         }
     }
