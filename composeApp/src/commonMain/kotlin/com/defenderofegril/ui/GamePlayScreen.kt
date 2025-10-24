@@ -897,7 +897,12 @@ fun EnemyListPanel(gameState: GameState, modifier: Modifier = Modifier) {
     
     // Direct observation - Compose will track changes
     val activeEnemies = gameState.attackers.filter { !it.isDefeated }.sortedBy { it.id }
-    val toSpawnList = gameState.attackersToSpawn.take(15)
+    
+    // Calculate how many enemies have spawned from the spawn plan
+    val totalSpawned = gameState.attackers.size + gameState.attackers.count { it.isDefeated }
+    
+    // Get the remaining planned spawns (those that haven't spawned yet)
+    val plannedSpawns = gameState.spawnPlan.drop(totalSpawned).take(15)
     
     Card(modifier = modifier) {
         Column(modifier = Modifier.padding(12.dp)) {
@@ -910,7 +915,7 @@ fun EnemyListPanel(gameState: GameState, modifier: Modifier = Modifier) {
                 Text(if (isExpanded) "▼" else "▶", fontSize = 16.sp)
             }
             Text(
-                "Active: ${activeEnemies.size} | To Spawn: ${toSpawnList.size}",
+                "Active: ${activeEnemies.size} | Planned: ${plannedSpawns.size}",
                 style = MaterialTheme.typography.bodySmall
             )
             
@@ -938,14 +943,14 @@ fun EnemyListPanel(gameState: GameState, modifier: Modifier = Modifier) {
                         Spacer(modifier = Modifier.height(4.dp))
                     }
                     
-                    // Planned enemy spawns (show what's left to spawn)
-                    if (toSpawnList.isNotEmpty()) {
-                        item(key = "header-tospawn") {
+                    // Planned enemy spawns (show what's left to spawn with turn information)
+                    if (plannedSpawns.isNotEmpty()) {
+                        item(key = "header-planned") {
                             if (activeEnemies.isNotEmpty()) {
                                 Spacer(modifier = Modifier.height(8.dp))
                             }
                             Text(
-                                "To Spawn:",
+                                "Planned Spawns:",
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = FontWeight.Bold,
                                 color = Color(0xFFFF9800)
@@ -953,10 +958,10 @@ fun EnemyListPanel(gameState: GameState, modifier: Modifier = Modifier) {
                             Spacer(modifier = Modifier.height(4.dp))
                         }
                         itemsIndexed(
-                            items = toSpawnList,  // Show up to 15 upcoming enemies
-                            key = { index, _ -> "tospawn-$index" }
-                        ) { index, attackerType ->
-                            UpcomingEnemyItem(attackerType)
+                            items = plannedSpawns,
+                            key = { index, _ -> "planned-$index" }
+                        ) { index, plannedSpawn ->
+                            PlannedEnemyItem(plannedSpawn, gameState.turnNumber)
                             Spacer(modifier = Modifier.height(4.dp))
                         }
                     }
@@ -1031,18 +1036,12 @@ fun UpcomingEnemyItem(attackerType: AttackerType) {
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Enemy type icon placeholder (small colored box)
+            // Enemy type icon using graphical representation
             Box(
-                modifier = Modifier.size(32.dp).background(Color(0xFFFF5722), shape = CircleShape),
+                modifier = Modifier.size(32.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Text(
-                    attackerType.displayName.take(1),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 14.sp
-                )
+                EnemyTypeIcon(attackerType = attackerType, modifier = Modifier.size(28.dp))
             }
             
             Spacer(modifier = Modifier.width(6.dp))
@@ -1077,18 +1076,12 @@ fun PlannedEnemyItem(plannedSpawn: PlannedEnemySpawn, currentTurn: Int) {
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Enemy type icon placeholder (small colored box)
+            // Enemy type icon using graphical representation
             Box(
-                modifier = Modifier.size(32.dp).background(Color(0xFFFF5722), shape = CircleShape),
+                modifier = Modifier.size(32.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Text(
-                    plannedSpawn.attackerType.displayName.take(1),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 14.sp
-                )
+                EnemyTypeIcon(attackerType = plannedSpawn.attackerType, modifier = Modifier.size(28.dp))
             }
             
             Spacer(modifier = Modifier.width(6.dp))
