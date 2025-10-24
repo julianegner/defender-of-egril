@@ -84,12 +84,13 @@ fun GamePlayScreen(
     onUpgradeDefender: (Int) -> Boolean,
     onStartFirstPlayerTurn: () -> Unit,
     onDefenderAttack: (Int, Int) -> Boolean,
+    onDefenderAttackPosition: (Int, Position) -> Boolean,
     onEndPlayerTurn: () -> Unit,
     onBackToMap: () -> Unit,
     onCheatCode: ((String) -> Boolean)? = null  // Add cheat code callback
 ) {
     // Force recomposition when game state changes by using key properties
-    key(gameState.turnNumber, gameState.phase, gameState.attackers.size, gameState.defenders.size, gameState.coins) {
+    key(gameState.turnNumber, gameState.phase, gameState.attackers.size, gameState.defenders.size, gameState.coins, gameState.fieldEffects.size) {
         GamePlayScreenContent(
             gameState = gameState,
             coins = coins,  // Pass coins State
@@ -97,6 +98,7 @@ fun GamePlayScreen(
             onUpgradeDefender = onUpgradeDefender,
             onStartFirstPlayerTurn = onStartFirstPlayerTurn,
             onDefenderAttack = onDefenderAttack,
+            onDefenderAttackPosition = onDefenderAttackPosition,
             onEndPlayerTurn = onEndPlayerTurn,
             onBackToMap = onBackToMap,
             onCheatCode = onCheatCode
@@ -112,6 +114,7 @@ private fun GamePlayScreenContent(
     onUpgradeDefender: (Int) -> Boolean,
     onStartFirstPlayerTurn: () -> Unit,
     onDefenderAttack: (Int, Int) -> Boolean,
+    onDefenderAttackPosition: (Int, Position) -> Boolean,
     onEndPlayerTurn: () -> Unit,
     onBackToMap: () -> Unit,
     onCheatCode: ((String) -> Boolean)? = null
@@ -119,6 +122,7 @@ private fun GamePlayScreenContent(
     var selectedDefenderType by remember { mutableStateOf<DefenderType?>(null) }
     var selectedDefenderId by remember { mutableStateOf<Int?>(null) }
     var selectedTargetId by remember { mutableStateOf<Int?>(null) }
+    var selectedTargetPosition by remember { mutableStateOf<Position?>(null) }
     var showCheatDialog by remember { mutableStateOf(false) }
     var cheatCodeInput by remember { mutableStateOf("") }
     var showOverlay by remember { mutableStateOf(false) }  // MutableState for overlay visibility
@@ -202,6 +206,7 @@ private fun GamePlayScreenContent(
                 selectedDefenderType = selectedDefenderType,
                 selectedDefenderId = selectedDefenderId,
                 selectedTargetId = selectedTargetId,
+                selectedTargetPosition = selectedTargetPosition,
                 onCellClick = { position ->
                     // Try to place defender if one is selected
                     selectedDefenderType?.let { type ->
@@ -216,13 +221,36 @@ private fun GamePlayScreenContent(
                     if (defender != null) {
                         selectedDefenderId = defender.id
                         selectedTargetId = null
+                        selectedTargetPosition = null
                         return@GameGrid
                     }
                     
-                    // Check if there's an attacker at this position (for targeting)
-                    val attacker = gameState.attackers.find { it.position == position && !it.isDefeated }
-                    if (attacker != null && selectedDefenderId != null) {
-                        selectedTargetId = attacker.id
+                    // Handle targeting for selected defender
+                    if (selectedDefenderId != null) {
+                        val selectedDefender = gameState.defenders.find { it.id == selectedDefenderId }
+                        if (selectedDefender != null) {
+                            // For AOE/DOT towers, allow targeting path tiles
+                            if (selectedDefender.type.attackType == AttackType.AOE || 
+                                selectedDefender.type.attackType == AttackType.DOT) {
+                                // Check if position is on the path and in range
+                                val distance = selectedDefender.position.distanceTo(position)
+                                if (gameState.level.isOnPath(position) && 
+                                    distance >= selectedDefender.type.minRange && 
+                                    distance <= selectedDefender.range) {
+                                    selectedTargetPosition = position
+                                    // Also set targetId if there's an enemy at this position
+                                    val enemyAtPosition = gameState.attackers.find { it.position == position && !it.isDefeated }
+                                    selectedTargetId = enemyAtPosition?.id
+                                }
+                            } else {
+                                // For single-target attacks, only allow targeting enemies
+                                val attacker = gameState.attackers.find { it.position == position && !it.isDefeated }
+                                if (attacker != null) {
+                                    selectedTargetId = attacker.id
+                                    selectedTargetPosition = null
+                                }
+                            }
+                        }
                     }
                 },
                 modifier = Modifier.fillMaxSize()
@@ -271,11 +299,19 @@ private fun GamePlayScreenContent(
                     selectedDefenderType = selectedDefenderType,
                     selectedDefenderId = selectedDefenderId,
                     selectedTargetId = selectedTargetId,
+                    selectedTargetPosition = selectedTargetPosition,
                     onSelectDefenderType = { selectedDefenderType = it },
                     onUpgradeDefender = { onUpgradeDefender(it) },
                     onDefenderAttack = { defenderId, targetId ->
                         if (onDefenderAttack(defenderId, targetId)) {
                             selectedTargetId = null
+                            selectedTargetPosition = null
+                        }
+                    },
+                    onDefenderAttackPosition = { defenderId, targetPos ->
+                        if (onDefenderAttackPosition(defenderId, targetPos)) {
+                            selectedTargetId = null
+                            selectedTargetPosition = null
                         }
                     },
                     onEndPlayerTurn = onEndPlayerTurn
@@ -339,6 +375,7 @@ fun GameGrid(
     selectedDefenderType: DefenderType?,
     selectedDefenderId: Int?,
     selectedTargetId: Int?,
+    selectedTargetPosition: Position?,
     onCellClick: (Position) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -376,7 +413,7 @@ fun GameGrid(
                             gameState = gameState,
                             isSelected = selectedDefenderType != null,
                             isDefenderSelected = gameState.defenders.find { it.position == position }?.id == selectedDefenderId,
-                            isTargetSelected = gameState.attackers.find { it.position == position }?.id == selectedTargetId,
+                            isTargetSelected = gameState.attackers.find { it.position == position }?.id == selectedTargetId || position == selectedTargetPosition,
                             selectedDefenderId = selectedDefenderId,
                             onClick = { onCellClick(position) },
                             hexSize = hexSize
@@ -407,6 +444,9 @@ fun GridCell(
     val defender = gameState.defenders.find { it.position == position }
     val attacker = gameState.attackers.find { it.position == position && !it.isDefeated }
     
+    // Check for field effects at this position
+    val fieldEffect = gameState.fieldEffects.find { it.position == position }
+    
     // Check if this cell is in range of the selected defender
     val cellIsInRange = selectedDefenderId?.let { defenderId ->
         val selectedDefender = gameState.defenders.find { it.id == defenderId }
@@ -432,6 +472,7 @@ fun GridCell(
     // Apply slight tint for selection states, but keep base color visible
     // Override with red background for enemy units and colored background for defenders
     // During INITIAL_BUILDING phase, don't apply any selection tints
+    // Field effects also modify the background color
     val backgroundColor = when {
         attacker != null -> Color(0xFFF44336)  // Red background for enemies
         defender != null -> {
@@ -439,6 +480,12 @@ fun GridCell(
                 !defender.isReady -> Color(0xFF9E9E9E)  // Gray for building
                 defender.actionsRemaining <= 0 -> Color(0xFF7986CB)  // Blue-gray mix for used up actions
                 else -> Color(0xFF2196F3)  // Blue for ready with actions
+            }
+        }
+        fieldEffect != null -> {
+            when (fieldEffect.type) {
+                FieldEffectType.FIREBALL_AOE -> Color(0xFFFF9800).copy(alpha = 0.5f)  // Orange tint for fireball
+                FieldEffectType.ACID_DOT -> Color(0xFF4CAF50).copy(alpha = 0.6f)  // Green tint for acid
             }
         }
         isDefenderSelected && gameState.phase != GamePhase.INITIAL_BUILDING -> baseBackgroundColor.copy(alpha = 0.7f)
@@ -460,6 +507,12 @@ fun GridCell(
         isTarget -> Color(0xFF4CAF50)  // Green border for target
         attacker != null -> Color(0xFFF44336)  // Red border for enemies
         defender != null -> if (defender.isReady) Color(0xFF2196F3) else Color(0xFF9E9E9E)  // Blue/gray border for towers
+        fieldEffect != null -> {
+            when (fieldEffect.type) {
+                FieldEffectType.FIREBALL_AOE -> Color(0xFFFF5722)  // Deep orange border for fireball
+                FieldEffectType.ACID_DOT -> Color(0xFF4CAF50)  // Green border for acid
+            }
+        }
         else -> Color.Transparent  // No borders for empty cells
     }
     
@@ -469,6 +522,7 @@ fun GridCell(
         cellIsInRange && isOnPath && showRange -> 4.dp  // Thick border for cells in range
         isSpawnPoint || isTarget -> 3.dp
         attacker != null || defender != null -> 3.dp
+        fieldEffect != null -> 3.dp  // Thick border for field effects
         else -> 0.dp  // No border for empty cells
     }
     
@@ -500,6 +554,43 @@ fun GridCell(
                 // Key by id, level and actionsRemaining to force recomposition when these change
                 key(defender.id, defender.level, defender.actionsRemaining, defender.buildTimeRemaining) {
                     TowerIcon(defender = defender)
+                }
+            }
+            fieldEffect != null -> {
+                // Show field effect info
+                when (fieldEffect.type) {
+                    FieldEffectType.FIREBALL_AOE -> {
+                        // Show fireball symbol
+                        Text(
+                            "💥",
+                            style = MaterialTheme.typography.headlineSmall,
+                            color = Color(0xFFFF5722)
+                        )
+                    }
+                    FieldEffectType.ACID_DOT -> {
+                        // Show acid splash with damage and duration
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Text(
+                                "🧪",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = Color(0xFF4CAF50)
+                            )
+                            Text(
+                                "-${fieldEffect.damage}",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                "${fieldEffect.turnsRemaining}T",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = Color(0xFFFFEB3B)
+                            )
+                        }
+                    }
                 }
             }
             isSpawnPoint -> {
@@ -579,9 +670,11 @@ fun PlayerTurnControls(
     selectedDefenderType: DefenderType?,
     selectedDefenderId: Int?,
     selectedTargetId: Int?,
+    selectedTargetPosition: Position?,
     onSelectDefenderType: (DefenderType?) -> Unit,
     onUpgradeDefender: (Int) -> Unit,
     onDefenderAttack: (Int, Int) -> Unit,
+    onDefenderAttackPosition: (Int, Position) -> Unit,
     onEndPlayerTurn: () -> Unit
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
@@ -621,14 +714,39 @@ fun PlayerTurnControls(
             if (defender != null) {
                 DefenderInfo(defender, gameState, onUpgradeDefender)
                 
-                if (defender.isReady && defender.actionsRemaining > 0 && selectedTargetId != null) {
-                    val target = gameState.attackers.find { it.id == selectedTargetId }
-                    if (target != null && defender.canAttack(target)) {
-                        Button(
-                            onClick = { onDefenderAttack(defenderId, selectedTargetId) },
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text("Attack ${target.type.displayName} (${target.currentHealth}/${target.maxHealth} HP)")
+                if (defender.isReady && defender.actionsRemaining > 0) {
+                    // For AOE/DOT towers with position selected
+                    if ((defender.type.attackType == AttackType.AOE || defender.type.attackType == AttackType.DOT) && selectedTargetPosition != null) {
+                        // If there's an enemy at the position, show enemy info
+                        if (selectedTargetId != null) {
+                            val target = gameState.attackers.find { it.id == selectedTargetId }
+                            if (target != null && defender.canAttack(target)) {
+                                Button(
+                                    onClick = { onDefenderAttackPosition(defenderId, selectedTargetPosition) },
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Text("Attack ${target.type.displayName} (${target.currentHealth}/${target.maxHealth} HP) + Area")
+                                }
+                            }
+                        } else {
+                            // No enemy at position, show position coordinates
+                            Button(
+                                onClick = { onDefenderAttackPosition(defenderId, selectedTargetPosition) },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text("Attack Area at (${selectedTargetPosition.x}, ${selectedTargetPosition.y})")
+                            }
+                        }
+                    } else if (selectedTargetId != null) {
+                        // For all towers, allow attacking enemies
+                        val target = gameState.attackers.find { it.id == selectedTargetId }
+                        if (target != null && defender.canAttack(target)) {
+                            Button(
+                                onClick = { onDefenderAttack(defenderId, selectedTargetId) },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text("Attack ${target.type.displayName} (${target.currentHealth}/${target.maxHealth} HP)")
+                            }
                         }
                     }
                 }
@@ -665,17 +783,22 @@ fun DefenderInfo(
                     Text("Actions: ${defender.actionsRemaining}/${defender.type.actionsPerTurn}",
                          style = MaterialTheme.typography.bodySmall)
                     if (defender.type.minRange > 0) {
-                        Text("Damage: ${defender.damage}, Range: ${defender.type.minRange}-${defender.range}",
+                        Text("Damage: ${defender.actualDamage}, Range: ${defender.type.minRange}-${defender.range}",
                              style = MaterialTheme.typography.bodySmall)
                     } else {
-                        Text("Damage: ${defender.damage}, Range: ${defender.range}",
+                        Text("Damage: ${defender.actualDamage}, Range: ${defender.range}",
                              style = MaterialTheme.typography.bodySmall)
                     }
                     
                     if (gameState.canUpgradeDefender(defender)) {
-                        val nextDamage = defender.damage + 5
+                        // Calculate next level stats
+                        val nextLevelDamage = defender.damage + 5
+                        val nextActualDamage = when (defender.type.attackType) {
+                            AttackType.DOT -> nextLevelDamage / 2
+                            else -> nextLevelDamage
+                        }
                         val nextRange = defender.range + (if (defender.level % 2 == 0) 1 else 0)
-                        Text("After upgrade: Damage ${nextDamage}, Range ${nextRange}",
+                        Text("After upgrade: Damage ${nextActualDamage}, Range ${nextRange}",
                              style = MaterialTheme.typography.bodySmall,
                              color = Color(0xFF4CAF50))
                     }
