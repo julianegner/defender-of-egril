@@ -225,7 +225,9 @@ private fun GamePlayScreenContent(
                                     distance >= selectedDefender.type.minRange && 
                                     distance <= selectedDefender.range) {
                                     selectedTargetPosition = position
-                                    selectedTargetId = null
+                                    // Also set targetId if there's an enemy at this position
+                                    val enemyAtPosition = gameState.attackers.find { it.position == position && !it.isDefeated }
+                                    selectedTargetId = enemyAtPosition?.id
                                 }
                             } else {
                                 // For single-target attacks, only allow targeting enemies
@@ -693,13 +695,27 @@ fun PlayerTurnControls(
                 DefenderInfo(defender, gameState, onUpgradeDefender)
                 
                 if (defender.isReady && defender.actionsRemaining > 0) {
-                    // For AOE/DOT towers, allow attacking positions
+                    // For AOE/DOT towers with position selected
                     if ((defender.type.attackType == AttackType.AOE || defender.type.attackType == AttackType.DOT) && selectedTargetPosition != null) {
-                        Button(
-                            onClick = { onDefenderAttackPosition(defenderId, selectedTargetPosition) },
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text("Attack Area at (${selectedTargetPosition.x}, ${selectedTargetPosition.y})")
+                        // If there's an enemy at the position, show enemy info
+                        if (selectedTargetId != null) {
+                            val target = gameState.attackers.find { it.id == selectedTargetId }
+                            if (target != null && defender.canAttack(target)) {
+                                Button(
+                                    onClick = { onDefenderAttackPosition(defenderId, selectedTargetPosition) },
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Text("Attack ${target.type.displayName} (${target.currentHealth}/${target.maxHealth} HP) + Area")
+                                }
+                            }
+                        } else {
+                            // No enemy at position, show position coordinates
+                            Button(
+                                onClick = { onDefenderAttackPosition(defenderId, selectedTargetPosition) },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text("Attack Area at (${selectedTargetPosition.x}, ${selectedTargetPosition.y})")
+                            }
                         }
                     } else if (selectedTargetId != null) {
                         // For all towers, allow attacking enemies

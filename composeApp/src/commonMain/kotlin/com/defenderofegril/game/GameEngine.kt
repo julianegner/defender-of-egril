@@ -336,7 +336,8 @@ class GameEngine(private val state: GameState) {
         }
         
         for (target in targets) {
-            target.currentHealth -= defender.damage
+            // Initial damage is same as DOT tick damage (not full damage)
+            target.currentHealth -= defender.damage / DOT_DAMAGE_DIVISOR
             // Mark for additional rounds of DOT based on tower level
             defender.dotRoundsRemaining[target.id] = defender.dotDuration
             
