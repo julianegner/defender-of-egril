@@ -57,14 +57,14 @@ fun TowerIcon(
         }
         
         // Actions indicator at center left (lightning bolts for remaining actions)
-        if (defender.isReady && defender.actionsRemaining > 0) {
+        if (defender.isReady && defender.actionsRemaining.value > 0) {
             Box(
                 modifier = Modifier
                     .align(Alignment.CenterStart)
                     .padding(start = 6.dp)  // 6dp from left edge
             ) {
                 Text(
-                    text = "⚡".repeat(defender.actionsRemaining),
+                    text = "⚡".repeat(defender.actionsRemaining.value),
                     style = MaterialTheme.typography.labelSmall,
                     fontSize = 16.sp,
                     color = Color.Yellow,
