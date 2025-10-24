@@ -121,6 +121,7 @@ private fun GamePlayScreenContent(
     var selectedTargetId by remember { mutableStateOf<Int?>(null) }
     var showCheatDialog by remember { mutableStateOf(false) }
     var cheatCodeInput by remember { mutableStateOf("") }
+    var showOverlay by remember { mutableStateOf(false) }  // MutableState for overlay visibility
     
     Column(
         modifier = Modifier.fillMaxSize().padding(16.dp),
@@ -173,16 +174,28 @@ private fun GamePlayScreenContent(
                 color = phaseColor,
                 modifier = Modifier.background(phaseColor.copy(alpha = 0.1f)).padding(12.dp)
             )
-            
-            Button(onClick = onBackToMap) {
-                Text("Back to Map")
+
+            Column {
+                Button(onClick = onBackToMap) {
+                    Text("Back to Map")
+                }
+
+                // Toggle button positioned above the map and far to the right
+                Button(
+                    onClick = { showOverlay = !showOverlay },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (showOverlay) Color(0xFF4CAF50) else Color(0xFF2196F3)
+                    )
+                ) {
+                    Text(if (showOverlay) "Hide Info  ◀" else "Show Info  ▶")
+                }
             }
         }
         
         Spacer(modifier = Modifier.height(16.dp))
         
-        // Game Grid with Legend and Enemy List
-        Row(modifier = Modifier.weight(1f).fillMaxWidth()) {
+        // Game Grid with toggle button and overlay
+        Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
             // Scrollable Game Grid
             GameGrid(
                 gameState = gameState,
@@ -212,20 +225,27 @@ private fun GamePlayScreenContent(
                         selectedTargetId = attacker.id
                     }
                 },
-                modifier = Modifier.weight(2f)
+                modifier = Modifier.fillMaxSize()
             )
             
-            Spacer(modifier = Modifier.width(16.dp))
-            
-            // Side panel with Legend and Enemy List
-            Column(modifier = Modifier.width(250.dp)) {
-                // Legend
-                GameLegend(modifier = Modifier.fillMaxWidth())
-                
-                Spacer(modifier = Modifier.height(16.dp))
-                
-                // Enemy List
-                EnemyListPanel(gameState = gameState, modifier = Modifier.fillMaxWidth().weight(1f))
+            // Overlay panel with Legend and Enemy List (conditionally shown)
+            if (showOverlay) {
+                Column(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .width(250.dp)
+                        .fillMaxHeight()
+                        .background(Color.White.copy(alpha = 0.95f))
+                        .padding(8.dp)
+                ) {
+                    // Legend
+                    GameLegend(modifier = Modifier.fillMaxWidth())
+                    
+                    Spacer(modifier = Modifier.height(16.dp))
+                    
+                    // Enemy List
+                    EnemyListPanel(gameState = gameState, modifier = Modifier.fillMaxWidth().weight(1f))
+                }
             }
         }
         
