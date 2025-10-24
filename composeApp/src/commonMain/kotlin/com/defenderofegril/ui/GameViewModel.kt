@@ -124,22 +124,53 @@ class GameViewModel {
     
     fun endPlayerTurn() {
         val state = _gameState.value ?: return
+        val engine = gameEngine ?: return
         
-        // Automatically process enemy turn after a delay
+        // Automatically process enemy turn with animations
         viewModelScope.launch(Dispatchers.Default) {
-            // Now process the actual enemy turn logic (this will increment turn counter and set phase to ENEMY_TURN)
-            gameEngine?.endPlayerTurn()
+            // Step 1: Set phase to ENEMY_TURN and show indicator
+            engine.setEnemyPhaseAndIncrementTurn()
+            triggerStateUpdate()
+            delay(800) // Show "ENEMY TURN" text
             
-            // Force UI update to show ENEMY_TURN phase and enemy movements
+            // Step 2: Spawn new attackers (with spawn animation flag set)
+            val beforeSpawnCount = state.attackers.size
+            engine.spawnAttackersStep()
+            val afterSpawnCount = state.attackers.size
+            
+            if (afterSpawnCount > beforeSpawnCount) {
+                triggerStateUpdate()
+                delay(600) // Show spawning animation
+            }
+            
+            // Step 3: Move attackers with animation
+            engine.moveAttackersStep()
+            triggerStateUpdate()
+            delay(1000) // Show movement animation
+            
+            // Clear animation flags after movement is visible
+            engine.clearAnimationFlags()
+            triggerStateUpdate()
+            delay(200)
+            
+            // Step 4: Apply DOT effects
+            engine.applyDotEffectsStep()
+            triggerStateUpdate()
+            delay(300)
+            
+            // Step 5: Process defeated attackers
+            engine.processDefeatedAttackersStep()
+            triggerStateUpdate()
+            delay(200)
+            
+            // Step 6: Check if we should load next wave
+            engine.loadNextWaveStep()
+            
+            // Step 7: Advance building timers and start next player turn
+            engine.advanceBuildTimersAndStartPlayerTurn()
             triggerStateUpdate()
             
-            delay(500) // Give time to see "ENEMY TURN" indicator
-            
-            // Force another UI update after delay to ensure changes are visible
-            triggerStateUpdate()
-            
-            // Add another small delay so user can see the enemy movements
-            delay(1000)
+            delay(300)
             
             // Check win/loss conditions
             val updatedState = _gameState.value ?: return@launch

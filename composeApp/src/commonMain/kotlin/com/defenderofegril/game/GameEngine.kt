@@ -132,6 +132,49 @@ class GameEngine(private val state: GameState) {
         resetDefenderActions()
     }
     
+    // Public methods for step-by-step animation control
+    fun setEnemyPhaseAndIncrementTurn() {
+        if (state.phase == GamePhase.PLAYER_TURN) {
+            state.turnNumber++
+        }
+        state.phase = GamePhase.ENEMY_TURN
+    }
+    
+    fun spawnAttackersStep() {
+        spawnAttackers()
+    }
+    
+    fun moveAttackersStep() {
+        moveAttackers()
+    }
+    
+    fun applyDotEffectsStep() {
+        applyDotEffects()
+    }
+    
+    fun processDefeatedAttackersStep() {
+        processDefeatedAttackers()
+    }
+    
+    fun loadNextWaveStep() {
+        if (state.attackersToSpawn.isEmpty() && state.attackers.isEmpty()) {
+            loadNextWave()
+        }
+    }
+    
+    fun advanceBuildTimersAndStartPlayerTurn() {
+        advanceBuildTimers()
+        state.phase = GamePhase.PLAYER_TURN
+        resetDefenderActions()
+    }
+    
+    fun clearAnimationFlags() {
+        state.attackers.forEach { 
+            it.previousPosition = null
+            it.isSpawning = false
+        }
+    }
+    
     private fun resetDefenderActions() {
         state.defenders.forEach { it.resetActions() }
     }
@@ -177,7 +220,8 @@ class GameEngine(private val state: GameState) {
             val attacker = Attacker(
                 id = state.nextAttackerId++,
                 type = type,
-                position = spawnPosition
+                position = spawnPosition,
+                isSpawning = true  // Mark as spawning for animation
             )
             state.attackers.add(attacker)
             state.spawnCounter = 0
@@ -274,6 +318,10 @@ class GameEngine(private val state: GameState) {
     private fun moveAttackers() {
         for (attacker in state.attackers) {
             if (attacker.isDefeated) continue
+            
+            // Store previous position for animation
+            attacker.previousPosition = attacker.position
+            attacker.isSpawning = false  // Clear spawning flag
             
             val target = state.level.targetPosition
             val path = findPath(attacker.position, target)

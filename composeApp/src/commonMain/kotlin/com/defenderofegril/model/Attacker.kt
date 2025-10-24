@@ -19,7 +19,21 @@ data class Attacker(
     val type: AttackerType,
     var position: Position,
     var currentHealth: Int = type.health,
-    var isDefeated: Boolean = false
+    var isDefeated: Boolean = false,
+    var previousPosition: Position? = null,  // For movement animation
+    var isSpawning: Boolean = false  // For spawn animation
 ) {
     val maxHealth: Int get() = type.health
+    
+    // Get the effective position for rendering (used during animations)
+    fun getDisplayPosition(animationProgress: Float = 1f): Position {
+        val prev = previousPosition
+        if (prev != null && animationProgress < 1f) {
+            // Interpolate between previous and current position
+            val x = (prev.x + (position.x - prev.x) * animationProgress).toInt()
+            val y = (prev.y + (position.y - prev.y) * animationProgress).toInt()
+            return Position(x, y)
+        }
+        return position
+    }
 }
