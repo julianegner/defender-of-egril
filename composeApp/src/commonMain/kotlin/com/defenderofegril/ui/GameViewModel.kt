@@ -8,6 +8,7 @@ import com.defenderofegril.model.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -187,34 +188,32 @@ class GameViewModel {
     }
     
     private fun triggerStateUpdate() {
-        // Force StateFlow to emit by creating a new GameState copy
-        // StateFlow only emits when the value reference changes
-        val currentState = _gameState.value ?: return
-        
-        // Filter out defeated enemies from the lists
-        currentState.attackers.removeAll { it.isDefeated }
-        
-        // Update the coins MutableState for UI reactivity
-        _coins.value = currentState.coins
-        
-        // Create a copy to trigger StateFlow emission
-        // The copy shares the same mutable lists with the original, so GameEngine can still modify them
-        _gameState.value = currentState.copy()
-        
-        println("DEBUG: triggerStateUpdate - State updated, updateCounter=${++updateCounter}")
-        println("DEBUG: State after update - Phase: ${_gameState.value?.phase}, Turn: ${_gameState.value?.turnNumber}, Attackers: ${_gameState.value?.attackers?.size}, Coins: ${_gameState.value?.coins}")
-        
-        // Check affordability for all tower types
-        println("DEBUG: Tower affordability check:")
-        _gameState.value?.let { state ->
+        // Use StateFlow.update to ensure proper emission
+        _gameState.update { currentState ->
+            if (currentState == null) return@update null
+            
+            // Filter out defeated enemies from the lists
+            currentState.attackers.removeAll { it.isDefeated }
+            
+            // Update the coins MutableState for UI reactivity
+            _coins.value = currentState.coins
+            
+            println("DEBUG: triggerStateUpdate - State updated, updateCounter=${++updateCounter}")
+            println("DEBUG: State after update - Phase: ${currentState.phase}, Turn: ${currentState.turnNumber}, Attackers: ${currentState.attackers.size}, Coins: ${currentState.coins}")
+            
+            // Check affordability for all tower types
+            println("DEBUG: Tower affordability check:")
             DefenderType.entries.forEach { type ->
-                val canAfford = state.coins >= type.baseCost
-                println("DEBUG:   ${type.displayName} (cost ${type.baseCost}): canAfford=$canAfford (coins=${state.coins})")
+                val canAfford = currentState.coins >= type.baseCost
+                println("DEBUG:   ${type.displayName} (cost ${type.baseCost}): canAfford=$canAfford (coins=${currentState.coins})")
             }
-        }
-        
-        _gameState.value?.attackers?.forEach { attacker ->
-            println("DEBUG: After update - Enemy ${attacker.id} - Type: ${attacker.type}, Position: (${attacker.position.x}, ${attacker.position.y})")
+            
+            currentState.attackers.forEach { attacker ->
+                println("DEBUG: After update - Enemy ${attacker.id} - Type: ${attacker.type}, Position: (${attacker.position.x}, ${attacker.position.y})")
+            }
+            
+            // Return a copy to force emission
+            currentState.copy()
         }
     }
     
