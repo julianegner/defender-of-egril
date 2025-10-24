@@ -39,6 +39,15 @@ data class Defender(
     val upgradeCost: Int get() = type.baseCost * level
     val isReady: Boolean get() = buildTimeRemaining == 0
     
+    // Calculate DOT duration for alchemy tower: 2 base turns + 1 extra per 5 levels (5, 10, 15, etc.)
+    val dotDuration: Int get() {
+        return if (type.attackType == AttackType.DOT) {
+            2 + (level / 5)  // Base 2 turns, +1 at level 5, +2 at level 10, +3 at level 15, etc.
+        } else {
+            0
+        }
+    }
+    
     fun canAttack(attacker: Attacker): Boolean {
         if (!isReady || actionsRemaining <= 0) return false
         val distance = position.distanceTo(attacker.position)

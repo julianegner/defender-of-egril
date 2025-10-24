@@ -168,11 +168,12 @@ class GameViewModel {
         _gameState.value = currentState.copy(
             defenders = currentState.defenders,  // Keep same list reference
             attackers = currentState.attackers,  // Keep same list reference (already filtered)
-            attackersToSpawn = currentState.attackersToSpawn  // Keep same list reference
+            attackersToSpawn = currentState.attackersToSpawn,  // Keep same list reference
+            fieldEffects = currentState.fieldEffects  // Keep same list reference for field effects
         )
         
         println("DEBUG: triggerStateUpdate - State updated, updateCounter=${++updateCounter}")
-        println("DEBUG: State after update - Phase: ${_gameState.value?.phase}, Turn: ${_gameState.value?.turnNumber}, Attackers: ${_gameState.value?.attackers?.size}, Coins: ${_gameState.value?.coins}")
+        println("DEBUG: State after update - Phase: ${_gameState.value?.phase}, Turn: ${_gameState.value?.turnNumber}, Attackers: ${_gameState.value?.attackers?.size}, Coins: ${_gameState.value?.coins}, FieldEffects: ${_gameState.value?.fieldEffects?.size}")
         
         // Check affordability for all tower types
         println("DEBUG: Tower affordability check:")
