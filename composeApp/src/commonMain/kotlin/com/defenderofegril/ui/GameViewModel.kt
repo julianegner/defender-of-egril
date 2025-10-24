@@ -127,14 +127,6 @@ class GameViewModel {
         }
     }
     
-    private fun triggerStateUpdate() {
-        // Force StateFlow to emit by reassigning the same state
-        val currentState = _gameState.value ?: return
-        
-        // Filter out defeated enemies from the lists
-        }
-    }
-    
     private fun completeLevel(levelId: Int, won: Boolean) {
         if (won) {
             val updatedLevels = _worldLevels.value.toMutableList()

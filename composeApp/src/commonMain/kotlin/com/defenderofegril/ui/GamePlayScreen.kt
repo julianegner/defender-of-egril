@@ -250,7 +250,7 @@ private fun GamePlayScreenContent(
             GamePhase.INITIAL_BUILDING -> {
                 InitialBuildingControls(
                     gameState = gameState,
-                    coinsState = coins,
+                    coinsState = gameState.coins,
                     selectedDefenderType = selectedDefenderType,
                     selectedDefenderId = selectedDefenderId,
                     onSelectDefenderType = { selectedDefenderType = it },
@@ -261,7 +261,7 @@ private fun GamePlayScreenContent(
             GamePhase.PLAYER_TURN -> {
                 PlayerTurnControls(
                     gameState = gameState,
-                    coinsState = coins,
+                    coinsState = gameState.coins,
                     selectedDefenderType = selectedDefenderType,
                     selectedDefenderId = selectedDefenderId,
                     selectedTargetId = selectedTargetId,
