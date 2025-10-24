@@ -23,8 +23,8 @@ object LevelData {
             buildIslands = pathAndIslands.buildIslands,
             attackerWaves = listOf(
                 AttackerWave(
-                    attackers = List(10) { AttackerType.GOBLIN },
-                    spawnDelay = 3
+                    attackers = List(30) { AttackerType.GOBLIN },
+                    spawnDelay = 1  // Spawn every turn
                 )
             ),
             initialCoins = 100,
