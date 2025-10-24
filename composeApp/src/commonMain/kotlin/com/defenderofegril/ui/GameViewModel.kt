@@ -38,7 +38,8 @@ class GameViewModel {
     
     private var gameEngine: GameEngine? = null
     private var updateCounter = 0L
-    private val viewModelScope = CoroutineScope(Dispatchers.Default)
+    // Use Main dispatcher for UI updates - critical for Compose recomposition
+    private val viewModelScope = CoroutineScope(Dispatchers.Main)
     
     init {
         initializeWorldMap()
@@ -127,8 +128,8 @@ class GameViewModel {
         val state = _gameState.value ?: return
         val engine = gameEngine ?: return
         
-        // Automatically process enemy turn with animations
-        viewModelScope.launch(Dispatchers.Default) {
+        // Automatically process enemy turn with animations on Main thread for UI updates
+        viewModelScope.launch {
             // Step 1: Set phase to ENEMY_TURN and show indicator
             engine.setEnemyPhaseAndIncrementTurn()
             triggerStateUpdate()
