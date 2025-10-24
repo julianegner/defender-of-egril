@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -38,8 +39,9 @@ class GameViewModel {
     
     private var gameEngine: GameEngine? = null
     private var updateCounter = 0L
-    // Use Main dispatcher for UI updates - critical for Compose recomposition
-    private val viewModelScope = CoroutineScope(Dispatchers.Main)
+    // Use Unconfined dispatcher for immediate execution in Compose multiplatform
+    // This works across all platforms (Desktop, Android, iOS) without requiring platform-specific dependencies
+    private val viewModelScope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
     
     init {
         initializeWorldMap()
