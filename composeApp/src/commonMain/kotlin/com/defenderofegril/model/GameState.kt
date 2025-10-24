@@ -19,7 +19,8 @@ data class GameState(
     var spawnCounter: Int = 0,
     var attackersToSpawn: MutableList<AttackerType> = mutableListOf(),
     var turnNumber: Int = 0,
-    var actionsRemainingThisTurn: Int = 0
+    var actionsRemainingThisTurn: Int = 0,
+    val spawnPlan: List<PlannedEnemySpawn> = generateSpawnPlan(level.attackerWaves)
 ) {
     fun isLevelWon(): Boolean {
         return currentWaveIndex >= level.attackerWaves.size &&
