@@ -151,10 +151,10 @@ class GameViewModel {
         }
     }
     
+    private var stateVersion = 0L
+    
     private fun triggerStateUpdate() {
         // Force StateFlow to emit by reassigning the same state
-        // StateFlow compares by reference, so we need to create a new reference
-        // but we can't create a completely new GameState because GameEngine holds a reference to the original
         val currentState = _gameState.value ?: return
         
         // Filter out defeated enemies from the lists
@@ -163,21 +163,13 @@ class GameViewModel {
         // Update the coins MutableState for UI reactivity
         _coins.value = currentState.coins
         
-        // Force emission by creating a shallow copy that preserves ALL state properties
-        _gameState.value = currentState.copy(
-            phase = currentState.phase,
-            coins = currentState.coins,
-            healthPoints = currentState.healthPoints,
-            defenders = currentState.defenders,  // Keep same list reference
-            attackers = currentState.attackers,  // Keep same list reference (already filtered)
-            nextDefenderId = currentState.nextDefenderId,
-            nextAttackerId = currentState.nextAttackerId,
-            currentWaveIndex = currentState.currentWaveIndex,
-            spawnCounter = currentState.spawnCounter,
-            attackersToSpawn = currentState.attackersToSpawn,  // Keep same list reference
-            turnNumber = currentState.turnNumber,
-            actionsRemainingThisTurn = currentState.actionsRemainingThisTurn
-        )
+        // Increment version counter to track state changes
+        stateVersion++
+        
+        // Force StateFlow to emit by setting to null first, then back to the state
+        // This bypasses the structural equality check
+        _gameState.value = null
+        _gameState.value = currentState
         
         println("DEBUG: triggerStateUpdate - State updated, updateCounter=${++updateCounter}")
         println("DEBUG: State after update - Phase: ${_gameState.value?.phase}, Turn: ${_gameState.value?.turnNumber}, Attackers: ${_gameState.value?.attackers?.size}, Coins: ${_gameState.value?.coins}")
