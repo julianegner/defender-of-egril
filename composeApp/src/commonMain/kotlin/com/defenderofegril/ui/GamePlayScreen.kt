@@ -763,17 +763,22 @@ fun DefenderInfo(
                     Text("Actions: ${defender.actionsRemaining}/${defender.type.actionsPerTurn}",
                          style = MaterialTheme.typography.bodySmall)
                     if (defender.type.minRange > 0) {
-                        Text("Damage: ${defender.damage}, Range: ${defender.type.minRange}-${defender.range}",
+                        Text("Damage: ${defender.actualDamage}, Range: ${defender.type.minRange}-${defender.range}",
                              style = MaterialTheme.typography.bodySmall)
                     } else {
-                        Text("Damage: ${defender.damage}, Range: ${defender.range}",
+                        Text("Damage: ${defender.actualDamage}, Range: ${defender.range}",
                              style = MaterialTheme.typography.bodySmall)
                     }
                     
                     if (gameState.canUpgradeDefender(defender)) {
-                        val nextDamage = defender.damage + 5
+                        // Calculate next level stats
+                        val nextLevelDamage = defender.damage + 5
+                        val nextActualDamage = when (defender.type.attackType) {
+                            AttackType.DOT -> nextLevelDamage / 2
+                            else -> nextLevelDamage
+                        }
                         val nextRange = defender.range + (if (defender.level % 2 == 0) 1 else 0)
-                        Text("After upgrade: Damage ${nextDamage}, Range ${nextRange}",
+                        Text("After upgrade: Damage ${nextActualDamage}, Range ${nextRange}",
                              style = MaterialTheme.typography.bodySmall,
                              color = Color(0xFF4CAF50))
                     }
