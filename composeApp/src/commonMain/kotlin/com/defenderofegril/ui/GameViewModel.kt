@@ -163,12 +163,20 @@ class GameViewModel {
         // Update the coins MutableState for UI reactivity
         _coins.value = currentState.coins
         
-        // Force emission by creating a shallow copy that preserves the same state object internals
-        // This is a workaround - ideally we'd use MutableState but that requires larger refactor
+        // Force emission by creating a shallow copy that preserves ALL state properties
         _gameState.value = currentState.copy(
+            phase = currentState.phase,
+            coins = currentState.coins,
+            healthPoints = currentState.healthPoints,
             defenders = currentState.defenders,  // Keep same list reference
             attackers = currentState.attackers,  // Keep same list reference (already filtered)
-            attackersToSpawn = currentState.attackersToSpawn  // Keep same list reference
+            nextDefenderId = currentState.nextDefenderId,
+            nextAttackerId = currentState.nextAttackerId,
+            currentWaveIndex = currentState.currentWaveIndex,
+            spawnCounter = currentState.spawnCounter,
+            attackersToSpawn = currentState.attackersToSpawn,  // Keep same list reference
+            turnNumber = currentState.turnNumber,
+            actionsRemainingThisTurn = currentState.actionsRemainingThisTurn
         )
         
         println("DEBUG: triggerStateUpdate - State updated, updateCounter=${++updateCounter}")
