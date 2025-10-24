@@ -44,6 +44,7 @@ class GameEngine(private val state: GameState) {
     fun startFirstPlayerTurn() {
         if (state.phase != GamePhase.INITIAL_BUILDING) return
         state.phase = GamePhase.PLAYER_TURN
+        state.turnNumber = 1  // Start at turn 1 when game begins
         
         // Load first wave
         if (state.currentWaveIndex == 0 && state.attackersToSpawn.isEmpty()) {
@@ -358,12 +359,8 @@ class GameEngine(private val state: GameState) {
     }
     
     private fun getNeighbors(pos: Position): List<Position> {
-        return listOf(
-            Position(pos.x + 1, pos.y),
-            Position(pos.x - 1, pos.y),
-            Position(pos.x, pos.y + 1),
-            Position(pos.x, pos.y - 1)
-        ).filter { neighbor ->
+        // Use hexagonal neighbors instead of square grid
+        return pos.getHexNeighbors().filter { neighbor ->
             neighbor.x >= 0 && neighbor.x < state.level.gridWidth &&
             neighbor.y >= 0 && neighbor.y < state.level.gridHeight &&
             state.level.isOnPath(neighbor) &&
@@ -393,5 +390,10 @@ class GameEngine(private val state: GameState) {
             state.coins += attacker.type.reward
         }
         state.attackers.removeAll { it.isDefeated }
+    }
+    
+    // Cheat code support for testing
+    fun addCoins(amount: Int) {
+        state.coins += amount
     }
 }

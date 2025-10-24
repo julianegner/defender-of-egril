@@ -1,7 +1,9 @@
 package com.defenderofegril.ui
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,6 +36,7 @@ fun TowerIcon(
         modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
+        // Draw tower graphics first (will be behind text)
         Canvas(modifier = Modifier.fillMaxSize()) {
             val centerX = size.width / 2
             val centerY = size.height / 2
@@ -53,36 +56,47 @@ fun TowerIcon(
             }
         }
         
-        // Overlay with level and actions text
-        Column(
-            modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 2.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            // Level indicator
-            Text(
-                text = "L${defender.level}",
-                style = MaterialTheme.typography.labelSmall,
-                fontSize = 8.sp,
-                color = Color.White,
-                fontWeight = FontWeight.Bold
-            )
-            
-            // Actions or build time indicator
-            if (!defender.isReady) {
+        // Actions indicator at center left (lightning bolts for remaining actions)
+        if (defender.isReady && defender.actionsRemaining > 0) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.CenterStart)
+                    .padding(start = 6.dp)  // 6dp from left edge
+            ) {
                 Text(
-                    text = "⏱${defender.buildTimeRemaining}",
+                    text = "⚡".repeat(defender.actionsRemaining),
                     style = MaterialTheme.typography.labelSmall,
-                    fontSize = 7.sp,
-                    color = Color(0xFFFFA500)
-                )
-            } else if (defender.actionsRemaining > 0) {
-                Text(
-                    text = "⚡${defender.actionsRemaining}",
-                    style = MaterialTheme.typography.labelSmall,
-                    fontSize = 7.sp,
-                    color = Color.Yellow
+                    fontSize = 16.sp,
+                    color = Color.Yellow,
+                    fontWeight = FontWeight.Bold
                 )
             }
+        }
+        
+        // Level indicator at bottom center - 10dp from bottom edge
+        Text(
+            text = "L${defender.level}",
+            style = MaterialTheme.typography.labelSmall,
+            fontSize = 11.sp,
+            color = Color.White,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 10.dp)  // 10dp from bottom as requested
+        )
+        
+        // Build time indicator at bottom center (only if not ready)
+        if (!defender.isReady) {
+            Text(
+                text = "⏱${defender.buildTimeRemaining}",
+                style = MaterialTheme.typography.labelSmall,
+                fontSize = 10.sp,
+                color = Color(0xFFFFA500),
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 2.dp)
+            )
         }
     }
 }
@@ -352,6 +366,7 @@ fun EnemyIcon(
         modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
+        // Draw enemy graphics first (will be behind text)
         Canvas(modifier = Modifier.fillMaxSize()) {
             val centerX = size.width / 2
             val centerY = size.height / 2
@@ -367,19 +382,17 @@ fun EnemyIcon(
             }
         }
         
-        // Health bar at bottom
-        Column(
-            modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 1.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = "${attacker.currentHealth}/${attacker.maxHealth}",
-                style = MaterialTheme.typography.labelSmall,
-                fontSize = 8.sp,
-                color = Color.White,
-                fontWeight = FontWeight.Bold
-            )
-        }
+        // Health number at bottom center - 10dp from bottom edge
+        Text(
+            text = "${attacker.currentHealth}",
+            style = MaterialTheme.typography.labelSmall,
+            fontSize = 13.sp,
+            color = Color.White,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 10.dp)  // 10dp from bottom as requested
+        )
     }
 }
 
