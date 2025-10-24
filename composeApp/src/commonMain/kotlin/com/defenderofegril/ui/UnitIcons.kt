@@ -88,7 +88,7 @@ fun TowerIcon(
         // Build time indicator at bottom center (only if not ready)
         if (!defender.isReady) {
             Text(
-                text = "⏱${defender.buildTimeRemaining}",
+                text = "⏱${defender.buildTimeRemaining.value}",
                 style = MaterialTheme.typography.labelSmall,
                 fontSize = 10.sp,
                 color = Color(0xFFFFA500),
