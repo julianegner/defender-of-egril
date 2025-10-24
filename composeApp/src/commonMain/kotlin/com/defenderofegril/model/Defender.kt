@@ -39,6 +39,13 @@ data class Defender(
     val upgradeCost: Int get() = type.baseCost * level
     val isReady: Boolean get() = buildTimeRemaining == 0
     
+    // Get the actual damage dealt by this tower
+    // For DOT towers, the actual damage is half the base damage
+    val actualDamage: Int get() = when (type.attackType) {
+        AttackType.DOT -> damage / 2
+        else -> damage
+    }
+    
     // Calculate DOT duration for alchemy tower: 2 base turns + 1 extra per 5 levels (5, 10, 15, etc.)
     val dotDuration: Int get() {
         return if (type.attackType == AttackType.DOT) {
