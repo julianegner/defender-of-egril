@@ -131,7 +131,7 @@ private fun GamePlayScreenContent(
                 Text("Level: ${gameState.level.name}", style = MaterialTheme.typography.titleLarge)
                 // Clickable coins display for cheat codes
                 Text(
-                    "Coins: ${gameState.coins}", 
+                    "Coins: ${gameState.coins.value}", 
                     style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier.clickable(
                         onClick = { 
@@ -141,8 +141,8 @@ private fun GamePlayScreenContent(
                         }
                     )
                 )
-                Text("Health: ${gameState.healthPoints}", style = MaterialTheme.typography.bodyLarge)
-                Text("Turn: ${gameState.turnNumber}", style = MaterialTheme.typography.bodyMedium)
+                Text("Health: ${gameState.healthPoints.value}", style = MaterialTheme.typography.bodyLarge)
+                Text("Turn: ${gameState.turnNumber.value}", style = MaterialTheme.typography.bodyMedium)
                 val activeEnemies = gameState.attackers.count { !it.isDefeated }
                 val remainingEnemies = gameState.attackersToSpawn.size
                 Text("Enemies: $activeEnemies active, $remainingEnemies to come", 
@@ -151,12 +151,12 @@ private fun GamePlayScreenContent(
             }
             
             // Prominent phase indicator
-            val phaseText = when(gameState.phase) {
+            val phaseText = when(gameState.phase.value) {
                 GamePhase.INITIAL_BUILDING -> "Initial Building Phase"
                 GamePhase.PLAYER_TURN -> "YOUR TURN"
                 GamePhase.ENEMY_TURN -> "ENEMY TURN"
             }
-            val phaseColor = when(gameState.phase) {
+            val phaseColor = when(gameState.phase.value) {
                 GamePhase.INITIAL_BUILDING -> Color(0xFF2196F3)
                 GamePhase.PLAYER_TURN -> Color(0xFF4CAF50)
                 GamePhase.ENEMY_TURN -> Color(0xFFF44336)
@@ -246,7 +246,7 @@ private fun GamePlayScreenContent(
         Spacer(modifier = Modifier.height(16.dp))
         
         // Control Panel based on phase
-        when (gameState.phase) {
+        when (gameState.phase.value) {
             GamePhase.INITIAL_BUILDING -> {
                 InitialBuildingControls(
                     gameState = gameState,
@@ -435,8 +435,8 @@ fun GridCell(
                 else -> Color(0xFF2196F3)  // Blue for ready with actions
             }
         }
-        isDefenderSelected && gameState.phase != GamePhase.INITIAL_BUILDING -> baseBackgroundColor.copy(alpha = 0.7f)
-        isTargetSelected && gameState.phase != GamePhase.INITIAL_BUILDING -> baseBackgroundColor.copy(alpha = 0.8f)
+        isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> baseBackgroundColor.copy(alpha = 0.7f)
+        isTargetSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> baseBackgroundColor.copy(alpha = 0.8f)
         else -> baseBackgroundColor  // No selection highlighting during placement or in initial phase
     }
     
@@ -449,7 +449,7 @@ fun GridCell(
     
     val borderColor = when {
         cellIsInRange && isOnPath && showRange -> Color(0xFF4CAF50)  // Green border for tiles in range (only on path, only if actions available)
-        isDefenderSelected && gameState.phase != GamePhase.INITIAL_BUILDING -> Color(0xFFFFEB3B)  // Yellow border for selected defender (not during initial building)
+        isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> Color(0xFFFFEB3B)  // Yellow border for selected defender (not during initial building)
         isSpawnPoint -> Color(0xFFFF9800)  // Orange border for spawn
         isTarget -> Color(0xFF4CAF50)  // Green border for target
         attacker != null -> Color(0xFFF44336)  // Red border for enemies
@@ -459,7 +459,7 @@ fun GridCell(
     
     // Thicker borders for important elements
     val borderWidth = when {
-        isDefenderSelected && gameState.phase != GamePhase.INITIAL_BUILDING -> 5.dp  // Extra thick border for selected defender (not during initial building)
+        isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> 5.dp  // Extra thick border for selected defender (not during initial building)
         cellIsInRange && isOnPath && showRange -> 4.dp  // Thick border for cells in range
         isSpawnPoint || isTarget -> 3.dp
         attacker != null || defender != null -> 3.dp
@@ -890,14 +890,14 @@ fun EnemyListPanel(gameState: GameState, modifier: Modifier = Modifier) {
     // Expand by default during initial building phase, collapsed otherwise
     // This state is remembered per GameState instance (each level has its own GameState)
     // so it will auto-expand when a new level is loaded
-    var isExpanded by remember { mutableStateOf(gameState.phase == GamePhase.INITIAL_BUILDING) }
+    var isExpanded by remember { mutableStateOf(gameState.phase.value == GamePhase.INITIAL_BUILDING) }
     
     // Compute values directly - parent GamePlayScreen's key() will trigger recomposition
     val activeEnemies = gameState.attackers.filter { !it.isDefeated }.sortedBy { it.id }
     
     // Calculate how many enemies have spawned from the spawn plan
     // nextAttackerId starts at 1, so (nextAttackerId - 1) gives us the count of spawned enemies
-    val totalSpawned = gameState.nextAttackerId - 1
+    val totalSpawned = gameState.nextAttackerId.value - 1
     
     // Get the remaining planned spawns (those that haven't spawned yet)
     val plannedSpawns = gameState.spawnPlan.drop(totalSpawned).take(15)
@@ -962,7 +962,7 @@ fun EnemyListPanel(gameState: GameState, modifier: Modifier = Modifier) {
                             items = plannedSpawns,
                             key = { index, _ -> "planned-$index" }
                         ) { index, plannedSpawn ->
-                            PlannedEnemyItem(plannedSpawn, gameState.turnNumber)
+                            PlannedEnemyItem(plannedSpawn, gameState.turnNumber.value)
                             Spacer(modifier = Modifier.height(4.dp))
                         }
                     }
