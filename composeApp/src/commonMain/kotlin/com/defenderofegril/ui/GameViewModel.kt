@@ -39,9 +39,9 @@ class GameViewModel {
     
     private var gameEngine: GameEngine? = null
     private var updateCounter = 0L
-    // Use Unconfined dispatcher for immediate execution in Compose multiplatform
-    // This works across all platforms (Desktop, Android, iOS) without requiring platform-specific dependencies
-    private val viewModelScope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
+    // Use Main dispatcher with platform-specific coroutines dependencies
+    // Desktop: kotlinx-coroutines-swing, Android: kotlinx-coroutines-android
+    private val viewModelScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     
     init {
         initializeWorldMap()
