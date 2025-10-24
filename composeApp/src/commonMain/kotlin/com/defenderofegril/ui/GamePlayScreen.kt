@@ -893,7 +893,8 @@ private fun Color.luminance(): Float {
 
 @Composable
 fun EnemyListPanel(gameState: GameState, modifier: Modifier = Modifier) {
-    var isExpanded by remember { mutableStateOf(false) }
+    // Expand by default during initial building phase, collapsed otherwise
+    var isExpanded by remember { mutableStateOf(gameState.phase == GamePhase.INITIAL_BUILDING) }
     
     // Direct observation - Compose will track changes
     val activeEnemies = gameState.attackers.filter { !it.isDefeated }.sortedBy { it.id }
