@@ -38,7 +38,7 @@ class GameEngine(private val state: GameState) {
         if (!state.canUpgradeDefender(defender)) return false
         
         state.coins.value -= defender.upgradeCost
-        defender.level++
+        defender.level.value++
         return true
     }
     
