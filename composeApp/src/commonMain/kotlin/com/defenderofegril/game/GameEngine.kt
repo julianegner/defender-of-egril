@@ -92,8 +92,48 @@ class GameEngine(private val state: GameState) {
         // Perform attack based on type
         when (defender.type.attackType) {
             AttackType.MELEE, AttackType.RANGED -> singleTargetAttack(defender, target)
-            AttackType.AOE -> aoeAttack(defender, target)
-            AttackType.DOT -> dotAttack(defender, target)
+            AttackType.AOE -> aoeAttack(defender, target.position)
+            AttackType.DOT -> dotAttack(defender, target.position)
+        }
+        
+        defender.actionsRemaining--
+        
+        // Process defeated attackers immediately to give coins
+        processDefeatedAttackers()
+        
+        return true
+    }
+    
+    fun defenderAttackPosition(defenderId: Int, targetPosition: Position): Boolean {
+        val defender = state.defenders.find { it.id == defenderId } ?: return false
+        
+        // Check if defender can reach the target position
+        val distance = defender.position.distanceTo(targetPosition)
+        if (distance < defender.type.minRange || distance > defender.range) return false
+        if (!defender.isReady || defender.actionsRemaining <= 0) return false
+        
+        // For AOE and DOT attacks, target position must be on the path
+        if (defender.type.attackType == AttackType.AOE || defender.type.attackType == AttackType.DOT) {
+            if (!state.level.isOnPath(targetPosition)) return false
+        } else {
+            // For single-target attacks, there must be an enemy at the position
+            val target = state.attackers.find { it.position == targetPosition && !it.isDefeated }
+            if (target == null) return false
+        }
+        
+        // Perform attack based on type
+        when (defender.type.attackType) {
+            AttackType.MELEE, AttackType.RANGED -> {
+                // Single target attack requires an enemy
+                val target = state.attackers.find { it.position == targetPosition && !it.isDefeated }
+                if (target != null) {
+                    singleTargetAttack(defender, target)
+                } else {
+                    return false
+                }
+            }
+            AttackType.AOE -> aoeAttack(defender, targetPosition)
+            AttackType.DOT -> dotAttack(defender, targetPosition)
         }
         
         defender.actionsRemaining--
@@ -227,10 +267,25 @@ class GameEngine(private val state: GameState) {
         }
     }
     
-    private fun aoeAttack(defender: Defender, primaryTarget: Attacker) {
-        // Damage primary target and nearby enemies
+    private fun aoeAttack(defender: Defender, targetPosition: Position) {
+        // Calculate affected positions - target and all neighbors that are on the path
+        val affectedPositions = mutableSetOf(targetPosition)
+        affectedPositions.addAll(
+            targetPosition.getHexNeighbors().filter { neighbor ->
+                neighbor.x >= 0 && neighbor.x < state.level.gridWidth &&
+                neighbor.y >= 0 && neighbor.y < state.level.gridHeight &&
+                state.level.isOnPath(neighbor)
+            }
+        )
+        
+        // Only include target position if it's on the path
+        if (!state.level.isOnPath(targetPosition)) {
+            affectedPositions.remove(targetPosition)
+        }
+        
+        // Damage all enemies in affected positions
         val targets = state.attackers.filter { 
-            !it.isDefeated && it.position.distanceTo(primaryTarget.position) <= 1 
+            !it.isDefeated && affectedPositions.contains(it.position)
         }
         
         for (target in targets) {
@@ -240,10 +295,6 @@ class GameEngine(private val state: GameState) {
             }
         }
         
-        // Create field effect for fireball AOE - affects primary target and all neighbors
-        val affectedPositions = mutableSetOf(primaryTarget.position)
-        affectedPositions.addAll(primaryTarget.position.getHexNeighbors())
-        
         // Clear existing fireball effects from this defender
         state.fieldEffects.removeAll { 
             it.type == FieldEffectType.FIREBALL_AOE && it.defenderId == defender.id 
@@ -251,84 +302,88 @@ class GameEngine(private val state: GameState) {
         
         // Add new fireball effects (visual only, last for 1 turn to show affected area)
         for (pos in affectedPositions) {
-            // Only show effects on valid grid positions
-            if (pos.x >= 0 && pos.x < state.level.gridWidth &&
-                pos.y >= 0 && pos.y < state.level.gridHeight) {
-                state.fieldEffects.add(
-                    FieldEffect(
-                        position = pos,
-                        type = FieldEffectType.FIREBALL_AOE,
-                        damage = defender.damage,
-                        turnsRemaining = 1,  // Visual effect lasts 1 turn
-                        defenderId = defender.id
-                    )
+            state.fieldEffects.add(
+                FieldEffect(
+                    position = pos,
+                    type = FieldEffectType.FIREBALL_AOE,
+                    damage = defender.damage,
+                    turnsRemaining = 1,  // Visual effect lasts 1 turn
+                    defenderId = defender.id
                 )
-            }
+            )
         }
     }
     
-    private fun dotAttack(defender: Defender, target: Attacker) {
-        // Apply initial damage
-        target.currentHealth -= defender.damage
-        // Mark for additional rounds of DOT based on tower level
-        defender.dotRoundsRemaining[target.id] = defender.dotDuration
+    private fun dotAttack(defender: Defender, targetPosition: Position) {
+        // Calculate affected positions - target and all neighbors that are on the path
+        val affectedPositions = mutableSetOf(targetPosition)
+        affectedPositions.addAll(
+            targetPosition.getHexNeighbors().filter { neighbor ->
+                neighbor.x >= 0 && neighbor.x < state.level.gridWidth &&
+                neighbor.y >= 0 && neighbor.y < state.level.gridHeight &&
+                state.level.isOnPath(neighbor)
+            }
+        )
         
-        if (target.currentHealth <= 0) {
-            target.isDefeated = true
+        // Only include target position if it's on the path
+        if (!state.level.isOnPath(targetPosition)) {
+            affectedPositions.remove(targetPosition)
         }
         
-        // Create field effect for acid DOT - attached to the enemy
-        state.fieldEffects.add(
-            FieldEffect(
-                position = target.position,
-                type = FieldEffectType.ACID_DOT,
-                damage = defender.damage / DOT_DAMAGE_DIVISOR,  // DOT tick damage
-                turnsRemaining = defender.dotDuration,
-                defenderId = defender.id,
-                attackerId = target.id  // Link effect to enemy
+        // Apply initial damage and DOT to all enemies in affected positions
+        val targets = state.attackers.filter { 
+            !it.isDefeated && affectedPositions.contains(it.position)
+        }
+        
+        for (target in targets) {
+            target.currentHealth -= defender.damage
+            // Mark for additional rounds of DOT based on tower level
+            defender.dotRoundsRemaining[target.id] = defender.dotDuration
+            
+            if (target.currentHealth <= 0) {
+                target.isDefeated = true
+            }
+        }
+        
+        // Clear existing acid effects from this defender
+        state.fieldEffects.removeAll { 
+            it.type == FieldEffectType.ACID_DOT && it.defenderId == defender.id 
+        }
+        
+        // Create field effects for acid DOT on all affected positions
+        for (pos in affectedPositions) {
+            // Find if there's an enemy at this position
+            val enemyAtPos = targets.find { it.position == pos }
+            
+            state.fieldEffects.add(
+                FieldEffect(
+                    position = pos,
+                    type = FieldEffectType.ACID_DOT,
+                    damage = defender.damage / DOT_DAMAGE_DIVISOR,  // DOT tick damage
+                    turnsRemaining = defender.dotDuration,
+                    defenderId = defender.id,
+                    attackerId = enemyAtPos?.id  // Link to enemy if present
+                )
             )
-        )
+        }
     }
     
     private fun applyDotEffects() {
-        for (defender in state.defenders) {
-            if (defender.type.attackType != AttackType.DOT) continue
-            
-            val toRemove = mutableListOf<Int>()
-            for ((attackerId, rounds) in defender.dotRoundsRemaining) {
-                val attacker = state.attackers.find { it.id == attackerId }
-                if (attacker != null && !attacker.isDefeated) {
-                    attacker.currentHealth -= defender.damage / DOT_DAMAGE_DIVISOR
-                    if (attacker.currentHealth <= 0) {
-                        attacker.isDefeated = true
-                    }
-                    
-                    // Update field effect position to follow the enemy
-                    // Collect indices to update to avoid concurrent modification
-                    val indicesToUpdate = mutableListOf<Pair<Int, Position>>()
-                    state.fieldEffects.forEachIndexed { index, effect ->
-                        if (effect.type == FieldEffectType.ACID_DOT && 
-                            effect.attackerId == attackerId &&
-                            effect.defenderId == defender.id) {
-                            indicesToUpdate.add(index to attacker.position)
-                        }
-                    }
-                    // Apply updates
-                    indicesToUpdate.forEach { (index, newPosition) ->
-                        state.fieldEffects[index] = state.fieldEffects[index].copy(position = newPosition)
-                    }
-                    
-                    if (rounds <= 1) {
-                        toRemove.add(attackerId)
-                    } else {
-                        defender.dotRoundsRemaining[attackerId] = rounds - 1
-                    }
-                } else {
-                    toRemove.add(attackerId)
-                }
+        // Apply DOT damage from acid puddles on the ground
+        val acidEffects = state.fieldEffects.filter { it.type == FieldEffectType.ACID_DOT }
+        
+        for (effect in acidEffects) {
+            // Find all enemies standing in the acid
+            val enemiesInAcid = state.attackers.filter { 
+                !it.isDefeated && it.position == effect.position 
             }
             
-            toRemove.forEach { defender.dotRoundsRemaining.remove(it) }
+            for (attacker in enemiesInAcid) {
+                attacker.currentHealth -= effect.damage
+                if (attacker.currentHealth <= 0) {
+                    attacker.isDefeated = true
+                }
+            }
         }
     }
     
@@ -354,21 +409,6 @@ class GameEngine(private val state: GameState) {
                 
                 if (!isOccupied) {
                     attacker.position = newPos
-                    
-                    // Update acid DOT field effect position to follow this attacker
-                    // Collect indices to update to avoid concurrent modification
-                    val indicesToUpdate = mutableListOf<Pair<Int, Position>>()
-                    state.fieldEffects.forEachIndexed { index, effect ->
-                        if (effect.type == FieldEffectType.ACID_DOT && 
-                            effect.attackerId == attacker.id) {
-                            indicesToUpdate.add(index to newPos)
-                        }
-                    }
-                    // Apply updates
-                    indicesToUpdate.forEach { (index, newPosition) ->
-                        state.fieldEffects[index] = state.fieldEffects[index].copy(position = newPosition)
-                    }
-                    
                     pathIndex++
                 } else {
                     // Can't move further, stop trying

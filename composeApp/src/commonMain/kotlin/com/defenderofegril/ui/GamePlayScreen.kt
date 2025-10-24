@@ -84,6 +84,7 @@ fun GamePlayScreen(
     onUpgradeDefender: (Int) -> Boolean,
     onStartFirstPlayerTurn: () -> Unit,
     onDefenderAttack: (Int, Int) -> Boolean,
+    onDefenderAttackPosition: (Int, Position) -> Boolean,
     onEndPlayerTurn: () -> Unit,
     onBackToMap: () -> Unit,
     onCheatCode: ((String) -> Boolean)? = null  // Add cheat code callback
@@ -97,6 +98,7 @@ fun GamePlayScreen(
             onUpgradeDefender = onUpgradeDefender,
             onStartFirstPlayerTurn = onStartFirstPlayerTurn,
             onDefenderAttack = onDefenderAttack,
+            onDefenderAttackPosition = onDefenderAttackPosition,
             onEndPlayerTurn = onEndPlayerTurn,
             onBackToMap = onBackToMap,
             onCheatCode = onCheatCode
@@ -112,6 +114,7 @@ private fun GamePlayScreenContent(
     onUpgradeDefender: (Int) -> Boolean,
     onStartFirstPlayerTurn: () -> Unit,
     onDefenderAttack: (Int, Int) -> Boolean,
+    onDefenderAttackPosition: (Int, Position) -> Boolean,
     onEndPlayerTurn: () -> Unit,
     onBackToMap: () -> Unit,
     onCheatCode: ((String) -> Boolean)? = null
@@ -119,6 +122,7 @@ private fun GamePlayScreenContent(
     var selectedDefenderType by remember { mutableStateOf<DefenderType?>(null) }
     var selectedDefenderId by remember { mutableStateOf<Int?>(null) }
     var selectedTargetId by remember { mutableStateOf<Int?>(null) }
+    var selectedTargetPosition by remember { mutableStateOf<Position?>(null) }
     var showCheatDialog by remember { mutableStateOf(false) }
     var cheatCodeInput by remember { mutableStateOf("") }
     
@@ -189,6 +193,7 @@ private fun GamePlayScreenContent(
                 selectedDefenderType = selectedDefenderType,
                 selectedDefenderId = selectedDefenderId,
                 selectedTargetId = selectedTargetId,
+                selectedTargetPosition = selectedTargetPosition,
                 onCellClick = { position ->
                     // Try to place defender if one is selected
                     selectedDefenderType?.let { type ->
@@ -203,13 +208,34 @@ private fun GamePlayScreenContent(
                     if (defender != null) {
                         selectedDefenderId = defender.id
                         selectedTargetId = null
+                        selectedTargetPosition = null
                         return@GameGrid
                     }
                     
-                    // Check if there's an attacker at this position (for targeting)
-                    val attacker = gameState.attackers.find { it.position == position && !it.isDefeated }
-                    if (attacker != null && selectedDefenderId != null) {
-                        selectedTargetId = attacker.id
+                    // Handle targeting for selected defender
+                    if (selectedDefenderId != null) {
+                        val selectedDefender = gameState.defenders.find { it.id == selectedDefenderId }
+                        if (selectedDefender != null) {
+                            // For AOE/DOT towers, allow targeting path tiles
+                            if (selectedDefender.type.attackType == AttackType.AOE || 
+                                selectedDefender.type.attackType == AttackType.DOT) {
+                                // Check if position is on the path and in range
+                                val distance = selectedDefender.position.distanceTo(position)
+                                if (gameState.level.isOnPath(position) && 
+                                    distance >= selectedDefender.type.minRange && 
+                                    distance <= selectedDefender.range) {
+                                    selectedTargetPosition = position
+                                    selectedTargetId = null
+                                }
+                            } else {
+                                // For single-target attacks, only allow targeting enemies
+                                val attacker = gameState.attackers.find { it.position == position && !it.isDefeated }
+                                if (attacker != null) {
+                                    selectedTargetId = attacker.id
+                                    selectedTargetPosition = null
+                                }
+                            }
+                        }
                     }
                 },
                 modifier = Modifier.weight(2f)
@@ -251,11 +277,19 @@ private fun GamePlayScreenContent(
                     selectedDefenderType = selectedDefenderType,
                     selectedDefenderId = selectedDefenderId,
                     selectedTargetId = selectedTargetId,
+                    selectedTargetPosition = selectedTargetPosition,
                     onSelectDefenderType = { selectedDefenderType = it },
                     onUpgradeDefender = { onUpgradeDefender(it) },
                     onDefenderAttack = { defenderId, targetId ->
                         if (onDefenderAttack(defenderId, targetId)) {
                             selectedTargetId = null
+                            selectedTargetPosition = null
+                        }
+                    },
+                    onDefenderAttackPosition = { defenderId, targetPos ->
+                        if (onDefenderAttackPosition(defenderId, targetPos)) {
+                            selectedTargetId = null
+                            selectedTargetPosition = null
                         }
                     },
                     onEndPlayerTurn = onEndPlayerTurn
@@ -319,6 +353,7 @@ fun GameGrid(
     selectedDefenderType: DefenderType?,
     selectedDefenderId: Int?,
     selectedTargetId: Int?,
+    selectedTargetPosition: Position?,
     onCellClick: (Position) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -356,7 +391,7 @@ fun GameGrid(
                             gameState = gameState,
                             isSelected = selectedDefenderType != null,
                             isDefenderSelected = gameState.defenders.find { it.position == position }?.id == selectedDefenderId,
-                            isTargetSelected = gameState.attackers.find { it.position == position }?.id == selectedTargetId,
+                            isTargetSelected = gameState.attackers.find { it.position == position }?.id == selectedTargetId || position == selectedTargetPosition,
                             selectedDefenderId = selectedDefenderId,
                             onClick = { onCellClick(position) },
                             hexSize = hexSize
@@ -613,9 +648,11 @@ fun PlayerTurnControls(
     selectedDefenderType: DefenderType?,
     selectedDefenderId: Int?,
     selectedTargetId: Int?,
+    selectedTargetPosition: Position?,
     onSelectDefenderType: (DefenderType?) -> Unit,
     onUpgradeDefender: (Int) -> Unit,
     onDefenderAttack: (Int, Int) -> Unit,
+    onDefenderAttackPosition: (Int, Position) -> Unit,
     onEndPlayerTurn: () -> Unit
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
@@ -655,14 +692,25 @@ fun PlayerTurnControls(
             if (defender != null) {
                 DefenderInfo(defender, gameState, onUpgradeDefender)
                 
-                if (defender.isReady && defender.actionsRemaining > 0 && selectedTargetId != null) {
-                    val target = gameState.attackers.find { it.id == selectedTargetId }
-                    if (target != null && defender.canAttack(target)) {
+                if (defender.isReady && defender.actionsRemaining > 0) {
+                    // For AOE/DOT towers, allow attacking positions
+                    if ((defender.type.attackType == AttackType.AOE || defender.type.attackType == AttackType.DOT) && selectedTargetPosition != null) {
                         Button(
-                            onClick = { onDefenderAttack(defenderId, selectedTargetId) },
+                            onClick = { onDefenderAttackPosition(defenderId, selectedTargetPosition) },
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Text("Attack ${target.type.displayName} (${target.currentHealth}/${target.maxHealth} HP)")
+                            Text("Attack Area at (${selectedTargetPosition.x}, ${selectedTargetPosition.y})")
+                        }
+                    } else if (selectedTargetId != null) {
+                        // For all towers, allow attacking enemies
+                        val target = gameState.attackers.find { it.id == selectedTargetId }
+                        if (target != null && defender.canAttack(target)) {
+                            Button(
+                                onClick = { onDefenderAttack(defenderId, selectedTargetId) },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text("Attack ${target.type.displayName} (${target.currentHealth}/${target.maxHealth} HP)")
+                            }
                         }
                     }
                 }
