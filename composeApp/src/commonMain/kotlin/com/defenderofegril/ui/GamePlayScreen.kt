@@ -898,78 +898,78 @@ fun EnemyListPanel(gameState: GameState, modifier: Modifier = Modifier) {
     // so it will auto-expand when a new level is loaded
     var isExpanded by remember { mutableStateOf(gameState.phase == GamePhase.INITIAL_BUILDING) }
     
-    // Force recomposition when key properties change - this ensures real-time updates
-    key(gameState.attackers.size, gameState.nextAttackerId, gameState.turnNumber) {
-        // Direct observation - Compose will track changes
-        val activeEnemies = gameState.attackers.filter { !it.isDefeated }.sortedBy { it.id }
-        
-        // Calculate how many enemies have spawned from the spawn plan
-        // nextAttackerId starts at 1, so (nextAttackerId - 1) gives us the count of spawned enemies
-        val totalSpawned = gameState.nextAttackerId - 1
-        
-        // Get the remaining planned spawns (those that haven't spawned yet)
-        val plannedSpawns = gameState.spawnPlan.drop(totalSpawned).take(15)
+    // Compute values directly - parent GamePlayScreen's key() will trigger recomposition
+    val activeEnemies = gameState.attackers.filter { !it.isDefeated }.sortedBy { it.id }
     
-        Card(modifier = modifier) {
-            Column(modifier = Modifier.padding(12.dp)) {
-                Row(
-                    modifier = Modifier.fillMaxWidth().clickable { isExpanded = !isExpanded },
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text("Enemies", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                    Text(if (isExpanded) "▼" else "▶", fontSize = 16.sp)
-                }
-                Text(
-                    "Active: ${activeEnemies.size} | Planned: ${plannedSpawns.size}",
-                    style = MaterialTheme.typography.bodySmall
-                )
+    // Calculate how many enemies have spawned from the spawn plan
+    // nextAttackerId starts at 1, so (nextAttackerId - 1) gives us the count of spawned enemies
+    val totalSpawned = gameState.nextAttackerId - 1
+    
+    // Get the remaining planned spawns (those that haven't spawned yet)
+    val plannedSpawns = gameState.spawnPlan.drop(totalSpawned).take(15)
+
+    Card(modifier = modifier) {
+        Column(modifier = Modifier.padding(12.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth().clickable { isExpanded = !isExpanded },
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text("Enemies", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Text(if (isExpanded) "▼" else "▶", fontSize = 16.sp)
+            }
+            Text(
+                "Active: ${activeEnemies.size} | Planned: ${plannedSpawns.size}",
+                style = MaterialTheme.typography.bodySmall
+            )
+            
+            if (isExpanded) {
+                Spacer(modifier = Modifier.height(8.dp))
                 
-                if (isExpanded) {
-                    Spacer(modifier = Modifier.height(8.dp))
-                    
-                    LazyColumn(modifier = Modifier.fillMaxWidth().heightIn(max = 500.dp)) {
-                        // Active enemies on the map
-                        if (activeEnemies.isNotEmpty()) {
-                            item(key = "header-active") {
-                                Text(
-                                    "On Map:",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color(0xFFD32F2F)
-                                )
-                                Spacer(modifier = Modifier.height(4.dp))
-                            }
-                        }
-                        items(
-                            items = activeEnemies,
-                            key = { attacker -> "active-${attacker.id}" }
-                        ) { attacker ->
-                            EnemyItemDetailed(attacker, showPosition = true)
+                LazyColumn(modifier = Modifier.fillMaxWidth().heightIn(max = 500.dp)) {
+                    // Active enemies on the map
+                    if (activeEnemies.isNotEmpty()) {
+                        item(key = "header-active") {
+                            Text(
+                                "On Map:",
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFFD32F2F)
+                            )
                             Spacer(modifier = Modifier.height(4.dp))
                         }
-                        
-                        // Planned enemy spawns (show what's left to spawn with turn information)
-                        if (plannedSpawns.isNotEmpty()) {
-                            item(key = "header-planned") {
-                                if (activeEnemies.isNotEmpty()) {
-                                    Spacer(modifier = Modifier.height(8.dp))
-                                }
-                                Text(
-                                    "Planned Spawns:",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color(0xFFFF9800)
-                                )
-                                Spacer(modifier = Modifier.height(4.dp))
+                    }
+                    items(
+                        items = activeEnemies,
+                        key = { attacker -> "active-${attacker.id}" }
+                    ) { attacker ->
+                        // Key by id and position to force recomposition when enemy moves
+                        key(attacker.id, attacker.position.x, attacker.position.y, attacker.currentHealth) {
+                            EnemyItemDetailed(attacker, showPosition = true)
+                        }
+                        Spacer(modifier = Modifier.height(4.dp))
+                    }
+                    
+                    // Planned enemy spawns (show what's left to spawn with turn information)
+                    if (plannedSpawns.isNotEmpty()) {
+                        item(key = "header-planned") {
+                            if (activeEnemies.isNotEmpty()) {
+                                Spacer(modifier = Modifier.height(8.dp))
                             }
-                            itemsIndexed(
-                                items = plannedSpawns,
-                                key = { index, _ -> "planned-$index" }
-                            ) { index, plannedSpawn ->
-                                PlannedEnemyItem(plannedSpawn, gameState.turnNumber)
-                                Spacer(modifier = Modifier.height(4.dp))
-                            }
+                            Text(
+                                "Planned Spawns:",
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFFFF9800)
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                        }
+                        itemsIndexed(
+                            items = plannedSpawns,
+                            key = { index, _ -> "planned-$index" }
+                        ) { index, plannedSpawn ->
+                            PlannedEnemyItem(plannedSpawn, gameState.turnNumber)
+                            Spacer(modifier = Modifier.height(4.dp))
                         }
                     }
                 }
