@@ -59,13 +59,13 @@ class GameEngine(private val state: GameState) {
     }
     
     private fun spawnInitialEnemies() {
-        // Spawn first enemies immediately at different spawn points
-        val enemiesToSpawn = minOf(3, state.attackersToSpawn.size)
-        val spawnPoints = state.level.startPositions.toMutableList()
+        // Spawn 6 enemies initially (2x the number of spawn points)
+        val enemiesToSpawn = minOf(6, state.attackersToSpawn.size)
+        val spawnPoints = state.level.startPositions
         
         repeat(enemiesToSpawn) { index ->
-            if (state.attackersToSpawn.isNotEmpty() && spawnPoints.isNotEmpty()) {
-                // Use a different spawn point for each enemy
+            if (state.attackersToSpawn.isNotEmpty()) {
+                // Use a different spawn point for each enemy (cycle through spawn points)
                 val spawnPos = spawnPoints[index % spawnPoints.size]
                 val type = state.attackersToSpawn.removeAt(0)
                 val attacker = Attacker(
@@ -76,6 +76,9 @@ class GameEngine(private val state: GameState) {
                 state.attackers.add(attacker)
             }
         }
+        
+        // Move goblins immediately after spawning
+        moveGoblinsAfterSpawn()
     }
     
     fun defenderAttack(defenderId: Int, targetId: Int): Boolean {
@@ -170,17 +173,29 @@ class GameEngine(private val state: GameState) {
         val wave = state.level.attackerWaves.getOrNull(state.currentWaveIndex - 1) ?: return
         
         if (state.spawnCounter >= wave.spawnDelay) {
-            // Find a free position near the start position
-            val spawnPosition = findFreeSpawnPosition() ?: return
+            // Spawn 6 enemies per turn (2x the number of spawn points)
+            val spawnPoints = state.level.startPositions
+            val enemiesToSpawn = minOf(6, state.attackersToSpawn.size)
             
-            val type = state.attackersToSpawn.removeAt(0)
-            val attacker = Attacker(
-                id = state.nextAttackerId++,
-                type = type,
-                position = spawnPosition
-            )
-            state.attackers.add(attacker)
+            repeat(enemiesToSpawn) { index ->
+                if (state.attackersToSpawn.isEmpty()) return@repeat
+                
+                // Use a different spawn point for each enemy (cycle through spawn points)
+                val spawnPos = spawnPoints[index % spawnPoints.size]
+                
+                val type = state.attackersToSpawn.removeAt(0)
+                val attacker = Attacker(
+                    id = state.nextAttackerId++,
+                    type = type,
+                    position = spawnPos
+                )
+                state.attackers.add(attacker)
+            }
+            
             state.spawnCounter = 0
+            
+            // Move goblins immediately after spawning
+            moveGoblinsAfterSpawn()
         }
     }
     
@@ -280,6 +295,52 @@ class GameEngine(private val state: GameState) {
             
             if (path.isEmpty()) continue
             
+            var remainingSpeed = attacker.type.speed
+            var pathIndex = 1 // Skip current position (index 0)
+            
+            while (remainingSpeed > 0 && pathIndex < path.size) {
+                val newPos = path[pathIndex]
+                
+                // Check if new position is occupied by another alive attacker
+                val isOccupied = state.attackers.any { 
+                    it.id != attacker.id && !it.isDefeated && it.position == newPos 
+                }
+                
+                if (!isOccupied) {
+                    attacker.position = newPos
+                    pathIndex++
+                } else {
+                    // Can't move further, stop trying
+                    break
+                }
+                
+                remainingSpeed--
+                
+                // Check if reached target
+                if (attacker.position == target) {
+                    state.healthPoints--
+                    attacker.isDefeated = true
+                    break
+                }
+            }
+        }
+    }
+    
+    private fun moveGoblinsAfterSpawn() {
+        // Move only goblins that just spawned (those still at spawn points)
+        for (attacker in state.attackers) {
+            if (attacker.isDefeated) continue
+            if (attacker.type != AttackerType.GOBLIN) continue
+            
+            // Check if goblin is at a spawn point
+            if (!state.level.isSpawnPoint(attacker.position)) continue
+            
+            val target = state.level.targetPosition
+            val path = findPath(attacker.position, target)
+            
+            if (path.isEmpty() || path.size < 2) continue
+            
+            // Move goblin using their speed
             var remainingSpeed = attacker.type.speed
             var pathIndex = 1 // Skip current position (index 0)
             
