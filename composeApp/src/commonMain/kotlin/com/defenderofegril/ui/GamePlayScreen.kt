@@ -373,7 +373,9 @@ fun GameGrid(
                             position = position,
                             gameState = gameState,
                             isSelected = selectedDefenderType != null,
-                            isDefenderSelected = gameState.defenders.find { it.position == position }?.id == selectedDefenderId,
+                            isDefenderSelected = selectedDefenderId?.let { selId -> 
+                                gameState.defenders.find { it.position == position }?.id == selId 
+                            } ?: false,
                             isTargetSelected = gameState.attackers.find { it.position == position }?.id == selectedTargetId,
                             selectedDefenderId = selectedDefenderId,
                             onClick = { onCellClick(position) },
