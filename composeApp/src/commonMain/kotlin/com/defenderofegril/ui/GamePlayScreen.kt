@@ -899,7 +899,8 @@ fun EnemyListPanel(gameState: GameState, modifier: Modifier = Modifier) {
     val activeEnemies = gameState.attackers.filter { !it.isDefeated }.sortedBy { it.id }
     
     // Calculate how many enemies have spawned from the spawn plan
-    val totalSpawned = gameState.attackers.size + gameState.attackers.count { it.isDefeated }
+    // nextAttackerId starts at 1, so (nextAttackerId - 1) gives us the count of spawned enemies
+    val totalSpawned = gameState.nextAttackerId - 1
     
     // Get the remaining planned spawns (those that haven't spawned yet)
     val plannedSpawns = gameState.spawnPlan.drop(totalSpawned).take(15)
