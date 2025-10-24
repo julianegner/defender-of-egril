@@ -143,7 +143,7 @@ private fun GamePlayScreenContent(
                 )
                 Text("Health: ${gameState.healthPoints.value}", style = MaterialTheme.typography.bodyLarge)
                 Text("Turn: ${gameState.turnNumber.value}", style = MaterialTheme.typography.bodyMedium)
-                val activeEnemies = gameState.attackers.count { !it.isDefeated }
+                val activeEnemies = gameState.attackers.count { !it.isDefeated.value }
                 val remainingEnemies = gameState.attackersToSpawn.size
                 Text("Enemies: $activeEnemies active, $remainingEnemies to come", 
                      style = MaterialTheme.typography.bodyMedium,
@@ -214,7 +214,7 @@ private fun GamePlayScreenContent(
                     }
                     
                     // Check if there's an attacker at this position (for targeting)
-                    val attacker = gameState.attackers.find { it.position == position && !it.isDefeated }
+                    val attacker = gameState.attackers.find { it.position == position && !it.isDefeated.value }
                     if (attacker != null && selectedDefenderId != null) {
                         selectedTargetId = attacker.id
                     }
@@ -399,7 +399,7 @@ fun GridCell(
     val isBuildIsland = gameState.level.isBuildIsland(position)
     val isBuildArea = gameState.level.isBuildArea(position)
     val defender = gameState.defenders.find { it.position == position }
-    val attacker = gameState.attackers.find { it.position == position && !it.isDefeated }
+    val attacker = gameState.attackers.find { it.position == position && !it.isDefeated.value }
     
     // Check if this cell is in range of the selected defender
     val cellIsInRange = selectedDefenderId?.let { defenderId ->
@@ -485,7 +485,7 @@ fun GridCell(
             attacker != null -> {
                 // Use graphical icon for enemy units
                 // Key by both id and currentHealth to force recomposition when health changes
-                key(attacker.id, attacker.currentHealth) {
+                key(attacker.id, attacker.currentHealth.value) {
                     EnemyIcon(attacker = attacker)
                 }
             }
@@ -622,7 +622,7 @@ fun PlayerTurnControls(
                             onClick = { onDefenderAttack(defenderId, selectedTargetId) },
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Text("Attack ${target.type.displayName} (${target.currentHealth}/${target.maxHealth} HP)")
+                            Text("Attack ${target.type.displayName} (${target.currentHealth.value}/${target.maxHealth} HP)")
                         }
                     }
                 }
@@ -893,7 +893,7 @@ fun EnemyListPanel(gameState: GameState, modifier: Modifier = Modifier) {
     var isExpanded by remember { mutableStateOf(gameState.phase.value == GamePhase.INITIAL_BUILDING) }
     
     // Compute values directly - parent GamePlayScreen's key() will trigger recomposition
-    val activeEnemies = gameState.attackers.filter { !it.isDefeated }.sortedBy { it.id }
+    val activeEnemies = gameState.attackers.filter { !it.isDefeated.value }.sortedBy { it.id }
     
     // Calculate how many enemies have spawned from the spawn plan
     // nextAttackerId starts at 1, so (nextAttackerId - 1) gives us the count of spawned enemies
@@ -938,7 +938,7 @@ fun EnemyListPanel(gameState: GameState, modifier: Modifier = Modifier) {
                         key = { attacker -> "active-${attacker.id}" }
                     ) { attacker ->
                         // Key by id and position to force recomposition when enemy moves
-                        key(attacker.id, attacker.position.x, attacker.position.y, attacker.currentHealth) {
+                        key(attacker.id, attacker.position.x, attacker.position.y, attacker.currentHealth.value) {
                             EnemyItemDetailed(attacker, showPosition = true)
                         }
                         Spacer(modifier = Modifier.height(4.dp))
@@ -1006,7 +1006,7 @@ fun EnemyItemDetailed(attacker: Attacker, showPosition: Boolean) {
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Text(
-                        "HP: ${attacker.currentHealth}/${attacker.maxHealth}",
+                        "HP: ${attacker.currentHealth.value}/${attacker.maxHealth}",
                         style = MaterialTheme.typography.bodySmall,
                         fontSize = 10.sp
                     )
@@ -1146,7 +1146,7 @@ fun EnemyItem(attacker: Attacker) {
             }
             
             Text(
-                "HP: ${attacker.currentHealth}/${attacker.maxHealth}",
+                "HP: ${attacker.currentHealth.value}/${attacker.maxHealth}",
                 style = MaterialTheme.typography.bodySmall
             )
             
