@@ -1,5 +1,6 @@
 package com.defenderofegril.game
 
+import androidx.compose.runtime.mutableStateOf
 import com.defenderofegril.model.*
 import kotlin.math.min
 
@@ -19,7 +20,7 @@ class GameEngine(private val state: GameState) {
             id = state.nextDefenderId.value++,
             type = type,
             position = position,
-            buildTimeRemaining = buildTime
+            buildTimeRemaining = mutableStateOf(buildTime)
         )
         state.defenders.add(defender)
         state.coins.value -= type.baseCost
