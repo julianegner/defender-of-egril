@@ -89,7 +89,7 @@ fun GamePlayScreen(
     onCheatCode: ((String) -> Boolean)? = null  // Add cheat code callback
 ) {
     // Force recomposition when game state changes by using key properties
-    key(gameState.turnNumber, gameState.phase, gameState.attackers.size, gameState.defenders.size, gameState.coins) {
+    key(gameState.turnNumber, gameState.phase, gameState.attackers.size, gameState.defenders.size, gameState.coins, gameState.fieldEffects.size) {
         GamePlayScreenContent(
             gameState = gameState,
             coins = coins,  // Pass coins State
@@ -387,6 +387,9 @@ fun GridCell(
     val defender = gameState.defenders.find { it.position == position }
     val attacker = gameState.attackers.find { it.position == position && !it.isDefeated }
     
+    // Check for field effects at this position
+    val fieldEffect = gameState.fieldEffects.find { it.position == position }
+    
     // Check if this cell is in range of the selected defender
     val cellIsInRange = selectedDefenderId?.let { defenderId ->
         val selectedDefender = gameState.defenders.find { it.id == defenderId }
@@ -412,6 +415,7 @@ fun GridCell(
     // Apply slight tint for selection states, but keep base color visible
     // Override with red background for enemy units and colored background for defenders
     // During INITIAL_BUILDING phase, don't apply any selection tints
+    // Field effects also modify the background color
     val backgroundColor = when {
         attacker != null -> Color(0xFFF44336)  // Red background for enemies
         defender != null -> {
@@ -419,6 +423,12 @@ fun GridCell(
                 !defender.isReady -> Color(0xFF9E9E9E)  // Gray for building
                 defender.actionsRemaining <= 0 -> Color(0xFF7986CB)  // Blue-gray mix for used up actions
                 else -> Color(0xFF2196F3)  // Blue for ready with actions
+            }
+        }
+        fieldEffect != null -> {
+            when (fieldEffect.type) {
+                FieldEffectType.FIREBALL_AOE -> Color(0xFFFF9800).copy(alpha = 0.5f)  // Orange tint for fireball
+                FieldEffectType.ACID_DOT -> Color(0xFF4CAF50).copy(alpha = 0.6f)  // Green tint for acid
             }
         }
         isDefenderSelected && gameState.phase != GamePhase.INITIAL_BUILDING -> baseBackgroundColor.copy(alpha = 0.7f)
@@ -440,6 +450,12 @@ fun GridCell(
         isTarget -> Color(0xFF4CAF50)  // Green border for target
         attacker != null -> Color(0xFFF44336)  // Red border for enemies
         defender != null -> if (defender.isReady) Color(0xFF2196F3) else Color(0xFF9E9E9E)  // Blue/gray border for towers
+        fieldEffect != null -> {
+            when (fieldEffect.type) {
+                FieldEffectType.FIREBALL_AOE -> Color(0xFFFF5722)  // Deep orange border for fireball
+                FieldEffectType.ACID_DOT -> Color(0xFF4CAF50)  // Green border for acid
+            }
+        }
         else -> Color.Transparent  // No borders for empty cells
     }
     
@@ -449,6 +465,7 @@ fun GridCell(
         cellIsInRange && isOnPath && showRange -> 4.dp  // Thick border for cells in range
         isSpawnPoint || isTarget -> 3.dp
         attacker != null || defender != null -> 3.dp
+        fieldEffect != null -> 3.dp  // Thick border for field effects
         else -> 0.dp  // No border for empty cells
     }
     
@@ -480,6 +497,43 @@ fun GridCell(
                 // Key by id, level and actionsRemaining to force recomposition when these change
                 key(defender.id, defender.level, defender.actionsRemaining, defender.buildTimeRemaining) {
                     TowerIcon(defender = defender)
+                }
+            }
+            fieldEffect != null -> {
+                // Show field effect info
+                when (fieldEffect.type) {
+                    FieldEffectType.FIREBALL_AOE -> {
+                        // Show fireball symbol
+                        Text(
+                            "💥",
+                            style = MaterialTheme.typography.headlineSmall,
+                            color = Color(0xFFFF5722)
+                        )
+                    }
+                    FieldEffectType.ACID_DOT -> {
+                        // Show acid splash with damage and duration
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Text(
+                                "🧪",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = Color(0xFF4CAF50)
+                            )
+                            Text(
+                                "-${fieldEffect.damage}",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                "${fieldEffect.turnsRemaining}T",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = Color(0xFFFFEB3B)
+                            )
+                        }
+                    }
                 }
             }
             isSpawnPoint -> {
