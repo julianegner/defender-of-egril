@@ -184,39 +184,37 @@ private fun GamePlayScreenContent(
         
         // Game Grid with toggle button and overlay
         Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
-            Row(modifier = Modifier.fillMaxSize()) {
-                // Scrollable Game Grid
-                GameGrid(
-                    gameState = gameState,
-                    selectedDefenderType = selectedDefenderType,
-                    selectedDefenderId = selectedDefenderId,
-                    selectedTargetId = selectedTargetId,
-                    onCellClick = { position ->
-                        // Try to place defender if one is selected
-                        selectedDefenderType?.let { type ->
-                            if (onPlaceDefender(type, position)) {
-                                selectedDefenderType = null
-                            }
-                            return@GameGrid
+            // Scrollable Game Grid
+            GameGrid(
+                gameState = gameState,
+                selectedDefenderType = selectedDefenderType,
+                selectedDefenderId = selectedDefenderId,
+                selectedTargetId = selectedTargetId,
+                onCellClick = { position ->
+                    // Try to place defender if one is selected
+                    selectedDefenderType?.let { type ->
+                        if (onPlaceDefender(type, position)) {
+                            selectedDefenderType = null
                         }
-                        
-                        // Check if there's a defender at this position
-                        val defender = gameState.defenders.find { it.position == position }
-                        if (defender != null) {
-                            selectedDefenderId = defender.id
-                            selectedTargetId = null
-                            return@GameGrid
-                        }
-                        
-                        // Check if there's an attacker at this position (for targeting)
-                        val attacker = gameState.attackers.find { it.position == position && !it.isDefeated }
-                        if (attacker != null && selectedDefenderId != null) {
-                            selectedTargetId = attacker.id
-                        }
-                    },
-                    modifier = Modifier.weight(1f)
-                )
-            }
+                        return@GameGrid
+                    }
+                    
+                    // Check if there's a defender at this position
+                    val defender = gameState.defenders.find { it.position == position }
+                    if (defender != null) {
+                        selectedDefenderId = defender.id
+                        selectedTargetId = null
+                        return@GameGrid
+                    }
+                    
+                    // Check if there's an attacker at this position (for targeting)
+                    val attacker = gameState.attackers.find { it.position == position && !it.isDefeated }
+                    if (attacker != null && selectedDefenderId != null) {
+                        selectedTargetId = attacker.id
+                    }
+                },
+                modifier = Modifier.fillMaxSize()
+            )
             
             // Toggle button positioned above the map and far to the right
             Button(
