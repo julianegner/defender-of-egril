@@ -346,26 +346,48 @@ class GameEngine(private val state: GameState) {
             }
         }
         
-        // Clear existing acid effects from this defender
-        state.fieldEffects.removeAll { 
-            it.type == FieldEffectType.ACID_DOT && it.defenderId == defender.id 
-        }
-        
         // Create field effects for acid DOT on all affected positions
+        // Don't remove existing acid effects - they should persist until they expire
         for (pos in affectedPositions) {
             // Find if there's an enemy at this position
             val enemyAtPos = targets.find { it.position == pos }
             
-            state.fieldEffects.add(
-                FieldEffect(
-                    position = pos,
-                    type = FieldEffectType.ACID_DOT,
-                    damage = defender.damage / DOT_DAMAGE_DIVISOR,  // DOT tick damage
-                    turnsRemaining = defender.dotDuration,
-                    defenderId = defender.id,
-                    attackerId = enemyAtPos?.id  // Link to enemy if present
+            // Check if there's already an acid effect at this position
+            val existingEffect = state.fieldEffects.find { 
+                it.type == FieldEffectType.ACID_DOT && it.position == pos 
+            }
+            
+            val newDuration = defender.dotDuration
+            
+            if (existingEffect != null) {
+                // If existing effect has more turns, keep it; otherwise replace it
+                if (newDuration > existingEffect.turnsRemaining) {
+                    state.fieldEffects.remove(existingEffect)
+                    state.fieldEffects.add(
+                        FieldEffect(
+                            position = pos,
+                            type = FieldEffectType.ACID_DOT,
+                            damage = defender.damage / DOT_DAMAGE_DIVISOR,
+                            turnsRemaining = newDuration,
+                            defenderId = defender.id,
+                            attackerId = enemyAtPos?.id
+                        )
+                    )
+                }
+                // If existing has equal or more turns, do nothing (keep existing)
+            } else {
+                // No existing effect, add new one
+                state.fieldEffects.add(
+                    FieldEffect(
+                        position = pos,
+                        type = FieldEffectType.ACID_DOT,
+                        damage = defender.damage / DOT_DAMAGE_DIVISOR,
+                        turnsRemaining = newDuration,
+                        defenderId = defender.id,
+                        attackerId = enemyAtPos?.id
+                    )
                 )
-            )
+            }
         }
     }
     
