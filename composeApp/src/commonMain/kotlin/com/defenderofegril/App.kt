@@ -31,6 +31,7 @@ fun App() {
                 gameState?.let { state ->
                     GamePlayScreen(
                         gameState = state,
+                        stateVersion = viewModel.stateVersion,  // Pass the stateVersion State
                         coins = viewModel.coins,  // Pass the coins State
                         onPlaceDefender = { type, pos -> viewModel.placeDefender(type, pos) },
                         onUpgradeDefender = { id -> viewModel.upgradeDefender(id) },

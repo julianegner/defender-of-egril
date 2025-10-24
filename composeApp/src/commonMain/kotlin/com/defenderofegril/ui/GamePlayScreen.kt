@@ -79,6 +79,7 @@ class HexagonShape : Shape {
 @Composable
 fun GamePlayScreen(
     gameState: GameState,
+    stateVersion: State<Long>,  // Add stateVersion State parameter
     coins: State<Int>,  // Add coins State parameter
     onPlaceDefender: (DefenderType, Position) -> Boolean,
     onUpgradeDefender: (Int) -> Boolean,
@@ -89,7 +90,8 @@ fun GamePlayScreen(
     onCheatCode: ((String) -> Boolean)? = null  // Add cheat code callback
 ) {
     // Force recomposition when game state changes by using key properties
-    key(gameState.turnNumber, gameState.phase, gameState.attackers.size, gameState.defenders.size, gameState.coins) {
+    // Including stateVersion ensures updates even when other properties don't change
+    key(stateVersion.value, gameState.turnNumber, gameState.phase, gameState.attackers.size, gameState.defenders.size, gameState.coins) {
         GamePlayScreenContent(
             gameState = gameState,
             coins = coins,  // Pass coins State
