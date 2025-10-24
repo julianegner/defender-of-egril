@@ -35,6 +35,10 @@ class GameViewModel {
     private val _coins = mutableStateOf(0)
     val coins: State<Int> = _coins
     
+    // MutableState for state version to force UI updates
+    private val _stateVersion = mutableStateOf(0L)
+    val stateVersion: State<Long> = _stateVersion
+    
     private var gameEngine: GameEngine? = null
     private var updateCounter = 0L
     private val viewModelScope = CoroutineScope(Dispatchers.Default)
@@ -151,8 +155,6 @@ class GameViewModel {
         }
     }
     
-    private var stateVersion = 0L
-    
     private fun triggerStateUpdate() {
         // Force StateFlow to emit by reassigning the same state
         val currentState = _gameState.value ?: return
@@ -163,8 +165,8 @@ class GameViewModel {
         // Update the coins MutableState for UI reactivity
         _coins.value = currentState.coins
         
-        // Increment version counter to track state changes
-        stateVersion++
+        // Increment state version to force UI recomposition
+        _stateVersion.value++
         
         // Force StateFlow to emit by setting to null first, then back to the state
         // This bypasses the structural equality check
