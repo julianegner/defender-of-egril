@@ -1,5 +1,8 @@
 package com.defenderofegril.model
 
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+
 enum class DefenderType(
     val displayName: String,
     val baseCost: Int,
@@ -31,16 +34,16 @@ data class Defender(
     val position: Position,
     var level: Int = 1,
     var dotRoundsRemaining: MutableMap<Int, Int> = mutableMapOf(), // attackerId -> rounds
-    var buildTimeRemaining: Int = 0,  // 0 = ready to use
-    var actionsRemaining: Int = 0     // Actions left this turn
+    val buildTimeRemaining: MutableState<Int> = mutableStateOf(0),  // 0 = ready to use
+    val actionsRemaining: MutableState<Int> = mutableStateOf(0)     // Actions left this turn
 ) {
     val damage: Int get() = type.baseDamage + (level - 1) * 5
     val range: Int get() = type.baseRange + (level - 1) / 2
     val upgradeCost: Int get() = type.baseCost * level
-    val isReady: Boolean get() = buildTimeRemaining == 0
+    val isReady: Boolean get() = buildTimeRemaining.value == 0
     
     fun canAttack(attacker: Attacker): Boolean {
-        if (!isReady || actionsRemaining <= 0) return false
+        if (!isReady || actionsRemaining.value <= 0) return false
         val distance = position.distanceTo(attacker.position)
         // Check both minimum and maximum range
         return distance >= type.minRange && distance <= range
@@ -48,7 +51,7 @@ data class Defender(
     
     fun resetActions() {
         if (isReady) {
-            actionsRemaining = type.actionsPerTurn
+            actionsRemaining.value = type.actionsPerTurn
         }
     }
 }

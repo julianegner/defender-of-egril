@@ -431,7 +431,7 @@ fun GridCell(
         defender != null -> {
             when {
                 !defender.isReady -> Color(0xFF9E9E9E)  // Gray for building
-                defender.actionsRemaining <= 0 -> Color(0xFF7986CB)  // Blue-gray mix for used up actions
+                defender.actionsRemaining.value <= 0 -> Color(0xFF7986CB)  // Blue-gray mix for used up actions
                 else -> Color(0xFF2196F3)  // Blue for ready with actions
             }
         }
@@ -444,7 +444,7 @@ fun GridCell(
     // For range visualization, show green border on path tiles in range (only if tower has actions)
     val showRange = selectedDefenderId?.let { defenderId ->
         val selectedDefender = gameState.defenders.find { it.id == defenderId }
-        selectedDefender?.isReady == true && selectedDefender.actionsRemaining > 0
+        selectedDefender?.isReady == true && selectedDefender.actionsRemaining.value > 0
     } ?: false
     
     val borderColor = when {
@@ -492,7 +492,7 @@ fun GridCell(
             defender != null -> {
                 // Use graphical icon for towers
                 // Key by id, level and actionsRemaining to force recomposition when these change
-                key(defender.id, defender.level, defender.actionsRemaining, defender.buildTimeRemaining) {
+                key(defender.id, defender.level, defender.actionsRemaining.value, defender.buildTimeRemaining.value) {
                     TowerIcon(defender = defender)
                 }
             }
@@ -615,7 +615,7 @@ fun PlayerTurnControls(
             if (defender != null) {
                 DefenderInfo(defender, gameState, onUpgradeDefender)
                 
-                if (defender.isReady && defender.actionsRemaining > 0 && selectedTargetId != null) {
+                if (defender.isReady && defender.actionsRemaining.value > 0 && selectedTargetId != null) {
                     val target = gameState.attackers.find { it.id == selectedTargetId }
                     if (target != null && defender.canAttack(target)) {
                         Button(
@@ -648,15 +648,15 @@ fun DefenderInfo(
     onUpgradeDefender: (Int) -> Unit
 ) {
     // Use key to force recomposition when defender stats change
-    key(defender.id, defender.level, defender.damage, defender.range, defender.actionsRemaining, defender.buildTimeRemaining, defender.isReady) {
+    key(defender.id, defender.level, defender.damage, defender.range, defender.actionsRemaining.value, defender.buildTimeRemaining.value, defender.isReady) {
         Card(modifier = Modifier.fillMaxWidth()) {
             Column(modifier = Modifier.padding(8.dp)) {
                 Text("${defender.type.displayName} (Lvl ${defender.level})")
                 if (!defender.isReady) {
-                    Text("Building: ${defender.buildTimeRemaining} turns", 
+                    Text("Building: ${defender.buildTimeRemaining.value} turns", 
                          style = MaterialTheme.typography.bodySmall)
                 } else {
-                    Text("Actions: ${defender.actionsRemaining}/${defender.type.actionsPerTurn}",
+                    Text("Actions: ${defender.actionsRemaining.value}/${defender.type.actionsPerTurn}",
                          style = MaterialTheme.typography.bodySmall)
                     if (defender.type.minRange > 0) {
                         Text("Damage: ${defender.damage}, Range: ${defender.type.minRange}-${defender.range}",

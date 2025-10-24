@@ -94,7 +94,7 @@ class GameEngine(private val state: GameState) {
             AttackType.DOT -> dotAttack(defender, target)
         }
         
-        defender.actionsRemaining--
+        defender.actionsRemaining.value--
         
         // Process defeated attackers immediately to give coins
         processDefeatedAttackers()
@@ -141,9 +141,9 @@ class GameEngine(private val state: GameState) {
     
     private fun advanceBuildTimers() {
         state.defenders.forEach { defender ->
-            if (defender.buildTimeRemaining > 0) {
-                defender.buildTimeRemaining--
-                if (defender.buildTimeRemaining == 0) {
+            if (defender.buildTimeRemaining.value > 0) {
+                defender.buildTimeRemaining.value--
+                if (defender.buildTimeRemaining.value == 0) {
                     defender.resetActions()
                 }
             }
