@@ -122,6 +122,20 @@ class GameViewModel {
         return result
     }
     
+    fun defenderAttackPosition(defenderId: Int, targetPosition: Position): Boolean {
+        val result = gameEngine?.defenderAttackPosition(defenderId, targetPosition) ?: false
+        if (result) {
+            triggerStateUpdate()
+            
+            // Check for immediate victory after attack
+            val state = _gameState.value
+            if (state != null && state.isLevelWon()) {
+                completeLevel(state.level.id, won = true)
+            }
+        }
+        return result
+    }
+    
     fun endPlayerTurn() {
         val state = _gameState.value ?: return
         
