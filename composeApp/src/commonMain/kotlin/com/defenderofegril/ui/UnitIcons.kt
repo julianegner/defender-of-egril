@@ -397,6 +397,36 @@ fun EnemyIcon(
 }
 
 /**
+ * Composable that draws an enemy type icon (for planned spawns)
+ */
+@Composable
+fun EnemyTypeIcon(
+    attackerType: AttackerType,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        // Draw enemy graphics
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            val centerX = size.width / 2
+            val centerY = size.height / 2
+            val iconSize = minOf(size.width, size.height)
+            
+            when (attackerType) {
+                AttackerType.GOBLIN -> drawGoblinSymbol(centerX, centerY, iconSize * 0.7f)
+                AttackerType.ORK -> drawOrkSymbol(centerX, centerY, iconSize * 0.7f)
+                AttackerType.OGRE -> drawOgreSymbol(centerX, centerY, iconSize * 0.75f)
+                AttackerType.SKELETON -> drawSkeletonSymbol(centerX, centerY, iconSize * 0.7f)
+                AttackerType.EVIL_WIZARD -> drawEvilWizardSymbol(centerX, centerY, iconSize * 0.7f)
+                AttackerType.WITCH -> drawWitchSymbol(centerX, centerY, iconSize * 0.7f)
+            }
+        }
+    }
+}
+
+/**
  * Draw goblin symbol (small creature with pointy ears)
  */
 private fun DrawScope.drawGoblinSymbol(centerX: Float, centerY: Float, size: Float) {
