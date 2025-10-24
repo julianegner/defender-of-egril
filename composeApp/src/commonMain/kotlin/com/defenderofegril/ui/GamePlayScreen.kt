@@ -121,6 +121,7 @@ private fun GamePlayScreenContent(
     var selectedTargetId by remember { mutableStateOf<Int?>(null) }
     var showCheatDialog by remember { mutableStateOf(false) }
     var cheatCodeInput by remember { mutableStateOf("") }
+    var showOverlay by remember { mutableStateOf(false) }  // MutableState for overlay visibility
     
     Column(
         modifier = Modifier.fillMaxSize().padding(16.dp),
@@ -181,51 +182,74 @@ private fun GamePlayScreenContent(
         
         Spacer(modifier = Modifier.height(16.dp))
         
-        // Game Grid with Legend and Enemy List
-        Row(modifier = Modifier.weight(1f).fillMaxWidth()) {
-            // Scrollable Game Grid
-            GameGrid(
-                gameState = gameState,
-                selectedDefenderType = selectedDefenderType,
-                selectedDefenderId = selectedDefenderId,
-                selectedTargetId = selectedTargetId,
-                onCellClick = { position ->
-                    // Try to place defender if one is selected
-                    selectedDefenderType?.let { type ->
-                        if (onPlaceDefender(type, position)) {
-                            selectedDefenderType = null
+        // Game Grid with toggle button and overlay
+        Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
+            Row(modifier = Modifier.fillMaxSize()) {
+                // Scrollable Game Grid
+                GameGrid(
+                    gameState = gameState,
+                    selectedDefenderType = selectedDefenderType,
+                    selectedDefenderId = selectedDefenderId,
+                    selectedTargetId = selectedTargetId,
+                    onCellClick = { position ->
+                        // Try to place defender if one is selected
+                        selectedDefenderType?.let { type ->
+                            if (onPlaceDefender(type, position)) {
+                                selectedDefenderType = null
+                            }
+                            return@GameGrid
                         }
-                        return@GameGrid
-                    }
-                    
-                    // Check if there's a defender at this position
-                    val defender = gameState.defenders.find { it.position == position }
-                    if (defender != null) {
-                        selectedDefenderId = defender.id
-                        selectedTargetId = null
-                        return@GameGrid
-                    }
-                    
-                    // Check if there's an attacker at this position (for targeting)
-                    val attacker = gameState.attackers.find { it.position == position && !it.isDefeated }
-                    if (attacker != null && selectedDefenderId != null) {
-                        selectedTargetId = attacker.id
-                    }
-                },
-                modifier = Modifier.weight(2f)
-            )
+                        
+                        // Check if there's a defender at this position
+                        val defender = gameState.defenders.find { it.position == position }
+                        if (defender != null) {
+                            selectedDefenderId = defender.id
+                            selectedTargetId = null
+                            return@GameGrid
+                        }
+                        
+                        // Check if there's an attacker at this position (for targeting)
+                        val attacker = gameState.attackers.find { it.position == position && !it.isDefeated }
+                        if (attacker != null && selectedDefenderId != null) {
+                            selectedTargetId = attacker.id
+                        }
+                    },
+                    modifier = Modifier.weight(1f)
+                )
+            }
             
-            Spacer(modifier = Modifier.width(16.dp))
+            // Toggle button positioned above the map and far to the right
+            Button(
+                onClick = { showOverlay = !showOverlay },
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(8.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (showOverlay) Color(0xFF4CAF50) else Color(0xFF2196F3)
+                )
+            ) {
+                Text(if (showOverlay) "Hide Info ◀" else "Show Info ▶")
+            }
             
-            // Side panel with Legend and Enemy List
-            Column(modifier = Modifier.width(250.dp)) {
-                // Legend
-                GameLegend(modifier = Modifier.fillMaxWidth())
-                
-                Spacer(modifier = Modifier.height(16.dp))
-                
-                // Enemy List
-                EnemyListPanel(gameState = gameState, modifier = Modifier.fillMaxWidth().weight(1f))
+            // Overlay panel with Legend and Enemy List (conditionally shown)
+            if (showOverlay) {
+                Column(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .width(250.dp)
+                        .fillMaxHeight()
+                        .padding(top = 48.dp)  // Offset to avoid toggle button
+                        .background(Color.White.copy(alpha = 0.95f))
+                        .padding(8.dp)
+                ) {
+                    // Legend
+                    GameLegend(modifier = Modifier.fillMaxWidth())
+                    
+                    Spacer(modifier = Modifier.height(16.dp))
+                    
+                    // Enemy List
+                    EnemyListPanel(gameState = gameState, modifier = Modifier.fillMaxWidth().weight(1f))
+                }
             }
         }
         
