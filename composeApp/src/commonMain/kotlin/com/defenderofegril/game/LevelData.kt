@@ -23,7 +23,7 @@ object LevelData {
             buildIslands = pathAndIslands.buildIslands,
             attackerWaves = listOf(
                 AttackerWave(
-                    attackers = List(5) { AttackerType.GOBLIN },
+                    attackers = List(10) { AttackerType.GOBLIN },
                     spawnDelay = 3
                 )
             ),

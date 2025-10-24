@@ -210,4 +210,15 @@ class GameViewModel {
             ?: return
         startLevel(levelId)
     }
+    
+    fun applyCheatCode(code: String): Boolean {
+        return when (code.lowercase()) {
+            "moneybags", "1000coins", "cash" -> {
+                gameEngine?.addCoins(1000)
+                triggerStateUpdate()
+                true
+            }
+            else -> false
+        }
+    }
 }

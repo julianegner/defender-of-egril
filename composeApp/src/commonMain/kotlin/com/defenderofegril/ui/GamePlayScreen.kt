@@ -6,22 +6,75 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.defenderofegril.model.*
 import kotlinx.coroutines.delay
+import kotlin.math.sqrt
+
+/**
+ * A pointy-top hexagon shape for Compose
+ */
+class HexagonShape : Shape {
+    override fun createOutline(
+        size: Size,
+        layoutDirection: LayoutDirection,
+        density: Density
+    ): Outline {
+        val path = Path().apply {
+            val width = size.width
+            val height = size.height
+            val centerX = width / 2f
+            val centerY = height / 2f
+            
+            // For pointy-top hexagon:
+            // The hexagon has flat sides on left and right
+            // Points at top and bottom
+            val radius = minOf(width, height) / 2f
+            
+            // Calculate the 6 vertices of a pointy-top hexagon
+            // Starting from the top and going clockwise
+            val sqrt3 = sqrt(3.0).toFloat()
+            
+            // Top point
+            moveTo(centerX, centerY - radius)
+            // Top-right
+            lineTo(centerX + radius * sqrt3 / 2f, centerY - radius / 2f)
+            // Bottom-right
+            lineTo(centerX + radius * sqrt3 / 2f, centerY + radius / 2f)
+            // Bottom point
+            lineTo(centerX, centerY + radius)
+            // Bottom-left
+            lineTo(centerX - radius * sqrt3 / 2f, centerY + radius / 2f)
+            // Top-left
+            lineTo(centerX - radius * sqrt3 / 2f, centerY - radius / 2f)
+            // Close the path
+            close()
+        }
+        return Outline.Generic(path)
+    }
+}
 
 @Composable
 fun GamePlayScreen(
@@ -32,7 +85,8 @@ fun GamePlayScreen(
     onStartFirstPlayerTurn: () -> Unit,
     onDefenderAttack: (Int, Int) -> Boolean,
     onEndPlayerTurn: () -> Unit,
-    onBackToMap: () -> Unit
+    onBackToMap: () -> Unit,
+    onCheatCode: ((String) -> Boolean)? = null  // Add cheat code callback
 ) {
     // Force recomposition when game state changes by using key properties
     key(gameState.turnNumber, gameState.phase, gameState.attackers.size, gameState.defenders.size, gameState.coins) {
@@ -44,7 +98,8 @@ fun GamePlayScreen(
             onStartFirstPlayerTurn = onStartFirstPlayerTurn,
             onDefenderAttack = onDefenderAttack,
             onEndPlayerTurn = onEndPlayerTurn,
-            onBackToMap = onBackToMap
+            onBackToMap = onBackToMap,
+            onCheatCode = onCheatCode
         )
     }
 }
@@ -58,11 +113,14 @@ private fun GamePlayScreenContent(
     onStartFirstPlayerTurn: () -> Unit,
     onDefenderAttack: (Int, Int) -> Boolean,
     onEndPlayerTurn: () -> Unit,
-    onBackToMap: () -> Unit
+    onBackToMap: () -> Unit,
+    onCheatCode: ((String) -> Boolean)? = null
 ) {
     var selectedDefenderType by remember { mutableStateOf<DefenderType?>(null) }
     var selectedDefenderId by remember { mutableStateOf<Int?>(null) }
     var selectedTargetId by remember { mutableStateOf<Int?>(null) }
+    var showCheatDialog by remember { mutableStateOf(false) }
+    var cheatCodeInput by remember { mutableStateOf("") }
     
     Column(
         modifier = Modifier.fillMaxSize().padding(16.dp),
@@ -76,7 +134,18 @@ private fun GamePlayScreenContent(
         ) {
             Column {
                 Text("Level: ${gameState.level.name}", style = MaterialTheme.typography.titleLarge)
-                Text("Coins: ${gameState.coins}", style = MaterialTheme.typography.bodyLarge)
+                // Clickable coins display for cheat codes
+                Text(
+                    "Coins: ${gameState.coins}", 
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.clickable(
+                        onClick = { 
+                            if (onCheatCode != null) {
+                                showCheatDialog = true
+                            }
+                        }
+                    )
+                )
                 Text("Health: ${gameState.healthPoints}", style = MaterialTheme.typography.bodyLarge)
                 Text("Turn: ${gameState.turnNumber}", style = MaterialTheme.typography.bodyMedium)
                 val activeEnemies = gameState.attackers.count { !it.isDefeated }
@@ -196,6 +265,51 @@ private fun GamePlayScreenContent(
                 EnemyTurnInfo()
             }
         }
+        
+        // Cheat code dialog
+        if (showCheatDialog && onCheatCode != null) {
+            AlertDialog(
+                onDismissRequest = { 
+                    showCheatDialog = false
+                    cheatCodeInput = ""
+                },
+                title = { Text("Cheat Code") },
+                text = {
+                    Column {
+                        Text("Enter cheat code:")
+                        Spacer(modifier = Modifier.height(8.dp))
+                        TextField(
+                            value = cheatCodeInput,
+                            onValueChange = { cheatCodeInput = it },
+                            singleLine = true,
+                            placeholder = { Text("e.g. moneybags") }
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text("Available codes:", style = MaterialTheme.typography.labelSmall)
+                        Text("• moneybags, 1000coins, cash - Get 1000 coins", style = MaterialTheme.typography.bodySmall)
+                    }
+                },
+                confirmButton = {
+                    Button(onClick = {
+                        val success = onCheatCode(cheatCodeInput)
+                        if (success) {
+                            showCheatDialog = false
+                            cheatCodeInput = ""
+                        }
+                    }) {
+                        Text("Apply")
+                    }
+                },
+                dismissButton = {
+                    Button(onClick = {
+                        showCheatDialog = false
+                        cheatCodeInput = ""
+                    }) {
+                        Text("Cancel")
+                    }
+                }
+            )
+        }
     }
 }
 
@@ -209,24 +323,45 @@ fun GameGrid(
     modifier: Modifier = Modifier
 ) {
     val scrollState = rememberScrollState()
+    val hexSize = 40.dp  // Radius of hexagon (center to corner)
     
-    Column(
-        modifier = modifier.fillMaxWidth().horizontalScroll(scrollState),
-        horizontalAlignment = Alignment.Start
+    // Calculate hex dimensions for pointy-top hexagons
+    val sqrt3 = sqrt(3.0).toFloat()
+    val hexWidth = hexSize.value * sqrt3  // Width of hexagon (flat-to-flat)
+    val hexHeight = hexSize.value * 2f    // Height of hexagon (point-to-point)
+    
+    // For pointy-top hexagons, vertical spacing between centers is 3/4 of height
+    val verticalSpacing = hexHeight * 0.75f
+    
+    // Calculate total grid width: each column takes hexWidth, plus offset for odd rows
+    // Add significant padding at the end to ensure target is visible when scrolling
+    val totalGridWidth = ((gameState.level.gridWidth) * hexWidth + hexWidth + 200f).dp
+    
+    Box(
+        modifier = modifier.fillMaxWidth().horizontalScroll(scrollState)
     ) {
-        for (y in 0 until gameState.level.gridHeight) {
-            Row {
-                for (x in 0 until gameState.level.gridWidth) {
-                    val position = Position(x, y)
-                    GridCell(
-                        position = position,
-                        gameState = gameState,
-                        isSelected = selectedDefenderType != null,
-                        isDefenderSelected = gameState.defenders.find { it.position == position }?.id == selectedDefenderId,
-                        isTargetSelected = gameState.attackers.find { it.position == position }?.id == selectedTargetId,
-                        selectedDefenderId = selectedDefenderId,
-                        onClick = { onCellClick(position) }
-                    )
+        Column(
+            modifier = Modifier.width(totalGridWidth),  // Set explicit width for scrolling
+            verticalArrangement = Arrangement.spacedBy((-hexHeight + verticalSpacing - 7f).dp)  // Extra tight spacing to eliminate all gaps
+        ) {
+            for (y in 0 until gameState.level.gridHeight) {
+                Row(
+                    modifier = Modifier.offset(x = if (y % 2 == 1) (hexWidth * 0.42f).dp else 0.dp),  // Offset odd rows 42% to eliminate final gaps
+                    horizontalArrangement = Arrangement.spacedBy((-10).dp)  // Even tighter horizontal spacing
+                ) {
+                    for (x in 0 until gameState.level.gridWidth) {
+                        val position = Position(x, y)
+                        GridCell(
+                            position = position,
+                            gameState = gameState,
+                            isSelected = selectedDefenderType != null,
+                            isDefenderSelected = gameState.defenders.find { it.position == position }?.id == selectedDefenderId,
+                            isTargetSelected = gameState.attackers.find { it.position == position }?.id == selectedTargetId,
+                            selectedDefenderId = selectedDefenderId,
+                            onClick = { onCellClick(position) },
+                            hexSize = hexSize
+                        )
+                    }
                 }
             }
         }
@@ -241,7 +376,8 @@ fun GridCell(
     isDefenderSelected: Boolean,
     isTargetSelected: Boolean,
     selectedDefenderId: Int?,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    hexSize: androidx.compose.ui.unit.Dp = 48.dp
 ) {
     val isSpawnPoint = gameState.level.isSpawnPoint(position)
     val isTarget = position == gameState.level.targetPosition
@@ -316,11 +452,18 @@ fun GridCell(
         else -> 0.dp  // No border for empty cells
     }
     
+    // Calculate hex dimensions for proper sizing
+    val sqrt3 = sqrt(3.0).toFloat()
+    val hexWidth = hexSize.value * sqrt3
+    val hexHeight = hexSize.value * 2f
+    
     Box(
         modifier = Modifier
-            .size(48.dp)
-            .border(borderWidth, borderColor)
+            .width((hexWidth).dp)
+            .height((hexHeight).dp)
+            .clip(HexagonShape())
             .background(backgroundColor)
+            .border(borderWidth, borderColor, HexagonShape())
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
@@ -368,12 +511,12 @@ fun InitialBuildingControls(
         Spacer(modifier = Modifier.height(8.dp))
         
         LazyVerticalGrid(
-            columns = GridCells.Fixed(3),
-            modifier = Modifier.fillMaxWidth().height(170.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            columns = GridCells.Fixed(6),
+            modifier = Modifier.fillMaxWidth().height(85.dp),
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            items(DefenderType.entries.toTypedArray(), key = { type -> "${type.name}_${coinsState.value}" }) { type ->
+            items(DefenderType.entries.toTypedArray(), key = { type -> "${type.name}_${coinsState.value}_${gameState.defenders.count { it.type == type }}" }) { type ->
                 // Directly calculate canAfford using coinsState.value to ensure immediate reactivity
                 val canAfford = coinsState.value >= type.baseCost
                 println("DEBUG: InitialBuilding Button for ${type.displayName} - coins: ${coinsState.value}, cost: ${type.baseCost}, canAfford: $canAfford")
@@ -429,12 +572,12 @@ fun PlayerTurnControls(
         
         // Defender placement buttons
         LazyVerticalGrid(
-            columns = GridCells.Fixed(3),
-            modifier = Modifier.fillMaxWidth().height(150.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            columns = GridCells.Fixed(6),
+            modifier = Modifier.fillMaxWidth().height(75.dp),
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            items(DefenderType.entries.toTypedArray(), key = { type -> "${type.name}_${coinsState.value}" }) { type ->
+            items(DefenderType.entries.toTypedArray(), key = { type -> "${type.name}_${coinsState.value}_${gameState.defenders.count { it.type == type }}" }) { type ->
                 // Directly calculate canAfford using coinsState.value to ensure immediate reactivity
                 val canAfford = coinsState.value >= type.baseCost
                 println("DEBUG: PlayerTurn Button for ${type.displayName} - coins: ${coinsState.value}, cost: ${type.baseCost}, canAfford: $canAfford")
@@ -490,37 +633,40 @@ fun DefenderInfo(
     gameState: GameState,
     onUpgradeDefender: (Int) -> Unit
 ) {
-    Card(modifier = Modifier.fillMaxWidth()) {
-        Column(modifier = Modifier.padding(8.dp)) {
-            Text("${defender.type.displayName} (Lvl ${defender.level})")
-            if (!defender.isReady) {
-                Text("Building: ${defender.buildTimeRemaining} turns", 
-                     style = MaterialTheme.typography.bodySmall)
-            } else {
-                Text("Actions: ${defender.actionsRemaining}/${defender.type.actionsPerTurn}",
-                     style = MaterialTheme.typography.bodySmall)
-                if (defender.type.minRange > 0) {
-                    Text("Damage: ${defender.damage}, Range: ${defender.type.minRange}-${defender.range}",
+    // Use key to force recomposition when defender stats change
+    key(defender.id, defender.level, defender.damage, defender.range, defender.actionsRemaining, defender.buildTimeRemaining, defender.isReady) {
+        Card(modifier = Modifier.fillMaxWidth()) {
+            Column(modifier = Modifier.padding(8.dp)) {
+                Text("${defender.type.displayName} (Lvl ${defender.level})")
+                if (!defender.isReady) {
+                    Text("Building: ${defender.buildTimeRemaining} turns", 
                          style = MaterialTheme.typography.bodySmall)
                 } else {
-                    Text("Damage: ${defender.damage}, Range: ${defender.range}",
+                    Text("Actions: ${defender.actionsRemaining}/${defender.type.actionsPerTurn}",
                          style = MaterialTheme.typography.bodySmall)
-                }
-                
-                if (gameState.canUpgradeDefender(defender)) {
-                    val nextDamage = defender.damage + 5
-                    val nextRange = defender.range + (if (defender.level % 2 == 0) 1 else 0)
-                    Text("After upgrade: Damage ${nextDamage}, Range ${nextRange}",
-                         style = MaterialTheme.typography.bodySmall,
-                         color = Color(0xFF4CAF50))
-                }
-                
-                Button(
-                    onClick = { onUpgradeDefender(defender.id) },
-                    enabled = gameState.canUpgradeDefender(defender),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Upgrade (${defender.upgradeCost} coins)")
+                    if (defender.type.minRange > 0) {
+                        Text("Damage: ${defender.damage}, Range: ${defender.type.minRange}-${defender.range}",
+                             style = MaterialTheme.typography.bodySmall)
+                    } else {
+                        Text("Damage: ${defender.damage}, Range: ${defender.range}",
+                             style = MaterialTheme.typography.bodySmall)
+                    }
+                    
+                    if (gameState.canUpgradeDefender(defender)) {
+                        val nextDamage = defender.damage + 5
+                        val nextRange = defender.range + (if (defender.level % 2 == 0) 1 else 0)
+                        Text("After upgrade: Damage ${nextDamage}, Range ${nextRange}",
+                             style = MaterialTheme.typography.bodySmall,
+                             color = Color(0xFF4CAF50))
+                    }
+                    
+                    Button(
+                        onClick = { onUpgradeDefender(defender.id) },
+                        enabled = gameState.canUpgradeDefender(defender),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Upgrade (${defender.upgradeCost} coins)")
+                    }
                 }
             }
         }
@@ -583,59 +729,115 @@ fun DefenderButton(
         colors = ButtonDefaults.buttonColors(
             containerColor = if (isSelected) Color(0xFF1976D2) else MaterialTheme.colorScheme.primary
         ),
-        modifier = Modifier.fillMaxWidth().height(65.dp)
+        modifier = Modifier.fillMaxWidth().height(65.dp),
+        contentPadding = PaddingValues(2.dp)
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(type.displayName.split(" ")[0], style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
-            Text("${type.baseCost}c ⏱${type.buildTime}", 
+            Text(type.displayName.split(" ")[0], style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, fontSize = 9.sp)
+            Text("${type.baseCost}c", 
                  style = MaterialTheme.typography.labelSmall,
-                 fontSize = MaterialTheme.typography.labelSmall.fontSize * 0.75f)
-            Text("Range:${if (type.minRange > 0) "${type.minRange}-" else ""}${type.baseRange} Actions:${type.actionsPerTurn}", 
+                 fontSize = 8.sp)
+            Text("R:${if (type.minRange > 0) "${type.minRange}-" else ""}${type.baseRange}", 
                  style = MaterialTheme.typography.labelSmall,
-                 fontSize = MaterialTheme.typography.labelSmall.fontSize * 0.65f)
+                 fontSize = 7.sp)
         }
     }
 }
 
 @Composable
 fun GameLegend(modifier: Modifier = Modifier) {
+    var isExpanded by remember { mutableStateOf(false) }
+    
     Card(modifier = modifier) {
-        Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            Text("Legend", style = MaterialTheme.typography.titleMedium)
+        Column(modifier = Modifier.padding(12.dp)) {
+            // Header with expand/collapse button
+            Row(
+                modifier = Modifier.fillMaxWidth().clickable { isExpanded = !isExpanded },
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text("Legend", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Text(if (isExpanded) "▼" else "▶", style = MaterialTheme.typography.titleMedium)
+            }
             
-            Spacer(modifier = Modifier.height(4.dp))
-            
-            Text("Areas:", style = MaterialTheme.typography.labelMedium)
-            LegendItem(color = Color(0xFF8BC34A), label = "Island", description = "Build Zone", border = Color.Gray)
-            LegendItem(color = Color(0xFFA5D6A7), label = "Strip", description = "Build Zone", border = Color.Gray)
-            LegendItem(color = Color(0xFFFFF8DC), label = "Path", description = "Enemy Route", border = Color.Gray)
-            LegendItem(color = Color(0xFFE0E0E0), label = "Off", description = "Non-Playable", border = Color.Gray)
-            
-            Spacer(modifier = Modifier.height(4.dp))
-            
-            Text("Special:", style = MaterialTheme.typography.labelMedium)
-            LegendItem(color = Color(0xFFFFF8DC), label = "S", description = "Spawn Points (3)", border = Color(0xFFFF9800), borderWidth = 3.dp)
-            LegendItem(color = Color(0xFFFFF8DC), label = "T", description = "Target (Defend!)", border = Color(0xFF4CAF50), borderWidth = 3.dp)
-            
-            Spacer(modifier = Modifier.height(4.dp))
-            
-            Text("Units:", style = MaterialTheme.typography.labelMedium)
-            LegendItem(color = Color(0xFF2196F3), label = "Tower", description = "Ready Tower")
-            LegendItem(color = Color(0xFF9E9E9E), label = "⏱", description = "Building Tower")
-            LegendItem(color = Color(0xFFF44336), label = "Enemy", description = "Attacker")
-            
-            Spacer(modifier = Modifier.height(4.dp))
-            
-            Text("Towers:", style = MaterialTheme.typography.labelMedium)
-            Text("Ballista: min range 3!", style = MaterialTheme.typography.bodySmall, color = Color(0xFFFF6F00), fontWeight = FontWeight.Bold)
-            Text("⚡ = Actions left", style = MaterialTheme.typography.bodySmall)
-            Text("⏱ = Build time", style = MaterialTheme.typography.bodySmall)
+            if (isExpanded) {
+                LazyColumn(
+                    modifier = Modifier.fillMaxWidth().heightIn(max = 400.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    item {
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text("Areas:", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
+                    }
+                    
+                    item {
+                        LegendItemHex(color = Color(0xFF8BC34A), label = "⬡", description = "Build Island", border = Color.Gray)
+                    }
+                    item {
+                        LegendItemHex(color = Color(0xFFA5D6A7), label = "⬡", description = "Build Strip", border = Color.Gray)
+                    }
+                    item {
+                        LegendItemHex(color = Color(0xFFFFF8DC), label = "⬡", description = "Enemy Path", border = Color.Gray)
+                    }
+                    item {
+                        LegendItemHex(color = Color(0xFFE0E0E0), label = "⬡", description = "Non-Playable", border = Color.Gray)
+                    }
+                    
+                    item {
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text("Special:", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
+                    }
+                    
+                    item {
+                        LegendItemHex(color = Color(0xFFFFF8DC), label = "S", description = "Spawn (3 points)", border = Color(0xFFFF9800), borderWidth = 3.dp)
+                    }
+                    item {
+                        LegendItemHex(color = Color(0xFFFFF8DC), label = "T", description = "Target (Defend!)", border = Color(0xFF4CAF50), borderWidth = 3.dp)
+                    }
+                    
+                    item {
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text("Units:", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
+                    }
+                    
+                    item {
+                        LegendItemHex(color = Color(0xFF2196F3), label = "⬡", description = "Tower (Ready)", border = Color(0xFF2196F3), borderWidth = 3.dp)
+                    }
+                    item {
+                        LegendItemHex(color = Color(0xFF9E9E9E), label = "⬡", description = "Tower (Building)", border = Color(0xFF9E9E9E), borderWidth = 3.dp)
+                    }
+                    item {
+                        LegendItemHex(color = Color(0xFF7986CB), label = "⬡", description = "Tower (No Actions)", border = Color(0xFF2196F3), borderWidth = 3.dp)
+                    }
+                    item {
+                        LegendItemHex(color = Color(0xFFF44336), label = "⬡", description = "Enemy Unit", border = Color(0xFFF44336), borderWidth = 3.dp)
+                    }
+                    
+                    item {
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text("Info:", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
+                    }
+                    
+                    item {
+                        Text("• Ballista: min range 3", style = MaterialTheme.typography.bodySmall, color = Color(0xFFFF6F00))
+                    }
+                    item {
+                        Text("• Icons show tower/enemy type", style = MaterialTheme.typography.bodySmall)
+                    }
+                    item {
+                        Text("• Level & actions shown on towers", style = MaterialTheme.typography.bodySmall)
+                    }
+                    item {
+                        Text("• Health shown on enemies", style = MaterialTheme.typography.bodySmall)
+                    }
+                }
+            }
         }
     }
 }
 
 @Composable
-fun LegendItem(
+fun LegendItemHex(
     color: Color, 
     label: String, 
     description: String, 
@@ -645,15 +847,18 @@ fun LegendItem(
     Row(verticalAlignment = Alignment.CenterVertically) {
         Box(
             modifier = Modifier
-                .size(24.dp)
+                .size(32.dp, 28.dp)
+                .clip(HexagonShape())
                 .background(color)
-                .border(borderWidth, border),
+                .border(borderWidth, border, HexagonShape()),
             contentAlignment = Alignment.Center
         ) {
             Text(
                 label, 
-                style = MaterialTheme.typography.labelSmall, 
-                color = if (color.luminance() > 0.5f) Color.Black else Color.White
+                style = MaterialTheme.typography.labelMedium,
+                fontSize = 14.sp,
+                color = if (color.luminance() > 0.5f) Color.Black else Color.White,
+                fontWeight = FontWeight.Bold
             )
         }
         Spacer(modifier = Modifier.width(8.dp))
@@ -668,20 +873,236 @@ private fun Color.luminance(): Float {
 
 @Composable
 fun EnemyListPanel(gameState: GameState, modifier: Modifier = Modifier) {
+    var isExpanded by remember { mutableStateOf(false) }
+    
+    // Direct observation - Compose will track changes
+    val activeEnemies = gameState.attackers.filter { !it.isDefeated }.sortedBy { it.id }
+    val toSpawnList = gameState.attackersToSpawn.take(15)
+    
     Card(modifier = modifier) {
         Column(modifier = Modifier.padding(12.dp)) {
-            Text("Enemies", style = MaterialTheme.typography.titleMedium)
+            Row(
+                modifier = Modifier.fillMaxWidth().clickable { isExpanded = !isExpanded },
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text("Enemies", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Text(if (isExpanded) "▼" else "▶", fontSize = 16.sp)
+            }
             Text(
-                "Active: ${gameState.attackers.count { !it.isDefeated }} | Coming: ${gameState.attackersToSpawn.size}",
+                "Active: ${activeEnemies.size} | To Spawn: ${toSpawnList.size}",
                 style = MaterialTheme.typography.bodySmall
             )
             
-            Spacer(modifier = Modifier.height(8.dp))
+            if (isExpanded) {
+                Spacer(modifier = Modifier.height(8.dp))
+                
+                LazyColumn(modifier = Modifier.fillMaxWidth().heightIn(max = 500.dp)) {
+                    // Active enemies on the map
+                    if (activeEnemies.isNotEmpty()) {
+                        item(key = "header-active") {
+                            Text(
+                                "On Map:",
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFFD32F2F)
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                        }
+                    }
+                    items(
+                        items = activeEnemies,
+                        key = { attacker -> "active-${attacker.id}" }
+                    ) { attacker ->
+                        EnemyItemDetailed(attacker, showPosition = true)
+                        Spacer(modifier = Modifier.height(4.dp))
+                    }
+                    
+                    // Planned enemy spawns (show what's left to spawn)
+                    if (toSpawnList.isNotEmpty()) {
+                        item(key = "header-tospawn") {
+                            if (activeEnemies.isNotEmpty()) {
+                                Spacer(modifier = Modifier.height(8.dp))
+                            }
+                            Text(
+                                "To Spawn:",
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFFFF9800)
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                        }
+                        itemsIndexed(
+                            items = toSpawnList,  // Show up to 15 upcoming enemies
+                            key = { index, _ -> "tospawn-$index" }
+                        ) { index, attackerType ->
+                            UpcomingEnemyItem(attackerType)
+                            Spacer(modifier = Modifier.height(4.dp))
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun EnemyItemDetailed(attacker: Attacker, showPosition: Boolean) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = Color(0xFFFFEBEE)
+        )
+    ) {
+        Row(
+            modifier = Modifier.padding(6.dp).fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Enemy icon (small version)
+            Box(
+                modifier = Modifier.size(32.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                EnemyIcon(attacker = attacker, modifier = Modifier.size(28.dp))
+            }
             
-            LazyColumn(modifier = Modifier.fillMaxWidth()) {
-                items(gameState.attackers.filter { !it.isDefeated }.sortedBy { it.id }) { attacker ->
-                    EnemyItem(attacker)
-                    Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.width(6.dp))
+            
+            // Enemy details
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    attacker.type.displayName,
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight = FontWeight.Bold
+                )
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        "HP: ${attacker.currentHealth}/${attacker.maxHealth}",
+                        style = MaterialTheme.typography.bodySmall,
+                        fontSize = 10.sp
+                    )
+                    if (showPosition) {
+                        Text(
+                            "Pos: (${attacker.position.x},${attacker.position.y})",
+                            style = MaterialTheme.typography.bodySmall,
+                            fontSize = 10.sp,
+                            color = Color(0xFF1976D2)
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun UpcomingEnemyItem(attackerType: AttackerType) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = Color(0xFFFFF3E0)
+        )
+    ) {
+        Row(
+            modifier = Modifier.padding(6.dp).fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Enemy type icon placeholder (small colored box)
+            Box(
+                modifier = Modifier.size(32.dp).background(Color(0xFFFF5722), shape = CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    attackerType.displayName.take(1),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 14.sp
+                )
+            }
+            
+            Spacer(modifier = Modifier.width(6.dp))
+            
+            // Enemy details
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    attackerType.displayName,
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    "HP: ${attackerType.health}",
+                    style = MaterialTheme.typography.bodySmall,
+                    fontSize = 10.sp
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun PlannedEnemyItem(plannedSpawn: PlannedEnemySpawn, currentTurn: Int) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = Color(0xFFFFF3E0)
+        )
+    ) {
+        Row(
+            modifier = Modifier.padding(6.dp).fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Enemy type icon placeholder (small colored box)
+            Box(
+                modifier = Modifier.size(32.dp).background(Color(0xFFFF5722), shape = CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    plannedSpawn.attackerType.displayName.take(1),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 14.sp
+                )
+            }
+            
+            Spacer(modifier = Modifier.width(6.dp))
+            
+            // Enemy details
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    plannedSpawn.attackerType.displayName,
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    "HP: ${plannedSpawn.attackerType.health}",
+                    style = MaterialTheme.typography.bodySmall,
+                    fontSize = 10.sp
+                )
+            }
+            
+            // Spawn turn
+            Column(horizontalAlignment = Alignment.End) {
+                Text(
+                    "Turn ${plannedSpawn.spawnTurn}",
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 11.sp,
+                    color = if (plannedSpawn.spawnTurn == currentTurn + 1) Color(0xFFFF5722) else Color(0xFFFF9800)
+                )
+                if (plannedSpawn.spawnTurn > currentTurn) {
+                    Text(
+                        "in ${plannedSpawn.spawnTurn - currentTurn} turns",
+                        style = MaterialTheme.typography.bodySmall,
+                        fontSize = 9.sp,
+                        color = Color.Gray
+                    )
                 }
             }
         }
