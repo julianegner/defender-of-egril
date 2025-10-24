@@ -136,7 +136,9 @@ class GameViewModel {
             // Step 2: Spawn new attackers (with spawn animation flag set)
             val beforeSpawnCount = state.attackers.size
             engine.spawnAttackersStep()
-            val afterSpawnCount = state.attackers.size
+            // Re-check the updated state after spawning
+            val currentState = _gameState.value ?: return@launch
+            val afterSpawnCount = currentState.attackers.size
             
             if (afterSpawnCount > beforeSpawnCount) {
                 triggerStateUpdate()
@@ -165,6 +167,8 @@ class GameViewModel {
             
             // Step 6: Check if we should load next wave
             engine.loadNextWaveStep()
+            triggerStateUpdate() // Update UI after potentially loading new wave
+            delay(200)
             
             // Step 7: Advance building timers and start next player turn
             engine.advanceBuildTimersAndStartPlayerTurn()
