@@ -187,8 +187,8 @@ class GameViewModel {
     }
     
     private fun triggerStateUpdate() {
-        // Force StateFlow to emit by reassigning the state
-        // Combined with the position-based key in GamePlayScreen, this ensures UI updates
+        // Force StateFlow to emit by creating a new GameState copy
+        // StateFlow only emits when the value reference changes
         val currentState = _gameState.value ?: return
         
         // Filter out defeated enemies from the lists
@@ -197,8 +197,9 @@ class GameViewModel {
         // Update the coins MutableState for UI reactivity
         _coins.value = currentState.coins
         
-        // Reassign to trigger StateFlow emission
-        _gameState.value = currentState
+        // Create a copy to trigger StateFlow emission
+        // The copy shares the same mutable lists with the original, so GameEngine can still modify them
+        _gameState.value = currentState.copy()
         
         println("DEBUG: triggerStateUpdate - State updated, updateCounter=${++updateCounter}")
         println("DEBUG: State after update - Phase: ${_gameState.value?.phase}, Turn: ${_gameState.value?.turnNumber}, Attackers: ${_gameState.value?.attackers?.size}, Coins: ${_gameState.value?.coins}")
