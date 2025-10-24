@@ -257,6 +257,7 @@ private fun GamePlayScreenContent(
                     onUpgradeDefender = { onUpgradeDefender(it) },
                     onStartFirstPlayerTurn = {
                         selectedDefenderType = null  // Clear defender type selection when starting battle
+                        selectedDefenderId = null  // Clear defender selection when starting battle
                         onStartFirstPlayerTurn()
                     }
                 )
