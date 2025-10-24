@@ -384,7 +384,7 @@ fun EnemyIcon(
         
         // Health number at bottom center - 10dp from bottom edge
         Text(
-            text = "${attacker.currentHealth}",
+            text = "${attacker.currentHealth.value}",
             style = MaterialTheme.typography.labelSmall,
             fontSize = 13.sp,
             color = Color.White,
