@@ -894,6 +894,8 @@ private fun Color.luminance(): Float {
 @Composable
 fun EnemyListPanel(gameState: GameState, modifier: Modifier = Modifier) {
     // Expand by default during initial building phase, collapsed otherwise
+    // This state is remembered per GameState instance (each level has its own GameState)
+    // so it will auto-expand when a new level is loaded
     var isExpanded by remember { mutableStateOf(gameState.phase == GamePhase.INITIAL_BUILDING) }
     
     // Direct observation - Compose will track changes
