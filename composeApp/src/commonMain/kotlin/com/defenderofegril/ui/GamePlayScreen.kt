@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -898,6 +899,17 @@ fun EnemyListPanel(gameState: GameState, modifier: Modifier = Modifier) {
     // so it will auto-expand when a new level is loaded
     var isExpanded by remember { mutableStateOf(gameState.phase.value == GamePhase.INITIAL_BUILDING) }
     
+    // LazyListState to control scrolling
+    val listState = rememberLazyListState()
+    
+    // Scroll to top when turn changes
+    val currentTurn = gameState.turnNumber.value
+    LaunchedEffect(currentTurn) {
+        if (isExpanded && currentTurn > 0) {
+            listState.animateScrollToItem(0)
+        }
+    }
+    
     // Compute values directly - parent GamePlayScreen's key() will trigger recomposition
     val activeEnemies = gameState.attackers.filter { !it.isDefeated.value }.sortedBy { it.id }
     
@@ -926,7 +938,10 @@ fun EnemyListPanel(gameState: GameState, modifier: Modifier = Modifier) {
             if (isExpanded) {
                 Spacer(modifier = Modifier.height(8.dp))
                 
-                LazyColumn(modifier = Modifier.fillMaxWidth().heightIn(max = 500.dp)) {
+                LazyColumn(
+                    state = listState,
+                    modifier = Modifier.fillMaxWidth().heightIn(max = 500.dp)
+                ) {
                     // Active enemies on the map
                     if (activeEnemies.isNotEmpty()) {
                         item(key = "header-active") {
