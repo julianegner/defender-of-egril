@@ -59,7 +59,7 @@ fun IconShowcaseScreen(onBack: () -> Unit) {
                                 id = 1,
                                 type = type,
                                 position = Position(0, 0),
-                                level = 2,
+                                level = mutableStateOf(2),
                                 actionsRemaining = mutableStateOf(1)
                             )
                         )
@@ -96,7 +96,7 @@ fun IconShowcaseScreen(onBack: () -> Unit) {
                             id = 1,
                             type = DefenderType.BOW_TOWER,
                             position = Position(0, 0),
-                            level = 3,
+                            level = mutableStateOf(3),
                             actionsRemaining = mutableStateOf(1)
                         )
                     )
@@ -117,7 +117,7 @@ fun IconShowcaseScreen(onBack: () -> Unit) {
                             id = 2,
                             type = DefenderType.WIZARD_TOWER,
                             position = Position(0, 0),
-                            level = 1,
+                            level = mutableStateOf(1),
                             buildTimeRemaining = mutableStateOf(2),
                             actionsRemaining = mutableStateOf(0)
                         )
@@ -139,7 +139,7 @@ fun IconShowcaseScreen(onBack: () -> Unit) {
                             id = 3,
                             type = DefenderType.SPEAR_TOWER,
                             position = Position(0, 0),
-                            level = 1,
+                            level = mutableStateOf(1),
                             actionsRemaining = mutableStateOf(0)
                         )
                     )

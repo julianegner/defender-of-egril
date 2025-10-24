@@ -658,7 +658,7 @@ fun DefenderInfo(
     key(defender.id, defender.level, defender.damage, defender.range, defender.actionsRemaining.value, defender.buildTimeRemaining.value, defender.isReady) {
         Card(modifier = Modifier.fillMaxWidth()) {
             Column(modifier = Modifier.padding(8.dp)) {
-                Text("${defender.type.displayName} (Lvl ${defender.level})")
+                Text("${defender.type.displayName} (Lvl ${defender.level.value})")
                 if (!defender.isReady) {
                     Text("Building: ${defender.buildTimeRemaining.value} turns", 
                          style = MaterialTheme.typography.bodySmall)
@@ -675,7 +675,7 @@ fun DefenderInfo(
                     
                     if (gameState.canUpgradeDefender(defender)) {
                         val nextDamage = defender.damage + 5
-                        val nextRange = defender.range + (if (defender.level % 2 == 0) 1 else 0)
+                        val nextRange = defender.range + (if (defender.level.value % 2 == 0) 1 else 0)
                         Text("After upgrade: Damage ${nextDamage}, Range ${nextRange}",
                              style = MaterialTheme.typography.bodySmall,
                              color = Color(0xFF4CAF50))

@@ -75,7 +75,7 @@ fun TowerIcon(
         
         // Level indicator at bottom center - 10dp from bottom edge
         Text(
-            text = "L${defender.level}",
+            text = "L${defender.level.value}",
             style = MaterialTheme.typography.labelSmall,
             fontSize = 11.sp,
             color = Color.White,
