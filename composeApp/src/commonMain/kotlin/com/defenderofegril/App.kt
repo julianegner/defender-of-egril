@@ -10,7 +10,7 @@ fun App() {
         val viewModel = remember { GameViewModel() }
         val currentScreen by viewModel.currentScreen.collectAsState()
         val worldLevels by viewModel.worldLevels.collectAsState()
-        val gameState by viewModel.gameState.collectAsState()
+        val gameState by viewModel.gameState  // Direct state access, no collectAsState needed
         
         when (val screen = currentScreen) {
             is Screen.MainMenu -> {

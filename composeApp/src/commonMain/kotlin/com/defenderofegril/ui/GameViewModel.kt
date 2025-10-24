@@ -8,7 +8,6 @@ import com.defenderofegril.model.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -30,8 +29,9 @@ class GameViewModel {
     private val _worldLevels = MutableStateFlow<List<WorldLevel>>(emptyList())
     val worldLevels: StateFlow<List<WorldLevel>> = _worldLevels.asStateFlow()
     
-    private val _gameState = MutableStateFlow<GameState?>(null)
-    val gameState: StateFlow<GameState?> = _gameState.asStateFlow()
+    // Use mutableStateOf instead of StateFlow for better Compose integration
+    private val _gameState = mutableStateOf<GameState?>(null)
+    val gameState: State<GameState?> = _gameState
     
     // MutableState for coins to ensure UI reactivity
     private val _coins = mutableStateOf(0)
@@ -191,33 +191,32 @@ class GameViewModel {
     }
     
     private fun triggerStateUpdate() {
-        // Use StateFlow.update to ensure proper emission
-        _gameState.update { currentState ->
-            if (currentState == null) return@update null
-            
-            // Filter out defeated enemies from the lists
-            currentState.attackers.removeAll { it.isDefeated }
-            
-            // Update the coins MutableState for UI reactivity
-            _coins.value = currentState.coins
-            
-            println("DEBUG: triggerStateUpdate - State updated, updateCounter=${++updateCounter}")
-            println("DEBUG: State after update - Phase: ${currentState.phase}, Turn: ${currentState.turnNumber}, Attackers: ${currentState.attackers.size}, Coins: ${currentState.coins}")
-            
-            // Check affordability for all tower types
-            println("DEBUG: Tower affordability check:")
-            DefenderType.entries.forEach { type ->
-                val canAfford = currentState.coins >= type.baseCost
-                println("DEBUG:   ${type.displayName} (cost ${type.baseCost}): canAfford=$canAfford (coins=${currentState.coins})")
-            }
-            
-            currentState.attackers.forEach { attacker ->
-                println("DEBUG: After update - Enemy ${attacker.id} - Type: ${attacker.type}, Position: (${attacker.position.x}, ${attacker.position.y})")
-            }
-            
-            // Return a copy to force emission
-            currentState.copy()
+        // Force recomposition by reassigning the state
+        // This creates a snapshot that Compose will detect as a change
+        val currentState = _gameState.value ?: return
+        
+        // Filter out defeated enemies from the lists
+        currentState.attackers.removeAll { it.isDefeated }
+        
+        // Update the coins MutableState for UI reactivity
+        _coins.value = currentState.coins
+        
+        println("DEBUG: triggerStateUpdate - State updated, updateCounter=${++updateCounter}")
+        println("DEBUG: State after update - Phase: ${currentState.phase}, Turn: ${currentState.turnNumber}, Attackers: ${currentState.attackers.size}, Coins: ${currentState.coins}")
+        
+        // Check affordability for all tower types
+        println("DEBUG: Tower affordability check:")
+        DefenderType.entries.forEach { type ->
+            val canAfford = currentState.coins >= type.baseCost
+            println("DEBUG:   ${type.displayName} (cost ${type.baseCost}): canAfford=$canAfford (coins=${currentState.coins})")
         }
+        
+        currentState.attackers.forEach { attacker ->
+            println("DEBUG: After update - Enemy ${attacker.id} - Type: ${attacker.type}, Position: (${attacker.position.x}, ${attacker.position.y})")
+        }
+        
+        // Create a copy to force Compose to see the change
+        _gameState.value = currentState.copy()
     }
     
     private fun completeLevel(levelId: Int, won: Boolean) {
