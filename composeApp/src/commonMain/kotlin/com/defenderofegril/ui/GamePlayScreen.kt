@@ -174,9 +174,21 @@ private fun GamePlayScreenContent(
                 color = phaseColor,
                 modifier = Modifier.background(phaseColor.copy(alpha = 0.1f)).padding(12.dp)
             )
-            
-            Button(onClick = onBackToMap) {
-                Text("Back to Map")
+
+            Column {
+                Button(onClick = onBackToMap) {
+                    Text("Back to Map")
+                }
+
+                // Toggle button positioned above the map and far to the right
+                Button(
+                    onClick = { showOverlay = !showOverlay },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (showOverlay) Color(0xFF4CAF50) else Color(0xFF2196F3)
+                    )
+                ) {
+                    Text(if (showOverlay) "Hide Info  ◀" else "Show Info  ▶")
+                }
             }
         }
         
@@ -216,19 +228,6 @@ private fun GamePlayScreenContent(
                 modifier = Modifier.fillMaxSize()
             )
             
-            // Toggle button positioned above the map and far to the right
-            Button(
-                onClick = { showOverlay = !showOverlay },
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(8.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = if (showOverlay) Color(0xFF4CAF50) else Color(0xFF2196F3)
-                )
-            ) {
-                Text(if (showOverlay) "Hide Info ◀" else "Show Info ▶")
-            }
-            
             // Overlay panel with Legend and Enemy List (conditionally shown)
             if (showOverlay) {
                 Column(
@@ -236,7 +235,6 @@ private fun GamePlayScreenContent(
                         .align(Alignment.TopEnd)
                         .width(250.dp)
                         .fillMaxHeight()
-                        .padding(top = 48.dp)  // Offset to avoid toggle button
                         .background(Color.White.copy(alpha = 0.95f))
                         .padding(8.dp)
                 ) {
