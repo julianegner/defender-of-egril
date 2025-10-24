@@ -41,12 +41,14 @@ object LevelData {
             buildIslands = pathAndIslands.buildIslands,
             attackerWaves = listOf(
                 AttackerWave(
-                    attackers = List(3) { AttackerType.GOBLIN } + List(2) { AttackerType.SKELETON },
-                    spawnDelay = 2
+                    // Double the first wave: 6 goblins + 4 skeletons
+                    attackers = List(6) { AttackerType.GOBLIN } + List(4) { AttackerType.SKELETON },
+                    spawnDelay = 1  // Spawn every turn
                 ),
                 AttackerWave(
-                    attackers = List(2) { AttackerType.ORK },
-                    spawnDelay = 3
+                    // Last wave: only 3 orks as specified
+                    attackers = List(3) { AttackerType.ORK },
+                    spawnDelay = 1
                 )
             ),
             initialCoins = 120,
