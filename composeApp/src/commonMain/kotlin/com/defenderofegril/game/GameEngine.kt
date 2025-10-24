@@ -5,6 +5,11 @@ import kotlin.math.min
 
 class GameEngine(private val state: GameState) {
     
+    companion object {
+        // DOT damage is applied at half the initial damage per turn
+        private const val DOT_DAMAGE_DIVISOR = 2
+    }
+    
     fun placeDefender(type: DefenderType, position: Position): Boolean {
         if (!state.canPlaceDefender(type)) return false
         if (isPositionOccupied(position)) return false
@@ -277,7 +282,7 @@ class GameEngine(private val state: GameState) {
             FieldEffect(
                 position = target.position,
                 type = FieldEffectType.ACID_DOT,
-                damage = defender.damage / 2,  // DOT tick damage
+                damage = defender.damage / DOT_DAMAGE_DIVISOR,  // DOT tick damage
                 turnsRemaining = defender.dotDuration,
                 defenderId = defender.id,
                 attackerId = target.id  // Link effect to enemy
@@ -293,19 +298,24 @@ class GameEngine(private val state: GameState) {
             for ((attackerId, rounds) in defender.dotRoundsRemaining) {
                 val attacker = state.attackers.find { it.id == attackerId }
                 if (attacker != null && !attacker.isDefeated) {
-                    attacker.currentHealth -= defender.damage / 2
+                    attacker.currentHealth -= defender.damage / DOT_DAMAGE_DIVISOR
                     if (attacker.currentHealth <= 0) {
                         attacker.isDefeated = true
                     }
                     
                     // Update field effect position to follow the enemy
+                    // Collect indices to update to avoid concurrent modification
+                    val indicesToUpdate = mutableListOf<Pair<Int, Position>>()
                     state.fieldEffects.forEachIndexed { index, effect ->
                         if (effect.type == FieldEffectType.ACID_DOT && 
                             effect.attackerId == attackerId &&
                             effect.defenderId == defender.id) {
-                            // Update position to follow attacker
-                            state.fieldEffects[index] = effect.copy(position = attacker.position)
+                            indicesToUpdate.add(index to attacker.position)
                         }
+                    }
+                    // Apply updates
+                    indicesToUpdate.forEach { (index, newPosition) ->
+                        state.fieldEffects[index] = state.fieldEffects[index].copy(position = newPosition)
                     }
                     
                     if (rounds <= 1) {
@@ -346,11 +356,17 @@ class GameEngine(private val state: GameState) {
                     attacker.position = newPos
                     
                     // Update acid DOT field effect position to follow this attacker
+                    // Collect indices to update to avoid concurrent modification
+                    val indicesToUpdate = mutableListOf<Pair<Int, Position>>()
                     state.fieldEffects.forEachIndexed { index, effect ->
                         if (effect.type == FieldEffectType.ACID_DOT && 
                             effect.attackerId == attacker.id) {
-                            state.fieldEffects[index] = effect.copy(position = newPos)
+                            indicesToUpdate.add(index to newPos)
                         }
+                    }
+                    // Apply updates
+                    indicesToUpdate.forEach { (index, newPosition) ->
+                        state.fieldEffects[index] = state.fieldEffects[index].copy(position = newPosition)
                     }
                     
                     pathIndex++
@@ -445,10 +461,11 @@ class GameEngine(private val state: GameState) {
     }
     
     private fun updateFieldEffects() {
-        // Decrement turn counters and remove expired effects
+        // Decrement turn counters (safe to modify properties)
         state.fieldEffects.forEach { effect ->
             effect.turnsRemaining--
         }
+        // Remove expired effects in a separate operation
         state.fieldEffects.removeAll { it.turnsRemaining <= 0 }
     }
     
