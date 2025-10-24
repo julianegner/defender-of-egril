@@ -32,14 +32,14 @@ data class Defender(
     val id: Int,
     val type: DefenderType,
     val position: Position,
-    var level: Int = 1,
+    val level: MutableState<Int> = mutableStateOf(1),
     var dotRoundsRemaining: MutableMap<Int, Int> = mutableMapOf(), // attackerId -> rounds
     val buildTimeRemaining: MutableState<Int> = mutableStateOf(0),  // 0 = ready to use
     val actionsRemaining: MutableState<Int> = mutableStateOf(0)     // Actions left this turn
 ) {
-    val damage: Int get() = type.baseDamage + (level - 1) * 5
-    val range: Int get() = type.baseRange + (level - 1) / 2
-    val upgradeCost: Int get() = type.baseCost * level
+    val damage: Int get() = type.baseDamage + (level.value - 1) * 5
+    val range: Int get() = type.baseRange + (level.value - 1) / 2
+    val upgradeCost: Int get() = type.baseCost * level.value
     val isReady: Boolean get() = buildTimeRemaining.value == 0
     
     fun canAttack(attacker: Attacker): Boolean {
