@@ -187,9 +187,8 @@ class GameViewModel {
     }
     
     private fun triggerStateUpdate() {
-        // Force StateFlow to emit by reassigning the same state
-        // StateFlow compares by reference, so we need to create a new reference
-        // but we can't create a completely new GameState because GameEngine holds a reference to the original
+        // Force StateFlow to emit by reassigning the state
+        // Combined with the position-based key in GamePlayScreen, this ensures UI updates
         val currentState = _gameState.value ?: return
         
         // Filter out defeated enemies from the lists
@@ -198,13 +197,8 @@ class GameViewModel {
         // Update the coins MutableState for UI reactivity
         _coins.value = currentState.coins
         
-        // Force emission by creating a shallow copy that preserves the same state object internals
-        // This is a workaround - ideally we'd use MutableState but that requires larger refactor
-        _gameState.value = currentState.copy(
-            defenders = currentState.defenders,  // Keep same list reference
-            attackers = currentState.attackers,  // Keep same list reference (already filtered)
-            attackersToSpawn = currentState.attackersToSpawn  // Keep same list reference
-        )
+        // Reassign to trigger StateFlow emission
+        _gameState.value = currentState
         
         println("DEBUG: triggerStateUpdate - State updated, updateCounter=${++updateCounter}")
         println("DEBUG: State after update - Phase: ${_gameState.value?.phase}, Turn: ${_gameState.value?.turnNumber}, Attackers: ${_gameState.value?.attackers?.size}, Coins: ${_gameState.value?.coins}")

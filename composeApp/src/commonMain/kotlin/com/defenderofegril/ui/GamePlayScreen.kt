@@ -90,7 +90,11 @@ fun GamePlayScreen(
     onCheatCode: ((String) -> Boolean)? = null  // Add cheat code callback
 ) {
     // Force recomposition when game state changes by using key properties
-    key(gameState.turnNumber, gameState.phase, gameState.attackers.size, gameState.defenders.size, gameState.coins) {
+    // Include a hash of attacker positions to detect movement
+    val attackersPositionHash = gameState.attackers.fold(0) { acc, attacker -> 
+        acc + attacker.position.x * 1000 + attacker.position.y + attacker.id * 100000
+    }
+    key(gameState.turnNumber, gameState.phase, gameState.attackers.size, gameState.defenders.size, gameState.coins, attackersPositionHash) {
         GamePlayScreenContent(
             gameState = gameState,
             coins = coins,  // Pass coins State
