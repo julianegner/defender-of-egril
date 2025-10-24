@@ -31,16 +31,7 @@ class GameViewModel {
     private val _gameState = MutableStateFlow<GameState?>(null)
     val gameState: StateFlow<GameState?> = _gameState.asStateFlow()
     
-    // MutableState for coins to ensure UI reactivity
-    private val _coins = mutableStateOf(0)
-    val coins: State<Int> = _coins
-    
-    // MutableState for state version to force UI updates
-    private val _stateVersion = mutableStateOf(0L)
-    val stateVersion: State<Long> = _stateVersion
-    
     private var gameEngine: GameEngine? = null
-    private var updateCounter = 0L
     private val viewModelScope = CoroutineScope(Dispatchers.Default)
     
     init {
@@ -70,53 +61,40 @@ class GameViewModel {
         if (worldLevel != null && worldLevel.status != LevelStatus.LOCKED) {
             val newGameState = GameState(level = worldLevel.level)
             _gameState.value = newGameState
-            _coins.value = newGameState.coins  // Initialize coins MutableState
             gameEngine = GameEngine(newGameState)
             _currentScreen.value = Screen.GamePlay(levelId)
         }
     }
     
     fun placeDefender(type: DefenderType, position: Position): Boolean {
-        val result = gameEngine?.placeDefender(type, position) ?: false
-        if (result) {
-            // Trigger state update by reassigning
-            triggerStateUpdate()
-        }
-        return result
+        return gameEngine?.placeDefender(type, position) ?: false
     }
     
     fun upgradeDefender(defenderId: Int): Boolean {
-        val result = gameEngine?.upgradeDefender(defenderId) ?: false
-        if (result) {
-            triggerStateUpdate()
-        }
-        return result
+        return gameEngine?.upgradeDefender(defenderId) ?: false
     }
     
     fun startFirstPlayerTurn() {
         println("DEBUG: startFirstPlayerTurn called")
         val stateBefore = _gameState.value
-        println("DEBUG: Phase before: ${stateBefore?.phase}")
+        println("DEBUG: Phase before: ${stateBefore?.phase?.value}")
         println("DEBUG: Attackers before: ${stateBefore?.attackers?.size}")
         
         gameEngine?.startFirstPlayerTurn()
         
         val stateAfter = _gameState.value
-        println("DEBUG: Phase after: ${stateAfter?.phase}")
+        println("DEBUG: Phase after: ${stateAfter?.phase?.value}")
         println("DEBUG: Attackers after: ${stateAfter?.attackers?.size}")
         stateAfter?.attackers?.forEach { attacker ->
             println("DEBUG: Enemy ${attacker.id} - Type: ${attacker.type}, Position: (${attacker.position.x}, ${attacker.position.y})")
         }
         
-        triggerStateUpdate()
-        println("DEBUG: triggerStateUpdate completed")
+        println("DEBUG: startFirstPlayerTurn completed")
     }
     
     fun defenderAttack(defenderId: Int, targetId: Int): Boolean {
         val result = gameEngine?.defenderAttack(defenderId, targetId) ?: false
         if (result) {
-            triggerStateUpdate()
-            
             // Check for immediate victory after attack
             val state = _gameState.value
             if (state != null && state.isLevelWon()) {
@@ -134,13 +112,7 @@ class GameViewModel {
             // Now process the actual enemy turn logic (this will increment turn counter and set phase to ENEMY_TURN)
             gameEngine?.endPlayerTurn()
             
-            // Force UI update to show ENEMY_TURN phase and enemy movements
-            triggerStateUpdate()
-            
             delay(500) // Give time to see "ENEMY TURN" indicator
-            
-            // Force another UI update after delay to ensure changes are visible
-            triggerStateUpdate()
             
             // Add another small delay so user can see the enemy movements
             delay(1000)
@@ -160,33 +132,6 @@ class GameViewModel {
         val currentState = _gameState.value ?: return
         
         // Filter out defeated enemies from the lists
-        currentState.attackers.removeAll { it.isDefeated }
-        
-        // Update the coins MutableState for UI reactivity
-        _coins.value = currentState.coins
-        
-        // Increment state version to force UI recomposition
-        _stateVersion.value++
-        
-        // Force StateFlow to emit by setting to null first, then back to the state
-        // This bypasses the structural equality check
-        _gameState.value = null
-        _gameState.value = currentState
-        
-        println("DEBUG: triggerStateUpdate - State updated, updateCounter=${++updateCounter}")
-        println("DEBUG: State after update - Phase: ${_gameState.value?.phase}, Turn: ${_gameState.value?.turnNumber}, Attackers: ${_gameState.value?.attackers?.size}, Coins: ${_gameState.value?.coins}")
-        
-        // Check affordability for all tower types
-        println("DEBUG: Tower affordability check:")
-        _gameState.value?.let { state ->
-            DefenderType.entries.forEach { type ->
-                val canAfford = state.coins >= type.baseCost
-                println("DEBUG:   ${type.displayName} (cost ${type.baseCost}): canAfford=$canAfford (coins=${state.coins})")
-            }
-        }
-        
-        _gameState.value?.attackers?.forEach { attacker ->
-            println("DEBUG: After update - Enemy ${attacker.id} - Type: ${attacker.type}, Position: (${attacker.position.x}, ${attacker.position.y})")
         }
     }
     
@@ -217,7 +162,6 @@ class GameViewModel {
         return when (code.lowercase()) {
             "moneybags", "1000coins", "cash" -> {
                 gameEngine?.addCoins(1000)
-                triggerStateUpdate()
                 true
             }
             else -> false

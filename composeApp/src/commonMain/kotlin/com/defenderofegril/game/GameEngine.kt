@@ -13,16 +13,16 @@ class GameEngine(private val state: GameState) {
         // Can place in build areas (which now includes path cells)
         if (!state.level.isBuildArea(position)) return false
         
-        val buildTime = if (state.phase == GamePhase.INITIAL_BUILDING) 0 else type.buildTime
+        val buildTime = if (state.phase.value == GamePhase.INITIAL_BUILDING) 0 else type.buildTime
         
         val defender = Defender(
-            id = state.nextDefenderId++,
+            id = state.nextDefenderId.value++,
             type = type,
             position = position,
             buildTimeRemaining = buildTime
         )
         state.defenders.add(defender)
-        state.coins -= type.baseCost
+        state.coins.value -= type.baseCost
         
         // Reset actions if tower is ready
         if (defender.isReady) {
@@ -36,18 +36,18 @@ class GameEngine(private val state: GameState) {
         val defender = state.defenders.find { it.id == defenderId } ?: return false
         if (!state.canUpgradeDefender(defender)) return false
         
-        state.coins -= defender.upgradeCost
+        state.coins.value -= defender.upgradeCost
         defender.level++
         return true
     }
     
     fun startFirstPlayerTurn() {
-        if (state.phase != GamePhase.INITIAL_BUILDING) return
-        state.phase = GamePhase.PLAYER_TURN
-        state.turnNumber = 1  // Start at turn 1 when game begins
+        if (state.phase.value != GamePhase.INITIAL_BUILDING) return
+        state.phase.value = GamePhase.PLAYER_TURN
+        state.turnNumber.value = 1  // Start at turn 1 when game begins
         
         // Load first wave
-        if (state.currentWaveIndex == 0 && state.attackersToSpawn.isEmpty()) {
+        if (state.currentWaveIndex.value == 0 && state.attackersToSpawn.isEmpty()) {
             loadNextWave()
         }
         
@@ -69,7 +69,7 @@ class GameEngine(private val state: GameState) {
                 val spawnPos = spawnPoints[index % spawnPoints.size]
                 val type = state.attackersToSpawn.removeAt(0)
                 val attacker = Attacker(
-                    id = state.nextAttackerId++,
+                    id = state.nextAttackerId.value++,
                     type = type,
                     position = spawnPos
                 )
@@ -103,14 +103,14 @@ class GameEngine(private val state: GameState) {
     }
     
     fun endPlayerTurn() {
-        if (state.phase != GamePhase.PLAYER_TURN && state.phase != GamePhase.ENEMY_TURN) return
+        if (state.phase.value != GamePhase.PLAYER_TURN && state.phase.value != GamePhase.ENEMY_TURN) return
         
         // Only increment turn and process if we're actually starting enemy turn
-        if (state.phase == GamePhase.PLAYER_TURN) {
-            state.turnNumber++
+        if (state.phase.value == GamePhase.PLAYER_TURN) {
+            state.turnNumber.value++
         }
         
-        state.phase = GamePhase.ENEMY_TURN
+        state.phase.value = GamePhase.ENEMY_TURN
         
         // Spawn new attackers
         spawnAttackers()
@@ -131,7 +131,7 @@ class GameEngine(private val state: GameState) {
         
         // Advance building timers and start next player turn
         advanceBuildTimers()
-        state.phase = GamePhase.PLAYER_TURN
+        state.phase.value = GamePhase.PLAYER_TURN
         resetDefenderActions()
     }
     
@@ -156,23 +156,23 @@ class GameEngine(private val state: GameState) {
     }
     
     private fun loadNextWave() {
-        if (state.currentWaveIndex >= state.level.attackerWaves.size) {
+        if (state.currentWaveIndex.value >= state.level.attackerWaves.size) {
             return
         }
         
-        val wave = state.level.attackerWaves[state.currentWaveIndex]
+        val wave = state.level.attackerWaves[state.currentWaveIndex.value]
         state.attackersToSpawn.addAll(wave.attackers)
-        state.currentWaveIndex++
-        state.spawnCounter = 0
+        state.currentWaveIndex.value++
+        state.spawnCounter.value = 0
     }
     
     private fun spawnAttackers() {
         if (state.attackersToSpawn.isEmpty()) return
         
-        state.spawnCounter++
-        val wave = state.level.attackerWaves.getOrNull(state.currentWaveIndex - 1) ?: return
+        state.spawnCounter.value++
+        val wave = state.level.attackerWaves.getOrNull(state.currentWaveIndex.value - 1) ?: return
         
-        if (state.spawnCounter >= wave.spawnDelay) {
+        if (state.spawnCounter.value >= wave.spawnDelay) {
             // Spawn 6 enemies per turn (2x the number of spawn points)
             val spawnPoints = state.level.startPositions
             val enemiesToSpawn = minOf(6, state.attackersToSpawn.size)
@@ -185,14 +185,14 @@ class GameEngine(private val state: GameState) {
                 
                 val type = state.attackersToSpawn.removeAt(0)
                 val attacker = Attacker(
-                    id = state.nextAttackerId++,
+                    id = state.nextAttackerId.value++,
                     type = type,
                     position = spawnPos
                 )
                 state.attackers.add(attacker)
             }
             
-            state.spawnCounter = 0
+            state.spawnCounter.value = 0
             
             // Move goblins immediately after spawning
             moveGoblinsAfterSpawn()
@@ -318,7 +318,7 @@ class GameEngine(private val state: GameState) {
                 
                 // Check if reached target
                 if (attacker.position == target) {
-                    state.healthPoints--
+                    state.healthPoints.value--
                     attacker.isDefeated = true
                     break
                 }
@@ -364,7 +364,7 @@ class GameEngine(private val state: GameState) {
                 
                 // Check if reached target
                 if (attacker.position == target) {
-                    state.healthPoints--
+                    state.healthPoints.value--
                     attacker.isDefeated = true
                     break
                 }
@@ -448,13 +448,13 @@ class GameEngine(private val state: GameState) {
     private fun processDefeatedAttackers() {
         val defeated = state.attackers.filter { it.isDefeated && it.position != state.level.targetPosition }
         for (attacker in defeated) {
-            state.coins += attacker.type.reward
+            state.coins.value += attacker.type.reward
         }
         state.attackers.removeAll { it.isDefeated }
     }
     
     // Cheat code support for testing
     fun addCoins(amount: Int) {
-        state.coins += amount
+        state.coins.value += amount
     }
 }
