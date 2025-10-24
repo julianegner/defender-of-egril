@@ -118,6 +118,9 @@ class GameEngine(private val state: GameState) {
         // Apply damage over time effects
         applyDotEffects()
         
+        // Update field effects
+        updateFieldEffects()
+        
         // Remove defeated attackers and give rewards
         processDefeatedAttackers()
         
@@ -231,17 +234,55 @@ class GameEngine(private val state: GameState) {
                 target.isDefeated = true
             }
         }
+        
+        // Create field effect for fireball AOE - affects primary target and all neighbors
+        val affectedPositions = mutableSetOf(primaryTarget.position)
+        affectedPositions.addAll(primaryTarget.position.getHexNeighbors())
+        
+        // Clear existing fireball effects from this defender
+        state.fieldEffects.removeAll { 
+            it.type == FieldEffectType.FIREBALL_AOE && it.defenderId == defender.id 
+        }
+        
+        // Add new fireball effects (visual only, last for 1 turn to show affected area)
+        for (pos in affectedPositions) {
+            // Only show effects on valid grid positions
+            if (pos.x >= 0 && pos.x < state.level.gridWidth &&
+                pos.y >= 0 && pos.y < state.level.gridHeight) {
+                state.fieldEffects.add(
+                    FieldEffect(
+                        position = pos,
+                        type = FieldEffectType.FIREBALL_AOE,
+                        damage = defender.damage,
+                        turnsRemaining = 1,  // Visual effect lasts 1 turn
+                        defenderId = defender.id
+                    )
+                )
+            }
+        }
     }
     
     private fun dotAttack(defender: Defender, target: Attacker) {
         // Apply initial damage
         target.currentHealth -= defender.damage
-        // Mark for 3 more rounds of DOT
-        defender.dotRoundsRemaining[target.id] = 3
+        // Mark for additional rounds of DOT based on tower level
+        defender.dotRoundsRemaining[target.id] = defender.dotDuration
         
         if (target.currentHealth <= 0) {
             target.isDefeated = true
         }
+        
+        // Create field effect for acid DOT - attached to the enemy
+        state.fieldEffects.add(
+            FieldEffect(
+                position = target.position,
+                type = FieldEffectType.ACID_DOT,
+                damage = defender.damage / 2,  // DOT tick damage
+                turnsRemaining = defender.dotDuration,
+                defenderId = defender.id,
+                attackerId = target.id  // Link effect to enemy
+            )
+        )
     }
     
     private fun applyDotEffects() {
@@ -255,6 +296,16 @@ class GameEngine(private val state: GameState) {
                     attacker.currentHealth -= defender.damage / 2
                     if (attacker.currentHealth <= 0) {
                         attacker.isDefeated = true
+                    }
+                    
+                    // Update field effect position to follow the enemy
+                    state.fieldEffects.forEachIndexed { index, effect ->
+                        if (effect.type == FieldEffectType.ACID_DOT && 
+                            effect.attackerId == attackerId &&
+                            effect.defenderId == defender.id) {
+                            // Update position to follow attacker
+                            state.fieldEffects[index] = effect.copy(position = attacker.position)
+                        }
                     }
                     
                     if (rounds <= 1) {
@@ -293,6 +344,15 @@ class GameEngine(private val state: GameState) {
                 
                 if (!isOccupied) {
                     attacker.position = newPos
+                    
+                    // Update acid DOT field effect position to follow this attacker
+                    state.fieldEffects.forEachIndexed { index, effect ->
+                        if (effect.type == FieldEffectType.ACID_DOT && 
+                            effect.attackerId == attacker.id) {
+                            state.fieldEffects[index] = effect.copy(position = newPos)
+                        }
+                    }
+                    
                     pathIndex++
                 } else {
                     // Can't move further, stop trying
@@ -382,6 +442,14 @@ class GameEngine(private val state: GameState) {
             dy != 0 -> Position(from.x, from.y + dy.coerceIn(-1, 1))
             else -> from
         }
+    }
+    
+    private fun updateFieldEffects() {
+        // Decrement turn counters and remove expired effects
+        state.fieldEffects.forEach { effect ->
+            effect.turnsRemaining--
+        }
+        state.fieldEffects.removeAll { it.turnsRemaining <= 0 }
     }
     
     private fun processDefeatedAttackers() {
