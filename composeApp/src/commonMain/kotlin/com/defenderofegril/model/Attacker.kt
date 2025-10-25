@@ -19,7 +19,8 @@ data class Attacker(
     val type: AttackerType,
     var position: Position,
     var currentHealth: Int = type.health,
-    var isDefeated: Boolean = false
+    var isDefeated: Boolean = false,
+    val customMaxHealth: Int? = null  // For cheat-spawned enemies with scaled health
 ) {
-    val maxHealth: Int get() = type.health
+    val maxHealth: Int get() = customMaxHealth ?: type.health
 }
