@@ -227,7 +227,57 @@ class GameViewModel {
     }
     
     fun applyCheatCode(code: String): Boolean {
-        return when (code.lowercase()) {
+        val lowerCode = code.lowercase().trim()
+        
+        // Check for spawn enemy cheat code format: "spawn <type> <level>"
+        if (lowerCode.startsWith("spawn ")) {
+            val parts = lowerCode.split(" ")
+            if (parts.size >= 2) {
+                val enemyType = parts[1]
+                val level = if (parts.size >= 3) parts[2].toIntOrNull() ?: 1 else 1
+                
+                val attackerType = when (enemyType) {
+                    "goblin" -> AttackerType.GOBLIN
+                    "ork", "orc" -> AttackerType.ORK
+                    "ogre" -> AttackerType.OGRE
+                    "skeleton" -> AttackerType.SKELETON
+                    "wizard", "evilwizard" -> AttackerType.EVIL_WIZARD
+                    "witch" -> AttackerType.WITCH
+                    else -> return false
+                }
+                
+                val success = gameEngine?.spawnEnemy(attackerType, level) ?: false
+                if (success) {
+                    triggerStateUpdate()
+                }
+                return success
+            }
+            return false
+        }
+        
+        // Check for jump to level cheat code format: "jumplevel <level>" or "level <level>"
+        if (lowerCode.startsWith("jumplevel ") || lowerCode.startsWith("level ")) {
+            val parts = lowerCode.split(" ")
+            if (parts.size >= 2) {
+                val levelId = parts[1].toIntOrNull()
+                if (levelId != null && levelId >= 1 && levelId <= _worldLevels.value.size) {
+                    // Unlock and start the level
+                    val updatedLevels = _worldLevels.value.toMutableList()
+                    for (i in 0 until levelId) {
+                        if (updatedLevels[i].status == LevelStatus.LOCKED) {
+                            updatedLevels[i] = updatedLevels[i].copy(status = LevelStatus.UNLOCKED)
+                        }
+                    }
+                    _worldLevels.value = updatedLevels
+                    startLevel(levelId)
+                    return true
+                }
+            }
+            return false
+        }
+        
+        // Existing cheat codes
+        return when (lowerCode) {
             "moneybags", "1000coins", "cash" -> {
                 gameEngine?.addCoins(1000)
                 triggerStateUpdate()

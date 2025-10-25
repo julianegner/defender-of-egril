@@ -544,4 +544,25 @@ class GameEngine(private val state: GameState) {
     fun addCoins(amount: Int) {
         state.coins += amount
     }
+    
+    fun spawnEnemy(type: AttackerType, level: Int = 1): Boolean {
+        // Find a free spawn position
+        val spawnPosition = findFreeSpawnPosition() ?: return false
+        
+        // Create the attacker with scaled health based on level
+        val attacker = Attacker(
+            id = state.nextAttackerId++,
+            type = type,
+            position = spawnPosition
+        )
+        
+        // Scale health based on level (each level adds 50% more health)
+        if (level > 1) {
+            val healthMultiplier = 1.0 + (level - 1) * 0.5
+            attacker.currentHealth = (type.health * healthMultiplier).toInt()
+        }
+        
+        state.attackers.add(attacker)
+        return true
+    }
 }
