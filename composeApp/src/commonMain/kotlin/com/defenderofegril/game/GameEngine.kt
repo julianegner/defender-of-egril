@@ -77,7 +77,7 @@ class GameEngine(private val state: GameState) {
                 val attacker = Attacker(
                     id = state.nextAttackerId.value++,
                     type = type,
-                    position = spawnPos
+                    position = mutableStateOf(spawnPos)
                 )
                 state.attackers.add(attacker)
             }
@@ -96,8 +96,8 @@ class GameEngine(private val state: GameState) {
         // Perform attack based on type
         when (defender.type.attackType) {
             AttackType.MELEE, AttackType.RANGED -> singleTargetAttack(defender, target)
-            AttackType.AOE -> aoeAttack(defender, target.position)
-            AttackType.DOT -> dotAttack(defender, target.position)
+            AttackType.AOE -> aoeAttack(defender, target.position.value)
+            AttackType.DOT -> dotAttack(defender, target.position.value)
         }
 
         defender.actionsRemaining.value--
@@ -121,7 +121,7 @@ class GameEngine(private val state: GameState) {
             if (!state.level.isOnPath(targetPosition)) return false
         } else {
             // For single-target attacks, there must be an enemy at the position
-            val target = state.attackers.find { it.position == targetPosition && !it.isDefeated.value }
+            val target = state.attackers.find { it.position.value == targetPosition && !it.isDefeated.value }
             if (target == null) return false
         }
 
@@ -129,7 +129,7 @@ class GameEngine(private val state: GameState) {
         when (defender.type.attackType) {
             AttackType.MELEE, AttackType.RANGED -> {
                 // Single target attack requires an enemy
-                val target = state.attackers.find { it.position == targetPosition && !it.isDefeated.value }
+                val target = state.attackers.find { it.position.value == targetPosition && !it.isDefeated.value }
                 if (target != null) {
                     singleTargetAttack(defender, target)
                 } else {
@@ -201,7 +201,7 @@ class GameEngine(private val state: GameState) {
     
     private fun isPositionOccupied(position: Position): Boolean {
         return state.defenders.any { it.position == position } ||
-               state.attackers.any { it.position == position }
+               state.attackers.any { it.position.value == position }
     }
     
     private fun loadNextWave() {
@@ -236,7 +236,7 @@ class GameEngine(private val state: GameState) {
                 val attacker = Attacker(
                     id = state.nextAttackerId.value++,
                     type = type,
-                    position = spawnPos
+                    position = mutableStateOf(spawnPos)
                 )
                 state.attackers.add(attacker)
             }
@@ -251,7 +251,7 @@ class GameEngine(private val state: GameState) {
     private fun findFreeSpawnPosition(): Position? {
         // Try each spawn point to find a free one
         for (spawnPos in state.level.startPositions) {
-            if (!state.attackers.any { it.position == spawnPos && !it.isDefeated.value }) {
+            if (!state.attackers.any { it.position.value == spawnPos && !it.isDefeated.value }) {
                 return spawnPos
             }
         }
@@ -267,7 +267,7 @@ class GameEngine(private val state: GameState) {
                 if (pos.x >= 0 && pos.x < state.level.gridWidth && 
                     pos.y >= 0 && pos.y < state.level.gridHeight &&
                     state.level.isOnPath(pos) &&
-                    !state.attackers.any { it.position == pos && !it.isDefeated.value }) {
+                    !state.attackers.any { it.position.value == pos && !it.isDefeated.value }) {
                     return pos
                 }
             }
@@ -301,7 +301,7 @@ class GameEngine(private val state: GameState) {
 
         // Damage all enemies in affected positions
         val targets = state.attackers.filter { 
-            !it.isDefeated.value && affectedPositions.contains(it.position)
+            !it.isDefeated.value && affectedPositions.contains(it.position.value)
         }
         
         for (target in targets) {
@@ -348,7 +348,7 @@ class GameEngine(private val state: GameState) {
         
         // Apply initial damage and DOT to all enemies in affected positions
         val targets = state.attackers.filter {
-            !it.isDefeated.value && affectedPositions.contains(it.position)
+            !it.isDefeated.value && affectedPositions.contains(it.position.value)
         }
 
         for (target in targets) {
@@ -366,7 +366,7 @@ class GameEngine(private val state: GameState) {
         // Don't remove existing acid effects - they should persist until they expire
         for (pos in affectedPositions) {
             // Find if there's an enemy at this position
-            val enemyAtPos = targets.find { it.position == pos }
+            val enemyAtPos = targets.find { it.position.value == pos }
 
             // Check if there's already an acid effect at this position
             val existingEffect = state.fieldEffects.find {
@@ -414,7 +414,7 @@ class GameEngine(private val state: GameState) {
         for (effect in acidEffects) {
             // Find all enemies standing in the acid
             val enemiesInAcid = state.attackers.filter {
-                !it.isDefeated.value && it.position == effect.position
+                !it.isDefeated.value && it.position.value == effect.position
             }
 
             for (attacker in enemiesInAcid) {
@@ -452,7 +452,7 @@ class GameEngine(private val state: GameState) {
             if (attacker.isDefeated.value) continue
             
             val target = state.level.targetPosition
-            val path = findPath(attacker.position, target)
+            val path = findPath(attacker.position.value, target)
             
             if (path.isEmpty()) continue
             
@@ -464,11 +464,11 @@ class GameEngine(private val state: GameState) {
                 
                 // Check if new position is occupied by another alive attacker
                 val isOccupied = state.attackers.any {
-                    it.id != attacker.id && !it.isDefeated.value && it.position == newPos
+                    it.id != attacker.id && !it.isDefeated.value && it.position.value == newPos
                 }
 
                 if (!isOccupied) {
-                    attacker.position = newPos
+                    attacker.position.value = newPos
                     pathIndex++
                 } else {
                     // Can't move further, stop trying
@@ -478,7 +478,7 @@ class GameEngine(private val state: GameState) {
                 remainingSpeed--
 
                 // Check if reached target
-                if (attacker.position == target) {
+                if (attacker.position.value == target) {
                     state.healthPoints.value--
                     attacker.isDefeated.value = true
                     break
@@ -494,10 +494,10 @@ class GameEngine(private val state: GameState) {
             if (attacker.type != AttackerType.GOBLIN) continue
 
             // Check if goblin is at a spawn point
-            if (!state.level.isSpawnPoint(attacker.position)) continue
+            if (!state.level.isSpawnPoint(attacker.position.value)) continue
 
             val target = state.level.targetPosition
-            val path = findPath(attacker.position, target)
+            val path = findPath(attacker.position.value, target)
 
             if (path.isEmpty() || path.size < 2) continue
 
@@ -510,11 +510,11 @@ class GameEngine(private val state: GameState) {
 
                 // Check if new position is occupied by another alive attacker
                 val isOccupied = state.attackers.any {
-                    it.id != attacker.id && !it.isDefeated.value && it.position == newPos
+                    it.id != attacker.id && !it.isDefeated.value && it.position.value == newPos
                 }
                 
                 if (!isOccupied) {
-                    attacker.position = newPos
+                    attacker.position.value = newPos
                     pathIndex++
                 } else {
                     // Can't move further, stop trying
@@ -524,7 +524,7 @@ class GameEngine(private val state: GameState) {
                 remainingSpeed--
                 
                 // Check if reached target
-                if (attacker.position == target) {
+                if (attacker.position.value == target) {
                     state.healthPoints.value--
                     attacker.isDefeated.value = true
                     break
@@ -616,7 +616,7 @@ class GameEngine(private val state: GameState) {
     }
 
     private fun processDefeatedAttackers() {
-        val defeated = state.attackers.filter { it.isDefeated.value && it.position != state.level.targetPosition }
+        val defeated = state.attackers.filter { it.isDefeated.value && it.position.value != state.level.targetPosition }
         for (attacker in defeated) {
             state.coins.value += attacker.type.reward
         }
