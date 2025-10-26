@@ -120,16 +120,31 @@ class GameViewModel {
 
     fun endPlayerTurn() {
         val state = _gameState.value ?: return
+        val engine = gameEngine ?: return
         
-        // Automatically process enemy turn after a delay
+        // Process enemy turn with animations
         viewModelScope.launch(Dispatchers.Default) {
-            // Now process the actual enemy turn logic (this will increment turn counter and set phase to ENEMY_TURN)
-            gameEngine?.endPlayerTurn()
-
-            delay(500) // Give time to see "ENEMY TURN" indicator
-
-            // Add another small delay so user can see the enemy movements
-            delay(1000)
+            // Start enemy turn: spawn new units and change phase
+            engine.startEnemyTurn()
+            
+            // Show "ENEMY TURN" indicator for a moment
+            delay(800)
+            
+            // Calculate all movement steps
+            val movementSteps = engine.calculateEnemyTurnMovements()
+            
+            // Apply each movement step with a delay between steps
+            for (stepMovements in movementSteps) {
+                // Apply all movements in this step simultaneously
+                for ((attackerId, newPosition) in stepMovements) {
+                    engine.applyMovement(attackerId, newPosition)
+                }
+                // Delay between movement steps so user can see the animation
+                delay(400)
+            }
+            
+            // Complete enemy turn: apply effects and return to player turn
+            engine.completeEnemyTurn()
             
             // Check win/loss conditions
             val updatedState = _gameState.value ?: return@launch
