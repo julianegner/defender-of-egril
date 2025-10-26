@@ -34,6 +34,10 @@ import com.defenderofegril.model.*
 import kotlinx.coroutines.delay
 import kotlin.math.sqrt
 
+// UI Constants
+private const val ATTACK_ICON = "⚔️"
+private val ATTACK_BUTTON_COLOR = Color(0xFFD32F2F)
+
 /**
  * A pointy-top hexagon shape for Compose
  */
@@ -764,14 +768,14 @@ fun PlayerTurnControls(
                                     onClick = { onDefenderAttackPosition(defenderId, selectedTargetPosition) },
                                     modifier = Modifier.fillMaxWidth().height(56.dp),
                                     colors = ButtonDefaults.buttonColors(
-                                        containerColor = Color(0xFFD32F2F)  // Red color for attack
+                                        containerColor = ATTACK_BUTTON_COLOR
                                     )
                                 ) {
                                     Row(
                                         horizontalArrangement = Arrangement.Center,
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
-                                        Text("⚔️", fontSize = 24.sp)
+                                        Text(ATTACK_ICON, fontSize = 24.sp)
                                         Spacer(modifier = Modifier.width(8.dp))
                                         Column {
                                             Text(
@@ -793,14 +797,14 @@ fun PlayerTurnControls(
                                 onClick = { onDefenderAttackPosition(defenderId, selectedTargetPosition) },
                                 modifier = Modifier.fillMaxWidth().height(56.dp),
                                 colors = ButtonDefaults.buttonColors(
-                                    containerColor = Color(0xFFD32F2F)  // Red color for attack
+                                    containerColor = ATTACK_BUTTON_COLOR
                                 )
                             ) {
                                 Row(
                                     horizontalArrangement = Arrangement.Center,
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Text("⚔️", fontSize = 24.sp)
+                                    Text(ATTACK_ICON, fontSize = 24.sp)
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Column {
                                         Text(
@@ -824,14 +828,14 @@ fun PlayerTurnControls(
                                 onClick = { onDefenderAttack(defenderId, selectedTargetId) },
                                 modifier = Modifier.fillMaxWidth().height(56.dp),
                                 colors = ButtonDefaults.buttonColors(
-                                    containerColor = Color(0xFFD32F2F)  // Red color for attack
+                                    containerColor = ATTACK_BUTTON_COLOR
                                 )
                             ) {
                                 Row(
                                     horizontalArrangement = Arrangement.Center,
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Text("⚔️", fontSize = 24.sp)
+                                    Text(ATTACK_ICON, fontSize = 24.sp)
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Column {
                                         Text(
@@ -1116,14 +1120,7 @@ fun PlayerTurnControls(
                             modifier = Modifier.size(36.dp),
                             contentAlignment = Alignment.Center
                         ) {
-                            // Create a dummy defender just for the icon
-                            val dummyDefender = Defender(
-                                id = -1,
-                                type = type,
-                                position = Position(0, 0),
-                                level = mutableStateOf(1)
-                            )
-                            TowerIcon(defender = dummyDefender, modifier = Modifier.size(32.dp))
+                            TowerTypeIcon(defenderType = type, modifier = Modifier.size(32.dp))
                         }
                         
                         Spacer(modifier = Modifier.width(4.dp))
@@ -1152,7 +1149,9 @@ fun PlayerTurnControls(
                                 fontSize = 8.sp,
                                 maxLines = 1
                             )
-                            // Show special ability
+                            // Show special ability type
+                            // "Long" indicates ranged with minimum range (e.g., Ballista can't shoot too close)
+                            // "Range" indicates normal ranged attack without minimum range restriction
                             val special = when (type.attackType) {
                                 AttackType.AOE -> "AOE"
                                 AttackType.DOT -> "DOT"
