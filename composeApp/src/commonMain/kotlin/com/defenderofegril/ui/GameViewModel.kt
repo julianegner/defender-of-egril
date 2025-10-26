@@ -127,7 +127,7 @@ class GameViewModel {
             // Start enemy turn: spawn new units and change phase
             engine.startEnemyTurn()
             
-            // Show "ENEMY TURN" indicator for a moment
+            // Show "ENEMY TURN" indicator and let spawned units be visible
             delay(800)
             
             // Calculate all movement steps
@@ -141,6 +141,11 @@ class GameViewModel {
                 }
                 // Delay between movement steps so user can see the animation
                 delay(400)
+            }
+            
+            // Add a small delay to see final positions before returning to player turn
+            if (movementSteps.isNotEmpty()) {
+                delay(300)
             }
             
             // Complete enemy turn: apply effects and return to player turn
