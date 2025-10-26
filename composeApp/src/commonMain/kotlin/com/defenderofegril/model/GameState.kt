@@ -11,6 +11,20 @@ enum class GamePhase {
     ENEMY_TURN         // Enemies move
 }
 
+enum class FieldEffectType {
+    FIREBALL_AOE,      // Visual effect for wizard fireball area
+    ACID_DOT           // Visual effect for alchemy acid with duration
+}
+
+data class FieldEffect(
+    val position: Position,
+    val type: FieldEffectType,
+    val damage: Int,
+    var turnsRemaining: Int,
+    val defenderId: Int,  // Track which tower created this effect
+    val attackerId: Int? = null  // For DOT effects, track which enemy has the effect
+)
+
 data class GameState(
     val level: Level,
     val phase: MutableState<GamePhase> = mutableStateOf(GamePhase.INITIAL_BUILDING),
@@ -25,7 +39,8 @@ data class GameState(
     val attackersToSpawn: SnapshotStateList<AttackerType> = mutableStateListOf(),
     val turnNumber: MutableState<Int> = mutableStateOf(0),
     val actionsRemainingThisTurn: MutableState<Int> = mutableStateOf(0),
-    val spawnPlan: List<PlannedEnemySpawn> = generateSpawnPlan(level.attackerWaves)
+    val spawnPlan: List<PlannedEnemySpawn> = generateSpawnPlan(level.attackerWaves),
+    val fieldEffects: MutableList<FieldEffect> = mutableListOf() // Track active field effects
 ) {
     fun isLevelWon(): Boolean {
         return currentWaveIndex.value >= level.attackerWaves.size &&

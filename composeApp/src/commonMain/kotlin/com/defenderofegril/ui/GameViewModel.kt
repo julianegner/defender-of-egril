@@ -30,7 +30,7 @@ class GameViewModel {
     
     private val _gameState = MutableStateFlow<GameState?>(null)
     val gameState: StateFlow<GameState?> = _gameState.asStateFlow()
-    
+
     private var gameEngine: GameEngine? = null
     private val viewModelScope = CoroutineScope(Dispatchers.Default)
     
@@ -104,6 +104,20 @@ class GameViewModel {
         return result
     }
     
+    fun defenderAttackPosition(defenderId: Int, targetPosition: Position): Boolean {
+        val result = gameEngine?.defenderAttackPosition(defenderId, targetPosition) ?: false
+        if (result) {
+            // triggerStateUpdate()
+
+            // Check for immediate victory after attack
+            val state = _gameState.value
+            if (state != null && state.isLevelWon()) {
+                completeLevel(state.level.id, won = true)
+            }
+        }
+        return result
+    }
+
     fun endPlayerTurn() {
         val state = _gameState.value ?: return
         
@@ -111,9 +125,9 @@ class GameViewModel {
         viewModelScope.launch(Dispatchers.Default) {
             // Now process the actual enemy turn logic (this will increment turn counter and set phase to ENEMY_TURN)
             gameEngine?.endPlayerTurn()
-            
+
             delay(500) // Give time to see "ENEMY TURN" indicator
-            
+
             // Add another small delay so user can see the enemy movements
             delay(1000)
             
@@ -126,7 +140,7 @@ class GameViewModel {
             }
         }
     }
-    
+
     private fun completeLevel(levelId: Int, won: Boolean) {
         if (won) {
             val updatedLevels = _worldLevels.value.toMutableList()
