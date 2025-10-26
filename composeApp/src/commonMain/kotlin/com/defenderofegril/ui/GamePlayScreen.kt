@@ -1024,23 +1024,23 @@ fun PlayerTurnControls(
                                     }
                                 }
                                 
-                                Spacer(modifier = Modifier.height(8.dp))
+                                Spacer(modifier = Modifier.height(4.dp))
 
-                                // Upgrade button with larger coin price
+                                // Upgrade button with larger coin price - compact height
                                 Button(
                                     onClick = { onUpgradeDefender(defender.id) },
                                     enabled = gameState.canUpgradeDefender(defender),
-                                    modifier = Modifier.fillMaxWidth()
+                                    modifier = Modifier.fillMaxWidth().height(40.dp),
+                                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp)
                                 ) {
                                     Row(
-                                        modifier = Modifier.fillMaxWidth(),
                                         horizontalArrangement = Arrangement.Center,
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
-                                        Text("Upgrade ", fontSize = 14.sp)
+                                        Text("Upgrade ", fontSize = 13.sp)
                                         Text(
                                             "💰${defender.upgradeCost}",
-                                            fontSize = 18.sp,
+                                            fontSize = 16.sp,
                                             fontWeight = FontWeight.Bold
                                         )
                                     }
