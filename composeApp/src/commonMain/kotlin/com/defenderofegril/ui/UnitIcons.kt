@@ -25,7 +25,17 @@ import kotlin.math.sin
 import kotlin.math.PI
 
 /**
- * Composable that draws a tower type icon without defender-specific info (for buttons)
+ * Composable that draws a tower type icon without defender-specific info.
+ * 
+ * Use this for displaying tower types in selection buttons and menus where you don't
+ * have a specific Defender instance. This is more efficient than creating dummy defenders.
+ * 
+ * Excludes defender-specific information such as:
+ * - Level indicator
+ * - Actions remaining (lightning bolts)
+ * - Build time remaining
+ * 
+ * For displaying actual placed towers on the game board, use [TowerIcon] instead.
  */
 @Composable
 fun TowerTypeIcon(
