@@ -442,7 +442,7 @@ fun GameGrid(
                             isDefenderSelected = selectedDefenderId?.let { selId ->
                                 gameState.defenders.find { it.position == position }?.id == selId
                             } ?: false,
-                            isTargetSelected = gameState.attackers.find { it.position == position }?.id == selectedTargetId,
+                            isTargetSelected = gameState.attackers.find { it.position.value == position }?.id == selectedTargetId,
                             /* TODO from main
                             isDefenderSelected = gameState.defenders.find { it.position == position }?.id == selectedDefenderId,
                             isTargetSelected = gameState.attackers.find { it.position == position }?.id == selectedTargetId || position == selectedTargetPosition,
@@ -475,7 +475,7 @@ fun GridCell(
     val isBuildIsland = gameState.level.isBuildIsland(position)
     val isBuildArea = gameState.level.isBuildArea(position)
     val defender = gameState.defenders.find { it.position == position }
-    val attacker = gameState.attackers.find { it.position == position && !it.isDefeated.value }
+    val attacker = gameState.attackers.find { it.position.value == position && !it.isDefeated.value }
     
     // Check for field effects at this position
     val fieldEffect = gameState.fieldEffects.find { it.position == position }
@@ -577,8 +577,8 @@ fun GridCell(
         when {
             attacker != null -> {
                 // Use graphical icon for enemy units
-                // Key by both id and currentHealth to force recomposition when health changes
-                key(attacker.id, attacker.currentHealth.value) {
+                // Key by id, position, and currentHealth to force recomposition when any changes
+                key(attacker.id, attacker.position.value.x, attacker.position.value.y, attacker.currentHealth.value) {
                     EnemyIcon(attacker = attacker)
                 }
             }
@@ -1236,11 +1236,11 @@ fun PlayerTurnControls(
                                     items = activeEnemies,
                                     key = { attacker -> "active-${attacker.id}" }
                                 ) { attacker ->
-                                    // Key by id and position to force recomposition when enemy moves
+                                    // Key by id, position and health to force recomposition when enemy moves or takes damage
                                     key(
                                         attacker.id,
-                                        attacker.position.x,
-                                        attacker.position.y,
+                                        attacker.position.value.x,
+                                        attacker.position.value.y,
                                         attacker.currentHealth.value
                                     ) {
                                         EnemyItemDetailed(attacker, showPosition = true)
@@ -1316,7 +1316,7 @@ fun PlayerTurnControls(
                                 )
                                 if (showPosition) {
                                     Text(
-                                        "Pos: (${attacker.position.x},${attacker.position.y})",
+                                        "Pos: (${attacker.position.value.x},${attacker.position.value.y})",
                                         style = MaterialTheme.typography.bodySmall,
                                         fontSize = 10.sp,
                                         color = Color(0xFF1976D2)
@@ -1463,7 +1463,7 @@ fun PlayerTurnControls(
                         )
 
                         Text(
-                            "Position: (${attacker.position.x}, ${attacker.position.y})",
+                            "Position: (${attacker.position.value.x}, ${attacker.position.value.y})",
                             style = MaterialTheme.typography.bodySmall,
                             color = Color.Gray
                         )
