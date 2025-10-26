@@ -1126,44 +1126,76 @@ fun PlayerTurnControls(
                         Spacer(modifier = Modifier.width(4.dp))
                         
                         // Stats on the right
-                        Column(
-                            modifier = Modifier.fillMaxHeight(),
-                            verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.Start
-                        ) {
-                            Text(
-                                type.displayName.replace(" Tower", ""),
-                                style = MaterialTheme.typography.labelSmall,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 10.sp,
-                                maxLines = 1
-                            )
-                            Text(
-                                "💰${type.baseCost}",
-                                style = MaterialTheme.typography.labelSmall,
-                                fontSize = 9.sp
-                            )
-                            Text(
-                                "R:${if (type.minRange > 0) "${type.minRange}-" else ""}${type.baseRange} A:${type.actionsPerTurn} D:${type.baseDamage}",
-                                style = MaterialTheme.typography.labelSmall,
-                                fontSize = 8.sp,
-                                maxLines = 1
-                            )
-                            // Show special ability type
-                            // "Long" indicates ranged with minimum range (e.g., Ballista can't shoot too close)
-                            // "Range" indicates normal ranged attack without minimum range restriction
-                            val special = when (type.attackType) {
-                                AttackType.AOE -> "AOE"
-                                AttackType.DOT -> "DOT"
-                                AttackType.MELEE -> "Melee"
-                                AttackType.RANGED -> if (type.minRange > 0) "Long" else "Range"
+                        Row {
+                            Column(
+                                modifier = Modifier.fillMaxHeight(),
+                                verticalArrangement = Arrangement.Center,
+                                horizontalAlignment = Alignment.Start
+                            ) {
+                                Text(
+                                    type.displayName.replace(" Tower", ""),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 10.sp,
+                                    maxLines = 1
+                                )
+                                Text(
+                                    "💰${type.baseCost}",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontSize = 9.sp
+                                )
+                                // Show special ability type
+                                // "Long" indicates ranged with minimum range (e.g., Ballista can't shoot too close)
+                                // "Range" indicates normal ranged attack without minimum range restriction
+                                val special = when (type.attackType) {
+                                    AttackType.AOE -> "Area of Effect"
+                                    AttackType.DOT -> "Damage over Time"
+                                    AttackType.MELEE -> "Melee"
+                                    AttackType.RANGED -> if (type.minRange > 0) "Long" else "Range"
+                                }
+                                Text(
+                                    special,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontSize = 7.sp,
+                                    color = Color(0xFFFFEB3B)
+                                )
                             }
-                            Text(
-                                special,
-                                style = MaterialTheme.typography.labelSmall,
-                                fontSize = 7.sp,
-                                color = Color(0xFFFFEB3B)
-                            )
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxHeight()
+                                    .padding(start = 16.dp),
+                                verticalArrangement = Arrangement.Center,
+                                horizontalAlignment = Alignment.Start
+                            ) {
+                                Text(
+                                    "Damage: ${type.baseDamage}",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontSize = 9.sp
+                                )
+                                Text(
+                                    "Range: ${if (type.minRange > 0) "${type.minRange}-" else ""}${type.baseRange}",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontSize = 9.sp
+                                )
+                                Text(
+                                    "Actions: ${type.actionsPerTurn}",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontSize = 9.sp
+                                )
+                            }
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxHeight()
+                                    .padding(start = 16.dp),
+                                verticalArrangement = Arrangement.Center,
+                                horizontalAlignment = Alignment.Start
+                            ) {
+                                Text(
+                                    "Build: ${type.buildTime}T",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontSize = 9.sp
+                                )
+                            }
                         }
                     }
                 }
