@@ -25,6 +25,40 @@ import kotlin.math.sin
 import kotlin.math.PI
 
 /**
+ * Composable that draws a tower type icon without defender-specific info (for buttons)
+ */
+@Composable
+fun TowerTypeIcon(
+    defenderType: DefenderType,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        // Draw tower graphics
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            val centerX = size.width / 2
+            val centerY = size.height / 2
+            val iconSize = minOf(size.width, size.height)
+            
+            // Draw tower base (trapezoid shape)
+            drawTowerBase(centerX, centerY, iconSize * 0.8f)
+            
+            // Draw tower type symbol inside
+            when (defenderType) {
+                DefenderType.SPIKE_TOWER -> drawSpikeSymbol(centerX, centerY, iconSize * 0.4f)
+                DefenderType.SPEAR_TOWER -> drawSpearSymbol(centerX, centerY, iconSize * 0.5f)
+                DefenderType.BOW_TOWER -> drawBowSymbol(centerX, centerY, iconSize * 0.45f)
+                DefenderType.WIZARD_TOWER -> drawWizardSymbol(centerX, centerY, iconSize * 0.4f)
+                DefenderType.ALCHEMY_TOWER -> drawAlchemySymbol(centerX, centerY, iconSize * 0.4f)
+                DefenderType.BALLISTA_TOWER -> drawBallistaSymbol(centerX, centerY, iconSize * 0.5f)
+            }
+        }
+    }
+}
+
+/**
  * Composable that draws a tower icon with a symbol for the tower type
  */
 @Composable
