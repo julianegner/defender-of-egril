@@ -165,12 +165,55 @@ class GameViewModel {
     }
     
     fun applyCheatCode(code: String): Boolean {
-        return when (code.lowercase()) {
+        val lowercaseCode = code.lowercase().trim()
+        
+        // Handle simple one-word cheatcodes
+        when (lowercaseCode) {
             "moneybags", "1000coins", "cash" -> {
                 gameEngine?.addCoins(1000)
-                true
+                return true
             }
-            else -> false
         }
+        
+        // Handle "spawn <type> <level>" cheatcode
+        if (lowercaseCode.startsWith("spawn ")) {
+            val parts = lowercaseCode.split(" ").filter { it.isNotBlank() }
+            if (parts.size >= 2) {
+                val typeName = parts[1]
+                val level = if (parts.size >= 3) parts[2].toIntOrNull() ?: 1 else 1
+                
+                // Map type name to AttackerType
+                val attackerType = when (typeName) {
+                    "goblin" -> AttackerType.GOBLIN
+                    "ork", "orc" -> AttackerType.ORK
+                    "ogre" -> AttackerType.OGRE
+                    "skeleton" -> AttackerType.SKELETON
+                    "wizard", "evil_wizard", "evilwizard" -> AttackerType.EVIL_WIZARD
+                    "witch" -> AttackerType.WITCH
+                    else -> return false
+                }
+                
+                gameEngine?.spawnEnemy(attackerType, level)
+                return true
+            }
+        }
+        
+        // Handle "jump <level>" cheatcode
+        if (lowercaseCode.startsWith("jump ")) {
+            val parts = lowercaseCode.split(" ").filter { it.isNotBlank() }
+            if (parts.size >= 2) {
+                val levelId = parts[1].toIntOrNull() ?: return false
+                
+                // Check if level exists and is valid
+                val worldLevel = _worldLevels.value.find { it.level.id == levelId }
+                if (worldLevel != null) {
+                    // Start the level (this will work even if locked)
+                    startLevel(levelId)
+                    return true
+                }
+            }
+        }
+        
+        return false
     }
 }
