@@ -60,7 +60,7 @@ data class Defender(
     
     fun canAttack(attacker: Attacker): Boolean {
         if (!isReady || actionsRemaining.value <= 0) return false
-        val distance = position.distanceTo(attacker.position)
+        val distance = position.distanceTo(attacker.position.value)
         // Check both minimum and maximum range
         return distance >= type.minRange && distance <= range
     }
