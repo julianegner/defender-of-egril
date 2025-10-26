@@ -184,6 +184,121 @@ class GameEngine(private val state: GameState) {
         resetDefenderActions()
     }
     
+    /**
+     * Calculate all movement steps for attackers during enemy turn without applying them.
+     * Returns a list of movement steps, where each step contains all movements that should happen together.
+     */
+    fun calculateEnemyTurnMovements(): List<List<Pair<Int, Position>>> {
+        val allMovementSteps = mutableListOf<List<Pair<Int, Position>>>()
+        
+        // Find the maximum number of steps any attacker will take
+        var maxSteps = 0
+        val attackerPaths = mutableMapOf<Int, List<Position>>()
+        
+        for (attacker in state.attackers) {
+            if (attacker.isDefeated.value) continue
+            
+            val target = state.level.targetPosition
+            val path = findPath(attacker.position.value, target)
+            
+            if (path.isEmpty()) continue
+            
+            // Calculate how many steps this attacker will take
+            var steps = 0
+            var pathIndex = 1
+            var remainingSpeed = attacker.type.speed
+            val validPath = mutableListOf(attacker.position.value)
+            
+            while (remainingSpeed > 0 && pathIndex < path.size) {
+                val newPos = path[pathIndex]
+                validPath.add(newPos)
+                steps++
+                pathIndex++
+                remainingSpeed--
+            }
+            
+            attackerPaths[attacker.id] = validPath
+            if (steps > maxSteps) maxSteps = steps
+        }
+        
+        // Create movement steps
+        for (stepIndex in 1..maxSteps) {
+            val movementsInThisStep = mutableListOf<Pair<Int, Position>>()
+            
+            for (attacker in state.attackers) {
+                if (attacker.isDefeated.value) continue
+                
+                val path = attackerPaths[attacker.id] ?: continue
+                if (stepIndex < path.size) {
+                    // Check if position is occupied (simplified check)
+                    val newPos = path[stepIndex]
+                    movementsInThisStep.add(Pair(attacker.id, newPos))
+                }
+            }
+            
+            if (movementsInThisStep.isNotEmpty()) {
+                allMovementSteps.add(movementsInThisStep)
+            }
+        }
+        
+        return allMovementSteps
+    }
+    
+    /**
+     * Apply a single movement step for the given attacker.
+     */
+    fun applyMovement(attackerId: Int, newPosition: Position) {
+        val attacker = state.attackers.find { it.id == attackerId } ?: return
+        if (attacker.isDefeated.value) return
+        
+        attacker.position.value = newPosition
+        
+        // Check if reached target
+        if (newPosition == state.level.targetPosition) {
+            state.healthPoints.value--
+            attacker.isDefeated.value = true
+        }
+    }
+    
+    /**
+     * Prepare for enemy turn: spawn new attackers and set phase.
+     */
+    fun startEnemyTurn() {
+        if (state.phase.value != GamePhase.PLAYER_TURN) return
+        
+        state.turnNumber.value++
+        state.phase.value = GamePhase.ENEMY_TURN
+        
+        // Spawn new attackers
+        spawnAttackers()
+    }
+    
+    /**
+     * Complete enemy turn: apply effects and start player turn.
+     */
+    fun completeEnemyTurn() {
+        if (state.phase.value != GamePhase.ENEMY_TURN) return
+        
+        // Apply damage over time effects
+        applyDotEffects()
+        
+        // Update field effects
+        updateFieldEffects()
+
+        // Remove defeated attackers and give rewards
+        processDefeatedAttackers()
+        
+        // Check if we should load next wave
+        if (state.attackersToSpawn.isEmpty() && state.attackers.isEmpty()) {
+            loadNextWave()
+        }
+        
+        // Advance building timers and start next player turn
+        advanceBuildTimers()
+        state.phase.value = GamePhase.PLAYER_TURN
+        resetDefenderActions()
+    }
+    
     private fun resetDefenderActions() {
         state.defenders.forEach { it.resetActions() }
     }
