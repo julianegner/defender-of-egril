@@ -83,7 +83,7 @@ class GameEngine(private val state: GameState) {
             }
         }
 
-        // Move goblins immediately after spawning
+        // Move goblins immediately after initial spawning (this is not during enemy turn)
         moveGoblinsAfterSpawn()
     }
     
@@ -251,12 +251,20 @@ class GameEngine(private val state: GameState) {
         val attacker = state.attackers.find { it.id == attackerId } ?: return
         if (attacker.isDefeated.value) return
         
-        attacker.position.value = newPosition
+        // Check if position is occupied by another alive attacker
+        val isOccupied = state.attackers.any {
+            it.id != attacker.id && !it.isDefeated.value && it.position.value == newPosition
+        }
         
-        // Check if reached target
-        if (newPosition == state.level.targetPosition) {
-            state.healthPoints.value--
-            attacker.isDefeated.value = true
+        // Only move if position is not occupied
+        if (!isOccupied) {
+            attacker.position.value = newPosition
+            
+            // Check if reached target
+            if (newPosition == state.level.targetPosition) {
+                state.healthPoints.value--
+                attacker.isDefeated.value = true
+            }
         }
     }
     
@@ -358,8 +366,8 @@ class GameEngine(private val state: GameState) {
 
             state.spawnCounter.value = 0
 
-            // Move goblins immediately after spawning
-            moveGoblinsAfterSpawn()
+            // NOTE: Goblin movement after spawning will be handled by the animation system
+            // instead of calling moveGoblinsAfterSpawn() here
         }
     }
     
