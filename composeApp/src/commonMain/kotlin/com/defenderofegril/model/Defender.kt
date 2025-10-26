@@ -1,5 +1,8 @@
 package com.defenderofegril.model
 
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+
 enum class DefenderType(
     val displayName: String,
     val baseCost: Int,
@@ -29,15 +32,15 @@ data class Defender(
     val id: Int,
     val type: DefenderType,
     val position: Position,
-    var level: Int = 1,
+    val level: MutableState<Int> = mutableStateOf(1),
     var dotRoundsRemaining: MutableMap<Int, Int> = mutableMapOf(), // attackerId -> rounds
-    var buildTimeRemaining: Int = 0,  // 0 = ready to use
-    var actionsRemaining: Int = 0     // Actions left this turn
+    val buildTimeRemaining: MutableState<Int> = mutableStateOf(0),  // 0 = ready to use
+    val actionsRemaining: MutableState<Int> = mutableStateOf(0)     // Actions left this turn
 ) {
-    val damage: Int get() = type.baseDamage + (level - 1) * 5
-    val range: Int get() = type.baseRange + (level - 1) / 2
-    val upgradeCost: Int get() = type.baseCost * level
-    val isReady: Boolean get() = buildTimeRemaining == 0
+    val damage: Int get() = type.baseDamage + (level.value - 1) * 5
+    val range: Int get() = type.baseRange + (level.value - 1) / 2
+    val upgradeCost: Int get() = type.baseCost * level.value
+    val isReady: Boolean get() = buildTimeRemaining.value == 0
     
     // Get the actual damage dealt by this tower
     // For DOT towers, the actual damage is half the base damage
@@ -49,14 +52,14 @@ data class Defender(
     // Calculate DOT duration for alchemy tower: 2 base turns + 1 extra per 5 levels (5, 10, 15, etc.)
     val dotDuration: Int get() {
         return if (type.attackType == AttackType.DOT) {
-            2 + (level / 5)  // Base 2 turns, +1 at level 5, +2 at level 10, +3 at level 15, etc.
+            2 + (level.value / 5)  // Base 2 turns, +1 at level 5, +2 at level 10, +3 at level 15, etc.
         } else {
             0
         }
     }
     
     fun canAttack(attacker: Attacker): Boolean {
-        if (!isReady || actionsRemaining <= 0) return false
+        if (!isReady || actionsRemaining.value <= 0) return false
         val distance = position.distanceTo(attacker.position)
         // Check both minimum and maximum range
         return distance >= type.minRange && distance <= range
@@ -64,7 +67,7 @@ data class Defender(
     
     fun resetActions() {
         if (isReady) {
-            actionsRemaining = type.actionsPerTurn
+            actionsRemaining.value = type.actionsPerTurn
         }
     }
 }

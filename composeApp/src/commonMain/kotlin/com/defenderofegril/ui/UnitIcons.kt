@@ -57,14 +57,14 @@ fun TowerIcon(
         }
         
         // Actions indicator at center left (lightning bolts for remaining actions)
-        if (defender.isReady && defender.actionsRemaining > 0) {
+        if (defender.isReady && defender.actionsRemaining.value > 0) {
             Box(
                 modifier = Modifier
                     .align(Alignment.CenterStart)
                     .padding(start = 6.dp)  // 6dp from left edge
             ) {
                 Text(
-                    text = "⚡".repeat(defender.actionsRemaining),
+                    text = "⚡".repeat(defender.actionsRemaining.value),
                     style = MaterialTheme.typography.labelSmall,
                     fontSize = 16.sp,
                     color = Color.Yellow,
@@ -75,7 +75,7 @@ fun TowerIcon(
         
         // Level indicator at bottom center - 10dp from bottom edge
         Text(
-            text = "L${defender.level}",
+            text = "L${defender.level.value}",
             style = MaterialTheme.typography.labelSmall,
             fontSize = 11.sp,
             color = Color.White,
@@ -88,7 +88,7 @@ fun TowerIcon(
         // Build time indicator at bottom center (only if not ready)
         if (!defender.isReady) {
             Text(
-                text = "⏱${defender.buildTimeRemaining}",
+                text = "⏱${defender.buildTimeRemaining.value}",
                 style = MaterialTheme.typography.labelSmall,
                 fontSize = 10.sp,
                 color = Color(0xFFFFA500),
@@ -384,7 +384,7 @@ fun EnemyIcon(
         
         // Health number at bottom center - 10dp from bottom edge
         Text(
-            text = "${attacker.currentHealth}",
+            text = "${attacker.currentHealth.value}",
             style = MaterialTheme.typography.labelSmall,
             fontSize = 13.sp,
             color = Color.White,
@@ -393,6 +393,36 @@ fun EnemyIcon(
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 10.dp)  // 10dp from bottom as requested
         )
+    }
+}
+
+/**
+ * Composable that draws an enemy type icon (for planned spawns)
+ */
+@Composable
+fun EnemyTypeIcon(
+    attackerType: AttackerType,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        // Draw enemy graphics
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            val centerX = size.width / 2
+            val centerY = size.height / 2
+            val iconSize = minOf(size.width, size.height)
+            
+            when (attackerType) {
+                AttackerType.GOBLIN -> drawGoblinSymbol(centerX, centerY, iconSize * 0.7f)
+                AttackerType.ORK -> drawOrkSymbol(centerX, centerY, iconSize * 0.7f)
+                AttackerType.OGRE -> drawOgreSymbol(centerX, centerY, iconSize * 0.75f)
+                AttackerType.SKELETON -> drawSkeletonSymbol(centerX, centerY, iconSize * 0.7f)
+                AttackerType.EVIL_WIZARD -> drawEvilWizardSymbol(centerX, centerY, iconSize * 0.7f)
+                AttackerType.WITCH -> drawWitchSymbol(centerX, centerY, iconSize * 0.7f)
+            }
+        }
     }
 }
 
