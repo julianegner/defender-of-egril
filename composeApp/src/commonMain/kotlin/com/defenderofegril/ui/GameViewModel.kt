@@ -86,7 +86,7 @@ class GameViewModel {
         println("DEBUG: Phase after: ${stateAfter?.phase?.value}")
         println("DEBUG: Attackers after: ${stateAfter?.attackers?.size}")
         stateAfter?.attackers?.forEach { attacker ->
-            println("DEBUG: Enemy ${attacker.id} - Type: ${attacker.type}, Position: (${attacker.position.x}, ${attacker.position.y})")
+            println("DEBUG: Enemy ${attacker.id} - Type: ${attacker.type}, Position: (${attacker.position.value.x}, ${attacker.position.value.y})")
         }
         
         println("DEBUG: startFirstPlayerTurn completed")
