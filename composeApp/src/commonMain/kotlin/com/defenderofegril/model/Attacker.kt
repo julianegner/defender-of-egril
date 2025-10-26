@@ -1,5 +1,8 @@
 package com.defenderofegril.model
 
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+
 enum class AttackerType(
     val displayName: String,
     val health: Int,
@@ -18,8 +21,8 @@ data class Attacker(
     val id: Int,
     val type: AttackerType,
     var position: Position,
-    var currentHealth: Int = type.health,
-    var isDefeated: Boolean = false
+    val currentHealth: MutableState<Int> = mutableStateOf(type.health),
+    val isDefeated: MutableState<Boolean> = mutableStateOf(false)
 ) {
     val maxHealth: Int get() = type.health
 }

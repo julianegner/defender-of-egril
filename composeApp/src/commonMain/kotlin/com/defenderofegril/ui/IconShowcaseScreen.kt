@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -58,8 +59,8 @@ fun IconShowcaseScreen(onBack: () -> Unit) {
                                 id = 1,
                                 type = type,
                                 position = Position(0, 0),
-                                level = 2,
-                                actionsRemaining = 1
+                                level = mutableStateOf(2),
+                                actionsRemaining = mutableStateOf(1)
                             )
                         )
                     }
@@ -95,8 +96,8 @@ fun IconShowcaseScreen(onBack: () -> Unit) {
                             id = 1,
                             type = DefenderType.BOW_TOWER,
                             position = Position(0, 0),
-                            level = 3,
-                            actionsRemaining = 1
+                            level = mutableStateOf(3),
+                            actionsRemaining = mutableStateOf(1)
                         )
                     )
                 }
@@ -116,9 +117,9 @@ fun IconShowcaseScreen(onBack: () -> Unit) {
                             id = 2,
                             type = DefenderType.WIZARD_TOWER,
                             position = Position(0, 0),
-                            level = 1,
-                            buildTimeRemaining = 2,
-                            actionsRemaining = 0
+                            level = mutableStateOf(1),
+                            buildTimeRemaining = mutableStateOf(2),
+                            actionsRemaining = mutableStateOf(0)
                         )
                     )
                 }
@@ -138,8 +139,8 @@ fun IconShowcaseScreen(onBack: () -> Unit) {
                             id = 3,
                             type = DefenderType.SPEAR_TOWER,
                             position = Position(0, 0),
-                            level = 1,
-                            actionsRemaining = 0
+                            level = mutableStateOf(1),
+                            actionsRemaining = mutableStateOf(0)
                         )
                     )
                 }
@@ -173,7 +174,7 @@ fun IconShowcaseScreen(onBack: () -> Unit) {
                                 id = 1,
                                 type = type,
                                 position = Position(0, 0),
-                                currentHealth = type.health / 2
+                                currentHealth = mutableStateOf(type.health / 2)
                             )
                         )
                     }
@@ -209,7 +210,7 @@ fun IconShowcaseScreen(onBack: () -> Unit) {
                             id = 1,
                             type = AttackerType.ORK,
                             position = Position(0, 0),
-                            currentHealth = 40
+                            currentHealth = mutableStateOf(40)
                         )
                     )
                 }
@@ -229,7 +230,7 @@ fun IconShowcaseScreen(onBack: () -> Unit) {
                             id = 2,
                             type = AttackerType.ORK,
                             position = Position(0, 0),
-                            currentHealth = 20
+                            currentHealth = mutableStateOf(20)
                         )
                     )
                 }
@@ -249,7 +250,7 @@ fun IconShowcaseScreen(onBack: () -> Unit) {
                             id = 3,
                             type = AttackerType.ORK,
                             position = Position(0, 0),
-                            currentHealth = 5
+                            currentHealth = mutableStateOf(5)
                         )
                     )
                 }
