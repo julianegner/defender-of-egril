@@ -125,6 +125,18 @@ For more complex maps, consider implementing A* pathfinding.
 
 ### Testing Strategies
 
+#### Cheat Codes
+
+For testing and debugging, the game includes cheat codes that can be accessed by clicking on the coins display during gameplay:
+
+- **moneybags**, **1000coins**, **cash**: Adds 1000 coins
+- **spawn <type> <level>**: Spawns an enemy of the specified type and level
+  - Types: goblin, ork, ogre, skeleton, wizard, witch
+  - Level: optional integer (default 1) that scales enemy health
+  - Examples: `spawn goblin 2`, `spawn ogre 5`
+- **jump <level>**: Jumps to the specified level (1-5)
+  - Example: `jump 3`
+
 #### Unit Tests
 
 Test game logic in isolation:
