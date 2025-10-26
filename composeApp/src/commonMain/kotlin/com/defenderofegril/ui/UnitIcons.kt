@@ -195,12 +195,12 @@ private fun DrawScope.drawBowSymbol(centerX: Float, centerY: Float, size: Float)
     val bowHeight = size * 0.8f
     val bowWidth = size * 0.5f
     
-    // Bow arc
+    // Bow arc (spanned bow with pronounced curve)
     val path = Path().apply {
         moveTo(centerX + bowWidth / 2, centerY - bowHeight / 2)
         cubicTo(
-            centerX + bowWidth * 0.3f, centerY - bowHeight / 4,
-            centerX + bowWidth * 0.3f, centerY + bowHeight / 4,
+            centerX - bowWidth * 0.1f, centerY - bowHeight / 4,
+            centerX - bowWidth * 0.1f, centerY + bowHeight / 4,
             centerX + bowWidth / 2, centerY + bowHeight / 2
         )
     }
