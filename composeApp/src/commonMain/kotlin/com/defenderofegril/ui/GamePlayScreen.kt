@@ -656,7 +656,7 @@ fun InitialBuildingControls(
         
         LazyVerticalGrid(
             columns = GridCells.Fixed(6),
-            modifier = Modifier.fillMaxWidth().height(85.dp),
+            modifier = Modifier.fillMaxWidth().height(90.dp),
             horizontalArrangement = Arrangement.spacedBy(4.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
@@ -721,7 +721,7 @@ fun PlayerTurnControls(
         // Defender placement buttons
         LazyVerticalGrid(
             columns = GridCells.Fixed(6),
-            modifier = Modifier.fillMaxWidth().height(75.dp),
+            modifier = Modifier.fillMaxWidth().height(90.dp),
             horizontalArrangement = Arrangement.spacedBy(4.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
@@ -752,6 +752,8 @@ fun PlayerTurnControls(
                 DefenderInfo(defender, gameState, onUpgradeDefender)
 
                 if (defender.isReady && defender.actionsRemaining.value > 0) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    
                     // For AOE/DOT towers with position selected
                     if ((defender.type.attackType == AttackType.AOE || defender.type.attackType == AttackType.DOT) && selectedTargetPosition != null) {
                         // If there's an enemy at the position, show enemy info
@@ -760,18 +762,58 @@ fun PlayerTurnControls(
                             if (target != null && defender.canAttack(target)) {
                                 Button(
                                     onClick = { onDefenderAttackPosition(defenderId, selectedTargetPosition) },
-                                    modifier = Modifier.fillMaxWidth()
+                                    modifier = Modifier.fillMaxWidth().height(56.dp),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = Color(0xFFD32F2F)  // Red color for attack
+                                    )
                                 ) {
-                                    Text("Attack ${target.type.displayName} (${target.currentHealth.value}/${target.maxHealth} HP) + Area")
+                                    Row(
+                                        horizontalArrangement = Arrangement.Center,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Text("⚔️", fontSize = 24.sp)
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Column {
+                                            Text(
+                                                "ATTACK",
+                                                fontSize = 16.sp,
+                                                fontWeight = FontWeight.Bold
+                                            )
+                                            Text(
+                                                "${target.type.displayName} (${target.currentHealth.value}/${target.maxHealth} HP) + Area",
+                                                fontSize = 11.sp
+                                            )
+                                        }
+                                    }
                                 }
                             }
                         } else {
                             // No enemy at position, show position coordinates
                             Button(
                                 onClick = { onDefenderAttackPosition(defenderId, selectedTargetPosition) },
-                                modifier = Modifier.fillMaxWidth()
+                                modifier = Modifier.fillMaxWidth().height(56.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color(0xFFD32F2F)  // Red color for attack
+                                )
                             ) {
-                                Text("Attack Area at (${selectedTargetPosition.x}, ${selectedTargetPosition.y})")
+                                Row(
+                                    horizontalArrangement = Arrangement.Center,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text("⚔️", fontSize = 24.sp)
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Column {
+                                        Text(
+                                            "ATTACK AREA",
+                                            fontSize = 16.sp,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                        Text(
+                                            "at (${selectedTargetPosition.x}, ${selectedTargetPosition.y})",
+                                            fontSize = 11.sp
+                                        )
+                                    }
+                                }
                             }
                         }
                     } else if (selectedTargetId != null) {
@@ -780,9 +822,29 @@ fun PlayerTurnControls(
                         if (target != null && defender.canAttack(target)) {
                             Button(
                                 onClick = { onDefenderAttack(defenderId, selectedTargetId) },
-                                modifier = Modifier.fillMaxWidth()
+                                modifier = Modifier.fillMaxWidth().height(56.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color(0xFFD32F2F)  // Red color for attack
+                                )
                             ) {
-                                Text("Attack ${target.type.displayName} (${target.currentHealth.value}/${target.maxHealth} HP)")
+                                Row(
+                                    horizontalArrangement = Arrangement.Center,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text("⚔️", fontSize = 24.sp)
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Column {
+                                        Text(
+                                            "ATTACK",
+                                            fontSize = 16.sp,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                        Text(
+                                            "${target.type.displayName} (${target.currentHealth.value}/${target.maxHealth} HP)",
+                                            fontSize = 11.sp
+                                        )
+                                    }
+                                }
                             }
                             /* TODO from branch
                         if (defender.isReady && defender.actionsRemaining.value > 0 && selectedTargetId != null) {
@@ -833,50 +895,151 @@ fun PlayerTurnControls(
                 ) {
                     Card(modifier = Modifier.fillMaxWidth()) {
                         Column(modifier = Modifier.padding(8.dp)) {
-                            Text("${defender.type.displayName} (Lvl ${defender.level.value})")
-                            if (!defender.isReady) {
-                                Text(
-                                    "Building: ${defender.buildTimeRemaining.value} turns",
-                                    style = MaterialTheme.typography.bodySmall
-                                )
-                            } else {
-                                Text(
-                                    "Actions: ${defender.actionsRemaining.value}/${defender.type.actionsPerTurn}",
-                                    style = MaterialTheme.typography.bodySmall
-                                )
-                                if (defender.type.minRange > 0) {
-                                    Text(
-                                        "Damage: ${defender.actualDamage}, Range: ${defender.type.minRange}-${defender.range}",
-                                        style = MaterialTheme.typography.bodySmall
-                                    )
-                                } else {
-                                    Text(
-                                        "Damage: ${defender.actualDamage}, Range: ${defender.range}",
-                                        style = MaterialTheme.typography.bodySmall
-                                    )
+                            // Tower icon and name
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                // Tower icon
+                                Box(
+                                    modifier = Modifier.size(48.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    TowerIcon(defender = defender, modifier = Modifier.size(44.dp))
                                 }
-
-                                if (gameState.canUpgradeDefender(defender)) {
-                                    // Calculate next level stats
-                                    val nextLevelDamage = defender.damage + 5
-                                    val nextActualDamage = when (defender.type.attackType) {
-                                        AttackType.DOT -> nextLevelDamage / 2
-                                        else -> nextLevelDamage
-                                    }
-                                    val nextRange = defender.range + (if (defender.level.value % 2 == 0) 1 else 0)
+                                
+                                Spacer(modifier = Modifier.width(8.dp))
+                                
+                                // Tower name and level
+                                Column {
                                     Text(
-                                        "After upgrade: Damage ${nextActualDamage}, Range ${nextRange}",
-                                        style = MaterialTheme.typography.bodySmall,
+                                        defender.type.displayName,
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Text(
+                                        "Level ${defender.level.value}",
+                                        style = MaterialTheme.typography.bodyMedium,
                                         color = Color(0xFF4CAF50)
                                     )
                                 }
+                            }
+                            
+                            Spacer(modifier = Modifier.height(8.dp))
+                            
+                            if (!defender.isReady) {
+                                Text(
+                                    "⏱ Building: ${defender.buildTimeRemaining.value} turns remaining",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = Color(0xFFFF9800)
+                                )
+                            } else {
+                                // Actions remaining
+                                Text(
+                                    "⚡ Actions: ${defender.actionsRemaining.value}/${defender.type.actionsPerTurn}",
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                                
+                                Spacer(modifier = Modifier.height(4.dp))
+                                
+                                // Calculate next level stats for comparison
+                                val nextLevelDamage = defender.damage + 5
+                                val nextActualDamage = when (defender.type.attackType) {
+                                    AttackType.DOT -> nextLevelDamage / 2
+                                    else -> nextLevelDamage
+                                }
+                                val nextRange = defender.range + (if (defender.level.value % 2 == 0) 1 else 0)
+                                
+                                // Current stats with upgrade preview
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(
+                                            "Current Stats:",
+                                            style = MaterialTheme.typography.labelMedium,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                        if (defender.type.minRange > 0) {
+                                            Text(
+                                                "💥 Damage: ${defender.actualDamage}",
+                                                style = MaterialTheme.typography.bodySmall
+                                            )
+                                            Text(
+                                                "🎯 Range: ${defender.type.minRange}-${defender.range}",
+                                                style = MaterialTheme.typography.bodySmall
+                                            )
+                                        } else {
+                                            Text(
+                                                "💥 Damage: ${defender.actualDamage}",
+                                                style = MaterialTheme.typography.bodySmall
+                                            )
+                                            Text(
+                                                "🎯 Range: ${defender.range}",
+                                                style = MaterialTheme.typography.bodySmall
+                                            )
+                                        }
+                                        Text(
+                                            "⚔️ Type: ${defender.type.attackType.name}",
+                                            style = MaterialTheme.typography.bodySmall
+                                        )
+                                    }
+                                    
+                                    // Show upgrade stats even if player can't afford
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(
+                                            "After Upgrade:",
+                                            style = MaterialTheme.typography.labelMedium,
+                                            fontWeight = FontWeight.Bold,
+                                            color = if (gameState.canUpgradeDefender(defender)) Color(0xFF4CAF50) else Color.Gray
+                                        )
+                                        if (defender.type.minRange > 0) {
+                                            Text(
+                                                "💥 Damage: ${nextActualDamage}",
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = if (gameState.canUpgradeDefender(defender)) Color(0xFF4CAF50) else Color.Gray
+                                            )
+                                            Text(
+                                                "🎯 Range: ${defender.type.minRange}-${nextRange}",
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = if (gameState.canUpgradeDefender(defender)) Color(0xFF4CAF50) else Color.Gray
+                                            )
+                                        } else {
+                                            Text(
+                                                "💥 Damage: ${nextActualDamage}",
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = if (gameState.canUpgradeDefender(defender)) Color(0xFF4CAF50) else Color.Gray
+                                            )
+                                            Text(
+                                                "🎯 Range: ${nextRange}",
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = if (gameState.canUpgradeDefender(defender)) Color(0xFF4CAF50) else Color.Gray
+                                            )
+                                        }
+                                    }
+                                }
+                                
+                                Spacer(modifier = Modifier.height(8.dp))
 
+                                // Upgrade button with larger coin price
                                 Button(
                                     onClick = { onUpgradeDefender(defender.id) },
                                     enabled = gameState.canUpgradeDefender(defender),
                                     modifier = Modifier.fillMaxWidth()
                                 ) {
-                                    Text("Upgrade (${defender.upgradeCost} coins)")
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.Center,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Text("Upgrade ", fontSize = 14.sp)
+                                        Text(
+                                            "💰${defender.upgradeCost}",
+                                            fontSize = 18.sp,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -940,26 +1103,69 @@ fun PlayerTurnControls(
                     colors = ButtonDefaults.buttonColors(
                         containerColor = if (isSelected) Color(0xFF1976D2) else MaterialTheme.colorScheme.primary
                     ),
-                    modifier = Modifier.fillMaxWidth().height(65.dp),
-                    contentPadding = PaddingValues(2.dp)
+                    modifier = Modifier.fillMaxWidth().height(80.dp),
+                    contentPadding = PaddingValues(4.dp)
                 ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(
-                            type.displayName.split(" ")[0],
-                            style = MaterialTheme.typography.labelSmall,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 9.sp
-                        )
-                        Text(
-                            "${type.baseCost}c",
-                            style = MaterialTheme.typography.labelSmall,
-                            fontSize = 8.sp
-                        )
-                        Text(
-                            "R:${if (type.minRange > 0) "${type.minRange}-" else ""}${type.baseRange}",
-                            style = MaterialTheme.typography.labelSmall,
-                            fontSize = 7.sp
-                        )
+                    Row(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Start
+                    ) {
+                        // Tower icon on the left
+                        Box(
+                            modifier = Modifier.size(36.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            // Create a dummy defender just for the icon
+                            val dummyDefender = Defender(
+                                id = -1,
+                                type = type,
+                                position = Position(0, 0),
+                                level = mutableStateOf(1)
+                            )
+                            TowerIcon(defender = dummyDefender, modifier = Modifier.size(32.dp))
+                        }
+                        
+                        Spacer(modifier = Modifier.width(4.dp))
+                        
+                        // Stats on the right
+                        Column(
+                            modifier = Modifier.fillMaxHeight(),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.Start
+                        ) {
+                            Text(
+                                type.displayName.replace(" Tower", ""),
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 10.sp,
+                                maxLines = 1
+                            )
+                            Text(
+                                "💰${type.baseCost}",
+                                style = MaterialTheme.typography.labelSmall,
+                                fontSize = 9.sp
+                            )
+                            Text(
+                                "R:${if (type.minRange > 0) "${type.minRange}-" else ""}${type.baseRange} A:${type.actionsPerTurn} D:${type.baseDamage}",
+                                style = MaterialTheme.typography.labelSmall,
+                                fontSize = 8.sp,
+                                maxLines = 1
+                            )
+                            // Show special ability
+                            val special = when (type.attackType) {
+                                AttackType.AOE -> "AOE"
+                                AttackType.DOT -> "DOT"
+                                AttackType.MELEE -> "Melee"
+                                AttackType.RANGED -> if (type.minRange > 0) "Long" else "Range"
+                            }
+                            Text(
+                                special,
+                                style = MaterialTheme.typography.labelSmall,
+                                fontSize = 7.sp,
+                                color = Color(0xFFFFEB3B)
+                            )
+                        }
                     }
                 }
             }
