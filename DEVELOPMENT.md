@@ -136,7 +136,7 @@ For testing and debugging, the game includes cheat codes:
   - Level: optional integer (default 1) that scales enemy health
   - Examples: `spawn goblin 2`, `spawn ogre 5`
 
-**World Map Cheat Codes** (accessed by clicking the 🎮 button on the world map):
+**World Map Cheat Codes** (accessed by clicking the "World Map - Meadows of Egril" title):
 - **unlock**, **unlockall**, **unlock all**: Unlocks all levels for testing
 
 #### Unit Tests
