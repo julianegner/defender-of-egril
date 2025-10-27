@@ -198,22 +198,27 @@ class GameViewModel {
             }
         }
         
-        // Handle "jump <level>" cheatcode
-        if (lowercaseCode.startsWith("jump ")) {
-            val parts = lowercaseCode.split(" ").filter { it.isNotBlank() }
-            if (parts.size >= 2) {
-                val levelId = parts[1].toIntOrNull() ?: return false
-                
-                // Check if level exists and is valid
-                val worldLevel = _worldLevels.value.find { it.level.id == levelId }
-                if (worldLevel != null) {
-                    // Start the level (this will work even if locked)
-                    startLevel(levelId)
-                    return true
-                }
+        return false
+    }
+    
+    fun applyWorldMapCheatCode(code: String): Boolean {
+        val lowercaseCode = code.lowercase().trim()
+        
+        // Handle "unlock" or "unlockall" cheatcode to unlock all levels
+        when (lowercaseCode) {
+            "unlock", "unlockall", "unlock all" -> {
+                unlockAllLevels()
+                return true
             }
         }
         
         return false
+    }
+    
+    private fun unlockAllLevels() {
+        val updatedLevels = _worldLevels.value.map { worldLevel ->
+            worldLevel.copy(status = if (worldLevel.status == LevelStatus.LOCKED) LevelStatus.UNLOCKED else worldLevel.status)
+        }
+        _worldLevels.value = updatedLevels
     }
 }
