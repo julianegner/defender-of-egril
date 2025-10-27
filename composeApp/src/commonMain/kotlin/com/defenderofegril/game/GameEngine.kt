@@ -891,7 +891,9 @@ class GameEngine(private val state: GameState) {
             it.type == FieldEffectType.ACID_DOT && it.position == position 
         }
         if (acidEffect != null) {
-            val acidDamage = acidEffect.damage * acidEffect.turnsRemaining
+            // Unit will take damage when stepping on acid (damage is per turn standing in it)
+            // For pathfinding, assume unit passes through quickly (1 turn of damage)
+            val acidDamage = acidEffect.damage
             
             // If acid would defeat the unit, add very high cost (but not impossible)
             if (acidDamage >= attackerHealth) {
