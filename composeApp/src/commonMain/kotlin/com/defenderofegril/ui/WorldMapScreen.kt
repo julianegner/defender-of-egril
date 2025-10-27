@@ -14,8 +14,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.defenderofegril.model.LevelStatus
 import com.defenderofegril.model.WorldLevel
+import com.defenderofegril.model.getEnemyTypeCounts
 
 @Composable
 fun WorldMapScreen(
@@ -152,37 +154,122 @@ fun LevelCard(
         LevelStatus.WON -> "✓ Completed"
     }
     
+    // Get enemy counts for this level
+    val enemyCounts = worldLevel.level.getEnemyTypeCounts()
+    val enemyList = enemyCounts.entries.toList()
+    
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(150.dp)
+            .height(220.dp)
             .clickable(enabled = worldLevel.status != LevelStatus.LOCKED, onClick = onClick),
         colors = CardDefaults.cardColors(containerColor = backgroundColor)
     ) {
         Column(
-            modifier = Modifier.fillMaxSize().padding(16.dp),
+            modifier = Modifier.fillMaxSize().padding(12.dp),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(
-                text = "Level ${worldLevel.level.id}",
-                style = MaterialTheme.typography.titleMedium,
-                color = Color.White
-            )
+            // Header row with level number and name
+            Column {
+                Text(
+                    text = "Level ${worldLevel.level.id}",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = Color.White,
+                    fontSize = 18.sp
+                )
+                
+                Text(
+                    text = worldLevel.level.name,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.White,
+                    textAlign = TextAlign.Start,
+                    modifier = Modifier.fillMaxWidth(),
+                    fontSize = 14.sp
+                )
+            }
             
-            Text(
-                text = worldLevel.level.name,
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color.White,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
-            )
+            // Enemy units display in two columns
+            if (enemyList.isNotEmpty()) {
+                val halfSize = (enemyList.size + 1) / 2
+                val leftColumn = enemyList.take(halfSize)
+                val rightColumn = enemyList.drop(halfSize)
+                
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    // Left column
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        leftColumn.forEach { (attackerType, count) ->
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Start
+                            ) {
+                                // Enemy icon - larger size
+                                Box(
+                                    modifier = Modifier.size(32.dp)
+                                ) {
+                                    EnemyTypeIcon(attackerType = attackerType)
+                                }
+                                
+                                Spacer(modifier = Modifier.width(6.dp))
+                                
+                                // Enemy name and count - larger text
+                                Text(
+                                    text = "${attackerType.displayName}: ${count}",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = Color.White,
+                                    fontSize = 13.sp
+                                )
+                            }
+                        }
+                    }
+                    
+                    // Right column (if there are items for it)
+                    if (rightColumn.isNotEmpty()) {
+                        Column(
+                            modifier = Modifier.weight(1f),
+                            verticalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            rightColumn.forEach { (attackerType, count) ->
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.Start
+                                ) {
+                                    // Enemy icon - larger size
+                                    Box(
+                                        modifier = Modifier.size(32.dp)
+                                    ) {
+                                        EnemyTypeIcon(attackerType = attackerType)
+                                    }
+                                    
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    
+                                    // Enemy name and count - larger text
+                                    Text(
+                                        text = "${attackerType.displayName}: ${count}",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = Color.White,
+                                        fontSize = 13.sp
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
             
+            // Status at the bottom
             Text(
                 text = statusText,
                 style = MaterialTheme.typography.bodySmall,
                 color = Color.White,
                 textAlign = TextAlign.End,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                fontSize = 13.sp
             )
         }
     }
