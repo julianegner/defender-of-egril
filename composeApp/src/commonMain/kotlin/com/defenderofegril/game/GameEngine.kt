@@ -675,9 +675,7 @@ class GameEngine(private val state: GameState) {
         
         // Get all positions with active fireball effects (fire burns away acid)
         val fireballPositions = state.fieldEffects
-            .filter { it.type == FieldEffectType.FIREBALL_AOE }
-            .map { it.position }
-            .toSet()
+            .mapNotNullTo(mutableSetOf()) { if (it.type == FieldEffectType.FIREBALL_AOE) it.position else null }
         
         for (pos in affectedPositions) {
             // Skip this position if there's an active fireball
