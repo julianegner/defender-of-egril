@@ -154,6 +154,21 @@ class GameViewModel {
             // Show spawned units briefly
             delay(400)
             
+            // Move newly spawned units away from spawn points
+            val newSpawnMovements = engine.calculateNewlySpawnedMovements()
+            for (stepMovements in newSpawnMovements) {
+                for ((attackerId, newPosition) in stepMovements) {
+                    engine.applyMovement(attackerId, newPosition)
+                }
+                // Delay between movement steps
+                delay(400)
+            }
+            
+            // Add a small delay after newly spawned units have moved
+            if (newSpawnMovements.isNotEmpty()) {
+                delay(300)
+            }
+            
             // Complete enemy turn: apply effects and return to player turn
             engine.completeEnemyTurn()
             
