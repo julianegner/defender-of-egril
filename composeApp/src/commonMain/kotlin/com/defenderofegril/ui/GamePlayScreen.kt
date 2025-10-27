@@ -87,6 +87,8 @@ fun GamePlayScreen(
     gameState: GameState,
     onPlaceDefender: (DefenderType, Position) -> Boolean,
     onUpgradeDefender: (Int) -> Boolean,
+    onUndoTower: (Int) -> Boolean,
+    onSellTower: (Int) -> Boolean,
     onStartFirstPlayerTurn: () -> Unit,
     onDefenderAttack: (Int, Int) -> Boolean,
     onDefenderAttackPosition: (Int, Position) -> Boolean,
@@ -98,6 +100,8 @@ fun GamePlayScreen(
         gameState = gameState,
         onPlaceDefender = onPlaceDefender,
         onUpgradeDefender = onUpgradeDefender,
+        onUndoTower = onUndoTower,
+        onSellTower = onSellTower,
         onStartFirstPlayerTurn = onStartFirstPlayerTurn,
         onDefenderAttack = onDefenderAttack,
         onDefenderAttackPosition = onDefenderAttackPosition,
@@ -112,6 +116,8 @@ private fun GamePlayScreenContent(
     gameState: GameState,
     onPlaceDefender: (DefenderType, Position) -> Boolean,
     onUpgradeDefender: (Int) -> Boolean,
+    onUndoTower: (Int) -> Boolean,
+    onSellTower: (Int) -> Boolean,
     onStartFirstPlayerTurn: () -> Unit,
     onDefenderAttack: (Int, Int) -> Boolean,
     onDefenderAttackPosition: (Int, Position) -> Boolean,
@@ -300,6 +306,8 @@ private fun GamePlayScreenContent(
                     selectedDefenderId = selectedDefenderId,
                     onSelectDefenderType = { selectedDefenderType = it },
                     onUpgradeDefender = { onUpgradeDefender(it) },
+                    onUndoTower = { onUndoTower(it) },
+                    onSellTower = { onSellTower(it) },
                     onStartFirstPlayerTurn = {
                         selectedDefenderType = null  // Clear defender type selection when starting battle
                         selectedDefenderId = null  // Clear defender selection when starting battle
@@ -317,6 +325,8 @@ private fun GamePlayScreenContent(
                     selectedTargetPosition = selectedTargetPosition,
                     onSelectDefenderType = { selectedDefenderType = it },
                     onUpgradeDefender = { onUpgradeDefender(it) },
+                    onUndoTower = { onUndoTower(it) },
+                    onSellTower = { onSellTower(it) },
                     onDefenderAttack = { defenderId, targetId ->
                         if (onDefenderAttack(defenderId, targetId)) {
                             selectedTargetId = null
@@ -634,6 +644,8 @@ fun InitialBuildingControls(
     selectedDefenderId: Int?,
     onSelectDefenderType: (DefenderType?) -> Unit,
     onUpgradeDefender: (Int) -> Unit,
+    onUndoTower: (Int) -> Unit,
+    onSellTower: (Int) -> Unit,
     onStartFirstPlayerTurn: () -> Unit
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
@@ -669,7 +681,7 @@ fun InitialBuildingControls(
         selectedDefenderId?.let { id ->
             val defender = gameState.defenders.find { it.id == id }
             if (defender != null) {
-                DefenderInfo(defender, gameState, onUpgradeDefender)
+                DefenderInfo(defender, gameState, onUpgradeDefender, onUndoTower, onSellTower)
             }
         }
         
@@ -694,6 +706,8 @@ fun PlayerTurnControls(
     selectedTargetPosition: Position?,
     onSelectDefenderType: (DefenderType?) -> Unit,
     onUpgradeDefender: (Int) -> Unit,
+    onUndoTower: (Int) -> Unit,
+    onSellTower: (Int) -> Unit,
     onDefenderAttack: (Int, Int) -> Unit,
     onDefenderAttackPosition: (Int, Position) -> Unit,
     onEndPlayerTurn: () -> Unit
@@ -737,7 +751,7 @@ fun PlayerTurnControls(
         selectedDefenderId?.let { defenderId ->
             val defender = gameState.defenders.find { it.id == defenderId }
             if (defender != null) {
-                DefenderInfo(defender, gameState, onUpgradeDefender,)
+                DefenderInfo(defender, gameState, onUpgradeDefender, onUndoTower, onSellTower)
 
                 // Spacer(modifier = Modifier.height(8.dp))
                 AttackButton(
@@ -910,7 +924,9 @@ fun TowerStats(minRange: Int, damage: Int, range: Int, actionsPerTurn: Int) {
             fun DefenderInfo(
                 defender: Defender,
                 gameState: GameState,
-                onUpgradeDefender: (Int) -> Unit
+                onUpgradeDefender: (Int) -> Unit,
+                onUndoTower: (Int) -> Unit,
+                onSellTower: (Int) -> Unit
             ) {
                 // Use key to force recomposition when defender stats change
                 key(
@@ -1022,17 +1038,12 @@ fun TowerStats(minRange: Int, damage: Int, range: Int, actionsPerTurn: Int) {
                                     }
 
                                     Column(modifier = Modifier.weight(1f)) {
-                                        // Text("placeholder for the sell/remove tower button")
-                                        Button(
-                                            modifier = Modifier
-                                                .offset(y = (-24).dp)
-                                                .width(200.dp)
-                                                .height(100.dp),
-                                            onClick = { /* TODO: Implement sell/remove tower */ },
-                                            enabled = false
-                                        ) {
-                                            Text("Sell Tower (Placeholder)")
-                                        }
+                                        UndoOrSellButton(
+                                            defender = defender,
+                                            gameState = gameState,
+                                            onUndoTower = onUndoTower,
+                                            onSellTower = onSellTower
+                                        )
                                     }
                                     Spacer(modifier = Modifier.weight(4f))
                                 }
@@ -1067,6 +1078,124 @@ fun UpgradeButton(
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold
             )
+        }
+    }
+}
+
+@Composable
+fun UndoOrSellButton(
+    defender: Defender,
+    gameState: GameState,
+    onUndoTower: (Int) -> Unit,
+    onSellTower: (Int) -> Unit,
+    modifier: Modifier = Modifier
+        .offset(y = (-24).dp)
+        .width(200.dp)
+        .height(100.dp)
+) {
+    var showSellConfirmation by remember { mutableStateOf(false) }
+    
+    // Determine if undo or sell is available
+    val canUndo = defender.placedOnTurn == gameState.turnNumber.value && !defender.hasBeenUsed.value
+    val canSell = defender.isReady && defender.actionsRemaining.value > 0
+    
+    if (canUndo) {
+        // Show Undo button (100% refund)
+        Button(
+            onClick = { onUndoTower(defender.id) },
+            enabled = true,
+            modifier = modifier,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color(0xFF4CAF50)  // Green for undo
+            ),
+            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text("Undo", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    "💰${defender.totalCost}",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+    } else if (canSell) {
+        // Show Sell button (75% refund)
+        val sellAmount = (defender.totalCost * 0.75).toInt()
+        Button(
+            onClick = { showSellConfirmation = true },
+            enabled = true,
+            modifier = modifier,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color(0xFFFF9800)  // Orange for sell
+            ),
+            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text("Sell", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    "💰$sellAmount",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+        
+        // Confirmation dialog
+        if (showSellConfirmation) {
+            AlertDialog(
+                onDismissRequest = { showSellConfirmation = false },
+                title = { Text("Sell Tower?") },
+                text = {
+                    Text("Do you really want to sell the ${defender.type.displayName} for $sellAmount coins?")
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            onSellTower(defender.id)
+                            showSellConfirmation = false
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFFFF9800)
+                        )
+                    ) {
+                        Text("Sell")
+                    }
+                },
+                dismissButton = {
+                    Button(
+                        onClick = { showSellConfirmation = false }
+                    ) {
+                        Text("Cancel")
+                    }
+                }
+            )
+        }
+    } else {
+        // Show disabled button when neither undo nor sell is available
+        Button(
+            onClick = { },
+            enabled = false,
+            modifier = modifier,
+            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text("Sell", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    "N/A",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
     }
 }
