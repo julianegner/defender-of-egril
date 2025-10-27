@@ -14,8 +14,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.defenderofegril.model.LevelStatus
 import com.defenderofegril.model.WorldLevel
+import com.defenderofegril.model.getEnemyTypeCounts
 
 @Composable
 fun WorldMapScreen(
@@ -152,31 +154,81 @@ fun LevelCard(
         LevelStatus.WON -> "✓ Completed"
     }
     
+    // Get enemy counts for this level
+    val enemyCounts = worldLevel.level.getEnemyTypeCounts()
+    
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(150.dp)
+            .height(200.dp)
             .clickable(enabled = worldLevel.status != LevelStatus.LOCKED, onClick = onClick),
         colors = CardDefaults.cardColors(containerColor = backgroundColor)
     ) {
         Column(
-            modifier = Modifier.fillMaxSize().padding(16.dp),
+            modifier = Modifier.fillMaxSize().padding(12.dp),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(
-                text = "Level ${worldLevel.level.id}",
-                style = MaterialTheme.typography.titleMedium,
-                color = Color.White
-            )
+            // Header row with level number and name
+            Column {
+                Text(
+                    text = "Level ${worldLevel.level.id}",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = Color.White
+                )
+                
+                Text(
+                    text = worldLevel.level.name,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.White,
+                    textAlign = TextAlign.Start,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
             
-            Text(
-                text = worldLevel.level.name,
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color.White,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
-            )
+            // Enemy units display
+            if (enemyCounts.isNotEmpty()) {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    enemyCounts.entries.take(3).forEach { (attackerType, count) ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Start
+                        ) {
+                            // Enemy icon
+                            Box(
+                                modifier = Modifier.size(24.dp)
+                            ) {
+                                EnemyTypeIcon(attackerType = attackerType)
+                            }
+                            
+                            Spacer(modifier = Modifier.width(6.dp))
+                            
+                            // Enemy name and count
+                            Text(
+                                text = "${attackerType.displayName}: ${count}",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color.White,
+                                fontSize = 11.sp
+                            )
+                        }
+                    }
+                    
+                    // Show "and more" if there are more than 3 enemy types
+                    if (enemyCounts.size > 3) {
+                        Text(
+                            text = "... and ${enemyCounts.size - 3} more type${if (enemyCounts.size - 3 > 1) "s" else ""}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.White.copy(alpha = 0.8f),
+                            fontSize = 10.sp
+                        )
+                    }
+                }
+            }
             
+            // Status at the bottom
             Text(
                 text = statusText,
                 style = MaterialTheme.typography.bodySmall,
