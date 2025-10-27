@@ -23,7 +23,8 @@ fun App() {
                 WorldMapScreen(
                     worldLevels = worldLevels,
                     onLevelSelected = { levelId -> viewModel.startLevel(levelId) },
-                    onBackToMenu = { viewModel.navigateToMainMenu() }
+                    onBackToMenu = { viewModel.navigateToMainMenu() },
+                    onCheatCode = { code -> viewModel.applyWorldMapCheatCode(code) }
                 )
             }
             

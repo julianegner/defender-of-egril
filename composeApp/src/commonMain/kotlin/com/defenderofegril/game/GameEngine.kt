@@ -627,4 +627,26 @@ class GameEngine(private val state: GameState) {
     fun addCoins(amount: Int) {
         state.coins.value += amount
     }
+    
+    fun spawnEnemy(type: AttackerType, level: Int = 1) {
+        // Find a free spawn position
+        val spawnPos = findFreeSpawnPosition() ?: return
+        
+        // Create the enemy with scaled health based on level
+        val scaledHealth = type.health * level
+        val attacker = Attacker(
+            id = state.nextAttackerId.value++,
+            type = type,
+            position = mutableStateOf(spawnPos),
+            currentHealth = mutableStateOf(scaledHealth)
+        )
+        
+        // Add to attackers list
+        state.attackers.add(attacker)
+        
+        // Move goblins immediately after spawning (if it's a goblin)
+        if (type == AttackerType.GOBLIN) {
+            moveGoblinsAfterSpawn()
+        }
+    }
 }
