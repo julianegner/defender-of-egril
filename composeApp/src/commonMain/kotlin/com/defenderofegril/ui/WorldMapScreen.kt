@@ -22,10 +22,11 @@ fun WorldMapScreen(
     worldLevels: List<WorldLevel>,
     onLevelSelected: (Int) -> Unit,
     onBackToMenu: () -> Unit,
-    onCheatCode: ((String) -> Boolean)? = null  // Add cheat code callback
+    onCheatCode: ((String) -> Boolean)? = null  // Callback for processing cheat codes, returns true if code was valid
 ) {
     var showCheatDialog by remember { mutableStateOf(false) }
     var cheatCodeInput by remember { mutableStateOf("") }
+    var errorMessage by remember { mutableStateOf("") }
     
     Column(
         modifier = Modifier.fillMaxSize().padding(16.dp),
@@ -83,6 +84,7 @@ fun WorldMapScreen(
             onDismissRequest = {
                 showCheatDialog = false
                 cheatCodeInput = ""
+                errorMessage = ""
             },
             title = { Text("Cheat Code") },
             text = {
@@ -91,9 +93,21 @@ fun WorldMapScreen(
                     Spacer(modifier = Modifier.height(8.dp))
                     TextField(
                         value = cheatCodeInput,
-                        onValueChange = { cheatCodeInput = it },
-                        placeholder = { Text("unlock") }
+                        onValueChange = { 
+                            cheatCodeInput = it
+                            errorMessage = ""  // Clear error when user types
+                        },
+                        placeholder = { Text("unlock") },
+                        isError = errorMessage.isNotEmpty()
                     )
+                    if (errorMessage.isNotEmpty()) {
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = errorMessage,
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
                 }
             },
             confirmButton = {
@@ -103,6 +117,9 @@ fun WorldMapScreen(
                         if (success) {
                             showCheatDialog = false
                             cheatCodeInput = ""
+                            errorMessage = ""
+                        } else {
+                            errorMessage = "Invalid cheat code"
                         }
                     }
                 ) {
@@ -114,6 +131,7 @@ fun WorldMapScreen(
                     onClick = {
                         showCheatDialog = false
                         cheatCodeInput = ""
+                        errorMessage = ""
                     }
                 ) {
                     Text("Cancel")
