@@ -124,13 +124,13 @@ class GameViewModel {
         
         // Process enemy turn with animations
         viewModelScope.launch(Dispatchers.Default) {
-            // Start enemy turn: spawn new units and change phase
+            // Start enemy turn: change phase to ENEMY_TURN
             engine.startEnemyTurn()
             
-            // Show "ENEMY TURN" indicator and let spawned units be visible
+            // Show "ENEMY TURN" indicator
             delay(800)
             
-            // Calculate all movement steps
+            // Calculate all movement steps for existing units
             val movementSteps = engine.calculateEnemyTurnMovements()
             
             // Apply each movement step with a delay between steps
@@ -143,10 +143,16 @@ class GameViewModel {
                 delay(400)
             }
             
-            // Add a small delay to see final positions before returning to player turn
+            // Add a small delay to see final positions before spawning new units
             if (movementSteps.isNotEmpty()) {
                 delay(300)
             }
+            
+            // Now spawn new units (spawn points should be clear after movements)
+            engine.spawnEnemyTurnAttackers()
+            
+            // Show spawned units briefly
+            delay(400)
             
             // Complete enemy turn: apply effects and return to player turn
             engine.completeEnemyTurn()

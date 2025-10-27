@@ -269,15 +269,21 @@ class GameEngine(private val state: GameState) {
     }
     
     /**
-     * Prepare for enemy turn: spawn new attackers and set phase.
+     * Prepare for enemy turn: set phase but don't spawn yet.
+     * Spawning happens after movements to ensure spawn points are clear.
      */
     fun startEnemyTurn() {
         if (state.phase.value != GamePhase.PLAYER_TURN) return
         
         state.turnNumber.value++
         state.phase.value = GamePhase.ENEMY_TURN
-        
-        // Spawn new attackers
+    }
+    
+    /**
+     * Spawn new attackers during enemy turn.
+     * Called after movements to ensure spawn points are clear.
+     */
+    fun spawnEnemyTurnAttackers() {
         spawnAttackers()
     }
     
