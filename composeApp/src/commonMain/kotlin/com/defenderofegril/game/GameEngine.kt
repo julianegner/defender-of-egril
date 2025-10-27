@@ -231,8 +231,16 @@ class GameEngine(private val state: GameState) {
                     movementsInThisStep.add(Pair(attacker.id, newPos))
                     positionsToOccupy.add(newPos)
                     currentPositions[attacker.id] = newPos
+                } else {
+                    // If optimal path is blocked, try to find an alternative position
+                    val alternativePos = findAlternativePosition(currentPos, target, attacker.id, currentPositions, positionsToOccupy)
+                    if (alternativePos != null) {
+                        movementsInThisStep.add(Pair(attacker.id, alternativePos))
+                        positionsToOccupy.add(alternativePos)
+                        currentPositions[attacker.id] = alternativePos
+                    }
+                    // If no alternative found, unit stays in place for this step
                 }
-                // If occupied, unit stays in place for this step
             }
             
             if (movementsInThisStep.isNotEmpty()) {
@@ -337,8 +345,17 @@ class GameEngine(private val state: GameState) {
                     movementsInThisStep.add(Pair(attacker.id, newPos))
                     positionsToOccupy.add(newPos)
                     currentPositions[attacker.id] = newPos
+                } else {
+                    // If optimal path is blocked, try to find an alternative position
+                    // This is crucial for clearing spawn points
+                    val alternativePos = findAlternativePosition(currentPos, target, attacker.id, currentPositions, positionsToOccupy)
+                    if (alternativePos != null) {
+                        movementsInThisStep.add(Pair(attacker.id, alternativePos))
+                        positionsToOccupy.add(alternativePos)
+                        currentPositions[attacker.id] = alternativePos
+                    }
+                    // If no alternative found, unit stays in place for this step
                 }
-                // If occupied, unit stays in place for this step
             }
             
             if (movementsInThisStep.isNotEmpty()) {
@@ -347,6 +364,65 @@ class GameEngine(private val state: GameState) {
         }
         
         return allMovementSteps
+    }
+    
+    /**
+     * Find an alternative position when the optimal path is blocked.
+     * Tries to find any adjacent position that moves the unit closer to (or at least not further from) the target.
+     * Prioritizes positions on the path.
+     */
+    private fun findAlternativePosition(
+        currentPos: Position,
+        target: Position,
+        attackerId: Int,
+        currentPositions: Map<Int, Position>,
+        positionsToOccupy: Set<Position>
+    ): Position? {
+        val currentDistance = currentPos.distanceTo(target)
+        
+        // Get all hex neighbors
+        val neighbors = currentPos.getHexNeighbors()
+        
+        // Filter valid positions (on the map, on path, not blocked by islands)
+        val validNeighbors = neighbors.filter { neighbor ->
+            neighbor.x >= 0 && neighbor.x < state.level.gridWidth &&
+            neighbor.y >= 0 && neighbor.y < state.level.gridHeight &&
+            state.level.isOnPath(neighbor) &&
+            !state.level.isBuildIsland(neighbor)
+        }
+        
+        // Find positions that are not occupied
+        val availableNeighbors = validNeighbors.filter { neighbor ->
+            val isOccupied = state.attackers.any {
+                it.id != attackerId && !it.isDefeated.value && it.position.value == neighbor
+            } || currentPositions.any { (id, pos) ->
+                id != attackerId && pos == neighbor
+            } || positionsToOccupy.contains(neighbor)
+            
+            !isOccupied
+        }
+        
+        if (availableNeighbors.isEmpty()) return null
+        
+        // Prioritize positions that move closer to the target
+        val movingCloser = availableNeighbors.filter { it.distanceTo(target) < currentDistance }
+        if (movingCloser.isNotEmpty()) {
+            return movingCloser.minByOrNull { it.distanceTo(target) }
+        }
+        
+        // If no closer positions, accept same distance (lateral movement to clear spawn point)
+        val sameDist = availableNeighbors.filter { it.distanceTo(target) == currentDistance }
+        if (sameDist.isNotEmpty()) {
+            return sameDist.first()
+        }
+        
+        // As a last resort for spawn points, even moving away is better than staying
+        // This ensures spawn points are always cleared
+        if (state.level.isSpawnPoint(currentPos)) {
+            return availableNeighbors.minByOrNull { it.distanceTo(target) }
+        }
+        
+        return null
     }
     
     /**
