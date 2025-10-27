@@ -25,7 +25,8 @@ class GameEngine(private val state: GameState) {
             id = state.nextDefenderId.value++,
             type = type,
             position = position,
-            buildTimeRemaining = mutableStateOf(buildTime)
+            buildTimeRemaining = mutableStateOf(buildTime),
+            placedOnTurn = state.turnNumber.value
         )
         state.defenders.add(defender)
         state.coins.value -= type.baseCost
@@ -44,6 +45,35 @@ class GameEngine(private val state: GameState) {
         
         state.coins.value -= defender.upgradeCost
         defender.level.value++
+        return true
+    }
+    
+    fun undoTower(defenderId: Int): Boolean {
+        val defender = state.defenders.find { it.id == defenderId } ?: return false
+        
+        // Can only undo if placed on current turn and not used
+        if (defender.placedOnTurn != state.turnNumber.value) return false
+        if (defender.hasBeenUsed.value) return false
+        
+        // Refund full cost
+        state.coins.value += defender.totalCost
+        state.defenders.remove(defender)
+        
+        return true
+    }
+    
+    fun sellTower(defenderId: Int): Boolean {
+        val defender = state.defenders.find { it.id == defenderId } ?: return false
+        
+        // Can only sell if tower is ready and has actions remaining
+        if (!defender.isReady) return false
+        if (defender.actionsRemaining.value <= 0) return false
+        
+        // Refund 75% of total cost
+        val refund = (defender.totalCost * 0.75).toInt()
+        state.coins.value += refund
+        state.defenders.remove(defender)
+        
         return true
     }
     
@@ -93,6 +123,9 @@ class GameEngine(private val state: GameState) {
         
         if (!defender.canAttack(target)) return false
         
+        // Mark defender as used
+        defender.hasBeenUsed.value = true
+        
         // Perform attack based on type
         when (defender.type.attackType) {
             AttackType.MELEE, AttackType.RANGED -> singleTargetAttack(defender, target)
@@ -115,6 +148,9 @@ class GameEngine(private val state: GameState) {
         val distance = defender.position.distanceTo(targetPosition)
         if (distance < defender.type.minRange || distance > defender.range) return false
         if (!defender.isReady || defender.actionsRemaining.value <= 0) return false
+        
+        // Mark defender as used
+        defender.hasBeenUsed.value = true
 
         // For AOE and DOT attacks, target position must be on the path
         if (defender.type.attackType == AttackType.AOE || defender.type.attackType == AttackType.DOT) {

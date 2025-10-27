@@ -35,12 +35,27 @@ data class Defender(
     val level: MutableState<Int> = mutableStateOf(1),
     var dotRoundsRemaining: MutableMap<Int, Int> = mutableMapOf(), // attackerId -> rounds
     val buildTimeRemaining: MutableState<Int> = mutableStateOf(0),  // 0 = ready to use
-    val actionsRemaining: MutableState<Int> = mutableStateOf(0)     // Actions left this turn
+    val actionsRemaining: MutableState<Int> = mutableStateOf(0),     // Actions left this turn
+    val placedOnTurn: Int = 0,  // Track when tower was placed
+    val hasBeenUsed: MutableState<Boolean> = mutableStateOf(false)  // Track if tower has attacked
 ) {
     val damage: Int get() = type.baseDamage + (level.value - 1) * 5
     val range: Int get() = type.baseRange + (level.value - 1) / 2
     val upgradeCost: Int get() = type.baseCost * level.value
     val isReady: Boolean get() = buildTimeRemaining.value == 0
+    
+    // Calculate total cost spent on this tower (base cost + all upgrade costs)
+    // Level 1: baseCost
+    // Level 2: baseCost + baseCost * 1 = baseCost * 2
+    // Level 3: baseCost + baseCost * 1 + baseCost * 2 = baseCost * 4
+    // Formula: baseCost * level * (level + 1) / 2
+    val totalCost: Int get() {
+        var total = type.baseCost
+        for (lvl in 2..level.value) {
+            total += type.baseCost * (lvl - 1)
+        }
+        return total
+    }
     
     // Get the actual damage dealt by this tower
     // For DOT towers, the actual damage is half the base damage
