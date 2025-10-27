@@ -32,26 +32,20 @@ fun WorldMapScreen(
         modifier = Modifier.fillMaxSize().padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "World Map - Meadows of Egril",
-                style = MaterialTheme.typography.titleLarge
-            )
-            
-            // Cheat code button
-            if (onCheatCode != null) {
-                Button(
-                    onClick = { showCheatDialog = true },
-                    modifier = Modifier.padding(start = 8.dp)
-                ) {
-                    Text("🎮")
-                }
-            }
-        }
+        // Title text - clickable for cheat code access (less obvious than a button)
+        Text(
+            text = "World Map - Meadows of Egril",
+            style = MaterialTheme.typography.titleLarge,
+            modifier = Modifier
+                .padding(bottom = 16.dp)
+                .then(
+                    if (onCheatCode != null) {
+                        Modifier.clickable { showCheatDialog = true }
+                    } else {
+                        Modifier
+                    }
+                )
+        )
         
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
