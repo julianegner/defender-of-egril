@@ -252,7 +252,7 @@ class GameEngine(private val state: GameState) {
                 if (stepIndex >= attacker.type.speed) continue
                 
                 val target = state.level.targetPosition
-                val path = findPath(currentPos, target)
+                val path = findPath(currentPos, target, attacker)
                 
                 if (path.size < 2) continue  // No movement possible
                 
@@ -364,7 +364,7 @@ class GameEngine(private val state: GameState) {
                 if (stepIndex >= attacker.type.speed) continue
                 
                 val target = state.level.targetPosition
-                val path = findPath(currentPos, target)
+                val path = findPath(currentPos, target, attacker)
                 
                 if (path.size < 2) continue  // No movement possible
                 
@@ -769,7 +769,7 @@ class GameEngine(private val state: GameState) {
             if (attacker.isDefeated.value) continue
             
             val target = state.level.targetPosition
-            val path = findPath(attacker.position.value, target)
+            val path = findPath(attacker.position.value, target, attacker)
             
             if (path.isEmpty()) continue
             
@@ -814,7 +814,7 @@ class GameEngine(private val state: GameState) {
             if (!state.level.isSpawnPoint(attacker.position.value)) continue
 
             val target = state.level.targetPosition
-            val path = findPath(attacker.position.value, target)
+            val path = findPath(attacker.position.value, target, attacker)
 
             if (path.isEmpty() || path.size < 2) continue
 
@@ -850,8 +850,8 @@ class GameEngine(private val state: GameState) {
         }
     }
     
-    // A* pathfinding algorithm
-    private fun findPath(start: Position, goal: Position): List<Position> {
+    // A* pathfinding algorithm with danger awareness
+    private fun findPath(start: Position, goal: Position, attacker: Attacker? = null): List<Position> {
         if (start == goal) return listOf(start)
         
         val openSet = mutableSetOf(start)
@@ -869,7 +869,8 @@ class GameEngine(private val state: GameState) {
             openSet.remove(current)
             
             for (neighbor in getNeighbors(current)) {
-                val tentativeGScore = (gScore[current] ?: Int.MAX_VALUE) + 1
+                val moveCost = calculateMoveCost(neighbor, attacker)
+                val tentativeGScore = (gScore[current] ?: Int.MAX_VALUE) + moveCost
                 
                 if (tentativeGScore < (gScore[neighbor] ?: Int.MAX_VALUE)) {
                     cameFrom[neighbor] = current
@@ -885,6 +886,79 @@ class GameEngine(private val state: GameState) {
         
         // No path found, return simple path towards goal
         return listOf(start, moveTowards(start, goal))
+    }
+    
+    /**
+     * Calculate the cost of moving to a position, considering dangers like acid and tower coverage.
+     * Returns higher costs for dangerous positions to encourage safer paths.
+     */
+    private fun calculateMoveCost(position: Position, attacker: Attacker?): Int {
+        var cost = 1  // Base movement cost
+        
+        // If no attacker info, use basic cost (for compatibility)
+        if (attacker == null) return cost
+        
+        val attackerHealth = attacker.currentHealth.value
+        
+        // Check for acid field effects at this position
+        val acidEffect = state.fieldEffects.find { 
+            it.type == FieldEffectType.ACID_DOT && it.position == position 
+        }
+        if (acidEffect != null) {
+            // Acid applies effect.damage each turn a unit stands in it
+            // For pathfinding cost calculation, we assume 1 turn of exposure:
+            // - Units move through cells one at a time during their movement phase
+            // - Even if blocked, they won't choose to stay in acid (will seek alternate paths)
+            // - This provides a reasonable heuristic for path cost without over-penalizing
+            // Note: The high cost (1000) for lethal acid ensures it's only chosen as last resort
+            val acidDamage = acidEffect.damage
+            
+            // If acid would defeat the unit, add very high cost (but not impossible)
+            if (acidDamage >= attackerHealth) {
+                cost += 1000  // Very high cost, avoid if possible
+            } else {
+                // Add cost proportional to the damage (encourage avoiding acid)
+                cost += acidDamage * 10
+            }
+        }
+        
+        // Check for tower coverage at this position
+        var maxTowerDamage = 0
+        var totalTowerThreat = 0
+        
+        for (defender in state.defenders) {
+            if (!defender.isReady) continue
+            
+            val distance = defender.position.distanceTo(position)
+            
+            // Check if position is in tower range
+            if (distance >= defender.type.minRange && distance <= defender.range) {
+                val potentialDamage = when (defender.type.attackType) {
+                    AttackType.DOT -> {
+                        // DOT damage over multiple turns
+                        val dotDamagePerTurn = defender.damage / DOT_DAMAGE_DIVISOR
+                        dotDamagePerTurn * defender.dotDuration
+                    }
+                    else -> defender.damage
+                }
+                
+                maxTowerDamage = maxOf(maxTowerDamage, potentialDamage)
+                totalTowerThreat += potentialDamage
+            }
+        }
+        
+        if (totalTowerThreat > 0) {
+            // If tower damage would defeat the unit, add high cost
+            if (maxTowerDamage >= attackerHealth) {
+                cost += 500  // High cost for lethal positions
+            } else {
+                // Add moderate cost for tower coverage (prefer paths outside tower range)
+                // Use total threat to account for multiple overlapping towers
+                cost += (totalTowerThreat / 10).coerceAtMost(100)
+            }
+        }
+        
+        return cost
     }
     
     private fun reconstructPath(cameFrom: Map<Position, Position>, current: Position): List<Position> {
