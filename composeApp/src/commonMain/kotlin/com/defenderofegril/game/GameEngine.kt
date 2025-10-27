@@ -187,53 +187,52 @@ class GameEngine(private val state: GameState) {
     /**
      * Calculate all movement steps for attackers during enemy turn without applying them.
      * Returns a list of movement steps, where each step contains all movements that should happen together.
+     * Uses a simulated approach to handle collisions between units moving simultaneously.
      */
     fun calculateEnemyTurnMovements(): List<List<Pair<Int, Position>>> {
         val allMovementSteps = mutableListOf<List<Pair<Int, Position>>>()
         
-        // Find the maximum number of steps any attacker will take
-        var maxSteps = 0
-        val attackerPaths = mutableMapOf<Int, List<Position>>()
+        // Get all non-defeated attackers
+        val movingAttackers = state.attackers.filter { !it.isDefeated.value }.toMutableList()
         
-        for (attacker in state.attackers) {
-            if (attacker.isDefeated.value) continue
-            
-            val target = state.level.targetPosition
-            val path = findPath(attacker.position.value, target)
-            
-            if (path.isEmpty()) continue
-            
-            // Calculate how many steps this attacker will take
-            var steps = 0
-            var pathIndex = 1
-            var remainingSpeed = attacker.type.speed
-            val validPath = mutableListOf(attacker.position.value)
-            
-            while (remainingSpeed > 0 && pathIndex < path.size) {
-                val newPos = path[pathIndex]
-                validPath.add(newPos)
-                steps++
-                pathIndex++
-                remainingSpeed--
-            }
-            
-            attackerPaths[attacker.id] = validPath
-            if (steps > maxSteps) maxSteps = steps
-        }
+        if (movingAttackers.isEmpty()) return allMovementSteps
         
-        // Create movement steps
-        for (stepIndex in 1..maxSteps) {
+        // Track current positions for collision detection during simulation
+        val currentPositions = mutableMapOf<Int, Position>()
+        movingAttackers.forEach { currentPositions[it.id] = it.position.value }
+        
+        // Find the maximum speed to know how many steps to simulate
+        val maxSpeed = movingAttackers.maxOfOrNull { it.type.speed } ?: 0
+        
+        // Simulate movement step by step
+        for (stepIndex in 0 until maxSpeed) {
             val movementsInThisStep = mutableListOf<Pair<Int, Position>>()
+            val positionsToOccupy = mutableSetOf<Position>()
             
-            for (attacker in state.attackers) {
-                if (attacker.isDefeated.value) continue
+            for (attacker in movingAttackers) {
+                val currentPos = currentPositions[attacker.id] ?: continue
                 
-                val path = attackerPaths[attacker.id] ?: continue
-                if (stepIndex < path.size) {
-                    // Check if position is occupied (simplified check)
-                    val newPos = path[stepIndex]
+                // Check if this attacker has more moves left
+                if (stepIndex >= attacker.type.speed) continue
+                
+                val target = state.level.targetPosition
+                val path = findPath(currentPos, target)
+                
+                if (path.size < 2) continue  // No movement possible
+                
+                val newPos = path[1]  // Next position in path
+                
+                // Check if this position is already occupied or will be occupied by another unit in this step
+                val isOccupied = currentPositions.any { (id, pos) ->
+                    id != attacker.id && pos == newPos
+                } || positionsToOccupy.contains(newPos)
+                
+                if (!isOccupied) {
                     movementsInThisStep.add(Pair(attacker.id, newPos))
+                    positionsToOccupy.add(newPos)
+                    currentPositions[attacker.id] = newPos
                 }
+                // If occupied, unit stays in place for this step
             }
             
             if (movementsInThisStep.isNotEmpty()) {
@@ -290,6 +289,7 @@ class GameEngine(private val state: GameState) {
     /**
      * Calculate movement steps for newly spawned units (those at spawn points).
      * This moves them away from spawn points to make room for future spawns.
+     * Uses a simulated approach to handle collisions between units moving simultaneously.
      */
     fun calculateNewlySpawnedMovements(): List<List<Pair<Int, Position>>> {
         val allMovementSteps = mutableListOf<List<Pair<Int, Position>>>()
@@ -297,48 +297,48 @@ class GameEngine(private val state: GameState) {
         // Find attackers at spawn points
         val newlySpawned = state.attackers.filter { attacker ->
             !attacker.isDefeated.value && state.level.isSpawnPoint(attacker.position.value)
-        }
+        }.toMutableList()
         
         if (newlySpawned.isEmpty()) return allMovementSteps
         
-        // Find the maximum number of steps any newly spawned attacker will take
-        var maxSteps = 0
-        val attackerPaths = mutableMapOf<Int, List<Position>>()
+        // Track current positions for collision detection during simulation
+        val currentPositions = mutableMapOf<Int, Position>()
+        newlySpawned.forEach { currentPositions[it.id] = it.position.value }
         
-        for (attacker in newlySpawned) {
-            val target = state.level.targetPosition
-            val path = findPath(attacker.position.value, target)
-            
-            if (path.isEmpty()) continue
-            
-            // Calculate how many steps this attacker will take
-            var steps = 0
-            var pathIndex = 1
-            var remainingSpeed = attacker.type.speed
-            val validPath = mutableListOf(attacker.position.value)
-            
-            while (remainingSpeed > 0 && pathIndex < path.size) {
-                val newPos = path[pathIndex]
-                validPath.add(newPos)
-                steps++
-                pathIndex++
-                remainingSpeed--
-            }
-            
-            attackerPaths[attacker.id] = validPath
-            if (steps > maxSteps) maxSteps = steps
-        }
+        // Find the maximum speed to know how many steps to simulate
+        val maxSpeed = newlySpawned.maxOfOrNull { it.type.speed } ?: 0
         
-        // Create movement steps
-        for (stepIndex in 1..maxSteps) {
+        // Simulate movement step by step
+        for (stepIndex in 0 until maxSpeed) {
             val movementsInThisStep = mutableListOf<Pair<Int, Position>>()
+            val positionsToOccupy = mutableSetOf<Position>()
             
             for (attacker in newlySpawned) {
-                val path = attackerPaths[attacker.id] ?: continue
-                if (stepIndex < path.size) {
-                    val newPos = path[stepIndex]
+                val currentPos = currentPositions[attacker.id] ?: continue
+                
+                // Check if this attacker has more moves left
+                if (stepIndex >= attacker.type.speed) continue
+                
+                val target = state.level.targetPosition
+                val path = findPath(currentPos, target)
+                
+                if (path.size < 2) continue  // No movement possible
+                
+                val newPos = path[1]  // Next position in path
+                
+                // Check if this position is already occupied or will be occupied by another unit in this step
+                val isOccupied = state.attackers.any {
+                    it.id != attacker.id && !it.isDefeated.value && it.position.value == newPos
+                } || currentPositions.any { (id, pos) ->
+                    id != attacker.id && pos == newPos
+                } || positionsToOccupy.contains(newPos)
+                
+                if (!isOccupied) {
                     movementsInThisStep.add(Pair(attacker.id, newPos))
+                    positionsToOccupy.add(newPos)
+                    currentPositions[attacker.id] = newPos
                 }
+                // If occupied, unit stays in place for this step
             }
             
             if (movementsInThisStep.isNotEmpty()) {
