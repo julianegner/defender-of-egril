@@ -896,6 +896,7 @@ class GameEngine(private val state: GameState) {
             // - Units move through cells one at a time during their movement phase
             // - Even if blocked, they won't choose to stay in acid (will seek alternate paths)
             // - This provides a reasonable heuristic for path cost without over-penalizing
+            // Note: The high cost (1000) for lethal acid ensures it's only chosen as last resort
             val acidDamage = acidEffect.damage
             
             // If acid would defeat the unit, add very high cost (but not impossible)
