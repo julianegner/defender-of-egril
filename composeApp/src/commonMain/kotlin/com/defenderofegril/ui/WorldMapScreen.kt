@@ -8,7 +8,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -21,17 +21,36 @@ import com.defenderofegril.model.WorldLevel
 fun WorldMapScreen(
     worldLevels: List<WorldLevel>,
     onLevelSelected: (Int) -> Unit,
-    onBackToMenu: () -> Unit
+    onBackToMenu: () -> Unit,
+    onCheatCode: ((String) -> Boolean)? = null  // Add cheat code callback
 ) {
+    var showCheatDialog by remember { mutableStateOf(false) }
+    var cheatCodeInput by remember { mutableStateOf("") }
+    
     Column(
         modifier = Modifier.fillMaxSize().padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(
-            text = "World Map - Meadows of Egril",
-            style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "World Map - Meadows of Egril",
+                style = MaterialTheme.typography.titleLarge
+            )
+            
+            // Cheat code button
+            if (onCheatCode != null) {
+                Button(
+                    onClick = { showCheatDialog = true },
+                    modifier = Modifier.padding(start = 8.dp)
+                ) {
+                    Text("🎮")
+                }
+            }
+        }
         
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
@@ -56,6 +75,51 @@ fun WorldMapScreen(
         Button(onClick = onBackToMenu) {
             Text("Back to Menu")
         }
+    }
+    
+    // Cheat code dialog
+    if (showCheatDialog && onCheatCode != null) {
+        AlertDialog(
+            onDismissRequest = {
+                showCheatDialog = false
+                cheatCodeInput = ""
+            },
+            title = { Text("Cheat Code") },
+            text = {
+                Column {
+                    Text("Enter cheat code:")
+                    Spacer(modifier = Modifier.height(8.dp))
+                    TextField(
+                        value = cheatCodeInput,
+                        onValueChange = { cheatCodeInput = it },
+                        placeholder = { Text("unlock") }
+                    )
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        val success = onCheatCode(cheatCodeInput)
+                        if (success) {
+                            showCheatDialog = false
+                            cheatCodeInput = ""
+                        }
+                    }
+                ) {
+                    Text("Apply")
+                }
+            },
+            dismissButton = {
+                Button(
+                    onClick = {
+                        showCheatDialog = false
+                        cheatCodeInput = ""
+                    }
+                ) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 }
 
