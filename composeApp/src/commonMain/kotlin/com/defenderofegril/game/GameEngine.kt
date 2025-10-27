@@ -83,7 +83,7 @@ class GameEngine(private val state: GameState) {
             }
         }
 
-        // Move goblins immediately after spawning
+        // Move goblins immediately after initial spawning (this is not during enemy turn)
         moveGoblinsAfterSpawn()
     }
     
@@ -184,6 +184,273 @@ class GameEngine(private val state: GameState) {
         resetDefenderActions()
     }
     
+    /**
+     * Calculate all movement steps for attackers during enemy turn without applying them.
+     * Returns a list of movement steps, where each step contains all movements that should happen together.
+     * Uses a simulated approach to handle collisions between units moving simultaneously.
+     */
+    fun calculateEnemyTurnMovements(): List<List<Pair<Int, Position>>> {
+        val allMovementSteps = mutableListOf<List<Pair<Int, Position>>>()
+        
+        // Get all non-defeated attackers
+        val movingAttackers = state.attackers.filter { !it.isDefeated.value }.toMutableList()
+        
+        if (movingAttackers.isEmpty()) return allMovementSteps
+        
+        // Track current positions for collision detection during simulation
+        val currentPositions = mutableMapOf<Int, Position>()
+        movingAttackers.forEach { currentPositions[it.id] = it.position.value }
+        
+        // Find the maximum speed to know how many steps to simulate
+        val maxSpeed = movingAttackers.maxOfOrNull { it.type.speed } ?: 0
+        
+        // Simulate movement step by step
+        for (stepIndex in 0 until maxSpeed) {
+            val movementsInThisStep = mutableListOf<Pair<Int, Position>>()
+            val positionsToOccupy = mutableSetOf<Position>()
+            
+            for (attacker in movingAttackers) {
+                val currentPos = currentPositions[attacker.id] ?: continue
+                
+                // Check if this attacker has more moves left
+                if (stepIndex >= attacker.type.speed) continue
+                
+                val target = state.level.targetPosition
+                val path = findPath(currentPos, target)
+                
+                if (path.size < 2) continue  // No movement possible
+                
+                val newPos = path[1]  // Next position in path
+                
+                // Check if this position is already occupied or will be occupied by another unit in this step
+                val isOccupied = currentPositions.any { (id, pos) ->
+                    id != attacker.id && pos == newPos
+                } || positionsToOccupy.contains(newPos)
+                
+                if (!isOccupied) {
+                    movementsInThisStep.add(Pair(attacker.id, newPos))
+                    positionsToOccupy.add(newPos)
+                    currentPositions[attacker.id] = newPos
+                } else {
+                    // If optimal path is blocked, try to find an alternative position
+                    val alternativePos = findAlternativePosition(currentPos, target, attacker.id, currentPositions, positionsToOccupy)
+                    if (alternativePos != null) {
+                        movementsInThisStep.add(Pair(attacker.id, alternativePos))
+                        positionsToOccupy.add(alternativePos)
+                        currentPositions[attacker.id] = alternativePos
+                    }
+                    // If no alternative found, unit stays in place for this step
+                }
+            }
+            
+            if (movementsInThisStep.isNotEmpty()) {
+                allMovementSteps.add(movementsInThisStep)
+            }
+        }
+        
+        return allMovementSteps
+    }
+    
+    /**
+     * Apply a single movement step for the given attacker.
+     */
+    fun applyMovement(attackerId: Int, newPosition: Position) {
+        val attacker = state.attackers.find { it.id == attackerId } ?: return
+        if (attacker.isDefeated.value) return
+        
+        // Check if position is occupied by another alive attacker
+        val isOccupied = state.attackers.any {
+            it.id != attacker.id && !it.isDefeated.value && it.position.value == newPosition
+        }
+        
+        // Only move if position is not occupied
+        if (!isOccupied) {
+            attacker.position.value = newPosition
+            
+            // Check if reached target
+            if (newPosition == state.level.targetPosition) {
+                state.healthPoints.value--
+                attacker.isDefeated.value = true
+            }
+        }
+    }
+    
+    /**
+     * Prepare for enemy turn: set phase but don't spawn yet.
+     * Spawning happens after movements to ensure spawn points are clear.
+     */
+    fun startEnemyTurn() {
+        if (state.phase.value != GamePhase.PLAYER_TURN) return
+        
+        state.turnNumber.value++
+        state.phase.value = GamePhase.ENEMY_TURN
+    }
+    
+    /**
+     * Spawn new attackers during enemy turn.
+     * Called after movements to ensure spawn points are clear.
+     */
+    fun spawnEnemyTurnAttackers() {
+        spawnAttackers()
+    }
+    
+    /**
+     * Calculate movement steps for newly spawned units (those at spawn points).
+     * This moves them away from spawn points to make room for future spawns.
+     * Uses a simulated approach to handle collisions between units moving simultaneously.
+     */
+    fun calculateNewlySpawnedMovements(): List<List<Pair<Int, Position>>> {
+        val allMovementSteps = mutableListOf<List<Pair<Int, Position>>>()
+        
+        // Find attackers at spawn points
+        val newlySpawned = state.attackers.filter { attacker ->
+            !attacker.isDefeated.value && state.level.isSpawnPoint(attacker.position.value)
+        }.toMutableList()
+        
+        if (newlySpawned.isEmpty()) return allMovementSteps
+        
+        // Track current positions for collision detection during simulation
+        val currentPositions = mutableMapOf<Int, Position>()
+        newlySpawned.forEach { currentPositions[it.id] = it.position.value }
+        
+        // Find the maximum speed to know how many steps to simulate
+        val maxSpeed = newlySpawned.maxOfOrNull { it.type.speed } ?: 0
+        
+        // Simulate movement step by step
+        for (stepIndex in 0 until maxSpeed) {
+            val movementsInThisStep = mutableListOf<Pair<Int, Position>>()
+            val positionsToOccupy = mutableSetOf<Position>()
+            
+            for (attacker in newlySpawned) {
+                val currentPos = currentPositions[attacker.id] ?: continue
+                
+                // Check if this attacker has more moves left
+                if (stepIndex >= attacker.type.speed) continue
+                
+                val target = state.level.targetPosition
+                val path = findPath(currentPos, target)
+                
+                if (path.size < 2) continue  // No movement possible
+                
+                val newPos = path[1]  // Next position in path
+                
+                // Check if this position is already occupied or will be occupied by another unit in this step
+                val isOccupied = state.attackers.any {
+                    it.id != attacker.id && !it.isDefeated.value && it.position.value == newPos
+                } || currentPositions.any { (id, pos) ->
+                    id != attacker.id && pos == newPos
+                } || positionsToOccupy.contains(newPos)
+                
+                if (!isOccupied) {
+                    movementsInThisStep.add(Pair(attacker.id, newPos))
+                    positionsToOccupy.add(newPos)
+                    currentPositions[attacker.id] = newPos
+                } else {
+                    // If optimal path is blocked, try to find an alternative position
+                    // This is crucial for clearing spawn points
+                    val alternativePos = findAlternativePosition(currentPos, target, attacker.id, currentPositions, positionsToOccupy)
+                    if (alternativePos != null) {
+                        movementsInThisStep.add(Pair(attacker.id, alternativePos))
+                        positionsToOccupy.add(alternativePos)
+                        currentPositions[attacker.id] = alternativePos
+                    }
+                    // If no alternative found, unit stays in place for this step
+                }
+            }
+            
+            if (movementsInThisStep.isNotEmpty()) {
+                allMovementSteps.add(movementsInThisStep)
+            }
+        }
+        
+        return allMovementSteps
+    }
+    
+    /**
+     * Find an alternative position when the optimal path is blocked.
+     * Tries to find any adjacent position that moves the unit closer to (or at least not further from) the target.
+     * Prioritizes positions on the path.
+     */
+    private fun findAlternativePosition(
+        currentPos: Position,
+        target: Position,
+        attackerId: Int,
+        currentPositions: Map<Int, Position>,
+        positionsToOccupy: Set<Position>
+    ): Position? {
+        val currentDistance = currentPos.distanceTo(target)
+        
+        // Get all hex neighbors
+        val neighbors = currentPos.getHexNeighbors()
+        
+        // Filter valid positions (on the map, on path, not blocked by islands)
+        val validNeighbors = neighbors.filter { neighbor ->
+            neighbor.x >= 0 && neighbor.x < state.level.gridWidth &&
+            neighbor.y >= 0 && neighbor.y < state.level.gridHeight &&
+            state.level.isOnPath(neighbor) &&
+            !state.level.isBuildIsland(neighbor)
+        }
+        
+        // Find positions that are not occupied
+        val availableNeighbors = validNeighbors.filter { neighbor ->
+            val isOccupied = state.attackers.any {
+                it.id != attackerId && !it.isDefeated.value && it.position.value == neighbor
+            } || currentPositions.any { (id, pos) ->
+                id != attackerId && pos == neighbor
+            } || positionsToOccupy.contains(neighbor)
+            
+            !isOccupied
+        }
+        
+        if (availableNeighbors.isEmpty()) return null
+        
+        // Prioritize positions that move closer to the target
+        val movingCloser = availableNeighbors.filter { it.distanceTo(target) < currentDistance }
+        if (movingCloser.isNotEmpty()) {
+            return movingCloser.minByOrNull { it.distanceTo(target) }
+        }
+        
+        // If no closer positions, accept same distance (lateral movement to clear spawn point)
+        val sameDist = availableNeighbors.filter { it.distanceTo(target) == currentDistance }
+        if (sameDist.isNotEmpty()) {
+            return sameDist.first()
+        }
+        
+        // As a last resort for spawn points, even moving away is better than staying
+        // This ensures spawn points are always cleared
+        if (state.level.isSpawnPoint(currentPos)) {
+            return availableNeighbors.minByOrNull { it.distanceTo(target) }
+        }
+        
+        return null
+    }
+    
+    /**
+     * Complete enemy turn: apply effects and start player turn.
+     */
+    fun completeEnemyTurn() {
+        if (state.phase.value != GamePhase.ENEMY_TURN) return
+        
+        // Apply damage over time effects
+        applyDotEffects()
+        
+        // Update field effects
+        updateFieldEffects()
+
+        // Remove defeated attackers and give rewards
+        processDefeatedAttackers()
+        
+        // Check if we should load next wave
+        if (state.attackersToSpawn.isEmpty() && state.attackers.isEmpty()) {
+            loadNextWave()
+        }
+        
+        // Advance building timers and start next player turn
+        advanceBuildTimers()
+        state.phase.value = GamePhase.PLAYER_TURN
+        resetDefenderActions()
+    }
+    
     private fun resetDefenderActions() {
         state.defenders.forEach { it.resetActions() }
     }
@@ -243,8 +510,8 @@ class GameEngine(private val state: GameState) {
 
             state.spawnCounter.value = 0
 
-            // Move goblins immediately after spawning
-            moveGoblinsAfterSpawn()
+            // NOTE: Goblin movement after spawning will be handled by the animation system
+            // instead of calling moveGoblinsAfterSpawn() here
         }
     }
     
