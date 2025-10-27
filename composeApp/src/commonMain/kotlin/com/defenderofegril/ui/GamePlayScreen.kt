@@ -1191,7 +1191,7 @@ fun UndoOrSellButton(
                 Text("Sell", fontSize = 18.sp, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    "N/A",
+                    "not enough Actions",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold
                 )
