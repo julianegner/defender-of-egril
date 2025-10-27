@@ -250,12 +250,12 @@ private fun GamePlayScreenContent(
                                     distance <= selectedDefender.range) {
                                     selectedTargetPosition = position
                                     // Also set targetId if there's an enemy at this position
-                                    val enemyAtPosition = gameState.attackers.find { it.position == position && !it.isDefeated.value }
+                                    val enemyAtPosition = gameState.attackers.find { it.position.value == position && !it.isDefeated.value }
                                     selectedTargetId = enemyAtPosition?.id
                                 }
                             } else {
                                 // For single-target attacks, only allow targeting enemies
-                                val attacker = gameState.attackers.find { it.position == position && !it.isDefeated.value }
+                                val attacker = gameState.attackers.find { it.position.value == position && !it.isDefeated.value }
                                 if (attacker != null) {
                                     selectedTargetId = attacker.id
                                     selectedTargetPosition = null
