@@ -173,7 +173,7 @@ fun IconShowcaseScreen(onBack: () -> Unit) {
                             attacker = Attacker(
                                 id = 1,
                                 type = type,
-                                position = Position(0, 0),
+                                position = mutableStateOf(Position(0, 0)),
                                 currentHealth = mutableStateOf(type.health / 2)
                             )
                         )
@@ -209,7 +209,7 @@ fun IconShowcaseScreen(onBack: () -> Unit) {
                         attacker = Attacker(
                             id = 1,
                             type = AttackerType.ORK,
-                            position = Position(0, 0),
+                            position = mutableStateOf(Position(0, 0)),
                             currentHealth = mutableStateOf(40)
                         )
                     )
@@ -229,7 +229,7 @@ fun IconShowcaseScreen(onBack: () -> Unit) {
                         attacker = Attacker(
                             id = 2,
                             type = AttackerType.ORK,
-                            position = Position(0, 0),
+                            position = mutableStateOf(Position(0, 0)),
                             currentHealth = mutableStateOf(20)
                         )
                     )
@@ -249,7 +249,7 @@ fun IconShowcaseScreen(onBack: () -> Unit) {
                         attacker = Attacker(
                             id = 3,
                             type = AttackerType.ORK,
-                            position = Position(0, 0),
+                            position = mutableStateOf(Position(0, 0)),
                             currentHealth = mutableStateOf(5)
                         )
                     )

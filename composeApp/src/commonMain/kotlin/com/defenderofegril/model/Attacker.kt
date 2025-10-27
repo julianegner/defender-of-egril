@@ -20,7 +20,7 @@ enum class AttackerType(
 data class Attacker(
     val id: Int,
     val type: AttackerType,
-    var position: Position,
+    val position: MutableState<Position>,
     val currentHealth: MutableState<Int> = mutableStateOf(type.health),
     val isDefeated: MutableState<Boolean> = mutableStateOf(false)
 ) {
