@@ -120,16 +120,57 @@ class GameViewModel {
 
     fun endPlayerTurn() {
         val state = _gameState.value ?: return
+        val engine = gameEngine ?: return
         
-        // Automatically process enemy turn after a delay
+        // Process enemy turn with animations
         viewModelScope.launch(Dispatchers.Default) {
-            // Now process the actual enemy turn logic (this will increment turn counter and set phase to ENEMY_TURN)
-            gameEngine?.endPlayerTurn()
-
-            delay(500) // Give time to see "ENEMY TURN" indicator
-
-            // Add another small delay so user can see the enemy movements
-            delay(1000)
+            // Start enemy turn: change phase to ENEMY_TURN
+            engine.startEnemyTurn()
+            
+            // Show "ENEMY TURN" indicator
+            delay(800)
+            
+            // Calculate all movement steps for existing units
+            val movementSteps = engine.calculateEnemyTurnMovements()
+            
+            // Apply each movement step with a delay between steps
+            for (stepMovements in movementSteps) {
+                // Apply all movements in this step simultaneously
+                for ((attackerId, newPosition) in stepMovements) {
+                    engine.applyMovement(attackerId, newPosition)
+                }
+                // Delay between movement steps so user can see the animation
+                delay(400)
+            }
+            
+            // Add a small delay to see final positions before spawning new units
+            if (movementSteps.isNotEmpty()) {
+                delay(300)
+            }
+            
+            // Now spawn new units (spawn points should be clear after movements)
+            engine.spawnEnemyTurnAttackers()
+            
+            // Show spawned units briefly
+            delay(400)
+            
+            // Move newly spawned units away from spawn points
+            val newSpawnMovements = engine.calculateNewlySpawnedMovements()
+            for (stepMovements in newSpawnMovements) {
+                for ((attackerId, newPosition) in stepMovements) {
+                    engine.applyMovement(attackerId, newPosition)
+                }
+                // Delay between movement steps
+                delay(400)
+            }
+            
+            // Add a small delay after newly spawned units have moved
+            if (newSpawnMovements.isNotEmpty()) {
+                delay(300)
+            }
+            
+            // Complete enemy turn: apply effects and return to player turn
+            engine.completeEnemyTurn()
             
             // Check win/loss conditions
             val updatedState = _gameState.value ?: return@launch
