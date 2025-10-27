@@ -34,6 +34,8 @@ fun App() {
                         gameState = state,
                         onPlaceDefender = { type, pos -> viewModel.placeDefender(type, pos) },
                         onUpgradeDefender = { id -> viewModel.upgradeDefender(id) },
+                        onUndoTower = { id -> viewModel.undoTower(id) },
+                        onSellTower = { id -> viewModel.sellTower(id) },
                         onStartFirstPlayerTurn = { viewModel.startFirstPlayerTurn() },
                         onDefenderAttack = { defenderId, targetId -> viewModel.defenderAttack(defenderId, targetId) },
                         onDefenderAttackPosition = { defenderId, targetPos -> viewModel.defenderAttackPosition(defenderId, targetPos) },

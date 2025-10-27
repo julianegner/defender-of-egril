@@ -74,6 +74,14 @@ class GameViewModel {
         return gameEngine?.upgradeDefender(defenderId) ?: false
     }
     
+    fun undoTower(defenderId: Int): Boolean {
+        return gameEngine?.undoTower(defenderId) ?: false
+    }
+    
+    fun sellTower(defenderId: Int): Boolean {
+        return gameEngine?.sellTower(defenderId) ?: false
+    }
+    
     fun startFirstPlayerTurn() {
         println("DEBUG: startFirstPlayerTurn called")
         val stateBefore = _gameState.value
