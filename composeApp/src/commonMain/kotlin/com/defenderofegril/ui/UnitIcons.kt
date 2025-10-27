@@ -239,12 +239,12 @@ private fun DrawScope.drawBowSymbol(centerX: Float, centerY: Float, size: Float)
     val bowHeight = size * 0.8f
     val bowWidth = size * 0.5f
     
-    // Bow arc
+    // Bow arc (spanned bow with pronounced curve)
     val path = Path().apply {
         moveTo(centerX + bowWidth / 2, centerY - bowHeight / 2)
         cubicTo(
-            centerX + bowWidth * 0.3f, centerY - bowHeight / 4,
-            centerX + bowWidth * 0.3f, centerY + bowHeight / 4,
+            centerX - bowWidth * 0.1f, centerY - bowHeight / 4,
+            centerX - bowWidth * 0.1f, centerY + bowHeight / 4,
             centerX + bowWidth / 2, centerY + bowHeight / 2
         )
     }
@@ -258,18 +258,18 @@ private fun DrawScope.drawBowSymbol(centerX: Float, centerY: Float, size: Float)
         strokeWidth = 1.5f
     )
     
-    // Arrow
+    // Arrow (extends to bow string on the right)
     drawLine(
         color = Color(0xFFC0C0C0),
         start = Offset(centerX - bowWidth / 3, centerY),
-        end = Offset(centerX + bowWidth / 3, centerY),
+        end = Offset(centerX + bowWidth / 2, centerY),
         strokeWidth = 2f
     )
-    // Arrowhead
+    // Arrowhead (pointing left)
     val arrowPath = Path().apply {
-        moveTo(centerX + bowWidth / 3, centerY)
-        lineTo(centerX + bowWidth / 4, centerY - size * 0.1f)
-        lineTo(centerX + bowWidth / 4, centerY + size * 0.1f)
+        moveTo(centerX - bowWidth / 3, centerY)
+        lineTo(centerX - bowWidth / 4, centerY - size * 0.1f)
+        lineTo(centerX - bowWidth / 4, centerY + size * 0.1f)
         close()
     }
     drawPath(arrowPath, Color(0xFFC0C0C0))
