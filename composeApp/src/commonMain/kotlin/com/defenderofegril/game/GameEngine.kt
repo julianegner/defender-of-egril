@@ -891,8 +891,11 @@ class GameEngine(private val state: GameState) {
             it.type == FieldEffectType.ACID_DOT && it.position == position 
         }
         if (acidEffect != null) {
-            // Unit will take damage when stepping on acid (damage is per turn standing in it)
-            // For pathfinding, assume unit passes through quickly (1 turn of damage)
+            // Acid applies effect.damage each turn a unit stands in it
+            // For pathfinding cost calculation, we assume 1 turn of exposure:
+            // - Units move through cells one at a time during their movement phase
+            // - Even if blocked, they won't choose to stay in acid (will seek alternate paths)
+            // - This provides a reasonable heuristic for path cost without over-penalizing
             val acidDamage = acidEffect.damage
             
             // If acid would defeat the unit, add very high cost (but not impossible)
