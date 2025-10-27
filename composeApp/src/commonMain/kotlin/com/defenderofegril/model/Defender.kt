@@ -45,10 +45,9 @@ data class Defender(
     val isReady: Boolean get() = buildTimeRemaining.value == 0
     
     // Calculate total cost spent on this tower (base cost + all upgrade costs)
-    // Level 1: baseCost
-    // Level 2: baseCost + baseCost * 1 = baseCost * 2
-    // Level 3: baseCost + baseCost * 1 + baseCost * 2 = baseCost * 4
-    // Formula: baseCost * level * (level + 1) / 2
+    // Level 1: baseCost (cost 50 to build)
+    // Level 2: baseCost + upgradeCost for level 2 = baseCost + baseCost * 1 = baseCost * 2 (cost 50 + 50)
+    // Level 3: above + upgradeCost for level 3 = baseCost * 2 + baseCost * 2 = baseCost * 4 (cost 50 + 50 + 100)
     val totalCost: Int get() {
         var total = type.baseCost
         for (lvl in 2..level.value) {
@@ -83,6 +82,7 @@ data class Defender(
     fun resetActions() {
         if (isReady) {
             actionsRemaining.value = type.actionsPerTurn
+            hasBeenUsed.value = false  // Reset usage tracking at start of new turn
         }
     }
 }
