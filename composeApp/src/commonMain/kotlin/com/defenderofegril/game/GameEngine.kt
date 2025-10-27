@@ -288,6 +288,68 @@ class GameEngine(private val state: GameState) {
     }
     
     /**
+     * Calculate movement steps for newly spawned units (those at spawn points).
+     * This moves them away from spawn points to make room for future spawns.
+     */
+    fun calculateNewlySpawnedMovements(): List<List<Pair<Int, Position>>> {
+        val allMovementSteps = mutableListOf<List<Pair<Int, Position>>>()
+        
+        // Find attackers at spawn points
+        val newlySpawned = state.attackers.filter { attacker ->
+            !attacker.isDefeated.value && state.level.isSpawnPoint(attacker.position.value)
+        }
+        
+        if (newlySpawned.isEmpty()) return allMovementSteps
+        
+        // Find the maximum number of steps any newly spawned attacker will take
+        var maxSteps = 0
+        val attackerPaths = mutableMapOf<Int, List<Position>>()
+        
+        for (attacker in newlySpawned) {
+            val target = state.level.targetPosition
+            val path = findPath(attacker.position.value, target)
+            
+            if (path.isEmpty()) continue
+            
+            // Calculate how many steps this attacker will take
+            var steps = 0
+            var pathIndex = 1
+            var remainingSpeed = attacker.type.speed
+            val validPath = mutableListOf(attacker.position.value)
+            
+            while (remainingSpeed > 0 && pathIndex < path.size) {
+                val newPos = path[pathIndex]
+                validPath.add(newPos)
+                steps++
+                pathIndex++
+                remainingSpeed--
+            }
+            
+            attackerPaths[attacker.id] = validPath
+            if (steps > maxSteps) maxSteps = steps
+        }
+        
+        // Create movement steps
+        for (stepIndex in 1..maxSteps) {
+            val movementsInThisStep = mutableListOf<Pair<Int, Position>>()
+            
+            for (attacker in newlySpawned) {
+                val path = attackerPaths[attacker.id] ?: continue
+                if (stepIndex < path.size) {
+                    val newPos = path[stepIndex]
+                    movementsInThisStep.add(Pair(attacker.id, newPos))
+                }
+            }
+            
+            if (movementsInThisStep.isNotEmpty()) {
+                allMovementSteps.add(movementsInThisStep)
+            }
+        }
+        
+        return allMovementSteps
+    }
+    
+    /**
      * Complete enemy turn: apply effects and start player turn.
      */
     fun completeEnemyTurn() {
