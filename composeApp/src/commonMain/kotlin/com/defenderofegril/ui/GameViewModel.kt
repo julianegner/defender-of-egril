@@ -216,9 +216,11 @@ class GameViewModel {
     }
     
     private fun unlockAllLevels() {
-        val updatedLevels = _worldLevels.value.map { worldLevel ->
-            worldLevel.copy(status = if (worldLevel.status == LevelStatus.LOCKED) LevelStatus.UNLOCKED else worldLevel.status)
+        _worldLevels.value = _worldLevels.value.map { worldLevel ->
+            when (worldLevel.status) {
+                LevelStatus.LOCKED -> worldLevel.copy(status = LevelStatus.UNLOCKED)
+                else -> worldLevel
+            }
         }
-        _worldLevels.value = updatedLevels
     }
 }
