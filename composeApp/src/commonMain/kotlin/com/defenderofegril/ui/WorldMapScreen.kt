@@ -156,11 +156,12 @@ fun LevelCard(
     
     // Get enemy counts for this level
     val enemyCounts = worldLevel.level.getEnemyTypeCounts()
+    val enemyList = enemyCounts.entries.toList()
     
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(200.dp)
+            .height(220.dp)
             .clickable(enabled = worldLevel.status != LevelStatus.LOCKED, onClick = onClick),
         colors = CardDefaults.cardColors(containerColor = backgroundColor)
     ) {
@@ -173,57 +174,90 @@ fun LevelCard(
                 Text(
                     text = "Level ${worldLevel.level.id}",
                     style = MaterialTheme.typography.titleMedium,
-                    color = Color.White
+                    color = Color.White,
+                    fontSize = 18.sp
                 )
                 
                 Text(
                     text = worldLevel.level.name,
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.bodyMedium,
                     color = Color.White,
                     textAlign = TextAlign.Start,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    fontSize = 14.sp
                 )
             }
             
-            // Enemy units display
-            if (enemyCounts.isNotEmpty()) {
-                Column(
+            // Enemy units display in two columns
+            if (enemyList.isNotEmpty()) {
+                val halfSize = (enemyList.size + 1) / 2
+                val leftColumn = enemyList.take(halfSize)
+                val rightColumn = enemyList.drop(halfSize)
+                
+                Row(
                     modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    enemyCounts.entries.take(3).forEach { (attackerType, count) ->
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Start
-                        ) {
-                            // Enemy icon
-                            Box(
-                                modifier = Modifier.size(24.dp)
+                    // Left column
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        leftColumn.forEach { (attackerType, count) ->
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Start
                             ) {
-                                EnemyTypeIcon(attackerType = attackerType)
+                                // Enemy icon - larger size
+                                Box(
+                                    modifier = Modifier.size(32.dp)
+                                ) {
+                                    EnemyTypeIcon(attackerType = attackerType)
+                                }
+                                
+                                Spacer(modifier = Modifier.width(6.dp))
+                                
+                                // Enemy name and count - larger text
+                                Text(
+                                    text = "${attackerType.displayName}: ${count}",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = Color.White,
+                                    fontSize = 13.sp
+                                )
                             }
-                            
-                            Spacer(modifier = Modifier.width(6.dp))
-                            
-                            // Enemy name and count
-                            Text(
-                                text = "${attackerType.displayName}: ${count}",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = Color.White,
-                                fontSize = 11.sp
-                            )
                         }
                     }
                     
-                    // Show "and more" if there are more than 3 enemy types
-                    if (enemyCounts.size > 3) {
-                        Text(
-                            text = "... and ${enemyCounts.size - 3} more type${if (enemyCounts.size - 3 > 1) "s" else ""}",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = Color.White.copy(alpha = 0.8f),
-                            fontSize = 10.sp
-                        )
+                    // Right column (if there are items for it)
+                    if (rightColumn.isNotEmpty()) {
+                        Column(
+                            modifier = Modifier.weight(1f),
+                            verticalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            rightColumn.forEach { (attackerType, count) ->
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.Start
+                                ) {
+                                    // Enemy icon - larger size
+                                    Box(
+                                        modifier = Modifier.size(32.dp)
+                                    ) {
+                                        EnemyTypeIcon(attackerType = attackerType)
+                                    }
+                                    
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    
+                                    // Enemy name and count - larger text
+                                    Text(
+                                        text = "${attackerType.displayName}: ${count}",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = Color.White,
+                                        fontSize = 13.sp
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -234,7 +268,8 @@ fun LevelCard(
                 style = MaterialTheme.typography.bodySmall,
                 color = Color.White,
                 textAlign = TextAlign.End,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                fontSize = 13.sp
             )
         }
     }
