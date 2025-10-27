@@ -619,6 +619,11 @@ class GameEngine(private val state: GameState) {
             it.type == FieldEffectType.FIREBALL_AOE && it.defenderId == defender.id
         }
 
+        // Remove acid effects from affected positions (fire burns away the acid)
+        state.fieldEffects.removeAll {
+            it.type == FieldEffectType.ACID_DOT && it.position in affectedPositions
+        }
+
         // Add new fireball effects (visual only, last for 1 turn to show affected area)
         for (pos in affectedPositions) {
             state.fieldEffects.add(
@@ -667,7 +672,16 @@ class GameEngine(private val state: GameState) {
 
         // Create field effects for acid DOT on all affected positions
         // Don't remove existing acid effects - they should persist until they expire
+        
+        // Get all positions with active fireball effects (fire burns away acid)
+        val fireballPositions = state.fieldEffects
+            .filter { it.type == FieldEffectType.FIREBALL_AOE }
+            .mapTo(mutableSetOf()) { it.position }
+        
         for (pos in affectedPositions) {
+            // Skip this position if there's an active fireball
+            if (pos in fireballPositions) continue
+            
             // Find if there's an enemy at this position
             val enemyAtPos = targets.find { it.position.value == pos }
 
