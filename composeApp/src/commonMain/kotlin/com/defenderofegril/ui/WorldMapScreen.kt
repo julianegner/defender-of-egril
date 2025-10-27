@@ -8,7 +8,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -21,16 +21,30 @@ import com.defenderofegril.model.WorldLevel
 fun WorldMapScreen(
     worldLevels: List<WorldLevel>,
     onLevelSelected: (Int) -> Unit,
-    onBackToMenu: () -> Unit
+    onBackToMenu: () -> Unit,
+    onCheatCode: ((String) -> Boolean)? = null  // Callback for processing cheat codes, returns true if code was valid
 ) {
+    var showCheatDialog by remember { mutableStateOf(false) }
+    var cheatCodeInput by remember { mutableStateOf("") }
+    var errorMessage by remember { mutableStateOf("") }
+    
     Column(
         modifier = Modifier.fillMaxSize().padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        // Title text - clickable for cheat code access (less obvious than a button)
         Text(
             text = "World Map - Meadows of Egril",
             style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier.padding(bottom = 16.dp)
+            modifier = Modifier
+                .padding(bottom = 16.dp)
+                .then(
+                    if (onCheatCode != null) {
+                        Modifier.clickable { showCheatDialog = true }
+                    } else {
+                        Modifier
+                    }
+                )
         )
         
         LazyVerticalGrid(
@@ -56,6 +70,68 @@ fun WorldMapScreen(
         Button(onClick = onBackToMenu) {
             Text("Back to Menu")
         }
+    }
+    
+    // Cheat code dialog
+    if (showCheatDialog && onCheatCode != null) {
+        AlertDialog(
+            onDismissRequest = {
+                showCheatDialog = false
+                cheatCodeInput = ""
+                errorMessage = ""
+            },
+            title = { Text("Cheat Code") },
+            text = {
+                Column {
+                    Text("Enter cheat code:")
+                    Spacer(modifier = Modifier.height(8.dp))
+                    TextField(
+                        value = cheatCodeInput,
+                        onValueChange = { 
+                            cheatCodeInput = it
+                            errorMessage = ""  // Clear error when user types
+                        },
+                        placeholder = { Text("unlock") },
+                        isError = errorMessage.isNotEmpty()
+                    )
+                    if (errorMessage.isNotEmpty()) {
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = errorMessage,
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        val success = onCheatCode(cheatCodeInput)
+                        if (success) {
+                            showCheatDialog = false
+                            cheatCodeInput = ""
+                            errorMessage = ""
+                        } else {
+                            errorMessage = "Invalid cheat code"
+                        }
+                    }
+                ) {
+                    Text("Apply")
+                }
+            },
+            dismissButton = {
+                Button(
+                    onClick = {
+                        showCheatDialog = false
+                        cheatCodeInput = ""
+                        errorMessage = ""
+                    }
+                ) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 }
 
