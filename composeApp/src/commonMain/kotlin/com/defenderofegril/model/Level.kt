@@ -192,7 +192,7 @@ data class WorldLevel(
 
 /**
  * Get the count of each enemy type in a level.
- * Returns a map of AttackerType to count, sorted by the order enemies appear in the level.
+ * Returns a map of AttackerType to count.
  */
 fun Level.getEnemyTypeCounts(): Map<AttackerType, Int> {
     val enemyCounts = mutableMapOf<AttackerType, Int>()
