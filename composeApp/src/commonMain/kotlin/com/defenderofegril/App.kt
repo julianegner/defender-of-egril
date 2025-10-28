@@ -41,7 +41,9 @@ fun App() {
                         onDefenderAttackPosition = { defenderId, targetPos -> viewModel.defenderAttackPosition(defenderId, targetPos) },
                         onEndPlayerTurn = { viewModel.endPlayerTurn() },
                         onBackToMap = { viewModel.navigateToWorldMap() },
-                        onCheatCode = { code -> viewModel.applyCheatCode(code) }
+                        onCheatCode = { code -> viewModel.applyCheatCode(code) },
+                        onMineDig = { mineId -> viewModel.performMineDig(mineId) },
+                        onMineBuildTrap = { mineId, trapPos -> viewModel.performMineBuildTrap(mineId, trapPos) }
                     )
                 }
             }

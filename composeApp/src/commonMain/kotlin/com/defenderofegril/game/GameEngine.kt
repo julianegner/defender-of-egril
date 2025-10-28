@@ -150,6 +150,7 @@ class GameEngine(private val state: GameState) {
             AttackType.MELEE, AttackType.RANGED -> singleTargetAttack(defender, target)
             AttackType.AREA -> areaAttack(defender, target.position.value)
             AttackType.LASTING -> lastingAttack(defender, target.position.value)
+            AttackType.NONE -> return false  // Mines and special structures can't attack
         }
 
         defender.actionsRemaining.value--
@@ -193,6 +194,7 @@ class GameEngine(private val state: GameState) {
             }
             AttackType.AREA -> areaAttack(defender, targetPosition)
             AttackType.LASTING -> lastingAttack(defender, targetPosition)
+            AttackType.NONE -> return false  // Mines and special structures can't attack
         }
         
         defender.actionsRemaining.value--

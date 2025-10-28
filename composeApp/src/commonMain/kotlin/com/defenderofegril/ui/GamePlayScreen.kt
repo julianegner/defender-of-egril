@@ -94,7 +94,9 @@ fun GamePlayScreen(
     onDefenderAttackPosition: (Int, Position) -> Boolean,
     onEndPlayerTurn: () -> Unit,
     onBackToMap: () -> Unit,
-    onCheatCode: ((String) -> Boolean)? = null  // Add cheat code callback
+    onCheatCode: ((String) -> Boolean)? = null,  // Add cheat code callback
+    onMineDig: ((Int) -> DigOutcome?)? = null,  // Add mine dig callback
+    onMineBuildTrap: ((Int, Position) -> Boolean)? = null  // Add mine build trap callback
 ) {
     GamePlayScreenContent(
         gameState = gameState,
@@ -107,7 +109,9 @@ fun GamePlayScreen(
         onDefenderAttackPosition = onDefenderAttackPosition,
         onEndPlayerTurn = onEndPlayerTurn,
         onBackToMap = onBackToMap,
-        onCheatCode = onCheatCode
+        onCheatCode = onCheatCode,
+        onMineDig = onMineDig,
+        onMineBuildTrap = onMineBuildTrap
     )
 }
 
@@ -123,7 +127,9 @@ private fun GamePlayScreenContent(
     onDefenderAttackPosition: (Int, Position) -> Boolean,
     onEndPlayerTurn: () -> Unit,
     onBackToMap: () -> Unit,
-    onCheatCode: ((String) -> Boolean)? = null
+    onCheatCode: ((String) -> Boolean)? = null,
+    onMineDig: ((Int) -> DigOutcome?)? = null,
+    onMineBuildTrap: ((Int, Position) -> Boolean)? = null
 ) {
     var selectedDefenderType by remember { mutableStateOf<DefenderType?>(null) }
     var selectedDefenderId by remember { mutableStateOf<Int?>(null) }
@@ -131,7 +137,37 @@ private fun GamePlayScreenContent(
     var selectedTargetPosition by remember { mutableStateOf<Position?>(null) }
     var showCheatDialog by remember { mutableStateOf(false) }
     var cheatCodeInput by remember { mutableStateOf("") }
+    var showMineActionDialog by remember { mutableStateOf(false) }
+    var selectedMineAction by remember { mutableStateOf<MineAction?>(null) }
+    var digOutcomeMessage by remember { mutableStateOf<String?>(null) }
+    var showDigOutcomeDialog by remember { mutableStateOf(false) }
     var showOverlay by remember { mutableStateOf(false) }  // MutableState for overlay visibility
+    
+    // Mine action handler
+    val handleMineAction: (Int, MineAction) -> Unit = { mineId, action ->
+        when (action) {
+            MineAction.DIG -> {
+                val outcome = onMineDig?.invoke(mineId)
+                if (outcome != null) {
+                    val message = when (outcome) {
+                        DigOutcome.NOTHING -> "You found nothing..."
+                        DigOutcome.BRASS -> "You found brass! +${outcome.coins} coins"
+                        DigOutcome.SILVER -> "You found silver! +${outcome.coins} coins"
+                        DigOutcome.GOLD -> "You found gold! +${outcome.coins} coins"
+                        DigOutcome.GEMS -> "You found gems! +${outcome.coins} coins"
+                        DigOutcome.DIAMOND -> "You found a diamond! +${outcome.coins} coins"
+                        DigOutcome.DRAGON -> "A DRAGON AWAKENS! The mine is destroyed!"
+                    }
+                    digOutcomeMessage = message
+                    showDigOutcomeDialog = true
+                }
+            }
+            MineAction.BUILD_TRAP -> {
+                selectedMineAction = action
+                showMineActionDialog = true
+            }
+        }
+    }
     
     Column(
         modifier = Modifier.fillMaxSize().padding(16.dp),
@@ -246,6 +282,19 @@ private fun GamePlayScreenContent(
                     if (selectedDefenderId != null) {
                         val selectedDefender = gameState.defenders.find { it.id == selectedDefenderId }
                         if (selectedDefender != null) {
+                            // Handle trap building for mines
+                            if (selectedDefender.type == DefenderType.DWARVEN_MINE && selectedMineAction == MineAction.BUILD_TRAP) {
+                                // Check if position is on the path and in range
+                                val distance = selectedDefender.position.distanceTo(position)
+                                if (gameState.level.isOnPath(position) && distance <= selectedDefender.range) {
+                                    if (onMineBuildTrap?.invoke(selectedDefender.id, position) == true) {
+                                        selectedMineAction = null
+                                        showMineActionDialog = false
+                                    }
+                                }
+                                return@GameGrid
+                            }
+                            
                             // For AOE/DOT towers, allow targeting path tiles
                             if (selectedDefender.type.attackType == AttackType.AREA ||
                                 selectedDefender.type.attackType == AttackType.LASTING) {
@@ -312,7 +361,8 @@ private fun GamePlayScreenContent(
                         selectedDefenderType = null  // Clear defender type selection when starting battle
                         selectedDefenderId = null  // Clear defender selection when starting battle
                         onStartFirstPlayerTurn()
-                    }
+                    },
+                    onMineAction = handleMineAction
                 )
             }
             GamePhase.PLAYER_TURN -> {
@@ -339,12 +389,29 @@ private fun GamePlayScreenContent(
                             selectedTargetPosition = null
                         }
                     },
-                    onEndPlayerTurn = onEndPlayerTurn
+                    onEndPlayerTurn = onEndPlayerTurn,
+                    onMineAction = handleMineAction
                 )
             }
             GamePhase.ENEMY_TURN -> {
                 EnemyTurnInfo()
             }
+        }
+        
+        // Dig outcome dialog
+        if (showDigOutcomeDialog) {
+            AlertDialog(
+                onDismissRequest = { showDigOutcomeDialog = false },
+                title = { Text("Mining Result") },
+                text = {
+                    Text(digOutcomeMessage ?: "", style = MaterialTheme.typography.bodyLarge)
+                },
+                confirmButton = {
+                    Button(onClick = { showDigOutcomeDialog = false }) {
+                        Text("OK")
+                    }
+                }
+            )
         }
         
         // Cheat code dialog
@@ -646,7 +713,8 @@ fun InitialBuildingControls(
     onUpgradeDefender: (Int) -> Unit,
     onUndoTower: (Int) -> Unit,
     onSellTower: (Int) -> Unit,
-    onStartFirstPlayerTurn: () -> Unit
+    onStartFirstPlayerTurn: () -> Unit,
+    onMineAction: ((Int, MineAction) -> Unit)? = null
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Text("Initial Building Phase - Place towers (no build time)", 
@@ -681,7 +749,7 @@ fun InitialBuildingControls(
         selectedDefenderId?.let { id ->
             val defender = gameState.defenders.find { it.id == id }
             if (defender != null) {
-                DefenderInfo(defender, gameState, onUpgradeDefender, onUndoTower, onSellTower)
+                DefenderInfo(defender, gameState, onUpgradeDefender, onUndoTower, onSellTower, onMineAction = onMineAction)
             }
         }
         
@@ -710,7 +778,8 @@ fun PlayerTurnControls(
     onSellTower: (Int) -> Unit,
     onDefenderAttack: (Int, Int) -> Unit,
     onDefenderAttackPosition: (Int, Position) -> Unit,
-    onEndPlayerTurn: () -> Unit
+    onEndPlayerTurn: () -> Unit,
+    onMineAction: ((Int, MineAction) -> Unit)? = null
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
@@ -751,7 +820,7 @@ fun PlayerTurnControls(
         selectedDefenderId?.let { defenderId ->
             val defender = gameState.defenders.find { it.id == defenderId }
             if (defender != null) {
-                DefenderInfo(defender, gameState, onUpgradeDefender, onUndoTower, onSellTower)
+                DefenderInfo(defender, gameState, onUpgradeDefender, onUndoTower, onSellTower, onMineAction = onMineAction)
 
                 // Spacer(modifier = Modifier.height(8.dp))
                 AttackButton(
@@ -926,7 +995,8 @@ fun TowerStats(minRange: Int, damage: Int, range: Int, actionsPerTurn: Int) {
                 gameState: GameState,
                 onUpgradeDefender: (Int) -> Unit,
                 onUndoTower: (Int) -> Unit,
-                onSellTower: (Int) -> Unit
+                onSellTower: (Int) -> Unit,
+                onMineAction: ((Int, MineAction) -> Unit)? = null
             ) {
                 // Use key to force recomposition when defender stats change
                 key(
@@ -989,75 +1059,152 @@ fun TowerStats(minRange: Int, damage: Int, range: Int, actionsPerTurn: Int) {
                             Spacer(modifier = Modifier.height(4.dp))
 
                             if (defender.isReady) {
-                                // Calculate next level stats for comparison
-                                val nextLevelDamage = defender.damage + 5
-                                val nextActualDamage = when (defender.type.attackType) {
-                                    AttackType.LASTING -> nextLevelDamage / 2
-                                    else -> nextLevelDamage
-                                }
-                                val nextLevel = defender.level.value + 1
-                                val nextRangeCalculated = defender.type.baseRange + (nextLevel - 1) / 2
-                                val nextRange = if (defender.type == DefenderType.SPIKE_TOWER && nextLevel >= 5) {
-                                    minOf(nextRangeCalculated, 2)
-                                } else {
-                                    nextRangeCalculated
-                                }
-                                val nextActions = if (defender.type == DefenderType.SPIKE_TOWER) {
-                                    val bonusActions = nextLevel / 5
-                                    minOf(defender.type.actionsPerTurn + bonusActions, 3)
-                                } else {
-                                    defender.type.actionsPerTurn
-                                }
-
-                                // Stats and upgrade button in columns
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                ) {
-                                    // Current stats column
-                                    Column(modifier = Modifier.weight(1f)) {
+                                // Handle dwarven mine differently
+                                if (defender.type == DefenderType.DWARVEN_MINE) {
+                                    // Mine-specific UI
+                                    Column(modifier = Modifier.fillMaxWidth()) {
                                         Text(
-                                            "Current:",
-                                            style = MaterialTheme.typography.labelSmall,
-                                            fontWeight = FontWeight.Bold
-                                        )
-                                        TowerStats(
-                                            defender.type.minRange,
-                                            defender.actualDamage,
-                                            defender.range,
-                                            defender.actionsPerTurnCalculated
-                                        )
-                                    }
-
-                                    // After upgrade stats column
-                                    Column(modifier = Modifier.weight(1f)) {
-                                        Text(
-                                            "Upgrade:",
-                                            style = MaterialTheme.typography.labelSmall,
+                                            "Coins Generated: ${defender.coinsGenerated.value}",
+                                            style = MaterialTheme.typography.bodyMedium,
                                             fontWeight = FontWeight.Bold,
-                                            color = if (gameState.canUpgradeDefender(defender)) Color(0xFF4CAF50) else Color.Gray
+                                            color = Color(0xFFFFD700)
                                         )
-                                        TowerStats(
-                                            defender.type.minRange,
-                                            nextActualDamage,
-                                            nextRange,
-                                            nextActions
+                                        
+                                        Spacer(modifier = Modifier.height(8.dp))
+                                        
+                                        Text(
+                                            "Reach: ${defender.range}  |  Trap Damage: ${defender.trapDamage}",
+                                            style = MaterialTheme.typography.bodySmall
                                         )
+                                        
+                                        Spacer(modifier = Modifier.height(8.dp))
+                                        
+                                        // Mine action buttons
+                                        if (defender.actionsRemaining.value > 0) {
+                                            Row(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                            ) {
+                                                Button(
+                                                    onClick = { onMineAction?.invoke(defender.id, MineAction.DIG) },
+                                                    modifier = Modifier.weight(1f)
+                                                ) {
+                                                    Text("⛏️ Dig")
+                                                }
+                                                Button(
+                                                    onClick = { onMineAction?.invoke(defender.id, MineAction.BUILD_TRAP) },
+                                                    modifier = Modifier.weight(1f)
+                                                ) {
+                                                    Text("🕳️ Build Trap")
+                                                }
+                                            }
+                                        } else {
+                                            Text(
+                                                "No actions remaining",
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = Color.Gray
+                                            )
+                                        }
+                                        
+                                        Spacer(modifier = Modifier.height(8.dp))
+                                        
+                                        // Upgrade and sell buttons
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                        ) {
+                                            Column(modifier = Modifier.weight(1f)) {
+                                                UpgradeButton(defender, gameState, onUpgradeDefender = onUpgradeDefender)
+                                            }
+                                            Column(modifier = Modifier.weight(1f)) {
+                                                UndoOrSellButton(
+                                                    defender = defender,
+                                                    gameState = gameState,
+                                                    onUndoTower = onUndoTower,
+                                                    onSellTower = onSellTower
+                                                )
+                                            }
+                                        }
+                                    }
+                                } else if (defender.type == DefenderType.DRAGONS_LAIR) {
+                                    // Dragon's lair - no actions, can't be sold
+                                    Text(
+                                        "The dragon's lair... a reminder of greed's consequences.",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = Color.Gray,
+                                        fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
+                                    )
+                                } else {
+                                    // Normal tower stats and buttons
+                                    val nextLevelDamage = defender.damage + 5
+                                    val nextActualDamage = when (defender.type.attackType) {
+                                        AttackType.LASTING -> nextLevelDamage / 2
+                                        else -> nextLevelDamage
+                                    }
+                                    val nextLevel = defender.level.value + 1
+                                    val nextRangeCalculated = defender.type.baseRange + (nextLevel - 1) / 2
+                                    val nextRange = if (defender.type == DefenderType.SPIKE_TOWER && nextLevel >= 5) {
+                                        minOf(nextRangeCalculated, 2)
+                                    } else {
+                                        nextRangeCalculated
+                                    }
+                                    val nextActions = if (defender.type == DefenderType.SPIKE_TOWER) {
+                                        val bonusActions = nextLevel / 5
+                                        minOf(defender.type.actionsPerTurn + bonusActions, 3)
+                                    } else {
+                                        defender.type.actionsPerTurn
                                     }
 
-                                    Column(modifier = Modifier.weight(1f)) {
-                                        UpgradeButton(defender, gameState, onUpgradeDefender = onUpgradeDefender)
-                                    }
+                                    // Stats and upgrade button in columns
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                    ) {
+                                        // Current stats column
+                                        Column(modifier = Modifier.weight(1f)) {
+                                            Text(
+                                                "Current:",
+                                                style = MaterialTheme.typography.labelSmall,
+                                                fontWeight = FontWeight.Bold
+                                            )
+                                            TowerStats(
+                                                defender.type.minRange,
+                                                defender.actualDamage,
+                                                defender.range,
+                                                defender.actionsPerTurnCalculated
+                                            )
+                                        }
 
-                                    Column(modifier = Modifier.weight(1f)) {
-                                        UndoOrSellButton(
-                                            defender = defender,
-                                            gameState = gameState,
-                                            onUndoTower = onUndoTower,
-                                            onSellTower = onSellTower
-                                        )
+                                        // After upgrade stats column
+                                        Column(modifier = Modifier.weight(1f)) {
+                                            Text(
+                                                "Upgrade:",
+                                                style = MaterialTheme.typography.labelSmall,
+                                                fontWeight = FontWeight.Bold,
+                                                color = if (gameState.canUpgradeDefender(defender)) Color(0xFF4CAF50) else Color.Gray
+                                            )
+                                            TowerStats(
+                                                defender.type.minRange,
+                                                nextActualDamage,
+                                                nextRange,
+                                                nextActions
+                                            )
+                                        }
+
+                                        Column(modifier = Modifier.weight(1f)) {
+                                            UpgradeButton(defender, gameState, onUpgradeDefender = onUpgradeDefender)
+                                        }
+
+                                        Column(modifier = Modifier.weight(1f)) {
+                                            UndoOrSellButton(
+                                                defender = defender,
+                                                gameState = gameState,
+                                                onUndoTower = onUndoTower,
+                                                onSellTower = onSellTower
+                                            )
+                                        }
+                                        Spacer(modifier = Modifier.weight(4f))
                                     }
-                                    Spacer(modifier = Modifier.weight(4f))
                                 }
                             }
                         }
@@ -1325,6 +1472,7 @@ fun UndoOrSellButton(
                                     AttackType.LASTING -> "Throws Acid" //Damage over Time
                                     AttackType.MELEE -> "Melee"
                                     AttackType.RANGED -> if (type.minRange > 0) "Long Range" else "Range"
+                                    AttackType.NONE -> "No Attack"  // Mines and special structures
                                 }
                                 Text(
                                     special,
