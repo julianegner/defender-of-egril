@@ -63,6 +63,8 @@ fun TowerTypeIcon(
                 DefenderType.WIZARD_TOWER -> drawWizardSymbol(centerX, centerY, iconSize * 0.4f)
                 DefenderType.ALCHEMY_TOWER -> drawAlchemySymbol(centerX, centerY, iconSize * 0.4f)
                 DefenderType.BALLISTA_TOWER -> drawBallistaSymbol(centerX, centerY, iconSize * 0.5f)
+                DefenderType.DWARVEN_MINE -> drawMineSymbol(centerX, centerY, iconSize * 0.4f)
+                DefenderType.DRAGONS_LAIR -> drawDragonLairSymbol(centerX, centerY, iconSize * 0.4f)
             }
         }
     }
@@ -97,6 +99,8 @@ fun TowerIcon(
                 DefenderType.WIZARD_TOWER -> drawWizardSymbol(centerX, centerY, iconSize * 0.4f)
                 DefenderType.ALCHEMY_TOWER -> drawAlchemySymbol(centerX, centerY, iconSize * 0.4f)
                 DefenderType.BALLISTA_TOWER -> drawBallistaSymbol(centerX, centerY, iconSize * 0.5f)
+                DefenderType.DWARVEN_MINE -> drawMineSymbol(centerX, centerY, iconSize * 0.4f)
+                DefenderType.DRAGONS_LAIR -> drawDragonLairSymbol(centerX, centerY, iconSize * 0.4f)
             }
         }
         
@@ -429,6 +433,7 @@ fun EnemyIcon(
                 AttackerType.RED_WITCH -> drawRedWitchSymbol(centerX, centerY, iconSize * 0.7f)
                 AttackerType.GREEN_WITCH -> drawGreenWitchSymbol(centerX, centerY, iconSize * 0.7f)
                 AttackerType.EWHAD -> drawEwhadSymbol(centerX, centerY, iconSize * 0.8f)
+                AttackerType.DRAGON -> drawDragonSymbol(centerX, centerY, iconSize * 0.9f)
             }
         }
         
@@ -477,6 +482,7 @@ fun EnemyTypeIcon(
                 AttackerType.RED_WITCH -> drawRedWitchSymbol(centerX, centerY, iconSize * 0.7f)
                 AttackerType.GREEN_WITCH -> drawGreenWitchSymbol(centerX, centerY, iconSize * 0.7f)
                 AttackerType.EWHAD -> drawEwhadSymbol(centerX, centerY, iconSize * 0.8f)
+                AttackerType.DRAGON -> drawDragonSymbol(centerX, centerY, iconSize * 0.9f)
             }
         }
     }
@@ -1032,3 +1038,116 @@ private fun DrawScope.drawEwhadSymbol(centerX: Float, centerY: Float, size: Floa
         center = Offset(centerX, centerY)
     )
 }
+
+/**
+ * Draw dwarven mine symbol (pickaxe and mountain)
+ */
+fun DrawScope.drawMineSymbol(centerX: Float, centerY: Float, size: Float) {
+    // Mountain/rock
+    val mountainPath = Path().apply {
+        moveTo(centerX, centerY - size * 0.4f)
+        lineTo(centerX + size * 0.3f, centerY + size * 0.3f)
+        lineTo(centerX - size * 0.3f, centerY + size * 0.3f)
+        close()
+    }
+    drawPath(mountainPath, Color(0xFF8B7355))  // Brown
+    
+    // Pickaxe
+    drawLine(
+        color = Color(0xFF654321),  // Dark brown handle
+        start = Offset(centerX - size * 0.1f, centerY),
+        end = Offset(centerX + size * 0.25f, centerY + size * 0.35f),
+        strokeWidth = 3f
+    )
+    // Pickaxe head
+    drawLine(
+        color = Color.Gray,
+        start = Offset(centerX - size * 0.2f, centerY - size * 0.1f),
+        end = Offset(centerX, centerY + size * 0.1f),
+        strokeWidth = 4f
+    )
+}
+
+/**
+ * Draw dragon's lair symbol (cave with smoke)
+ */
+fun DrawScope.drawDragonLairSymbol(centerX: Float, centerY: Float, size: Float) {
+    // Cave opening
+    val cavePath = Path().apply {
+        moveTo(centerX - size * 0.3f, centerY + size * 0.3f)
+        lineTo(centerX - size * 0.3f, centerY)
+        quadraticTo(centerX, centerY - size * 0.4f, centerX + size * 0.3f, centerY)
+        lineTo(centerX + size * 0.3f, centerY + size * 0.3f)
+        close()
+    }
+    drawPath(cavePath, Color.Black)
+    
+    // Smoke/steam coming out
+    for (i in 0..2) {
+        drawCircle(
+            color = Color.Gray.copy(alpha = 0.4f),
+            radius = size * 0.1f,
+            center = Offset(centerX + (i - 1) * size * 0.15f, centerY - size * 0.5f)
+        )
+    }
+    
+    // Dragon eyes in the darkness
+    drawCircle(color = Color.Red, radius = size * 0.05f, center = Offset(centerX - size * 0.1f, centerY - size * 0.1f))
+    drawCircle(color = Color.Red, radius = size * 0.05f, center = Offset(centerX + size * 0.1f, centerY - size * 0.1f))
+}
+
+/**
+ * Draw dragon symbol (large flying beast)
+ */
+fun DrawScope.drawDragonSymbol(centerX: Float, centerY: Float, size: Float) {
+    // Dragon body
+    drawOval(
+        color = Color(0xFF8B0000),  // Dark red
+        topLeft = Offset(centerX - size * 0.2f, centerY - size * 0.1f),
+        size = Size(size * 0.4f, size * 0.2f)
+    )
+    
+    // Dragon head
+    drawCircle(
+        color = Color(0xFF8B0000),
+        radius = size * 0.15f,
+        center = Offset(centerX + size * 0.25f, centerY - size * 0.15f)
+    )
+    
+    // Wings
+    val leftWing = Path().apply {
+        moveTo(centerX - size * 0.1f, centerY)
+        lineTo(centerX - size * 0.4f, centerY - size * 0.3f)
+        lineTo(centerX - size * 0.2f, centerY - size * 0.1f)
+        close()
+    }
+    val rightWing = Path().apply {
+        moveTo(centerX + size * 0.1f, centerY)
+        lineTo(centerX + size * 0.4f, centerY - size * 0.3f)
+        lineTo(centerX + size * 0.2f, centerY - size * 0.1f)
+        close()
+    }
+    drawPath(leftWing, Color(0xFF654321))  // Dark brown wings
+    drawPath(rightWing, Color(0xFF654321))
+    
+    // Eyes
+    drawCircle(color = Color.Yellow, radius = size * 0.04f, center = Offset(centerX + size * 0.25f, centerY - size * 0.18f))
+    
+    // Tail
+    drawLine(
+        color = Color(0xFF8B0000),
+        start = Offset(centerX - size * 0.2f, centerY),
+        end = Offset(centerX - size * 0.35f, centerY + size * 0.2f),
+        strokeWidth = 4f
+    )
+    
+    // Fire breath
+    for (i in 0..2) {
+        drawCircle(
+            color = Color(0xFFFF4500).copy(alpha = 0.6f),  // Orange-red
+            radius = size * 0.08f,
+            center = Offset(centerX + size * 0.4f + i * size * 0.1f, centerY - size * 0.15f + i * size * 0.05f)
+        )
+    }
+}
+

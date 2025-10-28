@@ -125,6 +125,14 @@ class GameViewModel {
         }
         return result
     }
+    
+    fun performMineDig(mineId: Int): DigOutcome? {
+        return gameEngine?.performMineDig(mineId)
+    }
+    
+    fun performMineBuildTrap(mineId: Int, trapPosition: Position): Boolean {
+        return gameEngine?.performMineBuildTrap(mineId, trapPosition) ?: false
+    }
 
     fun endPlayerTurn() {
         val state = _gameState.value ?: return
