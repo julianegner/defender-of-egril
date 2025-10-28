@@ -247,8 +247,8 @@ private fun GamePlayScreenContent(
                         val selectedDefender = gameState.defenders.find { it.id == selectedDefenderId }
                         if (selectedDefender != null) {
                             // For AOE/DOT towers, allow targeting path tiles
-                            if (selectedDefender.type.attackType == AttackType.AOE ||
-                                selectedDefender.type.attackType == AttackType.DOT) {
+                            if (selectedDefender.type.attackType == AttackType.AREA ||
+                                selectedDefender.type.attackType == AttackType.LASTING) {
                                 // Check if position is on the path and in range
                                 val distance = selectedDefender.position.distanceTo(position)
                                 if (gameState.level.isOnPath(position) &&
@@ -515,8 +515,8 @@ fun GridCell(
         }
         fieldEffect != null -> {
             when (fieldEffect.type) {
-                FieldEffectType.FIREBALL_AOE -> Color(0xFFFF9800).copy(alpha = 0.5f)  // Orange tint for fireball
-                FieldEffectType.ACID_DOT -> Color(0xFF4CAF50).copy(alpha = 0.6f)  // Green tint for acid
+                FieldEffectType.FIREBALL -> Color(0xFFFF9800).copy(alpha = 0.5f)  // Orange tint for fireball
+                FieldEffectType.ACID -> Color(0xFF4CAF50).copy(alpha = 0.6f)  // Green tint for acid
             }
         }
         isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> baseBackgroundColor.copy(alpha = 0.7f)
@@ -540,8 +540,8 @@ fun GridCell(
         defender != null -> if (defender.isReady) Color(0xFF2196F3) else Color(0xFF9E9E9E)  // Blue/gray border for towers
         fieldEffect != null -> {
             when (fieldEffect.type) {
-                FieldEffectType.FIREBALL_AOE -> Color(0xFFFF5722)  // Deep orange border for fireball
-                FieldEffectType.ACID_DOT -> Color(0xFF4CAF50)  // Green border for acid
+                FieldEffectType.FIREBALL -> Color(0xFFFF5722)  // Deep orange border for fireball
+                FieldEffectType.ACID -> Color(0xFF4CAF50)  // Green border for acid
             }
         }
         else -> Color.Transparent  // No borders for empty cells
@@ -590,7 +590,7 @@ fun GridCell(
             fieldEffect != null -> {
                 // Show field effect info
                 when (fieldEffect.type) {
-                    FieldEffectType.FIREBALL_AOE -> {
+                    FieldEffectType.FIREBALL -> {
                         // Show fireball symbol
                         Text(
                             "💥",
@@ -598,7 +598,7 @@ fun GridCell(
                             color = Color(0xFFFF5722)
                         )
                     }
-                    FieldEffectType.ACID_DOT -> {
+                    FieldEffectType.ACID -> {
                         // Show acid splash with damage and duration
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
@@ -801,7 +801,7 @@ fun AttackButton(
 ) {
     if (defender.isReady && defender.actionsRemaining.value > 0) {
         // For AOE/DOT towers with position selected
-        if ((defender.type.attackType == AttackType.AOE || defender.type.attackType == AttackType.DOT) && selectedTargetPosition != null) {
+        if ((defender.type.attackType == AttackType.AREA || defender.type.attackType == AttackType.LASTING) && selectedTargetPosition != null) {
             // If there's an enemy at the position, show enemy info
             if (selectedTargetId != null) {
                 val target = gameState.attackers.find { it.id == selectedTargetId }
@@ -992,7 +992,7 @@ fun TowerStats(minRange: Int, damage: Int, range: Int, actionsPerTurn: Int) {
                                 // Calculate next level stats for comparison
                                 val nextLevelDamage = defender.damage + 5
                                 val nextActualDamage = when (defender.type.attackType) {
-                                    AttackType.DOT -> nextLevelDamage / 2
+                                    AttackType.LASTING -> nextLevelDamage / 2
                                     else -> nextLevelDamage
                                 }
                                 val nextRange = defender.range + (if (defender.level.value % 2 == 0) 1 else 0)
@@ -1309,8 +1309,8 @@ fun UndoOrSellButton(
                                 // "Long" indicates ranged with minimum range (e.g., Ballista can't shoot too close)
                                 // "Range" indicates normal ranged attack without minimum range restriction
                                 val special = when (type.attackType) {
-                                    AttackType.AOE -> "Throws Fireball" //Area of Effect
-                                    AttackType.DOT -> "Throws Acid" //Damage over Time
+                                    AttackType.AREA -> "Throws Fireball" //Area of Effect
+                                    AttackType.LASTING -> "Throws Acid" //Damage over Time
                                     AttackType.MELEE -> "Melee"
                                     AttackType.RANGED -> if (type.minRange > 0) "Long Range" else "Range"
                                 }

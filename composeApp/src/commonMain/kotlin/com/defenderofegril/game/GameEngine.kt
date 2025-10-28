@@ -7,8 +7,8 @@ import kotlin.math.min
 class GameEngine(private val state: GameState) {
     
     companion object {
-        // DOT damage is applied at half the initial damage per turn
-        private const val DOT_DAMAGE_DIVISOR = 2
+        // LASTING damage is applied at half the initial damage per turn
+        private const val LASTING_DAMAGE_DIVISOR = 2
     }
 
     fun placeDefender(type: DefenderType, position: Position): Boolean {
@@ -129,8 +129,8 @@ class GameEngine(private val state: GameState) {
         // Perform attack based on type
         when (defender.type.attackType) {
             AttackType.MELEE, AttackType.RANGED -> singleTargetAttack(defender, target)
-            AttackType.AOE -> aoeAttack(defender, target.position.value)
-            AttackType.DOT -> dotAttack(defender, target.position.value)
+            AttackType.AREA -> areaAttack(defender, target.position.value)
+            AttackType.LASTING -> lastingAttack(defender, target.position.value)
         }
 
         defender.actionsRemaining.value--
@@ -153,7 +153,7 @@ class GameEngine(private val state: GameState) {
         defender.hasBeenUsed.value = true
 
         // For AOE and DOT attacks, target position must be on the path
-        if (defender.type.attackType == AttackType.AOE || defender.type.attackType == AttackType.DOT) {
+        if (defender.type.attackType == AttackType.AREA || defender.type.attackType == AttackType.LASTING) {
             if (!state.level.isOnPath(targetPosition)) return false
         } else {
             // For single-target attacks, there must be an enemy at the position
@@ -172,8 +172,8 @@ class GameEngine(private val state: GameState) {
                     return false
                 }
             }
-            AttackType.AOE -> aoeAttack(defender, targetPosition)
-            AttackType.DOT -> dotAttack(defender, targetPosition)
+            AttackType.AREA -> areaAttack(defender, targetPosition)
+            AttackType.LASTING -> lastingAttack(defender, targetPosition)
         }
         
         defender.actionsRemaining.value--
@@ -201,7 +201,7 @@ class GameEngine(private val state: GameState) {
         moveAttackers()
         
         // Apply damage over time effects
-        applyDotEffects()
+        applyLastingEffects()
         
         // Update field effects
         updateFieldEffects()
@@ -468,7 +468,7 @@ class GameEngine(private val state: GameState) {
         if (state.phase.value != GamePhase.ENEMY_TURN) return
         
         // Apply damage over time effects
-        applyDotEffects()
+        applyLastingEffects()
         
         // Update field effects
         updateFieldEffects()
@@ -586,7 +586,7 @@ class GameEngine(private val state: GameState) {
         }
     }
     
-    private fun aoeAttack(defender: Defender, targetPosition: Position) {
+    private fun areaAttack(defender: Defender, targetPosition: Position) {
         // Calculate affected positions - target and all neighbors that are on the path
         val affectedPositions = mutableSetOf(targetPosition)
         affectedPositions.addAll(
@@ -616,12 +616,12 @@ class GameEngine(private val state: GameState) {
 
         // Clear existing fireball effects from this defender
         state.fieldEffects.removeAll {
-            it.type == FieldEffectType.FIREBALL_AOE && it.defenderId == defender.id
+            it.type == FieldEffectType.FIREBALL && it.defenderId == defender.id
         }
 
         // Remove acid effects from affected positions (fire burns away the acid)
         state.fieldEffects.removeAll {
-            it.type == FieldEffectType.ACID_DOT && it.position in affectedPositions
+            it.type == FieldEffectType.ACID && it.position in affectedPositions
         }
 
         // Add new fireball effects (visual only, last for 1 turn to show affected area)
@@ -629,7 +629,7 @@ class GameEngine(private val state: GameState) {
             state.fieldEffects.add(
                 FieldEffect(
                     position = pos,
-                    type = FieldEffectType.FIREBALL_AOE,
+                    type = FieldEffectType.FIREBALL,
                     damage = defender.damage,
                     turnsRemaining = 1,  // Visual effect lasts 1 turn
                     defenderId = defender.id
@@ -638,7 +638,7 @@ class GameEngine(private val state: GameState) {
         }
     }
     
-    private fun dotAttack(defender: Defender, targetPosition: Position) {
+    private fun lastingAttack(defender: Defender, targetPosition: Position) {
         // Calculate affected positions - target and all neighbors that are on the path
         val affectedPositions = mutableSetOf(targetPosition)
         affectedPositions.addAll(
@@ -661,7 +661,7 @@ class GameEngine(private val state: GameState) {
 
         for (target in targets) {
             // Initial damage is same as DOT tick damage (not full damage)
-            target.currentHealth.value -= defender.damage / DOT_DAMAGE_DIVISOR
+            target.currentHealth.value -= defender.damage / LASTING_DAMAGE_DIVISOR
             // Mark for additional rounds of DOT based on tower level
             defender.dotRoundsRemaining[target.id] = defender.dotDuration
 
@@ -675,7 +675,7 @@ class GameEngine(private val state: GameState) {
         
         // Get all positions with active fireball effects (fire burns away acid)
         val fireballPositions = state.fieldEffects
-            .filter { it.type == FieldEffectType.FIREBALL_AOE }
+            .filter { it.type == FieldEffectType.FIREBALL }
             .mapTo(mutableSetOf()) { it.position }
         
         for (pos in affectedPositions) {
@@ -687,7 +687,7 @@ class GameEngine(private val state: GameState) {
 
             // Check if there's already an acid effect at this position
             val existingEffect = state.fieldEffects.find {
-                it.type == FieldEffectType.ACID_DOT && it.position == pos
+                it.type == FieldEffectType.ACID && it.position == pos
             }
 
             val newDuration = defender.dotDuration
@@ -699,8 +699,8 @@ class GameEngine(private val state: GameState) {
                     state.fieldEffects.add(
                         FieldEffect(
                             position = pos,
-                            type = FieldEffectType.ACID_DOT,
-                            damage = defender.damage / DOT_DAMAGE_DIVISOR,
+                            type = FieldEffectType.ACID,
+                            damage = defender.damage / LASTING_DAMAGE_DIVISOR,
                             turnsRemaining = newDuration,
                             defenderId = defender.id,
                             attackerId = enemyAtPos?.id
@@ -713,8 +713,8 @@ class GameEngine(private val state: GameState) {
                 state.fieldEffects.add(
                     FieldEffect(
                         position = pos,
-                        type = FieldEffectType.ACID_DOT,
-                        damage = defender.damage / DOT_DAMAGE_DIVISOR,
+                        type = FieldEffectType.ACID,
+                        damage = defender.damage / LASTING_DAMAGE_DIVISOR,
                         turnsRemaining = newDuration,
                         defenderId = defender.id,
                         attackerId = enemyAtPos?.id
@@ -724,9 +724,9 @@ class GameEngine(private val state: GameState) {
         }
     }
     
-    private fun applyDotEffects() {
-        // Apply DOT damage from acid puddles on the ground
-        val acidEffects = state.fieldEffects.filter { it.type == FieldEffectType.ACID_DOT }
+    private fun applyLastingEffects() {
+        // Apply LASTING damage from acid puddles on the ground
+        val acidEffects = state.fieldEffects.filter { it.type == FieldEffectType.ACID }
 
         for (effect in acidEffects) {
             // Find all enemies standing in the acid
@@ -738,27 +738,6 @@ class GameEngine(private val state: GameState) {
                 attacker.currentHealth.value -= effect.damage
                 if (attacker.currentHealth.value <= 0) {
                     attacker.isDefeated.value = true
-                    /*
-                    todo from branch
-            val toRemove = mutableListOf<Int>()
-            for ((attackerId, rounds) in defender.dotRoundsRemaining) {
-                val attacker = state.attackers.find { it.id == attackerId }
-                if (attacker != null && !attacker.isDefeated.value) {
-                    attacker.currentHealth.value -= defender.damage / 2
-                    if (attacker.currentHealth.value <= 0) {
-                        attacker.isDefeated.value = true
-                    }
-
-                    if (rounds <= 1) {
-                        toRemove.add(attackerId)
-                    } else {
-                        defender.dotRoundsRemaining[attackerId] = rounds - 1
-                    }
-                } else {
-                    toRemove.add(attackerId)
-                }
-            }
-                     */
                 }
             }
         }
@@ -902,7 +881,7 @@ class GameEngine(private val state: GameState) {
         
         // Check for acid field effects at this position
         val acidEffect = state.fieldEffects.find { 
-            it.type == FieldEffectType.ACID_DOT && it.position == position 
+            it.type == FieldEffectType.ACID && it.position == position 
         }
         if (acidEffect != null) {
             // Acid applies effect.damage each turn a unit stands in it
@@ -934,9 +913,9 @@ class GameEngine(private val state: GameState) {
             // Check if position is in tower range
             if (distance >= defender.type.minRange && distance <= defender.range) {
                 val potentialDamage = when (defender.type.attackType) {
-                    AttackType.DOT -> {
+                    AttackType.LASTING -> {
                         // DOT damage over multiple turns
-                        val dotDamagePerTurn = defender.damage / DOT_DAMAGE_DIVISOR
+                        val dotDamagePerTurn = defender.damage / LASTING_DAMAGE_DIVISOR
                         dotDamagePerTurn * defender.dotDuration
                     }
                     else -> defender.damage
