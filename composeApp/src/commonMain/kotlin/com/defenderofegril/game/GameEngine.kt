@@ -105,6 +105,17 @@ class GameEngine(private val state: GameState) {
                 val spawnPos = spawnPoints[index % spawnPoints.size]
                 val type = state.attackersToSpawn.removeAt(0)
                 
+                // Ensure only one Ewhad exists at a time (boss is unique)
+                if (type == AttackerType.EWHAD) {
+                    val ewhadExists = state.attackers.any { 
+                        it.type == AttackerType.EWHAD && !it.isDefeated.value 
+                    }
+                    if (ewhadExists) {
+                        // Skip spawning another Ewhad if one already exists
+                        return@repeat
+                    }
+                }
+                
                 // Calculate level for initial enemies
                 val enemyLevel = 1 + (state.currentWaveIndex.value - 1)
                 
@@ -546,6 +557,17 @@ class GameEngine(private val state: GameState) {
                 val spawnPos = spawnPoints[index % spawnPoints.size]
 
                 val type = state.attackersToSpawn.removeAt(0)
+                
+                // Ensure only one Ewhad exists at a time (boss is unique)
+                if (type == AttackerType.EWHAD) {
+                    val ewhadExists = state.attackers.any { 
+                        it.type == AttackerType.EWHAD && !it.isDefeated.value 
+                    }
+                    if (ewhadExists) {
+                        // Skip spawning another Ewhad if one already exists
+                        return@repeat
+                    }
+                }
                 
                 // Calculate level based on turn number and wave
                 // Base level is 1, increases every 10 turns, wave index also contributes
