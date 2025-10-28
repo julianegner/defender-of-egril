@@ -40,9 +40,28 @@ data class Defender(
     val hasBeenUsed: MutableState<Boolean> = mutableStateOf(false)  // Track if tower has attacked
 ) {
     val damage: Int get() = type.baseDamage + (level.value - 1) * 5
-    val range: Int get() = type.baseRange + (level.value - 1) / 2
+    val range: Int get() {
+        val baseCalculatedRange = type.baseRange + (level.value - 1) / 2
+        // Pike (Spike) tower has a maximum range of 2 at level 5+
+        return if (type == DefenderType.SPIKE_TOWER && level.value >= 5) {
+            minOf(baseCalculatedRange, 2)
+        } else {
+            baseCalculatedRange
+        }
+    }
     val upgradeCost: Int get() = type.baseCost * level.value
     val isReady: Boolean get() = buildTimeRemaining.value == 0
+    
+    // Calculate actions per turn based on level
+    // Pike (Spike) tower gets +1 action per 5 levels (max 3 actions)
+    val actionsPerTurnCalculated: Int get() {
+        return if (type == DefenderType.SPIKE_TOWER) {
+            val bonusActions = level.value / 5  // +1 at level 5, +2 at level 10, +3 at level 15, etc.
+            minOf(type.actionsPerTurn + bonusActions, 3)  // Cap at 3 actions
+        } else {
+            type.actionsPerTurn
+        }
+    }
     
     // Calculate total cost spent on this tower (base cost + all upgrade costs)
     // Level 1: baseCost (cost 50 to build)
@@ -81,7 +100,7 @@ data class Defender(
     
     fun resetActions() {
         if (isReady) {
-            actionsRemaining.value = type.actionsPerTurn
+            actionsRemaining.value = actionsPerTurnCalculated
             hasBeenUsed.value = false  // Reset usage tracking at start of new turn
         }
     }
