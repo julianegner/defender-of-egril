@@ -108,11 +108,11 @@ fun TowerIcon(
                     .padding(start = 6.dp)  // 6dp from left edge
             ) {
                 Text(
-                    text = "⚡".repeat(defender.actionsRemaining.value),
+                    text = if (defender.actionsRemaining.value == 1) "⚡" else defender.actionsRemaining.value.toString(),
                     style = MaterialTheme.typography.labelSmall,
                     fontSize = 16.sp,
                     color = Color.Yellow,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = if (defender.actionsRemaining.value == 1) FontWeight.Bold else FontWeight.Normal
                 )
             }
         }
