@@ -796,7 +796,13 @@ class GameEngine(private val state: GameState) {
             
             // Red Witch targets nearest active tower instead of the goal
             val target = if (attacker.type == AttackerType.RED_WITCH) {
-                findNearestActiveTower(attacker)?.position ?: state.level.targetPosition
+                val nearestTower = findNearestActiveTower(attacker)
+                if (nearestTower != null) {
+                    // Find a path position near the tower
+                    findPathPositionNearTower(nearestTower.position)
+                } else {
+                    state.level.targetPosition
+                }
             } else {
                 state.level.targetPosition
             }
@@ -897,7 +903,12 @@ class GameEngine(private val state: GameState) {
         val gScore = mutableMapOf(start to 0)
         val fScore = mutableMapOf(start to start.distanceTo(goal))
         
-        while (openSet.isNotEmpty()) {
+        var iterations = 0
+        val maxIterations = 1000 // Prevent infinite loops
+        
+        while (openSet.isNotEmpty() && iterations < maxIterations) {
+            iterations++
+            
             val current = openSet.minByOrNull { fScore[it] ?: Int.MAX_VALUE } ?: break
             
             if (current == goal) {
@@ -922,7 +933,7 @@ class GameEngine(private val state: GameState) {
             }
         }
         
-        // No path found, return simple path towards goal
+        // No path found or max iterations reached, return simple path towards goal
         return listOf(start, moveTowards(start, goal))
     }
     
@@ -1028,11 +1039,21 @@ class GameEngine(private val state: GameState) {
         val dx = to.x - from.x
         val dy = to.y - from.y
         
-        return when {
+        val candidate = when {
             dx != 0 -> Position(from.x + dx.coerceIn(-1, 1), from.y)
             dy != 0 -> Position(from.x, from.y + dy.coerceIn(-1, 1))
             else -> from
         }
+        
+        // Ensure the candidate position is valid (on path and within bounds)
+        if (candidate.x >= 0 && candidate.x < state.level.gridWidth &&
+            candidate.y >= 0 && candidate.y < state.level.gridHeight &&
+            state.level.isOnPath(candidate)) {
+            return candidate
+        }
+        
+        // If not valid, just return current position (don't move)
+        return from
     }
     
     private fun updateFieldEffects() {
@@ -1225,6 +1246,21 @@ class GameEngine(private val state: GameState) {
         return eligibleTowers.minByOrNull { tower ->
             tower.position.distanceTo(witch.position.value)
         }
+    }
+    
+    /**
+     * Find a position on the path near the target tower for Red Witch to move towards
+     */
+    private fun findPathPositionNearTower(towerPosition: Position): Position {
+        // Find all path positions adjacent to the tower
+        val adjacentPathPositions = towerPosition.getHexNeighbors().filter { pos ->
+            pos.x >= 0 && pos.x < state.level.gridWidth &&
+            pos.y >= 0 && pos.y < state.level.gridHeight &&
+            state.level.isOnPath(pos)
+        }
+        
+        // Return the first adjacent path position, or tower position if none found
+        return adjacentPathPositions.firstOrNull() ?: towerPosition
     }
     
     // Cheat code support for testing
