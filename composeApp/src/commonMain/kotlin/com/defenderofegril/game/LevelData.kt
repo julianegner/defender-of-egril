@@ -41,13 +41,11 @@ object LevelData {
             buildIslands = pathAndIslands.buildIslands,
             attackerWaves = listOf(
                 AttackerWave(
-                    // Double the first wave: 6 goblins + 4 skeletons
-                    attackers = List(6) { AttackerType.GOBLIN } + List(4) { AttackerType.SKELETON },
+                    attackers = List(30) { AttackerType.GOBLIN } + List(20) { AttackerType.SKELETON },
                     spawnDelay = 1  // Spawn every turn
                 ),
                 AttackerWave(
-                    // Last wave: only 3 orks as specified
-                    attackers = List(3) { AttackerType.ORK },
+                    attackers = List(15) { AttackerType.ORK },
                     spawnDelay = 1
                 )
             ),
@@ -65,15 +63,15 @@ object LevelData {
             buildIslands = pathAndIslands.buildIslands,
             attackerWaves = listOf(
                 AttackerWave(
-                    attackers = List(4) { AttackerType.GOBLIN },
+                    attackers = List(40) { AttackerType.GOBLIN },
                     spawnDelay = 2
                 ),
                 AttackerWave(
-                    attackers = List(3) { AttackerType.ORK } + List(2) { AttackerType.SKELETON },
+                    attackers = List(30) { AttackerType.ORK } + List(20) { AttackerType.SKELETON },
                     spawnDelay = 2
                 ),
                 AttackerWave(
-                    attackers = List(2) { AttackerType.ORK } + List(1) { AttackerType.OGRE },
+                    attackers = List(20) { AttackerType.ORK } + List(5) { AttackerType.OGRE },
                     spawnDelay = 2
                 )
             ),
@@ -91,19 +89,19 @@ object LevelData {
             buildIslands = pathAndIslands.buildIslands,
             attackerWaves = listOf(
                 AttackerWave(
-                    attackers = List(3) { AttackerType.GOBLIN } + List(2) { AttackerType.EVIL_WIZARD },
+                    attackers = List(30) { AttackerType.GOBLIN } + List(5) { AttackerType.EVIL_WIZARD },
                     spawnDelay = 2
                 ),
                 AttackerWave(
-                    attackers = List(2) { AttackerType.ORK } + List(2) { AttackerType.WITCH },
+                    attackers = List(20) { AttackerType.ORK } + List(5) { AttackerType.WITCH },
                     spawnDelay = 2
                 ),
                 AttackerWave(
-                    attackers = List(1) { AttackerType.OGRE } + List(2) { AttackerType.SKELETON },
+                    attackers = List(5) { AttackerType.OGRE } + List(20) { AttackerType.SKELETON },
                     spawnDelay = 3
                 ),
                 AttackerWave(
-                    attackers = List(1) { AttackerType.EVIL_WIZARD } + List(1) { AttackerType.WITCH },
+                    attackers = List(10) { AttackerType.EVIL_WIZARD } + List(10) { AttackerType.WITCH },
                     spawnDelay = 2
                 )
             ),
@@ -121,19 +119,19 @@ object LevelData {
             buildIslands = pathAndIslands.buildIslands,
             attackerWaves = listOf(
                 AttackerWave(
-                    attackers = List(5) { AttackerType.SKELETON } + List(2) { AttackerType.EVIL_WIZARD },
+                    attackers = List(50) { AttackerType.SKELETON } + List(20) { AttackerType.EVIL_WIZARD },
                     spawnDelay = 2
                 ),
                 AttackerWave(
-                    attackers = List(3) { AttackerType.ORK } + List(2) { AttackerType.WITCH },
+                    attackers = List(30) { AttackerType.ORK } + List(5) { AttackerType.WITCH },
                     spawnDelay = 2
                 ),
                 AttackerWave(
-                    attackers = List(2) { AttackerType.OGRE } + List(3) { AttackerType.GOBLIN },
+                    attackers = List(20) { AttackerType.OGRE } + List(30) { AttackerType.GOBLIN },
                     spawnDelay = 2
                 ),
                 AttackerWave(
-                    attackers = List(2) { AttackerType.OGRE } + List(2) { AttackerType.EVIL_WIZARD } + List(2) { AttackerType.WITCH },
+                    attackers = List(20) { AttackerType.OGRE } + List(10) { AttackerType.EVIL_WIZARD } + List(10) { AttackerType.WITCH },
                     spawnDelay = 2
                 )
             ),
