@@ -29,8 +29,8 @@ Defender of Egril is a turn-based tower defense game built with Kotlin Multiplat
 ### Attack Types
 - **MELEE**: Single target, close range
 - **RANGED**: Single target, long range
-- **AOE**: Area of Effect - damages multiple enemies
-- **DOT**: Damage over Time - continuous damage for multiple rounds
+- **AREA**: Area of Effect - affects multiple enemies
+- **LASTING**: Damage over Time - lower damage but lasts multiple rounds
 
 ### Adding New Features
 
@@ -118,7 +118,9 @@ Add to `LevelData.createLevels()` with:
 ### Cheat Codes (for testing)
 **In-Game** (click coins display):
 - `moneybags`, `1000coins`, `cash`: Add 1000 coins
-- `spawn <type> <level>`: Spawn enemy (goblin, ork, ogre, skeleton, wizard, witch)
+- `spawn <type> <level>`: Spawn enemy
+  - Valid types: `goblin`, `ork`, `ogre`, `skeleton`, `wizard` (maps to EVIL_WIZARD), `witch`
+  - Level is optional (scales enemy health)
 
 **World Map** (click title):
 - `unlock`, `unlockall`: Unlock all levels
