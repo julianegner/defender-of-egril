@@ -425,71 +425,67 @@ fun GameGrid(
     // For pointy-top hexagons, vertical spacing between centers is 3/4 of height
     val verticalSpacing = hexHeight * 0.75f
     
-    // Calculate total grid width: each column takes hexWidth, plus offset for odd rows
-    // Add significant padding at the end to ensure target is visible when scrolling
+    // Calculate total grid dimensions
     val totalGridWidth = ((gameState.level.gridWidth) * hexWidth + hexWidth + 200f).dp
+    val totalGridHeight = ((gameState.level.gridHeight) * verticalSpacing + hexHeight).dp
     
     Box(
         modifier = modifier
-            .fillMaxWidth()
             .onSizeChanged { containerSize = it }
-    ) {
-        // Map content with pan and zoom
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .pointerInput(Unit) {
-                    detectTransformGestures { _, pan, zoom, _ ->
-                        // Apply zoom
-                        scale = (scale * zoom).coerceIn(0.5f, 3f)
-                        
-                        // Apply pan
-                        offsetX += pan.x
-                        offsetY += pan.y
-                        
-                        // Constrain pan to keep content visible
-                        val maxOffsetX = (containerSize.width * (scale - 1) / 2).coerceAtLeast(0f)
-                        val maxOffsetY = (containerSize.height * (scale - 1) / 2).coerceAtLeast(0f)
-                        
-                        offsetX = offsetX.coerceIn(-maxOffsetX, maxOffsetX)
-                        offsetY = offsetY.coerceIn(-maxOffsetY, maxOffsetY)
-                    }
+            .pointerInput(Unit) {
+                detectTransformGestures { _, pan, zoom, _ ->
+                    // Apply zoom
+                    scale = (scale * zoom).coerceIn(0.5f, 3f)
+                    
+                    // Apply pan
+                    offsetX += pan.x
+                    offsetY += pan.y
+                    
+                    // Constrain pan to keep content visible
+                    val maxOffsetX = (containerSize.width * (scale - 1) / 2).coerceAtLeast(0f)
+                    val maxOffsetY = (containerSize.height * (scale - 1) / 2).coerceAtLeast(0f)
+                    
+                    offsetX = offsetX.coerceIn(-maxOffsetX, maxOffsetX)
+                    offsetY = offsetY.coerceIn(-maxOffsetY, maxOffsetY)
                 }
+            }
+    ) {
+        // Map content with pan and zoom applied
+        Column(
+            modifier = Modifier
+                .width(totalGridWidth)
+                .height(totalGridHeight)
                 .graphicsLayer(
                     scaleX = scale,
                     scaleY = scale,
                     translationX = offsetX,
                     translationY = offsetY
-                )
+                ),
+            verticalArrangement = Arrangement.spacedBy((-hexHeight + verticalSpacing - 7f).dp)
         ) {
-            Column(
-                modifier = Modifier.width(totalGridWidth),  // Set explicit width for scrolling
-                verticalArrangement = Arrangement.spacedBy((-hexHeight + verticalSpacing - 7f).dp)  // Extra tight spacing to eliminate all gaps
-            ) {
-                for (y in 0 until gameState.level.gridHeight) {
-                    Row(
-                        modifier = Modifier.offset(x = if (y % 2 == 1) (hexWidth * 0.42f).dp else 0.dp),  // Offset odd rows 42% to eliminate final gaps
-                        horizontalArrangement = Arrangement.spacedBy((-10).dp)  // Even tighter horizontal spacing
-                    ) {
-                        for (x in 0 until gameState.level.gridWidth) {
-                            val position = Position(x, y)
-                            GridCell(
-                                position = position,
-                                gameState = gameState,
-                                isSelected = selectedDefenderType != null,
-                                isDefenderSelected = selectedDefenderId?.let { selId ->
-                                    gameState.defenders.find { it.position == position }?.id == selId
-                                } ?: false,
-                                isTargetSelected = gameState.attackers.find { it.position.value == position }?.id == selectedTargetId,
-                                /* TODO from main
-                                isDefenderSelected = gameState.defenders.find { it.position == position }?.id == selectedDefenderId,
-                                isTargetSelected = gameState.attackers.find { it.position == position }?.id == selectedTargetId || position == selectedTargetPosition,
-                                 */
-                                selectedDefenderId = selectedDefenderId,
-                                onClick = { onCellClick(position) },
-                                hexSize = hexSize
-                            )
-                        }
+            for (y in 0 until gameState.level.gridHeight) {
+                Row(
+                    modifier = Modifier.offset(x = if (y % 2 == 1) (hexWidth * 0.42f).dp else 0.dp),
+                    horizontalArrangement = Arrangement.spacedBy((-10).dp)
+                ) {
+                    for (x in 0 until gameState.level.gridWidth) {
+                        val position = Position(x, y)
+                        GridCell(
+                            position = position,
+                            gameState = gameState,
+                            isSelected = selectedDefenderType != null,
+                            isDefenderSelected = selectedDefenderId?.let { selId ->
+                                gameState.defenders.find { it.position == position }?.id == selId
+                            } ?: false,
+                            isTargetSelected = gameState.attackers.find { it.position.value == position }?.id == selectedTargetId,
+                            /* TODO from main
+                            isDefenderSelected = gameState.defenders.find { it.position == position }?.id == selectedDefenderId,
+                            isTargetSelected = gameState.attackers.find { it.position == position }?.id == selectedTargetId || position == selectedTargetPosition,
+                             */
+                            selectedDefenderId = selectedDefenderId,
+                            onClick = { onCellClick(position) },
+                            hexSize = hexSize
+                        )
                     }
                 }
             }
