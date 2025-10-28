@@ -995,7 +995,19 @@ fun TowerStats(minRange: Int, damage: Int, range: Int, actionsPerTurn: Int) {
                                     AttackType.LASTING -> nextLevelDamage / 2
                                     else -> nextLevelDamage
                                 }
-                                val nextRange = defender.range + (if (defender.level.value % 2 == 0) 1 else 0)
+                                val nextLevel = defender.level.value + 1
+                                val nextRangeCalculated = defender.type.baseRange + (nextLevel - 1) / 2
+                                val nextRange = if (defender.type == DefenderType.SPIKE_TOWER && nextLevel >= 5) {
+                                    minOf(nextRangeCalculated, 2)
+                                } else {
+                                    nextRangeCalculated
+                                }
+                                val nextActions = if (defender.type == DefenderType.SPIKE_TOWER) {
+                                    val bonusActions = nextLevel / 5
+                                    minOf(defender.type.actionsPerTurn + bonusActions, 3)
+                                } else {
+                                    defender.type.actionsPerTurn
+                                }
 
                                 // Stats and upgrade button in columns
                                 Row(
@@ -1013,7 +1025,7 @@ fun TowerStats(minRange: Int, damage: Int, range: Int, actionsPerTurn: Int) {
                                             defender.type.minRange,
                                             defender.actualDamage,
                                             defender.range,
-                                            defender.type.actionsPerTurn
+                                            defender.actionsPerTurnCalculated
                                         )
                                     }
 
@@ -1029,7 +1041,7 @@ fun TowerStats(minRange: Int, damage: Int, range: Int, actionsPerTurn: Int) {
                                             defender.type.minRange,
                                             nextActualDamage,
                                             nextRange,
-                                            defender.type.actionsPerTurn
+                                            nextActions
                                         )
                                     }
 
@@ -1210,7 +1222,7 @@ fun UndoOrSellButton(
                     )
                 } else {
                     Text(
-                        "⚡ ${defender.actionsRemaining.value}/${defender.type.actionsPerTurn}",
+                        "⚡ ${defender.actionsRemaining.value}/${defender.actionsPerTurnCalculated}",
                         style = MaterialTheme.typography.titleMedium,
                     )
                 }
