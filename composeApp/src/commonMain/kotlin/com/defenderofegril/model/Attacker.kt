@@ -37,7 +37,8 @@ data class Attacker(
     val currentHealth: MutableState<Int> = mutableStateOf(type.health * level),
     val isDefeated: MutableState<Boolean> = mutableStateOf(false),
     val isDisabled: MutableState<Boolean> = mutableStateOf(false), // For towers disabled by Red Witch
-    val disabledTurnsRemaining: MutableState<Int> = mutableStateOf(0)
+    val disabledTurnsRemaining: MutableState<Int> = mutableStateOf(0),
+    val summonCooldown: MutableState<Int> = mutableStateOf(0) // Cooldown for summoning abilities
 ) {
     val maxHealth: Int get() = type.health * level
     

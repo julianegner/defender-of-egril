@@ -1063,28 +1063,43 @@ class GameEngine(private val state: GameState) {
         for (attacker in state.attackers) {
             if (attacker.isDefeated.value) continue
             
+            // Decrement summon cooldown
+            if (attacker.summonCooldown.value > 0) {
+                attacker.summonCooldown.value--
+            }
+            
             when (attacker.type) {
                 AttackerType.EVIL_MAGE -> {
-                    // Summon 1 blue demon per level
-                    repeat(attacker.level) {
-                        spawnDemonNear(attacker, AttackerType.BLUE_DEMON, state.turnNumber.value)
-                    }
-                    // Summon red demons (level / 2)
-                    repeat(attacker.level / 2) {
-                        spawnDemonNear(attacker, AttackerType.RED_DEMON, state.turnNumber.value)
+                    // Only summon if cooldown is 0
+                    if (attacker.summonCooldown.value == 0) {
+                        // Summon 1 blue demon per level
+                        repeat(attacker.level) {
+                            spawnDemonNear(attacker, AttackerType.BLUE_DEMON, state.turnNumber.value)
+                        }
+                        // Summon red demons (level / 2)
+                        repeat(attacker.level / 2) {
+                            spawnDemonNear(attacker, AttackerType.RED_DEMON, state.turnNumber.value)
+                        }
+                        // Set cooldown to 3 turns (summons every 3 turns)
+                        attacker.summonCooldown.value = 3
                     }
                 }
                 AttackerType.EWHAD -> {
-                    // Ewhad spawns double the demons of a regular evil mage
-                    repeat(attacker.level * 2) {
-                        spawnDemonNear(attacker, AttackerType.BLUE_DEMON, state.turnNumber.value)
-                    }
-                    repeat(attacker.level) {
-                        spawnDemonNear(attacker, AttackerType.RED_DEMON, state.turnNumber.value)
-                    }
-                    // Additional 3 undead
-                    repeat(3) {
-                        spawnUndeadNear(attacker, 10 + state.turnNumber.value)
+                    // Only summon if cooldown is 0
+                    if (attacker.summonCooldown.value == 0) {
+                        // Ewhad spawns double the demons of a regular evil mage
+                        repeat(attacker.level * 2) {
+                            spawnDemonNear(attacker, AttackerType.BLUE_DEMON, state.turnNumber.value)
+                        }
+                        repeat(attacker.level) {
+                            spawnDemonNear(attacker, AttackerType.RED_DEMON, state.turnNumber.value)
+                        }
+                        // Additional 3 undead
+                        repeat(3) {
+                            spawnUndeadNear(attacker, 10 + state.turnNumber.value)
+                        }
+                        // Set cooldown to 3 turns (summons every 3 turns)
+                        attacker.summonCooldown.value = 3
                     }
                 }
                 AttackerType.GREEN_WITCH -> {
