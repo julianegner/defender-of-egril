@@ -104,10 +104,15 @@ class GameEngine(private val state: GameState) {
                 // Use a different spawn point for each enemy (cycle through spawn points)
                 val spawnPos = spawnPoints[index % spawnPoints.size]
                 val type = state.attackersToSpawn.removeAt(0)
+                
+                // Calculate level for initial enemies
+                val enemyLevel = 1 + (state.currentWaveIndex.value - 1)
+                
                 val attacker = Attacker(
                     id = state.nextAttackerId.value++,
                     type = type,
-                    position = mutableStateOf(spawnPos)
+                    position = mutableStateOf(spawnPos),
+                    level = enemyLevel
                 )
                 state.attackers.add(attacker)
             }
@@ -541,10 +546,16 @@ class GameEngine(private val state: GameState) {
                 val spawnPos = spawnPoints[index % spawnPoints.size]
 
                 val type = state.attackersToSpawn.removeAt(0)
+                
+                // Calculate level based on turn number and wave
+                // Base level is 1, increases every 10 turns, wave index also contributes
+                val enemyLevel = 1 + (state.turnNumber.value / 10) + (state.currentWaveIndex.value - 1)
+                
                 val attacker = Attacker(
                     id = state.nextAttackerId.value++,
                     type = type,
-                    position = mutableStateOf(spawnPos)
+                    position = mutableStateOf(spawnPos),
+                    level = enemyLevel
                 )
                 state.attackers.add(attacker)
             }
