@@ -10,7 +10,8 @@ object LevelData {
             createLevel2(),
             createLevel3(),
             createLevel4(),
-            createLevel5()
+            createLevel5(),
+            createLevel6()
         )
     }
     
@@ -131,12 +132,30 @@ object LevelData {
                     spawnDelay = 2
                 ),
                 AttackerWave(
-                    attackers = List(20) { AttackerType.OGRE } + List(10) { AttackerType.EVIL_WIZARD } + List(10) { AttackerType.WITCH },
+                    attackers = List(20) { AttackerType.OGRE } + List(10) { AttackerType.EVIL_WIZARD } + List(10) { AttackerType.WITCH } + List(1) { AttackerType.EWHAD },
                     spawnDelay = 2
                 )
             ),
             initialCoins = 200,
             healthPoints = 6
+        )
+    }
+    
+    private fun createLevel6(): Level {
+        val pathAndIslands = Level.generateCurvedPathWithIslands(50, 12)
+        return Level(
+            id = 6,
+            name = "Ewhad's Challenge",
+            pathCells = pathAndIslands.pathCells,
+            buildIslands = pathAndIslands.buildIslands,
+            attackerWaves = listOf(
+                AttackerWave(
+                    attackers = List(1) { AttackerType.EWHAD },
+                    spawnDelay = 1
+                )
+            ),
+            initialCoins = 300,
+            healthPoints = 10
         )
     }
 }

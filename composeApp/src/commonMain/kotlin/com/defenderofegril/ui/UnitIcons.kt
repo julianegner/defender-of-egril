@@ -423,6 +423,12 @@ fun EnemyIcon(
                 AttackerType.SKELETON -> drawSkeletonSymbol(centerX, centerY, iconSize * 0.7f)
                 AttackerType.EVIL_WIZARD -> drawEvilWizardSymbol(centerX, centerY, iconSize * 0.7f)
                 AttackerType.WITCH -> drawWitchSymbol(centerX, centerY, iconSize * 0.7f)
+                AttackerType.BLUE_DEMON -> drawBlueDemonSymbol(centerX, centerY, iconSize * 0.7f)
+                AttackerType.RED_DEMON -> drawRedDemonSymbol(centerX, centerY, iconSize * 0.75f)
+                AttackerType.EVIL_MAGE -> drawEvilMageSymbol(centerX, centerY, iconSize * 0.7f)
+                AttackerType.RED_WITCH -> drawRedWitchSymbol(centerX, centerY, iconSize * 0.7f)
+                AttackerType.GREEN_WITCH -> drawGreenWitchSymbol(centerX, centerY, iconSize * 0.7f)
+                AttackerType.EWHAD -> drawEwhadSymbol(centerX, centerY, iconSize * 0.8f)
             }
         }
         
@@ -465,6 +471,12 @@ fun EnemyTypeIcon(
                 AttackerType.SKELETON -> drawSkeletonSymbol(centerX, centerY, iconSize * 0.7f)
                 AttackerType.EVIL_WIZARD -> drawEvilWizardSymbol(centerX, centerY, iconSize * 0.7f)
                 AttackerType.WITCH -> drawWitchSymbol(centerX, centerY, iconSize * 0.7f)
+                AttackerType.BLUE_DEMON -> drawBlueDemonSymbol(centerX, centerY, iconSize * 0.7f)
+                AttackerType.RED_DEMON -> drawRedDemonSymbol(centerX, centerY, iconSize * 0.75f)
+                AttackerType.EVIL_MAGE -> drawEvilMageSymbol(centerX, centerY, iconSize * 0.7f)
+                AttackerType.RED_WITCH -> drawRedWitchSymbol(centerX, centerY, iconSize * 0.7f)
+                AttackerType.GREEN_WITCH -> drawGreenWitchSymbol(centerX, centerY, iconSize * 0.7f)
+                AttackerType.EWHAD -> drawEwhadSymbol(centerX, centerY, iconSize * 0.8f)
             }
         }
     }
@@ -711,4 +723,312 @@ private fun DrawScope.drawWitchSymbol(centerX: Float, centerY: Float, size: Floa
             strokeWidth = 1.5f
         )
     }
+}
+
+/**
+ * Draw blue demon symbol (fast demon with blue flames)
+ */
+private fun DrawScope.drawBlueDemonSymbol(centerX: Float, centerY: Float, size: Float) {
+    // Demon head (angular)
+    val headPath = Path().apply {
+        moveTo(centerX, centerY - size * 0.3f)
+        lineTo(centerX + size * 0.2f, centerY - size * 0.1f)
+        lineTo(centerX + size * 0.15f, centerY + size * 0.1f)
+        lineTo(centerX, centerY + size * 0.2f)
+        lineTo(centerX - size * 0.15f, centerY + size * 0.1f)
+        lineTo(centerX - size * 0.2f, centerY - size * 0.1f)
+        close()
+    }
+    drawPath(headPath, Color(0xFF0080FF)) // Bright blue
+    
+    // Horns
+    val hornPath1 = Path().apply {
+        moveTo(centerX - size * 0.15f, centerY - size * 0.25f)
+        lineTo(centerX - size * 0.25f, centerY - size * 0.4f)
+        lineTo(centerX - size * 0.1f, centerY - size * 0.3f)
+        close()
+    }
+    val hornPath2 = Path().apply {
+        moveTo(centerX + size * 0.15f, centerY - size * 0.25f)
+        lineTo(centerX + size * 0.25f, centerY - size * 0.4f)
+        lineTo(centerX + size * 0.1f, centerY - size * 0.3f)
+        close()
+    }
+    drawPath(hornPath1, Color(0xFF004080)) // Dark blue
+    drawPath(hornPath2, Color(0xFF004080))
+    
+    // Glowing eyes
+    drawCircle(color = Color.Cyan, radius = size * 0.05f, center = Offset(centerX - size * 0.08f, centerY - size * 0.1f))
+    drawCircle(color = Color.Cyan, radius = size * 0.05f, center = Offset(centerX + size * 0.08f, centerY - size * 0.1f))
+    
+    // Blue flame aura (wings)
+    val flamePath = Path().apply {
+        moveTo(centerX - size * 0.15f, centerY + size * 0.1f)
+        cubicTo(
+            centerX - size * 0.3f, centerY,
+            centerX - size * 0.35f, centerY + size * 0.2f,
+            centerX - size * 0.2f, centerY + size * 0.3f
+        )
+    }
+    drawPath(flamePath, Color(0xFF40A0FF), style = Stroke(width = 2f))
+    val flamePath2 = Path().apply {
+        moveTo(centerX + size * 0.15f, centerY + size * 0.1f)
+        cubicTo(
+            centerX + size * 0.3f, centerY,
+            centerX + size * 0.35f, centerY + size * 0.2f,
+            centerX + size * 0.2f, centerY + size * 0.3f
+        )
+    }
+    drawPath(flamePath2, Color(0xFF40A0FF), style = Stroke(width = 2f))
+}
+
+/**
+ * Draw red demon symbol (slow but tanky with red armor)
+ */
+private fun DrawScope.drawRedDemonSymbol(centerX: Float, centerY: Float, size: Float) {
+    // Large armored body
+    drawCircle(
+        color = Color(0xFF8B0000), // Dark red
+        radius = size * 0.35f,
+        center = Offset(centerX, centerY)
+    )
+    
+    // Armor plates
+    drawRect(
+        color = Color(0xFF4A0000),
+        topLeft = Offset(centerX - size * 0.25f, centerY - size * 0.1f),
+        size = Size(size * 0.5f, size * 0.2f)
+    )
+    
+    // Large horns
+    val hornPath1 = Path().apply {
+        moveTo(centerX - size * 0.25f, centerY - size * 0.2f)
+        lineTo(centerX - size * 0.4f, centerY - size * 0.45f)
+        lineTo(centerX - size * 0.15f, centerY - size * 0.25f)
+        close()
+    }
+    val hornPath2 = Path().apply {
+        moveTo(centerX + size * 0.25f, centerY - size * 0.2f)
+        lineTo(centerX + size * 0.4f, centerY - size * 0.45f)
+        lineTo(centerX + size * 0.15f, centerY - size * 0.25f)
+        close()
+    }
+    drawPath(hornPath1, Color(0xFF2A0000))
+    drawPath(hornPath2, Color(0xFF2A0000))
+    
+    // Glowing eyes
+    drawCircle(color = Color(0xFFFF4500), radius = size * 0.06f, center = Offset(centerX - size * 0.12f, centerY - size * 0.08f))
+    drawCircle(color = Color(0xFFFF4500), radius = size * 0.06f, center = Offset(centerX + size * 0.12f, centerY - size * 0.08f))
+}
+
+/**
+ * Draw evil mage symbol (similar to wizard but more menacing)
+ */
+private fun DrawScope.drawEvilMageSymbol(centerX: Float, centerY: Float, size: Float) {
+    // Robe (dark)
+    val robePath = Path().apply {
+        moveTo(centerX, centerY - size * 0.35f)
+        lineTo(centerX - size * 0.25f, centerY + size * 0.3f)
+        lineTo(centerX + size * 0.25f, centerY + size * 0.3f)
+        close()
+    }
+    drawPath(robePath, Color(0xFF2C0052)) // Very dark purple
+    
+    // Hood
+    val hoodPath = Path().apply {
+        moveTo(centerX, centerY - size * 0.4f)
+        lineTo(centerX - size * 0.3f, centerY - size * 0.05f)
+        lineTo(centerX + size * 0.3f, centerY - size * 0.05f)
+        close()
+    }
+    drawPath(hoodPath, Color(0xFF1A0030))
+    
+    // Face in shadow
+    drawCircle(
+        color = Color(0xFF4A0080),
+        radius = size * 0.15f,
+        center = Offset(centerX, centerY)
+    )
+    
+    // Glowing purple eyes
+    drawCircle(color = Color(0xFFB000FF), radius = size * 0.06f, center = Offset(centerX - size * 0.08f, centerY - size * 0.02f))
+    drawCircle(color = Color(0xFFB000FF), radius = size * 0.06f, center = Offset(centerX + size * 0.08f, centerY - size * 0.02f))
+    
+    // Staff with dark orb
+    drawLine(
+        color = Color(0xFF1A1A1A),
+        start = Offset(centerX + size * 0.3f, centerY - size * 0.1f),
+        end = Offset(centerX + size * 0.4f, centerY + size * 0.4f),
+        strokeWidth = 3f
+    )
+    drawCircle(color = Color(0xFF8B00FF), radius = size * 0.1f, center = Offset(centerX + size * 0.4f, centerY - size * 0.15f))
+}
+
+/**
+ * Draw red witch symbol (witch in red, focused on tower disruption)
+ */
+private fun DrawScope.drawRedWitchSymbol(centerX: Float, centerY: Float, size: Float) {
+    // Red witch hat
+    val hatPath = Path().apply {
+        moveTo(centerX, centerY - size * 0.35f)
+        lineTo(centerX - size * 0.25f, centerY - size * 0.05f)
+        lineTo(centerX + size * 0.25f, centerY - size * 0.05f)
+        close()
+    }
+    drawPath(hatPath, Color(0xFF8B0000)) // Dark red
+    
+    // Hat brim
+    drawRect(
+        color = Color(0xFF8B0000),
+        topLeft = Offset(centerX - size * 0.3f, centerY - size * 0.05f),
+        size = Size(size * 0.6f, size * 0.06f)
+    )
+    
+    // Face
+    drawCircle(
+        color = Color(0xFFFFE4B5), // Light skin
+        radius = size * 0.18f,
+        center = Offset(centerX, centerY + size * 0.1f)
+    )
+    
+    // Eyes
+    drawCircle(color = Color(0xFFDC143C), radius = size * 0.05f, center = Offset(centerX - size * 0.08f, centerY + size * 0.08f))
+    drawCircle(color = Color(0xFFDC143C), radius = size * 0.05f, center = Offset(centerX + size * 0.08f, centerY + size * 0.08f))
+    
+    // Wand (instead of broom)
+    drawLine(
+        color = Color(0xFF8B4513),
+        start = Offset(centerX - size * 0.25f, centerY + size * 0.15f),
+        end = Offset(centerX - size * 0.4f, centerY + size * 0.35f),
+        strokeWidth = 2f
+    )
+    // Red star on wand
+    drawCircle(color = Color.Red, radius = size * 0.06f, center = Offset(centerX - size * 0.4f, centerY + size * 0.35f))
+}
+
+/**
+ * Draw green witch symbol (healer witch)
+ */
+private fun DrawScope.drawGreenWitchSymbol(centerX: Float, centerY: Float, size: Float) {
+    // Green witch hat
+    val hatPath = Path().apply {
+        moveTo(centerX, centerY - size * 0.35f)
+        lineTo(centerX - size * 0.25f, centerY - size * 0.05f)
+        lineTo(centerX + size * 0.25f, centerY - size * 0.05f)
+        close()
+    }
+    drawPath(hatPath, Color(0xFF228B22)) // Forest green
+    
+    // Hat brim
+    drawRect(
+        color = Color(0xFF228B22),
+        topLeft = Offset(centerX - size * 0.3f, centerY - size * 0.05f),
+        size = Size(size * 0.6f, size * 0.06f)
+    )
+    
+    // Face
+    drawCircle(
+        color = Color(0xFFE0FFE0), // Very light green
+        radius = size * 0.18f,
+        center = Offset(centerX, centerY + size * 0.1f)
+    )
+    
+    // Eyes
+    drawCircle(color = Color(0xFF32CD32), radius = size * 0.05f, center = Offset(centerX - size * 0.08f, centerY + size * 0.08f))
+    drawCircle(color = Color(0xFF32CD32), radius = size * 0.05f, center = Offset(centerX + size * 0.08f, centerY + size * 0.08f))
+    
+    // Healing staff
+    drawLine(
+        color = Color(0xFF8B4513),
+        start = Offset(centerX + size * 0.25f, centerY + size * 0.15f),
+        end = Offset(centerX + size * 0.4f, centerY + size * 0.35f),
+        strokeWidth = 2f
+    )
+    // Green healing orb
+    drawCircle(color = Color(0xFF00FF00), radius = size * 0.07f, center = Offset(centerX + size * 0.4f, centerY + size * 0.35f))
+}
+
+/**
+ * Draw Ewhad symbol (evil arch mage boss) - unique symbol ☠ Ψ
+ */
+private fun DrawScope.drawEwhadSymbol(centerX: Float, centerY: Float, size: Float) {
+    // Large dark robe
+    val robePath = Path().apply {
+        moveTo(centerX, centerY - size * 0.45f)
+        lineTo(centerX - size * 0.35f, centerY + size * 0.35f)
+        lineTo(centerX + size * 0.35f, centerY + size * 0.35f)
+        close()
+    }
+    drawPath(robePath, Color(0xFF0A0015)) // Almost black with purple tint
+    
+    // Elaborate hood with points
+    val hoodPath = Path().apply {
+        moveTo(centerX, centerY - size * 0.5f)
+        lineTo(centerX - size * 0.35f, centerY - size * 0.1f)
+        lineTo(centerX - size * 0.3f, centerY - size * 0.15f)
+        lineTo(centerX, centerY - size * 0.45f)
+        lineTo(centerX + size * 0.3f, centerY - size * 0.15f)
+        lineTo(centerX + size * 0.35f, centerY - size * 0.1f)
+        close()
+    }
+    drawPath(hoodPath, Color.Black)
+    
+    // Skull face (death aspect)
+    drawCircle(
+        color = Color(0xFFD3D3D3),
+        radius = size * 0.2f,
+        center = Offset(centerX, centerY - size * 0.05f)
+    )
+    
+    // Skull eye sockets (glowing red)
+    drawCircle(color = Color.Black, radius = size * 0.08f, center = Offset(centerX - size * 0.1f, centerY - size * 0.1f))
+    drawCircle(color = Color.Black, radius = size * 0.08f, center = Offset(centerX + size * 0.1f, centerY - size * 0.1f))
+    drawCircle(color = Color(0xFFFF0000), radius = size * 0.04f, center = Offset(centerX - size * 0.1f, centerY - size * 0.1f))
+    drawCircle(color = Color(0xFFFF0000), radius = size * 0.04f, center = Offset(centerX + size * 0.1f, centerY - size * 0.1f))
+    
+    // Crown/spikes on hood
+    for (i in -1..1) {
+        val path = Path().apply {
+            val x = centerX + i * size * 0.15f
+            moveTo(x, centerY - size * 0.45f)
+            lineTo(x - size * 0.05f, centerY - size * 0.35f)
+            lineTo(x + size * 0.05f, centerY - size * 0.35f)
+            close()
+        }
+        drawPath(path, Color(0xFFFFD700)) // Gold
+    }
+    
+    // Powerful staff (trident-like Ψ symbol)
+    drawLine(
+        color = Color(0xFF3A0060),
+        start = Offset(centerX + size * 0.35f, centerY - size * 0.2f),
+        end = Offset(centerX + size * 0.45f, centerY + size * 0.45f),
+        strokeWidth = 4f
+    )
+    // Trident top (Ψ shape)
+    drawLine(
+        color = Color(0xFF8B00FF),
+        start = Offset(centerX + size * 0.35f, centerY - size * 0.25f),
+        end = Offset(centerX + size * 0.45f, centerY - size * 0.35f),
+        strokeWidth = 3f
+    )
+    drawLine(
+        color = Color(0xFF8B00FF),
+        start = Offset(centerX + size * 0.45f, centerY - size * 0.25f),
+        end = Offset(centerX + size * 0.45f, centerY - size * 0.35f),
+        strokeWidth = 3f
+    )
+    drawLine(
+        color = Color(0xFF8B00FF),
+        start = Offset(centerX + size * 0.55f, centerY - size * 0.25f),
+        end = Offset(centerX + size * 0.45f, centerY - size * 0.35f),
+        strokeWidth = 3f
+    )
+    
+    // Dark energy aura
+    drawCircle(
+        color = Color(0xFF4B0082).copy(alpha = 0.3f),
+        radius = size * 0.5f,
+        center = Offset(centerX, centerY)
+    )
 }
