@@ -147,7 +147,7 @@ private fun GamePlayScreenContent(
                 Text("Level: ${gameState.level.name}", style = MaterialTheme.typography.titleLarge)
                 // Clickable coins display for cheat codes
                 Text(
-                    "Coins: ${gameState.coins.value}",
+                    "💰 ${gameState.coins.value}",
                     style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier.clickable(
                         onClick = { 
