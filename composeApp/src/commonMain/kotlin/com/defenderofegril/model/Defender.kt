@@ -37,7 +37,9 @@ data class Defender(
     val buildTimeRemaining: MutableState<Int> = mutableStateOf(0),  // 0 = ready to use
     val actionsRemaining: MutableState<Int> = mutableStateOf(0),     // Actions left this turn
     val placedOnTurn: Int = 0,  // Track when tower was placed
-    val hasBeenUsed: MutableState<Boolean> = mutableStateOf(false)  // Track if tower has attacked
+    val hasBeenUsed: MutableState<Boolean> = mutableStateOf(false),  // Track if tower has attacked
+    val isDisabled: MutableState<Boolean> = mutableStateOf(false), // Disabled by Red Witch
+    val disabledTurnsRemaining: MutableState<Int> = mutableStateOf(0)
 ) {
     val damage: Int get() = type.baseDamage + (level.value - 1) * 5
     val range: Int get() {
@@ -92,7 +94,7 @@ data class Defender(
     }
     
     fun canAttack(attacker: Attacker): Boolean {
-        if (!isReady || actionsRemaining.value <= 0) return false
+        if (!isReady || actionsRemaining.value <= 0 || isDisabled.value) return false
         val distance = position.distanceTo(attacker.position.value)
         // Check both minimum and maximum range
         return distance >= type.minRange && distance <= range
