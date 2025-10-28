@@ -3,6 +3,7 @@ package com.defenderofegril.ui
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -24,7 +25,11 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -404,7 +409,12 @@ fun GameGrid(
     onCellClick: (Position) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val scrollState = rememberScrollState()
+    // State for pan and zoom
+    var scale by remember { mutableStateOf(1f) }
+    var offsetX by remember { mutableStateOf(0f) }
+    var offsetY by remember { mutableStateOf(0f) }
+    var containerSize by remember { mutableStateOf(IntSize.Zero) }
+    
     val hexSize = 40.dp  // Radius of hexagon (center to corner)
     
     // Calculate hex dimensions for pointy-top hexagons
@@ -420,37 +430,144 @@ fun GameGrid(
     val totalGridWidth = ((gameState.level.gridWidth) * hexWidth + hexWidth + 200f).dp
     
     Box(
-        modifier = modifier.fillMaxWidth().horizontalScroll(scrollState)
+        modifier = modifier
+            .fillMaxWidth()
+            .onSizeChanged { containerSize = it }
     ) {
-        Column(
-            modifier = Modifier.width(totalGridWidth),  // Set explicit width for scrolling
-            verticalArrangement = Arrangement.spacedBy((-hexHeight + verticalSpacing - 7f).dp)  // Extra tight spacing to eliminate all gaps
-        ) {
-            for (y in 0 until gameState.level.gridHeight) {
-                Row(
-                    modifier = Modifier.offset(x = if (y % 2 == 1) (hexWidth * 0.42f).dp else 0.dp),  // Offset odd rows 42% to eliminate final gaps
-                    horizontalArrangement = Arrangement.spacedBy((-10).dp)  // Even tighter horizontal spacing
-                ) {
-                    for (x in 0 until gameState.level.gridWidth) {
-                        val position = Position(x, y)
-                        GridCell(
-                            position = position,
-                            gameState = gameState,
-                            isSelected = selectedDefenderType != null,
-                            isDefenderSelected = selectedDefenderId?.let { selId ->
-                                gameState.defenders.find { it.position == position }?.id == selId
-                            } ?: false,
-                            isTargetSelected = gameState.attackers.find { it.position.value == position }?.id == selectedTargetId,
-                            /* TODO from main
-                            isDefenderSelected = gameState.defenders.find { it.position == position }?.id == selectedDefenderId,
-                            isTargetSelected = gameState.attackers.find { it.position == position }?.id == selectedTargetId || position == selectedTargetPosition,
-                             */
-                            selectedDefenderId = selectedDefenderId,
-                            onClick = { onCellClick(position) },
-                            hexSize = hexSize
-                        )
+        // Map content with pan and zoom
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .pointerInput(Unit) {
+                    detectTransformGestures { _, pan, zoom, _ ->
+                        // Apply zoom
+                        scale = (scale * zoom).coerceIn(0.5f, 3f)
+                        
+                        // Apply pan
+                        offsetX += pan.x
+                        offsetY += pan.y
+                        
+                        // Constrain pan to keep content visible
+                        val maxOffsetX = (containerSize.width * (scale - 1) / 2).coerceAtLeast(0f)
+                        val maxOffsetY = (containerSize.height * (scale - 1) / 2).coerceAtLeast(0f)
+                        
+                        offsetX = offsetX.coerceIn(-maxOffsetX, maxOffsetX)
+                        offsetY = offsetY.coerceIn(-maxOffsetY, maxOffsetY)
                     }
                 }
+                .graphicsLayer(
+                    scaleX = scale,
+                    scaleY = scale,
+                    translationX = offsetX,
+                    translationY = offsetY
+                )
+        ) {
+            Column(
+                modifier = Modifier.width(totalGridWidth),  // Set explicit width for scrolling
+                verticalArrangement = Arrangement.spacedBy((-hexHeight + verticalSpacing - 7f).dp)  // Extra tight spacing to eliminate all gaps
+            ) {
+                for (y in 0 until gameState.level.gridHeight) {
+                    Row(
+                        modifier = Modifier.offset(x = if (y % 2 == 1) (hexWidth * 0.42f).dp else 0.dp),  // Offset odd rows 42% to eliminate final gaps
+                        horizontalArrangement = Arrangement.spacedBy((-10).dp)  // Even tighter horizontal spacing
+                    ) {
+                        for (x in 0 until gameState.level.gridWidth) {
+                            val position = Position(x, y)
+                            GridCell(
+                                position = position,
+                                gameState = gameState,
+                                isSelected = selectedDefenderType != null,
+                                isDefenderSelected = selectedDefenderId?.let { selId ->
+                                    gameState.defenders.find { it.position == position }?.id == selId
+                                } ?: false,
+                                isTargetSelected = gameState.attackers.find { it.position.value == position }?.id == selectedTargetId,
+                                /* TODO from main
+                                isDefenderSelected = gameState.defenders.find { it.position == position }?.id == selectedDefenderId,
+                                isTargetSelected = gameState.attackers.find { it.position == position }?.id == selectedTargetId || position == selectedTargetPosition,
+                                 */
+                                selectedDefenderId = selectedDefenderId,
+                                onClick = { onCellClick(position) },
+                                hexSize = hexSize
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Minimap - shown when zoomed in
+        if (scale > 1.1f) {
+            GameMinimap(
+                scale = scale,
+                offsetX = offsetX,
+                offsetY = offsetY,
+                containerSize = containerSize,
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(16.dp)
+            )
+        }
+    }
+}
+
+@Composable
+fun GameMinimap(
+    scale: Float,
+    offsetX: Float,
+    offsetY: Float,
+    containerSize: IntSize,
+    modifier: Modifier = Modifier
+) {
+    val minimapSize = 120.dp
+    
+    Box(
+        modifier = modifier
+            .size(minimapSize)
+            .background(Color(0xCC000000))  // Semi-transparent black background
+            .border(2.dp, Color.White)
+            .padding(4.dp)
+    ) {
+        // Map outline (represents the full map)
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color(0xFF444444))
+        )
+        
+        // Viewport indicator (shows current view)
+        if (containerSize.width > 0 && containerSize.height > 0) {
+            val viewportWidthRatio = 1f / scale
+            val viewportHeightRatio = 1f / scale
+            
+            // Calculate normalized offset (-1 to 1 range)
+            val maxOffsetX = (containerSize.width * (scale - 1) / 2).coerceAtLeast(0.01f)
+            val maxOffsetY = (containerSize.height * (scale - 1) / 2).coerceAtLeast(0.01f)
+            val normalizedOffsetX = -offsetX / maxOffsetX
+            val normalizedOffsetY = -offsetY / maxOffsetY
+            
+            // Calculate viewport position in minimap
+            val viewportX = (normalizedOffsetX * (1f - viewportWidthRatio) / 2f + (1f - viewportWidthRatio) / 2f)
+            val viewportY = (normalizedOffsetY * (1f - viewportHeightRatio) / 2f + (1f - viewportHeightRatio) / 2f)
+            
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .graphicsLayer {
+                        clip = true
+                    }
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(viewportWidthRatio)
+                        .fillMaxHeight(viewportHeightRatio)
+                        .align(Alignment.TopStart)
+                        .offset(
+                            x = minimapSize * viewportX,
+                            y = minimapSize * viewportY
+                        )
+                        .background(Color(0x88FFFFFF))  // Semi-transparent white for viewport
+                        .border(1.dp, Color.White)
+                )
             }
         }
     }
