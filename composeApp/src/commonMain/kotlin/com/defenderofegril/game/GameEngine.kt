@@ -473,6 +473,9 @@ class GameEngine(private val state: GameState) {
         // Update field effects
         updateFieldEffects()
 
+        // Process special enemy abilities
+        processEnemyAbilities()
+
         // Remove defeated attackers and give rewards
         processDefeatedAttackers()
         
@@ -481,8 +484,10 @@ class GameEngine(private val state: GameState) {
             loadNextWave()
         }
         
-        // Advance building timers and start next player turn
+        // Advance building timers and re-enable towers
         advanceBuildTimers()
+        updateTowerDisableStatus()
+        
         state.phase.value = GamePhase.PLAYER_TURN
         resetDefenderActions()
     }
@@ -602,15 +607,18 @@ class GameEngine(private val state: GameState) {
             affectedPositions.remove(targetPosition)
         }
 
-        // Damage all enemies in affected positions
+        // Damage all enemies in affected positions (except those immune to fireballs)
         val targets = state.attackers.filter { 
             !it.isDefeated.value && affectedPositions.contains(it.position.value)
         }
         
         for (target in targets) {
-            target.currentHealth.value -= defender.damage
-            if (target.currentHealth.value <= 0) {
-                target.isDefeated.value = true
+            // Check immunity to fireball (Red Demons)
+            if (target.canBeDamagedByFireball()) {
+                target.currentHealth.value -= defender.damage
+                if (target.currentHealth.value <= 0) {
+                    target.isDefeated.value = true
+                }
             }
         }
 
@@ -660,13 +668,16 @@ class GameEngine(private val state: GameState) {
         }
 
         for (target in targets) {
-            // Initial damage is same as DOT tick damage (not full damage)
-            target.currentHealth.value -= defender.damage / LASTING_DAMAGE_DIVISOR
-            // Mark for additional rounds of DOT based on tower level
-            defender.dotRoundsRemaining[target.id] = defender.dotDuration
+            // Check immunity to acid (Blue Demons)
+            if (target.canBeDamagedByAcid()) {
+                // Initial damage is same as DOT tick damage (not full damage)
+                target.currentHealth.value -= defender.damage / LASTING_DAMAGE_DIVISOR
+                // Mark for additional rounds of DOT based on tower level
+                defender.dotRoundsRemaining[target.id] = defender.dotDuration
 
-            if (target.currentHealth.value  <= 0) {
-                target.isDefeated.value = true
+                if (target.currentHealth.value  <= 0) {
+                    target.isDefeated.value = true
+                }
             }
         }
 
@@ -735,9 +746,12 @@ class GameEngine(private val state: GameState) {
             }
 
             for (attacker in enemiesInAcid) {
-                attacker.currentHealth.value -= effect.damage
-                if (attacker.currentHealth.value <= 0) {
-                    attacker.isDefeated.value = true
+                // Check immunity to acid (Blue Demons)
+                if (attacker.canBeDamagedByAcid()) {
+                    attacker.currentHealth.value -= effect.damage
+                    if (attacker.currentHealth.value <= 0) {
+                        attacker.isDefeated.value = true
+                    }
                 }
             }
         }
@@ -747,7 +761,13 @@ class GameEngine(private val state: GameState) {
         for (attacker in state.attackers) {
             if (attacker.isDefeated.value) continue
             
-            val target = state.level.targetPosition
+            // Red Witch targets nearest active tower instead of the goal
+            val target = if (attacker.type == AttackerType.RED_WITCH) {
+                findNearestActiveTower(attacker)?.position ?: state.level.targetPosition
+            } else {
+                state.level.targetPosition
+            }
+            
             val path = findPath(attacker.position.value, target, attacker)
             
             if (path.isEmpty()) continue
@@ -759,12 +779,18 @@ class GameEngine(private val state: GameState) {
                 val newPos = path[pathIndex]
                 
                 // Check if new position is occupied by another alive attacker
-                val isOccupied = state.attackers.any {
+                val occupyingAttacker = state.attackers.find {
                     it.id != attacker.id && !it.isDefeated.value && it.position.value == newPos
                 }
 
-                if (!isOccupied) {
+                if (occupyingAttacker == null) {
                     attacker.position.value = newPos
+                    pathIndex++
+                } else if (attacker.type == AttackerType.EWHAD) {
+                    // Ewhad can swap positions with other units
+                    val oldPos = attacker.position.value
+                    attacker.position.value = newPos
+                    occupyingAttacker.position.value = oldPos
                     pathIndex++
                 } else {
                     // Can't move further, stop trying
@@ -991,6 +1017,166 @@ class GameEngine(private val state: GameState) {
             state.coins.value += attacker.type.reward
         }
         state.attackers.removeAll { it.isDefeated.value }
+    }
+    
+    /**
+     * Process special enemy abilities:
+     * - Evil Mage: summons demons
+     * - Ewhad: summons demons and undead
+     * - Green Witch: heals adjacent units
+     * - Red Witch: disables towers
+     */
+    private fun processEnemyAbilities() {
+        for (attacker in state.attackers) {
+            if (attacker.isDefeated.value) continue
+            
+            when (attacker.type) {
+                AttackerType.EVIL_MAGE -> {
+                    // Summon 1 blue demon per level
+                    repeat(attacker.level) {
+                        spawnDemonNear(attacker, AttackerType.BLUE_DEMON, state.turnNumber.value)
+                    }
+                    // Summon red demons (level / 2)
+                    repeat(attacker.level / 2) {
+                        spawnDemonNear(attacker, AttackerType.RED_DEMON, state.turnNumber.value)
+                    }
+                }
+                AttackerType.EWHAD -> {
+                    // Ewhad spawns double the demons of a regular evil mage
+                    repeat(attacker.level * 2) {
+                        spawnDemonNear(attacker, AttackerType.BLUE_DEMON, state.turnNumber.value)
+                    }
+                    repeat(attacker.level) {
+                        spawnDemonNear(attacker, AttackerType.RED_DEMON, state.turnNumber.value)
+                    }
+                    // Additional 3 undead
+                    repeat(3) {
+                        spawnUndeadNear(attacker, 10 + state.turnNumber.value)
+                    }
+                }
+                AttackerType.GREEN_WITCH -> {
+                    // Heal adjacent units
+                    val adjacentPositions = attacker.position.value.getHexNeighbors()
+                    for (adjacent in adjacentPositions) {
+                        val adjacentEnemy = state.attackers.find { 
+                            !it.isDefeated.value && it.id != attacker.id && it.position.value == adjacent 
+                        }
+                        if (adjacentEnemy != null) {
+                            val healAmount = minOf(attacker.level, adjacentEnemy.maxHealth - adjacentEnemy.currentHealth.value)
+                            adjacentEnemy.currentHealth.value += healAmount
+                        }
+                    }
+                }
+                AttackerType.RED_WITCH -> {
+                    // Disable nearby tower (instead of moving to target)
+                    disableNearestTower(attacker)
+                }
+                else -> {}
+            }
+        }
+    }
+    
+    /**
+     * Spawn a demon near the given attacker (1-2 cells away)
+     */
+    private fun spawnDemonNear(summoner: Attacker, demonType: AttackerType, level: Int) {
+        val summonerPos = summoner.position.value
+        
+        // Try to find a free position 1-2 cells away
+        val possiblePositions = mutableListOf<Position>()
+        
+        // Get positions 1 cell away
+        possiblePositions.addAll(summonerPos.getHexNeighbors())
+        
+        // Get positions 2 cells away
+        for (neighbor in summonerPos.getHexNeighbors()) {
+            possiblePositions.addAll(neighbor.getHexNeighbors())
+        }
+        
+        // Filter valid positions (on path, not occupied, within bounds)
+        val validPositions = possiblePositions.filter { pos ->
+            pos.x >= 0 && pos.x < state.level.gridWidth &&
+            pos.y >= 0 && pos.y < state.level.gridHeight &&
+            state.level.isOnPath(pos) &&
+            !state.attackers.any { it.position.value == pos && !it.isDefeated.value }
+        }.distinct()
+        
+        if (validPositions.isEmpty()) return
+        
+        // Pick a random position
+        val spawnPos = validPositions.random()
+        
+        val demon = Attacker(
+            id = state.nextAttackerId.value++,
+            type = demonType,
+            position = mutableStateOf(spawnPos),
+            level = level
+        )
+        state.attackers.add(demon)
+    }
+    
+    /**
+     * Spawn an undead (skeleton) near the given attacker
+     */
+    private fun spawnUndeadNear(summoner: Attacker, level: Int) {
+        spawnDemonNear(summoner, AttackerType.SKELETON, level)
+    }
+    
+    /**
+     * Red Witch disables the nearest active tower of her level or less
+     */
+    private fun disableNearestTower(witch: Attacker) {
+        // Find nearest tower that:
+        // - Is ready (not building)
+        // - Is not already disabled
+        // - Has level <= witch level
+        val eligibleTowers = state.defenders.filter { tower ->
+            tower.isReady && 
+            !tower.isDisabled.value && 
+            tower.level.value <= witch.level
+        }
+        
+        if (eligibleTowers.isEmpty()) return
+        
+        // Find closest tower
+        val nearestTower = eligibleTowers.minByOrNull { tower ->
+            tower.position.distanceTo(witch.position.value)
+        }
+        
+        if (nearestTower != null) {
+            // Disable for 3 turns
+            nearestTower.isDisabled.value = true
+            nearestTower.disabledTurnsRemaining.value = 3
+        }
+    }
+    
+    /**
+     * Update tower disable status - decrement timers and re-enable towers
+     */
+    private fun updateTowerDisableStatus() {
+        for (tower in state.defenders) {
+            if (tower.isDisabled.value) {
+                tower.disabledTurnsRemaining.value--
+                if (tower.disabledTurnsRemaining.value <= 0) {
+                    tower.isDisabled.value = false
+                }
+            }
+        }
+    }
+    
+    /**
+     * Find the nearest active tower for Red Witch to target
+     */
+    private fun findNearestActiveTower(witch: Attacker): Defender? {
+        val eligibleTowers = state.defenders.filter { tower ->
+            tower.isReady && !tower.isDisabled.value && tower.level.value <= witch.level
+        }
+        
+        if (eligibleTowers.isEmpty()) return null
+        
+        return eligibleTowers.minByOrNull { tower ->
+            tower.position.distanceTo(witch.position.value)
+        }
     }
     
     // Cheat code support for testing
