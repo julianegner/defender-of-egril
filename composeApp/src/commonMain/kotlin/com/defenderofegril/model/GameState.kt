@@ -12,8 +12,8 @@ enum class GamePhase {
 }
 
 enum class FieldEffectType {
-    FIREBALL_AOE,      // Visual effect for wizard fireball area
-    ACID_DOT           // Visual effect for alchemy acid with duration
+    FIREBALL,      // Visual effect for wizard fireball area
+    ACID           // Visual effect for alchemy acid with duration
 }
 
 data class FieldEffect(
