@@ -3,6 +3,7 @@ package com.defenderofegril.ui
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -26,7 +27,9 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
@@ -432,10 +435,28 @@ fun GameGrid(
     Box(
         modifier = modifier
             .onSizeChanged { containerSize = it }
+            // Mouse wheel zoom support (desktop)
+            .onPointerEvent(PointerEventType.Scroll) { event ->
+                val delta = event.changes.first().scrollDelta
+                // Zoom in/out based on scroll direction
+                if (delta.y != 0f) {
+                    val zoomDelta = if (delta.y < 0) 1.1f else 0.9f
+                    scale = (scale * zoomDelta).coerceIn(0.5f, 3f)
+                    
+                    // Constrain pan after zoom
+                    val maxOffsetX = (containerSize.width * (scale - 1) / 2).coerceAtLeast(0f)
+                    val maxOffsetY = (containerSize.height * (scale - 1) / 2).coerceAtLeast(0f)
+                    offsetX = offsetX.coerceIn(-maxOffsetX, maxOffsetX)
+                    offsetY = offsetY.coerceIn(-maxOffsetY, maxOffsetY)
+                }
+            }
+            // Combined gesture handling for pan and pinch-zoom
             .pointerInput(Unit) {
                 detectTransformGestures { _, pan, zoom, _ ->
-                    // Apply zoom
-                    scale = (scale * zoom).coerceIn(0.5f, 3f)
+                    // Apply zoom (for pinch gestures on mobile)
+                    if (zoom != 1f) {
+                        scale = (scale * zoom).coerceIn(0.5f, 3f)
+                    }
                     
                     // Apply pan
                     offsetX += pan.x
