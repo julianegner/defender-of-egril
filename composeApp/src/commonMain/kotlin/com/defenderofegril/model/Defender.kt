@@ -16,16 +16,16 @@ enum class DefenderType(
     SPIKE_TOWER("Spike Tower", baseCost = 10, baseDamage = 5, baseRange = 1, attackType = AttackType.MELEE, actionsPerTurn = 1, buildTime = 1),
     SPEAR_TOWER("Spear Tower", baseCost = 15, baseDamage = 8, baseRange = 2, attackType = AttackType.RANGED, actionsPerTurn = 1, buildTime = 1),
     BOW_TOWER("Bow Tower", baseCost = 20, baseDamage = 10, baseRange = 3, attackType = AttackType.RANGED, actionsPerTurn = 1, buildTime = 1),
-    WIZARD_TOWER("Wizard Tower", baseCost = 50, baseDamage = 30, baseRange = 3, attackType = AttackType.AOE, actionsPerTurn = 1, buildTime = 2),
-    ALCHEMY_TOWER("Alchemy Tower", baseCost = 40, baseDamage = 15, baseRange = 2, attackType = AttackType.DOT, actionsPerTurn = 1, buildTime = 1),
+    WIZARD_TOWER("Wizard Tower", baseCost = 50, baseDamage = 30, baseRange = 3, attackType = AttackType.AREA, actionsPerTurn = 1, buildTime = 2),
+    ALCHEMY_TOWER("Alchemy Tower", baseCost = 40, baseDamage = 15, baseRange = 2, attackType = AttackType.LASTING, actionsPerTurn = 1, buildTime = 1),
     BALLISTA_TOWER("Ballista Tower", baseCost = 60, baseDamage = 50, baseRange = 5, attackType = AttackType.RANGED, actionsPerTurn = 1, buildTime = 2, minRange = 3)
 }
 
 enum class AttackType {
     MELEE,    // Single target, close range
     RANGED,   // Single target, long range
-    AOE,      // Area of Effect - affects multiple enemies
-    DOT       // Damage over Time - lower damage but lasts multiple rounds
+    AREA,      // Area of Effect - affects multiple enemies
+    LASTING    // Damage over Time - lower damage but lasts multiple rounds
 }
 
 data class Defender(
@@ -57,15 +57,15 @@ data class Defender(
     }
     
     // Get the actual damage dealt by this tower
-    // For DOT towers, the actual damage is half the base damage
+    // For LASTING towers, the actual damage is half the base damage
     val actualDamage: Int get() = when (type.attackType) {
-        AttackType.DOT -> damage / 2
+        AttackType.LASTING -> damage / 2
         else -> damage
     }
     
-    // Calculate DOT duration for alchemy tower: 2 base turns + 1 extra per 5 levels (5, 10, 15, etc.)
+    // Calculate LASTING duration for alchemy tower: 2 base turns + 1 extra per 5 levels (5, 10, 15, etc.)
     val dotDuration: Int get() {
-        return if (type.attackType == AttackType.DOT) {
+        return if (type.attackType == AttackType.LASTING) {
             2 + (level.value / 5)  // Base 2 turns, +1 at level 5, +2 at level 10, +3 at level 15, etc.
         } else {
             0
