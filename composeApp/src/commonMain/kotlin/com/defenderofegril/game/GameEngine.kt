@@ -65,6 +65,9 @@ class GameEngine(private val state: GameState) {
     fun sellTower(defenderId: Int): Boolean {
         val defender = state.defenders.find { it.id == defenderId } ?: return false
         
+        // Cannot sell dragon's lair
+        if (!defender.canSell) return false
+        
         // Can only sell if tower is ready and has actions remaining
         if (!defender.isReady) return false
         if (defender.actionsRemaining.value <= 0) return false
@@ -215,6 +218,9 @@ class GameEngine(private val state: GameState) {
         
         // Move attackers
         moveAttackers()
+        
+        // Check and activate traps
+        checkAndActivateTraps()
         
         // Apply damage over time effects
         applyLastingEffects()
@@ -794,6 +800,12 @@ class GameEngine(private val state: GameState) {
         for (attacker in state.attackers) {
             if (attacker.isDefeated.value) continue
             
+            // Handle dragon movement separately
+            if (attacker.type.isDragon) {
+                moveDragon(attacker)
+                continue
+            }
+            
             // Red Witch targets nearest active tower instead of the goal
             val target = if (attacker.type == AttackerType.RED_WITCH) {
                 val nearestTower = findNearestActiveTower(attacker)
@@ -842,6 +854,111 @@ class GameEngine(private val state: GameState) {
                 if (attacker.position.value == target) {
                     state.healthPoints.value--
                     attacker.isDefeated.value = true
+                    break
+                }
+            }
+        }
+    }
+    
+    /**
+     * Move dragon with special rules:
+     * - Turn 1 after spawn: 1 step (walking)
+     * - Turn 2+: 5 steps (flying), can move over units and island fields
+     */
+    private fun moveDragon(dragon: Attacker) {
+        dragon.dragonTurnsSinceSpawned.value++
+        
+        // Determine speed and if flying
+        val speed = if (dragon.dragonTurnsSinceSpawned.value == 1) {
+            dragon.isFlying.value = false
+            1  // Walking on first turn
+        } else {
+            dragon.isFlying.value = true
+            5  // Flying on subsequent turns
+        }
+        
+        val target = state.level.targetPosition
+        
+        // For flying, we can move directly towards target ignoring path
+        if (dragon.isFlying.value) {
+            // Get all valid positions to move to (within speed range)
+            var currentPos = dragon.position.value
+            var remainingSpeed = speed
+            
+            while (remainingSpeed > 0) {
+                // Find next position closer to target
+                val neighbors = currentPos.neighbors()
+                val nextPos = neighbors.minByOrNull { it.distanceTo(target) } ?: break
+                
+                // If we're not getting closer, stop
+                if (nextPos.distanceTo(target) >= currentPos.distanceTo(target)) {
+                    break
+                }
+                
+                currentPos = nextPos
+                remainingSpeed--
+                
+                // Check if reached target
+                if (currentPos == target) {
+                    state.healthPoints.value--
+                    dragon.isDefeated.value = true
+                    break
+                }
+            }
+            
+            // Check if landing on an enemy unit (eat it)
+            val unitAtPosition = state.attackers.find { 
+                it.id != dragon.id && !it.isDefeated.value && it.position.value == currentPos
+            }
+            if (unitAtPosition != null && unitAtPosition.type != AttackerType.EWHAD) {
+                // Eat the unit and gain its health
+                dragon.currentHealth.value += unitAtPosition.currentHealth.value
+                unitAtPosition.isDefeated.value = true
+            } else if (unitAtPosition != null && unitAtPosition.type == AttackerType.EWHAD) {
+                // Move to adjacent position instead
+                val adjacentPositions = currentPos.neighbors()
+                val alternatePos = adjacentPositions.firstOrNull { pos ->
+                    state.attackers.none { it.position.value == pos && !it.isDefeated.value }
+                }
+                if (alternatePos != null) {
+                    currentPos = alternatePos
+                }
+            }
+            
+            dragon.position.value = currentPos
+        } else {
+            // Walking - follow path normally
+            val path = findPath(dragon.position.value, target, dragon)
+            if (path.isEmpty()) return
+            
+            var pathIndex = 1
+            var remainingSpeed = speed
+            
+            while (remainingSpeed > 0 && pathIndex < path.size) {
+                val newPos = path[pathIndex]
+                
+                // Check for unit at position (eat it)
+                val unitAtPosition = state.attackers.find {
+                    it.id != dragon.id && !it.isDefeated.value && it.position.value == newPos
+                }
+                
+                if (unitAtPosition != null && unitAtPosition.type != AttackerType.EWHAD) {
+                    // Eat the unit and gain its health
+                    dragon.currentHealth.value += unitAtPosition.currentHealth.value
+                    unitAtPosition.isDefeated.value = true
+                } else if (unitAtPosition != null && unitAtPosition.type == AttackerType.EWHAD) {
+                    // Can't move to Ewhad's position, stop
+                    break
+                }
+                
+                dragon.position.value = newPos
+                pathIndex++
+                remainingSpeed--
+                
+                // Check if reached target
+                if (dragon.position.value == target) {
+                    state.healthPoints.value--
+                    dragon.isDefeated.value = true
                     break
                 }
             }
@@ -1292,5 +1409,151 @@ class GameEngine(private val state: GameState) {
         if (type == AttackerType.GOBLIN) {
             moveGoblinsAfterSpawn()
         }
+    }
+    
+    /**
+     * Perform the Dig action for a dwarven mine
+     */
+    fun performMineDig(mineId: Int): DigOutcome? {
+        val mine = state.defenders.find { it.id == mineId && it.type == DefenderType.DWARVEN_MINE } ?: return null
+        
+        if (!mine.isReady || mine.actionsRemaining.value <= 0) return null
+        
+        // Roll for outcome
+        val outcome = DigOutcome.roll()
+        
+        // Process outcome
+        when (outcome) {
+            DigOutcome.DRAGON -> {
+                // Dragon awakens - destroy mine and spawn dragon
+                spawnDragonFromMine(mine)
+            }
+            else -> {
+                // Add coins
+                state.coins.value += outcome.coins
+                mine.coinsGenerated.value += outcome.coins
+            }
+        }
+        
+        // Consume action
+        mine.actionsRemaining.value--
+        mine.hasBeenUsed.value = true
+        
+        return outcome
+    }
+    
+    /**
+     * Build a trap at the specified position
+     */
+    fun performMineBuildTrap(mineId: Int, trapPosition: Position): Boolean {
+        val mine = state.defenders.find { it.id == mineId && it.type == DefenderType.DWARVEN_MINE } ?: return false
+        
+        if (!mine.isReady || mine.actionsRemaining.value <= 0) return false
+        
+        // Check if position is within range
+        val distance = mine.position.distanceTo(trapPosition)
+        if (distance > mine.range) return false
+        
+        // Check if position is on the path
+        if (!state.level.isOnPath(trapPosition)) return false
+        
+        // Check if there's already a trap at this position
+        if (state.traps.any { it.position == trapPosition }) return false
+        
+        // Create trap with current mine damage
+        val trap = Trap(
+            position = trapPosition,
+            damage = mine.trapDamage,
+            mineId = mineId
+        )
+        
+        state.traps.add(trap)
+        
+        // Consume action
+        mine.actionsRemaining.value--
+        mine.hasBeenUsed.value = true
+        
+        return true
+    }
+    
+    /**
+     * Spawn a dragon when a mine is destroyed
+     */
+    private fun spawnDragonFromMine(mine: Defender) {
+        // Replace mine with dragon's lair
+        val lairDefender = Defender(
+            id = state.nextDefenderId.value++,
+            type = DefenderType.DRAGONS_LAIR,
+            position = mine.position,
+            buildTimeRemaining = mutableStateOf(0)
+        )
+        state.defenders.remove(mine)
+        state.defenders.add(lairDefender)
+        
+        // Find closest position on path to mine
+        val pathPositions = state.level.pathCells
+        val closestPathPos = pathPositions.minByOrNull { it.distanceTo(mine.position) } ?: return
+        
+        // Check if there's a unit at that position
+        val unitAtPosition = state.attackers.find { 
+            it.position.value == closestPathPos && !it.isDefeated.value 
+        }
+        
+        val spawnPosition = if (unitAtPosition != null && unitAtPosition.type == AttackerType.EWHAD) {
+            // If Ewhad is there, find an adjacent path tile
+            val adjacentPathPositions = pathPositions.filter { 
+                it.distanceTo(closestPathPos) == 1 
+            }
+            adjacentPathPositions.minByOrNull { it.distanceTo(mine.position) } ?: closestPathPos
+        } else {
+            // Remove the unit if it's not Ewhad
+            if (unitAtPosition != null) {
+                unitAtPosition.isDefeated.value = true
+            }
+            closestPathPos
+        }
+        
+        // Spawn dragon with health = 500 + coins generated by this mine
+        val dragonHealth = 500 + mine.coinsGenerated.value
+        val dragon = Attacker(
+            id = state.nextAttackerId.value++,
+            type = AttackerType.DRAGON,
+            position = mutableStateOf(spawnPosition),
+            level = 1,
+            currentHealth = mutableStateOf(dragonHealth)
+        )
+        state.attackers.add(dragon)
+    }
+    
+    /**
+     * Check and activate traps when enemies move
+     */
+    fun checkAndActivateTraps() {
+        val trapsToRemove = mutableListOf<Trap>()
+        
+        for (trap in state.traps) {
+            val enemyAtPosition = state.attackers.find { 
+                it.position.value == trap.position && !it.isDefeated.value 
+            }
+            
+            if (enemyAtPosition != null) {
+                // Deal damage to enemy
+                enemyAtPosition.currentHealth.value -= trap.damage
+                
+                // Check if defeated
+                if (enemyAtPosition.currentHealth.value <= 0) {
+                    enemyAtPosition.isDefeated.value = true
+                }
+                
+                // Mark trap for removal
+                trapsToRemove.add(trap)
+            }
+        }
+        
+        // Remove activated traps
+        state.traps.removeAll(trapsToRemove)
+        
+        // Process defeated attackers to give rewards
+        processDefeatedAttackers()
     }
 }
