@@ -38,6 +38,8 @@ Defend the meadows of Egril against waves of attackers including goblins, orks, 
 - **Health System**: Each enemy that reaches the end costs you one health point
 - **Level Progression**: Five levels with increasing difficulty
 - **World Map**: Track your progress and see which levels are unlocked
+  - **Pan and Zoom**: Drag to pan, pinch to zoom (0.5x to 3x)
+  - **Minimap**: Automatically appears when zoomed in to show your current view position
 
 ## Quick Start
 
