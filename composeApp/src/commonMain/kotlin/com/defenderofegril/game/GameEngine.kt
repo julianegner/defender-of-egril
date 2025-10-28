@@ -1081,7 +1081,11 @@ class GameEngine(private val state: GameState) {
      * - Red Witch: disables towers
      */
     private fun processEnemyAbilities() {
-        for (attacker in state.attackers) {
+        // Create a snapshot of attackers to avoid ConcurrentModificationException
+        // when spawning new demons during iteration
+        val attackersSnapshot = state.attackers.toList()
+        
+        for (attacker in attackersSnapshot) {
             if (attacker.isDefeated.value) continue
             
             // Decrement summon cooldown
