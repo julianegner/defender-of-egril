@@ -933,40 +933,93 @@ fun InitialBuildingControls(
     onSellTower: (Int) -> Unit,
     onStartFirstPlayerTurn: () -> Unit
 ) {
+    var buyPanelFolded by remember { mutableStateOf(false) }
+    
     Column(modifier = Modifier.fillMaxWidth()) {
-        Text("Initial Building Phase - Place towers (no build time)", 
-             style = MaterialTheme.typography.titleMedium)
-        
-        Spacer(modifier = Modifier.height(8.dp))
-        
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(6),
-            modifier = Modifier.fillMaxWidth().height(90.dp),
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+        // Title with fold button
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            items(DefenderType.entries.toTypedArray(), key = { type -> "${type.name}_${coinsState.value}_${gameState.defenders.count { it.type == type }}" }) { type ->
-                // Directly calculate canAfford using coinsState.value to ensure immediate reactivity
-                val canAfford = coinsState.value >= type.baseCost
-                println("DEBUG: InitialBuilding Button for ${type.displayName} - coins: ${coinsState.value}, cost: ${type.baseCost}, canAfford: $canAfford")
-                DefenderButton(
-                    type = type,
-                    isSelected = selectedDefenderType == type,
-                    canAfford = canAfford,
-                    coinsState = coinsState,  // Pass State instead of Int
-                    onClick = {
-                        onSelectDefenderType(if (selectedDefenderType == type) null else type)
-                    }
-                )
+            Text("Initial Building Phase - Place towers (no build time)", 
+                 style = MaterialTheme.typography.titleMedium)
+            
+            Button(
+                onClick = { buyPanelFolded = !buyPanelFolded },
+                modifier = Modifier.size(32.dp),
+                contentPadding = PaddingValues(0.dp)
+            ) {
+                Text(if (buyPanelFolded) "▼" else "▲", fontSize = 12.sp)
             }
         }
         
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.height(8.dp))
         
-        selectedDefenderId?.let { id ->
-            val defender = gameState.defenders.find { it.id == id }
-            if (defender != null) {
-                DefenderInfo(defender, gameState, onUpgradeDefender, onUndoTower, onSellTower)
+        if (buyPanelFolded) {
+            // Folded view: Compact layout with defender info on left, buy buttons on right
+            Row(modifier = Modifier.fillMaxWidth()) {
+                // Selected defender info on left (smaller)
+                selectedDefenderId?.let { id ->
+                    val defender = gameState.defenders.find { it.id == id }
+                    if (defender != null) {
+                        Box(modifier = Modifier.weight(1f)) {
+                            DefenderInfo(defender, gameState, onUpgradeDefender, onUndoTower, onSellTower)
+                        }
+                        Spacer(modifier = Modifier.width(8.dp))
+                    }
+                }
+                
+                // Compact buy buttons in two columns on right
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(2),
+                    modifier = Modifier.width(200.dp).height(if (selectedDefenderId != null) 180.dp else 200.dp),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    items(DefenderType.entries.toTypedArray(), key = { type -> "${type.name}_folded_${coinsState.value}" }) { type ->
+                        val canAfford = coinsState.value >= type.baseCost
+                        CompactDefenderButton(
+                            type = type,
+                            isSelected = selectedDefenderType == type,
+                            canAfford = canAfford,
+                            onClick = {
+                                onSelectDefenderType(if (selectedDefenderType == type) null else type)
+                            }
+                        )
+                    }
+                }
+            }
+        } else {
+            // Expanded view: Original layout
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(6),
+                modifier = Modifier.fillMaxWidth().height(90.dp),
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                items(DefenderType.entries.toTypedArray(), key = { type -> "${type.name}_${coinsState.value}_${gameState.defenders.count { it.type == type }}" }) { type ->
+                    val canAfford = coinsState.value >= type.baseCost
+                    println("DEBUG: InitialBuilding Button for ${type.displayName} - coins: ${coinsState.value}, cost: ${type.baseCost}, canAfford: $canAfford")
+                    DefenderButton(
+                        type = type,
+                        isSelected = selectedDefenderType == type,
+                        canAfford = canAfford,
+                        coinsState = coinsState,
+                        onClick = {
+                            onSelectDefenderType(if (selectedDefenderType == type) null else type)
+                        }
+                    )
+                }
+            }
+            
+            Spacer(modifier = Modifier.height(4.dp))
+            
+            selectedDefenderId?.let { id ->
+                val defender = gameState.defenders.find { it.id == id }
+                if (defender != null) {
+                    DefenderInfo(defender, gameState, onUpgradeDefender, onUndoTower, onSellTower)
+                }
             }
         }
         
@@ -997,68 +1050,139 @@ fun PlayerTurnControls(
     onDefenderAttackPosition: (Int, Position) -> Unit,
     onEndPlayerTurn: () -> Unit
 ) {
+    var buyPanelFolded by remember { mutableStateOf(false) }
+    
     Column(modifier = Modifier.fillMaxWidth()) {
-        Text(
-            "Your Turn - Place towers and attack enemies",
-            style = MaterialTheme.typography.titleMedium
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // Defender placement buttons
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(6),
-            modifier = Modifier.fillMaxWidth().height(90.dp),
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+        // Title with fold button
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            items(
-                DefenderType.entries.toTypedArray(),
-                key = { type -> "${type.name}_${coinsState.value}_${gameState.defenders.count { it.type == type }}" }) { type ->
-                // Directly calculate canAfford using coinsState.value to ensure immediate reactivity
-                val canAfford = coinsState.value >= type.baseCost
-                println("DEBUG: PlayerTurn Button for ${type.displayName} - coins: ${coinsState.value}, cost: ${type.baseCost}, canAfford: $canAfford")
-                DefenderButton(
-                    type = type,
-                    isSelected = selectedDefenderType == type,
-                    canAfford = canAfford,
-                    coinsState = coinsState,  // Pass State instead of Int
-                    onClick = {
-                        onSelectDefenderType(if (selectedDefenderType == type) null else type)
-                    }
-                )
+            Text(
+                "Your Turn - Place towers and attack enemies",
+                style = MaterialTheme.typography.titleMedium
+            )
+            
+            Button(
+                onClick = { buyPanelFolded = !buyPanelFolded },
+                modifier = Modifier.size(32.dp),
+                contentPadding = PaddingValues(0.dp)
+            ) {
+                Text(if (buyPanelFolded) "▼" else "▲", fontSize = 12.sp)
             }
         }
 
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
-        // Selected defender info and attack button
-        selectedDefenderId?.let { defenderId ->
-            val defender = gameState.defenders.find { it.id == defenderId }
-            if (defender != null) {
-                DefenderInfo(defender, gameState, onUpgradeDefender, onUndoTower, onSellTower)
-
-                // Spacer(modifier = Modifier.height(8.dp))
-                AttackButton(
-                    defender = defender,
-                    gameState = gameState,
-                    selectedTargetId = selectedTargetId,
-                    selectedTargetPosition = selectedTargetPosition,
-                    onDefenderAttack = onDefenderAttack,
-                    onDefenderAttackPosition = onDefenderAttackPosition,
-                    modifier = Modifier
-                        .layout { measurable, constraints ->
-                            // Measure the tooltip but don't add it to the layout
-                            val placeable = measurable.measure(constraints)
-                            layout(0,0) { // Set the size to 0 to avoid taking up space and move other elements
-                                placeable.place(0, 0)
+        if (buyPanelFolded) {
+            // Folded view: Compact layout with defender info on left, buy buttons on right
+            Row(modifier = Modifier.fillMaxWidth()) {
+                // Selected defender info on left (smaller)
+                selectedDefenderId?.let { defenderId ->
+                    val defender = gameState.defenders.find { it.id == defenderId }
+                    if (defender != null) {
+                        Box(modifier = Modifier.weight(1f)) {
+                            Column {
+                                DefenderInfo(defender, gameState, onUpgradeDefender, onUndoTower, onSellTower)
+                                
+                                AttackButton(
+                                    defender = defender,
+                                    gameState = gameState,
+                                    selectedTargetId = selectedTargetId,
+                                    selectedTargetPosition = selectedTargetPosition,
+                                    onDefenderAttack = onDefenderAttack,
+                                    onDefenderAttackPosition = onDefenderAttackPosition,
+                                    modifier = Modifier
+                                        .layout { measurable, constraints ->
+                                            val placeable = measurable.measure(constraints)
+                                            layout(0,0) {
+                                                placeable.place(0, 0)
+                                            }
+                                        }
+                                        .width(200.dp)
+                                        .height(100.dp)
+                                        .absoluteOffset(x = 1000.dp, y = (-130).dp)
+                                )
                             }
                         }
-                        .width(200.dp)
-                        .height(100.dp)
-                        .absoluteOffset(x = 1000.dp, y = (-130).dp) // .absoluteOffset(x = 700.dp, y = (-130).dp)
+                        Spacer(modifier = Modifier.width(8.dp))
+                    }
+                }
+                
+                // Compact buy buttons in two columns on right
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(2),
+                    modifier = Modifier.width(200.dp).height(if (selectedDefenderId != null) 220.dp else 200.dp),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    items(DefenderType.entries.toTypedArray(), key = { type -> "${type.name}_folded_${coinsState.value}" }) { type ->
+                        val canAfford = coinsState.value >= type.baseCost
+                        CompactDefenderButton(
+                            type = type,
+                            isSelected = selectedDefenderType == type,
+                            canAfford = canAfford,
+                            onClick = {
+                                onSelectDefenderType(if (selectedDefenderType == type) null else type)
+                            }
+                        )
+                    }
+                }
+            }
+        } else {
+            // Expanded view: Original layout
+            // Defender placement buttons
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(6),
+                modifier = Modifier.fillMaxWidth().height(90.dp),
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                items(
+                    DefenderType.entries.toTypedArray(),
+                    key = { type -> "${type.name}_${coinsState.value}_${gameState.defenders.count { it.type == type }}" }) { type ->
+                    val canAfford = coinsState.value >= type.baseCost
+                    println("DEBUG: PlayerTurn Button for ${type.displayName} - coins: ${coinsState.value}, cost: ${type.baseCost}, canAfford: $canAfford")
+                    DefenderButton(
+                        type = type,
+                        isSelected = selectedDefenderType == type,
+                        canAfford = canAfford,
+                        coinsState = coinsState,
+                        onClick = {
+                            onSelectDefenderType(if (selectedDefenderType == type) null else type)
+                        }
+                    )
+                }
+            }
 
-                )
+            Spacer(modifier = Modifier.height(4.dp))
+
+            // Selected defender info and attack button
+            selectedDefenderId?.let { defenderId ->
+                val defender = gameState.defenders.find { it.id == defenderId }
+                if (defender != null) {
+                    DefenderInfo(defender, gameState, onUpgradeDefender, onUndoTower, onSellTower)
+
+                    AttackButton(
+                        defender = defender,
+                        gameState = gameState,
+                        selectedTargetId = selectedTargetId,
+                        selectedTargetPosition = selectedTargetPosition,
+                        onDefenderAttack = onDefenderAttack,
+                        onDefenderAttackPosition = onDefenderAttackPosition,
+                        modifier = Modifier
+                            .layout { measurable, constraints ->
+                                val placeable = measurable.measure(constraints)
+                                layout(0,0) {
+                                    placeable.place(0, 0)
+                                }
+                            }
+                            .width(200.dp)
+                            .height(100.dp)
+                            .absoluteOffset(x = 1000.dp, y = (-130).dp)
+                    )
+                }
             }
         }
 
@@ -1070,6 +1194,57 @@ fun PlayerTurnControls(
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF5722))
         ) {
             Text("End Turn")
+        }
+    }
+}
+
+@Composable
+fun CompactDefenderButton(
+    type: DefenderType,
+    isSelected: Boolean,
+    canAfford: Boolean,
+    onClick: () -> Unit
+) {
+    Button(
+        onClick = onClick,
+        enabled = canAfford,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = if (isSelected) Color(0xFF1976D2) else MaterialTheme.colorScheme.primary
+        ),
+        modifier = Modifier.fillMaxWidth().height(90.dp),
+        contentPadding = PaddingValues(4.dp)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // Tower icon
+            Box(
+                modifier = Modifier.size(32.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                TowerTypeIcon(defenderType = type, modifier = Modifier.size(28.dp))
+            }
+            
+            Spacer(modifier = Modifier.height(2.dp))
+            
+            // Tower name (shortened)
+            Text(
+                type.displayName.replace(" Tower", ""),
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.Bold,
+                fontSize = 11.sp,
+                maxLines = 1,
+                textAlign = TextAlign.Center
+            )
+            
+            // Cost
+            Text(
+                "💰${type.baseCost}",
+                style = MaterialTheme.typography.labelSmall,
+                fontSize = 14.sp
+            )
         }
     }
 }
