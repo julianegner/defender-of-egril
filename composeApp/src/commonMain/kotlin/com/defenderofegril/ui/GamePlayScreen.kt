@@ -657,7 +657,7 @@ fun GridCell(
                 // Use graphical icon for towers
                 // Key by id, level and actionsRemaining to force recomposition when these change
                 key(defender.id, defender.level, defender.actionsRemaining.value, defender.buildTimeRemaining.value) {
-                    TowerIcon(defender = defender)
+                    TowerIcon(defender = defender, gameState = gameState)
                 }
             }
             fieldEffect != null -> {
@@ -1052,15 +1052,23 @@ fun TowerStats(minRange: Int, damage: Int, range: Int, actionsPerTurn: Int) {
                                     modifier = Modifier.size(48.dp),
                                     contentAlignment = Alignment.Center
                                 ) {
-                                    TowerIcon(defender = defender, modifier = Modifier.size(44.dp))
+                                    TowerIcon(defender = defender, modifier = Modifier.size(44.dp), gameState = gameState)
                                 }
 
                                 Spacer(modifier = Modifier.width(8.dp))
 
                                 // Tower name and level
                                 Column(modifier = Modifier.weight(1f)) {
+                                    val displayName = if (defender.type == DefenderType.DRAGONS_LAIR) {
+                                        val dragonAlive = gameState.attackers.any { 
+                                            it.type == AttackerType.DRAGON && !it.isDefeated.value 
+                                        }
+                                        if (dragonAlive) "Dragon's Lair" else "Empty Dragon's Lair"
+                                    } else {
+                                        defender.type.displayName
+                                    }
                                     Text(
-                                        defender.type.displayName,
+                                        displayName,
                                         style = MaterialTheme.typography.titleMedium,
                                         fontWeight = FontWeight.Bold
                                     )
@@ -1099,63 +1107,52 @@ fun TowerStats(minRange: Int, damage: Int, range: Int, actionsPerTurn: Int) {
                                         
                                         Spacer(modifier = Modifier.height(8.dp))
                                         
-                                        // Mine action buttons
-                                        if (defender.actionsRemaining.value > 0) {
-                                            Row(
-                                                modifier = Modifier.fillMaxWidth(),
-                                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                            ) {
+                                        // Mine action buttons - smaller, in a row with other buttons
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                        ) {
+                                            if (defender.actionsRemaining.value > 0) {
                                                 Button(
                                                     onClick = { onMineAction?.invoke(defender.id, MineAction.DIG) },
-                                                    modifier = Modifier.weight(1f).height(100.dp),
-                                                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)
+                                                    modifier = Modifier.weight(1f),
+                                                    contentPadding = PaddingValues(horizontal = 4.dp, vertical = 2.dp)
                                                 ) {
-                                                    Column(
-                                                        horizontalAlignment = Alignment.CenterHorizontally
-                                                    ) {
-                                                        Text("⛏️", fontSize = 32.sp)
-                                                        Text("Dig", fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                                                    }
+                                                    Text("⛏️ Dig", fontSize = 12.sp)
                                                 }
                                                 Button(
                                                     onClick = { onMineAction?.invoke(defender.id, MineAction.BUILD_TRAP) },
-                                                    modifier = Modifier.weight(1f).height(100.dp),
-                                                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)
+                                                    modifier = Modifier.weight(1f),
+                                                    contentPadding = PaddingValues(horizontal = 4.dp, vertical = 2.dp)
                                                 ) {
-                                                    Column(
-                                                        horizontalAlignment = Alignment.CenterHorizontally
-                                                    ) {
-                                                        Text("🕳️", fontSize = 32.sp)
-                                                        Text("Build Trap", fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                                                    }
+                                                    Text("🕳️ Trap", fontSize = 12.sp)
                                                 }
                                             }
-                                        } else {
+                                            
+                                            // Upgrade button in same row
+                                            UpgradeButton(
+                                                defender = defender,
+                                                gameState = gameState,
+                                                modifier = Modifier.weight(1f).height(40.dp).offset(y = 0.dp),
+                                                onUpgradeDefender = onUpgradeDefender
+                                            )
+                                            
+                                            // Sell button in same row
+                                            UndoOrSellButton(
+                                                defender = defender,
+                                                gameState = gameState,
+                                                onUndoTower = onUndoTower,
+                                                onSellTower = onSellTower,
+                                                modifier = Modifier.weight(1f).height(40.dp)
+                                            )
+                                        }
+                                        
+                                        if (defender.actionsRemaining.value == 0) {
                                             Text(
                                                 "No actions remaining",
                                                 style = MaterialTheme.typography.bodySmall,
                                                 color = Color.Gray
                                             )
-                                        }
-                                        
-                                        Spacer(modifier = Modifier.height(8.dp))
-                                        
-                                        // Upgrade and sell buttons
-                                        Row(
-                                            modifier = Modifier.fillMaxWidth(),
-                                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                        ) {
-                                            Column(modifier = Modifier.weight(1f)) {
-                                                UpgradeButton(defender, gameState, onUpgradeDefender = onUpgradeDefender)
-                                            }
-                                            Column(modifier = Modifier.weight(1f)) {
-                                                UndoOrSellButton(
-                                                    defender = defender,
-                                                    gameState = gameState,
-                                                    onUndoTower = onUndoTower,
-                                                    onSellTower = onSellTower
-                                                )
-                                            }
                                         }
                                     }
                                 } else if (defender.type == DefenderType.DRAGONS_LAIR) {
