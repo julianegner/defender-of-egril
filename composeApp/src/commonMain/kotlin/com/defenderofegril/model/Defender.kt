@@ -24,12 +24,12 @@ enum class DefenderType(
     DRAGONS_LAIR("Dragon's Lair", baseCost = 0, baseDamage = 0, baseRange = 0, attackType = AttackType.NONE, actionsPerTurn = 0, buildTime = 0)
 }
 
-enum class AttackType {
-    MELEE,    // Single target, close range
-    RANGED,   // Single target, long range
-    AREA,      // Area of Effect - affects multiple enemies
-    LASTING,   // Damage over Time - lower damage but lasts multiple rounds
-    NONE       // No attack capability (for mines and special structures)
+enum class AttackType(val displayName: String ) {
+    MELEE("Melee"),    // Single target, close range
+    RANGED("Ranged"),   // Single target, long range
+    AREA("Fireball"),      // Area of Effect - affects multiple enemies
+    LASTING("Acid"),   // Damage over Time - lower damage but lasts multiple rounds
+    NONE("Special")       // No attack capability (for mines and special structures)
 }
 
 data class Defender(
