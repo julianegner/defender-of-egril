@@ -14,20 +14,20 @@ class DwarvenMineTest {
     fun testMineActionsPerLevel() {
         val position = Position(0, 0)
         
-        // Level 1-4: 0 actions (needs level 5 for first action)
+        // Level 1-4: 1 base action
         val mine1 = Defender(1, DefenderType.DWARVEN_MINE, position, mutableStateOf(1))
-        assertEquals(0, mine1.actionsPerTurnCalculated, "Level 1 mine should have 0 actions")
+        assertEquals(1, mine1.actionsPerTurnCalculated, "Level 1 mine should have 1 action")
         
         val mine4 = Defender(4, DefenderType.DWARVEN_MINE, position, mutableStateOf(4))
-        assertEquals(0, mine4.actionsPerTurnCalculated, "Level 4 mine should have 0 actions")
+        assertEquals(1, mine4.actionsPerTurnCalculated, "Level 4 mine should have 1 action")
         
-        // Level 5: 1 action
+        // Level 5: 2 actions (1 base + 1 bonus)
         val mine5 = Defender(5, DefenderType.DWARVEN_MINE, position, mutableStateOf(5))
-        assertEquals(1, mine5.actionsPerTurnCalculated, "Level 5 mine should have 1 action")
+        assertEquals(2, mine5.actionsPerTurnCalculated, "Level 5 mine should have 2 actions")
         
-        // Level 10: 2 actions
+        // Level 10: 3 actions (1 base + 2 bonus)
         val mine10 = Defender(10, DefenderType.DWARVEN_MINE, position, mutableStateOf(10))
-        assertEquals(2, mine10.actionsPerTurnCalculated, "Level 10 mine should have 2 actions")
+        assertEquals(3, mine10.actionsPerTurnCalculated, "Level 10 mine should have 3 actions")
     }
     
     @Test

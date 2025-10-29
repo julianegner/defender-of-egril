@@ -435,6 +435,7 @@ private fun GamePlayScreenContent(
                         Spacer(modifier = Modifier.height(8.dp))
                         Text("Available codes:", style = MaterialTheme.typography.labelSmall)
                         Text("• moneybags, 1000coins, cash - Get 1000 coins", style = MaterialTheme.typography.bodySmall)
+                        Text("• dragon, awaken, digtoodeep - Spawn dragon from mine", style = MaterialTheme.typography.bodySmall)
                     }
                 },
                 confirmButton = {
