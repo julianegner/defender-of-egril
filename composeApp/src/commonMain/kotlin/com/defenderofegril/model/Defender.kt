@@ -67,13 +67,13 @@ data class Defender(
     
     // Calculate actions per turn based on level
     // Pike (Spike) tower gets +1 action per 5 levels (max 3 actions)
-    // Dwarven mine gets 1 action every 5 levels (starting at level 5)
+    // Dwarven mine gets 1 base action + 1 every 5 levels (starting at level 1: 1 action, level 5: 2 actions, etc.)
     val actionsPerTurnCalculated: Int get() {
         return if (type == DefenderType.SPIKE_TOWER) {
             val bonusActions = level.value / 5  // +1 at level 5, +2 at level 10, +3 at level 15, etc.
             minOf(type.actionsPerTurn + bonusActions, 3)  // Cap at 3 actions
         } else if (type == DefenderType.DWARVEN_MINE) {
-            level.value / 5  // 1 action at level 5, 2 at level 10, etc.
+            1 + (level.value / 5)  // 1 action at level 1-4, 2 at level 5-9, 3 at level 10-14, etc.
         } else {
             type.actionsPerTurn
         }
