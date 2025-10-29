@@ -148,24 +148,38 @@ private fun GamePlayScreenContent(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // Header with prominent phase indicator (collapsible)
-        // Wrap header in Box with border and elevated z-index
+        // Wrap header in Box to ensure z-axis ordering (header in front of map)
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(MaterialTheme.colorScheme.surface)
-                .border(2.dp, MaterialTheme.colorScheme.outline, shape = MaterialTheme.shapes.small)
                 .padding(8.dp)
-                .graphicsLayer { shadowElevation = 8f }  // Ensure header is on top
+                .graphicsLayer { 
+                    // Ensure header is always on top with higher z-index
+                    translationZ = 10f
+                }
         ) {
             if (headerExpanded) {
                 // Expanded header
                 Column(modifier = Modifier.fillMaxWidth()) {
-                    // Fold button at top left
+                    // First row: Level name centered with fold button on right
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Start,
+                        horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
+                        // Empty spacer for symmetry
+                        Spacer(modifier = Modifier.width(100.dp))
+                        
+                        // Level name centered (without "Level:" prefix)
+                        Text(
+                            text = gameState.level.name,
+                            style = MaterialTheme.typography.titleLarge,
+                            modifier = Modifier.weight(1f),
+                            textAlign = TextAlign.Center
+                        )
+                        
+                        // Fold button at right end
                         Button(
                             onClick = { headerExpanded = false },
                             modifier = Modifier.height(32.dp),
@@ -184,7 +198,6 @@ private fun GamePlayScreenContent(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Column {
-                            Text("Level: ${gameState.level.name}", style = MaterialTheme.typography.titleLarge)
                             // Clickable coins display for cheat codes with icon
                             Text(
                                 "💰 ${gameState.coins.value}",
@@ -253,45 +266,62 @@ private fun GamePlayScreenContent(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Fold button
-                    Button(
-                        onClick = { headerExpanded = true },
-                        modifier = Modifier.size(32.dp),
-                        contentPadding = PaddingValues(0.dp)
+                    // Statistics at far left
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("▼", fontSize = 12.sp)
+                        // Clickable coins display for cheat codes
+                        Text(
+                            "💰 ${gameState.coins.value}",
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.clickable(
+                                onClick = { 
+                                    if (onCheatCode != null) {
+                                        showCheatDialog = true
+                                    }
+                                }
+                            )
+                        )
+                        Text("❤️ ${gameState.healthPoints.value}", style = MaterialTheme.typography.bodyMedium)
+                        Text("🔄 ${gameState.turnNumber.value}", style = MaterialTheme.typography.bodySmall)
                     }
                     
-                    Text("Lvl ${gameState.level.id}", style = MaterialTheme.typography.bodyMedium)
-                    
-                    // Clickable coins display for cheat codes
+                    // Level name in center (without prefix)
                     Text(
-                        "💰 ${gameState.coins.value}",
+                        text = gameState.level.name,
                         style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.clickable(
-                            onClick = { 
-                                if (onCheatCode != null) {
-                                    showCheatDialog = true
-                                }
-                            }
-                        )
+                        modifier = Modifier.weight(1f),
+                        textAlign = TextAlign.Center
                     )
                     
-                    Text("❤️ ${gameState.healthPoints.value}", style = MaterialTheme.typography.bodyMedium)
-                    Text("🔄 ${gameState.turnNumber.value}", style = MaterialTheme.typography.bodySmall)
-                    
-                    Button(onClick = onBackToMap, modifier = Modifier.height(32.dp)) {
-                        Text("Map", fontSize = 12.sp)
-                    }
-                    
-                    Button(
-                        onClick = { showOverlay = !showOverlay },
-                        modifier = Modifier.height(32.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = if (showOverlay) Color(0xFF4CAF50) else Color(0xFF2196F3)
-                        )
+                    // Three buttons at far right
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(if (showOverlay) "◀" else "▶", fontSize = 12.sp)
+                        Button(onClick = onBackToMap, modifier = Modifier.height(32.dp)) {
+                            Text("Map", fontSize = 12.sp)
+                        }
+                        
+                        Button(
+                            onClick = { showOverlay = !showOverlay },
+                            modifier = Modifier.height(32.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = if (showOverlay) Color(0xFF4CAF50) else Color(0xFF2196F3)
+                            )
+                        ) {
+                            Text(if (showOverlay) "◀" else "▶", fontSize = 12.sp)
+                        }
+                        
+                        // Fold button
+                        Button(
+                            onClick = { headerExpanded = true },
+                            modifier = Modifier.size(32.dp),
+                            contentPadding = PaddingValues(0.dp)
+                        ) {
+                            Text("▼", fontSize = 12.sp)
+                        }
                     }
                 }
             }
