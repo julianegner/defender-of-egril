@@ -148,30 +148,126 @@ private fun GamePlayScreenContent(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // Header with prominent phase indicator (collapsible)
-        if (headerExpanded) {
-            // Expanded header
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("Level: ${gameState.level.name}", style = MaterialTheme.typography.titleLarge)
-                        Spacer(modifier = Modifier.width(8.dp))
-                        // Fold button
+        // Wrap header in Box with border and elevated z-index
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.surface)
+                .border(2.dp, MaterialTheme.colorScheme.outline, shape = MaterialTheme.shapes.small)
+                .padding(8.dp)
+                .graphicsLayer { shadowElevation = 8f }  // Ensure header is on top
+        ) {
+            if (headerExpanded) {
+                // Expanded header
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    // Fold button at top left
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Start,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                         Button(
                             onClick = { headerExpanded = false },
-                            modifier = Modifier.size(32.dp),
-                            contentPadding = PaddingValues(0.dp)
+                            modifier = Modifier.height(32.dp),
+                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
                         ) {
-                            Text("▲", fontSize = 12.sp)
+                            Text("▲ Fold Header", fontSize = 12.sp)
                         }
                     }
-                    // Clickable coins display for cheat codes with icon
+                    
+                    Spacer(modifier = Modifier.height(8.dp))
+                    
+                    // Main header content
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column {
+                            Text("Level: ${gameState.level.name}", style = MaterialTheme.typography.titleLarge)
+                            // Clickable coins display for cheat codes with icon
+                            Text(
+                                "💰 ${gameState.coins.value}",
+                                style = MaterialTheme.typography.bodyLarge,
+                                modifier = Modifier.clickable(
+                                    onClick = { 
+                                        if (onCheatCode != null) {
+                                            showCheatDialog = true
+                                        }
+                                    }
+                                )
+                            )
+                            Text("❤️ ${gameState.healthPoints.value}", style = MaterialTheme.typography.bodyLarge)
+                            Text("🔄 Turn ${gameState.turnNumber.value}", style = MaterialTheme.typography.bodyMedium)
+
+                            val activeEnemies = gameState.attackers.count { !it.isDefeated.value }
+                            val totalSpawned = gameState.nextAttackerId.value - 1
+                            val plannedSpawns = gameState.spawnPlan.drop(totalSpawned)
+                            val remainingEnemies = plannedSpawns.size
+
+                            Text("Enemies: $activeEnemies active, $remainingEnemies to come", 
+                                 style = MaterialTheme.typography.bodyMedium,
+                                 color = Color(0xFFF44336))
+                        }
+                        
+                        // Prominent phase indicator
+                        val phaseText = when(gameState.phase.value) {
+                            GamePhase.INITIAL_BUILDING -> "Initial Building Phase"
+                            GamePhase.PLAYER_TURN -> "YOUR TURN"
+                            GamePhase.ENEMY_TURN -> "ENEMY TURN"
+                        }
+                        val phaseColor = when(gameState.phase.value) {
+                            GamePhase.INITIAL_BUILDING -> Color(0xFF2196F3)
+                            GamePhase.PLAYER_TURN -> Color(0xFF4CAF50)
+                            GamePhase.ENEMY_TURN -> Color(0xFFF44336)
+                        }
+                        Text(
+                            text = phaseText,
+                            style = MaterialTheme.typography.headlineMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = phaseColor,
+                            modifier = Modifier.background(phaseColor.copy(alpha = 0.1f)).padding(12.dp)
+                        )
+
+                        Column {
+                            Button(onClick = onBackToMap) {
+                                Text("Back to Map")
+                            }
+
+                            // Toggle button positioned above the map and far to the right
+                            Button(
+                                onClick = { showOverlay = !showOverlay },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = if (showOverlay) Color(0xFF4CAF50) else Color(0xFF2196F3)
+                                )
+                            ) {
+                                Text(if (showOverlay) "Hide Info  ◀" else "Show Info  ▶")
+                            }
+                        }
+                    }
+                }
+            } else {
+                // Collapsed header - single row
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Fold button
+                    Button(
+                        onClick = { headerExpanded = true },
+                        modifier = Modifier.size(32.dp),
+                        contentPadding = PaddingValues(0.dp)
+                    ) {
+                        Text("▼", fontSize = 12.sp)
+                    }
+                    
+                    Text("Lvl ${gameState.level.id}", style = MaterialTheme.typography.bodyMedium)
+                    
+                    // Clickable coins display for cheat codes
                     Text(
                         "💰 ${gameState.coins.value}",
-                        style = MaterialTheme.typography.bodyLarge,
+                        style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier.clickable(
                             onClick = { 
                                 if (onCheatCode != null) {
@@ -180,100 +276,23 @@ private fun GamePlayScreenContent(
                             }
                         )
                     )
-                    Text("❤️ ${gameState.healthPoints.value}", style = MaterialTheme.typography.bodyLarge)
-                    Text("🔄 Turn ${gameState.turnNumber.value}", style = MaterialTheme.typography.bodyMedium)
-
-                    val activeEnemies = gameState.attackers.count { !it.isDefeated.value }
-                    val totalSpawned = gameState.nextAttackerId.value - 1
-                    val plannedSpawns = gameState.spawnPlan.drop(totalSpawned)
-                    val remainingEnemies = plannedSpawns.size
-
-                    Text("Enemies: $activeEnemies active, $remainingEnemies to come", 
-                         style = MaterialTheme.typography.bodyMedium,
-                         color = Color(0xFFF44336))
-                }
-                
-                // Prominent phase indicator
-                val phaseText = when(gameState.phase.value) {
-                    GamePhase.INITIAL_BUILDING -> "Initial Building Phase"
-                    GamePhase.PLAYER_TURN -> "YOUR TURN"
-                    GamePhase.ENEMY_TURN -> "ENEMY TURN"
-                }
-                val phaseColor = when(gameState.phase.value) {
-                    GamePhase.INITIAL_BUILDING -> Color(0xFF2196F3)
-                    GamePhase.PLAYER_TURN -> Color(0xFF4CAF50)
-                    GamePhase.ENEMY_TURN -> Color(0xFFF44336)
-                }
-                Text(
-                    text = phaseText,
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = phaseColor,
-                    modifier = Modifier.background(phaseColor.copy(alpha = 0.1f)).padding(12.dp)
-                )
-
-                Column {
-                    Button(onClick = onBackToMap) {
-                        Text("Back to Map")
+                    
+                    Text("❤️ ${gameState.healthPoints.value}", style = MaterialTheme.typography.bodyMedium)
+                    Text("🔄 ${gameState.turnNumber.value}", style = MaterialTheme.typography.bodySmall)
+                    
+                    Button(onClick = onBackToMap, modifier = Modifier.height(32.dp)) {
+                        Text("Map", fontSize = 12.sp)
                     }
-
-                    // Toggle button positioned above the map and far to the right
+                    
                     Button(
                         onClick = { showOverlay = !showOverlay },
+                        modifier = Modifier.height(32.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = if (showOverlay) Color(0xFF4CAF50) else Color(0xFF2196F3)
                         )
                     ) {
-                        Text(if (showOverlay) "Hide Info  ◀" else "Show Info  ▶")
+                        Text(if (showOverlay) "◀" else "▶", fontSize = 12.sp)
                     }
-                }
-            }
-        } else {
-            // Collapsed header - single row
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // Fold button
-                Button(
-                    onClick = { headerExpanded = true },
-                    modifier = Modifier.size(32.dp),
-                    contentPadding = PaddingValues(0.dp)
-                ) {
-                    Text("▼", fontSize = 12.sp)
-                }
-                
-                Text("Lvl ${gameState.level.id}", style = MaterialTheme.typography.bodyMedium)
-                
-                // Clickable coins display for cheat codes
-                Text(
-                    "💰 ${gameState.coins.value}",
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.clickable(
-                        onClick = { 
-                            if (onCheatCode != null) {
-                                showCheatDialog = true
-                            }
-                        }
-                    )
-                )
-                
-                Text("❤️ ${gameState.healthPoints.value}", style = MaterialTheme.typography.bodyMedium)
-                Text("🔄 ${gameState.turnNumber.value}", style = MaterialTheme.typography.bodySmall)
-                
-                Button(onClick = onBackToMap, modifier = Modifier.height(32.dp)) {
-                    Text("Map", fontSize = 12.sp)
-                }
-                
-                Button(
-                    onClick = { showOverlay = !showOverlay },
-                    modifier = Modifier.height(32.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = if (showOverlay) Color(0xFF4CAF50) else Color(0xFF2196F3)
-                    )
-                ) {
-                    Text(if (showOverlay) "◀" else "▶", fontSize = 12.sp)
                 }
             }
         }
