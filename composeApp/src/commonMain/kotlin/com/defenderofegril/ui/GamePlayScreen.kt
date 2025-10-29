@@ -545,6 +545,9 @@ fun GridCell(
     
     // Check for field effects at this position
     val fieldEffect = gameState.fieldEffects.find { it.position == position }
+    
+    // Check for traps at this position
+    val trap = gameState.traps.find { it.position == position }
 
     // Check if this cell is in range of the selected defender
     val cellIsInRange = selectedDefenderId?.let { defenderId ->
@@ -587,6 +590,7 @@ fun GridCell(
                 FieldEffectType.ACID -> Color(0xFF4CAF50).copy(alpha = 0.6f)  // Green tint for acid
             }
         }
+        trap != null -> Color(0xFF8B4513).copy(alpha = 0.6f)  // Brown tint for trap
         isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> baseBackgroundColor.copy(alpha = 0.7f)
         isTargetSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> baseBackgroundColor.copy(alpha = 0.8f)
         else -> baseBackgroundColor  // No selection highlighting during placement or in initial phase
@@ -612,6 +616,7 @@ fun GridCell(
                 FieldEffectType.ACID -> Color(0xFF4CAF50)  // Green border for acid
             }
         }
+        trap != null -> Color(0xFF8B4513)  // Brown border for trap
         else -> Color.Transparent  // No borders for empty cells
     }
     
@@ -690,6 +695,25 @@ fun GridCell(
                             )
                         }
                     }
+                }
+            }
+            trap != null -> {
+                // Show trap icon with damage (no duration since traps are permanent until triggered)
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        "🕳️",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color(0xFF8B4513)
+                    )
+                    Text(
+                        "-${trap.damage}",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             }
             isSpawnPoint -> {
@@ -1069,15 +1093,6 @@ fun TowerStats(minRange: Int, damage: Int, range: Int, actionsPerTurn: Int) {
                                     // Mine-specific UI
                                     Column(modifier = Modifier.fillMaxWidth()) {
                                         Text(
-                                            "Coins Generated: ${defender.coinsGenerated.value}",
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            fontWeight = FontWeight.Bold,
-                                            color = Color(0xFFFFD700)
-                                        )
-                                        
-                                        Spacer(modifier = Modifier.height(8.dp))
-                                        
-                                        Text(
                                             "Reach: ${defender.range}  |  Trap Damage: ${defender.trapDamage}",
                                             style = MaterialTheme.typography.bodySmall
                                         )
@@ -1092,15 +1107,27 @@ fun TowerStats(minRange: Int, damage: Int, range: Int, actionsPerTurn: Int) {
                                             ) {
                                                 Button(
                                                     onClick = { onMineAction?.invoke(defender.id, MineAction.DIG) },
-                                                    modifier = Modifier.weight(1f)
+                                                    modifier = Modifier.weight(1f).height(100.dp),
+                                                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)
                                                 ) {
-                                                    Text("⛏️ Dig")
+                                                    Column(
+                                                        horizontalAlignment = Alignment.CenterHorizontally
+                                                    ) {
+                                                        Text("⛏️", fontSize = 32.sp)
+                                                        Text("Dig", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                                                    }
                                                 }
                                                 Button(
                                                     onClick = { onMineAction?.invoke(defender.id, MineAction.BUILD_TRAP) },
-                                                    modifier = Modifier.weight(1f)
+                                                    modifier = Modifier.weight(1f).height(100.dp),
+                                                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)
                                                 ) {
-                                                    Text("🕳️ Build Trap")
+                                                    Column(
+                                                        horizontalAlignment = Alignment.CenterHorizontally
+                                                    ) {
+                                                        Text("🕳️", fontSize = 32.sp)
+                                                        Text("Build Trap", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                                                    }
                                                 }
                                             }
                                         } else {

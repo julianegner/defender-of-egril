@@ -45,6 +45,10 @@ class GameEngine(private val state: GameState) {
         
         state.coins.value -= defender.upgradeCost
         defender.level.value++
+        
+        // Reset actions to reflect new action count from upgrade
+        defender.resetActions()
+        
         return true
     }
     
