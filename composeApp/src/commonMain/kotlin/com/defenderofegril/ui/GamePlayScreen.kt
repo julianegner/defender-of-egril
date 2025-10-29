@@ -1346,7 +1346,6 @@ fun MiningOutcomeGrid() {
             Text("Name", Modifier.weight(1f), fontWeight = FontWeight.Bold)
             Text("Chance (%)", Modifier.weight(1f), fontWeight = FontWeight.Bold)
             Text("Reward", Modifier.weight(1f), fontWeight = FontWeight.Bold)
-            Text("Description", Modifier.weight(2f), fontWeight = FontWeight.Bold)
         }
         Spacer(Modifier.height(4.dp))
         // Data rows
@@ -1355,13 +1354,6 @@ fun MiningOutcomeGrid() {
                 Text(outcome.displayName, Modifier.weight(1f))
                 Text("${outcome.probability}", Modifier.weight(1f))
                 Text("${outcome.coins}", Modifier.weight(1f))
-                Text(
-                    when (outcome) {
-                        DigOutcome.DRAGON -> "Dragon awakens!"
-                        else -> outcome.displayName
-                    },
-                    Modifier.weight(2f)
-                )
             }
         }
     }
