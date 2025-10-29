@@ -1221,64 +1221,7 @@ fun TowerStats(minRange: Int, damage: Int, range: Int, actionsPerTurn: Int) {
                                             )
                                         }
 
-                                        if (defender.type == DefenderType.DWARVEN_MINE) {
-                                            val mineActionsEnabled =
-                                                gameState.phase.value != GamePhase.INITIAL_BUILDING && defender.actionsRemaining.value > 0
-
-                                            if (mineActionsEnabled || gameState.phase.value == GamePhase.INITIAL_BUILDING) {
-                                                // Dig button
-                                                Column(modifier = Modifier.weight(0.5f)) {
-                                                    Button(
-                                                        onClick = { onMineAction?.invoke(defender.id, MineAction.DIG) },
-                                                        enabled = mineActionsEnabled,
-                                                        modifier = Modifier.width(95.dp).height(100.dp)
-                                                            .offset(y = (-24).dp),
-                                                        contentPadding = PaddingValues(
-                                                            horizontal = 4.dp,
-                                                            vertical = 2.dp
-                                                        )
-                                                    ) {
-                                                        Column(
-                                                            horizontalAlignment = Alignment.CenterHorizontally
-                                                        ) {
-                                                            Text("⛏️", fontSize = 24.sp)
-                                                            Text("Dig", fontSize = 14.sp, fontWeight = FontWeight.Bold)
-                                                        }
-                                                    }
-                                                }
-
-                                                Column(modifier = Modifier.weight(0.5f)) {
-                                                    // Trap button
-                                                    Button(
-                                                        onClick = {
-                                                            onMineAction?.invoke(
-                                                                defender.id,
-                                                                MineAction.BUILD_TRAP
-                                                            )
-                                                        },
-                                                        enabled = mineActionsEnabled,
-                                                        modifier = Modifier.width(95.dp).height(100.dp)
-                                                            .offset(y = (-24).dp),
-                                                        contentPadding = PaddingValues(
-                                                            horizontal = 4.dp,
-                                                            vertical = 2.dp
-                                                        )
-                                                    ) {
-                                                        Column(
-                                                            horizontalAlignment = Alignment.CenterHorizontally
-                                                        ) {
-                                                            Text("🕳️", fontSize = 24.sp)
-                                                            Text("Trap", fontSize = 14.sp, fontWeight = FontWeight.Bold)
-                                                        }
-                                                    }
-                                                }
-                                            } else {
-                                                Spacer(modifier = Modifier.weight(1f))
-                                            }
-                                            Spacer(modifier = Modifier.weight(3f))
-                                        } else {
-                                            Spacer(modifier = Modifier.weight(4f))
-                                        }
+                                        dwarvenMineActionButtonArea(defender.type, gameState, defender, onMineAction)
                                     }
                                 }
                             }
@@ -1286,6 +1229,72 @@ fun TowerStats(minRange: Int, damage: Int, range: Int, actionsPerTurn: Int) {
                     }
                 }
             }
+@Composable
+private fun RowScope.dwarvenMineActionButtonArea(
+    type: DefenderType,
+    gameState: GameState,
+    defender: Defender,
+    onMineAction: ((Int, MineAction) -> Unit)?
+) {
+    if (type == DefenderType.DWARVEN_MINE) {
+        val mineActionsEnabled =
+            gameState.phase.value != GamePhase.INITIAL_BUILDING && defender.actionsRemaining.value > 0
+
+        if (mineActionsEnabled || gameState.phase.value == GamePhase.INITIAL_BUILDING) {
+            // Dig button
+            Column(modifier = Modifier.weight(0.5f)) {
+                Button(
+                    onClick = { onMineAction?.invoke(defender.id, MineAction.DIG) },
+                    enabled = mineActionsEnabled,
+                    modifier = Modifier.width(95.dp).height(100.dp)
+                        .offset(y = (-24).dp),
+                    contentPadding = PaddingValues(
+                        horizontal = 4.dp,
+                        vertical = 2.dp
+                    )
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text("⛏️", fontSize = 24.sp)
+                        Text("Dig", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                    }
+                }
+            }
+
+            Column(modifier = Modifier.weight(0.5f)) {
+                // Trap button
+                Button(
+                    onClick = {
+                        onMineAction?.invoke(
+                            defender.id,
+                            MineAction.BUILD_TRAP
+                        )
+                    },
+                    enabled = mineActionsEnabled,
+                    modifier = Modifier.width(95.dp).height(100.dp)
+                        .offset(y = (-24).dp),
+                    contentPadding = PaddingValues(
+                        horizontal = 4.dp,
+                        vertical = 2.dp
+                    )
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text("🕳️", fontSize = 24.sp)
+                        Text("Trap", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                    }
+                }
+            }
+        } else {
+            Spacer(modifier = Modifier.weight(1f))
+        }
+        Spacer(modifier = Modifier.weight(3f))
+    } else {
+        Spacer(modifier = Modifier.weight(4f))
+    }
+}
 
 @Composable
 fun MiningOutcomeGrid() {
