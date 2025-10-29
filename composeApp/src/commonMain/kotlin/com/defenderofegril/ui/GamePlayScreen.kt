@@ -723,7 +723,7 @@ fun InitialBuildingControls(
         Spacer(modifier = Modifier.height(8.dp))
         
         LazyVerticalGrid(
-            columns = GridCells.Fixed(6),
+            columns = GridCells.Fixed(7),
             modifier = Modifier.fillMaxWidth().height(75.dp),
             horizontalArrangement = Arrangement.spacedBy(4.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)
@@ -794,7 +794,7 @@ fun PlayerTurnControls(
 
         // Defender placement buttons
         LazyVerticalGrid(
-            columns = GridCells.Fixed(6),
+            columns = GridCells.Fixed(7),
             modifier = Modifier.fillMaxWidth().height(75.dp),
             horizontalArrangement = Arrangement.spacedBy(4.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)
