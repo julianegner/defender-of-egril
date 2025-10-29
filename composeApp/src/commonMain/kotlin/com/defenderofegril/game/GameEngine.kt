@@ -1414,6 +1414,21 @@ class GameEngine(private val state: GameState) {
     }
     
     /**
+     * Cheat code to spawn a dragon from a random dwarven mine
+     */
+    fun spawnDragonCheat(): Boolean {
+        // Find any dwarven mine on the map
+        val mine = state.defenders.find { it.type == DefenderType.DWARVEN_MINE }
+        
+        if (mine != null) {
+            spawnDragonFromMine(mine)
+            return true
+        }
+        
+        return false
+    }
+    
+    /**
      * Perform the Dig action for a dwarven mine
      */
     fun performMineDig(mineId: Int): DigOutcome? {

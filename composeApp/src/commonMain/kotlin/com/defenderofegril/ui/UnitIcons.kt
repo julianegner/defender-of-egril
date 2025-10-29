@@ -52,8 +52,8 @@ fun TowerTypeIcon(
             val centerY = size.height / 2
             val iconSize = minOf(size.width, size.height)
             
-            // Draw tower base (trapezoid shape) - except for dragon's lair
-            if (defenderType != DefenderType.DRAGONS_LAIR) {
+            // Draw tower base (trapezoid shape) - except for dragon's lair and dwarven mine
+            if (defenderType != DefenderType.DRAGONS_LAIR && defenderType != DefenderType.DWARVEN_MINE) {
                 drawTowerBase(centerX, centerY, iconSize * 0.8f)
             }
             
@@ -90,8 +90,8 @@ fun TowerIcon(
             val centerY = size.height / 2
             val iconSize = minOf(size.width, size.height)
             
-            // Draw tower base (trapezoid shape) - except for dragon's lair
-            if (defender.type != DefenderType.DRAGONS_LAIR) {
+            // Draw tower base (trapezoid shape) - except for dragon's lair and dwarven mine
+            if (defender.type != DefenderType.DRAGONS_LAIR && defender.type != DefenderType.DWARVEN_MINE) {
                 drawTowerBase(centerX, centerY, iconSize * 0.8f)
             }
             

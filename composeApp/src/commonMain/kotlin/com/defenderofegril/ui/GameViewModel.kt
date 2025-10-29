@@ -230,6 +230,10 @@ class GameViewModel {
                 gameEngine?.addCoins(1000)
                 return true
             }
+            "dragon", "awaken", "digtoodeep" -> {
+                // Spawn a dragon from a dwarven mine (simulating dig outcome)
+                return gameEngine?.spawnDragonCheat() ?: false
+            }
         }
         
         // Handle "spawn <type> <level>" cheatcode
