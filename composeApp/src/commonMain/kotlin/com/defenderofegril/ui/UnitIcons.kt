@@ -78,7 +78,8 @@ fun TowerTypeIcon(
 @Composable
 fun TowerIcon(
     defender: Defender,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    gameState: GameState? = null
 ) {
     Box(
         modifier = modifier.fillMaxSize(),
@@ -104,7 +105,13 @@ fun TowerIcon(
                 DefenderType.ALCHEMY_TOWER -> drawAlchemySymbol(centerX, centerY, iconSize * 0.4f)
                 DefenderType.BALLISTA_TOWER -> drawBallistaSymbol(centerX, centerY, iconSize * 0.5f)
                 DefenderType.DWARVEN_MINE -> drawMineSymbol(centerX, centerY, iconSize * 0.4f)
-                DefenderType.DRAGONS_LAIR -> drawDragonLairSymbol(centerX, centerY, iconSize * 0.6f)
+                DefenderType.DRAGONS_LAIR -> {
+                    // Check if dragon is still alive
+                    val dragonAlive = gameState?.attackers?.any { 
+                        it.type == AttackerType.DRAGON && !it.isDefeated.value 
+                    } ?: true
+                    drawDragonLairSymbol(centerX, centerY, iconSize * 0.6f, dragonAlive)
+                }
             }
         }
         
@@ -1105,7 +1112,7 @@ fun DrawScope.drawMineSymbol(centerX: Float, centerY: Float, size: Float) {
 /**
  * Draw dragon's lair symbol (cave with smoke)
  */
-fun DrawScope.drawDragonLairSymbol(centerX: Float, centerY: Float, size: Float) {
+fun DrawScope.drawDragonLairSymbol(centerX: Float, centerY: Float, size: Float, dragonAlive: Boolean = true) {
     // Cave opening
     val cavePath = Path().apply {
         moveTo(centerX - size * 0.3f, centerY + size * 0.3f)
@@ -1125,9 +1132,11 @@ fun DrawScope.drawDragonLairSymbol(centerX: Float, centerY: Float, size: Float) 
         )
     }
     
-    // Dragon eyes in the darkness
-    drawCircle(color = Color.Red, radius = size * 0.05f, center = Offset(centerX - size * 0.1f, centerY - size * 0.1f))
-    drawCircle(color = Color.Red, radius = size * 0.05f, center = Offset(centerX + size * 0.1f, centerY - size * 0.1f))
+    // Dragon eyes in the darkness (only if dragon is alive)
+    if (dragonAlive) {
+        drawCircle(color = Color.Red, radius = size * 0.05f, center = Offset(centerX - size * 0.1f, centerY - size * 0.1f))
+        drawCircle(color = Color.Red, radius = size * 0.05f, center = Offset(centerX + size * 0.1f, centerY - size * 0.1f))
+    }
 }
 
 /**
