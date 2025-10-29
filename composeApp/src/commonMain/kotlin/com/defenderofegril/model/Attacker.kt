@@ -42,7 +42,8 @@ data class Attacker(
     val disabledTurnsRemaining: MutableState<Int> = mutableStateOf(0),
     val summonCooldown: MutableState<Int> = mutableStateOf(0), // Cooldown for summoning abilities
     val dragonTurnsSinceSpawned: MutableState<Int> = mutableStateOf(0), // Track dragon movement state
-    val isFlying: MutableState<Boolean> = mutableStateOf(false)  // Track if dragon is flying
+    val isFlying: MutableState<Boolean> = mutableStateOf(false),  // Track if dragon is flying
+    val spawnedFromLairId: Int? = null  // Track which lair this dragon came from (for dragons only)
 ) {
     val maxHealth: Int get() = type.health * level
     

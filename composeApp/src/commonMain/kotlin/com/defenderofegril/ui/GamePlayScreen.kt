@@ -260,6 +260,7 @@ private fun GamePlayScreenContent(
                 selectedDefenderId = selectedDefenderId,
                 selectedTargetId = selectedTargetId,
                 selectedTargetPosition = selectedTargetPosition,
+                selectedMineAction = selectedMineAction,
                 onCellClick = { position ->
                     // Try to place defender if one is selected
                     selectedDefenderType?.let { type ->
@@ -469,6 +470,7 @@ fun GameGrid(
     selectedDefenderId: Int?,
     selectedTargetId: Int?,
     selectedTargetPosition: Position?,
+    selectedMineAction: MineAction?,
     onCellClick: (Position) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -514,6 +516,7 @@ fun GameGrid(
                             isTargetSelected = gameState.attackers.find { it.position == position }?.id == selectedTargetId || position == selectedTargetPosition,
                              */
                             selectedDefenderId = selectedDefenderId,
+                            selectedMineAction = selectedMineAction,
                             onClick = { onCellClick(position) },
                             hexSize = hexSize
                         )
@@ -532,6 +535,7 @@ fun GridCell(
     isDefenderSelected: Boolean,
     isTargetSelected: Boolean,
     selectedDefenderId: Int?,
+    selectedMineAction: MineAction?,
     onClick: () -> Unit,
     hexSize: androidx.compose.ui.unit.Dp = 48.dp
 ) {
@@ -603,8 +607,13 @@ fun GridCell(
         selectedDefender?.isReady == true && selectedDefender.actionsRemaining.value > 0
     } ?: false
     
+    // When placing trap, don't show green border on tiles with enemies
+    val isTrapPlacement = selectedMineAction == MineAction.BUILD_TRAP
+    val hasEnemy = attacker != null
+    val canPlaceTrapHere = !hasEnemy || !isTrapPlacement
+    
     val borderColor = when {
-        cellIsInRange && isOnPath && showRange -> Color(0xFF4CAF50)  // Green border for tiles in range (only on path, only if actions available)
+        cellIsInRange && isOnPath && showRange && canPlaceTrapHere -> Color(0xFF4CAF50)  // Green border for tiles in range (exclude enemy tiles during trap placement)
         isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> Color(0xFFFFEB3B)  // Yellow border for selected defender (not during initial building)
         isSpawnPoint -> Color(0xFFFF9800)  // Orange border for spawn
         isTarget -> Color(0xFF4CAF50)  // Green border for target
@@ -623,7 +632,7 @@ fun GridCell(
     // Thicker borders for important elements
     val borderWidth = when {
         isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> 5.dp  // Extra thick border for selected defender (not during initial building)
-        cellIsInRange && isOnPath && showRange -> 4.dp  // Thick border for cells in range
+        cellIsInRange && isOnPath && showRange && canPlaceTrapHere -> 4.dp  // Thick border for cells in range (exclude enemy tiles during trap placement)
         isSpawnPoint || isTarget -> 3.dp
         attacker != null || defender != null -> 3.dp
         fieldEffect != null -> 3.dp  // Thick border for field effects
@@ -1063,9 +1072,12 @@ fun TowerStats(minRange: Int, damage: Int, range: Int, actionsPerTurn: Int) {
                                 // Tower name and level
                                 Column(modifier = Modifier.weight(1f)) {
                                     val displayName = if (defender.type == DefenderType.DRAGONS_LAIR) {
-                                        val dragonAlive = gameState.attackers.any { 
-                                            it.type == AttackerType.DRAGON && !it.isDefeated.value 
-                                        }
+                                        // Check if the specific dragon from this lair is still alive
+                                        val dragonAlive = defender.dragonId.value?.let { dragonId ->
+                                            gameState.attackers.any { 
+                                                it.id == dragonId && !it.isDefeated.value 
+                                            }
+                                        } ?: false
                                         if (dragonAlive) "Dragon's Lair" else "Empty Dragon's Lair"
                                     } else {
                                         defender.type.displayName
@@ -1103,6 +1115,16 @@ fun TowerStats(minRange: Int, damage: Int, range: Int, actionsPerTurn: Int) {
                                 if (defender.type == DefenderType.DWARVEN_MINE) {
                                     // Mine-specific UI
                                     Column(modifier = Modifier.fillMaxWidth()) {
+                                        // Description text
+                                        Text(
+                                            "Find valuables (brass, silver, gold, gems, diamonds) but beware of waking a dragon!",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = Color(0xFF9E9E9E),
+                                            fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
+                                        )
+                                        
+                                        Spacer(modifier = Modifier.height(4.dp))
+                                        
                                         Text(
                                             "Reach: ${defender.range}  |  Trap Damage: ${defender.trapDamage}",
                                             style = MaterialTheme.typography.bodySmall
@@ -1113,40 +1135,42 @@ fun TowerStats(minRange: Int, damage: Int, range: Int, actionsPerTurn: Int) {
                                         // Disable mine actions during initial building phase
                                         val mineActionsEnabled = gameState.phase.value != GamePhase.INITIAL_BUILDING && defender.actionsRemaining.value > 0
                                         
-                                        // Mine action buttons - same size as upgrade/sell
+                                        // Mine action buttons - narrower, positioned on right
                                         Row(
                                             modifier = Modifier.fillMaxWidth(),
                                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                                         ) {
+                                            // Spacer to push buttons to the right where upgrade/sell are
+                                            Spacer(modifier = Modifier.weight(1f))
+                                            
                                             if (mineActionsEnabled || gameState.phase.value == GamePhase.INITIAL_BUILDING) {
-                                                Column(modifier = Modifier.weight(1f)) {
-                                                    Button(
-                                                        onClick = { onMineAction?.invoke(defender.id, MineAction.DIG) },
-                                                        enabled = mineActionsEnabled,
-                                                        modifier = Modifier.fillMaxWidth().height(100.dp).offset(y = (-24).dp),
-                                                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)
+                                                // Dig button - narrower
+                                                Button(
+                                                    onClick = { onMineAction?.invoke(defender.id, MineAction.DIG) },
+                                                    enabled = mineActionsEnabled,
+                                                    modifier = Modifier.width(95.dp).height(100.dp).offset(y = (-24).dp),
+                                                    contentPadding = PaddingValues(horizontal = 4.dp, vertical = 2.dp)
+                                                ) {
+                                                    Column(
+                                                        horizontalAlignment = Alignment.CenterHorizontally
                                                     ) {
-                                                        Column(
-                                                            horizontalAlignment = Alignment.CenterHorizontally
-                                                        ) {
-                                                            Text("⛏️", fontSize = 24.sp)
-                                                            Text("Dig", fontSize = 14.sp, fontWeight = FontWeight.Bold)
-                                                        }
+                                                        Text("⛏️", fontSize = 24.sp)
+                                                        Text("Dig", fontSize = 14.sp, fontWeight = FontWeight.Bold)
                                                     }
                                                 }
-                                                Column(modifier = Modifier.weight(1f)) {
-                                                    Button(
-                                                        onClick = { onMineAction?.invoke(defender.id, MineAction.BUILD_TRAP) },
-                                                        enabled = mineActionsEnabled,
-                                                        modifier = Modifier.fillMaxWidth().height(100.dp).offset(y = (-24).dp),
-                                                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)
+                                                
+                                                // Trap button - narrower
+                                                Button(
+                                                    onClick = { onMineAction?.invoke(defender.id, MineAction.BUILD_TRAP) },
+                                                    enabled = mineActionsEnabled,
+                                                    modifier = Modifier.width(95.dp).height(100.dp).offset(y = (-24).dp),
+                                                    contentPadding = PaddingValues(horizontal = 4.dp, vertical = 2.dp)
+                                                ) {
+                                                    Column(
+                                                        horizontalAlignment = Alignment.CenterHorizontally
                                                     ) {
-                                                        Column(
-                                                            horizontalAlignment = Alignment.CenterHorizontally
-                                                        ) {
-                                                            Text("🕳️", fontSize = 24.sp)
-                                                            Text("Trap", fontSize = 14.sp, fontWeight = FontWeight.Bold)
-                                                        }
+                                                        Text("🕳️", fontSize = 24.sp)
+                                                        Text("Trap", fontSize = 14.sp, fontWeight = FontWeight.Bold)
                                                     }
                                                 }
                                             }
