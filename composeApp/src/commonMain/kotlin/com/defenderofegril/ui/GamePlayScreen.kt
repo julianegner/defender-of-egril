@@ -1,5 +1,6 @@
 package com.defenderofegril.ui
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -22,10 +23,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.PointerEventType
@@ -179,13 +181,11 @@ private fun GamePlayScreenContent(
                             textAlign = TextAlign.Center
                         )
                         
-                        // Fold button at right end
+                        // Fold button at right end (same size as other buttons)
                         Button(
-                            onClick = { headerExpanded = false },
-                            modifier = Modifier.height(32.dp),
-                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+                            onClick = { headerExpanded = false }
                         ) {
-                            Text("▲ Fold Header", fontSize = 12.sp)
+                            Text("▲ Fold Header")
                         }
                     }
                     
@@ -287,10 +287,11 @@ private fun GamePlayScreenContent(
                         Text("🔄 ${gameState.turnNumber.value}", style = MaterialTheme.typography.bodySmall)
                     }
                     
-                    // Level name in center (without prefix)
+                    // Level name in center (without prefix, bold when collapsed)
                     Text(
                         text = gameState.level.name,
                         style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Bold,
                         modifier = Modifier.weight(1f),
                         textAlign = TextAlign.Center
                     )
@@ -300,18 +301,23 @@ private fun GamePlayScreenContent(
                         horizontalArrangement = Arrangement.spacedBy(4.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Button(onClick = onBackToMap, modifier = Modifier.height(32.dp)) {
-                            Text("Map", fontSize = 12.sp)
+                        Button(
+                            onClick = onBackToMap,
+                            modifier = Modifier.height(32.dp),
+                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp)
+                        ) {
+                            Text("Map", fontSize = 12.sp, modifier = Modifier.align(Alignment.CenterVertically))
                         }
                         
                         Button(
                             onClick = { showOverlay = !showOverlay },
                             modifier = Modifier.height(32.dp),
+                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp),
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = if (showOverlay) Color(0xFF4CAF50) else Color(0xFF2196F3)
                             )
                         ) {
-                            Text(if (showOverlay) "◀" else "▶", fontSize = 12.sp)
+                            Text(if (showOverlay) "◀" else "▶", fontSize = 12.sp, modifier = Modifier.align(Alignment.CenterVertically))
                         }
                         
                         // Fold button
@@ -622,6 +628,7 @@ fun GameGrid(
         // Minimap - shown when zoomed in
         if (scale > 1.1f) {
             GameMinimap(
+                gameState = gameState,
                 scale = scale,
                 offsetX = offsetX,
                 offsetY = offsetY,
@@ -636,6 +643,7 @@ fun GameGrid(
 
 @Composable
 fun GameMinimap(
+    gameState: GameState,
     scale: Float,
     offsetX: Float,
     offsetY: Float,
@@ -643,6 +651,8 @@ fun GameMinimap(
     modifier: Modifier = Modifier
 ) {
     val minimapSize = 120.dp
+    val gridWidth = gameState.level.gridWidth
+    val gridHeight = gameState.level.gridHeight
     
     Box(
         modifier = modifier
@@ -651,12 +661,47 @@ fun GameMinimap(
             .border(2.dp, Color.White)
             .padding(4.dp)
     ) {
-        // Map outline (represents the full map)
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color(0xFF444444))
-        )
+        // Simplified map representation
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            val cellWidth = size.width / gridWidth
+            val cellHeight = size.height / gridHeight
+            
+            // Draw path tiles
+            for (y in 0 until gridHeight) {
+                for (x in 0 until gridWidth) {
+                    val pos = Position(x, y)
+                    if (gameState.level.isOnPath(pos)) {
+                        drawRect(
+                            color = Color(0xFF8B4513),  // Brown for path
+                            topLeft = Offset(x * cellWidth, y * cellHeight),
+                            size = Size(cellWidth, cellHeight)
+                        )
+                    }
+                }
+            }
+            
+            // Draw defenders (green dots)
+            gameState.defenders.forEach { defender ->
+                val x = defender.position.x * cellWidth + cellWidth / 2
+                val y = defender.position.y * cellHeight + cellHeight / 2
+                drawCircle(
+                    color = Color.Green,
+                    radius = cellWidth.coerceAtMost(cellHeight) / 3,
+                    center = Offset(x, y)
+                )
+            }
+            
+            // Draw attackers (red dots)
+            gameState.attackers.filter { !it.isDefeated.value }.forEach { attacker ->
+                val x = attacker.position.value.x * cellWidth + cellWidth / 2
+                val y = attacker.position.value.y * cellHeight + cellHeight / 2
+                drawCircle(
+                    color = Color.Red,
+                    radius = cellWidth.coerceAtMost(cellHeight) / 4,
+                    center = Offset(x, y)
+                )
+            }
+        }
         
         // Viewport indicator (shows current view)
         if (containerSize.width > 0 && containerSize.height > 0) {
@@ -689,8 +734,7 @@ fun GameMinimap(
                             x = minimapSize * viewportX,
                             y = minimapSize * viewportY
                         )
-                        .background(Color(0x88FFFFFF))  // Semi-transparent white for viewport
-                        .border(1.dp, Color.White)
+                        .border(2.dp, Color.Yellow)  // Yellow border for viewport
                 )
             }
         }
