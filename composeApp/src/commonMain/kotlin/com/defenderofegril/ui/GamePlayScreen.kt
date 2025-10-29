@@ -690,12 +690,12 @@ fun GameMinimap(
                 }
             }
             
-            // Draw defenders (green dots)
+            // Draw defenders (blue dots - matching main map tower color)
             gameState.defenders.forEach { defender ->
                 val x = defender.position.x * cellWidth + cellWidth / 2
                 val y = defender.position.y * cellHeight + cellHeight / 2
                 drawCircle(
-                    color = Color.Green,
+                    color = Color(0xFF2196F3),  // Blue - same as ready towers on main map
                     radius = cellWidth.coerceAtMost(cellHeight) / 3,
                     center = Offset(x, y)
                 )
@@ -712,22 +712,22 @@ fun GameMinimap(
                 )
             }
             
-            // Draw spawn points (blue dots)
+            // Draw spawn points (orange dots - matching main map spawn border)
             gameState.level.startPositions.forEach { spawnPos ->
                 val x = spawnPos.x * cellWidth + cellWidth / 2
                 val y = spawnPos.y * cellHeight + cellHeight / 2
                 drawCircle(
-                    color = Color.Blue,
+                    color = Color(0xFFFF9800),  // Orange - same as spawn border on main map
                     radius = cellWidth.coerceAtMost(cellHeight) / 3,
                     center = Offset(x, y)
                 )
             }
             
-            // Draw target position (cyan/light blue circle)
+            // Draw target position (green circle - matching main map target border)
             val targetX = gameState.level.targetPosition.x * cellWidth + cellWidth / 2
             val targetY = gameState.level.targetPosition.y * cellHeight + cellHeight / 2
             drawCircle(
-                color = Color.Cyan,
+                color = Color(0xFF4CAF50),  // Green - same as target border on main map
                 radius = cellWidth.coerceAtMost(cellHeight) / 3,
                 center = Offset(targetX, targetY)
             )
