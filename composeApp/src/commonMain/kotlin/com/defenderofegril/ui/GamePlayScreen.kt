@@ -711,6 +711,26 @@ fun GameMinimap(
                     center = Offset(x, y)
                 )
             }
+            
+            // Draw spawn points (blue dots)
+            gameState.level.startPositions.forEach { spawnPos ->
+                val x = spawnPos.x * cellWidth + cellWidth / 2
+                val y = spawnPos.y * cellHeight + cellHeight / 2
+                drawCircle(
+                    color = Color.Blue,
+                    radius = cellWidth.coerceAtMost(cellHeight) / 3,
+                    center = Offset(x, y)
+                )
+            }
+            
+            // Draw target position (cyan/light blue circle)
+            val targetX = gameState.level.targetPosition.x * cellWidth + cellWidth / 2
+            val targetY = gameState.level.targetPosition.y * cellHeight + cellHeight / 2
+            drawCircle(
+                color = Color.Cyan,
+                radius = cellWidth.coerceAtMost(cellHeight) / 3,
+                center = Offset(targetX, targetY)
+            )
         }
         
         // Viewport indicator (shows current view)
