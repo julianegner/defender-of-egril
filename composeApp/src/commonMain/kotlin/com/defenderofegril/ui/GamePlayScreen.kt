@@ -158,7 +158,7 @@ private fun GamePlayScreenContent(
                 .padding(8.dp)
                 .graphicsLayer { 
                     // Ensure header is always on top with higher z-index
-                    translationZ = 10f
+                    shadowElevation = 8f
                 }
         ) {
             if (headerExpanded) {
@@ -947,10 +947,9 @@ fun InitialBuildingControls(
             
             Button(
                 onClick = { buyPanelFolded = !buyPanelFolded },
-                modifier = Modifier.size(32.dp),
-                contentPadding = PaddingValues(0.dp)
+                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
             ) {
-                Text(if (buyPanelFolded) "▼" else "▲", fontSize = 12.sp)
+                Text(if (buyPanelFolded) "▼" else "▲ Fold Build Buttons", fontSize = 12.sp)
             }
         }
         
@@ -973,7 +972,7 @@ fun InitialBuildingControls(
                 // Compact buy buttons in two columns on right
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(2),
-                    modifier = Modifier.width(200.dp).height(if (selectedDefenderId != null) 180.dp else 200.dp),
+                    modifier = Modifier.width(200.dp).height(if (selectedDefenderId != null) 150.dp else 150.dp),
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
@@ -1066,10 +1065,9 @@ fun PlayerTurnControls(
             
             Button(
                 onClick = { buyPanelFolded = !buyPanelFolded },
-                modifier = Modifier.size(32.dp),
-                contentPadding = PaddingValues(0.dp)
+                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
             ) {
-                Text(if (buyPanelFolded) "▼" else "▲", fontSize = 12.sp)
+                Text(if (buyPanelFolded) "▼" else "▲ Fold Build Buttons", fontSize = 12.sp)
             }
         }
 
@@ -1113,7 +1111,7 @@ fun PlayerTurnControls(
                 // Compact buy buttons in two columns on right
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(2),
-                    modifier = Modifier.width(200.dp).height(if (selectedDefenderId != null) 220.dp else 200.dp),
+                    modifier = Modifier.width(200.dp).height(if (selectedDefenderId != null) 150.dp else 150.dp),
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
@@ -1211,23 +1209,23 @@ fun CompactDefenderButton(
         colors = ButtonDefaults.buttonColors(
             containerColor = if (isSelected) Color(0xFF1976D2) else MaterialTheme.colorScheme.primary
         ),
-        modifier = Modifier.fillMaxWidth().height(90.dp),
+        modifier = Modifier.fillMaxWidth().height(45.dp),
         contentPadding = PaddingValues(4.dp)
     ) {
-        Column(
+        Row(
             modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Start
         ) {
             // Tower icon
             Box(
-                modifier = Modifier.size(32.dp),
+                modifier = Modifier.size(28.dp),
                 contentAlignment = Alignment.Center
             ) {
-                TowerTypeIcon(defenderType = type, modifier = Modifier.size(28.dp))
+                TowerTypeIcon(defenderType = type, modifier = Modifier.size(24.dp))
             }
             
-            Spacer(modifier = Modifier.height(2.dp))
+            Spacer(modifier = Modifier.width(4.dp))
             
             // Tower name (shortened)
             Text(
@@ -1236,14 +1234,16 @@ fun CompactDefenderButton(
                 fontWeight = FontWeight.Bold,
                 fontSize = 11.sp,
                 maxLines = 1,
-                textAlign = TextAlign.Center
+                modifier = Modifier.weight(1f)
             )
+            
+            Spacer(modifier = Modifier.width(4.dp))
             
             // Cost
             Text(
                 "💰${type.baseCost}",
                 style = MaterialTheme.typography.labelSmall,
-                fontSize = 14.sp
+                fontSize = 12.sp
             )
         }
     }
