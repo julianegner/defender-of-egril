@@ -970,7 +970,7 @@ fun InitialBuildingControls(
                 // Compact buy buttons in two columns on right
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(2),
-                    modifier = Modifier.width(200.dp).height(if (selectedDefenderId != null) 150.dp else 150.dp),
+                    modifier = Modifier.width(400.dp).height(if (selectedDefenderId != null) 150.dp else 150.dp),
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
@@ -1109,7 +1109,7 @@ fun PlayerTurnControls(
                 // Compact buy buttons in two columns on right
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(2),
-                    modifier = Modifier.width(200.dp).height(if (selectedDefenderId != null) 150.dp else 150.dp),
+                    modifier = Modifier.width(400.dp).height(if (selectedDefenderId != null) 150.dp else 150.dp),
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
@@ -1220,7 +1220,7 @@ fun CompactDefenderButton(
                 modifier = Modifier.size(28.dp),
                 contentAlignment = Alignment.Center
             ) {
-                TowerTypeIcon(defenderType = type, modifier = Modifier.size(24.dp))
+                TowerTypeIcon(defenderType = type, modifier = Modifier.size(30.dp))
             }
             
             Spacer(modifier = Modifier.width(4.dp))
@@ -1230,7 +1230,7 @@ fun CompactDefenderButton(
                 type.displayName.replace(" Tower", ""),
                 style = MaterialTheme.typography.labelSmall,
                 fontWeight = FontWeight.Bold,
-                fontSize = 11.sp,
+                fontSize = 12.sp,
                 maxLines = 1,
                 modifier = Modifier.weight(1f)
             )
@@ -1241,7 +1241,8 @@ fun CompactDefenderButton(
             Text(
                 "💰${type.baseCost}",
                 style = MaterialTheme.typography.labelSmall,
-                fontSize = 12.sp
+                fontWeight = FontWeight.Bold,
+                fontSize = 14.sp
             )
         }
     }
