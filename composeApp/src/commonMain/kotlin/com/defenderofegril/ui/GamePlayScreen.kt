@@ -42,6 +42,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.zIndex
 import com.defenderofegril.model.*
 import kotlinx.coroutines.delay
 import kotlin.math.sqrt
@@ -156,10 +157,7 @@ private fun GamePlayScreenContent(
                 .fillMaxWidth()
                 .background(MaterialTheme.colorScheme.surface)
                 .padding(8.dp)
-                .graphicsLayer { 
-                    // Ensure header is always on top with higher z-index
-                    shadowElevation = 8f
-                }
+                .zIndex(2f)
         ) {
             if (headerExpanded) {
                 // Expanded header
@@ -1236,9 +1234,9 @@ fun CompactDefenderButton(
                 maxLines = 1,
                 modifier = Modifier.weight(1f)
             )
-            
+
             Spacer(modifier = Modifier.width(4.dp))
-            
+
             // Cost
             Text(
                 "💰${type.baseCost}",
