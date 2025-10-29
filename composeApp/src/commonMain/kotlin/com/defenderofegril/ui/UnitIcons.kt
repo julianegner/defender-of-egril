@@ -106,9 +106,11 @@ fun TowerIcon(
                 DefenderType.BALLISTA_TOWER -> drawBallistaSymbol(centerX, centerY, iconSize * 0.5f)
                 DefenderType.DWARVEN_MINE -> drawMineSymbol(centerX, centerY, iconSize * 0.4f)
                 DefenderType.DRAGONS_LAIR -> {
-                    // Check if dragon is still alive
-                    val dragonAlive = gameState?.attackers?.any { 
-                        it.type == AttackerType.DRAGON && !it.isDefeated.value 
+                    // Check if the specific dragon from this lair is still alive
+                    val dragonAlive = defender.dragonId.value?.let { dragonId ->
+                        gameState?.attackers?.any { 
+                            it.id == dragonId && !it.isDefeated.value 
+                        } ?: false
                     } ?: true
                     drawDragonLairSymbol(centerX, centerY, iconSize * 0.6f, dragonAlive)
                 }
