@@ -1115,18 +1115,36 @@ fun TowerStats(minRange: Int, damage: Int, range: Int, actionsPerTurn: Int) {
                                 if (defender.type == DefenderType.DWARVEN_MINE) {
                                     // Mine-specific UI
                                     Column(modifier = Modifier.fillMaxWidth()) {
-                                        // Description text
                                         Text(
-                                            "Find valuables (brass, silver, gold, gems, diamonds) but beware of waking a dragon!",
+                                            "⛏️ Dig",
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                        Text(
+                                            "Find valuables but beware of waking a dragon!",
                                             style = MaterialTheme.typography.bodySmall,
-                                            color = Color(0xFF9E9E9E),
                                             fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
                                         )
-                                        
                                         Spacer(modifier = Modifier.height(4.dp))
-                                        
+                                        MiningOutcomeGrid()
+                                        Spacer(modifier = Modifier.height(4.dp))
+
                                         Text(
-                                            "Reach: ${defender.range}  |  Trap Damage: ${defender.trapDamage}",
+                                            "🕳️ Trap",
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                        Text(
+                                            "Set Traps on the path that wait for enemies to step on them.",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
+                                        )
+                                        Text(
+                                            "🎯 ${defender.range}",
+                                            style = MaterialTheme.typography.bodySmall
+                                        )
+                                        Text(
+                                            "💥 ${defender.trapDamage}",
                                             style = MaterialTheme.typography.bodySmall
                                         )
                                         
@@ -1289,6 +1307,35 @@ fun TowerStats(minRange: Int, damage: Int, range: Int, actionsPerTurn: Int) {
                     }
                 }
             }
+
+@Composable
+fun MiningOutcomeGrid() {
+    Column {
+        // Header row
+        Row {
+            Text("Name", Modifier.weight(1f), fontWeight = FontWeight.Bold)
+            Text("Chance (%)", Modifier.weight(1f), fontWeight = FontWeight.Bold)
+            Text("Reward", Modifier.weight(1f), fontWeight = FontWeight.Bold)
+            Text("Description", Modifier.weight(2f), fontWeight = FontWeight.Bold)
+        }
+        Spacer(Modifier.height(4.dp))
+        // Data rows
+        DigOutcome.values().forEach { outcome ->
+            Row {
+                Text(outcome.displayName, Modifier.weight(1f))
+                Text("${outcome.probability}", Modifier.weight(1f))
+                Text("${outcome.coins}", Modifier.weight(1f))
+                Text(
+                    when (outcome) {
+                        DigOutcome.DRAGON -> "Dragon awakens!"
+                        else -> outcome.displayName
+                    },
+                    Modifier.weight(2f)
+                )
+            }
+        }
+    }
+}
 
 @Composable
 fun UpgradeButton(
