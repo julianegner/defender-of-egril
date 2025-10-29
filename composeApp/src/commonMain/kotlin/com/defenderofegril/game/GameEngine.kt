@@ -495,6 +495,9 @@ class GameEngine(private val state: GameState) {
     fun completeEnemyTurn() {
         if (state.phase.value != GamePhase.ENEMY_TURN) return
         
+        // Check and activate traps after all movements
+        checkAndActivateTraps()
+        
         // Apply damage over time effects
         applyLastingEffects()
         

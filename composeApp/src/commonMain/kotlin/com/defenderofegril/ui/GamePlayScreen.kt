@@ -852,26 +852,29 @@ fun PlayerTurnControls(
                 DefenderInfo(defender, gameState, onUpgradeDefender, onUndoTower, onSellTower, onMineAction = onMineAction)
 
                 // Spacer(modifier = Modifier.height(8.dp))
-                AttackButton(
-                    defender = defender,
-                    gameState = gameState,
-                    selectedTargetId = selectedTargetId,
-                    selectedTargetPosition = selectedTargetPosition,
-                    onDefenderAttack = onDefenderAttack,
-                    onDefenderAttackPosition = onDefenderAttackPosition,
-                    modifier = Modifier
-                        .layout { measurable, constraints ->
-                            // Measure the tooltip but don't add it to the layout
-                            val placeable = measurable.measure(constraints)
-                            layout(0,0) { // Set the size to 0 to avoid taking up space and move other elements
-                                placeable.place(0, 0)
+                // Don't show attack button for dwarven mines or dragon's lair
+                if (defender.type != DefenderType.DWARVEN_MINE && defender.type != DefenderType.DRAGONS_LAIR) {
+                    AttackButton(
+                        defender = defender,
+                        gameState = gameState,
+                        selectedTargetId = selectedTargetId,
+                        selectedTargetPosition = selectedTargetPosition,
+                        onDefenderAttack = onDefenderAttack,
+                        onDefenderAttackPosition = onDefenderAttackPosition,
+                        modifier = Modifier
+                            .layout { measurable, constraints ->
+                                // Measure the tooltip but don't add it to the layout
+                                val placeable = measurable.measure(constraints)
+                                layout(0,0) { // Set the size to 0 to avoid taking up space and move other elements
+                                    placeable.place(0, 0)
+                                }
                             }
-                        }
-                        .width(200.dp)
-                        .height(100.dp)
-                        .absoluteOffset(x = 1000.dp, y = (-130).dp) // .absoluteOffset(x = 700.dp, y = (-130).dp)
+                            .width(200.dp)
+                            .height(100.dp)
+                            .absoluteOffset(x = 1000.dp, y = (-130).dp) // .absoluteOffset(x = 700.dp, y = (-130).dp)
 
-                )
+                    )
+                }
             }
         }
 
@@ -1107,47 +1110,69 @@ fun TowerStats(minRange: Int, damage: Int, range: Int, actionsPerTurn: Int) {
                                         
                                         Spacer(modifier = Modifier.height(8.dp))
                                         
-                                        // Mine action buttons - smaller, in a row with other buttons
+                                        // Disable mine actions during initial building phase
+                                        val mineActionsEnabled = gameState.phase.value != GamePhase.INITIAL_BUILDING && defender.actionsRemaining.value > 0
+                                        
+                                        // Mine action buttons - same size as upgrade/sell
                                         Row(
                                             modifier = Modifier.fillMaxWidth(),
                                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                                         ) {
-                                            if (defender.actionsRemaining.value > 0) {
-                                                Button(
-                                                    onClick = { onMineAction?.invoke(defender.id, MineAction.DIG) },
-                                                    modifier = Modifier.weight(1f),
-                                                    contentPadding = PaddingValues(horizontal = 4.dp, vertical = 2.dp)
-                                                ) {
-                                                    Text("⛏️ Dig", fontSize = 12.sp)
+                                            if (mineActionsEnabled || gameState.phase.value == GamePhase.INITIAL_BUILDING) {
+                                                Column(modifier = Modifier.weight(1f)) {
+                                                    Button(
+                                                        onClick = { onMineAction?.invoke(defender.id, MineAction.DIG) },
+                                                        enabled = mineActionsEnabled,
+                                                        modifier = Modifier.fillMaxWidth().height(100.dp).offset(y = (-24).dp),
+                                                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)
+                                                    ) {
+                                                        Column(
+                                                            horizontalAlignment = Alignment.CenterHorizontally
+                                                        ) {
+                                                            Text("⛏️", fontSize = 24.sp)
+                                                            Text("Dig", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                                                        }
+                                                    }
                                                 }
-                                                Button(
-                                                    onClick = { onMineAction?.invoke(defender.id, MineAction.BUILD_TRAP) },
-                                                    modifier = Modifier.weight(1f),
-                                                    contentPadding = PaddingValues(horizontal = 4.dp, vertical = 2.dp)
-                                                ) {
-                                                    Text("🕳️ Trap", fontSize = 12.sp)
+                                                Column(modifier = Modifier.weight(1f)) {
+                                                    Button(
+                                                        onClick = { onMineAction?.invoke(defender.id, MineAction.BUILD_TRAP) },
+                                                        enabled = mineActionsEnabled,
+                                                        modifier = Modifier.fillMaxWidth().height(100.dp).offset(y = (-24).dp),
+                                                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)
+                                                    ) {
+                                                        Column(
+                                                            horizontalAlignment = Alignment.CenterHorizontally
+                                                        ) {
+                                                            Text("🕳️", fontSize = 24.sp)
+                                                            Text("Trap", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                                                        }
+                                                    }
                                                 }
                                             }
                                             
                                             // Upgrade button in same row
-                                            UpgradeButton(
-                                                defender = defender,
-                                                gameState = gameState,
-                                                modifier = Modifier.weight(1f).height(40.dp).offset(y = 0.dp),
-                                                onUpgradeDefender = onUpgradeDefender
-                                            )
+                                            Column(modifier = Modifier.weight(1f)) {
+                                                UpgradeButton(
+                                                    defender = defender,
+                                                    gameState = gameState,
+                                                    onUpgradeDefender = onUpgradeDefender
+                                                )
+                                            }
                                             
                                             // Sell button in same row
-                                            UndoOrSellButton(
-                                                defender = defender,
-                                                gameState = gameState,
-                                                onUndoTower = onUndoTower,
-                                                onSellTower = onSellTower,
-                                                modifier = Modifier.weight(1f).height(40.dp)
-                                            )
+                                            Column(modifier = Modifier.weight(1f)) {
+                                                UndoOrSellButton(
+                                                    defender = defender,
+                                                    gameState = gameState,
+                                                    onUndoTower = onUndoTower,
+                                                    onSellTower = onSellTower
+                                                )
+                                            }
                                         }
                                         
-                                        if (defender.actionsRemaining.value == 0) {
+                                        if (!mineActionsEnabled && gameState.phase.value != GamePhase.INITIAL_BUILDING) {
+                                            Spacer(modifier = Modifier.height(4.dp))
                                             Text(
                                                 "No actions remaining",
                                                 style = MaterialTheme.typography.bodySmall,
