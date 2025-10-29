@@ -1162,24 +1162,28 @@ fun TowerStats(minRange: Int, damage: Int, range: Int, actionsPerTurn: Int) {
                                                         .padding(4.dp),
                                                     color = Color(0xFF2196F3)
                                                 )
+                                                Text(
+                                                    "Find valuables but beware of waking a dragon!",
+                                                    style = MaterialTheme.typography.bodySmall,
+                                                    fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
+                                                )
                                             }
-                                            Text(
-                                                "Find valuables but beware of waking a dragon!",
-                                                style = MaterialTheme.typography.bodySmall,
-                                                fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
-                                            )
+
                                             Spacer(modifier = Modifier.height(4.dp))
 
-                                            Text(
-                                                "🕳️ Trap",
-                                                style = MaterialTheme.typography.bodyMedium,
-                                                fontWeight = FontWeight.Bold
-                                            )
-                                            Text(
-                                                "Set Traps on the path.",
-                                                style = MaterialTheme.typography.bodySmall,
-                                                fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
-                                            )
+                                            Row {
+                                                Text(
+                                                    "🕳️ Trap",
+                                                    style = MaterialTheme.typography.bodyMedium,
+                                                    fontWeight = FontWeight.Bold
+                                                )
+                                                Text(
+                                                    "Set Traps on the path.",
+                                                    style = MaterialTheme.typography.bodySmall,
+                                                    fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
+                                                    modifier = Modifier.padding(start = 4.dp)
+                                                )
+                                            }
                                             Text(
                                                 "🎯 ${defender.range}",
                                                 style = MaterialTheme.typography.bodySmall
