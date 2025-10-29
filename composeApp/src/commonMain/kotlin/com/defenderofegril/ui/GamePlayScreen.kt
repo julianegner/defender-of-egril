@@ -724,11 +724,14 @@ fun InitialBuildingControls(
         
         LazyVerticalGrid(
             columns = GridCells.Fixed(6),
-            modifier = Modifier.fillMaxWidth().height(90.dp),
+            modifier = Modifier.fillMaxWidth().height(75.dp),
             horizontalArrangement = Arrangement.spacedBy(4.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            items(DefenderType.entries.toTypedArray(), key = { type -> "${type.name}_${coinsState.value}_${gameState.defenders.count { it.type == type }}" }) { type ->
+            items(
+                DefenderType.entries.filter { it != DefenderType.DRAGONS_LAIR }.toTypedArray(),
+                key = { type -> "${type.name}_${coinsState.value}_${gameState.defenders.count { it.type == type }}" }
+            ) { type ->
                 // Directly calculate canAfford using coinsState.value to ensure immediate reactivity
                 val canAfford = coinsState.value >= type.baseCost
                 println("DEBUG: InitialBuilding Button for ${type.displayName} - coins: ${coinsState.value}, cost: ${type.baseCost}, canAfford: $canAfford")
@@ -792,13 +795,14 @@ fun PlayerTurnControls(
         // Defender placement buttons
         LazyVerticalGrid(
             columns = GridCells.Fixed(6),
-            modifier = Modifier.fillMaxWidth().height(90.dp),
+            modifier = Modifier.fillMaxWidth().height(75.dp),
             horizontalArrangement = Arrangement.spacedBy(4.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             items(
-                DefenderType.entries.toTypedArray(),
-                key = { type -> "${type.name}_${coinsState.value}_${gameState.defenders.count { it.type == type }}" }) { type ->
+                DefenderType.entries.filter { it != DefenderType.DRAGONS_LAIR }.toTypedArray(),
+                key = { type -> "${type.name}_${coinsState.value}_${gameState.defenders.count { it.type == type }}" }
+            ) { type ->
                 // Directly calculate canAfford using coinsState.value to ensure immediate reactivity
                 val canAfford = coinsState.value >= type.baseCost
                 println("DEBUG: PlayerTurn Button for ${type.displayName} - coins: ${coinsState.value}, cost: ${type.baseCost}, canAfford: $canAfford")
@@ -1431,8 +1435,8 @@ fun UndoOrSellButton(
                     colors = ButtonDefaults.buttonColors(
                         containerColor = if (isSelected) Color(0xFF1976D2) else MaterialTheme.colorScheme.primary
                     ),
-                    modifier = Modifier.fillMaxWidth().height(80.dp),
-                    contentPadding = PaddingValues(4.dp)
+                    modifier = Modifier.fillMaxWidth().height(70.dp),
+                    contentPadding = PaddingValues(2.dp)
                 ) {
                     Row(
                         modifier = Modifier.fillMaxSize(),
@@ -1441,13 +1445,13 @@ fun UndoOrSellButton(
                     ) {
                         // Tower icon on the left
                         Box(
-                            modifier = Modifier.size(36.dp),
+                            modifier = Modifier.size(30.dp),
                             contentAlignment = Alignment.Center
                         ) {
-                            TowerTypeIcon(defenderType = type, modifier = Modifier.size(32.dp))
+                            TowerTypeIcon(defenderType = type, modifier = Modifier.size(28.dp))
                         }
                         
-                        Spacer(modifier = Modifier.width(4.dp))
+                        Spacer(modifier = Modifier.width(2.dp))
                         
                         // Stats on the right
                         Row {
@@ -1457,10 +1461,10 @@ fun UndoOrSellButton(
                                 horizontalAlignment = Alignment.Start
                             ) {
                                 Text(
-                                    type.displayName.replace(" Tower", ""),
+                                    type.displayName.replace(" Tower", "").replace("Dwarven Mine", "Mine"),
                                     style = MaterialTheme.typography.labelSmall,
                                     fontWeight = FontWeight.Bold,
-                                    fontSize = 14.sp,
+                                    fontSize = 12.sp,
                                     maxLines = 1
                                 )
 
@@ -1468,28 +1472,28 @@ fun UndoOrSellButton(
                                 // "Long" indicates ranged with minimum range (e.g., Ballista can't shoot too close)
                                 // "Range" indicates normal ranged attack without minimum range restriction
                                 val special = when (type.attackType) {
-                                    AttackType.AREA -> "Throws Fireball" //Area of Effect
-                                    AttackType.LASTING -> "Throws Acid" //Damage over Time
+                                    AttackType.AREA -> "Fireball" //Area of Effect
+                                    AttackType.LASTING -> "Acid" //Damage over Time
                                     AttackType.MELEE -> "Melee"
-                                    AttackType.RANGED -> if (type.minRange > 0) "Long Range" else "Range"
-                                    AttackType.NONE -> "No Attack"  // Mines and special structures
+                                    AttackType.RANGED -> if (type.minRange > 0) "Long" else "Range"
+                                    AttackType.NONE -> "Special"  // Mines and special structures
                                 }
                                 Text(
                                     special,
                                     style = MaterialTheme.typography.labelSmall,
-                                    fontSize = 12.sp,
+                                    fontSize = 10.sp,
                                     color = Color(0xFFFFEB3B)
                                 )
                                 Text(
-                                    "⏱ ${type.buildTime}T",
+                                    "⏱${type.buildTime}T",
                                     style = MaterialTheme.typography.labelSmall,
-                                    fontSize = 12.sp
+                                    fontSize = 10.sp
                                 )
                             }
                             Column(
                                 modifier = Modifier
                                     .fillMaxHeight()
-                                    .padding(start = 16.dp),
+                                    .padding(start = 8.dp),
                                 verticalArrangement = Arrangement.Center,
                                 horizontalAlignment = Alignment.Start
                             ) {
@@ -1498,14 +1502,14 @@ fun UndoOrSellButton(
                             Column(
                                 modifier = Modifier
                                     .fillMaxHeight()
-                                    .padding(start = 16.dp),
+                                    .padding(start = 8.dp),
                                 verticalArrangement = Arrangement.Center,
                                 horizontalAlignment = Alignment.Start
                             ) {
                                 Text(
                                     "💰${type.baseCost}",
                                     style = MaterialTheme.typography.labelSmall,
-                                    fontSize = 20.sp
+                                    fontSize = 16.sp
                                 )
                             }
                         }

@@ -52,8 +52,10 @@ fun TowerTypeIcon(
             val centerY = size.height / 2
             val iconSize = minOf(size.width, size.height)
             
-            // Draw tower base (trapezoid shape)
-            drawTowerBase(centerX, centerY, iconSize * 0.8f)
+            // Draw tower base (trapezoid shape) - except for dragon's lair
+            if (defenderType != DefenderType.DRAGONS_LAIR) {
+                drawTowerBase(centerX, centerY, iconSize * 0.8f)
+            }
             
             // Draw tower type symbol inside
             when (defenderType) {
@@ -64,7 +66,7 @@ fun TowerTypeIcon(
                 DefenderType.ALCHEMY_TOWER -> drawAlchemySymbol(centerX, centerY, iconSize * 0.4f)
                 DefenderType.BALLISTA_TOWER -> drawBallistaSymbol(centerX, centerY, iconSize * 0.5f)
                 DefenderType.DWARVEN_MINE -> drawMineSymbol(centerX, centerY, iconSize * 0.4f)
-                DefenderType.DRAGONS_LAIR -> drawDragonLairSymbol(centerX, centerY, iconSize * 0.4f)
+                DefenderType.DRAGONS_LAIR -> drawDragonLairSymbol(centerX, centerY, iconSize * 0.6f)
             }
         }
     }
@@ -88,8 +90,10 @@ fun TowerIcon(
             val centerY = size.height / 2
             val iconSize = minOf(size.width, size.height)
             
-            // Draw tower base (trapezoid shape)
-            drawTowerBase(centerX, centerY, iconSize * 0.8f)
+            // Draw tower base (trapezoid shape) - except for dragon's lair
+            if (defender.type != DefenderType.DRAGONS_LAIR) {
+                drawTowerBase(centerX, centerY, iconSize * 0.8f)
+            }
             
             // Draw tower type symbol inside
             when (defender.type) {
@@ -100,7 +104,7 @@ fun TowerIcon(
                 DefenderType.ALCHEMY_TOWER -> drawAlchemySymbol(centerX, centerY, iconSize * 0.4f)
                 DefenderType.BALLISTA_TOWER -> drawBallistaSymbol(centerX, centerY, iconSize * 0.5f)
                 DefenderType.DWARVEN_MINE -> drawMineSymbol(centerX, centerY, iconSize * 0.4f)
-                DefenderType.DRAGONS_LAIR -> drawDragonLairSymbol(centerX, centerY, iconSize * 0.4f)
+                DefenderType.DRAGONS_LAIR -> drawDragonLairSymbol(centerX, centerY, iconSize * 0.6f)
             }
         }
         
@@ -1040,32 +1044,62 @@ private fun DrawScope.drawEwhadSymbol(centerX: Float, centerY: Float, size: Floa
 }
 
 /**
- * Draw dwarven mine symbol (pickaxe and mountain)
+ * Draw dwarven mine symbol (two towers with axe, gold bar, and gem)
  */
 fun DrawScope.drawMineSymbol(centerX: Float, centerY: Float, size: Float) {
-    // Mountain/rock
-    val mountainPath = Path().apply {
-        moveTo(centerX, centerY - size * 0.4f)
-        lineTo(centerX + size * 0.3f, centerY + size * 0.3f)
-        lineTo(centerX - size * 0.3f, centerY + size * 0.3f)
+    // Left tower
+    val leftTowerPath = Path().apply {
+        moveTo(centerX - size * 0.45f, centerY + size * 0.3f)  // Bottom left
+        lineTo(centerX - size * 0.35f, centerY - size * 0.3f)  // Top left
+        lineTo(centerX - size * 0.2f, centerY - size * 0.3f)   // Top right
+        lineTo(centerX - size * 0.15f, centerY + size * 0.3f)  // Bottom right
         close()
     }
-    drawPath(mountainPath, Color(0xFF8B7355))  // Brown
+    drawPath(leftTowerPath, Color(0xFF8B7355))  // Brown
     
-    // Pickaxe
+    // Right tower
+    val rightTowerPath = Path().apply {
+        moveTo(centerX + size * 0.15f, centerY + size * 0.3f)  // Bottom left
+        lineTo(centerX + size * 0.2f, centerY - size * 0.3f)   // Top left
+        lineTo(centerX + size * 0.35f, centerY - size * 0.3f)  // Top right
+        lineTo(centerX + size * 0.45f, centerY + size * 0.3f)  // Bottom right
+        close()
+    }
+    drawPath(rightTowerPath, Color(0xFF8B7355))  // Brown
+    
+    // Axe in the middle
+    // Axe handle
     drawLine(
         color = Color(0xFF654321),  // Dark brown handle
-        start = Offset(centerX - size * 0.1f, centerY),
-        end = Offset(centerX + size * 0.25f, centerY + size * 0.35f),
+        start = Offset(centerX - size * 0.05f, centerY - size * 0.1f),
+        end = Offset(centerX + size * 0.05f, centerY + size * 0.2f),
         strokeWidth = 3f
     )
-    // Pickaxe head
-    drawLine(
-        color = Color.Gray,
-        start = Offset(centerX - size * 0.2f, centerY - size * 0.1f),
-        end = Offset(centerX, centerY + size * 0.1f),
-        strokeWidth = 4f
+    // Axe blade
+    val axePath = Path().apply {
+        moveTo(centerX - size * 0.15f, centerY - size * 0.15f)
+        lineTo(centerX, centerY - size * 0.05f)
+        lineTo(centerX - size * 0.1f, centerY)
+        close()
+    }
+    drawPath(axePath, Color.Gray)
+    
+    // Gold bar at bottom left
+    drawRect(
+        color = Color(0xFFFFD700),  // Gold
+        topLeft = Offset(centerX - size * 0.35f, centerY + size * 0.35f),
+        size = Size(size * 0.15f, size * 0.08f)
     )
+    
+    // Gem at bottom right (diamond shape)
+    val gemPath = Path().apply {
+        moveTo(centerX + size * 0.25f, centerY + size * 0.35f)  // Top
+        lineTo(centerX + size * 0.3f, centerY + size * 0.39f)   // Right
+        lineTo(centerX + size * 0.25f, centerY + size * 0.43f)  // Bottom
+        lineTo(centerX + size * 0.2f, centerY + size * 0.39f)   // Left
+        close()
+    }
+    drawPath(gemPath, Color(0xFF00CED1))  // Cyan/turquoise gem
 }
 
 /**
