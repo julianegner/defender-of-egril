@@ -1113,20 +1113,36 @@ fun TowerStats(minRange: Int, damage: Int, range: Int, actionsPerTurn: Int) {
                             if (defender.isReady) {
                                 // Handle dwarven mine differently
                                 if (defender.type == DefenderType.DWARVEN_MINE) {
-                                    // Mine-specific UI
+                                    // Mine-specific UI with info dialog
+                                    var showMiningInfoDialog by remember { mutableStateOf(false) }
+                                    
                                     Column(modifier = Modifier.fillMaxWidth()) {
-                                        Text(
-                                            "⛏️ Dig",
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            fontWeight = FontWeight.Bold
-                                        )
+                                        // Dig section with info icon
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Text(
+                                                "⛏️ Dig",
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                fontWeight = FontWeight.Bold
+                                            )
+                                            Spacer(modifier = Modifier.width(4.dp))
+                                            // Info icon button
+                                            Text(
+                                                "ℹ️",
+                                                fontSize = 16.sp,
+                                                modifier = Modifier
+                                                    .clickable { showMiningInfoDialog = true }
+                                                    .padding(4.dp),
+                                                color = Color(0xFF2196F3)
+                                            )
+                                        }
                                         Text(
                                             "Find valuables but beware of waking a dragon!",
                                             style = MaterialTheme.typography.bodySmall,
                                             fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
                                         )
-                                        Spacer(modifier = Modifier.height(4.dp))
-                                        MiningOutcomeGrid()
                                         Spacer(modifier = Modifier.height(4.dp))
 
                                         Text(
@@ -1147,6 +1163,20 @@ fun TowerStats(minRange: Int, damage: Int, range: Int, actionsPerTurn: Int) {
                                             "💥 ${defender.trapDamage}",
                                             style = MaterialTheme.typography.bodySmall
                                         )
+                                    
+                                    // Mining info dialog
+                                    if (showMiningInfoDialog) {
+                                        AlertDialog(
+                                            onDismissRequest = { showMiningInfoDialog = false },
+                                            title = { Text("Mining Probabilities") },
+                                            text = { MiningOutcomeGrid() },
+                                            confirmButton = {
+                                                TextButton(onClick = { showMiningInfoDialog = false }) {
+                                                    Text("Close")
+                                                }
+                                            }
+                                        )
+                                    }
                                         
                                         Spacer(modifier = Modifier.height(8.dp))
                                         
