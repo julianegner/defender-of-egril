@@ -1116,54 +1116,6 @@ fun TowerStats(minRange: Int, damage: Int, range: Int, actionsPerTurn: Int) {
                                     // Mine-specific UI with info dialog
                                     var showMiningInfoDialog by remember { mutableStateOf(false) }
                                     
-                                    Column(modifier = Modifier.fillMaxWidth()) {
-                                        // Dig section with info icon
-                                        Row(
-                                            modifier = Modifier.fillMaxWidth(),
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            Text(
-                                                "⛏️ Dig",
-                                                style = MaterialTheme.typography.bodyMedium,
-                                                fontWeight = FontWeight.Bold
-                                            )
-                                            Spacer(modifier = Modifier.width(4.dp))
-                                            // Info icon button
-                                            Text(
-                                                "ℹ️",
-                                                fontSize = 16.sp,
-                                                modifier = Modifier
-                                                    .clickable { showMiningInfoDialog = true }
-                                                    .padding(4.dp),
-                                                color = Color(0xFF2196F3)
-                                            )
-                                        }
-                                        Text(
-                                            "Find valuables but beware of waking a dragon!",
-                                            style = MaterialTheme.typography.bodySmall,
-                                            fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
-                                        )
-                                        Spacer(modifier = Modifier.height(4.dp))
-
-                                        Text(
-                                            "🕳️ Trap",
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            fontWeight = FontWeight.Bold
-                                        )
-                                        Text(
-                                            "Set Traps on the path that wait for enemies to step on them.",
-                                            style = MaterialTheme.typography.bodySmall,
-                                            fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
-                                        )
-                                        Text(
-                                            "🎯 ${defender.range}",
-                                            style = MaterialTheme.typography.bodySmall
-                                        )
-                                        Text(
-                                            "💥 ${defender.trapDamage}",
-                                            style = MaterialTheme.typography.bodySmall
-                                        )
-                                    
                                     // Mining info dialog
                                     if (showMiningInfoDialog) {
                                         AlertDialog(
@@ -1177,80 +1129,127 @@ fun TowerStats(minRange: Int, damage: Int, range: Int, actionsPerTurn: Int) {
                                             }
                                         )
                                     }
-                                        
-                                        Spacer(modifier = Modifier.height(8.dp))
-                                        
-                                        // Disable mine actions during initial building phase
-                                        val mineActionsEnabled = gameState.phase.value != GamePhase.INITIAL_BUILDING && defender.actionsRemaining.value > 0
-                                        
-                                        // Mine action buttons - narrower, positioned on right
-                                        Row(
-                                            modifier = Modifier.fillMaxWidth(),
-                                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                    
+                                    // Disable mine actions during initial building phase
+                                    val mineActionsEnabled = gameState.phase.value != GamePhase.INITIAL_BUILDING && defender.actionsRemaining.value > 0
+                                    
+                                    // Mine action buttons with info in same row
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                        verticalAlignment = Alignment.Top
+                                    ) {
+                                        // Left side: Info text
+                                        Column(
+                                            modifier = Modifier.weight(1f)
                                         ) {
-                                            // Spacer to push buttons to the right where upgrade/sell are
-                                            Spacer(modifier = Modifier.weight(1f))
-                                            
-                                            if (mineActionsEnabled || gameState.phase.value == GamePhase.INITIAL_BUILDING) {
-                                                // Dig button - narrower
-                                                Button(
-                                                    onClick = { onMineAction?.invoke(defender.id, MineAction.DIG) },
-                                                    enabled = mineActionsEnabled,
-                                                    modifier = Modifier.width(95.dp).height(100.dp).offset(y = (-24).dp),
-                                                    contentPadding = PaddingValues(horizontal = 4.dp, vertical = 2.dp)
-                                                ) {
-                                                    Column(
-                                                        horizontalAlignment = Alignment.CenterHorizontally
-                                                    ) {
-                                                        Text("⛏️", fontSize = 24.sp)
-                                                        Text("Dig", fontSize = 14.sp, fontWeight = FontWeight.Bold)
-                                                    }
-                                                }
-                                                
-                                                // Trap button - narrower
-                                                Button(
-                                                    onClick = { onMineAction?.invoke(defender.id, MineAction.BUILD_TRAP) },
-                                                    enabled = mineActionsEnabled,
-                                                    modifier = Modifier.width(95.dp).height(100.dp).offset(y = (-24).dp),
-                                                    contentPadding = PaddingValues(horizontal = 4.dp, vertical = 2.dp)
-                                                ) {
-                                                    Column(
-                                                        horizontalAlignment = Alignment.CenterHorizontally
-                                                    ) {
-                                                        Text("🕳️", fontSize = 24.sp)
-                                                        Text("Trap", fontSize = 14.sp, fontWeight = FontWeight.Bold)
-                                                    }
-                                                }
-                                            }
-                                            
-                                            // Upgrade button in same row
-                                            Column(modifier = Modifier.weight(1f)) {
-                                                UpgradeButton(
-                                                    defender = defender,
-                                                    gameState = gameState,
-                                                    onUpgradeDefender = onUpgradeDefender
+                                            // Dig section with info icon
+                                            Row(
+                                                verticalAlignment = Alignment.CenterVertically
+                                            ) {
+                                                Text(
+                                                    "⛏️ Dig",
+                                                    style = MaterialTheme.typography.bodyMedium,
+                                                    fontWeight = FontWeight.Bold
+                                                )
+                                                Spacer(modifier = Modifier.width(4.dp))
+                                                // Info icon button
+                                                Text(
+                                                    "ℹ️",
+                                                    fontSize = 16.sp,
+                                                    modifier = Modifier
+                                                        .clickable { showMiningInfoDialog = true }
+                                                        .padding(4.dp),
+                                                    color = Color(0xFF2196F3)
                                                 )
                                             }
-                                            
-                                            // Sell button in same row
-                                            Column(modifier = Modifier.weight(1f)) {
-                                                UndoOrSellButton(
-                                                    defender = defender,
-                                                    gameState = gameState,
-                                                    onUndoTower = onUndoTower,
-                                                    onSellTower = onSellTower
-                                                )
-                                            }
-                                        }
-                                        
-                                        if (!mineActionsEnabled && gameState.phase.value != GamePhase.INITIAL_BUILDING) {
-                                            Spacer(modifier = Modifier.height(4.dp))
                                             Text(
-                                                "No actions remaining",
+                                                "Find valuables but beware of waking a dragon!",
                                                 style = MaterialTheme.typography.bodySmall,
-                                                color = Color.Gray
+                                                fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
+                                            )
+                                            Spacer(modifier = Modifier.height(4.dp))
+
+                                            Text(
+                                                "🕳️ Trap",
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                fontWeight = FontWeight.Bold
+                                            )
+                                            Text(
+                                                "Set Traps on the path.",
+                                                style = MaterialTheme.typography.bodySmall,
+                                                fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
+                                            )
+                                            Text(
+                                                "🎯 ${defender.range}",
+                                                style = MaterialTheme.typography.bodySmall
+                                            )
+                                            Text(
+                                                "💥 ${defender.trapDamage}",
+                                                style = MaterialTheme.typography.bodySmall
                                             )
                                         }
+                                        
+                                        // Right side: Action buttons
+                                        if (mineActionsEnabled || gameState.phase.value == GamePhase.INITIAL_BUILDING) {
+                                            // Dig button
+                                            Button(
+                                                onClick = { onMineAction?.invoke(defender.id, MineAction.DIG) },
+                                                enabled = mineActionsEnabled,
+                                                modifier = Modifier.width(95.dp).height(100.dp).offset(y = (-24).dp),
+                                                contentPadding = PaddingValues(horizontal = 4.dp, vertical = 2.dp)
+                                            ) {
+                                                Column(
+                                                    horizontalAlignment = Alignment.CenterHorizontally
+                                                ) {
+                                                    Text("⛏️", fontSize = 24.sp)
+                                                    Text("Dig", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                                                }
+                                            }
+                                            
+                                            // Trap button
+                                            Button(
+                                                onClick = { onMineAction?.invoke(defender.id, MineAction.BUILD_TRAP) },
+                                                enabled = mineActionsEnabled,
+                                                modifier = Modifier.width(95.dp).height(100.dp).offset(y = (-24).dp),
+                                                contentPadding = PaddingValues(horizontal = 4.dp, vertical = 2.dp)
+                                            ) {
+                                                Column(
+                                                    horizontalAlignment = Alignment.CenterHorizontally
+                                                ) {
+                                                    Text("🕳️", fontSize = 24.sp)
+                                                    Text("Trap", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                                                }
+                                            }
+                                        }
+                                        
+                                        // Upgrade button
+                                        Column(modifier = Modifier.weight(1f)) {
+                                            UpgradeButton(
+                                                defender = defender,
+                                                gameState = gameState,
+                                                onUpgradeDefender = onUpgradeDefender
+                                            )
+                                        }
+                                        
+                                        // Sell button
+                                        Column(modifier = Modifier.weight(1f)) {
+                                            UndoOrSellButton(
+                                                defender = defender,
+                                                gameState = gameState,
+                                                onUndoTower = onUndoTower,
+                                                onSellTower = onSellTower
+                                            )
+                                        }
+                                    }
+                                    
+                                    if (!mineActionsEnabled && gameState.phase.value != GamePhase.INITIAL_BUILDING) {
+                                        Spacer(modifier = Modifier.height(4.dp))
+                                        Text(
+                                            "No actions remaining",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = Color.Gray
+                                        )
                                     }
                                 } else if (defender.type == DefenderType.DRAGONS_LAIR) {
                                     // Dragon's lair - no actions, can't be sold
