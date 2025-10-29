@@ -1227,7 +1227,7 @@ fun TowerStats(minRange: Int, damage: Int, range: Int, actionsPerTurn: Int) {
                                             }
                                         }
                                         
-                                        // Upgrade button
+                                        // Upgrade and sell buttons - same position as normal towers
                                         Column(modifier = Modifier.weight(1f)) {
                                             UpgradeButton(
                                                 defender = defender,
@@ -1236,7 +1236,6 @@ fun TowerStats(minRange: Int, damage: Int, range: Int, actionsPerTurn: Int) {
                                             )
                                         }
                                         
-                                        // Sell button
                                         Column(modifier = Modifier.weight(1f)) {
                                             UndoOrSellButton(
                                                 defender = defender,
@@ -1245,6 +1244,8 @@ fun TowerStats(minRange: Int, damage: Int, range: Int, actionsPerTurn: Int) {
                                                 onSellTower = onSellTower
                                             )
                                         }
+                                        
+                                        Spacer(modifier = Modifier.weight(4f))
                                     }
                                     
                                     if (!mineActionsEnabled && gameState.phase.value != GamePhase.INITIAL_BUILDING) {
