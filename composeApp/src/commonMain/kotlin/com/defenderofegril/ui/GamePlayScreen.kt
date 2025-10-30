@@ -2408,7 +2408,7 @@ fun EnemyItemDetailed(attacker: Attacker, showPosition: Boolean) {
                 modifier = Modifier.size(32.dp),
                 contentAlignment = Alignment.Center
             ) {
-                EnemyIcon(attacker = attacker, modifier = Modifier.size(28.dp))
+                EnemyIcon(attacker = attacker, modifier = Modifier.size(28.dp), healthTextColor = Color.Black)
             }
 
             Spacer(modifier = Modifier.width(6.dp))

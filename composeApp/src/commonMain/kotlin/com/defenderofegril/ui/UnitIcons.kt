@@ -421,7 +421,8 @@ private fun DrawScope.drawBallistaSymbol(centerX: Float, centerY: Float, size: F
 @Composable
 fun EnemyIcon(
     attacker: Attacker,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    healthTextColor: Color = Color.White
 ) {
     Box(
         modifier = modifier.fillMaxSize(),
@@ -455,7 +456,7 @@ fun EnemyIcon(
             text = "${attacker.currentHealth.value}",
             style = MaterialTheme.typography.labelSmall,
             fontSize = 13.sp,
-            color = Color.White,
+            color = healthTextColor,
             fontWeight = FontWeight.Bold,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
