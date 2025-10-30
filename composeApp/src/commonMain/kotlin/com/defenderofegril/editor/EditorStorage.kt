@@ -1,0 +1,345 @@
+package com.defenderofegril.editor
+
+import com.defenderofegril.model.AttackerType
+import com.defenderofegril.model.DefenderType
+import com.defenderofegril.model.AttackerWave
+import com.defenderofegril.model.Level
+
+/**
+ * In-memory storage for maps and levels
+ * In a production environment, this would be replaced with file-based storage
+ */
+object EditorStorage {
+    private val maps = mutableMapOf<String, EditorMap>()
+    private val levels = mutableMapOf<String, EditorLevel>()
+    private var levelSequence = LevelSequence(emptyList())
+    
+    // Initialize with converted existing levels
+    init {
+        initializeDefaultMapsAndLevels()
+    }
+    
+    fun saveMap(map: EditorMap) {
+        maps[map.id] = map
+    }
+    
+    fun getMap(id: String): EditorMap? {
+        return maps[id]
+    }
+    
+    fun getAllMaps(): List<EditorMap> {
+        return maps.values.toList()
+    }
+    
+    fun saveLevel(level: EditorLevel) {
+        levels[level.id] = level
+        // Update sequence if this is a new level
+        if (!levelSequence.sequence.contains(level.id)) {
+            levelSequence = LevelSequence(levelSequence.sequence + level.id)
+        }
+    }
+    
+    fun getLevel(id: String): EditorLevel? {
+        return levels[id]
+    }
+    
+    fun getAllLevels(): List<EditorLevel> {
+        return levels.values.toList()
+    }
+    
+    fun getLevelSequence(): LevelSequence {
+        return levelSequence
+    }
+    
+    fun updateLevelSequence(sequence: LevelSequence) {
+        levelSequence = sequence
+    }
+    
+    fun moveLevelUp(levelId: String) {
+        val currentSequence = levelSequence.sequence.toMutableList()
+        val index = currentSequence.indexOf(levelId)
+        if (index > 0) {
+            currentSequence.removeAt(index)
+            currentSequence.add(index - 1, levelId)
+            levelSequence = LevelSequence(currentSequence)
+        }
+    }
+    
+    fun moveLevelDown(levelId: String) {
+        val currentSequence = levelSequence.sequence.toMutableList()
+        val index = currentSequence.indexOf(levelId)
+        if (index >= 0 && index < currentSequence.size - 1) {
+            currentSequence.removeAt(index)
+            currentSequence.add(index + 1, levelId)
+            levelSequence = LevelSequence(currentSequence)
+        }
+    }
+    
+    /**
+     * Convert an EditorLevel to a Level for gameplay
+     */
+    fun convertToGameLevel(editorLevel: EditorLevel, numericId: Int): Level? {
+        val map = getMap(editorLevel.mapId) ?: return null
+        
+        // Convert enemy spawns to AttackerWaves
+        // Group by spawn turn to create waves
+        val spawnsByTurn = editorLevel.enemySpawns.groupBy { it.spawnTurn }
+        val waves = spawnsByTurn.entries.sortedBy { it.key }.map { (_, spawns) ->
+            AttackerWave(
+                attackers = spawns.map { it.attackerType },
+                spawnDelay = 1  // Fixed delay for now
+            )
+        }
+        
+        val target = map.getTarget() ?: return null
+        
+        return Level(
+            id = numericId,
+            name = editorLevel.title,
+            gridWidth = map.width,
+            gridHeight = map.height,
+            startPositions = map.getSpawnPoints(),
+            targetPosition = target,
+            pathCells = map.getPathCells(),
+            buildIslands = map.getBuildIslands(),
+            attackerWaves = waves,
+            initialCoins = editorLevel.startCoins,
+            healthPoints = editorLevel.startHealthPoints
+        )
+    }
+    
+    /**
+     * Convert existing levels to editor format
+     */
+    private fun initializeDefaultMapsAndLevels() {
+        // Create default maps based on the existing level generation
+        for (size in listOf(
+            Triple("map_30x8", 30, 8),
+            Triple("map_35x9", 35, 9),
+            Triple("map_40x10", 40, 10),
+            Triple("map_45x11", 45, 11),
+            Triple("map_50x12", 50, 12)
+        )) {
+            val (mapId, width, height) = size
+            val pathAndIslands = Level.generateCurvedPathWithIslands(width, height)
+            
+            val tiles = mutableMapOf<String, TileType>()
+            
+            // Set spawn points (hardcoded from original)
+            val spawnPoints = listOf(
+                0 to 1,
+                0 to 4,
+                0 to 7
+            ).filter { it.second < height }
+            
+            spawnPoints.forEach { (x, y) ->
+                tiles["$x,$y"] = TileType.SPAWN_POINT
+            }
+            
+            // Set target
+            tiles["${width - 1},${height / 2}"] = TileType.TARGET
+            
+            // Set path cells
+            pathAndIslands.pathCells.forEach { pos ->
+                if (!tiles.containsKey("${pos.x},${pos.y}")) {
+                    tiles["${pos.x},${pos.y}"] = TileType.PATH
+                }
+            }
+            
+            // Set island cells
+            pathAndIslands.buildIslands.forEach { pos ->
+                tiles["${pos.x},${pos.y}"] = TileType.ISLAND
+            }
+            
+            val map = EditorMap(
+                id = mapId,
+                name = "Generated Map ${width}x${height}",
+                width = width,
+                height = height,
+                tiles = tiles
+            )
+            
+            saveMap(map)
+        }
+        
+        // Create levels based on existing LevelData
+        // Level 1: The First Wave
+        saveLevel(EditorLevel(
+            id = "level_1",
+            mapId = "map_30x8",
+            title = "The First Wave",
+            subtitle = "",
+            startCoins = 100,
+            startHealthPoints = 10,
+            enemySpawns = List(30) { index ->
+                EditorEnemySpawn(AttackerType.GOBLIN, 1, index / 6 + 1)
+            },
+            availableTowers = DefenderType.entries.filter { 
+                it != DefenderType.DRAGONS_LAIR 
+            }.toSet()
+        ))
+        
+        // Level 2: Mixed Forces
+        val level2Spawns = mutableListOf<EditorEnemySpawn>()
+        var turn = 1
+        List(30) { AttackerType.GOBLIN }.forEach { type ->
+            level2Spawns.add(EditorEnemySpawn(type, 1, turn))
+            if (level2Spawns.filter { it.spawnTurn == turn }.size >= 6) turn++
+        }
+        List(20) { AttackerType.SKELETON }.forEach { type ->
+            level2Spawns.add(EditorEnemySpawn(type, 1, turn))
+            if (level2Spawns.filter { it.spawnTurn == turn }.size >= 6) turn++
+        }
+        turn += 2
+        List(15) { AttackerType.ORK }.forEach { type ->
+            level2Spawns.add(EditorEnemySpawn(type, 1, turn))
+            if (level2Spawns.filter { it.spawnTurn == turn }.size >= 6) turn++
+        }
+        
+        saveLevel(EditorLevel(
+            id = "level_2",
+            mapId = "map_35x9",
+            title = "Mixed Forces",
+            subtitle = "",
+            startCoins = 120,
+            startHealthPoints = 10,
+            enemySpawns = level2Spawns,
+            availableTowers = DefenderType.entries.filter { 
+                it != DefenderType.DRAGONS_LAIR 
+            }.toSet()
+        ))
+        
+        // Level 3: The Ork Invasion
+        val level3Spawns = mutableListOf<EditorEnemySpawn>()
+        turn = 1
+        List(40) { AttackerType.GOBLIN }.forEach { type ->
+            level3Spawns.add(EditorEnemySpawn(type, 1, turn))
+            if (level3Spawns.filter { it.spawnTurn == turn }.size >= 6) turn += 2
+        }
+        turn += 2
+        List(30) { AttackerType.ORK }.forEach { type ->
+            level3Spawns.add(EditorEnemySpawn(type, 1, turn))
+            if (level3Spawns.filter { it.spawnTurn == turn }.size >= 6) turn += 2
+        }
+        List(20) { AttackerType.SKELETON }.forEach { type ->
+            level3Spawns.add(EditorEnemySpawn(type, 1, turn))
+            if (level3Spawns.filter { it.spawnTurn == turn }.size >= 6) turn += 2
+        }
+        turn += 2
+        List(20) { AttackerType.ORK }.forEach { type ->
+            level3Spawns.add(EditorEnemySpawn(type, 1, turn))
+            if (level3Spawns.filter { it.spawnTurn == turn }.size >= 6) turn += 2
+        }
+        List(5) { AttackerType.OGRE }.forEach { type ->
+            level3Spawns.add(EditorEnemySpawn(type, 1, turn))
+            if (level3Spawns.filter { it.spawnTurn == turn }.size >= 6) turn += 2
+        }
+        
+        saveLevel(EditorLevel(
+            id = "level_3",
+            mapId = "map_40x10",
+            title = "The Ork Invasion",
+            subtitle = "",
+            startCoins = 150,
+            startHealthPoints = 8,
+            enemySpawns = level3Spawns,
+            availableTowers = DefenderType.entries.filter { 
+                it != DefenderType.DRAGONS_LAIR 
+            }.toSet()
+        ))
+        
+        // Level 4: Dark Magic Rises
+        val level4Spawns = mutableListOf<EditorEnemySpawn>()
+        turn = 1
+        (List(30) { AttackerType.GOBLIN } + List(5) { AttackerType.EVIL_WIZARD }).forEach { type ->
+            level4Spawns.add(EditorEnemySpawn(type, 1, turn))
+            if (level4Spawns.filter { it.spawnTurn == turn }.size >= 6) turn += 2
+        }
+        turn += 2
+        (List(20) { AttackerType.ORK } + List(5) { AttackerType.WITCH }).forEach { type ->
+            level4Spawns.add(EditorEnemySpawn(type, 1, turn))
+            if (level4Spawns.filter { it.spawnTurn == turn }.size >= 6) turn += 2
+        }
+        turn += 2
+        (List(5) { AttackerType.OGRE } + List(20) { AttackerType.SKELETON }).forEach { type ->
+            level4Spawns.add(EditorEnemySpawn(type, 1, turn))
+            if (level4Spawns.filter { it.spawnTurn == turn }.size >= 6) turn += 3
+        }
+        turn += 2
+        (List(10) { AttackerType.EVIL_WIZARD } + List(10) { AttackerType.WITCH }).forEach { type ->
+            level4Spawns.add(EditorEnemySpawn(type, 1, turn))
+            if (level4Spawns.filter { it.spawnTurn == turn }.size >= 6) turn += 2
+        }
+        
+        saveLevel(EditorLevel(
+            id = "level_4",
+            mapId = "map_45x11",
+            title = "Dark Magic Rises",
+            subtitle = "",
+            startCoins = 180,
+            startHealthPoints = 8,
+            enemySpawns = level4Spawns,
+            availableTowers = DefenderType.entries.filter { 
+                it != DefenderType.DRAGONS_LAIR 
+            }.toSet()
+        ))
+        
+        // Level 5: The Final Stand
+        val level5Spawns = mutableListOf<EditorEnemySpawn>()
+        turn = 1
+        (List(50) { AttackerType.SKELETON } + List(20) { AttackerType.EVIL_WIZARD }).forEach { type ->
+            level5Spawns.add(EditorEnemySpawn(type, 1, turn))
+            if (level5Spawns.filter { it.spawnTurn == turn }.size >= 6) turn += 2
+        }
+        turn += 2
+        (List(30) { AttackerType.ORK } + List(5) { AttackerType.WITCH }).forEach { type ->
+            level5Spawns.add(EditorEnemySpawn(type, 1, turn))
+            if (level5Spawns.filter { it.spawnTurn == turn }.size >= 6) turn += 2
+        }
+        turn += 2
+        (List(20) { AttackerType.OGRE } + List(30) { AttackerType.GOBLIN }).forEach { type ->
+            level5Spawns.add(EditorEnemySpawn(type, 1, turn))
+            if (level5Spawns.filter { it.spawnTurn == turn }.size >= 6) turn += 2
+        }
+        turn += 2
+        (List(20) { AttackerType.OGRE } + List(10) { AttackerType.EVIL_WIZARD } + 
+         List(10) { AttackerType.WITCH } + List(1) { AttackerType.EWHAD }).forEach { type ->
+            level5Spawns.add(EditorEnemySpawn(type, 1, turn))
+            if (level5Spawns.filter { it.spawnTurn == turn }.size >= 6) turn += 2
+        }
+        
+        saveLevel(EditorLevel(
+            id = "level_5",
+            mapId = "map_50x12",
+            title = "The Final Stand",
+            subtitle = "",
+            startCoins = 200,
+            startHealthPoints = 6,
+            enemySpawns = level5Spawns,
+            availableTowers = DefenderType.entries.filter { 
+                it != DefenderType.DRAGONS_LAIR 
+            }.toSet()
+        ))
+        
+        // Level 6: Ewhad's Challenge
+        saveLevel(EditorLevel(
+            id = "level_6",
+            mapId = "map_50x12",
+            title = "Ewhad's Challenge",
+            subtitle = "",
+            startCoins = 300,
+            startHealthPoints = 10,
+            enemySpawns = listOf(
+                EditorEnemySpawn(AttackerType.EWHAD, 1, 1)
+            ),
+            availableTowers = DefenderType.entries.filter { 
+                it != DefenderType.DRAGONS_LAIR 
+            }.toSet()
+        ))
+        
+        // Set initial level sequence
+        levelSequence = LevelSequence(listOf(
+            "level_1", "level_2", "level_3", "level_4", "level_5", "level_6"
+        ))
+    }
+}
