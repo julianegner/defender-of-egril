@@ -153,8 +153,9 @@ private fun GamePlayScreenContent(
     var headerExpanded by remember { mutableStateOf(true) }  // State for header fold/expand
 
     // Auto-fold header when turn 1 starts
-    LaunchedEffect(gameState.turnNumber.value) {
-        if (gameState.turnNumber.value == 1) {
+    val currentTurn = gameState.turnNumber.value
+    LaunchedEffect(currentTurn) {
+        if (currentTurn == 1) {
             headerExpanded = false
         }
     }
