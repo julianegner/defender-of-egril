@@ -78,16 +78,18 @@ fun RulesScreen(
             TowerInfo("Spike Tower", "10 coins", "5 damage", "1 range", "Melee")
             TowerInfo("Spear Tower", "15 coins", "8 damage", "2 range", "Ranged")
             TowerInfo("Bow Tower", "20 coins", "10 damage", "3 range", "Ranged")
-            TowerInfo("Wizard Tower", "50 coins", "30 damage", "3 range", "AOE")
-            TowerInfo("Alchemy Tower", "40 coins", "15 damage", "2 range", "DoT")
+            TowerInfo("Wizard Tower", "50 coins", "30 damage", "3 range", "Fireball (Area)")
+            TowerInfo("Alchemy Tower", "40 coins", "15 damage", "2 range", "Acid (Area, some turns)")
+            TowerInfo("Dwarven Mine", "30 coins", "none", "3 range", "Special: dig for valuables or place traps on the path")
+
             
             Spacer(modifier = Modifier.height(16.dp))
             
             // Attack Types
             SectionTitle("Attack Types")
             BulletPoint("Melee/Ranged: Single target")
-            BulletPoint("AOE (Area of Effect): Damages all enemies within 1 cell")
-            BulletPoint("DoT (Damage over Time): Continuous damage for 3 turns")
+            BulletPoint("Fireball (Area): Damages all enemies within 1 cell of impact")
+            BulletPoint("Acid: Continuous damage for 3 turns within 1 cell of impact")
             
             Spacer(modifier = Modifier.height(16.dp))
             
@@ -111,8 +113,8 @@ fun RulesScreen(
             
             // Grid Legend
             SectionTitle("Grid Legend")
-            BulletPoint("S: Start position (enemies spawn)")
-            BulletPoint("T: Target position (defend this!)")
+            BulletPoint("Spawn: Start position (enemies spawn)")
+            BulletPoint("Target: Target position (defend this!)")
             BulletPoint("Blue: Your ready towers")
             BulletPoint("Gray: Towers still building")
             BulletPoint("Red: Enemies")
@@ -126,7 +128,7 @@ fun RulesScreen(
             BulletPoint("Use initial building phase wisely")
             BulletPoint("Save 20-30 coins for mid-game")
             BulletPoint("Focus fire on tough enemies (Ogres, Orks)")
-            BulletPoint("Wizard Towers for massive AOE damage")
+            BulletPoint("Wizard Towers for massive Areal damage")
             BulletPoint("Upgrade high-level towers rather than building new ones")
             
             Spacer(modifier = Modifier.height(24.dp))
