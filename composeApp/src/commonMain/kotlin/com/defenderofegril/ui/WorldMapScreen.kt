@@ -68,9 +68,11 @@ fun WorldMapScreen(
                 )
             }
             
-            // Add Editor Button as a special card
-            item {
-                EditorButtonCard(onClick = onOpenEditor)
+            // Add Editor Button as a special card (only on desktop)
+            if (isEditorAvailable()) {
+                item {
+                    EditorButtonCard(onClick = onOpenEditor)
+                }
             }
         }
         
