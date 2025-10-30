@@ -17,6 +17,7 @@ sealed class Screen {
     object MainMenu : Screen()
     object WorldMap : Screen()
     object Rules : Screen()
+    object LevelEditor : Screen()
     data class GamePlay(val levelId: Int) : Screen()
     data class LevelComplete(val levelId: Int, val won: Boolean) : Screen()
 }
@@ -59,6 +60,10 @@ class GameViewModel {
     
     fun navigateToRules() {
         _currentScreen.value = Screen.Rules
+    }
+    
+    fun navigateToLevelEditor() {
+        _currentScreen.value = Screen.LevelEditor
     }
     
     fun startLevel(levelId: Int) {
