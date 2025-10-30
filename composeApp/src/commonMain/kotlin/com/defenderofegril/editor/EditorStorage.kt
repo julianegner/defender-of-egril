@@ -122,14 +122,45 @@ object EditorStorage {
         val json = fileStorage.readFile(SEQUENCE_FILE)
         if (json != null) {
             val sequence = EditorJsonSerializer.deserializeSequence(json)
+            if (sequence != null && sequence.sequence.isNotEmpty()) {
+                levelSequenceCache = sequence
+                return sequence
+            }
+        }
+        
+        // If no valid sequence found, reinitialize
+        println("WARNING: No valid level sequence found, reinitializing default levels")
+        reinitializeDefaults()
+        
+        // Try loading again after reinitialization
+        val jsonAfterInit = fileStorage.readFile(SEQUENCE_FILE)
+        if (jsonAfterInit != null) {
+            val sequence = EditorJsonSerializer.deserializeSequence(jsonAfterInit)
             if (sequence != null) {
                 levelSequenceCache = sequence
                 return sequence
             }
         }
         
-        // Return empty sequence if not found
+        // Last resort: return empty sequence
         return LevelSequence(emptyList())
+    }
+    
+    /**
+     * Force reinitialization of default maps and levels
+     */
+    private fun reinitializeDefaults() {
+        // Clear caches
+        mapsCache.clear()
+        levelsCache.clear()
+        levelSequenceCache = null
+        
+        // Create directories
+        fileStorage.createDirectory(MAPS_DIR)
+        fileStorage.createDirectory(LEVELS_DIR)
+        
+        // Reinitialize by calling the same initialization code
+        initializeDefaultMapsAndLevels()
     }
     
     fun updateLevelSequence(sequence: LevelSequence) {
@@ -193,12 +224,20 @@ object EditorStorage {
     
     /**
      * Convert existing levels to editor format
-     * Only initializes if files don't exist
+     * Only initializes if files don't exist or are invalid
      */
     private fun initializeDefaultMapsAndLevels() {
-        // Check if already initialized
-        if (fileStorage.fileExists(SEQUENCE_FILE)) {
-            return  // Already initialized
+        // Check if already initialized with valid data
+        val sequenceJson = fileStorage.readFile(SEQUENCE_FILE)
+        if (sequenceJson != null) {
+            val sequence = EditorJsonSerializer.deserializeSequence(sequenceJson)
+            if (sequence != null && sequence.sequence.isNotEmpty()) {
+                // Valid sequence exists, check if levels exist
+                val firstLevelId = sequence.sequence.firstOrNull()
+                if (firstLevelId != null && fileStorage.fileExists("$LEVELS_DIR/$firstLevelId.json")) {
+                    return  // Already initialized with valid data
+                }
+            }
         }
         
         // Create directories
