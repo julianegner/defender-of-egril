@@ -1092,9 +1092,14 @@ fun GameControlsPanel(
     // State to track if buy panel is folded - preserves across turns
     var compactBuyPanel by remember { mutableStateOf(false) }
     
-    // Auto-unfold when no defender is selected, auto-fold when defender is selected
-    LaunchedEffect(selectedDefenderId) {
-        compactBuyPanel = selectedDefenderId != null
+    // State to track if auto-fold on defender selection is enabled
+    var autoFoldEnabled by remember { mutableStateOf(false) }
+    
+    // Auto-fold when defender is selected (only if enabled)
+    LaunchedEffect(selectedDefenderId, autoFoldEnabled) {
+        if (autoFoldEnabled) {
+            compactBuyPanel = selectedDefenderId != null
+        }
     }
 
     // Determine phase-specific properties
@@ -1112,7 +1117,7 @@ fun GameControlsPanel(
     }
 
     Column(modifier = Modifier.fillMaxWidth()) {
-        // Title with fold button
+        // Title with fold button and auto-fold toggle
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -1120,11 +1125,32 @@ fun GameControlsPanel(
         ) {
             Text(title, style = MaterialTheme.typography.titleMedium)
 
-            Button(
-                onClick = { compactBuyPanel = !compactBuyPanel },
-                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(if (compactBuyPanel) "▼" else "▲ Fold Build Buttons", fontSize = 12.sp)
+                // Auto-fold toggle
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.clickable { autoFoldEnabled = !autoFoldEnabled }
+                        .padding(horizontal = 4.dp, vertical = 2.dp)
+                ) {
+                    Checkbox(
+                        checked = autoFoldEnabled,
+                        onCheckedChange = { autoFoldEnabled = it },
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text("Auto-fold", fontSize = 10.sp)
+                }
+                
+                // Fold button
+                Button(
+                    onClick = { compactBuyPanel = !compactBuyPanel },
+                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+                ) {
+                    Text(if (compactBuyPanel) "▼" else "▲ Fold Build Buttons", fontSize = 12.sp)
+                }
             }
         }
 
