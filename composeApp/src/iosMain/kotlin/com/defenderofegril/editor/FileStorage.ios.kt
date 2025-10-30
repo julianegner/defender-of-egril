@@ -1,27 +1,34 @@
 package com.defenderofegril.editor
 
 /**
- * iOS stub implementation - Editor not supported on iOS
+ * iOS implementation uses in-memory storage
  */
 class IosFileStorage : FileStorage {
+    private val files = mutableMapOf<String, String>()
+    private val directories = mutableSetOf<String>()
+    
     override fun writeFile(path: String, content: String) {
-        throw UnsupportedOperationException("Level editor not supported on iOS")
+        files[path] = content
     }
     
     override fun readFile(path: String): String? {
-        throw UnsupportedOperationException("Level editor not supported on iOS")
+        return files[path]
     }
     
     override fun listFiles(directory: String): List<String> {
-        throw UnsupportedOperationException("Level editor not supported on iOS")
+        return files.keys
+            .filter { it.startsWith("$directory/") }
+            .map { it.removePrefix("$directory/").substringBefore("/") }
+            .distinct()
+            .filter { it.isNotBlank() && !files.keys.any { key -> key.startsWith("$directory/$it/") } }
     }
     
     override fun fileExists(path: String): Boolean {
-        return false
+        return files.containsKey(path)
     }
     
     override fun createDirectory(path: String) {
-        throw UnsupportedOperationException("Level editor not supported on iOS")
+        directories.add(path)
     }
 }
 

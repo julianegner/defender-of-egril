@@ -1,27 +1,35 @@
 package com.defenderofegril.editor
 
 /**
- * Android stub implementation - Editor not supported on Android
+ * Android implementation uses in-memory storage
+ * Actual file storage would require Android Context which isn't available in unit tests
  */
 class AndroidFileStorage : FileStorage {
+    private val files = mutableMapOf<String, String>()
+    private val directories = mutableSetOf<String>()
+    
     override fun writeFile(path: String, content: String) {
-        throw UnsupportedOperationException("Level editor not supported on Android")
+        files[path] = content
     }
     
     override fun readFile(path: String): String? {
-        throw UnsupportedOperationException("Level editor not supported on Android")
+        return files[path]
     }
     
     override fun listFiles(directory: String): List<String> {
-        throw UnsupportedOperationException("Level editor not supported on Android")
+        return files.keys
+            .filter { it.startsWith("$directory/") }
+            .map { it.removePrefix("$directory/").substringBefore("/") }
+            .distinct()
+            .filter { it.isNotBlank() && !files.keys.any { key -> key.startsWith("$directory/$it/") } }
     }
     
     override fun fileExists(path: String): Boolean {
-        return false
+        return files.containsKey(path)
     }
     
     override fun createDirectory(path: String) {
-        throw UnsupportedOperationException("Level editor not supported on Android")
+        directories.add(path)
     }
 }
 
