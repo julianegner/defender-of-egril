@@ -152,6 +152,13 @@ private fun GamePlayScreenContent(
     var showOverlay by remember { mutableStateOf(false) }  // MutableState for overlay visibility
     var headerExpanded by remember { mutableStateOf(true) }  // State for header fold/expand
 
+    // Auto-fold header when turn 1 starts
+    LaunchedEffect(gameState.turnNumber.value) {
+        if (gameState.turnNumber.value == 1) {
+            headerExpanded = false
+        }
+    }
+
     // Mine action handler
     val handleMineAction: (Int, MineAction) -> Unit = { mineId, action ->
         when (action) {
