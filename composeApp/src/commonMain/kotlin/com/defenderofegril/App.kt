@@ -15,7 +15,8 @@ fun App() {
         when (val screen = currentScreen) {
             is Screen.MainMenu -> {
                 MainMenuScreen(
-                    onStartGame = { viewModel.navigateToWorldMap() }
+                    onStartGame = { viewModel.navigateToWorldMap() },
+                    onShowRules = { viewModel.navigateToRules() }
                 )
             }
             
@@ -24,7 +25,14 @@ fun App() {
                     worldLevels = worldLevels,
                     onLevelSelected = { levelId -> viewModel.startLevel(levelId) },
                     onBackToMenu = { viewModel.navigateToMainMenu() },
+                    onShowRules = { viewModel.navigateToRules() },
                     onCheatCode = { code -> viewModel.applyWorldMapCheatCode(code) }
+                )
+            }
+            
+            is Screen.Rules -> {
+                RulesScreen(
+                    onBack = { viewModel.navigateToMainMenu() }
                 )
             }
             

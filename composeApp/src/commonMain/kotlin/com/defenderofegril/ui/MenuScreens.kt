@@ -10,7 +10,8 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun MainMenuScreen(
-    onStartGame: () -> Unit
+    onStartGame: () -> Unit,
+    onShowRules: () -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxSize().padding(16.dp),
@@ -38,6 +39,15 @@ fun MainMenuScreen(
             modifier = Modifier.width(200.dp).height(60.dp)
         ) {
             Text("Start Game", style = MaterialTheme.typography.titleMedium)
+        }
+        
+        Spacer(modifier = Modifier.height(16.dp))
+        
+        Button(
+            onClick = onShowRules,
+            modifier = Modifier.width(200.dp).height(60.dp)
+        ) {
+            Text("Rules", style = MaterialTheme.typography.titleMedium)
         }
     }
 }
