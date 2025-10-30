@@ -1131,8 +1131,9 @@ fun GameControlsPanel(
                                     compactBuyPanel
                                 )
 
-                                // Attack button only for player turn
-                                if (isPlayerTurn) {
+                                if (isPlayerTurn &&
+                                    defender.type != DefenderType.DWARVEN_MINE &&
+                                    defender.type != DefenderType.DRAGONS_LAIR) {
                                     AttackButton(
                                         defender = defender,
                                         gameState = gameState,
