@@ -26,9 +26,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
@@ -653,21 +651,17 @@ fun GameGrid(
     Box(
         modifier = modifier
             .onSizeChanged { containerSize = it }
-            // Mouse wheel zoom support (desktop)
-            .onPointerEvent(PointerEventType.Scroll) { event ->
-                val delta = event.changes.first().scrollDelta
-                // Zoom in/out based on scroll direction
-                if (delta.y != 0f) {
-                    val zoomDelta = if (delta.y < 0) 1.1f else 0.9f
-                    scale = (scale * zoomDelta).coerceIn(0.5f, 3f)
-
-                    // Constrain pan after zoom
-                    val maxOffsetX = (containerSize.width * (scale - 1) / 2).coerceAtLeast(0f)
-                    val maxOffsetY = (containerSize.height * (scale - 1) / 2).coerceAtLeast(0f)
-                    offsetX = offsetX.coerceIn(-maxOffsetX, maxOffsetX)
-                    offsetY = offsetY.coerceIn(-maxOffsetY, maxOffsetY)
+            .mouseWheelZoom(
+                containerSize = containerSize,
+                scale = scale,
+                offsetX = offsetX,
+                offsetY = offsetY,
+                onScaleChange = { newScale -> scale = newScale },
+                onOffsetChange = { newOffsetX, newOffsetY -> 
+                    offsetX = newOffsetX
+                    offsetY = newOffsetY
                 }
-            }
+            )
             // Combined gesture handling for pan and pinch-zoom
             .pointerInput(Unit) {
                 detectTransformGestures { _, pan, zoom, _ ->
@@ -2583,4 +2577,18 @@ fun EnemyItem(attacker: Attacker) {
         }
     }
 }
+
+/**
+ * Platform-specific modifier for mouse wheel zoom support.
+ * On desktop, this enables mouse wheel scrolling to zoom in/out.
+ * On mobile platforms, this is a no-op since touch gestures handle zooming.
+ */
+expect fun Modifier.mouseWheelZoom(
+    containerSize: IntSize,
+    scale: Float,
+    offsetX: Float,
+    offsetY: Float,
+    onScaleChange: (Float) -> Unit,
+    onOffsetChange: (Float, Float) -> Unit
+): Modifier
 
