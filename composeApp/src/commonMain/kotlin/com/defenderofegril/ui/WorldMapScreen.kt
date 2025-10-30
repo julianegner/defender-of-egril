@@ -24,6 +24,7 @@ fun WorldMapScreen(
     worldLevels: List<WorldLevel>,
     onLevelSelected: (Int) -> Unit,
     onBackToMenu: () -> Unit,
+    onShowRules: () -> Unit,
     onCheatCode: ((String) -> Boolean)? = null  // Callback for processing cheat codes, returns true if code was valid
 ) {
     var showCheatDialog by remember { mutableStateOf(false) }
@@ -69,8 +70,16 @@ fun WorldMapScreen(
         
         Spacer(modifier = Modifier.height(16.dp))
         
-        Button(onClick = onBackToMenu) {
-            Text("Back to Menu")
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Button(onClick = onShowRules) {
+                Text("Rules")
+            }
+            
+            Button(onClick = onBackToMenu) {
+                Text("Back to Menu")
+            }
         }
     }
     

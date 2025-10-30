@@ -16,6 +16,7 @@ import kotlinx.coroutines.launch
 sealed class Screen {
     object MainMenu : Screen()
     object WorldMap : Screen()
+    object Rules : Screen()
     data class GamePlay(val levelId: Int) : Screen()
     data class LevelComplete(val levelId: Int, val won: Boolean) : Screen()
 }
@@ -54,6 +55,10 @@ class GameViewModel {
     
     fun navigateToWorldMap() {
         _currentScreen.value = Screen.WorldMap
+    }
+    
+    fun navigateToRules() {
+        _currentScreen.value = Screen.Rules
     }
     
     fun startLevel(levelId: Int) {
