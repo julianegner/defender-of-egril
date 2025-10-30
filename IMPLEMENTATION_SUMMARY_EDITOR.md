@@ -154,10 +154,11 @@ See `LEVEL_EDITOR.md` for detailed JSON format documentation.
 
 ### Why Manual JSON Instead of kotlinx.serialization?
 
-- Better multiplatform compatibility
-- Easier debugging (human-readable format)
-- No dependency on external library behavior
-- Full control over serialization format
+- Initial prototyping showed enum serialization issues in multiplatform context
+- Manual approach gives us complete control over format evolution
+- Easier debugging with simple string-based format
+- Can easily add backwards compatibility handling
+- No runtime reflection needed
 
 ### Why In-Memory Storage for Mobile?
 
@@ -271,7 +272,7 @@ Created comprehensive documentation:
 The implementation followed the principle of minimal changes:
 
 **Modified Existing Files:** 6 files
-- Added serialization dependencies (build files)
+- Added kotlinx.serialization plugin (for future use, not currently used)
 - Added editor navigation (App.kt, GameViewModel.kt)
 - Added editor button (WorldMapScreen.kt)
 - Changed level loading (LevelData.kt)
