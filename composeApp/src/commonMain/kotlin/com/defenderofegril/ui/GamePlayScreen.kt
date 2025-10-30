@@ -1089,15 +1089,12 @@ fun GameControlsPanel(
     onPrimaryAction: () -> Unit,
     onMineAction: ((Int, MineAction) -> Unit)? = null,
 ) {
-    // Use key to preserve state across recompositions (not tied to turn number)
-    // Automatically unfold when no defender is selected
-    var compactBuyPanel by remember(key1 = "buyPanelState") { mutableStateOf(false) }
+    // State to track if buy panel is folded - preserves across turns
+    var compactBuyPanel by remember { mutableStateOf(false) }
     
-    // Auto-unfold when no defender is selected
+    // Auto-unfold when no defender is selected, auto-fold when defender is selected
     LaunchedEffect(selectedDefenderId) {
-        if (selectedDefenderId == null) {
-            compactBuyPanel = false
-        }
+        compactBuyPanel = selectedDefenderId != null
     }
 
     // Determine phase-specific properties
