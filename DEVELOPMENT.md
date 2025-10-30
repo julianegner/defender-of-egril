@@ -130,7 +130,8 @@ For more complex maps, consider implementing A* pathfinding.
 For testing and debugging, the game includes cheat codes:
 
 **In-Game Cheat Codes** (accessed by clicking on the coins display during gameplay):
-- **moneybags**, **1000coins**, **cash**: Adds 1000 coins
+- **cash**: Adds 1000 coins
+- **mmmoney**: Adds 1000000 coins
 - **spawn <type> <level>**: Spawns an enemy of the specified type and level
   - Types: goblin, ork, ogre, skeleton, wizard, witch
   - Level: optional integer (default 1) that scales enemy health

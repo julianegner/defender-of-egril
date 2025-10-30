@@ -13,7 +13,8 @@ enum class AttackerType(
     val canSummon: Boolean = false,
     val canDisableTowers: Boolean = false,
     val canHeal: Boolean = false,
-    val isBoss: Boolean = false
+    val isBoss: Boolean = false,
+    val isDragon: Boolean = false
 ) {
     GOBLIN("Goblin", health = 20, speed = 2, reward = 5),
     ORK("Ork", health = 40, speed = 1, reward = 10),
@@ -26,7 +27,8 @@ enum class AttackerType(
     EVIL_MAGE("Evil Mage", health = 40, speed = 1, reward = 20, canSummon = true),
     RED_WITCH("Red Witch", health = 30, speed = 2, reward = 18, canDisableTowers = true),
     GREEN_WITCH("Green Witch", health = 25, speed = 2, reward = 15, canHeal = true),
-    EWHAD("Ewhad", health = 200, speed = 1, reward = 100, canSummon = true, isBoss = true)
+    EWHAD("Ewhad", health = 200, speed = 1, reward = 100, canSummon = true, isBoss = true),
+    DRAGON("Dragon", health = 500, speed = 1, reward = 0, isDragon = true, isBoss = true)  // Speed will be overridden: 1 on turn 1, 5 on turn 2+
 }
 
 data class Attacker(
@@ -38,7 +40,10 @@ data class Attacker(
     val isDefeated: MutableState<Boolean> = mutableStateOf(false),
     val isDisabled: MutableState<Boolean> = mutableStateOf(false), // For towers disabled by Red Witch
     val disabledTurnsRemaining: MutableState<Int> = mutableStateOf(0),
-    val summonCooldown: MutableState<Int> = mutableStateOf(0) // Cooldown for summoning abilities
+    val summonCooldown: MutableState<Int> = mutableStateOf(0), // Cooldown for summoning abilities
+    val dragonTurnsSinceSpawned: MutableState<Int> = mutableStateOf(0), // Track dragon movement state
+    val isFlying: MutableState<Boolean> = mutableStateOf(false),  // Track if dragon is flying
+    val spawnedFromLairId: Int? = null  // Track which lair this dragon came from (for dragons only)
 ) {
     val maxHealth: Int get() = type.health * level
     

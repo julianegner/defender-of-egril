@@ -52,8 +52,10 @@ fun TowerTypeIcon(
             val centerY = size.height / 2
             val iconSize = minOf(size.width, size.height)
             
-            // Draw tower base (trapezoid shape)
-            drawTowerBase(centerX, centerY, iconSize * 0.8f)
+            // Draw tower base (trapezoid shape) - except for dragon's lair and dwarven mine
+            if (defenderType != DefenderType.DRAGONS_LAIR && defenderType != DefenderType.DWARVEN_MINE) {
+                drawTowerBase(centerX, centerY, iconSize * 0.8f)
+            }
             
             // Draw tower type symbol inside
             when (defenderType) {
@@ -63,6 +65,8 @@ fun TowerTypeIcon(
                 DefenderType.WIZARD_TOWER -> drawWizardSymbol(centerX, centerY, iconSize * 0.4f)
                 DefenderType.ALCHEMY_TOWER -> drawAlchemySymbol(centerX, centerY, iconSize * 0.4f)
                 DefenderType.BALLISTA_TOWER -> drawBallistaSymbol(centerX, centerY, iconSize * 0.5f)
+                DefenderType.DWARVEN_MINE -> drawMineSymbol(centerX, centerY, iconSize * 0.4f)
+                DefenderType.DRAGONS_LAIR -> drawDragonLairSymbol(centerX, centerY, iconSize * 0.6f)
             }
         }
     }
@@ -74,7 +78,8 @@ fun TowerTypeIcon(
 @Composable
 fun TowerIcon(
     defender: Defender,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    gameState: GameState? = null
 ) {
     Box(
         modifier = modifier.fillMaxSize(),
@@ -86,8 +91,10 @@ fun TowerIcon(
             val centerY = size.height / 2
             val iconSize = minOf(size.width, size.height)
             
-            // Draw tower base (trapezoid shape)
-            drawTowerBase(centerX, centerY, iconSize * 0.8f)
+            // Draw tower base (trapezoid shape) - except for dragon's lair and dwarven mine
+            if (defender.type != DefenderType.DRAGONS_LAIR && defender.type != DefenderType.DWARVEN_MINE) {
+                drawTowerBase(centerX, centerY, iconSize * 0.8f)
+            }
             
             // Draw tower type symbol inside
             when (defender.type) {
@@ -97,6 +104,16 @@ fun TowerIcon(
                 DefenderType.WIZARD_TOWER -> drawWizardSymbol(centerX, centerY, iconSize * 0.4f)
                 DefenderType.ALCHEMY_TOWER -> drawAlchemySymbol(centerX, centerY, iconSize * 0.4f)
                 DefenderType.BALLISTA_TOWER -> drawBallistaSymbol(centerX, centerY, iconSize * 0.5f)
+                DefenderType.DWARVEN_MINE -> drawMineSymbol(centerX, centerY, iconSize * 0.4f)
+                DefenderType.DRAGONS_LAIR -> {
+                    // Check if the specific dragon from this lair is still alive
+                    val dragonAlive = defender.dragonId.value?.let { dragonId ->
+                        gameState?.attackers?.any { 
+                            it.id == dragonId && !it.isDefeated.value 
+                        } ?: false
+                    } ?: true
+                    drawDragonLairSymbol(centerX, centerY, iconSize * 0.6f, dragonAlive)
+                }
             }
         }
         
@@ -429,6 +446,7 @@ fun EnemyIcon(
                 AttackerType.RED_WITCH -> drawRedWitchSymbol(centerX, centerY, iconSize * 0.7f)
                 AttackerType.GREEN_WITCH -> drawGreenWitchSymbol(centerX, centerY, iconSize * 0.7f)
                 AttackerType.EWHAD -> drawEwhadSymbol(centerX, centerY, iconSize * 0.8f)
+                AttackerType.DRAGON -> drawDragonSymbol(centerX, centerY, iconSize * 0.9f)
             }
         }
         
@@ -477,6 +495,7 @@ fun EnemyTypeIcon(
                 AttackerType.RED_WITCH -> drawRedWitchSymbol(centerX, centerY, iconSize * 0.7f)
                 AttackerType.GREEN_WITCH -> drawGreenWitchSymbol(centerX, centerY, iconSize * 0.7f)
                 AttackerType.EWHAD -> drawEwhadSymbol(centerX, centerY, iconSize * 0.8f)
+                AttackerType.DRAGON -> drawDragonSymbol(centerX, centerY, iconSize * 0.9f)
             }
         }
     }
@@ -1032,3 +1051,148 @@ private fun DrawScope.drawEwhadSymbol(centerX: Float, centerY: Float, size: Floa
         center = Offset(centerX, centerY)
     )
 }
+
+/**
+ * Draw dwarven mine symbol (two towers with axe, gold bar, and gem)
+ */
+fun DrawScope.drawMineSymbol(centerX: Float, centerY: Float, size: Float) {
+    // Left tower
+    val leftTowerPath = Path().apply {
+        moveTo(centerX - size * 0.45f, centerY + size * 0.3f)  // Bottom left
+        lineTo(centerX - size * 0.35f, centerY - size * 0.3f)  // Top left
+        lineTo(centerX - size * 0.2f, centerY - size * 0.3f)   // Top right
+        lineTo(centerX - size * 0.15f, centerY + size * 0.3f)  // Bottom right
+        close()
+    }
+    drawPath(leftTowerPath, Color(0xFF8B7355))  // Brown
+    
+    // Right tower
+    val rightTowerPath = Path().apply {
+        moveTo(centerX + size * 0.15f, centerY + size * 0.3f)  // Bottom left
+        lineTo(centerX + size * 0.2f, centerY - size * 0.3f)   // Top left
+        lineTo(centerX + size * 0.35f, centerY - size * 0.3f)  // Top right
+        lineTo(centerX + size * 0.45f, centerY + size * 0.3f)  // Bottom right
+        close()
+    }
+    drawPath(rightTowerPath, Color(0xFF8B7355))  // Brown
+    
+    // Axe in the middle
+    // Axe handle
+    drawLine(
+        color = Color(0xFF654321),  // Dark brown handle
+        start = Offset(centerX - size * 0.05f, centerY - size * 0.1f),
+        end = Offset(centerX + size * 0.05f, centerY + size * 0.2f),
+        strokeWidth = 3f
+    )
+    // Axe blade
+    val axePath = Path().apply {
+        moveTo(centerX - size * 0.15f, centerY - size * 0.15f)
+        lineTo(centerX, centerY - size * 0.05f)
+        lineTo(centerX - size * 0.1f, centerY)
+        close()
+    }
+    drawPath(axePath, Color.Gray)
+    
+    // Gold bar at bottom left
+    drawRect(
+        color = Color(0xFFFFD700),  // Gold
+        topLeft = Offset(centerX - size * 0.35f, centerY + size * 0.35f),
+        size = Size(size * 0.15f, size * 0.08f)
+    )
+    
+    // Gem at bottom right (diamond shape)
+    val gemPath = Path().apply {
+        moveTo(centerX + size * 0.25f, centerY + size * 0.35f)  // Top
+        lineTo(centerX + size * 0.3f, centerY + size * 0.39f)   // Right
+        lineTo(centerX + size * 0.25f, centerY + size * 0.43f)  // Bottom
+        lineTo(centerX + size * 0.2f, centerY + size * 0.39f)   // Left
+        close()
+    }
+    drawPath(gemPath, Color(0xFF00CED1))  // Cyan/turquoise gem
+}
+
+/**
+ * Draw dragon's lair symbol (cave with smoke)
+ */
+fun DrawScope.drawDragonLairSymbol(centerX: Float, centerY: Float, size: Float, dragonAlive: Boolean = true) {
+    // Cave opening
+    val cavePath = Path().apply {
+        moveTo(centerX - size * 0.3f, centerY + size * 0.3f)
+        lineTo(centerX - size * 0.3f, centerY)
+        quadraticTo(centerX, centerY - size * 0.4f, centerX + size * 0.3f, centerY)
+        lineTo(centerX + size * 0.3f, centerY + size * 0.3f)
+        close()
+    }
+    drawPath(cavePath, Color.Black)
+    
+    // Smoke/steam coming out
+    for (i in 0..2) {
+        drawCircle(
+            color = Color.Gray.copy(alpha = 0.4f),
+            radius = size * 0.1f,
+            center = Offset(centerX + (i - 1) * size * 0.15f, centerY - size * 0.5f)
+        )
+    }
+    
+    // Dragon eyes in the darkness (only if dragon is alive)
+    if (dragonAlive) {
+        drawCircle(color = Color.Red, radius = size * 0.05f, center = Offset(centerX - size * 0.1f, centerY - size * 0.1f))
+        drawCircle(color = Color.Red, radius = size * 0.05f, center = Offset(centerX + size * 0.1f, centerY - size * 0.1f))
+    }
+}
+
+/**
+ * Draw dragon symbol (large flying beast)
+ */
+fun DrawScope.drawDragonSymbol(centerX: Float, centerY: Float, size: Float) {
+    // Dragon body
+    drawOval(
+        color = Color(0xFF8B0000),  // Dark red
+        topLeft = Offset(centerX - size * 0.2f, centerY - size * 0.1f),
+        size = Size(size * 0.4f, size * 0.2f)
+    )
+    
+    // Dragon head
+    drawCircle(
+        color = Color(0xFF8B0000),
+        radius = size * 0.15f,
+        center = Offset(centerX + size * 0.25f, centerY - size * 0.15f)
+    )
+    
+    // Wings
+    val leftWing = Path().apply {
+        moveTo(centerX - size * 0.1f, centerY)
+        lineTo(centerX - size * 0.4f, centerY - size * 0.3f)
+        lineTo(centerX - size * 0.2f, centerY - size * 0.1f)
+        close()
+    }
+    val rightWing = Path().apply {
+        moveTo(centerX + size * 0.1f, centerY)
+        lineTo(centerX + size * 0.4f, centerY - size * 0.3f)
+        lineTo(centerX + size * 0.2f, centerY - size * 0.1f)
+        close()
+    }
+    drawPath(leftWing, Color(0xFF654321))  // Dark brown wings
+    drawPath(rightWing, Color(0xFF654321))
+    
+    // Eyes
+    drawCircle(color = Color.Yellow, radius = size * 0.04f, center = Offset(centerX + size * 0.25f, centerY - size * 0.18f))
+    
+    // Tail
+    drawLine(
+        color = Color(0xFF8B0000),
+        start = Offset(centerX - size * 0.2f, centerY),
+        end = Offset(centerX - size * 0.35f, centerY + size * 0.2f),
+        strokeWidth = 4f
+    )
+    
+    // Fire breath
+    for (i in 0..2) {
+        drawCircle(
+            color = Color(0xFFFF4500).copy(alpha = 0.6f),  // Orange-red
+            radius = size * 0.08f,
+            center = Offset(centerX + size * 0.4f + i * size * 0.1f, centerY - size * 0.15f + i * size * 0.05f)
+        )
+    }
+}
+
