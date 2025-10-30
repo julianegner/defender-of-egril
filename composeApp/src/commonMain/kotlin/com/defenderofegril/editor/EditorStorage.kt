@@ -6,13 +6,18 @@ import com.defenderofegril.model.AttackerWave
 import com.defenderofegril.model.Level
 
 /**
- * In-memory storage for maps and levels
- * In a production environment, this would be replaced with file-based storage
+ * File-based storage for maps and levels
+ * Stores data in ~/.defender-of-egril/ directory on desktop
  */
 object EditorStorage {
-    private val maps = mutableMapOf<String, EditorMap>()
-    private val levels = mutableMapOf<String, EditorLevel>()
-    private var levelSequence = LevelSequence(emptyList())
+    private val fileStorage = getFileStorage()
+    private val mapsCache = mutableMapOf<String, EditorMap>()
+    private val levelsCache = mutableMapOf<String, EditorLevel>()
+    private var levelSequenceCache: LevelSequence? = null
+    
+    private val MAPS_DIR = "editor/maps"
+    private val LEVELS_DIR = "editor/levels"
+    private val SEQUENCE_FILE = "editor/sequence.json"
     
     // Initialize with converted existing levels
     init {
@@ -20,58 +25,136 @@ object EditorStorage {
     }
     
     fun saveMap(map: EditorMap) {
-        maps[map.id] = map
+        mapsCache[map.id] = map
+        val json = EditorJsonSerializer.serializeMap(map)
+        fileStorage.writeFile("$MAPS_DIR/${map.id}.json", json)
     }
     
     fun getMap(id: String): EditorMap? {
-        return maps[id]
+        // Check cache first
+        if (mapsCache.containsKey(id)) {
+            return mapsCache[id]
+        }
+        
+        // Try to load from file
+        val json = fileStorage.readFile("$MAPS_DIR/$id.json")
+        if (json != null) {
+            val map = EditorJsonSerializer.deserializeMap(json)
+            if (map != null) {
+                mapsCache[id] = map
+                return map
+            }
+        }
+        
+        return null
     }
     
     fun getAllMaps(): List<EditorMap> {
-        return maps.values.toList()
+        // Load all maps from files
+        fileStorage.createDirectory(MAPS_DIR)
+        val mapFiles = fileStorage.listFiles(MAPS_DIR)
+        
+        for (filename in mapFiles) {
+            if (!filename.endsWith(".json")) continue
+            val id = filename.removeSuffix(".json")
+            if (!mapsCache.containsKey(id)) {
+                getMap(id) // This will load and cache it
+            }
+        }
+        
+        return mapsCache.values.toList()
     }
     
     fun saveLevel(level: EditorLevel) {
-        levels[level.id] = level
+        levelsCache[level.id] = level
+        val json = EditorJsonSerializer.serializeLevel(level)
+        fileStorage.writeFile("$LEVELS_DIR/${level.id}.json", json)
+        
         // Update sequence if this is a new level
-        if (!levelSequence.sequence.contains(level.id)) {
-            levelSequence = LevelSequence(levelSequence.sequence + level.id)
+        val sequence = getLevelSequence()
+        if (!sequence.sequence.contains(level.id)) {
+            val newSequence = LevelSequence(sequence.sequence + level.id)
+            updateLevelSequence(newSequence)
         }
     }
     
     fun getLevel(id: String): EditorLevel? {
-        return levels[id]
+        // Check cache first
+        if (levelsCache.containsKey(id)) {
+            return levelsCache[id]
+        }
+        
+        // Try to load from file
+        val json = fileStorage.readFile("$LEVELS_DIR/$id.json")
+        if (json != null) {
+            val level = EditorJsonSerializer.deserializeLevel(json)
+            if (level != null) {
+                levelsCache[id] = level
+                return level
+            }
+        }
+        
+        return null
     }
     
     fun getAllLevels(): List<EditorLevel> {
-        return levels.values.toList()
+        // Load all levels from files
+        fileStorage.createDirectory(LEVELS_DIR)
+        val levelFiles = fileStorage.listFiles(LEVELS_DIR)
+        
+        for (filename in levelFiles) {
+            if (!filename.endsWith(".json")) continue
+            val id = filename.removeSuffix(".json")
+            if (!levelsCache.containsKey(id)) {
+                getLevel(id) // This will load and cache it
+            }
+        }
+        
+        return levelsCache.values.toList()
     }
     
     fun getLevelSequence(): LevelSequence {
-        return levelSequence
+        if (levelSequenceCache != null) {
+            return levelSequenceCache!!
+        }
+        
+        // Try to load from file
+        val json = fileStorage.readFile(SEQUENCE_FILE)
+        if (json != null) {
+            val sequence = EditorJsonSerializer.deserializeSequence(json)
+            if (sequence != null) {
+                levelSequenceCache = sequence
+                return sequence
+            }
+        }
+        
+        // Return empty sequence if not found
+        return LevelSequence(emptyList())
     }
     
     fun updateLevelSequence(sequence: LevelSequence) {
-        levelSequence = sequence
+        levelSequenceCache = sequence
+        val json = EditorJsonSerializer.serializeSequence(sequence)
+        fileStorage.writeFile(SEQUENCE_FILE, json)
     }
     
     fun moveLevelUp(levelId: String) {
-        val currentSequence = levelSequence.sequence.toMutableList()
+        val currentSequence = getLevelSequence().sequence.toMutableList()
         val index = currentSequence.indexOf(levelId)
         if (index > 0) {
             currentSequence.removeAt(index)
             currentSequence.add(index - 1, levelId)
-            levelSequence = LevelSequence(currentSequence)
+            updateLevelSequence(LevelSequence(currentSequence))
         }
     }
     
     fun moveLevelDown(levelId: String) {
-        val currentSequence = levelSequence.sequence.toMutableList()
+        val currentSequence = getLevelSequence().sequence.toMutableList()
         val index = currentSequence.indexOf(levelId)
         if (index >= 0 && index < currentSequence.size - 1) {
             currentSequence.removeAt(index)
             currentSequence.add(index + 1, levelId)
-            levelSequence = LevelSequence(currentSequence)
+            updateLevelSequence(LevelSequence(currentSequence))
         }
     }
     
@@ -110,8 +193,18 @@ object EditorStorage {
     
     /**
      * Convert existing levels to editor format
+     * Only initializes if files don't exist
      */
     private fun initializeDefaultMapsAndLevels() {
+        // Check if already initialized
+        if (fileStorage.fileExists(SEQUENCE_FILE)) {
+            return  // Already initialized
+        }
+        
+        // Create directories
+        fileStorage.createDirectory(MAPS_DIR)
+        fileStorage.createDirectory(LEVELS_DIR)
+        
         // Create default maps based on the existing level generation
         for (size in listOf(
             Triple("map_30x8", 30, 8),
@@ -338,8 +431,8 @@ object EditorStorage {
         ))
         
         // Set initial level sequence
-        levelSequence = LevelSequence(listOf(
+        updateLevelSequence(LevelSequence(listOf(
             "level_1", "level_2", "level_3", "level_4", "level_5", "level_6"
-        ))
+        )))
     }
 }
