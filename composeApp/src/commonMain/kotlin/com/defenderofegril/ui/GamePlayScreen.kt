@@ -1,8 +1,11 @@
 package com.defenderofegril.ui
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -17,20 +20,29 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.onPointerEvent
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.zIndex
 import com.defenderofegril.model.*
 import kotlinx.coroutines.delay
 import kotlin.math.sqrt
@@ -142,7 +154,8 @@ private fun GamePlayScreenContent(
     var digOutcomeMessage by remember { mutableStateOf<String?>(null) }
     var showDigOutcomeDialog by remember { mutableStateOf(false) }
     var showOverlay by remember { mutableStateOf(false) }  // MutableState for overlay visibility
-    
+    var headerExpanded by remember { mutableStateOf(true) }  // State for header fold/expand
+
     // Mine action handler
     val handleMineAction: (Int, MineAction) -> Unit = { mineId, action ->
         when (action) {
@@ -168,88 +181,193 @@ private fun GamePlayScreenContent(
             }
         }
     }
-    
+
     Column(
         modifier = Modifier.fillMaxSize().padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Header with prominent phase indicator
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+        // Header with prominent phase indicator (collapsible)
+        // Wrap header in Box to ensure z-axis ordering (header in front of map)
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.surface)
+                .padding(8.dp)
+                .zIndex(2f)
         ) {
-            Column {
-                Text("Level: ${gameState.level.name}", style = MaterialTheme.typography.titleLarge)
-                // Clickable coins display for cheat codes
-                Text(
-                    "💰 ${gameState.coins.value}",
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.clickable(
-                        onClick = { 
-                            if (onCheatCode != null) {
-                                showCheatDialog = true
+            if (headerExpanded) {
+                // Expanded header
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    // First row: Level name centered with fold button on right
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        // Empty spacer for symmetry
+                        Spacer(modifier = Modifier.width(100.dp))
+
+                        // Level name centered (without "Level:" prefix)
+                        Text(
+                            text = gameState.level.name,
+                            style = MaterialTheme.typography.titleLarge,
+                            modifier = Modifier.weight(1f),
+                            textAlign = TextAlign.Center
+                        )
+
+                        // Fold button at right end (same size as other buttons)
+                        Button(
+                            onClick = { headerExpanded = false }
+                        ) {
+                            Text("▲ Fold Header")
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // Main header content
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column {
+                            // Clickable coins display for cheat codes with icon
+                            Text(
+                                "💰 ${gameState.coins.value}",
+                                style = MaterialTheme.typography.bodyLarge,
+                                modifier = Modifier.clickable(
+                                    onClick = {
+                                        if (onCheatCode != null) {
+                                            showCheatDialog = true
+                                        }
+                                    }
+                                )
+                            )
+                            Text("❤️ ${gameState.healthPoints.value}", style = MaterialTheme.typography.bodyLarge)
+                            Text("🔄 Turn ${gameState.turnNumber.value}", style = MaterialTheme.typography.bodyMedium)
+
+                            val activeEnemies = gameState.attackers.count { !it.isDefeated.value }
+                            val totalSpawned = gameState.nextAttackerId.value - 1
+                            val plannedSpawns = gameState.spawnPlan.drop(totalSpawned)
+                            val remainingEnemies = plannedSpawns.size
+
+                            Text("Enemies: $activeEnemies active, $remainingEnemies to come",
+                                 style = MaterialTheme.typography.bodyMedium,
+                                 color = Color(0xFFF44336))
+                        }
+
+                        // Prominent phase indicator
+                        val phaseText = when(gameState.phase.value) {
+                            GamePhase.INITIAL_BUILDING -> "Initial Building Phase"
+                            GamePhase.PLAYER_TURN -> "YOUR TURN"
+                            GamePhase.ENEMY_TURN -> "ENEMY TURN"
+                        }
+                        val phaseColor = when(gameState.phase.value) {
+                            GamePhase.INITIAL_BUILDING -> Color(0xFF2196F3)
+                            GamePhase.PLAYER_TURN -> Color(0xFF4CAF50)
+                            GamePhase.ENEMY_TURN -> Color(0xFFF44336)
+                        }
+                        Text(
+                            text = phaseText,
+                            style = MaterialTheme.typography.headlineMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = phaseColor,
+                            modifier = Modifier.background(phaseColor.copy(alpha = 0.1f)).padding(12.dp)
+                        )
+
+                        Column {
+                            Button(onClick = onBackToMap) {
+                                Text("Back to Map")
+                            }
+
+                            // Toggle button positioned above the map and far to the right
+                            Button(
+                                onClick = { showOverlay = !showOverlay },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = if (showOverlay) Color(0xFF4CAF50) else Color(0xFF2196F3)
+                                )
+                            ) {
+                                Text(if (showOverlay) "Hide Info  ◀" else "Show Info  ▶")
                             }
                         }
-                    )
-                )
-                Text("Health: ${gameState.healthPoints.value}", style = MaterialTheme.typography.bodyLarge)
-                Text("Turn: ${gameState.turnNumber.value}", style = MaterialTheme.typography.bodyMedium)
-
-                val activeEnemies = gameState.attackers.count { !it.isDefeated.value }
-                // val remainingEnemies = gameState.attackersToSpawn.size
-
-                // Calculate how many enemies have spawned from the spawn plan
-                // nextAttackerId starts at 1, so (nextAttackerId - 1) gives us the count of spawned enemies
-                val totalSpawned = gameState.nextAttackerId.value - 1
-
-                // Get the remaining planned spawns (those that haven't spawned yet)
-                val plannedSpawns = gameState.spawnPlan.drop(totalSpawned)//.take(15)
-
-                val remainingEnemies = plannedSpawns.size
-
-                Text("Enemies: $activeEnemies active, $remainingEnemies to come", 
-                     style = MaterialTheme.typography.bodyMedium,
-                     color = Color(0xFFF44336))
-            }
-            
-            // Prominent phase indicator
-            val phaseText = when(gameState.phase.value) {
-                GamePhase.INITIAL_BUILDING -> "Initial Building Phase"
-                GamePhase.PLAYER_TURN -> "YOUR TURN"
-                GamePhase.ENEMY_TURN -> "ENEMY TURN"
-            }
-            val phaseColor = when(gameState.phase.value) {
-                GamePhase.INITIAL_BUILDING -> Color(0xFF2196F3)
-                GamePhase.PLAYER_TURN -> Color(0xFF4CAF50)
-                GamePhase.ENEMY_TURN -> Color(0xFFF44336)
-            }
-            Text(
-                text = phaseText,
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                color = phaseColor,
-                modifier = Modifier.background(phaseColor.copy(alpha = 0.1f)).padding(12.dp)
-            )
-
-            Column {
-                Button(onClick = onBackToMap) {
-                    Text("Back to Map")
+                    }
                 }
-
-                // Toggle button positioned above the map and far to the right
-                Button(
-                    onClick = { showOverlay = !showOverlay },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = if (showOverlay) Color(0xFF4CAF50) else Color(0xFF2196F3)
-                    )
+            } else {
+                // Collapsed header - single row
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(if (showOverlay) "Hide Info  ◀" else "Show Info  ▶")
+                    // Statistics at far left
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        // Clickable coins display for cheat codes
+                        Text(
+                            "💰 ${gameState.coins.value}",
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.clickable(
+                                onClick = {
+                                    if (onCheatCode != null) {
+                                        showCheatDialog = true
+                                    }
+                                }
+                            )
+                        )
+                        Text("❤️ ${gameState.healthPoints.value}", style = MaterialTheme.typography.bodyMedium)
+                        Text("🔄 ${gameState.turnNumber.value}", style = MaterialTheme.typography.bodySmall)
+                    }
+
+                    // Level name in center (without prefix, bold when collapsed)
+                    Text(
+                        text = gameState.level.name,
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.weight(1f),
+                        textAlign = TextAlign.Center
+                    )
+
+                    // Three buttons at far right
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Button(
+                            onClick = onBackToMap,
+                            modifier = Modifier.height(32.dp),
+                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp)
+                        ) {
+                            Text("Map", fontSize = 12.sp, modifier = Modifier.align(Alignment.CenterVertically))
+                        }
+
+                        Button(
+                            onClick = { showOverlay = !showOverlay },
+                            modifier = Modifier.height(32.dp),
+                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = if (showOverlay) Color(0xFF4CAF50) else Color(0xFF2196F3)
+                            )
+                        ) {
+                            Text(if (showOverlay) "◀" else "▶", fontSize = 12.sp, modifier = Modifier.align(Alignment.CenterVertically))
+                        }
+
+                        // Fold button
+                        Button(
+                            onClick = { headerExpanded = true },
+                            modifier = Modifier.size(32.dp),
+                            contentPadding = PaddingValues(0.dp)
+                        ) {
+                            Text("▼", fontSize = 12.sp)
+                        }
+                    }
                 }
             }
         }
         
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(8.dp))
         
         // Game Grid with toggle button and overlay
         Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
@@ -295,7 +413,7 @@ private fun GamePlayScreenContent(
                                 }
                                 return@GameGrid
                             }
-                            
+
                             // For AOE/DOT towers, allow targeting path tiles
                             if (selectedDefender.type.attackType == AttackType.AREA ||
                                 selectedDefender.type.attackType == AttackType.LASTING) {
@@ -344,21 +462,26 @@ private fun GamePlayScreenContent(
             }
         }
         
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(8.dp))
         
         // Control Panel based on phase
         when (gameState.phase.value) {
             GamePhase.INITIAL_BUILDING -> {
-                InitialBuildingControls(
+                GameControlsPanel(
+                    phase = GamePhase.INITIAL_BUILDING,
                     gameState = gameState,
                     coinsState = gameState.coins,
                     selectedDefenderType = selectedDefenderType,
                     selectedDefenderId = selectedDefenderId,
+                    selectedTargetId = null,
+                    selectedTargetPosition = null,
                     onSelectDefenderType = { selectedDefenderType = it },
                     onUpgradeDefender = { onUpgradeDefender(it) },
                     onUndoTower = { onUndoTower(it) },
                     onSellTower = { onSellTower(it) },
-                    onStartFirstPlayerTurn = {
+                    onDefenderAttack = { _, _ -> false },
+                    onDefenderAttackPosition = { _, _ -> false },
+                    onPrimaryAction = {
                         selectedDefenderType = null  // Clear defender type selection when starting battle
                         selectedDefenderId = null  // Clear defender selection when starting battle
                         onStartFirstPlayerTurn()
@@ -367,7 +490,8 @@ private fun GamePlayScreenContent(
                 )
             }
             GamePhase.PLAYER_TURN -> {
-                PlayerTurnControls(
+                GameControlsPanel(
+                    phase = GamePhase.PLAYER_TURN,
                     gameState = gameState,
                     coinsState = gameState.coins,
                     selectedDefenderType = selectedDefenderType,
@@ -382,14 +506,22 @@ private fun GamePlayScreenContent(
                         if (onDefenderAttack(defenderId, targetId)) {
                             selectedTargetId = null
                             selectedTargetPosition = null
+                            true
+                        } else {
+                            false
                         }
                     },
                     onDefenderAttackPosition = { defenderId, targetPos ->
                         if (onDefenderAttackPosition(defenderId, targetPos)) {
                             selectedTargetId = null
                             selectedTargetPosition = null
+                            true
+                        } else {
+                            false
                         }
                     },
+                    // fixme
+                    onPrimaryAction = onEndPlayerTurn,
                     onEndPlayerTurn = onEndPlayerTurn,
                     onMineAction = handleMineAction
                 )
@@ -414,7 +546,7 @@ private fun GamePlayScreenContent(
                 }
             )
         }
-        
+
         // Cheat code dialog
         if (showCheatDialog && onCheatCode != null) {
             AlertDialog(
@@ -464,6 +596,7 @@ private fun GamePlayScreenContent(
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun GameGrid(
     gameState: GameState,
@@ -475,7 +608,12 @@ fun GameGrid(
     onCellClick: (Position) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val scrollState = rememberScrollState()
+    // State for pan and zoom
+    var scale by remember { mutableStateOf(1f) }
+    var offsetX by remember { mutableStateOf(0f) }
+    var offsetY by remember { mutableStateOf(0f) }
+    var containerSize by remember { mutableStateOf(IntSize.Zero) }
+
     val hexSize = 40.dp  // Radius of hexagon (center to corner)
     
     // Calculate hex dimensions for pointy-top hexagons
@@ -486,21 +624,66 @@ fun GameGrid(
     // For pointy-top hexagons, vertical spacing between centers is 3/4 of height
     val verticalSpacing = hexHeight * 0.75f
     
-    // Calculate total grid width: each column takes hexWidth, plus offset for odd rows
-    // Add significant padding at the end to ensure target is visible when scrolling
+    // Calculate total grid dimensions
     val totalGridWidth = ((gameState.level.gridWidth) * hexWidth + hexWidth + 200f).dp
-    
+    val totalGridHeight = ((gameState.level.gridHeight) * verticalSpacing + hexHeight).dp
+
     Box(
-        modifier = modifier.fillMaxWidth().horizontalScroll(scrollState)
+        modifier = modifier
+            .onSizeChanged { containerSize = it }
+            // Mouse wheel zoom support (desktop)
+            .onPointerEvent(PointerEventType.Scroll) { event ->
+                val delta = event.changes.first().scrollDelta
+                // Zoom in/out based on scroll direction
+                if (delta.y != 0f) {
+                    val zoomDelta = if (delta.y < 0) 1.1f else 0.9f
+                    scale = (scale * zoomDelta).coerceIn(0.5f, 3f)
+
+                    // Constrain pan after zoom
+                    val maxOffsetX = (containerSize.width * (scale - 1) / 2).coerceAtLeast(0f)
+                    val maxOffsetY = (containerSize.height * (scale - 1) / 2).coerceAtLeast(0f)
+                    offsetX = offsetX.coerceIn(-maxOffsetX, maxOffsetX)
+                    offsetY = offsetY.coerceIn(-maxOffsetY, maxOffsetY)
+                }
+            }
+            // Combined gesture handling for pan and pinch-zoom
+            .pointerInput(Unit) {
+                detectTransformGestures { _, pan, zoom, _ ->
+                    // Apply zoom (for pinch gestures on mobile)
+                    if (zoom != 1f) {
+                        scale = (scale * zoom).coerceIn(0.5f, 3f)
+                    }
+
+                    // Apply pan
+                    offsetX += pan.x
+                    offsetY += pan.y
+
+                    // Constrain pan to keep content visible
+                    val maxOffsetX = (containerSize.width * (scale - 1) / 2).coerceAtLeast(0f)
+                    val maxOffsetY = (containerSize.height * (scale - 1) / 2).coerceAtLeast(0f)
+
+                    offsetX = offsetX.coerceIn(-maxOffsetX, maxOffsetX)
+                    offsetY = offsetY.coerceIn(-maxOffsetY, maxOffsetY)
+                }
+            }
     ) {
+        // Map content with pan and zoom applied
         Column(
-            modifier = Modifier.width(totalGridWidth),  // Set explicit width for scrolling
-            verticalArrangement = Arrangement.spacedBy((-hexHeight + verticalSpacing - 7f).dp)  // Extra tight spacing to eliminate all gaps
+            modifier = Modifier
+                .width(totalGridWidth)
+                .height(totalGridHeight)
+                .graphicsLayer(
+                    scaleX = scale,
+                    scaleY = scale,
+                    translationX = offsetX,
+                    translationY = offsetY
+                ),
+            verticalArrangement = Arrangement.spacedBy((-hexHeight + verticalSpacing - 7f).dp)
         ) {
             for (y in 0 until gameState.level.gridHeight) {
                 Row(
-                    modifier = Modifier.offset(x = if (y % 2 == 1) (hexWidth * 0.42f).dp else 0.dp),  // Offset odd rows 42% to eliminate final gaps
-                    horizontalArrangement = Arrangement.spacedBy((-10).dp)  // Even tighter horizontal spacing
+                    modifier = Modifier.offset(x = if (y % 2 == 1) (hexWidth * 0.42f).dp else 0.dp),
+                    horizontalArrangement = Arrangement.spacedBy((-10).dp)
                 ) {
                     for (x in 0 until gameState.level.gridWidth) {
                         val position = Position(x, y)
@@ -523,6 +706,140 @@ fun GameGrid(
                         )
                     }
                 }
+            }
+        }
+
+        // Minimap - shown when zoomed in
+        if (scale > 1.1f) {
+            GameMinimap(
+                gameState = gameState,
+                scale = scale,
+                offsetX = offsetX,
+                offsetY = offsetY,
+                containerSize = containerSize,
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(16.dp)
+            )
+        }
+    }
+}
+
+@Composable
+fun GameMinimap(
+    gameState: GameState,
+    scale: Float,
+    offsetX: Float,
+    offsetY: Float,
+    containerSize: IntSize,
+    modifier: Modifier = Modifier
+) {
+    val minimapSize = 120.dp
+    val gridWidth = gameState.level.gridWidth
+    val gridHeight = gameState.level.gridHeight
+
+    Box(
+        modifier = modifier
+            .size(minimapSize)
+            .background(Color(0xCC000000))  // Semi-transparent black background
+            .border(2.dp, Color.White)
+            .padding(4.dp)
+    ) {
+        // Simplified map representation
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            val cellWidth = size.width / gridWidth
+            val cellHeight = size.height / gridHeight
+
+            // Draw path tiles
+            for (y in 0 until gridHeight) {
+                for (x in 0 until gridWidth) {
+                    val pos = Position(x, y)
+                    if (gameState.level.isOnPath(pos)) {
+                        drawRect(
+                            color = Color(0xFF8B4513),  // Brown for path
+                            topLeft = Offset(x * cellWidth, y * cellHeight),
+                            size = Size(cellWidth, cellHeight)
+                        )
+                    }
+                }
+            }
+
+            // Draw defenders (blue dots - matching main map tower color)
+            gameState.defenders.forEach { defender ->
+                val x = defender.position.x * cellWidth + cellWidth / 2
+                val y = defender.position.y * cellHeight + cellHeight / 2
+                drawCircle(
+                    color = Color(0xFF2196F3),  // Blue - same as ready towers on main map
+                    radius = cellWidth.coerceAtMost(cellHeight) / 3,
+                    center = Offset(x, y)
+                )
+            }
+
+            // Draw attackers (red dots)
+            gameState.attackers.filter { !it.isDefeated.value }.forEach { attacker ->
+                val x = attacker.position.value.x * cellWidth + cellWidth / 2
+                val y = attacker.position.value.y * cellHeight + cellHeight / 2
+                drawCircle(
+                    color = Color.Red,
+                    radius = cellWidth.coerceAtMost(cellHeight) / 4,
+                    center = Offset(x, y)
+                )
+            }
+
+            // Draw spawn points (orange dots - matching main map spawn border)
+            gameState.level.startPositions.forEach { spawnPos ->
+                val x = spawnPos.x * cellWidth + cellWidth / 2
+                val y = spawnPos.y * cellHeight + cellHeight / 2
+                drawCircle(
+                    color = Color(0xFFFF9800),  // Orange - same as spawn border on main map
+                    radius = cellWidth.coerceAtMost(cellHeight) / 3,
+                    center = Offset(x, y)
+                )
+            }
+
+            // Draw target position (green circle - matching main map target border)
+            val targetX = gameState.level.targetPosition.x * cellWidth + cellWidth / 2
+            val targetY = gameState.level.targetPosition.y * cellHeight + cellHeight / 2
+            drawCircle(
+                color = Color(0xFF4CAF50),  // Green - same as target border on main map
+                radius = cellWidth.coerceAtMost(cellHeight) / 3,
+                center = Offset(targetX, targetY)
+            )
+        }
+
+        // Viewport indicator (shows current view)
+        if (containerSize.width > 0 && containerSize.height > 0) {
+            val viewportWidthRatio = 1f / scale
+            val viewportHeightRatio = 1f / scale
+
+            // Calculate normalized offset (-1 to 1 range)
+            val maxOffsetX = (containerSize.width * (scale - 1) / 2).coerceAtLeast(0.01f)
+            val maxOffsetY = (containerSize.height * (scale - 1) / 2).coerceAtLeast(0.01f)
+            val normalizedOffsetX = -offsetX / maxOffsetX
+            val normalizedOffsetY = -offsetY / maxOffsetY
+
+            // Calculate viewport position in minimap
+            val viewportX = (normalizedOffsetX * (1f - viewportWidthRatio) / 2f + (1f - viewportWidthRatio) / 2f)
+            val viewportY = (normalizedOffsetY * (1f - viewportHeightRatio) / 2f + (1f - viewportHeightRatio) / 2f)
+
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .graphicsLayer {
+                        clip = true
+                    }
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(viewportWidthRatio)
+                        .fillMaxHeight(viewportHeightRatio)
+                        .align(Alignment.TopStart)
+                        .offset(
+                            x = minimapSize * viewportX,
+                            y = minimapSize * viewportY
+                        )
+                        .border(2.dp, Color.Yellow)  // Yellow border for viewport
+                )
             }
         }
     }
@@ -550,7 +867,7 @@ fun GridCell(
     
     // Check for field effects at this position
     val fieldEffect = gameState.fieldEffects.find { it.position == position }
-    
+
     // Check for traps at this position
     val trap = gameState.traps.find { it.position == position }
 
@@ -612,7 +929,7 @@ fun GridCell(
     val isTrapPlacement = selectedMineAction == MineAction.BUILD_TRAP
     val hasEnemy = attacker != null
     val canPlaceTrapHere = !hasEnemy || !isTrapPlacement
-    
+
     val borderColor = when {
         cellIsInRange && isOnPath && showRange && canPlaceTrapHere -> Color(0xFF4CAF50)  // Green border for tiles in range (exclude enemy tiles during trap placement)
         isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> Color(0xFFFFEB3B)  // Yellow border for selected defender (not during initial building)
@@ -739,57 +1056,188 @@ fun GridCell(
 }
 
 @Composable
-fun InitialBuildingControls(
+fun GameControlsPanel(
+    phase: GamePhase,
     gameState: GameState,
     coinsState: State<Int>,
     selectedDefenderType: DefenderType?,
     selectedDefenderId: Int?,
+    selectedTargetId: Int?,
+    selectedTargetPosition: Position?,
     onSelectDefenderType: (DefenderType?) -> Unit,
     onUpgradeDefender: (Int) -> Unit,
     onUndoTower: (Int) -> Unit,
     onSellTower: (Int) -> Unit,
+    // fixme
+    onDefenderAttack: (Int, Int) -> Boolean,
+    onDefenderAttackPosition: (Int, Position) -> Boolean,
+    onPrimaryAction: () -> Unit,
     onStartFirstPlayerTurn: () -> Unit,
     onMineAction: ((Int, MineAction) -> Unit)? = null
 ) {
+    var buyPanelFolded by remember { mutableStateOf(false) }
+
+    // Determine phase-specific properties
+    val isPlayerTurn = phase == GamePhase.PLAYER_TURN
+    val title = if (isPlayerTurn) {
+        "Your Turn - Place towers and attack enemies"
+    } else {
+        "Initial Building Phase - Place towers (no build time)"
+    }
+    val primaryButtonText = if (isPlayerTurn) "End Turn" else "Start Battle"
+    val primaryButtonColor = if (isPlayerTurn) {
+        Color(0xFFFF5722)
+    } else {
+        ButtonDefaults.buttonColors().containerColor
+    }
+
     Column(modifier = Modifier.fillMaxWidth()) {
-        Text("Initial Building Phase - Place towers (no build time)", 
-             style = MaterialTheme.typography.titleMedium)
-        
-        Spacer(modifier = Modifier.height(8.dp))
-        
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(7),
-            modifier = Modifier.fillMaxWidth().height(75.dp),
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+        // Title with fold button
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            items(
-                DefenderType.entries.filter { it != DefenderType.DRAGONS_LAIR }.toTypedArray(),
-                key = { type -> "${type.name}_${coinsState.value}_${gameState.defenders.count { it.type == type }}" }
-            ) { type ->
-                // Directly calculate canAfford using coinsState.value to ensure immediate reactivity
-                val canAfford = coinsState.value >= type.baseCost
-                println("DEBUG: InitialBuilding Button for ${type.displayName} - coins: ${coinsState.value}, cost: ${type.baseCost}, canAfford: $canAfford")
-                DefenderButton(
-                    type = type,
-                    isSelected = selectedDefenderType == type,
-                    canAfford = canAfford,
-                    coinsState = coinsState,  // Pass State instead of Int
-                    onClick = {
-                        onSelectDefenderType(if (selectedDefenderType == type) null else type)
-                    }
-                )
+            Text(title, style = MaterialTheme.typography.titleMedium)
+
+            Button(
+                onClick = { buyPanelFolded = !buyPanelFolded },
+                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+            ) {
+                Text(if (buyPanelFolded) "▼" else "▲ Fold Build Buttons", fontSize = 12.sp)
             }
         }
         
         Spacer(modifier = Modifier.height(8.dp))
         
-        selectedDefenderId?.let { id ->
-            val defender = gameState.defenders.find { it.id == id }
-            if (defender != null) {
-                DefenderInfo(defender, gameState, onUpgradeDefender, onUndoTower, onSellTower, onMineAction = onMineAction)
+        if (buyPanelFolded) {
+            // Folded view: Compact layout with defender info on left, buy buttons on right
+            Row(modifier = Modifier.fillMaxWidth()) {
+                // Selected defender info on left (smaller)
+                selectedDefenderId?.let { defenderId ->
+                    val defender = gameState.defenders.find { it.id == defenderId }
+                    if (defender != null) {
+                        Box(modifier = Modifier.weight(1f)) {
+                            Column {
+                                DefenderInfo(defender, gameState, onUpgradeDefender, onUndoTower, onSellTower)
+
+                                // Attack button only for player turn
+                                if (isPlayerTurn) {
+                                    AttackButton(
+                                        defender = defender,
+                                        gameState = gameState,
+                                        selectedTargetId = selectedTargetId,
+                                        selectedTargetPosition = selectedTargetPosition,
+                                        onDefenderAttack = { defenderId, targetId ->
+                                            onDefenderAttack(defenderId, targetId)
+                                        },
+                                        onDefenderAttackPosition = { defenderId, targetPos ->
+                                            onDefenderAttackPosition(defenderId, targetPos)
+                                        },
+                                        modifier = Modifier
+                                            .layout { measurable, constraints ->
+                                                val placeable = measurable.measure(constraints)
+                                                layout(0,0) {
+                                                    placeable.place(0, 0)
+                                                }
+                                            }
+                                            .width(200.dp)
+                                            .height(100.dp)
+                                            .absoluteOffset(x = 1000.dp, y = (-130).dp)
+                                    )
+                                }
+                            }
+                        }
+                        Spacer(modifier = Modifier.width(8.dp))
+                    }
+                }
+
+                // Compact buy buttons in two columns on right
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(2),
+                    modifier = Modifier.width(400.dp).height(if (selectedDefenderId != null) 150.dp else 150.dp),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    items(DefenderType.entries
+                        .filter { it != DefenderType.DRAGONS_LAIR }
+                        .toTypedArray(), key = { type -> "${type.name}_folded_${coinsState.value}" }) { type ->
+                        val canAfford = coinsState.value >= type.baseCost
+                        CompactDefenderButton(
+                            type = type,
+                            isSelected = selectedDefenderType == type,
+                            canAfford = canAfford,
+                            onClick = {
+                                onSelectDefenderType(if (selectedDefenderType == type) null else type)
+                            }
+                        )
+                    }
+                }
             }
-        }
+        } else {
+            // Expanded view: Original layout
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(7),
+                modifier = Modifier.fillMaxWidth().height(75.dp),
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                items(DefenderType.entries
+                .filter { it != DefenderType.DRAGONS_LAIR }
+                .toTypedArray(), key = { type -> "${type.name}_${coinsState.value}_${gameState.defenders.count { it.type == type }}" }) { type ->
+                    val canAfford = coinsState.value >= type.baseCost
+                    println("DEBUG: ${phase.name} Button for ${type.displayName} - coins: ${coinsState.value}, cost: ${type.baseCost}, canAfford: $canAfford")
+                    DefenderButton(
+                        type = type,
+                        isSelected = selectedDefenderType == type,
+                        canAfford = canAfford,
+                        coinsState = coinsState,
+                        onClick = {
+                            onSelectDefenderType(if (selectedDefenderType == type) null else type)
+                        }
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Selected defender info and attack button
+            selectedDefenderId?.let { defenderId ->
+                val defender = gameState.defenders.find { it.id == defenderId }
+                if (defender != null) {
+                    DefenderInfo(defender, gameState, onUpgradeDefender, onUndoTower, onSellTower, onMineAction = onMineAction)
+
+                    // Don't show attack button for dwarven mines or dragon's lair
+                    if (isPlayerTurn &&
+                        defender.type != DefenderType.DWARVEN_MINE &&
+                        defender.type != DefenderType.DRAGONS_LAIR) {
+                        AttackButton(
+                            defender = defender,
+                            gameState = gameState,
+                            selectedTargetId = selectedTargetId,
+                            selectedTargetPosition = selectedTargetPosition,
+                            onDefenderAttack = { defenderId, targetId ->
+                                onDefenderAttack(defenderId, targetId)
+                            },
+                            onDefenderAttackPosition = { defenderId, targetPos ->
+                                onDefenderAttackPosition(defenderId, targetPos)
+                            },
+                            modifier = Modifier
+                                .layout { measurable, constraints ->
+                                    // Measure the tooltip but don't add it to the layout
+                                    val placeable = measurable.measure(constraints)
+                                    layout(0,0) { // Set the size to 0 to avoid taking up space and move other elements
+                                        placeable.place(0, 0)
+                                    }
+                                }
+                                .width(200.dp)
+                                .height(100.dp)
+                                .absoluteOffset(x = 1000.dp, y = (-130).dp) // .absoluteOffset(x = 700.dp, y = (-130).dp)
+
+                        )
+                    }
+                }
+            }
         
         Spacer(modifier = Modifier.height(8.dp))
         
@@ -830,14 +1278,15 @@ fun PlayerTurnControls(
         // Defender placement buttons
         LazyVerticalGrid(
             columns = GridCells.Fixed(7),
-            modifier = Modifier.fillMaxWidth().height(75.dp),
+            modifier = Modifier.fillMaxWidth().height(90.dp),
             horizontalArrangement = Arrangement.spacedBy(4.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             items(
-                DefenderType.entries.filter { it != DefenderType.DRAGONS_LAIR }.toTypedArray(),
-                key = { type -> "${type.name}_${coinsState.value}_${gameState.defenders.count { it.type == type }}" }
-            ) { type ->
+                DefenderType.entries
+                    .filter { it != DefenderType.DRAGONS_LAIR }
+                    .toTypedArray(),
+                key = { type -> "${type.name}_${coinsState.value}_${gameState.defenders.count { it.type == type }}" }) { type ->
                 // Directly calculate canAfford using coinsState.value to ensure immediate reactivity
                 val canAfford = coinsState.value >= type.baseCost
                 println("DEBUG: PlayerTurn Button for ${type.displayName} - coins: ${coinsState.value}, cost: ${type.baseCost}, canAfford: $canAfford")
@@ -859,7 +1308,7 @@ fun PlayerTurnControls(
         selectedDefenderId?.let { defenderId ->
             val defender = gameState.defenders.find { it.id == defenderId }
             if (defender != null) {
-                DefenderInfo(defender, gameState, onUpgradeDefender, onUndoTower, onSellTower, onMineAction = onMineAction)
+                DefenderInfo(defender, gameState, onUpgradeDefender, onUndoTower, onSellTower)
 
                 // Spacer(modifier = Modifier.height(8.dp))
                 // Don't show attack button for dwarven mines or dragon's lair
@@ -875,7 +1324,7 @@ fun PlayerTurnControls(
                             .layout { measurable, constraints ->
                                 // Measure the tooltip but don't add it to the layout
                                 val placeable = measurable.measure(constraints)
-                                layout(0,0) { // Set the size to 0 to avoid taking up space and move other elements
+                                layout(0, 0) { // Set the size to 0 to avoid taking up space and move other elements
                                     placeable.place(0, 0)
                                 }
                             }
@@ -888,14 +1337,72 @@ fun PlayerTurnControls(
             }
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(4.dp))
 
         Button(
-            onClick = onEndPlayerTurn,
+            onClick = onPrimaryAction,
             modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF5722))
+            colors = if (isPlayerTurn) {
+                ButtonDefaults.buttonColors(containerColor = primaryButtonColor)
+            } else {
+                ButtonDefaults.buttonColors()
+            }
         ) {
-            Text("End Turn")
+            Text(primaryButtonText)
+        }
+    }
+}
+
+@Composable
+fun CompactDefenderButton(
+    type: DefenderType,
+    isSelected: Boolean,
+    canAfford: Boolean,
+    onClick: () -> Unit
+) {
+    Button(
+        onClick = onClick,
+        enabled = canAfford,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = if (isSelected) Color(0xFF1976D2) else MaterialTheme.colorScheme.primary
+        ),
+        modifier = Modifier.fillMaxWidth().height(45.dp),
+        contentPadding = PaddingValues(4.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxSize(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Start
+        ) {
+            // Tower icon
+            Box(
+                modifier = Modifier.size(28.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                TowerTypeIcon(defenderType = type, modifier = Modifier.size(30.dp))
+            }
+
+            Spacer(modifier = Modifier.width(4.dp))
+
+            // Tower name (shortened)
+            Text(
+                type.displayName.replace(" Tower", ""),
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.Bold,
+                fontSize = 12.sp,
+                maxLines = 1,
+                modifier = Modifier.weight(1f)
+            )
+
+            Spacer(modifier = Modifier.width(4.dp))
+
+            // Cost
+            Text(
+                "💰${type.baseCost}",
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.Bold,
+                fontSize = 14.sp
+            )
         }
     }
 }
@@ -1075,8 +1582,8 @@ fun TowerStats(minRange: Int, damage: Int, range: Int, actionsPerTurn: Int) {
                                     val displayName = if (defender.type == DefenderType.DRAGONS_LAIR) {
                                         // Check if the specific dragon from this lair is still alive
                                         val dragonAlive = defender.dragonId.value?.let { dragonId ->
-                                            gameState.attackers.any { 
-                                                it.id == dragonId && !it.isDefeated.value 
+                                            gameState.attackers.any {
+                                                it.id == dragonId && !it.isDefeated.value
                                             }
                                         } ?: false
                                         if (dragonAlive) "Dragon's Lair" else "Empty Dragon's Lair"
