@@ -1090,10 +1090,10 @@ fun GameControlsPanel(
     onMineAction: ((Int, MineAction) -> Unit)? = null,
 ) {
     // State to track if buy panel is folded - preserves across turns
-    var compactBuyPanel by remember { mutableStateOf(false) }
+    var compactBuyPanel by remember(key1 = "buyPanelFoldState") { mutableStateOf(false) }
     
     // State to track if auto-fold on defender selection is enabled
-    var autoFoldEnabled by remember { mutableStateOf(false) }
+    var autoFoldEnabled by remember(key1 = "autoFoldEnabledState") { mutableStateOf(false) }
     
     // Auto-fold when defender is selected (only if enabled)
     LaunchedEffect(selectedDefenderId, autoFoldEnabled) {
