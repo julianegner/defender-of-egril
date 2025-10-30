@@ -1089,7 +1089,16 @@ fun GameControlsPanel(
     onPrimaryAction: () -> Unit,
     onMineAction: ((Int, MineAction) -> Unit)? = null,
 ) {
-    var compactBuyPanel by remember { mutableStateOf(false) }
+    // Use key to preserve state across recompositions (not tied to turn number)
+    // Automatically unfold when no defender is selected
+    var compactBuyPanel by remember(key1 = "buyPanelState") { mutableStateOf(false) }
+    
+    // Auto-unfold when no defender is selected
+    LaunchedEffect(selectedDefenderId) {
+        if (selectedDefenderId == null) {
+            compactBuyPanel = false
+        }
+    }
 
     // Determine phase-specific properties
     val isPlayerTurn = phase == GamePhase.PLAYER_TURN
