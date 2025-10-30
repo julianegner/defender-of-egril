@@ -4,19 +4,15 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -44,7 +40,6 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.zIndex
 import com.defenderofegril.model.*
-import kotlinx.coroutines.delay
 import kotlin.math.sqrt
 
 // UI Constants
@@ -65,16 +60,16 @@ class HexagonShape : Shape {
             val height = size.height
             val centerX = width / 2f
             val centerY = height / 2f
-            
+
             // For pointy-top hexagon:
             // The hexagon has flat sides on left and right
             // Points at top and bottom
             val radius = minOf(width, height) / 2f
-            
+
             // Calculate the 6 vertices of a pointy-top hexagon
             // Starting from the top and going clockwise
             val sqrt3 = sqrt(3.0).toFloat()
-            
+
             // Top point
             moveTo(centerX, centerY - radius)
             // Top-right
@@ -106,7 +101,9 @@ fun GamePlayScreen(
     onDefenderAttackPosition: (Int, Position) -> Boolean,
     onEndPlayerTurn: () -> Unit,
     onBackToMap: () -> Unit,
-    onCheatCode: ((String) -> Boolean)? = null  // Add cheat code callback
+    onCheatCode: ((String) -> Boolean)? = null,  // Add cheat code callback
+    onMineDig: ((Int) -> DigOutcome?)? = null,  // Add mine dig callback
+    onMineBuildTrap: ((Int, Position) -> Boolean)? = null  // Add mine build trap callback
 ) {
     GamePlayScreenContent(
         gameState = gameState,
@@ -119,7 +116,9 @@ fun GamePlayScreen(
         onDefenderAttackPosition = onDefenderAttackPosition,
         onEndPlayerTurn = onEndPlayerTurn,
         onBackToMap = onBackToMap,
-        onCheatCode = onCheatCode
+        onCheatCode = onCheatCode,
+        onMineDig = onMineDig,
+        onMineBuildTrap = onMineBuildTrap
     )
 }
 
@@ -135,7 +134,10 @@ private fun GamePlayScreenContent(
     onDefenderAttackPosition: (Int, Position) -> Boolean,
     onEndPlayerTurn: () -> Unit,
     onBackToMap: () -> Unit,
-    onCheatCode: ((String) -> Boolean)? = null
+    onCheatCode: ((String) -> Boolean)? = null,
+    onMineDig: ((Int) -> DigOutcome?)? = null,
+    onMineBuildTrap: ((Int, Position) -> Boolean)? = null,
+
 ) {
     var selectedDefenderType by remember { mutableStateOf<DefenderType?>(null) }
     var selectedDefenderId by remember { mutableStateOf<Int?>(null) }
@@ -143,9 +145,40 @@ private fun GamePlayScreenContent(
     var selectedTargetPosition by remember { mutableStateOf<Position?>(null) }
     var showCheatDialog by remember { mutableStateOf(false) }
     var cheatCodeInput by remember { mutableStateOf("") }
+    var showMineActionDialog by remember { mutableStateOf(false) }
+    var selectedMineAction by remember { mutableStateOf<MineAction?>(null) }
+    var digOutcomeMessage by remember { mutableStateOf<String?>(null) }
+    var showDigOutcomeDialog by remember { mutableStateOf(false) }
     var showOverlay by remember { mutableStateOf(false) }  // MutableState for overlay visibility
     var headerExpanded by remember { mutableStateOf(true) }  // State for header fold/expand
-    
+
+    // Mine action handler
+    val handleMineAction: (Int, MineAction) -> Unit = { mineId, action ->
+        when (action) {
+            MineAction.DIG -> {
+                val outcome = onMineDig?.invoke(mineId)
+                if (outcome != null) {
+                    val message = when (outcome) {
+                        DigOutcome.NOTHING -> "You found nothing..."
+                        DigOutcome.BRASS -> "You found brass! +${outcome.coins} coins"
+                        DigOutcome.SILVER -> "You found silver! +${outcome.coins} coins"
+                        DigOutcome.GOLD -> "You found gold! +${outcome.coins} coins"
+                        DigOutcome.GEMS -> "You found gems! +${outcome.coins} coins"
+                        DigOutcome.DIAMOND -> "You found a diamond! +${outcome.coins} coins"
+                        DigOutcome.DRAGON -> "A DRAGON AWAKENS! The mine is destroyed!"
+                    }
+                    digOutcomeMessage = message
+                    showDigOutcomeDialog = true
+                }
+            }
+
+            MineAction.BUILD_TRAP -> {
+                selectedMineAction = action
+                showMineActionDialog = true
+            }
+        }
+    }
+
     Column(
         modifier = Modifier.fillMaxSize().padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -170,7 +203,7 @@ private fun GamePlayScreenContent(
                     ) {
                         // Empty spacer for symmetry
                         Spacer(modifier = Modifier.width(100.dp))
-                        
+
                         // Level name centered (without "Level:" prefix)
                         Text(
                             text = gameState.level.name,
@@ -178,7 +211,7 @@ private fun GamePlayScreenContent(
                             modifier = Modifier.weight(1f),
                             textAlign = TextAlign.Center
                         )
-                        
+
                         // Fold button at right end (same size as other buttons)
                         Button(
                             onClick = { headerExpanded = false }
@@ -186,9 +219,9 @@ private fun GamePlayScreenContent(
                             Text("▲ Fold Header")
                         }
                     }
-                    
+
                     Spacer(modifier = Modifier.height(8.dp))
-                    
+
                     // Main header content
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -201,7 +234,7 @@ private fun GamePlayScreenContent(
                                 "💰 ${gameState.coins.value}",
                                 style = MaterialTheme.typography.bodyLarge,
                                 modifier = Modifier.clickable(
-                                    onClick = { 
+                                    onClick = {
                                         if (onCheatCode != null) {
                                             showCheatDialog = true
                                         }
@@ -216,18 +249,20 @@ private fun GamePlayScreenContent(
                             val plannedSpawns = gameState.spawnPlan.drop(totalSpawned)
                             val remainingEnemies = plannedSpawns.size
 
-                            Text("Enemies: $activeEnemies active, $remainingEnemies to come", 
-                                 style = MaterialTheme.typography.bodyMedium,
-                                 color = Color(0xFFF44336))
+                            Text(
+                                "Enemies: $activeEnemies active, $remainingEnemies to come",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = Color(0xFFF44336)
+                            )
                         }
-                        
+
                         // Prominent phase indicator
-                        val phaseText = when(gameState.phase.value) {
+                        val phaseText = when (gameState.phase.value) {
                             GamePhase.INITIAL_BUILDING -> "Initial Building Phase"
                             GamePhase.PLAYER_TURN -> "YOUR TURN"
                             GamePhase.ENEMY_TURN -> "ENEMY TURN"
                         }
-                        val phaseColor = when(gameState.phase.value) {
+                        val phaseColor = when (gameState.phase.value) {
                             GamePhase.INITIAL_BUILDING -> Color(0xFF2196F3)
                             GamePhase.PLAYER_TURN -> Color(0xFF4CAF50)
                             GamePhase.ENEMY_TURN -> Color(0xFFF44336)
@@ -274,7 +309,7 @@ private fun GamePlayScreenContent(
                             "💰 ${gameState.coins.value}",
                             style = MaterialTheme.typography.bodyMedium,
                             modifier = Modifier.clickable(
-                                onClick = { 
+                                onClick = {
                                     if (onCheatCode != null) {
                                         showCheatDialog = true
                                     }
@@ -284,7 +319,7 @@ private fun GamePlayScreenContent(
                         Text("❤️ ${gameState.healthPoints.value}", style = MaterialTheme.typography.bodyMedium)
                         Text("🔄 ${gameState.turnNumber.value}", style = MaterialTheme.typography.bodySmall)
                     }
-                    
+
                     // Level name in center (without prefix, bold when collapsed)
                     Text(
                         text = gameState.level.name,
@@ -293,7 +328,7 @@ private fun GamePlayScreenContent(
                         modifier = Modifier.weight(1f),
                         textAlign = TextAlign.Center
                     )
-                    
+
                     // Three buttons at far right
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(4.dp),
@@ -306,7 +341,7 @@ private fun GamePlayScreenContent(
                         ) {
                             Text("Map", fontSize = 12.sp, modifier = Modifier.align(Alignment.CenterVertically))
                         }
-                        
+
                         Button(
                             onClick = { showOverlay = !showOverlay },
                             modifier = Modifier.height(32.dp),
@@ -315,9 +350,13 @@ private fun GamePlayScreenContent(
                                 containerColor = if (showOverlay) Color(0xFF4CAF50) else Color(0xFF2196F3)
                             )
                         ) {
-                            Text(if (showOverlay) "◀" else "▶", fontSize = 12.sp, modifier = Modifier.align(Alignment.CenterVertically))
+                            Text(
+                                if (showOverlay) "◀" else "▶",
+                                fontSize = 12.sp,
+                                modifier = Modifier.align(Alignment.CenterVertically)
+                            )
                         }
-                        
+
                         // Fold button
                         Button(
                             onClick = { headerExpanded = true },
@@ -330,9 +369,9 @@ private fun GamePlayScreenContent(
                 }
             }
         }
-        
+
         Spacer(modifier = Modifier.height(8.dp))
-        
+
         // Game Grid with toggle button and overlay
         Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
             // Scrollable Game Grid
@@ -342,6 +381,7 @@ private fun GamePlayScreenContent(
                 selectedDefenderId = selectedDefenderId,
                 selectedTargetId = selectedTargetId,
                 selectedTargetPosition = selectedTargetPosition,
+                selectedMineAction = selectedMineAction,
                 onCellClick = { position ->
                     // Try to place defender if one is selected
                     selectedDefenderType?.let { type ->
@@ -350,36 +390,60 @@ private fun GamePlayScreenContent(
                         }
                         return@GameGrid
                     }
-                    
+
+                    val previousSelectedDefenderId = selectedDefenderId
                     // Check if there's a defender at this position
                     val defender = gameState.defenders.find { it.position == position }
                     if (defender != null) {
-                        selectedDefenderId = defender.id
-                        selectedTargetId = null
-                        selectedTargetPosition = null
-                        return@GameGrid
+                        if (previousSelectedDefenderId == defender.id) {
+                            // Deselect if clicking the same defender
+                            selectedDefenderId = null
+                        } else {
+                            // Select this defender
+                            selectedDefenderId = defender.id
+                            selectedTargetId = null
+                            selectedTargetPosition = null
+                            return@GameGrid
+                        }
                     }
-                    
+
                     // Handle targeting for selected defender
                     if (selectedDefenderId != null) {
                         val selectedDefender = gameState.defenders.find { it.id == selectedDefenderId }
                         if (selectedDefender != null) {
-                            // For AOE/DOT towers, allow targeting path tiles
+                            // Handle trap building for mines
+                            if (selectedDefender.type == DefenderType.DWARVEN_MINE && selectedMineAction == MineAction.BUILD_TRAP) {
+                                // Check if position is on the path and in range
+                                val distance = selectedDefender.position.distanceTo(position)
+                                if (gameState.level.isOnPath(position) && distance <= selectedDefender.range) {
+                                    if (onMineBuildTrap?.invoke(selectedDefender.id, position) == true) {
+                                        selectedMineAction = null
+                                        showMineActionDialog = false
+                                    }
+                                }
+                                return@GameGrid
+                            }
+
+                            // For AREA/LASTING (fireball and acid) attacks, allow targeting path tiles
                             if (selectedDefender.type.attackType == AttackType.AREA ||
-                                selectedDefender.type.attackType == AttackType.LASTING) {
+                                selectedDefender.type.attackType == AttackType.LASTING
+                            ) {
                                 // Check if position is on the path and in range
                                 val distance = selectedDefender.position.distanceTo(position)
                                 if (gameState.level.isOnPath(position) &&
                                     distance >= selectedDefender.type.minRange &&
-                                    distance <= selectedDefender.range) {
+                                    distance <= selectedDefender.range
+                                ) {
                                     selectedTargetPosition = position
                                     // Also set targetId if there's an enemy at this position
-                                    val enemyAtPosition = gameState.attackers.find { it.position.value == position && !it.isDefeated.value }
+                                    val enemyAtPosition =
+                                        gameState.attackers.find { it.position.value == position && !it.isDefeated.value }
                                     selectedTargetId = enemyAtPosition?.id
                                 }
                             } else {
                                 // For single-target attacks, only allow targeting enemies
-                                val attacker = gameState.attackers.find { it.position.value == position && !it.isDefeated.value }
+                                val attacker =
+                                    gameState.attackers.find { it.position.value == position && !it.isDefeated.value }
                                 if (attacker != null) {
                                     selectedTargetId = attacker.id
                                     selectedTargetPosition = null
@@ -390,7 +454,7 @@ private fun GamePlayScreenContent(
                 },
                 modifier = Modifier.fillMaxSize()
             )
-            
+
             // Overlay panel with Legend and Enemy List (conditionally shown)
             if (showOverlay) {
                 Column(
@@ -403,17 +467,17 @@ private fun GamePlayScreenContent(
                 ) {
                     // Legend
                     GameLegend(modifier = Modifier.fillMaxWidth())
-                    
+
                     Spacer(modifier = Modifier.height(16.dp))
-                    
+
                     // Enemy List
                     EnemyListPanel(gameState = gameState, modifier = Modifier.fillMaxWidth().weight(1f))
                 }
             }
         }
-        
+
         Spacer(modifier = Modifier.height(8.dp))
-        
+
         // Control Panel based on phase
         when (gameState.phase.value) {
             GamePhase.INITIAL_BUILDING -> {
@@ -435,9 +499,11 @@ private fun GamePlayScreenContent(
                         selectedDefenderType = null  // Clear defender type selection when starting battle
                         selectedDefenderId = null  // Clear defender selection when starting battle
                         onStartFirstPlayerTurn()
-                    }
+                    },
+                    onMineAction = handleMineAction
                 )
             }
+
             GamePhase.PLAYER_TURN -> {
                 GameControlsPanel(
                     phase = GamePhase.PLAYER_TURN,
@@ -469,18 +535,36 @@ private fun GamePlayScreenContent(
                             false
                         }
                     },
-                    onPrimaryAction = onEndPlayerTurn
+                    onPrimaryAction = onEndPlayerTurn,
+                    onMineAction = handleMineAction
                 )
             }
+
             GamePhase.ENEMY_TURN -> {
                 EnemyTurnInfo()
             }
         }
-        
+
+        // Dig outcome dialog
+        if (showDigOutcomeDialog) {
+            AlertDialog(
+                onDismissRequest = { showDigOutcomeDialog = false },
+                title = { Text("Mining Result") },
+                text = {
+                    Text(digOutcomeMessage ?: "", style = MaterialTheme.typography.bodyLarge)
+                },
+                confirmButton = {
+                    Button(onClick = { showDigOutcomeDialog = false }) {
+                        Text("OK")
+                    }
+                }
+            )
+        }
+
         // Cheat code dialog
         if (showCheatDialog && onCheatCode != null) {
             AlertDialog(
-                onDismissRequest = { 
+                onDismissRequest = {
                     showCheatDialog = false
                     cheatCodeInput = ""
                 },
@@ -497,7 +581,9 @@ private fun GamePlayScreenContent(
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text("Available codes:", style = MaterialTheme.typography.labelSmall)
-                        Text("• moneybags, 1000coins, cash - Get 1000 coins", style = MaterialTheme.typography.bodySmall)
+                        Text("• cash - Get 1000 coins", style = MaterialTheme.typography.bodySmall)
+                        Text("• mmmoney - Get a million coins", style = MaterialTheme.typography.bodySmall)
+                        Text("• dragon- Spawn dragon from mine", style = MaterialTheme.typography.bodySmall)
                     }
                 },
                 confirmButton = {
@@ -532,6 +618,7 @@ fun GameGrid(
     selectedDefenderId: Int?,
     selectedTargetId: Int?,
     selectedTargetPosition: Position?,
+    selectedMineAction: MineAction?,
     onCellClick: (Position) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -540,21 +627,21 @@ fun GameGrid(
     var offsetX by remember { mutableStateOf(0f) }
     var offsetY by remember { mutableStateOf(0f) }
     var containerSize by remember { mutableStateOf(IntSize.Zero) }
-    
+
     val hexSize = 40.dp  // Radius of hexagon (center to corner)
-    
+
     // Calculate hex dimensions for pointy-top hexagons
     val sqrt3 = sqrt(3.0).toFloat()
     val hexWidth = hexSize.value * sqrt3  // Width of hexagon (flat-to-flat)
     val hexHeight = hexSize.value * 2f    // Height of hexagon (point-to-point)
-    
+
     // For pointy-top hexagons, vertical spacing between centers is 3/4 of height
     val verticalSpacing = hexHeight * 0.75f
-    
+
     // Calculate total grid dimensions
     val totalGridWidth = ((gameState.level.gridWidth) * hexWidth + hexWidth + 200f).dp
     val totalGridHeight = ((gameState.level.gridHeight) * verticalSpacing + hexHeight).dp
-    
+
     Box(
         modifier = modifier
             .onSizeChanged { containerSize = it }
@@ -565,7 +652,7 @@ fun GameGrid(
                 if (delta.y != 0f) {
                     val zoomDelta = if (delta.y < 0) 1.1f else 0.9f
                     scale = (scale * zoomDelta).coerceIn(0.5f, 3f)
-                    
+
                     // Constrain pan after zoom
                     val maxOffsetX = (containerSize.width * (scale - 1) / 2).coerceAtLeast(0f)
                     val maxOffsetY = (containerSize.height * (scale - 1) / 2).coerceAtLeast(0f)
@@ -580,15 +667,15 @@ fun GameGrid(
                     if (zoom != 1f) {
                         scale = (scale * zoom).coerceIn(0.5f, 3f)
                     }
-                    
+
                     // Apply pan
                     offsetX += pan.x
                     offsetY += pan.y
-                    
+
                     // Constrain pan to keep content visible
                     val maxOffsetX = (containerSize.width * (scale - 1) / 2).coerceAtLeast(0f)
                     val maxOffsetY = (containerSize.height * (scale - 1) / 2).coerceAtLeast(0f)
-                    
+
                     offsetX = offsetX.coerceIn(-maxOffsetX, maxOffsetX)
                     offsetY = offsetY.coerceIn(-maxOffsetY, maxOffsetY)
                 }
@@ -627,6 +714,7 @@ fun GameGrid(
                             isTargetSelected = gameState.attackers.find { it.position == position }?.id == selectedTargetId || position == selectedTargetPosition,
                              */
                             selectedDefenderId = selectedDefenderId,
+                            selectedMineAction = selectedMineAction,
                             onClick = { onCellClick(position) },
                             hexSize = hexSize
                         )
@@ -634,7 +722,7 @@ fun GameGrid(
                 }
             }
         }
-        
+
         // Minimap - shown when zoomed in
         if (scale > 1.1f) {
             GameMinimap(
@@ -663,7 +751,7 @@ fun GameMinimap(
     val minimapSize = 120.dp
     val gridWidth = gameState.level.gridWidth
     val gridHeight = gameState.level.gridHeight
-    
+
     Box(
         modifier = modifier
             .size(minimapSize)
@@ -675,7 +763,7 @@ fun GameMinimap(
         Canvas(modifier = Modifier.fillMaxSize()) {
             val cellWidth = size.width / gridWidth
             val cellHeight = size.height / gridHeight
-            
+
             // Draw path tiles
             for (y in 0 until gridHeight) {
                 for (x in 0 until gridWidth) {
@@ -689,7 +777,7 @@ fun GameMinimap(
                     }
                 }
             }
-            
+
             // Draw defenders (blue dots - matching main map tower color)
             gameState.defenders.forEach { defender ->
                 val x = defender.position.x * cellWidth + cellWidth / 2
@@ -700,7 +788,7 @@ fun GameMinimap(
                     center = Offset(x, y)
                 )
             }
-            
+
             // Draw attackers (red dots)
             gameState.attackers.filter { !it.isDefeated.value }.forEach { attacker ->
                 val x = attacker.position.value.x * cellWidth + cellWidth / 2
@@ -711,7 +799,7 @@ fun GameMinimap(
                     center = Offset(x, y)
                 )
             }
-            
+
             // Draw spawn points (orange dots - matching main map spawn border)
             gameState.level.startPositions.forEach { spawnPos ->
                 val x = spawnPos.x * cellWidth + cellWidth / 2
@@ -722,7 +810,7 @@ fun GameMinimap(
                     center = Offset(x, y)
                 )
             }
-            
+
             // Draw target position (green circle - matching main map target border)
             val targetX = gameState.level.targetPosition.x * cellWidth + cellWidth / 2
             val targetY = gameState.level.targetPosition.y * cellHeight + cellHeight / 2
@@ -732,22 +820,22 @@ fun GameMinimap(
                 center = Offset(targetX, targetY)
             )
         }
-        
+
         // Viewport indicator (shows current view)
         if (containerSize.width > 0 && containerSize.height > 0) {
             val viewportWidthRatio = 1f / scale
             val viewportHeightRatio = 1f / scale
-            
+
             // Calculate normalized offset (-1 to 1 range)
             val maxOffsetX = (containerSize.width * (scale - 1) / 2).coerceAtLeast(0.01f)
             val maxOffsetY = (containerSize.height * (scale - 1) / 2).coerceAtLeast(0.01f)
             val normalizedOffsetX = -offsetX / maxOffsetX
             val normalizedOffsetY = -offsetY / maxOffsetY
-            
+
             // Calculate viewport position in minimap
             val viewportX = (normalizedOffsetX * (1f - viewportWidthRatio) / 2f + (1f - viewportWidthRatio) / 2f)
             val viewportY = (normalizedOffsetY * (1f - viewportHeightRatio) / 2f + (1f - viewportHeightRatio) / 2f)
-            
+
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -779,6 +867,7 @@ fun GridCell(
     isDefenderSelected: Boolean,
     isTargetSelected: Boolean,
     selectedDefenderId: Int?,
+    selectedMineAction: MineAction?,
     onClick: () -> Unit,
     hexSize: androidx.compose.ui.unit.Dp = 48.dp
 ) {
@@ -789,9 +878,12 @@ fun GridCell(
     val isBuildArea = gameState.level.isBuildArea(position)
     val defender = gameState.defenders.find { it.position == position }
     val attacker = gameState.attackers.find { it.position.value == position && !it.isDefeated.value }
-    
+
     // Check for field effects at this position
     val fieldEffect = gameState.fieldEffects.find { it.position == position }
+
+    // Check for traps at this position
+    val trap = gameState.traps.find { it.position == position }
 
     // Check if this cell is in range of the selected defender
     val cellIsInRange = selectedDefenderId?.let { defenderId ->
@@ -805,7 +897,7 @@ fun GridCell(
             }
         } ?: false
     } ?: false
-    
+
     // Base background color based on area type - ALWAYS visible
     // Build islands + strips adjacent to path allow tower placement
     val baseBackgroundColor = when {
@@ -814,7 +906,7 @@ fun GridCell(
         isOnPath -> Color(0xFFFFF8DC)  // Cream/beige for enemy path
         else -> Color(0xFFE0E0E0)  // Light gray for off-path areas (non-playable)
     }
-    
+
     // Apply slight tint for selection states, but keep base color visible
     // Override with red background for enemy units and colored background for defenders
     // During INITIAL_BUILDING phase, don't apply any selection tints
@@ -828,26 +920,34 @@ fun GridCell(
                 else -> Color(0xFF2196F3)  // Blue for ready with actions
             }
         }
+
         fieldEffect != null -> {
             when (fieldEffect.type) {
                 FieldEffectType.FIREBALL -> Color(0xFFFF9800).copy(alpha = 0.5f)  // Orange tint for fireball
                 FieldEffectType.ACID -> Color(0xFF4CAF50).copy(alpha = 0.6f)  // Green tint for acid
             }
         }
+
+        trap != null -> Color(0xFF8B4513).copy(alpha = 0.6f)  // Brown tint for trap
         isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> baseBackgroundColor.copy(alpha = 0.7f)
         isTargetSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> baseBackgroundColor.copy(alpha = 0.8f)
         else -> baseBackgroundColor  // No selection highlighting during placement or in initial phase
     }
-    
+
     // Border color - use borders to indicate entities instead of background
     // For range visualization, show green border on path tiles in range (only if tower has actions)
     val showRange = selectedDefenderId?.let { defenderId ->
         val selectedDefender = gameState.defenders.find { it.id == defenderId }
         selectedDefender?.isReady == true && selectedDefender.actionsRemaining.value > 0
     } ?: false
-    
+
+    // When placing trap, don't show green border on tiles with enemies
+    val isTrapPlacement = selectedMineAction == MineAction.BUILD_TRAP
+    val hasEnemy = attacker != null
+    val canPlaceTrapHere = !hasEnemy || !isTrapPlacement
+
     val borderColor = when {
-        cellIsInRange && isOnPath && showRange -> Color(0xFF4CAF50)  // Green border for tiles in range (only on path, only if actions available)
+        cellIsInRange && isOnPath && showRange && canPlaceTrapHere -> Color(0xFF4CAF50)  // Green border for tiles in range (exclude enemy tiles during trap placement)
         isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> Color(0xFFFFEB3B)  // Yellow border for selected defender (not during initial building)
         isSpawnPoint -> Color(0xFFFF9800)  // Orange border for spawn
         isTarget -> Color(0xFF4CAF50)  // Green border for target
@@ -859,24 +959,26 @@ fun GridCell(
                 FieldEffectType.ACID -> Color(0xFF4CAF50)  // Green border for acid
             }
         }
+
+        trap != null -> Color(0xFF8B4513)  // Brown border for trap
         else -> Color.Transparent  // No borders for empty cells
     }
-    
+
     // Thicker borders for important elements
     val borderWidth = when {
         isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> 5.dp  // Extra thick border for selected defender (not during initial building)
-        cellIsInRange && isOnPath && showRange -> 4.dp  // Thick border for cells in range
+        cellIsInRange && isOnPath && showRange && canPlaceTrapHere -> 4.dp  // Thick border for cells in range (exclude enemy tiles during trap placement)
         isSpawnPoint || isTarget -> 3.dp
         attacker != null || defender != null -> 3.dp
         fieldEffect != null -> 3.dp  // Thick border for field effects
         else -> 0.dp  // No border for empty cells
     }
-    
+
     // Calculate hex dimensions for proper sizing
     val sqrt3 = sqrt(3.0).toFloat()
     val hexWidth = hexSize.value * sqrt3
     val hexHeight = hexSize.value * 2f
-    
+
     Box(
         modifier = Modifier
             .width((hexWidth).dp)
@@ -895,13 +997,15 @@ fun GridCell(
                     EnemyIcon(attacker = attacker)
                 }
             }
+
             defender != null -> {
                 // Use graphical icon for towers
                 // Key by id, level and actionsRemaining to force recomposition when these change
                 key(defender.id, defender.level, defender.actionsRemaining.value, defender.buildTimeRemaining.value) {
-                    TowerIcon(defender = defender)
+                    TowerIcon(defender = defender, gameState = gameState)
                 }
             }
+
             fieldEffect != null -> {
                 // Show field effect info
                 when (fieldEffect.type) {
@@ -913,6 +1017,7 @@ fun GridCell(
                             color = Color(0xFFFF5722)
                         )
                     }
+
                     FieldEffectType.ACID -> {
                         // Show acid splash with damage and duration
                         Column(
@@ -939,10 +1044,32 @@ fun GridCell(
                     }
                 }
             }
+
+            trap != null -> {
+                // Show trap icon with damage (no duration since traps are permanent until triggered)
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        "🕳️",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color(0xFF8B4513)
+                    )
+                    Text(
+                        "-${trap.damage}",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+
             isSpawnPoint -> {
                 // Show spawn indicator when cell is empty
                 Text("Spawn", style = MaterialTheme.typography.labelSmall, color = Color(0xFFFF9800))
             }
+
             isTarget -> {
                 // Show target indicator when cell is empty
                 Text("Target", style = MaterialTheme.typography.labelSmall, color = Color(0xFF4CAF50))
@@ -966,10 +1093,12 @@ fun GameControlsPanel(
     onSellTower: (Int) -> Unit,
     onDefenderAttack: (Int, Int) -> Boolean,
     onDefenderAttackPosition: (Int, Position) -> Boolean,
-    onPrimaryAction: () -> Unit
+    onPrimaryAction: () -> Unit,
+    onMineAction: ((Int, MineAction) -> Unit)? = null,
 ) {
-    var buyPanelFolded by remember { mutableStateOf(false) }
-    
+    // Automatically fold buy panel when a defender is selected
+    val compactBuyPanel = selectedDefenderId != null
+
     // Determine phase-specific properties
     val isPlayerTurn = phase == GamePhase.PLAYER_TURN
     val title = if (isPlayerTurn) {
@@ -983,27 +1112,14 @@ fun GameControlsPanel(
     } else {
         ButtonDefaults.buttonColors().containerColor
     }
-    
+
     Column(modifier = Modifier.fillMaxWidth()) {
-        // Title with fold button
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(title, style = MaterialTheme.typography.titleMedium)
-            
-            Button(
-                onClick = { buyPanelFolded = !buyPanelFolded },
-                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
-            ) {
-                Text(if (buyPanelFolded) "▼" else "▲ Fold Build Buttons", fontSize = 12.sp)
-            }
-        }
-        
+        // Title
+        Text(title, style = MaterialTheme.typography.titleMedium)
+
         Spacer(modifier = Modifier.height(8.dp))
-        
-        if (buyPanelFolded) {
+
+        if (compactBuyPanel) {
             // Folded view: Compact layout with defender info on left, buy buttons on right
             Row(modifier = Modifier.fillMaxWidth()) {
                 // Selected defender info on left (smaller)
@@ -1012,16 +1128,25 @@ fun GameControlsPanel(
                     if (defender != null) {
                         Box(modifier = Modifier.weight(1f)) {
                             Column {
-                                DefenderInfo(defender, gameState, onUpgradeDefender, onUndoTower, onSellTower)
-                                
-                                // Attack button only for player turn
-                                if (isPlayerTurn) {
+                                DefenderInfo(
+                                    defender,
+                                    gameState,
+                                    onUpgradeDefender,
+                                    onUndoTower,
+                                    onSellTower,
+                                    onMineAction = onMineAction,
+                                    compactBuyPanel
+                                )
+
+                                if (isPlayerTurn &&
+                                    defender.type != DefenderType.DWARVEN_MINE &&
+                                    defender.type != DefenderType.DRAGONS_LAIR) {
                                     AttackButton(
                                         defender = defender,
                                         gameState = gameState,
                                         selectedTargetId = selectedTargetId,
                                         selectedTargetPosition = selectedTargetPosition,
-                                        onDefenderAttack = { defenderId, targetId -> 
+                                        onDefenderAttack = { defenderId, targetId ->
                                             onDefenderAttack(defenderId, targetId)
                                         },
                                         onDefenderAttackPosition = { defenderId, targetPos ->
@@ -1030,7 +1155,7 @@ fun GameControlsPanel(
                                         modifier = Modifier
                                             .layout { measurable, constraints ->
                                                 val placeable = measurable.measure(constraints)
-                                                layout(0,0) {
+                                                layout(0, 0) {
                                                     placeable.place(0, 0)
                                                 }
                                             }
@@ -1044,15 +1169,19 @@ fun GameControlsPanel(
                         Spacer(modifier = Modifier.width(8.dp))
                     }
                 }
-                
-                // Compact buy buttons in two columns on right
+
+                // Compact buy buttons on right
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(2),
-                    modifier = Modifier.width(400.dp).height(if (selectedDefenderId != null) 150.dp else 150.dp),
+                    modifier = Modifier.width(350.dp).height(170.dp),
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    items(DefenderType.entries.toTypedArray(), key = { type -> "${type.name}_folded_${coinsState.value}" }) { type ->
+                    items(
+                        DefenderType.entries
+                            .filter { it != DefenderType.DRAGONS_LAIR }
+                            .toTypedArray(),
+                        key = { type -> "${type.name}_folded_${coinsState.value}" }) { type ->
                         val canAfford = coinsState.value >= type.baseCost
                         CompactDefenderButton(
                             type = type,
@@ -1068,12 +1197,16 @@ fun GameControlsPanel(
         } else {
             // Expanded view: Original layout
             LazyVerticalGrid(
-                columns = GridCells.Fixed(6),
-                modifier = Modifier.fillMaxWidth().height(90.dp),
+                columns = GridCells.Fixed(7),
+                modifier = Modifier.fillMaxWidth().height(75.dp),
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                items(DefenderType.entries.toTypedArray(), key = { type -> "${type.name}_${coinsState.value}_${gameState.defenders.count { it.type == type }}" }) { type ->
+                items(
+                    DefenderType.entries
+                        .filter { it != DefenderType.DRAGONS_LAIR }
+                        .toTypedArray(),
+                    key = { type -> "${type.name}_${coinsState.value}_${gameState.defenders.count { it.type == type }}" }) { type ->
                     val canAfford = coinsState.value >= type.baseCost
                     println("DEBUG: ${phase.name} Button for ${type.displayName} - coins: ${coinsState.value}, cost: ${type.baseCost}, canAfford: $canAfford")
                     DefenderButton(
@@ -1087,16 +1220,28 @@ fun GameControlsPanel(
                     )
                 }
             }
-            
-            Spacer(modifier = Modifier.height(4.dp))
-            
-            // Selected defender info and attack button (player turn only)
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Selected defender info and attack button
             selectedDefenderId?.let { defenderId ->
                 val defender = gameState.defenders.find { it.id == defenderId }
                 if (defender != null) {
-                    DefenderInfo(defender, gameState, onUpgradeDefender, onUndoTower, onSellTower)
-                    
-                    if (isPlayerTurn) {
+                    DefenderInfo(
+                        defender,
+                        gameState,
+                        onUpgradeDefender,
+                        onUndoTower,
+                        onSellTower,
+                        onMineAction = onMineAction,
+                        compactBuyPanel
+                    )
+
+                    // Don't show attack button for dwarven mines or dragon's lair
+                    if (isPlayerTurn &&
+                        defender.type != DefenderType.DWARVEN_MINE &&
+                        defender.type != DefenderType.DRAGONS_LAIR
+                    ) {
                         AttackButton(
                             defender = defender,
                             gameState = gameState,
@@ -1110,22 +1255,27 @@ fun GameControlsPanel(
                             },
                             modifier = Modifier
                                 .layout { measurable, constraints ->
+                                    // Measure the tooltip but don't add it to the layout
                                     val placeable = measurable.measure(constraints)
-                                    layout(0,0) {
+                                    layout(0, 0) { // Set the size to 0 to avoid taking up space and move other elements
                                         placeable.place(0, 0)
                                     }
                                 }
                                 .width(200.dp)
                                 .height(100.dp)
-                                .absoluteOffset(x = 1000.dp, y = (-130).dp)
+                                .absoluteOffset(
+                                    x = 1000.dp,
+                                    y = (-130).dp
+                                ) // .absoluteOffset(x = 700.dp, y = (-130).dp)
+
                         )
                     }
                 }
             }
         }
-        
-        Spacer(modifier = Modifier.height(4.dp))
-        
+
+        Spacer(modifier = Modifier.height(8.dp))
+
         Button(
             onClick = onPrimaryAction,
             modifier = Modifier.fillMaxWidth(),
@@ -1153,7 +1303,7 @@ fun CompactDefenderButton(
         colors = ButtonDefaults.buttonColors(
             containerColor = if (isSelected) Color(0xFF1976D2) else MaterialTheme.colorScheme.primary
         ),
-        modifier = Modifier.fillMaxWidth().height(45.dp),
+        modifier = Modifier.fillMaxWidth().height(40.dp),
         contentPadding = PaddingValues(4.dp)
     ) {
         Row(
@@ -1168,12 +1318,12 @@ fun CompactDefenderButton(
             ) {
                 TowerTypeIcon(defenderType = type, modifier = Modifier.size(30.dp))
             }
-            
+
             Spacer(modifier = Modifier.width(4.dp))
-            
-            // Tower name (shortened)
+
             Text(
-                type.displayName.replace(" Tower", ""),
+                type.displayName
+                    .replace(" Tower", ""),
                 style = MaterialTheme.typography.labelSmall,
                 fontWeight = FontWeight.Bold,
                 fontSize = 12.sp,
@@ -1325,150 +1475,307 @@ fun TowerStats(minRange: Int, damage: Int, range: Int, actionsPerTurn: Int) {
     )
 }
 
-            @Composable
-            fun DefenderInfo(
-                defender: Defender,
-                gameState: GameState,
-                onUpgradeDefender: (Int) -> Unit,
-                onUndoTower: (Int) -> Unit,
-                onSellTower: (Int) -> Unit
-            ) {
-                // Use key to force recomposition when defender stats change
-                key(
-                    defender.id,
-                    defender.level,
-                    defender.damage,
-                    defender.range,
-                    defender.actionsRemaining.value,
-                    defender.buildTimeRemaining.value,
-                    defender.isReady
+@Composable
+fun DefenderInfo(
+    defender: Defender,
+    gameState: GameState,
+    onUpgradeDefender: (Int) -> Unit,
+    onUndoTower: (Int) -> Unit,
+    onSellTower: (Int) -> Unit,
+    onMineAction: ((Int, MineAction) -> Unit)? = null,
+    compactBuyPanel: Boolean = false
+) {
+    // Use key to force recomposition when defender stats change
+    key(
+        defender.id,
+        defender.level,
+        defender.damage,
+        defender.range,
+        defender.actionsRemaining.value,
+        defender.buildTimeRemaining.value,
+        defender.isReady
+    ) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+        ) {
+            Column(modifier = Modifier.padding(8.dp)) {
+                // Tower icon, name, and actions in one row
+                Row(
+                    // modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Start
                 ) {
-                    Card(modifier = Modifier
-                        .fillMaxWidth()
+                    // Tower icon
+                    Box(
+                        modifier = Modifier.size(48.dp),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Column(modifier = Modifier.padding(8.dp)) {
-                            // Tower icon, name, and actions in one row
-                            Row(
-                                // modifier = Modifier.fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.Start
-                            ) {
-                                // Tower icon
-                                Box(
-                                    modifier = Modifier.size(48.dp),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    TowerIcon(defender = defender, modifier = Modifier.size(44.dp))
+                        TowerIcon(defender = defender, modifier = Modifier.size(44.dp), gameState = gameState)
+                    }
+
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    // Tower name and level
+                    Column(modifier = Modifier.weight(0.7f)) {
+                        val displayName = if (defender.type == DefenderType.DRAGONS_LAIR) {
+                            // Check if the specific dragon from this lair is still alive
+                            val dragonAlive = defender.dragonId.value?.let { dragonId ->
+                                gameState.attackers.any {
+                                    it.id == dragonId && !it.isDefeated.value
                                 }
+                            } ?: false
+                            if (dragonAlive) "Dragon's Lair" else "Empty Dragon's Lair"
+                        } else {
+                            defender.type.displayName
+                        }
+                        Text(
+                            displayName,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Text(
+                                "Level ${defender.level.value}",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color(0xFF4CAF50)
+                            )
+                            Text(
+                                "⚔️ ${defender.type.attackType.displayName}",
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
+                    }
 
-                                Spacer(modifier = Modifier.width(8.dp))
+                    Column(modifier = Modifier.weight(0.2f)) {
+                        if (defender.type == DefenderType.DWARVEN_MINE) {
+                            // Mine-specific UI with info dialog
+                            var showMiningInfoDialog by remember { mutableStateOf(false) }
 
-                                // Tower name and level
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text(
-                                        defender.type.displayName,
-                                        style = MaterialTheme.typography.titleMedium,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                    Row(
-                                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                                    ) {
-                                        Text(
-                                            "Level ${defender.level.value}",
-                                            style = MaterialTheme.typography.bodySmall,
-                                            color = Color(0xFF4CAF50)
-                                        )
-                                        Text(
-                                            "⚔️ ${defender.type.attackType.name}",
-                                            style = MaterialTheme.typography.bodySmall
-                                        )
+                            // Mining info dialog
+                            if (showMiningInfoDialog) {
+                                AlertDialog(
+                                    onDismissRequest = { showMiningInfoDialog = false },
+                                    title = { Text("Mining Probabilities") },
+                                    text = { MiningOutcomeGrid() },
+                                    confirmButton = {
+                                        TextButton(onClick = { showMiningInfoDialog = false }) {
+                                            Text("Close")
+                                        }
                                     }
-                                }
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Box(modifier = Modifier.weight(1f)) {
-                                    DefenderActionsInfo(defender)
-                                }
-                                Spacer(modifier = Modifier.weight(6f))
+                                )
                             }
 
-                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                "ℹ️",
+                                fontSize = 16.sp,
+                                modifier = Modifier
+                                    .clickable { showMiningInfoDialog = true }
+                                    .padding(4.dp),
+                                color = Color(0xFF2196F3)
+                            )
+                        }
+                    }
 
-                            if (defender.isReady) {
-                                // Calculate next level stats for comparison
-                                val nextLevelDamage = defender.damage + 5
-                                val nextActualDamage = when (defender.type.attackType) {
-                                    AttackType.LASTING -> nextLevelDamage / 2
-                                    else -> nextLevelDamage
-                                }
-                                val nextLevel = defender.level.value + 1
-                                val nextRangeCalculated = defender.type.baseRange + (nextLevel - 1) / 2
-                                val nextRange = if (defender.type == DefenderType.SPIKE_TOWER && nextLevel >= 5) {
-                                    minOf(nextRangeCalculated, 2)
-                                } else {
-                                    nextRangeCalculated
-                                }
-                                val nextActions = if (defender.type == DefenderType.SPIKE_TOWER) {
-                                    val bonusActions = nextLevel / 5
-                                    minOf(defender.type.actionsPerTurn + bonusActions, 3)
-                                } else {
-                                    defender.type.actionsPerTurn
-                                }
+                    Box(modifier = Modifier.weight(0.5f)) {
+                        DefenderActionsInfo(defender)
+                    }
+                    Spacer(modifier = Modifier.weight(6f))
+                }
 
-                                // Stats and upgrade button in columns
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                ) {
-                                    // Current stats column
-                                    Column(modifier = Modifier.weight(1f)) {
-                                        Text(
-                                            "Current:",
-                                            style = MaterialTheme.typography.labelSmall,
-                                            fontWeight = FontWeight.Bold
-                                        )
-                                        TowerStats(
-                                            defender.type.minRange,
-                                            defender.actualDamage,
-                                            defender.range,
-                                            defender.actionsPerTurnCalculated
-                                        )
-                                    }
+                Spacer(modifier = Modifier.height(4.dp))
 
-                                    // After upgrade stats column
-                                    Column(modifier = Modifier.weight(1f)) {
-                                        Text(
-                                            "Upgrade:",
-                                            style = MaterialTheme.typography.labelSmall,
-                                            fontWeight = FontWeight.Bold,
-                                            color = if (gameState.canUpgradeDefender(defender)) Color(0xFF4CAF50) else Color.Gray
-                                        )
-                                        TowerStats(
-                                            defender.type.minRange,
-                                            nextActualDamage,
-                                            nextRange,
-                                            nextActions
-                                        )
-                                    }
+                if (defender.isReady) {
+                    if (defender.type == DefenderType.DRAGONS_LAIR) {
+                        // Dragon's lair - no actions, can't be sold
+                        Text(
+                            "The dragon's lair... a reminder of greed's consequences.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.Gray,
+                            fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
+                        )
+                    } else {
 
-                                    Column(modifier = Modifier.weight(1f)) {
-                                        UpgradeButton(defender, gameState, onUpgradeDefender = onUpgradeDefender)
-                                    }
-
-                                    Column(modifier = Modifier.weight(1f)) {
-                                        UndoOrSellButton(
-                                            defender = defender,
-                                            gameState = gameState,
-                                            onUndoTower = onUndoTower,
-                                            onSellTower = onSellTower
-                                        )
-                                    }
-                                    Spacer(modifier = Modifier.weight(4f))
-                                }
+                        // Normal tower stats and buttons
+                        val baseDamage =
+                            if (defender.type == DefenderType.DWARVEN_MINE) defender.trapDamage else defender.damage
+                        val nextLevelDamage = baseDamage + 5
+                        val nextActualDamage = when (defender.type.attackType) {
+                            AttackType.LASTING -> nextLevelDamage / 2
+                            else -> nextLevelDamage
+                        }
+                        val nextLevel = defender.level.value + 1
+                        val nextRangeCalculated = defender.type.baseRange + (nextLevel - 1) / 2
+                        val nextRange = if (defender.type == DefenderType.SPIKE_TOWER && nextLevel >= 5) {
+                            minOf(nextRangeCalculated, 2)
+                        } else {
+                            nextRangeCalculated
+                        }
+                        val nextActions =
+                            if (defender.type == DefenderType.SPIKE_TOWER || defender.type == DefenderType.DWARVEN_MINE) {
+                                val bonusActions = nextLevel / 5
+                                minOf(1 + bonusActions, 3)
+                            } else {
+                                defender.type.actionsPerTurn
                             }
+
+                        // Stats and upgrade button in columns
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            // horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            // Current stats column
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    "Current:",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                TowerStats(
+                                    defender.type.minRange,
+                                    if (defender.type == DefenderType.DWARVEN_MINE) defender.trapDamage else defender.actualDamage,
+                                    defender.range,
+                                    defender.actionsPerTurnCalculated
+                                )
+                            }
+
+                            // After upgrade stats column
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    "Upgrade:",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontWeight = FontWeight.Bold,
+                                    color = if (gameState.canUpgradeDefender(defender)) Color(0xFF4CAF50) else Color.Gray
+                                )
+                                TowerStats(
+                                    defender.type.minRange,
+                                    nextActualDamage,
+                                    nextRange,
+                                    nextActions
+                                )
+                            }
+
+                            Column(modifier = Modifier.weight(1f)) {
+                                UpgradeButton(defender, gameState, onUpgradeDefender = onUpgradeDefender)
+                            }
+
+                            Column(modifier = Modifier.weight(1f)) {
+                                UndoOrSellButton(
+                                    defender = defender,
+                                    gameState = gameState,
+                                    onUndoTower = onUndoTower,
+                                    onSellTower = onSellTower
+                                )
+                            }
+
+                            dwarvenMineActionButtonArea(
+                                defender.type,
+                                gameState,
+                                defender,
+                                onMineAction,
+                                compactBuyPanel
+                            )
                         }
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun RowScope.dwarvenMineActionButtonArea(
+    type: DefenderType,
+    gameState: GameState,
+    defender: Defender,
+    onMineAction: ((Int, MineAction) -> Unit)?,
+    compactBuyPanel: Boolean = false
+
+) {
+    if (type == DefenderType.DWARVEN_MINE) {
+        val mineActionsEnabled =
+            gameState.phase.value != GamePhase.INITIAL_BUILDING && defender.actionsRemaining.value > 0
+
+        if (mineActionsEnabled || gameState.phase.value == GamePhase.INITIAL_BUILDING) {
+            // Dig button
+            Column(modifier = Modifier.weight(0.5f)) {
+                Button(
+                    onClick = { onMineAction?.invoke(defender.id, MineAction.DIG) },
+                    enabled = mineActionsEnabled,
+                    modifier = Modifier.width(95.dp).height(100.dp)
+                        .offset(y = (-24).dp),
+                    contentPadding = PaddingValues(
+                        horizontal = 4.dp,
+                        vertical = 2.dp
+                    )
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text("⛏️", fontSize = 24.sp)
+                        Text("Dig", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                    }
+                }
+            }
+
+            Column(modifier = Modifier.weight(0.5f)) {
+                // Trap button
+                Button(
+                    onClick = {
+                        onMineAction?.invoke(
+                            defender.id,
+                            MineAction.BUILD_TRAP
+                        )
+                    },
+                    enabled = mineActionsEnabled,
+                    modifier = Modifier.width(95.dp).height(100.dp)
+                        .offset(y = (-24).dp),
+                    contentPadding = PaddingValues(
+                        horizontal = 4.dp,
+                        vertical = 2.dp
+                    )
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text("🕳️", fontSize = 24.sp)
+                        Text("Trap", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                    }
+                }
+            }
+        } else {
+            Spacer(modifier = Modifier.weight(1f))
+        }
+
+        Spacer(modifier = Modifier.weight(
+            if (compactBuyPanel) 1.41f else 3f))
+    } else {
+        Spacer(modifier = Modifier.weight(if (compactBuyPanel) 2.41f else 4f))
+    }
+}
+
+@Composable
+fun MiningOutcomeGrid() {
+    Column {
+        // Header row
+        Row {
+            Text("Name", Modifier.weight(1f), fontWeight = FontWeight.Bold)
+            Text("Chance (%)", Modifier.weight(1f), fontWeight = FontWeight.Bold)
+            Text("Reward", Modifier.weight(1f), fontWeight = FontWeight.Bold)
+        }
+        Spacer(Modifier.height(4.dp))
+        // Data rows
+        DigOutcome.values().forEach { outcome ->
+            Row {
+                Text(outcome.displayName, Modifier.weight(1f))
+                Text("${outcome.probability}", Modifier.weight(1f))
+                Text("${outcome.coins}", Modifier.weight(1f))
+            }
+        }
+    }
+}
 
 @Composable
 fun UpgradeButton(
@@ -1478,7 +1785,8 @@ fun UpgradeButton(
         .offset(y = (-24).dp)
         .width(200.dp)
         .height(100.dp),
-    onUpgradeDefender: (Int) -> Unit) {
+    onUpgradeDefender: (Int) -> Unit
+) {
     Button(
         onClick = { onUpgradeDefender(defender.id) },
         enabled = gameState.canUpgradeDefender(defender),
@@ -1511,11 +1819,11 @@ fun UndoOrSellButton(
         .height(100.dp)
 ) {
     var showSellConfirmation by remember { mutableStateOf(false) }
-    
+
     // Determine if undo or sell is available
     val canUndo = defender.placedOnTurn == gameState.turnNumber.value && !defender.hasBeenUsed.value
     val canSell = defender.isReady && defender.actionsRemaining.value > 0
-    
+
     if (canUndo) {
         // Show Undo button (100% refund)
         Button(
@@ -1563,7 +1871,7 @@ fun UndoOrSellButton(
                 )
             }
         }
-        
+
         // Confirmation dialog
         if (showSellConfirmation) {
             AlertDialog(
@@ -1617,663 +1925,655 @@ fun UndoOrSellButton(
     }
 }
 
-            @Composable
-            fun DefenderActionsInfo(defender: Defender) {
-                if (!defender.isReady) {
-                    Text(
-                        "⏱ Building: ${defender.buildTimeRemaining.value}T",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = Color(0xFFFF9800)
-                    )
-                } else {
-                    Text(
-                        "⚡ ${defender.actionsRemaining.value}/${defender.actionsPerTurnCalculated}",
-                        style = MaterialTheme.typography.titleMedium,
-                    )
-                }
-            }
+@Composable
+fun DefenderActionsInfo(defender: Defender) {
+    if (!defender.isReady) {
+        Text(
+            "⏱ Building: ${defender.buildTimeRemaining.value}T",
+            style = MaterialTheme.typography.titleMedium,
+            color = Color(0xFFFF9800)
+        )
+    } else {
+        Text(
+            "⚡ ${defender.actionsRemaining.value}/${defender.actionsPerTurnCalculated}",
+            style = MaterialTheme.typography.titleMedium,
+        )
+    }
+}
 
-            @Composable
-            fun EnemyTurnInfo() {
-                // The ViewModel automatically handles the delays and phase progression
-                // This composable displays the enemy turn indicator with animation
-                Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(containerColor = Color(0xFFFFCDD2))
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(24.dp).fillMaxWidth(),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text(
-                                "Enemy Turn",
-                                style = MaterialTheme.typography.titleLarge,
-                                color = Color.Red,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Spacer(modifier = Modifier.height(12.dp))
-                            CircularProgressIndicator(color = Color.Red)
-                            Spacer(modifier = Modifier.height(12.dp))
-                            Text(
-                                "Enemies are spawning and moving...",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = Color.Red
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                "Watch the grid for changes!",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = Color(0xFFD32F2F),
-                                fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
-                            )
-                        }
-                    }
-                }
-            }
-
-            @Composable
-            fun DefenderButton(
-                type: DefenderType,
-                isSelected: Boolean,
-                canAfford: Boolean,
-                coinsState: State<Int>,  // Accept State instead of Int
-                onClick: () -> Unit
+@Composable
+fun EnemyTurnInfo() {
+    // The ViewModel automatically handles the delays and phase progression
+    // This composable displays the enemy turn indicator with animation
+    Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = Color(0xFFFFCDD2))
+        ) {
+            Column(
+                modifier = Modifier.padding(24.dp).fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Recalculate canAfford based on current coins.value to ensure reactivity
-                val actuallyCanAfford = coinsState.value >= type.baseCost
+                Text(
+                    "Enemy Turn",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = Color.Red,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                CircularProgressIndicator(color = Color.Red)
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(
+                    "Enemies are spawning and moving...",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.Red
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    "Watch the grid for changes!",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color(0xFFD32F2F),
+                    fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
+                )
+            }
+        }
+    }
+}
 
-                Button(
-                    onClick = onClick,
-                    enabled = actuallyCanAfford,  // Use recalculated value
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = if (isSelected) Color(0xFF1976D2) else MaterialTheme.colorScheme.primary
-                    ),
-                    modifier = Modifier.fillMaxWidth().height(80.dp),
-                    contentPadding = PaddingValues(4.dp)
+@Composable
+fun DefenderButton(
+    type: DefenderType,
+    isSelected: Boolean,
+    canAfford: Boolean,
+    coinsState: State<Int>,  // Accept State instead of Int
+    onClick: () -> Unit
+) {
+    // Recalculate canAfford based on current coins.value to ensure reactivity
+    val actuallyCanAfford = coinsState.value >= type.baseCost
+
+    Button(
+        onClick = onClick,
+        enabled = actuallyCanAfford,  // Use recalculated value
+        colors = ButtonDefaults.buttonColors(
+            containerColor = if (isSelected) Color(0xFF1976D2) else MaterialTheme.colorScheme.primary
+        ),
+        modifier = Modifier.fillMaxWidth().height(70.dp),
+        contentPadding = PaddingValues(2.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxSize(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Start
+        ) {
+            // Tower icon on the left
+            Box(
+                modifier = Modifier.size(30.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                TowerTypeIcon(defenderType = type, modifier = Modifier.size(28.dp))
+            }
+
+            Spacer(modifier = Modifier.width(2.dp))
+
+            // Stats on the right
+            Row {
+                Column(
+                    modifier = Modifier.fillMaxHeight(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.Start
                 ) {
-                    Row(
-                        modifier = Modifier.fillMaxSize(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Start
-                    ) {
-                        // Tower icon on the left
-                        Box(
-                            modifier = Modifier.size(36.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            TowerTypeIcon(defenderType = type, modifier = Modifier.size(32.dp))
-                        }
-                        
-                        Spacer(modifier = Modifier.width(4.dp))
-                        
-                        // Stats on the right
-                        Row {
-                            Column(
-                                modifier = Modifier.fillMaxHeight(),
-                                verticalArrangement = Arrangement.Center,
-                                horizontalAlignment = Alignment.Start
-                            ) {
-                                Text(
-                                    type.displayName.replace(" Tower", ""),
-                                    style = MaterialTheme.typography.labelSmall,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 14.sp,
-                                    maxLines = 1
-                                )
+                    Text(
+                        type.displayName
+                            .replace(" Tower", ""),
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 12.sp,
+                        maxLines = 1
+                    )
 
-                                // Show special ability type
-                                // "Long" indicates ranged with minimum range (e.g., Ballista can't shoot too close)
-                                // "Range" indicates normal ranged attack without minimum range restriction
-                                val special = when (type.attackType) {
-                                    AttackType.AREA -> "Throws Fireball" //Area of Effect
-                                    AttackType.LASTING -> "Throws Acid" //Damage over Time
-                                    AttackType.MELEE -> "Melee"
-                                    AttackType.RANGED -> if (type.minRange > 0) "Long Range" else "Range"
-                                }
-                                Text(
-                                    special,
-                                    style = MaterialTheme.typography.labelSmall,
-                                    fontSize = 12.sp,
-                                    color = Color(0xFFFFEB3B)
-                                )
-                                Text(
-                                    "⏱ ${type.buildTime}T",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    fontSize = 12.sp
-                                )
-                            }
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxHeight()
-                                    .padding(start = 16.dp),
-                                verticalArrangement = Arrangement.Center,
-                                horizontalAlignment = Alignment.Start
-                            ) {
-                                TowerStats(type.minRange, type.baseDamage, type.baseRange, type.actionsPerTurn)
-                            }
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxHeight()
-                                    .padding(start = 16.dp),
-                                verticalArrangement = Arrangement.Center,
-                                horizontalAlignment = Alignment.Start
-                            ) {
-                                Text(
-                                    "💰${type.baseCost}",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    fontSize = 20.sp
-                                )
-                            }
-                        }
-                    }
+                    Text(
+                        type.attackType.displayName,
+                        style = MaterialTheme.typography.labelSmall,
+                        fontSize = 10.sp,
+                        color = Color(0xFFFFEB3B)
+                    )
+                    Text(
+                        "⏱${type.buildTime}T",
+                        style = MaterialTheme.typography.labelSmall,
+                        fontSize = 10.sp
+                    )
+                }
+                Column(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .padding(start = 8.dp),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.Start
+                ) {
+                    TowerStats(type.minRange, type.baseDamage, type.baseRange, type.actionsPerTurn)
+                }
+                Column(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .padding(start = 8.dp),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.Start
+                ) {
+                    Text(
+                        "💰${type.baseCost}",
+                        style = MaterialTheme.typography.labelSmall,
+                        fontSize = 16.sp
+                    )
                 }
             }
+        }
+    }
+}
 
-            @Composable
-            fun GameLegend(modifier: Modifier = Modifier) {
-                var isExpanded by remember { mutableStateOf(false) }
+@Composable
+fun GameLegend(modifier: Modifier = Modifier) {
+    var isExpanded by remember { mutableStateOf(false) }
 
-                Card(modifier = modifier) {
-                    Column(modifier = Modifier.padding(12.dp)) {
-                        // Header with expand/collapse button
-                        Row(
-                            modifier = Modifier.fillMaxWidth().clickable { isExpanded = !isExpanded },
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text("Legend", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                            Text(if (isExpanded) "▼" else "▶", style = MaterialTheme.typography.titleMedium)
-                        }
-
-                        if (isExpanded) {
-                            LazyColumn(
-                                modifier = Modifier.fillMaxWidth().heightIn(max = 400.dp),
-                                verticalArrangement = Arrangement.spacedBy(6.dp)
-                            ) {
-                                item {
-                                    Spacer(modifier = Modifier.height(4.dp))
-                                    Text(
-                                        "Areas:",
-                                        style = MaterialTheme.typography.labelMedium,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                }
-
-                                item {
-                                    LegendItemHex(
-                                        color = Color(0xFF8BC34A),
-                                        label = "⬡",
-                                        description = "Build Island",
-                                        border = Color.Gray
-                                    )
-                                }
-                                item {
-                                    LegendItemHex(
-                                        color = Color(0xFFA5D6A7),
-                                        label = "⬡",
-                                        description = "Build Strip",
-                                        border = Color.Gray
-                                    )
-                                }
-                                item {
-                                    LegendItemHex(
-                                        color = Color(0xFFFFF8DC),
-                                        label = "⬡",
-                                        description = "Enemy Path",
-                                        border = Color.Gray
-                                    )
-                                }
-                                item {
-                                    LegendItemHex(
-                                        color = Color(0xFFE0E0E0),
-                                        label = "⬡",
-                                        description = "Non-Playable",
-                                        border = Color.Gray
-                                    )
-                                }
-
-                                item {
-                                    Spacer(modifier = Modifier.height(4.dp))
-                                    Text(
-                                        "Special:",
-                                        style = MaterialTheme.typography.labelMedium,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                }
-
-                                item {
-                                    LegendItemHex(
-                                        color = Color(0xFFFFF8DC),
-                                        label = "Spawn",
-                                        description = "Spawn (3 points)",
-                                        border = Color(0xFFFF9800),
-                                        borderWidth = 3.dp
-                                    )
-                                }
-                                item {
-                                    LegendItemHex(
-                                        color = Color(0xFFFFF8DC),
-                                        label = "Target",
-                                        description = "Target (Defend!)",
-                                        border = Color(0xFF4CAF50),
-                                        borderWidth = 3.dp
-                                    )
-                                }
-
-                                item {
-                                    Spacer(modifier = Modifier.height(4.dp))
-                                    Text(
-                                        "Units:",
-                                        style = MaterialTheme.typography.labelMedium,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                }
-
-                                item {
-                                    LegendItemHex(
-                                        color = Color(0xFF2196F3),
-                                        label = "⬡",
-                                        description = "Tower (Ready)",
-                                        border = Color(0xFF2196F3),
-                                        borderWidth = 3.dp
-                                    )
-                                }
-                                item {
-                                    LegendItemHex(
-                                        color = Color(0xFF9E9E9E),
-                                        label = "⬡",
-                                        description = "Tower (Building)",
-                                        border = Color(0xFF9E9E9E),
-                                        borderWidth = 3.dp
-                                    )
-                                }
-                                item {
-                                    LegendItemHex(
-                                        color = Color(0xFF7986CB),
-                                        label = "⬡",
-                                        description = "Tower (No Actions)",
-                                        border = Color(0xFF2196F3),
-                                        borderWidth = 3.dp
-                                    )
-                                }
-                                item {
-                                    LegendItemHex(
-                                        color = Color(0xFFF44336),
-                                        label = "⬡",
-                                        description = "Enemy Unit",
-                                        border = Color(0xFFF44336),
-                                        borderWidth = 3.dp
-                                    )
-                                }
-
-                                item {
-                                    Spacer(modifier = Modifier.height(4.dp))
-                                    Text(
-                                        "Info:",
-                                        style = MaterialTheme.typography.labelMedium,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                }
-
-                                item {
-                                    Text(
-                                        "• Ballista: min range 3",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = Color(0xFFFF6F00)
-                                    )
-                                }
-                                item {
-                                    Text("• Icons show tower/enemy type", style = MaterialTheme.typography.bodySmall)
-                                }
-                                item {
-                                    Text(
-                                        "• Level & actions shown on towers",
-                                        style = MaterialTheme.typography.bodySmall
-                                    )
-                                }
-                                item {
-                                    Text("• Health shown on enemies", style = MaterialTheme.typography.bodySmall)
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            @Composable
-            fun LegendItemHex(
-                color: Color,
-                label: String,
-                description: String,
-                border: Color = Color.Gray,
-                borderWidth: androidx.compose.ui.unit.Dp = 1.dp
+    Card(modifier = modifier) {
+        Column(modifier = Modifier.padding(12.dp)) {
+            // Header with expand/collapse button
+            Row(
+                modifier = Modifier.fillMaxWidth().clickable { isExpanded = !isExpanded },
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(
-                        modifier = Modifier
-                            .size(32.dp, 28.dp)
-                            .clip(HexagonShape())
-                            .background(color)
-                            .border(borderWidth, border, HexagonShape()),
-                        contentAlignment = Alignment.Center
-                    ) {
+                Text("Legend", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Text(if (isExpanded) "▼" else "▶", style = MaterialTheme.typography.titleMedium)
+            }
+
+            if (isExpanded) {
+                LazyColumn(
+                    modifier = Modifier.fillMaxWidth().heightIn(max = 400.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    item {
+                        Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            label,
+                            "Areas:",
                             style = MaterialTheme.typography.labelMedium,
-                            fontSize = 14.sp,
-                            color = if (color.luminance() > 0.5f) Color.Black else Color.White,
                             fontWeight = FontWeight.Bold
                         )
                     }
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(description, style = MaterialTheme.typography.bodySmall)
-                }
-            }
 
-            // Extension function to calculate color luminance
-            private fun Color.luminance(): Float {
-                return (0.299f * red + 0.587f * green + 0.114f * blue)
-            }
-
-            @Composable
-            fun EnemyListPanel(gameState: GameState, modifier: Modifier = Modifier) {
-                // Expand by default during initial building phase, collapsed otherwise
-                // This state is remembered per GameState instance (each level has its own GameState)
-                // so it will auto-expand when a new level is loaded
-                var isExpanded by remember { mutableStateOf(gameState.phase.value == GamePhase.INITIAL_BUILDING) }
-
-                // LazyListState to control scrolling
-                val listState = rememberLazyListState()
-
-                // Scroll to top when turn changes
-                val currentTurn = gameState.turnNumber.value
-                LaunchedEffect(currentTurn) {
-                    if (isExpanded && currentTurn > 0) {
-                        listState.animateScrollToItem(0)
+                    item {
+                        LegendItemHex(
+                            color = Color(0xFF8BC34A),
+                            label = "⬡",
+                            description = "Build Island",
+                            border = Color.Gray
+                        )
                     }
-                }
+                    item {
+                        LegendItemHex(
+                            color = Color(0xFFA5D6A7),
+                            label = "⬡",
+                            description = "Build Strip",
+                            border = Color.Gray
+                        )
+                    }
+                    item {
+                        LegendItemHex(
+                            color = Color(0xFFFFF8DC),
+                            label = "⬡",
+                            description = "Enemy Path",
+                            border = Color.Gray
+                        )
+                    }
+                    item {
+                        LegendItemHex(
+                            color = Color(0xFFE0E0E0),
+                            label = "⬡",
+                            description = "Non-Playable",
+                            border = Color.Gray
+                        )
+                    }
 
-                // Compute values directly - parent GamePlayScreen's key() will trigger recomposition
-                val activeEnemies = gameState.attackers.filter { !it.isDefeated.value }.sortedBy { it.id }
-
-                // Calculate how many enemies have spawned from the spawn plan
-                // nextAttackerId starts at 1, so (nextAttackerId - 1) gives us the count of spawned enemies
-                val totalSpawned = gameState.nextAttackerId.value - 1
-
-                // Get the remaining planned spawns (those that haven't spawned yet)
-                val plannedSpawns = gameState.spawnPlan.drop(totalSpawned)//.take(15)
-
-                Card(modifier = modifier) {
-                    Column(modifier = Modifier.padding(12.dp)) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth().clickable { isExpanded = !isExpanded },
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text("Enemies", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                            Text(if (isExpanded) "▼" else "▶", fontSize = 16.sp)
-                        }
+                    item {
+                        Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            "Active: ${activeEnemies.size} | Planned: ${plannedSpawns.size}",
+                            "Special:",
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+
+                    item {
+                        LegendItemHex(
+                            color = Color(0xFFFFF8DC),
+                            label = "Spawn",
+                            description = "Spawn (3 points)",
+                            border = Color(0xFFFF9800),
+                            borderWidth = 3.dp
+                        )
+                    }
+                    item {
+                        LegendItemHex(
+                            color = Color(0xFFFFF8DC),
+                            label = "Target",
+                            description = "Target (Defend!)",
+                            border = Color(0xFF4CAF50),
+                            borderWidth = 3.dp
+                        )
+                    }
+
+                    item {
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            "Units:",
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+
+                    item {
+                        LegendItemHex(
+                            color = Color(0xFF2196F3),
+                            label = "⬡",
+                            description = "Tower (Ready)",
+                            border = Color(0xFF2196F3),
+                            borderWidth = 3.dp
+                        )
+                    }
+                    item {
+                        LegendItemHex(
+                            color = Color(0xFF9E9E9E),
+                            label = "⬡",
+                            description = "Tower (Building)",
+                            border = Color(0xFF9E9E9E),
+                            borderWidth = 3.dp
+                        )
+                    }
+                    item {
+                        LegendItemHex(
+                            color = Color(0xFF7986CB),
+                            label = "⬡",
+                            description = "Tower (No Actions)",
+                            border = Color(0xFF2196F3),
+                            borderWidth = 3.dp
+                        )
+                    }
+                    item {
+                        LegendItemHex(
+                            color = Color(0xFFF44336),
+                            label = "⬡",
+                            description = "Enemy Unit",
+                            border = Color(0xFFF44336),
+                            borderWidth = 3.dp
+                        )
+                    }
+
+                    item {
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            "Info:",
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+
+                    item {
+                        Text(
+                            "• Ballista: min range 3",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color(0xFFFF6F00)
+                        )
+                    }
+                    item {
+                        Text("• Icons show tower/enemy type", style = MaterialTheme.typography.bodySmall)
+                    }
+                    item {
+                        Text(
+                            "• Level & actions shown on towers",
                             style = MaterialTheme.typography.bodySmall
                         )
-
-                        if (isExpanded) {
-                            Spacer(modifier = Modifier.height(8.dp))
-
-                            LazyColumn(
-                                state = listState,
-                                modifier = Modifier.fillMaxWidth().heightIn(max = 500.dp)
-                            ) {
-                                // Active enemies on the map
-                                if (activeEnemies.isNotEmpty()) {
-                                    item(key = "header-active") {
-                                        Text(
-                                            "On Map:",
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            fontWeight = FontWeight.Bold,
-                                            color = Color(0xFFD32F2F)
-                                        )
-                                        Spacer(modifier = Modifier.height(4.dp))
-                                    }
-                                }
-                                items(
-                                    items = activeEnemies,
-                                    key = { attacker -> "active-${attacker.id}" }
-                                ) { attacker ->
-                                    // Key by id, position and health to force recomposition when enemy moves or takes damage
-                                    key(
-                                        attacker.id,
-                                        attacker.position.value.x,
-                                        attacker.position.value.y,
-                                        attacker.currentHealth.value
-                                    ) {
-                                        EnemyItemDetailed(attacker, showPosition = true)
-                                    }
-                                    Spacer(modifier = Modifier.height(4.dp))
-                                }
-
-                                // Planned enemy spawns (show what's left to spawn with turn information)
-                                if (plannedSpawns.isNotEmpty()) {
-                                    item(key = "header-planned") {
-                                        if (activeEnemies.isNotEmpty()) {
-                                            Spacer(modifier = Modifier.height(8.dp))
-                                        }
-                                        Text(
-                                            "Planned Spawns:",
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            fontWeight = FontWeight.Bold,
-                                            color = Color(0xFFFF9800)
-                                        )
-                                        Spacer(modifier = Modifier.height(4.dp))
-                                    }
-                                    itemsIndexed(
-                                        items = plannedSpawns,
-                                        key = { index, _ -> "planned-$index" }
-                                    ) { index, plannedSpawn ->
-                                        PlannedEnemyItem(plannedSpawn, gameState.turnNumber.value)
-                                        Spacer(modifier = Modifier.height(4.dp))
-                                    }
-                                }
-                            }
-                        }
+                    }
+                    item {
+                        Text("• Health shown on enemies", style = MaterialTheme.typography.bodySmall)
                     }
                 }
             }
+        }
+    }
+}
 
-            @Composable
-            fun EnemyItemDetailed(attacker: Attacker, showPosition: Boolean) {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = Color(0xFFFFEBEE)
-                    )
-                ) {
-                    Row(
-                        modifier = Modifier.padding(6.dp).fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        // Enemy icon (small version)
-                        Box(
-                            modifier = Modifier.size(32.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            EnemyIcon(attacker = attacker, modifier = Modifier.size(28.dp))
-                        }
+@Composable
+fun LegendItemHex(
+    color: Color,
+    label: String,
+    description: String,
+    border: Color = Color.Gray,
+    borderWidth: androidx.compose.ui.unit.Dp = 1.dp
+) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Box(
+            modifier = Modifier
+                .size(32.dp, 28.dp)
+                .clip(HexagonShape())
+                .background(color)
+                .border(borderWidth, border, HexagonShape()),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                label,
+                style = MaterialTheme.typography.labelMedium,
+                fontSize = 14.sp,
+                color = if (color.luminance() > 0.5f) Color.Black else Color.White,
+                fontWeight = FontWeight.Bold
+            )
+        }
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(description, style = MaterialTheme.typography.bodySmall)
+    }
+}
 
-                        Spacer(modifier = Modifier.width(6.dp))
+// Extension function to calculate color luminance
+private fun Color.luminance(): Float {
+    return (0.299f * red + 0.587f * green + 0.114f * blue)
+}
 
-                        // Enemy details
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                attacker.type.displayName,
-                                style = MaterialTheme.typography.bodySmall,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Row(
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                Text(
-                                    "HP: ${attacker.currentHealth.value}/${attacker.maxHealth}",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    fontSize = 10.sp
-                                )
-                                if (showPosition) {
-                                    Text(
-                                        "Pos: (${attacker.position.value.x},${attacker.position.value.y})",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        fontSize = 10.sp,
-                                        color = Color(0xFF1976D2)
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
+@Composable
+fun EnemyListPanel(gameState: GameState, modifier: Modifier = Modifier) {
+    // Expand by default during initial building phase, collapsed otherwise
+    // This state is remembered per GameState instance (each level has its own GameState)
+    // so it will auto-expand when a new level is loaded
+    var isExpanded by remember { mutableStateOf(gameState.phase.value == GamePhase.INITIAL_BUILDING) }
+
+    // LazyListState to control scrolling
+    val listState = rememberLazyListState()
+
+    // Scroll to top when turn changes
+    val currentTurn = gameState.turnNumber.value
+    LaunchedEffect(currentTurn) {
+        if (isExpanded && currentTurn > 0) {
+            listState.animateScrollToItem(0)
+        }
+    }
+
+    // Compute values directly - parent GamePlayScreen's key() will trigger recomposition
+    val activeEnemies = gameState.attackers.filter { !it.isDefeated.value }.sortedBy { it.id }
+
+    // Calculate how many enemies have spawned from the spawn plan
+    // nextAttackerId starts at 1, so (nextAttackerId - 1) gives us the count of spawned enemies
+    val totalSpawned = gameState.nextAttackerId.value - 1
+
+    // Get the remaining planned spawns (those that haven't spawned yet)
+    val plannedSpawns = gameState.spawnPlan.drop(totalSpawned)//.take(15)
+
+    Card(modifier = modifier) {
+        Column(modifier = Modifier.padding(12.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth().clickable { isExpanded = !isExpanded },
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text("Enemies", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Text(if (isExpanded) "▼" else "▶", fontSize = 16.sp)
             }
+            Text(
+                "Active: ${activeEnemies.size} | Planned: ${plannedSpawns.size}",
+                style = MaterialTheme.typography.bodySmall
+            )
 
-            @Composable
-            fun UpcomingEnemyItem(attackerType: AttackerType) {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = Color(0xFFFFF3E0)
-                    )
+            if (isExpanded) {
+                Spacer(modifier = Modifier.height(8.dp))
+
+                LazyColumn(
+                    state = listState,
+                    modifier = Modifier.fillMaxWidth().heightIn(max = 500.dp)
                 ) {
-                    Row(
-                        modifier = Modifier.padding(6.dp).fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        // Enemy type icon using graphical representation
-                        Box(
-                            modifier = Modifier.size(32.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            EnemyTypeIcon(attackerType = attackerType, modifier = Modifier.size(28.dp))
-                        }
-
-                        Spacer(modifier = Modifier.width(6.dp))
-
-                        // Enemy details
-                        Column(modifier = Modifier.weight(1f)) {
+                    // Active enemies on the map
+                    if (activeEnemies.isNotEmpty()) {
+                        item(key = "header-active") {
                             Text(
-                                attackerType.displayName,
-                                style = MaterialTheme.typography.bodySmall,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Text(
-                                "HP: ${attackerType.health}",
-                                style = MaterialTheme.typography.bodySmall,
-                                fontSize = 10.sp
-                            )
-                        }
-                    }
-                }
-            }
-
-            @Composable
-            fun PlannedEnemyItem(plannedSpawn: PlannedEnemySpawn, currentTurn: Int) {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = Color(0xFFFFF3E0)
-                    )
-                ) {
-                    Row(
-                        modifier = Modifier.padding(6.dp).fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        // Enemy type icon using graphical representation
-                        Box(
-                            modifier = Modifier.size(32.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            EnemyTypeIcon(attackerType = plannedSpawn.attackerType, modifier = Modifier.size(28.dp))
-                        }
-
-                        Spacer(modifier = Modifier.width(6.dp))
-
-                        // Enemy details
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                plannedSpawn.attackerType.displayName,
-                                style = MaterialTheme.typography.bodySmall,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Text(
-                                "HP: ${plannedSpawn.attackerType.health}",
-                                style = MaterialTheme.typography.bodySmall,
-                                fontSize = 10.sp
-                            )
-                        }
-
-                        // Spawn turn
-                        Column(horizontalAlignment = Alignment.End) {
-                            Text(
-                                "Turn ${plannedSpawn.spawnTurn}",
-                                style = MaterialTheme.typography.bodySmall,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 11.sp,
-                                color = if (plannedSpawn.spawnTurn == currentTurn + 1) Color(0xFFFF5722) else Color(
-                                    0xFFFF9800
-                                )
-                            )
-                            if (plannedSpawn.spawnTurn > currentTurn) {
-                                Text(
-                                    "in ${plannedSpawn.spawnTurn - currentTurn} turns",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    fontSize = 9.sp,
-                                    color = Color.Gray
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-
-            @Composable
-            fun EnemyItem(attacker: Attacker) {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFFFFEBEE))
-                ) {
-                    Column(modifier = Modifier.padding(8.dp)) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text(
-                                attacker.type.displayName,
+                                "On Map:",
                                 style = MaterialTheme.typography.bodyMedium,
-                                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFFD32F2F)
                             )
-                            Text(
-                                "ID: ${attacker.id}",
-                                style = MaterialTheme.typography.bodySmall
-                            )
+                            Spacer(modifier = Modifier.height(4.dp))
                         }
+                    }
+                    items(
+                        items = activeEnemies,
+                        key = { attacker -> "active-${attacker.id}" }
+                    ) { attacker ->
+                        // Key by id, position and health to force recomposition when enemy moves or takes damage
+                        key(
+                            attacker.id,
+                            attacker.position.value.x,
+                            attacker.position.value.y,
+                            attacker.currentHealth.value
+                        ) {
+                            EnemyItemDetailed(attacker, showPosition = true)
+                        }
+                        Spacer(modifier = Modifier.height(4.dp))
+                    }
 
-                        Text(
-                            "HP: ${attacker.currentHealth.value}/${attacker.maxHealth}",
-                            style = MaterialTheme.typography.bodySmall
-                        )
+                    // Planned enemy spawns (show what's left to spawn with turn information)
+                    if (plannedSpawns.isNotEmpty()) {
+                        item(key = "header-planned") {
+                            if (activeEnemies.isNotEmpty()) {
+                                Spacer(modifier = Modifier.height(8.dp))
+                            }
+                            Text(
+                                "Planned Spawns:",
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFFFF9800)
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                        }
+                        itemsIndexed(
+                            items = plannedSpawns,
+                            key = { index, _ -> "planned-$index" }
+                        ) { index, plannedSpawn ->
+                            PlannedEnemyItem(plannedSpawn, gameState.turnNumber.value)
+                            Spacer(modifier = Modifier.height(4.dp))
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
 
+@Composable
+fun EnemyItemDetailed(attacker: Attacker, showPosition: Boolean) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = Color(0xFFFFEBEE)
+        )
+    ) {
+        Row(
+            modifier = Modifier.padding(6.dp).fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Enemy icon (small version)
+            Box(
+                modifier = Modifier.size(32.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                EnemyIcon(attacker = attacker, modifier = Modifier.size(28.dp))
+            }
+
+            Spacer(modifier = Modifier.width(6.dp))
+
+            // Enemy details
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    attacker.type.displayName,
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight = FontWeight.Bold
+                )
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        "HP: ${attacker.currentHealth.value}/${attacker.maxHealth}",
+                        style = MaterialTheme.typography.bodySmall,
+                        fontSize = 10.sp
+                    )
+                    if (showPosition) {
                         Text(
-                            "Reward: ${attacker.type.reward} coins",
+                            "Pos: (${attacker.position.value.x},${attacker.position.value.y})",
                             style = MaterialTheme.typography.bodySmall,
-                            color = Color(0xFFFF9800)
-                        )
-
-                        Text(
-                            "Position: (${attacker.position.value.x}, ${attacker.position.value.y})",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = Color.Gray
+                            fontSize = 10.sp,
+                            color = Color(0xFF1976D2)
                         )
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun UpcomingEnemyItem(attackerType: AttackerType) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = Color(0xFFFFF3E0)
+        )
+    ) {
+        Row(
+            modifier = Modifier.padding(6.dp).fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Enemy type icon using graphical representation
+            Box(
+                modifier = Modifier.size(32.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                EnemyTypeIcon(attackerType = attackerType, modifier = Modifier.size(28.dp))
+            }
+
+            Spacer(modifier = Modifier.width(6.dp))
+
+            // Enemy details
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    attackerType.displayName,
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    "HP: ${attackerType.health}",
+                    style = MaterialTheme.typography.bodySmall,
+                    fontSize = 10.sp
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun PlannedEnemyItem(plannedSpawn: PlannedEnemySpawn, currentTurn: Int) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = Color(0xFFFFF3E0)
+        )
+    ) {
+        Row(
+            modifier = Modifier.padding(6.dp).fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Enemy type icon using graphical representation
+            Box(
+                modifier = Modifier.size(32.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                EnemyTypeIcon(attackerType = plannedSpawn.attackerType, modifier = Modifier.size(28.dp))
+            }
+
+            Spacer(modifier = Modifier.width(6.dp))
+
+            // Enemy details
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    plannedSpawn.attackerType.displayName,
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    "HP: ${plannedSpawn.attackerType.health}",
+                    style = MaterialTheme.typography.bodySmall,
+                    fontSize = 10.sp
+                )
+            }
+
+            // Spawn turn
+            Column(horizontalAlignment = Alignment.End) {
+                Text(
+                    "Turn ${plannedSpawn.spawnTurn}",
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 11.sp,
+                    color = if (plannedSpawn.spawnTurn == currentTurn + 1) Color(0xFFFF5722) else Color(
+                        0xFFFF9800
+                    )
+                )
+                if (plannedSpawn.spawnTurn > currentTurn) {
+                    Text(
+                        "in ${plannedSpawn.spawnTurn - currentTurn} turns",
+                        style = MaterialTheme.typography.bodySmall,
+                        fontSize = 9.sp,
+                        color = Color.Gray
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun EnemyItem(attacker: Attacker) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFFFEBEE))
+    ) {
+        Column(modifier = Modifier.padding(8.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    attacker.type.displayName,
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                )
+                Text(
+                    "ID: ${attacker.id}",
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+
+            Text(
+                "HP: ${attacker.currentHealth.value}/${attacker.maxHealth}",
+                style = MaterialTheme.typography.bodySmall
+            )
+
+            Text(
+                "Reward: ${attacker.type.reward} coins",
+                style = MaterialTheme.typography.bodySmall,
+                color = Color(0xFFFF9800)
+            )
+
+            Text(
+                "Position: (${attacker.position.value.x}, ${attacker.position.value.y})",
+                style = MaterialTheme.typography.bodySmall,
+                color = Color.Gray
+            )
+        }
+    }
+}
 

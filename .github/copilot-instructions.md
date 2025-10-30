@@ -117,7 +117,8 @@ Add to `LevelData.createLevels()` with:
 
 ### Cheat Codes (for testing)
 **In-Game** (click coins display):
-- `moneybags`, `1000coins`, `cash`: Add 1000 coins
+- `cash`: Add 1000 coins
+- `mmmoney`: Add 1000000 coins
 - `spawn <type> <level>`: Spawn enemy
   - Valid types: `goblin`, `ork`, `ogre`, `skeleton`, `wizard` (maps to EVIL_WIZARD), `witch`
   - Level is optional (scales enemy health)
