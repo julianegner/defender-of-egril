@@ -125,6 +125,14 @@ class GameViewModel {
         }
         return result
     }
+    
+    fun performMineDig(mineId: Int): DigOutcome? {
+        return gameEngine?.performMineDig(mineId)
+    }
+    
+    fun performMineBuildTrap(mineId: Int, trapPosition: Position): Boolean {
+        return gameEngine?.performMineBuildTrap(mineId, trapPosition) ?: false
+    }
 
     fun endPlayerTurn() {
         val state = _gameState.value ?: return
@@ -218,9 +226,17 @@ class GameViewModel {
         
         // Handle simple one-word cheatcodes
         when (lowercaseCode) {
-            "moneybags", "1000coins", "cash" -> {
+            "cash" -> {
                 gameEngine?.addCoins(1000)
                 return true
+            }
+            "mmmoney" -> {
+                gameEngine?.addCoins(1000000)
+                return true
+            }
+            "dragon" -> {
+                // Spawn a dragon from a dwarven mine (simulating dig outcome)
+                return gameEngine?.spawnDragonCheat() ?: false
             }
         }
         
