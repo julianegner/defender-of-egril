@@ -391,13 +391,20 @@ private fun GamePlayScreenContent(
                         return@GameGrid
                     }
 
+                    val previousSelectedDefenderId = selectedDefenderId
                     // Check if there's a defender at this position
                     val defender = gameState.defenders.find { it.position == position }
                     if (defender != null) {
-                        selectedDefenderId = defender.id
-                        selectedTargetId = null
-                        selectedTargetPosition = null
-                        return@GameGrid
+                        if (previousSelectedDefenderId == defender.id) {
+                            // Deselect if clicking the same defender
+                            selectedDefenderId = null
+                        } else {
+                            // Select this defender
+                            selectedDefenderId = defender.id
+                            selectedTargetId = null
+                            selectedTargetPosition = null
+                            return@GameGrid
+                        }
                     }
 
                     // Handle targeting for selected defender
@@ -417,7 +424,7 @@ private fun GamePlayScreenContent(
                                 return@GameGrid
                             }
 
-                            // For AOE/DOT towers, allow targeting path tiles
+                            // For AREA/LASTING (fireball and acid) attacks, allow targeting path tiles
                             if (selectedDefender.type.attackType == AttackType.AREA ||
                                 selectedDefender.type.attackType == AttackType.LASTING
                             ) {
