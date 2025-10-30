@@ -704,7 +704,10 @@ fun GameGrid(
         ) {
             for (y in 0 until gameState.level.gridHeight) {
                 Row(
-                    modifier = Modifier.offset(x = if (y % 2 == 1) (hexWidth * 0.42f).dp else 0.dp),
+                    modifier = Modifier.offset(
+                        x = if (y % 2 == 1) (hexWidth * 0.42f).dp else 0.dp,
+                        y = (-(y-1)).dp
+                        ),
                     horizontalArrangement = Arrangement.spacedBy((-10).dp)
                 ) {
                     for (x in 0 until gameState.level.gridWidth) {
@@ -717,10 +720,6 @@ fun GameGrid(
                                 gameState.defenders.find { it.position == position }?.id == selId
                             } ?: false,
                             isTargetSelected = gameState.attackers.find { it.position.value == position }?.id == selectedTargetId,
-                            /* TODO from main
-                            isDefenderSelected = gameState.defenders.find { it.position == position }?.id == selectedDefenderId,
-                            isTargetSelected = gameState.attackers.find { it.position == position }?.id == selectedTargetId || position == selectedTargetPosition,
-                             */
                             selectedDefenderId = selectedDefenderId,
                             selectedMineAction = selectedMineAction,
                             onClick = { onCellClick(position) },
