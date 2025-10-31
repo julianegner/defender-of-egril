@@ -25,7 +25,8 @@ data class EditorMap(
     val name: String = "",
     val width: Int,
     val height: Int,
-    val tiles: Map<String, TileType>  // "x,y" -> TileType
+    val tiles: Map<String, TileType>,  // "x,y" -> TileType
+    val readyToUse: Boolean = false  // True if map has valid path from spawn to target
 ) {
     fun getTileType(x: Int, y: Int): TileType {
         return tiles["$x,$y"] ?: TileType.NO_PLAY
@@ -73,6 +74,59 @@ data class EditorMap(
                 Position(parts[0].toInt(), parts[1].toInt())
             }
             .toSet()
+    }
+    
+    /**
+     * Validates if map is ready to use:
+     * - Has at least one spawn point
+     * - Has at least one target
+     * - Has a continuous path from spawn to target
+     */
+    fun validateReadyToUse(): Boolean {
+        val spawnPoints = getSpawnPoints()
+        val target = getTarget()
+        val pathCells = getPathCells()
+        
+        if (spawnPoints.isEmpty()) return false
+        if (target == null) return false
+        if (pathCells.isEmpty()) return false
+        
+        // Check if there's a path from any spawn point to target using BFS
+        return spawnPoints.any { spawn ->
+            hasPathBFS(spawn, target, pathCells)
+        }
+    }
+    
+    private fun hasPathBFS(start: Position, end: Position, validCells: Set<Position>): Boolean {
+        if (start == end) return true
+        
+        val queue = mutableListOf(start)
+        val visited = mutableSetOf(start)
+        
+        while (queue.isNotEmpty()) {
+            val current = queue.removeAt(0)
+            
+            // Check neighbors (using hex neighbors)
+            val neighbors = listOf(
+                Position(current.x + 1, current.y),
+                Position(current.x - 1, current.y),
+                Position(current.x, current.y + 1),
+                Position(current.x, current.y - 1),
+                Position(current.x + if (current.y % 2 == 0) -1 else 1, current.y + 1),
+                Position(current.x + if (current.y % 2 == 0) -1 else 1, current.y - 1)
+            )
+            
+            for (neighbor in neighbors) {
+                if (neighbor == end) return true
+                
+                if (neighbor !in visited && (neighbor in validCells || neighbor == end)) {
+                    visited.add(neighbor)
+                    queue.add(neighbor)
+                }
+            }
+        }
+        
+        return false
     }
 }
 
