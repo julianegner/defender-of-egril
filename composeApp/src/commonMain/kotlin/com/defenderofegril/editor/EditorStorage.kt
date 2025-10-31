@@ -60,8 +60,10 @@ object EditorStorage {
         if (json != null) {
             val map = EditorJsonSerializer.deserializeMap(json)
             if (map != null) {
-                mapsCache[id] = map
-                return map
+                // Always recalculate readyToUse when loading from file
+                val validatedMap = map.copy(readyToUse = map.validateReadyToUse())
+                mapsCache[id] = validatedMap
+                return validatedMap
             }
         }
         
