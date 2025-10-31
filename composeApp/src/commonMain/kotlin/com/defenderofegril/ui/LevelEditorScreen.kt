@@ -51,74 +51,96 @@ fun LevelEditorScreen(
 ) {
     var currentTab by remember { mutableStateOf(EditorTab.LEVEL_EDITOR) }
     
-    Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp)
+    Box(
+        modifier = Modifier.fillMaxSize()
     ) {
-        // Title and Back button row
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+        // Content area (below header)
+        Column(
+            modifier = Modifier.fillMaxSize().padding(16.dp)
         ) {
-            Text(
-                text = "Level Editor",
-                style = MaterialTheme.typography.titleLarge
-            )
+            // Spacer for header
+            Spacer(modifier = Modifier.height(140.dp))
             
-            Button(onClick = onBack) {
-                Text("← Back to World Map")
+            // Content based on selected tab
+            when (currentTab) {
+                EditorTab.MAP_EDITOR -> MapEditorContent()
+                EditorTab.LEVEL_EDITOR -> LevelEditorContent()
+                EditorTab.LEVEL_SEQUENCE -> LevelSequenceContent()
             }
         }
         
-        // Tab buttons
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        // Main header (on top with elevated z-index)
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .zIndex(1f)
+                .padding(16.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
         ) {
-            Button(
-                onClick = { currentTab = EditorTab.MAP_EDITOR },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = if (currentTab == EditorTab.MAP_EDITOR) 
-                        MaterialTheme.colorScheme.primary 
-                    else 
-                        MaterialTheme.colorScheme.secondary
-                )
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.surface)
+                    .padding(12.dp)
             ) {
-                Text("Map Editor")
+                // Title and Back button row
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Level Editor",
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                    
+                    Button(onClick = onBack) {
+                        Text("← Back to World Map")
+                    }
+                }
+                
+                // Tab buttons
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Button(
+                        onClick = { currentTab = EditorTab.MAP_EDITOR },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (currentTab == EditorTab.MAP_EDITOR) 
+                                MaterialTheme.colorScheme.primary 
+                            else 
+                                MaterialTheme.colorScheme.secondary
+                        )
+                    ) {
+                        Text("Map Editor")
+                    }
+                    
+                    Button(
+                        onClick = { currentTab = EditorTab.LEVEL_EDITOR },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (currentTab == EditorTab.LEVEL_EDITOR) 
+                                MaterialTheme.colorScheme.primary 
+                            else 
+                                MaterialTheme.colorScheme.secondary
+                        )
+                    ) {
+                        Text("Level Editor")
+                    }
+                    
+                    Button(
+                        onClick = { currentTab = EditorTab.LEVEL_SEQUENCE },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (currentTab == EditorTab.LEVEL_SEQUENCE) 
+                                MaterialTheme.colorScheme.primary 
+                            else 
+                                MaterialTheme.colorScheme.secondary
+                        )
+                    ) {
+                        Text("Level Sequence")
+                    }
+                }
             }
-            
-            Button(
-                onClick = { currentTab = EditorTab.LEVEL_EDITOR },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = if (currentTab == EditorTab.LEVEL_EDITOR) 
-                        MaterialTheme.colorScheme.primary 
-                    else 
-                        MaterialTheme.colorScheme.secondary
-                )
-            ) {
-                Text("Level Editor")
-            }
-            
-            Button(
-                onClick = { currentTab = EditorTab.LEVEL_SEQUENCE },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = if (currentTab == EditorTab.LEVEL_SEQUENCE) 
-                        MaterialTheme.colorScheme.primary 
-                    else 
-                        MaterialTheme.colorScheme.secondary
-                )
-            ) {
-                Text("Level Sequence")
-            }
-        }
-        
-        Spacer(modifier = Modifier.height(16.dp))
-        
-        // Content based on selected tab
-        when (currentTab) {
-            EditorTab.MAP_EDITOR -> MapEditorContent()
-            EditorTab.LEVEL_EDITOR -> LevelEditorContent()
-            EditorTab.LEVEL_SEQUENCE -> LevelSequenceContent()
         }
     }
 }
