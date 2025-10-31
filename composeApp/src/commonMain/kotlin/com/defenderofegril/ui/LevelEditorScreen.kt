@@ -7,10 +7,14 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -19,6 +23,7 @@ import com.defenderofegril.editor.EditorMap
 import com.defenderofegril.editor.TileType
 import com.defenderofegril.model.AttackerType
 import com.defenderofegril.model.DefenderType
+import kotlin.math.sqrt
 
 enum class EditorTab {
     MAP_EDITOR,
@@ -219,6 +224,13 @@ fun MapEditorView(
     var selectedTileType by remember { mutableStateOf(TileType.PATH) }
     var mapName by remember { mutableStateOf(map.name) }
     
+    // Hexagon dimensions - using same constants as game
+    val hexSize = 32.dp  // Radius of hexagon (center to corner)
+    val sqrt3 = sqrt(3.0).toFloat()
+    val hexWidth = hexSize.value * sqrt3  // Width of hexagon (flat-to-flat)
+    val hexHeight = hexSize.value * 2f    // Height of hexagon (point-to-point)
+    val verticalSpacing = hexHeight * 0.75f  // For pointy-top hexagons
+    
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -257,39 +269,54 @@ fun MapEditorView(
             }
         }
         
-        // Grid view
+        // Hexagonal grid view
         Text(
-            text = "Click tiles to paint (${map.width}x${map.height}):",
+            text = "Click hexagons to paint (${map.width}x${map.height}):",
             style = MaterialTheme.typography.bodySmall,
             modifier = Modifier.padding(bottom = 4.dp)
         )
         
-        LazyColumn(
-            modifier = Modifier.weight(1f).fillMaxWidth()
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+                .horizontalScroll(rememberScrollState())
+                .verticalScroll(rememberScrollState())
+                .padding(8.dp)
         ) {
-            items(map.height) { y ->
-                Row(
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    repeat(map.width) { x ->
-                        val key = "$x,$y"
-                        val currentType = tiles[key] ?: TileType.NO_PLAY
-                        
-                        Box(
-                            modifier = Modifier
-                                .size(32.dp)
-                                .border(0.5.dp, Color.Gray)
-                                .background(getTileColor(currentType))
-                                .clickable {
-                                    tiles[key] = selectedTileType
-                                },
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = getTileSymbol(currentType),
-                                fontSize = 12.sp,
-                                color = Color.White
-                            )
+            Column(
+                verticalArrangement = Arrangement.spacedBy((-hexHeight + verticalSpacing - 7f).dp)
+            ) {
+                for (y in 0 until map.height) {
+                    Row(
+                        modifier = Modifier.offset(
+                            x = if (y % 2 == 1) (hexWidth * 0.42f).dp else 0.dp,
+                            y = (-(y-1)).dp
+                        ),
+                        horizontalArrangement = Arrangement.spacedBy((-10).dp)
+                    ) {
+                        for (x in 0 until map.width) {
+                            val key = "$x,$y"
+                            val currentType = tiles[key] ?: TileType.NO_PLAY
+                            
+                            Box(
+                                modifier = Modifier
+                                    .width((hexWidth).dp)
+                                    .height((hexHeight).dp)
+                                    .clip(HexagonShape())
+                                    .background(getTileColor(currentType))
+                                    .border(1.5.dp, Color.Black, HexagonShape())
+                                    .clickable {
+                                        tiles[key] = selectedTileType
+                                    },
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = getTileSymbol(currentType),
+                                    fontSize = 16.sp,
+                                    color = Color.White
+                                )
+                            }
                         }
                     }
                 }
@@ -323,6 +350,7 @@ fun MapEditorView(
         }
     }
 }
+
 
 @Composable
 fun TileTypeButton(
