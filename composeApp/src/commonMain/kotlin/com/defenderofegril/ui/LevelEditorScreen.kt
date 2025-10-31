@@ -27,6 +27,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import com.defenderofegril.editor.EditorStorage
 import com.defenderofegril.editor.EditorMap
 import com.defenderofegril.editor.TileType
@@ -296,190 +297,214 @@ fun MapEditorView(
     val hexHeight = hexSize.value * 2f    // Height of hexagon (point-to-point)
     val verticalSpacing = hexHeight * 0.75f  // For pointy-top hexagons
     
-    Column(
+    Box(
         modifier = Modifier.fillMaxSize()
     ) {
-        // Header
-        Text(
-            text = "Editing: ${map.name.ifEmpty { map.id }}",
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-        
-        // Map name input
-        OutlinedTextField(
-            value = mapName,
-            onValueChange = { mapName = it },
-            label = { Text("Map Name") },
-            modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
-        )
-        
-        // Tile type selector
-        Text(
-            text = "Select Tile Type:",
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.padding(bottom = 4.dp)
-        )
-        
-        LazyRow(
-            modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
+        // Map grid layer (below header)
+        Column(
+            modifier = Modifier.fillMaxSize()
         ) {
-            // All tile types are selectable
-            items(TileType.values().toList()) { tileType ->
-                TileTypeButton(
-                    tileType = tileType,
-                    selected = selectedTileType == tileType,
-                    onClick = { selectedTileType = tileType }
-                )
-            }
-        }
-        
-        // Zoom controls
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "Click hexagons to paint (${map.width}x${map.height}). Use Ctrl+Scroll to zoom:",
-                style = MaterialTheme.typography.bodySmall
-            )
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Button(
-                    onClick = { zoomLevel = maxOf(0.5f, zoomLevel - 0.1f) },
-                    modifier = Modifier.height(32.dp)
-                ) {
-                    Text("🔍-", fontSize = 12.sp)
-                }
-                Text(
-                    text = "${(zoomLevel * 100).toInt()}%",
-                    fontSize = 12.sp,
-                    modifier = Modifier.padding(horizontal = 4.dp)
-                )
-                Button(
-                    onClick = { zoomLevel = minOf(3.0f, zoomLevel + 0.1f) },
-                    modifier = Modifier.height(32.dp)
-                ) {
-                    Text("🔍+", fontSize = 12.sp)
-                }
-            }
-        }
-        
-        var containerSize by remember { mutableStateOf(IntSize.Zero) }
-        
-        Box(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth()
-                .padding(8.dp)
-                .onSizeChanged { containerSize = it }
-                .mouseWheelZoom(
-                    containerSize = containerSize,
-                    scale = zoomLevel,
-                    offsetX = offsetX,
-                    offsetY = offsetY,
-                    onScaleChange = { newScale -> zoomLevel = newScale },
-                    onOffsetChange = { newX, newY -> 
-                        offsetX = newX
-                        offsetY = newY
-                    }
-                )
-                .pointerInput(Unit) {
-                    detectTransformGestures { _, pan, zoom, _ ->
-                        // Apply pan
-                        offsetX += pan.x
-                        offsetY += pan.y
-                        
-                        // Apply zoom (for pinch gestures on mobile)
-                        if (zoom != 1f) {
-                            zoomLevel = (zoomLevel * zoom).coerceIn(0.5f, 3f)
+            // Spacer to account for header height
+            Spacer(modifier = Modifier.height(280.dp))
+            
+            var containerSize by remember { mutableStateOf(IntSize.Zero) }
+            
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .padding(8.dp)
+                    .onSizeChanged { containerSize = it }
+                    .mouseWheelZoom(
+                        containerSize = containerSize,
+                        scale = zoomLevel,
+                        offsetX = offsetX,
+                        offsetY = offsetY,
+                        onScaleChange = { newScale -> zoomLevel = newScale },
+                        onOffsetChange = { newX, newY -> 
+                            offsetX = newX
+                            offsetY = newY
+                        }
+                    )
+                    .pointerInput(Unit) {
+                        detectTransformGestures { _, pan, zoom, _ ->
+                            // Apply pan
+                            offsetX += pan.x
+                            offsetY += pan.y
+                            
+                            // Apply zoom (for pinch gestures on mobile)
+                            if (zoom != 1f) {
+                                zoomLevel = (zoomLevel * zoom).coerceIn(0.5f, 3f)
+                            }
                         }
                     }
-                }
-        ) {
-            Column(
-                modifier = Modifier.graphicsLayer(
-                    scaleX = zoomLevel,
-                    scaleY = zoomLevel,
-                    translationX = offsetX,
-                    translationY = offsetY
-                ),
-                verticalArrangement = Arrangement.spacedBy((-hexHeight + verticalSpacing - 7f).dp)
             ) {
-                for (y in 0 until map.height) {
-                    Row(
-                        modifier = Modifier.offset(
-                            x = if (y % 2 == 1) (hexWidth * 0.42f).dp else 0.dp,
-                            y = (-(y-1)).dp
-                        ),
-                        horizontalArrangement = Arrangement.spacedBy((-10).dp)
-                    ) {
-                        for (x in 0 until map.width) {
-                            val key = "$x,$y"
-                            val tileType = tiles[key] ?: TileType.NO_PLAY
-                            
-                            Box(
-                                modifier = Modifier
-                                    .width((hexWidth).dp)
-                                    .height((hexHeight).dp)
-                                    .clip(HexagonShape())
-                                    .background(getTileColor(tileType))
-                                    .border(1.5.dp, Color.Black, HexagonShape())
-                                    .clickable {
-                                        tiles = tiles.toMutableMap().apply {
-                                            this[key] = selectedTileType
-                                        }
-                                    },
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = getTileSymbol(tileType),
-                                    fontSize = 16.sp,
-                                    color = Color.White
-                                )
+                Column(
+                    modifier = Modifier.graphicsLayer(
+                        scaleX = zoomLevel,
+                        scaleY = zoomLevel,
+                        translationX = offsetX,
+                        translationY = offsetY
+                    ),
+                    verticalArrangement = Arrangement.spacedBy((-hexHeight + verticalSpacing - 7f).dp)
+                ) {
+                    for (y in 0 until map.height) {
+                        Row(
+                            modifier = Modifier.offset(
+                                x = if (y % 2 == 1) (hexWidth * 0.42f).dp else 0.dp,
+                                y = (-(y-1)).dp
+                            ),
+                            horizontalArrangement = Arrangement.spacedBy((-10).dp)
+                        ) {
+                            for (x in 0 until map.width) {
+                                val key = "$x,$y"
+                                val tileType = tiles[key] ?: TileType.NO_PLAY
+                                
+                                Box(
+                                    modifier = Modifier
+                                        .width((hexWidth).dp)
+                                        .height((hexHeight).dp)
+                                        .clip(HexagonShape())
+                                        .background(getTileColor(tileType))
+                                        .border(1.5.dp, Color.Black, HexagonShape())
+                                        .clickable {
+                                            tiles = tiles.toMutableMap().apply {
+                                                this[key] = selectedTileType
+                                            }
+                                        },
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = getTileSymbol(tileType),
+                                        fontSize = 16.sp,
+                                        color = Color.White
+                                    )
+                                }
                             }
                         }
                     }
                 }
             }
+            
+            // Action buttons
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Button(
+                    onClick = {
+                        val updatedMap = map.copy(
+                            name = mapName,
+                            tiles = tiles.toMap()
+                        )
+                        // Validate and set readyToUse flag
+                        val validatedMap = updatedMap.copy(readyToUse = updatedMap.validateReadyToUse())
+                        onSave(validatedMap)
+                    },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("Save Map")
+                }
+                
+                Button(
+                    onClick = { showSaveAsDialog = true },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("Save As New")
+                }
+                
+                Button(
+                    onClick = onCancel,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("Cancel")
+                }
+            }
         }
         
-        // Action buttons
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        // Header overlay (on top with elevated z-index)
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .zIndex(1f)
+                .padding(8.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
         ) {
-            Button(
-                onClick = {
-                    val updatedMap = map.copy(
-                        name = mapName,
-                        tiles = tiles.toMap()
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.surface)
+                    .padding(12.dp)
+            ) {
+                // Header
+                Text(
+                    text = "Editing: ${map.name.ifEmpty { map.id }}",
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+                
+                // Map name input
+                OutlinedTextField(
+                    value = mapName,
+                    onValueChange = { mapName = it },
+                    label = { Text("Map Name") },
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
+                )
+                
+                // Tile type selector
+                Text(
+                    text = "Select Tile Type:",
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(bottom = 4.dp)
+                )
+                
+                LazyRow(
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    // All tile types are selectable
+                    items(TileType.values().toList()) { tileType ->
+                        TileTypeButton(
+                            tileType = tileType,
+                            selected = selectedTileType == tileType,
+                            onClick = { selectedTileType = tileType }
+                        )
+                    }
+                }
+                
+                // Zoom controls
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Click hexagons to paint (${map.width}x${map.height}). Use Ctrl+Scroll to zoom:",
+                        style = MaterialTheme.typography.bodySmall
                     )
-                    // Validate and set readyToUse flag
-                    val validatedMap = updatedMap.copy(readyToUse = updatedMap.validateReadyToUse())
-                    onSave(validatedMap)
-                },
-                modifier = Modifier.weight(1f)
-            ) {
-                Text("Save Map")
-            }
-            
-            Button(
-                onClick = { showSaveAsDialog = true },
-                modifier = Modifier.weight(1f)
-            ) {
-                Text("Save As New")
-            }
-            
-            Button(
-                onClick = onCancel,
-                modifier = Modifier.weight(1f)
-            ) {
-                Text("Cancel")
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Button(
+                            onClick = { zoomLevel = maxOf(0.5f, zoomLevel - 0.1f) },
+                            modifier = Modifier.height(32.dp)
+                        ) {
+                            Text("🔍-", fontSize = 12.sp)
+                        }
+                        Text(
+                            text = "${(zoomLevel * 100).toInt()}%",
+                            fontSize = 12.sp,
+                            modifier = Modifier.padding(horizontal = 4.dp)
+                        )
+                        Button(
+                            onClick = { zoomLevel = minOf(3.0f, zoomLevel + 0.1f) },
+                            modifier = Modifier.height(32.dp)
+                        ) {
+                            Text("🔍+", fontSize = 12.sp)
+                        }
+                    }
+                }
             }
         }
     }
