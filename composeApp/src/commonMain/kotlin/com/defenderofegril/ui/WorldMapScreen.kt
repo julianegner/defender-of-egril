@@ -36,6 +36,7 @@ fun WorldMapScreen(
     onBackToMenu: () -> Unit,
     onShowRules: () -> Unit,
     onOpenEditor: () -> Unit,
+    onLoadGame: () -> Unit,
     onCheatCode: ((String) -> Boolean)? = null  // Callback for processing cheat codes, returns true if code was valid
 ) {
     var showCheatDialog by remember { mutableStateOf(false) }
@@ -91,6 +92,10 @@ fun WorldMapScreen(
         Row(
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            Button(onClick = onLoadGame) {
+                Text("Load Game")
+            }
+            
             Button(onClick = onShowRules) {
                 Text("Rules")
             }
