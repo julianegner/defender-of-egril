@@ -303,16 +303,22 @@ fun LevelCard(
 
 @Composable
 fun LevelMinimap(level: Level) {
-    // Get the editor level to find the map ID
-    val sequence = EditorStorage.getLevelSequence()
-    val editorLevelId = if (level.id > 0 && level.id <= sequence.sequence.size) {
-        sequence.sequence[level.id - 1]
-    } else {
-        null
+    // Cache the editor data to avoid redundant lookups on recomposition
+    val sequence = remember { EditorStorage.getLevelSequence() }
+    val editorLevelId = remember(level.id) {
+        if (level.id > 0 && level.id <= sequence.sequence.size) {
+            sequence.sequence[level.id - 1]
+        } else {
+            null
+        }
     }
     
-    val editorLevel = editorLevelId?.let { EditorStorage.getLevel(it) }
-    val map = editorLevel?.let { EditorStorage.getMap(it.mapId) }
+    val editorLevel = remember(editorLevelId) { 
+        editorLevelId?.let { EditorStorage.getLevel(it) }
+    }
+    val map = remember(editorLevel?.mapId) { 
+        editorLevel?.let { EditorStorage.getMap(it.mapId) }
+    }
     
     if (map == null) {
         // Fallback display if map is not found
