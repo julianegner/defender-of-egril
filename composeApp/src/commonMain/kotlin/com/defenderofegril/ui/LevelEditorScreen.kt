@@ -4,6 +4,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -14,11 +15,16 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.defenderofegril.editor.EditorStorage
@@ -246,7 +252,13 @@ fun MapEditorContent() {
         CreateMapDialog(
             onDismiss = { showCreateDialog = false },
             onCreate = { name, width, height ->
-                val newId = "map_custom_${kotlin.random.Random.nextInt(10000, 99999)}"
+                // Generate ID from name with underscores
+                val sanitizedName = name.trim().replace(" ", "_").replace(Regex("[^a-zA-Z0-9_]"), "")
+                val newId = if (sanitizedName.isNotEmpty()) {
+                    "map_$sanitizedName"
+                } else {
+                    "map_custom_${kotlin.random.Random.nextInt(10000, 99999)}"
+                }
                 val newMap = EditorMap(
                     id = newId,
                     name = name,
@@ -274,6 +286,8 @@ fun MapEditorView(
     var mapName by remember { mutableStateOf(map.name) }
     var showSaveAsDialog by remember { mutableStateOf(false) }
     var zoomLevel by remember { mutableStateOf(1.0f) }
+    var offsetX by remember { mutableStateOf(0f) }
+    var offsetY by remember { mutableStateOf(0f) }
     
     // Hexagon dimensions - using same constants as game
     val hexSize = 32.dp * zoomLevel  // Radius of hexagon with zoom applied
@@ -328,7 +342,7 @@ fun MapEditorView(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Click hexagons to paint (${map.width}x${map.height}):",
+                text = "Click hexagons to paint (${map.width}x${map.height}). Use Ctrl+Scroll to zoom:",
                 style = MaterialTheme.typography.bodySmall
             )
             Row(
@@ -336,7 +350,7 @@ fun MapEditorView(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Button(
-                    onClick = { zoomLevel = maxOf(0.5f, zoomLevel - 0.25f) },
+                    onClick = { zoomLevel = maxOf(0.5f, zoomLevel - 0.1f) },
                     modifier = Modifier.height(32.dp)
                 ) {
                     Text("🔍-", fontSize = 12.sp)
@@ -347,7 +361,7 @@ fun MapEditorView(
                     modifier = Modifier.padding(horizontal = 4.dp)
                 )
                 Button(
-                    onClick = { zoomLevel = minOf(3.0f, zoomLevel + 0.25f) },
+                    onClick = { zoomLevel = minOf(3.0f, zoomLevel + 0.1f) },
                     modifier = Modifier.height(32.dp)
                 ) {
                     Text("🔍+", fontSize = 12.sp)
@@ -355,15 +369,45 @@ fun MapEditorView(
             }
         }
         
+        var containerSize by remember { mutableStateOf(IntSize.Zero) }
+        
         Box(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth()
-                .horizontalScroll(rememberScrollState())
-                .verticalScroll(rememberScrollState())
                 .padding(8.dp)
+                .onSizeChanged { containerSize = it }
+                .mouseWheelZoom(
+                    containerSize = containerSize,
+                    scale = zoomLevel,
+                    offsetX = offsetX,
+                    offsetY = offsetY,
+                    onScaleChange = { newScale -> zoomLevel = newScale },
+                    onOffsetChange = { newX, newY -> 
+                        offsetX = newX
+                        offsetY = newY
+                    }
+                )
+                .pointerInput(Unit) {
+                    detectTransformGestures { _, pan, zoom, _ ->
+                        // Apply pan
+                        offsetX += pan.x
+                        offsetY += pan.y
+                        
+                        // Apply zoom (for pinch gestures on mobile)
+                        if (zoom != 1f) {
+                            zoomLevel = (zoomLevel * zoom).coerceIn(0.5f, 3f)
+                        }
+                    }
+                }
         ) {
             Column(
+                modifier = Modifier.graphicsLayer(
+                    scaleX = zoomLevel,
+                    scaleY = zoomLevel,
+                    translationX = offsetX,
+                    translationY = offsetY
+                ),
                 verticalArrangement = Arrangement.spacedBy((-hexHeight + verticalSpacing - 7f).dp)
             ) {
                 for (y in 0 until map.height) {
@@ -445,8 +489,13 @@ fun MapEditorView(
             currentName = mapName,
             onDismiss = { showSaveAsDialog = false },
             onSave = { newName ->
-                // Save as new map with different ID
-                val newId = "map_copy_${kotlin.random.Random.nextInt(10000, 99999)}"
+                // Save as new map with ID based on name
+                val sanitizedName = newName.trim().replace(" ", "_").replace(Regex("[^a-zA-Z0-9_]"), "")
+                val newId = if (sanitizedName.isNotEmpty()) {
+                    "map_$sanitizedName"
+                } else {
+                    "map_copy_${kotlin.random.Random.nextInt(10000, 99999)}"
+                }
                 val newMap = map.copy(
                     id = newId,
                     name = newName,
@@ -677,7 +726,13 @@ fun LevelEditorContent() {
         CreateLevelDialog(
             onDismiss = { showCreateDialog = false },
             onCreate = { title ->
-                val newId = "level_custom_${kotlin.random.Random.nextInt(10000, 99999)}"
+                // Generate ID from title with underscores
+                val sanitizedTitle = title.trim().replace(" ", "_").replace(Regex("[^a-zA-Z0-9_]"), "")
+                val newId = if (sanitizedTitle.isNotEmpty()) {
+                    "level_$sanitizedTitle"
+                } else {
+                    "level_custom_${kotlin.random.Random.nextInt(10000, 99999)}"
+                }
                 // Get first ready-to-use map
                 val firstReadyMap = EditorStorage.getAllMaps().filter { it.readyToUse }.firstOrNull()
                 val newLevel = com.defenderofegril.editor.EditorLevel(
@@ -978,7 +1033,13 @@ fun LevelEditorView(
             currentTitle = title,
             onDismiss = { showSaveAsDialog = false },
             onSave = { newTitle ->
-                val newId = "level_copy_${kotlin.random.Random.nextInt(10000, 99999)}"
+                // Generate ID from title with underscores
+                val sanitizedTitle = newTitle.trim().replace(" ", "_").replace(Regex("[^a-zA-Z0-9_]"), "")
+                val newId = if (sanitizedTitle.isNotEmpty()) {
+                    "level_$sanitizedTitle"
+                } else {
+                    "level_copy_${kotlin.random.Random.nextInt(10000, 99999)}"
+                }
                 val newLevel = level.copy(
                     id = newId,
                     title = newTitle,
@@ -1432,9 +1493,14 @@ fun SpawnTurnSection(
                     }
                     Button(
                         onClick = onCopyTurn,
-                        modifier = Modifier.height(32.dp)
+                        modifier = Modifier.height(32.dp),
+                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp)
                     ) {
-                        Text("Copy Turn", fontSize = 12.sp)
+                        Text(
+                            text = "Copy Turn", 
+                            fontSize = 12.sp,
+                            modifier = Modifier.align(Alignment.CenterVertically)
+                        )
                     }
                 }
             }
@@ -1486,9 +1552,16 @@ fun SpawnTurnSection(
                             
                             Button(
                                 onClick = { onRemoveEnemy(spawn) },
-                                modifier = Modifier.height(28.dp)
+                                modifier = Modifier.height(36.dp),
+                                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp)
                             ) {
-                                Text("🗑️ Remove", fontSize = 11.sp)
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                ) {
+                                    Text("🗑️", fontSize = 12.sp)
+                                    Text("Remove", fontSize = 11.sp)
+                                }
                             }
                         }
                     }
