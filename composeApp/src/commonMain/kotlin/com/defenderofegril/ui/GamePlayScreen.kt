@@ -2500,13 +2500,27 @@ fun PlannedEnemyItem(plannedSpawn: PlannedEnemySpawn, currentTurn: Int) {
 
             // Enemy details
             Column(modifier = Modifier.weight(1f)) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Text(
+                        plannedSpawn.attackerType.displayName,
+                        style = MaterialTheme.typography.bodySmall,
+                        fontWeight = FontWeight.Bold
+                    )
+                    if (plannedSpawn.level > 1) {
+                        Text(
+                            "Lv${plannedSpawn.level}",
+                            style = MaterialTheme.typography.bodySmall,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFFD32F2F)
+                        )
+                    }
+                }
                 Text(
-                    plannedSpawn.attackerType.displayName,
-                    style = MaterialTheme.typography.bodySmall,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    "HP: ${plannedSpawn.attackerType.health}",
+                    "HP: ${plannedSpawn.healthPoints}",
                     style = MaterialTheme.typography.bodySmall,
                     fontSize = 10.sp
                 )
