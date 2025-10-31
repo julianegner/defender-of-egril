@@ -21,9 +21,9 @@ import com.defenderofegril.editor.EditorStorage
 import com.defenderofegril.editor.TileType
 import com.defenderofegril.model.Level
 import com.defenderofegril.model.LevelStatus
-import com.defenderofegril.model.Position
 import com.defenderofegril.model.WorldLevel
 import com.defenderofegril.model.getEnemyTypeCounts
+import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
@@ -365,7 +365,7 @@ fun LevelMinimap(level: Level) {
                 // Draw hexagon
                 val path = Path().apply {
                     for (i in 0 until 6) {
-                        val angle = kotlin.math.PI * (60.0 * i - 30.0) / 180.0
+                        val angle = PI * (60.0 * i - 30.0) / 180.0
                         val x = centerX + (hexSize * cos(angle)).toFloat()
                         val y = centerY + (hexSize * sin(angle)).toFloat()
                         if (i == 0) moveTo(x, y) else lineTo(x, y)
