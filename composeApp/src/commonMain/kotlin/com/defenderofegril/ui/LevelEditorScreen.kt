@@ -556,12 +556,7 @@ fun LevelEditorContent() {
             ) {
                 items(levels.value) { level ->
                     Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { 
-                                selectedLevelId = level.id
-                                editingLevel = level
-                            },
+                        modifier = Modifier.fillMaxWidth(),
                         colors = CardDefaults.cardColors(
                             containerColor = if (selectedLevelId == level.id) 
                                 MaterialTheme.colorScheme.primaryContainer 
@@ -569,27 +564,53 @@ fun LevelEditorContent() {
                                 MaterialTheme.colorScheme.surfaceVariant
                         )
                     ) {
-                        Column(
-                            modifier = Modifier.padding(12.dp)
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(
-                                text = level.title,
-                                style = MaterialTheme.typography.titleSmall
-                            )
-                            if (level.subtitle.isNotEmpty()) {
+                            Column(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .clickable { 
+                                        selectedLevelId = level.id
+                                        editingLevel = level
+                                    }
+                                    .padding(12.dp)
+                            ) {
                                 Text(
-                                    text = level.subtitle,
+                                    text = level.title,
+                                    style = MaterialTheme.typography.titleSmall
+                                )
+                                if (level.subtitle.isNotEmpty()) {
+                                    Text(
+                                        text = level.subtitle,
+                                        style = MaterialTheme.typography.bodySmall
+                                    )
+                                }
+                                Text(
+                                    text = "Map: ${level.mapId} | Coins: ${level.startCoins} | HP: ${level.startHealthPoints}",
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                                Text(
+                                    text = "Enemies: ${level.enemySpawns.size}",
                                     style = MaterialTheme.typography.bodySmall
                                 )
                             }
-                            Text(
-                                text = "Map: ${level.mapId} | Coins: ${level.startCoins} | HP: ${level.startHealthPoints}",
-                                style = MaterialTheme.typography.bodySmall
-                            )
-                            Text(
-                                text = "Enemies: ${level.enemySpawns.size}",
-                                style = MaterialTheme.typography.bodySmall
-                            )
+                            Button(
+                                onClick = {
+                                    EditorStorage.deleteLevel(level.id)
+                                    levels.value = EditorStorage.getAllLevels()
+                                    if (selectedLevelId == level.id) {
+                                        selectedLevelId = null
+                                    }
+                                },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.error
+                                ),
+                                modifier = Modifier.padding(end = 8.dp)
+                            ) {
+                                Text("Delete")
+                            }
                         }
                     }
                 }
@@ -602,9 +623,11 @@ fun LevelEditorContent() {
             onDismiss = { showCreateDialog = false },
             onCreate = { title ->
                 val newId = "level_custom_${kotlin.random.Random.nextInt(10000, 99999)}"
+                // Get first ready-to-use map
+                val firstReadyMap = EditorStorage.getAllMaps().filter { it.readyToUse }.firstOrNull()
                 val newLevel = com.defenderofegril.editor.EditorLevel(
                     id = newId,
-                    mapId = EditorStorage.getAllMaps().firstOrNull()?.id ?: "map_30x8",
+                    mapId = firstReadyMap?.id ?: "map_30x8",
                     title = title,
                     subtitle = "",
                     startCoins = 100,
@@ -638,7 +661,11 @@ fun LevelEditorView(
     var availableTowers by remember { mutableStateOf(level.availableTowers.toMutableSet()) }
     var showEnemyDialog by remember { mutableStateOf(false) }
     
-    val maps = remember { EditorStorage.getAllMaps() }
+    // Get only ready-to-use maps for selection
+    val maps = remember { EditorStorage.getAllMaps().filter { it.readyToUse } }
+    
+    // Check if Ewhad is already in spawn list
+    val ewhadCount = enemySpawns.count { it.attackerType == com.defenderofegril.model.AttackerType.EWHAD }
     
     Column(
         modifier = Modifier.fillMaxSize()
@@ -787,31 +814,56 @@ fun LevelEditorView(
         }
         
         // Save/Cancel buttons
-        Row(
+        Column(
             modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Button(
-                onClick = {
-                    val updatedLevel = level.copy(
-                        title = title,
-                        subtitle = subtitle,
-                        mapId = selectedMapId,
-                        startCoins = startCoins.toIntOrNull() ?: 100,
-                        startHealthPoints = startHP.toIntOrNull() ?: 10,
-                        enemySpawns = enemySpawns.toList(),
-                        availableTowers = availableTowers.toSet()
-                    )
-                    onSave(updatedLevel)
-                },
-                modifier = Modifier.weight(1f)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Text("Save Level")
+                Button(
+                    onClick = {
+                        val updatedLevel = level.copy(
+                            title = title,
+                            subtitle = subtitle,
+                            mapId = selectedMapId,
+                            startCoins = startCoins.toIntOrNull() ?: 100,
+                            startHealthPoints = startHP.toIntOrNull() ?: 10,
+                            enemySpawns = enemySpawns.toList(),
+                            availableTowers = availableTowers.toSet()
+                        )
+                        onSave(updatedLevel)
+                    },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("Save Level")
+                }
+                
+                Button(
+                    onClick = {
+                        val newId = "level_copy_${kotlin.random.Random.nextInt(10000, 99999)}"
+                        val newLevel = level.copy(
+                            id = newId,
+                            title = if (title.endsWith("(Copy)")) title else "$title (Copy)",
+                            subtitle = subtitle,
+                            mapId = selectedMapId,
+                            startCoins = startCoins.toIntOrNull() ?: 100,
+                            startHealthPoints = startHP.toIntOrNull() ?: 10,
+                            enemySpawns = enemySpawns.toList(),
+                            availableTowers = availableTowers.toSet()
+                        )
+                        onSave(newLevel)
+                    },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("Save As New")
+                }
             }
             
             Button(
                 onClick = onCancel,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Cancel")
             }
@@ -833,12 +885,16 @@ fun LevelEditorView(
 
 @Composable
 fun AddEnemyDialog(
+    ewhadCount: Int = 0,
     onDismiss: () -> Unit,
     onAdd: (com.defenderofegril.model.AttackerType, Int, Int) -> Unit
 ) {
     var selectedType by remember { mutableStateOf(com.defenderofegril.model.AttackerType.GOBLIN) }
     var level by remember { mutableStateOf("1") }
     var turn by remember { mutableStateOf("1") }
+    
+    // Check if trying to add Ewhad when one already exists
+    val canAddEwhad = selectedType != com.defenderofegril.model.AttackerType.EWHAD || ewhadCount == 0
     
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -873,15 +929,23 @@ fun AddEnemyDialog(
                     value = turn,
                     onValueChange = { if (it.all { c -> c.isDigit() }) turn = it },
                     label = { Text("Spawn Turn") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
                 )
+                if (!canAddEwhad) {
+                    Text(
+                        text = "⚠️ Ewhad can only be spawned once per level!",
+                        color = MaterialTheme.colorScheme.error,
+                        fontSize = 12.sp
+                    )
+                }
             }
         },
         confirmButton = {
             Button(
                 onClick = {
                     onAdd(selectedType, level.toIntOrNull() ?: 1, turn.toIntOrNull() ?: 1)
-                }
+                },
+                enabled = canAddEwhad
             ) {
                 Text("Add")
             }
