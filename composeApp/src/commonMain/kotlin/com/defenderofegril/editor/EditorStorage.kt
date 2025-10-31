@@ -107,6 +107,12 @@ object EditorStorage {
         }
     }
     
+    fun reloadLevel(id: String): EditorLevel? {
+        // Force reload from file, bypassing cache
+        levelsCache.remove(id)
+        return getLevel(id)
+    }
+    
     fun getLevel(id: String): EditorLevel? {
         // Check cache first
         if (levelsCache.containsKey(id)) {
