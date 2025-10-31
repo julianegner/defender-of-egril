@@ -1,5 +1,6 @@
 package com.defenderofegril.ui
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -16,6 +17,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.defenderofegril.editor.EditorStorage
@@ -25,6 +28,8 @@ import com.defenderofegril.model.AttackerType
 import com.defenderofegril.model.DefenderType
 import com.defenderofegril.model.Position
 import com.defenderofegril.model.getHexNeighbors
+import kotlin.math.cos
+import kotlin.math.sin
 import kotlin.math.sqrt
 
 enum class EditorTab {
@@ -1249,7 +1254,7 @@ fun MapMiniPreview(map: EditorMap) {
         for (row in 0 until map.height) {
             for (col in 0 until map.width) {
                 val pos = Position(col, row)
-                val tileType = map.tiles.getOrElse(pos) { TileType.NO_PLAY }
+                val tileType = map.tiles.getOrElse("$col,$row") { TileType.NO_PLAY }
                 
                 // Calculate hex center position
                 val offsetX = if (row % 2 == 1) hexWidth / 2 else 0.0
