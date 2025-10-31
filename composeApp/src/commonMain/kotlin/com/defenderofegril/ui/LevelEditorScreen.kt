@@ -42,12 +42,21 @@ fun LevelEditorScreen(
     Column(
         modifier = Modifier.fillMaxSize().padding(16.dp)
     ) {
-        // Title
-        Text(
-            text = "Level Editor",
-            style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
+        // Title and Back button row
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Level Editor",
+                style = MaterialTheme.typography.titleLarge
+            )
+            
+            Button(onClick = onBack) {
+                Text("← Back to World Map")
+            }
+        }
         
         // Tab buttons
         Row(
@@ -98,13 +107,6 @@ fun LevelEditorScreen(
             EditorTab.MAP_EDITOR -> MapEditorContent()
             EditorTab.LEVEL_EDITOR -> LevelEditorContent()
             EditorTab.LEVEL_SEQUENCE -> LevelSequenceContent()
-        }
-        
-        Spacer(modifier = Modifier.height(16.dp))
-        
-        // Back button
-        Button(onClick = onBack) {
-            Text("Back to World Map")
         }
     }
 }
@@ -173,21 +175,56 @@ fun MapEditorContent() {
                                 MaterialTheme.colorScheme.surfaceVariant
                         )
                     ) {
-                        Column(
-                            modifier = Modifier.padding(12.dp)
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(12.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(
-                                text = map.name.ifEmpty { "Map ${map.id}" },
-                                style = MaterialTheme.typography.titleSmall
-                            )
-                            Text(
-                                text = "Size: ${map.width}x${map.height}",
-                                style = MaterialTheme.typography.bodySmall
-                            )
-                            Text(
-                                text = "Tiles: ${map.tiles.size}",
-                                style = MaterialTheme.typography.bodySmall
-                            )
+                            Column(modifier = Modifier.weight(1f)) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    Text(
+                                        text = map.name.ifEmpty { "Map ${map.id}" },
+                                        style = MaterialTheme.typography.titleSmall
+                                    )
+                                    if (map.readyToUse) {
+                                        Text(
+                                            text = "✓",
+                                            color = Color.Green,
+                                            style = MaterialTheme.typography.titleSmall
+                                        )
+                                    } else {
+                                        Text(
+                                            text = "✗",
+                                            color = Color.Red,
+                                            style = MaterialTheme.typography.titleSmall
+                                        )
+                                    }
+                                }
+                                Text(
+                                    text = "Size: ${map.width}x${map.height}",
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                                Text(
+                                    text = if (map.readyToUse) "Ready to use" else "Not ready",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = if (map.readyToUse) Color.Green else Color.Red
+                                )
+                            }
+                            
+                            Button(
+                                onClick = {
+                                    EditorStorage.deleteMap(map.id)
+                                    maps.value = EditorStorage.getAllMaps()
+                                },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.error
+                                )
+                            ) {
+                                Text("Delete")
+                            }
                         }
                     }
                 }
@@ -337,11 +374,31 @@ fun MapEditorView(
                         name = mapName,
                         tiles = tiles.toMap()
                     )
-                    onSave(updatedMap)
+                    // Validate and set readyToUse flag
+                    val validatedMap = updatedMap.copy(readyToUse = updatedMap.validateReadyToUse())
+                    onSave(validatedMap)
                 },
                 modifier = Modifier.weight(1f)
             ) {
                 Text("Save Map")
+            }
+            
+            Button(
+                onClick = {
+                    // Save as new map with different ID
+                    val newId = "map_copy_${kotlin.random.Random.nextInt(10000, 99999)}"
+                    val newMap = map.copy(
+                        id = newId,
+                        name = "$mapName (Copy)",
+                        tiles = tiles.toMap()
+                    )
+                    // Validate and set readyToUse flag
+                    val validatedMap = newMap.copy(readyToUse = newMap.validateReadyToUse())
+                    onSave(validatedMap)
+                },
+                modifier = Modifier.weight(1f)
+            ) {
+                Text("Save As New")
             }
             
             Button(
