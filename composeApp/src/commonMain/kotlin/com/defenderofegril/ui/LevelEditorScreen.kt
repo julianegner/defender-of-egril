@@ -276,7 +276,7 @@ fun MapEditorView(
     var zoomLevel by remember { mutableStateOf(1.0f) }
     
     // Hexagon dimensions - using same constants as game
-    val hexSize = (32.dp.value * zoomLevel).dp  // Radius of hexagon (center to corner) with zoom
+    val hexSize = 32.dp * zoomLevel  // Radius of hexagon with zoom applied
     val sqrt3 = sqrt(3.0).toFloat()
     val hexWidth = hexSize.value * sqrt3  // Width of hexagon (flat-to-flat)
     val hexHeight = hexSize.value * 2f    // Height of hexagon (point-to-point)
@@ -857,31 +857,25 @@ fun LevelEditorView(
                         onMoveTurnUp = {
                             if (turnIndex > 0) {
                                 val prevTurn = turns[turnIndex - 1]
-                                enemySpawns = enemySpawns.toMutableList().apply {
-                                    // Swap turn numbers
-                                    forEachIndexed { idx, spawn ->
-                                        if (spawn.spawnTurn == turn) {
-                                            this[idx] = spawn.copy(spawnTurn = prevTurn)
-                                        } else if (spawn.spawnTurn == prevTurn) {
-                                            this[idx] = spawn.copy(spawnTurn = turn)
-                                        }
+                                enemySpawns = enemySpawns.map { spawn ->
+                                    when (spawn.spawnTurn) {
+                                        turn -> spawn.copy(spawnTurn = prevTurn)
+                                        prevTurn -> spawn.copy(spawnTurn = turn)
+                                        else -> spawn
                                     }
-                                }
+                                }.toMutableList()
                             }
                         },
                         onMoveTurnDown = {
                             if (turnIndex < turns.size - 1) {
                                 val nextTurn = turns[turnIndex + 1]
-                                enemySpawns = enemySpawns.toMutableList().apply {
-                                    // Swap turn numbers
-                                    forEachIndexed { idx, spawn ->
-                                        if (spawn.spawnTurn == turn) {
-                                            this[idx] = spawn.copy(spawnTurn = nextTurn)
-                                        } else if (spawn.spawnTurn == nextTurn) {
-                                            this[idx] = spawn.copy(spawnTurn = turn)
-                                        }
+                                enemySpawns = enemySpawns.map { spawn ->
+                                    when (spawn.spawnTurn) {
+                                        turn -> spawn.copy(spawnTurn = nextTurn)
+                                        nextTurn -> spawn.copy(spawnTurn = turn)
+                                        else -> spawn
                                     }
-                                }
+                                }.toMutableList()
                             }
                         },
                         canMoveUp = turnIndex > 0,
