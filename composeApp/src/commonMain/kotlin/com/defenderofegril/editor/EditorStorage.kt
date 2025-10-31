@@ -128,39 +128,8 @@ object EditorStorage {
             }
         }
         
-        // If no valid sequence found, reinitialize
-        println("WARNING: No valid level sequence found, reinitializing default levels")
-        reinitializeDefaults()
-        
-        // Try loading again after reinitialization
-        val jsonAfterInit = fileStorage.readFile(SEQUENCE_FILE)
-        if (jsonAfterInit != null) {
-            val sequence = EditorJsonSerializer.deserializeSequence(jsonAfterInit)
-            if (sequence != null) {
-                levelSequenceCache = sequence
-                return sequence
-            }
-        }
-        
-        // Last resort: return empty sequence
+        // Return empty sequence if not found - let init handle creation
         return LevelSequence(emptyList())
-    }
-    
-    /**
-     * Force reinitialization of default maps and levels
-     */
-    private fun reinitializeDefaults() {
-        // Clear caches
-        mapsCache.clear()
-        levelsCache.clear()
-        levelSequenceCache = null
-        
-        // Create directories
-        fileStorage.createDirectory(MAPS_DIR)
-        fileStorage.createDirectory(LEVELS_DIR)
-        
-        // Reinitialize by calling the same initialization code
-        initializeDefaultMapsAndLevels()
     }
     
     fun updateLevelSequence(sequence: LevelSequence) {
