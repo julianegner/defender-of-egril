@@ -1,5 +1,6 @@
 package com.defenderofegril.ui
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -12,12 +13,20 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.defenderofegril.editor.EditorStorage
+import com.defenderofegril.editor.TileType
+import com.defenderofegril.model.Level
 import com.defenderofegril.model.LevelStatus
+import com.defenderofegril.model.Position
 import com.defenderofegril.model.WorldLevel
 import com.defenderofegril.model.getEnemyTypeCounts
+import kotlin.math.cos
+import kotlin.math.sin
+import kotlin.math.sqrt
 
 @Composable
 fun WorldMapScreen(
@@ -178,116 +187,187 @@ fun LevelCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(220.dp)
+            .height(240.dp)
             .clickable(enabled = worldLevel.status != LevelStatus.LOCKED, onClick = onClick),
         colors = CardDefaults.cardColors(containerColor = backgroundColor)
     ) {
-        Column(
+        Row(
             modifier = Modifier.fillMaxSize().padding(12.dp),
-            verticalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // Header row with level number and name
-            Column {
-                Text(
-                    text = "Level ${worldLevel.level.id}",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = Color.White,
-                    fontSize = 18.sp
-                )
+            // Left column: Level info, coins, health, and enemies
+            Column(
+                modifier = Modifier.weight(1f).fillMaxHeight(),
+                verticalArrangement = Arrangement.SpaceBetween
+            ) {
+                // Header: level number and name
+                Column {
+                    Text(
+                        text = "Level ${worldLevel.level.id}",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = Color.White,
+                        fontSize = 18.sp
+                    )
+                    
+                    Text(
+                        text = worldLevel.level.name,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.White,
+                        textAlign = TextAlign.Start,
+                        modifier = Modifier.fillMaxWidth(),
+                        fontSize = 14.sp
+                    )
+                    
+                    Spacer(modifier = Modifier.height(4.dp))
+                    
+                    // Coins and Health display
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "💰 ${worldLevel.level.initialCoins}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.White,
+                            fontSize = 12.sp
+                        )
+                        Text(
+                            text = "❤️ ${worldLevel.level.healthPoints}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.White,
+                            fontSize = 12.sp
+                        )
+                    }
+                }
                 
-                Text(
-                    text = worldLevel.level.name,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.White,
-                    textAlign = TextAlign.Start,
-                    modifier = Modifier.fillMaxWidth(),
-                    fontSize = 14.sp
-                )
-            }
-            
-            // Enemy units display in two columns
-            if (enemyList.isNotEmpty()) {
-                val halfSize = (enemyList.size + 1) / 2
-                val leftColumn = enemyList.take(halfSize)
-                val rightColumn = enemyList.drop(halfSize)
-                
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    // Left column
+                // Enemy units display
+                if (enemyList.isNotEmpty()) {
                     Column(
                         modifier = Modifier.weight(1f),
-                        verticalArrangement = Arrangement.spacedBy(6.dp)
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
-                        leftColumn.forEach { (attackerType, count) ->
+                        enemyList.forEach { (attackerType, count) ->
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.Start
                             ) {
-                                // Enemy icon - larger size
                                 Box(
-                                    modifier = Modifier.size(32.dp)
+                                    modifier = Modifier.size(24.dp)
                                 ) {
                                     EnemyTypeIcon(attackerType = attackerType)
                                 }
                                 
-                                Spacer(modifier = Modifier.width(6.dp))
+                                Spacer(modifier = Modifier.width(4.dp))
                                 
-                                // Enemy name and count - larger text
                                 Text(
                                     text = "${attackerType.displayName}: ${count}",
-                                    style = MaterialTheme.typography.bodyMedium,
+                                    style = MaterialTheme.typography.bodySmall,
                                     color = Color.White,
-                                    fontSize = 13.sp
+                                    fontSize = 11.sp
                                 )
-                            }
-                        }
-                    }
-                    
-                    // Right column (if there are items for it)
-                    if (rightColumn.isNotEmpty()) {
-                        Column(
-                            modifier = Modifier.weight(1f),
-                            verticalArrangement = Arrangement.spacedBy(6.dp)
-                        ) {
-                            rightColumn.forEach { (attackerType, count) ->
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.Start
-                                ) {
-                                    // Enemy icon - larger size
-                                    Box(
-                                        modifier = Modifier.size(32.dp)
-                                    ) {
-                                        EnemyTypeIcon(attackerType = attackerType)
-                                    }
-                                    
-                                    Spacer(modifier = Modifier.width(6.dp))
-                                    
-                                    // Enemy name and count - larger text
-                                    Text(
-                                        text = "${attackerType.displayName}: ${count}",
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = Color.White,
-                                        fontSize = 13.sp
-                                    )
-                                }
                             }
                         }
                     }
                 }
             }
             
-            // Status at the bottom
+            // Right column: Minimap and status
+            Column(
+                modifier = Modifier.width(120.dp).fillMaxHeight(),
+                verticalArrangement = Arrangement.SpaceBetween,
+                horizontalAlignment = Alignment.End
+            ) {
+                // Minimap preview
+                Box(
+                    modifier = Modifier
+                        .width(120.dp)
+                        .height(120.dp)
+                        .border(1.dp, Color.White.copy(alpha = 0.3f))
+                ) {
+                    LevelMinimap(worldLevel.level)
+                }
+                
+                // Status at the bottom
+                Text(
+                    text = statusText,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.White,
+                    textAlign = TextAlign.End,
+                    modifier = Modifier.fillMaxWidth(),
+                    fontSize = 13.sp
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun LevelMinimap(level: Level) {
+    // Get the editor level to find the map ID
+    val sequence = EditorStorage.getLevelSequence()
+    val editorLevelId = if (level.id > 0 && level.id <= sequence.sequence.size) {
+        sequence.sequence[level.id - 1]
+    } else {
+        null
+    }
+    
+    val editorLevel = editorLevelId?.let { EditorStorage.getLevel(it) }
+    val map = editorLevel?.let { EditorStorage.getMap(it.mapId) }
+    
+    if (map == null) {
+        // Fallback display if map is not found
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
             Text(
-                text = statusText,
-                style = MaterialTheme.typography.bodySmall,
-                color = Color.White,
-                textAlign = TextAlign.End,
-                modifier = Modifier.fillMaxWidth(),
-                fontSize = 13.sp
+                text = "Map Preview",
+                fontSize = 8.sp,
+                color = Color.White.copy(alpha = 0.5f)
             )
+        }
+        return
+    }
+    
+    // Render minimap similar to MapMiniPreview from LevelEditorScreen
+    val hexSize = 6.dp.value
+    val hexWidth = sqrt(3.0) * hexSize
+    val hexHeight = 2.0 * hexSize
+    val verticalSpacing = hexHeight * 0.75
+    
+    Canvas(modifier = Modifier.fillMaxSize()) {
+        for (row in 0 until map.height) {
+            for (col in 0 until map.width) {
+                val tileType = map.tiles.getOrElse("$col,$row") { TileType.NO_PLAY }
+                
+                // Calculate hex center position
+                val offsetX = if (row % 2 == 1) hexWidth / 2 else 0.0
+                val centerX = (col * hexWidth + offsetX + hexWidth / 2).toFloat()
+                val centerY = (row * verticalSpacing + hexHeight / 2).toFloat()
+                
+                // Get color for tile type
+                val color = when (tileType) {
+                    TileType.PATH -> Color(0xFF8B4513)
+                    TileType.BUILD_AREA -> Color(0xFF90EE90)
+                    TileType.ISLAND -> Color(0xFF228B22)
+                    TileType.SPAWN_POINT -> Color(0xFFDC143C)
+                    TileType.TARGET -> Color(0xFF4169E1)
+                    TileType.NO_PLAY -> Color(0xFF808080)
+                    TileType.WAYPOINT -> Color(0xFFFFD700)
+                }
+                
+                // Draw hexagon
+                val path = Path().apply {
+                    for (i in 0 until 6) {
+                        val angle = kotlin.math.PI * (60.0 * i - 30.0) / 180.0
+                        val x = centerX + (hexSize * cos(angle)).toFloat()
+                        val y = centerY + (hexSize * sin(angle)).toFloat()
+                        if (i == 0) moveTo(x, y) else lineTo(x, y)
+                    }
+                    close()
+                }
+                drawPath(path, color)
+            }
         }
     }
 }
@@ -299,7 +379,7 @@ fun EditorButtonCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(220.dp)
+            .height(240.dp)
             .clickable(onClick = onClick),
         colors = CardDefaults.cardColors(
             containerColor = Color(0xFFFF9800)  // Distinctive orange color
