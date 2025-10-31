@@ -40,6 +40,7 @@ data class EditorMap(
     }
     
     fun getTarget(): Position? {
+        println("Getting target from tiles: $tiles")
         return tiles.filter { it.value == TileType.TARGET }
             .map { 
                 val parts = it.key.split(",")
