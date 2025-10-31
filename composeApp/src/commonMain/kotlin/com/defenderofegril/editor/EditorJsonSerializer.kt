@@ -34,14 +34,16 @@ object EditorJsonSerializer {
             val height = extractValue(json, "height").toInt()
             
             val tiles = mutableMapOf<String, TileType>()
-            val tilesSection = json.substringAfter("\"tiles\": {").substringBefore("}")
-            val tileEntries = tilesSection.split(",").map { it.trim() }
-            
+            val tilesSection = json.substringAfter("\"tiles\": {")
+                .substringBefore("}")
+                .replace("\",","\";")
+            val tileEntries = tilesSection.split(";").map { it.trim() }
+
             for (entry in tileEntries) {
                 if (entry.isBlank()) continue
                 val parts = entry.split(":")
                 if (parts.size != 2) continue
-                
+
                 val pos = parts[0].trim().removeSurrounding("\"")
                 val typeStr = parts[1].trim().removeSurrounding("\"")
                 tiles[pos] = TileType.valueOf(typeStr)
