@@ -720,7 +720,7 @@ fun LevelEditorView(
                 )
             }
             
-            // Map selection
+            // Map selection with mini-maps
             item {
                 Text(
                     text = "Map:",
@@ -729,20 +729,14 @@ fun LevelEditorView(
                 )
                 
                 LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(maps) { map ->
-                        Button(
-                            onClick = { selectedMapId = map.id },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = if (selectedMapId == map.id) 
-                                    MaterialTheme.colorScheme.primary 
-                                else 
-                                    MaterialTheme.colorScheme.secondary
-                            )
-                        ) {
-                            Text("${map.name.ifEmpty { map.id }} (${map.width}x${map.height})")
-                        }
+                        MapSelectionCard(
+                            map = map,
+                            isSelected = selectedMapId == map.id,
+                            onClick = { selectedMapId = map.id }
+                        )
                     }
                 }
             }
@@ -785,26 +779,23 @@ fun LevelEditorView(
                 }
             }
             
-            items(enemySpawns.size) { index ->
-                val spawn = enemySpawns[index]
-                Card(
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Row(
-                        modifier = Modifier.padding(8.dp).fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column {
-                            Text("${spawn.attackerType.displayName} Lv${spawn.level}")
-                            Text("Turn ${spawn.spawnTurn} • HP: ${spawn.healthPoints}", fontSize = 12.sp)
+            // Group enemies by spawn turn
+            enemySpawns.groupBy { it.spawnTurn }.toSortedMap().forEach { (turn, spawnsInTurn) ->
+                item {
+                    SpawnTurnSection(
+                        turn = turn,
+                        spawns = spawnsInTurn,
+                        onRemoveEnemy = { spawn ->
+                            enemySpawns.remove(spawn)
+                        },
+                        onCopyTurn = {
+                            // Copy all enemies from this turn to a new turn (next available)
+                            val maxTurn = enemySpawns.maxOfOrNull { it.spawnTurn } ?: 0
+                            spawnsInTurn.forEach { spawn ->
+                                enemySpawns.add(spawn.copy(spawnTurn = maxTurn + 1))
+                            }
                         }
-                        Button(
-                            onClick = { enemySpawns.removeAt(index) }
-                        ) {
-                            Text("Remove")
-                        }
-                    }
+                    )
                 }
             }
             
@@ -820,7 +811,8 @@ fun LevelEditorView(
             items(com.defenderofegril.model.DefenderType.entries.filter { it != com.defenderofegril.model.DefenderType.DRAGONS_LAIR }) { tower ->
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Checkbox(
                         checked = availableTowers.contains(tower),
@@ -829,6 +821,9 @@ fun LevelEditorView(
                             else availableTowers.remove(tower)
                         }
                     )
+                    Box(modifier = Modifier.size(32.dp)) {
+                        TowerTypeIcon(defenderType = tower)
+                    }
                     Text("${tower.displayName} (Cost: ${tower.baseCost}, Damage: ${tower.baseDamage})")
                 }
             }
@@ -1175,4 +1170,217 @@ fun SaveAsLevelDialog(
             }
         }
     )
+}
+
+@Composable
+fun MapSelectionCard(
+    map: EditorMap,
+    isSelected: Boolean,
+    onClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .width(200.dp)
+            .clickable(onClick = onClick)
+            .border(
+                width = if (isSelected) 3.dp else 1.dp,
+                color = if (isSelected) MaterialTheme.colorScheme.primary else Color.Gray
+            ),
+        colors = CardDefaults.cardColors(
+            containerColor = if (isSelected) 
+                MaterialTheme.colorScheme.primaryContainer 
+            else 
+                MaterialTheme.colorScheme.surface
+        )
+    ) {
+        Column(
+            modifier = Modifier.padding(8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = map.name.ifEmpty { map.id },
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = "${map.width}x${map.height}",
+                style = MaterialTheme.typography.labelSmall,
+                fontSize = 10.sp
+            )
+            
+            // Mini-map preview
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(100.dp)
+                    .padding(4.dp)
+            ) {
+                MapMiniPreview(map)
+            }
+            
+            // Status indicator
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Text(
+                    text = if (map.readyToUse) "✓" else "✗",
+                    color = if (map.readyToUse) Color.Green else Color.Red,
+                    fontSize = 12.sp
+                )
+                Text(
+                    text = if (map.readyToUse) "Ready" else "Not ready",
+                    fontSize = 10.sp,
+                    color = if (map.readyToUse) Color.Green else Color.Red
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun MapMiniPreview(map: EditorMap) {
+    val hexSize = 8.dp.value
+    val hexWidth = sqrt(3.0) * hexSize
+    val hexHeight = 2.0 * hexSize
+    val verticalSpacing = hexHeight * 0.75
+    
+    Canvas(modifier = Modifier.fillMaxSize()) {
+        for (row in 0 until map.height) {
+            for (col in 0 until map.width) {
+                val pos = Position(col, row)
+                val tileType = map.tiles.getOrElse(pos) { TileType.NO_PLAY }
+                
+                // Calculate hex center position
+                val offsetX = if (row % 2 == 1) hexWidth / 2 else 0.0
+                val centerX = (col * hexWidth + offsetX + hexWidth / 2).toFloat()
+                val centerY = (row * verticalSpacing + hexHeight / 2).toFloat()
+                
+                // Get color for tile type
+                val color = when (tileType) {
+                    TileType.PATH -> Color(0xFF8B4513)
+                    TileType.BUILD_AREA -> Color(0xFF90EE90)
+                    TileType.ISLAND -> Color(0xFF228B22)
+                    TileType.SPAWN_POINT -> Color(0xFFDC143C)
+                    TileType.TARGET -> Color(0xFF4169E1)
+                    TileType.NO_PLAY -> Color(0xFF808080)
+                    TileType.WAYPOINT -> Color(0xFFFFD700)
+                }
+                
+                // Draw hexagon
+                val path = Path().apply {
+                    for (i in 0 until 6) {
+                        val angle = Math.toRadians(60.0 * i - 30.0)
+                        val x = centerX + (hexSize * cos(angle)).toFloat()
+                        val y = centerY + (hexSize * sin(angle)).toFloat()
+                        if (i == 0) moveTo(x, y) else lineTo(x, y)
+                    }
+                    close()
+                }
+                drawPath(path, color)
+            }
+        }
+    }
+}
+
+@Composable
+fun SpawnTurnSection(
+    turn: Int,
+    spawns: List<com.defenderofegril.editor.EditorEnemySpawn>,
+    onRemoveEnemy: (com.defenderofegril.editor.EditorEnemySpawn) -> Unit,
+    onCopyTurn: () -> Unit
+) {
+    var expanded by remember { mutableStateOf(true) }
+    
+    Card(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(
+            modifier = Modifier.padding(8.dp)
+        ) {
+            // Turn header
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { expanded = !expanded },
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = if (expanded) "▼" else "▶",
+                        fontSize = 12.sp
+                    )
+                    Text(
+                        text = "Turn $turn",
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = "(${spawns.size} enemies)",
+                        fontSize = 12.sp,
+                        color = Color.Gray
+                    )
+                }
+                
+                Button(
+                    onClick = onCopyTurn,
+                    modifier = Modifier.height(32.dp)
+                ) {
+                    Text("Copy Turn", fontSize = 12.sp)
+                }
+            }
+            
+            // Enemy list (collapsible)
+            if (expanded) {
+                Column(
+                    modifier = Modifier.padding(top = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    spawns.forEach { spawn ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(Color.LightGray.copy(alpha = 0.2f))
+                                .padding(8.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                // Enemy icon
+                                Box(modifier = Modifier.size(24.dp)) {
+                                    EnemyTypeIcon(attackerType = spawn.attackerType)
+                                }
+                                
+                                Column {
+                                    Text(
+                                        text = "${spawn.attackerType.displayName} Lv${spawn.level}",
+                                        fontSize = 14.sp
+                                    )
+                                    Text(
+                                        text = "HP: ${spawn.healthPoints}",
+                                        fontSize = 11.sp,
+                                        color = Color.Gray
+                                    )
+                                }
+                            }
+                            
+                            Button(
+                                onClick = { onRemoveEnemy(spawn) },
+                                modifier = Modifier.height(28.dp)
+                            ) {
+                                Text("Remove", fontSize = 11.sp)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
