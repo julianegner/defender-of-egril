@@ -22,6 +22,22 @@ object EditorStorage {
     // Initialize with converted existing levels
     init {
         initializeDefaultMapsAndLevels()
+        
+        // Safety check: ensure we have a valid sequence after initialization
+        val sequence = getLevelSequence()
+        if (sequence.sequence.isEmpty()) {
+            println("ERROR: After initialization, sequence is still empty! Forcing reinitialization...")
+            // Clear everything and force reinit
+            levelSequenceCache = null
+            mapsCache.clear()
+            levelsCache.clear()
+            
+            // Delete the sequence file to force reinit
+            fileStorage.writeFile(SEQUENCE_FILE, "")
+            
+            // Try again
+            initializeDefaultMapsAndLevels()
+        }
     }
     
     fun saveMap(map: EditorMap) {
@@ -120,8 +136,10 @@ object EditorStorage {
         
         // Try to load from file
         val json = fileStorage.readFile(SEQUENCE_FILE)
+        
         if (json != null) {
             val sequence = EditorJsonSerializer.deserializeSequence(json)
+            
             if (sequence != null && sequence.sequence.isNotEmpty()) {
                 levelSequenceCache = sequence
                 return sequence
@@ -198,16 +216,24 @@ object EditorStorage {
     private fun initializeDefaultMapsAndLevels() {
         // Check if already initialized with valid data
         val sequenceJson = fileStorage.readFile(SEQUENCE_FILE)
+        
         if (sequenceJson != null) {
             val sequence = EditorJsonSerializer.deserializeSequence(sequenceJson)
+            
             if (sequence != null && sequence.sequence.isNotEmpty()) {
                 // Valid sequence exists, check if levels exist
                 val firstLevelId = sequence.sequence.firstOrNull()
-                if (firstLevelId != null && firstLevelId.isNotBlank() && fileStorage.fileExists("$LEVELS_DIR/$firstLevelId.json")) {
-                    // Also verify we can actually load the first level
-                    val firstLevel = getLevel(firstLevelId)
-                    if (firstLevel != null) {
-                        return  // Already initialized with valid data
+                
+                if (firstLevelId != null && firstLevelId.isNotBlank()) {
+                    val fileExists = fileStorage.fileExists("$LEVELS_DIR/$firstLevelId.json")
+                    
+                    if (fileExists) {
+                        // Also verify we can actually load the first level
+                        val firstLevel = getLevel(firstLevelId)
+                        
+                        if (firstLevel != null) {
+                            return  // Already initialized with valid data
+                        }
                     }
                 }
             }
