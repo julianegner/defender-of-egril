@@ -262,8 +262,8 @@ fun MapEditorView(
             modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
             horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            // Filter out BUILD_AREA since it's calculated automatically from PATH adjacency
-            items(TileType.values().filter { it != TileType.BUILD_AREA }.toList()) { tileType ->
+            // All tile types are selectable
+            items(TileType.values().toList()) { tileType ->
                 TileTypeButton(
                     tileType = tileType,
                     selected = selectedTileType == tileType,
@@ -300,40 +300,22 @@ fun MapEditorView(
                     ) {
                         for (x in 0 until map.width) {
                             val key = "$x,$y"
-                            val storedType = tiles[key] ?: TileType.NO_PLAY
-                            
-                            // Calculate display type - BUILD_AREA should be shown if adjacent to PATH
-                            val displayType = if (storedType == TileType.NO_PLAY) {
-                                // Check if this NO_PLAY cell is adjacent to a PATH cell
-                                val position = com.defenderofegril.model.Position(x, y)
-                                val neighbors = position.getHexNeighbors()
-                                val isAdjacentToPath = neighbors.any { neighbor ->
-                                    neighbor.x in 0 until map.width &&
-                                    neighbor.y in 0 until map.height &&
-                                    tiles["${neighbor.x},${neighbor.y}"] == TileType.PATH
-                                }
-                                if (isAdjacentToPath) TileType.BUILD_AREA else TileType.NO_PLAY
-                            } else {
-                                storedType
-                            }
+                            val tileType = tiles[key] ?: TileType.NO_PLAY
                             
                             Box(
                                 modifier = Modifier
                                     .width((hexWidth).dp)
                                     .height((hexHeight).dp)
                                     .clip(HexagonShape())
-                                    .background(getTileColor(displayType))
+                                    .background(getTileColor(tileType))
                                     .border(1.5.dp, Color.Black, HexagonShape())
                                     .clickable {
-                                        // Only allow painting of explicit tiles, not BUILD_AREA
-                                        if (selectedTileType != TileType.BUILD_AREA) {
-                                            tiles[key] = selectedTileType
-                                        }
+                                        tiles[key] = selectedTileType
                                     },
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text(
-                                    text = getTileSymbol(displayType),
+                                    text = getTileSymbol(tileType),
                                     fontSize = 16.sp,
                                     color = Color.White
                                 )

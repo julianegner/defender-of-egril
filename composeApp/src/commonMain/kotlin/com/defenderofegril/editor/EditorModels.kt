@@ -65,6 +65,15 @@ data class EditorMap(
             }
             .toSet()
     }
+    
+    fun getBuildAreas(): Set<Position> {
+        return tiles.filter { it.value == TileType.BUILD_AREA }
+            .map { 
+                val parts = it.key.split(",")
+                Position(parts[0].toInt(), parts[1].toInt())
+            }
+            .toSet()
+    }
 }
 
 /**
