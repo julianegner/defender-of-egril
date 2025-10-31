@@ -99,6 +99,7 @@ fun GamePlayScreen(
     onDefenderAttackPosition: (Int, Position) -> Boolean,
     onEndPlayerTurn: () -> Unit,
     onBackToMap: () -> Unit,
+    onSaveGame: (() -> String?)? = null,  // Add save game callback
     onCheatCode: ((String) -> Boolean)? = null,  // Add cheat code callback
     onMineDig: ((Int) -> DigOutcome?)? = null,  // Add mine dig callback
     onMineBuildTrap: ((Int, Position) -> Boolean)? = null  // Add mine build trap callback
@@ -114,6 +115,7 @@ fun GamePlayScreen(
         onDefenderAttackPosition = onDefenderAttackPosition,
         onEndPlayerTurn = onEndPlayerTurn,
         onBackToMap = onBackToMap,
+        onSaveGame = onSaveGame,
         onCheatCode = onCheatCode,
         onMineDig = onMineDig,
         onMineBuildTrap = onMineBuildTrap
@@ -132,6 +134,7 @@ private fun GamePlayScreenContent(
     onDefenderAttackPosition: (Int, Position) -> Boolean,
     onEndPlayerTurn: () -> Unit,
     onBackToMap: () -> Unit,
+    onSaveGame: (() -> String?)? = null,
     onCheatCode: ((String) -> Boolean)? = null,
     onMineDig: ((Int) -> DigOutcome?)? = null,
     onMineBuildTrap: ((Int, Position) -> Boolean)? = null,
@@ -149,6 +152,7 @@ private fun GamePlayScreenContent(
     var showDigOutcomeDialog by remember { mutableStateOf(false) }
     var showOverlay by remember { mutableStateOf(false) }  // MutableState for overlay visibility
     var headerExpanded by remember { mutableStateOf(true) }  // State for header fold/expand
+    var showSaveConfirmation by remember { mutableStateOf(false) }  // Save confirmation
 
     // Auto-fold header when turn 1 starts
     val currentTurn = gameState.turnNumber.value
@@ -284,6 +288,17 @@ private fun GamePlayScreenContent(
                         Column {
                             Button(onClick = onBackToMap) {
                                 Text("Back to Map")
+                            }
+                            
+                            if (onSaveGame != null) {
+                                Button(
+                                    onClick = { 
+                                        onSaveGame()
+                                        showSaveConfirmation = true
+                                    }
+                                ) {
+                                    Text("Save Game")
+                                }
                             }
 
                             // Toggle button positioned above the map and far to the right
@@ -561,6 +576,22 @@ private fun GamePlayScreenContent(
                 },
                 confirmButton = {
                     Button(onClick = { showDigOutcomeDialog = false }) {
+                        Text("OK")
+                    }
+                }
+            )
+        }
+        
+        // Save confirmation dialog
+        if (showSaveConfirmation) {
+            AlertDialog(
+                onDismissRequest = { showSaveConfirmation = false },
+                title = { Text("Game Saved") },
+                text = {
+                    Text("Your game has been saved successfully!", style = MaterialTheme.typography.bodyLarge)
+                },
+                confirmButton = {
+                    Button(onClick = { showSaveConfirmation = false }) {
                         Text("OK")
                     }
                 }

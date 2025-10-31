@@ -11,6 +11,7 @@ fun App() {
         val currentScreen by viewModel.currentScreen.collectAsState()
         val worldLevels by viewModel.worldLevels.collectAsState()
         val gameState by viewModel.gameState.collectAsState()
+        val savedGames by viewModel.savedGames.collectAsState()
         
         when (val screen = currentScreen) {
             is Screen.MainMenu -> {
@@ -27,6 +28,7 @@ fun App() {
                     onBackToMenu = { viewModel.navigateToMainMenu() },
                     onShowRules = { viewModel.navigateToRules() },
                     onOpenEditor = { viewModel.navigateToLevelEditor() },
+                    onLoadGame = { viewModel.navigateToLoadGame() },
                     onCheatCode = { code -> viewModel.applyWorldMapCheatCode(code) }
                 )
             }
@@ -39,6 +41,15 @@ fun App() {
             
             is Screen.LevelEditor -> {
                 LevelEditorScreen(
+                    onBack = { viewModel.navigateToWorldMap() }
+                )
+            }
+            
+            is Screen.LoadGame -> {
+                LoadGameScreen(
+                    savedGames = savedGames,
+                    onLoadGame = { saveId -> viewModel.loadGame(saveId) },
+                    onDeleteGame = { saveId -> viewModel.deleteSavedGame(saveId) },
                     onBack = { viewModel.navigateToWorldMap() }
                 )
             }
@@ -56,6 +67,7 @@ fun App() {
                         onDefenderAttackPosition = { defenderId, targetPos -> viewModel.defenderAttackPosition(defenderId, targetPos) },
                         onEndPlayerTurn = { viewModel.endPlayerTurn() },
                         onBackToMap = { viewModel.navigateToWorldMap() },
+                        onSaveGame = { viewModel.saveCurrentGame() },
                         onCheatCode = { code -> viewModel.applyCheatCode(code) },
                         onMineDig = { mineId -> viewModel.performMineDig(mineId) },
                         onMineBuildTrap = { mineId, trapPos -> viewModel.performMineBuildTrap(mineId, trapPos) }
