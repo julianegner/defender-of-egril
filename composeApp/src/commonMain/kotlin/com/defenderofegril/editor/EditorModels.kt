@@ -89,11 +89,15 @@ data class EditorMap(
         
         if (spawnPoints.isEmpty()) return false
         if (target == null) return false
-        if (pathCells.isEmpty()) return false
+        
+        // Build set of traversable cells (spawn points + path cells + target)
+        val traversableCells = pathCells.toMutableSet()
+        traversableCells.addAll(spawnPoints)
+        traversableCells.add(target)
         
         // Check if there's a path from any spawn point to target using BFS
         return spawnPoints.any { spawn ->
-            hasPathBFS(spawn, target, pathCells)
+            hasPathBFS(spawn, target, traversableCells)
         }
     }
     
@@ -119,7 +123,7 @@ data class EditorMap(
             for (neighbor in neighbors) {
                 if (neighbor == end) return true
                 
-                if (neighbor !in visited && (neighbor in validCells || neighbor == end)) {
+                if (neighbor !in visited && neighbor in validCells) {
                     visited.add(neighbor)
                     queue.add(neighbor)
                 }
