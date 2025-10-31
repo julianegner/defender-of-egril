@@ -125,7 +125,10 @@ object EditorJsonSerializer {
     fun deserializeSequence(json: String): LevelSequence? {
         try {
             val sequenceSection = json.substringAfter("\"sequence\": [").substringBefore("]")
-            val ids = sequenceSection.split(",").map { it.trim().removeSurrounding("\"") }
+            if (sequenceSection.isBlank()) {
+                return LevelSequence(emptyList())
+            }
+            val ids = sequenceSection.split(",").map { it.trim().removeSurrounding("\"") }.filter { it.isNotBlank() }
             return LevelSequence(ids)
         } catch (e: Exception) {
             println("Error deserializing sequence: ${e.message}")

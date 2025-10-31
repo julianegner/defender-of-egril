@@ -203,8 +203,12 @@ object EditorStorage {
             if (sequence != null && sequence.sequence.isNotEmpty()) {
                 // Valid sequence exists, check if levels exist
                 val firstLevelId = sequence.sequence.firstOrNull()
-                if (firstLevelId != null && fileStorage.fileExists("$LEVELS_DIR/$firstLevelId.json")) {
-                    return  // Already initialized with valid data
+                if (firstLevelId != null && firstLevelId.isNotBlank() && fileStorage.fileExists("$LEVELS_DIR/$firstLevelId.json")) {
+                    // Also verify we can actually load the first level
+                    val firstLevel = getLevel(firstLevelId)
+                    if (firstLevel != null) {
+                        return  // Already initialized with valid data
+                    }
                 }
             }
         }
