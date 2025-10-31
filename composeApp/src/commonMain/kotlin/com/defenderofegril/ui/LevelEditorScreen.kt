@@ -273,9 +273,10 @@ fun MapEditorView(
     var selectedTileType by remember { mutableStateOf(TileType.PATH) }
     var mapName by remember { mutableStateOf(map.name) }
     var showSaveAsDialog by remember { mutableStateOf(false) }
+    var zoomLevel by remember { mutableStateOf(1.0f) }
     
     // Hexagon dimensions - using same constants as game
-    val hexSize = 32.dp  // Radius of hexagon (center to corner)
+    val hexSize = (32.dp.value * zoomLevel).dp  // Radius of hexagon (center to corner) with zoom
     val sqrt3 = sqrt(3.0).toFloat()
     val hexWidth = hexSize.value * sqrt3  // Width of hexagon (flat-to-flat)
     val hexHeight = hexSize.value * 2f    // Height of hexagon (point-to-point)
@@ -320,12 +321,39 @@ fun MapEditorView(
             }
         }
         
-        // Hexagonal grid view
-        Text(
-            text = "Click hexagons to paint (${map.width}x${map.height}):",
-            style = MaterialTheme.typography.bodySmall,
-            modifier = Modifier.padding(bottom = 4.dp)
-        )
+        // Zoom controls
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Click hexagons to paint (${map.width}x${map.height}):",
+                style = MaterialTheme.typography.bodySmall
+            )
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Button(
+                    onClick = { zoomLevel = maxOf(0.5f, zoomLevel - 0.25f) },
+                    modifier = Modifier.height(32.dp)
+                ) {
+                    Text("🔍-", fontSize = 12.sp)
+                }
+                Text(
+                    text = "${(zoomLevel * 100).toInt()}%",
+                    fontSize = 12.sp,
+                    modifier = Modifier.padding(horizontal = 4.dp)
+                )
+                Button(
+                    onClick = { zoomLevel = minOf(3.0f, zoomLevel + 0.25f) },
+                    modifier = Modifier.height(32.dp)
+                ) {
+                    Text("🔍+", fontSize = 12.sp)
+                }
+            }
+        }
         
         Box(
             modifier = Modifier
@@ -358,7 +386,9 @@ fun MapEditorView(
                                     .background(getTileColor(tileType))
                                     .border(1.5.dp, Color.Black, HexagonShape())
                                     .clickable {
-                                        tiles[key] = selectedTileType
+                                        tiles = tiles.toMutableMap().apply {
+                                            this[key] = selectedTileType
+                                        }
                                     },
                                 contentAlignment = Alignment.Center
                             ) {
@@ -685,6 +715,7 @@ fun LevelEditorView(
     var enemySpawns by remember { mutableStateOf(level.enemySpawns.toMutableList()) }
     var availableTowers by remember { mutableStateOf(level.availableTowers.toMutableSet()) }
     var showEnemyDialog by remember { mutableStateOf(false) }
+    var showEnemyDialogForTurn by remember { mutableStateOf(1) }
     var showSaveAsDialog by remember { mutableStateOf(false) }
     
     // Get only ready-to-use maps for selection
@@ -778,28 +809,84 @@ fun LevelEditorView(
                         text = "Enemies (${enemySpawns.size}):",
                         style = MaterialTheme.typography.bodyMedium
                     )
-                    Button(onClick = { showEnemyDialog = true }) {
-                        Text("Add Enemy")
+                    Button(onClick = { 
+                        // Add a new turn (next available)
+                        val nextTurn = (enemySpawns.maxOfOrNull { it.spawnTurn } ?: 0) + 1
+                        enemySpawns = enemySpawns.toMutableList().apply {
+                            add(com.defenderofegril.editor.EditorEnemySpawn(
+                                com.defenderofegril.model.AttackerType.GOBLIN, 
+                                1, 
+                                nextTurn
+                            ))
+                        }
+                    }) {
+                        Text("➕ Add Turn")
                     }
                 }
             }
             
             // Group enemies by spawn turn
-            enemySpawns.groupBy { it.spawnTurn }.toSortedMap().forEach { (turn, spawnsInTurn) ->
+            val turnGroups = enemySpawns.groupBy { it.spawnTurn }.entries.sortedBy { it.key }
+            val turns = turnGroups.map { it.key }
+            
+            turnGroups.forEachIndexed { index, entry ->
+                val turn = entry.key
+                val spawnsInTurn = entry.value
                 item {
+                    val turnIndex = index
                     SpawnTurnSection(
                         turn = turn,
                         spawns = spawnsInTurn,
                         onRemoveEnemy = { spawn ->
-                            enemySpawns.remove(spawn)
+                            enemySpawns = enemySpawns.toMutableList().apply { remove(spawn) }
                         },
                         onCopyTurn = {
                             // Copy all enemies from this turn to a new turn (next available)
                             val maxTurn = enemySpawns.maxOfOrNull { it.spawnTurn } ?: 0
-                            spawnsInTurn.forEach { spawn ->
-                                enemySpawns.add(spawn.copy(spawnTurn = maxTurn + 1))
+                            enemySpawns = enemySpawns.toMutableList().apply {
+                                spawnsInTurn.forEach { spawn ->
+                                    add(spawn.copy(spawnTurn = maxTurn + 1))
+                                }
                             }
-                        }
+                        },
+                        onAddEnemy = {
+                            // Show dialog to add enemy to this specific turn
+                            showEnemyDialog = true
+                            showEnemyDialogForTurn = turn
+                        },
+                        onMoveTurnUp = {
+                            if (turnIndex > 0) {
+                                val prevTurn = turns[turnIndex - 1]
+                                enemySpawns = enemySpawns.toMutableList().apply {
+                                    // Swap turn numbers
+                                    forEachIndexed { idx, spawn ->
+                                        if (spawn.spawnTurn == turn) {
+                                            this[idx] = spawn.copy(spawnTurn = prevTurn)
+                                        } else if (spawn.spawnTurn == prevTurn) {
+                                            this[idx] = spawn.copy(spawnTurn = turn)
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        onMoveTurnDown = {
+                            if (turnIndex < turns.size - 1) {
+                                val nextTurn = turns[turnIndex + 1]
+                                enemySpawns = enemySpawns.toMutableList().apply {
+                                    // Swap turn numbers
+                                    forEachIndexed { idx, spawn ->
+                                        if (spawn.spawnTurn == turn) {
+                                            this[idx] = spawn.copy(spawnTurn = nextTurn)
+                                        } else if (spawn.spawnTurn == nextTurn) {
+                                            this[idx] = spawn.copy(spawnTurn = turn)
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        canMoveUp = turnIndex > 0,
+                        canMoveDown = turnIndex < turns.size - 1,
+                        ewhadCount = ewhadCount
                     )
                 }
             }
@@ -881,11 +968,12 @@ fun LevelEditorView(
     if (showEnemyDialog) {
         AddEnemyDialog(
             ewhadCount = ewhadCount,
+            turn = showEnemyDialogForTurn,
             onDismiss = { showEnemyDialog = false },
-            onAdd = { enemyType, level, turn ->
-                enemySpawns.add(
-                    com.defenderofegril.editor.EditorEnemySpawn(enemyType, level, turn)
-                )
+            onAdd = { enemyType, level ->
+                enemySpawns = enemySpawns.toMutableList().apply {
+                    add(com.defenderofegril.editor.EditorEnemySpawn(enemyType, level, showEnemyDialogForTurn))
+                }
                 showEnemyDialog = false
             }
         )
@@ -917,19 +1005,19 @@ fun LevelEditorView(
 @Composable
 fun AddEnemyDialog(
     ewhadCount: Int = 0,
+    turn: Int,
     onDismiss: () -> Unit,
-    onAdd: (com.defenderofegril.model.AttackerType, Int, Int) -> Unit
+    onAdd: (com.defenderofegril.model.AttackerType, Int) -> Unit
 ) {
     var selectedType by remember { mutableStateOf(com.defenderofegril.model.AttackerType.GOBLIN) }
     var level by remember { mutableStateOf("1") }
-    var turn by remember { mutableStateOf("1") }
     
     // Check if trying to add Ewhad when one already exists
     val canAddEwhad = selectedType != com.defenderofegril.model.AttackerType.EWHAD || ewhadCount == 0
     
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Add Enemy") },
+        title = { Text("Add Enemy to Turn $turn") },
         text = {
             Column {
                 Text("Enemy Type:", modifier = Modifier.padding(bottom = 4.dp))
@@ -956,12 +1044,6 @@ fun AddEnemyDialog(
                     modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
                 )
                 Text("HP: ${selectedType.health * (level.toIntOrNull() ?: 1)}", fontSize = 12.sp)
-                OutlinedTextField(
-                    value = turn,
-                    onValueChange = { if (it.all { c -> c.isDigit() }) turn = it },
-                    label = { Text("Spawn Turn") },
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
-                )
                 if (!canAddEwhad) {
                     Text(
                         text = "⚠️ Ewhad can only be spawned once per level!",
@@ -974,7 +1056,7 @@ fun AddEnemyDialog(
         confirmButton = {
             Button(
                 onClick = {
-                    onAdd(selectedType, level.toIntOrNull() ?: 1, turn.toIntOrNull() ?: 1)
+                    onAdd(selectedType, level.toIntOrNull() ?: 1)
                 },
                 enabled = canAddEwhad
             ) {
@@ -1275,7 +1357,7 @@ fun MapMiniPreview(map: EditorMap) {
                 // Draw hexagon
                 val path = Path().apply {
                     for (i in 0 until 6) {
-                        val angle = Math.toRadians(60.0 * i - 30.0)
+                        val angle = kotlin.math.PI * (60.0 * i - 30.0) / 180.0
                         val x = centerX + (hexSize * cos(angle)).toFloat()
                         val y = centerY + (hexSize * sin(angle)).toFloat()
                         if (i == 0) moveTo(x, y) else lineTo(x, y)
@@ -1293,9 +1375,15 @@ fun SpawnTurnSection(
     turn: Int,
     spawns: List<com.defenderofegril.editor.EditorEnemySpawn>,
     onRemoveEnemy: (com.defenderofegril.editor.EditorEnemySpawn) -> Unit,
-    onCopyTurn: () -> Unit
+    onCopyTurn: () -> Unit,
+    onAddEnemy: () -> Unit,
+    onMoveTurnUp: () -> Unit,
+    onMoveTurnDown: () -> Unit,
+    canMoveUp: Boolean,
+    canMoveDown: Boolean,
+    ewhadCount: Int
 ) {
-    var expanded by remember { mutableStateOf(true) }
+    var expanded by remember { mutableStateOf(false) }
     
     Card(
         modifier = Modifier.fillMaxWidth()
@@ -1331,11 +1419,29 @@ fun SpawnTurnSection(
                     )
                 }
                 
-                Button(
-                    onClick = onCopyTurn,
-                    modifier = Modifier.height(32.dp)
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    Text("Copy Turn", fontSize = 12.sp)
+                    Button(
+                        onClick = onMoveTurnUp,
+                        enabled = canMoveUp,
+                        modifier = Modifier.height(32.dp)
+                    ) {
+                        Text("↑", fontSize = 12.sp)
+                    }
+                    Button(
+                        onClick = onMoveTurnDown,
+                        enabled = canMoveDown,
+                        modifier = Modifier.height(32.dp)
+                    ) {
+                        Text("↓", fontSize = 12.sp)
+                    }
+                    Button(
+                        onClick = onCopyTurn,
+                        modifier = Modifier.height(32.dp)
+                    ) {
+                        Text("Copy Turn", fontSize = 12.sp)
+                    }
                 }
             }
             
@@ -1345,6 +1451,14 @@ fun SpawnTurnSection(
                     modifier = Modifier.padding(top = 8.dp),
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
+                    // Add Enemy button at the top
+                    Button(
+                        onClick = onAddEnemy,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("➕ Add Enemy to Turn $turn")
+                    }
+                    
                     spawns.forEach { spawn ->
                         Row(
                             modifier = Modifier
@@ -1380,7 +1494,7 @@ fun SpawnTurnSection(
                                 onClick = { onRemoveEnemy(spawn) },
                                 modifier = Modifier.height(28.dp)
                             ) {
-                                Text("Remove", fontSize = 11.sp)
+                                Text("🗑️ Remove", fontSize = 11.sp)
                             }
                         }
                     }
