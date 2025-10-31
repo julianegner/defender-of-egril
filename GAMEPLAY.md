@@ -100,11 +100,13 @@ The game features a **single-phase turn system** where you control both tower pl
 
 | Tower | Cost | Build Time | Damage | Range | Type | Actions/Turn |
 |-------|------|------------|--------|-------|------|--------------|
-| **Spike Tower** | 10 | 1 turn | 5 | 1 | Melee | 1 |
+| **Spike Tower** | 10 | 1 turn | 5 | 1 | Melee | 1* |
 | **Spear Tower** | 15 | 1 turn | 8 | 2 | Ranged | 1 |
 | **Bow Tower** | 20 | 1 turn | 10 | 3 | Ranged | 1 |
 | **Wizard Tower** | 50 | 2 turns | 30 | 3 | AOE | 1 |
 | **Alchemy Tower** | 40 | 1 turn | 15 | 2 | DoT | 1 |
+
+*Spike Tower (Pike Tower) has special upgrade mechanics - see below.
 
 ### Tower Abilities
 
@@ -116,6 +118,14 @@ The game features a **single-phase turn system** where you control both tower pl
 - Each upgrade costs: Base Cost × Current Level
 - Damage increases by +5 per level
 - Range increases by +0.5 (rounded down) every 2 levels
+
+### Spike Tower (Pike Tower) Special Mechanics
+The Spike Tower has unique upgrade characteristics:
+- **Range Cap**: Maximum range is capped at 2 when level 5 or higher
+- **Action Scaling**: Gains +1 action per turn for every 5 levels (maximum 3 actions)
+  - Levels 1-4: 1 action per turn
+  - Levels 5-9: 2 actions per turn
+  - Levels 10+: 3 actions per turn (maximum)
 
 ---
 

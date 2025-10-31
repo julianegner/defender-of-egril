@@ -15,7 +15,8 @@ fun App() {
         when (val screen = currentScreen) {
             is Screen.MainMenu -> {
                 MainMenuScreen(
-                    onStartGame = { viewModel.navigateToWorldMap() }
+                    onStartGame = { viewModel.navigateToWorldMap() },
+                    onShowRules = { viewModel.navigateToRules() }
                 )
             }
             
@@ -24,7 +25,14 @@ fun App() {
                     worldLevels = worldLevels,
                     onLevelSelected = { levelId -> viewModel.startLevel(levelId) },
                     onBackToMenu = { viewModel.navigateToMainMenu() },
+                    onShowRules = { viewModel.navigateToRules() },
                     onCheatCode = { code -> viewModel.applyWorldMapCheatCode(code) }
+                )
+            }
+            
+            is Screen.Rules -> {
+                RulesScreen(
+                    onBack = { viewModel.navigateToMainMenu() }
                 )
             }
             
@@ -41,7 +49,9 @@ fun App() {
                         onDefenderAttackPosition = { defenderId, targetPos -> viewModel.defenderAttackPosition(defenderId, targetPos) },
                         onEndPlayerTurn = { viewModel.endPlayerTurn() },
                         onBackToMap = { viewModel.navigateToWorldMap() },
-                        onCheatCode = { code -> viewModel.applyCheatCode(code) }
+                        onCheatCode = { code -> viewModel.applyCheatCode(code) },
+                        onMineDig = { mineId -> viewModel.performMineDig(mineId) },
+                        onMineBuildTrap = { mineId, trapPos -> viewModel.performMineBuildTrap(mineId, trapPos) }
                     )
                 }
             }

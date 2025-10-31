@@ -40,7 +40,8 @@ data class GameState(
     val turnNumber: MutableState<Int> = mutableStateOf(0),
     val actionsRemainingThisTurn: MutableState<Int> = mutableStateOf(0),
     val spawnPlan: List<PlannedEnemySpawn> = generateSpawnPlan(level.attackerWaves),
-    val fieldEffects: MutableList<FieldEffect> = mutableListOf() // Track active field effects
+    val fieldEffects: MutableList<FieldEffect> = mutableListOf(), // Track active field effects
+    val traps: MutableList<Trap> = mutableListOf()  // Track active traps
 ) {
     fun isLevelWon(): Boolean {
         return currentWaveIndex.value >= level.attackerWaves.size &&
