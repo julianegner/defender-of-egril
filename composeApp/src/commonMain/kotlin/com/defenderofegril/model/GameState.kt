@@ -39,14 +39,14 @@ data class GameState(
     val attackersToSpawn: SnapshotStateList<AttackerType> = mutableStateListOf(),
     val turnNumber: MutableState<Int> = mutableStateOf(0),
     val actionsRemainingThisTurn: MutableState<Int> = mutableStateOf(0),
-    val spawnPlan: List<PlannedEnemySpawn> = generateSpawnPlan(level.attackerWaves),
+    val spawnPlan: List<PlannedEnemySpawn> = level.directSpawnPlan ?: generateSpawnPlan(level.attackerWaves),
     val fieldEffects: MutableList<FieldEffect> = mutableListOf(), // Track active field effects
     val traps: MutableList<Trap> = mutableListOf()  // Track active traps
 ) {
     fun isLevelWon(): Boolean {
-        return currentWaveIndex.value >= level.attackerWaves.size &&
-               attackersToSpawn.isEmpty() &&
-               attackers.all { it.isDefeated.value }
+        // Check if all planned spawns have occurred and all enemies are defeated
+        val allSpawned = spawnPlan.all { it.spawnTurn <= turnNumber.value }
+        return allSpawned && attackers.all { it.isDefeated.value }
     }
     
     fun isLevelLost(): Boolean {

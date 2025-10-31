@@ -17,6 +17,7 @@ sealed class Screen {
     object MainMenu : Screen()
     object WorldMap : Screen()
     object Rules : Screen()
+    object LevelEditor : Screen()
     data class GamePlay(val levelId: Int) : Screen()
     data class LevelComplete(val levelId: Int, val won: Boolean) : Screen()
 }
@@ -41,7 +42,11 @@ class GameViewModel {
     
     private fun initializeWorldMap() {
         val levels = LevelData.createLevels()
+        println("DEBUG: Total levels loaded: ${levels.size}")
         _worldLevels.value = levels.mapIndexed { index, level ->
+
+            println("DEBUG: Loaded Level ${level.id} - Name: ${level.name} - Path Cells: ${level.pathCells.size} - Build Islands: ${level.buildIslands.size}")
+
             WorldLevel(
                 level = level,
                 status = if (index == 0) LevelStatus.UNLOCKED else LevelStatus.LOCKED
@@ -59,6 +64,10 @@ class GameViewModel {
     
     fun navigateToRules() {
         _currentScreen.value = Screen.Rules
+    }
+    
+    fun navigateToLevelEditor() {
+        _currentScreen.value = Screen.LevelEditor
     }
     
     fun startLevel(levelId: Int) {

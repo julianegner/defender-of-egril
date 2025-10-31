@@ -26,6 +26,7 @@ fun App() {
                     onLevelSelected = { levelId -> viewModel.startLevel(levelId) },
                     onBackToMenu = { viewModel.navigateToMainMenu() },
                     onShowRules = { viewModel.navigateToRules() },
+                    onOpenEditor = { viewModel.navigateToLevelEditor() },
                     onCheatCode = { code -> viewModel.applyWorldMapCheatCode(code) }
                 )
             }
@@ -33,6 +34,12 @@ fun App() {
             is Screen.Rules -> {
                 RulesScreen(
                     onBack = { viewModel.navigateToMainMenu() }
+                )
+            }
+            
+            is Screen.LevelEditor -> {
+                LevelEditorScreen(
+                    onBack = { viewModel.navigateToWorldMap() }
                 )
             }
             
