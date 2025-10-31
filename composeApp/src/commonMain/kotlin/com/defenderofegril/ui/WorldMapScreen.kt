@@ -25,6 +25,7 @@ fun WorldMapScreen(
     onLevelSelected: (Int) -> Unit,
     onBackToMenu: () -> Unit,
     onShowRules: () -> Unit,
+    onOpenEditor: () -> Unit,
     onCheatCode: ((String) -> Boolean)? = null  // Callback for processing cheat codes, returns true if code was valid
 ) {
     var showCheatDialog by remember { mutableStateOf(false) }
@@ -65,6 +66,13 @@ fun WorldMapScreen(
                         }
                     }
                 )
+            }
+            
+            // Add Editor Button as a special card (only on desktop)
+            if (isEditorAvailable()) {
+                item {
+                    EditorButtonCard(onClick = onOpenEditor)
+                }
             }
         }
         
@@ -279,6 +287,52 @@ fun LevelCard(
                 textAlign = TextAlign.End,
                 modifier = Modifier.fillMaxWidth(),
                 fontSize = 13.sp
+            )
+        }
+    }
+}
+
+@Composable
+fun EditorButtonCard(
+    onClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(220.dp)
+            .clickable(onClick = onClick),
+        colors = CardDefaults.cardColors(
+            containerColor = Color(0xFFFF9800)  // Distinctive orange color
+        )
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize().padding(12.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // Distinctive symbol - wrench/hammer icon
+            Text(
+                text = "🛠️",
+                style = MaterialTheme.typography.displayLarge,
+                fontSize = 64.sp
+            )
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            Text(
+                text = "Level Editor",
+                style = MaterialTheme.typography.titleLarge,
+                color = Color.White,
+                fontSize = 20.sp
+            )
+            
+            Spacer(modifier = Modifier.height(8.dp))
+            
+            Text(
+                text = "Create & Edit",
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.White,
+                fontSize = 14.sp
             )
         }
     }
