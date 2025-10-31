@@ -186,12 +186,22 @@ object EditorStorage {
         val map = getMap(editorLevel.mapId) ?: return null
         println("Using map: ${map.id} (${map.width}x${map.height})")
         
-        // Convert enemy spawns to AttackerWaves
-        // Group by spawn turn to create waves
+        // Convert enemy spawns directly to PlannedEnemySpawn
         println("-------------------------------")
         println("enemySpawns: ${editorLevel.enemySpawns}")
         println("-------------------------------")
 
+        val directSpawnPlan = editorLevel.enemySpawns.map { spawn ->
+            PlannedEnemySpawn(
+                attackerType = spawn.attackerType,
+                spawnTurn = spawn.spawnTurn,
+                level = spawn.level
+            )
+        }.sortedBy { it.spawnTurn }
+        
+        println("Created direct spawn plan with ${directSpawnPlan.size} spawns")
+        
+        // Still create AttackerWaves for backward compatibility
         val spawnsByTurn = editorLevel.enemySpawns.groupBy { it.spawnTurn }
         println("Enemy spawns grouped by turn: ${spawnsByTurn.keys.sorted()}")
         val waves = spawnsByTurn.entries.sortedBy { it.key }.map { (_, spawns) ->
@@ -200,7 +210,7 @@ object EditorStorage {
                 spawnDelay = 1  // Fixed delay for now
             )
         }
-        println("Converted to ${waves.size} attacker waves.")
+        println("Converted to ${waves.size} attacker waves for compatibility.")
 
         val target = map.getTarget() ?: return null
         println("Target position: $target")
@@ -216,7 +226,8 @@ object EditorStorage {
             buildIslands = map.getBuildIslands(),
             attackerWaves = waves,
             initialCoins = editorLevel.startCoins,
-            healthPoints = editorLevel.startHealthPoints
+            healthPoints = editorLevel.startHealthPoints,
+            directSpawnPlan = directSpawnPlan
         )
     }
     
