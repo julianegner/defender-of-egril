@@ -204,6 +204,11 @@ fun MapEditorContent() {
                                     }
                                 }
                                 Text(
+                                    text = "File: ${map.id}",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                Text(
                                     text = "Size: ${map.width}x${map.height}",
                                     style = MaterialTheme.typography.bodySmall
                                 )
@@ -262,6 +267,7 @@ fun MapEditorView(
     var tiles by remember { mutableStateOf(map.tiles.toMutableMap()) }
     var selectedTileType by remember { mutableStateOf(TileType.PATH) }
     var mapName by remember { mutableStateOf(map.name) }
+    var showSaveAsDialog by remember { mutableStateOf(false) }
     
     // Hexagon dimensions - using same constants as game
     val hexSize = 32.dp  // Radius of hexagon (center to corner)
@@ -384,18 +390,7 @@ fun MapEditorView(
             }
             
             Button(
-                onClick = {
-                    // Save as new map with different ID
-                    val newId = "map_copy_${kotlin.random.Random.nextInt(10000, 99999)}"
-                    val newMap = map.copy(
-                        id = newId,
-                        name = "$mapName (Copy)",
-                        tiles = tiles.toMap()
-                    )
-                    // Validate and set readyToUse flag
-                    val validatedMap = newMap.copy(readyToUse = newMap.validateReadyToUse())
-                    onSave(validatedMap)
-                },
+                onClick = { showSaveAsDialog = true },
                 modifier = Modifier.weight(1f)
             ) {
                 Text("Save As New")
@@ -408,6 +403,26 @@ fun MapEditorView(
                 Text("Cancel")
             }
         }
+    }
+    
+    if (showSaveAsDialog) {
+        SaveAsMapDialog(
+            currentName = mapName,
+            onDismiss = { showSaveAsDialog = false },
+            onSave = { newName ->
+                // Save as new map with different ID
+                val newId = "map_copy_${kotlin.random.Random.nextInt(10000, 99999)}"
+                val newMap = map.copy(
+                    id = newId,
+                    name = newName,
+                    tiles = tiles.toMap()
+                )
+                // Validate and set readyToUse flag
+                val validatedMap = newMap.copy(readyToUse = newMap.validateReadyToUse())
+                onSave(validatedMap)
+                showSaveAsDialog = false
+            }
+        )
     }
 }
 
@@ -588,6 +603,11 @@ fun LevelEditorContent() {
                                     )
                                 }
                                 Text(
+                                    text = "File: ${level.id}",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                Text(
                                     text = "Map: ${level.mapId} | Coins: ${level.startCoins} | HP: ${level.startHealthPoints}",
                                     style = MaterialTheme.typography.bodySmall
                                 )
@@ -660,6 +680,7 @@ fun LevelEditorView(
     var enemySpawns by remember { mutableStateOf(level.enemySpawns.toMutableList()) }
     var availableTowers by remember { mutableStateOf(level.availableTowers.toMutableSet()) }
     var showEnemyDialog by remember { mutableStateOf(false) }
+    var showSaveAsDialog by remember { mutableStateOf(false) }
     
     // Get only ready-to-use maps for selection
     val maps = remember { EditorStorage.getAllMaps().filter { it.readyToUse } }
@@ -841,20 +862,7 @@ fun LevelEditorView(
                 }
                 
                 Button(
-                    onClick = {
-                        val newId = "level_copy_${kotlin.random.Random.nextInt(10000, 99999)}"
-                        val newLevel = level.copy(
-                            id = newId,
-                            title = if (title.endsWith("(Copy)")) title else "$title (Copy)",
-                            subtitle = subtitle,
-                            mapId = selectedMapId,
-                            startCoins = startCoins.toIntOrNull() ?: 100,
-                            startHealthPoints = startHP.toIntOrNull() ?: 10,
-                            enemySpawns = enemySpawns.toList(),
-                            availableTowers = availableTowers.toSet()
-                        )
-                        onSave(newLevel)
-                    },
+                    onClick = { showSaveAsDialog = true },
                     modifier = Modifier.weight(1f)
                 ) {
                     Text("Save As New")
@@ -872,12 +880,35 @@ fun LevelEditorView(
     
     if (showEnemyDialog) {
         AddEnemyDialog(
+            ewhadCount = ewhadCount,
             onDismiss = { showEnemyDialog = false },
             onAdd = { enemyType, level, turn ->
                 enemySpawns.add(
                     com.defenderofegril.editor.EditorEnemySpawn(enemyType, level, turn)
                 )
                 showEnemyDialog = false
+            }
+        )
+    }
+    
+    if (showSaveAsDialog) {
+        SaveAsLevelDialog(
+            currentTitle = title,
+            onDismiss = { showSaveAsDialog = false },
+            onSave = { newTitle ->
+                val newId = "level_copy_${kotlin.random.Random.nextInt(10000, 99999)}"
+                val newLevel = level.copy(
+                    id = newId,
+                    title = newTitle,
+                    subtitle = subtitle,
+                    mapId = selectedMapId,
+                    startCoins = startCoins.toIntOrNull() ?: 100,
+                    startHealthPoints = startHP.toIntOrNull() ?: 10,
+                    enemySpawns = enemySpawns.toList(),
+                    availableTowers = availableTowers.toSet()
+                )
+                onSave(newLevel)
+                showSaveAsDialog = false
             }
         )
     }
@@ -1064,4 +1095,84 @@ fun LevelSequenceContent() {
             }
         }
     }
+}
+
+@Composable
+fun SaveAsMapDialog(
+    currentName: String,
+    onDismiss: () -> Unit,
+    onSave: (String) -> Unit
+) {
+    var newName by remember { mutableStateOf(currentName) }
+    
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Save Map As New") },
+        text = {
+            Column {
+                Text("Enter a name for the new map:")
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = newName,
+                    onValueChange = { newName = it },
+                    label = { Text("Map Name") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = { if (newName.isNotBlank()) onSave(newName) },
+                enabled = newName.isNotBlank()
+            ) {
+                Text("Save")
+            }
+        },
+        dismissButton = {
+            Button(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
+}
+
+@Composable
+fun SaveAsLevelDialog(
+    currentTitle: String,
+    onDismiss: () -> Unit,
+    onSave: (String) -> Unit
+) {
+    var newTitle by remember { mutableStateOf(currentTitle) }
+    
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Save Level As New") },
+        text = {
+            Column {
+                Text("Enter a title for the new level:")
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = newTitle,
+                    onValueChange = { newTitle = it },
+                    label = { Text("Level Title") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = { if (newTitle.isNotBlank()) onSave(newTitle) },
+                enabled = newTitle.isNotBlank()
+            ) {
+                Text("Save")
+            }
+        },
+        dismissButton = {
+            Button(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
 }
