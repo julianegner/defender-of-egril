@@ -20,6 +20,7 @@ object EditorJsonSerializer {
   "name": "${map.name}",
   "width": ${map.width},
   "height": ${map.height},
+  "readyToUse": ${map.readyToUse},
   "tiles": {
     $tilesJson
   }
@@ -32,6 +33,11 @@ object EditorJsonSerializer {
             val name = extractValue(json, "name")
             val width = extractValue(json, "width").toInt()
             val height = extractValue(json, "height").toInt()
+            val readyToUse = try {
+                extractValue(json, "readyToUse").toBoolean()
+            } catch (e: Exception) {
+                false  // Default to false for backward compatibility
+            }
             
             val tiles = mutableMapOf<String, TileType>()
             val tilesSection = json.substringAfter("\"tiles\": {")
@@ -49,7 +55,7 @@ object EditorJsonSerializer {
                 tiles[pos] = TileType.valueOf(typeStr)
             }
             
-            return EditorMap(id, name, width, height, tiles)
+            return EditorMap(id, name, width, height, tiles, readyToUse)
         } catch (e: Exception) {
             println("Error deserializing map: ${e.message}")
             return null

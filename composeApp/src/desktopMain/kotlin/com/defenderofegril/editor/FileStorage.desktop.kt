@@ -43,6 +43,10 @@ class DesktopFileStorage : FileStorage {
     override fun createDirectory(path: String) {
         File(baseDir, path).mkdirs()
     }
+    
+    override fun deleteFile(path: String) {
+        File(baseDir, path).delete()
+    }
 }
 
 actual fun getFileStorage(): FileStorage = DesktopFileStorage()

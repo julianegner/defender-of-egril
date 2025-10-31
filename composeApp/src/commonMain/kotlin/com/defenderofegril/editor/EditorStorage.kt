@@ -180,6 +180,24 @@ object EditorStorage {
         }
     }
     
+    fun deleteMap(mapId: String) {
+        // Remove from cache
+        mapsCache.remove(mapId)
+        // Delete file
+        fileStorage.deleteFile("$MAPS_DIR/$mapId.json")
+    }
+    
+    fun deleteLevel(levelId: String) {
+        // Remove from cache
+        levelsCache.remove(levelId)
+        // Delete file
+        fileStorage.deleteFile("$LEVELS_DIR/$levelId.json")
+        // Remove from sequence
+        val currentSequence = getLevelSequence().sequence.toMutableList()
+        currentSequence.remove(levelId)
+        updateLevelSequence(LevelSequence(currentSequence))
+    }
+    
     /**
      * Convert an EditorLevel to a Level for gameplay
      */
@@ -335,10 +353,13 @@ object EditorStorage {
                 name = "Generated Map ${width}x${height}",
                 width = width,
                 height = height,
-                tiles = tiles
+                tiles = tiles,
+                readyToUse = false  // Will be validated and updated on save
             )
             
-            saveMap(map)
+            // Validate and save with correct readyToUse flag
+            val validatedMap = map.copy(readyToUse = map.validateReadyToUse())
+            saveMap(validatedMap)
         }
         
         // Create levels based on existing LevelData
