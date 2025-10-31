@@ -47,6 +47,7 @@ object EditorStorage {
     }
     
     fun getMap(id: String): EditorMap? {
+        println("EditorStorage: Retrieving map with ID: $id")
         // Check cache first
         if (mapsCache.containsKey(id)) {
             return mapsCache[id]
@@ -54,8 +55,10 @@ object EditorStorage {
         
         // Try to load from file
         val json = fileStorage.readFile("$MAPS_DIR/$id.json")
+        println("EditorStorage: Map JSON: $json")
         if (json != null) {
             val map = EditorJsonSerializer.deserializeMap(json)
+            println("EditorStorage: Deserialized map $id: $map")
             if (map != null) {
                 mapsCache[id] = map
                 return map
@@ -104,6 +107,7 @@ object EditorStorage {
         val json = fileStorage.readFile("$LEVELS_DIR/$id.json")
         if (json != null) {
             val level = EditorJsonSerializer.deserializeLevel(json)
+            println("EditorStorage: Deserialized level $id: $level")
             if (level != null) {
                 levelsCache[id] = level
                 return level
@@ -130,15 +134,18 @@ object EditorStorage {
     }
     
     fun getLevelSequence(): LevelSequence {
+        println("EditorStorage: Retrieving level sequence...${levelSequenceCache}")
         if (levelSequenceCache != null) {
             return levelSequenceCache!!
         }
         
         // Try to load from file
         val json = fileStorage.readFile(SEQUENCE_FILE)
+        println("EditorStorage: Level sequence JSON: $json")
         
         if (json != null) {
             val sequence = EditorJsonSerializer.deserializeSequence(json)
+            println("EditorStorage: Deserialized level sequence: $sequence")
             
             if (sequence != null && sequence.sequence.isNotEmpty()) {
                 levelSequenceCache = sequence
@@ -180,19 +187,24 @@ object EditorStorage {
      * Convert an EditorLevel to a Level for gameplay
      */
     fun convertToGameLevel(editorLevel: EditorLevel, numericId: Int): Level? {
+        println("Converting EditorLevel ${editorLevel.id} to game Level with numeric ID $numericId")
         val map = getMap(editorLevel.mapId) ?: return null
+        println("Using map: ${map.id} (${map.width}x${map.height})")
         
         // Convert enemy spawns to AttackerWaves
         // Group by spawn turn to create waves
         val spawnsByTurn = editorLevel.enemySpawns.groupBy { it.spawnTurn }
+        println("Enemy spawns grouped by turn: ${spawnsByTurn.keys.sorted()}")
         val waves = spawnsByTurn.entries.sortedBy { it.key }.map { (_, spawns) ->
             AttackerWave(
                 attackers = spawns.map { it.attackerType },
                 spawnDelay = 1  // Fixed delay for now
             )
         }
-        
+        println("Converted to ${waves.size} attacker waves.")
+
         val target = map.getTarget() ?: return null
+        println("Target position: $target")
         
         return Level(
             id = numericId,

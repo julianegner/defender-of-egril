@@ -42,7 +42,11 @@ class GameViewModel {
     
     private fun initializeWorldMap() {
         val levels = LevelData.createLevels()
+        println("DEBUG: Total levels loaded: ${levels.size}")
         _worldLevels.value = levels.mapIndexed { index, level ->
+
+            println("DEBUG: Loaded Level ${level.id} - Name: ${level.name} - Path Cells: ${level.pathCells.size} - Build Islands: ${level.buildIslands.size}")
+
             WorldLevel(
                 level = level,
                 status = if (index == 0) LevelStatus.UNLOCKED else LevelStatus.LOCKED
