@@ -13,6 +13,7 @@ data class Level(
     val targetPosition: Position = Position(gridWidth - 1, gridHeight / 2),
     val pathCells: Set<Position>,
     val buildIslands: Set<Position>,
+    val buildAreas: Set<Position> = emptySet(),  // Explicit build areas from map
     val attackerWaves: List<AttackerWave>,
     val initialCoins: Int = 100,
     val healthPoints: Int = 10,
@@ -27,7 +28,6 @@ data class Level(
     }
     
     fun isBuildArea(position: Position): Boolean {
-        // Build areas are islands OR strips adjacent to paths
         // Cannot build on path itself, spawn points, or target
         if (isSpawnPoint(position) || position == targetPosition) return false
         if (isOnPath(position)) return false
@@ -35,18 +35,8 @@ data class Level(
         // Can build on islands
         if (isBuildIsland(position)) return true
         
-        // Can also build on strips adjacent to paths
-        return isAdjacentToPath(position)
-    }
-    
-    private fun isAdjacentToPath(position: Position): Boolean {
-        // Check if any adjacent cell (using hexagonal neighbors) is a path cell
-        val adjacentPositions = position.getHexNeighbors()
-        return adjacentPositions.any { pos ->
-            pos.x in 0 until gridWidth && 
-            pos.y in 0 until gridHeight && 
-            isOnPath(pos)
-        }
+        // Can build on explicitly defined build areas
+        return buildAreas.contains(position)
     }
     
     fun isSpawnPoint(position: Position): Boolean {

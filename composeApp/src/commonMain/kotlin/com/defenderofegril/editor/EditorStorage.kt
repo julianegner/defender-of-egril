@@ -5,6 +5,7 @@ import com.defenderofegril.model.DefenderType
 import com.defenderofegril.model.AttackerWave
 import com.defenderofegril.model.Level
 import com.defenderofegril.model.PlannedEnemySpawn
+import com.defenderofegril.model.getHexNeighbors
 
 /**
  * File-based storage for maps and levels
@@ -225,6 +226,7 @@ object EditorStorage {
             targetPosition = target,
             pathCells = map.getPathCells(),
             buildIslands = map.getBuildIslands(),
+            buildAreas = map.getBuildAreas(),
             attackerWaves = waves,
             initialCoins = editorLevel.startCoins,
             healthPoints = editorLevel.startHealthPoints,
@@ -303,6 +305,29 @@ object EditorStorage {
             // Set island cells
             pathAndIslands.buildIslands.forEach { pos ->
                 tiles["${pos.x},${pos.y}"] = TileType.ISLAND
+            }
+            
+            // Calculate and set BUILD_AREA tiles (adjacent to PATH)
+            for (x in 0 until width) {
+                for (y in 0 until height) {
+                    val pos = com.defenderofegril.model.Position(x, y)
+                    val key = "$x,$y"
+                    
+                    // Skip if already has a tile type assigned
+                    if (tiles.containsKey(key)) continue
+                    
+                    // Check if adjacent to a path
+                    val neighbors = pos.getHexNeighbors()
+                    val isAdjacentToPath = neighbors.any { neighbor ->
+                        neighbor.x >= 0 && neighbor.x < width &&
+                        neighbor.y >= 0 && neighbor.y < height &&
+                        tiles["${neighbor.x},${neighbor.y}"] == TileType.PATH
+                    }
+                    
+                    if (isAdjacentToPath) {
+                        tiles[key] = TileType.BUILD_AREA
+                    }
+                }
             }
             
             val map = EditorMap(
