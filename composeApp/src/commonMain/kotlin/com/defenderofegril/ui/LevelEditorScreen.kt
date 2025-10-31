@@ -23,6 +23,8 @@ import com.defenderofegril.editor.EditorMap
 import com.defenderofegril.editor.TileType
 import com.defenderofegril.model.AttackerType
 import com.defenderofegril.model.DefenderType
+import com.defenderofegril.model.Position
+import com.defenderofegril.model.getHexNeighbors
 import kotlin.math.sqrt
 
 enum class EditorTab {
@@ -197,7 +199,7 @@ fun MapEditorContent() {
         CreateMapDialog(
             onDismiss = { showCreateDialog = false },
             onCreate = { name, width, height ->
-                val newId = "map_custom_${System.currentTimeMillis()}"
+                val newId = "map_custom_${kotlin.random.Random.nextInt(10000, 99999)}"
                 val newMap = EditorMap(
                     id = newId,
                     name = name,
@@ -260,7 +262,8 @@ fun MapEditorView(
             modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
             horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            items(TileType.values().toList()) { tileType ->
+            // Filter out BUILD_AREA since it's calculated automatically from PATH adjacency
+            items(TileType.values().filter { it != TileType.BUILD_AREA }.toList()) { tileType ->
                 TileTypeButton(
                     tileType = tileType,
                     selected = selectedTileType == tileType,
@@ -297,22 +300,40 @@ fun MapEditorView(
                     ) {
                         for (x in 0 until map.width) {
                             val key = "$x,$y"
-                            val currentType = tiles[key] ?: TileType.NO_PLAY
+                            val storedType = tiles[key] ?: TileType.NO_PLAY
+                            
+                            // Calculate display type - BUILD_AREA should be shown if adjacent to PATH
+                            val displayType = if (storedType == TileType.NO_PLAY) {
+                                // Check if this NO_PLAY cell is adjacent to a PATH cell
+                                val position = com.defenderofegril.model.Position(x, y)
+                                val neighbors = position.getHexNeighbors()
+                                val isAdjacentToPath = neighbors.any { neighbor ->
+                                    neighbor.x in 0 until map.width &&
+                                    neighbor.y in 0 until map.height &&
+                                    tiles["${neighbor.x},${neighbor.y}"] == TileType.PATH
+                                }
+                                if (isAdjacentToPath) TileType.BUILD_AREA else TileType.NO_PLAY
+                            } else {
+                                storedType
+                            }
                             
                             Box(
                                 modifier = Modifier
                                     .width((hexWidth).dp)
                                     .height((hexHeight).dp)
                                     .clip(HexagonShape())
-                                    .background(getTileColor(currentType))
+                                    .background(getTileColor(displayType))
                                     .border(1.5.dp, Color.Black, HexagonShape())
                                     .clickable {
-                                        tiles[key] = selectedTileType
+                                        // Only allow painting of explicit tiles, not BUILD_AREA
+                                        if (selectedTileType != TileType.BUILD_AREA) {
+                                            tiles[key] = selectedTileType
+                                        }
                                     },
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text(
-                                    text = getTileSymbol(currentType),
+                                    text = getTileSymbol(displayType),
                                     fontSize = 16.sp,
                                     color = Color.White
                                 )
@@ -541,7 +562,7 @@ fun LevelEditorContent() {
         CreateLevelDialog(
             onDismiss = { showCreateDialog = false },
             onCreate = { title ->
-                val newId = "level_custom_${System.currentTimeMillis()}"
+                val newId = "level_custom_${kotlin.random.Random.nextInt(10000, 99999)}"
                 val newLevel = com.defenderofegril.editor.EditorLevel(
                     id = newId,
                     mapId = EditorStorage.getAllMaps().firstOrNull()?.id ?: "map_30x8",
