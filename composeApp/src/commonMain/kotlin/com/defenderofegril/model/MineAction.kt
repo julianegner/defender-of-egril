@@ -1,0 +1,36 @@
+package com.defenderofegril.model
+
+/**
+ * Actions that can be performed by a dwarven mine
+ */
+enum class MineAction {
+    DIG,         // Try to find valuable materials (with risk of dragon)
+    BUILD_TRAP   // Place a trap on the path
+}
+
+/**
+ * Possible outcomes when digging in a mine
+ */
+enum class DigOutcome(val probability: Int, val coins: Int, val displayName: String) {
+    NOTHING(50, 0, "Nothing"),
+    BRASS(20, 10, "Brass"),
+    SILVER(10, 25, "Silver"),
+    GOLD(8, 50, "Gold"),
+    GEMS(6, 200, "Gems"),
+    DIAMOND(4, 1000, "Diamond"),
+    DRAGON(2, 0, "Dragon awakens!");
+    
+    companion object {
+        fun roll(): DigOutcome {
+            val roll = (1..100).random()
+            var cumulative = 0
+            for (outcome in values()) {
+                cumulative += outcome.probability
+                if (roll <= cumulative) {
+                    return outcome
+                }
+            }
+            return NOTHING // Fallback
+        }
+    }
+}
