@@ -4,6 +4,7 @@ import com.defenderofegril.model.AttackerType
 import com.defenderofegril.model.DefenderType
 import com.defenderofegril.model.AttackerWave
 import com.defenderofegril.model.Level
+import com.defenderofegril.model.PlannedEnemySpawn
 
 /**
  * File-based storage for maps and levels
