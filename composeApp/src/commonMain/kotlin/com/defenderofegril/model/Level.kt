@@ -15,7 +15,8 @@ data class Level(
     val buildIslands: Set<Position>,
     val attackerWaves: List<AttackerWave>,
     val initialCoins: Int = 100,
-    val healthPoints: Int = 10
+    val healthPoints: Int = 10,
+    val directSpawnPlan: List<PlannedEnemySpawn>? = null  // Direct spawn plan from editor
 ) {
     fun isOnPath(position: Position): Boolean {
         return pathCells.contains(position)
@@ -150,8 +151,11 @@ data class AttackerWave(
  */
 data class PlannedEnemySpawn(
     val attackerType: AttackerType,
-    val spawnTurn: Int
-)
+    val spawnTurn: Int,
+    val level: Int = 1
+) {
+    val healthPoints: Int get() = attackerType.health * level
+}
 
 /**
  * Generate a spawn plan for all waves in a level
