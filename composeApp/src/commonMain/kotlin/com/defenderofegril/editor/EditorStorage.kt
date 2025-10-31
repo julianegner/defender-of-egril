@@ -55,10 +55,8 @@ object EditorStorage {
         
         // Try to load from file
         val json = fileStorage.readFile("$MAPS_DIR/$id.json")
-        println("EditorStorage: Map JSON: $json")
         if (json != null) {
             val map = EditorJsonSerializer.deserializeMap(json)
-            println("EditorStorage: Deserialized map $id: $map")
             if (map != null) {
                 mapsCache[id] = map
                 return map
@@ -141,12 +139,9 @@ object EditorStorage {
         
         // Try to load from file
         val json = fileStorage.readFile(SEQUENCE_FILE)
-        println("EditorStorage: Level sequence JSON: $json")
-        
+
         if (json != null) {
             val sequence = EditorJsonSerializer.deserializeSequence(json)
-            println("EditorStorage: Deserialized level sequence: $sequence")
-            
             if (sequence != null && sequence.sequence.isNotEmpty()) {
                 levelSequenceCache = sequence
                 return sequence
@@ -193,6 +188,10 @@ object EditorStorage {
         
         // Convert enemy spawns to AttackerWaves
         // Group by spawn turn to create waves
+        println("-------------------------------")
+        println("enemySpawns: ${editorLevel.enemySpawns}")
+        println("-------------------------------")
+
         val spawnsByTurn = editorLevel.enemySpawns.groupBy { it.spawnTurn }
         println("Enemy spawns grouped by turn: ${spawnsByTurn.keys.sorted()}")
         val waves = spawnsByTurn.entries.sortedBy { it.key }.map { (_, spawns) ->
