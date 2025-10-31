@@ -31,6 +31,10 @@ class AndroidFileStorage : FileStorage {
     override fun createDirectory(path: String) {
         directories.add(path)
     }
+    
+    override fun deleteFile(path: String) {
+        files.remove(path)
+    }
 }
 
 actual fun getFileStorage(): FileStorage = AndroidFileStorage()

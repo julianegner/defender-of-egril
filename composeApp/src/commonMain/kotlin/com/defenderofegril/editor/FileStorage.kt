@@ -9,6 +9,7 @@ interface FileStorage {
     fun listFiles(directory: String): List<String>
     fun fileExists(path: String): Boolean
     fun createDirectory(path: String)
+    fun deleteFile(path: String)
 }
 
 expect fun getFileStorage(): FileStorage
