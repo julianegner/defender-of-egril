@@ -4,6 +4,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -14,13 +15,19 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import com.defenderofegril.editor.EditorStorage
 import com.defenderofegril.editor.EditorMap
 import com.defenderofegril.editor.TileType
@@ -44,74 +51,96 @@ fun LevelEditorScreen(
 ) {
     var currentTab by remember { mutableStateOf(EditorTab.LEVEL_EDITOR) }
     
-    Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp)
+    Box(
+        modifier = Modifier.fillMaxSize()
     ) {
-        // Title and Back button row
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+        // Content area (below header)
+        Column(
+            modifier = Modifier.fillMaxSize().padding(16.dp)
         ) {
-            Text(
-                text = "Level Editor",
-                style = MaterialTheme.typography.titleLarge
-            )
+            // Spacer for header
+            Spacer(modifier = Modifier.height(140.dp))
             
-            Button(onClick = onBack) {
-                Text("← Back to World Map")
+            // Content based on selected tab
+            when (currentTab) {
+                EditorTab.MAP_EDITOR -> MapEditorContent()
+                EditorTab.LEVEL_EDITOR -> LevelEditorContent()
+                EditorTab.LEVEL_SEQUENCE -> LevelSequenceContent()
             }
         }
         
-        // Tab buttons
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        // Main header (on top with elevated z-index)
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .zIndex(1f)
+                .padding(16.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
         ) {
-            Button(
-                onClick = { currentTab = EditorTab.MAP_EDITOR },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = if (currentTab == EditorTab.MAP_EDITOR) 
-                        MaterialTheme.colorScheme.primary 
-                    else 
-                        MaterialTheme.colorScheme.secondary
-                )
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.surface)
+                    .padding(12.dp)
             ) {
-                Text("Map Editor")
+                // Title and Back button row
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Level Editor",
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                    
+                    Button(onClick = onBack) {
+                        Text("← Back to World Map")
+                    }
+                }
+                
+                // Tab buttons
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Button(
+                        onClick = { currentTab = EditorTab.MAP_EDITOR },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (currentTab == EditorTab.MAP_EDITOR) 
+                                MaterialTheme.colorScheme.primary 
+                            else 
+                                MaterialTheme.colorScheme.secondary
+                        )
+                    ) {
+                        Text("Map Editor")
+                    }
+                    
+                    Button(
+                        onClick = { currentTab = EditorTab.LEVEL_EDITOR },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (currentTab == EditorTab.LEVEL_EDITOR) 
+                                MaterialTheme.colorScheme.primary 
+                            else 
+                                MaterialTheme.colorScheme.secondary
+                        )
+                    ) {
+                        Text("Level Editor")
+                    }
+                    
+                    Button(
+                        onClick = { currentTab = EditorTab.LEVEL_SEQUENCE },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (currentTab == EditorTab.LEVEL_SEQUENCE) 
+                                MaterialTheme.colorScheme.primary 
+                            else 
+                                MaterialTheme.colorScheme.secondary
+                        )
+                    ) {
+                        Text("Level Sequence")
+                    }
+                }
             }
-            
-            Button(
-                onClick = { currentTab = EditorTab.LEVEL_EDITOR },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = if (currentTab == EditorTab.LEVEL_EDITOR) 
-                        MaterialTheme.colorScheme.primary 
-                    else 
-                        MaterialTheme.colorScheme.secondary
-                )
-            ) {
-                Text("Level Editor")
-            }
-            
-            Button(
-                onClick = { currentTab = EditorTab.LEVEL_SEQUENCE },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = if (currentTab == EditorTab.LEVEL_SEQUENCE) 
-                        MaterialTheme.colorScheme.primary 
-                    else 
-                        MaterialTheme.colorScheme.secondary
-                )
-            ) {
-                Text("Level Sequence")
-            }
-        }
-        
-        Spacer(modifier = Modifier.height(16.dp))
-        
-        // Content based on selected tab
-        when (currentTab) {
-            EditorTab.MAP_EDITOR -> MapEditorContent()
-            EditorTab.LEVEL_EDITOR -> LevelEditorContent()
-            EditorTab.LEVEL_SEQUENCE -> LevelSequenceContent()
         }
     }
 }
@@ -246,7 +275,13 @@ fun MapEditorContent() {
         CreateMapDialog(
             onDismiss = { showCreateDialog = false },
             onCreate = { name, width, height ->
-                val newId = "map_custom_${kotlin.random.Random.nextInt(10000, 99999)}"
+                // Generate ID from name with underscores
+                val sanitizedName = name.trim().replace(" ", "_").replace(Regex("[^a-zA-Z0-9_]"), "")
+                val newId = if (sanitizedName.isNotEmpty()) {
+                    "map_$sanitizedName"
+                } else {
+                    "map_custom_${kotlin.random.Random.nextInt(10000, 99999)}"
+                }
                 val newMap = EditorMap(
                     id = newId,
                     name = name,
@@ -273,139 +308,225 @@ fun MapEditorView(
     var selectedTileType by remember { mutableStateOf(TileType.PATH) }
     var mapName by remember { mutableStateOf(map.name) }
     var showSaveAsDialog by remember { mutableStateOf(false) }
+    var zoomLevel by remember { mutableStateOf(1.0f) }
+    var offsetX by remember { mutableStateOf(0f) }
+    var offsetY by remember { mutableStateOf(0f) }
     
     // Hexagon dimensions - using same constants as game
-    val hexSize = 32.dp  // Radius of hexagon (center to corner)
+    val hexSize = 32.dp * zoomLevel  // Radius of hexagon with zoom applied
     val sqrt3 = sqrt(3.0).toFloat()
     val hexWidth = hexSize.value * sqrt3  // Width of hexagon (flat-to-flat)
     val hexHeight = hexSize.value * 2f    // Height of hexagon (point-to-point)
     val verticalSpacing = hexHeight * 0.75f  // For pointy-top hexagons
     
-    Column(
+    Box(
         modifier = Modifier.fillMaxSize()
     ) {
-        // Header
-        Text(
-            text = "Editing: ${map.name.ifEmpty { map.id }}",
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-        
-        // Map name input
-        OutlinedTextField(
-            value = mapName,
-            onValueChange = { mapName = it },
-            label = { Text("Map Name") },
-            modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
-        )
-        
-        // Tile type selector
-        Text(
-            text = "Select Tile Type:",
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.padding(bottom = 4.dp)
-        )
-        
-        LazyRow(
-            modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
+        // Map grid layer (below header)
+        Column(
+            modifier = Modifier.fillMaxSize()
         ) {
-            // All tile types are selectable
-            items(TileType.values().toList()) { tileType ->
-                TileTypeButton(
-                    tileType = tileType,
-                    selected = selectedTileType == tileType,
-                    onClick = { selectedTileType = tileType }
-                )
-            }
-        }
-        
-        // Hexagonal grid view
-        Text(
-            text = "Click hexagons to paint (${map.width}x${map.height}):",
-            style = MaterialTheme.typography.bodySmall,
-            modifier = Modifier.padding(bottom = 4.dp)
-        )
-        
-        Box(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth()
-                .horizontalScroll(rememberScrollState())
-                .verticalScroll(rememberScrollState())
-                .padding(8.dp)
-        ) {
-            Column(
-                verticalArrangement = Arrangement.spacedBy((-hexHeight + verticalSpacing - 7f).dp)
-            ) {
-                for (y in 0 until map.height) {
-                    Row(
-                        modifier = Modifier.offset(
-                            x = if (y % 2 == 1) (hexWidth * 0.42f).dp else 0.dp,
-                            y = (-(y-1)).dp
-                        ),
-                        horizontalArrangement = Arrangement.spacedBy((-10).dp)
-                    ) {
-                        for (x in 0 until map.width) {
-                            val key = "$x,$y"
-                            val tileType = tiles[key] ?: TileType.NO_PLAY
+            // Spacer to account for header height
+            Spacer(modifier = Modifier.height(280.dp))
+            
+            var containerSize by remember { mutableStateOf(IntSize.Zero) }
+            
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .padding(8.dp)
+                    .onSizeChanged { containerSize = it }
+                    .mouseWheelZoom(
+                        containerSize = containerSize,
+                        scale = zoomLevel,
+                        offsetX = offsetX,
+                        offsetY = offsetY,
+                        onScaleChange = { newScale -> zoomLevel = newScale },
+                        onOffsetChange = { newX, newY -> 
+                            offsetX = newX
+                            offsetY = newY
+                        }
+                    )
+                    .pointerInput(Unit) {
+                        detectTransformGestures { _, pan, zoom, _ ->
+                            // Apply pan
+                            offsetX += pan.x
+                            offsetY += pan.y
                             
-                            Box(
-                                modifier = Modifier
-                                    .width((hexWidth).dp)
-                                    .height((hexHeight).dp)
-                                    .clip(HexagonShape())
-                                    .background(getTileColor(tileType))
-                                    .border(1.5.dp, Color.Black, HexagonShape())
-                                    .clickable {
-                                        tiles[key] = selectedTileType
-                                    },
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = getTileSymbol(tileType),
-                                    fontSize = 16.sp,
-                                    color = Color.White
-                                )
+                            // Apply zoom (for pinch gestures on mobile)
+                            if (zoom != 1f) {
+                                zoomLevel = (zoomLevel * zoom).coerceIn(0.5f, 3f)
+                            }
+                        }
+                    }
+            ) {
+                Column(
+                    modifier = Modifier.graphicsLayer(
+                        scaleX = zoomLevel,
+                        scaleY = zoomLevel,
+                        translationX = offsetX,
+                        translationY = offsetY
+                    ),
+                    verticalArrangement = Arrangement.spacedBy((-hexHeight + verticalSpacing - 7f).dp)
+                ) {
+                    for (y in 0 until map.height) {
+                        Row(
+                            modifier = Modifier.offset(
+                                x = if (y % 2 == 1) (hexWidth * 0.42f).dp else 0.dp,
+                                y = (-(y-1)).dp
+                            ),
+                            horizontalArrangement = Arrangement.spacedBy((-10).dp)
+                        ) {
+                            for (x in 0 until map.width) {
+                                val key = "$x,$y"
+                                val tileType = tiles[key] ?: TileType.NO_PLAY
+                                
+                                Box(
+                                    modifier = Modifier
+                                        .width((hexWidth).dp)
+                                        .height((hexHeight).dp)
+                                        .clip(HexagonShape())
+                                        .background(getTileColor(tileType))
+                                        .border(1.5.dp, Color.Black, HexagonShape())
+                                        .clickable {
+                                            tiles = tiles.toMutableMap().apply {
+                                                this[key] = selectedTileType
+                                            }
+                                        },
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = getTileSymbol(tileType),
+                                        fontSize = 16.sp,
+                                        color = Color.White
+                                    )
+                                }
                             }
                         }
                     }
                 }
             }
+            
+            // Action buttons
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Button(
+                    onClick = {
+                        val updatedMap = map.copy(
+                            name = mapName,
+                            tiles = tiles.toMap()
+                        )
+                        // Validate and set readyToUse flag
+                        val validatedMap = updatedMap.copy(readyToUse = updatedMap.validateReadyToUse())
+                        onSave(validatedMap)
+                    },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("Save Map")
+                }
+                
+                Button(
+                    onClick = { showSaveAsDialog = true },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("Save As New")
+                }
+                
+                Button(
+                    onClick = onCancel,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("Cancel")
+                }
+            }
         }
         
-        // Action buttons
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        // Header overlay (on top with elevated z-index)
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .zIndex(1f)
+                .padding(8.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
         ) {
-            Button(
-                onClick = {
-                    val updatedMap = map.copy(
-                        name = mapName,
-                        tiles = tiles.toMap()
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.surface)
+                    .padding(12.dp)
+            ) {
+                // Header
+                Text(
+                    text = "Editing: ${map.name.ifEmpty { map.id }}",
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+                
+                // Map name input
+                OutlinedTextField(
+                    value = mapName,
+                    onValueChange = { mapName = it },
+                    label = { Text("Map Name") },
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
+                )
+                
+                // Tile type selector
+                Text(
+                    text = "Select Tile Type:",
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(bottom = 4.dp)
+                )
+                
+                LazyRow(
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    // All tile types are selectable
+                    items(TileType.values().toList()) { tileType ->
+                        TileTypeButton(
+                            tileType = tileType,
+                            selected = selectedTileType == tileType,
+                            onClick = { selectedTileType = tileType }
+                        )
+                    }
+                }
+                
+                // Zoom controls
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Click hexagons to paint (${map.width}x${map.height}). Use Ctrl+Scroll to zoom:",
+                        style = MaterialTheme.typography.bodySmall
                     )
-                    // Validate and set readyToUse flag
-                    val validatedMap = updatedMap.copy(readyToUse = updatedMap.validateReadyToUse())
-                    onSave(validatedMap)
-                },
-                modifier = Modifier.weight(1f)
-            ) {
-                Text("Save Map")
-            }
-            
-            Button(
-                onClick = { showSaveAsDialog = true },
-                modifier = Modifier.weight(1f)
-            ) {
-                Text("Save As New")
-            }
-            
-            Button(
-                onClick = onCancel,
-                modifier = Modifier.weight(1f)
-            ) {
-                Text("Cancel")
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Button(
+                            onClick = { zoomLevel = maxOf(0.5f, zoomLevel - 0.1f) },
+                            modifier = Modifier.height(32.dp)
+                        ) {
+                            Text("🔍-", fontSize = 12.sp)
+                        }
+                        Text(
+                            text = "${(zoomLevel * 100).toInt()}%",
+                            fontSize = 12.sp,
+                            modifier = Modifier.padding(horizontal = 4.dp)
+                        )
+                        Button(
+                            onClick = { zoomLevel = minOf(3.0f, zoomLevel + 0.1f) },
+                            modifier = Modifier.height(32.dp)
+                        ) {
+                            Text("🔍+", fontSize = 12.sp)
+                        }
+                    }
+                }
             }
         }
     }
@@ -415,8 +536,13 @@ fun MapEditorView(
             currentName = mapName,
             onDismiss = { showSaveAsDialog = false },
             onSave = { newName ->
-                // Save as new map with different ID
-                val newId = "map_copy_${kotlin.random.Random.nextInt(10000, 99999)}"
+                // Save as new map with ID based on name
+                val sanitizedName = newName.trim().replace(" ", "_").replace(Regex("[^a-zA-Z0-9_]"), "")
+                val newId = if (sanitizedName.isNotEmpty()) {
+                    "map_$sanitizedName"
+                } else {
+                    "map_copy_${kotlin.random.Random.nextInt(10000, 99999)}"
+                }
                 val newMap = map.copy(
                     id = newId,
                     name = newName,
@@ -647,7 +773,13 @@ fun LevelEditorContent() {
         CreateLevelDialog(
             onDismiss = { showCreateDialog = false },
             onCreate = { title ->
-                val newId = "level_custom_${kotlin.random.Random.nextInt(10000, 99999)}"
+                // Generate ID from title with underscores
+                val sanitizedTitle = title.trim().replace(" ", "_").replace(Regex("[^a-zA-Z0-9_]"), "")
+                val newId = if (sanitizedTitle.isNotEmpty()) {
+                    "level_$sanitizedTitle"
+                } else {
+                    "level_custom_${kotlin.random.Random.nextInt(10000, 99999)}"
+                }
                 // Get first ready-to-use map
                 val firstReadyMap = EditorStorage.getAllMaps().filter { it.readyToUse }.firstOrNull()
                 val newLevel = com.defenderofegril.editor.EditorLevel(
@@ -685,6 +817,7 @@ fun LevelEditorView(
     var enemySpawns by remember { mutableStateOf(level.enemySpawns.toMutableList()) }
     var availableTowers by remember { mutableStateOf(level.availableTowers.toMutableSet()) }
     var showEnemyDialog by remember { mutableStateOf(false) }
+    var showEnemyDialogForTurn by remember { mutableStateOf(1) }
     var showSaveAsDialog by remember { mutableStateOf(false) }
     
     // Get only ready-to-use maps for selection
@@ -778,28 +911,78 @@ fun LevelEditorView(
                         text = "Enemies (${enemySpawns.size}):",
                         style = MaterialTheme.typography.bodyMedium
                     )
-                    Button(onClick = { showEnemyDialog = true }) {
-                        Text("Add Enemy")
+                    Button(onClick = { 
+                        // Add a new turn (next available)
+                        val nextTurn = (enemySpawns.maxOfOrNull { it.spawnTurn } ?: 0) + 1
+                        enemySpawns = enemySpawns.toMutableList().apply {
+                            add(com.defenderofegril.editor.EditorEnemySpawn(
+                                com.defenderofegril.model.AttackerType.GOBLIN, 
+                                1, 
+                                nextTurn
+                            ))
+                        }
+                    }) {
+                        Text("➕ Add Turn")
                     }
                 }
             }
             
             // Group enemies by spawn turn
-            enemySpawns.groupBy { it.spawnTurn }.toSortedMap().forEach { (turn, spawnsInTurn) ->
+            val turnGroups = enemySpawns.groupBy { it.spawnTurn }.entries.sortedBy { it.key }
+            val turns = turnGroups.map { it.key }
+            
+            turnGroups.forEachIndexed { index, entry ->
+                val turn = entry.key
+                val spawnsInTurn = entry.value
                 item {
+                    val turnIndex = index
                     SpawnTurnSection(
                         turn = turn,
                         spawns = spawnsInTurn,
                         onRemoveEnemy = { spawn ->
-                            enemySpawns.remove(spawn)
+                            enemySpawns = enemySpawns.toMutableList().apply { remove(spawn) }
                         },
                         onCopyTurn = {
                             // Copy all enemies from this turn to a new turn (next available)
                             val maxTurn = enemySpawns.maxOfOrNull { it.spawnTurn } ?: 0
-                            spawnsInTurn.forEach { spawn ->
-                                enemySpawns.add(spawn.copy(spawnTurn = maxTurn + 1))
+                            enemySpawns = enemySpawns.toMutableList().apply {
+                                spawnsInTurn.forEach { spawn ->
+                                    add(spawn.copy(spawnTurn = maxTurn + 1))
+                                }
                             }
-                        }
+                        },
+                        onAddEnemy = {
+                            // Show dialog to add enemy to this specific turn
+                            showEnemyDialog = true
+                            showEnemyDialogForTurn = turn
+                        },
+                        onMoveTurnUp = {
+                            if (turnIndex > 0) {
+                                val prevTurn = turns[turnIndex - 1]
+                                enemySpawns = enemySpawns.map { spawn ->
+                                    when (spawn.spawnTurn) {
+                                        turn -> spawn.copy(spawnTurn = prevTurn)
+                                        prevTurn -> spawn.copy(spawnTurn = turn)
+                                        else -> spawn
+                                    }
+                                }.toMutableList()
+                            }
+                        },
+                        onMoveTurnDown = {
+                            if (turnIndex < turns.size - 1) {
+                                val nextTurn = turns[turnIndex + 1]
+                                enemySpawns = enemySpawns.map { spawn ->
+                                    when (spawn.spawnTurn) {
+                                        turn -> spawn.copy(spawnTurn = nextTurn)
+                                        nextTurn -> spawn.copy(spawnTurn = turn)
+                                        else -> spawn
+                                    }
+                                }.toMutableList()
+                            }
+                        },
+                        canMoveUp = turnIndex > 0,
+                        canMoveDown = turnIndex < turns.size - 1,
+                        ewhadCount = ewhadCount
                     )
                 }
             }
@@ -881,11 +1064,12 @@ fun LevelEditorView(
     if (showEnemyDialog) {
         AddEnemyDialog(
             ewhadCount = ewhadCount,
+            turn = showEnemyDialogForTurn,
             onDismiss = { showEnemyDialog = false },
-            onAdd = { enemyType, level, turn ->
-                enemySpawns.add(
-                    com.defenderofegril.editor.EditorEnemySpawn(enemyType, level, turn)
-                )
+            onAdd = { enemyType, level ->
+                enemySpawns = enemySpawns.toMutableList().apply {
+                    add(com.defenderofegril.editor.EditorEnemySpawn(enemyType, level, showEnemyDialogForTurn))
+                }
                 showEnemyDialog = false
             }
         )
@@ -896,7 +1080,13 @@ fun LevelEditorView(
             currentTitle = title,
             onDismiss = { showSaveAsDialog = false },
             onSave = { newTitle ->
-                val newId = "level_copy_${kotlin.random.Random.nextInt(10000, 99999)}"
+                // Generate ID from title with underscores
+                val sanitizedTitle = newTitle.trim().replace(" ", "_").replace(Regex("[^a-zA-Z0-9_]"), "")
+                val newId = if (sanitizedTitle.isNotEmpty()) {
+                    "level_$sanitizedTitle"
+                } else {
+                    "level_copy_${kotlin.random.Random.nextInt(10000, 99999)}"
+                }
                 val newLevel = level.copy(
                     id = newId,
                     title = newTitle,
@@ -917,19 +1107,19 @@ fun LevelEditorView(
 @Composable
 fun AddEnemyDialog(
     ewhadCount: Int = 0,
+    turn: Int,
     onDismiss: () -> Unit,
-    onAdd: (com.defenderofegril.model.AttackerType, Int, Int) -> Unit
+    onAdd: (com.defenderofegril.model.AttackerType, Int) -> Unit
 ) {
     var selectedType by remember { mutableStateOf(com.defenderofegril.model.AttackerType.GOBLIN) }
     var level by remember { mutableStateOf("1") }
-    var turn by remember { mutableStateOf("1") }
     
     // Check if trying to add Ewhad when one already exists
     val canAddEwhad = selectedType != com.defenderofegril.model.AttackerType.EWHAD || ewhadCount == 0
     
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Add Enemy") },
+        title = { Text("Add Enemy to Turn $turn") },
         text = {
             Column {
                 Text("Enemy Type:", modifier = Modifier.padding(bottom = 4.dp))
@@ -956,12 +1146,6 @@ fun AddEnemyDialog(
                     modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
                 )
                 Text("HP: ${selectedType.health * (level.toIntOrNull() ?: 1)}", fontSize = 12.sp)
-                OutlinedTextField(
-                    value = turn,
-                    onValueChange = { if (it.all { c -> c.isDigit() }) turn = it },
-                    label = { Text("Spawn Turn") },
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
-                )
                 if (!canAddEwhad) {
                     Text(
                         text = "⚠️ Ewhad can only be spawned once per level!",
@@ -974,7 +1158,7 @@ fun AddEnemyDialog(
         confirmButton = {
             Button(
                 onClick = {
-                    onAdd(selectedType, level.toIntOrNull() ?: 1, turn.toIntOrNull() ?: 1)
+                    onAdd(selectedType, level.toIntOrNull() ?: 1)
                 },
                 enabled = canAddEwhad
             ) {
@@ -1275,7 +1459,7 @@ fun MapMiniPreview(map: EditorMap) {
                 // Draw hexagon
                 val path = Path().apply {
                     for (i in 0 until 6) {
-                        val angle = Math.toRadians(60.0 * i - 30.0)
+                        val angle = kotlin.math.PI * (60.0 * i - 30.0) / 180.0
                         val x = centerX + (hexSize * cos(angle)).toFloat()
                         val y = centerY + (hexSize * sin(angle)).toFloat()
                         if (i == 0) moveTo(x, y) else lineTo(x, y)
@@ -1293,9 +1477,15 @@ fun SpawnTurnSection(
     turn: Int,
     spawns: List<com.defenderofegril.editor.EditorEnemySpawn>,
     onRemoveEnemy: (com.defenderofegril.editor.EditorEnemySpawn) -> Unit,
-    onCopyTurn: () -> Unit
+    onCopyTurn: () -> Unit,
+    onAddEnemy: () -> Unit,
+    onMoveTurnUp: () -> Unit,
+    onMoveTurnDown: () -> Unit,
+    canMoveUp: Boolean,
+    canMoveDown: Boolean,
+    ewhadCount: Int
 ) {
-    var expanded by remember { mutableStateOf(true) }
+    var expanded by remember { mutableStateOf(false) }
     
     Card(
         modifier = Modifier.fillMaxWidth()
@@ -1331,11 +1521,34 @@ fun SpawnTurnSection(
                     )
                 }
                 
-                Button(
-                    onClick = onCopyTurn,
-                    modifier = Modifier.height(32.dp)
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    Text("Copy Turn", fontSize = 12.sp)
+                    Button(
+                        onClick = onMoveTurnUp,
+                        enabled = canMoveUp,
+                        modifier = Modifier.height(32.dp)
+                    ) {
+                        Text("↑", fontSize = 12.sp)
+                    }
+                    Button(
+                        onClick = onMoveTurnDown,
+                        enabled = canMoveDown,
+                        modifier = Modifier.height(32.dp)
+                    ) {
+                        Text("↓", fontSize = 12.sp)
+                    }
+                    Button(
+                        onClick = onCopyTurn,
+                        modifier = Modifier.height(32.dp),
+                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp)
+                    ) {
+                        Text(
+                            text = "Copy Turn", 
+                            fontSize = 12.sp,
+                            modifier = Modifier.align(Alignment.CenterVertically)
+                        )
+                    }
                 }
             }
             
@@ -1345,6 +1558,14 @@ fun SpawnTurnSection(
                     modifier = Modifier.padding(top = 8.dp),
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
+                    // Add Enemy button at the top
+                    Button(
+                        onClick = onAddEnemy,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("➕ Add Enemy to Turn $turn")
+                    }
+                    
                     spawns.forEach { spawn ->
                         Row(
                             modifier = Modifier
@@ -1378,9 +1599,16 @@ fun SpawnTurnSection(
                             
                             Button(
                                 onClick = { onRemoveEnemy(spawn) },
-                                modifier = Modifier.height(28.dp)
+                                modifier = Modifier.height(36.dp),
+                                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp)
                             ) {
-                                Text("Remove", fontSize = 11.sp)
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                ) {
+                                    Text("🗑️", fontSize = 12.sp)
+                                    Text("Remove", fontSize = 11.sp)
+                                }
                             }
                         }
                     }

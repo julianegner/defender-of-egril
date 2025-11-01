@@ -43,9 +43,17 @@ object EditorStorage {
     }
     
     fun saveMap(map: EditorMap) {
-        mapsCache[map.id] = map
-        val json = EditorJsonSerializer.serializeMap(map)
-        fileStorage.writeFile("$MAPS_DIR/${map.id}.json", json)
+        // Validate and update readyToUse before saving
+        val validatedMap = map.copy(readyToUse = map.validateReadyToUse())
+        mapsCache[validatedMap.id] = validatedMap
+        val json = EditorJsonSerializer.serializeMap(validatedMap)
+        fileStorage.writeFile("$MAPS_DIR/${validatedMap.id}.json", json)
+    }
+    
+    fun reloadMap(id: String): EditorMap? {
+        // Force reload from file, bypassing cache
+        mapsCache.remove(id)
+        return getMap(id)
     }
     
     fun getMap(id: String): EditorMap? {
@@ -97,6 +105,12 @@ object EditorStorage {
             val newSequence = LevelSequence(sequence.sequence + level.id)
             updateLevelSequence(newSequence)
         }
+    }
+    
+    fun reloadLevel(id: String): EditorLevel? {
+        // Force reload from file, bypassing cache
+        levelsCache.remove(id)
+        return getLevel(id)
     }
     
     fun getLevel(id: String): EditorLevel? {
@@ -205,7 +219,8 @@ object EditorStorage {
      */
     fun convertToGameLevel(editorLevel: EditorLevel, numericId: Int): Level? {
         println("Converting EditorLevel ${editorLevel.id} to game Level with numeric ID $numericId")
-        val map = getMap(editorLevel.mapId) ?: return null
+        // Force reload the map from disk to get latest changes
+        val map = reloadMap(editorLevel.mapId) ?: getMap(editorLevel.mapId) ?: return null
         println("Using map: ${map.id} (${map.width}x${map.height})")
         
         // Convert enemy spawns directly to PlannedEnemySpawn
