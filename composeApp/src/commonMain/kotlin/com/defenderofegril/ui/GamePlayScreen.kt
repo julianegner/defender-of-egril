@@ -154,6 +154,9 @@ private fun GamePlayScreenContent(
     var headerExpanded by remember { mutableStateOf(true) }  // State for header fold/expand
     var showSaveConfirmation by remember { mutableStateOf(false) }  // Save confirmation
 
+    // Get platform-specific UI scale (for mobile zoom out)
+    val uiScale = getGameplayUIScale()
+
     // Auto-fold header when turn 1 starts
     val currentTurn = gameState.turnNumber.value
     LaunchedEffect(currentTurn) {
@@ -189,10 +192,19 @@ private fun GamePlayScreenContent(
         }
     }
 
-    Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .graphicsLayer(
+                scaleX = uiScale,
+                scaleY = uiScale
+            ),
+        contentAlignment = Alignment.TopCenter
     ) {
+        Column(
+            modifier = Modifier.fillMaxSize().padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
         // Header with prominent phase indicator (collapsible)
         // Wrap header in Box to ensure z-axis ordering (header in front of map)
         Box(
@@ -645,6 +657,7 @@ private fun GamePlayScreenContent(
             )
         }
     }
+}
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
