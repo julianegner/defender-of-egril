@@ -2,6 +2,7 @@ package com.defenderofegril.save
 
 import androidx.compose.runtime.mutableStateOf
 import com.defenderofegril.editor.getFileStorage
+import com.defenderofegril.game.LevelData
 import com.defenderofegril.model.*
 
 /**
@@ -63,6 +64,9 @@ object SaveFileStorage {
         val files = fileStorage.listFiles(SAVEFILES_DIR)
         val savedGames = mutableListOf<SaveGameMetadata>()
         
+        // Load levels to get spawn plans
+        val levels = LevelData.createLevels()
+        
         for (filename in files) {
             if (!filename.endsWith(".json") || filename == "worldmap.json") continue
             
@@ -83,10 +87,25 @@ object SaveFileStorage {
                         .groupingBy { it.type }
                         .eachCount()
                     
-                    // Count remaining spawns
-                    val remainingSpawnCounts = savedGame.attackersToSpawn
-                        .groupingBy { it }
-                        .eachCount()
+                    // Count remaining spawns from level descriptor
+                    // Find the level to get the spawn plan
+                    val level = levels.find { it.id == savedGame.levelId }
+                    val remainingSpawnCounts = if (level != null) {
+                        // Get the spawn plan (either from editor or generated from waves)
+                        val spawnPlan = level.directSpawnPlan ?: generateSpawnPlan(level.attackerWaves)
+                        
+                        // Filter to get only future spawns (turn > current turn)
+                        spawnPlan
+                            .filter { it.spawnTurn > savedGame.turnNumber }
+                            .map { it.attackerType }
+                            .groupingBy { it }
+                            .eachCount()
+                    } else {
+                        // Fallback to old behavior if level not found
+                        savedGame.attackersToSpawn
+                            .groupingBy { it }
+                            .eachCount()
+                    }
                     
                     savedGames.add(
                         SaveGameMetadata(
