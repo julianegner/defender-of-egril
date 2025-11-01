@@ -258,13 +258,14 @@ fun SavedGameCard(
                             modifier = Modifier
                                 .width(300.dp)
                                 .height(120.dp)
+                                .padding(top = 20.dp)
                         ) {
-                            val mapName = SaveGameMinimap(level)
+                            val mapName = LevelMinimap(level)
                             Text(
                                 text = mapName,
                                 style = MaterialTheme.typography.bodySmall,
                                 fontSize = 12.sp,
-                                modifier = Modifier.align(Alignment.TopStart)
+                                modifier = Modifier.absoluteOffset(x = 0.dp, y = (-20).dp)
                             )
                         }
                     }
@@ -323,94 +324,5 @@ private fun DefenderTypeIconSimple(defenderType: DefenderType) {
             .background(Color(0xFF2196F3)) // same color as in the game
     ) {
         TowerTypeIcon(defenderType = defenderType)
-    }
-}
-
-@Composable
-fun SaveGameMinimap(level: Level): String {
-    // Reuse the same minimap rendering logic from LevelMinimap
-    val sequence = remember { EditorStorage.getLevelSequence() }
-    val editorLevelId = remember(level.id) {
-        if (level.id > 0 && level.id <= sequence.sequence.size) {
-            sequence.sequence[level.id - 1]
-        } else {
-            null
-        }
-    }
-    
-    val editorLevel = remember(editorLevelId) { 
-        editorLevelId?.let { EditorStorage.getLevel(it) }
-    }
-    val map = remember(editorLevel?.mapId) { 
-        editorLevel?.let { EditorStorage.getMap(it.mapId) }
-    }
-    
-    if (map == null) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = "Map Preview",
-                fontSize = 8.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-        return ""
-    }
-    
-    // Render minimap
-    val hexSize = 6.dp.value
-    val hexWidth = sqrt(3.0) * hexSize
-    val hexHeight = 2.0 * hexSize
-    val verticalSpacing = hexHeight * 0.75
-    
-    Canvas(modifier = Modifier.fillMaxSize()) {
-        for (row in 0 until map.height) {
-            for (col in 0 until map.width) {
-                val tileType = map.tiles.getOrElse("$col,$row") { TileType.NO_PLAY }
-                
-                val offsetX = if (row % 2 == 1) hexWidth / 2 else 0.0
-                val centerX = (col * hexWidth + offsetX + hexWidth / 2).toFloat()
-                val centerY = (row * verticalSpacing + hexHeight / 2).toFloat()
-                
-                val color = when (tileType) {
-                    TileType.PATH -> Color(0xFF8B4513)
-                    TileType.BUILD_AREA -> Color(0xFF90EE90)
-                    TileType.ISLAND -> Color(0xFF228B22)
-                    TileType.SPAWN_POINT -> Color(0xFFDC143C)
-                    TileType.TARGET -> Color(0xFF4169E1)
-                    TileType.NO_PLAY -> Color(0xFF808080)
-                    TileType.WAYPOINT -> Color(0xFFFFD700)
-                }
-                
-                val path = Path().apply {
-                    for (i in 0 until 6) {
-                        val angle = PI * (60.0 * i - 30.0) / 180.0
-                        val x = centerX + (hexSize * cos(angle)).toFloat()
-                        val y = centerY + (hexSize * sin(angle)).toFloat()
-                        if (i == 0) moveTo(x, y) else lineTo(x, y)
-                    }
-                    close()
-                }
-                drawPath(path, color)
-            }
-        }
-    }
-    return map.name
-}
-
-@Composable
-fun InfoChip(text: String) {
-    Surface(
-        color = MaterialTheme.colorScheme.secondaryContainer,
-        shape = MaterialTheme.shapes.small
-    ) {
-        Text(
-            text = text,
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSecondaryContainer
-        )
     }
 }
