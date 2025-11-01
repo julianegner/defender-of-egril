@@ -54,11 +54,19 @@ class GameViewModel {
         }
     }
     
+    fun reloadWorldMap() {
+        // Reload levels from disk to get latest changes
+        println("Reloading world map from disk...")
+        initializeWorldMap()
+    }
+    
     fun navigateToMainMenu() {
         _currentScreen.value = Screen.MainMenu
     }
     
     fun navigateToWorldMap() {
+        // Reload levels from disk to ensure latest changes are visible
+        reloadWorldMap()
         _currentScreen.value = Screen.WorldMap
     }
     

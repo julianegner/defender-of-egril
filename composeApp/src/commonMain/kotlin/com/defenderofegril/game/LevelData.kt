@@ -20,7 +20,8 @@ object LevelData {
 
         println("Converting editor levels to game levels...")
         return sequence.sequence.mapIndexed { index, levelId ->
-            val editorLevel = EditorStorage.getLevel(levelId)
+            // Reload level from disk to ensure we have the latest version
+            val editorLevel = EditorStorage.reloadLevel(levelId)
             println("Processing level ID: $levelId at index $index - Found: ${editorLevel != null}")
             editorLevel?.let {
                 EditorStorage.convertToGameLevel(it, index + 1)
