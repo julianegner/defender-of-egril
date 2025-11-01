@@ -41,6 +41,7 @@ class SaveDataTest {
             levelId = 1,
             levelName = "Test Level",
             turnNumber = 5,
+            coins = 150,
             towerCount = 3,
             enemyCount = 10,
             defenderCounts = mapOf(DefenderType.SPIKE_TOWER to 2, DefenderType.BOW_TOWER to 1),
@@ -50,6 +51,7 @@ class SaveDataTest {
         
         assertEquals("save_123", metadata.id)
         assertEquals(5, metadata.turnNumber)
+        assertEquals(150, metadata.coins)
         assertEquals(3, metadata.towerCount)
         assertEquals(10, metadata.enemyCount)
         assertEquals(2, metadata.defenderCounts[DefenderType.SPIKE_TOWER])
