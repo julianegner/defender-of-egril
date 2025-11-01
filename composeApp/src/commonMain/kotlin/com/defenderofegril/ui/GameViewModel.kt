@@ -18,6 +18,7 @@ sealed class Screen {
     object WorldMap : Screen()
     object Rules : Screen()
     object LevelEditor : Screen()
+    object LoadGame : Screen()
     data class GamePlay(val levelId: Int) : Screen()
     data class LevelComplete(val levelId: Int, val won: Boolean) : Screen()
 }
@@ -43,13 +44,19 @@ class GameViewModel {
     private fun initializeWorldMap() {
         val levels = LevelData.createLevels()
         println("DEBUG: Total levels loaded: ${levels.size}")
+        
+        // Load saved world map status
+        val savedStatuses = com.defenderofegril.save.SaveFileStorage.loadWorldMapStatus()
+        
         _worldLevels.value = levels.mapIndexed { index, level ->
-
             println("DEBUG: Loaded Level ${level.id} - Name: ${level.name} - Path Cells: ${level.pathCells.size} - Build Islands: ${level.buildIslands.size}")
 
+            val status = savedStatuses?.get(level.id) ?: 
+                if (index == 0) LevelStatus.UNLOCKED else LevelStatus.LOCKED
+            
             WorldLevel(
                 level = level,
-                status = if (index == 0) LevelStatus.UNLOCKED else LevelStatus.LOCKED
+                status = status
             )
         }
     }
@@ -231,6 +238,8 @@ class GameViewModel {
                     updatedLevels[currentIndex + 1] = updatedLevels[currentIndex + 1].copy(status = LevelStatus.UNLOCKED)
                 }
                 _worldLevels.value = updatedLevels
+                // Save world map status
+                saveWorldMapStatus()
             }
         }
         _currentScreen.value = Screen.LevelComplete(levelId, won)
@@ -309,5 +318,50 @@ class GameViewModel {
                 else -> worldLevel
             }
         }
+        // Save updated world map status
+        saveWorldMapStatus()
+    }
+    
+    // Save/Load functionality
+    
+    private val _savedGames = MutableStateFlow<List<com.defenderofegril.save.SaveGameMetadata>>(emptyList())
+    val savedGames: StateFlow<List<com.defenderofegril.save.SaveGameMetadata>> = _savedGames.asStateFlow()
+    
+    fun navigateToLoadGame() {
+        refreshSavedGames()
+        _currentScreen.value = Screen.LoadGame
+    }
+    
+    fun saveCurrentGame(): String? {
+        val state = _gameState.value ?: return null
+        val saveId = com.defenderofegril.save.SaveFileStorage.saveGameState(state)
+        refreshSavedGames()
+        return saveId
+    }
+    
+    fun loadGame(saveId: String) {
+        val savedGame = com.defenderofegril.save.SaveFileStorage.loadGameState(saveId) ?: return
+        
+        // Find the level
+        val level = _worldLevels.value.find { it.level.id == savedGame.levelId }?.level ?: return
+        
+        // Convert saved game to game state
+        val gameState = com.defenderofegril.save.SaveFileStorage.convertSavedGameToGameState(savedGame, level)
+        _gameState.value = gameState
+        gameEngine = GameEngine(gameState)
+        _currentScreen.value = Screen.GamePlay(savedGame.levelId)
+    }
+    
+    fun deleteSavedGame(saveId: String) {
+        com.defenderofegril.save.SaveFileStorage.deleteSavedGame(saveId)
+        refreshSavedGames()
+    }
+    
+    private fun refreshSavedGames() {
+        _savedGames.value = com.defenderofegril.save.SaveFileStorage.getAllSavedGames()
+    }
+    
+    private fun saveWorldMapStatus() {
+        com.defenderofegril.save.SaveFileStorage.saveWorldMapStatus(_worldLevels.value)
     }
 }
