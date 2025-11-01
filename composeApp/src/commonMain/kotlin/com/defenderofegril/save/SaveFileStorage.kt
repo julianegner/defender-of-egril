@@ -15,6 +15,9 @@ object SaveFileStorage {
     private const val SAVEFILES_DIR = "savefiles"
     private const val WORLDMAP_FILE = "savefiles/worldmap.json"
     
+    // Cache levels to avoid reloading on every call to getAllSavedGames()
+    private var cachedLevels: List<Level>? = null
+    
     init {
         fileStorage.createDirectory(SAVEFILES_DIR)
     }
@@ -64,8 +67,8 @@ object SaveFileStorage {
         val files = fileStorage.listFiles(SAVEFILES_DIR)
         val savedGames = mutableListOf<SaveGameMetadata>()
         
-        // Load levels to get spawn plans
-        val levels = LevelData.createLevels()
+        // Load levels to get spawn plans (cache for performance)
+        val levels = cachedLevels ?: LevelData.createLevels().also { cachedLevels = it }
         
         for (filename in files) {
             if (!filename.endsWith(".json") || filename == "worldmap.json") continue
