@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.defenderofegril.editor.EditorStorage
 import com.defenderofegril.editor.TileType
+import com.defenderofegril.model.AttackerType
 import com.defenderofegril.model.Level
 import com.defenderofegril.model.LevelStatus
 import com.defenderofegril.model.WorldLevel
@@ -187,7 +188,7 @@ fun LevelCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(240.dp)
+            .height(200.dp)
             .clickable(enabled = worldLevel.status != LevelStatus.LOCKED, onClick = onClick),
         colors = CardDefaults.cardColors(containerColor = backgroundColor)
     ) {
@@ -197,94 +198,101 @@ fun LevelCard(
         ) {
             // Left column: Level info, coins, health, and enemies
             Column(
-                modifier = Modifier.weight(1f).fillMaxHeight(),
-                verticalArrangement = Arrangement.SpaceBetween
+                modifier = Modifier.weight(2f).fillMaxHeight(),
+                verticalArrangement = Arrangement.Top
             ) {
-                // Header: level number and name
-                Column {
-                    Text(
-                        text = "Level ${worldLevel.level.id}",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = Color.White,
-                        fontSize = 18.sp
-                    )
-                    
-                    Text(
-                        text = worldLevel.level.name,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color.White,
-                        textAlign = TextAlign.Start,
-                        modifier = Modifier.fillMaxWidth(),
-                        fontSize = 14.sp
-                    )
-                    
-                    Spacer(modifier = Modifier.height(4.dp))
-                    
-                    // Coins and Health display
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
+                Row {
+                    // Header: level number and name
+                    Column {
                         Text(
-                            text = "💰 ${worldLevel.level.initialCoins}",
-                            style = MaterialTheme.typography.bodySmall,
+                            text = "Level ${worldLevel.level.id}",
+                            style = MaterialTheme.typography.titleMedium,
                             color = Color.White,
-                            fontSize = 12.sp
+                            fontSize = 18.sp
                         )
+
                         Text(
-                            text = "❤️ ${worldLevel.level.healthPoints}",
-                            style = MaterialTheme.typography.bodySmall,
+                            text = worldLevel.level.name,
+                            style = MaterialTheme.typography.bodyMedium,
                             color = Color.White,
-                            fontSize = 12.sp
+                            textAlign = TextAlign.Start,
+                            modifier = Modifier.fillMaxWidth(),
+                            fontSize = 14.sp
                         )
+
+                        Spacer(modifier = Modifier.height(4.dp))
+
+                        // Coins and Health display
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "💰 ${worldLevel.level.initialCoins}",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color.White,
+                                fontSize = 12.sp
+                            )
+                            Text(
+                                text = "❤️ ${worldLevel.level.healthPoints}",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color.White,
+                                fontSize = 12.sp
+                            )
+                        }
                     }
                 }
-                
-                // Enemy units display
-                if (enemyList.isNotEmpty()) {
-                    Column(
-                        modifier = Modifier.weight(1f),
-                        verticalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        enemyList.forEach { (attackerType, count) ->
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.Start
-                            ) {
-                                Box(
-                                    modifier = Modifier.size(24.dp)
-                                ) {
-                                    EnemyTypeIcon(attackerType = attackerType)
+
+                Spacer(modifier = Modifier.height(8.dp))
+                Row {
+                    // Enemy units display
+                    if (enemyList.isNotEmpty()) {
+                        Column(
+                            modifier = Modifier.weight(1f),
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            enemyList.forEachIndexed { index, (attackerType, count) ->
+                                if (index % 2 == 0) {
+                                    EnemyUnitEntry(attackerType, count)
                                 }
-                                
-                                Spacer(modifier = Modifier.width(4.dp))
-                                
-                                Text(
-                                    text = "${attackerType.displayName}: ${count}",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = Color.White,
-                                    fontSize = 11.sp
-                                )
+                            }
+                        }
+                        Column(
+                            modifier = Modifier.weight(1f),
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            enemyList.forEachIndexed { index, (attackerType, count) ->
+                                if (index % 2 == 1) {
+                                    EnemyUnitEntry(attackerType, count)
+                                }
                             }
                         }
                     }
                 }
             }
-            
+
             // Right column: Minimap and status
             Column(
-                modifier = Modifier.width(120.dp).fillMaxHeight(),
+                modifier = Modifier
+                    .weight(2f)
+                    .fillMaxHeight(),
                 verticalArrangement = Arrangement.SpaceBetween,
-                horizontalAlignment = Alignment.End
+                // horizontalAlignment = Alignment.End
             ) {
                 // Minimap preview
                 Box(
                     modifier = Modifier
-                        .width(120.dp)
+                        .width(300.dp)
                         .height(120.dp)
-                        .border(1.dp, Color.White.copy(alpha = 0.3f))
+                        .padding(top = 20.dp)
                 ) {
-                    LevelMinimap(worldLevel.level)
+                    val mapName = LevelMinimap(worldLevel.level)
+                    Text(text = mapName,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.White,
+                        fontSize = 12.sp,
+                        modifier = Modifier.absoluteOffset(x = 0.dp, y = (-20).dp)
+                    )
                 }
                 
                 // Status at the bottom
@@ -302,7 +310,30 @@ fun LevelCard(
 }
 
 @Composable
-fun LevelMinimap(level: Level) {
+private fun EnemyUnitEntry(attackerType: AttackerType, count: Int) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Start
+    ) {
+        Box(
+            modifier = Modifier.size(24.dp)
+        ) {
+            EnemyTypeIcon(attackerType = attackerType)
+        }
+
+        Spacer(modifier = Modifier.width(4.dp))
+
+        Text(
+            text = "${attackerType.displayName}: ${count}",
+            style = MaterialTheme.typography.bodySmall,
+            color = Color.White,
+            fontSize = 11.sp
+        )
+    }
+}
+
+@Composable
+fun LevelMinimap(level: Level): String {
     // Cache the editor data to avoid redundant lookups on recomposition
     val sequence = remember { EditorStorage.getLevelSequence() }
     val editorLevelId = remember(level.id) {
@@ -332,7 +363,7 @@ fun LevelMinimap(level: Level) {
                 color = Color.White.copy(alpha = 0.5f)
             )
         }
-        return
+        return ""  // Return empty string if map is not found
     }
     
     // Render minimap similar to MapMiniPreview from LevelEditorScreen
@@ -376,6 +407,7 @@ fun LevelMinimap(level: Level) {
             }
         }
     }
+    return map.name
 }
 
 @Composable
@@ -385,16 +417,14 @@ fun EditorButtonCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(240.dp)
+            .height(100.dp)
             .clickable(onClick = onClick),
         colors = CardDefaults.cardColors(
             containerColor = Color(0xFFFF9800)  // Distinctive orange color
         )
     ) {
-        Column(
+        Row(
             modifier = Modifier.fillMaxSize().padding(12.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Distinctive symbol - wrench/hammer icon
             Text(
@@ -403,23 +433,25 @@ fun EditorButtonCard(
                 fontSize = 64.sp
             )
             
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            Text(
-                text = "Level Editor",
-                style = MaterialTheme.typography.titleLarge,
-                color = Color.White,
-                fontSize = 20.sp
-            )
-            
-            Spacer(modifier = Modifier.height(8.dp))
-            
-            Text(
-                text = "Create & Edit",
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color.White,
-                fontSize = 14.sp
-            )
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Column {
+                Text(
+                    text = "Level Editor",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = Color.White,
+                    fontSize = 20.sp
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = "Create & Edit Maps and Levels",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.White,
+                    fontSize = 14.sp
+                )
+            }
         }
     }
 }
