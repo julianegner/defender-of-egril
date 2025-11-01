@@ -95,6 +95,7 @@ object SaveFileStorage {
                             levelId = savedGame.levelId,
                             levelName = savedGame.levelName,
                             turnNumber = savedGame.turnNumber,
+                            coins = savedGame.coins,
                             towerCount = savedGame.defenders.size,
                             enemyCount = savedGame.attackers.count { !it.isDefeated },
                             defenderCounts = defenderCounts,
