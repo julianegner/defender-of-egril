@@ -71,6 +71,23 @@ object SaveFileStorage {
             if (json != null) {
                 val savedGame = SaveJsonSerializer.deserializeSavedGame(json)
                 if (savedGame != null) {
+                    // Count defenders by type (only built towers)
+                    val defenderCounts = savedGame.defenders
+                        .filter { it.buildTimeRemaining == 0 }
+                        .groupingBy { it.type }
+                        .eachCount()
+                    
+                    // Count active attackers by type
+                    val attackerCounts = savedGame.attackers
+                        .filter { !it.isDefeated }
+                        .groupingBy { it.type }
+                        .eachCount()
+                    
+                    // Count remaining spawns
+                    val remainingSpawnCounts = savedGame.attackersToSpawn
+                        .groupingBy { it }
+                        .eachCount()
+                    
                     savedGames.add(
                         SaveGameMetadata(
                             id = savedGame.id,
@@ -79,7 +96,10 @@ object SaveFileStorage {
                             levelName = savedGame.levelName,
                             turnNumber = savedGame.turnNumber,
                             towerCount = savedGame.defenders.size,
-                            enemyCount = savedGame.attackers.count { !it.isDefeated }
+                            enemyCount = savedGame.attackers.count { !it.isDefeated },
+                            defenderCounts = defenderCounts,
+                            attackerCounts = attackerCounts,
+                            remainingSpawnCounts = remainingSpawnCounts
                         )
                     )
                 }

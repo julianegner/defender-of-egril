@@ -76,5 +76,8 @@ data class SaveGameMetadata(
     val levelName: String,
     val turnNumber: Int,
     val towerCount: Int,
-    val enemyCount: Int
+    val enemyCount: Int,
+    val defenderCounts: Map<DefenderType, Int>,  // Count of each tower type
+    val attackerCounts: Map<AttackerType, Int>,  // Count of each enemy type currently on map
+    val remainingSpawnCounts: Map<AttackerType, Int>  // Count of enemies still to spawn
 )
