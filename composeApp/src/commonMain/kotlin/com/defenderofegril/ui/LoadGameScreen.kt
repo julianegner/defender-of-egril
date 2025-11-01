@@ -150,21 +150,45 @@ fun SavedGameCard(
             
             Spacer(modifier = Modifier.height(8.dp))
             
-            // Turn number with symbol
+            // Turn number and coins with symbols
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Start
+                horizontalArrangement = Arrangement.Start,
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Text(
-                    text = "⏱",
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontSize = 16.sp
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(
-                    text = "Turn ${saveGame.turnNumber}",
-                    style = MaterialTheme.typography.bodyMedium
-                )
+                // Turn number
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "⏱",
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontSize = 16.sp
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = "Turn ${saveGame.turnNumber}",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+                
+                Spacer(modifier = Modifier.width(16.dp))
+                
+                // Coins
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "💰",
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontSize = 16.sp
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = "${saveGame.coins}",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
             }
             
             Spacer(modifier = Modifier.height(12.dp))
