@@ -24,9 +24,7 @@ import com.defenderofegril.model.AttackerType
 import com.defenderofegril.model.DefenderType
 import com.defenderofegril.model.Level
 import com.defenderofegril.save.SaveGameMetadata
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import com.defenderofegril.utils.formatTimestamp
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
@@ -118,8 +116,7 @@ fun SavedGameCard(
     onLoad: () -> Unit,
     onDelete: () -> Unit
 ) {
-    val dateFormat = remember { SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault()) }
-    val dateStr = dateFormat.format(Date(saveGame.timestamp))
+    val dateStr = formatTimestamp(saveGame.timestamp)
     
     // Get the level to access map for minimap
     val levels = remember { LevelData.createLevels() }
