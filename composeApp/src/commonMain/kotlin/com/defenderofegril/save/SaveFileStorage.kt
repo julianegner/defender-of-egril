@@ -3,6 +3,7 @@ package com.defenderofegril.save
 import androidx.compose.runtime.mutableStateOf
 import com.defenderofegril.editor.getFileStorage
 import com.defenderofegril.model.*
+import com.defenderofegril.utils.currentTimeMillis
 
 /**
  * File-based storage for save games
@@ -41,7 +42,7 @@ object SaveFileStorage {
      * Save current game state
      */
     fun saveGameState(gameState: GameState): String {
-        val saveId = "savegame_${System.currentTimeMillis()}"
+        val saveId = "savegame_${currentTimeMillis()}"
         val savedGame = convertGameStateToSavedGame(gameState, saveId)
         val json = SaveJsonSerializer.serializeSavedGame(savedGame)
         fileStorage.writeFile("$SAVEFILES_DIR/$saveId.json", json)
@@ -164,7 +165,7 @@ object SaveFileStorage {
         
         return SavedGame(
             id = saveId,
-            timestamp = System.currentTimeMillis(),
+            timestamp = currentTimeMillis(),
             levelId = gameState.level.id,
             levelName = gameState.level.name,
             turnNumber = gameState.turnNumber.value,

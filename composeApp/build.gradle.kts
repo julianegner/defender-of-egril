@@ -21,6 +21,16 @@ kotlin {
     
     jvm("desktop")
     
+    wasmJs {
+        moduleName = "defenderOfEgril"
+        browser {
+            commonWebpackConfig {
+                outputFileName = "defenderOfEgril.js"
+            }
+        }
+        binaries.executable()
+    }
+    
     listOf(
         iosX64(),
         iosArm64(),
@@ -34,6 +44,7 @@ kotlin {
     
     sourceSets {
         val desktopMain by getting
+        val wasmJsMain by getting
         
         androidMain.dependencies {
             implementation(compose.preview)
@@ -53,6 +64,8 @@ kotlin {
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
+        }
+        wasmJsMain.dependencies {
         }
         
         iosMain.dependencies {
