@@ -11,6 +11,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.text.style.TextAlign
@@ -293,7 +294,7 @@ private fun UnitEntry(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start
     ) {
-        Box(modifier = Modifier.size(20.dp)) {
+        Box(modifier = Modifier.size(32.dp)) {
             icon()
         }
         Spacer(modifier = Modifier.width(4.dp))
@@ -307,23 +308,15 @@ private fun UnitEntry(
 
 @Composable
 private fun DefenderTypeIconSimple(defenderType: DefenderType) {
-    // Simple colored box representation of tower types
-    val color = when (defenderType) {
-        DefenderType.SPIKE_TOWER -> Color(0xFF8B4513)
-        DefenderType.SPEAR_TOWER -> Color(0xFFA0522D)
-        DefenderType.BOW_TOWER -> Color(0xFF228B22)
-        DefenderType.WIZARD_TOWER -> Color(0xFF4B0082)
-        DefenderType.ALCHEMY_TOWER -> Color(0xFF00CED1)
-        DefenderType.BALLISTA_TOWER -> Color(0xFF696969)
-        DefenderType.DWARVEN_MINE -> Color(0xFFDAA520)
-        DefenderType.DRAGONS_LAIR -> Color(0xFFDC143C)
-    }
-    
+    // Use the proper tower icon with hexagon shape and game color
     Box(
         modifier = Modifier
-            .fillMaxSize()
-            .background(color)
-    )
+            .size(32.dp)
+            .clip(HexagonShape())
+            .background(Color(0xFF2196F3)) // same color as in the game
+    ) {
+        TowerTypeIcon(defenderType = defenderType)
+    }
 }
 
 @Composable
