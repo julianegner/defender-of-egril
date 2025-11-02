@@ -20,7 +20,7 @@ sealed class Screen {
     object LevelEditor : Screen()
     object LoadGame : Screen()
     data class GamePlay(val levelId: Int) : Screen()
-    data class LevelComplete(val levelId: Int, val won: Boolean) : Screen()
+    data class LevelComplete(val levelId: Int, val won: Boolean, val isLastLevel: Boolean) : Screen()
 }
 
 class GameViewModel {
@@ -228,6 +228,7 @@ class GameViewModel {
     }
 
     private fun completeLevel(levelId: Int, won: Boolean) {
+        val isLastLevel = _worldLevels.value.lastOrNull()?.level?.id == levelId
         if (won) {
             val updatedLevels = _worldLevels.value.toMutableList()
             val currentIndex = updatedLevels.indexOfFirst { it.level.id == levelId }
@@ -242,7 +243,7 @@ class GameViewModel {
                 saveWorldMapStatus()
             }
         }
-        _currentScreen.value = Screen.LevelComplete(levelId, won)
+        _currentScreen.value = Screen.LevelComplete(levelId, won, isLastLevel)
     }
     
     fun restartLevel() {

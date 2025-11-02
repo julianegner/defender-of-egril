@@ -79,6 +79,7 @@ fun App() {
                 LevelCompleteScreen(
                     levelId = screen.levelId,
                     won = screen.won,
+                    isLastLevel = screen.isLastLevel,
                     onRestart = { viewModel.restartLevel() },
                     onBackToMap = { viewModel.navigateToWorldMap() }
                 )
