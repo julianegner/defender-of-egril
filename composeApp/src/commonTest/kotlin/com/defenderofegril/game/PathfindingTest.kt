@@ -152,4 +152,75 @@ class PathfindingTest {
             "Enemy should be on a valid path cell. Position: $endPos"
         )
     }
+    
+    /**
+     * Test that pathfinding is deterministic when positions have equal fScores.
+     * This specifically tests the tiebreaker fix - when multiple neighbors have the same
+     * fScore, the algorithm should consistently prefer the one closest to the goal.
+     */
+    @Test
+    fun testPathfindingIsDeterministic() {
+        // Create a simple horizontal path
+        val level = Level(
+            id = 1,
+            name = "Determinism Test",
+            gridWidth = 10,
+            gridHeight = 6,
+            startPositions = listOf(Position(0, 2)),
+            targetPosition = Position(9, 2),
+            pathCells = (0..9).flatMap { x ->
+                listOf(Position(x, 1), Position(x, 2), Position(x, 3))
+            }.toSet(),
+            buildIslands = emptySet(),
+            attackerWaves = listOf(
+                AttackerWave(
+                    attackers = listOf(AttackerType.GOBLIN),
+                    spawnDelay = 0
+                )
+            ),
+            initialCoins = 100,
+            healthPoints = 10
+        )
+        
+        val state = GameState(level)
+        val engine = GameEngine(state)
+        
+        // Run the same scenario multiple times and ensure we get the same path
+        val paths = mutableListOf<List<Position>>()
+        
+        repeat(5) {
+            // Spawn an enemy at start
+            val enemy = Attacker(
+                id = 1 + it,
+                type = AttackerType.GOBLIN,
+                position = mutableStateOf(Position(0, 2)),
+                level = 1
+            )
+            
+            // Clear attackers and add this one
+            state.attackers.clear()
+            state.attackers.add(enemy)
+            
+            // Calculate movements
+            val movements = engine.calculateEnemyTurnMovements()
+            
+            // Record path taken
+            val path = mutableListOf(Position(0, 2))
+            for (movementStep in movements) {
+                for ((attackerId, newPosition) in movementStep) {
+                    path.add(newPosition)
+                }
+            }
+            paths.add(path)
+        }
+        
+        // All paths should be the same (deterministic)
+        val firstPath = paths[0]
+        for (i in 1 until paths.size) {
+            assertTrue(
+                paths[i] == firstPath,
+                "Path $i should be the same as first path. Expected: $firstPath, Got: ${paths[i]}"
+            )
+        }
+    }
 }
