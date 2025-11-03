@@ -127,6 +127,10 @@ private fun HexagonMinimapContent(
     val hexHeight = 2.0 * hexSize
     val verticalSpacing = hexHeight * 0.75
     
+    // Cache tile type checks for performance
+    val hasSpawnTile = remember(map.tiles) { map.tiles.values.contains(TileType.SPAWN_POINT) }
+    val hasTargetTile = remember(map.tiles) { map.tiles.values.contains(TileType.TARGET) }
+    
     Box(modifier = Modifier.fillMaxSize()) {
         Canvas(modifier = Modifier.fillMaxSize()) {
             // Draw hexagon map tiles
@@ -156,6 +160,9 @@ private fun HexagonMinimapContent(
             }
             
             // Draw units if gameState is provided and config allows
+            // Note: Units use the game's grid coordinate system (gameState.level.gridWidth x gridHeight)
+            // which is independent of the hexagon map tile layout. Units are rendered as overlay circles
+            // using a simple rectangular grid calculation on the minimap.
             if (gameState != null) {
                 val cellWidth = size.width / level.gridWidth
                 val cellHeight = size.height / level.gridHeight
@@ -187,7 +194,7 @@ private fun HexagonMinimapContent(
                 }
                 
                 // Draw spawn points (if not already shown as tiles)
-                if (config.showSpawnPoints && !map.tiles.values.contains(TileType.SPAWN_POINT)) {
+                if (config.showSpawnPoints && !hasSpawnTile) {
                     level.startPositions.forEach { spawnPos ->
                         val x = spawnPos.x * cellWidth + cellWidth / 2
                         val y = spawnPos.y * cellHeight + cellHeight / 2
@@ -200,7 +207,7 @@ private fun HexagonMinimapContent(
                 }
                 
                 // Draw target position (if not already shown as tiles)
-                if (config.showTarget && !map.tiles.values.contains(TileType.TARGET)) {
+                if (config.showTarget && !hasTargetTile) {
                     val targetX = level.targetPosition.x * cellWidth + cellWidth / 2
                     val targetY = level.targetPosition.y * cellHeight + cellHeight / 2
                     drawCircle(
