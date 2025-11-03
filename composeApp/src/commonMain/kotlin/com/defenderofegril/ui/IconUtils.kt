@@ -18,6 +18,11 @@ import defender_of_egril.composeapp.generated.resources.emoji_sword
 import defender_of_egril.composeapp.generated.resources.emoji_target
 import defender_of_egril.composeapp.generated.resources.emoji_test_tube
 import defender_of_egril.composeapp.generated.resources.emoji_timer
+import defender_of_egril.composeapp.generated.resources.emoji_trash
+import defender_of_egril.composeapp.generated.resources.emoji_triangle_down
+import defender_of_egril.composeapp.generated.resources.emoji_triangle_left
+import defender_of_egril.composeapp.generated.resources.emoji_triangle_right
+import defender_of_egril.composeapp.generated.resources.emoji_triangle_up
 import org.jetbrains.compose.resources.painterResource
 
 /**
@@ -192,6 +197,86 @@ fun MoneyIcon(
     Image(
         painter = painterResource(Res.drawable.emoji_money),
         contentDescription = "Money",
+        modifier = modifier.size(size)
+    )
+}
+
+/**
+ * Displays a triangle up emoji icon using Image for cross-platform compatibility
+ * Source: Unicode (U+25B2)
+ */
+@Composable
+fun TriangleUpIcon(
+    modifier: Modifier = Modifier,
+    size: Dp = 16.dp
+) {
+    Image(
+        painter = painterResource(Res.drawable.emoji_triangle_up),
+        contentDescription = "Triangle Up",
+        modifier = modifier.size(size)
+    )
+}
+
+/**
+ * Displays a triangle left emoji icon using Image for cross-platform compatibility
+ * Source: Noto Emoji (U+25C0)
+ */
+@Composable
+fun TriangleLeftIcon(
+    modifier: Modifier = Modifier,
+    size: Dp = 16.dp
+) {
+    Image(
+        painter = painterResource(Res.drawable.emoji_triangle_left),
+        contentDescription = "Triangle Left",
+        modifier = modifier.size(size)
+    )
+}
+
+/**
+ * Displays a triangle right emoji icon using Image for cross-platform compatibility
+ * Source: Noto Emoji (U+25B6)
+ */
+@Composable
+fun TriangleRightIcon(
+    modifier: Modifier = Modifier,
+    size: Dp = 16.dp
+) {
+    Image(
+        painter = painterResource(Res.drawable.emoji_triangle_right),
+        contentDescription = "Triangle Right",
+        modifier = modifier.size(size)
+    )
+}
+
+/**
+ * Displays a triangle down emoji icon using Image for cross-platform compatibility
+ * Source: Unicode (U+25BC)
+ */
+@Composable
+fun TriangleDownIcon(
+    modifier: Modifier = Modifier,
+    size: Dp = 16.dp
+) {
+    Image(
+        painter = painterResource(Res.drawable.emoji_triangle_down),
+        contentDescription = "Triangle Down",
+        modifier = modifier.size(size)
+    )
+}
+
+/**
+ * Displays a trash can emoji icon using Image for cross-platform compatibility
+ * Source: Noto Emoji (U+1F5D1)
+ */
+@Composable
+fun TrashIcon(
+    modifier: Modifier = Modifier,
+    size: Dp = 24.dp
+) {
+    Image(
+        painter = painterResource(Res.drawable.emoji_trash),
+        contentDescription = "Trash",
         modifier = modifier.size(size)
     )
 }
