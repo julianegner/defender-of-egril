@@ -299,7 +299,7 @@ fun SavedGameCard(
                             color = MaterialTheme.colorScheme.error
                         )
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text("🗑️", style = MaterialTheme.typography.bodyLarge)
+                        TrashIcon(size = 20.dp)
                     }
                 }
             }
