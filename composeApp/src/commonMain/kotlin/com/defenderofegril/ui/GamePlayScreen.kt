@@ -1655,13 +1655,11 @@ fun DefenderInfo(
                                 )
                             }
 
-                            Text(
-                                "ℹ️",
-                                fontSize = 16.sp,
+                            InfoIcon(
+                                size = 16.dp,
                                 modifier = Modifier
                                     .clickable { showMiningInfoDialog = true }
-                                    .padding(4.dp),
-                                color = Color(0xFF2196F3)
+                                    .padding(4.dp)
                             )
                         }
                     }
