@@ -592,9 +592,9 @@ fun getTileSymbol(tileType: TileType): String {
         TileType.BUILD_AREA -> "🏗"
         TileType.ISLAND -> "🏝"
         TileType.NO_PLAY -> "⬛"
-        TileType.SPAWN_POINT -> "🚪"
+        TileType.SPAWN_POINT -> "Door"
         TileType.TARGET -> "Target"
-        TileType.WAYPOINT -> "📍"
+        TileType.WAYPOINT -> "Pin"
     }
 }
 
