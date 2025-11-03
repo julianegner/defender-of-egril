@@ -90,6 +90,17 @@ object SaveJsonSerializer {
     }"""
         }
         
+        // Escape comment for JSON (handle quotes and newlines)
+        val commentJson = savedGame.comment?.let { comment ->
+            val escaped = comment
+                .replace("\\", "\\\\")
+                .replace("\"", "\\\"")
+                .replace("\n", "\\n")
+                .replace("\r", "\\r")
+                .replace("\t", "\\t")
+            "\"$escaped\""
+        } ?: "null"
+        
         return """{
   "id": "${savedGame.id}",
   "timestamp": ${savedGame.timestamp},
@@ -115,7 +126,8 @@ object SaveJsonSerializer {
   ],
   "traps": [
     $trapsJson
-  ]
+  ],
+  "comment": $commentJson
 }"""
     }
     
@@ -186,6 +198,24 @@ object SaveJsonSerializer {
                 }
             }
             
+            // Parse comment (optional field, may not exist in older saves)
+            val comment = try {
+                val commentValue = extractValue(json, "comment")
+                if (commentValue == "null") {
+                    null
+                } else {
+                    // Unescape JSON string
+                    commentValue
+                        .replace("\\n", "\n")
+                        .replace("\\r", "\r")
+                        .replace("\\t", "\t")
+                        .replace("\\\"", "\"")
+                        .replace("\\\\", "\\")
+                }
+            } catch (e: Exception) {
+                null  // If comment field doesn't exist (old save), default to null
+            }
+            
             return SavedGame(
                 id = id,
                 timestamp = timestamp,
@@ -203,7 +233,8 @@ object SaveJsonSerializer {
                 spawnCounter = spawnCounter,
                 attackersToSpawn = attackersToSpawn,
                 fieldEffects = fieldEffects,
-                traps = traps
+                traps = traps,
+                comment = comment
             )
         } catch (e: Exception) {
             println("Error deserializing saved game: ${e.message}")
