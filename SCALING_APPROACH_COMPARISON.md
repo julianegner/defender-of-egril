@@ -6,8 +6,8 @@
 Box(
     modifier = Modifier
         .graphicsLayer(
-            scaleX = 0.7f,
-            scaleY = 0.7f
+            scaleX = 0.5f,
+            scaleY = 0.5f
         )
 ) {
     Column(...) { /* content */ }
@@ -15,7 +15,7 @@ Box(
 ```
 
 **Effect:**
-- Content is rendered 70% smaller visually
+- Content is rendered 50% smaller visually
 - **BUT** layout calculations still use original sizes
 - Elements still occupy full space in the layout tree
 - Map doesn't get more room - elements just look smaller
@@ -26,15 +26,15 @@ Box(
 │ Mobile Screen               │
 │                             │
 │  ┌─────────────────────┐   │  <- Box takes full space
-│  │ ╔═══════════════╗   │   │  <- Content rendered at 70%
-│  │ ║ Header  70%   ║   │   │     but layout space unchanged
+│  │ ╔═══════════════╗   │   │  <- Content rendered at 50%
+│  │ ║ Header  50%   ║   │   │     but layout space unchanged
 │  │ ╚═══════════════╝   │   │
 │  │                     │   │
 │  │ ┌───────────────┐   │   │  <- Map still cut off because
 │  │ │ Map (partial) │   │   │     layout didn't give it more space
 │  │ └───────────────┘   │   │
 │  │                     │   │
-│  │ [Controls 70%]      │   │
+│  │ [Controls 50%]      │   │
 │  └─────────────────────┘   │
 └─────────────────────────────┘
 ```
@@ -47,8 +47,8 @@ Box(
 
 ```kotlin
 val scaledDensity = Density(
-    density.density * 0.7f,
-    density.fontScale * 0.7f
+    density.density * 0.5f,
+    density.fontScale * 0.5f
 )
 
 CompositionLocalProvider(LocalDensity provides scaledDensity) {
@@ -67,8 +67,8 @@ CompositionLocalProvider(LocalDensity provides scaledDensity) {
 ┌─────────────────────────────┐
 │ Mobile Screen               │
 │                             │
-│ ╔═════════════════════════╗ │  <- Header takes 70% of space
-│ ║ Header (small, 70%)     ║ │     in LAYOUT calculations
+│ ╔═════════════════════════╗ │  <- Header takes 50% of space
+│ ║ Header (small, 50%)     ║ │     in LAYOUT calculations
 │ ╚═════════════════════════╝ │
 │                             │
 │ ┌─────────────────────────┐ │  <- Map gets MORE space!
@@ -79,7 +79,7 @@ CompositionLocalProvider(LocalDensity provides scaledDensity) {
 │ │    ☰ ☰ ☰ ☰ ☰ ☰ ☰       │ │
 │ └─────────────────────────┘ │
 │                             │
-│ [Controls (small, 70%)]     │  <- Controls take 70% of space
+│ [Controls (small, 50%)]     │  <- Controls take 50% of space
 │                             │
 └─────────────────────────────┘
 ```
@@ -93,13 +93,13 @@ CompositionLocalProvider(LocalDensity provides scaledDensity) {
 ### graphicsLayer (Previous)
 - **Rendering level transformation**
 - Layout: `Button(height = 48.dp)` → occupies 48dp in layout
-- Render: Drawn at 33.6dp (48 × 0.7) but space still reserved
+- Render: Drawn at 24dp (48 × 0.7) but space still reserved
 - Result: Smaller appearance, same space consumption
 
 ### LocalDensity (New)
 - **Layout level transformation**  
-- Layout: `Button(height = 48.dp)` → interpreted as 33.6dp during layout
-- Render: Drawn at 33.6dp and occupies 33.6dp
+- Layout: `Button(height = 48.dp)` → interpreted as 24dp during layout
+- Render: Drawn at 24dp and occupies 24dp
 - Result: Smaller appearance AND smaller space consumption
 
 ---
@@ -116,7 +116,7 @@ CompositionLocalProvider(LocalDensity provides scaledDensity) {
 
 | Original | graphicsLayer | LocalDensity |
 |----------|---------------|--------------|
-| Button 48.dp height | Layout: 48dp<br>Render: 33.6dp | Layout: 33.6dp<br>Render: 33.6dp |
-| Text 16.sp | Layout: 16sp<br>Render: 11.2sp | Layout: 11.2sp<br>Render: 11.2sp |
-| Padding 16.dp | Layout: 16dp<br>Render: 11.2dp | Layout: 11.2dp<br>Render: 11.2dp |
+| Button 48.dp height | Layout: 48dp<br>Render: 24dp | Layout: 24dp<br>Render: 24dp |
+| Text 16.sp | Layout: 16sp<br>Render: 8sp | Layout: 8sp<br>Render: 8sp |
+| Padding 16.dp | Layout: 16dp<br>Render: 8dp | Layout: 8dp<br>Render: 8dp |
 | Map space | Gets 0dp extra | Gets 14.4dp extra per 48dp button! |
