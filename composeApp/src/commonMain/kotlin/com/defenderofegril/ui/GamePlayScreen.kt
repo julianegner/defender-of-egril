@@ -1719,10 +1719,10 @@ fun DefenderInfo(
                                     ) {
                                         Column {
                                             Text(
-                                                "Now",
-                                                style = MaterialTheme.typography.labelSmall,
+                                                text = "Now",
+                                                fontSize = 10.sp,
                                                 fontWeight = FontWeight.Bold,
-                                                fontSize = 10.sp
+                                                color = Color.Black
                                             )
                                             TowerStats(
                                                 defender.type.minRange,
@@ -1734,10 +1734,9 @@ fun DefenderInfo(
                                         }
                                         Column {
                                             Text(
-                                                "Up",
-                                                style = MaterialTheme.typography.labelSmall,
-                                                fontWeight = FontWeight.Bold,
+                                                text = "Up",
                                                 fontSize = 10.sp,
+                                                fontWeight = FontWeight.Bold,
                                                 color = if (gameState.canUpgradeDefender(defender)) Color(0xFF4CAF50) else Color.Gray
                                             )
                                             TowerStats(
