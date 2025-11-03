@@ -126,8 +126,7 @@ fun TowerIcon(
             ) {
                 if (defender.actionsRemaining.value == 1) {
                     LightningIcon(
-                        size = 16.dp,
-                        color = Color.Yellow
+                        size = 16.dp
                     )
                 } else {
                     Text(
@@ -162,8 +161,7 @@ fun TowerIcon(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 TimerIcon(
-                    size = 10.dp,
-                    color = Color(0xFFFFA500)
+                    size = 10.dp
                 )
                 Text(
                     text = defender.buildTimeRemaining.value.toString(),
