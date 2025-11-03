@@ -722,8 +722,6 @@ fun GameGrid(
         // Map content with pan and zoom applied
         Column(
             modifier = Modifier
-                .width(totalGridWidth)
-                .height(totalGridHeight)
                 .graphicsLayer(
                     scaleX = scale,
                     scaleY = scale,
