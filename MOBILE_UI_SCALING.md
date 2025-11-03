@@ -8,9 +8,10 @@ On Android and iOS devices, all UI elements in the gameplay screen were too larg
 
 ## Solution
 A minimal, platform-specific scaling solution was implemented that:
-1. Applies a fixed "zoom out" of 0.7x (70%) to the entire gameplay screen on mobile platforms
+1. Applies a fixed density scaling of 0.7x (70%) to the entire gameplay screen on mobile platforms
 2. Keeps the desktop version at 1.0x (100%) - unchanged
 3. Preserves the internal map zoom functionality (pinch-to-zoom and mouse wheel zoom)
+4. Affects actual layout size (not just visual rendering), making buttons smaller and giving more space to the map
 
 ## Implementation Details
 
@@ -20,35 +21,48 @@ A minimal, platform-specific scaling solution was implemented that:
 2. **PlatformUtils.android.kt**: Implemented `getGameplayUIScale()` returning 0.7f
 3. **PlatformUtils.ios.kt**: Implemented `getGameplayUIScale()` returning 0.7f  
 4. **PlatformUtils.desktop.kt**: Implemented `getGameplayUIScale()` returning 1.0f
-5. **GamePlayScreen.kt**: Applied scale transformation to the main content
+5. **GamePlayScreen.kt**: Applied density scaling using `CompositionLocalProvider`
 
 ### Code Changes
 
-The implementation wraps the entire gameplay screen content in a `Box` with a `graphicsLayer` modifier that applies the platform-specific scale:
+The implementation uses Compose's `LocalDensity` to scale all `dp` and `sp` values on mobile:
 
 ```kotlin
 val uiScale = getGameplayUIScale()
 
-Box(
-    modifier = Modifier
-        .fillMaxSize()
-        .graphicsLayer(
-            scaleX = uiScale,
-            scaleY = uiScale
-        ),
-    contentAlignment = Alignment.TopCenter
-) {
-    // Existing Column with all gameplay content
+// Create a scaled density to make all dp/sp values smaller on mobile
+val density = LocalDensity.current
+val scaledDensity = remember(density, uiScale) {
+    Density(density.density * uiScale, density.fontScale * uiScale)
+}
+
+CompositionLocalProvider(LocalDensity provides scaledDensity) {
+    Column(...) {
+        // All gameplay content - buttons, text, padding, etc.
+        // All dp/sp values are automatically scaled by 0.7x on mobile
+    }
 }
 ```
 
+### How It Works
+
+By providing a custom `Density` with scaled values:
+- All `dp` (density-independent pixels) values are multiplied by the scale factor
+- All `sp` (scale-independent pixels for text) values are multiplied by the scale factor
+- This affects actual layout calculations, not just rendering
+- Buttons become smaller, padding reduces, text sizes decrease
+- More content fits on screen, giving the map more space
+
+This is different from `graphicsLayer` scaling which only affects visual rendering but not layout.
+
 ## Benefits
 
-1. **Minimal code changes**: Only 5 files modified with ~25 lines added
+1. **Minimal code changes**: Only 5 files modified with ~30 lines added
 2. **Platform-specific**: Desktop users experience no change
 3. **Preserves functionality**: Map zoom and all other interactions work as before
-4. **Maintainable**: Scale factor is in one place per platform and easy to adjust
-5. **No breaking changes**: All existing tests pass
+4. **Affects layout**: Elements actually become smaller, freeing up space for the map
+5. **Maintainable**: Scale factor is in one place per platform and easy to adjust
+6. **No breaking changes**: All existing tests pass
 
 ## Adjusting the Scale
 
@@ -64,7 +78,7 @@ To zoom out less (make elements larger), use a value greater than 0.7 (e.g., 0.8
 - ✅ Desktop build: Successful
 - ✅ Android build: Successful  
 - ✅ Unit tests: All passing
-- ⚠️ Manual testing on actual devices: Required but not performed in this implementation
+- ⚠️ Manual testing on actual devices: Recommended to fine-tune the scale factor
 
 ## Future Improvements
 

@@ -18,6 +18,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -154,8 +155,14 @@ private fun GamePlayScreenContent(
     var headerExpanded by remember { mutableStateOf(true) }  // State for header fold/expand
     var showSaveConfirmation by remember { mutableStateOf(false) }  // Save confirmation
 
-    // Get platform-specific UI scale (for mobile zoom out)
+    // Get platform-specific UI scale for mobile (affects layout, not just rendering)
     val uiScale = getGameplayUIScale()
+    
+    // Create a scaled density to make all dp/sp values smaller on mobile
+    val density = LocalDensity.current
+    val scaledDensity = remember(density, uiScale) {
+        Density(density.density * uiScale, density.fontScale * uiScale)
+    }
 
     // Auto-fold header when turn 1 starts
     val currentTurn = gameState.turnNumber.value
@@ -192,15 +199,7 @@ private fun GamePlayScreenContent(
         }
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .graphicsLayer(
-                scaleX = uiScale,
-                scaleY = uiScale
-            ),
-        contentAlignment = Alignment.TopCenter
-    ) {
+    CompositionLocalProvider(LocalDensity provides scaledDensity) {
         Column(
             modifier = Modifier.fillMaxSize().padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -657,7 +656,7 @@ private fun GamePlayScreenContent(
             )
         }
     }
-}
+    }
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
