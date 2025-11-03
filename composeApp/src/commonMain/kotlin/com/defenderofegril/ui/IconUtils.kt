@@ -7,6 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import defender_of_egril.composeapp.generated.resources.Res
+import defender_of_egril.composeapp.generated.resources.emoji_door
 import defender_of_egril.composeapp.generated.resources.emoji_explosion
 import defender_of_egril.composeapp.generated.resources.emoji_heart
 import defender_of_egril.composeapp.generated.resources.emoji_hole
@@ -14,6 +15,7 @@ import defender_of_egril.composeapp.generated.resources.emoji_info
 import defender_of_egril.composeapp.generated.resources.emoji_lightning
 import defender_of_egril.composeapp.generated.resources.emoji_money
 import defender_of_egril.composeapp.generated.resources.emoji_pick
+import defender_of_egril.composeapp.generated.resources.emoji_pushpin
 import defender_of_egril.composeapp.generated.resources.emoji_reload
 import defender_of_egril.composeapp.generated.resources.emoji_sword
 import defender_of_egril.composeapp.generated.resources.emoji_target
@@ -294,6 +296,38 @@ fun InfoIcon(
     Image(
         painter = painterResource(Res.drawable.emoji_info),
         contentDescription = "Info",
+        modifier = modifier.size(size)
+    )
+}
+
+/**
+ * Displays a door emoji icon using Image for cross-platform compatibility
+ * Source: Noto Emoji (U+1F6AA)
+ */
+@Composable
+fun DoorIcon(
+    modifier: Modifier = Modifier,
+    size: Dp = 16.dp
+) {
+    Image(
+        painter = painterResource(Res.drawable.emoji_door),
+        contentDescription = "Door",
+        modifier = modifier.size(size)
+    )
+}
+
+/**
+ * Displays a pushpin emoji icon using Image for cross-platform compatibility
+ * Source: Noto Emoji (U+1F4CD)
+ */
+@Composable
+fun PushpinIcon(
+    modifier: Modifier = Modifier,
+    size: Dp = 16.dp
+) {
+    Image(
+        painter = painterResource(Res.drawable.emoji_pushpin),
+        contentDescription = "Pushpin",
         modifier = modifier.size(size)
     )
 }

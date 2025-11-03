@@ -57,8 +57,8 @@ fun RulesScreen(
             // Your Turn
             SectionTitle("Your Turn")
             SectionText("During your turn, you can:")
-            BulletPoint("Place New Towers - costs coins, requires build time (timer icon)")
-            BulletPoint("Attack Enemies - click tower with actions (lightning icon), then enemy in range")
+            BulletPointWithIcon("Timer", { TimerIcon(size = 14.dp) }, "Place New Towers - costs coins, requires build time")
+            BulletPointWithIcon("Lightning", { LightningIcon(size = 14.dp) }, "Attack Enemies - click tower with actions, then enemy in range")
             BulletPoint("Upgrade Towers - increases damage and range")
             BulletPoint("End Turn - click \"End Turn\" to finish")
             
@@ -68,7 +68,7 @@ fun RulesScreen(
             SectionTitle("Enemy Turn")
             BulletPoint("Enemies move toward the target")
             BulletPoint("New enemies spawn")
-            BulletPoint("Build timers advance (timer icon counts down)")
+            BulletPointWithIcon("Timer", { TimerIcon(size = 14.dp) }, "Build timers advance (counts down)")
             BulletPoint("Damage-over-time effects are applied")
             
             Spacer(modifier = Modifier.height(16.dp))
@@ -113,13 +113,13 @@ fun RulesScreen(
             
             // Grid Legend
             SectionTitle("Grid Legend")
-            BulletPoint("Spawn: Start position (enemies spawn)")
-            BulletPoint("Target: Target position (defend this!)")
+            BulletPointWithIcon("Door icon", { DoorIcon(size = 16.dp) }, "Spawn: Start position (enemies spawn)")
+            BulletPointWithIcon("Target icon", { TargetIcon(size = 16.dp) }, "Target: Target position (defend this!)")
             BulletPoint("Blue: Your ready towers")
             BulletPoint("Gray: Towers still building")
             BulletPoint("Red: Enemies")
-            BulletPoint("Timer icon: Build time remaining")
-            BulletPoint("Lightning icon: Actions remaining this turn")
+            BulletPointWithIcon("Timer icon", { TimerIcon(size = 16.dp) }, "Build time remaining")
+            BulletPointWithIcon("Lightning icon", { LightningIcon(size = 16.dp) }, "Actions remaining this turn")
             
             Spacer(modifier = Modifier.height(16.dp))
             
@@ -172,6 +172,19 @@ private fun BulletPoint(text: String) {
         modifier = Modifier.padding(start = 8.dp, bottom = 4.dp)
     ) {
         Text("• ", style = MaterialTheme.typography.bodyLarge)
+        Text(text, style = MaterialTheme.typography.bodyLarge)
+    }
+}
+
+@Composable
+private fun BulletPointWithIcon(iconDescription: String, icon: @Composable () -> Unit, text: String) {
+    Row(
+        modifier = Modifier.padding(start = 8.dp, bottom = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text("• ", style = MaterialTheme.typography.bodyLarge)
+        icon()
+        Spacer(modifier = Modifier.width(4.dp))
         Text(text, style = MaterialTheme.typography.bodyLarge)
     }
 }
