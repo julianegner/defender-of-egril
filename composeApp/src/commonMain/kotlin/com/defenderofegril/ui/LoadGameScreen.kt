@@ -173,11 +173,7 @@ fun SavedGameCard(
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = "💰",
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontSize = 16.sp
-                    )
+                    MoneyIcon(size = 16.dp)
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = "${saveGame.coins}",

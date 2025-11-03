@@ -36,6 +36,6 @@ details[open] { background: #970302; color: #dfdedd; }
 <p>Please set a proper user-agent and respect our robot policy https://w.wiki/4wJS. See also T400119</p>
 </div>
 </div>
-<div class="footer"><p>If you report this error to the Wikimedia System Administrators, please include the details below.</p><p class="text-muted"><code>Request served via cp1108 cp1108, Varnish XID 803506969<br>Upstream caches: cp1108 int<br>Error: 429, Please set a proper user-agent and respect our robot policy https://w.wiki/4wJS. See also T400119 at Mon, 03 Nov 2025 15:23:59 GMT<br><details><summary>Sensitive client information</summary>IP address: 74.249.79.54</details></code></p>
+<div class="footer"><p>If you report this error to the Wikimedia System Administrators, please include the details below.</p><p class="text-muted"><code>Request served via cp1108 cp1108, Varnish XID 804064830<br>Upstream caches: cp1108 int<br>Error: 429, Please set a proper user-agent and respect our robot policy https://w.wiki/4wJS. See also T400119 at Mon, 03 Nov 2025 15:23:59 GMT<br><details><summary>Sensitive client information</summary>IP address: 74.249.79.54</details></code></p>
 </div>
 </html>
