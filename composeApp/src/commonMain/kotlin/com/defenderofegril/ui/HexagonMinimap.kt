@@ -1,9 +1,9 @@
 package com.defenderofegril.ui
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -14,7 +14,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -25,7 +24,6 @@ import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
-import androidx.compose.foundation.Canvas
 
 /**
  * Configuration options for the hexagon minimap
@@ -37,7 +35,8 @@ data class MinimapConfig(
     val showEnemies: Boolean = false,
     val showViewport: Boolean = false,
     val backgroundColor: Color = Color(0xCC000000),
-    val borderColor: Color = Color.White
+    val borderColor: Color = Color.White,
+    val minimapSizeDp: Float = 120f  // Size in dp for viewport calculations
 )
 
 /**
@@ -242,8 +241,8 @@ private fun HexagonMinimapContent(
                             .fillMaxHeight(viewportHeightRatio)
                             .align(Alignment.TopStart)
                             .offset(
-                                x = 120.dp * viewportX,
-                                y = 120.dp * viewportY
+                                x = config.minimapSizeDp.dp * viewportX,
+                                y = config.minimapSizeDp.dp * viewportY
                             )
                             .border(2.dp, Color.Yellow)  // Yellow border for viewport
                     )

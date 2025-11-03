@@ -831,7 +831,8 @@ fun GameGrid(
                         showTarget = true,
                         showTowers = true,
                         showEnemies = true,
-                        showViewport = true
+                        showViewport = true,
+                        minimapSizeDp = 120f
                     ),
                     gameState = gameState,
                     scale = scale,
