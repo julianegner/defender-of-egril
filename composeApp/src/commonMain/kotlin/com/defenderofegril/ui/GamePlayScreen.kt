@@ -250,8 +250,16 @@ private fun GamePlayScreenContent(
                                     }
                                 )
                             )
-                            Text("❤️ ${gameState.healthPoints.value}", style = MaterialTheme.typography.bodyLarge)
-                            Text("🔄 Turn ${gameState.turnNumber.value}", style = MaterialTheme.typography.bodyMedium)
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                HeartIcon(size = 20.dp)
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text("${gameState.healthPoints.value}", style = MaterialTheme.typography.bodyLarge)
+                            }
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                ReloadIcon(size = 18.dp)
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text("Turn ${gameState.turnNumber.value}", style = MaterialTheme.typography.bodyMedium)
+                            }
 
                             val activeEnemies = gameState.attackers.count { !it.isDefeated.value }
                             val totalSpawned = gameState.nextAttackerId.value - 1
@@ -336,8 +344,16 @@ private fun GamePlayScreenContent(
                                 }
                             )
                         )
-                        Text("❤️ ${gameState.healthPoints.value}", style = MaterialTheme.typography.bodyMedium)
-                        Text("🔄 ${gameState.turnNumber.value}", style = MaterialTheme.typography.bodySmall)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            HeartIcon(size = 16.dp)
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text("${gameState.healthPoints.value}", style = MaterialTheme.typography.bodyMedium)
+                        }
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            ReloadIcon(size = 14.dp)
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text("${gameState.turnNumber.value}", style = MaterialTheme.typography.bodySmall)
+                        }
                     }
 
                     // Level name in center (without prefix, bold when collapsed)
@@ -1042,11 +1058,7 @@ fun GridCell(
                 when (fieldEffect.type) {
                     FieldEffectType.FIREBALL -> {
                         // Show fireball symbol
-                        Text(
-                            "💥",
-                            style = MaterialTheme.typography.headlineSmall,
-                            color = Color(0xFFFF5722)
-                        )
+                        ExplosionIcon(size = 28.dp)
                     }
 
                     FieldEffectType.ACID -> {
@@ -1055,11 +1067,7 @@ fun GridCell(
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center
                         ) {
-                            Text(
-                                "🧪",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = Color(0xFF4CAF50)
-                            )
+                            TestTubeIcon(size = 20.dp)
                             Text(
                                 "-${fieldEffect.damage}",
                                 style = MaterialTheme.typography.labelSmall,
@@ -1082,11 +1090,7 @@ fun GridCell(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    Text(
-                        "🕳️",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color(0xFF8B4513)
-                    )
+                    HoleIcon(size = 20.dp)
                     Text(
                         "-${trap.damage}",
                         style = MaterialTheme.typography.labelSmall,
@@ -1365,12 +1369,16 @@ fun CompactDefenderButton(
             Spacer(modifier = Modifier.width(4.dp))
 
             // Cost
-            Text(
-                "💰${type.baseCost}",
-                style = MaterialTheme.typography.labelSmall,
-                fontWeight = FontWeight.Bold,
-                fontSize = 14.sp
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                MoneyIcon(size = 14.dp)
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    "${type.baseCost}",
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 14.sp
+                )
+            }
         }
     }
 }
@@ -1485,20 +1493,32 @@ fun AttackButton(
 
 @Composable
 fun TowerStats(minRange: Int, damage: Int, range: Int, actionsPerTurn: Int) {
-    Text(
-        "💥 ${damage}",
-        style = MaterialTheme.typography.bodySmall
-    )
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        ExplosionIcon(size = 12.dp)
+        Spacer(modifier = Modifier.width(4.dp))
+        Text(
+            "${damage}",
+            style = MaterialTheme.typography.bodySmall
+        )
+    }
     if (minRange > 0) {
-        Text(
-            "🎯 ${minRange}-${range}",
-            style = MaterialTheme.typography.bodySmall
-        )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            TargetIcon(size = 12.dp)
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(
+                "${minRange}-${range}",
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
     } else {
-        Text(
-            "🎯 ${range}",
-            style = MaterialTheme.typography.bodySmall
-        )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            TargetIcon(size = 12.dp)
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(
+                "${range}",
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
     }
     Row(
         verticalAlignment = Alignment.CenterVertically
@@ -1757,7 +1777,7 @@ private fun RowScope.dwarvenMineActionButtonArea(
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text("⛏️", fontSize = 24.sp)
+                        PickIcon(size = 24.dp)
                         Text("Dig", fontSize = 14.sp, fontWeight = FontWeight.Bold)
                     }
                 }
@@ -1783,7 +1803,7 @@ private fun RowScope.dwarvenMineActionButtonArea(
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text("🕳️", fontSize = 24.sp)
+                        HoleIcon(size = 24.dp)
                         Text("Trap", fontSize = 14.sp, fontWeight = FontWeight.Bold)
                     }
                 }
@@ -1841,11 +1861,15 @@ fun UpgradeButton(
         ) {
             Text("Upgrade", fontSize = 18.sp, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                "💰${defender.upgradeCost}",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                MoneyIcon(size = 14.dp)
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    "${defender.upgradeCost}",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
     }
 }
@@ -1883,11 +1907,15 @@ fun UndoOrSellButton(
             ) {
                 Text("Undo", fontSize = 18.sp, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    "💰${defender.totalCost}",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    MoneyIcon(size = 14.dp)
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        "${defender.totalCost}",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
         }
     } else if (canSell) {
@@ -1907,11 +1935,15 @@ fun UndoOrSellButton(
             ) {
                 Text("Sell", fontSize = 18.sp, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    "💰$sellAmount",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    MoneyIcon(size = 14.dp)
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        "$sellAmount",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
         }
 
@@ -2119,11 +2151,15 @@ fun DefenderButton(
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.Start
                 ) {
-                    Text(
-                        "💰${type.baseCost}",
-                        style = MaterialTheme.typography.labelSmall,
-                        fontSize = 16.sp
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        MoneyIcon(size = 14.dp)
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            "${type.baseCost}",
+                            style = MaterialTheme.typography.labelSmall,
+                            fontSize = 16.sp
+                        )
+                    }
                 }
             }
         }

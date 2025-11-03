@@ -232,18 +232,26 @@ fun LevelCard(
                             horizontalArrangement = Arrangement.spacedBy(12.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(
-                                text = "💰 ${worldLevel.level.initialCoins}",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = Color.White,
-                                fontSize = 12.sp
-                            )
-                            Text(
-                                text = "❤️ ${worldLevel.level.healthPoints}",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = Color.White,
-                                fontSize = 12.sp
-                            )
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                MoneyIcon(size = 12.dp)
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(
+                                    text = "${worldLevel.level.initialCoins}",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = Color.White,
+                                    fontSize = 12.sp
+                                )
+                            }
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                HeartIcon(size = 12.dp)
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(
+                                    text = "${worldLevel.level.healthPoints}",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = Color.White,
+                                    fontSize = 12.sp
+                                )
+                            }
                         }
                     }
                 }
