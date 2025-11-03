@@ -56,16 +56,45 @@ fun MainMenuScreen(
 fun LevelCompleteScreen(
     levelId: Int,
     won: Boolean,
+    isLastLevel: Boolean,
     onRestart: () -> Unit,
     onBackToMap: () -> Unit
 ) {
+    // Determine which image/icon and text to show
+    val icon = when {
+        won && isLastLevel -> "👑"  // Crown for winning the game
+        won -> "⚔️"  // Sword for winning a battle
+        else -> "💀"  // Skull for defeat
+    }
+    
+    val title = when {
+        won && isLastLevel -> "Victory!"
+        won -> "Battle Won!"
+        else -> "Defeat"
+    }
+    
+    val message = when {
+        won && isLastLevel -> "You have successfully defended Egril!"
+        won -> "You won this battle!"
+        else -> "The enemies have breached your defenses..."
+    }
+    
     Column(
         modifier = Modifier.fillMaxSize().padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
+        // Icon/Image
         Text(
-            text = if (won) "Victory!" else "Defeat",
+            text = icon,
+            style = MaterialTheme.typography.displayLarge,
+            textAlign = TextAlign.Center
+        )
+        
+        Spacer(modifier = Modifier.height(16.dp))
+        
+        Text(
+            text = title,
             style = MaterialTheme.typography.displayLarge,
             textAlign = TextAlign.Center,
             color = if (won) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
@@ -74,10 +103,7 @@ fun LevelCompleteScreen(
         Spacer(modifier = Modifier.height(16.dp))
         
         Text(
-            text = if (won) 
-                "You have successfully defended Egril!" 
-            else 
-                "The enemies have breached your defenses...",
+            text = message,
             style = MaterialTheme.typography.bodyLarge,
             textAlign = TextAlign.Center
         )
