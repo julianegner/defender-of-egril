@@ -676,7 +676,7 @@ fun GameGrid(
     val verticalSpacing = hexHeight * 0.75f
 
     // Calculate total grid dimensions
-    val totalGridWidth = ((gameState.level.gridWidth) * hexWidth + hexWidth + 200f).dp
+    val totalGridWidth = ((gameState.level.gridWidth) * hexWidth + hexWidth).dp
     val totalGridHeight = ((gameState.level.gridHeight) * verticalSpacing + hexHeight).dp
 
     Box(
