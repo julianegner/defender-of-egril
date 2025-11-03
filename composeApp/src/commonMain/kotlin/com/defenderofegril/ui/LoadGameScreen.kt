@@ -158,8 +158,7 @@ fun SavedGameCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     TimerIcon(
-                        size = 16.dp,
-                        color = MaterialTheme.colorScheme.onSurface
+                        size = 16.dp
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(

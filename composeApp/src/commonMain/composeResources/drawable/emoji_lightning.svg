@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="128" height="128" version="1.1" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
+  <!-- Lightning Bolt Emoji (U+26A1) -->
+  <defs>
+    <linearGradient id="lightning-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFD700;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FFA500;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <path fill="url(#lightning-gradient)" stroke="#DAA520" stroke-width="2" 
+        d="M 75,10 L 40,60 L 60,60 L 45,118 L 95,55 L 70,55 L 85,10 Z"/>
+</svg>
