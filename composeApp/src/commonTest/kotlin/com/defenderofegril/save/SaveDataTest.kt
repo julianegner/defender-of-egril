@@ -163,4 +163,35 @@ class SaveDataTest {
         assertEquals(Position(2, 1), attacker.position)
         assertEquals(20, attacker.currentHealth)
     }
+    
+    @Test
+    fun testUpcomingSpawnsCalculation() {
+        // Test the spawn plan filtering logic
+        val waves = listOf(
+            AttackerWave(
+                attackers = List(12) { AttackerType.GOBLIN },
+                spawnDelay = 2
+            ),
+            AttackerWave(
+                attackers = List(12) { AttackerType.ORK },
+                spawnDelay = 2
+            )
+        )
+        
+        val spawnPlan = generateSpawnPlan(waves)
+        
+        // At turn 0, all spawns should be in the future
+        val upcomingAtTurn0 = spawnPlan.filter { it.spawnTurn > 0 }
+        assertEquals(24, upcomingAtTurn0.size)
+        
+        // At turn 5, some goblins should have spawned
+        val upcomingAtTurn5 = spawnPlan.filter { it.spawnTurn > 5 }
+        // Should be less than total
+        assert(upcomingAtTurn5.size < 24)
+        
+        // Count by type for turn 5
+        val countsByType = upcomingAtTurn5.groupingBy { it.attackerType }.eachCount()
+        // Should have some orks and possibly some goblins
+        assert(countsByType.containsKey(AttackerType.ORK))
+    }
 }
