@@ -333,9 +333,9 @@ class GameViewModel {
         _currentScreen.value = Screen.LoadGame
     }
     
-    fun saveCurrentGame(): String? {
+    fun saveCurrentGame(comment: String? = null): String? {
         val state = _gameState.value ?: return null
-        val saveId = com.defenderofegril.save.SaveFileStorage.saveGameState(state)
+        val saveId = com.defenderofegril.save.SaveFileStorage.saveGameState(state, comment)
         refreshSavedGames()
         return saveId
     }
