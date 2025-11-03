@@ -600,11 +600,22 @@ private fun GamePlayScreenContent(
                         Spacer(modifier = Modifier.height(8.dp))
                         TextField(
                             value = saveCommentInput,
-                            onValueChange = { saveCommentInput = it },
+                            onValueChange = { 
+                                // Limit comment to 200 characters
+                                if (it.length <= 200) {
+                                    saveCommentInput = it
+                                }
+                            },
                             placeholder = { Text("e.g., 'Before final wave', 'Good position'...") },
                             singleLine = false,
                             maxLines = 3,
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth(),
+                            supportingText = {
+                                Text(
+                                    "${saveCommentInput.length}/200",
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            }
                         )
                     }
                 },
