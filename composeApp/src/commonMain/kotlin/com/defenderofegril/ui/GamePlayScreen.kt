@@ -675,8 +675,12 @@ fun GameGrid(
     // For pointy-top hexagons, vertical spacing between centers is 3/4 of height
     val verticalSpacing = hexHeight * 0.75f
 
+    // Odd rows are offset to the right to create hexagonal grid pattern
+    val oddRowOffset = hexWidth * 0.42f
+    
     // Calculate total grid dimensions
-    val totalGridWidth = ((gameState.level.gridWidth) * hexWidth + hexWidth).dp
+    // Account for: grid cells + edge padding + odd row offset
+    val totalGridWidth = ((gameState.level.gridWidth) * hexWidth + hexWidth + oddRowOffset).dp
     val totalGridHeight = ((gameState.level.gridHeight) * verticalSpacing + hexHeight).dp
 
     Box(
