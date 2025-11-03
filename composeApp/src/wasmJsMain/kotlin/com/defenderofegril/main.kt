@@ -6,7 +6,8 @@ import kotlinx.browser.document
 
 @OptIn(ExperimentalComposeUiApi::class)
 fun main() {
-    ComposeViewport(document.body!!) {
+    val body = document.body ?: error("Document body not found")
+    ComposeViewport(body) {
         App()
     }
 }
