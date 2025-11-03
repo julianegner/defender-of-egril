@@ -557,7 +557,8 @@ private fun GamePlayScreenContent(
                         selectedDefenderId = null  // Clear defender selection when starting battle
                         onStartFirstPlayerTurn()
                     },
-                    onMineAction = handleMineAction
+                    onMineAction = handleMineAction,
+                    uiScale = uiScale
                 )
             }
 
@@ -593,7 +594,8 @@ private fun GamePlayScreenContent(
                         }
                     },
                     onPrimaryAction = onEndPlayerTurn,
-                    onMineAction = handleMineAction
+                    onMineAction = handleMineAction,
+                    uiScale = uiScale
                 )
             }
 
@@ -1164,6 +1166,7 @@ fun GameControlsPanel(
     onDefenderAttackPosition: (Int, Position) -> Boolean,
     onPrimaryAction: () -> Unit,
     onMineAction: ((Int, MineAction) -> Unit)? = null,
+    uiScale: Float = 1f  // Add platform scale parameter
 ) {
     // Automatically fold buy panel when a defender is selected
     val compactBuyPanel = selectedDefenderId != null
