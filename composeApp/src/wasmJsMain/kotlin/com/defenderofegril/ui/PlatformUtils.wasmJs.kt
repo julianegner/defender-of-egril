@@ -1,3 +1,3 @@
 package com.defenderofegril.ui
 
-actual fun isEditorAvailable(): Boolean = false
+actual fun isEditorAvailable(): Boolean = true
