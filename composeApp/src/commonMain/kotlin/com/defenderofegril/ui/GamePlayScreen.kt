@@ -1527,25 +1527,26 @@ fun AttackButton(
 }
 
 @Composable
-fun TowerStats(minRange: Int, damage: Int, range: Int, actionsPerTurn: Int) {
+fun TowerStats(minRange: Int, damage: Int, range: Int, actionsPerTurn: Int, compact: Boolean = false) {
+    val fontSize = if (compact) 9.sp else MaterialTheme.typography.bodySmall.fontSize
     Text(
         "💥 ${damage}",
-        style = MaterialTheme.typography.bodySmall
+        fontSize = fontSize
     )
     if (minRange > 0) {
         Text(
             "🎯 ${minRange}-${range}",
-            style = MaterialTheme.typography.bodySmall
+            fontSize = fontSize
         )
     } else {
         Text(
             "🎯 ${range}",
-            style = MaterialTheme.typography.bodySmall
+            fontSize = fontSize
         )
     }
     Text(
-        "⚡  ${actionsPerTurn}",
-        style = MaterialTheme.typography.bodySmall
+        "⚡ ${actionsPerTurn}",
+        fontSize = fontSize
     )
 }
 
@@ -1704,62 +1705,133 @@ fun DefenderInfo(
                             }
 
                         // Stats and upgrade button in columns
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            // horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            // Current stats column
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    "Current:",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                TowerStats(
-                                    defender.type.minRange,
-                                    if (defender.type == DefenderType.DWARVEN_MINE) defender.trapDamage else defender.actualDamage,
-                                    defender.range,
-                                    defender.actionsPerTurnCalculated
+                        // On mobile, use more compact layout
+                        if (isMobile) {
+                            // Mobile: More compact horizontal layout
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                // Combined stats in one compact column
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Row(
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                    ) {
+                                        Column {
+                                            Text(
+                                                "Now",
+                                                style = MaterialTheme.typography.labelSmall,
+                                                fontWeight = FontWeight.Bold,
+                                                fontSize = 10.sp
+                                            )
+                                            TowerStats(
+                                                defender.type.minRange,
+                                                if (defender.type == DefenderType.DWARVEN_MINE) defender.trapDamage else defender.actualDamage,
+                                                defender.range,
+                                                defender.actionsPerTurnCalculated,
+                                                compact = true
+                                            )
+                                        }
+                                        Column {
+                                            Text(
+                                                "Up",
+                                                style = MaterialTheme.typography.labelSmall,
+                                                fontWeight = FontWeight.Bold,
+                                                fontSize = 10.sp,
+                                                color = if (gameState.canUpgradeDefender(defender)) Color(0xFF4CAF50) else Color.Gray
+                                            )
+                                            TowerStats(
+                                                defender.type.minRange,
+                                                nextActualDamage,
+                                                nextRange,
+                                                nextActions,
+                                                compact = true
+                                            )
+                                        }
+                                    }
+                                }
+
+                                // Buttons side by side, more compact
+                                Column(modifier = Modifier.weight(0.8f)) {
+                                    UpgradeButton(defender, gameState, onUpgradeDefender = onUpgradeDefender, isMobile = isMobile)
+                                }
+
+                                Column(modifier = Modifier.weight(0.8f)) {
+                                    UndoOrSellButton(
+                                        defender = defender,
+                                        gameState = gameState,
+                                        onUndoTower = onUndoTower,
+                                        onSellTower = onSellTower,
+                                        isMobile = isMobile
+                                    )
+                                }
+
+                                dwarvenMineActionButtonArea(
+                                    defender.type,
+                                    gameState,
+                                    defender,
+                                    onMineAction,
+                                    compactBuyPanel
                                 )
                             }
+                        } else {
+                            // Desktop: Original layout with 4 columns
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                            ) {
+                                // Current stats column
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        "Current:",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    TowerStats(
+                                        defender.type.minRange,
+                                        if (defender.type == DefenderType.DWARVEN_MINE) defender.trapDamage else defender.actualDamage,
+                                        defender.range,
+                                        defender.actionsPerTurnCalculated
+                                    )
+                                }
 
-                            // After upgrade stats column
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    "Upgrade:",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    fontWeight = FontWeight.Bold,
-                                    color = if (gameState.canUpgradeDefender(defender)) Color(0xFF4CAF50) else Color.Gray
-                                )
-                                TowerStats(
-                                    defender.type.minRange,
-                                    nextActualDamage,
-                                    nextRange,
-                                    nextActions
+                                // After upgrade stats column
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        "Upgrade:",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        fontWeight = FontWeight.Bold,
+                                        color = if (gameState.canUpgradeDefender(defender)) Color(0xFF4CAF50) else Color.Gray
+                                    )
+                                    TowerStats(
+                                        defender.type.minRange,
+                                        nextActualDamage,
+                                        nextRange,
+                                        nextActions
+                                    )
+                                }
+
+                                Column(modifier = Modifier.weight(1f)) {
+                                    UpgradeButton(defender, gameState, onUpgradeDefender = onUpgradeDefender, isMobile = isMobile)
+                                }
+
+                                Column(modifier = Modifier.weight(1f)) {
+                                    UndoOrSellButton(
+                                        defender = defender,
+                                        gameState = gameState,
+                                        onUndoTower = onUndoTower,
+                                        onSellTower = onSellTower,
+                                        isMobile = isMobile
+                                    )
+                                }
+
+                                dwarvenMineActionButtonArea(
+                                    defender.type,
+                                    gameState,
+                                    defender,
+                                    onMineAction,
+                                    compactBuyPanel
                                 )
                             }
-
-                            Column(modifier = Modifier.weight(1f)) {
-                                UpgradeButton(defender, gameState, onUpgradeDefender = onUpgradeDefender, isMobile = isMobile)
-                            }
-
-                            Column(modifier = Modifier.weight(1f)) {
-                                UndoOrSellButton(
-                                    defender = defender,
-                                    gameState = gameState,
-                                    onUndoTower = onUndoTower,
-                                    onSellTower = onSellTower,
-                                    isMobile = isMobile
-                                )
-                            }
-
-                            dwarvenMineActionButtonArea(
-                                defender.type,
-                                gameState,
-                                defender,
-                                onMineAction,
-                                compactBuyPanel
-                            )
                         }
                     }
                 }
