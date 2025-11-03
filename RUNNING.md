@@ -15,6 +15,11 @@
 - iOS 13.0 or later
 - Requires Xcode for building (macOS only)
 
+### Web/Browser
+- Modern web browser (Chrome 119+, Firefox 120+, Safari 17+, or Edge 119+)
+- JavaScript and WebAssembly enabled
+- ~12MB download size for initial load
+
 ## Running on Desktop
 
 ### All Platforms (Windows, macOS, Linux)
@@ -104,6 +109,65 @@ To build the iOS framework for integration:
 # For physical devices
 ./gradlew :composeApp:linkDebugFrameworkIosArm64
 ```
+
+## Running on Web/Browser
+
+### Development Server
+
+Run the development server with hot reload:
+
+```bash
+./gradlew :composeApp:wasmJsBrowserDevelopmentRun
+```
+
+The game will be available at: http://localhost:8080
+
+The development server supports:
+- Auto-reload on code changes
+- Source maps for debugging
+- Development mode optimizations
+
+### Production Build
+
+To build an optimized production bundle:
+
+```bash
+./gradlew :composeApp:wasmJsBrowserProductionWebpack
+```
+
+The production build will be in:
+`composeApp/build/kotlin-webpack/wasmJs/productionExecutable/`
+
+You can serve these files with any static web server:
+```bash
+cd composeApp/build/kotlin-webpack/wasmJs/productionExecutable/
+python3 -m http.server 8080
+```
+
+### Browser Compatibility
+
+The web version requires a modern browser with WebAssembly support:
+- Chrome 119 or later
+- Firefox 120 or later
+- Safari 17 or later
+- Edge 119 or later
+
+### Web Features
+
+The web version includes:
+- ✅ Full game functionality
+- ✅ Save games using browser localStorage
+- ✅ Mouse wheel zoom
+- ✅ Click and drag to pan
+- ❌ Level editor (desktop-only feature)
+
+### Clearing Save Data
+
+To clear saved games in the browser:
+1. Open browser Developer Tools (F12)
+2. Go to Application/Storage tab
+3. Select Local Storage
+4. Clear items with prefix "defender-of-egril:"
 
 ## How to Play
 

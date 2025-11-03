@@ -44,3 +44,7 @@ local.properties
 node_modules/
 composeApp/build/compileSync/
 composeApp/build/generated/
+
+# Kotlin/JS and Kotlin/Wasm
+kotlin-js-store/
+yarn.lock
