@@ -1204,7 +1204,8 @@ fun GameControlsPanel(
                                     onUndoTower,
                                     onSellTower,
                                     onMineAction = onMineAction,
-                                    compactBuyPanel
+                                    compactBuyPanel,
+                                    isMobile = uiScale < 1f
                                 )
 
                                 if (isPlayerTurn &&
@@ -1303,7 +1304,8 @@ fun GameControlsPanel(
                         onUndoTower,
                         onSellTower,
                         onMineAction = onMineAction,
-                        compactBuyPanel
+                        compactBuyPanel,
+                        isMobile = uiScale < 1f
                     )
 
                     // Don't show attack button for dwarven mines or dragon's lair
@@ -1552,7 +1554,8 @@ fun DefenderInfo(
     onUndoTower: (Int) -> Unit,
     onSellTower: (Int) -> Unit,
     onMineAction: ((Int, MineAction) -> Unit)? = null,
-    compactBuyPanel: Boolean = false
+    compactBuyPanel: Boolean = false,
+    isMobile: Boolean = false  // Add platform parameter
 ) {
     // Use key to force recomposition when defender stats change
     key(
@@ -1568,22 +1571,27 @@ fun DefenderInfo(
             modifier = Modifier
                 .fillMaxWidth()
         ) {
-            Column(modifier = Modifier.padding(8.dp)) {
+            // Reduce padding on mobile to save space
+            val cardPadding = if (isMobile) 4.dp else 8.dp
+            Column(modifier = Modifier.padding(cardPadding)) {
                 // Tower icon, name, and actions in one row
                 Row(
                     // modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Start
                 ) {
-                    // Tower icon
+                    // Tower icon - smaller on mobile to save space
+                    val iconSize = if (isMobile) 32.dp else 48.dp
+                    val iconInnerSize = if (isMobile) 28.dp else 44.dp
                     Box(
-                        modifier = Modifier.size(48.dp),
+                        modifier = Modifier.size(iconSize),
                         contentAlignment = Alignment.Center
                     ) {
-                        TowerIcon(defender = defender, modifier = Modifier.size(44.dp), gameState = gameState)
+                        TowerIcon(defender = defender, modifier = Modifier.size(iconInnerSize), gameState = gameState)
                     }
 
-                    Spacer(modifier = Modifier.width(8.dp))
+                    val horizontalSpacing = if (isMobile) 4.dp else 8.dp
+                    Spacer(modifier = Modifier.width(horizontalSpacing))
 
                     // Tower name and level
                     Column(modifier = Modifier.weight(0.7f)) {
@@ -1654,7 +1662,9 @@ fun DefenderInfo(
                     Spacer(modifier = Modifier.weight(6f))
                 }
 
-                Spacer(modifier = Modifier.height(4.dp))
+                // Reduce spacing on mobile
+                val verticalSpacing = if (isMobile) 2.dp else 4.dp
+                Spacer(modifier = Modifier.height(verticalSpacing))
 
                 if (defender.isReady) {
                     if (defender.type == DefenderType.DRAGONS_LAIR) {
@@ -1727,7 +1737,7 @@ fun DefenderInfo(
                             }
 
                             Column(modifier = Modifier.weight(1f)) {
-                                UpgradeButton(defender, gameState, onUpgradeDefender = onUpgradeDefender)
+                                UpgradeButton(defender, gameState, onUpgradeDefender = onUpgradeDefender, isMobile = isMobile)
                             }
 
                             Column(modifier = Modifier.weight(1f)) {
@@ -1735,7 +1745,8 @@ fun DefenderInfo(
                                     defender = defender,
                                     gameState = gameState,
                                     onUndoTower = onUndoTower,
-                                    onSellTower = onSellTower
+                                    onSellTower = onSellTower,
+                                    isMobile = isMobile
                                 )
                             }
 
@@ -1854,13 +1865,24 @@ fun UpgradeButton(
         .offset(y = (-12).dp)
         .width(200.dp)
         .height(60.dp),
-    onUpgradeDefender: (Int) -> Unit
+    onUpgradeDefender: (Int) -> Unit,
+    isMobile: Boolean = false  // Add platform parameter
 ) {
+    // Increase height for mobile to make buttons more usable
+    val buttonModifier = if (isMobile) {
+        Modifier
+            .offset(y = (-6).dp)  // Less offset on mobile
+            .width(200.dp)
+            .height(100.dp)  // Taller on mobile (becomes 50dp with 0.5x scaling)
+    } else {
+        modifier
+    }
+    
     Button(
         onClick = { onUpgradeDefender(defender.id) },
         enabled = gameState.canUpgradeDefender(defender),
-        modifier = modifier,
-        contentPadding = PaddingValues(horizontal = 6.dp, vertical = 2.dp)
+        modifier = buttonModifier,
+        contentPadding = PaddingValues(horizontal = 6.dp, vertical = 4.dp)
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
@@ -1885,9 +1907,20 @@ fun UndoOrSellButton(
     modifier: Modifier = Modifier
         .offset(y = (-12).dp)
         .width(200.dp)
-        .height(60.dp)
+        .height(60.dp),
+    isMobile: Boolean = false  // Add platform parameter
 ) {
     var showSellConfirmation by remember { mutableStateOf(false) }
+
+    // Increase height for mobile to make buttons more usable
+    val buttonModifier = if (isMobile) {
+        Modifier
+            .offset(y = (-6).dp)  // Less offset on mobile
+            .width(200.dp)
+            .height(100.dp)  // Taller on mobile (becomes 50dp with 0.5x scaling)
+    } else {
+        modifier
+    }
 
     // Determine if undo or sell is available
     val canUndo = defender.placedOnTurn == gameState.turnNumber.value && !defender.hasBeenUsed.value
@@ -1898,11 +1931,11 @@ fun UndoOrSellButton(
         Button(
             onClick = { onUndoTower(defender.id) },
             enabled = true,
-            modifier = modifier,
+            modifier = buttonModifier,
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFF4CAF50)  // Green for undo
             ),
-            contentPadding = PaddingValues(horizontal = 6.dp, vertical = 2.dp)
+            contentPadding = PaddingValues(horizontal = 6.dp, vertical = 4.dp)
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -1922,11 +1955,11 @@ fun UndoOrSellButton(
         Button(
             onClick = { showSellConfirmation = true },
             enabled = true,
-            modifier = modifier,
+            modifier = buttonModifier,
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFFFF9800)  // Orange for sell
             ),
-            contentPadding = PaddingValues(horizontal = 6.dp, vertical = 2.dp)
+            contentPadding = PaddingValues(horizontal = 6.dp, vertical = 4.dp)
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -1976,8 +2009,8 @@ fun UndoOrSellButton(
         Button(
             onClick = { },
             enabled = false,
-            modifier = modifier,
-            contentPadding = PaddingValues(horizontal = 6.dp, vertical = 2.dp)
+            modifier = buttonModifier,
+            contentPadding = PaddingValues(horizontal = 6.dp, vertical = 4.dp)
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally
