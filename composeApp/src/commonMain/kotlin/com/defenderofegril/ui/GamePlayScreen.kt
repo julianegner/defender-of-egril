@@ -1503,7 +1503,7 @@ fun TowerStats(minRange: Int, damage: Int, range: Int, actionsPerTurn: Int) {
     Row(
         verticalAlignment = Alignment.CenterVertically
     ) {
-        LightningIcon(size = 12.dp, color = Color.Yellow)
+        LightningIcon(size = 12.dp)
         Spacer(modifier = Modifier.width(4.dp))
         Text(
             actionsPerTurn.toString(),
@@ -1974,7 +1974,7 @@ fun DefenderActionsInfo(defender: Defender) {
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
-            TimerIcon(size = 16.dp, color = Color(0xFFFF9800))
+            TimerIcon(size = 16.dp)
             Spacer(modifier = Modifier.width(4.dp))
             Text(
                 "Building: ${defender.buildTimeRemaining.value}T",
@@ -1986,7 +1986,7 @@ fun DefenderActionsInfo(defender: Defender) {
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
-            LightningIcon(size = 16.dp, color = Color.Yellow)
+            LightningIcon(size = 16.dp)
             Spacer(modifier = Modifier.width(4.dp))
             Text(
                 "${defender.actionsRemaining.value}/${defender.actionsPerTurnCalculated}",
@@ -2095,7 +2095,7 @@ fun DefenderButton(
                     Row(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        TimerIcon(size = 10.dp, color = Color.White)
+                        TimerIcon(size = 10.dp)
                         Text(
                             "${type.buildTime}T",
                             style = MaterialTheme.typography.labelSmall,

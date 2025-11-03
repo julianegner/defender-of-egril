@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="128" height="128" version="1.1" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
+  <!-- Crossed Swords Emoji (U+2694) -->
+  <defs>
+    <linearGradient id="sword-blade" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#E8E8E8;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#F5F5F5;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#D0D0D0;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <g>
+    <!-- First sword -->
+    <g transform="rotate(-45 64 64)">
+      <!-- Blade -->
+      <path fill="url(#sword-blade)" stroke="#9E9E9E" stroke-width="1.5"
+            d="M 62,20 L 66,20 L 68,80 L 60,80 Z"/>
+      <!-- Crossguard -->
+      <rect x="52" y="78" width="24" height="6" rx="1" fill="#FFD700" stroke="#B8860B" stroke-width="1"/>
+      <!-- Handle -->
+      <rect x="60" y="84" width="8" height="20" rx="2" fill="#8B4513" stroke="#654321" stroke-width="1"/>
+      <!-- Pommel -->
+      <circle cx="64" cy="106" r="5" fill="#FFD700" stroke="#B8860B" stroke-width="1"/>
+    </g>
+    
+    <!-- Second sword -->
+    <g transform="rotate(45 64 64)">
+      <!-- Blade -->
+      <path fill="url(#sword-blade)" stroke="#9E9E9E" stroke-width="1.5"
+            d="M 62,20 L 66,20 L 68,80 L 60,80 Z"/>
+      <!-- Crossguard -->
+      <rect x="52" y="78" width="24" height="6" rx="1" fill="#FFD700" stroke="#B8860B" stroke-width="1"/>
+      <!-- Handle -->
+      <rect x="60" y="84" width="8" height="20" rx="2" fill="#8B4513" stroke="#654321" stroke-width="1"/>
+      <!-- Pommel -->
+      <circle cx="64" cy="106" r="5" fill="#FFD700" stroke="#B8860B" stroke-width="1"/>
+    </g>
+  </g>
+</svg>
