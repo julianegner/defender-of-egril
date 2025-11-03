@@ -158,10 +158,19 @@ private fun GamePlayScreenContent(
     // Get platform-specific UI scale for mobile (affects layout, not just rendering)
     val uiScale = getGameplayUIScale()
     
-    // Create a scaled density to make all dp/sp values smaller on mobile
+    // Create a scaled density with separate scaling for layout (dp) and text (sp)
+    // Layout elements (padding, spacing) scaled to 0.5x to save space
+    // Text/icons scaled to 0.75x to remain readable
     val density = LocalDensity.current
     val scaledDensity = remember(density, uiScale) {
-        Density(density.density * uiScale, density.fontScale * uiScale)
+        // Scale layout (dp) by uiScale, but scale text (sp) less aggressively
+        val textScale = if (uiScale < 1f) {
+            // For mobile, use 0.75 for text readability while layout uses 0.5
+            0.75f
+        } else {
+            1f // Desktop unchanged
+        }
+        Density(density.density * uiScale, density.fontScale * textScale)
     }
 
     // Auto-fold header when turn 1 starts
@@ -1748,8 +1757,8 @@ private fun RowScope.dwarvenMineActionButtonArea(
                 Button(
                     onClick = { onMineAction?.invoke(defender.id, MineAction.DIG) },
                     enabled = mineActionsEnabled,
-                    modifier = Modifier.width(95.dp).height(100.dp)
-                        .offset(y = (-24).dp),
+                    modifier = Modifier.width(95.dp).height(60.dp)
+                        .offset(y = (-12).dp),
                     contentPadding = PaddingValues(
                         horizontal = 4.dp,
                         vertical = 2.dp
@@ -1758,8 +1767,8 @@ private fun RowScope.dwarvenMineActionButtonArea(
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text("⛏️", fontSize = 24.sp)
-                        Text("Dig", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                        Text("⛏️", fontSize = 20.sp)
+                        Text("Dig", fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     }
                 }
             }
@@ -1774,8 +1783,8 @@ private fun RowScope.dwarvenMineActionButtonArea(
                         )
                     },
                     enabled = mineActionsEnabled,
-                    modifier = Modifier.width(95.dp).height(100.dp)
-                        .offset(y = (-24).dp),
+                    modifier = Modifier.width(95.dp).height(60.dp)
+                        .offset(y = (-12).dp),
                     contentPadding = PaddingValues(
                         horizontal = 4.dp,
                         vertical = 2.dp
@@ -1784,8 +1793,8 @@ private fun RowScope.dwarvenMineActionButtonArea(
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text("🕳️", fontSize = 24.sp)
-                        Text("Trap", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                        Text("🕳️", fontSize = 20.sp)
+                        Text("Trap", fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     }
                 }
             }
@@ -1826,25 +1835,25 @@ fun UpgradeButton(
     defender: Defender,
     gameState: GameState,
     modifier: Modifier = Modifier
-        .offset(y = (-24).dp)
+        .offset(y = (-12).dp)
         .width(200.dp)
-        .height(100.dp),
+        .height(60.dp),
     onUpgradeDefender: (Int) -> Unit
 ) {
     Button(
         onClick = { onUpgradeDefender(defender.id) },
         enabled = gameState.canUpgradeDefender(defender),
         modifier = modifier,
-        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)
+        contentPadding = PaddingValues(horizontal = 6.dp, vertical = 2.dp)
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Upgrade", fontSize = 18.sp, fontWeight = FontWeight.Bold)
-            Spacer(modifier = Modifier.height(8.dp))
+            Text("Upgrade", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+            Spacer(modifier = Modifier.height(4.dp))
             Text(
                 "💰${defender.upgradeCost}",
-                fontSize = 16.sp,
+                fontSize = 14.sp,
                 fontWeight = FontWeight.Bold
             )
         }
@@ -1858,9 +1867,9 @@ fun UndoOrSellButton(
     onUndoTower: (Int) -> Unit,
     onSellTower: (Int) -> Unit,
     modifier: Modifier = Modifier
-        .offset(y = (-24).dp)
+        .offset(y = (-12).dp)
         .width(200.dp)
-        .height(100.dp)
+        .height(60.dp)
 ) {
     var showSellConfirmation by remember { mutableStateOf(false) }
 
@@ -1877,16 +1886,16 @@ fun UndoOrSellButton(
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFF4CAF50)  // Green for undo
             ),
-            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)
+            contentPadding = PaddingValues(horizontal = 6.dp, vertical = 2.dp)
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text("Undo", fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                Spacer(modifier = Modifier.height(8.dp))
+                Text("Undo", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     "💰${defender.totalCost}",
-                    fontSize = 16.sp,
+                    fontSize = 14.sp,
                     fontWeight = FontWeight.Bold
                 )
             }
@@ -1901,16 +1910,16 @@ fun UndoOrSellButton(
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFFFF9800)  // Orange for sell
             ),
-            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)
+            contentPadding = PaddingValues(horizontal = 6.dp, vertical = 2.dp)
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text("Sell", fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                Spacer(modifier = Modifier.height(8.dp))
+                Text("Sell", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     "💰$sellAmount",
-                    fontSize = 16.sp,
+                    fontSize = 14.sp,
                     fontWeight = FontWeight.Bold
                 )
             }
@@ -1952,16 +1961,16 @@ fun UndoOrSellButton(
             onClick = { },
             enabled = false,
             modifier = modifier,
-            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)
+            contentPadding = PaddingValues(horizontal = 6.dp, vertical = 2.dp)
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text("Sell", fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                Spacer(modifier = Modifier.height(8.dp))
+                Text("Sell", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     "not enough Actions",
-                    fontSize = 16.sp,
+                    fontSize = 12.sp,
                     fontWeight = FontWeight.Bold
                 )
             }
