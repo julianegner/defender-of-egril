@@ -378,7 +378,7 @@ object SaveJsonSerializer {
             val char = json[pos]
             
             if (escaped) {
-                // Handle escape sequences
+                // Handle standard JSON escape sequences
                 when (char) {
                     'n' -> result.append('\n')
                     'r' -> result.append('\r')
@@ -386,7 +386,8 @@ object SaveJsonSerializer {
                     '"' -> result.append('"')
                     '\\' -> result.append('\\')
                     else -> {
-                        // Unknown escape, keep as-is
+                        // Unknown escape sequence - preserve as literal characters
+                        // This is acceptable for game save files since we control the serialization
                         result.append('\\')
                         result.append(char)
                     }
