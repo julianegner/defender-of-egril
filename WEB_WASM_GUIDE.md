@@ -10,8 +10,8 @@ Defender of Egril now supports running in web browsers via Kotlin/Wasm compilati
 
 #### 1. Main Entry Point
 - **File**: `composeApp/src/wasmJsMain/kotlin/com/defenderofegril/main.kt`
-- Uses `CanvasBasedWindow` to render the Compose UI in a browser canvas element
-- Canvas element ID: `ComposeTarget`
+- Uses `ComposeViewport` to render the Compose UI in the browser
+- Attaches to the document body element
 
 #### 2. File Storage (Save Games)
 - **File**: `composeApp/src/wasmJsMain/kotlin/com/defenderofegril/editor/FileStorage.wasmJs.kt`
