@@ -188,6 +188,28 @@ fun SavedGameCard(
                 }
             }
             
+            // Display comment if present
+            if (!saveGame.comment.isNullOrBlank()) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    verticalAlignment = Alignment.Top,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = "💬",
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontSize = 16.sp
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = saveGame.comment,
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+            
             Spacer(modifier = Modifier.height(12.dp))
             
             // Three-column layout: Towers | Enemies | Minimap
