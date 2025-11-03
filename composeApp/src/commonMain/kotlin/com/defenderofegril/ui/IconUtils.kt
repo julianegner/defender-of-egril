@@ -10,6 +10,7 @@ import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.emoji_explosion
 import defender_of_egril.composeapp.generated.resources.emoji_heart
 import defender_of_egril.composeapp.generated.resources.emoji_hole
+import defender_of_egril.composeapp.generated.resources.emoji_info
 import defender_of_egril.composeapp.generated.resources.emoji_lightning
 import defender_of_egril.composeapp.generated.resources.emoji_money
 import defender_of_egril.composeapp.generated.resources.emoji_pick
@@ -277,6 +278,22 @@ fun TrashIcon(
     Image(
         painter = painterResource(Res.drawable.emoji_trash),
         contentDescription = "Trash",
+        modifier = modifier.size(size)
+    )
+}
+
+/**
+ * Displays an info emoji icon using Image for cross-platform compatibility
+ * Source: Noto Emoji (U+2139)
+ */
+@Composable
+fun InfoIcon(
+    modifier: Modifier = Modifier,
+    size: Dp = 16.dp
+) {
+    Image(
+        painter = painterResource(Res.drawable.emoji_info),
+        contentDescription = "Info",
         modifier = modifier.size(size)
     )
 }
