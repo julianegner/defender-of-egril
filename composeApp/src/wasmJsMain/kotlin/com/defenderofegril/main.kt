@@ -1,11 +1,12 @@
 package com.defenderofegril
 
 import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.window.CanvasBasedWindow
+import androidx.compose.ui.window.ComposeViewport
+import kotlinx.browser.document
 
 @OptIn(ExperimentalComposeUiApi::class)
 fun main() {
-    CanvasBasedWindow(canvasElementId = "ComposeTarget", title = "Defender of Egril") {
+    ComposeViewport(document.body!!) {
         App()
     }
 }
