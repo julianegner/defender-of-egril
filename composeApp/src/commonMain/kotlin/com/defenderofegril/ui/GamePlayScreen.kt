@@ -41,7 +41,6 @@ import com.defenderofegril.model.*
 import kotlin.math.sqrt
 
 // UI Constants
-private const val ATTACK_ICON = "⚔️"
 private val ATTACK_BUTTON_COLOR = Color(0xFFD32F2F)
 
 /**
@@ -1404,7 +1403,7 @@ fun AttackButton(
                             horizontalArrangement = Arrangement.Center,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(ATTACK_ICON, fontSize = 24.sp)
+                            SwordIcon(size = 24.dp)
                             Spacer(modifier = Modifier.width(8.dp))
                             Column {
                                 Text(
@@ -1433,7 +1432,7 @@ fun AttackButton(
                         horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(ATTACK_ICON, fontSize = 24.sp)
+                        SwordIcon(size = 24.dp)
                         Spacer(modifier = Modifier.width(8.dp))
                         Column {
                             Text(
@@ -1464,7 +1463,7 @@ fun AttackButton(
                         horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(ATTACK_ICON, fontSize = 24.sp)
+                        SwordIcon(size = 24.dp)
                         Spacer(modifier = Modifier.width(8.dp))
                         Column {
                             Text(
@@ -1501,10 +1500,16 @@ fun TowerStats(minRange: Int, damage: Int, range: Int, actionsPerTurn: Int) {
             style = MaterialTheme.typography.bodySmall
         )
     }
-    Text(
-        "⚡  ${actionsPerTurn}",
-        style = MaterialTheme.typography.bodySmall
-    )
+    Row(
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        LightningIcon(size = 12.dp, color = Color.Yellow)
+        Spacer(modifier = Modifier.width(4.dp))
+        Text(
+            actionsPerTurn.toString(),
+            style = MaterialTheme.typography.bodySmall
+        )
+    }
 }
 
 @Composable
@@ -1574,10 +1579,16 @@ fun DefenderInfo(
                                 style = MaterialTheme.typography.bodySmall,
                                 color = Color(0xFF4CAF50)
                             )
-                            Text(
-                                "⚔️ ${defender.type.attackType.displayName}",
-                                style = MaterialTheme.typography.bodySmall
-                            )
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                SwordIcon(size = 12.dp)
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(
+                                    defender.type.attackType.displayName,
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            }
                         }
                     }
 
@@ -1960,16 +1971,28 @@ fun UndoOrSellButton(
 @Composable
 fun DefenderActionsInfo(defender: Defender) {
     if (!defender.isReady) {
-        Text(
-            "⏱ Building: ${defender.buildTimeRemaining.value}T",
-            style = MaterialTheme.typography.titleMedium,
-            color = Color(0xFFFF9800)
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            TimerIcon(size = 16.dp, color = Color(0xFFFF9800))
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(
+                "Building: ${defender.buildTimeRemaining.value}T",
+                style = MaterialTheme.typography.titleMedium,
+                color = Color(0xFFFF9800)
+            )
+        }
     } else {
-        Text(
-            "⚡ ${defender.actionsRemaining.value}/${defender.actionsPerTurnCalculated}",
-            style = MaterialTheme.typography.titleMedium,
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            LightningIcon(size = 16.dp, color = Color.Yellow)
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(
+                "${defender.actionsRemaining.value}/${defender.actionsPerTurnCalculated}",
+                style = MaterialTheme.typography.titleMedium,
+            )
+        }
     }
 }
 
@@ -2069,11 +2092,16 @@ fun DefenderButton(
                         fontSize = 10.sp,
                         color = Color(0xFFFFEB3B)
                     )
-                    Text(
-                        "⏱${type.buildTime}T",
-                        style = MaterialTheme.typography.labelSmall,
-                        fontSize = 10.sp
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        TimerIcon(size = 10.dp, color = Color.White)
+                        Text(
+                            "${type.buildTime}T",
+                            style = MaterialTheme.typography.labelSmall,
+                            fontSize = 10.sp
+                        )
+                    }
                 }
                 Column(
                     modifier = Modifier
