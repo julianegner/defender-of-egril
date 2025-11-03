@@ -113,7 +113,7 @@ CompositionLocalProvider(LocalDensity provides scaledDensity) {
 ```
 
 **Effect**: 
-- A button with `height(48.dp)` becomes `height(33.6dp)` on mobile (48 × 0.7)
+- A button with `height(48.dp)` becomes `height(24dp)` on mobile (48 × 0.7)
 - Text with `fontSize(16.sp)` becomes `fontSize(11.2.sp)` on mobile (16 × 0.7)
 - All padding, margins, sizes are proportionally reduced
 - **Layout space is actually freed up**, not just visually scaled
@@ -138,7 +138,7 @@ CompositionLocalProvider(LocalDensity provides scaledDensity) {
 If a mobile user:
 1. Starts with outer scale: 0.7x (automatic)
 2. Pinches to zoom map: 2.0x (user action)
-3. Effective map scale: 0.7 × 2.0 = 1.4x
+3. Effective map scale: 0.7 × 2.0 = 1.0x
 
 This means they can still zoom in on the map to see details, but the overall UI fits on their screen!
 
@@ -157,8 +157,8 @@ GamePlayScreenContent
 
 To change mobile zoom level, edit these files:
 
-- `PlatformUtils.android.kt`: Change `0.7f` to desired value
-- `PlatformUtils.ios.kt`: Change `0.7f` to desired value
+- `PlatformUtils.android.kt`: Change `0.5f` to desired value
+- `PlatformUtils.ios.kt`: Change `0.5f` to desired value
 
 Values:
 - Less than 0.7 → Smaller elements (more fits on screen)

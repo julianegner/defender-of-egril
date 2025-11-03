@@ -8,7 +8,7 @@ On Android and iOS devices, all UI elements in the gameplay screen were too larg
 
 ## Solution
 A minimal, platform-specific scaling solution was implemented that:
-1. Applies a fixed density scaling of 0.7x (70%) to the entire gameplay screen on mobile platforms
+1. Applies a fixed density scaling of 0.5x (50%) to the entire gameplay screen on mobile platforms
 2. Keeps the desktop version at 1.0x (100%) - unchanged
 3. Preserves the internal map zoom functionality (pinch-to-zoom and mouse wheel zoom)
 4. Affects actual layout size (not just visual rendering), making buttons smaller and giving more space to the map
@@ -18,8 +18,8 @@ A minimal, platform-specific scaling solution was implemented that:
 ### Files Changed
 
 1. **PlatformUtils.kt (common)**: Added `getGameplayUIScale()` expect function
-2. **PlatformUtils.android.kt**: Implemented `getGameplayUIScale()` returning 0.7f
-3. **PlatformUtils.ios.kt**: Implemented `getGameplayUIScale()` returning 0.7f  
+2. **PlatformUtils.android.kt**: Implemented `getGameplayUIScale()` returning 0.5f
+3. **PlatformUtils.ios.kt**: Implemented `getGameplayUIScale()` returning 0.5f  
 4. **PlatformUtils.desktop.kt**: Implemented `getGameplayUIScale()` returning 1.0f
 5. **GamePlayScreen.kt**: Applied density scaling using `CompositionLocalProvider`
 
