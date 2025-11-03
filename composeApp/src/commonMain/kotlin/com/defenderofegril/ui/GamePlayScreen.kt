@@ -225,7 +225,11 @@ private fun GamePlayScreenContent(
                         Button(
                             onClick = { headerExpanded = false }
                         ) {
-                            Text("▲ Fold Header")
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                TriangleUpIcon(size = 14.dp)
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text("Fold Header")
+                            }
                         }
                     }
 
@@ -239,9 +243,8 @@ private fun GamePlayScreenContent(
                     ) {
                         Column {
                             // Clickable coins display for cheat codes with icon
-                            Text(
-                                "💰 ${gameState.coins.value}",
-                                style = MaterialTheme.typography.bodyLarge,
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
                                 modifier = Modifier.clickable(
                                     onClick = {
                                         if (onCheatCode != null) {
@@ -249,7 +252,14 @@ private fun GamePlayScreenContent(
                                         }
                                     }
                                 )
-                            )
+                            ) {
+                                MoneyIcon(size = 20.dp)
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(
+                                    "${gameState.coins.value}",
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+                            }
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 HeartIcon(size = 20.dp)
                                 Spacer(modifier = Modifier.width(4.dp))
@@ -315,7 +325,15 @@ private fun GamePlayScreenContent(
                                     containerColor = if (showOverlay) Color(0xFF4CAF50) else Color(0xFF2196F3)
                                 )
                             ) {
-                                Text(if (showOverlay) "Hide Info  ◀" else "Show Info  ▶")
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text(if (showOverlay) "Hide Info" else "Show Info")
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    if (showOverlay) {
+                                        TriangleLeftIcon(size = 14.dp)
+                                    } else {
+                                        TriangleRightIcon(size = 14.dp)
+                                    }
+                                }
                             }
                         }
                     }
@@ -333,9 +351,8 @@ private fun GamePlayScreenContent(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         // Clickable coins display for cheat codes
-                        Text(
-                            "💰 ${gameState.coins.value}",
-                            style = MaterialTheme.typography.bodyMedium,
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier.clickable(
                                 onClick = {
                                     if (onCheatCode != null) {
@@ -343,7 +360,14 @@ private fun GamePlayScreenContent(
                                     }
                                 }
                             )
-                        )
+                        ) {
+                            MoneyIcon(size = 16.dp)
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                "${gameState.coins.value}",
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             HeartIcon(size = 16.dp)
                             Spacer(modifier = Modifier.width(4.dp))
@@ -386,11 +410,11 @@ private fun GamePlayScreenContent(
                                 containerColor = if (showOverlay) Color(0xFF4CAF50) else Color(0xFF2196F3)
                             )
                         ) {
-                            Text(
-                                if (showOverlay) "◀" else "▶",
-                                fontSize = 12.sp,
-                                modifier = Modifier.align(Alignment.CenterVertically)
-                            )
+                            if (showOverlay) {
+                                TriangleLeftIcon(size = 12.dp)
+                            } else {
+                                TriangleRightIcon(size = 12.dp)
+                            }
                         }
 
                         // Fold button
@@ -399,7 +423,7 @@ private fun GamePlayScreenContent(
                             modifier = Modifier.size(32.dp),
                             contentPadding = PaddingValues(0.dp)
                         ) {
-                            Text("▼", fontSize = 12.sp)
+                            TriangleDownIcon(size = 12.dp)
                         }
                     }
                 }
@@ -2127,7 +2151,7 @@ fun DefenderButton(
                     Row(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        TimerIcon(size = 10.dp)
+                        TimerIcon(size = 15.dp)
                         Text(
                             "${type.buildTime}T",
                             style = MaterialTheme.typography.labelSmall,
@@ -2179,7 +2203,12 @@ fun GameLegend(modifier: Modifier = Modifier) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text("Legend", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                Text(if (isExpanded) "▼" else "▶", style = MaterialTheme.typography.titleMedium)
+                Text(if (isExpanded) "" else "", style = MaterialTheme.typography.titleMedium)
+                if (isExpanded) {
+                    TriangleDownIcon(size = 16.dp)
+                } else {
+                    TriangleRightIcon(size = 16.dp)
+                }
             }
 
             if (isExpanded) {
@@ -2408,7 +2437,11 @@ fun EnemyListPanel(gameState: GameState, modifier: Modifier = Modifier) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text("Enemies", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                Text(if (isExpanded) "▼" else "▶", fontSize = 16.sp)
+                if (isExpanded) {
+                    TriangleDownIcon(size = 16.dp)
+                } else {
+                    TriangleRightIcon(size = 16.dp)
+                }
             }
             Text(
                 "Active: ${activeEnemies.size} | Planned: ${plannedSpawns.size}",
