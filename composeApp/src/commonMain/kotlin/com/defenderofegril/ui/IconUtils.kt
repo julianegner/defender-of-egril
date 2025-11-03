@@ -2,19 +2,14 @@ package com.defenderofegril.ui
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 
 /**
@@ -141,31 +136,6 @@ fun SwordIcon(
             color = Color(0xFFFFD700),  // Gold
             radius = width * 0.06f,
             center = Offset(width * 0.15f, height * 0.95f)
-        )
-    }
-}
-
-/**
- * Icon with text - combines an icon drawing function with text
- */
-@Composable
-fun IconWithText(
-    icon: @Composable (Modifier) -> Unit,
-    text: String,
-    modifier: Modifier = Modifier,
-    textStyle: TextStyle,
-    textColor: Color,
-    iconSize: Dp = 10.dp
-) {
-    androidx.compose.foundation.layout.Row(
-        modifier = modifier,
-        verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
-    ) {
-        icon(Modifier.size(iconSize))
-        Text(
-            text = text,
-            style = textStyle,
-            color = textColor
         )
     }
 }
