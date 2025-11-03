@@ -1019,7 +1019,10 @@ class GameEngine(private val state: GameState) {
         while (openSet.isNotEmpty() && iterations < maxIterations) {
             iterations++
             
-            val current = openSet.minByOrNull { fScore[it] ?: Int.MAX_VALUE } ?: break
+            // Select the position with the lowest fScore
+            // If multiple positions have the same fScore, prefer the one closest to the goal (heuristic tiebreaker)
+            val current = openSet.minWithOrNull(compareBy<Position> { fScore[it] ?: Int.MAX_VALUE }
+                .thenBy { it.distanceTo(goal) }) ?: break
             
             if (current == goal) {
                 return reconstructPath(cameFrom, current)
