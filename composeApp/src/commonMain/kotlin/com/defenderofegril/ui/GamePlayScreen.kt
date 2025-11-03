@@ -734,10 +734,11 @@ fun GameGrid(
         ) {
             for (y in 0 until gameState.level.gridHeight) {
                 Row(
-                    modifier = Modifier.offset(
-                        x = if (y % 2 == 1) (hexWidth * 0.42f).dp else 0.dp,
-                        y = (-(y-1)).dp
-                        ),
+                    modifier = Modifier
+                        .padding(
+                            start = if (y % 2 == 1) (hexWidth * 0.42f).dp else 0.dp
+                        )
+                        .offset(y = (-(y-1)).dp),
                     horizontalArrangement = Arrangement.spacedBy((-10).dp)
                 ) {
                     for (x in 0 until gameState.level.gridWidth) {
