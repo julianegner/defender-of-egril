@@ -91,9 +91,36 @@ Desktop screens already had enough space, so no scaling is applied:
 
 ## How It Works
 
-### Two Independent Zoom Levels
+### Density-Based Scaling
 
-1. **Outer Scale (Platform-specific, Fixed)**
+Instead of using `graphicsLayer` (which only scales visually), this implementation uses Compose's `LocalDensity` to affect actual layout calculations:
+
+```kotlin
+// Get platform scale: 0.7 for mobile, 1.0 for desktop
+val uiScale = getGameplayUIScale()
+
+// Create scaled density
+val density = LocalDensity.current
+val scaledDensity = Density(
+    density.density * uiScale,      // Scale dp values
+    density.fontScale * uiScale     // Scale sp values
+)
+
+// Provide scaled density to all children
+CompositionLocalProvider(LocalDensity provides scaledDensity) {
+    // All dp and sp values are now scaled
+}
+```
+
+**Effect**: 
+- A button with `height(48.dp)` becomes `height(33.6dp)` on mobile (48 × 0.7)
+- Text with `fontSize(16.sp)` becomes `fontSize(11.2.sp)` on mobile (16 × 0.7)
+- All padding, margins, sizes are proportionally reduced
+- **Layout space is actually freed up**, not just visually scaled
+
+### Two Independent Scaling Mechanisms
+
+1. **Outer Density Scale (Platform-specific, Fixed)**
    - Mobile: 0.7x - zooms out the entire screen
    - Desktop: 1.0x - no change
    - Applied once when screen loads
@@ -119,11 +146,11 @@ This means they can still zoom in on the map to see details, but the overall UI 
 
 ```
 GamePlayScreenContent
-├── Box (with graphicsLayer scale = 0.7 on mobile) ← NEW
+├── CompositionLocalProvider (with scaled Density on mobile) ← NEW
 │   └── Column (all gameplay content)
-│       ├── Header
+│       ├── Header (smaller text, buttons, padding)
 │       ├── GameGrid (has its own internal zoom) ← UNCHANGED
-│       └── Controls Panel
+│       └── Controls Panel (smaller buttons, text)
 ```
 
 ## Adjusting the Scale
