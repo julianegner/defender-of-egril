@@ -299,14 +299,15 @@ fun SavedGameCard(
                                 config = MinimapConfig(
                                     showSpawnPoints = true,
                                     showTarget = true,
-                                    showTowers = true,
-                                    showEnemies = true,
+                                    showTowers = true,  // Config allows but won't render without gameState
+                                    showEnemies = true,  // Config allows but won't render without gameState
                                     showViewport = false,
                                     backgroundColor = Color.Transparent,
                                     borderColor = Color.Transparent
                                 ),
-                                // Note: We don't have full gameState in save metadata, so we can't show actual unit positions
-                                // The config options are set for potential future use if we store positions
+                                // Note: gameState is null here, so towers/enemies won't render
+                                // even though the config allows them. If SaveGameMetadata is extended
+                                // to include unit positions in the future, they would display.
                                 modifier = Modifier.fillMaxSize()
                             )
                             Text(
