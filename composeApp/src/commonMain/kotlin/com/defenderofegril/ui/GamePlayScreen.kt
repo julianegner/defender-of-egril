@@ -818,134 +818,27 @@ fun GameGrid(
 
         // Minimap - shown when zoomed in
         if (scale > 1.1f) {
-            GameMinimap(
-                gameState = gameState,
-                scale = scale,
-                offsetX = offsetX,
-                offsetY = offsetY,
-                containerSize = containerSize,
+            Box(
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(16.dp)
-            )
-        }
-    }
-}
-
-@Composable
-fun GameMinimap(
-    gameState: GameState,
-    scale: Float,
-    offsetX: Float,
-    offsetY: Float,
-    containerSize: IntSize,
-    modifier: Modifier = Modifier
-) {
-    val minimapSize = 120.dp
-    val gridWidth = gameState.level.gridWidth
-    val gridHeight = gameState.level.gridHeight
-
-    Box(
-        modifier = modifier
-            .size(minimapSize)
-            .background(Color(0xCC000000))  // Semi-transparent black background
-            .border(2.dp, Color.White)
-            .padding(4.dp)
-    ) {
-        // Simplified map representation
-        Canvas(modifier = Modifier.fillMaxSize()) {
-            val cellWidth = size.width / gridWidth
-            val cellHeight = size.height / gridHeight
-
-            // Draw path tiles
-            for (y in 0 until gridHeight) {
-                for (x in 0 until gridWidth) {
-                    val pos = Position(x, y)
-                    if (gameState.level.isOnPath(pos)) {
-                        drawRect(
-                            color = Color(0xFF8B4513),  // Brown for path
-                            topLeft = Offset(x * cellWidth, y * cellHeight),
-                            size = Size(cellWidth, cellHeight)
-                        )
-                    }
-                }
-            }
-
-            // Draw defenders (blue dots - matching main map tower color)
-            gameState.defenders.forEach { defender ->
-                val x = defender.position.x * cellWidth + cellWidth / 2
-                val y = defender.position.y * cellHeight + cellHeight / 2
-                drawCircle(
-                    color = Color(0xFF2196F3),  // Blue - same as ready towers on main map
-                    radius = cellWidth.coerceAtMost(cellHeight) / 3,
-                    center = Offset(x, y)
-                )
-            }
-
-            // Draw attackers (red dots)
-            gameState.attackers.filter { !it.isDefeated.value }.forEach { attacker ->
-                val x = attacker.position.value.x * cellWidth + cellWidth / 2
-                val y = attacker.position.value.y * cellHeight + cellHeight / 2
-                drawCircle(
-                    color = Color.Red,
-                    radius = cellWidth.coerceAtMost(cellHeight) / 4,
-                    center = Offset(x, y)
-                )
-            }
-
-            // Draw spawn points (orange dots - matching main map spawn border)
-            gameState.level.startPositions.forEach { spawnPos ->
-                val x = spawnPos.x * cellWidth + cellWidth / 2
-                val y = spawnPos.y * cellHeight + cellHeight / 2
-                drawCircle(
-                    color = Color(0xFFFF9800),  // Orange - same as spawn border on main map
-                    radius = cellWidth.coerceAtMost(cellHeight) / 3,
-                    center = Offset(x, y)
-                )
-            }
-
-            // Draw target position (green circle - matching main map target border)
-            val targetX = gameState.level.targetPosition.x * cellWidth + cellWidth / 2
-            val targetY = gameState.level.targetPosition.y * cellHeight + cellHeight / 2
-            drawCircle(
-                color = Color(0xFF4CAF50),  // Green - same as target border on main map
-                radius = cellWidth.coerceAtMost(cellHeight) / 3,
-                center = Offset(targetX, targetY)
-            )
-        }
-
-        // Viewport indicator (shows current view)
-        if (containerSize.width > 0 && containerSize.height > 0) {
-            val viewportWidthRatio = 1f / scale
-            val viewportHeightRatio = 1f / scale
-
-            // Calculate normalized offset (-1 to 1 range)
-            val maxOffsetX = (containerSize.width * (scale - 1) / 2).coerceAtLeast(0.01f)
-            val maxOffsetY = (containerSize.height * (scale - 1) / 2).coerceAtLeast(0.01f)
-            val normalizedOffsetX = -offsetX / maxOffsetX
-            val normalizedOffsetY = -offsetY / maxOffsetY
-
-            // Calculate viewport position in minimap
-            val viewportX = (normalizedOffsetX * (1f - viewportWidthRatio) / 2f + (1f - viewportWidthRatio) / 2f)
-            val viewportY = (normalizedOffsetY * (1f - viewportHeightRatio) / 2f + (1f - viewportHeightRatio) / 2f)
-
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .graphicsLayer {
-                        clip = true
-                    }
+                    .size(120.dp)
             ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth(viewportWidthRatio)
-                        .fillMaxHeight(viewportHeightRatio)
-                        .align(Alignment.TopStart)
-                        .offset(
-                            x = minimapSize * viewportX,
-                            y = minimapSize * viewportY
-                        )
-                        .border(2.dp, Color.Yellow)  // Yellow border for viewport
+                HexagonMinimap(
+                    level = gameState.level,
+                    config = MinimapConfig(
+                        showSpawnPoints = true,
+                        showTarget = true,
+                        showTowers = true,
+                        showEnemies = true,
+                        showViewport = true
+                    ),
+                    gameState = gameState,
+                    scale = scale,
+                    offsetX = offsetX,
+                    offsetY = offsetY,
+                    containerSize = containerSize,
+                    modifier = Modifier.fillMaxSize()
                 )
             }
         }

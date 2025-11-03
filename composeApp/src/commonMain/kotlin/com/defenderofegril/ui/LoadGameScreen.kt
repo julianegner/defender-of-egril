@@ -1,8 +1,6 @@
 package com.defenderofegril.ui
 
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -13,22 +11,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.defenderofegril.editor.EditorStorage
-import com.defenderofegril.editor.TileType
 import com.defenderofegril.game.LevelData
 import com.defenderofegril.model.AttackerType
 import com.defenderofegril.model.DefenderType
 import com.defenderofegril.model.Level
 import com.defenderofegril.save.SaveGameMetadata
 import com.defenderofegril.utils.formatTimestamp
-import kotlin.math.PI
-import kotlin.math.cos
-import kotlin.math.sin
-import kotlin.math.sqrt
 
 @Composable
 fun LoadGameScreen(
@@ -303,7 +294,21 @@ fun SavedGameCard(
                                 .height(120.dp)
                                 .padding(top = 20.dp)
                         ) {
-                            val mapName = LevelMinimap(level)
+                            val mapName = HexagonMinimap(
+                                level = level,
+                                config = MinimapConfig(
+                                    showSpawnPoints = true,
+                                    showTarget = true,
+                                    showTowers = true,
+                                    showEnemies = true,
+                                    showViewport = false,
+                                    backgroundColor = Color.Transparent,
+                                    borderColor = Color.Transparent
+                                ),
+                                // Note: We don't have full gameState in save metadata, so we can't show actual unit positions
+                                // The config options are set for potential future use if we store positions
+                                modifier = Modifier.fillMaxSize()
+                            )
                             Text(
                                 text = mapName,
                                 style = MaterialTheme.typography.bodySmall,
