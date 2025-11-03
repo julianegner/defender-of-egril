@@ -181,9 +181,9 @@ fun LevelCard(
     }
     
     val statusText = when (worldLevel.status) {
-        LevelStatus.LOCKED -> "🔒 Locked"
-        LevelStatus.UNLOCKED -> "⚔️ Available"
-        LevelStatus.WON -> "✓ Completed"
+        LevelStatus.LOCKED -> "Locked"
+        LevelStatus.UNLOCKED -> "Available"
+        LevelStatus.WON -> "Completed"
     }
     
     // Get enemy counts for this level

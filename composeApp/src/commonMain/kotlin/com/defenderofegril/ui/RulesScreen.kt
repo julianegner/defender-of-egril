@@ -57,8 +57,8 @@ fun RulesScreen(
             // Your Turn
             SectionTitle("Your Turn")
             SectionText("During your turn, you can:")
-            BulletPoint("Place New Towers - costs coins, requires build time ⏱")
-            BulletPoint("Attack Enemies - click tower with ⚡, then enemy in range")
+            BulletPoint("Place New Towers - costs coins, requires build time (timer icon)")
+            BulletPoint("Attack Enemies - click tower with actions (lightning icon), then enemy in range")
             BulletPoint("Upgrade Towers - increases damage and range")
             BulletPoint("End Turn - click \"End Turn\" to finish")
             
@@ -68,7 +68,7 @@ fun RulesScreen(
             SectionTitle("Enemy Turn")
             BulletPoint("Enemies move toward the target")
             BulletPoint("New enemies spawn")
-            BulletPoint("Build timers advance (⏱ counts down)")
+            BulletPoint("Build timers advance (timer icon counts down)")
             BulletPoint("Damage-over-time effects are applied")
             
             Spacer(modifier = Modifier.height(16.dp))
@@ -118,8 +118,8 @@ fun RulesScreen(
             BulletPoint("Blue: Your ready towers")
             BulletPoint("Gray: Towers still building")
             BulletPoint("Red: Enemies")
-            BulletPoint("⏱: Build time remaining")
-            BulletPoint("⚡: Actions remaining this turn")
+            BulletPoint("Timer icon: Build time remaining")
+            BulletPoint("Lightning icon: Actions remaining this turn")
             
             Spacer(modifier = Modifier.height(16.dp))
             

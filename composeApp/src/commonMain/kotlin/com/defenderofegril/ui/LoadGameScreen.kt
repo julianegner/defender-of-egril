@@ -157,10 +157,9 @@ fun SavedGameCard(
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = "⏱",
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontSize = 16.sp
+                    TimerIcon(
+                        size = 16.dp,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
