@@ -160,23 +160,25 @@ private fun GamePlayScreenContent(
     
     // Create a scaled density with separate scaling for layout (dp) and text (sp)
     // Layout elements (padding, spacing) scaled to 0.5x to save space
-    // Text/icons scaled to 0.75x to remain readable
+    // Text/icons scaled to 1.5x (doubled from 0.75x) for better readability on mobile
     val density = LocalDensity.current
     val scaledDensity = remember(density, uiScale) {
-        // Scale layout (dp) by uiScale, but scale text (sp) less aggressively
+        // Scale layout (dp) by uiScale, but scale text (sp) to be larger
         val textScale = if (uiScale < 1f) {
-            // For mobile, use 0.75 for text readability while layout uses 0.5
-            0.75f
+            // For mobile, use 1.5x for text (doubled from previous 0.75x)
+            // This means text will be at ~original size despite layout being 0.5x
+            1.5f
         } else {
             1f // Desktop unchanged
         }
         Density(density.density * uiScale, density.fontScale * textScale)
     }
 
-    // Auto-fold header when turn 1 starts
+    // Auto-fold header when turn 1 starts (turn 0 for mobile)
     val currentTurn = gameState.turnNumber.value
     LaunchedEffect(currentTurn) {
-        if (currentTurn == 1) {
+        val collapseAtTurn = if (uiScale < 1f) 0 else 1  // Mobile: turn 0, Desktop: turn 1
+        if (currentTurn >= collapseAtTurn) {
             headerExpanded = false
         }
     }
@@ -370,11 +372,25 @@ private fun GamePlayScreenContent(
                         textAlign = TextAlign.Center
                     )
 
-                    // Three buttons at far right
+                    // Three buttons at far right (four on mobile if save is available)
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(4.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
+                        // Save button for mobile only (with floppy disk icon)
+                        if (uiScale < 1f && onSaveGame != null) {
+                            Button(
+                                onClick = { 
+                                    onSaveGame()
+                                    showSaveConfirmation = true
+                                },
+                                modifier = Modifier.height(32.dp),
+                                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp)
+                            ) {
+                                Text("💾", fontSize = 16.sp, modifier = Modifier.align(Alignment.CenterVertically))
+                            }
+                        }
+                        
                         Button(
                             onClick = onBackToMap,
                             modifier = Modifier.height(32.dp),
