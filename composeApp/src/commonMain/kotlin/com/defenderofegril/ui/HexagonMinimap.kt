@@ -111,6 +111,35 @@ fun HexagonMinimap(
     return map.name
 }
 
+/**
+ * Hexagon minimap variant that accepts an EditorMap directly (for level editor)
+ */
+@Composable
+fun HexagonMinimapFromEditorMap(
+    map: com.defenderofegril.editor.EditorMap,
+    level: Level,
+    modifier: Modifier = Modifier,
+    config: MinimapConfig = MinimapConfig()
+) {
+    Box(
+        modifier = modifier
+            .background(config.backgroundColor)
+            .border(2.dp, config.borderColor)
+            .padding(4.dp)
+    ) {
+        HexagonMinimapContent(
+            map = map,
+            level = level,
+            config = config,
+            gameState = null,
+            scale = null,
+            offsetX = null,
+            offsetY = null,
+            containerSize = null
+        )
+    }
+}
+
 @Composable
 private fun HexagonMinimapContent(
     map: com.defenderofegril.editor.EditorMap,
@@ -122,26 +151,53 @@ private fun HexagonMinimapContent(
     offsetY: Float?,
     containerSize: IntSize?
 ) {
-    val hexSize = 6.dp.value
-    val hexWidth = sqrt(3.0) * hexSize
-    val hexHeight = 2.0 * hexSize
-    val verticalSpacing = hexHeight * 0.75
-    
     // Cache tile type checks for performance
     val hasSpawnTile = remember(map.tiles) { map.tiles.values.contains(TileType.SPAWN_POINT) }
     val hasTargetTile = remember(map.tiles) { map.tiles.values.contains(TileType.TARGET) }
     
     Box(modifier = Modifier.fillMaxSize()) {
         Canvas(modifier = Modifier.fillMaxSize()) {
+            // Calculate map dimensions in hex coordinates
+            val mapWidth = map.width
+            val mapHeight = map.height
+            
+            // Calculate the size needed for the hex grid
+            val baseHexSize = 1.0f
+            val baseHexWidth = (sqrt(3.0) * baseHexSize).toFloat()
+            val baseHexHeight = 2.0f * baseHexSize
+            val baseVerticalSpacing = baseHexHeight * 0.75f
+            
+            // Calculate total map dimensions in base units
+            val totalMapWidth = (mapWidth) * baseHexWidth + baseHexWidth / 2
+            val totalMapHeight = (mapHeight - 1) * baseVerticalSpacing + baseHexHeight
+            
+            // Scale to fit in canvas with some padding
+            val padding = 4f
+            val scaleX = (size.width - padding * 2) / totalMapWidth
+            val scaleY = (size.height - padding * 2) / totalMapHeight
+            val mapScale = minOf(scaleX, scaleY)
+            
+            // Calculate actual hex dimensions after scaling
+            val hexSize = baseHexSize * mapScale
+            val hexWidth = baseHexWidth * mapScale
+            val hexHeight = baseHexHeight * mapScale
+            val verticalSpacing = baseVerticalSpacing * mapScale
+            
+            // Center the map in the canvas
+            val scaledMapWidth = totalMapWidth * mapScale
+            val scaledMapHeight = totalMapHeight * mapScale
+            val offsetXCanvas = (size.width - scaledMapWidth) / 2
+            val offsetYCanvas = (size.height - scaledMapHeight) / 2
+            
             // Draw hexagon map tiles
             for (row in 0 until map.height) {
                 for (col in 0 until map.width) {
                     val tileType = map.tiles.getOrElse("$col,$row") { TileType.NO_PLAY }
                     
                     // Calculate hex center position
-                    val offsetXHex = if (row % 2 == 1) hexWidth / 2 else 0.0
-                    val centerX = (col * hexWidth + offsetXHex + hexWidth / 2).toFloat()
-                    val centerY = (row * verticalSpacing + hexHeight / 2).toFloat()
+                    val offsetXHex = if (row % 2 == 1) hexWidth / 2 else 0.0f
+                    val centerX = offsetXCanvas + col * hexWidth + offsetXHex + hexWidth / 2
+                    val centerY = offsetYCanvas + row * verticalSpacing + hexHeight / 2
                     
                     // Get color for tile type
                     val color = when (tileType) {
@@ -155,23 +211,24 @@ private fun HexagonMinimapContent(
                     }
                     
                     // Draw hexagon
-                    drawHexagon(centerX, centerY, hexSize.toFloat(), color)
+                    drawHexagon(centerX, centerY, hexSize, color)
                 }
             }
             
             // Draw units if gameState is provided and config allows
             // Note: Units use the game's grid coordinate system (gameState.level.gridWidth x gridHeight)
             // which is independent of the hexagon map tile layout. Units are rendered as overlay circles
-            // using a simple rectangular grid calculation on the minimap.
+            // positioned relative to the scaled and centered hex map.
             if (gameState != null) {
-                val cellWidth = size.width / level.gridWidth
-                val cellHeight = size.height / level.gridHeight
+                // Units are positioned relative to the scaled map area
+                val cellWidth = scaledMapWidth / level.gridWidth
+                val cellHeight = scaledMapHeight / level.gridHeight
                 
                 // Draw defenders (towers)
                 if (config.showTowers) {
                     gameState.defenders.forEach { defender ->
-                        val x = defender.position.x * cellWidth + cellWidth / 2
-                        val y = defender.position.y * cellHeight + cellHeight / 2
+                        val x = offsetXCanvas + defender.position.x * cellWidth + cellWidth / 2
+                        val y = offsetYCanvas + defender.position.y * cellHeight + cellHeight / 2
                         drawCircle(
                             color = Color(0xFF2196F3),  // Blue - same as ready towers on main map
                             radius = cellWidth.coerceAtMost(cellHeight) / 3,
@@ -183,8 +240,8 @@ private fun HexagonMinimapContent(
                 // Draw attackers (enemies)
                 if (config.showEnemies) {
                     gameState.attackers.filter { !it.isDefeated.value }.forEach { attacker ->
-                        val x = attacker.position.value.x * cellWidth + cellWidth / 2
-                        val y = attacker.position.value.y * cellHeight + cellHeight / 2
+                        val x = offsetXCanvas + attacker.position.value.x * cellWidth + cellWidth / 2
+                        val y = offsetYCanvas + attacker.position.value.y * cellHeight + cellHeight / 2
                         drawCircle(
                             color = Color.Red,
                             radius = cellWidth.coerceAtMost(cellHeight) / 4,
@@ -196,8 +253,8 @@ private fun HexagonMinimapContent(
                 // Draw spawn points (if not already shown as tiles)
                 if (config.showSpawnPoints && !hasSpawnTile) {
                     level.startPositions.forEach { spawnPos ->
-                        val x = spawnPos.x * cellWidth + cellWidth / 2
-                        val y = spawnPos.y * cellHeight + cellHeight / 2
+                        val x = offsetXCanvas + spawnPos.x * cellWidth + cellWidth / 2
+                        val y = offsetYCanvas + spawnPos.y * cellHeight + cellHeight / 2
                         drawCircle(
                             color = Color(0xFFFF9800),  // Orange
                             radius = cellWidth.coerceAtMost(cellHeight) / 3,
@@ -208,8 +265,8 @@ private fun HexagonMinimapContent(
                 
                 // Draw target position (if not already shown as tiles)
                 if (config.showTarget && !hasTargetTile) {
-                    val targetX = level.targetPosition.x * cellWidth + cellWidth / 2
-                    val targetY = level.targetPosition.y * cellHeight + cellHeight / 2
+                    val targetX = offsetXCanvas + level.targetPosition.x * cellWidth + cellWidth / 2
+                    val targetY = offsetYCanvas + level.targetPosition.y * cellHeight + cellHeight / 2
                     drawCircle(
                         color = Color(0xFF4CAF50),  // Green
                         radius = cellWidth.coerceAtMost(cellHeight) / 3,

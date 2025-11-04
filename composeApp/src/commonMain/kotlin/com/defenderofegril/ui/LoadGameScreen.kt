@@ -15,9 +15,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.defenderofegril.game.LevelData
-import com.defenderofegril.model.AttackerType
-import com.defenderofegril.model.DefenderType
-import com.defenderofegril.model.Level
+import com.defenderofegril.model.*
 import com.defenderofegril.save.SaveGameMetadata
 import com.defenderofegril.utils.formatTimestamp
 
@@ -113,6 +111,44 @@ fun SavedGameCard(
     val levels = remember { LevelData.createLevels() }
     val level = remember(saveGame.levelId) { 
         levels.find { it.id == saveGame.levelId }
+    }
+    
+    // Create a minimal GameState for minimap rendering
+    val minimapGameState = remember(saveGame.id) {
+        if (level != null && (saveGame.defenderPositions.isNotEmpty() || saveGame.attackerPositions.isNotEmpty())) {
+            // Create minimal Defender/Attacker objects for minimap display
+            val defenders = saveGame.defenderPositions.map { saved ->
+                Defender(
+                    id = saved.id,
+                    type = saved.type,
+                    position = saved.position,
+                    level = mutableStateOf(saved.level),
+                    buildTimeRemaining = mutableStateOf(saved.buildTimeRemaining),
+                    actionsRemaining = mutableStateOf(0),
+                    placedOnTurn = saved.placedOnTurn,
+                    hasBeenUsed = mutableStateOf(false),
+                    dragonId = mutableStateOf(null)
+                )
+            }
+            val attackers = saveGame.attackerPositions.filter { !it.isDefeated }.map { saved ->
+                Attacker(
+                    id = saved.id,
+                    type = saved.type,
+                    position = mutableStateOf(saved.position),
+                    level = saved.level,
+                    currentHealth = mutableStateOf(saved.currentHealth),
+                    isDefeated = mutableStateOf(false)
+                )
+            }
+            // Create a minimal GameState with just the data needed for rendering
+            GameState(
+                level = level,
+                defenders = androidx.compose.runtime.snapshots.SnapshotStateList<Defender>().apply { addAll(defenders) },
+                attackers = androidx.compose.runtime.snapshots.SnapshotStateList<Attacker>().apply { addAll(attackers) }
+            )
+        } else {
+            null
+        }
     }
     
     Card(
@@ -299,15 +335,13 @@ fun SavedGameCard(
                                 config = MinimapConfig(
                                     showSpawnPoints = true,
                                     showTarget = true,
-                                    showTowers = true,  // Config allows but won't render without gameState
-                                    showEnemies = true,  // Config allows but won't render without gameState
+                                    showTowers = true,
+                                    showEnemies = true,
                                     showViewport = false,
                                     backgroundColor = Color.Transparent,
                                     borderColor = Color.Transparent
                                 ),
-                                // Note: gameState is null here, so towers/enemies won't render
-                                // even though the config allows them. If SaveGameMetadata is extended
-                                // to include unit positions in the future, they would display.
+                                gameState = minimapGameState,  // Pass the minimap game state with unit positions
                                 modifier = Modifier.fillMaxSize()
                             )
                             Text(
