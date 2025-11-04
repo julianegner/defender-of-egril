@@ -124,7 +124,9 @@ object SaveFileStorage {
                             defenderCounts = defenderCounts,
                             attackerCounts = attackerCounts,
                             remainingSpawnCounts = remainingSpawnCounts,
-                            comment = savedGame.comment
+                            comment = savedGame.comment,
+                            defenderPositions = savedGame.defenders,
+                            attackerPositions = savedGame.attackers
                         )
                     )
                 }
