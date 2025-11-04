@@ -419,18 +419,14 @@ private fun GamePlayScreenContent(
                         horizontalArrangement = Arrangement.spacedBy(4.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        // Save button for mobile only (with floppy disk icon)
-                        if (uiScale < 1f && onSaveGame != null) {
-                            Button(
-                                onClick = {
-                                    onSaveGame()
-                                    showSaveConfirmation = true
-                                },
-                                modifier = Modifier.height(32.dp),
-                                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp)
-                            ) {
-                                Text("💾", fontSize = 16.sp, modifier = Modifier.align(Alignment.CenterVertically))
-                            }
+                        Button(
+                            onClick = {
+                                showSaveDialog = true
+                            },
+                            modifier = Modifier.height(32.dp),
+                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp)
+                        ) {
+                            Text("💾", fontSize = 16.sp, modifier = Modifier.align(Alignment.CenterVertically))
                         }
 
                         Button(
@@ -1775,8 +1771,7 @@ fun DefenderInfo(
                                                 defender.type.minRange,
                                                 if (defender.type == DefenderType.DWARVEN_MINE) defender.trapDamage else defender.actualDamage,
                                                 defender.range,
-                                                defender.actionsPerTurnCalculated,
-                                                compact = true
+                                                defender.actionsPerTurnCalculated
                                             )
                                         }
                                         Column {
@@ -1790,8 +1785,7 @@ fun DefenderInfo(
                                                 defender.type.minRange,
                                                 nextActualDamage,
                                                 nextRange,
-                                                nextActions,
-                                                compact = true
+                                                nextActions
                                             )
                                         }
                                     }
