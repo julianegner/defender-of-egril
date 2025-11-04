@@ -96,7 +96,11 @@ fun LevelEditorScreen(
                     )
                     
                     Button(onClick = onBack) {
-                        Text("← Back to World Map")
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            LeftArrowIcon(size = 16.dp, tint = Color.White)
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text("Back to World Map")
+                        }
                     }
                 }
                 
@@ -225,10 +229,9 @@ fun MapEditorContent() {
                                         style = MaterialTheme.typography.titleSmall
                                     )
                                     if (map.readyToUse) {
-                                        Text(
-                                            text = "✓",
-                                            color = Color.Green,
-                                            style = MaterialTheme.typography.titleSmall
+                                        CheckmarkIcon(
+                                            size = 16.dp,
+                                            tint = Color.Green
                                         )
                                     } else {
                                         Text(
@@ -276,7 +279,7 @@ fun MapEditorContent() {
                                         attackerWaves = emptyList()
                                     )
                                 }
-                                
+
                                 // Use HexagonMinimap with a direct map reference
                                 HexagonMinimapFromEditorMap(
                                     map = map,
@@ -286,7 +289,7 @@ fun MapEditorContent() {
                             }
 
                             Spacer(modifier = Modifier.weight(3f))
-                            
+
                             Button(
                                 onClick = {
                                     EditorStorage.deleteMap(map.id)
@@ -430,11 +433,9 @@ fun MapEditorView(
                                         },
                                     contentAlignment = Alignment.Center
                                 ) {
-                                    Text(
-                                        text = getTileSymbol(tileType),
-                                        fontSize = 16.sp,
-                                        color = Color.White
-                                    )
+                                    if (tileType == TileType.WAYPOINT) {
+                                        PushpinIcon(size = 20.dp)
+                                    }
                                 }
                             }
                         }
@@ -546,7 +547,10 @@ fun MapEditorView(
                             onClick = { zoomLevel = maxOf(0.5f, zoomLevel - 0.1f) },
                             modifier = Modifier.height(32.dp)
                         ) {
-                            Text("🔍-", fontSize = 12.sp)
+                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                                MagnifyingGlassIcon(size = 14.dp, tint = Color.White)
+                                Text("-", fontSize = 12.sp)
+                            }
                         }
                         Text(
                             text = "${(zoomLevel * 100).toInt()}%",
@@ -557,7 +561,10 @@ fun MapEditorView(
                             onClick = { zoomLevel = minOf(3.0f, zoomLevel + 0.1f) },
                             modifier = Modifier.height(32.dp)
                         ) {
-                            Text("🔍+", fontSize = 12.sp)
+                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                                MagnifyingGlassIcon(size = 14.dp, tint = Color.White)
+                                Text("+", fontSize = 12.sp)
+                            }
                         }
                     }
                 }
@@ -601,10 +608,15 @@ fun TileTypeButton(
     Button(
         onClick = onClick,
         colors = ButtonDefaults.buttonColors(
-            containerColor = if (selected) getTileColor(tileType) else MaterialTheme.colorScheme.secondary
+            containerColor = if (selected) getTileColor(tileType).copy(alpha = 0.8f) else getTileColor(tileType).copy(alpha = 0.4f)
         )
     ) {
-        Text("${getTileSymbol(tileType)} ${tileType.name}")
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            if (tileType == TileType.WAYPOINT) {
+                PushpinIcon(size = 14.dp)
+            }
+            Text(tileType.name)
+        }
     }
 }
 
@@ -616,19 +628,19 @@ fun getTileColor(tileType: TileType): Color {
         TileType.NO_PLAY -> Color(0xFF404040)     // Dark gray
         TileType.SPAWN_POINT -> Color(0xFFFF0000) // Red
         TileType.TARGET -> Color(0xFF0000FF)      // Blue
-        TileType.WAYPOINT -> Color(0xFFFFFF00)    // Yellow
+        TileType.WAYPOINT -> Color(0xFF8B4513)    // Brown (same as PATH)
     }
 }
 
 fun getTileSymbol(tileType: TileType): String {
     return when (tileType) {
-        TileType.PATH -> "➡"
-        TileType.BUILD_AREA -> "🏗"
-        TileType.ISLAND -> "🏝"
-        TileType.NO_PLAY -> "⬛"
-        TileType.SPAWN_POINT -> "🚪"
-        TileType.TARGET -> "🎯"
-        TileType.WAYPOINT -> "📍"
+        TileType.PATH -> ""
+        TileType.BUILD_AREA -> ""
+        TileType.ISLAND -> ""
+        TileType.NO_PLAY -> ""
+        TileType.SPAWN_POINT -> ""
+        TileType.TARGET -> ""
+        TileType.WAYPOINT -> "Pin"
     }
 }
 
@@ -956,7 +968,10 @@ fun LevelEditorView(
                             ))
                         }
                     }) {
-                        Text("➕ Add Turn")
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Text("➕")
+                            Text("Add Turn")
+                        }
                     }
                 }
             }
@@ -1300,7 +1315,7 @@ fun LevelSequenceContent() {
                                 },
                                 enabled = index > 0
                             ) {
-                                Text("↑")
+                                UpArrowIcon(size = 16.dp, tint = Color.White)
                             }
                             
                             Button(
@@ -1310,7 +1325,7 @@ fun LevelSequenceContent() {
                                 },
                                 enabled = index < sequence.value.sequence.size - 1
                             ) {
-                                Text("↓")
+                                DownArrowIcon(size = 16.dp, tint = Color.White)
                             }
                         }
                     }
@@ -1457,7 +1472,7 @@ fun MapSelectionCard(
                         attackerWaves = emptyList()
                     )
                 }
-                
+
                 // Use HexagonMinimap with a direct map reference
                 HexagonMinimapFromEditorMap(
                     map = map,
@@ -1471,11 +1486,11 @@ fun MapSelectionCard(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                Text(
-                    text = if (map.readyToUse) "✓" else "✗",
-                    color = if (map.readyToUse) Color.Green else Color.Red,
-                    fontSize = 12.sp
-                )
+                if (map.readyToUse) {
+                    CheckmarkIcon(size = 12.dp, tint = Color.Green)
+                } else {
+                    Text("✗", color = Color.Red, fontSize = 12.sp)
+                }
                 Text(
                     text = if (map.readyToUse) "Ready" else "Not ready",
                     fontSize = 10.sp,
@@ -1485,7 +1500,6 @@ fun MapSelectionCard(
         }
     }
 }
-
 
 @Composable
 fun SpawnTurnSection(
@@ -1521,9 +1535,10 @@ fun SpawnTurnSection(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Text(
-                        text = if (expanded) "▼" else "▶",
-                        fontSize = 12.sp
+                        text = if (expanded) "" else "",
+                        fontSize = 16.sp
                     )
+                    ReloadIcon(size = 14.dp)
                     Text(
                         text = "Turn $turn",
                         style = MaterialTheme.typography.titleSmall,
@@ -1544,14 +1559,14 @@ fun SpawnTurnSection(
                         enabled = canMoveUp,
                         modifier = Modifier.height(32.dp)
                     ) {
-                        Text("↑", fontSize = 12.sp)
+                        UpArrowIcon(size = 12.dp, tint = Color.White)
                     }
                     Button(
                         onClick = onMoveTurnDown,
                         enabled = canMoveDown,
                         modifier = Modifier.height(32.dp)
                     ) {
-                        Text("↓", fontSize = 12.sp)
+                        DownArrowIcon(size = 12.dp, tint = Color.White)
                     }
                     Button(
                         onClick = onCopyTurn,
@@ -1621,7 +1636,7 @@ fun SpawnTurnSection(
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                                 ) {
-                                    Text("🗑️", fontSize = 12.sp)
+                                    TrashIcon(size = 12.dp)
                                     Text("Remove", fontSize = 11.sp)
                                 }
                             }

@@ -184,10 +184,8 @@ fun SavedGameCard(
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = "⏱",
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontSize = 16.sp
+                    TimerIcon(
+                        size = 16.dp
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
@@ -202,11 +200,7 @@ fun SavedGameCard(
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = "💰",
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontSize = 16.sp
-                    )
+                    MoneyIcon(size = 16.dp)
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = "${saveGame.coins}",
@@ -367,7 +361,7 @@ fun SavedGameCard(
                             color = MaterialTheme.colorScheme.error
                         )
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text("🗑️", style = MaterialTheme.typography.bodyLarge)
+                        TrashIcon(size = 20.dp)
                     }
                 }
             }
