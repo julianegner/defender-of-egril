@@ -1204,13 +1204,14 @@ fun GameControlsPanel(
     }
 
     Column(modifier = Modifier.fillMaxWidth()) {
-        // Title
-        Text(title, style = MaterialTheme.typography.titleMedium)
-
-        Spacer(modifier = Modifier.height(8.dp))
+        // Title - hide when tower is selected
+        if (!compactBuyPanel) {
+            Text(title, style = MaterialTheme.typography.titleMedium)
+            Spacer(modifier = Modifier.height(8.dp))
+        }
 
         if (compactBuyPanel) {
-            // Folded view: Compact layout with defender info on left, buy buttons on right
+            // Folded view: Compact layout with defender info on left, buy buttons and End Turn on right
             Row(modifier = Modifier.fillMaxWidth()) {
                 // Selected defender info on left (smaller)
                 selectedDefenderId?.let { defenderId ->
@@ -1237,27 +1238,45 @@ fun GameControlsPanel(
                     }
                 }
 
-                // Compact buy buttons on right
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(2),
-                    modifier = Modifier.width(350.dp).height(170.dp),
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    items(
-                        DefenderType.entries
-                            .filter { it != DefenderType.DRAGONS_LAIR }
-                            .toTypedArray(),
-                        key = { type -> "${type.name}_folded_${coinsState.value}" }) { type ->
-                        val canAfford = coinsState.value >= type.baseCost
-                        CompactDefenderButton(
-                            type = type,
-                            isSelected = selectedDefenderType == type,
-                            canAfford = canAfford,
-                            onClick = {
-                                onSelectDefenderType(if (selectedDefenderType == type) null else type)
-                            }
-                        )
+                // Right side: buy buttons and End Turn button
+                Column(modifier = Modifier.width(350.dp)) {
+                    // Compact buy buttons
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(2),
+                        modifier = Modifier.fillMaxWidth().height(170.dp),
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        items(
+                            DefenderType.entries
+                                .filter { it != DefenderType.DRAGONS_LAIR }
+                                .toTypedArray(),
+                            key = { type -> "${type.name}_folded_${coinsState.value}" }) { type ->
+                            val canAfford = coinsState.value >= type.baseCost
+                            CompactDefenderButton(
+                                type = type,
+                                isSelected = selectedDefenderType == type,
+                                canAfford = canAfford,
+                                onClick = {
+                                    onSelectDefenderType(if (selectedDefenderType == type) null else type)
+                                }
+                            )
+                        }
+                    }
+                    
+                    Spacer(modifier = Modifier.height(8.dp))
+                    
+                    // End Turn button - same width as buy tower buttons
+                    Button(
+                        onClick = onPrimaryAction,
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = if (isPlayerTurn) {
+                            ButtonDefaults.buttonColors(containerColor = primaryButtonColor)
+                        } else {
+                            ButtonDefaults.buttonColors()
+                        }
+                    ) {
+                        Text(primaryButtonText)
                     }
                 }
             }
@@ -1313,18 +1332,21 @@ fun GameControlsPanel(
             }
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        // End Turn button - only show in expanded view (not compact)
+        if (!compactBuyPanel) {
+            Spacer(modifier = Modifier.height(8.dp))
 
-        Button(
-            onClick = onPrimaryAction,
-            modifier = Modifier.fillMaxWidth(),
-            colors = if (isPlayerTurn) {
-                ButtonDefaults.buttonColors(containerColor = primaryButtonColor)
-            } else {
-                ButtonDefaults.buttonColors()
+            Button(
+                onClick = onPrimaryAction,
+                modifier = Modifier.fillMaxWidth(),
+                colors = if (isPlayerTurn) {
+                    ButtonDefaults.buttonColors(containerColor = primaryButtonColor)
+                } else {
+                    ButtonDefaults.buttonColors()
+                }
+            ) {
+                Text(primaryButtonText)
             }
-        ) {
-            Text(primaryButtonText)
         }
     }
 }
@@ -1575,9 +1597,9 @@ fun DefenderInfo(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Start
                 ) {
-                    // Tower icon - smaller on mobile to save space
-                    val iconSize = if (isMobile) 32.dp else 48.dp
-                    val iconInnerSize = if (isMobile) 28.dp else 44.dp
+                    // Tower icon - double the original size
+                    val iconSize = if (isMobile) 64.dp else 96.dp
+                    val iconInnerSize = if (isMobile) 56.dp else 88.dp
                     Box(
                         modifier = Modifier.size(iconSize),
                         contentAlignment = Alignment.Center
@@ -1704,7 +1726,7 @@ fun DefenderInfo(
                             // Mobile: More compact horizontal layout
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
                                 // Combined stats in one compact column
                                 Column(modifier = Modifier.weight(1f)) {
@@ -1777,7 +1799,7 @@ fun DefenderInfo(
                                             },
                                             modifier = Modifier
                                                 .offset(y = (-6).dp)
-                                                .width(200.dp)
+                                                .width(240.dp)
                                                 .height(100.dp)
                                         )
                                     }
@@ -1861,7 +1883,7 @@ fun DefenderInfo(
                                             },
                                             modifier = Modifier
                                                 .offset(y = (-12).dp)
-                                                .width(200.dp)
+                                                .width(240.dp)
                                                 .height(60.dp)
                                         )
                                     }
@@ -1902,7 +1924,7 @@ private fun RowScope.dwarvenMineActionButtonArea(
                 Button(
                     onClick = { onMineAction?.invoke(defender.id, MineAction.DIG) },
                     enabled = mineActionsEnabled,
-                    modifier = Modifier.width(95.dp).height(60.dp)
+                    modifier = Modifier.width(240.dp).height(60.dp)
                         .offset(y = (-12).dp),
                     contentPadding = PaddingValues(
                         horizontal = 4.dp,
@@ -1928,7 +1950,7 @@ private fun RowScope.dwarvenMineActionButtonArea(
                         )
                     },
                     enabled = mineActionsEnabled,
-                    modifier = Modifier.width(95.dp).height(60.dp)
+                    modifier = Modifier.width(240.dp).height(60.dp)
                         .offset(y = (-12).dp),
                     contentPadding = PaddingValues(
                         horizontal = 4.dp,
@@ -1981,7 +2003,7 @@ fun UpgradeButton(
     gameState: GameState,
     modifier: Modifier = Modifier
         .offset(y = (-12).dp)
-        .width(200.dp)
+        .width(240.dp)
         .height(60.dp),
     onUpgradeDefender: (Int) -> Unit,
     isMobile: Boolean = false  // Add platform parameter
@@ -1990,7 +2012,7 @@ fun UpgradeButton(
     val buttonModifier = if (isMobile) {
         Modifier
             .offset(y = (-6).dp)  // Less offset on mobile
-            .width(200.dp)
+            .width(240.dp)
             .height(100.dp)  // Taller on mobile (becomes 50dp with 0.5x scaling)
     } else {
         modifier
@@ -2028,7 +2050,7 @@ fun UndoOrSellButton(
     onSellTower: (Int) -> Unit,
     modifier: Modifier = Modifier
         .offset(y = (-12).dp)
-        .width(200.dp)
+        .width(240.dp)
         .height(60.dp),
     isMobile: Boolean = false  // Add platform parameter
 ) {
@@ -2038,7 +2060,7 @@ fun UndoOrSellButton(
     val buttonModifier = if (isMobile) {
         Modifier
             .offset(y = (-6).dp)  // Less offset on mobile
-            .width(200.dp)
+            .width(240.dp)
             .height(100.dp)  // Taller on mobile (becomes 50dp with 0.5x scaling)
     } else {
         modifier
