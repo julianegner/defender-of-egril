@@ -65,6 +65,12 @@ gradlew.bat :composeApp:run
 **iOS (requires macOS with Xcode):**
 Open `iosApp/iosApp.xcodeproj` in Xcode and click Run
 
+**Web/Browser:**
+```bash
+./gradlew :composeApp:wasmJsBrowserDevelopmentRun
+```
+Then open http://localhost:8080 in your browser
+
 📖 **For detailed gameplay instructions, see [GAMEPLAY.md](GAMEPLAY.md)**
 
 ## Building and Running
@@ -79,6 +85,7 @@ Open `iosApp/iosApp.xcodeproj` in Xcode and click Run
 - ✅ **JVM/Desktop**: Fully implemented and tested on Linux
 - ✅ **Android**: Fully implemented and tested (APK builds successfully)
 - ✅ **iOS**: Fully implemented (requires macOS with Xcode for building)
+- ✅ **Web/Wasm**: Fully implemented and runs in modern browsers
 
 ### Building
 
@@ -91,6 +98,9 @@ Open `iosApp/iosApp.xcodeproj` in Xcode and click Run
 
 # Build iOS framework (requires macOS)
 ./gradlew :composeApp:linkDebugFrameworkIosSimulatorArm64
+
+# Build web/wasm bundle
+./gradlew :composeApp:wasmJsBrowserDevelopmentWebpack
 ```
 
 ### Running Desktop Version
@@ -108,6 +118,20 @@ Install the APK from `composeApp/build/outputs/apk/debug/composeApp-debug.apk` o
 1. Open `iosApp/iosApp.xcodeproj` in Xcode (macOS required)
 2. Select a simulator or device
 3. Click Run
+
+### Running Web/Browser
+
+Run the development server:
+```bash
+./gradlew :composeApp:wasmJsBrowserDevelopmentRun
+```
+
+Then open http://localhost:8080 in a modern web browser (Chrome, Firefox, Safari, or Edge).
+
+The web version uses browser localStorage for save games and supports:
+- Mouse wheel zoom
+- Click and drag to pan
+- All game features available on other platforms (except level editor)
 
 ## Project Structure
 

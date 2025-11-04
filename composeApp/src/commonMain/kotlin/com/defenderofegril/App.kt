@@ -67,7 +67,7 @@ fun App() {
                         onDefenderAttackPosition = { defenderId, targetPos -> viewModel.defenderAttackPosition(defenderId, targetPos) },
                         onEndPlayerTurn = { viewModel.endPlayerTurn() },
                         onBackToMap = { viewModel.navigateToWorldMap() },
-                        onSaveGame = { viewModel.saveCurrentGame() },
+                        onSaveGame = { comment -> viewModel.saveCurrentGame(comment) },
                         onCheatCode = { code -> viewModel.applyCheatCode(code) },
                         onMineDig = { mineId -> viewModel.performMineDig(mineId) },
                         onMineBuildTrap = { mineId, trapPos -> viewModel.performMineBuildTrap(mineId, trapPos) }
@@ -79,6 +79,7 @@ fun App() {
                 LevelCompleteScreen(
                     levelId = screen.levelId,
                     won = screen.won,
+                    isLastLevel = screen.isLastLevel,
                     onRestart = { viewModel.restartLevel() },
                     onBackToMap = { viewModel.navigateToWorldMap() }
                 )

@@ -124,13 +124,19 @@ fun TowerIcon(
                     .align(Alignment.CenterStart)
                     .padding(start = 6.dp)  // 6dp from left edge
             ) {
-                Text(
-                    text = if (defender.actionsRemaining.value == 1) "⚡" else defender.actionsRemaining.value.toString(),
-                    style = MaterialTheme.typography.labelSmall,
-                    fontSize = 16.sp,
-                    color = Color.Yellow,
-                    fontWeight = if (defender.actionsRemaining.value == 1) FontWeight.Bold else FontWeight.Normal
-                )
+                if (defender.actionsRemaining.value == 1) {
+                    LightningIcon(
+                        size = 16.dp
+                    )
+                } else {
+                    Text(
+                        text = defender.actionsRemaining.value.toString(),
+                        style = MaterialTheme.typography.labelSmall,
+                        fontSize = 16.sp,
+                        color = Color.Yellow,
+                        fontWeight = FontWeight.Normal
+                    )
+                }
             }
         }
         
@@ -148,16 +154,23 @@ fun TowerIcon(
         
         // Build time indicator at bottom center (only if not ready)
         if (!defender.isReady) {
-            Text(
-                text = "⏱${defender.buildTimeRemaining.value}",
-                style = MaterialTheme.typography.labelSmall,
-                fontSize = 10.sp,
-                color = Color(0xFFFFA500),
-                fontWeight = FontWeight.Bold,
+            Row(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
-                    .padding(bottom = 2.dp)
-            )
+                    .padding(bottom = 2.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                TimerIcon(
+                    size = 10.dp
+                )
+                Text(
+                    text = defender.buildTimeRemaining.value.toString(),
+                    style = MaterialTheme.typography.labelSmall,
+                    fontSize = 10.sp,
+                    color = Color(0xFFFFA500),
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
     }
 }
