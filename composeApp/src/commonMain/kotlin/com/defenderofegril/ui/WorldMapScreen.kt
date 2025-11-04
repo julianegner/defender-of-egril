@@ -316,7 +316,7 @@ fun LevelCard(
                 ) {
                     when (worldLevel.status) {
                         LevelStatus.LOCKED -> LockIcon(size = 13.dp)
-                        LevelStatus.UNLOCKED -> UnlockIcon(size = 13.dp)
+                        LevelStatus.UNLOCKED -> CheckmarkIcon(size = 13.dp, tint = Color(0xFF4CAF50))
                         LevelStatus.WON -> CheckmarkIcon(size = 13.dp, tint = Color.White)
                     }
                     Spacer(modifier = Modifier.width(4.dp))
