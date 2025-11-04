@@ -711,8 +711,22 @@ fun GameGrid(
                     offsetY += pan.y
 
                     // Constrain pan to keep content visible
-                    val maxOffsetX = (containerSize.width * (scale - 1) / 2).coerceAtLeast(0f)
-                    val maxOffsetY = (containerSize.height * (scale - 1) / 2).coerceAtLeast(0f)
+                    // Allow panning to show content that extends beyond container
+                    // When content is larger than container, allow panning to see all of it
+                    val contentWidth = totalGridWidth.value * scale
+                    val contentHeight = totalGridHeight.value * scale
+                    
+                    val maxOffsetX = if (contentWidth > containerSize.width) {
+                        (contentWidth - containerSize.width) / 2
+                    } else {
+                        (containerSize.width * (scale - 1) / 2).coerceAtLeast(0f)
+                    }
+                    
+                    val maxOffsetY = if (contentHeight > containerSize.height) {
+                        (contentHeight - containerSize.height) / 2
+                    } else {
+                        (containerSize.height * (scale - 1) / 2).coerceAtLeast(0f)
+                    }
 
                     offsetX = offsetX.coerceIn(-maxOffsetX, maxOffsetX)
                     offsetY = offsetY.coerceIn(-maxOffsetY, maxOffsetY)
@@ -722,6 +736,8 @@ fun GameGrid(
         // Map content with pan and zoom applied
         Column(
             modifier = Modifier
+                .width(totalGridWidth)
+                .height(totalGridHeight)
                 .graphicsLayer(
                     scaleX = scale,
                     scaleY = scale,
