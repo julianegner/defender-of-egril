@@ -163,4 +163,135 @@ class SaveDataTest {
         assertEquals(Position(2, 1), attacker.position)
         assertEquals(20, attacker.currentHealth)
     }
+    
+    @Test
+    fun testUpcomingSpawnsCalculation() {
+        // Test the spawn plan filtering logic
+        val waves = listOf(
+            AttackerWave(
+                attackers = List(12) { AttackerType.GOBLIN },
+                spawnDelay = 2
+            ),
+            AttackerWave(
+                attackers = List(12) { AttackerType.ORK },
+                spawnDelay = 2
+            )
+        )
+        
+        val spawnPlan = generateSpawnPlan(waves)
+        
+        // At turn 0, all spawns should be in the future
+        val upcomingAtTurn0 = spawnPlan.filter { it.spawnTurn > 0 }
+        assertEquals(24, upcomingAtTurn0.size)
+        
+        // At turn 5, some goblins should have spawned
+        val upcomingAtTurn5 = spawnPlan.filter { it.spawnTurn > 5 }
+        // Should be less than total
+        assert(upcomingAtTurn5.size < 24)
+        
+        // Count by type for turn 5
+        val countsByType = upcomingAtTurn5.groupingBy { it.attackerType }.eachCount()
+        // Should have some orks and possibly some goblins
+        assert(countsByType.containsKey(AttackerType.ORK))
+    }
+    
+    @Test
+    fun testSavedGameWithComment() {
+        val savedGame = SavedGame(
+            id = "test_save_with_comment",
+            timestamp = System.currentTimeMillis(),
+            levelId = 1,
+            levelName = "The First Wave",
+            turnNumber = 3,
+            coins = 100,
+            healthPoints = 10,
+            phase = GamePhase.PLAYER_TURN,
+            defenders = emptyList(),
+            attackers = emptyList(),
+            nextDefenderId = 1,
+            nextAttackerId = 1,
+            currentWaveIndex = 0,
+            spawnCounter = 0,
+            attackersToSpawn = emptyList(),
+            fieldEffects = emptyList(),
+            traps = emptyList(),
+            comment = "Before final wave - good position"
+        )
+        
+        // Test serialization
+        val json = SaveJsonSerializer.serializeSavedGame(savedGame)
+        assertNotNull(json)
+        
+        // Test deserialization
+        val deserialized = SaveJsonSerializer.deserializeSavedGame(json)
+        assertNotNull(deserialized)
+        assertEquals("Before final wave - good position", deserialized.comment)
+    }
+    
+    @Test
+    fun testSavedGameWithoutComment() {
+        val savedGame = SavedGame(
+            id = "test_save_no_comment",
+            timestamp = System.currentTimeMillis(),
+            levelId = 1,
+            levelName = "The First Wave",
+            turnNumber = 3,
+            coins = 100,
+            healthPoints = 10,
+            phase = GamePhase.PLAYER_TURN,
+            defenders = emptyList(),
+            attackers = emptyList(),
+            nextDefenderId = 1,
+            nextAttackerId = 1,
+            currentWaveIndex = 0,
+            spawnCounter = 0,
+            attackersToSpawn = emptyList(),
+            fieldEffects = emptyList(),
+            traps = emptyList(),
+            comment = null
+        )
+        
+        // Test serialization
+        val json = SaveJsonSerializer.serializeSavedGame(savedGame)
+        assertNotNull(json)
+        
+        // Test deserialization
+        val deserialized = SaveJsonSerializer.deserializeSavedGame(json)
+        assertNotNull(deserialized)
+        assertEquals(null, deserialized.comment)
+    }
+    
+    @Test
+    fun testCommentWithSpecialCharacters() {
+        val commentWithSpecialChars = "Quote: \"test\", Newline:\nNew line, Backslash: \\"
+        val savedGame = SavedGame(
+            id = "test_save_special",
+            timestamp = System.currentTimeMillis(),
+            levelId = 1,
+            levelName = "Test",
+            turnNumber = 1,
+            coins = 100,
+            healthPoints = 10,
+            phase = GamePhase.PLAYER_TURN,
+            defenders = emptyList(),
+            attackers = emptyList(),
+            nextDefenderId = 1,
+            nextAttackerId = 1,
+            currentWaveIndex = 0,
+            spawnCounter = 0,
+            attackersToSpawn = emptyList(),
+            fieldEffects = emptyList(),
+            traps = emptyList(),
+            comment = commentWithSpecialChars
+        )
+        
+        // Test serialization
+        val json = SaveJsonSerializer.serializeSavedGame(savedGame)
+        assertNotNull(json)
+        
+        // Test deserialization
+        val deserialized = SaveJsonSerializer.deserializeSavedGame(json)
+        assertNotNull(deserialized)
+        assertEquals(commentWithSpecialChars, deserialized.comment)
+    }
 }
