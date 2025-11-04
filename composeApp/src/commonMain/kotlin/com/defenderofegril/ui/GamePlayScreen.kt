@@ -1217,45 +1217,21 @@ fun GameControlsPanel(
                     val defender = gameState.defenders.find { it.id == defenderId }
                     if (defender != null) {
                         Box(modifier = Modifier.weight(1f)) {
-                            Column {
-                                DefenderInfo(
-                                    defender,
-                                    gameState,
-                                    onUpgradeDefender,
-                                    onUndoTower,
-                                    onSellTower,
-                                    onMineAction = onMineAction,
-                                    compactBuyPanel,
-                                    isMobile = uiScale < 1f
-                                )
-
-                                if (isPlayerTurn &&
-                                    defender.type != DefenderType.DWARVEN_MINE &&
-                                    defender.type != DefenderType.DRAGONS_LAIR) {
-                                    AttackButton(
-                                        defender = defender,
-                                        gameState = gameState,
-                                        selectedTargetId = selectedTargetId,
-                                        selectedTargetPosition = selectedTargetPosition,
-                                        onDefenderAttack = { defenderId, targetId ->
-                                            onDefenderAttack(defenderId, targetId)
-                                        },
-                                        onDefenderAttackPosition = { defenderId, targetPos ->
-                                            onDefenderAttackPosition(defenderId, targetPos)
-                                        },
-                                        modifier = Modifier
-                                            .layout { measurable, constraints ->
-                                                val placeable = measurable.measure(constraints)
-                                                layout(0, 0) {
-                                                    placeable.place(0, 0)
-                                                }
-                                            }
-                                            .width(200.dp)
-                                            .height(100.dp)
-                                            .absoluteOffset(x = 1000.dp, y = (-130).dp)
-                                    )
-                                }
-                            }
+                            DefenderInfo(
+                                defender,
+                                gameState,
+                                onUpgradeDefender,
+                                onUndoTower,
+                                onSellTower,
+                                onMineAction = onMineAction,
+                                compactBuyPanel,
+                                isMobile = uiScale < 1f,
+                                selectedTargetId = selectedTargetId,
+                                selectedTargetPosition = selectedTargetPosition,
+                                onDefenderAttack = onDefenderAttack,
+                                onDefenderAttackPosition = onDefenderAttackPosition,
+                                isPlayerTurn = isPlayerTurn
+                            )
                         }
                         Spacer(modifier = Modifier.width(8.dp))
                     }
@@ -1326,42 +1302,13 @@ fun GameControlsPanel(
                         onSellTower,
                         onMineAction = onMineAction,
                         compactBuyPanel,
-                        isMobile = uiScale < 1f
+                        isMobile = uiScale < 1f,
+                        selectedTargetId = selectedTargetId,
+                        selectedTargetPosition = selectedTargetPosition,
+                        onDefenderAttack = onDefenderAttack,
+                        onDefenderAttackPosition = onDefenderAttackPosition,
+                        isPlayerTurn = isPlayerTurn
                     )
-
-                    // Don't show attack button for dwarven mines or dragon's lair
-                    if (isPlayerTurn &&
-                        defender.type != DefenderType.DWARVEN_MINE &&
-                        defender.type != DefenderType.DRAGONS_LAIR
-                    ) {
-                        AttackButton(
-                            defender = defender,
-                            gameState = gameState,
-                            selectedTargetId = selectedTargetId,
-                            selectedTargetPosition = selectedTargetPosition,
-                            onDefenderAttack = { defenderId, targetId ->
-                                onDefenderAttack(defenderId, targetId)
-                            },
-                            onDefenderAttackPosition = { defenderId, targetPos ->
-                                onDefenderAttackPosition(defenderId, targetPos)
-                            },
-                            modifier = Modifier
-                                .layout { measurable, constraints ->
-                                    // Measure the tooltip but don't add it to the layout
-                                    val placeable = measurable.measure(constraints)
-                                    layout(0, 0) { // Set the size to 0 to avoid taking up space and move other elements
-                                        placeable.place(0, 0)
-                                    }
-                                }
-                                .width(200.dp)
-                                .height(100.dp)
-                                .absoluteOffset(
-                                    x = 1000.dp,
-                                    y = (-130).dp
-                                ) // .absoluteOffset(x = 700.dp, y = (-130).dp)
-
-                        )
-                    }
                 }
             }
         }
@@ -1598,7 +1545,12 @@ fun DefenderInfo(
     onSellTower: (Int) -> Unit,
     onMineAction: ((Int, MineAction) -> Unit)? = null,
     compactBuyPanel: Boolean = false,
-    isMobile: Boolean = false  // Add platform parameter
+    isMobile: Boolean = false,  // Add platform parameter
+    selectedTargetId: Int? = null,
+    selectedTargetPosition: Position? = null,
+    onDefenderAttack: ((Int, Int) -> Boolean)? = null,
+    onDefenderAttackPosition: ((Int, Position) -> Boolean)? = null,
+    isPlayerTurn: Boolean = false
 ) {
     // Use key to force recomposition when defender stats change
     key(
@@ -1706,7 +1658,6 @@ fun DefenderInfo(
                     Box(modifier = Modifier.weight(0.5f)) {
                         DefenderActionsInfo(defender)
                     }
-                    Spacer(modifier = Modifier.weight(6f))
                 }
 
                 // Reduce spacing on mobile
@@ -1804,6 +1755,32 @@ fun DefenderInfo(
                                         onSellTower = onSellTower,
                                         isMobile = isMobile
                                     )
+                                }
+
+                                // Attack button inline with other buttons on mobile
+                                if (isPlayerTurn &&
+                                    defender.type != DefenderType.DWARVEN_MINE &&
+                                    defender.type != DefenderType.DRAGONS_LAIR &&
+                                    onDefenderAttack != null &&
+                                    onDefenderAttackPosition != null) {
+                                    Column(modifier = Modifier.weight(0.8f)) {
+                                        AttackButton(
+                                            defender = defender,
+                                            gameState = gameState,
+                                            selectedTargetId = selectedTargetId,
+                                            selectedTargetPosition = selectedTargetPosition,
+                                            onDefenderAttack = { defenderId, targetId ->
+                                                onDefenderAttack(defenderId, targetId)
+                                            },
+                                            onDefenderAttackPosition = { defenderId, targetPos ->
+                                                onDefenderAttackPosition(defenderId, targetPos)
+                                            },
+                                            modifier = Modifier
+                                                .offset(y = (-6).dp)
+                                                .width(200.dp)
+                                                .height(100.dp)
+                                        )
+                                    }
                                 }
 
                                 dwarvenMineActionButtonArea(
