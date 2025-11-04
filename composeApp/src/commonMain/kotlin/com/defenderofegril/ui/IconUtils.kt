@@ -35,6 +35,7 @@ import defender_of_egril.composeapp.generated.resources.emoji_triangle_right
 import defender_of_egril.composeapp.generated.resources.emoji_triangle_up
 import defender_of_egril.composeapp.generated.resources.emoji_unlock
 import defender_of_egril.composeapp.generated.resources.emoji_up_arrow
+import defender_of_egril.composeapp.generated.resources.emoji_magnifying_glass
 import org.jetbrains.compose.resources.painterResource
 
 /**
@@ -220,12 +221,14 @@ fun MoneyIcon(
 @Composable
 fun TriangleUpIcon(
     modifier: Modifier = Modifier,
-    size: Dp = 16.dp
+    size: Dp = 16.dp,
+    tint: Color? = null
 ) {
     Image(
         painter = painterResource(Res.drawable.emoji_triangle_up),
         contentDescription = "Triangle Up",
-        modifier = modifier.size(size)
+        modifier = modifier.size(size),
+        colorFilter = tint?.let { ColorFilter.tint(it) }
     )
 }
 
@@ -236,12 +239,14 @@ fun TriangleUpIcon(
 @Composable
 fun TriangleLeftIcon(
     modifier: Modifier = Modifier,
-    size: Dp = 16.dp
+    size: Dp = 16.dp,
+    tint: Color? = null
 ) {
     Image(
         painter = painterResource(Res.drawable.emoji_triangle_left),
         contentDescription = "Triangle Left",
-        modifier = modifier.size(size)
+        modifier = modifier.size(size),
+        colorFilter = tint?.let { ColorFilter.tint(it) }
     )
 }
 
@@ -252,12 +257,14 @@ fun TriangleLeftIcon(
 @Composable
 fun TriangleRightIcon(
     modifier: Modifier = Modifier,
-    size: Dp = 16.dp
+    size: Dp = 16.dp,
+    tint: Color? = null
 ) {
     Image(
         painter = painterResource(Res.drawable.emoji_triangle_right),
         contentDescription = "Triangle Right",
-        modifier = modifier.size(size)
+        modifier = modifier.size(size),
+        colorFilter = tint?.let { ColorFilter.tint(it) }
     )
 }
 
@@ -268,12 +275,14 @@ fun TriangleRightIcon(
 @Composable
 fun TriangleDownIcon(
     modifier: Modifier = Modifier,
-    size: Dp = 16.dp
+    size: Dp = 16.dp,
+    tint: Color? = null
 ) {
     Image(
         painter = painterResource(Res.drawable.emoji_triangle_down),
         contentDescription = "Triangle Down",
-        modifier = modifier.size(size)
+        modifier = modifier.size(size),
+        colorFilter = tint?.let { ColorFilter.tint(it) }
     )
 }
 
@@ -366,12 +375,14 @@ fun LeftArrowIcon(
 @Composable
 fun UpArrowIcon(
     modifier: Modifier = Modifier,
-    size: Dp = 16.dp
+    size: Dp = 16.dp,
+    tint: Color? = null
 ) {
     Image(
         painter = painterResource(Res.drawable.emoji_up_arrow),
         contentDescription = "Up Arrow",
-        modifier = modifier.size(size)
+        modifier = modifier.size(size),
+        colorFilter = tint?.let { ColorFilter.tint(it) }
     )
 }
 
@@ -382,12 +393,14 @@ fun UpArrowIcon(
 @Composable
 fun DownArrowIcon(
     modifier: Modifier = Modifier,
-    size: Dp = 16.dp
+    size: Dp = 16.dp,
+    tint: Color? = null
 ) {
     Image(
         painter = painterResource(Res.drawable.emoji_down_arrow),
         contentDescription = "Down Arrow",
-        modifier = modifier.size(size)
+        modifier = modifier.size(size),
+        colorFilter = tint?.let { ColorFilter.tint(it) }
     )
 }
 
@@ -453,6 +466,22 @@ fun UnlockIcon(
     Image(
         painter = painterResource(Res.drawable.emoji_unlock),
         contentDescription = "Unlock",
+        modifier = modifier.size(size)
+    )
+}
+
+/**
+ * Displays a magnifying glass icon using Image for cross-platform compatibility
+ * Source: Generic SVG icon
+ */
+@Composable
+fun MagnifyingGlassIcon(
+    modifier: Modifier = Modifier,
+    size: Dp = 16.dp
+) {
+    Image(
+        painter = painterResource(Res.drawable.emoji_magnifying_glass),
+        contentDescription = "Magnifying Glass",
         modifier = modifier.size(size)
     )
 }

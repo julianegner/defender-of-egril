@@ -515,7 +515,10 @@ fun MapEditorView(
                             onClick = { zoomLevel = maxOf(0.5f, zoomLevel - 0.1f) },
                             modifier = Modifier.height(32.dp)
                         ) {
-                            Text("🔍-", fontSize = 12.sp)
+                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                                MagnifyingGlassIcon(size = 14.dp)
+                                Text("-", fontSize = 12.sp)
+                            }
                         }
                         Text(
                             text = "${(zoomLevel * 100).toInt()}%",
@@ -526,7 +529,10 @@ fun MapEditorView(
                             onClick = { zoomLevel = minOf(3.0f, zoomLevel + 0.1f) },
                             modifier = Modifier.height(32.dp)
                         ) {
-                            Text("🔍+", fontSize = 12.sp)
+                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                                MagnifyingGlassIcon(size = 14.dp)
+                                Text("+", fontSize = 12.sp)
+                            }
                         }
                     }
                 }
@@ -570,10 +576,15 @@ fun TileTypeButton(
     Button(
         onClick = onClick,
         colors = ButtonDefaults.buttonColors(
-            containerColor = if (selected) getTileColor(tileType) else MaterialTheme.colorScheme.secondary
+            containerColor = if (selected) getTileColor(tileType).copy(alpha = 0.8f) else getTileColor(tileType).copy(alpha = 0.4f)
         )
     ) {
-        Text("${getTileSymbol(tileType)} ${tileType.name}")
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            if (tileType == TileType.WAYPOINT) {
+                PushpinIcon(size = 14.dp)
+            }
+            Text(tileType.name)
+        }
     }
 }
 
@@ -1269,7 +1280,7 @@ fun LevelSequenceContent() {
                                 },
                                 enabled = index > 0
                             ) {
-                                UpArrowIcon(size = 16.dp)
+                                UpArrowIcon(size = 16.dp, tint = Color.White)
                             }
                             
                             Button(
@@ -1279,7 +1290,7 @@ fun LevelSequenceContent() {
                                 },
                                 enabled = index < sequence.value.sequence.size - 1
                             ) {
-                                DownArrowIcon(size = 16.dp)
+                                DownArrowIcon(size = 16.dp, tint = Color.White)
                             }
                         }
                     }
@@ -1517,6 +1528,7 @@ fun SpawnTurnSection(
                         text = if (expanded) "▼" else "▶",
                         fontSize = 12.sp
                     )
+                    ReloadIcon(size = 14.dp)
                     Text(
                         text = "Turn $turn",
                         style = MaterialTheme.typography.titleSmall,
@@ -1537,14 +1549,14 @@ fun SpawnTurnSection(
                         enabled = canMoveUp,
                         modifier = Modifier.height(32.dp)
                     ) {
-                        UpArrowIcon(size = 12.dp)
+                        UpArrowIcon(size = 12.dp, tint = Color.White)
                     }
                     Button(
                         onClick = onMoveTurnDown,
                         enabled = canMoveDown,
                         modifier = Modifier.height(32.dp)
                     ) {
-                        DownArrowIcon(size = 12.dp)
+                        DownArrowIcon(size = 12.dp, tint = Color.White)
                     }
                     Button(
                         onClick = onCopyTurn,
@@ -1614,7 +1626,7 @@ fun SpawnTurnSection(
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                                 ) {
-                                    Text("🗑️", fontSize = 12.sp)
+                                    TrashIcon(size = 12.dp)
                                     Text("Remove", fontSize = 11.sp)
                                 }
                             }
