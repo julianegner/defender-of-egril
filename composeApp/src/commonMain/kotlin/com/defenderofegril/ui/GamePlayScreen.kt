@@ -43,7 +43,6 @@ import com.defenderofegril.model.*
 import kotlin.math.sqrt
 
 // UI Constants
-private const val ATTACK_ICON = "⚔️"
 private val ATTACK_BUTTON_COLOR = Color(0xFFD32F2F)
 
 /**
@@ -230,7 +229,11 @@ private fun GamePlayScreenContent(
                         Button(
                             onClick = { headerExpanded = false }
                         ) {
-                            Text("▲ Fold Header")
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                TriangleUpIcon(size = 14.dp, tint = Color.White)
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text("Fold Header")
+                            }
                         }
                     }
 
@@ -244,9 +247,8 @@ private fun GamePlayScreenContent(
                     ) {
                         Column {
                             // Clickable coins display for cheat codes with icon
-                            Text(
-                                "💰 ${gameState.coins.value}",
-                                style = MaterialTheme.typography.bodyLarge,
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
                                 modifier = Modifier.clickable(
                                     onClick = {
                                         if (onCheatCode != null) {
@@ -254,9 +256,24 @@ private fun GamePlayScreenContent(
                                         }
                                     }
                                 )
-                            )
-                            Text("❤️ ${gameState.healthPoints.value}", style = MaterialTheme.typography.bodyLarge)
-                            Text("🔄 Turn ${gameState.turnNumber.value}", style = MaterialTheme.typography.bodyMedium)
+                            ) {
+                                MoneyIcon(size = 20.dp)
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(
+                                    "${gameState.coins.value}",
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+                            }
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                HeartIcon(size = 20.dp)
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text("${gameState.healthPoints.value}", style = MaterialTheme.typography.bodyLarge)
+                            }
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                ReloadIcon(size = 18.dp)
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text("Turn ${gameState.turnNumber.value}", style = MaterialTheme.typography.bodyMedium)
+                            }
 
                             val activeEnemies = gameState.attackers.count { !it.isDefeated.value }
                             val totalSpawned = gameState.nextAttackerId.value - 1
@@ -311,7 +328,15 @@ private fun GamePlayScreenContent(
                                     containerColor = if (showOverlay) Color(0xFF4CAF50) else Color(0xFF2196F3)
                                 )
                             ) {
-                                Text(if (showOverlay) "Hide Info  ◀" else "Show Info  ▶")
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text(if (showOverlay) "Hide Info" else "Show Info")
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    if (showOverlay) {
+                                        TriangleRightIcon(size = 18.dp, tint = Color.White)
+                                    } else {
+                                        TriangleLeftIcon(size = 18.dp, tint = Color.White)
+                                    }
+                                }
                             }
                         }
                     }
@@ -329,9 +354,8 @@ private fun GamePlayScreenContent(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         // Clickable coins display for cheat codes
-                        Text(
-                            "💰 ${gameState.coins.value}",
-                            style = MaterialTheme.typography.bodyMedium,
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier.clickable(
                                 onClick = {
                                     if (onCheatCode != null) {
@@ -339,9 +363,24 @@ private fun GamePlayScreenContent(
                                     }
                                 }
                             )
-                        )
-                        Text("❤️ ${gameState.healthPoints.value}", style = MaterialTheme.typography.bodyMedium)
-                        Text("🔄 ${gameState.turnNumber.value}", style = MaterialTheme.typography.bodySmall)
+                        ) {
+                            MoneyIcon(size = 16.dp)
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                "${gameState.coins.value}",
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            HeartIcon(size = 16.dp)
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text("${gameState.healthPoints.value}", style = MaterialTheme.typography.bodyMedium)
+                        }
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            ReloadIcon(size = 14.dp)
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text("${gameState.turnNumber.value}", style = MaterialTheme.typography.bodySmall)
+                        }
                     }
 
                     // Level name in center (without prefix, bold when collapsed)
@@ -374,11 +413,11 @@ private fun GamePlayScreenContent(
                                 containerColor = if (showOverlay) Color(0xFF4CAF50) else Color(0xFF2196F3)
                             )
                         ) {
-                            Text(
-                                if (showOverlay) "◀" else "▶",
-                                fontSize = 12.sp,
-                                modifier = Modifier.align(Alignment.CenterVertically)
-                            )
+                            if (showOverlay) {
+                                TriangleRightIcon(size = 12.dp)
+                            } else {
+                                TriangleLeftIcon(size = 12.dp)
+                            }
                         }
 
                         // Fold button
@@ -387,7 +426,7 @@ private fun GamePlayScreenContent(
                             modifier = Modifier.size(32.dp),
                             contentPadding = PaddingValues(0.dp)
                         ) {
-                            Text("▼", fontSize = 12.sp)
+                            TriangleDownIcon(size = 12.dp, tint = Color.White)
                         }
                     }
                 }
@@ -1038,11 +1077,7 @@ fun GridCell(
                 when (fieldEffect.type) {
                     FieldEffectType.FIREBALL -> {
                         // Show fireball symbol
-                        Text(
-                            "💥",
-                            style = MaterialTheme.typography.headlineSmall,
-                            color = Color(0xFFFF5722)
-                        )
+                        ExplosionIcon(size = 28.dp)
                     }
 
                     FieldEffectType.ACID -> {
@@ -1051,11 +1086,7 @@ fun GridCell(
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center
                         ) {
-                            Text(
-                                "🧪",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = Color(0xFF4CAF50)
-                            )
+                            TestTubeIcon(size = 20.dp)
                             Text(
                                 "-${fieldEffect.damage}",
                                 style = MaterialTheme.typography.labelSmall,
@@ -1078,11 +1109,7 @@ fun GridCell(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    Text(
-                        "🕳️",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color(0xFF8B4513)
-                    )
+                    HoleIcon(size = 20.dp)
                     Text(
                         "-${trap.damage}",
                         style = MaterialTheme.typography.labelSmall,
@@ -1361,12 +1388,16 @@ fun CompactDefenderButton(
             Spacer(modifier = Modifier.width(4.dp))
 
             // Cost
-            Text(
-                "💰${type.baseCost}",
-                style = MaterialTheme.typography.labelSmall,
-                fontWeight = FontWeight.Bold,
-                fontSize = 14.sp
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                MoneyIcon(size = 14.dp)
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    "${type.baseCost}",
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 14.sp
+                )
+            }
         }
     }
 }
@@ -1399,7 +1430,7 @@ fun AttackButton(
                             horizontalArrangement = Arrangement.Center,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(ATTACK_ICON, fontSize = 24.sp)
+                            SwordIcon(size = 24.dp)
                             Spacer(modifier = Modifier.width(8.dp))
                             Column {
                                 Text(
@@ -1428,7 +1459,7 @@ fun AttackButton(
                         horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(ATTACK_ICON, fontSize = 24.sp)
+                        SwordIcon(size = 24.dp)
                         Spacer(modifier = Modifier.width(8.dp))
                         Column {
                             Text(
@@ -1459,7 +1490,7 @@ fun AttackButton(
                         horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(ATTACK_ICON, fontSize = 24.sp)
+                        SwordIcon(size = 24.dp)
                         Spacer(modifier = Modifier.width(8.dp))
                         Column {
                             Text(
@@ -1481,25 +1512,43 @@ fun AttackButton(
 
 @Composable
 fun TowerStats(minRange: Int, damage: Int, range: Int, actionsPerTurn: Int) {
-    Text(
-        "💥 ${damage}",
-        style = MaterialTheme.typography.bodySmall
-    )
-    if (minRange > 0) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        ExplosionIcon(size = 12.dp)
+        Spacer(modifier = Modifier.width(4.dp))
         Text(
-            "🎯 ${minRange}-${range}",
-            style = MaterialTheme.typography.bodySmall
-        )
-    } else {
-        Text(
-            "🎯 ${range}",
+            "${damage}",
             style = MaterialTheme.typography.bodySmall
         )
     }
-    Text(
-        "⚡  ${actionsPerTurn}",
-        style = MaterialTheme.typography.bodySmall
-    )
+    if (minRange > 0) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            TargetIcon(size = 12.dp)
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(
+                "${minRange}-${range}",
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+    } else {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            TargetIcon(size = 12.dp)
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(
+                "${range}",
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+    }
+    Row(
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        LightningIcon(size = 12.dp)
+        Spacer(modifier = Modifier.width(4.dp))
+        Text(
+            actionsPerTurn.toString(),
+            style = MaterialTheme.typography.bodySmall
+        )
+    }
 }
 
 @Composable
@@ -1569,10 +1618,16 @@ fun DefenderInfo(
                                 style = MaterialTheme.typography.bodySmall,
                                 color = Color(0xFF4CAF50)
                             )
-                            Text(
-                                "⚔️ ${defender.type.attackType.displayName}",
-                                style = MaterialTheme.typography.bodySmall
-                            )
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                SwordIcon(size = 12.dp)
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(
+                                    defender.type.attackType.displayName,
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            }
                         }
                     }
 
@@ -1595,13 +1650,11 @@ fun DefenderInfo(
                                 )
                             }
 
-                            Text(
-                                "ℹ️",
-                                fontSize = 16.sp,
+                            InfoIcon(
+                                size = 16.dp,
                                 modifier = Modifier
                                     .clickable { showMiningInfoDialog = true }
-                                    .padding(4.dp),
-                                color = Color(0xFF2196F3)
+                                    .padding(4.dp)
                             )
                         }
                     }
@@ -1741,7 +1794,7 @@ private fun RowScope.dwarvenMineActionButtonArea(
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text("⛏️", fontSize = 24.sp)
+                        PickIcon(size = 24.dp)
                         Text("Dig", fontSize = 14.sp, fontWeight = FontWeight.Bold)
                     }
                 }
@@ -1767,7 +1820,7 @@ private fun RowScope.dwarvenMineActionButtonArea(
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text("🕳️", fontSize = 24.sp)
+                        HoleIcon(size = 24.dp)
                         Text("Trap", fontSize = 14.sp, fontWeight = FontWeight.Bold)
                     }
                 }
@@ -1825,11 +1878,15 @@ fun UpgradeButton(
         ) {
             Text("Upgrade", fontSize = 18.sp, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                "💰${defender.upgradeCost}",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                MoneyIcon(size = 14.dp)
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    "${defender.upgradeCost}",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
     }
 }
@@ -1867,11 +1924,15 @@ fun UndoOrSellButton(
             ) {
                 Text("Undo", fontSize = 18.sp, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    "💰${defender.totalCost}",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    MoneyIcon(size = 14.dp)
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        "${defender.totalCost}",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
         }
     } else if (canSell) {
@@ -1891,11 +1952,15 @@ fun UndoOrSellButton(
             ) {
                 Text("Sell", fontSize = 18.sp, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    "💰$sellAmount",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    MoneyIcon(size = 14.dp)
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        "$sellAmount",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
         }
 
@@ -1955,16 +2020,28 @@ fun UndoOrSellButton(
 @Composable
 fun DefenderActionsInfo(defender: Defender) {
     if (!defender.isReady) {
-        Text(
-            "⏱ Building: ${defender.buildTimeRemaining.value}T",
-            style = MaterialTheme.typography.titleMedium,
-            color = Color(0xFFFF9800)
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            TimerIcon(size = 16.dp)
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(
+                "Building: ${defender.buildTimeRemaining.value}T",
+                style = MaterialTheme.typography.titleMedium,
+                color = Color(0xFFFF9800)
+            )
+        }
     } else {
-        Text(
-            "⚡ ${defender.actionsRemaining.value}/${defender.actionsPerTurnCalculated}",
-            style = MaterialTheme.typography.titleMedium,
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            LightningIcon(size = 16.dp)
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(
+                "${defender.actionsRemaining.value}/${defender.actionsPerTurnCalculated}",
+                style = MaterialTheme.typography.titleMedium,
+            )
+        }
     }
 }
 
@@ -2064,11 +2141,16 @@ fun DefenderButton(
                         fontSize = 10.sp,
                         color = Color(0xFFFFEB3B)
                     )
-                    Text(
-                        "⏱${type.buildTime}T",
-                        style = MaterialTheme.typography.labelSmall,
-                        fontSize = 10.sp
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        TimerIcon(size = 15.dp)
+                        Text(
+                            "${type.buildTime}T",
+                            style = MaterialTheme.typography.labelSmall,
+                            fontSize = 10.sp
+                        )
+                    }
                 }
                 Column(
                     modifier = Modifier
@@ -2086,11 +2168,15 @@ fun DefenderButton(
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.Start
                 ) {
-                    Text(
-                        "💰${type.baseCost}",
-                        style = MaterialTheme.typography.labelSmall,
-                        fontSize = 16.sp
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        MoneyIcon(size = 14.dp)
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            "${type.baseCost}",
+                            style = MaterialTheme.typography.labelSmall,
+                            fontSize = 16.sp
+                        )
+                    }
                 }
             }
         }
@@ -2110,7 +2196,11 @@ fun GameLegend(modifier: Modifier = Modifier) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text("Legend", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                Text(if (isExpanded) "▼" else "▶", style = MaterialTheme.typography.titleMedium)
+                if (isExpanded) {
+                    TriangleDownIcon(size = 20.dp)
+                } else {
+                    TriangleLeftIcon(size = 20.dp)
+                }
             }
 
             if (isExpanded) {
@@ -2339,7 +2429,11 @@ fun EnemyListPanel(gameState: GameState, modifier: Modifier = Modifier) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text("Enemies", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                Text(if (isExpanded) "▼" else "▶", fontSize = 16.sp)
+                if (isExpanded) {
+                    TriangleDownIcon(size = 20.dp)
+                } else {
+                    TriangleLeftIcon(size = 20.dp)
+                }
             }
             Text(
                 "Active: ${activeEnemies.size} | Planned: ${plannedSpawns.size}",
