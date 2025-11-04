@@ -688,7 +688,7 @@ fun GameGrid(
 
     Box(
         modifier = modifier
-            .wrapContentSize(unbounded = true)  // Allow content to exceed Box bounds
+            .clipToBounds(false)  // Allow content to overflow without clipping
             .onSizeChanged { containerSize = it }
             .mouseWheelZoom(
                 containerSize = containerSize,
