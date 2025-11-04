@@ -329,9 +329,9 @@ private fun GamePlayScreenContent(
                                     Text(if (showOverlay) "Hide Info" else "Show Info")
                                     Spacer(modifier = Modifier.width(4.dp))
                                     if (showOverlay) {
-                                        TriangleLeftIcon(size = 14.dp)
+                                        TriangleLeftIcon(size = 18.dp, tint = Color.White)
                                     } else {
-                                        TriangleRightIcon(size = 14.dp)
+                                        TriangleRightIcon(size = 18.dp, tint = Color.White)
                                     }
                                 }
                             }
@@ -2203,9 +2203,9 @@ fun GameLegend(modifier: Modifier = Modifier) {
                 Text("Legend", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                 Text(if (isExpanded) "" else "", style = MaterialTheme.typography.titleMedium)
                 if (isExpanded) {
-                    TriangleDownIcon(size = 16.dp, tint = Color.White)
+                    TriangleDownIcon(size = 20.dp)
                 } else {
-                    TriangleRightIcon(size = 16.dp, tint = Color.White)
+                    TriangleRightIcon(size = 20.dp)
                 }
             }
 
@@ -2436,9 +2436,9 @@ fun EnemyListPanel(gameState: GameState, modifier: Modifier = Modifier) {
             ) {
                 Text("Enemies", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                 if (isExpanded) {
-                    TriangleDownIcon(size = 16.dp)
+                    TriangleDownIcon(size = 20.dp)
                 } else {
-                    TriangleRightIcon(size = 16.dp)
+                    TriangleRightIcon(size = 20.dp)
                 }
             }
             Text(
