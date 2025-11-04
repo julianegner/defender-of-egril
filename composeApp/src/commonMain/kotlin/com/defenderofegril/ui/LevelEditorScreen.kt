@@ -399,11 +399,9 @@ fun MapEditorView(
                                         },
                                     contentAlignment = Alignment.Center
                                 ) {
-                                    Text(
-                                        text = getTileSymbol(tileType),
-                                        fontSize = 16.sp,
-                                        color = Color.White
-                                    )
+                                    if (tileType == TileType.WAYPOINT) {
+                                        PushpinIcon(size = 20.dp)
+                                    }
                                 }
                             }
                         }
@@ -516,7 +514,7 @@ fun MapEditorView(
                             modifier = Modifier.height(32.dp)
                         ) {
                             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                                MagnifyingGlassIcon(size = 14.dp)
+                                MagnifyingGlassIcon(size = 14.dp, tint = Color.White)
                                 Text("-", fontSize = 12.sp)
                             }
                         }
@@ -530,7 +528,7 @@ fun MapEditorView(
                             modifier = Modifier.height(32.dp)
                         ) {
                             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                                MagnifyingGlassIcon(size = 14.dp)
+                                MagnifyingGlassIcon(size = 14.dp, tint = Color.White)
                                 Text("+", fontSize = 12.sp)
                             }
                         }
@@ -596,18 +594,18 @@ fun getTileColor(tileType: TileType): Color {
         TileType.NO_PLAY -> Color(0xFF404040)     // Dark gray
         TileType.SPAWN_POINT -> Color(0xFFFF0000) // Red
         TileType.TARGET -> Color(0xFF0000FF)      // Blue
-        TileType.WAYPOINT -> Color(0xFFFFFF00)    // Yellow
+        TileType.WAYPOINT -> Color(0xFF8B4513)    // Brown (same as PATH)
     }
 }
 
 fun getTileSymbol(tileType: TileType): String {
     return when (tileType) {
-        TileType.PATH -> "➡"
-        TileType.BUILD_AREA -> "🏗"
-        TileType.ISLAND -> "🏝"
-        TileType.NO_PLAY -> "⬛"
-        TileType.SPAWN_POINT -> "Door"
-        TileType.TARGET -> "Target"
+        TileType.PATH -> ""
+        TileType.BUILD_AREA -> ""
+        TileType.ISLAND -> ""
+        TileType.NO_PLAY -> ""
+        TileType.SPAWN_POINT -> ""
+        TileType.TARGET -> ""
         TileType.WAYPOINT -> "Pin"
     }
 }
@@ -936,7 +934,10 @@ fun LevelEditorView(
                             ))
                         }
                     }) {
-                        Text("➕ Add Turn")
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Text("➕")
+                            Text("Add Turn")
+                        }
                     }
                 }
             }
@@ -1472,7 +1473,7 @@ fun MapMiniPreview(map: EditorMap) {
                     TileType.SPAWN_POINT -> Color(0xFFDC143C)
                     TileType.TARGET -> Color(0xFF4169E1)
                     TileType.NO_PLAY -> Color(0xFF808080)
-                    TileType.WAYPOINT -> Color(0xFFFFD700)
+                    TileType.WAYPOINT -> Color(0xFF8B4513)  // Brown (same as PATH)
                 }
                 
                 // Draw hexagon
@@ -1525,8 +1526,8 @@ fun SpawnTurnSection(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Text(
-                        text = if (expanded) "▼" else "▶",
-                        fontSize = 12.sp
+                        text = if (expanded) "" else "",
+                        fontSize = 16.sp
                     )
                     ReloadIcon(size = 14.dp)
                     Text(

@@ -477,11 +477,13 @@ fun UnlockIcon(
 @Composable
 fun MagnifyingGlassIcon(
     modifier: Modifier = Modifier,
-    size: Dp = 16.dp
+    size: Dp = 16.dp,
+    tint: Color? = null
 ) {
     Image(
         painter = painterResource(Res.drawable.emoji_magnifying_glass),
         contentDescription = "Magnifying Glass",
-        modifier = modifier.size(size)
+        modifier = modifier.size(size),
+        colorFilter = tint?.let { ColorFilter.tint(it) }
     )
 }
