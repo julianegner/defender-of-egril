@@ -426,7 +426,7 @@ private fun GamePlayScreenContent(
                             modifier = Modifier.height(32.dp),
                             contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp)
                         ) {
-                            Text("💾", fontSize = 16.sp, modifier = Modifier.align(Alignment.CenterVertically))
+                            SaveIcon(size = 16.dp, modifier = Modifier.align(Alignment.CenterVertically))
                         }
 
                         Button(

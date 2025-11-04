@@ -36,6 +36,7 @@ import defender_of_egril.composeapp.generated.resources.emoji_unlock
 import defender_of_egril.composeapp.generated.resources.emoji_up_arrow
 import defender_of_egril.composeapp.generated.resources.emoji_magnifying_glass
 import defender_of_egril.composeapp.generated.resources.emoji_triangle_left
+import defender_of_egril.composeapp.generated.resources.emoji_save
 import org.jetbrains.compose.resources.painterResource
 
 /**
@@ -485,5 +486,21 @@ fun MagnifyingGlassIcon(
         contentDescription = "Magnifying Glass",
         modifier = modifier.size(size),
         colorFilter = tint?.let { ColorFilter.tint(it) }
+    )
+}
+
+/**
+ * Displays a floppy disk/save icon using Image for cross-platform compatibility
+ * Source: Custom SVG icon (U+1F4BE floppy disk emoji equivalent)
+ */
+@Composable
+fun SaveIcon(
+    modifier: Modifier = Modifier,
+    size: Dp = 16.dp
+) {
+    Image(
+        painter = painterResource(Res.drawable.emoji_save),
+        contentDescription = "Save",
+        modifier = modifier.size(size)
     )
 }
