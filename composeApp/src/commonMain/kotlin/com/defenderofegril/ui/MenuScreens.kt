@@ -62,9 +62,9 @@ fun LevelCompleteScreen(
 ) {
     // Determine which image/icon and text to show
     val icon = when {
-        won && isLastLevel -> "👑"  // Crown for winning the game
-        won -> "⚔️"  // Sword for winning a battle
-        else -> "💀"  // Skull for defeat
+        won && isLastLevel -> "Crown"  // Crown for winning the game
+        won -> "Sword"  // Sword for winning a battle
+        else -> "Defeat"  // Skull for defeat
     }
     
     val title = when {

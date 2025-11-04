@@ -171,9 +171,9 @@ fun LevelCard(
     }
     
     val statusText = when (worldLevel.status) {
-        LevelStatus.LOCKED -> "🔒 Locked"
-        LevelStatus.UNLOCKED -> "⚔️ Available"
-        LevelStatus.WON -> "✓ Completed"
+        LevelStatus.LOCKED -> "Locked"
+        LevelStatus.UNLOCKED -> "Available"
+        LevelStatus.WON -> "Completed"
     }
     
     // Get enemy counts for this level
@@ -222,18 +222,26 @@ fun LevelCard(
                             horizontalArrangement = Arrangement.spacedBy(12.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(
-                                text = "💰 ${worldLevel.level.initialCoins}",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = Color.White,
-                                fontSize = 12.sp
-                            )
-                            Text(
-                                text = "❤️ ${worldLevel.level.healthPoints}",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = Color.White,
-                                fontSize = 12.sp
-                            )
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                MoneyIcon(size = 12.dp)
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(
+                                    text = "${worldLevel.level.initialCoins}",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = Color.White,
+                                    fontSize = 12.sp
+                                )
+                            }
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                HeartIcon(size = 12.dp)
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(
+                                    text = "${worldLevel.level.healthPoints}",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = Color.White,
+                                    fontSize = 12.sp
+                                )
+                            }
                         }
                     }
                 }
@@ -304,14 +312,25 @@ fun LevelCard(
                 }
                 
                 // Status at the bottom
-                Text(
-                    text = statusText,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color.White,
-                    textAlign = TextAlign.End,
+                Row(
                     modifier = Modifier.fillMaxWidth(),
-                    fontSize = 13.sp
-                )
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    when (worldLevel.status) {
+                        LevelStatus.LOCKED -> LockIcon(size = 13.dp)
+                        LevelStatus.UNLOCKED -> SwordIcon(size = 13.dp)
+                        LevelStatus.WON -> CheckmarkIcon(size = 13.dp, tint = Color.White)
+                    }
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = statusText,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.White,
+                        textAlign = TextAlign.End,
+                        fontSize = 13.sp
+                    )
+                }
             }
         }
     }
@@ -357,11 +376,7 @@ fun EditorButtonCard(
             modifier = Modifier.fillMaxSize().padding(12.dp),
         ) {
             // Distinctive symbol - wrench/hammer icon
-            Text(
-                text = "🛠️",
-                style = MaterialTheme.typography.displayLarge,
-                fontSize = 64.sp
-            )
+            ToolsIcon(size = 64.dp)
             
             Spacer(modifier = Modifier.width(16.dp))
 
