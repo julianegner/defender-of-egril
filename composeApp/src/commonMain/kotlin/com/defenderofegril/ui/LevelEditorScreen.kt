@@ -33,6 +33,7 @@ import com.defenderofegril.editor.EditorMap
 import com.defenderofegril.editor.TileType
 import com.defenderofegril.model.AttackerType
 import com.defenderofegril.model.DefenderType
+import com.defenderofegril.model.Level
 import com.defenderofegril.model.Position
 import com.defenderofegril.model.getHexNeighbors
 import kotlin.math.cos
@@ -256,6 +257,39 @@ fun MapEditorContent() {
                                 )
                             }
                             
+                            // Minimap preview
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .width(120.dp)
+                                    .height(80.dp)
+                                    .padding(4.dp)
+                            ) {
+                                // Create a dummy level for the minimap (we only need it for the grid dimensions)
+                                val dummyLevel = remember(map.id) {
+                                    Level(
+                                        id = 0,
+                                        name = map.name,
+                                        gridWidth = map.width,
+                                        gridHeight = map.height,
+                                        startPositions = emptyList(),
+                                        targetPosition = Position(0, 0),
+                                        pathCells = emptySet(),
+                                        buildIslands = emptySet(),
+                                        attackerWaves = emptyList()
+                                    )
+                                }
+
+                                // Use HexagonMinimap with a direct map reference
+                                HexagonMinimapFromEditorMap(
+                                    map = map,
+                                    level = dummyLevel,
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.weight(3f))
+
                             Button(
                                 onClick = {
                                     EditorStorage.deleteMap(map.id)
@@ -1424,7 +1458,27 @@ fun MapSelectionCard(
                     .height(100.dp)
                     .padding(4.dp)
             ) {
-                MapMiniPreview(map)
+                // Create a dummy level for the minimap (we only need it for the grid dimensions)
+                val dummyLevel = remember(map.id) {
+                    Level(
+                        id = 0,
+                        name = map.name,
+                        gridWidth = map.width,
+                        gridHeight = map.height,
+                        startPositions = emptyList(),
+                        targetPosition = Position(0, 0),
+                        pathCells = emptySet(),
+                        buildIslands = emptySet(),
+                        attackerWaves = emptyList()
+                    )
+                }
+
+                // Use HexagonMinimap with a direct map reference
+                HexagonMinimapFromEditorMap(
+                    map = map,
+                    level = dummyLevel,
+                    modifier = Modifier.fillMaxSize()
+                )
             }
             
             // Status indicator
@@ -1442,51 +1496,6 @@ fun MapSelectionCard(
                     fontSize = 10.sp,
                     color = if (map.readyToUse) Color.Green else Color.Red
                 )
-            }
-        }
-    }
-}
-
-@Composable
-fun MapMiniPreview(map: EditorMap) {
-    val hexSize = 8.dp.value
-    val hexWidth = sqrt(3.0) * hexSize
-    val hexHeight = 2.0 * hexSize
-    val verticalSpacing = hexHeight * 0.75
-    
-    Canvas(modifier = Modifier.fillMaxSize()) {
-        for (row in 0 until map.height) {
-            for (col in 0 until map.width) {
-                val pos = Position(col, row)
-                val tileType = map.tiles.getOrElse("$col,$row") { TileType.NO_PLAY }
-                
-                // Calculate hex center position
-                val offsetX = if (row % 2 == 1) hexWidth / 2 else 0.0
-                val centerX = (col * hexWidth + offsetX + hexWidth / 2).toFloat()
-                val centerY = (row * verticalSpacing + hexHeight / 2).toFloat()
-                
-                // Get color for tile type
-                val color = when (tileType) {
-                    TileType.PATH -> Color(0xFF8B4513)
-                    TileType.BUILD_AREA -> Color(0xFF90EE90)
-                    TileType.ISLAND -> Color(0xFF228B22)
-                    TileType.SPAWN_POINT -> Color(0xFFDC143C)
-                    TileType.TARGET -> Color(0xFF4169E1)
-                    TileType.NO_PLAY -> Color(0xFF808080)
-                    TileType.WAYPOINT -> Color(0xFF8B4513)  // Brown (same as PATH)
-                }
-                
-                // Draw hexagon
-                val path = Path().apply {
-                    for (i in 0 until 6) {
-                        val angle = kotlin.math.PI * (60.0 * i - 30.0) / 180.0
-                        val x = centerX + (hexSize * cos(angle)).toFloat()
-                        val y = centerY + (hexSize * sin(angle)).toFloat()
-                        if (i == 0) moveTo(x, y) else lineTo(x, y)
-                    }
-                    close()
-                }
-                drawPath(path, color)
             }
         }
     }
