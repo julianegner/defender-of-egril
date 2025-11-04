@@ -2,7 +2,9 @@ package com.defenderofegril.save
 
 import androidx.compose.runtime.mutableStateOf
 import com.defenderofegril.editor.getFileStorage
+import com.defenderofegril.game.LevelData
 import com.defenderofegril.model.*
+import com.defenderofegril.utils.currentTimeMillis
 
 /**
  * File-based storage for save games
@@ -13,6 +15,9 @@ object SaveFileStorage {
     
     private const val SAVEFILES_DIR = "savefiles"
     private const val WORLDMAP_FILE = "savefiles/worldmap.json"
+    
+    // Cache levels to avoid reloading on every call to getAllSavedGames()
+    private var cachedLevels: List<Level>? = null
     
     init {
         fileStorage.createDirectory(SAVEFILES_DIR)
@@ -40,9 +45,9 @@ object SaveFileStorage {
     /**
      * Save current game state
      */
-    fun saveGameState(gameState: GameState): String {
-        val saveId = "savegame_${System.currentTimeMillis()}"
-        val savedGame = convertGameStateToSavedGame(gameState, saveId)
+    fun saveGameState(gameState: GameState, comment: String? = null): String {
+        val saveId = "savegame_${currentTimeMillis()}"
+        val savedGame = convertGameStateToSavedGame(gameState, saveId, comment)
         val json = SaveJsonSerializer.serializeSavedGame(savedGame)
         fileStorage.writeFile("$SAVEFILES_DIR/$saveId.json", json)
         return saveId
@@ -62,6 +67,9 @@ object SaveFileStorage {
     fun getAllSavedGames(): List<SaveGameMetadata> {
         val files = fileStorage.listFiles(SAVEFILES_DIR)
         val savedGames = mutableListOf<SaveGameMetadata>()
+        
+        // Load levels to get spawn plans (cache for performance)
+        val levels = cachedLevels ?: LevelData.createLevels().also { cachedLevels = it }
         
         for (filename in files) {
             if (!filename.endsWith(".json") || filename == "worldmap.json") continue
@@ -83,10 +91,25 @@ object SaveFileStorage {
                         .groupingBy { it.type }
                         .eachCount()
                     
-                    // Count remaining spawns
-                    val remainingSpawnCounts = savedGame.attackersToSpawn
-                        .groupingBy { it }
-                        .eachCount()
+                    // Count remaining spawns from level descriptor
+                    // Find the level to get the spawn plan
+                    val level = levels.find { it.id == savedGame.levelId }
+                    val remainingSpawnCounts = if (level != null) {
+                        // Get the spawn plan (either from editor or generated from waves)
+                        val spawnPlan = level.directSpawnPlan ?: generateSpawnPlan(level.attackerWaves)
+                        
+                        // Filter to get only future spawns (turn > current turn)
+                        spawnPlan
+                            .filter { it.spawnTurn > savedGame.turnNumber }
+                            .map { it.attackerType }
+                            .groupingBy { it }
+                            .eachCount()
+                    } else {
+                        // Fallback to old behavior if level not found
+                        savedGame.attackersToSpawn
+                            .groupingBy { it }
+                            .eachCount()
+                    }
                     
                     savedGames.add(
                         SaveGameMetadata(
@@ -100,7 +123,10 @@ object SaveFileStorage {
                             enemyCount = savedGame.attackers.count { !it.isDefeated },
                             defenderCounts = defenderCounts,
                             attackerCounts = attackerCounts,
-                            remainingSpawnCounts = remainingSpawnCounts
+                            remainingSpawnCounts = remainingSpawnCounts,
+                            comment = savedGame.comment,
+                            defenderPositions = savedGame.defenders,
+                            attackerPositions = savedGame.attackers
                         )
                     )
                 }
@@ -120,7 +146,7 @@ object SaveFileStorage {
     /**
      * Convert GameState to SavedGame
      */
-    private fun convertGameStateToSavedGame(gameState: GameState, saveId: String): SavedGame {
+    private fun convertGameStateToSavedGame(gameState: GameState, saveId: String, comment: String? = null): SavedGame {
         val defenders = gameState.defenders.map { defender ->
             SavedDefender(
                 id = defender.id,
@@ -164,7 +190,7 @@ object SaveFileStorage {
         
         return SavedGame(
             id = saveId,
-            timestamp = System.currentTimeMillis(),
+            timestamp = currentTimeMillis(),
             levelId = gameState.level.id,
             levelName = gameState.level.name,
             turnNumber = gameState.turnNumber.value,
@@ -179,7 +205,8 @@ object SaveFileStorage {
             spawnCounter = gameState.spawnCounter.value,
             attackersToSpawn = gameState.attackersToSpawn.toList(),
             fieldEffects = fieldEffects,
-            traps = traps
+            traps = traps,
+            comment = comment
         )
     }
     

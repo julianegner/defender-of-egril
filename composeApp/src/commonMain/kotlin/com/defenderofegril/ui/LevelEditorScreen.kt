@@ -33,6 +33,7 @@ import com.defenderofegril.editor.EditorMap
 import com.defenderofegril.editor.TileType
 import com.defenderofegril.model.AttackerType
 import com.defenderofegril.model.DefenderType
+import com.defenderofegril.model.Level
 import com.defenderofegril.model.Position
 import com.defenderofegril.model.getHexNeighbors
 import kotlin.math.cos
@@ -95,7 +96,11 @@ fun LevelEditorScreen(
                     )
                     
                     Button(onClick = onBack) {
-                        Text("← Back to World Map")
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            LeftArrowIcon(size = 16.dp, tint = Color.White)
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text("Back to World Map")
+                        }
                     }
                 }
                 
@@ -224,10 +229,9 @@ fun MapEditorContent() {
                                         style = MaterialTheme.typography.titleSmall
                                     )
                                     if (map.readyToUse) {
-                                        Text(
-                                            text = "✓",
-                                            color = Color.Green,
-                                            style = MaterialTheme.typography.titleSmall
+                                        CheckmarkIcon(
+                                            size = 16.dp,
+                                            tint = Color.Green
                                         )
                                     } else {
                                         Text(
@@ -253,6 +257,39 @@ fun MapEditorContent() {
                                 )
                             }
                             
+                            // Minimap preview
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .width(120.dp)
+                                    .height(80.dp)
+                                    .padding(4.dp)
+                            ) {
+                                // Create a dummy level for the minimap (we only need it for the grid dimensions)
+                                val dummyLevel = remember(map.id) {
+                                    Level(
+                                        id = 0,
+                                        name = map.name,
+                                        gridWidth = map.width,
+                                        gridHeight = map.height,
+                                        startPositions = emptyList(),
+                                        targetPosition = Position(0, 0),
+                                        pathCells = emptySet(),
+                                        buildIslands = emptySet(),
+                                        attackerWaves = emptyList()
+                                    )
+                                }
+
+                                // Use HexagonMinimap with a direct map reference
+                                HexagonMinimapFromEditorMap(
+                                    map = map,
+                                    level = dummyLevel,
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.weight(3f))
+
                             Button(
                                 onClick = {
                                     EditorStorage.deleteMap(map.id)
@@ -396,11 +433,9 @@ fun MapEditorView(
                                         },
                                     contentAlignment = Alignment.Center
                                 ) {
-                                    Text(
-                                        text = getTileSymbol(tileType),
-                                        fontSize = 16.sp,
-                                        color = Color.White
-                                    )
+                                    if (tileType == TileType.WAYPOINT) {
+                                        PushpinIcon(size = 20.dp)
+                                    }
                                 }
                             }
                         }
@@ -512,7 +547,10 @@ fun MapEditorView(
                             onClick = { zoomLevel = maxOf(0.5f, zoomLevel - 0.1f) },
                             modifier = Modifier.height(32.dp)
                         ) {
-                            Text("🔍-", fontSize = 12.sp)
+                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                                MagnifyingGlassIcon(size = 14.dp, tint = Color.White)
+                                Text("-", fontSize = 12.sp)
+                            }
                         }
                         Text(
                             text = "${(zoomLevel * 100).toInt()}%",
@@ -523,7 +561,10 @@ fun MapEditorView(
                             onClick = { zoomLevel = minOf(3.0f, zoomLevel + 0.1f) },
                             modifier = Modifier.height(32.dp)
                         ) {
-                            Text("🔍+", fontSize = 12.sp)
+                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                                MagnifyingGlassIcon(size = 14.dp, tint = Color.White)
+                                Text("+", fontSize = 12.sp)
+                            }
                         }
                     }
                 }
@@ -567,10 +608,15 @@ fun TileTypeButton(
     Button(
         onClick = onClick,
         colors = ButtonDefaults.buttonColors(
-            containerColor = if (selected) getTileColor(tileType) else MaterialTheme.colorScheme.secondary
+            containerColor = if (selected) getTileColor(tileType).copy(alpha = 0.8f) else getTileColor(tileType).copy(alpha = 0.4f)
         )
     ) {
-        Text("${getTileSymbol(tileType)} ${tileType.name}")
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            if (tileType == TileType.WAYPOINT) {
+                PushpinIcon(size = 14.dp)
+            }
+            Text(tileType.name)
+        }
     }
 }
 
@@ -582,19 +628,19 @@ fun getTileColor(tileType: TileType): Color {
         TileType.NO_PLAY -> Color(0xFF404040)     // Dark gray
         TileType.SPAWN_POINT -> Color(0xFFFF0000) // Red
         TileType.TARGET -> Color(0xFF0000FF)      // Blue
-        TileType.WAYPOINT -> Color(0xFFFFFF00)    // Yellow
+        TileType.WAYPOINT -> Color(0xFF8B4513)    // Brown (same as PATH)
     }
 }
 
 fun getTileSymbol(tileType: TileType): String {
     return when (tileType) {
-        TileType.PATH -> "➡"
-        TileType.BUILD_AREA -> "🏗"
-        TileType.ISLAND -> "🏝"
-        TileType.NO_PLAY -> "⬛"
-        TileType.SPAWN_POINT -> "🚪"
-        TileType.TARGET -> "🎯"
-        TileType.WAYPOINT -> "📍"
+        TileType.PATH -> ""
+        TileType.BUILD_AREA -> ""
+        TileType.ISLAND -> ""
+        TileType.NO_PLAY -> ""
+        TileType.SPAWN_POINT -> ""
+        TileType.TARGET -> ""
+        TileType.WAYPOINT -> "Pin"
     }
 }
 
@@ -922,7 +968,10 @@ fun LevelEditorView(
                             ))
                         }
                     }) {
-                        Text("➕ Add Turn")
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Text("➕")
+                            Text("Add Turn")
+                        }
                     }
                 }
             }
@@ -1266,7 +1315,7 @@ fun LevelSequenceContent() {
                                 },
                                 enabled = index > 0
                             ) {
-                                Text("↑")
+                                UpArrowIcon(size = 16.dp, tint = Color.White)
                             }
                             
                             Button(
@@ -1276,7 +1325,7 @@ fun LevelSequenceContent() {
                                 },
                                 enabled = index < sequence.value.sequence.size - 1
                             ) {
-                                Text("↓")
+                                DownArrowIcon(size = 16.dp, tint = Color.White)
                             }
                         }
                     }
@@ -1409,7 +1458,27 @@ fun MapSelectionCard(
                     .height(100.dp)
                     .padding(4.dp)
             ) {
-                MapMiniPreview(map)
+                // Create a dummy level for the minimap (we only need it for the grid dimensions)
+                val dummyLevel = remember(map.id) {
+                    Level(
+                        id = 0,
+                        name = map.name,
+                        gridWidth = map.width,
+                        gridHeight = map.height,
+                        startPositions = emptyList(),
+                        targetPosition = Position(0, 0),
+                        pathCells = emptySet(),
+                        buildIslands = emptySet(),
+                        attackerWaves = emptyList()
+                    )
+                }
+
+                // Use HexagonMinimap with a direct map reference
+                HexagonMinimapFromEditorMap(
+                    map = map,
+                    level = dummyLevel,
+                    modifier = Modifier.fillMaxSize()
+                )
             }
             
             // Status indicator
@@ -1417,61 +1486,16 @@ fun MapSelectionCard(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                Text(
-                    text = if (map.readyToUse) "✓" else "✗",
-                    color = if (map.readyToUse) Color.Green else Color.Red,
-                    fontSize = 12.sp
-                )
+                if (map.readyToUse) {
+                    CheckmarkIcon(size = 12.dp, tint = Color.Green)
+                } else {
+                    Text("✗", color = Color.Red, fontSize = 12.sp)
+                }
                 Text(
                     text = if (map.readyToUse) "Ready" else "Not ready",
                     fontSize = 10.sp,
                     color = if (map.readyToUse) Color.Green else Color.Red
                 )
-            }
-        }
-    }
-}
-
-@Composable
-fun MapMiniPreview(map: EditorMap) {
-    val hexSize = 8.dp.value
-    val hexWidth = sqrt(3.0) * hexSize
-    val hexHeight = 2.0 * hexSize
-    val verticalSpacing = hexHeight * 0.75
-    
-    Canvas(modifier = Modifier.fillMaxSize()) {
-        for (row in 0 until map.height) {
-            for (col in 0 until map.width) {
-                val pos = Position(col, row)
-                val tileType = map.tiles.getOrElse("$col,$row") { TileType.NO_PLAY }
-                
-                // Calculate hex center position
-                val offsetX = if (row % 2 == 1) hexWidth / 2 else 0.0
-                val centerX = (col * hexWidth + offsetX + hexWidth / 2).toFloat()
-                val centerY = (row * verticalSpacing + hexHeight / 2).toFloat()
-                
-                // Get color for tile type
-                val color = when (tileType) {
-                    TileType.PATH -> Color(0xFF8B4513)
-                    TileType.BUILD_AREA -> Color(0xFF90EE90)
-                    TileType.ISLAND -> Color(0xFF228B22)
-                    TileType.SPAWN_POINT -> Color(0xFFDC143C)
-                    TileType.TARGET -> Color(0xFF4169E1)
-                    TileType.NO_PLAY -> Color(0xFF808080)
-                    TileType.WAYPOINT -> Color(0xFFFFD700)
-                }
-                
-                // Draw hexagon
-                val path = Path().apply {
-                    for (i in 0 until 6) {
-                        val angle = kotlin.math.PI * (60.0 * i - 30.0) / 180.0
-                        val x = centerX + (hexSize * cos(angle)).toFloat()
-                        val y = centerY + (hexSize * sin(angle)).toFloat()
-                        if (i == 0) moveTo(x, y) else lineTo(x, y)
-                    }
-                    close()
-                }
-                drawPath(path, color)
             }
         }
     }
@@ -1511,9 +1535,10 @@ fun SpawnTurnSection(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Text(
-                        text = if (expanded) "▼" else "▶",
-                        fontSize = 12.sp
+                        text = if (expanded) "" else "",
+                        fontSize = 16.sp
                     )
+                    ReloadIcon(size = 14.dp)
                     Text(
                         text = "Turn $turn",
                         style = MaterialTheme.typography.titleSmall,
@@ -1534,14 +1559,14 @@ fun SpawnTurnSection(
                         enabled = canMoveUp,
                         modifier = Modifier.height(32.dp)
                     ) {
-                        Text("↑", fontSize = 12.sp)
+                        UpArrowIcon(size = 12.dp, tint = Color.White)
                     }
                     Button(
                         onClick = onMoveTurnDown,
                         enabled = canMoveDown,
                         modifier = Modifier.height(32.dp)
                     ) {
-                        Text("↓", fontSize = 12.sp)
+                        DownArrowIcon(size = 12.dp, tint = Color.White)
                     }
                     Button(
                         onClick = onCopyTurn,
@@ -1611,7 +1636,7 @@ fun SpawnTurnSection(
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                                 ) {
-                                    Text("🗑️", fontSize = 12.sp)
+                                    TrashIcon(size = 12.dp)
                                     Text("Remove", fontSize = 11.sp)
                                 }
                             }

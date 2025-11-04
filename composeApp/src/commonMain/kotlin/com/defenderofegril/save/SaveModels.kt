@@ -30,7 +30,8 @@ data class SavedGame(
     val spawnCounter: Int,
     val attackersToSpawn: List<AttackerType>,
     val fieldEffects: List<SavedFieldEffect>,
-    val traps: List<SavedTrap>
+    val traps: List<SavedTrap>,
+    val comment: String? = null  // Optional player comment
 )
 
 data class SavedDefender(
@@ -80,5 +81,8 @@ data class SaveGameMetadata(
     val enemyCount: Int,
     val defenderCounts: Map<DefenderType, Int>,  // Count of each tower type
     val attackerCounts: Map<AttackerType, Int>,  // Count of each enemy type currently on map
-    val remainingSpawnCounts: Map<AttackerType, Int>  // Count of enemies still to spawn
+    val remainingSpawnCounts: Map<AttackerType, Int>,  // Count of enemies still to spawn
+    val comment: String? = null,  // Optional player comment
+    val defenderPositions: List<SavedDefender> = emptyList(),  // Positions for minimap display
+    val attackerPositions: List<SavedAttacker> = emptyList()  // Positions for minimap display
 )
