@@ -101,7 +101,7 @@ fun GamePlayScreen(
     onDefenderAttackPosition: (Int, Position) -> Boolean,
     onEndPlayerTurn: () -> Unit,
     onBackToMap: () -> Unit,
-    onSaveGame: (() -> String?)? = null,  // Add save game callback
+    onSaveGame: ((String?) -> String?)? = null,  // Add save game callback with optional comment
     onCheatCode: ((String) -> Boolean)? = null,  // Add cheat code callback
     onMineDig: ((Int) -> DigOutcome?)? = null,  // Add mine dig callback
     onMineBuildTrap: ((Int, Position) -> Boolean)? = null  // Add mine build trap callback
@@ -136,7 +136,7 @@ private fun GamePlayScreenContent(
     onDefenderAttackPosition: (Int, Position) -> Boolean,
     onEndPlayerTurn: () -> Unit,
     onBackToMap: () -> Unit,
-    onSaveGame: (() -> String?)? = null,
+    onSaveGame: ((String?) -> String?)? = null,  // Add save game callback with optional comment
     onCheatCode: ((String) -> Boolean)? = null,
     onMineDig: ((Int) -> DigOutcome?)? = null,
     onMineBuildTrap: ((Int, Position) -> Boolean)? = null,
@@ -154,6 +154,8 @@ private fun GamePlayScreenContent(
     var showDigOutcomeDialog by remember { mutableStateOf(false) }
     var showOverlay by remember { mutableStateOf(false) }  // MutableState for overlay visibility
     var headerExpanded by remember { mutableStateOf(true) }  // State for header fold/expand
+    var showSaveDialog by remember { mutableStateOf(false) }  // Save dialog with comment
+    var saveCommentInput by remember { mutableStateOf("") }  // Comment input for save
     var showSaveConfirmation by remember { mutableStateOf(false) }  // Save confirmation
 
     // Auto-fold header when turn 1 starts
@@ -295,8 +297,7 @@ private fun GamePlayScreenContent(
                             if (onSaveGame != null) {
                                 Button(
                                     onClick = { 
-                                        onSaveGame()
-                                        showSaveConfirmation = true
+                                        showSaveDialog = true
                                     }
                                 ) {
                                     Text("Save Game")
@@ -579,6 +580,66 @@ private fun GamePlayScreenContent(
                 confirmButton = {
                     Button(onClick = { showDigOutcomeDialog = false }) {
                         Text("OK")
+                    }
+                }
+            )
+        }
+        
+        // Save game dialog (with optional comment input)
+        if (showSaveDialog && onSaveGame != null) {
+            AlertDialog(
+                onDismissRequest = { 
+                    showSaveDialog = false
+                    saveCommentInput = ""
+                },
+                title = { Text("Save Game") },
+                text = {
+                    Column {
+                        Text(
+                            "Add an optional comment to help identify this save:",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        TextField(
+                            value = saveCommentInput,
+                            onValueChange = { 
+                                // Limit comment to 200 characters
+                                if (it.length <= 200) {
+                                    saveCommentInput = it
+                                }
+                            },
+                            placeholder = { Text("e.g., 'Before final wave', 'Good position'...") },
+                            singleLine = false,
+                            maxLines = 3,
+                            modifier = Modifier.fillMaxWidth(),
+                            supportingText = {
+                                Text(
+                                    "${saveCommentInput.length}/200",
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            }
+                        )
+                    }
+                },
+                confirmButton = {
+                    Button(
+                        onClick = { 
+                            val comment = if (saveCommentInput.isBlank()) null else saveCommentInput.trim()
+                            onSaveGame(comment)
+                            showSaveDialog = false
+                            saveCommentInput = ""
+                            showSaveConfirmation = true
+                        }
+                    ) {
+                        Text("Save")
+                    }
+                },
+                dismissButton = {
+                    Button(onClick = { 
+                        showSaveDialog = false
+                        saveCommentInput = ""
+                    }) {
+                        Text("Cancel")
                     }
                 }
             )
