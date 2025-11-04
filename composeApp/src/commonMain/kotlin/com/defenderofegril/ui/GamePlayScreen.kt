@@ -666,6 +666,7 @@ fun GameGrid(
     var offsetX by remember { mutableStateOf(0f) }
     var offsetY by remember { mutableStateOf(0f) }
     var containerSize by remember { mutableStateOf(IntSize.Zero) }
+    var actualContentSize by remember { mutableStateOf(IntSize.Zero) }
 
     val hexSize = 40.dp  // Radius of hexagon (center to corner)
 
@@ -717,8 +718,9 @@ fun GameGrid(
                     // Constrain pan to keep content visible
                     // Content measured with infinite constraints starts at (0,0) in the Box
                     // To see all content, we need to pan from 0 (left edge visible) to -overflow (right edge visible)
-                    val contentWidth = totalGridWidth.value * scale
-                    val contentHeight = totalGridHeight.value * scale
+                    // Use actualContentSize which is the measured size of the Column
+                    val contentWidth = actualContentSize.width * scale
+                    val contentHeight = actualContentSize.height * scale
                     
                     val maxOffsetX = if (contentWidth > containerSize.width) {
                         contentWidth - containerSize.width
@@ -750,6 +752,8 @@ fun GameGrid(
                             maxHeight = Constraints.Infinity
                         )
                     )
+                    // Capture the actual content size for pan calculations
+                    actualContentSize = IntSize(placeable.width, placeable.height)
                     // Report the actual size to parent (for proper container sizing)
                     layout(placeable.width, placeable.height) {
                         placeable.place(0, 0)
