@@ -1,8 +1,6 @@
 package com.defenderofegril.ui
 
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -13,22 +11,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.defenderofegril.editor.EditorStorage
-import com.defenderofegril.editor.TileType
 import com.defenderofegril.game.LevelData
-import com.defenderofegril.model.AttackerType
-import com.defenderofegril.model.DefenderType
-import com.defenderofegril.model.Level
+import com.defenderofegril.model.*
 import com.defenderofegril.save.SaveGameMetadata
 import com.defenderofegril.utils.formatTimestamp
-import kotlin.math.PI
-import kotlin.math.cos
-import kotlin.math.sin
-import kotlin.math.sqrt
 
 @Composable
 fun LoadGameScreen(
@@ -124,6 +113,44 @@ fun SavedGameCard(
         levels.find { it.id == saveGame.levelId }
     }
     
+    // Create a minimal GameState for minimap rendering
+    val minimapGameState = remember(saveGame.id) {
+        if (level != null && (saveGame.defenderPositions.isNotEmpty() || saveGame.attackerPositions.isNotEmpty())) {
+            // Create minimal Defender/Attacker objects for minimap display
+            val defenders = saveGame.defenderPositions.map { saved ->
+                Defender(
+                    id = saved.id,
+                    type = saved.type,
+                    position = saved.position,
+                    level = mutableStateOf(saved.level),
+                    buildTimeRemaining = mutableStateOf(saved.buildTimeRemaining),
+                    actionsRemaining = mutableStateOf(0),
+                    placedOnTurn = saved.placedOnTurn,
+                    hasBeenUsed = mutableStateOf(false),
+                    dragonId = mutableStateOf(null)
+                )
+            }
+            val attackers = saveGame.attackerPositions.filter { !it.isDefeated }.map { saved ->
+                Attacker(
+                    id = saved.id,
+                    type = saved.type,
+                    position = mutableStateOf(saved.position),
+                    level = saved.level,
+                    currentHealth = mutableStateOf(saved.currentHealth),
+                    isDefeated = mutableStateOf(false)
+                )
+            }
+            // Create a minimal GameState with just the data needed for rendering
+            GameState(
+                level = level,
+                defenders = androidx.compose.runtime.snapshots.SnapshotStateList<Defender>().apply { addAll(defenders) },
+                attackers = androidx.compose.runtime.snapshots.SnapshotStateList<Attacker>().apply { addAll(attackers) }
+            )
+        } else {
+            null
+        }
+    }
+    
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -178,6 +205,28 @@ fun SavedGameCard(
                     Text(
                         text = "${saveGame.coins}",
                         style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+            }
+            
+            // Display comment if present
+            if (!saveGame.comment.isNullOrBlank()) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    verticalAlignment = Alignment.Top,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = "💬",
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontSize = 16.sp
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = saveGame.comment,
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
@@ -275,7 +324,20 @@ fun SavedGameCard(
                                 .height(120.dp)
                                 .padding(top = 20.dp)
                         ) {
-                            val mapName = LevelMinimap(level)
+                            val mapName = HexagonMinimap(
+                                level = level,
+                                config = MinimapConfig(
+                                    showSpawnPoints = true,
+                                    showTarget = true,
+                                    showTowers = true,
+                                    showEnemies = true,
+                                    showViewport = false,
+                                    backgroundColor = Color.Transparent,
+                                    borderColor = Color.Transparent
+                                ),
+                                gameState = minimapGameState,  // Pass the minimap game state with unit positions
+                                modifier = Modifier.fillMaxSize()
+                            )
                             Text(
                                 text = mapName,
                                 style = MaterialTheme.typography.bodySmall,
