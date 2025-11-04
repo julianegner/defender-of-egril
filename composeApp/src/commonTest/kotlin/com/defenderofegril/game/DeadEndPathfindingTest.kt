@@ -12,16 +12,17 @@ import kotlin.test.assertFalse
 class DeadEndPathfindingTest {
     
     /**
-     * Test that enemies avoid dead ends and find the correct path to the goal.
+     * Test that enemies avoid getting stuck in dead ends and find the correct path to the goal.
      * 
-     * Map layout (X = path, O = build island/blocked, T = target):
+     * Map layout (X = path, . = non-path/blocked):
      *   0 1 2 3 4 5 6 7 8 9
-     * 0 X X X O O O O O O O
-     * 1 O O X O O O O O O O
-     * 2 O O X X X X X X X T
+     * 0 X X X . . . . . . .  <- Dead end branch (only connects at position 2,0)
+     * 1 . . X . . . . . . .
+     * 2 . . X X X X X X X T  <- Main path to target
      * 
-     * Enemy should go: (0,0) -> (1,0) -> (2,0) -> (2,1) -> (2,2) -> ... -> (9,2)
-     * Enemy should NOT go into the dead end at (0,0)-(1,0)-(2,0) and stay there
+     * Enemy spawns at (0,0) in the dead end and should navigate to (9,2):
+     * Path: (0,0) -> (1,0) -> (2,0) -> (2,1) -> (2,2) -> ... -> (9,2)
+     * The enemy should exit the dead end and not oscillate back and forth.
      */
     @Test
     fun testEnemyAvoidsDeadEnd() {
