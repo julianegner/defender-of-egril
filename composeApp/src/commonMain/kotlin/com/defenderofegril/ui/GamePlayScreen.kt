@@ -28,6 +28,8 @@ import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.layout.layout
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
@@ -725,6 +727,7 @@ fun GameGrid(
     var offsetX by remember { mutableStateOf(0f) }
     var offsetY by remember { mutableStateOf(0f) }
     var containerSize by remember { mutableStateOf(IntSize.Zero) }
+    var actualContentSize by remember { mutableStateOf(IntSize.Zero) }
 
     val hexSize = 40.dp  // Radius of hexagon (center to corner)
 
@@ -736,8 +739,15 @@ fun GameGrid(
     // For pointy-top hexagons, vertical spacing between centers is 3/4 of height
     val verticalSpacing = hexHeight * 0.75f
 
+    // Odd rows are offset to the right to create hexagonal grid pattern
+    val oddRowOffset = hexWidth * 0.42f
+    
     // Calculate total grid dimensions
-    val totalGridWidth = ((gameState.level.gridWidth) * hexWidth + hexWidth + 200f).dp
+    // Need enough width for all hexagons without compression
+    // Each hexagon is hexWidth wide, we have gridWidth hexagons per row
+    // Odd rows add oddRowOffset padding at the start
+    // Add generous buffer (3 extra hexWidths) to ensure no compression
+    val totalGridWidth = ((gameState.level.gridWidth + 3) * hexWidth + oddRowOffset).dp
     val totalGridHeight = ((gameState.level.gridHeight) * verticalSpacing + hexHeight).dp
 
     Box(
@@ -767,19 +777,48 @@ fun GameGrid(
                     offsetY += pan.y
 
                     // Constrain pan to keep content visible
-                    val maxOffsetX = (containerSize.width * (scale - 1) / 2).coerceAtLeast(0f)
-                    val maxOffsetY = (containerSize.height * (scale - 1) / 2).coerceAtLeast(0f)
+                    // Center the content initially and allow symmetric panning to see all edges
+                    // Use actualContentSize which is the measured size of the Column
+                    val contentWidth = actualContentSize.width * scale
+                    val contentHeight = actualContentSize.height * scale
+                    
+                    val maxOffsetX = if (contentWidth > containerSize.width) {
+                        (contentWidth - containerSize.width) / 2  // Half the overflow for symmetric panning
+                    } else {
+                        (containerSize.width * (scale - 1) / 2).coerceAtLeast(0f)
+                    }
+                    
+                    val maxOffsetY = if (contentHeight > containerSize.height) {
+                        (contentHeight - containerSize.height) / 2  // Half the overflow for symmetric panning
+                    } else {
+                        (containerSize.height * (scale - 1) / 2).coerceAtLeast(0f)
+                    }
 
+                    // Allow symmetric panning: +maxOffset (left/top edge) to -maxOffset (right/bottom edge)
                     offsetX = offsetX.coerceIn(-maxOffsetX, maxOffsetX)
                     offsetY = offsetY.coerceIn(-maxOffsetY, maxOffsetY)
                 }
             }
     ) {
         // Map content with pan and zoom applied
+        // Use layout modifier to allow Column to exceed parent bounds
         Column(
             modifier = Modifier
-                .width(totalGridWidth)
-                .height(totalGridHeight)
+                .layout { measurable, constraints ->
+                    // Measure with infinite constraints to prevent compression
+                    val placeable = measurable.measure(
+                        constraints.copy(
+                            maxWidth = Constraints.Infinity,
+                            maxHeight = Constraints.Infinity
+                        )
+                    )
+                    // Capture the actual content size for pan calculations
+                    actualContentSize = IntSize(placeable.width, placeable.height)
+                    // Report the actual size to parent (for proper container sizing)
+                    layout(placeable.width, placeable.height) {
+                        placeable.place(0, 0)
+                    }
+                }
                 .graphicsLayer(
                     scaleX = scale,
                     scaleY = scale,
@@ -790,10 +829,11 @@ fun GameGrid(
         ) {
             for (y in 0 until gameState.level.gridHeight) {
                 Row(
-                    modifier = Modifier.offset(
-                        x = if (y % 2 == 1) (hexWidth * 0.42f).dp else 0.dp,
-                        y = (-(y-1)).dp
-                        ),
+                    modifier = Modifier
+                        .padding(
+                            start = if (y % 2 == 1) (hexWidth * 0.42f).dp else 0.dp
+                        )
+                        .offset(y = (-(y-1)).dp),
                     horizontalArrangement = Arrangement.spacedBy((-10).dp)
                 ) {
                     for (x in 0 until gameState.level.gridWidth) {
