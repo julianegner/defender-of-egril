@@ -28,6 +28,8 @@ import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.layout.layout
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
@@ -688,7 +690,6 @@ fun GameGrid(
 
     Box(
         modifier = modifier
-            .clipToBounds(false)  // Allow content to overflow without clipping
             .onSizeChanged { containerSize = it }
             .mouseWheelZoom(
                 containerSize = containerSize,
@@ -737,10 +738,22 @@ fun GameGrid(
             }
     ) {
         // Map content with pan and zoom applied
+        // Use layout modifier to allow Column to exceed parent bounds
         Column(
             modifier = Modifier
-                .width(totalGridWidth)
-                .height(totalGridHeight)
+                .layout { measurable, constraints ->
+                    // Measure with infinite constraints to prevent compression
+                    val placeable = measurable.measure(
+                        constraints.copy(
+                            maxWidth = Constraints.Infinity,
+                            maxHeight = Constraints.Infinity
+                        )
+                    )
+                    // Report the actual size to parent (for proper container sizing)
+                    layout(placeable.width, placeable.height) {
+                        placeable.place(0, 0)
+                    }
+                }
                 .graphicsLayer(
                     scaleX = scale,
                     scaleY = scale,
