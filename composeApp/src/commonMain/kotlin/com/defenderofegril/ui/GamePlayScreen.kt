@@ -226,7 +226,7 @@ private fun GamePlayScreenContent(
                             onClick = { headerExpanded = false }
                         ) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                TriangleUpIcon(size = 14.dp)
+                                TriangleUpIcon(size = 14.dp, tint = Color.White)
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Text("Fold Header")
                             }
@@ -423,7 +423,7 @@ private fun GamePlayScreenContent(
                             modifier = Modifier.size(32.dp),
                             contentPadding = PaddingValues(0.dp)
                         ) {
-                            TriangleDownIcon(size = 12.dp)
+                            TriangleDownIcon(size = 12.dp, tint = Color.White)
                         }
                     }
                 }
@@ -2203,9 +2203,9 @@ fun GameLegend(modifier: Modifier = Modifier) {
                 Text("Legend", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                 Text(if (isExpanded) "" else "", style = MaterialTheme.typography.titleMedium)
                 if (isExpanded) {
-                    TriangleDownIcon(size = 16.dp)
+                    TriangleDownIcon(size = 16.dp, tint = Color.White)
                 } else {
-                    TriangleRightIcon(size = 16.dp)
+                    TriangleRightIcon(size = 16.dp, tint = Color.White)
                 }
             }
 
