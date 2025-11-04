@@ -1,8 +1,5 @@
 package com.defenderofegril.ui
 
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -13,21 +10,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.defenderofegril.editor.EditorStorage
-import com.defenderofegril.editor.TileType
 import com.defenderofegril.model.AttackerType
 import com.defenderofegril.model.Level
 import com.defenderofegril.model.LevelStatus
 import com.defenderofegril.model.WorldLevel
 import com.defenderofegril.model.getEnemyTypeCounts
-import kotlin.math.PI
-import kotlin.math.cos
-import kotlin.math.sin
-import kotlin.math.sqrt
 
 @Composable
 fun WorldMapScreen(
@@ -291,8 +281,21 @@ fun LevelCard(
                         .height(120.dp)
                         .padding(top = 20.dp)
                 ) {
-                    val mapName = LevelMinimap(worldLevel.level)
-                    Text(text = mapName,
+                    val mapName = HexagonMinimap(
+                        level = worldLevel.level,
+                        config = MinimapConfig(
+                            showSpawnPoints = true,
+                            showTarget = true,
+                            showTowers = false,
+                            showEnemies = false,
+                            showViewport = false,
+                            backgroundColor = Color.Transparent,
+                            borderColor = Color.Transparent
+                        ),
+                        modifier = Modifier.fillMaxSize()
+                    )
+                    Text(
+                        text = mapName,
                         style = MaterialTheme.typography.bodySmall,
                         color = Color.White,
                         fontSize = 12.sp,
@@ -335,84 +338,6 @@ private fun EnemyUnitEntry(attackerType: AttackerType, count: Int) {
             fontSize = 11.sp
         )
     }
-}
-
-@Composable
-fun LevelMinimap(level: Level): String {
-    // Cache the editor data to avoid redundant lookups on recomposition
-    val sequence = remember { EditorStorage.getLevelSequence() }
-    val editorLevelId = remember(level.id) {
-        if (level.id > 0 && level.id <= sequence.sequence.size) {
-            sequence.sequence[level.id - 1]
-        } else {
-            null
-        }
-    }
-    
-    val editorLevel = remember(editorLevelId) { 
-        editorLevelId?.let { EditorStorage.getLevel(it) }
-    }
-    val map = remember(editorLevel?.mapId) { 
-        editorLevel?.let { EditorStorage.getMap(it.mapId) }
-    }
-    
-    if (map == null) {
-        // Fallback display if map is not found
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = "Map Preview",
-                fontSize = 8.sp,
-                color = Color.White.copy(alpha = 0.5f)
-            )
-        }
-        return ""  // Return empty string if map is not found
-    }
-    
-    // Render minimap similar to MapMiniPreview from LevelEditorScreen
-    val hexSize = 6.dp.value
-    val hexWidth = sqrt(3.0) * hexSize
-    val hexHeight = 2.0 * hexSize
-    val verticalSpacing = hexHeight * 0.75
-    
-    Canvas(modifier = Modifier.fillMaxSize()) {
-        for (row in 0 until map.height) {
-            for (col in 0 until map.width) {
-                val tileType = map.tiles.getOrElse("$col,$row") { TileType.NO_PLAY }
-                
-                // Calculate hex center position
-                val offsetX = if (row % 2 == 1) hexWidth / 2 else 0.0
-                val centerX = (col * hexWidth + offsetX + hexWidth / 2).toFloat()
-                val centerY = (row * verticalSpacing + hexHeight / 2).toFloat()
-                
-                // Get color for tile type
-                val color = when (tileType) {
-                    TileType.PATH -> Color(0xFF8B4513)
-                    TileType.BUILD_AREA -> Color(0xFF90EE90)
-                    TileType.ISLAND -> Color(0xFF228B22)
-                    TileType.SPAWN_POINT -> Color(0xFFDC143C)
-                    TileType.TARGET -> Color(0xFF4169E1)
-                    TileType.NO_PLAY -> Color(0xFF808080)
-                    TileType.WAYPOINT -> Color(0xFFFFD700)
-                }
-                
-                // Draw hexagon
-                val path = Path().apply {
-                    for (i in 0 until 6) {
-                        val angle = PI * (60.0 * i - 30.0) / 180.0
-                        val x = centerX + (hexSize * cos(angle)).toFloat()
-                        val y = centerY + (hexSize * sin(angle)).toFloat()
-                        if (i == 0) moveTo(x, y) else lineTo(x, y)
-                    }
-                    close()
-                }
-                drawPath(path, color)
-            }
-        }
-    }
-    return map.name
 }
 
 @Composable
