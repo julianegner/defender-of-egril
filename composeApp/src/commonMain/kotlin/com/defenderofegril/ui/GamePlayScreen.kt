@@ -18,6 +18,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -157,10 +158,30 @@ private fun GamePlayScreenContent(
     var saveCommentInput by remember { mutableStateOf("") }  // Comment input for save
     var showSaveConfirmation by remember { mutableStateOf(false) }  // Save confirmation
 
-    // Auto-fold header when turn 1 starts
+    // Get platform-specific UI scale for mobile (affects layout, not just rendering)
+    val uiScale = getGameplayUIScale()
+
+    // Create a scaled density with separate scaling for layout (dp) and text (sp)
+    // Layout elements (padding, spacing) scaled to 0.5x to save space
+    // Text/icons scaled to 1.5x (doubled from 0.75x) for better readability on mobile
+    val density = LocalDensity.current
+    val scaledDensity = remember(density, uiScale) {
+        // Scale layout (dp) by uiScale, but scale text (sp) to be larger
+        val textScale = if (uiScale < 1f) {
+            // For mobile, use 1.5x for text (doubled from previous 0.75x)
+            // This means text will be at ~original size despite layout being 0.5x
+            1.5f
+        } else {
+            1f // Desktop unchanged
+        }
+        Density(density.density * uiScale, density.fontScale * textScale)
+    }
+
+    // Auto-fold header when turn 1 starts (turn 0 for mobile)
     val currentTurn = gameState.turnNumber.value
     LaunchedEffect(currentTurn) {
-        if (currentTurn == 1) {
+        val collapseAtTurn = if (uiScale < 1f) 0 else 1  // Mobile: turn 0, Desktop: turn 1
+        if (currentTurn >= collapseAtTurn) {
             headerExpanded = false
         }
     }
@@ -192,10 +213,11 @@ private fun GamePlayScreenContent(
         }
     }
 
-    Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
+    CompositionLocalProvider(LocalDensity provides scaledDensity) {
+        Column(
+            modifier = Modifier.fillMaxSize().padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
         // Header with prominent phase indicator (collapsible)
         // Wrap header in Box to ensure z-axis ordering (header in front of map)
         Box(
@@ -392,11 +414,21 @@ private fun GamePlayScreenContent(
                         textAlign = TextAlign.Center
                     )
 
-                    // Three buttons at far right
+                    // Three buttons at far right (four on mobile if save is available)
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(4.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
+                        Button(
+                            onClick = {
+                                showSaveDialog = true
+                            },
+                            modifier = Modifier.height(32.dp),
+                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp)
+                        ) {
+                            SaveIcon(size = 16.dp, modifier = Modifier.align(Alignment.CenterVertically))
+                        }
+
                         Button(
                             onClick = onBackToMap,
                             modifier = Modifier.height(32.dp),
@@ -563,7 +595,8 @@ private fun GamePlayScreenContent(
                         selectedDefenderId = null  // Clear defender selection when starting battle
                         onStartFirstPlayerTurn()
                     },
-                    onMineAction = handleMineAction
+                    onMineAction = handleMineAction,
+                    uiScale = uiScale
                 )
             }
 
@@ -599,7 +632,8 @@ private fun GamePlayScreenContent(
                         }
                     },
                     onPrimaryAction = onEndPlayerTurn,
-                    onMineAction = handleMineAction
+                    onMineAction = handleMineAction,
+                    uiScale = uiScale
                 )
             }
 
@@ -627,7 +661,7 @@ private fun GamePlayScreenContent(
         // Save game dialog (with optional comment input)
         if (showSaveDialog && onSaveGame != null) {
             AlertDialog(
-                onDismissRequest = { 
+                onDismissRequest = {
                     showSaveDialog = false
                     saveCommentInput = ""
                 },
@@ -641,7 +675,7 @@ private fun GamePlayScreenContent(
                         Spacer(modifier = Modifier.height(8.dp))
                         TextField(
                             value = saveCommentInput,
-                            onValueChange = { 
+                            onValueChange = {
                                 // Limit comment to 200 characters
                                 if (it.length <= 200) {
                                     saveCommentInput = it
@@ -662,7 +696,7 @@ private fun GamePlayScreenContent(
                 },
                 confirmButton = {
                     Button(
-                        onClick = { 
+                        onClick = {
                             val comment = if (saveCommentInput.isBlank()) null else saveCommentInput.trim()
                             onSaveGame(comment)
                             showSaveDialog = false
@@ -674,7 +708,7 @@ private fun GamePlayScreenContent(
                     }
                 },
                 dismissButton = {
-                    Button(onClick = { 
+                    Button(onClick = {
                         showSaveDialog = false
                         saveCommentInput = ""
                     }) {
@@ -683,7 +717,7 @@ private fun GamePlayScreenContent(
                 }
             )
         }
-        
+
         // Save confirmation dialog
         if (showSaveConfirmation) {
             AlertDialog(
@@ -747,6 +781,7 @@ private fun GamePlayScreenContent(
             )
         }
     }
+    }
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -780,7 +815,7 @@ fun GameGrid(
 
     // Odd rows are offset to the right to create hexagonal grid pattern
     val oddRowOffset = hexWidth * 0.42f
-    
+
     // Calculate total grid dimensions
     // Need enough width for all hexagons without compression
     // Each hexagon is hexWidth wide, we have gridWidth hexagons per row
@@ -820,13 +855,13 @@ fun GameGrid(
                     // Use actualContentSize which is the measured size of the Column
                     val contentWidth = actualContentSize.width * scale
                     val contentHeight = actualContentSize.height * scale
-                    
+
                     val maxOffsetX = if (contentWidth > containerSize.width) {
                         (contentWidth - containerSize.width) / 2  // Half the overflow for symmetric panning
                     } else {
                         (containerSize.width * (scale - 1) / 2).coerceAtLeast(0f)
                     }
-                    
+
                     val maxOffsetY = if (contentHeight > containerSize.height) {
                         (contentHeight - containerSize.height) / 2  // Half the overflow for symmetric panning
                     } else {
@@ -1149,6 +1184,7 @@ fun GameControlsPanel(
     onDefenderAttackPosition: (Int, Position) -> Boolean,
     onPrimaryAction: () -> Unit,
     onMineAction: ((Int, MineAction) -> Unit)? = null,
+    uiScale: Float = 1f  // Add platform scale parameter
 ) {
     // Automatically fold buy panel when a defender is selected
     val compactBuyPanel = selectedDefenderId != null
@@ -1189,7 +1225,8 @@ fun GameControlsPanel(
                                     onUndoTower,
                                     onSellTower,
                                     onMineAction = onMineAction,
-                                    compactBuyPanel
+                                    compactBuyPanel,
+                                    isMobile = uiScale < 1f
                                 )
 
                                 if (isPlayerTurn &&
@@ -1288,7 +1325,8 @@ fun GameControlsPanel(
                         onUndoTower,
                         onSellTower,
                         onMineAction = onMineAction,
-                        compactBuyPanel
+                        compactBuyPanel,
+                        isMobile = uiScale < 1f
                     )
 
                     // Don't show attack button for dwarven mines or dragon's lair
@@ -1559,7 +1597,8 @@ fun DefenderInfo(
     onUndoTower: (Int) -> Unit,
     onSellTower: (Int) -> Unit,
     onMineAction: ((Int, MineAction) -> Unit)? = null,
-    compactBuyPanel: Boolean = false
+    compactBuyPanel: Boolean = false,
+    isMobile: Boolean = false  // Add platform parameter
 ) {
     // Use key to force recomposition when defender stats change
     key(
@@ -1575,22 +1614,27 @@ fun DefenderInfo(
             modifier = Modifier
                 .fillMaxWidth()
         ) {
-            Column(modifier = Modifier.padding(8.dp)) {
+            // Reduce padding on mobile to save space
+            val cardPadding = if (isMobile) 4.dp else 8.dp
+            Column(modifier = Modifier.padding(cardPadding)) {
                 // Tower icon, name, and actions in one row
                 Row(
                     // modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Start
                 ) {
-                    // Tower icon
+                    // Tower icon - smaller on mobile to save space
+                    val iconSize = if (isMobile) 32.dp else 48.dp
+                    val iconInnerSize = if (isMobile) 28.dp else 44.dp
                     Box(
-                        modifier = Modifier.size(48.dp),
+                        modifier = Modifier.size(iconSize),
                         contentAlignment = Alignment.Center
                     ) {
-                        TowerIcon(defender = defender, modifier = Modifier.size(44.dp), gameState = gameState)
+                        TowerIcon(defender = defender, modifier = Modifier.size(iconInnerSize), gameState = gameState)
                     }
 
-                    Spacer(modifier = Modifier.width(8.dp))
+                    val horizontalSpacing = if (isMobile) 4.dp else 8.dp
+                    Spacer(modifier = Modifier.width(horizontalSpacing))
 
                     // Tower name and level
                     Column(modifier = Modifier.weight(0.7f)) {
@@ -1665,7 +1709,9 @@ fun DefenderInfo(
                     Spacer(modifier = Modifier.weight(6f))
                 }
 
-                Spacer(modifier = Modifier.height(4.dp))
+                // Reduce spacing on mobile
+                val verticalSpacing = if (isMobile) 2.dp else 4.dp
+                Spacer(modifier = Modifier.height(verticalSpacing))
 
                 if (defender.isReady) {
                     if (defender.type == DefenderType.DRAGONS_LAIR) {
@@ -1702,61 +1748,130 @@ fun DefenderInfo(
                             }
 
                         // Stats and upgrade button in columns
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            // horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            // Current stats column
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    "Current:",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                TowerStats(
-                                    defender.type.minRange,
-                                    if (defender.type == DefenderType.DWARVEN_MINE) defender.trapDamage else defender.actualDamage,
-                                    defender.range,
-                                    defender.actionsPerTurnCalculated
+                        // On mobile, use more compact layout
+                        if (isMobile) {
+                            // Mobile: More compact horizontal layout
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                // Combined stats in one compact column
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Row(
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                    ) {
+                                        Column {
+                                            Text(
+                                                text = "Now",
+                                                fontSize = 10.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                color = Color.Black
+                                            )
+                                            TowerStats(
+                                                defender.type.minRange,
+                                                if (defender.type == DefenderType.DWARVEN_MINE) defender.trapDamage else defender.actualDamage,
+                                                defender.range,
+                                                defender.actionsPerTurnCalculated
+                                            )
+                                        }
+                                        Column {
+                                            Text(
+                                                text = "Up",
+                                                fontSize = 10.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                color = if (gameState.canUpgradeDefender(defender)) Color(0xFF4CAF50) else Color.Gray
+                                            )
+                                            TowerStats(
+                                                defender.type.minRange,
+                                                nextActualDamage,
+                                                nextRange,
+                                                nextActions
+                                            )
+                                        }
+                                    }
+                                }
+
+                                // Buttons side by side, more compact
+                                Column(modifier = Modifier.weight(0.8f)) {
+                                    UpgradeButton(defender, gameState, onUpgradeDefender = onUpgradeDefender, isMobile = isMobile)
+                                }
+
+                                Column(modifier = Modifier.weight(0.8f)) {
+                                    UndoOrSellButton(
+                                        defender = defender,
+                                        gameState = gameState,
+                                        onUndoTower = onUndoTower,
+                                        onSellTower = onSellTower,
+                                        isMobile = isMobile
+                                    )
+                                }
+
+                                dwarvenMineActionButtonArea(
+                                    defender.type,
+                                    gameState,
+                                    defender,
+                                    onMineAction,
+                                    compactBuyPanel
                                 )
                             }
+                        } else {
+                            // Desktop: Original layout with 4 columns
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                            ) {
+                                // Current stats column
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        "Current:",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    TowerStats(
+                                        defender.type.minRange,
+                                        if (defender.type == DefenderType.DWARVEN_MINE) defender.trapDamage else defender.actualDamage,
+                                        defender.range,
+                                        defender.actionsPerTurnCalculated
+                                    )
+                                }
 
-                            // After upgrade stats column
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    "Upgrade:",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    fontWeight = FontWeight.Bold,
-                                    color = if (gameState.canUpgradeDefender(defender)) Color(0xFF4CAF50) else Color.Gray
-                                )
-                                TowerStats(
-                                    defender.type.minRange,
-                                    nextActualDamage,
-                                    nextRange,
-                                    nextActions
+                                // After upgrade stats column
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        "Upgrade:",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        fontWeight = FontWeight.Bold,
+                                        color = if (gameState.canUpgradeDefender(defender)) Color(0xFF4CAF50) else Color.Gray
+                                    )
+                                    TowerStats(
+                                        defender.type.minRange,
+                                        nextActualDamage,
+                                        nextRange,
+                                        nextActions
+                                    )
+                                }
+
+                                Column(modifier = Modifier.weight(1f)) {
+                                    UpgradeButton(defender, gameState, onUpgradeDefender = onUpgradeDefender, isMobile = isMobile)
+                                }
+
+                                Column(modifier = Modifier.weight(1f)) {
+                                    UndoOrSellButton(
+                                        defender = defender,
+                                        gameState = gameState,
+                                        onUndoTower = onUndoTower,
+                                        onSellTower = onSellTower,
+                                        isMobile = isMobile
+                                    )
+                                }
+
+                                dwarvenMineActionButtonArea(
+                                    defender.type,
+                                    gameState,
+                                    defender,
+                                    onMineAction,
+                                    compactBuyPanel
                                 )
                             }
-
-                            Column(modifier = Modifier.weight(1f)) {
-                                UpgradeButton(defender, gameState, onUpgradeDefender = onUpgradeDefender)
-                            }
-
-                            Column(modifier = Modifier.weight(1f)) {
-                                UndoOrSellButton(
-                                    defender = defender,
-                                    gameState = gameState,
-                                    onUndoTower = onUndoTower,
-                                    onSellTower = onSellTower
-                                )
-                            }
-
-                            dwarvenMineActionButtonArea(
-                                defender.type,
-                                gameState,
-                                defender,
-                                onMineAction,
-                                compactBuyPanel
-                            )
                         }
                     }
                 }
@@ -1784,8 +1899,8 @@ private fun RowScope.dwarvenMineActionButtonArea(
                 Button(
                     onClick = { onMineAction?.invoke(defender.id, MineAction.DIG) },
                     enabled = mineActionsEnabled,
-                    modifier = Modifier.width(95.dp).height(100.dp)
-                        .offset(y = (-24).dp),
+                    modifier = Modifier.width(95.dp).height(60.dp)
+                        .offset(y = (-12).dp),
                     contentPadding = PaddingValues(
                         horizontal = 4.dp,
                         vertical = 2.dp
@@ -1810,8 +1925,8 @@ private fun RowScope.dwarvenMineActionButtonArea(
                         )
                     },
                     enabled = mineActionsEnabled,
-                    modifier = Modifier.width(95.dp).height(100.dp)
-                        .offset(y = (-24).dp),
+                    modifier = Modifier.width(95.dp).height(60.dp)
+                        .offset(y = (-12).dp),
                     contentPadding = PaddingValues(
                         horizontal = 4.dp,
                         vertical = 2.dp
@@ -1862,16 +1977,27 @@ fun UpgradeButton(
     defender: Defender,
     gameState: GameState,
     modifier: Modifier = Modifier
-        .offset(y = (-24).dp)
+        .offset(y = (-12).dp)
         .width(200.dp)
-        .height(100.dp),
-    onUpgradeDefender: (Int) -> Unit
+        .height(60.dp),
+    onUpgradeDefender: (Int) -> Unit,
+    isMobile: Boolean = false  // Add platform parameter
 ) {
+    // Increase height for mobile to make buttons more usable
+    val buttonModifier = if (isMobile) {
+        Modifier
+            .offset(y = (-6).dp)  // Less offset on mobile
+            .width(200.dp)
+            .height(100.dp)  // Taller on mobile (becomes 50dp with 0.5x scaling)
+    } else {
+        modifier
+    }
+
     Button(
         onClick = { onUpgradeDefender(defender.id) },
         enabled = gameState.canUpgradeDefender(defender),
-        modifier = modifier,
-        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)
+        modifier = buttonModifier,
+        contentPadding = PaddingValues(horizontal = 6.dp, vertical = 4.dp)
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
@@ -1898,11 +2024,22 @@ fun UndoOrSellButton(
     onUndoTower: (Int) -> Unit,
     onSellTower: (Int) -> Unit,
     modifier: Modifier = Modifier
-        .offset(y = (-24).dp)
+        .offset(y = (-12).dp)
         .width(200.dp)
-        .height(100.dp)
+        .height(60.dp),
+    isMobile: Boolean = false  // Add platform parameter
 ) {
     var showSellConfirmation by remember { mutableStateOf(false) }
+
+    // Increase height for mobile to make buttons more usable
+    val buttonModifier = if (isMobile) {
+        Modifier
+            .offset(y = (-6).dp)  // Less offset on mobile
+            .width(200.dp)
+            .height(100.dp)  // Taller on mobile (becomes 50dp with 0.5x scaling)
+    } else {
+        modifier
+    }
 
     // Determine if undo or sell is available
     val canUndo = defender.placedOnTurn == gameState.turnNumber.value && !defender.hasBeenUsed.value
@@ -1913,11 +2050,11 @@ fun UndoOrSellButton(
         Button(
             onClick = { onUndoTower(defender.id) },
             enabled = true,
-            modifier = modifier,
+            modifier = buttonModifier,
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFF4CAF50)  // Green for undo
             ),
-            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)
+            contentPadding = PaddingValues(horizontal = 6.dp, vertical = 4.dp)
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -1941,11 +2078,11 @@ fun UndoOrSellButton(
         Button(
             onClick = { showSellConfirmation = true },
             enabled = true,
-            modifier = modifier,
+            modifier = buttonModifier,
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFFFF9800)  // Orange for sell
             ),
-            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)
+            contentPadding = PaddingValues(horizontal = 6.dp, vertical = 4.dp)
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -1999,17 +2136,17 @@ fun UndoOrSellButton(
         Button(
             onClick = { },
             enabled = false,
-            modifier = modifier,
-            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)
+            modifier = buttonModifier,
+            contentPadding = PaddingValues(horizontal = 6.dp, vertical = 4.dp)
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text("Sell", fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                Spacer(modifier = Modifier.height(8.dp))
+                Text("Sell", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     "not enough Actions",
-                    fontSize = 16.sp,
+                    fontSize = 12.sp,
                     fontWeight = FontWeight.Bold
                 )
             }
