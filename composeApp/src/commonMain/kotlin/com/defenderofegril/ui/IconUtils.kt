@@ -6,14 +6,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import defender_of_egril.composeapp.generated.resources.Res
+import defender_of_egril.composeapp.generated.resources.emoji_checkmark
 import defender_of_egril.composeapp.generated.resources.emoji_door
+import defender_of_egril.composeapp.generated.resources.emoji_down_arrow
 import defender_of_egril.composeapp.generated.resources.emoji_explosion
 import defender_of_egril.composeapp.generated.resources.emoji_heart
 import defender_of_egril.composeapp.generated.resources.emoji_hole
 import defender_of_egril.composeapp.generated.resources.emoji_info
 import defender_of_egril.composeapp.generated.resources.emoji_left_arrow
 import defender_of_egril.composeapp.generated.resources.emoji_lightning
+import defender_of_egril.composeapp.generated.resources.emoji_lock
 import defender_of_egril.composeapp.generated.resources.emoji_money
 import defender_of_egril.composeapp.generated.resources.emoji_pick
 import defender_of_egril.composeapp.generated.resources.emoji_pushpin
@@ -28,6 +33,8 @@ import defender_of_egril.composeapp.generated.resources.emoji_triangle_down
 import defender_of_egril.composeapp.generated.resources.emoji_triangle_left
 import defender_of_egril.composeapp.generated.resources.emoji_triangle_right
 import defender_of_egril.composeapp.generated.resources.emoji_triangle_up
+import defender_of_egril.composeapp.generated.resources.emoji_unlock
+import defender_of_egril.composeapp.generated.resources.emoji_up_arrow
 import org.jetbrains.compose.resources.painterResource
 
 /**
@@ -341,11 +348,63 @@ fun PushpinIcon(
 @Composable
 fun LeftArrowIcon(
     modifier: Modifier = Modifier,
-    size: Dp = 16.dp
+    size: Dp = 16.dp,
+    tint: Color? = null
 ) {
     Image(
         painter = painterResource(Res.drawable.emoji_left_arrow),
         contentDescription = "Left Arrow",
+        colorFilter = tint?.let { ColorFilter.tint(it) },
+        modifier = modifier.size(size)
+    )
+}
+
+/**
+ * Displays an up arrow icon using Image for cross-platform compatibility
+ * Source: Unicode (U+2191)
+ */
+@Composable
+fun UpArrowIcon(
+    modifier: Modifier = Modifier,
+    size: Dp = 16.dp
+) {
+    Image(
+        painter = painterResource(Res.drawable.emoji_up_arrow),
+        contentDescription = "Up Arrow",
+        modifier = modifier.size(size)
+    )
+}
+
+/**
+ * Displays a down arrow icon using Image for cross-platform compatibility
+ * Source: Unicode (U+2193)
+ */
+@Composable
+fun DownArrowIcon(
+    modifier: Modifier = Modifier,
+    size: Dp = 16.dp
+) {
+    Image(
+        painter = painterResource(Res.drawable.emoji_down_arrow),
+        contentDescription = "Down Arrow",
+        modifier = modifier.size(size)
+    )
+}
+
+/**
+ * Displays a checkmark icon using Image for cross-platform compatibility
+ * Source: Unicode (U+2713)
+ */
+@Composable
+fun CheckmarkIcon(
+    modifier: Modifier = Modifier,
+    size: Dp = 16.dp,
+    tint: Color? = null
+) {
+    Image(
+        painter = painterResource(Res.drawable.emoji_checkmark),
+        contentDescription = "Checkmark",
+        colorFilter = tint?.let { ColorFilter.tint(it) },
         modifier = modifier.size(size)
     )
 }
@@ -362,6 +421,38 @@ fun ToolsIcon(
     Image(
         painter = painterResource(Res.drawable.emoji_tools),
         contentDescription = "Tools",
+        modifier = modifier.size(size)
+    )
+}
+
+/**
+ * Displays a lock emoji icon using Image for cross-platform compatibility
+ * Source: Noto Emoji (U+1F512)
+ */
+@Composable
+fun LockIcon(
+    modifier: Modifier = Modifier,
+    size: Dp = 16.dp
+) {
+    Image(
+        painter = painterResource(Res.drawable.emoji_lock),
+        contentDescription = "Lock",
+        modifier = modifier.size(size)
+    )
+}
+
+/**
+ * Displays an unlock emoji icon using Image for cross-platform compatibility
+ * Source: Noto Emoji (U+1F513)
+ */
+@Composable
+fun UnlockIcon(
+    modifier: Modifier = Modifier,
+    size: Dp = 16.dp
+) {
+    Image(
+        painter = painterResource(Res.drawable.emoji_unlock),
+        contentDescription = "Unlock",
         modifier = modifier.size(size)
     )
 }

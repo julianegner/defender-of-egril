@@ -309,14 +309,25 @@ fun LevelCard(
                 }
                 
                 // Status at the bottom
-                Text(
-                    text = statusText,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color.White,
-                    textAlign = TextAlign.End,
+                Row(
                     modifier = Modifier.fillMaxWidth(),
-                    fontSize = 13.sp
-                )
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    when (worldLevel.status) {
+                        LevelStatus.LOCKED -> LockIcon(size = 13.dp)
+                        LevelStatus.UNLOCKED -> UnlockIcon(size = 13.dp)
+                        LevelStatus.WON -> CheckmarkIcon(size = 13.dp, tint = Color.White)
+                    }
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = statusText,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.White,
+                        textAlign = TextAlign.End,
+                        fontSize = 13.sp
+                    )
+                }
             }
         }
     }
