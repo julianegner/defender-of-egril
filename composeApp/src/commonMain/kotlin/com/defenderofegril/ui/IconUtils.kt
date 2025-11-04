@@ -12,6 +12,7 @@ import defender_of_egril.composeapp.generated.resources.emoji_explosion
 import defender_of_egril.composeapp.generated.resources.emoji_heart
 import defender_of_egril.composeapp.generated.resources.emoji_hole
 import defender_of_egril.composeapp.generated.resources.emoji_info
+import defender_of_egril.composeapp.generated.resources.emoji_left_arrow
 import defender_of_egril.composeapp.generated.resources.emoji_lightning
 import defender_of_egril.composeapp.generated.resources.emoji_money
 import defender_of_egril.composeapp.generated.resources.emoji_pick
@@ -21,6 +22,7 @@ import defender_of_egril.composeapp.generated.resources.emoji_sword
 import defender_of_egril.composeapp.generated.resources.emoji_target
 import defender_of_egril.composeapp.generated.resources.emoji_test_tube
 import defender_of_egril.composeapp.generated.resources.emoji_timer
+import defender_of_egril.composeapp.generated.resources.emoji_tools
 import defender_of_egril.composeapp.generated.resources.emoji_trash
 import defender_of_egril.composeapp.generated.resources.emoji_triangle_down
 import defender_of_egril.composeapp.generated.resources.emoji_triangle_left
@@ -328,6 +330,38 @@ fun PushpinIcon(
     Image(
         painter = painterResource(Res.drawable.emoji_pushpin),
         contentDescription = "Pushpin",
+        modifier = modifier.size(size)
+    )
+}
+
+/**
+ * Displays a left arrow icon using Image for cross-platform compatibility
+ * Source: Unicode (U+2190)
+ */
+@Composable
+fun LeftArrowIcon(
+    modifier: Modifier = Modifier,
+    size: Dp = 16.dp
+) {
+    Image(
+        painter = painterResource(Res.drawable.emoji_left_arrow),
+        contentDescription = "Left Arrow",
+        modifier = modifier.size(size)
+    )
+}
+
+/**
+ * Displays a tools/hammer and wrench emoji icon using Image for cross-platform compatibility
+ * Source: Noto Emoji (U+1F6E0)
+ */
+@Composable
+fun ToolsIcon(
+    modifier: Modifier = Modifier,
+    size: Dp = 24.dp
+) {
+    Image(
+        painter = painterResource(Res.drawable.emoji_tools),
+        contentDescription = "Tools",
         modifier = modifier.size(size)
     )
 }

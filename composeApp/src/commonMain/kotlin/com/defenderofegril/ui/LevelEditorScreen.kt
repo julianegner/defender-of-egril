@@ -95,7 +95,11 @@ fun LevelEditorScreen(
                     )
                     
                     Button(onClick = onBack) {
-                        Text("← Back to World Map")
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            LeftArrowIcon(size = 16.dp)
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text("Back to World Map")
+                        }
                     }
                 }
                 
