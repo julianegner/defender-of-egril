@@ -1149,24 +1149,24 @@ class GameEngine(private val state: GameState) {
     }
     
     private fun moveTowards(from: Position, to: Position): Position {
-        val dx = to.x - from.x
-        val dy = to.y - from.y
+        // Use hexagonal neighbors to find the best next position
+        val hexNeighbors = from.getHexNeighbors()
         
-        val candidate = when {
-            dx != 0 -> Position(from.x + dx.coerceIn(-1, 1), from.y)
-            dy != 0 -> Position(from.x, from.y + dy.coerceIn(-1, 1))
-            else -> from
+        // Filter to valid neighbors (on path, within bounds, not blocked)
+        val validNeighbors = hexNeighbors.filter { neighbor ->
+            neighbor.x >= 0 && neighbor.x < state.level.gridWidth &&
+            neighbor.y >= 0 && neighbor.y < state.level.gridHeight &&
+            state.level.isOnPath(neighbor) &&
+            !isBlocked(neighbor)
         }
         
-        // Ensure the candidate position is valid (on path and within bounds)
-        if (candidate.x >= 0 && candidate.x < state.level.gridWidth &&
-            candidate.y >= 0 && candidate.y < state.level.gridHeight &&
-            state.level.isOnPath(candidate)) {
-            return candidate
+        if (validNeighbors.isEmpty()) {
+            // No valid moves, stay in place
+            return from
         }
         
-        // If not valid, just return current position (don't move)
-        return from
+        // Return the neighbor closest to the goal
+        return validNeighbors.minByOrNull { it.distanceTo(to) } ?: from
     }
     
     private fun updateFieldEffects() {
