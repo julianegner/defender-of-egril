@@ -679,9 +679,11 @@ fun GameGrid(
     val oddRowOffset = hexWidth * 0.42f
     
     // Calculate total grid dimensions
-    // Account for: full width of all hexagons + edge padding + odd row offset + layout margin
-    // The layout margin accounts for potential compose layout quirks and ensures last hexagons display properly
-    val totalGridWidth = ((gameState.level.gridWidth) * hexWidth + hexWidth + oddRowOffset + 100f).dp
+    // Need enough width for all hexagons without compression
+    // Each hexagon is hexWidth wide, we have gridWidth hexagons per row
+    // Odd rows add oddRowOffset padding at the start
+    // Add generous buffer (3 extra hexWidths) to ensure no compression
+    val totalGridWidth = ((gameState.level.gridWidth + 3) * hexWidth + oddRowOffset).dp
     val totalGridHeight = ((gameState.level.gridHeight) * verticalSpacing + hexHeight).dp
 
     Box(
