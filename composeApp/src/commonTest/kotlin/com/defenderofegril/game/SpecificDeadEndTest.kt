@@ -12,19 +12,21 @@ class SpecificDeadEndTest {
     
     /**
      * Reproduce the exact scenario from the issue:
-     * - Enemy spawns in or near a dead end at the top
+     * - Enemy spawns in a dead end branch at the top
      * - There's a main path to the goal
-     * - Enemy should navigate around the dead end to reach the goal
+     * - Enemy should navigate out of the dead end to reach the goal
+     * 
+     * Map layout (X = path, . = non-path/blocked):
+     *   0 1 2 3 4 5 6 7 8 9
+     * 0 X X X X . . . . . .  <- Dead end branch (only connects at position 3,0)
+     * 1 . . . X . . . . . .
+     * 2 . . . X X X X X X T  <- Main path to target
+     * 
+     * Expected: Enemy exits the dead end and progresses toward the target without oscillating.
      */
     @Test
     fun testIssueScenarioDeadEnd() {
         // Create a map similar to the issue description
-        // Path layout (approximate):
-        //   0 1 2 3 4 5 6 7 8 9
-        // 0 X X X X O O O O O O  <- Dead end at top
-        // 1 O O O X O O O O O O
-        // 2 O O O X X X X X X T  <- Main path to target
-        
         val pathCells = setOf(
             // Dead end at top (row 0)
             Position(0, 0), Position(1, 0), Position(2, 0), Position(3, 0),
