@@ -440,11 +440,7 @@ fun EditorButtonCard(
             modifier = Modifier.fillMaxSize().padding(12.dp),
         ) {
             // Distinctive symbol - wrench/hammer icon
-            Text(
-                text = "🛠️",
-                style = MaterialTheme.typography.displayLarge,
-                fontSize = 64.sp
-            )
+            ToolsIcon(size = 64.dp)
             
             Spacer(modifier = Modifier.width(16.dp))
 
