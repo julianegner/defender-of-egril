@@ -45,9 +45,9 @@ object SaveFileStorage {
     /**
      * Save current game state
      */
-    fun saveGameState(gameState: GameState): String {
+    fun saveGameState(gameState: GameState, comment: String? = null): String {
         val saveId = "savegame_${currentTimeMillis()}"
-        val savedGame = convertGameStateToSavedGame(gameState, saveId)
+        val savedGame = convertGameStateToSavedGame(gameState, saveId, comment)
         val json = SaveJsonSerializer.serializeSavedGame(savedGame)
         fileStorage.writeFile("$SAVEFILES_DIR/$saveId.json", json)
         return saveId
@@ -123,7 +123,8 @@ object SaveFileStorage {
                             enemyCount = savedGame.attackers.count { !it.isDefeated },
                             defenderCounts = defenderCounts,
                             attackerCounts = attackerCounts,
-                            remainingSpawnCounts = remainingSpawnCounts
+                            remainingSpawnCounts = remainingSpawnCounts,
+                            comment = savedGame.comment
                         )
                     )
                 }
@@ -143,7 +144,7 @@ object SaveFileStorage {
     /**
      * Convert GameState to SavedGame
      */
-    private fun convertGameStateToSavedGame(gameState: GameState, saveId: String): SavedGame {
+    private fun convertGameStateToSavedGame(gameState: GameState, saveId: String, comment: String? = null): SavedGame {
         val defenders = gameState.defenders.map { defender ->
             SavedDefender(
                 id = defender.id,
@@ -202,7 +203,8 @@ object SaveFileStorage {
             spawnCounter = gameState.spawnCounter.value,
             attackersToSpawn = gameState.attackersToSpawn.toList(),
             fieldEffects = fieldEffects,
-            traps = traps
+            traps = traps,
+            comment = comment
         )
     }
     
