@@ -254,6 +254,36 @@ fun MapEditorContent() {
                                 )
                             }
                             
+                            // Minimap preview
+                            Box(
+                                modifier = Modifier
+                                    .width(120.dp)
+                                    .height(80.dp)
+                                    .padding(4.dp)
+                            ) {
+                                // Create a dummy level for the minimap (we only need it for the grid dimensions)
+                                val dummyLevel = remember(map.id) {
+                                    Level(
+                                        id = 0,
+                                        name = map.name,
+                                        gridWidth = map.width,
+                                        gridHeight = map.height,
+                                        startPositions = emptyList(),
+                                        targetPosition = Position(0, 0),
+                                        pathCells = emptySet(),
+                                        buildIslands = emptySet(),
+                                        attackerWaves = emptyList()
+                                    )
+                                }
+                                
+                                // Use HexagonMinimap with a direct map reference
+                                HexagonMinimapFromEditorMap(
+                                    map = map,
+                                    level = dummyLevel,
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                            }
+                            
                             Button(
                                 onClick = {
                                     EditorStorage.deleteMap(map.id)
