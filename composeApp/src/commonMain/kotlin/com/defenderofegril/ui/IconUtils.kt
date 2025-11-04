@@ -30,12 +30,12 @@ import defender_of_egril.composeapp.generated.resources.emoji_timer
 import defender_of_egril.composeapp.generated.resources.emoji_tools
 import defender_of_egril.composeapp.generated.resources.emoji_trash
 import defender_of_egril.composeapp.generated.resources.emoji_triangle_down
-import defender_of_egril.composeapp.generated.resources.emoji_triangle_left
 import defender_of_egril.composeapp.generated.resources.emoji_triangle_right
 import defender_of_egril.composeapp.generated.resources.emoji_triangle_up
 import defender_of_egril.composeapp.generated.resources.emoji_unlock
 import defender_of_egril.composeapp.generated.resources.emoji_up_arrow
 import defender_of_egril.composeapp.generated.resources.emoji_magnifying_glass
+import defender_of_egril.composeapp.generated.resources.emoji_triangle_left
 import org.jetbrains.compose.resources.painterResource
 
 /**
@@ -233,24 +233,6 @@ fun TriangleUpIcon(
 }
 
 /**
- * Displays a triangle left emoji icon using Image for cross-platform compatibility
- * Source: Noto Emoji (U+25C0)
- */
-@Composable
-fun TriangleLeftIcon(
-    modifier: Modifier = Modifier,
-    size: Dp = 16.dp,
-    tint: Color? = null
-) {
-    Image(
-        painter = painterResource(Res.drawable.emoji_triangle_left),
-        contentDescription = "Triangle Left",
-        modifier = modifier.size(size),
-        colorFilter = tint?.let { ColorFilter.tint(it) }
-    )
-}
-
-/**
  * Displays a triangle right emoji icon using Image for cross-platform compatibility
  * Source: Noto Emoji (U+25B6)
  */
@@ -263,6 +245,24 @@ fun TriangleRightIcon(
     Image(
         painter = painterResource(Res.drawable.emoji_triangle_right),
         contentDescription = "Triangle Right",
+        modifier = modifier.size(size),
+        colorFilter = tint?.let { ColorFilter.tint(it) }
+    )
+}
+
+/**
+ * Displays a triangle left  emoji icon using Image for cross-platform compatibility
+ * Source: Noto Emoji (U+25C0)
+ */
+@Composable
+fun TriangleLeftIcon(
+    modifier: Modifier = Modifier,
+    size: Dp = 16.dp,
+    tint: Color? = null
+) {
+    Image(
+        painter = painterResource(Res.drawable.emoji_triangle_left),
+        contentDescription = "Triangle Left",
         modifier = modifier.size(size),
         colorFilter = tint?.let { ColorFilter.tint(it) }
     )

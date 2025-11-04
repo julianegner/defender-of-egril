@@ -329,9 +329,9 @@ private fun GamePlayScreenContent(
                                     Text(if (showOverlay) "Hide Info" else "Show Info")
                                     Spacer(modifier = Modifier.width(4.dp))
                                     if (showOverlay) {
-                                        TriangleLeftIcon(size = 18.dp, tint = Color.White)
-                                    } else {
                                         TriangleRightIcon(size = 18.dp, tint = Color.White)
+                                    } else {
+                                        TriangleLeftIcon(size = 18.dp, tint = Color.White)
                                     }
                                 }
                             }
@@ -411,9 +411,9 @@ private fun GamePlayScreenContent(
                             )
                         ) {
                             if (showOverlay) {
-                                TriangleLeftIcon(size = 12.dp)
-                            } else {
                                 TriangleRightIcon(size = 12.dp)
+                            } else {
+                                TriangleLeftIcon(size = 12.dp)
                             }
                         }
 
@@ -2201,11 +2201,10 @@ fun GameLegend(modifier: Modifier = Modifier) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text("Legend", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                Text(if (isExpanded) "" else "", style = MaterialTheme.typography.titleMedium)
                 if (isExpanded) {
                     TriangleDownIcon(size = 20.dp)
                 } else {
-                    TriangleRightIcon(size = 20.dp)
+                    TriangleLeftIcon(size = 20.dp)
                 }
             }
 
@@ -2438,7 +2437,7 @@ fun EnemyListPanel(gameState: GameState, modifier: Modifier = Modifier) {
                 if (isExpanded) {
                     TriangleDownIcon(size = 20.dp)
                 } else {
-                    TriangleRightIcon(size = 20.dp)
+                    TriangleLeftIcon(size = 20.dp)
                 }
             }
             Text(
