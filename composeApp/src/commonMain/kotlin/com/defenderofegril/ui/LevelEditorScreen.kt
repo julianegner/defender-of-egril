@@ -96,7 +96,7 @@ fun LevelEditorScreen(
                     
                     Button(onClick = onBack) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            LeftArrowIcon(size = 16.dp)
+                            LeftArrowIcon(size = 16.dp, tint = Color.White)
                             Spacer(modifier = Modifier.width(4.dp))
                             Text("Back to World Map")
                         }
@@ -228,10 +228,9 @@ fun MapEditorContent() {
                                         style = MaterialTheme.typography.titleSmall
                                     )
                                     if (map.readyToUse) {
-                                        Text(
-                                            text = "✓",
-                                            color = Color.Green,
-                                            style = MaterialTheme.typography.titleSmall
+                                        CheckmarkIcon(
+                                            size = 16.dp,
+                                            tint = Color.Green
                                         )
                                     } else {
                                         Text(
@@ -1270,7 +1269,7 @@ fun LevelSequenceContent() {
                                 },
                                 enabled = index > 0
                             ) {
-                                Text("↑")
+                                UpArrowIcon(size = 16.dp)
                             }
                             
                             Button(
@@ -1280,7 +1279,7 @@ fun LevelSequenceContent() {
                                 },
                                 enabled = index < sequence.value.sequence.size - 1
                             ) {
-                                Text("↓")
+                                DownArrowIcon(size = 16.dp)
                             }
                         }
                     }
@@ -1421,11 +1420,11 @@ fun MapSelectionCard(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                Text(
-                    text = if (map.readyToUse) "✓" else "✗",
-                    color = if (map.readyToUse) Color.Green else Color.Red,
-                    fontSize = 12.sp
-                )
+                if (map.readyToUse) {
+                    CheckmarkIcon(size = 12.dp, tint = Color.Green)
+                } else {
+                    Text("✗", color = Color.Red, fontSize = 12.sp)
+                }
                 Text(
                     text = if (map.readyToUse) "Ready" else "Not ready",
                     fontSize = 10.sp,
@@ -1538,14 +1537,14 @@ fun SpawnTurnSection(
                         enabled = canMoveUp,
                         modifier = Modifier.height(32.dp)
                     ) {
-                        Text("↑", fontSize = 12.sp)
+                        UpArrowIcon(size = 12.dp)
                     }
                     Button(
                         onClick = onMoveTurnDown,
                         enabled = canMoveDown,
                         modifier = Modifier.height(32.dp)
                     ) {
-                        Text("↓", fontSize = 12.sp)
+                        DownArrowIcon(size = 12.dp)
                     }
                     Button(
                         onClick = onCopyTurn,
