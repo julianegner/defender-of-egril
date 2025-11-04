@@ -257,6 +257,7 @@ fun MapEditorContent() {
                             // Minimap preview
                             Box(
                                 modifier = Modifier
+                                    .weight(1f)
                                     .width(120.dp)
                                     .height(80.dp)
                                     .padding(4.dp)
@@ -283,6 +284,8 @@ fun MapEditorContent() {
                                     modifier = Modifier.fillMaxSize()
                                 )
                             }
+
+                            Spacer(modifier = Modifier.weight(3f))
                             
                             Button(
                                 onClick = {
