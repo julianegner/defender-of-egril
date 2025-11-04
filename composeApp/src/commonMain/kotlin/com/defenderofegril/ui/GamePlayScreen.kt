@@ -715,25 +715,26 @@ fun GameGrid(
                     offsetY += pan.y
 
                     // Constrain pan to keep content visible
-                    // Allow panning to show content that extends beyond container
-                    // When content is larger than container, allow panning to see all of it
+                    // Content measured with infinite constraints starts at (0,0) in the Box
+                    // To see all content, we need to pan from 0 (left edge visible) to -overflow (right edge visible)
                     val contentWidth = totalGridWidth.value * scale
                     val contentHeight = totalGridHeight.value * scale
                     
                     val maxOffsetX = if (contentWidth > containerSize.width) {
-                        (contentWidth - containerSize.width) / 2
+                        contentWidth - containerSize.width
                     } else {
                         (containerSize.width * (scale - 1) / 2).coerceAtLeast(0f)
                     }
                     
                     val maxOffsetY = if (contentHeight > containerSize.height) {
-                        (contentHeight - containerSize.height) / 2
+                        contentHeight - containerSize.height
                     } else {
                         (containerSize.height * (scale - 1) / 2).coerceAtLeast(0f)
                     }
 
-                    offsetX = offsetX.coerceIn(-maxOffsetX, maxOffsetX)
-                    offsetY = offsetY.coerceIn(-maxOffsetY, maxOffsetY)
+                    // Allow panning from 0 (left/top edge) to -maxOffset (right/bottom edge)
+                    offsetX = offsetX.coerceIn(-maxOffsetX, 0f)
+                    offsetY = offsetY.coerceIn(-maxOffsetY, 0f)
                 }
             }
     ) {
