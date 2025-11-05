@@ -1,5 +1,6 @@
 package com.defenderofegril.ui
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -10,6 +11,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.defenderofegril.BuildConfig
+import defender_of_egril.composeapp.generated.resources.Res
+import defender_of_egril.composeapp.generated.resources.emoji_sword
+import defender_of_egril.composeapp.generated.resources.emoji_crown
+import defender_of_egril.composeapp.generated.resources.emoji_skull
+import org.jetbrains.compose.resources.painterResource
 
 @Composable
 fun MainMenuScreen(
@@ -79,10 +85,10 @@ fun LevelCompleteScreen(
     onBackToMap: () -> Unit
 ) {
     // Determine which image/icon and text to show
-    val icon = when {
-        won && isLastLevel -> "Crown"  // Crown for winning the game
-        won -> "Sword"  // Sword for winning a battle
-        else -> "Defeat"  // Skull for defeat
+    val imageResource = when {
+        won && isLastLevel -> Res.drawable.emoji_crown  // Crown for winning the game
+        won -> Res.drawable.emoji_sword  // Sword for winning a battle
+        else -> Res.drawable.emoji_skull  // Skull for defeat
     }
     
     val title = when {
@@ -103,11 +109,12 @@ fun LevelCompleteScreen(
         verticalArrangement = Arrangement.Center
     ) {
         // Icon/Image
-        Text(
-            text = icon,
-            style = MaterialTheme.typography.displayLarge,
-            textAlign = TextAlign.Center
+        Image(
+            painter = painterResource(imageResource),
+            contentDescription = title,
+            modifier = Modifier.size(64.dp)
         )
+
         
         Spacer(modifier = Modifier.height(16.dp))
         
