@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.sp
 import com.defenderofegril.game.LevelData
 import com.defenderofegril.model.*
 import com.defenderofegril.save.SaveGameMetadata
+import com.defenderofegril.ui.icon.enemy.EnemyTypeIcon
 import com.defenderofegril.utils.formatTimestamp
 
 @Composable
