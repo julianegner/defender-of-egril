@@ -40,6 +40,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.zIndex
 import com.defenderofegril.model.*
@@ -1171,6 +1172,7 @@ fun GridCell(
 @Composable
 fun ColumnScope.TurnButton(
     isPlayerTurn: Boolean,
+    modifier: Modifier,
     onPrimaryAction: () -> Unit = {},
     primaryButtonColor: Color = Color(0xFFFF5722)
     ){
@@ -1182,7 +1184,7 @@ fun ColumnScope.TurnButton(
         } else {
             ButtonDefaults.buttonColors()
         },
-        modifier = Modifier.fillMaxWidth().height(40.dp)
+        modifier = modifier
     ) {
         Text(if (isPlayerTurn) "End Turn" else "Start Battle",
             style = MaterialTheme.typography.labelMedium,
@@ -1271,11 +1273,16 @@ fun GameControlsPanel(
                     verticalArrangement = Arrangement.spacedBy(4.dp)
 
                 ) {
+
+                    val isMobile = uiScale < 1f
+                    val compactDefenderButtonModifier = Modifier
+                        .fillMaxWidth()
+                        .height(if (isMobile) 45.dp else 45.dp)
+
                     // Compact buy buttons
                     LazyVerticalGrid(
                         modifier = Modifier.padding(top = 8.dp),
                         columns = GridCells.Fixed(4),
-                        // modifier = Modifier.fillMaxWidth().height(100.dp),
                         horizontalArrangement = Arrangement.spacedBy(4.dp),
                         verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
@@ -1291,12 +1298,17 @@ fun GameControlsPanel(
                                 type = type,
                                 isSelected = selectedDefenderType == type,
                                 canAfford = coinsState.value >= type.baseCost,
+                                modifier = compactDefenderButtonModifier,
                                 onClick = {
                                     onSelectDefenderType(if (selectedDefenderType == type) null else type)
                                 }
                             )
                             if (isLast) {
-                                TurnButton(isPlayerTurn, onPrimaryAction)
+                                TurnButton(
+                                    isPlayerTurn,
+                                    modifier = compactDefenderButtonModifier,
+                                    onPrimaryAction
+                                )
                             }
                         }
                     }
@@ -1378,6 +1390,7 @@ fun CompactDefenderButton(
     type: DefenderType,
     isSelected: Boolean,
     canAfford: Boolean,
+    modifier: Modifier,
     onClick: () -> Unit
 ) {
     Button(
@@ -1386,7 +1399,7 @@ fun CompactDefenderButton(
         colors = ButtonDefaults.buttonColors(
             containerColor = if (isSelected) Color(0xFF1976D2) else MaterialTheme.colorScheme.primary
         ),
-        modifier = Modifier.fillMaxWidth().height(40.dp),
+        modifier = modifier,
         contentPadding = PaddingValues(4.dp)
     ) {
         Row(
@@ -1613,9 +1626,6 @@ fun DefenderInfo(
                 .fillMaxWidth()
                 .padding(if (isMobile) 4.dp else 8.dp)
         ) {
-            // Reduce padding on mobile to save space
-            // val cardPadding = if (isMobile) 4.dp else 8.dp
-            // Column(modifier = Modifier.padding(cardPadding)) {
                 // Tower icon, name, and actions in one row
                 Row(
                     // modifier = Modifier.fillMaxWidth(),
@@ -1652,7 +1662,9 @@ fun DefenderInfo(
                         Text(
                             displayName,
                             style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            maxLines = 1,
+                            overflow = TextOverflow.Clip
                         )
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -1669,48 +1681,17 @@ fun DefenderInfo(
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Text(
                                     defender.type.attackType.displayName,
-                                    style = MaterialTheme.typography.bodySmall
+                                    style = MaterialTheme.typography.bodySmall,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Clip
                                 )
                             }
                         }
-                    }
-
-                    Column(modifier = Modifier.weight(0.2f)) {
-                        if (defender.type == DefenderType.DWARVEN_MINE) {
-                            // Mine-specific UI with info dialog
-                            var showMiningInfoDialog by remember { mutableStateOf(false) }
-
-                            // Mining info dialog
-                            if (showMiningInfoDialog) {
-                                AlertDialog(
-                                    onDismissRequest = { showMiningInfoDialog = false },
-                                    title = { Text("Mining Probabilities") },
-                                    text = { MiningOutcomeGrid() },
-                                    confirmButton = {
-                                        TextButton(onClick = { showMiningInfoDialog = false }) {
-                                            Text("Close")
-                                        }
-                                    }
-                                )
-                            }
-
-                            InfoIcon(
-                                size = 16.dp,
-                                modifier = Modifier
-                                    .clickable { showMiningInfoDialog = true }
-                                    .padding(4.dp)
-                            )
+                        Row {
+                            DefenderActionsInfo(defender)
+                            dwarvenMineInfoButtonArea(defender)
                         }
                     }
-
-                    Box(modifier = Modifier.weight(0.5f)) {
-                        DefenderActionsInfo(defender)
-                    }
-                //} // End of top row
-
-                // Reduce spacing on mobile
-                // val verticalSpacing = if (isMobile) 2.dp else 4.dp
-                // Spacer(modifier = Modifier.height(verticalSpacing))
 
                 if (defender.isReady) {
                     if (defender.type == DefenderType.DRAGONS_LAIR) {
@@ -1748,7 +1729,7 @@ fun DefenderInfo(
                             // Current stats column
                             Column(modifier = Modifier.weight(0.5f)) {
                                 Text(
-                                    "Current:",
+                                    "Lvl ${defender.level.value}",
                                     style = MaterialTheme.typography.labelSmall,
                                     fontWeight = FontWeight.Bold
                                 )
@@ -1763,7 +1744,7 @@ fun DefenderInfo(
                             // After upgrade stats column
                             Column(modifier = Modifier.weight(0.5f)) {
                                 Text(
-                                    "Upgrade:",
+                                    "Lvl $nextLevel",
                                     style = MaterialTheme.typography.labelSmall,
                                     fontWeight = FontWeight.Bold,
                                     color = if (gameState.canUpgradeDefender(defender)) Color(0xFF4CAF50) else Color.Gray
@@ -1843,6 +1824,35 @@ fun DefenderInfo(
 }
 
 @Composable
+private fun dwarvenMineInfoButtonArea(defender: Defender) {
+    if (defender.type == DefenderType.DWARVEN_MINE) {
+        // Mine-specific UI with info dialog
+        var showMiningInfoDialog by remember { mutableStateOf(false) }
+
+        // Mining info dialog
+        if (showMiningInfoDialog) {
+            AlertDialog(
+                onDismissRequest = { showMiningInfoDialog = false },
+                title = { Text("Mining Probabilities") },
+                text = { MiningOutcomeGrid() },
+                confirmButton = {
+                    TextButton(onClick = { showMiningInfoDialog = false }) {
+                        Text("Close")
+                    }
+                }
+            )
+        }
+
+        InfoIcon(
+            size = 16.dp,
+            modifier = Modifier
+                .clickable { showMiningInfoDialog = true }
+                .padding(4.dp)
+        )
+    }
+}
+
+@Composable
 private fun RowScope.dwarvenMineActionButtonArea(
     type: DefenderType,
     gameState: GameState,
@@ -1913,10 +1923,11 @@ private fun RowScope.dwarvenMineActionButtonArea(
             Spacer(modifier = Modifier.weight(1f))
         }
 
-        Spacer(modifier = Modifier.weight(
-            if (compactBuyPanel) 1.41f else 3f))
+        if (!compactBuyPanel) {
+            Spacer(modifier = Modifier.weight(3f))
+        }
     } else {
-        Spacer(modifier = Modifier.weight(if (compactBuyPanel) 2.41f else 4f))
+        Spacer(modifier = Modifier.weight(if (compactBuyPanel) 1f else 4f))
     }
 }
 
