@@ -654,14 +654,14 @@ private fun GamePlayScreenContent(
         // Dig outcome dialog
         if (showDigOutcomeDialog && currentDigOutcome != null) {
             val outcome = currentDigOutcome!! // Extract to local variable for safety
+            // Reset selections when dragon awakes
+            if (outcome == DigOutcome.DRAGON) {
+                selectedDefenderType = null
+                selectedDefenderId = null
+            }
             AlertDialog(
                 onDismissRequest = {
                     showDigOutcomeDialog = false
-                    // Reset selections when dragon awakes
-                    if (outcome == DigOutcome.DRAGON) {
-                        selectedDefenderType = null
-                        selectedDefenderId = null
-                    }
                 },
                 title = { Text("Mining Result") },
                 text = {
@@ -695,11 +695,6 @@ private fun GamePlayScreenContent(
                 confirmButton = {
                     Button(onClick = {
                         showDigOutcomeDialog = false
-                        // Reset selections when dragon awakes
-                        if (outcome == DigOutcome.DRAGON) {
-                            selectedDefenderType = null
-                            selectedDefenderId = null
-                        }
                     }) {
                         Text("OK")
                     }
