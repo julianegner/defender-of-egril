@@ -43,11 +43,20 @@ class GameEngine(private val state: GameState) {
         val defender = state.defenders.find { it.id == defenderId } ?: return false
         if (!state.canUpgradeDefender(defender)) return false
         
+        // Store the old actionsPerTurn before upgrade
+        val oldActionsPerTurn = defender.actionsPerTurnCalculated
+        
         state.coins.value -= defender.upgradeCost
         defender.level.value++
         
-        // Reset actions to reflect new action count from upgrade
-        defender.resetActions()
+        // Calculate the new actionsPerTurn after upgrade
+        val newActionsPerTurn = defender.actionsPerTurnCalculated
+        
+        // Only add the increase in actionsPerTurn to actionsRemaining
+        val actionIncrease = newActionsPerTurn - oldActionsPerTurn
+        if (actionIncrease > 0 && defender.isReady) {
+            defender.actionsRemaining.value += actionIncrease
+        }
         
         return true
     }
