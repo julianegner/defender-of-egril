@@ -1058,8 +1058,8 @@ fun LevelEditorView(
                             else availableTowers.remove(tower)
                         }
                     )
-                    Text("${tower.displayName} (Cost: ${tower.baseCost}, Damage: ${tower.baseDamage})")
                     TowerIconOnHexagon(defenderType = tower)
+                    Text("${tower.displayName} (Cost: ${tower.baseCost}, Damage: ${tower.baseDamage})")
                 }
             }
         }
@@ -1604,7 +1604,10 @@ fun SpawnTurnSection(
                             ) {
                                 // Enemy icon
                                 Box(modifier = Modifier.size(24.dp)) {
-                                    EnemyTypeIcon(attackerType = spawn.attackerType)
+                                    EnemyIconOnHexagon(
+                                        attackerType = spawn.attackerType,
+                                        size = 24.dp
+                                    )
                                 }
                                 
                                 Column {
