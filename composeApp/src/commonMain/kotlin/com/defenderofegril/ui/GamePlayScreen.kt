@@ -653,6 +653,7 @@ private fun GamePlayScreenContent(
 
         // Dig outcome dialog
         if (showDigOutcomeDialog && currentDigOutcome != null) {
+            val outcome = currentDigOutcome!! // Extract to local variable for safety
             AlertDialog(
                 onDismissRequest = { showDigOutcomeDialog = false },
                 title = { Text("Mining Result") },
@@ -664,18 +665,18 @@ private fun GamePlayScreenContent(
                     ) {
                         // Image on the left
                         DigOutcomeIcon(
-                            outcome = currentDigOutcome!!,
+                            outcome = outcome,
                             size = 80.dp
                         )
                         
                         // Text on the right
-                        val message = when (currentDigOutcome!!) {
+                        val message = when (outcome) {
                             DigOutcome.NOTHING -> "You found nothing..."
-                            DigOutcome.BRASS -> "You found brass!\n+${currentDigOutcome!!.coins} coins"
-                            DigOutcome.SILVER -> "You found silver!\n+${currentDigOutcome!!.coins} coins"
-                            DigOutcome.GOLD -> "You found gold!\n+${currentDigOutcome!!.coins} coins"
-                            DigOutcome.GEMS -> "You found gems!\n+${currentDigOutcome!!.coins} coins"
-                            DigOutcome.DIAMOND -> "You found a diamond!\n+${currentDigOutcome!!.coins} coins"
+                            DigOutcome.BRASS -> "You found brass!\n+${outcome.coins} coins"
+                            DigOutcome.SILVER -> "You found silver!\n+${outcome.coins} coins"
+                            DigOutcome.GOLD -> "You found gold!\n+${outcome.coins} coins"
+                            DigOutcome.GEMS -> "You found gems!\n+${outcome.coins} coins"
+                            DigOutcome.DIAMOND -> "You found a diamond!\n+${outcome.coins} coins"
                             DigOutcome.DRAGON -> "A DRAGON AWAKENS!\nThe mine is destroyed!"
                         }
                         Text(
