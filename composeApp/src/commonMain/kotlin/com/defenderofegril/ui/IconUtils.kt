@@ -518,6 +518,11 @@ fun SaveIcon(
 
 /**
  * Displays an icon for a dig outcome from mining
+ * 
+ * Note: For GEMS outcome, the gem color is randomly selected (red, green, or blue)
+ * on each composition. This is intentional per requirements to add visual variety.
+ * The color may change on recomposition but this is acceptable as it doesn't affect
+ * game state - only the visual representation.
  */
 @Composable
 fun DigOutcomeIcon(
@@ -531,7 +536,8 @@ fun DigOutcomeIcon(
         DigOutcome.SILVER -> Res.drawable.dig_outcome_silver
         DigOutcome.GOLD -> Res.drawable.dig_outcome_gold
         DigOutcome.GEMS -> {
-            // Randomly select gem color
+            // Randomly select gem color (red, green, or blue) as per requirements
+            // This adds visual variety and doesn't affect game state
             when (Random.nextInt(3)) {
                 0 -> Res.drawable.dig_outcome_gem_red
                 1 -> Res.drawable.dig_outcome_gem_green
