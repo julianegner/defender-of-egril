@@ -553,7 +553,15 @@ private fun GamePlayScreenContent(
                     onSelectDefenderType = { selectedDefenderType = it },
                     onUpgradeDefender = { onUpgradeDefender(it) },
                     onUndoTower = { onUndoTower(it) },
-                    onSellTower = { onSellTower(it) },
+                    onSellTower = { defenderId ->
+                        if (onSellTower(defenderId)) {
+                            selectedDefenderType = null
+                            selectedDefenderId = null
+                            true
+                        } else {
+                            false
+                        }
+                    },
                     onDefenderAttack = { _, _ -> false },
                     onDefenderAttackPosition = { _, _ -> false },
                     onPrimaryAction = {
@@ -578,7 +586,15 @@ private fun GamePlayScreenContent(
                     onSelectDefenderType = { selectedDefenderType = it },
                     onUpgradeDefender = { onUpgradeDefender(it) },
                     onUndoTower = { onUndoTower(it) },
-                    onSellTower = { onSellTower(it) },
+                    onSellTower = { defenderId ->
+                        if (onSellTower(defenderId)) {
+                            selectedDefenderType = null
+                            selectedDefenderId = null
+                            true
+                        } else {
+                            false
+                        }
+                    },
                     onDefenderAttack = { defenderId, targetId ->
                         if (onDefenderAttack(defenderId, targetId)) {
                             selectedTargetId = null
