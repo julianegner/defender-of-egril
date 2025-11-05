@@ -44,7 +44,7 @@ fun GameLegend(modifier: Modifier = Modifier) {
 
             item {
                 LegendItemHex(
-                            color = Color(0xFF8BC34A),
+                            color = GamePlayColors.BuildIsland,
                             label = "⬡",
                             description = "Build Island",
                             border = Color.Gray
@@ -52,7 +52,7 @@ fun GameLegend(modifier: Modifier = Modifier) {
                     }
                     item {
                         LegendItemHex(
-                            color = Color(0xFFA5D6A7),
+                            color = GamePlayColors.BuildStrip,
                             label = "⬡",
                             description = "Build Strip",
                             border = Color.Gray
@@ -60,7 +60,7 @@ fun GameLegend(modifier: Modifier = Modifier) {
                     }
                     item {
                         LegendItemHex(
-                            color = Color(0xFFFFF8DC),
+                            color = GamePlayColors.Path,
                             label = "⬡",
                             description = "Enemy Path",
                             border = Color.Gray
@@ -68,7 +68,7 @@ fun GameLegend(modifier: Modifier = Modifier) {
                     }
                     item {
                         LegendItemHex(
-                            color = Color(0xFFE0E0E0),
+                            color = GamePlayColors.NonPlayable,
                             label = "⬡",
                             description = "Non-Playable",
                             border = Color.Gray
@@ -86,19 +86,19 @@ fun GameLegend(modifier: Modifier = Modifier) {
 
                     item {
                         LegendItemHex(
-                            color = Color(0xFFFFF8DC),
+                            color = GamePlayColors.Path,
                             label = "Spawn",
                             description = "Spawn (3 points)",
-                            border = Color(0xFFFF9800),
+                            border = GamePlayColors.Warning,
                             borderWidth = 3.dp
                         )
                     }
                     item {
                         LegendItemHex(
-                            color = Color(0xFFFFF8DC),
+                            color = GamePlayColors.Path,
                             label = "Target",
                             description = "Target (Defend!)",
-                            border = Color(0xFF4CAF50),
+                            border = GamePlayColors.Success,
                             borderWidth = 3.dp
                         )
                     }
@@ -114,37 +114,37 @@ fun GameLegend(modifier: Modifier = Modifier) {
 
                     item {
                         LegendItemHex(
-                            color = Color(0xFF2196F3),
+                            color = GamePlayColors.Info,
                             label = "⬡",
                             description = "Tower (Ready)",
-                            border = Color(0xFF2196F3),
+                            border = GamePlayColors.Info,
                             borderWidth = 3.dp
                         )
                     }
                     item {
                         LegendItemHex(
-                            color = Color(0xFF9E9E9E),
+                            color = GamePlayColors.Building,
                             label = "⬡",
                             description = "Tower (Building)",
-                            border = Color(0xFF9E9E9E),
+                            border = GamePlayColors.Building,
                             borderWidth = 3.dp
                         )
                     }
                     item {
                         LegendItemHex(
-                            color = Color(0xFF7986CB),
+                            color = GamePlayColors.InfoLight,
                             label = "⬡",
                             description = "Tower (No Actions)",
-                            border = Color(0xFF2196F3),
+                            border = GamePlayColors.Info,
                             borderWidth = 3.dp
                         )
                     }
                     item {
                         LegendItemHex(
-                            color = Color(0xFFF44336),
+                            color = GamePlayColors.Error,
                             label = "⬡",
                             description = "Enemy Unit",
-                            border = Color(0xFFF44336),
+                            border = GamePlayColors.Error,
                             borderWidth = 3.dp
                         )
                     }
@@ -162,7 +162,7 @@ fun GameLegend(modifier: Modifier = Modifier) {
                         Text(
                             "• Ballista: min range 3",
                             style = MaterialTheme.typography.bodySmall,
-                            color = Color(0xFFFF6F00)
+                            color = GamePlayColors.WarningDark
                         )
                     }
                     item {
@@ -277,7 +277,7 @@ fun EnemyListPanel(gameState: GameState, modifier: Modifier = Modifier) {
                                 "On Map:",
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFFD32F2F)
+                                color = GamePlayColors.ErrorDark
                             )
                             Spacer(modifier = Modifier.height(4.dp))
                         }
@@ -308,7 +308,7 @@ fun EnemyListPanel(gameState: GameState, modifier: Modifier = Modifier) {
                                 "Planned Spawns:",
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFFFF9800)
+                                color = GamePlayColors.Warning
                             )
                             Spacer(modifier = Modifier.height(4.dp))
                         }
@@ -331,7 +331,7 @@ fun EnemyItemDetailed(attacker: Attacker, showPosition: Boolean) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = Color(0xFFFFEBEE)
+            containerColor = GamePlayColors.EnemyCardBackground
         )
     ) {
         Row(
@@ -369,7 +369,7 @@ fun EnemyItemDetailed(attacker: Attacker, showPosition: Boolean) {
                             "Pos: (${attacker.position.value.x},${attacker.position.value.y})",
                             style = MaterialTheme.typography.bodySmall,
                             fontSize = 10.sp,
-                            color = Color(0xFF1976D2)
+                            color = GamePlayColors.InfoDark
                         )
                     }
                 }
@@ -383,7 +383,7 @@ fun UpcomingEnemyItem(attackerType: AttackerType) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = Color(0xFFFFF3E0)
+            containerColor = GamePlayColors.UpcomingCardBackground
         )
     ) {
         Row(
@@ -423,7 +423,7 @@ fun PlannedEnemyItem(plannedSpawn: PlannedEnemySpawn, currentTurn: Int) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = Color(0xFFFFF3E0)
+            containerColor = GamePlayColors.UpcomingCardBackground
         )
     ) {
         Row(
@@ -458,7 +458,7 @@ fun PlannedEnemyItem(plannedSpawn: PlannedEnemySpawn, currentTurn: Int) {
                             style = MaterialTheme.typography.bodySmall,
                             fontSize = 10.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFFD32F2F)
+                            color = GamePlayColors.ErrorDark
                         )
                     }
                 }
@@ -476,9 +476,7 @@ fun PlannedEnemyItem(plannedSpawn: PlannedEnemySpawn, currentTurn: Int) {
                     style = MaterialTheme.typography.bodySmall,
                     fontWeight = FontWeight.Bold,
                     fontSize = 11.sp,
-                    color = if (plannedSpawn.spawnTurn == currentTurn + 1) Color(0xFFFF5722) else Color(
-                        0xFFFF9800
-                    )
+                    color = if (plannedSpawn.spawnTurn == currentTurn + 1) GamePlayColors.WarningDeep else GamePlayColors.Warning
                 )
                 if (plannedSpawn.spawnTurn > currentTurn) {
                     Text(
@@ -497,7 +495,7 @@ fun PlannedEnemyItem(plannedSpawn: PlannedEnemySpawn, currentTurn: Int) {
 fun EnemyItem(attacker: Attacker) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFFFEBEE))
+        colors = CardDefaults.cardColors(containerColor = GamePlayColors.EnemyCardBackground)
     ) {
         Column(modifier = Modifier.padding(8.dp)) {
             Row(
@@ -523,7 +521,7 @@ fun EnemyItem(attacker: Attacker) {
             Text(
                 "Reward: ${attacker.type.reward} coins",
                 style = MaterialTheme.typography.bodySmall,
-                color = Color(0xFFFF9800)
+                color = GamePlayColors.Warning
             )
 
             Text(

@@ -21,7 +21,7 @@ fun ColumnScope.TurnButton(
     isPlayerTurn: Boolean,
     modifier: Modifier,
     onPrimaryAction: () -> Unit = {},
-    primaryButtonColor: Color = Color(0xFFFF5722)
+    primaryButtonColor: Color = GamePlayColors.WarningDeep
     ){
     Button(
         onClick = onPrimaryAction,
@@ -73,7 +73,7 @@ fun GameControlsPanel(
     }
     val primaryButtonText = if (isPlayerTurn) "End Turn" else "Start Battle"
     val primaryButtonColor = if (isPlayerTurn) {
-        Color(0xFFFF5722)
+        GamePlayColors.WarningDeep
     } else {
         ButtonDefaults.buttonColors().containerColor
     }
@@ -239,7 +239,7 @@ fun EnemyTurnInfo() {
     Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
         Card(
             modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFFFFCDD2))
+            colors = CardDefaults.cardColors(containerColor = GamePlayColors.DangerCardBackground)
         ) {
             Column(
                 modifier = Modifier.padding(24.dp).fillMaxWidth(),
@@ -263,7 +263,7 @@ fun EnemyTurnInfo() {
                 Text(
                     "Watch the grid for changes!",
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color(0xFFD32F2F),
+                    color = GamePlayColors.ErrorDark,
                     fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
                 )
             }
