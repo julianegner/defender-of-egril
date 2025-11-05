@@ -1,5 +1,6 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFramework
 
@@ -8,6 +9,7 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.kotlinSerialization)
 }
 
 kotlin {
@@ -19,6 +21,17 @@ kotlin {
     }
     
     jvm("desktop")
+    
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs {
+        moduleName = "defenderOfEgril"
+        browser {
+            commonWebpackConfig {
+                outputFileName = "defenderOfEgril.js"
+            }
+        }
+        binaries.executable()
+    }
     
     listOf(
         iosX64(),
@@ -33,6 +46,7 @@ kotlin {
     
     sourceSets {
         val desktopMain by getting
+        val wasmJsMain by getting
         
         androidMain.dependencies {
             implementation(compose.preview)
@@ -45,12 +59,15 @@ kotlin {
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
+            implementation(libs.kotlinx.serialization.json)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
+        }
+        wasmJsMain.dependencies {
         }
         
         iosMain.dependencies {

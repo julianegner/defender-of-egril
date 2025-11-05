@@ -13,11 +13,13 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -28,6 +30,8 @@ import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.layout.layout
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
@@ -36,12 +40,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.zIndex
 import com.defenderofegril.model.*
 import kotlin.math.sqrt
 
 // UI Constants
-private const val ATTACK_ICON = "⚔️"
 private val ATTACK_BUTTON_COLOR = Color(0xFFD32F2F)
 
 /**
@@ -99,6 +104,7 @@ fun GamePlayScreen(
     onDefenderAttackPosition: (Int, Position) -> Boolean,
     onEndPlayerTurn: () -> Unit,
     onBackToMap: () -> Unit,
+    onSaveGame: ((String?) -> String?)? = null,  // Add save game callback with optional comment
     onCheatCode: ((String) -> Boolean)? = null,  // Add cheat code callback
     onMineDig: ((Int) -> DigOutcome?)? = null,  // Add mine dig callback
     onMineBuildTrap: ((Int, Position) -> Boolean)? = null  // Add mine build trap callback
@@ -114,6 +120,7 @@ fun GamePlayScreen(
         onDefenderAttackPosition = onDefenderAttackPosition,
         onEndPlayerTurn = onEndPlayerTurn,
         onBackToMap = onBackToMap,
+        onSaveGame = onSaveGame,
         onCheatCode = onCheatCode,
         onMineDig = onMineDig,
         onMineBuildTrap = onMineBuildTrap
@@ -132,6 +139,7 @@ private fun GamePlayScreenContent(
     onDefenderAttackPosition: (Int, Position) -> Boolean,
     onEndPlayerTurn: () -> Unit,
     onBackToMap: () -> Unit,
+    onSaveGame: ((String?) -> String?)? = null,  // Add save game callback with optional comment
     onCheatCode: ((String) -> Boolean)? = null,
     onMineDig: ((Int) -> DigOutcome?)? = null,
     onMineBuildTrap: ((Int, Position) -> Boolean)? = null,
@@ -149,11 +157,34 @@ private fun GamePlayScreenContent(
     var showDigOutcomeDialog by remember { mutableStateOf(false) }
     var showOverlay by remember { mutableStateOf(false) }  // MutableState for overlay visibility
     var headerExpanded by remember { mutableStateOf(true) }  // State for header fold/expand
+    var showSaveDialog by remember { mutableStateOf(false) }  // Save dialog with comment
+    var saveCommentInput by remember { mutableStateOf("") }  // Comment input for save
+    var showSaveConfirmation by remember { mutableStateOf(false) }  // Save confirmation
 
-    // Auto-fold header when turn 1 starts
+    // Get platform-specific UI scale for mobile (affects layout, not just rendering)
+    val uiScale = getGameplayUIScale()
+
+    // Create a scaled density with separate scaling for layout (dp) and text (sp)
+    // Layout elements (padding, spacing) scaled to 0.5x to save space
+    // Text/icons scaled to 1.5x (doubled from 0.75x) for better readability on mobile
+    val density = LocalDensity.current
+    val scaledDensity = remember(density, uiScale) {
+        // Scale layout (dp) by uiScale, but scale text (sp) to be larger
+        val textScale = if (uiScale < 1f) {
+            // For mobile, use 1.5x for text (doubled from previous 0.75x)
+            // This means text will be at ~original size despite layout being 0.5x
+            1.5f
+        } else {
+            1f // Desktop unchanged
+        }
+        Density(density.density * uiScale, density.fontScale * textScale)
+    }
+
+    // Auto-fold header when turn 1 starts (turn 0 for mobile)
     val currentTurn = gameState.turnNumber.value
     LaunchedEffect(currentTurn) {
-        if (currentTurn == 1) {
+        val collapseAtTurn = if (uiScale < 1f) 0 else 1  // Mobile: turn 0, Desktop: turn 1
+        if (currentTurn >= collapseAtTurn) {
             headerExpanded = false
         }
     }
@@ -185,10 +216,11 @@ private fun GamePlayScreenContent(
         }
     }
 
-    Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
+    CompositionLocalProvider(LocalDensity provides scaledDensity) {
+        Column(
+            modifier = Modifier.fillMaxSize().padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
         // Header with prominent phase indicator (collapsible)
         // Wrap header in Box to ensure z-axis ordering (header in front of map)
         Box(
@@ -222,7 +254,11 @@ private fun GamePlayScreenContent(
                         Button(
                             onClick = { headerExpanded = false }
                         ) {
-                            Text("▲ Fold Header")
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                TriangleUpIcon(size = 14.dp, tint = Color.White)
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text("Fold Header")
+                            }
                         }
                     }
 
@@ -236,9 +272,8 @@ private fun GamePlayScreenContent(
                     ) {
                         Column {
                             // Clickable coins display for cheat codes with icon
-                            Text(
-                                "💰 ${gameState.coins.value}",
-                                style = MaterialTheme.typography.bodyLarge,
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
                                 modifier = Modifier.clickable(
                                     onClick = {
                                         if (onCheatCode != null) {
@@ -246,9 +281,24 @@ private fun GamePlayScreenContent(
                                         }
                                     }
                                 )
-                            )
-                            Text("❤️ ${gameState.healthPoints.value}", style = MaterialTheme.typography.bodyLarge)
-                            Text("🔄 Turn ${gameState.turnNumber.value}", style = MaterialTheme.typography.bodyMedium)
+                            ) {
+                                MoneyIcon(size = 20.dp)
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(
+                                    "${gameState.coins.value}",
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+                            }
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                HeartIcon(size = 20.dp)
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text("${gameState.healthPoints.value}", style = MaterialTheme.typography.bodyLarge)
+                            }
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                ReloadIcon(size = 18.dp)
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text("Turn ${gameState.turnNumber.value}", style = MaterialTheme.typography.bodyMedium)
+                            }
 
                             val activeEnemies = gameState.attackers.count { !it.isDefeated.value }
                             val totalSpawned = gameState.nextAttackerId.value - 1
@@ -285,6 +335,16 @@ private fun GamePlayScreenContent(
                             Button(onClick = onBackToMap) {
                                 Text("Back to Map")
                             }
+                            
+                            if (onSaveGame != null) {
+                                Button(
+                                    onClick = { 
+                                        showSaveDialog = true
+                                    }
+                                ) {
+                                    Text("Save Game")
+                                }
+                            }
 
                             // Toggle button positioned above the map and far to the right
                             Button(
@@ -293,7 +353,15 @@ private fun GamePlayScreenContent(
                                     containerColor = if (showOverlay) Color(0xFF4CAF50) else Color(0xFF2196F3)
                                 )
                             ) {
-                                Text(if (showOverlay) "Hide Info  ◀" else "Show Info  ▶")
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text(if (showOverlay) "Hide Info" else "Show Info")
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    if (showOverlay) {
+                                        TriangleRightIcon(size = 18.dp, tint = Color.White)
+                                    } else {
+                                        TriangleLeftIcon(size = 18.dp, tint = Color.White)
+                                    }
+                                }
                             }
                         }
                     }
@@ -311,9 +379,8 @@ private fun GamePlayScreenContent(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         // Clickable coins display for cheat codes
-                        Text(
-                            "💰 ${gameState.coins.value}",
-                            style = MaterialTheme.typography.bodyMedium,
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier.clickable(
                                 onClick = {
                                     if (onCheatCode != null) {
@@ -321,9 +388,24 @@ private fun GamePlayScreenContent(
                                     }
                                 }
                             )
-                        )
-                        Text("❤️ ${gameState.healthPoints.value}", style = MaterialTheme.typography.bodyMedium)
-                        Text("🔄 ${gameState.turnNumber.value}", style = MaterialTheme.typography.bodySmall)
+                        ) {
+                            MoneyIcon(size = 16.dp)
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                "${gameState.coins.value}",
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            HeartIcon(size = 16.dp)
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text("${gameState.healthPoints.value}", style = MaterialTheme.typography.bodyMedium)
+                        }
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            ReloadIcon(size = 14.dp)
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text("${gameState.turnNumber.value}", style = MaterialTheme.typography.bodySmall)
+                        }
                     }
 
                     // Level name in center (without prefix, bold when collapsed)
@@ -335,11 +417,21 @@ private fun GamePlayScreenContent(
                         textAlign = TextAlign.Center
                     )
 
-                    // Three buttons at far right
+                    // Three buttons at far right (four on mobile if save is available)
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(4.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
+                        Button(
+                            onClick = {
+                                showSaveDialog = true
+                            },
+                            modifier = Modifier.height(32.dp),
+                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp)
+                        ) {
+                            SaveIcon(size = 16.dp, modifier = Modifier.align(Alignment.CenterVertically))
+                        }
+
                         Button(
                             onClick = onBackToMap,
                             modifier = Modifier.height(32.dp),
@@ -356,11 +448,11 @@ private fun GamePlayScreenContent(
                                 containerColor = if (showOverlay) Color(0xFF4CAF50) else Color(0xFF2196F3)
                             )
                         ) {
-                            Text(
-                                if (showOverlay) "◀" else "▶",
-                                fontSize = 12.sp,
-                                modifier = Modifier.align(Alignment.CenterVertically)
-                            )
+                            if (showOverlay) {
+                                TriangleRightIcon(size = 12.dp)
+                            } else {
+                                TriangleLeftIcon(size = 12.dp)
+                            }
                         }
 
                         // Fold button
@@ -369,7 +461,7 @@ private fun GamePlayScreenContent(
                             modifier = Modifier.size(32.dp),
                             contentPadding = PaddingValues(0.dp)
                         ) {
-                            Text("▼", fontSize = 12.sp)
+                            TriangleDownIcon(size = 12.dp, tint = Color.White)
                         }
                     }
                 }
@@ -506,7 +598,8 @@ private fun GamePlayScreenContent(
                         selectedDefenderId = null  // Clear defender selection when starting battle
                         onStartFirstPlayerTurn()
                     },
-                    onMineAction = handleMineAction
+                    onMineAction = handleMineAction,
+                    uiScale = uiScale
                 )
             }
 
@@ -542,7 +635,8 @@ private fun GamePlayScreenContent(
                         }
                     },
                     onPrimaryAction = onEndPlayerTurn,
-                    onMineAction = handleMineAction
+                    onMineAction = handleMineAction,
+                    uiScale = uiScale
                 )
             }
 
@@ -561,6 +655,82 @@ private fun GamePlayScreenContent(
                 },
                 confirmButton = {
                     Button(onClick = { showDigOutcomeDialog = false }) {
+                        Text("OK")
+                    }
+                }
+            )
+        }
+        
+        // Save game dialog (with optional comment input)
+        if (showSaveDialog && onSaveGame != null) {
+            AlertDialog(
+                onDismissRequest = {
+                    showSaveDialog = false
+                    saveCommentInput = ""
+                },
+                title = { Text("Save Game") },
+                text = {
+                    Column {
+                        Text(
+                            "Add an optional comment to help identify this save:",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        TextField(
+                            value = saveCommentInput,
+                            onValueChange = {
+                                // Limit comment to 200 characters
+                                if (it.length <= 200) {
+                                    saveCommentInput = it
+                                }
+                            },
+                            placeholder = { Text("e.g., 'Before final wave', 'Good position'...") },
+                            singleLine = false,
+                            maxLines = 3,
+                            modifier = Modifier.fillMaxWidth(),
+                            supportingText = {
+                                Text(
+                                    "${saveCommentInput.length}/200",
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            }
+                        )
+                    }
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            val comment = if (saveCommentInput.isBlank()) null else saveCommentInput.trim()
+                            onSaveGame(comment)
+                            showSaveDialog = false
+                            saveCommentInput = ""
+                            showSaveConfirmation = true
+                        }
+                    ) {
+                        Text("Save")
+                    }
+                },
+                dismissButton = {
+                    Button(onClick = {
+                        showSaveDialog = false
+                        saveCommentInput = ""
+                    }) {
+                        Text("Cancel")
+                    }
+                }
+            )
+        }
+
+        // Save confirmation dialog
+        if (showSaveConfirmation) {
+            AlertDialog(
+                onDismissRequest = { showSaveConfirmation = false },
+                title = { Text("Game Saved") },
+                text = {
+                    Text("Your game has been saved successfully!", style = MaterialTheme.typography.bodyLarge)
+                },
+                confirmButton = {
+                    Button(onClick = { showSaveConfirmation = false }) {
                         Text("OK")
                     }
                 }
@@ -614,6 +784,7 @@ private fun GamePlayScreenContent(
             )
         }
     }
+    }
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -633,6 +804,7 @@ fun GameGrid(
     var offsetX by remember { mutableStateOf(0f) }
     var offsetY by remember { mutableStateOf(0f) }
     var containerSize by remember { mutableStateOf(IntSize.Zero) }
+    var actualContentSize by remember { mutableStateOf(IntSize.Zero) }
 
     val hexSize = 40.dp  // Radius of hexagon (center to corner)
 
@@ -644,8 +816,15 @@ fun GameGrid(
     // For pointy-top hexagons, vertical spacing between centers is 3/4 of height
     val verticalSpacing = hexHeight * 0.75f
 
+    // Odd rows are offset to the right to create hexagonal grid pattern
+    val oddRowOffset = hexWidth * 0.42f
+
     // Calculate total grid dimensions
-    val totalGridWidth = ((gameState.level.gridWidth) * hexWidth + hexWidth + 200f).dp
+    // Need enough width for all hexagons without compression
+    // Each hexagon is hexWidth wide, we have gridWidth hexagons per row
+    // Odd rows add oddRowOffset padding at the start
+    // Add generous buffer (3 extra hexWidths) to ensure no compression
+    val totalGridWidth = ((gameState.level.gridWidth + 3) * hexWidth + oddRowOffset).dp
     val totalGridHeight = ((gameState.level.gridHeight) * verticalSpacing + hexHeight).dp
 
     Box(
@@ -675,19 +854,48 @@ fun GameGrid(
                     offsetY += pan.y
 
                     // Constrain pan to keep content visible
-                    val maxOffsetX = (containerSize.width * (scale - 1) / 2).coerceAtLeast(0f)
-                    val maxOffsetY = (containerSize.height * (scale - 1) / 2).coerceAtLeast(0f)
+                    // Center the content initially and allow symmetric panning to see all edges
+                    // Use actualContentSize which is the measured size of the Column
+                    val contentWidth = actualContentSize.width * scale
+                    val contentHeight = actualContentSize.height * scale
 
+                    val maxOffsetX = if (contentWidth > containerSize.width) {
+                        (contentWidth - containerSize.width) / 2  // Half the overflow for symmetric panning
+                    } else {
+                        (containerSize.width * (scale - 1) / 2).coerceAtLeast(0f)
+                    }
+
+                    val maxOffsetY = if (contentHeight > containerSize.height) {
+                        (contentHeight - containerSize.height) / 2  // Half the overflow for symmetric panning
+                    } else {
+                        (containerSize.height * (scale - 1) / 2).coerceAtLeast(0f)
+                    }
+
+                    // Allow symmetric panning: +maxOffset (left/top edge) to -maxOffset (right/bottom edge)
                     offsetX = offsetX.coerceIn(-maxOffsetX, maxOffsetX)
                     offsetY = offsetY.coerceIn(-maxOffsetY, maxOffsetY)
                 }
             }
     ) {
         // Map content with pan and zoom applied
+        // Use layout modifier to allow Column to exceed parent bounds
         Column(
             modifier = Modifier
-                .width(totalGridWidth)
-                .height(totalGridHeight)
+                .layout { measurable, constraints ->
+                    // Measure with infinite constraints to prevent compression
+                    val placeable = measurable.measure(
+                        constraints.copy(
+                            maxWidth = Constraints.Infinity,
+                            maxHeight = Constraints.Infinity
+                        )
+                    )
+                    // Capture the actual content size for pan calculations
+                    actualContentSize = IntSize(placeable.width, placeable.height)
+                    // Report the actual size to parent (for proper container sizing)
+                    layout(placeable.width, placeable.height) {
+                        placeable.place(0, 0)
+                    }
+                }
                 .graphicsLayer(
                     scaleX = scale,
                     scaleY = scale,
@@ -698,10 +906,11 @@ fun GameGrid(
         ) {
             for (y in 0 until gameState.level.gridHeight) {
                 Row(
-                    modifier = Modifier.offset(
-                        x = if (y % 2 == 1) (hexWidth * 0.42f).dp else 0.dp,
-                        y = (-(y-1)).dp
-                        ),
+                    modifier = Modifier
+                        .padding(
+                            start = if (y % 2 == 1) (hexWidth * 0.42f).dp else 0.dp
+                        )
+                        .offset(y = (-(y-1)).dp),
                     horizontalArrangement = Arrangement.spacedBy((-10).dp)
                 ) {
                     for (x in 0 until gameState.level.gridWidth) {
@@ -726,134 +935,28 @@ fun GameGrid(
 
         // Minimap - shown when zoomed in
         if (scale > 1.1f) {
-            GameMinimap(
-                gameState = gameState,
-                scale = scale,
-                offsetX = offsetX,
-                offsetY = offsetY,
-                containerSize = containerSize,
+            Box(
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(16.dp)
-            )
-        }
-    }
-}
-
-@Composable
-fun GameMinimap(
-    gameState: GameState,
-    scale: Float,
-    offsetX: Float,
-    offsetY: Float,
-    containerSize: IntSize,
-    modifier: Modifier = Modifier
-) {
-    val minimapSize = 120.dp
-    val gridWidth = gameState.level.gridWidth
-    val gridHeight = gameState.level.gridHeight
-
-    Box(
-        modifier = modifier
-            .size(minimapSize)
-            .background(Color(0xCC000000))  // Semi-transparent black background
-            .border(2.dp, Color.White)
-            .padding(4.dp)
-    ) {
-        // Simplified map representation
-        Canvas(modifier = Modifier.fillMaxSize()) {
-            val cellWidth = size.width / gridWidth
-            val cellHeight = size.height / gridHeight
-
-            // Draw path tiles
-            for (y in 0 until gridHeight) {
-                for (x in 0 until gridWidth) {
-                    val pos = Position(x, y)
-                    if (gameState.level.isOnPath(pos)) {
-                        drawRect(
-                            color = Color(0xFF8B4513),  // Brown for path
-                            topLeft = Offset(x * cellWidth, y * cellHeight),
-                            size = Size(cellWidth, cellHeight)
-                        )
-                    }
-                }
-            }
-
-            // Draw defenders (blue dots - matching main map tower color)
-            gameState.defenders.forEach { defender ->
-                val x = defender.position.x * cellWidth + cellWidth / 2
-                val y = defender.position.y * cellHeight + cellHeight / 2
-                drawCircle(
-                    color = Color(0xFF2196F3),  // Blue - same as ready towers on main map
-                    radius = cellWidth.coerceAtMost(cellHeight) / 3,
-                    center = Offset(x, y)
-                )
-            }
-
-            // Draw attackers (red dots)
-            gameState.attackers.filter { !it.isDefeated.value }.forEach { attacker ->
-                val x = attacker.position.value.x * cellWidth + cellWidth / 2
-                val y = attacker.position.value.y * cellHeight + cellHeight / 2
-                drawCircle(
-                    color = Color.Red,
-                    radius = cellWidth.coerceAtMost(cellHeight) / 4,
-                    center = Offset(x, y)
-                )
-            }
-
-            // Draw spawn points (orange dots - matching main map spawn border)
-            gameState.level.startPositions.forEach { spawnPos ->
-                val x = spawnPos.x * cellWidth + cellWidth / 2
-                val y = spawnPos.y * cellHeight + cellHeight / 2
-                drawCircle(
-                    color = Color(0xFFFF9800),  // Orange - same as spawn border on main map
-                    radius = cellWidth.coerceAtMost(cellHeight) / 3,
-                    center = Offset(x, y)
-                )
-            }
-
-            // Draw target position (green circle - matching main map target border)
-            val targetX = gameState.level.targetPosition.x * cellWidth + cellWidth / 2
-            val targetY = gameState.level.targetPosition.y * cellHeight + cellHeight / 2
-            drawCircle(
-                color = Color(0xFF4CAF50),  // Green - same as target border on main map
-                radius = cellWidth.coerceAtMost(cellHeight) / 3,
-                center = Offset(targetX, targetY)
-            )
-        }
-
-        // Viewport indicator (shows current view)
-        if (containerSize.width > 0 && containerSize.height > 0) {
-            val viewportWidthRatio = 1f / scale
-            val viewportHeightRatio = 1f / scale
-
-            // Calculate normalized offset (-1 to 1 range)
-            val maxOffsetX = (containerSize.width * (scale - 1) / 2).coerceAtLeast(0.01f)
-            val maxOffsetY = (containerSize.height * (scale - 1) / 2).coerceAtLeast(0.01f)
-            val normalizedOffsetX = -offsetX / maxOffsetX
-            val normalizedOffsetY = -offsetY / maxOffsetY
-
-            // Calculate viewport position in minimap
-            val viewportX = (normalizedOffsetX * (1f - viewportWidthRatio) / 2f + (1f - viewportWidthRatio) / 2f)
-            val viewportY = (normalizedOffsetY * (1f - viewportHeightRatio) / 2f + (1f - viewportHeightRatio) / 2f)
-
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .graphicsLayer {
-                        clip = true
-                    }
+                    .size(120.dp)
             ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth(viewportWidthRatio)
-                        .fillMaxHeight(viewportHeightRatio)
-                        .align(Alignment.TopStart)
-                        .offset(
-                            x = minimapSize * viewportX,
-                            y = minimapSize * viewportY
-                        )
-                        .border(2.dp, Color.Yellow)  // Yellow border for viewport
+                HexagonMinimap(
+                    level = gameState.level,
+                    config = MinimapConfig(
+                        showSpawnPoints = true,
+                        showTarget = true,
+                        showTowers = true,
+                        showEnemies = true,
+                        showViewport = true,
+                        minimapSizeDp = 120f
+                    ),
+                    gameState = gameState,
+                    scale = scale,
+                    offsetX = offsetX,
+                    offsetY = offsetY,
+                    containerSize = containerSize,
+                    modifier = Modifier.fillMaxSize()
                 )
             }
         }
@@ -1012,11 +1115,7 @@ fun GridCell(
                 when (fieldEffect.type) {
                     FieldEffectType.FIREBALL -> {
                         // Show fireball symbol
-                        Text(
-                            "💥",
-                            style = MaterialTheme.typography.headlineSmall,
-                            color = Color(0xFFFF5722)
-                        )
+                        ExplosionIcon(size = 28.dp)
                     }
 
                     FieldEffectType.ACID -> {
@@ -1025,11 +1124,7 @@ fun GridCell(
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center
                         ) {
-                            Text(
-                                "🧪",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = Color(0xFF4CAF50)
-                            )
+                            TestTubeIcon(size = 20.dp)
                             Text(
                                 "-${fieldEffect.damage}",
                                 style = MaterialTheme.typography.labelSmall,
@@ -1052,11 +1147,7 @@ fun GridCell(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    Text(
-                        "🕳️",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color(0xFF8B4513)
-                    )
+                    HoleIcon(size = 20.dp)
                     Text(
                         "-${trap.damage}",
                         style = MaterialTheme.typography.labelSmall,
@@ -1078,6 +1169,31 @@ fun GridCell(
         }
     }
 }
+@Composable
+fun ColumnScope.TurnButton(
+    isPlayerTurn: Boolean,
+    modifier: Modifier,
+    onPrimaryAction: () -> Unit = {},
+    primaryButtonColor: Color = Color(0xFFFF5722)
+    ){
+    Button(
+        onClick = onPrimaryAction,
+        // modifier = Modifier.fillMaxWidth(),
+        colors = if (isPlayerTurn) {
+            ButtonDefaults.buttonColors(containerColor = primaryButtonColor)
+        } else {
+            ButtonDefaults.buttonColors()
+        },
+        modifier = modifier
+    ) {
+        Text(if (isPlayerTurn) "End Turn" else "Start Battle",
+            style = MaterialTheme.typography.labelMedium,
+            fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
+            fontSize = 14.sp,
+            maxLines = 1,
+            )
+    }
+}
 
 @Composable
 fun GameControlsPanel(
@@ -1096,6 +1212,7 @@ fun GameControlsPanel(
     onDefenderAttackPosition: (Int, Position) -> Boolean,
     onPrimaryAction: () -> Unit,
     onMineAction: ((Int, MineAction) -> Unit)? = null,
+    uiScale: Float = 1f  // Add platform scale parameter
 ) {
     // Automatically fold buy panel when a defender is selected
     val compactBuyPanel = selectedDefenderId != null
@@ -1115,83 +1232,85 @@ fun GameControlsPanel(
     }
 
     Column(modifier = Modifier.fillMaxWidth()) {
-        // Title
-        Text(title, style = MaterialTheme.typography.titleMedium)
-
-        Spacer(modifier = Modifier.height(8.dp))
+        // Title - hide when tower is selected
+        if (!compactBuyPanel) {
+            Text(title, style = MaterialTheme.typography.titleMedium)
+            Spacer(modifier = Modifier.height(8.dp))
+        }
 
         if (compactBuyPanel) {
-            // Folded view: Compact layout with defender info on left, buy buttons on right
+            // Folded view: Compact layout with defender info on left, buy buttons and End Turn on right
             Row(modifier = Modifier.fillMaxWidth()) {
                 // Selected defender info on left (smaller)
                 selectedDefenderId?.let { defenderId ->
                     val defender = gameState.defenders.find { it.id == defenderId }
                     if (defender != null) {
                         Box(modifier = Modifier.weight(1f)) {
-                            Column {
-                                DefenderInfo(
-                                    defender,
-                                    gameState,
-                                    onUpgradeDefender,
-                                    onUndoTower,
-                                    onSellTower,
-                                    onMineAction = onMineAction,
-                                    compactBuyPanel
-                                )
-
-                                if (isPlayerTurn &&
-                                    defender.type != DefenderType.DWARVEN_MINE &&
-                                    defender.type != DefenderType.DRAGONS_LAIR) {
-                                    AttackButton(
-                                        defender = defender,
-                                        gameState = gameState,
-                                        selectedTargetId = selectedTargetId,
-                                        selectedTargetPosition = selectedTargetPosition,
-                                        onDefenderAttack = { defenderId, targetId ->
-                                            onDefenderAttack(defenderId, targetId)
-                                        },
-                                        onDefenderAttackPosition = { defenderId, targetPos ->
-                                            onDefenderAttackPosition(defenderId, targetPos)
-                                        },
-                                        modifier = Modifier
-                                            .layout { measurable, constraints ->
-                                                val placeable = measurable.measure(constraints)
-                                                layout(0, 0) {
-                                                    placeable.place(0, 0)
-                                                }
-                                            }
-                                            .width(200.dp)
-                                            .height(100.dp)
-                                            .absoluteOffset(x = 1000.dp, y = (-130).dp)
-                                    )
-                                }
-                            }
+                            DefenderInfo(
+                                defender,
+                                gameState,
+                                onUpgradeDefender,
+                                onUndoTower,
+                                onSellTower,
+                                onMineAction = onMineAction,
+                                compactBuyPanel,
+                                isMobile = uiScale < 1f,
+                                selectedTargetId = selectedTargetId,
+                                selectedTargetPosition = selectedTargetPosition,
+                                onDefenderAttack = onDefenderAttack,
+                                onDefenderAttackPosition = onDefenderAttackPosition,
+                                isPlayerTurn = isPlayerTurn
+                            )
                         }
                         Spacer(modifier = Modifier.width(8.dp))
                     }
                 }
 
-                // Compact buy buttons on right
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(2),
-                    modifier = Modifier.width(350.dp).height(170.dp),
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                // Right side: buy buttons and End Turn button
+                Column(modifier = Modifier
+                    .width(600.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(4.dp)
+
                 ) {
-                    items(
-                        DefenderType.entries
-                            .filter { it != DefenderType.DRAGONS_LAIR }
-                            .toTypedArray(),
-                        key = { type -> "${type.name}_folded_${coinsState.value}" }) { type ->
-                        val canAfford = coinsState.value >= type.baseCost
-                        CompactDefenderButton(
-                            type = type,
-                            isSelected = selectedDefenderType == type,
-                            canAfford = canAfford,
-                            onClick = {
-                                onSelectDefenderType(if (selectedDefenderType == type) null else type)
+
+                    val isMobile = uiScale < 1f
+                    val compactDefenderButtonModifier = Modifier
+                        .fillMaxWidth()
+                        .height(if (isMobile) 45.dp else 45.dp)
+
+                    // Compact buy buttons
+                    LazyVerticalGrid(
+                        modifier = Modifier.padding(top = 8.dp),
+                        columns = GridCells.Fixed(4),
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+
+                        val types = DefenderType.entries
+                            // hack: we need dragons lair as the last one, as the last one is overridden by the Next turn Button
+                            // .filter { it != DefenderType.DRAGONS_LAIR }
+                            .toTypedArray()
+
+                        itemsIndexed(types, key = { index: Int, type: DefenderType -> "${type.name}_folded_${coinsState.value}" }) { index: Int, type: DefenderType ->
+                            val isLast = index == types.lastIndex
+                            CompactDefenderButton(
+                                type = type,
+                                isSelected = selectedDefenderType == type,
+                                canAfford = coinsState.value >= type.baseCost,
+                                modifier = compactDefenderButtonModifier,
+                                onClick = {
+                                    onSelectDefenderType(if (selectedDefenderType == type) null else type)
+                                }
+                            )
+                            if (isLast) {
+                                TurnButton(
+                                    isPlayerTurn,
+                                    modifier = compactDefenderButtonModifier,
+                                    onPrimaryAction
+                                )
                             }
-                        )
+                        }
                     }
                 }
             }
@@ -1235,58 +1354,33 @@ fun GameControlsPanel(
                         onUndoTower,
                         onSellTower,
                         onMineAction = onMineAction,
-                        compactBuyPanel
+                        compactBuyPanel,
+                        isMobile = uiScale < 1f,
+                        selectedTargetId = selectedTargetId,
+                        selectedTargetPosition = selectedTargetPosition,
+                        onDefenderAttack = onDefenderAttack,
+                        onDefenderAttackPosition = onDefenderAttackPosition,
+                        isPlayerTurn = isPlayerTurn
                     )
-
-                    // Don't show attack button for dwarven mines or dragon's lair
-                    if (isPlayerTurn &&
-                        defender.type != DefenderType.DWARVEN_MINE &&
-                        defender.type != DefenderType.DRAGONS_LAIR
-                    ) {
-                        AttackButton(
-                            defender = defender,
-                            gameState = gameState,
-                            selectedTargetId = selectedTargetId,
-                            selectedTargetPosition = selectedTargetPosition,
-                            onDefenderAttack = { defenderId, targetId ->
-                                onDefenderAttack(defenderId, targetId)
-                            },
-                            onDefenderAttackPosition = { defenderId, targetPos ->
-                                onDefenderAttackPosition(defenderId, targetPos)
-                            },
-                            modifier = Modifier
-                                .layout { measurable, constraints ->
-                                    // Measure the tooltip but don't add it to the layout
-                                    val placeable = measurable.measure(constraints)
-                                    layout(0, 0) { // Set the size to 0 to avoid taking up space and move other elements
-                                        placeable.place(0, 0)
-                                    }
-                                }
-                                .width(200.dp)
-                                .height(100.dp)
-                                .absoluteOffset(
-                                    x = 1000.dp,
-                                    y = (-130).dp
-                                ) // .absoluteOffset(x = 700.dp, y = (-130).dp)
-
-                        )
-                    }
                 }
             }
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        // End Turn button - only show in expanded view (not compact)
+        if (!compactBuyPanel) {
+            Spacer(modifier = Modifier.height(8.dp))
 
-        Button(
-            onClick = onPrimaryAction,
-            modifier = Modifier.fillMaxWidth(),
-            colors = if (isPlayerTurn) {
-                ButtonDefaults.buttonColors(containerColor = primaryButtonColor)
-            } else {
-                ButtonDefaults.buttonColors()
+            Button(
+                onClick = onPrimaryAction,
+                modifier = Modifier.fillMaxWidth(),
+                colors = if (isPlayerTurn) {
+                    ButtonDefaults.buttonColors(containerColor = primaryButtonColor)
+                } else {
+                    ButtonDefaults.buttonColors()
+                }
+            ) {
+                Text(primaryButtonText)
             }
-        ) {
-            Text(primaryButtonText)
         }
     }
 }
@@ -1296,6 +1390,7 @@ fun CompactDefenderButton(
     type: DefenderType,
     isSelected: Boolean,
     canAfford: Boolean,
+    modifier: Modifier,
     onClick: () -> Unit
 ) {
     Button(
@@ -1304,7 +1399,7 @@ fun CompactDefenderButton(
         colors = ButtonDefaults.buttonColors(
             containerColor = if (isSelected) Color(0xFF1976D2) else MaterialTheme.colorScheme.primary
         ),
-        modifier = Modifier.fillMaxWidth().height(40.dp),
+        modifier = modifier,
         contentPadding = PaddingValues(4.dp)
     ) {
         Row(
@@ -1335,12 +1430,16 @@ fun CompactDefenderButton(
             Spacer(modifier = Modifier.width(4.dp))
 
             // Cost
-            Text(
-                "💰${type.baseCost}",
-                style = MaterialTheme.typography.labelSmall,
-                fontWeight = FontWeight.Bold,
-                fontSize = 14.sp
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                MoneyIcon(size = 14.dp)
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    "${type.baseCost}",
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 14.sp
+                )
+            }
         }
     }
 }
@@ -1373,13 +1472,15 @@ fun AttackButton(
                             horizontalArrangement = Arrangement.Center,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(ATTACK_ICON, fontSize = 24.sp)
+                            SwordIcon(size = 24.dp)
                             Spacer(modifier = Modifier.width(8.dp))
                             Column {
                                 Text(
                                     "ATTACK",
                                     fontSize = 16.sp,
-                                    fontWeight = FontWeight.Bold
+                                    fontWeight = FontWeight.Bold,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Clip
                                 )
                                 Text(
                                     "${target.type.displayName} (${target.currentHealth.value}/${target.maxHealth} HP) + Area",
@@ -1402,7 +1503,7 @@ fun AttackButton(
                         horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(ATTACK_ICON, fontSize = 24.sp)
+                        SwordIcon(size = 24.dp)
                         Spacer(modifier = Modifier.width(8.dp))
                         Column {
                             Text(
@@ -1433,7 +1534,7 @@ fun AttackButton(
                         horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(ATTACK_ICON, fontSize = 24.sp)
+                        SwordIcon(size = 24.dp)
                         Spacer(modifier = Modifier.width(8.dp))
                         Column {
                             Text(
@@ -1455,25 +1556,43 @@ fun AttackButton(
 
 @Composable
 fun TowerStats(minRange: Int, damage: Int, range: Int, actionsPerTurn: Int) {
-    Text(
-        "💥 ${damage}",
-        style = MaterialTheme.typography.bodySmall
-    )
-    if (minRange > 0) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        ExplosionIcon(size = 12.dp)
+        Spacer(modifier = Modifier.width(4.dp))
         Text(
-            "🎯 ${minRange}-${range}",
-            style = MaterialTheme.typography.bodySmall
-        )
-    } else {
-        Text(
-            "🎯 ${range}",
+            "${damage}",
             style = MaterialTheme.typography.bodySmall
         )
     }
-    Text(
-        "⚡  ${actionsPerTurn}",
-        style = MaterialTheme.typography.bodySmall
-    )
+    if (minRange > 0) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            TargetIcon(size = 12.dp)
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(
+                "${minRange}-${range}",
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+    } else {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            TargetIcon(size = 12.dp)
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(
+                "${range}",
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+    }
+    Row(
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        LightningIcon(size = 12.dp)
+        Spacer(modifier = Modifier.width(4.dp))
+        Text(
+            actionsPerTurn.toString(),
+            style = MaterialTheme.typography.bodySmall
+        )
+    }
 }
 
 @Composable
@@ -1484,8 +1603,16 @@ fun DefenderInfo(
     onUndoTower: (Int) -> Unit,
     onSellTower: (Int) -> Unit,
     onMineAction: ((Int, MineAction) -> Unit)? = null,
-    compactBuyPanel: Boolean = false
+    compactBuyPanel: Boolean = false,
+    isMobile: Boolean = false,  // Add platform parameter
+    selectedTargetId: Int? = null,
+    selectedTargetPosition: Position? = null,
+    onDefenderAttack: ((Int, Int) -> Boolean)? = null,
+    onDefenderAttackPosition: ((Int, Position) -> Boolean)? = null,
+    isPlayerTurn: Boolean = false
 ) {
+
+    val buttonHeight = if (isMobile) 100.dp else 60.dp
     // Use key to force recomposition when defender stats change
     key(
         defender.id,
@@ -1499,26 +1626,30 @@ fun DefenderInfo(
         Card(
             modifier = Modifier
                 .fillMaxWidth()
+                .padding(if (isMobile) 4.dp else 8.dp)
         ) {
-            Column(modifier = Modifier.padding(8.dp)) {
                 // Tower icon, name, and actions in one row
                 Row(
                     // modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Start
                 ) {
-                    // Tower icon
+                    // Tower icon - double the original size
+                    val iconSize = if (isMobile) 64.dp else 96.dp
+                    val iconInnerSize = if (isMobile) 56.dp else 88.dp
                     Box(
-                        modifier = Modifier.size(48.dp),
+                        modifier = Modifier.size(iconSize),
                         contentAlignment = Alignment.Center
                     ) {
-                        TowerIcon(defender = defender, modifier = Modifier.size(44.dp), gameState = gameState)
+                        TowerIcon(defender = defender, modifier = Modifier.size(iconInnerSize), gameState = gameState)
                     }
 
-                    Spacer(modifier = Modifier.width(8.dp))
+                    val horizontalSpacing = if (isMobile) 4.dp else 8.dp
+                    Spacer(modifier = Modifier.width(horizontalSpacing))
 
                     // Tower name and level
-                    Column(modifier = Modifier.weight(0.7f)) {
+                    Column(modifier = Modifier.weight(1f)
+                    ) {
                         val displayName = if (defender.type == DefenderType.DRAGONS_LAIR) {
                             // Check if the specific dragon from this lair is still alive
                             val dragonAlive = defender.dragonId.value?.let { dragonId ->
@@ -1533,7 +1664,9 @@ fun DefenderInfo(
                         Text(
                             displayName,
                             style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            maxLines = 1,
+                            overflow = TextOverflow.Clip
                         )
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -1543,50 +1676,24 @@ fun DefenderInfo(
                                 style = MaterialTheme.typography.bodySmall,
                                 color = Color(0xFF4CAF50)
                             )
-                            Text(
-                                "⚔️ ${defender.type.attackType.displayName}",
-                                style = MaterialTheme.typography.bodySmall
-                            )
-                        }
-                    }
-
-                    Column(modifier = Modifier.weight(0.2f)) {
-                        if (defender.type == DefenderType.DWARVEN_MINE) {
-                            // Mine-specific UI with info dialog
-                            var showMiningInfoDialog by remember { mutableStateOf(false) }
-
-                            // Mining info dialog
-                            if (showMiningInfoDialog) {
-                                AlertDialog(
-                                    onDismissRequest = { showMiningInfoDialog = false },
-                                    title = { Text("Mining Probabilities") },
-                                    text = { MiningOutcomeGrid() },
-                                    confirmButton = {
-                                        TextButton(onClick = { showMiningInfoDialog = false }) {
-                                            Text("Close")
-                                        }
-                                    }
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                SwordIcon(size = 12.dp)
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(
+                                    defender.type.attackType.displayName,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Clip
                                 )
                             }
-
-                            Text(
-                                "ℹ️",
-                                fontSize = 16.sp,
-                                modifier = Modifier
-                                    .clickable { showMiningInfoDialog = true }
-                                    .padding(4.dp),
-                                color = Color(0xFF2196F3)
-                            )
+                        }
+                        Row {
+                            DefenderActionsInfo(defender)
+                            dwarvenMineInfoButtonArea(defender)
                         }
                     }
-
-                    Box(modifier = Modifier.weight(0.5f)) {
-                        DefenderActionsInfo(defender)
-                    }
-                    Spacer(modifier = Modifier.weight(6f))
-                }
-
-                Spacer(modifier = Modifier.height(4.dp))
 
                 if (defender.isReady) {
                     if (defender.type == DefenderType.DRAGONS_LAIR) {
@@ -1621,16 +1728,10 @@ fun DefenderInfo(
                             } else {
                                 defender.type.actionsPerTurn
                             }
-
-                        // Stats and upgrade button in columns
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            // horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
                             // Current stats column
-                            Column(modifier = Modifier.weight(1f)) {
+                            Column(modifier = Modifier.weight(0.5f)) {
                                 Text(
-                                    "Current:",
+                                    "Lvl ${defender.level.value}",
                                     style = MaterialTheme.typography.labelSmall,
                                     fontWeight = FontWeight.Bold
                                 )
@@ -1643,9 +1744,9 @@ fun DefenderInfo(
                             }
 
                             // After upgrade stats column
-                            Column(modifier = Modifier.weight(1f)) {
+                            Column(modifier = Modifier.weight(0.5f)) {
                                 Text(
-                                    "Upgrade:",
+                                    "Lvl $nextLevel",
                                     style = MaterialTheme.typography.labelSmall,
                                     fontWeight = FontWeight.Bold,
                                     color = if (gameState.canUpgradeDefender(defender)) Color(0xFF4CAF50) else Color.Gray
@@ -1658,17 +1759,55 @@ fun DefenderInfo(
                                 )
                             }
 
-                            Column(modifier = Modifier.weight(1f)) {
-                                UpgradeButton(defender, gameState, onUpgradeDefender = onUpgradeDefender)
+                            Column(modifier = Modifier.weight(1f),
+                                verticalArrangement = Arrangement.Center,
+                            ) {
+                                UpgradeButton(defender, gameState,
+                                    onUpgradeDefender = onUpgradeDefender,
+                                    modifier = Modifier
+                                        .width(240.dp)
+                                        .height(buttonHeight),
+                                )
                             }
-
-                            Column(modifier = Modifier.weight(1f)) {
+                            Spacer(modifier = Modifier.width(horizontalSpacing))
+                            Column(modifier = Modifier.weight(1f),
+                                verticalArrangement = Arrangement.Center,
+                                ) {
                                 UndoOrSellButton(
                                     defender = defender,
                                     gameState = gameState,
                                     onUndoTower = onUndoTower,
-                                    onSellTower = onSellTower
+                                    onSellTower = onSellTower,
+                                    modifier = Modifier
+                                        .width(240.dp)
+                                        .height(buttonHeight)
                                 )
+                            }
+
+                            if (isPlayerTurn &&
+                                defender.type != DefenderType.DWARVEN_MINE &&
+                                defender.type != DefenderType.DRAGONS_LAIR &&
+                                onDefenderAttack != null &&
+                                onDefenderAttackPosition != null) {
+
+                                Spacer(modifier = Modifier.width(horizontalSpacing))
+                                Column(modifier = Modifier.weight(1.3f)) {
+                                    AttackButton(
+                                        defender = defender,
+                                        gameState = gameState,
+                                        selectedTargetId = selectedTargetId,
+                                        selectedTargetPosition = selectedTargetPosition,
+                                        onDefenderAttack = { defenderId, targetId ->
+                                            onDefenderAttack(defenderId, targetId)
+                                        },
+                                        onDefenderAttackPosition = { defenderId, targetPos ->
+                                            onDefenderAttackPosition(defenderId, targetPos)
+                                        },
+                                        modifier = Modifier
+                                            .width(240.dp)
+                                            .height(buttonHeight)
+                                    )
+                                }
                             }
 
                             dwarvenMineActionButtonArea(
@@ -1676,13 +1815,43 @@ fun DefenderInfo(
                                 gameState,
                                 defender,
                                 onMineAction,
-                                compactBuyPanel
+                                compactBuyPanel,
+                                horizontalSpacing,
+                                buttonHeight
                             )
                         }
                     }
                 }
-            }
         }
+    }
+}
+
+@Composable
+private fun dwarvenMineInfoButtonArea(defender: Defender) {
+    if (defender.type == DefenderType.DWARVEN_MINE) {
+        // Mine-specific UI with info dialog
+        var showMiningInfoDialog by remember { mutableStateOf(false) }
+
+        // Mining info dialog
+        if (showMiningInfoDialog) {
+            AlertDialog(
+                onDismissRequest = { showMiningInfoDialog = false },
+                title = { Text("Mining Probabilities") },
+                text = { MiningOutcomeGrid() },
+                confirmButton = {
+                    TextButton(onClick = { showMiningInfoDialog = false }) {
+                        Text("Close")
+                    }
+                }
+            )
+        }
+
+        InfoIcon(
+            size = 16.dp,
+            modifier = Modifier
+                .clickable { showMiningInfoDialog = true }
+                .padding(4.dp)
+        )
     }
 }
 
@@ -1692,7 +1861,9 @@ private fun RowScope.dwarvenMineActionButtonArea(
     gameState: GameState,
     defender: Defender,
     onMineAction: ((Int, MineAction) -> Unit)?,
-    compactBuyPanel: Boolean = false
+    compactBuyPanel: Boolean = false,
+    horizontalSpacing: Dp = 8.dp,
+    buttonHeight: Dp = 60.dp
 
 ) {
     if (type == DefenderType.DWARVEN_MINE) {
@@ -1705,8 +1876,10 @@ private fun RowScope.dwarvenMineActionButtonArea(
                 Button(
                     onClick = { onMineAction?.invoke(defender.id, MineAction.DIG) },
                     enabled = mineActionsEnabled,
-                    modifier = Modifier.width(95.dp).height(100.dp)
-                        .offset(y = (-24).dp),
+                    modifier = Modifier
+                        .width(240.dp)
+                        .height(buttonHeight)
+                        .padding(start = horizontalSpacing),
                     contentPadding = PaddingValues(
                         horizontal = 4.dp,
                         vertical = 2.dp
@@ -1715,11 +1888,12 @@ private fun RowScope.dwarvenMineActionButtonArea(
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text("⛏️", fontSize = 24.sp)
+                        PickIcon(size = 24.dp)
                         Text("Dig", fontSize = 14.sp, fontWeight = FontWeight.Bold)
                     }
                 }
             }
+
 
             Column(modifier = Modifier.weight(0.5f)) {
                 // Trap button
@@ -1731,8 +1905,10 @@ private fun RowScope.dwarvenMineActionButtonArea(
                         )
                     },
                     enabled = mineActionsEnabled,
-                    modifier = Modifier.width(95.dp).height(100.dp)
-                        .offset(y = (-24).dp),
+                    modifier = Modifier
+                        .width(240.dp)
+                        .height(buttonHeight)
+                        .padding(start = horizontalSpacing),
                     contentPadding = PaddingValues(
                         horizontal = 4.dp,
                         vertical = 2.dp
@@ -1741,7 +1917,7 @@ private fun RowScope.dwarvenMineActionButtonArea(
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text("🕳️", fontSize = 24.sp)
+                        HoleIcon(size = 24.dp)
                         Text("Trap", fontSize = 14.sp, fontWeight = FontWeight.Bold)
                     }
                 }
@@ -1750,10 +1926,11 @@ private fun RowScope.dwarvenMineActionButtonArea(
             Spacer(modifier = Modifier.weight(1f))
         }
 
-        Spacer(modifier = Modifier.weight(
-            if (compactBuyPanel) 1.41f else 3f))
+        if (!compactBuyPanel) {
+            Spacer(modifier = Modifier.weight(3f))
+        }
     } else {
-        Spacer(modifier = Modifier.weight(if (compactBuyPanel) 2.41f else 4f))
+        Spacer(modifier = Modifier.weight(if (compactBuyPanel) 1f else 4f))
     }
 }
 
@@ -1783,27 +1960,30 @@ fun UpgradeButton(
     defender: Defender,
     gameState: GameState,
     modifier: Modifier = Modifier
-        .offset(y = (-24).dp)
-        .width(200.dp)
-        .height(100.dp),
-    onUpgradeDefender: (Int) -> Unit
+        .width(240.dp)
+        .height(60.dp),
+    onUpgradeDefender: (Int) -> Unit,
 ) {
     Button(
         onClick = { onUpgradeDefender(defender.id) },
         enabled = gameState.canUpgradeDefender(defender),
         modifier = modifier,
-        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)
+        contentPadding = PaddingValues(horizontal = 6.dp, vertical = 4.dp)
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text("Upgrade", fontSize = 18.sp, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                "💰${defender.upgradeCost}",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                MoneyIcon(size = 14.dp)
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    "${defender.upgradeCost}",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
     }
 }
@@ -1815,9 +1995,8 @@ fun UndoOrSellButton(
     onUndoTower: (Int) -> Unit,
     onSellTower: (Int) -> Unit,
     modifier: Modifier = Modifier
-        .offset(y = (-24).dp)
-        .width(200.dp)
-        .height(100.dp)
+        .width(240.dp)
+        .height(60.dp),
 ) {
     var showSellConfirmation by remember { mutableStateOf(false) }
 
@@ -1834,18 +2013,22 @@ fun UndoOrSellButton(
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFF4CAF50)  // Green for undo
             ),
-            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)
+            contentPadding = PaddingValues(horizontal = 6.dp, vertical = 4.dp)
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text("Undo", fontSize = 18.sp, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    "💰${defender.totalCost}",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    MoneyIcon(size = 14.dp)
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        "${defender.totalCost}",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
         }
     } else if (canSell) {
@@ -1858,18 +2041,22 @@ fun UndoOrSellButton(
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFFFF9800)  // Orange for sell
             ),
-            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)
+            contentPadding = PaddingValues(horizontal = 6.dp, vertical = 4.dp)
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text("Sell", fontSize = 18.sp, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    "💰$sellAmount",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    MoneyIcon(size = 14.dp)
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        "$sellAmount",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
         }
 
@@ -1909,16 +2096,16 @@ fun UndoOrSellButton(
             onClick = { },
             enabled = false,
             modifier = modifier,
-            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)
+            contentPadding = PaddingValues(horizontal = 6.dp, vertical = 4.dp)
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text("Sell", fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                Spacer(modifier = Modifier.height(8.dp))
+                Text("Sell", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     "not enough Actions",
-                    fontSize = 16.sp,
+                    fontSize = 12.sp,
                     fontWeight = FontWeight.Bold
                 )
             }
@@ -1929,16 +2116,28 @@ fun UndoOrSellButton(
 @Composable
 fun DefenderActionsInfo(defender: Defender) {
     if (!defender.isReady) {
-        Text(
-            "⏱ Building: ${defender.buildTimeRemaining.value}T",
-            style = MaterialTheme.typography.titleMedium,
-            color = Color(0xFFFF9800)
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            TimerIcon(size = 16.dp)
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(
+                "Building: ${defender.buildTimeRemaining.value}T",
+                style = MaterialTheme.typography.titleMedium,
+                color = Color(0xFFFF9800)
+            )
+        }
     } else {
-        Text(
-            "⚡ ${defender.actionsRemaining.value}/${defender.actionsPerTurnCalculated}",
-            style = MaterialTheme.typography.titleMedium,
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            LightningIcon(size = 16.dp)
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(
+                "${defender.actionsRemaining.value}/${defender.actionsPerTurnCalculated}",
+                style = MaterialTheme.typography.titleMedium,
+            )
+        }
     }
 }
 
@@ -2038,11 +2237,16 @@ fun DefenderButton(
                         fontSize = 10.sp,
                         color = Color(0xFFFFEB3B)
                     )
-                    Text(
-                        "⏱${type.buildTime}T",
-                        style = MaterialTheme.typography.labelSmall,
-                        fontSize = 10.sp
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        TimerIcon(size = 15.dp)
+                        Text(
+                            "${type.buildTime}T",
+                            style = MaterialTheme.typography.labelSmall,
+                            fontSize = 10.sp
+                        )
+                    }
                 }
                 Column(
                     modifier = Modifier
@@ -2060,11 +2264,15 @@ fun DefenderButton(
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.Start
                 ) {
-                    Text(
-                        "💰${type.baseCost}",
-                        style = MaterialTheme.typography.labelSmall,
-                        fontSize = 16.sp
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        MoneyIcon(size = 14.dp)
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            "${type.baseCost}",
+                            style = MaterialTheme.typography.labelSmall,
+                            fontSize = 16.sp
+                        )
+                    }
                 }
             }
         }
@@ -2084,7 +2292,11 @@ fun GameLegend(modifier: Modifier = Modifier) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text("Legend", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                Text(if (isExpanded) "▼" else "▶", style = MaterialTheme.typography.titleMedium)
+                if (isExpanded) {
+                    TriangleDownIcon(size = 20.dp)
+                } else {
+                    TriangleLeftIcon(size = 20.dp)
+                }
             }
 
             if (isExpanded) {
@@ -2313,7 +2525,11 @@ fun EnemyListPanel(gameState: GameState, modifier: Modifier = Modifier) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text("Enemies", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                Text(if (isExpanded) "▼" else "▶", fontSize = 16.sp)
+                if (isExpanded) {
+                    TriangleDownIcon(size = 20.dp)
+                } else {
+                    TriangleLeftIcon(size = 20.dp)
+                }
             }
             Text(
                 "Active: ${activeEnemies.size} | Planned: ${plannedSpawns.size}",
@@ -2500,13 +2716,27 @@ fun PlannedEnemyItem(plannedSpawn: PlannedEnemySpawn, currentTurn: Int) {
 
             // Enemy details
             Column(modifier = Modifier.weight(1f)) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Text(
+                        plannedSpawn.attackerType.displayName,
+                        style = MaterialTheme.typography.bodySmall,
+                        fontWeight = FontWeight.Bold
+                    )
+                    if (plannedSpawn.level > 1) {
+                        Text(
+                            "Lv${plannedSpawn.level}",
+                            style = MaterialTheme.typography.bodySmall,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFFD32F2F)
+                        )
+                    }
+                }
                 Text(
-                    plannedSpawn.attackerType.displayName,
-                    style = MaterialTheme.typography.bodySmall,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    "HP: ${plannedSpawn.attackerType.health}",
+                    "HP: ${plannedSpawn.healthPoints}",
                     style = MaterialTheme.typography.bodySmall,
                     fontSize = 10.sp
                 )

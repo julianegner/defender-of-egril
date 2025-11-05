@@ -11,6 +11,7 @@ fun App() {
         val currentScreen by viewModel.currentScreen.collectAsState()
         val worldLevels by viewModel.worldLevels.collectAsState()
         val gameState by viewModel.gameState.collectAsState()
+        val savedGames by viewModel.savedGames.collectAsState()
         
         when (val screen = currentScreen) {
             is Screen.MainMenu -> {
@@ -26,6 +27,8 @@ fun App() {
                     onLevelSelected = { levelId -> viewModel.startLevel(levelId) },
                     onBackToMenu = { viewModel.navigateToMainMenu() },
                     onShowRules = { viewModel.navigateToRules() },
+                    onOpenEditor = { viewModel.navigateToLevelEditor() },
+                    onLoadGame = { viewModel.navigateToLoadGame() },
                     onCheatCode = { code -> viewModel.applyWorldMapCheatCode(code) }
                 )
             }
@@ -33,6 +36,21 @@ fun App() {
             is Screen.Rules -> {
                 RulesScreen(
                     onBack = { viewModel.navigateToMainMenu() }
+                )
+            }
+            
+            is Screen.LevelEditor -> {
+                LevelEditorScreen(
+                    onBack = { viewModel.navigateToWorldMap() }
+                )
+            }
+            
+            is Screen.LoadGame -> {
+                LoadGameScreen(
+                    savedGames = savedGames,
+                    onLoadGame = { saveId -> viewModel.loadGame(saveId) },
+                    onDeleteGame = { saveId -> viewModel.deleteSavedGame(saveId) },
+                    onBack = { viewModel.navigateToWorldMap() }
                 )
             }
             
@@ -49,6 +67,7 @@ fun App() {
                         onDefenderAttackPosition = { defenderId, targetPos -> viewModel.defenderAttackPosition(defenderId, targetPos) },
                         onEndPlayerTurn = { viewModel.endPlayerTurn() },
                         onBackToMap = { viewModel.navigateToWorldMap() },
+                        onSaveGame = { comment -> viewModel.saveCurrentGame(comment) },
                         onCheatCode = { code -> viewModel.applyCheatCode(code) },
                         onMineDig = { mineId -> viewModel.performMineDig(mineId) },
                         onMineBuildTrap = { mineId, trapPos -> viewModel.performMineBuildTrap(mineId, trapPos) }
@@ -60,6 +79,7 @@ fun App() {
                 LevelCompleteScreen(
                     levelId = screen.levelId,
                     won = screen.won,
+                    isLastLevel = screen.isLastLevel,
                     onRestart = { viewModel.restartLevel() },
                     onBackToMap = { viewModel.navigateToWorldMap() }
                 )
