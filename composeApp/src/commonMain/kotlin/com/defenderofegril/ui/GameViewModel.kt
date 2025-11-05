@@ -263,6 +263,16 @@ class GameViewModel {
     fun applyCheatCode(code: String): Boolean {
         val lowercaseCode = code.lowercase().trim()
         
+        // Helper function to apply dig outcome cheat
+        fun applyDigCheat(outcome: DigOutcome): Boolean {
+            val result = performMineDigWithOutcome(outcome)
+            if (result != null) {
+                _cheatDigOutcome.value = result
+                return true
+            }
+            return false
+        }
+        
         // Handle simple one-word cheatcodes
         when (lowercaseCode) {
             "cash" -> {
@@ -274,63 +284,13 @@ class GameViewModel {
                 return true
             }
             // Dig outcome cheat codes
-            "dig nothing", "dig rubble" -> {
-                val outcome = performMineDigWithOutcome(DigOutcome.NOTHING)
-                if (outcome != null) {
-                    _cheatDigOutcome.value = outcome
-                    return true
-                }
-                return false
-            }
-            "dig brass" -> {
-                val outcome = performMineDigWithOutcome(DigOutcome.BRASS)
-                if (outcome != null) {
-                    _cheatDigOutcome.value = outcome
-                    return true
-                }
-                return false
-            }
-            "dig silver" -> {
-                val outcome = performMineDigWithOutcome(DigOutcome.SILVER)
-                if (outcome != null) {
-                    _cheatDigOutcome.value = outcome
-                    return true
-                }
-                return false
-            }
-            "dig gold" -> {
-                val outcome = performMineDigWithOutcome(DigOutcome.GOLD)
-                if (outcome != null) {
-                    _cheatDigOutcome.value = outcome
-                    return true
-                }
-                return false
-            }
-            "dig gems", "dig gem" -> {
-                val outcome = performMineDigWithOutcome(DigOutcome.GEMS)
-                if (outcome != null) {
-                    _cheatDigOutcome.value = outcome
-                    return true
-                }
-                return false
-            }
-            "dig diamond" -> {
-                val outcome = performMineDigWithOutcome(DigOutcome.DIAMOND)
-                if (outcome != null) {
-                    _cheatDigOutcome.value = outcome
-                    return true
-                }
-                return false
-            }
-            "dig dragon", "dragon" -> {
-                // Trigger dragon dig outcome (will show dialog)
-                val outcome = performMineDigWithOutcome(DigOutcome.DRAGON)
-                if (outcome != null) {
-                    _cheatDigOutcome.value = outcome
-                    return true
-                }
-                return false
-            }
+            "dig nothing", "dig rubble" -> return applyDigCheat(DigOutcome.NOTHING)
+            "dig brass" -> return applyDigCheat(DigOutcome.BRASS)
+            "dig silver" -> return applyDigCheat(DigOutcome.SILVER)
+            "dig gold" -> return applyDigCheat(DigOutcome.GOLD)
+            "dig gems", "dig gem" -> return applyDigCheat(DigOutcome.GEMS)
+            "dig diamond" -> return applyDigCheat(DigOutcome.DIAMOND)
+            "dig dragon", "dragon" -> return applyDigCheat(DigOutcome.DRAGON)
         }
         
         // Handle "spawn <type> <level>" cheatcode
