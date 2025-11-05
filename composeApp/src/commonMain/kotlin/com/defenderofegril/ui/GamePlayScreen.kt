@@ -1681,11 +1681,11 @@ fun DefenderInfo(
                     Box(modifier = Modifier.weight(0.5f)) {
                         DefenderActionsInfo(defender)
                     }
-                }
+                //} // End of top row
 
                 // Reduce spacing on mobile
-                val verticalSpacing = if (isMobile) 2.dp else 4.dp
-                Spacer(modifier = Modifier.height(verticalSpacing))
+                // val verticalSpacing = if (isMobile) 2.dp else 4.dp
+                // Spacer(modifier = Modifier.height(verticalSpacing))
 
                 if (defender.isReady) {
                     if (defender.type == DefenderType.DRAGONS_LAIR) {
@@ -1818,9 +1818,10 @@ fun DefenderInfo(
                         } else {
                             */
                             // Desktop: Original layout with 4 columns
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                            ) {
+
+                            // Row(
+                            //     modifier = Modifier.fillMaxWidth().border(1.dp, Color.Magenta)
+                            // ) {
                                 // Current stats column
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text(
@@ -1899,8 +1900,8 @@ fun DefenderInfo(
                                     onMineAction,
                                     compactBuyPanel
                                 )
-                            }
-                       // }
+                            //}
+                        }
                     }
                 }
            // }
