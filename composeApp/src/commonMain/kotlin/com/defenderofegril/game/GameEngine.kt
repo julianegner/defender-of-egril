@@ -296,20 +296,30 @@ class GameEngine(private val state: GameState) {
                 val newPos = path[1]  // Next position in path
                 
                 // Check if this position is already occupied or will be occupied by another unit in this step
-                val isOccupied = currentPositions.any { (id, pos) ->
-                    id != attacker.id && pos == newPos
-                } || positionsToOccupy.contains(newPos)
+                // Exception: Allow multiple units to move to the target position (they get defeated immediately)
+                val isOccupied = if (newPos == state.level.targetPosition) {
+                    false  // Target position can accommodate multiple units
+                } else {
+                    currentPositions.any { (id, pos) ->
+                        id != attacker.id && pos == newPos
+                    } || positionsToOccupy.contains(newPos)
+                }
                 
                 if (!isOccupied) {
                     movementsInThisStep.add(Pair(attacker.id, newPos))
-                    positionsToOccupy.add(newPos)
+                    if (newPos != state.level.targetPosition) {
+                        // Only mark non-target positions as occupied
+                        positionsToOccupy.add(newPos)
+                    }
                     currentPositions[attacker.id] = newPos
                 } else {
                     // If optimal path is blocked, try to find an alternative position
                     val alternativePos = findAlternativePosition(currentPos, target, attacker.id, currentPositions, positionsToOccupy)
                     if (alternativePos != null) {
                         movementsInThisStep.add(Pair(attacker.id, alternativePos))
-                        positionsToOccupy.add(alternativePos)
+                        if (alternativePos != state.level.targetPosition) {
+                            positionsToOccupy.add(alternativePos)
+                        }
                         currentPositions[attacker.id] = alternativePos
                     }
                     // If no alternative found, unit stays in place for this step
@@ -332,8 +342,13 @@ class GameEngine(private val state: GameState) {
         if (attacker.isDefeated.value) return
         
         // Check if position is occupied by another alive attacker
-        val isOccupied = state.attackers.any {
-            it.id != attacker.id && !it.isDefeated.value && it.position.value == newPosition
+        // Exception: Allow movement to target position even if occupied (units get defeated immediately)
+        val isOccupied = if (newPosition == state.level.targetPosition) {
+            false  // Target can accommodate multiple units
+        } else {
+            state.attackers.any {
+                it.id != attacker.id && !it.isDefeated.value && it.position.value == newPosition
+            }
         }
         
         // Only move if position is not occupied
@@ -408,15 +423,23 @@ class GameEngine(private val state: GameState) {
                 val newPos = path[1]  // Next position in path
                 
                 // Check if this position is already occupied or will be occupied by another unit in this step
-                val isOccupied = state.attackers.any {
-                    it.id != attacker.id && !it.isDefeated.value && it.position.value == newPos
-                } || currentPositions.any { (id, pos) ->
-                    id != attacker.id && pos == newPos
-                } || positionsToOccupy.contains(newPos)
+                // Exception: Allow multiple units to move to the target position (they get defeated immediately)
+                val isOccupied = if (newPos == state.level.targetPosition) {
+                    false  // Target position can accommodate multiple units
+                } else {
+                    state.attackers.any {
+                        it.id != attacker.id && !it.isDefeated.value && it.position.value == newPos
+                    } || currentPositions.any { (id, pos) ->
+                        id != attacker.id && pos == newPos
+                    } || positionsToOccupy.contains(newPos)
+                }
                 
                 if (!isOccupied) {
                     movementsInThisStep.add(Pair(attacker.id, newPos))
-                    positionsToOccupy.add(newPos)
+                    if (newPos != state.level.targetPosition) {
+                        // Only mark non-target positions as occupied
+                        positionsToOccupy.add(newPos)
+                    }
                     currentPositions[attacker.id] = newPos
                 } else {
                     // If optimal path is blocked, try to find an alternative position
@@ -424,7 +447,9 @@ class GameEngine(private val state: GameState) {
                     val alternativePos = findAlternativePosition(currentPos, target, attacker.id, currentPositions, positionsToOccupy)
                     if (alternativePos != null) {
                         movementsInThisStep.add(Pair(attacker.id, alternativePos))
-                        positionsToOccupy.add(alternativePos)
+                        if (alternativePos != state.level.targetPosition) {
+                            positionsToOccupy.add(alternativePos)
+                        }
                         currentPositions[attacker.id] = alternativePos
                     }
                     // If no alternative found, unit stays in place for this step
