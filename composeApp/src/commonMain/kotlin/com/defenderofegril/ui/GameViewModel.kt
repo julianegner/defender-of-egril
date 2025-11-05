@@ -33,6 +33,9 @@ class GameViewModel {
     
     private val _gameState = MutableStateFlow<GameState?>(null)
     val gameState: StateFlow<GameState?> = _gameState.asStateFlow()
+    
+    private val _cheatDigOutcome = MutableStateFlow<DigOutcome?>(null)
+    val cheatDigOutcome: StateFlow<DigOutcome?> = _cheatDigOutcome.asStateFlow()
 
     private var gameEngine: GameEngine? = null
     private val viewModelScope = CoroutineScope(Dispatchers.Default)
@@ -162,6 +165,10 @@ class GameViewModel {
     fun performMineBuildTrap(mineId: Int, trapPosition: Position): Boolean {
         return gameEngine?.performMineBuildTrap(mineId, trapPosition) ?: false
     }
+    
+    fun performMineDigWithOutcome(outcome: DigOutcome): DigOutcome? {
+        return gameEngine?.performMineDigWithOutcome(outcome)
+    }
 
     fun endPlayerTurn() {
         val state = _gameState.value ?: return
@@ -256,6 +263,16 @@ class GameViewModel {
     fun applyCheatCode(code: String): Boolean {
         val lowercaseCode = code.lowercase().trim()
         
+        // Helper function to apply dig outcome cheat
+        fun applyDigCheat(outcome: DigOutcome): Boolean {
+            val result = performMineDigWithOutcome(outcome)
+            if (result != null) {
+                _cheatDigOutcome.value = result
+                return true
+            }
+            return false
+        }
+        
         // Handle simple one-word cheatcodes
         when (lowercaseCode) {
             "cash" -> {
@@ -266,10 +283,14 @@ class GameViewModel {
                 gameEngine?.addCoins(1000000)
                 return true
             }
-            "dragon" -> {
-                // Spawn a dragon from a dwarven mine (simulating dig outcome)
-                return gameEngine?.spawnDragonCheat() ?: false
-            }
+            // Dig outcome cheat codes
+            "dig nothing", "dig rubble" -> return applyDigCheat(DigOutcome.NOTHING)
+            "dig brass" -> return applyDigCheat(DigOutcome.BRASS)
+            "dig silver" -> return applyDigCheat(DigOutcome.SILVER)
+            "dig gold" -> return applyDigCheat(DigOutcome.GOLD)
+            "dig gems", "dig gem" -> return applyDigCheat(DigOutcome.GEMS)
+            "dig diamond" -> return applyDigCheat(DigOutcome.DIAMOND)
+            "dig dragon", "dragon" -> return applyDigCheat(DigOutcome.DRAGON)
         }
         
         // Handle "spawn <type> <level>" cheatcode
@@ -296,6 +317,10 @@ class GameViewModel {
         }
         
         return false
+    }
+    
+    fun clearCheatDigOutcome() {
+        _cheatDigOutcome.value = null
     }
     
     fun applyWorldMapCheatCode(code: String): Boolean {
