@@ -64,7 +64,7 @@ fun MainMenuScreen(
             fontSize = 12.sp,
             color = Color.LightGray,
             modifier = Modifier
-                .align(Alignment.BottomCenter)
+                .align(Alignment.BottomStart)
                 .padding(bottom = 8.dp)
         )
     }
