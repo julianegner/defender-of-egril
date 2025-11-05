@@ -296,20 +296,30 @@ class GameEngine(private val state: GameState) {
                 val newPos = path[1]  // Next position in path
                 
                 // Check if this position is already occupied or will be occupied by another unit in this step
-                val isOccupied = currentPositions.any { (id, pos) ->
-                    id != attacker.id && pos == newPos
-                } || positionsToOccupy.contains(newPos)
+                // Exception: Allow multiple units to move to the target position (they get defeated immediately)
+                val isOccupied = if (newPos == state.level.targetPosition) {
+                    false  // Target position can accommodate multiple units
+                } else {
+                    currentPositions.any { (id, pos) ->
+                        id != attacker.id && pos == newPos
+                    } || positionsToOccupy.contains(newPos)
+                }
                 
                 if (!isOccupied) {
                     movementsInThisStep.add(Pair(attacker.id, newPos))
-                    positionsToOccupy.add(newPos)
+                    if (newPos != state.level.targetPosition) {
+                        // Only mark non-target positions as occupied
+                        positionsToOccupy.add(newPos)
+                    }
                     currentPositions[attacker.id] = newPos
                 } else {
                     // If optimal path is blocked, try to find an alternative position
                     val alternativePos = findAlternativePosition(currentPos, target, attacker.id, currentPositions, positionsToOccupy)
                     if (alternativePos != null) {
                         movementsInThisStep.add(Pair(attacker.id, alternativePos))
-                        positionsToOccupy.add(alternativePos)
+                        if (alternativePos != state.level.targetPosition) {
+                            positionsToOccupy.add(alternativePos)
+                        }
                         currentPositions[attacker.id] = alternativePos
                     }
                     // If no alternative found, unit stays in place for this step
@@ -332,8 +342,13 @@ class GameEngine(private val state: GameState) {
         if (attacker.isDefeated.value) return
         
         // Check if position is occupied by another alive attacker
-        val isOccupied = state.attackers.any {
-            it.id != attacker.id && !it.isDefeated.value && it.position.value == newPosition
+        // Exception: Allow movement to target position even if occupied (units get defeated immediately)
+        val isOccupied = if (newPosition == state.level.targetPosition) {
+            false  // Target can accommodate multiple units
+        } else {
+            state.attackers.any {
+                it.id != attacker.id && !it.isDefeated.value && it.position.value == newPosition
+            }
         }
         
         // Only move if position is not occupied
@@ -408,15 +423,23 @@ class GameEngine(private val state: GameState) {
                 val newPos = path[1]  // Next position in path
                 
                 // Check if this position is already occupied or will be occupied by another unit in this step
-                val isOccupied = state.attackers.any {
-                    it.id != attacker.id && !it.isDefeated.value && it.position.value == newPos
-                } || currentPositions.any { (id, pos) ->
-                    id != attacker.id && pos == newPos
-                } || positionsToOccupy.contains(newPos)
+                // Exception: Allow multiple units to move to the target position (they get defeated immediately)
+                val isOccupied = if (newPos == state.level.targetPosition) {
+                    false  // Target position can accommodate multiple units
+                } else {
+                    state.attackers.any {
+                        it.id != attacker.id && !it.isDefeated.value && it.position.value == newPos
+                    } || currentPositions.any { (id, pos) ->
+                        id != attacker.id && pos == newPos
+                    } || positionsToOccupy.contains(newPos)
+                }
                 
                 if (!isOccupied) {
                     movementsInThisStep.add(Pair(attacker.id, newPos))
-                    positionsToOccupy.add(newPos)
+                    if (newPos != state.level.targetPosition) {
+                        // Only mark non-target positions as occupied
+                        positionsToOccupy.add(newPos)
+                    }
                     currentPositions[attacker.id] = newPos
                 } else {
                     // If optimal path is blocked, try to find an alternative position
@@ -424,7 +447,9 @@ class GameEngine(private val state: GameState) {
                     val alternativePos = findAlternativePosition(currentPos, target, attacker.id, currentPositions, positionsToOccupy)
                     if (alternativePos != null) {
                         movementsInThisStep.add(Pair(attacker.id, alternativePos))
-                        positionsToOccupy.add(alternativePos)
+                        if (alternativePos != state.level.targetPosition) {
+                            positionsToOccupy.add(alternativePos)
+                        }
                         currentPositions[attacker.id] = alternativePos
                     }
                     // If no alternative found, unit stays in place for this step
@@ -1071,6 +1096,23 @@ class GameEngine(private val state: GameState) {
         
         val attackerHealth = attacker.currentHealth.value
         
+        // Check for dead-end potential by counting available exit paths
+        // This helps avoid getting stuck in branches that don't lead to the goal
+        val exitCount = position.getHexNeighbors().count { neighbor ->
+            neighbor.x >= 0 && neighbor.x < state.level.gridWidth &&
+            neighbor.y >= 0 && neighbor.y < state.level.gridHeight &&
+            (state.level.isOnPath(neighbor) || neighbor == state.level.targetPosition) &&
+            !state.level.isBuildIsland(neighbor)
+        }
+        
+        // Penalize positions with few exits (potential dead ends)
+        // 1 exit = dead end (100 penalty), 2 exits = corridor (20 penalty), 3+ exits = normal
+        when (exitCount) {
+            1 -> cost += 100  // Very likely a dead end
+            2 -> cost += 20   // Could be a narrow corridor
+            // 3+ exits get no penalty
+        }
+        
         // Check for acid field effects at this position
         val acidEffect = state.fieldEffects.find { 
             it.type == FieldEffectType.ACID && it.position == position 
@@ -1147,7 +1189,7 @@ class GameEngine(private val state: GameState) {
         return pos.getHexNeighbors().filter { neighbor ->
             neighbor.x >= 0 && neighbor.x < state.level.gridWidth &&
             neighbor.y >= 0 && neighbor.y < state.level.gridHeight &&
-            state.level.isOnPath(neighbor) &&
+            (state.level.isOnPath(neighbor) || neighbor == state.level.targetPosition) &&
             !isBlocked(neighbor)
         }
     }
@@ -1158,24 +1200,24 @@ class GameEngine(private val state: GameState) {
     }
     
     private fun moveTowards(from: Position, to: Position): Position {
-        val dx = to.x - from.x
-        val dy = to.y - from.y
+        // Use hexagonal neighbors to find the best next position
+        val hexNeighbors = from.getHexNeighbors()
         
-        val candidate = when {
-            dx != 0 -> Position(from.x + dx.coerceIn(-1, 1), from.y)
-            dy != 0 -> Position(from.x, from.y + dy.coerceIn(-1, 1))
-            else -> from
+        // Filter to valid neighbors (on path or target, within bounds, not blocked)
+        val validNeighbors = hexNeighbors.filter { neighbor ->
+            neighbor.x >= 0 && neighbor.x < state.level.gridWidth &&
+            neighbor.y >= 0 && neighbor.y < state.level.gridHeight &&
+            (state.level.isOnPath(neighbor) || neighbor == state.level.targetPosition) &&
+            !isBlocked(neighbor)
         }
         
-        // Ensure the candidate position is valid (on path and within bounds)
-        if (candidate.x >= 0 && candidate.x < state.level.gridWidth &&
-            candidate.y >= 0 && candidate.y < state.level.gridHeight &&
-            state.level.isOnPath(candidate)) {
-            return candidate
+        if (validNeighbors.isEmpty()) {
+            // No valid moves, stay in place
+            return from
         }
         
-        // If not valid, just return current position (don't move)
-        return from
+        // Return the neighbor closest to the goal
+        return validNeighbors.minByOrNull { it.distanceTo(to) } ?: from
     }
     
     private fun updateFieldEffects() {
