@@ -247,10 +247,10 @@ fun GridCell(
     // Base background color based on area type - ALWAYS visible
     // Build islands + strips adjacent to path allow tower placement
     val baseBackgroundColor = when {
-        isBuildIsland -> Color(0xFF8BC34A)  // Light green for build islands
-        isBuildArea -> Color(0xFFA5D6A7)  // Medium green for strips adjacent to path
-        isOnPath -> Color(0xFFFFF8DC)  // Cream/beige for enemy path
-        else -> Color(0xFFE0E0E0)  // Light gray for off-path areas (non-playable)
+        isBuildIsland -> GamePlayColors.BuildIsland  // Light green for build islands
+        isBuildArea -> GamePlayColors.BuildStrip  // Medium green for strips adjacent to path
+        isOnPath -> GamePlayColors.Path  // Cream/beige for enemy path
+        else -> GamePlayColors.NonPlayable  // Light gray for off-path areas (non-playable)
     }
 
     // Apply slight tint for selection states, but keep base color visible
@@ -258,23 +258,23 @@ fun GridCell(
     // During INITIAL_BUILDING phase, don't apply any selection tints
     // Field effects also modify the background color
     val backgroundColor = when {
-        attacker != null -> Color(0xFFF44336)  // Red background for enemies
+        attacker != null -> GamePlayColors.Error  // Red background for enemies
         defender != null -> {
             when {
-                !defender.isReady -> Color(0xFF9E9E9E)  // Gray for building
-                defender.actionsRemaining.value <= 0 -> Color(0xFF7986CB)  // Blue-gray mix for used up actions
-                else -> Color(0xFF2196F3)  // Blue for ready with actions
+                !defender.isReady -> GamePlayColors.Building  // Gray for building
+                defender.actionsRemaining.value <= 0 -> GamePlayColors.InfoLight  // Blue-gray mix for used up actions
+                else -> GamePlayColors.Info  // Blue for ready with actions
             }
         }
 
         fieldEffect != null -> {
             when (fieldEffect.type) {
-                FieldEffectType.FIREBALL -> Color(0xFFFF9800).copy(alpha = 0.5f)  // Orange tint for fireball
-                FieldEffectType.ACID -> Color(0xFF4CAF50).copy(alpha = 0.6f)  // Green tint for acid
+                FieldEffectType.FIREBALL -> GamePlayColors.Warning.copy(alpha = 0.5f)  // Orange tint for fireball
+                FieldEffectType.ACID -> GamePlayColors.Success.copy(alpha = 0.6f)  // Green tint for acid
             }
         }
 
-        trap != null -> Color(0xFF8B4513).copy(alpha = 0.6f)  // Brown tint for trap
+        trap != null -> GamePlayColors.Trap.copy(alpha = 0.6f)  // Brown tint for trap
         isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> baseBackgroundColor.copy(alpha = 0.7f)
         isTargetSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> baseBackgroundColor.copy(alpha = 0.8f)
         else -> baseBackgroundColor  // No selection highlighting during placement or in initial phase
@@ -293,20 +293,20 @@ fun GridCell(
     val canPlaceTrapHere = !hasEnemy || !isTrapPlacement
 
     val borderColor = when {
-        cellIsInRange && isOnPath && showRange && canPlaceTrapHere -> Color(0xFF4CAF50)  // Green border for tiles in range (exclude enemy tiles during trap placement)
-        isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> Color(0xFFFFEB3B)  // Yellow border for selected defender (not during initial building)
-        isSpawnPoint -> Color(0xFFFF9800)  // Orange border for spawn
-        isTarget -> Color(0xFF4CAF50)  // Green border for target
-        attacker != null -> Color(0xFFF44336)  // Red border for enemies
-        defender != null -> if (defender.isReady) Color(0xFF2196F3) else Color(0xFF9E9E9E)  // Blue/gray border for towers
+        cellIsInRange && isOnPath && showRange && canPlaceTrapHere -> GamePlayColors.Success  // Green border for tiles in range (exclude enemy tiles during trap placement)
+        isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> GamePlayColors.Yellow  // Yellow border for selected defender (not during initial building)
+        isSpawnPoint -> GamePlayColors.Warning  // Orange border for spawn
+        isTarget -> GamePlayColors.Success  // Green border for target
+        attacker != null -> GamePlayColors.Error  // Red border for enemies
+        defender != null -> if (defender.isReady) GamePlayColors.Info else GamePlayColors.Building  // Blue/gray border for towers
         fieldEffect != null -> {
             when (fieldEffect.type) {
-                FieldEffectType.FIREBALL -> Color(0xFFFF5722)  // Deep orange border for fireball
-                FieldEffectType.ACID -> Color(0xFF4CAF50)  // Green border for acid
+                FieldEffectType.FIREBALL -> GamePlayColors.WarningDeep  // Deep orange border for fireball
+                FieldEffectType.ACID -> GamePlayColors.Success  // Green border for acid
             }
         }
 
-        trap != null -> Color(0xFF8B4513)  // Brown border for trap
+        trap != null -> GamePlayColors.Trap  // Brown border for trap
         else -> Color.Transparent  // No borders for empty cells
     }
 
@@ -376,7 +376,7 @@ fun GridCell(
                             Text(
                                 "${fieldEffect.turnsRemaining}T",
                                 style = MaterialTheme.typography.labelSmall,
-                                color = Color(0xFFFFEB3B)
+                                color = GamePlayColors.Yellow
                             )
                         }
                     }
@@ -401,12 +401,12 @@ fun GridCell(
 
             isSpawnPoint -> {
                 // Show spawn indicator when cell is empty
-                Text("Spawn", style = MaterialTheme.typography.labelSmall, color = Color(0xFFFF9800))
+                Text("Spawn", style = MaterialTheme.typography.labelSmall, color = GamePlayColors.Warning)
             }
 
             isTarget -> {
                 // Show target indicator when cell is empty
-                Text("Target", style = MaterialTheme.typography.labelSmall, color = Color(0xFF4CAF50))
+                Text("Target", style = MaterialTheme.typography.labelSmall, color = GamePlayColors.Success)
             }
         }
     }
