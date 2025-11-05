@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.defenderofegril.model.*
+import com.defenderofegril.ui.icon.enemy.EnemyIcon
 
 /**
  * Preview/test screen to showcase all tower and enemy icons
