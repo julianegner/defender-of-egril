@@ -37,7 +37,18 @@ import defender_of_egril.composeapp.generated.resources.emoji_up_arrow
 import defender_of_egril.composeapp.generated.resources.emoji_magnifying_glass
 import defender_of_egril.composeapp.generated.resources.emoji_triangle_left
 import defender_of_egril.composeapp.generated.resources.emoji_save
+import defender_of_egril.composeapp.generated.resources.dig_outcome_rubble
+import defender_of_egril.composeapp.generated.resources.dig_outcome_brass
+import defender_of_egril.composeapp.generated.resources.dig_outcome_silver
+import defender_of_egril.composeapp.generated.resources.dig_outcome_gold
+import defender_of_egril.composeapp.generated.resources.dig_outcome_gem_red
+import defender_of_egril.composeapp.generated.resources.dig_outcome_gem_green
+import defender_of_egril.composeapp.generated.resources.dig_outcome_gem_blue
+import defender_of_egril.composeapp.generated.resources.dig_outcome_diamond
+import defender_of_egril.composeapp.generated.resources.dig_outcome_dragon
+import com.defenderofegril.model.DigOutcome
 import org.jetbrains.compose.resources.painterResource
+import kotlin.random.Random
 
 /**
  * Displays a lightning bolt emoji icon using Image for cross-platform compatibility
@@ -501,6 +512,45 @@ fun SaveIcon(
     Image(
         painter = painterResource(Res.drawable.emoji_save),
         contentDescription = "Save",
+        modifier = modifier.size(size)
+    )
+}
+
+/**
+ * Displays an icon for a dig outcome from mining
+ * 
+ * Note: For GEMS outcome, the gem color is randomly selected (red, green, or blue)
+ * on each composition. This is intentional per requirements to add visual variety.
+ * The color may change on recomposition but this is acceptable as it doesn't affect
+ * game state - only the visual representation.
+ */
+@Composable
+fun DigOutcomeIcon(
+    outcome: DigOutcome,
+    modifier: Modifier = Modifier,
+    size: Dp = 64.dp
+) {
+    val resource = when (outcome) {
+        DigOutcome.NOTHING -> Res.drawable.dig_outcome_rubble
+        DigOutcome.BRASS -> Res.drawable.dig_outcome_brass
+        DigOutcome.SILVER -> Res.drawable.dig_outcome_silver
+        DigOutcome.GOLD -> Res.drawable.dig_outcome_gold
+        DigOutcome.GEMS -> {
+            // Randomly select gem color (red, green, or blue) as per requirements
+            // This adds visual variety and doesn't affect game state
+            when (Random.nextInt(3)) {
+                0 -> Res.drawable.dig_outcome_gem_red
+                1 -> Res.drawable.dig_outcome_gem_green
+                else -> Res.drawable.dig_outcome_gem_blue
+            }
+        }
+        DigOutcome.DIAMOND -> Res.drawable.dig_outcome_diamond
+        DigOutcome.DRAGON -> Res.drawable.dig_outcome_dragon
+    }
+    
+    Image(
+        painter = painterResource(resource),
+        contentDescription = outcome.displayName,
         modifier = modifier.size(size)
     )
 }

@@ -12,6 +12,7 @@ fun App() {
         val worldLevels by viewModel.worldLevels.collectAsState()
         val gameState by viewModel.gameState.collectAsState()
         val savedGames by viewModel.savedGames.collectAsState()
+        val cheatDigOutcome by viewModel.cheatDigOutcome.collectAsState()
         
         when (val screen = currentScreen) {
             is Screen.MainMenu -> {
@@ -70,7 +71,9 @@ fun App() {
                         onSaveGame = { comment -> viewModel.saveCurrentGame(comment) },
                         onCheatCode = { code -> viewModel.applyCheatCode(code) },
                         onMineDig = { mineId -> viewModel.performMineDig(mineId) },
-                        onMineBuildTrap = { mineId, trapPos -> viewModel.performMineBuildTrap(mineId, trapPos) }
+                        onMineBuildTrap = { mineId, trapPos -> viewModel.performMineBuildTrap(mineId, trapPos) },
+                        cheatDigOutcome = cheatDigOutcome,
+                        onClearCheatDigOutcome = { viewModel.clearCheatDigOutcome() }
                     )
                 }
             }
