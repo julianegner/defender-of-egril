@@ -18,6 +18,7 @@ import com.defenderofegril.model.Level
 import com.defenderofegril.model.LevelStatus
 import com.defenderofegril.model.WorldLevel
 import com.defenderofegril.model.getEnemyTypeCounts
+import com.defenderofegril.ui.icon.enemy.EnemyTypeIcon
 
 @Composable
 fun WorldMapScreen(
