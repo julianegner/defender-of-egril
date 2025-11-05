@@ -1071,6 +1071,23 @@ class GameEngine(private val state: GameState) {
         
         val attackerHealth = attacker.currentHealth.value
         
+        // Check for dead-end potential by counting available exit paths
+        // This helps avoid getting stuck in branches that don't lead to the goal
+        val exitCount = position.getHexNeighbors().count { neighbor ->
+            neighbor.x >= 0 && neighbor.x < state.level.gridWidth &&
+            neighbor.y >= 0 && neighbor.y < state.level.gridHeight &&
+            (state.level.isOnPath(neighbor) || neighbor == state.level.targetPosition) &&
+            !state.level.isBuildIsland(neighbor)
+        }
+        
+        // Penalize positions with few exits (potential dead ends)
+        // 1 exit = dead end (100 penalty), 2 exits = corridor (20 penalty), 3+ exits = normal
+        when (exitCount) {
+            1 -> cost += 100  // Very likely a dead end
+            2 -> cost += 20   // Could be a narrow corridor
+            // 3+ exits get no penalty
+        }
+        
         // Check for acid field effects at this position
         val acidEffect = state.fieldEffects.find { 
             it.type == FieldEffectType.ACID && it.position == position 
@@ -1147,7 +1164,7 @@ class GameEngine(private val state: GameState) {
         return pos.getHexNeighbors().filter { neighbor ->
             neighbor.x >= 0 && neighbor.x < state.level.gridWidth &&
             neighbor.y >= 0 && neighbor.y < state.level.gridHeight &&
-            state.level.isOnPath(neighbor) &&
+            (state.level.isOnPath(neighbor) || neighbor == state.level.targetPosition) &&
             !isBlocked(neighbor)
         }
     }
@@ -1161,11 +1178,11 @@ class GameEngine(private val state: GameState) {
         // Use hexagonal neighbors to find the best next position
         val hexNeighbors = from.getHexNeighbors()
         
-        // Filter to valid neighbors (on path, within bounds, not blocked)
+        // Filter to valid neighbors (on path or target, within bounds, not blocked)
         val validNeighbors = hexNeighbors.filter { neighbor ->
             neighbor.x >= 0 && neighbor.x < state.level.gridWidth &&
             neighbor.y >= 0 && neighbor.y < state.level.gridHeight &&
-            state.level.isOnPath(neighbor) &&
+            (state.level.isOnPath(neighbor) || neighbor == state.level.targetPosition) &&
             !isBlocked(neighbor)
         }
         
