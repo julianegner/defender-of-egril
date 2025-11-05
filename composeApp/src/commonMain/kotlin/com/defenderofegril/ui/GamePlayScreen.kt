@@ -39,6 +39,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.zIndex
 import com.defenderofegril.model.*
 import kotlin.math.sqrt
@@ -1612,7 +1613,7 @@ fun DefenderInfo(
                     Spacer(modifier = Modifier.width(horizontalSpacing))
 
                     // Tower name and level
-                    Column(modifier = Modifier.weight(0.7f)) {
+                    Column(modifier = Modifier.weight(1f)) {
                         val displayName = if (defender.type == DefenderType.DRAGONS_LAIR) {
                             // Check if the specific dragon from this lair is still alive
                             val dragonAlive = defender.dragonId.value?.let { dragonId ->
@@ -1823,7 +1824,7 @@ fun DefenderInfo(
                             //     modifier = Modifier.fillMaxWidth().border(1.dp, Color.Magenta)
                             // ) {
                                 // Current stats column
-                                Column(modifier = Modifier.weight(1f)) {
+                                Column(modifier = Modifier.weight(0.5f)) {
                                     Text(
                                         "Current:",
                                         style = MaterialTheme.typography.labelSmall,
@@ -1838,7 +1839,7 @@ fun DefenderInfo(
                                 }
 
                                 // After upgrade stats column
-                                Column(modifier = Modifier.weight(1f)) {
+                                Column(modifier = Modifier.weight(0.5f)) {
                                     Text(
                                         "Upgrade:",
                                         style = MaterialTheme.typography.labelSmall,
@@ -1853,11 +1854,15 @@ fun DefenderInfo(
                                     )
                                 }
 
-                                Column(modifier = Modifier.weight(1f)) {
+                                Column(modifier = Modifier.weight(1f),
+                                    verticalArrangement = Arrangement.Center,
+                                ) {
                                     UpgradeButton(defender, gameState, onUpgradeDefender = onUpgradeDefender, isMobile = isMobile)
                                 }
-
-                                Column(modifier = Modifier.weight(1f)) {
+                                Spacer(modifier = Modifier.width(horizontalSpacing))
+                                Column(modifier = Modifier.weight(1f),
+                                    verticalArrangement = Arrangement.Center,
+                                    ) {
                                     UndoOrSellButton(
                                         defender = defender,
                                         gameState = gameState,
@@ -1873,6 +1878,7 @@ fun DefenderInfo(
                                     defender.type != DefenderType.DRAGONS_LAIR &&
                                     onDefenderAttack != null &&
                                     onDefenderAttackPosition != null) {
+                                    Spacer(modifier = Modifier.width(horizontalSpacing))
                                     Column(modifier = Modifier.weight(1f)) {
                                         AttackButton(
                                             defender = defender,
@@ -1898,7 +1904,8 @@ fun DefenderInfo(
                                     gameState,
                                     defender,
                                     onMineAction,
-                                    compactBuyPanel
+                                    compactBuyPanel,
+                                    horizontalSpacing
                                 )
                             //}
                         }
@@ -1915,7 +1922,8 @@ private fun RowScope.dwarvenMineActionButtonArea(
     gameState: GameState,
     defender: Defender,
     onMineAction: ((Int, MineAction) -> Unit)?,
-    compactBuyPanel: Boolean = false
+    compactBuyPanel: Boolean = false,
+    horizontalSpacing: Dp = 8.dp
 
 ) {
     if (type == DefenderType.DWARVEN_MINE) {
@@ -1924,12 +1932,12 @@ private fun RowScope.dwarvenMineActionButtonArea(
 
         if (mineActionsEnabled || gameState.phase.value == GamePhase.INITIAL_BUILDING) {
             // Dig button
+            Spacer(modifier = Modifier.width(horizontalSpacing))
             Column(modifier = Modifier.weight(0.5f)) {
                 Button(
                     onClick = { onMineAction?.invoke(defender.id, MineAction.DIG) },
                     enabled = mineActionsEnabled,
-                    modifier = Modifier.width(240.dp).height(60.dp)
-                        .offset(y = (-12).dp),
+                    modifier = Modifier.width(240.dp).height(60.dp),
                     contentPadding = PaddingValues(
                         horizontal = 4.dp,
                         vertical = 2.dp
@@ -1944,6 +1952,7 @@ private fun RowScope.dwarvenMineActionButtonArea(
                 }
             }
 
+            Spacer(modifier = Modifier.width(horizontalSpacing))
             Column(modifier = Modifier.weight(0.5f)) {
                 // Trap button
                 Button(
@@ -1954,8 +1963,7 @@ private fun RowScope.dwarvenMineActionButtonArea(
                         )
                     },
                     enabled = mineActionsEnabled,
-                    modifier = Modifier.width(240.dp).height(60.dp)
-                        .offset(y = (-12).dp),
+                    modifier = Modifier.width(240.dp).height(60.dp),
                     contentPadding = PaddingValues(
                         horizontal = 4.dp,
                         vertical = 2.dp
@@ -2006,7 +2014,6 @@ fun UpgradeButton(
     defender: Defender,
     gameState: GameState,
     modifier: Modifier = Modifier
-        .offset(y = (-12).dp)
         .width(240.dp)
         .height(60.dp),
     onUpgradeDefender: (Int) -> Unit,
@@ -2015,7 +2022,6 @@ fun UpgradeButton(
     // Increase height for mobile to make buttons more usable
     val buttonModifier = if (isMobile) {
         Modifier
-            .offset(y = (-6).dp)  // Less offset on mobile
             .width(240.dp)
             .height(100.dp)  // Taller on mobile (becomes 50dp with 0.5x scaling)
     } else {
@@ -2053,7 +2059,6 @@ fun UndoOrSellButton(
     onUndoTower: (Int) -> Unit,
     onSellTower: (Int) -> Unit,
     modifier: Modifier = Modifier
-        .offset(y = (-12).dp)
         .width(240.dp)
         .height(60.dp),
     isMobile: Boolean = false  // Add platform parameter
@@ -2063,7 +2068,6 @@ fun UndoOrSellButton(
     // Increase height for mobile to make buttons more usable
     val buttonModifier = if (isMobile) {
         Modifier
-            .offset(y = (-6).dp)  // Less offset on mobile
             .width(240.dp)
             .height(100.dp)  // Taller on mobile (becomes 50dp with 0.5x scaling)
     } else {
