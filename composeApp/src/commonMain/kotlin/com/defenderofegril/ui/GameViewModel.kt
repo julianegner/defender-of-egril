@@ -33,6 +33,9 @@ class GameViewModel {
     
     private val _gameState = MutableStateFlow<GameState?>(null)
     val gameState: StateFlow<GameState?> = _gameState.asStateFlow()
+    
+    private val _cheatDigOutcome = MutableStateFlow<DigOutcome?>(null)
+    val cheatDigOutcome: StateFlow<DigOutcome?> = _cheatDigOutcome.asStateFlow()
 
     private var gameEngine: GameEngine? = null
     private val viewModelScope = CoroutineScope(Dispatchers.Default)
@@ -162,6 +165,10 @@ class GameViewModel {
     fun performMineBuildTrap(mineId: Int, trapPosition: Position): Boolean {
         return gameEngine?.performMineBuildTrap(mineId, trapPosition) ?: false
     }
+    
+    fun performMineDigWithOutcome(outcome: DigOutcome): DigOutcome? {
+        return gameEngine?.performMineDigWithOutcome(outcome)
+    }
 
     fun endPlayerTurn() {
         val state = _gameState.value ?: return
@@ -266,9 +273,63 @@ class GameViewModel {
                 gameEngine?.addCoins(1000000)
                 return true
             }
-            "dragon" -> {
-                // Spawn a dragon from a dwarven mine (simulating dig outcome)
-                return gameEngine?.spawnDragonCheat() ?: false
+            // Dig outcome cheat codes
+            "dig nothing", "dig rubble" -> {
+                val outcome = performMineDigWithOutcome(DigOutcome.NOTHING)
+                if (outcome != null) {
+                    _cheatDigOutcome.value = outcome
+                    return true
+                }
+                return false
+            }
+            "dig brass" -> {
+                val outcome = performMineDigWithOutcome(DigOutcome.BRASS)
+                if (outcome != null) {
+                    _cheatDigOutcome.value = outcome
+                    return true
+                }
+                return false
+            }
+            "dig silver" -> {
+                val outcome = performMineDigWithOutcome(DigOutcome.SILVER)
+                if (outcome != null) {
+                    _cheatDigOutcome.value = outcome
+                    return true
+                }
+                return false
+            }
+            "dig gold" -> {
+                val outcome = performMineDigWithOutcome(DigOutcome.GOLD)
+                if (outcome != null) {
+                    _cheatDigOutcome.value = outcome
+                    return true
+                }
+                return false
+            }
+            "dig gems", "dig gem" -> {
+                val outcome = performMineDigWithOutcome(DigOutcome.GEMS)
+                if (outcome != null) {
+                    _cheatDigOutcome.value = outcome
+                    return true
+                }
+                return false
+            }
+            "dig diamond" -> {
+                val outcome = performMineDigWithOutcome(DigOutcome.DIAMOND)
+                if (outcome != null) {
+                    _cheatDigOutcome.value = outcome
+                    return true
+                }
+                return false
+            }
+            "dig dragon", "dragon" -> {
+                // Trigger dragon dig outcome (will show dialog)
+                val outcome = performMineDigWithOutcome(DigOutcome.DRAGON)
+                if (outcome != null) {
+                    _cheatDigOutcome.value = outcome
+                    return true
+                }
+                return false
             }
         }
         
@@ -296,6 +357,10 @@ class GameViewModel {
         }
         
         return false
+    }
+    
+    fun clearCheatDigOutcome() {
+        _cheatDigOutcome.value = null
     }
     
     fun applyWorldMapCheatCode(code: String): Boolean {
