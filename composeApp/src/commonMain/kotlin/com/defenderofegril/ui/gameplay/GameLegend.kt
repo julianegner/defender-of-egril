@@ -24,40 +24,26 @@ import com.defenderofegril.ui.icon.enemy.EnemyTypeIcon
 
 @Composable
 fun GameLegend(modifier: Modifier = Modifier) {
-    var isExpanded by remember { mutableStateOf(false) }
-
-    Card(modifier = modifier) {
-        Column(modifier = Modifier.padding(12.dp)) {
-            // Header with expand/collapse button
-            Row(
-                modifier = Modifier.fillMaxWidth().clickable { isExpanded = !isExpanded },
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text("Legend", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                if (isExpanded) {
-                    TriangleDownIcon(size = 20.dp)
-                } else {
-                    TriangleLeftIcon(size = 20.dp)
-                }
+    ExpandableCard(
+        title = "Legend",
+        modifier = modifier,
+        defaultExpanded = false
+    ) {
+        LazyColumn(
+            modifier = Modifier.fillMaxWidth().heightIn(max = 400.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            item {
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    "Areas:",
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.Bold
+                )
             }
 
-            if (isExpanded) {
-                LazyColumn(
-                    modifier = Modifier.fillMaxWidth().heightIn(max = 400.dp),
-                    verticalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
-                    item {
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            "Areas:",
-                            style = MaterialTheme.typography.labelMedium,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-
-                    item {
-                        LegendItemHex(
+            item {
+                LegendItemHex(
                             color = Color(0xFF8BC34A),
                             label = "⬡",
                             description = "Build Island",
@@ -192,8 +178,6 @@ fun GameLegend(modifier: Modifier = Modifier) {
                         Text("• Health shown on enemies", style = MaterialTheme.typography.bodySmall)
                     }
                 }
-            }
-        }
     }
 }
 
