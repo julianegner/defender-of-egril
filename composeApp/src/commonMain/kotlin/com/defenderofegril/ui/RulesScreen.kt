@@ -8,10 +8,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.defenderofegril.model.AttackerType
+import com.defenderofegril.model.DefenderType
 
 @Composable
 fun RulesScreen(
@@ -75,12 +78,10 @@ fun RulesScreen(
             
             // Tower Types
             SectionTitle("Tower Types")
-            TowerInfo("Spike Tower", "10 coins", "5 damage", "1 range", "Melee")
-            TowerInfo("Spear Tower", "15 coins", "8 damage", "2 range", "Ranged")
-            TowerInfo("Bow Tower", "20 coins", "10 damage", "3 range", "Ranged")
-            TowerInfo("Wizard Tower", "50 coins", "30 damage", "3 range", "Fireball (Area)")
-            TowerInfo("Alchemy Tower", "40 coins", "15 damage", "2 range", "Acid (Area, some turns)")
-            TowerInfo("Dwarven Mine", "30 coins", "none", "3 range", "Special: dig for valuables or place traps on the path")
+            // Filter out DRAGONS_LAIR as it's not a regular tower
+            DefenderType.entries.filter { it != DefenderType.DRAGONS_LAIR }.forEach { defenderType ->
+                TowerInfo(defenderType)
+            }
 
             
             Spacer(modifier = Modifier.height(16.dp))
@@ -95,12 +96,10 @@ fun RulesScreen(
             
             // Enemies
             SectionTitle("Enemy Types")
-            EnemyInfo("Goblin", "20 HP", "Speed 2", "5 coins")
-            EnemyInfo("Skeleton", "15 HP", "Speed 2", "7 coins")
-            EnemyInfo("Ork", "40 HP", "Speed 1", "10 coins")
-            EnemyInfo("Witch", "25 HP", "Speed 2", "12 coins")
-            EnemyInfo("Evil Wizard", "30 HP", "Speed 1", "15 coins")
-            EnemyInfo("Ogre", "80 HP", "Speed 1", "20 coins")
+            // Filter out DRAGON as it's a boss/special enemy
+            AttackerType.entries.filter { it != AttackerType.DRAGON }.forEach { attackerType ->
+                EnemyInfo(attackerType)
+            }
             
             Spacer(modifier = Modifier.height(16.dp))
             
@@ -190,49 +189,75 @@ private fun BulletPointWithIcon(iconDescription: String, icon: @Composable () ->
 }
 
 @Composable
-private fun TowerInfo(name: String, cost: String, damage: String, range: String, type: String) {
+private fun TowerInfo(defenderType: DefenderType) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(start = 8.dp, bottom = 8.dp, end = 8.dp)
             .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
             .padding(8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(
-            text = name,
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.weight(1f)
+        // Tower icon on blue hexagon
+        TowerIconOnHexagon(
+            defenderType = defenderType,
+            size = 40.dp
         )
-        Text(
-            text = "$cost | $damage | Range $range | $type",
-            style = MaterialTheme.typography.bodySmall,
-            fontSize = 12.sp
-        )
+        
+        // Tower details
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = defenderType.displayName,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Bold
+            )
+            
+            // Build description based on tower type
+            val description = when {
+                defenderType.isMine -> "Special: dig for valuables or place traps on the path"
+                defenderType.baseDamage == 0 -> "Special building"
+                else -> "${defenderType.baseCost} coins | ${defenderType.baseDamage} damage | Range ${defenderType.baseRange} | ${defenderType.attackType.displayName}"
+            }
+            
+            Text(
+                text = description,
+                style = MaterialTheme.typography.bodySmall,
+                fontSize = 12.sp
+            )
+        }
     }
 }
 
 @Composable
-private fun EnemyInfo(name: String, hp: String, speed: String, reward: String) {
+private fun EnemyInfo(attackerType: AttackerType) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(start = 8.dp, bottom = 8.dp, end = 8.dp)
             .background(MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.3f))
             .padding(8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(
-            text = name,
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.weight(1f)
+        // Enemy icon on red hexagon
+        EnemyIconOnHexagon(
+            attackerType = attackerType,
+            size = 40.dp
         )
-        Text(
-            text = "$hp | $speed | $reward",
-            style = MaterialTheme.typography.bodySmall,
-            fontSize = 12.sp
-        )
+        
+        // Enemy details
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = attackerType.displayName,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = "${attackerType.health} HP | Speed ${attackerType.speed} | ${attackerType.reward} coins",
+                style = MaterialTheme.typography.bodySmall,
+                fontSize = 12.sp
+            )
+        }
     }
 }
