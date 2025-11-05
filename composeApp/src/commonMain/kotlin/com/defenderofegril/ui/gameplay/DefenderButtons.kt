@@ -24,7 +24,7 @@ fun CompactDefenderButton(
         onClick = onClick,
         enabled = canAfford,
         colors = ButtonDefaults.buttonColors(
-            containerColor = if (isSelected) Color(0xFF1976D2) else MaterialTheme.colorScheme.primary
+            containerColor = if (isSelected) GamePlayColors.InfoDark else MaterialTheme.colorScheme.primary
         ),
         modifier = modifier,
         contentPadding = PaddingValues(4.dp)
@@ -86,7 +86,7 @@ fun DefenderButton(
         onClick = onClick,
         enabled = actuallyCanAfford,  // Use recalculated value
         colors = ButtonDefaults.buttonColors(
-            containerColor = if (isSelected) Color(0xFF1976D2) else MaterialTheme.colorScheme.primary
+            containerColor = if (isSelected) GamePlayColors.InfoDark else MaterialTheme.colorScheme.primary
         ),
         modifier = Modifier.fillMaxWidth().height(70.dp),
         contentPadding = PaddingValues(2.dp)
@@ -126,7 +126,7 @@ fun DefenderButton(
                         type.attackType.displayName,
                         style = MaterialTheme.typography.labelSmall,
                         fontSize = 10.sp,
-                        color = Color(0xFFFFEB3B)
+                        color = GamePlayColors.Yellow
                     )
                     Row(
                         verticalAlignment = Alignment.CenterVertically
@@ -172,41 +172,33 @@ fun DefenderButton(
 
 @Composable
 fun TowerStats(minRange: Int, damage: Int, range: Int, actionsPerTurn: Int) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        ExplosionIcon(size = 12.dp)
-        Spacer(modifier = Modifier.width(4.dp))
-        Text(
-            "${damage}",
-            style = MaterialTheme.typography.bodySmall
-        )
-    }
+    IconTextRow(
+        icon = { size -> ExplosionIcon(size = size) },
+        text = damage.toString(),
+        iconSize = GamePlayConstants.IconSizes.Small,
+        spacerWidth = GamePlayConstants.Spacing.IconText
+    )
+    
     if (minRange > 0) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            TargetIcon(size = 12.dp)
-            Spacer(modifier = Modifier.width(4.dp))
-            Text(
-                "${minRange}-${range}",
-                style = MaterialTheme.typography.bodySmall
-            )
-        }
+        IconTextRow(
+            icon = { size -> TargetIcon(size = size) },
+            text = "$minRange-$range",
+            iconSize = GamePlayConstants.IconSizes.Small,
+            spacerWidth = GamePlayConstants.Spacing.IconText
+        )
     } else {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            TargetIcon(size = 12.dp)
-            Spacer(modifier = Modifier.width(4.dp))
-            Text(
-                "${range}",
-                style = MaterialTheme.typography.bodySmall
-            )
-        }
-    }
-    Row(
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        LightningIcon(size = 12.dp)
-        Spacer(modifier = Modifier.width(4.dp))
-        Text(
-            actionsPerTurn.toString(),
-            style = MaterialTheme.typography.bodySmall
+        IconTextRow(
+            icon = { size -> TargetIcon(size = size) },
+            text = range.toString(),
+            iconSize = GamePlayConstants.IconSizes.Small,
+            spacerWidth = GamePlayConstants.Spacing.IconText
         )
     }
+    
+    IconTextRow(
+        icon = { size -> LightningIcon(size = size) },
+        text = actionsPerTurn.toString(),
+        iconSize = GamePlayConstants.IconSizes.Small,
+        spacerWidth = GamePlayConstants.Spacing.IconText
+    )
 }

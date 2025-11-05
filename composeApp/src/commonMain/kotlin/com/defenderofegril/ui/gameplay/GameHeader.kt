@@ -183,7 +183,7 @@ private fun CompactGameHeader(
                 modifier = Modifier.height(32.dp),
                 contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = if (showOverlay) Color(0xFF4CAF50) else Color(0xFF2196F3)
+                    containerColor = if (showOverlay) GamePlayColors.Success else GamePlayColors.Info
                 )
             ) {
                 if (showOverlay) {
@@ -214,7 +214,7 @@ private fun GameStats(
         coins = gameState.coins.value,
         health = gameState.healthPoints.value,
         turn = gameState.turnNumber.value,
-        iconSize = 20.dp,
+        iconSize = GamePlayConstants.IconSizes.Large,
         textStyle = MaterialTheme.typography.bodyLarge,
         onCoinsClick = onCheatCode
     )
@@ -228,7 +228,7 @@ private fun GameStats(
     Text(
         "Enemies: $activeEnemies active, $remainingEnemies to come",
         style = MaterialTheme.typography.bodyMedium,
-        color = Color(0xFFF44336)
+        color = GamePlayColors.Error
     )
 }
 
@@ -240,9 +240,9 @@ private fun PhaseIndicator(phase: GamePhase) {
         GamePhase.ENEMY_TURN -> "ENEMY TURN"
     }
     val phaseColor = when (phase) {
-        GamePhase.INITIAL_BUILDING -> Color(0xFF2196F3)
-        GamePhase.PLAYER_TURN -> Color(0xFF4CAF50)
-        GamePhase.ENEMY_TURN -> Color(0xFFF44336)
+        GamePhase.INITIAL_BUILDING -> GamePlayColors.Info
+        GamePhase.PLAYER_TURN -> GamePlayColors.Success
+        GamePhase.ENEMY_TURN -> GamePlayColors.Error
     }
     Text(
         text = phaseText,
@@ -277,7 +277,7 @@ private fun HeaderActions(
         Button(
             onClick = { onShowOverlayChange(!showOverlay) },
             colors = ButtonDefaults.buttonColors(
-                containerColor = if (showOverlay) Color(0xFF4CAF50) else Color(0xFF2196F3)
+                containerColor = if (showOverlay) GamePlayColors.Success else GamePlayColors.Info
             )
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {

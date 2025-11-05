@@ -34,7 +34,7 @@ fun ExpandableCard(
     var isExpanded by remember { mutableStateOf(defaultExpanded) }
 
     Card(modifier = modifier) {
-        Column(modifier = Modifier.padding(12.dp)) {
+        Column(modifier = Modifier.padding(GamePlayConstants.Spacing.Sections)) {
             // Header with expand/collapse button
             Row(
                 modifier = Modifier.fillMaxWidth().clickable { isExpanded = !isExpanded },
@@ -43,9 +43,9 @@ fun ExpandableCard(
             ) {
                 Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                 if (isExpanded) {
-                    TriangleDownIcon(size = 20.dp)
+                    TriangleDownIcon(size = GamePlayConstants.IconSizes.Large)
                 } else {
-                    TriangleLeftIcon(size = 20.dp)
+                    TriangleLeftIcon(size = GamePlayConstants.IconSizes.Large)
                 }
             }
             
@@ -81,8 +81,8 @@ fun IconTextRow(
     icon: @Composable (Dp) -> Unit,
     text: String,
     modifier: Modifier = Modifier,
-    iconSize: Dp = 12.dp,
-    spacerWidth: Dp = 4.dp,
+    iconSize: Dp = GamePlayConstants.IconSizes.Small,
+    spacerWidth: Dp = GamePlayConstants.Spacing.IconText,
     textStyle: TextStyle = MaterialTheme.typography.bodySmall
 ) {
     Row(
@@ -113,7 +113,7 @@ fun GameStatsDisplay(
     health: Int,
     turn: Int,
     modifier: Modifier = Modifier,
-    iconSize: Dp = 20.dp,
+    iconSize: Dp = GamePlayConstants.IconSizes.Large,
     textStyle: TextStyle = MaterialTheme.typography.bodyLarge,
     onCoinsClick: (() -> Unit)? = null
 ) {
@@ -128,21 +128,21 @@ fun GameStatsDisplay(
             }
         ) {
             MoneyIcon(size = iconSize)
-            Spacer(modifier = Modifier.width(4.dp))
+            Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
             Text("$coins", style = textStyle)
         }
         
         // Health
         Row(verticalAlignment = Alignment.CenterVertically) {
             HeartIcon(size = iconSize)
-            Spacer(modifier = Modifier.width(4.dp))
+            Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
             Text("$health", style = textStyle)
         }
         
         // Turn
         Row(verticalAlignment = Alignment.CenterVertically) {
             ReloadIcon(size = iconSize - 2.dp) // Slightly smaller reload icon
-            Spacer(modifier = Modifier.width(4.dp))
+            Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
             Text(
                 if (textStyle == MaterialTheme.typography.bodyLarge) "Turn $turn" else "$turn",
                 style = if (textStyle == MaterialTheme.typography.bodyLarge) MaterialTheme.typography.bodyMedium else MaterialTheme.typography.bodySmall
@@ -169,7 +169,7 @@ fun CompactStatsRow(
     onCoinsClick: (() -> Unit)? = null
 ) {
     Row(
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(GamePlayConstants.Spacing.Items),
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
     ) {
@@ -182,20 +182,20 @@ fun CompactStatsRow(
                 Modifier
             }
         ) {
-            MoneyIcon(size = 16.dp)
-            Spacer(modifier = Modifier.width(4.dp))
+            MoneyIcon(size = GamePlayConstants.IconSizes.Medium)
+            Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
             Text("$coins", style = MaterialTheme.typography.bodyMedium)
         }
         
         Row(verticalAlignment = Alignment.CenterVertically) {
-            HeartIcon(size = 16.dp)
-            Spacer(modifier = Modifier.width(4.dp))
+            HeartIcon(size = GamePlayConstants.IconSizes.Medium)
+            Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
             Text("$health", style = MaterialTheme.typography.bodyMedium)
         }
         
         Row(verticalAlignment = Alignment.CenterVertically) {
             ReloadIcon(size = 14.dp)
-            Spacer(modifier = Modifier.width(4.dp))
+            Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
             Text("$turn", style = MaterialTheme.typography.bodySmall)
         }
     }
