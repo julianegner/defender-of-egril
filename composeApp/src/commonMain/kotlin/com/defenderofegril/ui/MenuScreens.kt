@@ -109,15 +109,10 @@ fun LevelCompleteScreen(
         verticalArrangement = Arrangement.Center
     ) {
         // Icon/Image
-        Text(
-            text = icon,
-            style = MaterialTheme.typography.displayLarge,
-            textAlign = TextAlign.Center
-        )
-
         Image(
             painter = painterResource(imageResource),
-            modifier = Modifier.size(14.dp)
+            contentDescription = title,
+            modifier = Modifier.size(64.dp)
         )
 
         
