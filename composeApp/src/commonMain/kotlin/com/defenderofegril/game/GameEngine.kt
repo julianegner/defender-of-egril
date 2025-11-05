@@ -1463,6 +1463,35 @@ class GameEngine(private val state: GameState) {
     }
     
     /**
+     * Perform a forced dig action with a specific outcome (for cheat codes)
+     */
+    fun performMineDigWithOutcome(outcomeType: DigOutcome): DigOutcome? {
+        // Find any dwarven mine on the map
+        val mine = state.defenders.find { it.type == DefenderType.DWARVEN_MINE } ?: return null
+        
+        if (!mine.isReady || mine.actionsRemaining.value <= 0) return null
+        
+        // Process outcome
+        when (outcomeType) {
+            DigOutcome.DRAGON -> {
+                // Dragon awakens - destroy mine and spawn dragon
+                spawnDragonFromMine(mine)
+            }
+            else -> {
+                // Add coins
+                state.coins.value += outcomeType.coins
+                mine.coinsGenerated.value += outcomeType.coins
+            }
+        }
+        
+        // Consume action
+        mine.actionsRemaining.value--
+        mine.hasBeenUsed.value = true
+        
+        return outcomeType
+    }
+    
+    /**
      * Build a trap at the specified position
      */
     fun performMineBuildTrap(mineId: Int, trapPosition: Position): Boolean {

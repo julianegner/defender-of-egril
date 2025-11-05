@@ -64,7 +64,9 @@ fun GamePlayScreen(
     onSaveGame: ((String?) -> String?)? = null,  // Add save game callback with optional comment
     onCheatCode: ((String) -> Boolean)? = null,  // Add cheat code callback
     onMineDig: ((Int) -> DigOutcome?)? = null,  // Add mine dig callback
-    onMineBuildTrap: ((Int, Position) -> Boolean)? = null  // Add mine build trap callback
+    onMineBuildTrap: ((Int, Position) -> Boolean)? = null,  // Add mine build trap callback
+    cheatDigOutcome: DigOutcome? = null,  // Dig outcome from cheat code
+    onClearCheatDigOutcome: (() -> Unit)? = null  // Callback to clear cheat dig outcome
 ) {
     GamePlayScreenContent(
         gameState = gameState,
@@ -80,7 +82,9 @@ fun GamePlayScreen(
         onSaveGame = onSaveGame,
         onCheatCode = onCheatCode,
         onMineDig = onMineDig,
-        onMineBuildTrap = onMineBuildTrap
+        onMineBuildTrap = onMineBuildTrap,
+        cheatDigOutcome = cheatDigOutcome,
+        onClearCheatDigOutcome = onClearCheatDigOutcome
     )
 }
 
@@ -100,6 +104,8 @@ private fun GamePlayScreenContent(
     onCheatCode: ((String) -> Boolean)? = null,
     onMineDig: ((Int) -> DigOutcome?)? = null,
     onMineBuildTrap: ((Int, Position) -> Boolean)? = null,
+    cheatDigOutcome: DigOutcome? = null,  // Dig outcome from cheat code
+    onClearCheatDigOutcome: (() -> Unit)? = null  // Callback to clear cheat dig outcome
 
 ) {
     var selectedDefenderType by remember { mutableStateOf<DefenderType?>(null) }
@@ -110,7 +116,7 @@ private fun GamePlayScreenContent(
     var cheatCodeInput by remember { mutableStateOf("") }
     var showMineActionDialog by remember { mutableStateOf(false) }
     var selectedMineAction by remember { mutableStateOf<MineAction?>(null) }
-    var digOutcomeMessage by remember { mutableStateOf<String?>(null) }
+    var currentDigOutcome by remember { mutableStateOf<DigOutcome?>(null) }
     var showDigOutcomeDialog by remember { mutableStateOf(false) }
     var showOverlay by remember { mutableStateOf(false) }  // MutableState for overlay visibility
     var headerExpanded by remember { mutableStateOf(true) }  // State for header fold/expand
@@ -145,6 +151,15 @@ private fun GamePlayScreenContent(
             headerExpanded = false
         }
     }
+    
+    // Watch for cheat dig outcomes
+    LaunchedEffect(cheatDigOutcome) {
+        if (cheatDigOutcome != null) {
+            currentDigOutcome = cheatDigOutcome
+            showDigOutcomeDialog = true
+            onClearCheatDigOutcome?.invoke()
+        }
+    }
 
     // Mine action handler
     val handleMineAction: (Int, MineAction) -> Unit = { mineId, action ->
@@ -152,16 +167,7 @@ private fun GamePlayScreenContent(
             MineAction.DIG -> {
                 val outcome = onMineDig?.invoke(mineId)
                 if (outcome != null) {
-                    val message = when (outcome) {
-                        DigOutcome.NOTHING -> "You found nothing..."
-                        DigOutcome.BRASS -> "You found brass! +${outcome.coins} coins"
-                        DigOutcome.SILVER -> "You found silver! +${outcome.coins} coins"
-                        DigOutcome.GOLD -> "You found gold! +${outcome.coins} coins"
-                        DigOutcome.GEMS -> "You found gems! +${outcome.coins} coins"
-                        DigOutcome.DIAMOND -> "You found a diamond! +${outcome.coins} coins"
-                        DigOutcome.DRAGON -> "A DRAGON AWAKENS! The mine is destroyed!"
-                    }
-                    digOutcomeMessage = message
+                    currentDigOutcome = outcome
                     showDigOutcomeDialog = true
                 }
             }
@@ -603,15 +609,50 @@ private fun GamePlayScreenContent(
         }
 
         // Dig outcome dialog
-        if (showDigOutcomeDialog) {
+        if (showDigOutcomeDialog && currentDigOutcome != null) {
+            val outcome = currentDigOutcome!! // Extract to local variable for safety
+            // Reset selections when dragon awakes
+            if (outcome == DigOutcome.DRAGON) {
+                selectedDefenderType = null
+                selectedDefenderId = null
+            }
             AlertDialog(
-                onDismissRequest = { showDigOutcomeDialog = false },
+                onDismissRequest = {
+                    showDigOutcomeDialog = false
+                },
                 title = { Text("Mining Result") },
                 text = {
-                    Text(digOutcomeMessage ?: "", style = MaterialTheme.typography.bodyLarge)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        // Image on the left
+                        DigOutcomeIcon(
+                            outcome = outcome,
+                            size = 80.dp
+                        )
+                        
+                        // Text on the right
+                        val message = when (outcome) {
+                            DigOutcome.NOTHING -> "You found nothing..."
+                            DigOutcome.BRASS -> "You found brass!\n+${outcome.coins} coins"
+                            DigOutcome.SILVER -> "You found silver!\n+${outcome.coins} coins"
+                            DigOutcome.GOLD -> "You found gold!\n+${outcome.coins} coins"
+                            DigOutcome.GEMS -> "You found gems!\n+${outcome.coins} coins"
+                            DigOutcome.DIAMOND -> "You found a diamond!\n+${outcome.coins} coins"
+                            DigOutcome.DRAGON -> "A DRAGON AWAKENS!\nThe mine is destroyed!"
+                        }
+                        Text(
+                            text = message,
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    }
                 },
                 confirmButton = {
-                    Button(onClick = { showDigOutcomeDialog = false }) {
+                    Button(onClick = {
+                        showDigOutcomeDialog = false
+                    }) {
                         Text("OK")
                     }
                 }
