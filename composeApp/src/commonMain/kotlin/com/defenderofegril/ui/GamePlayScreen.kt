@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -1167,6 +1168,30 @@ fun GridCell(
         }
     }
 }
+@Composable
+fun ColumnScope.TurnButton(
+    isPlayerTurn: Boolean,
+    onPrimaryAction: () -> Unit = {},
+    primaryButtonColor: Color = Color(0xFFFF5722)
+    ){
+    Button(
+        onClick = onPrimaryAction,
+        // modifier = Modifier.fillMaxWidth(),
+        colors = if (isPlayerTurn) {
+            ButtonDefaults.buttonColors(containerColor = primaryButtonColor)
+        } else {
+            ButtonDefaults.buttonColors()
+        },
+        modifier = Modifier.fillMaxWidth().height(40.dp)
+    ) {
+        Text(if (isPlayerTurn) "End Turn" else "Start Battle",
+            style = MaterialTheme.typography.labelMedium,
+            fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
+            fontSize = 14.sp,
+            maxLines = 1,
+            )
+    }
+}
 
 @Composable
 fun GameControlsPanel(
@@ -1240,44 +1265,40 @@ fun GameControlsPanel(
                 }
 
                 // Right side: buy buttons and End Turn button
-                Column(modifier = Modifier.width(350.dp)) {
+                Column(modifier = Modifier
+                    .width(600.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+
+                ) {
                     // Compact buy buttons
                     LazyVerticalGrid(
-                        columns = GridCells.Fixed(2),
-                        modifier = Modifier.fillMaxWidth().height(170.dp),
+                        modifier = Modifier.padding(top = 8.dp),
+                        columns = GridCells.Fixed(4),
+                        // modifier = Modifier.fillMaxWidth().height(100.dp),
                         horizontalArrangement = Arrangement.spacedBy(4.dp),
                         verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
-                        items(
-                            DefenderType.entries
-                                .filter { it != DefenderType.DRAGONS_LAIR }
-                                .toTypedArray(),
-                            key = { type -> "${type.name}_folded_${coinsState.value}" }) { type ->
-                            val canAfford = coinsState.value >= type.baseCost
+
+                        val types = DefenderType.entries
+                            // hack: we need dragons lair as the last one, as the last one is overridden by the Next turn Button
+                            // .filter { it != DefenderType.DRAGONS_LAIR }
+                            .toTypedArray()
+
+                        itemsIndexed(types, key = { index: Int, type: DefenderType -> "${type.name}_folded_${coinsState.value}" }) { index: Int, type: DefenderType ->
+                            val isLast = index == types.lastIndex
                             CompactDefenderButton(
                                 type = type,
                                 isSelected = selectedDefenderType == type,
-                                canAfford = canAfford,
+                                canAfford = coinsState.value >= type.baseCost,
                                 onClick = {
                                     onSelectDefenderType(if (selectedDefenderType == type) null else type)
                                 }
                             )
+                            if (isLast) {
+                                TurnButton(isPlayerTurn, onPrimaryAction)
+                            }
                         }
-                    }
-                    
-                    Spacer(modifier = Modifier.height(8.dp))
-                    
-                    // End Turn button - same width as buy tower buttons
-                    Button(
-                        onClick = onPrimaryAction,
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = if (isPlayerTurn) {
-                            ButtonDefaults.buttonColors(containerColor = primaryButtonColor)
-                        } else {
-                            ButtonDefaults.buttonColors()
-                        }
-                    ) {
-                        Text(primaryButtonText)
                     }
                 }
             }
