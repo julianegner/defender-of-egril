@@ -43,11 +43,20 @@ class GameEngine(private val state: GameState) {
         val defender = state.defenders.find { it.id == defenderId } ?: return false
         if (!state.canUpgradeDefender(defender)) return false
         
+        // Store the old actionsPerTurn before upgrade
+        val oldActionsPerTurn = defender.actionsPerTurnCalculated
+        
         state.coins.value -= defender.upgradeCost
         defender.level.value++
         
-        // Reset actions to reflect new action count from upgrade
-        defender.resetActions()
+        // Calculate the new actionsPerTurn after upgrade
+        val newActionsPerTurn = defender.actionsPerTurnCalculated
+        
+        // Only add the increase in actionsPerTurn to actionsRemaining
+        val actionIncrease = newActionsPerTurn - oldActionsPerTurn
+        if (actionIncrease > 0 && defender.isReady) {
+            defender.actionsRemaining.value += actionIncrease
+        }
         
         return true
     }
@@ -555,52 +564,36 @@ class GameEngine(private val state: GameState) {
     }
     
     private fun spawnAttackers() {
-        if (state.attackersToSpawn.isEmpty()) return
+        // Use the spawn plan to determine which enemies spawn this turn
+        val currentTurn = state.turnNumber.value
+        val enemiesToSpawnThisTurn = state.spawnPlan.filter { it.spawnTurn == currentTurn }
         
-        state.spawnCounter.value++
-        val wave = state.level.attackerWaves.getOrNull(state.currentWaveIndex.value - 1) ?: return
+        if (enemiesToSpawnThisTurn.isEmpty()) return
         
-        if (state.spawnCounter.value >= wave.spawnDelay) {
-            // Spawn 6 enemies per turn (2x the number of spawn points)
-            val spawnPoints = state.level.startPositions
-            val enemiesToSpawn = minOf(6, state.attackersToSpawn.size)
+        val spawnPoints = state.level.startPositions
+        
+        enemiesToSpawnThisTurn.forEachIndexed { index, plannedSpawn ->
+            // Use a different spawn point for each enemy (cycle through spawn points)
+            val spawnPos = spawnPoints[index % spawnPoints.size]
             
-            repeat(enemiesToSpawn) { index ->
-                if (state.attackersToSpawn.isEmpty()) return@repeat
-
-                // Use a different spawn point for each enemy (cycle through spawn points)
-                val spawnPos = spawnPoints[index % spawnPoints.size]
-
-                val type = state.attackersToSpawn.removeAt(0)
-                
-                // Ensure only one Ewhad exists at a time (boss is unique)
-                if (type == AttackerType.EWHAD) {
-                    val ewhadExists = state.attackers.any { 
-                        it.type == AttackerType.EWHAD && !it.isDefeated.value 
-                    }
-                    if (ewhadExists) {
-                        // Skip spawning another Ewhad if one already exists
-                        return@repeat
-                    }
+            // Ensure only one Ewhad exists at a time (boss is unique)
+            if (plannedSpawn.attackerType == AttackerType.EWHAD) {
+                val ewhadExists = state.attackers.any { 
+                    it.type == AttackerType.EWHAD && !it.isDefeated.value 
                 }
-                
-                // Calculate level based on turn number and wave
-                // Base level is 1, increases every 10 turns, wave index also contributes
-                val enemyLevel = 1 + (state.turnNumber.value / 10) + (state.currentWaveIndex.value - 1)
-                
-                val attacker = Attacker(
-                    id = state.nextAttackerId.value++,
-                    type = type,
-                    position = mutableStateOf(spawnPos),
-                    level = enemyLevel
-                )
-                state.attackers.add(attacker)
+                if (ewhadExists) {
+                    // Skip spawning another Ewhad if one already exists
+                    return@forEachIndexed
+                }
             }
-
-            state.spawnCounter.value = 0
-
-            // NOTE: Goblin movement after spawning will be handled by the animation system
-            // instead of calling moveGoblinsAfterSpawn() here
+            
+            val attacker = Attacker(
+                id = state.nextAttackerId.value++,
+                type = plannedSpawn.attackerType,
+                position = mutableStateOf(spawnPos),
+                level = plannedSpawn.level
+            )
+            state.attackers.add(attacker)
         }
     }
     
@@ -1035,7 +1028,10 @@ class GameEngine(private val state: GameState) {
         while (openSet.isNotEmpty() && iterations < maxIterations) {
             iterations++
             
-            val current = openSet.minByOrNull { fScore[it] ?: Int.MAX_VALUE } ?: break
+            // Select the position with the lowest fScore
+            // If multiple positions have the same fScore, prefer the one closest to the goal (heuristic tiebreaker)
+            val current = openSet.minWithOrNull(compareBy<Position> { fScore[it] ?: Int.MAX_VALUE }
+                .thenBy { it.distanceTo(goal) }) ?: break
             
             if (current == goal) {
                 return reconstructPath(cameFrom, current)

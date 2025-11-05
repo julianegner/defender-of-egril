@@ -1,7 +1,5 @@
 package com.defenderofegril.ui
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -15,6 +13,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.defenderofegril.model.AttackerType
+import com.defenderofegril.model.Level
 import com.defenderofegril.model.LevelStatus
 import com.defenderofegril.model.WorldLevel
 import com.defenderofegril.model.getEnemyTypeCounts
@@ -25,6 +25,8 @@ fun WorldMapScreen(
     onLevelSelected: (Int) -> Unit,
     onBackToMenu: () -> Unit,
     onShowRules: () -> Unit,
+    onOpenEditor: () -> Unit,
+    onLoadGame: () -> Unit,
     onCheatCode: ((String) -> Boolean)? = null  // Callback for processing cheat codes, returns true if code was valid
 ) {
     var showCheatDialog by remember { mutableStateOf(false) }
@@ -66,6 +68,13 @@ fun WorldMapScreen(
                     }
                 )
             }
+            
+            // Add Editor Button as a special card (only on desktop)
+            if (isEditorAvailable()) {
+                item {
+                    EditorButtonCard(onClick = onOpenEditor)
+                }
+            }
         }
         
         Spacer(modifier = Modifier.height(16.dp))
@@ -73,6 +82,10 @@ fun WorldMapScreen(
         Row(
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            Button(onClick = onLoadGame) {
+                Text("Load Game")
+            }
+            
             Button(onClick = onShowRules) {
                 Text("Rules")
             }
@@ -158,9 +171,9 @@ fun LevelCard(
     }
     
     val statusText = when (worldLevel.status) {
-        LevelStatus.LOCKED -> "🔒 Locked"
-        LevelStatus.UNLOCKED -> "⚔️ Available"
-        LevelStatus.WON -> "✓ Completed"
+        LevelStatus.LOCKED -> "Locked"
+        LevelStatus.UNLOCKED -> "Available"
+        LevelStatus.WON -> "Completed"
     }
     
     // Get enemy counts for this level
@@ -170,116 +183,220 @@ fun LevelCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(220.dp)
+            .height(200.dp)
             .clickable(enabled = worldLevel.status != LevelStatus.LOCKED, onClick = onClick),
         colors = CardDefaults.cardColors(containerColor = backgroundColor)
     ) {
-        Column(
+        Row(
             modifier = Modifier.fillMaxSize().padding(12.dp),
-            verticalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // Header row with level number and name
-            Column {
-                Text(
-                    text = "Level ${worldLevel.level.id}",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = Color.White,
-                    fontSize = 18.sp
-                )
-                
-                Text(
-                    text = worldLevel.level.name,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.White,
-                    textAlign = TextAlign.Start,
-                    modifier = Modifier.fillMaxWidth(),
-                    fontSize = 14.sp
-                )
-            }
-            
-            // Enemy units display in two columns
-            if (enemyList.isNotEmpty()) {
-                val halfSize = (enemyList.size + 1) / 2
-                val leftColumn = enemyList.take(halfSize)
-                val rightColumn = enemyList.drop(halfSize)
-                
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    // Left column
-                    Column(
-                        modifier = Modifier.weight(1f),
-                        verticalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
-                        leftColumn.forEach { (attackerType, count) ->
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.Start
-                            ) {
-                                // Enemy icon - larger size
-                                Box(
-                                    modifier = Modifier.size(32.dp)
-                                ) {
-                                    EnemyTypeIcon(attackerType = attackerType)
-                                }
-                                
-                                Spacer(modifier = Modifier.width(6.dp))
-                                
-                                // Enemy name and count - larger text
+            // Left column: Level info, coins, health, and enemies
+            Column(
+                modifier = Modifier.weight(2f).fillMaxHeight(),
+                verticalArrangement = Arrangement.Top
+            ) {
+                Row {
+                    // Header: level number and name
+                    Column {
+                        Text(
+                            text = "Level ${worldLevel.level.id}",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = Color.White,
+                            fontSize = 18.sp
+                        )
+
+                        Text(
+                            text = worldLevel.level.name,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.White,
+                            textAlign = TextAlign.Start,
+                            modifier = Modifier.fillMaxWidth(),
+                            fontSize = 14.sp
+                        )
+
+                        Spacer(modifier = Modifier.height(4.dp))
+
+                        // Coins and Health display
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                MoneyIcon(size = 12.dp)
+                                Spacer(modifier = Modifier.width(4.dp))
                                 Text(
-                                    text = "${attackerType.displayName}: ${count}",
-                                    style = MaterialTheme.typography.bodyMedium,
+                                    text = "${worldLevel.level.initialCoins}",
+                                    style = MaterialTheme.typography.bodySmall,
                                     color = Color.White,
-                                    fontSize = 13.sp
+                                    fontSize = 12.sp
+                                )
+                            }
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                HeartIcon(size = 12.dp)
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(
+                                    text = "${worldLevel.level.healthPoints}",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = Color.White,
+                                    fontSize = 12.sp
                                 )
                             }
                         }
                     }
-                    
-                    // Right column (if there are items for it)
-                    if (rightColumn.isNotEmpty()) {
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+                Row {
+                    // Enemy units display
+                    if (enemyList.isNotEmpty()) {
                         Column(
                             modifier = Modifier.weight(1f),
-                            verticalArrangement = Arrangement.spacedBy(6.dp)
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
-                            rightColumn.forEach { (attackerType, count) ->
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.Start
-                                ) {
-                                    // Enemy icon - larger size
-                                    Box(
-                                        modifier = Modifier.size(32.dp)
-                                    ) {
-                                        EnemyTypeIcon(attackerType = attackerType)
-                                    }
-                                    
-                                    Spacer(modifier = Modifier.width(6.dp))
-                                    
-                                    // Enemy name and count - larger text
-                                    Text(
-                                        text = "${attackerType.displayName}: ${count}",
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = Color.White,
-                                        fontSize = 13.sp
-                                    )
+                            enemyList.forEachIndexed { index, (attackerType, count) ->
+                                if (index % 2 == 0) {
+                                    EnemyUnitEntry(attackerType, count)
+                                }
+                            }
+                        }
+                        Column(
+                            modifier = Modifier.weight(1f),
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            enemyList.forEachIndexed { index, (attackerType, count) ->
+                                if (index % 2 == 1) {
+                                    EnemyUnitEntry(attackerType, count)
                                 }
                             }
                         }
                     }
                 }
             }
+
+            // Right column: Minimap and status
+            Column(
+                modifier = Modifier
+                    .weight(2f)
+                    .fillMaxHeight(),
+                verticalArrangement = Arrangement.SpaceBetween,
+                // horizontalAlignment = Alignment.End
+            ) {
+                // Minimap preview
+                Box(
+                    modifier = Modifier
+                        .width(300.dp)
+                        .height(120.dp)
+                        .padding(top = 20.dp)
+                ) {
+                    val mapName = HexagonMinimap(
+                        level = worldLevel.level,
+                        config = MinimapConfig(
+                            showSpawnPoints = true,
+                            showTarget = true,
+                            showTowers = false,
+                            showEnemies = false,
+                            showViewport = false,
+                            backgroundColor = Color.Transparent,
+                            borderColor = Color.Transparent
+                        ),
+                        modifier = Modifier.fillMaxSize()
+                    )
+                    Text(
+                        text = mapName,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.White,
+                        fontSize = 12.sp,
+                        modifier = Modifier.absoluteOffset(x = 0.dp, y = (-20).dp)
+                    )
+                }
+                
+                // Status at the bottom
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    when (worldLevel.status) {
+                        LevelStatus.LOCKED -> LockIcon(size = 13.dp)
+                        LevelStatus.UNLOCKED -> SwordIcon(size = 13.dp)
+                        LevelStatus.WON -> CheckmarkIcon(size = 13.dp, tint = Color.White)
+                    }
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = statusText,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.White,
+                        textAlign = TextAlign.End,
+                        fontSize = 13.sp
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun EnemyUnitEntry(attackerType: AttackerType, count: Int) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Start
+    ) {
+        Box(
+            modifier = Modifier.size(24.dp)
+        ) {
+            EnemyTypeIcon(attackerType = attackerType)
+        }
+
+        Spacer(modifier = Modifier.width(4.dp))
+
+        Text(
+            text = "${attackerType.displayName}: ${count}",
+            style = MaterialTheme.typography.bodySmall,
+            color = Color.White,
+            fontSize = 11.sp
+        )
+    }
+}
+
+@Composable
+fun EditorButtonCard(
+    onClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(100.dp)
+            .clickable(onClick = onClick),
+        colors = CardDefaults.cardColors(
+            containerColor = Color(0xFFFF9800)  // Distinctive orange color
+        )
+    ) {
+        Row(
+            modifier = Modifier.fillMaxSize().padding(12.dp),
+        ) {
+            // Distinctive symbol - wrench/hammer icon
+            ToolsIcon(size = 64.dp)
             
-            // Status at the bottom
-            Text(
-                text = statusText,
-                style = MaterialTheme.typography.bodySmall,
-                color = Color.White,
-                textAlign = TextAlign.End,
-                modifier = Modifier.fillMaxWidth(),
-                fontSize = 13.sp
-            )
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Column {
+                Text(
+                    text = "Level Editor",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = Color.White,
+                    fontSize = 20.sp
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = "Create & Edit Maps and Levels",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.White,
+                    fontSize = 14.sp
+                )
+            }
         }
     }
 }
