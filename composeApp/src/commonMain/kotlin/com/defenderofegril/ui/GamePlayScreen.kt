@@ -1596,6 +1596,8 @@ fun DefenderInfo(
     onDefenderAttackPosition: ((Int, Position) -> Boolean)? = null,
     isPlayerTurn: Boolean = false
 ) {
+
+    val buttonHeight = if (isMobile) 100.dp else 60.dp
     // Use key to force recomposition when defender stats change
     key(
         defender.id,
@@ -1743,197 +1745,99 @@ fun DefenderInfo(
                             } else {
                                 defender.type.actionsPerTurn
                             }
-
-                        // Stats and upgrade button in columns
-                        // On mobile, use more compact layout
-                        /*
-                        if (isMobile) {
-                            // Mobile: More compact horizontal layout
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                // Combined stats in one compact column
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Row(
-                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                    ) {
-                                        Column {
-                                            Text(
-                                                text = "Now",
-                                                fontSize = 10.sp,
-                                                fontWeight = FontWeight.Bold,
-                                                color = Color.Black
-                                            )
-                                            TowerStats(
-                                                defender.type.minRange,
-                                                if (defender.type == DefenderType.DWARVEN_MINE) defender.trapDamage else defender.actualDamage,
-                                                defender.range,
-                                                defender.actionsPerTurnCalculated
-                                            )
-                                        }
-                                        Column {
-                                            Text(
-                                                text = "Up",
-                                                fontSize = 10.sp,
-                                                fontWeight = FontWeight.Bold,
-                                                color = if (gameState.canUpgradeDefender(defender)) Color(0xFF4CAF50) else Color.Gray
-                                            )
-                                            TowerStats(
-                                                defender.type.minRange,
-                                                nextActualDamage,
-                                                nextRange,
-                                                nextActions
-                                            )
-                                        }
-                                    }
-                                }
-
-                                // Buttons side by side, more compact
-                                Column(modifier = Modifier.weight(0.8f)) {
-                                    UpgradeButton(defender, gameState, onUpgradeDefender = onUpgradeDefender, isMobile = isMobile)
-                                }
-
-                                Column(modifier = Modifier.weight(0.8f)) {
-                                    UndoOrSellButton(
-                                        defender = defender,
-                                        gameState = gameState,
-                                        onUndoTower = onUndoTower,
-                                        onSellTower = onSellTower,
-                                        isMobile = isMobile
-                                    )
-                                }
-
-                                // Attack button inline with other buttons on mobile
-                                if (isPlayerTurn &&
-                                    defender.type != DefenderType.DWARVEN_MINE &&
-                                    defender.type != DefenderType.DRAGONS_LAIR &&
-                                    onDefenderAttack != null &&
-                                    onDefenderAttackPosition != null) {
-                                    Column(modifier = Modifier.weight(0.8f)) {
-                                        AttackButton(
-                                            defender = defender,
-                                            gameState = gameState,
-                                            selectedTargetId = selectedTargetId,
-                                            selectedTargetPosition = selectedTargetPosition,
-                                            onDefenderAttack = { defenderId, targetId ->
-                                                onDefenderAttack(defenderId, targetId)
-                                            },
-                                            onDefenderAttackPosition = { defenderId, targetPos ->
-                                                onDefenderAttackPosition(defenderId, targetPos)
-                                            },
-                                            modifier = Modifier
-                                                .offset(y = (-6).dp)
-                                                .width(240.dp)
-                                                .height(100.dp)
-                                        )
-                                    }
-                                }
-
-                                dwarvenMineActionButtonArea(
-                                    defender.type,
-                                    gameState,
-                                    defender,
-                                    onMineAction,
-                                    compactBuyPanel
+                            // Current stats column
+                            Column(modifier = Modifier.weight(0.5f)) {
+                                Text(
+                                    "Current:",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                TowerStats(
+                                    defender.type.minRange,
+                                    if (defender.type == DefenderType.DWARVEN_MINE) defender.trapDamage else defender.actualDamage,
+                                    defender.range,
+                                    defender.actionsPerTurnCalculated
                                 )
                             }
-                        } else {
-                            */
-                            // Desktop: Original layout with 4 columns
 
-                            // Row(
-                            //     modifier = Modifier.fillMaxWidth().border(1.dp, Color.Magenta)
-                            // ) {
-                                // Current stats column
-                                Column(modifier = Modifier.weight(0.5f)) {
-                                    Text(
-                                        "Current:",
-                                        style = MaterialTheme.typography.labelSmall,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                    TowerStats(
-                                        defender.type.minRange,
-                                        if (defender.type == DefenderType.DWARVEN_MINE) defender.trapDamage else defender.actualDamage,
-                                        defender.range,
-                                        defender.actionsPerTurnCalculated
-                                    )
-                                }
+                            // After upgrade stats column
+                            Column(modifier = Modifier.weight(0.5f)) {
+                                Text(
+                                    "Upgrade:",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontWeight = FontWeight.Bold,
+                                    color = if (gameState.canUpgradeDefender(defender)) Color(0xFF4CAF50) else Color.Gray
+                                )
+                                TowerStats(
+                                    defender.type.minRange,
+                                    nextActualDamage,
+                                    nextRange,
+                                    nextActions
+                                )
+                            }
 
-                                // After upgrade stats column
-                                Column(modifier = Modifier.weight(0.5f)) {
-                                    Text(
-                                        "Upgrade:",
-                                        style = MaterialTheme.typography.labelSmall,
-                                        fontWeight = FontWeight.Bold,
-                                        color = if (gameState.canUpgradeDefender(defender)) Color(0xFF4CAF50) else Color.Gray
-                                    )
-                                    TowerStats(
-                                        defender.type.minRange,
-                                        nextActualDamage,
-                                        nextRange,
-                                        nextActions
-                                    )
-                                }
-
-                                Column(modifier = Modifier.weight(1f),
-                                    verticalArrangement = Arrangement.Center,
+                            Column(modifier = Modifier.weight(1f),
+                                verticalArrangement = Arrangement.Center,
+                            ) {
+                                UpgradeButton(defender, gameState,
+                                    onUpgradeDefender = onUpgradeDefender,
+                                    modifier = Modifier
+                                        .width(240.dp)
+                                        .height(buttonHeight),
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(horizontalSpacing))
+                            Column(modifier = Modifier.weight(1f),
+                                verticalArrangement = Arrangement.Center,
                                 ) {
-                                    UpgradeButton(defender, gameState, onUpgradeDefender = onUpgradeDefender, isMobile = isMobile)
-                                }
+                                UndoOrSellButton(
+                                    defender = defender,
+                                    gameState = gameState,
+                                    onUndoTower = onUndoTower,
+                                    onSellTower = onSellTower,
+                                    modifier = Modifier
+                                        .width(240.dp)
+                                        .height(buttonHeight)
+                                )
+                            }
+
+                            if (isPlayerTurn &&
+                                defender.type != DefenderType.DWARVEN_MINE &&
+                                defender.type != DefenderType.DRAGONS_LAIR &&
+                                onDefenderAttack != null &&
+                                onDefenderAttackPosition != null) {
                                 Spacer(modifier = Modifier.width(horizontalSpacing))
-                                Column(modifier = Modifier.weight(1f),
-                                    verticalArrangement = Arrangement.Center,
-                                    ) {
-                                    UndoOrSellButton(
+                                Column(modifier = Modifier.weight(1f)) {
+                                    AttackButton(
                                         defender = defender,
                                         gameState = gameState,
-                                        onUndoTower = onUndoTower,
-                                        onSellTower = onSellTower,
-                                        isMobile = isMobile
+                                        selectedTargetId = selectedTargetId,
+                                        selectedTargetPosition = selectedTargetPosition,
+                                        onDefenderAttack = { defenderId, targetId ->
+                                            onDefenderAttack(defenderId, targetId)
+                                        },
+                                        onDefenderAttackPosition = { defenderId, targetPos ->
+                                            onDefenderAttackPosition(defenderId, targetPos)
+                                        },
+                                        modifier = Modifier
+                                            .width(240.dp)
+                                            .height(buttonHeight)
                                     )
                                 }
+                            }
 
-                                // Attack button for desktop
-                                if (isPlayerTurn &&
-                                    defender.type != DefenderType.DWARVEN_MINE &&
-                                    defender.type != DefenderType.DRAGONS_LAIR &&
-                                    onDefenderAttack != null &&
-                                    onDefenderAttackPosition != null) {
-                                    Spacer(modifier = Modifier.width(horizontalSpacing))
-                                    Column(modifier = Modifier.weight(1f)) {
-                                        AttackButton(
-                                            defender = defender,
-                                            gameState = gameState,
-                                            selectedTargetId = selectedTargetId,
-                                            selectedTargetPosition = selectedTargetPosition,
-                                            onDefenderAttack = { defenderId, targetId ->
-                                                onDefenderAttack(defenderId, targetId)
-                                            },
-                                            onDefenderAttackPosition = { defenderId, targetPos ->
-                                                onDefenderAttackPosition(defenderId, targetPos)
-                                            },
-                                            modifier = Modifier
-                                                .offset(y = (-12).dp)
-                                                .width(240.dp)
-                                                .height(60.dp)
-                                        )
-                                    }
-                                }
-
-                                dwarvenMineActionButtonArea(
-                                    defender.type,
-                                    gameState,
-                                    defender,
-                                    onMineAction,
-                                    compactBuyPanel,
-                                    horizontalSpacing
-                                )
-                            //}
+                            dwarvenMineActionButtonArea(
+                                defender.type,
+                                gameState,
+                                defender,
+                                onMineAction,
+                                compactBuyPanel,
+                                horizontalSpacing,
+                                buttonHeight
+                            )
                         }
                     }
                 }
-           // }
         }
     }
 }
@@ -1945,7 +1849,8 @@ private fun RowScope.dwarvenMineActionButtonArea(
     defender: Defender,
     onMineAction: ((Int, MineAction) -> Unit)?,
     compactBuyPanel: Boolean = false,
-    horizontalSpacing: Dp = 8.dp
+    horizontalSpacing: Dp = 8.dp,
+    buttonHeight: Dp = 60.dp
 
 ) {
     if (type == DefenderType.DWARVEN_MINE) {
@@ -1960,7 +1865,7 @@ private fun RowScope.dwarvenMineActionButtonArea(
                     enabled = mineActionsEnabled,
                     modifier = Modifier
                         .width(240.dp)
-                        .height(60.dp)
+                        .height(buttonHeight)
                         .padding(start = horizontalSpacing),
                     contentPadding = PaddingValues(
                         horizontal = 4.dp,
@@ -1989,7 +1894,7 @@ private fun RowScope.dwarvenMineActionButtonArea(
                     enabled = mineActionsEnabled,
                     modifier = Modifier
                         .width(240.dp)
-                        .height(60.dp)
+                        .height(buttonHeight)
                         .padding(start = horizontalSpacing),
                     contentPadding = PaddingValues(
                         horizontal = 4.dp,
@@ -2044,21 +1949,11 @@ fun UpgradeButton(
         .width(240.dp)
         .height(60.dp),
     onUpgradeDefender: (Int) -> Unit,
-    isMobile: Boolean = false  // Add platform parameter
 ) {
-    // Increase height for mobile to make buttons more usable
-    val buttonModifier = if (isMobile) {
-        Modifier
-            .width(240.dp)
-            .height(100.dp)  // Taller on mobile (becomes 50dp with 0.5x scaling)
-    } else {
-        modifier
-    }
-
     Button(
         onClick = { onUpgradeDefender(defender.id) },
         enabled = gameState.canUpgradeDefender(defender),
-        modifier = buttonModifier,
+        modifier = modifier,
         contentPadding = PaddingValues(horizontal = 6.dp, vertical = 4.dp)
     ) {
         Column(
@@ -2088,18 +1983,8 @@ fun UndoOrSellButton(
     modifier: Modifier = Modifier
         .width(240.dp)
         .height(60.dp),
-    isMobile: Boolean = false  // Add platform parameter
 ) {
     var showSellConfirmation by remember { mutableStateOf(false) }
-
-    // Increase height for mobile to make buttons more usable
-    val buttonModifier = if (isMobile) {
-        Modifier
-            .width(240.dp)
-            .height(100.dp)  // Taller on mobile (becomes 50dp with 0.5x scaling)
-    } else {
-        modifier
-    }
 
     // Determine if undo or sell is available
     val canUndo = defender.placedOnTurn == gameState.turnNumber.value && !defender.hasBeenUsed.value
@@ -2110,7 +1995,7 @@ fun UndoOrSellButton(
         Button(
             onClick = { onUndoTower(defender.id) },
             enabled = true,
-            modifier = buttonModifier,
+            modifier = modifier,
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFF4CAF50)  // Green for undo
             ),
@@ -2138,7 +2023,7 @@ fun UndoOrSellButton(
         Button(
             onClick = { showSellConfirmation = true },
             enabled = true,
-            modifier = buttonModifier,
+            modifier = modifier,
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFFFF9800)  // Orange for sell
             ),
@@ -2196,7 +2081,7 @@ fun UndoOrSellButton(
         Button(
             onClick = { },
             enabled = false,
-            modifier = buttonModifier,
+            modifier = modifier,
             contentPadding = PaddingValues(horizontal = 6.dp, vertical = 4.dp)
         ) {
             Column(
