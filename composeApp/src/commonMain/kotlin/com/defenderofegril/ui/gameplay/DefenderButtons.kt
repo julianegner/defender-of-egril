@@ -172,33 +172,35 @@ fun DefenderButton(
 
 @Composable
 fun TowerStats(minRange: Int, damage: Int, range: Int, actionsPerTurn: Int) {
-    IconTextRow(
-        icon = { size -> ExplosionIcon(size = size) },
-        text = damage.toString(),
-        iconSize = GamePlayConstants.IconSizes.Small,
-        spacerWidth = GamePlayConstants.Spacing.IconText
-    )
-    
-    if (minRange > 0) {
+    Column {
         IconTextRow(
-            icon = { size -> TargetIcon(size = size) },
-            text = "$minRange-$range",
+            icon = { size -> ExplosionIcon(size = size) },
+            text = damage.toString(),
             iconSize = GamePlayConstants.IconSizes.Small,
             spacerWidth = GamePlayConstants.Spacing.IconText
         )
-    } else {
+        
+        if (minRange > 0) {
+            IconTextRow(
+                icon = { size -> TargetIcon(size = size) },
+                text = "$minRange-$range",
+                iconSize = GamePlayConstants.IconSizes.Small,
+                spacerWidth = GamePlayConstants.Spacing.IconText
+            )
+        } else {
+            IconTextRow(
+                icon = { size -> TargetIcon(size = size) },
+                text = range.toString(),
+                iconSize = GamePlayConstants.IconSizes.Small,
+                spacerWidth = GamePlayConstants.Spacing.IconText
+            )
+        }
+        
         IconTextRow(
-            icon = { size -> TargetIcon(size = size) },
-            text = range.toString(),
+            icon = { size -> LightningIcon(size = size) },
+            text = actionsPerTurn.toString(),
             iconSize = GamePlayConstants.IconSizes.Small,
             spacerWidth = GamePlayConstants.Spacing.IconText
         )
     }
-    
-    IconTextRow(
-        icon = { size -> LightningIcon(size = size) },
-        text = actionsPerTurn.toString(),
-        iconSize = GamePlayConstants.IconSizes.Small,
-        spacerWidth = GamePlayConstants.Spacing.IconText
-    )
 }
