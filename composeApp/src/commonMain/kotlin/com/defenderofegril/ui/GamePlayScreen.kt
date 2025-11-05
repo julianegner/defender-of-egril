@@ -1722,6 +1722,7 @@ fun DefenderInfo(
 
                         // Stats and upgrade button in columns
                         // On mobile, use more compact layout
+                        /*
                         if (isMobile) {
                             // Mobile: More compact horizontal layout
                             Row(
@@ -1814,6 +1815,7 @@ fun DefenderInfo(
                                 )
                             }
                         } else {
+                            */
                             // Desktop: Original layout with 4 columns
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
@@ -1897,7 +1899,7 @@ fun DefenderInfo(
                                     compactBuyPanel
                                 )
                             }
-                        }
+                       // }
                     }
                 }
             }
