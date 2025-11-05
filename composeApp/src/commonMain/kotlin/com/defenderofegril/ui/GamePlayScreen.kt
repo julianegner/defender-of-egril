@@ -1613,7 +1613,8 @@ fun DefenderInfo(
                     Spacer(modifier = Modifier.width(horizontalSpacing))
 
                     // Tower name and level
-                    Column(modifier = Modifier.weight(1f)) {
+                    Column(modifier = Modifier.weight(1f)
+                    ) {
                         val displayName = if (defender.type == DefenderType.DRAGONS_LAIR) {
                             // Check if the specific dragon from this lair is still alive
                             val dragonAlive = defender.dragonId.value?.let { dragonId ->
@@ -1932,12 +1933,14 @@ private fun RowScope.dwarvenMineActionButtonArea(
 
         if (mineActionsEnabled || gameState.phase.value == GamePhase.INITIAL_BUILDING) {
             // Dig button
-            Spacer(modifier = Modifier.width(horizontalSpacing))
             Column(modifier = Modifier.weight(0.5f)) {
                 Button(
                     onClick = { onMineAction?.invoke(defender.id, MineAction.DIG) },
                     enabled = mineActionsEnabled,
-                    modifier = Modifier.width(240.dp).height(60.dp),
+                    modifier = Modifier
+                        .width(240.dp)
+                        .height(60.dp)
+                        .padding(start = horizontalSpacing),
                     contentPadding = PaddingValues(
                         horizontal = 4.dp,
                         vertical = 2.dp
@@ -1952,7 +1955,7 @@ private fun RowScope.dwarvenMineActionButtonArea(
                 }
             }
 
-            Spacer(modifier = Modifier.width(horizontalSpacing))
+
             Column(modifier = Modifier.weight(0.5f)) {
                 // Trap button
                 Button(
@@ -1963,7 +1966,10 @@ private fun RowScope.dwarvenMineActionButtonArea(
                         )
                     },
                     enabled = mineActionsEnabled,
-                    modifier = Modifier.width(240.dp).height(60.dp),
+                    modifier = Modifier
+                        .width(240.dp)
+                        .height(60.dp)
+                        .padding(start = horizontalSpacing),
                     contentPadding = PaddingValues(
                         horizontal = 4.dp,
                         vertical = 2.dp
