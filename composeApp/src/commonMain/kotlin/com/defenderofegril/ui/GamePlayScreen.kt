@@ -1478,7 +1478,9 @@ fun AttackButton(
                                 Text(
                                     "ATTACK",
                                     fontSize = 16.sp,
-                                    fontWeight = FontWeight.Bold
+                                    fontWeight = FontWeight.Bold,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Clip
                                 )
                                 Text(
                                     "${target.type.displayName} (${target.currentHealth.value}/${target.maxHealth} HP) + Area",
@@ -1787,8 +1789,9 @@ fun DefenderInfo(
                                 defender.type != DefenderType.DRAGONS_LAIR &&
                                 onDefenderAttack != null &&
                                 onDefenderAttackPosition != null) {
+
                                 Spacer(modifier = Modifier.width(horizontalSpacing))
-                                Column(modifier = Modifier.weight(1f)) {
+                                Column(modifier = Modifier.weight(1.3f)) {
                                     AttackButton(
                                         defender = defender,
                                         gameState = gameState,
