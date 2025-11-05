@@ -139,39 +139,12 @@ private fun CompactGameHeader(
         verticalAlignment = Alignment.CenterVertically
     ) {
         // Statistics at far left
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Clickable coins display for cheat codes
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.clickable(
-                    onClick = {
-                        if (onCheatCode != null) {
-                            onCheatCode()
-                        }
-                    }
-                )
-            ) {
-                MoneyIcon(size = 16.dp)
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(
-                    "${gameState.coins.value}",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                HeartIcon(size = 16.dp)
-                Spacer(modifier = Modifier.width(4.dp))
-                Text("${gameState.healthPoints.value}", style = MaterialTheme.typography.bodyMedium)
-            }
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                ReloadIcon(size = 14.dp)
-                Spacer(modifier = Modifier.width(4.dp))
-                Text("${gameState.turnNumber.value}", style = MaterialTheme.typography.bodySmall)
-            }
-        }
+        CompactStatsRow(
+            coins = gameState.coins.value,
+            health = gameState.healthPoints.value,
+            turn = gameState.turnNumber.value,
+            onCoinsClick = onCheatCode
+        )
 
         // Level name in center (without prefix, bold when collapsed)
         Text(
@@ -237,47 +210,26 @@ private fun GameStats(
     gameState: GameState,
     onCheatCode: (() -> Unit)?
 ) {
-    Column {
-        // Clickable coins display for cheat codes with icon
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.clickable(
-                onClick = {
-                    if (onCheatCode != null) {
-                        onCheatCode()
-                    }
-                }
-            )
-        ) {
-            MoneyIcon(size = 20.dp)
-            Spacer(modifier = Modifier.width(4.dp))
-            Text(
-                "${gameState.coins.value}",
-                style = MaterialTheme.typography.bodyLarge
-            )
-        }
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            HeartIcon(size = 20.dp)
-            Spacer(modifier = Modifier.width(4.dp))
-            Text("${gameState.healthPoints.value}", style = MaterialTheme.typography.bodyLarge)
-        }
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            ReloadIcon(size = 18.dp)
-            Spacer(modifier = Modifier.width(4.dp))
-            Text("Turn ${gameState.turnNumber.value}", style = MaterialTheme.typography.bodyMedium)
-        }
+    GameStatsDisplay(
+        coins = gameState.coins.value,
+        health = gameState.healthPoints.value,
+        turn = gameState.turnNumber.value,
+        iconSize = 20.dp,
+        textStyle = MaterialTheme.typography.bodyLarge,
+        onCoinsClick = onCheatCode
+    )
+    
+    // Enemy count display
+    val activeEnemies = gameState.attackers.count { !it.isDefeated.value }
+    val totalSpawned = gameState.nextAttackerId.value - 1
+    val plannedSpawns = gameState.spawnPlan.drop(totalSpawned)
+    val remainingEnemies = plannedSpawns.size
 
-        val activeEnemies = gameState.attackers.count { !it.isDefeated.value }
-        val totalSpawned = gameState.nextAttackerId.value - 1
-        val plannedSpawns = gameState.spawnPlan.drop(totalSpawned)
-        val remainingEnemies = plannedSpawns.size
-
-        Text(
-            "Enemies: $activeEnemies active, $remainingEnemies to come",
-            style = MaterialTheme.typography.bodyMedium,
-            color = Color(0xFFF44336)
-        )
-    }
+    Text(
+        "Enemies: $activeEnemies active, $remainingEnemies to come",
+        style = MaterialTheme.typography.bodyMedium,
+        color = Color(0xFFF44336)
+    )
 }
 
 @Composable
