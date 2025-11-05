@@ -49,49 +49,6 @@ import kotlin.math.sqrt
 // UI Constants
 private val ATTACK_BUTTON_COLOR = Color(0xFFD32F2F)
 
-/**
- * A pointy-top hexagon shape for Compose
- */
-class HexagonShape : Shape {
-    override fun createOutline(
-        size: Size,
-        layoutDirection: LayoutDirection,
-        density: Density
-    ): Outline {
-        val path = Path().apply {
-            val width = size.width
-            val height = size.height
-            val centerX = width / 2f
-            val centerY = height / 2f
-
-            // For pointy-top hexagon:
-            // The hexagon has flat sides on left and right
-            // Points at top and bottom
-            val radius = minOf(width, height) / 2f
-
-            // Calculate the 6 vertices of a pointy-top hexagon
-            // Starting from the top and going clockwise
-            val sqrt3 = sqrt(3.0).toFloat()
-
-            // Top point
-            moveTo(centerX, centerY - radius)
-            // Top-right
-            lineTo(centerX + radius * sqrt3 / 2f, centerY - radius / 2f)
-            // Bottom-right
-            lineTo(centerX + radius * sqrt3 / 2f, centerY + radius / 2f)
-            // Bottom point
-            lineTo(centerX, centerY + radius)
-            // Bottom-left
-            lineTo(centerX - radius * sqrt3 / 2f, centerY + radius / 2f)
-            // Top-left
-            lineTo(centerX - radius * sqrt3 / 2f, centerY - radius / 2f)
-            // Close the path
-            close()
-        }
-        return Outline.Generic(path)
-    }
-}
-
 @Composable
 fun GamePlayScreen(
     gameState: GameState,
