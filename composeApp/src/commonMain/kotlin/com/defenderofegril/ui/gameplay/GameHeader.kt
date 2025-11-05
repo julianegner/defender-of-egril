@@ -163,43 +163,43 @@ private fun CompactGameHeader(
             if (onSaveGame != null) {
                 Button(
                     onClick = onSaveGame,
-                    modifier = Modifier.height(32.dp),
-                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp)
+                    modifier = Modifier.height(GamePlayConstants.ButtonSizes.CompactHeight),
+                    contentPadding = PaddingValues(horizontal = GamePlayConstants.Spacing.Items, vertical = 0.dp)
                 ) {
-                    SaveIcon(size = 16.dp, modifier = Modifier.align(Alignment.CenterVertically))
+                    SaveIcon(size = GamePlayConstants.IconSizes.Medium, modifier = Modifier.align(Alignment.CenterVertically))
                 }
             }
 
             Button(
                 onClick = onBackToMap,
-                modifier = Modifier.height(32.dp),
-                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp)
+                modifier = Modifier.height(GamePlayConstants.ButtonSizes.CompactHeight),
+                contentPadding = PaddingValues(horizontal = GamePlayConstants.Spacing.Items, vertical = 0.dp)
             ) {
-                Text("Map", fontSize = 12.sp, modifier = Modifier.align(Alignment.CenterVertically))
+                Text("Map", fontSize = GamePlayConstants.TextSizes.Body, modifier = Modifier.align(Alignment.CenterVertically))
             }
 
             Button(
                 onClick = { onShowOverlayChange(!showOverlay) },
-                modifier = Modifier.height(32.dp),
-                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp),
+                modifier = Modifier.height(GamePlayConstants.ButtonSizes.CompactHeight),
+                contentPadding = PaddingValues(horizontal = GamePlayConstants.Spacing.Items, vertical = 0.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = if (showOverlay) GamePlayColors.Success else GamePlayColors.Info
                 )
             ) {
                 if (showOverlay) {
-                    TriangleRightIcon(size = 12.dp)
+                    TriangleRightIcon(size = GamePlayConstants.IconSizes.Small)
                 } else {
-                    TriangleLeftIcon(size = 12.dp)
+                    TriangleLeftIcon(size = GamePlayConstants.IconSizes.Small)
                 }
             }
 
             // Fold button
             Button(
                 onClick = onHeaderExpand,
-                modifier = Modifier.size(32.dp),
+                modifier = Modifier.size(GamePlayConstants.ButtonSizes.CompactHeight),
                 contentPadding = PaddingValues(0.dp)
             ) {
-                TriangleDownIcon(size = 12.dp, tint = Color.White)
+                TriangleDownIcon(size = GamePlayConstants.IconSizes.Small, tint = Color.White)
             }
         }
     }
