@@ -94,7 +94,7 @@ class CheatCodeHandlerTest {
                 addCoins = { },
                 performMineDigWithOutcome = { outcome -> 
                     requestedOutcome = outcome
-                    outcome // Return the outcome back
+                    outcome // Return the same outcome
                 },
                 spawnEnemy = { _, _ -> }
             )

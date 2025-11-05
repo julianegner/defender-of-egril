@@ -18,7 +18,8 @@ object CheatCodeHandler {
      * @param addCoins Callback to add coins to the game
      * @param performMineDigWithOutcome Callback to perform mine dig with a specific outcome
      * @param spawnEnemy Callback to spawn an enemy
-     * @return true if the cheat code was recognized and applied, false otherwise
+     * @return Pair of (success: Boolean, digOutcome: DigOutcome?). Success is true if the cheat code 
+     *         was recognized and applied. DigOutcome is non-null if a dig cheat was applied.
      */
     fun applyCheatCode(
         code: String,
@@ -27,16 +28,15 @@ object CheatCodeHandler {
         spawnEnemy: (AttackerType, Int) -> Unit
     ): Pair<Boolean, DigOutcome?> {
         val lowercaseCode = code.lowercase().trim()
-        var digOutcome: DigOutcome? = null
         
         // Helper function to apply dig outcome cheat
-        fun applyDigCheat(outcome: DigOutcome): Boolean {
+        fun applyDigCheat(outcome: DigOutcome): Pair<Boolean, DigOutcome?> {
             val result = performMineDigWithOutcome(outcome)
-            if (result != null) {
-                digOutcome = result
-                return true
+            return if (result != null) {
+                Pair(true, result)
+            } else {
+                Pair(false, null)
             }
-            return false
         }
         
         // Handle simple one-word cheatcodes
@@ -50,13 +50,13 @@ object CheatCodeHandler {
                 return Pair(true, null)
             }
             // Dig outcome cheat codes
-            "dig nothing", "dig rubble" -> return Pair(applyDigCheat(DigOutcome.NOTHING), digOutcome)
-            "dig brass" -> return Pair(applyDigCheat(DigOutcome.BRASS), digOutcome)
-            "dig silver" -> return Pair(applyDigCheat(DigOutcome.SILVER), digOutcome)
-            "dig gold" -> return Pair(applyDigCheat(DigOutcome.GOLD), digOutcome)
-            "dig gems", "dig gem" -> return Pair(applyDigCheat(DigOutcome.GEMS), digOutcome)
-            "dig diamond" -> return Pair(applyDigCheat(DigOutcome.DIAMOND), digOutcome)
-            "dig dragon", "dragon" -> return Pair(applyDigCheat(DigOutcome.DRAGON), digOutcome)
+            "dig nothing", "dig rubble" -> return applyDigCheat(DigOutcome.NOTHING)
+            "dig brass" -> return applyDigCheat(DigOutcome.BRASS)
+            "dig silver" -> return applyDigCheat(DigOutcome.SILVER)
+            "dig gold" -> return applyDigCheat(DigOutcome.GOLD)
+            "dig gems", "dig gem" -> return applyDigCheat(DigOutcome.GEMS)
+            "dig diamond" -> return applyDigCheat(DigOutcome.DIAMOND)
+            "dig dragon", "dragon" -> return applyDigCheat(DigOutcome.DRAGON)
         }
         
         // Handle "spawn <type> <level>" cheatcode
