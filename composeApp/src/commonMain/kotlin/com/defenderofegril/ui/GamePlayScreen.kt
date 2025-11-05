@@ -44,6 +44,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.zIndex
 import com.defenderofegril.model.*
+import com.defenderofegril.ui.icon.enemy.EnemyIcon
+import com.defenderofegril.ui.icon.enemy.EnemyTypeIcon
 import kotlin.math.sqrt
 
 // UI Constants
