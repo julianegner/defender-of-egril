@@ -1587,10 +1587,11 @@ fun DefenderInfo(
         Card(
             modifier = Modifier
                 .fillMaxWidth()
+                .padding(if (isMobile) 4.dp else 8.dp)
         ) {
             // Reduce padding on mobile to save space
-            val cardPadding = if (isMobile) 4.dp else 8.dp
-            Column(modifier = Modifier.padding(cardPadding)) {
+            // val cardPadding = if (isMobile) 4.dp else 8.dp
+            // Column(modifier = Modifier.padding(cardPadding)) {
                 // Tower icon, name, and actions in one row
                 Row(
                     // modifier = Modifier.fillMaxWidth(),
@@ -1902,7 +1903,7 @@ fun DefenderInfo(
                        // }
                     }
                 }
-            }
+           // }
         }
     }
 }
