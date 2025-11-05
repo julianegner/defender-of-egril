@@ -557,9 +557,6 @@ private fun GamePlayScreenContent(
                         if (onSellTower(defenderId)) {
                             selectedDefenderType = null
                             selectedDefenderId = null
-                            true
-                        } else {
-                            false
                         }
                     },
                     onDefenderAttack = { _, _ -> false },
@@ -590,9 +587,6 @@ private fun GamePlayScreenContent(
                         if (onSellTower(defenderId)) {
                             selectedDefenderType = null
                             selectedDefenderId = null
-                            true
-                        } else {
-                            false
                         }
                     },
                     onDefenderAttack = { defenderId, targetId ->
