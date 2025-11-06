@@ -420,8 +420,11 @@ fun GridCell(
         val isAreaTargetPosition = selectedTargetPosition == position
         if (isAreaTargetPosition) {
             // Determine the attack type to choose the correct color
-            val selectedDefender = selectedDefenderId?.let { id ->
-                gameState.defenders.find { it.id == id }
+            // Cache the selected defender to avoid repeated lookups
+            val selectedDefender = remember(selectedDefenderId, gameState.defenders.size) {
+                selectedDefenderId?.let { id ->
+                    gameState.defenders.find { it.id == id }
+                }
             }
             
             val markerColor = when (selectedDefender?.type?.attackType) {
@@ -431,7 +434,10 @@ fun GridCell(
             }
             
             markerColor?.let { color ->
-                // Draw concentric circles: point in middle, circle around it, another circle around that
+                // Draw concentric circles as target marker:
+                // - Inner solid circle (4px radius) at center
+                // - Middle stroke circle (12px radius, 2px stroke)
+                // - Outer stroke circle (20px radius, 2px stroke)
                 Canvas(
                     modifier = Modifier
                         .fillMaxSize()
