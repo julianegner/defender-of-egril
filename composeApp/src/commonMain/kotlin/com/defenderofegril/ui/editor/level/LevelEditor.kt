@@ -1,4 +1,4 @@
-package com.defenderofegril.ui.editor
+package com.defenderofegril.ui.editor.level
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -9,10 +9,17 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.defenderofegril.editor.EditorEnemySpawn
+import com.defenderofegril.editor.EditorLevel
 import com.defenderofegril.editor.EditorStorage
+import com.defenderofegril.model.AttackerType
+import com.defenderofegril.model.DefenderType
 import com.defenderofegril.ui.*
+import com.defenderofegril.ui.editor.CreateLevelDialog
+import com.defenderofegril.ui.editor.MapSelectionCard
+import com.defenderofegril.ui.editor.SaveAsDialog
+import kotlin.random.Random
 
 /**
  * Main content for the Level Editor tab
@@ -21,7 +28,7 @@ import com.defenderofegril.ui.*
 fun LevelEditorContent() {
     val levels = remember { mutableStateOf(EditorStorage.getAllLevels()) }
     var selectedLevelId by remember { mutableStateOf<String?>(null) }
-    var editingLevel by remember { mutableStateOf<com.defenderofegril.editor.EditorLevel?>(null) }
+    var editingLevel by remember { mutableStateOf<EditorLevel?>(null) }
     var showCreateDialog by remember { mutableStateOf(false) }
     
     if (editingLevel != null) {
@@ -144,11 +151,11 @@ fun LevelEditorContent() {
                 val newId = if (sanitizedTitle.isNotEmpty()) {
                     "level_$sanitizedTitle"
                 } else {
-                    "level_custom_${kotlin.random.Random.nextInt(10000, 99999)}"
+                    "level_custom_${Random.nextInt(10000, 99999)}"
                 }
                 // Get first ready-to-use map
                 val firstReadyMap = EditorStorage.getAllMaps().filter { it.readyToUse }.firstOrNull()
-                val newLevel = com.defenderofegril.editor.EditorLevel(
+                val newLevel = EditorLevel(
                     id = newId,
                     mapId = firstReadyMap?.id ?: "map_30x8",
                     title = title,
@@ -156,8 +163,8 @@ fun LevelEditorContent() {
                     startCoins = 100,
                     startHealthPoints = 10,
                     enemySpawns = emptyList(),
-                    availableTowers = com.defenderofegril.model.DefenderType.entries.filter { 
-                        it != com.defenderofegril.model.DefenderType.DRAGONS_LAIR 
+                    availableTowers = DefenderType.entries.filter {
+                        it != DefenderType.DRAGONS_LAIR
                     }.toSet()
                 )
                 EditorStorage.saveLevel(newLevel)
@@ -174,8 +181,8 @@ fun LevelEditorContent() {
  */
 @Composable
 fun LevelEditorView(
-    level: com.defenderofegril.editor.EditorLevel,
-    onSave: (com.defenderofegril.editor.EditorLevel) -> Unit,
+    level: EditorLevel,
+    onSave: (EditorLevel) -> Unit,
     onCancel: () -> Unit
 ) {
     var title by remember { mutableStateOf(level.title) }
@@ -193,7 +200,7 @@ fun LevelEditorView(
     val maps = remember { EditorStorage.getAllMaps().filter { it.readyToUse } }
     
     // Check if Ewhad is already in spawn list
-    val ewhadCount = enemySpawns.count { it.attackerType == com.defenderofegril.model.AttackerType.EWHAD }
+    val ewhadCount = enemySpawns.count { it.attackerType == AttackerType.EWHAD }
     
     Column(
         modifier = Modifier.fillMaxSize()
@@ -284,11 +291,13 @@ fun LevelEditorView(
                         // Add a new turn (next available)
                         val nextTurn = (enemySpawns.maxOfOrNull { it.spawnTurn } ?: 0) + 1
                         enemySpawns = enemySpawns.toMutableList().apply {
-                            add(com.defenderofegril.editor.EditorEnemySpawn(
-                                com.defenderofegril.model.AttackerType.GOBLIN, 
-                                1, 
-                                nextTurn
-                            ))
+                            add(
+                                EditorEnemySpawn(
+                                    AttackerType.GOBLIN,
+                                    1,
+                                    nextTurn
+                                )
+                            )
                         }
                     }) {
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -368,7 +377,7 @@ fun LevelEditorView(
                 )
             }
             
-            items(com.defenderofegril.model.DefenderType.entries.filter { it != com.defenderofegril.model.DefenderType.DRAGONS_LAIR }) { tower ->
+            items(DefenderType.entries.filter { it != DefenderType.DRAGONS_LAIR }) { tower ->
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
@@ -438,7 +447,7 @@ fun LevelEditorView(
             onDismiss = { showEnemyDialog = false },
             onAdd = { enemyType, level ->
                 enemySpawns = enemySpawns.toMutableList().apply {
-                    add(com.defenderofegril.editor.EditorEnemySpawn(enemyType, level, showEnemyDialogForTurn))
+                    add(EditorEnemySpawn(enemyType, level, showEnemyDialogForTurn))
                 }
                 showEnemyDialog = false
             }
@@ -457,7 +466,7 @@ fun LevelEditorView(
                 val newId = if (sanitizedTitle.isNotEmpty()) {
                     "level_$sanitizedTitle"
                 } else {
-                    "level_copy_${kotlin.random.Random.nextInt(10000, 99999)}"
+                    "level_copy_${Random.nextInt(10000, 99999)}"
                 }
                 val newLevel = level.copy(
                     id = newId,

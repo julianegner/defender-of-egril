@@ -1,4 +1,4 @@
-package com.defenderofegril.ui.editor
+package com.defenderofegril.ui.editor.level
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -13,6 +13,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.defenderofegril.editor.EditorEnemySpawn
+import com.defenderofegril.model.AttackerType
 import com.defenderofegril.ui.*
 
 /**
@@ -23,13 +25,13 @@ fun AddEnemyDialog(
     ewhadCount: Int = 0,
     turn: Int,
     onDismiss: () -> Unit,
-    onAdd: (com.defenderofegril.model.AttackerType, Int) -> Unit
+    onAdd: (AttackerType, Int) -> Unit
 ) {
-    var selectedType by remember { mutableStateOf(com.defenderofegril.model.AttackerType.GOBLIN) }
+    var selectedType by remember { mutableStateOf(AttackerType.GOBLIN) }
     var level by remember { mutableStateOf("1") }
     
     // Check if trying to add Ewhad when one already exists
-    val canAddEwhad = selectedType != com.defenderofegril.model.AttackerType.EWHAD || ewhadCount == 0
+    val canAddEwhad = selectedType != AttackerType.EWHAD || ewhadCount == 0
     
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -40,7 +42,7 @@ fun AddEnemyDialog(
                 LazyColumn(
                     modifier = Modifier.height(150.dp).padding(bottom = 8.dp)
                 ) {
-                    items(com.defenderofegril.model.AttackerType.entries) { type ->
+                    items(AttackerType.entries) { type ->
                         Row(
                             modifier = Modifier.fillMaxWidth().clickable { selectedType = type }.padding(4.dp),
                             verticalAlignment = Alignment.CenterVertically
@@ -93,8 +95,8 @@ fun AddEnemyDialog(
 @Composable
 fun SpawnTurnSection(
     turn: Int,
-    spawns: List<com.defenderofegril.editor.EditorEnemySpawn>,
-    onRemoveEnemy: (com.defenderofegril.editor.EditorEnemySpawn) -> Unit,
+    spawns: List<EditorEnemySpawn>,
+    onRemoveEnemy: (EditorEnemySpawn) -> Unit,
     onCopyTurn: () -> Unit,
     onAddEnemy: () -> Unit,
     onMoveTurnUp: () -> Unit,
