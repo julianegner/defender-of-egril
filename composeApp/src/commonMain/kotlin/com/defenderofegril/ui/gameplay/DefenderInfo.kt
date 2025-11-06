@@ -14,6 +14,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.defenderofegril.model.*
 import com.defenderofegril.ui.*
+import com.defenderofegril.ui.icon.HoleIcon
+import com.defenderofegril.ui.icon.InfoIcon
+import com.defenderofegril.ui.icon.LightningIcon
+import com.defenderofegril.ui.icon.PickIcon
+import com.defenderofegril.ui.icon.SwordIcon
+import com.defenderofegril.ui.icon.TimerIcon
 
 @Composable
 fun DefenderInfo(

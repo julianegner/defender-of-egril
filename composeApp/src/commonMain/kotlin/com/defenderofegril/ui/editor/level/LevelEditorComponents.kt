@@ -16,6 +16,12 @@ import androidx.compose.ui.unit.sp
 import com.defenderofegril.editor.EditorEnemySpawn
 import com.defenderofegril.model.AttackerType
 import com.defenderofegril.ui.*
+import com.defenderofegril.ui.icon.DownArrowIcon
+import com.defenderofegril.ui.icon.ReloadIcon
+import com.defenderofegril.ui.icon.TrashIcon
+import com.defenderofegril.ui.icon.TriangleDownIcon
+import com.defenderofegril.ui.icon.TriangleRightIcon
+import com.defenderofegril.ui.icon.UpArrowIcon
 
 /**
  * Dialog for adding an enemy to a specific turn

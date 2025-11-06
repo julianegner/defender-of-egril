@@ -17,6 +17,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.defenderofegril.model.*
+import com.defenderofegril.ui.icon.LightningIcon
+import com.defenderofegril.ui.icon.TimerIcon
 import com.defenderofegril.ui.icon.defender.*
 import com.defenderofegril.ui.icon.enemy.EnemyIcon
 import com.defenderofegril.ui.icon.enemy.EnemyTypeIcon

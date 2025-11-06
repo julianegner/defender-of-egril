@@ -7,7 +7,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.defenderofegril.editor.TileType
-import com.defenderofegril.ui.PushpinIcon
+import com.defenderofegril.ui.icon.PushpinIcon
 
 /**
  * Button for selecting a tile type

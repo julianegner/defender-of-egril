@@ -12,6 +12,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.defenderofegril.model.*
 import com.defenderofegril.ui.*
+import com.defenderofegril.ui.icon.MoneyIcon
+import com.defenderofegril.ui.icon.SwordIcon
 
 // UI Constants
 private val ATTACK_BUTTON_COLOR = GamePlayColors.ErrorDark

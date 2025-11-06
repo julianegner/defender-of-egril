@@ -11,6 +11,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.defenderofegril.model.*
 import com.defenderofegril.ui.*
+import com.defenderofegril.ui.icon.ExplosionIcon
+import com.defenderofegril.ui.icon.LightningIcon
+import com.defenderofegril.ui.icon.MoneyIcon
+import com.defenderofegril.ui.icon.TargetIcon
+import com.defenderofegril.ui.icon.TimerIcon
 
 @Composable
 fun CompactDefenderButton(
