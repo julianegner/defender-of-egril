@@ -1,3 +1,5 @@
+@file:OptIn(org.jetbrains.compose.resources.InternalResourceApi::class)
+
 package com.defenderofegril.ui
 
 import androidx.compose.foundation.background
@@ -19,69 +21,89 @@ import com.defenderofegril.ui.icon.DoorIcon
 import com.defenderofegril.ui.icon.LightningIcon
 import com.defenderofegril.ui.icon.TargetIcon
 import com.defenderofegril.ui.icon.TimerIcon
+import com.defenderofegril.ui.settings.SettingsButton
+import com.hyperether.resources.stringResource
+import defender_of_egril.composeapp.generated.resources.*
+import defender_of_egril.composeapp.generated.resources.Res
 
 @Composable
 fun RulesScreen(
     onBack: () -> Unit
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+    Box(
+        modifier = Modifier.fillMaxSize().padding(16.dp)
     ) {
-        // Header
-        Text(
-            text = "How to Play",
-            style = MaterialTheme.typography.displayMedium,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(bottom = 16.dp)
+        // Settings button in top-right corner
+        SettingsButton(
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(8.dp)
         )
         
-        // Scrollable content
         Column(
-            modifier = Modifier
-                .weight(1f)
-                .verticalScroll(rememberScrollState())
-                .fillMaxWidth()
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // Header
+            Text(
+                text = stringResource(Res.string.how_to_play),
+                style = MaterialTheme.typography.displayMedium,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+            
+            // Scrollable content
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .verticalScroll(rememberScrollState())
+                    .fillMaxWidth()
+            ) {
             // Game Overview
-            SectionTitle("Game Overview")
-            SectionText("Defender of Egril is a turn-based tower defense game. Defend the meadows of Egril against waves of enemies under the evil banner of Ewhad.")
+            SectionTitle(stringResource(Res.string.game_overview))
+            SectionText(stringResource(Res.string.game_overview_text))
             
             Spacer(modifier = Modifier.height(16.dp))
             
             // Initial Building Phase
-            SectionTitle("Initial Building Phase")
-            SectionText("At the start of each level:")
-            BulletPoint("Place towers instantly (no build time)")
-            BulletPoint("Use your starting coins strategically")
-            BulletPoint("Towers are ready to attack immediately")
-            BulletPoint("Click \"Start Battle\" when ready")
+            SectionTitle(stringResource(Res.string.initial_building_phase))
+            SectionText(stringResource(Res.string.at_start_of_level))
+            BulletPoint(stringResource(Res.string.place_towers_instantly))
+            BulletPoint(stringResource(Res.string.use_coins_strategically))
+            BulletPoint(stringResource(Res.string.towers_ready_to_attack))
+            BulletPoint(stringResource(Res.string.click_start_battle))
             
             Spacer(modifier = Modifier.height(16.dp))
             
             // Your Turn
-            SectionTitle("Your Turn")
-            SectionText("During your turn, you can:")
-            BulletPointWithIcon("Timer", { TimerIcon(size = 14.dp) }, "Place New Towers - costs coins, requires build time")
+            SectionTitle(stringResource(Res.string.your_turn))
+            SectionText(stringResource(Res.string.during_your_turn))
+            BulletPointWithIcon("Timer", { TimerIcon(size = 14.dp) }, stringResource(Res.string.place_new_towers))
             BulletPointWithIcon("Lightning", { LightningIcon(size = 14.dp) }, "Attack Enemies - click tower with actions, then enemy in range")
-            BulletPoint("Upgrade Towers - increases damage and range")
-            BulletPoint("End Turn - click \"End Turn\" to finish")
+            BulletPoint(stringResource(Res.string.upgrade_towers))
+            BulletPoint(stringResource(Res.string.end_your_turn))
             
             Spacer(modifier = Modifier.height(16.dp))
             
             // Enemy Turn
-            SectionTitle("Enemy Turn")
-            BulletPoint("Enemies move toward the target")
-            BulletPoint("New enemies spawn")
+            SectionTitle(stringResource(Res.string.enemy_turn))
+            SectionText(stringResource(Res.string.after_end_turn))
+            BulletPoint(stringResource(Res.string.enemies_move))
+            BulletPoint(stringResource(Res.string.new_enemies))
             BulletPointWithIcon("Timer", { TimerIcon(size = 14.dp) }, "Build timers advance (counts down)")
             BulletPoint("Damage-over-time effects are applied")
             
             Spacer(modifier = Modifier.height(16.dp))
             
+            // Winning and Losing
+            SectionTitle(stringResource(Res.string.winning_losing))
+            BulletPoint(stringResource(Res.string.win_condition))
+            BulletPoint(stringResource(Res.string.lose_condition))
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
             // Tower Types
-            SectionTitle("Tower Types")
+            SectionTitle(stringResource(Res.string.tower_types))
             // Filter out DRAGONS_LAIR as it's not a regular tower
             DefenderType.entries.filter { it != DefenderType.DRAGONS_LAIR }.forEach { defenderType ->
                 TowerInfo(defenderType)
@@ -99,7 +121,7 @@ fun RulesScreen(
             Spacer(modifier = Modifier.height(16.dp))
             
             // Enemies
-            SectionTitle("Enemy Types")
+            SectionTitle(stringResource(Res.string.enemy_types))
             // Filter out DRAGON as it's a boss/special enemy
             AttackerType.entries.filter { it != AttackerType.DRAGON }.forEach { attackerType ->
                 EnemyInfo(attackerType)
@@ -127,25 +149,24 @@ fun RulesScreen(
             Spacer(modifier = Modifier.height(16.dp))
             
             // Tips
-            SectionTitle("Strategic Tips")
-            BulletPoint("Use initial building phase wisely")
-            BulletPoint("Save 20-30 coins for mid-game")
-            BulletPoint("Focus fire on tough enemies (Ogres, Orks)")
-            BulletPoint("Wizard Towers for massive Areal damage")
-            BulletPoint("Upgrade high-level towers rather than building new ones")
+            SectionTitle(stringResource(Res.string.strategic_tips))
+            BulletPoint(stringResource(Res.string.use_initial_phase))
+            BulletPoint(stringResource(Res.string.save_coins))
+            BulletPoint(stringResource(Res.string.focus_fire))
+            BulletPoint(stringResource(Res.string.wizard_for_aoe))
+            BulletPoint(stringResource(Res.string.upgrade_vs_build))
             
             Spacer(modifier = Modifier.height(24.dp))
+            }
+            
+            // Back button
+            Button(
+                onClick = onBack,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(stringResource(Res.string.back))
+            }
         }
-        
-        // Back button
-        Button(
-            onClick = onBack,
-            modifier = Modifier.width(200.dp).height(50.dp)
-        ) {
-            Text("Back")
-        }
-        
-        Spacer(modifier = Modifier.height(8.dp))
     }
 }
 
