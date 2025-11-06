@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Main Menu -->
+    <string name="app_name">Defender of Egril</string>
+    <string name="app_subtitle">Defend the meadows of Egril against\nthe Hordes of Gleid Thyae under\nthe Banner of the evil Ewhad</string>
+    <string name="start_game">Start Game</string>
+    <string name="rules">Rules</string>
+    
+    <!-- Level Complete Screen -->
+    <string name="victory">Victory!</string>
+    <string name="battle_won">Battle Won!</string>
+    <string name="defeat">Defeat</string>
+    <string name="victory_message">You have successfully defended Egril!</string>
+    <string name="battle_won_message">You won this battle!</string>
+    <string name="defeat_message">The enemies have breached your defenses...</string>
+    <string name="retry">Retry</string>
+    <string name="world_map">World Map</string>
+    
+    <!-- Settings -->
+    <string name="settings">Settings</string>
+    <string name="language">Language</string>
+    <string name="close">Close</string>
+    
+    <!-- Common Actions -->
+    <string name="back">Back</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="save">Save</string>
+    <string name="delete">Delete</string>
+    <string name="edit">Edit</string>
+    
+    <!-- Game Play -->
+    <string name="coins">Coins</string>
+    <string name="health">Health</string>
+    <string name="turn">Turn</string>
+    <string name="level">Level</string>
+    <string name="upgrade">Upgrade</string>
+    <string name="sell">Sell</string>
+    <string name="attack">Attack</string>
+    <string name="end_turn">End Turn</string>
+    <string name="next_turn">Next Turn</string>
+    <string name="save_game">Save Game</string>
+    <string name="load_game">Load Game</string>
+    
+    <!-- Towers -->
+    <string name="tower">Tower</string>
+    <string name="damage">Damage</string>
+    <string name="range">Range</string>
+    <string name="actions">Actions</string>
+    
+    <!-- Enemies -->
+    <string name="enemy">Enemy</string>
+    <string name="enemies">Enemies</string>
+    
+    <!-- Status Messages -->
+    <string name="locked">Locked</string>
+    <string name="unlocked">Unlocked</string>
+    <string name="completed">Completed</string>
+</resources>
