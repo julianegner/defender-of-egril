@@ -92,23 +92,23 @@ kotlin {
         val desktopMain by getting
         val wasmJsMain by getting
         
+        // Add generated source directory to commonMain
         commonMain {
             kotlin.srcDir(layout.buildDirectory.dir("generated/source/buildConfig/commonMain/kotlin"))
-            
-            dependencies {
-                implementation(compose.runtime)
-                implementation(compose.foundation)
-                implementation(compose.material3)
-                implementation(compose.ui)
-                implementation(compose.components.resources)
-                implementation(compose.components.uiToolingPreview)
-                implementation(libs.kotlinx.serialization.json)
-            }
         }
         
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
+        }
+        commonMain.dependencies {
+            implementation(compose.runtime)
+            implementation(compose.foundation)
+            implementation(compose.material3)
+            implementation(compose.ui)
+            implementation(compose.components.resources)
+            implementation(compose.components.uiToolingPreview)
+            implementation(libs.kotlinx.serialization.json)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
