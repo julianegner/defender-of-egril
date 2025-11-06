@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import com.defenderofegril.game.GameEngine
 import com.defenderofegril.game.LevelData
 import com.defenderofegril.model.*
+import com.defenderofegril.utils.CheatCodeHandler
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -261,62 +262,18 @@ class GameViewModel {
     }
     
     fun applyCheatCode(code: String): Boolean {
-        val lowercaseCode = code.lowercase().trim()
+        val (success, digOutcome) = CheatCodeHandler.applyCheatCode(
+            code = code,
+            addCoins = { amount -> gameEngine?.addCoins(amount) },
+            performMineDigWithOutcome = { outcome -> performMineDigWithOutcome(outcome) },
+            spawnEnemy = { attackerType, level -> gameEngine?.spawnEnemy(attackerType, level) }
+        )
         
-        // Helper function to apply dig outcome cheat
-        fun applyDigCheat(outcome: DigOutcome): Boolean {
-            val result = performMineDigWithOutcome(outcome)
-            if (result != null) {
-                _cheatDigOutcome.value = result
-                return true
-            }
-            return false
+        if (digOutcome != null) {
+            _cheatDigOutcome.value = digOutcome
         }
         
-        // Handle simple one-word cheatcodes
-        when (lowercaseCode) {
-            "cash" -> {
-                gameEngine?.addCoins(1000)
-                return true
-            }
-            "mmmoney" -> {
-                gameEngine?.addCoins(1000000)
-                return true
-            }
-            // Dig outcome cheat codes
-            "dig nothing", "dig rubble" -> return applyDigCheat(DigOutcome.NOTHING)
-            "dig brass" -> return applyDigCheat(DigOutcome.BRASS)
-            "dig silver" -> return applyDigCheat(DigOutcome.SILVER)
-            "dig gold" -> return applyDigCheat(DigOutcome.GOLD)
-            "dig gems", "dig gem" -> return applyDigCheat(DigOutcome.GEMS)
-            "dig diamond" -> return applyDigCheat(DigOutcome.DIAMOND)
-            "dig dragon", "dragon" -> return applyDigCheat(DigOutcome.DRAGON)
-        }
-        
-        // Handle "spawn <type> <level>" cheatcode
-        if (lowercaseCode.startsWith("spawn ")) {
-            val parts = lowercaseCode.split(" ").filter { it.isNotBlank() }
-            if (parts.size >= 2) {
-                val typeName = parts[1]
-                val level = if (parts.size >= 3) parts[2].toIntOrNull() ?: 1 else 1
-                
-                // Map type name to AttackerType
-                val attackerType = when (typeName) {
-                    "goblin" -> AttackerType.GOBLIN
-                    "ork", "orc" -> AttackerType.ORK
-                    "ogre" -> AttackerType.OGRE
-                    "skeleton" -> AttackerType.SKELETON
-                    "wizard", "evil_wizard", "evilwizard" -> AttackerType.EVIL_WIZARD
-                    "witch" -> AttackerType.WITCH
-                    else -> return false
-                }
-                
-                gameEngine?.spawnEnemy(attackerType, level)
-                return true
-            }
-        }
-        
-        return false
+        return success
     }
     
     fun clearCheatDigOutcome() {
@@ -324,26 +281,14 @@ class GameViewModel {
     }
     
     fun applyWorldMapCheatCode(code: String): Boolean {
-        val lowercaseCode = code.lowercase().trim()
-        
-        // Handle "unlock" or "unlockall" cheatcode to unlock all levels
-        when (lowercaseCode) {
-            "unlock", "unlockall", "unlock all" -> {
-                unlockAllLevels()
-                return true
-            }
-        }
-        
-        return false
+        return CheatCodeHandler.applyWorldMapCheatCode(
+            code = code,
+            unlockAllLevels = { unlockAllLevels() }
+        )
     }
     
     private fun unlockAllLevels() {
-        _worldLevels.value = _worldLevels.value.map { worldLevel ->
-            when (worldLevel.status) {
-                LevelStatus.LOCKED -> worldLevel.copy(status = LevelStatus.UNLOCKED)
-                else -> worldLevel
-            }
-        }
+        _worldLevels.value = CheatCodeHandler.unlockAllLevels(_worldLevels.value)
         // Save updated world map status
         saveWorldMapStatus()
     }

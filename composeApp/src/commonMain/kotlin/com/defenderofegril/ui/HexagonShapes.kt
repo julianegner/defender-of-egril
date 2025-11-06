@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.defenderofegril.model.AttackerType
 import com.defenderofegril.model.DefenderType
+import com.defenderofegril.ui.icon.enemy.EnemyTypeIcon
 import kotlin.math.sqrt
 
 /**

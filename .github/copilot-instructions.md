@@ -8,15 +8,64 @@ Defender of Egril is a turn-based tower defense game built with Kotlin Multiplat
 
 ### Module Structure
 - `composeApp/src/commonMain/`: Platform-independent code (game logic, models, UI)
+  - `kotlin/com/defenderofegril/`
+    - `model/`: Domain models (Position, Attacker, Defender, Level, GameState, HexUtils, Trap, MineAction)
+    - `game/`: Game engine and systems (GameEngine, CombatSystem, PathfindingSystem, EnemyMovementSystem, EnemyAbilitySystem, TowerManager, MineOperations, LevelData)
+    - `ui/`: UI components
+      - `gameplay/`: Gameplay screen components (GameMap, GameControls, GameHeader, GameLegend, DefenderButtons, DefenderInfo, ActionButtons, GameDialogs)
+      - `editor/`: Level editor components (MapEditor, LevelEditor, LevelSequence, EditorDialogs, TileUtils)
+      - `icon/`: Icon components (defender/, enemy/, IconUtils)
+      - `loadgame/`: Save/load UI components
+      - `worldmap/`: World map screen components
+    - `editor/`: Level editor logic (EditorModels, EditorJsonSerializer, EditorStorage, FileStorage)
+    - `save/`: Save/load system (SaveModels, SaveJsonSerializer, SaveFileStorage)
+    - `utils/`: Utilities (CheatCodeHandler, TimeUtils)
 - `composeApp/src/desktopMain/`: Desktop-specific code
 - `composeApp/src/androidMain/`: Android-specific code
 - `composeApp/src/iosMain/`: iOS-specific code
+- `composeApp/src/wasmJsMain/`: Web/WASM-specific code
 - `composeApp/src/commonTest/`: Platform-independent tests
 
 ### Core Components
-- **Model Layer** (`model/`): Domain entities (Position, Attacker, Defender, Level, GameState)
-- **Game Engine** (`game/`): Game logic (GameEngine, LevelData)
-- **UI Layer** (`ui/`): Compose Multiplatform screens and ViewModels
+- **Model Layer** (`model/`): Domain entities with hexagonal grid support
+  - `Position`: Hexagonal grid coordinates with offset coordinate system
+  - `Attacker`: Enemy units with abilities (summoning, healing, tower disabling)
+  - `Defender`: Tower entities with mines, traps, and special abilities
+  - `Level`: Map-based level configuration with tile system
+  - `GameState`: Complete game state including field effects and traps
+  - `HexUtils`: Hexagonal grid calculations and neighbor detection
+  - `Trap`: Dwarven mine traps
+  - `MineAction`: Mining action outcomes
+  
+- **Game Engine** (`game/`): Modular game systems
+  - `GameEngine`: Main game orchestrator
+  - `CombatSystem`: Attack resolution and damage calculation
+  - `PathfindingSystem`: Hexagonal pathfinding with blocked tile detection
+  - `EnemyMovementSystem`: Enemy movement and turn execution
+  - `EnemyAbilitySystem`: Special enemy abilities (summoning, healing, disabling)
+  - `TowerManager`: Tower placement, upgrade, and action management
+  - `MineOperations`: Dwarven mine digging and coin generation
+  - `LevelData`: Bridge between hardcoded levels and editor levels
+  
+- **UI Layer** (`ui/`): Modular Compose Multiplatform screens
+  - `GameViewModel`: Central state management with save/load integration
+  - `GamePlayScreen`: Main gameplay orchestrator (428 lines, refactored from 2,835 lines)
+  - `gameplay/`: 8 component files for gameplay UI
+  - `editor/`: 8 component files for level editor (desktop and web/wasm only)
+  - `icon/`: Organized icon components (defenders, enemies, utilities)
+  - `loadgame/`: Save game management UI
+  - `worldmap/`: Level selection and world map UI
+  
+- **Editor System** (`editor/`): Level creation and editing (desktop and web/wasm only)
+  - `EditorModels`: Map and level data structures
+  - `EditorJsonSerializer`: Manual JSON serialization for editor data
+  - `EditorStorage`: Persistent storage for maps, levels, and sequences
+  - `FileStorage`: Platform-specific file I/O
+  
+- **Save/Load System** (`save/`): Game progress persistence
+  - `SaveModels`: SavedGame and WorldMapSave data structures
+  - `SaveJsonSerializer`: Manual JSON serialization for saves
+  - `SaveFileStorage`: Save file management and state conversion
 
 ## Development Guidelines
 
@@ -25,33 +74,80 @@ Defender of Egril is a turn-based tower defense game built with Kotlin Multiplat
 - Use Kotlin coding conventions
 - Maintain immutability where possible for state management
 - Use Jetpack Compose/Compose Multiplatform for all UI
+- Modular UI structure: Extract large screens into focused component files (see `ui/gameplay/` and `ui/editor/`)
+- Manual JSON serialization for cross-platform compatibility (see `EditorJsonSerializer`, `SaveJsonSerializer`)
+
+### Grid System
+- **Hexagonal Grid**: Uses offset coordinate system (even-q vertical layout)
+- **HexUtils**: Provides neighbor detection, distance calculation, and line-of-sight
+- **Tile Types**: PATH, BUILD_AREA, ISLAND (2x2), NO_PLAY, SPAWN_POINT, TARGET, WAYPOINT
+- **Pathfinding**: Custom hexagonal pathfinding with blocked tile detection
 
 ### Attack Types
 - **MELEE**: Single target, close range
 - **RANGED**: Single target, long range
-- **AREA**: Area of Effect - affects multiple enemies
-- **LASTING**: Damage over Time - lower damage but lasts multiple rounds
+- **AREA** (Fireball): Area of Effect - affects multiple enemies in range
+- **LASTING** (Acid): Damage over Time - lower damage but lasts multiple rounds
+- **NONE**: Special structures (mines, dragon's lair) with no attack capability
+
+### Current Tower Types
+- **Spike Tower** (Pike): Melee defense, 1 range, cheapest tower (10 coins), max range 2 at level 5+
+- **Spear Tower**: Medium-range piercing, 2 range (15 coins)
+- **Bow Tower**: Long-range archery, 3 range (20 coins)
+- **Wizard Tower**: Area-of-effect fireball, 3 range, 2 turn build time (50 coins)
+- **Alchemy Tower**: Acid damage-over-time, 2 range (40 coins)
+- **Ballista Tower**: Long-range siege, 5 range, minimum range 3, 2 turn build time (60 coins)
+- **Dwarven Mine**: Generates coins through mining, 0 damage, special dig action (30 coins)
+- **Dragon's Lair**: Spawns dragons, cannot be sold or upgraded (0 coins - special placement)
+
+### Current Enemy Types
+- **Goblin**: Fast, weak (20 HP, speed 2, 5 coins reward)
+- **Ork**: Slow, tough (40 HP, speed 1, 10 coins)
+- **Ogre**: Very tough (80 HP, speed 1, 20 coins)
+- **Skeleton**: Fast undead (15 HP, speed 2, 7 coins)
+- **Evil Wizard**: Magic attacker (30 HP, speed 1, 15 coins)
+- **Witch**: Dark magic (25 HP, speed 2, 12 coins)
+- **Blue Demon**: Fast, acid immune (15 HP, speed 3, 10 coins)
+- **Red Demon**: Tough, fireball immune (60 HP, speed 1, 15 coins)
+- **Evil Mage**: Can summon minions (40 HP, speed 1, 20 coins)
+- **Red Witch**: Can disable towers (30 HP, speed 2, 18 coins)
+- **Green Witch**: Can heal other enemies (25 HP, speed 2, 15 coins)
+- **Ewhad**: Boss with summoning (200 HP, speed 1, 100 coins)
+- **Dragon**: Powerful boss, starts slow then flies fast (500 HP, variable speed, 0 coins)
 
 ### Adding New Features
 
 #### New Enemy Type
 1. Add entry to `AttackerType` enum in `Attacker.kt`
-2. Define stats: health, speed, reward
-3. Add to level waves in `LevelData.kt`
-4. Create icon in `UnitIcons.kt` if visual representation needed
+2. Define stats: health, speed, reward, special abilities (immunities, summoning, healing, tower disabling)
+3. Add icon in `ui/icon/enemy/` directory (follow existing pattern)
+4. Add to level editor enemy spawns or hardcoded levels in `LevelData.kt`
+5. If enemy has special abilities, update `EnemyAbilitySystem.kt`
 
 #### New Tower Type
 1. Add entry to `DefenderType` enum in `Defender.kt`
-2. Define: baseCost, baseDamage, baseRange, attackType
-3. Create icon in `UnitIcons.kt` if visual representation needed
-4. UI will automatically include it in tower selection
+2. Define: baseCost, baseDamage, baseRange, attackType, actionsPerTurn, buildTime, minRange (optional)
+3. Create icon in `ui/icon/defender/` directory (follow existing pattern)
+4. Add icon mapping in `UnitIcons.kt`
+5. UI will automatically include it in tower selection
+6. If tower has special mechanics (like Dwarven Mine), update `TowerManager.kt` and relevant game systems
 
-#### New Level
+#### New Level (Editor Method - Recommended)
+1. Use the in-game Level Editor (desktop and web/wasm only):
+   - Create or select a map in Map Editor tab
+   - Create level in Level Editor tab
+   - Configure enemy spawns, starting resources, and available towers
+   - Arrange in Level Sequence tab
+2. Files are saved in `~/.defender-of-egril/editor/` (Linux/Mac) or `%USERPROFILE%\.defender-of-egril\editor\` (Windows)
+
+#### New Level (Code Method - Legacy)
 Add to `LevelData.createLevels()` with:
 - Unique level ID
-- Level name
-- AttackerWave configuration
+- Map reference (from editor or procedurally generated)
+- Level name and subtitle
+- Enemy spawn configuration (turn-based)
 - Initial coins and health points
+- Available tower types
 
 ## Build and Test Commands
 
@@ -65,6 +161,9 @@ Add to `LevelData.createLevels()` with:
 
 # Build iOS framework (macOS only)
 ./gradlew :composeApp:linkDebugFrameworkIosSimulatorArm64
+
+# Build Web/WASM bundle
+./gradlew :composeApp:wasmJsBrowserDevelopmentWebpack
 ```
 
 ### Running
@@ -74,6 +173,10 @@ Add to `LevelData.createLevels()` with:
 
 # Install on Android device/emulator
 ./gradlew :composeApp:installDebug
+
+# Run Web/WASM development server
+./gradlew :composeApp:wasmJsBrowserDevelopmentRun
+# Then open http://localhost:8080 in browser
 ```
 
 ### Testing
@@ -120,7 +223,7 @@ Add to `LevelData.createLevels()` with:
 - `cash`: Add 1000 coins
 - `mmmoney`: Add 1000000 coins
 - `spawn <type> <level>`: Spawn enemy
-  - Valid types: `goblin`, `ork`, `ogre`, `skeleton`, `wizard` (maps to EVIL_WIZARD), `witch`
+  - Valid types: `goblin`, `ork`, `ogre`, `skeleton`, `wizard` (maps to EVIL_WIZARD), `witch`, `bluedemon`, `reddemon`, `evilmage`, `redwitch`, `greenwitch`, `ewhad`, `dragon`
   - Level is optional (scales enemy health)
 
 **World Map** (click title):
@@ -129,10 +232,14 @@ Add to `LevelData.createLevels()` with:
 ## Common Pitfalls to Avoid
 
 1. **Platform-specific code in commonMain**: Keep platform logic in respective source sets
-2. **Breaking save compatibility**: Maintain backward compatibility for GameState
+2. **Breaking save compatibility**: Maintain backward compatibility for SavedGame and WorldMapSave models
 3. **Performance**: Avoid excessive recomposition; use remember and derivedStateOf
 4. **State mutations**: Be careful with mutable state; prefer immutable updates where possible
-5. **Grid constraints**: Game grid is fixed size (10x6); respect boundaries
+5. **Hexagonal grid constraints**: Game uses hexagonal offset coordinates (even-q); respect neighbor calculations from HexUtils
+6. **JSON serialization**: Use manual serialization (not kotlinx.serialization) to match existing patterns in EditorJsonSerializer and SaveJsonSerializer
+7. **Level Editor**: Desktop and web/wasm only - not available on mobile platforms
+8. **File storage paths**: Use FileStorage interface for platform-specific paths
+9. **Large file refactoring**: Keep UI component files under 500 lines; extract into modular structure (see `ui/gameplay/` pattern)
 
 ## Dependencies
 
@@ -143,6 +250,7 @@ Add to `LevelData.createLevels()` with:
 ### Platform-Specific
 - **Android**: Android SDK, compileSdk 34, minSdk 24, targetSdk 34
 - **iOS**: macOS with Xcode
+- **Web/WASM**: Modern browsers (Chrome, Firefox, Safari, Edge) with WebAssembly support
 
 ## Documentation
 
@@ -151,6 +259,12 @@ Add to `LevelData.createLevels()` with:
 - `GAMEPLAY.md`: Game mechanics and rules
 - `TESTING_GUIDE.md`: Manual testing procedures for UI
 - `RUNNING.md`: Platform-specific running instructions
+- `LEVEL_EDITOR.md`: Level editor features and usage (desktop and web/wasm only)
+- `SAVE_LOAD_IMPLEMENTATION.md`: Save/load system architecture
+- `GAMEPLAY_SCREEN_EXTRACTION.md`: UI component refactoring details
+- `LEVEL_EDITOR_REFACTORING.md`: Editor component refactoring
+- `CODE_REFACTORING_ANALYSIS.md`: Code organization and patterns
+- `WEB_WASM_GUIDE.md`: Web/WASM platform guide
 
 ## Version Control
 
@@ -166,12 +280,20 @@ Add to `LevelData.createLevels()` with:
 
 ## Important Notes
 
-- Game uses simple greedy pathfinding (move horizontal first, then vertical)
-- Towers cannot be destroyed (game design choice)
+- Game uses hexagonal grid with offset coordinates (even-q vertical layout)
+- Pathfinding uses custom hexagonal algorithm with blocked tile detection
+- Towers cannot be destroyed (game design choice), except Dragon's Lair can't be sold
 - Each enemy reaching the end costs 1 health point
-- Tower upgrades: +5 damage, +0.5 range per level, cost = baseCost × currentLevel
+- Tower upgrades: +5 damage, +0.5 range per level (some towers have max ranges)
 - Initial building phase allows instant tower placement
-- Subsequent tower placements require build time (1-2 turns)
+- Subsequent tower placements require build time (1-2 turns based on tower type)
+- Dwarven Mine: Special tower that generates coins through mining (dig action)
+- Dragon's Lair: Special structure that spawns dragons (cannot be sold or upgraded)
+- Enemy abilities: Some enemies can summon, heal, disable towers, or have damage immunities
+- Save/Load system: Automatic world map progress saving, manual in-game saves
+- Level Editor: Desktop and web/wasm only, stores data in `~/.defender-of-egril/editor/` (Linux/Mac) or `%USERPROFILE%\.defender-of-egril\editor\` (Windows)
+- Pan and Zoom: All platforms support panning (drag) and zooming (mouse wheel/pinch, 0.5x to 3x)
+- Minimap: Automatically appears when zoomed in to show current viewport position
 
 ## Resources
 
@@ -179,3 +301,7 @@ For more details, refer to:
 - Architecture: `DEVELOPMENT.md`
 - Game rules: `GAMEPLAY.md`
 - Testing: `TESTING_GUIDE.md`
+- Level Editor: `LEVEL_EDITOR.md`
+- Save/Load: `SAVE_LOAD_IMPLEMENTATION.md`
+- UI Refactoring: `GAMEPLAY_SCREEN_EXTRACTION.md`, `LEVEL_EDITOR_REFACTORING.md`
+- Web Platform: `WEB_WASM_GUIDE.md`
