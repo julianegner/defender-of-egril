@@ -19,32 +19,45 @@ import com.defenderofegril.ui.icon.DoorIcon
 import com.defenderofegril.ui.icon.LightningIcon
 import com.defenderofegril.ui.icon.TargetIcon
 import com.defenderofegril.ui.icon.TimerIcon
+import com.defenderofegril.ui.settings.SettingsButton
+import com.hyperether.resources.LocalizedStrings
+import com.hyperether.resources.currentLanguage
 
 @Composable
 fun RulesScreen(
     onBack: () -> Unit
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+    val locale = currentLanguage.value
+    
+    Box(
+        modifier = Modifier.fillMaxSize().padding(16.dp)
     ) {
-        // Header
-        Text(
-            text = "How to Play",
-            style = MaterialTheme.typography.displayMedium,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(bottom = 16.dp)
+        // Settings button in top-right corner
+        SettingsButton(
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(8.dp)
         )
         
-        // Scrollable content
         Column(
-            modifier = Modifier
-                .weight(1f)
-                .verticalScroll(rememberScrollState())
-                .fillMaxWidth()
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // Header
+            Text(
+                text = "How to Play",
+                style = MaterialTheme.typography.displayMedium,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+            
+            // Scrollable content
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .verticalScroll(rememberScrollState())
+                    .fillMaxWidth()
+            ) {
             // Game Overview
             SectionTitle("Game Overview")
             SectionText("Defender of Egril is a turn-based tower defense game. Defend the meadows of Egril against waves of enemies under the evil banner of Ewhad.")
@@ -135,17 +148,16 @@ fun RulesScreen(
             BulletPoint("Upgrade high-level towers rather than building new ones")
             
             Spacer(modifier = Modifier.height(24.dp))
+            }
+            
+            // Back button
+            Button(
+                onClick = onBack,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(LocalizedStrings.get("back", locale))
+            }
         }
-        
-        // Back button
-        Button(
-            onClick = onBack,
-            modifier = Modifier.width(200.dp).height(50.dp)
-        ) {
-            Text("Back")
-        }
-        
-        Spacer(modifier = Modifier.height(8.dp))
     }
 }
 
