@@ -6,12 +6,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.defenderofegril.model.AttackerType
 import com.defenderofegril.ui.*
+import com.defenderofegril.ui.icon.enemy.EnemyTypeIcon
 
 /**
  * Reusable expandable card component with collapse/expand functionality.
@@ -34,7 +35,7 @@ fun ExpandableCard(
     var isExpanded by remember { mutableStateOf(defaultExpanded) }
 
     Card(modifier = modifier) {
-        Column(modifier = Modifier.padding(12.dp)) {
+        Column(modifier = Modifier.padding(GamePlayConstants.Spacing.Sections)) {
             // Header with expand/collapse button
             Row(
                 modifier = Modifier.fillMaxWidth().clickable { isExpanded = !isExpanded },
@@ -43,9 +44,9 @@ fun ExpandableCard(
             ) {
                 Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                 if (isExpanded) {
-                    TriangleDownIcon(size = 20.dp)
+                    TriangleDownIcon(size = GamePlayConstants.IconSizes.Large)
                 } else {
-                    TriangleLeftIcon(size = 20.dp)
+                    TriangleLeftIcon(size = GamePlayConstants.IconSizes.Large)
                 }
             }
             
@@ -81,8 +82,8 @@ fun IconTextRow(
     icon: @Composable (Dp) -> Unit,
     text: String,
     modifier: Modifier = Modifier,
-    iconSize: Dp = 12.dp,
-    spacerWidth: Dp = 4.dp,
+    iconSize: Dp = GamePlayConstants.IconSizes.Small,
+    spacerWidth: Dp = GamePlayConstants.Spacing.IconText,
     textStyle: TextStyle = MaterialTheme.typography.bodySmall
 ) {
     Row(
@@ -112,91 +113,44 @@ fun GameStatsDisplay(
     coins: Int,
     health: Int,
     turn: Int,
-    modifier: Modifier = Modifier,
-    iconSize: Dp = 20.dp,
+    activeEnemyCount: Int,
+    remainingEnemyCount: Int,
+    iconSize: Dp = GamePlayConstants.IconSizes.Large,
     textStyle: TextStyle = MaterialTheme.typography.bodyLarge,
     onCoinsClick: (() -> Unit)? = null
 ) {
-    Column(modifier = modifier) {
-        // Coins (clickable if callback provided)
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = if (onCoinsClick != null) {
-                Modifier.clickable(onClick = onCoinsClick)
-            } else {
-                Modifier
-            }
-        ) {
-            MoneyIcon(size = iconSize)
-            Spacer(modifier = Modifier.width(4.dp))
-            Text("$coins", style = textStyle)
-        }
-        
-        // Health
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            HeartIcon(size = iconSize)
-            Spacer(modifier = Modifier.width(4.dp))
-            Text("$health", style = textStyle)
-        }
-        
-        // Turn
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            ReloadIcon(size = iconSize - 2.dp) // Slightly smaller reload icon
-            Spacer(modifier = Modifier.width(4.dp))
-            Text(
-                if (textStyle == MaterialTheme.typography.bodyLarge) "Turn $turn" else "$turn",
-                style = if (textStyle == MaterialTheme.typography.bodyLarge) MaterialTheme.typography.bodyMedium else MaterialTheme.typography.bodySmall
-            )
-        }
-    }
-}
 
-/**
- * Compact stats display for header - just the numbers in a row.
- *
- * @param coins Current coin count
- * @param health Current health points  
- * @param turn Current turn number
- * @param onCoinsClick Optional callback when coins are clicked (for cheat codes)
- * @param modifier Modifier for the row
- */
-@Composable
-fun CompactStatsRow(
-    coins: Int,
-    health: Int,
-    turn: Int,
-    modifier: Modifier = Modifier,
-    onCoinsClick: (() -> Unit)? = null
-) {
+    // Coins (clickable if callback provided)
     Row(
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier
+        modifier = if (onCoinsClick != null) {
+            Modifier.clickable(onClick = onCoinsClick)
+        } else {
+            Modifier
+        }
     ) {
-        // Clickable coins
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = if (onCoinsClick != null) {
-                Modifier.clickable(onClick = onCoinsClick)
-            } else {
-                Modifier
-            }
-        ) {
-            MoneyIcon(size = 16.dp)
-            Spacer(modifier = Modifier.width(4.dp))
-            Text("$coins", style = MaterialTheme.typography.bodyMedium)
-        }
+        MoneyIcon(size = iconSize)
+        Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
+        Text("$coins", style = textStyle)
+    }
         
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            HeartIcon(size = 16.dp)
-            Spacer(modifier = Modifier.width(4.dp))
-            Text("$health", style = MaterialTheme.typography.bodyMedium)
-        }
+    // Health
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        HeartIcon(size = iconSize)
+        Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
+        Text("$health", style = textStyle)
+    }
         
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            ReloadIcon(size = 14.dp)
-            Spacer(modifier = Modifier.width(4.dp))
-            Text("$turn", style = MaterialTheme.typography.bodySmall)
-        }
+    // Turn
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        ReloadIcon(size = iconSize - 2.dp) // Slightly smaller reload icon
+        Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
+        Text("$turn", style = textStyle)
+    }
+
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        EnemyTypeIcon(AttackerType.GOBLIN, modifier = Modifier.size(iconSize + 4.dp))
+        Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
+        Text("$activeEnemyCount | $remainingEnemyCount", style = textStyle)
     }
 }
