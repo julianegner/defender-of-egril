@@ -52,7 +52,6 @@ fun CheatCodeDialog(
                     value = cheatCodeInput,
                     onValueChange = handleInputChange,
                     singleLine = true,
-                    placeholder = { Text(if (showHints) "e.g. moneybags" else "unlock") },
                     isError = errorMessage.isNotEmpty()
                 )
                 
