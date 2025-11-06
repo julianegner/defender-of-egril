@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.defenderofegril.editor.TileType
@@ -46,20 +45,5 @@ fun getTileColor(tileType: TileType): Color {
         TileType.SPAWN_POINT -> Color(0xFFFF0000) // Red
         TileType.TARGET -> Color(0xFF0000FF)      // Blue
         TileType.WAYPOINT -> Color(0xFF8B4513)    // Brown (same as PATH)
-    }
-}
-
-/**
- * Get the symbol for a specific tile type
- */
-fun getTileSymbol(tileType: TileType): String {
-    return when (tileType) {
-        TileType.PATH -> ""
-        TileType.BUILD_AREA -> ""
-        TileType.ISLAND -> ""
-        TileType.NO_PLAY -> ""
-        TileType.SPAWN_POINT -> ""
-        TileType.TARGET -> ""
-        TileType.WAYPOINT -> "Pin"
     }
 }
