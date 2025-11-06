@@ -3,6 +3,7 @@ package com.defenderofegril
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import com.defenderofegril.ui.*
+import com.defenderofegril.ui.editor.level.LevelEditorScreen
 
 @Composable
 fun App() {
