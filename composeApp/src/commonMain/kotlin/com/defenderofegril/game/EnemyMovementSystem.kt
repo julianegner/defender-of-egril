@@ -33,7 +33,16 @@ class EnemyMovementSystem(
         
         enemiesToSpawnThisTurn.forEachIndexed { index, plannedSpawn ->
             // Use a different spawn point for each enemy (cycle through spawn points)
-            val spawnPos = spawnPoints[index % spawnPoints.size]
+            val preferredSpawnPoint = spawnPoints[index % spawnPoints.size]
+            
+            // Find a free position near the preferred spawn point
+            val spawnPos = findFreePositionNear(preferredSpawnPoint)
+            
+            if (spawnPos == null) {
+                // No free position found - skip this enemy for now
+                // This should rarely happen unless the map is completely congested
+                return@forEachIndexed
+            }
             
             // Ensure only one Ewhad exists at a time (boss is unique)
             if (plannedSpawn.attackerType == AttackerType.EWHAD) {
@@ -82,6 +91,62 @@ class EnemyMovementSystem(
         }
         
         return null  // No free position found
+    }
+    
+    /**
+     * Find a free position for spawning, starting from the preferred spawn point.
+     * If the spawn point is occupied, search neighboring path tiles using hex grid neighbors.
+     */
+    fun findFreePositionNear(preferredSpawnPoint: Position): Position? {
+        // First, check if the preferred spawn point is free
+        if (!state.attackers.any { it.position.value == preferredSpawnPoint && !it.isDefeated.value }) {
+            return preferredSpawnPoint
+        }
+        
+        // BFS to find nearest free position on path
+        val visited = mutableSetOf<Position>()
+        val queue = mutableListOf(preferredSpawnPoint)
+        visited.add(preferredSpawnPoint)
+        
+        while (queue.isNotEmpty()) {
+            val current = queue.removeAt(0)
+            
+            // Check all hex neighbors
+            val neighbors = current.getHexNeighbors()
+            for (neighbor in neighbors) {
+                // Skip if already visited
+                if (neighbor in visited) continue
+                
+                // Check if position is valid and on path
+                if (neighbor.x < 0 || neighbor.x >= state.level.gridWidth ||
+                    neighbor.y < 0 || neighbor.y >= state.level.gridHeight) {
+                    continue
+                }
+                
+                // Must be on path or a spawn point
+                if (!state.level.isOnPath(neighbor) && !state.level.isSpawnPoint(neighbor)) {
+                    continue
+                }
+                
+                visited.add(neighbor)
+                
+                // Check if position is free
+                val isOccupied = state.attackers.any { 
+                    it.position.value == neighbor && !it.isDefeated.value 
+                }
+                
+                if (!isOccupied) {
+                    return neighbor
+                }
+                
+                // Add to queue for further exploration (limit search depth)
+                if (visited.size < 20) {
+                    queue.add(neighbor)
+                }
+            }
+        }
+        
+        return null  // No free position found nearby
     }
     
     fun moveAttackers(

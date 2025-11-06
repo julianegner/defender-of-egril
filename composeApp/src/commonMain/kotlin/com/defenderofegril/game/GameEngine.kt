@@ -2,7 +2,6 @@ package com.defenderofegril.game
 
 import androidx.compose.runtime.mutableStateOf
 import com.defenderofegril.model.*
-import kotlin.math.min
 
 /**
  * Main game engine that coordinates all game systems.
@@ -71,38 +70,41 @@ class GameEngine(private val state: GameState) {
     }
     
     private fun spawnInitialEnemies() {
-        // Spawn 6 enemies initially (2x the number of spawn points)
-        val enemiesToSpawn = min(6, state.attackersToSpawn.size)
+        // Spawn all enemies scheduled for turn 1 from the spawn plan
+        val turn1Spawns = state.spawnPlan.filter { it.spawnTurn == 1 }
         val spawnPoints = state.level.startPositions
         
-        repeat(enemiesToSpawn) { index ->
-            if (state.attackersToSpawn.isNotEmpty()) {
-                // Use a different spawn point for each enemy (cycle through spawn points)
-                val spawnPos = spawnPoints[index % spawnPoints.size]
-                val type = state.attackersToSpawn.removeAt(0)
-                
-                // Ensure only one Ewhad exists at a time (boss is unique)
-                if (type == AttackerType.EWHAD) {
-                    val ewhadExists = state.attackers.any { 
-                        it.type == AttackerType.EWHAD && !it.isDefeated.value 
-                    }
-                    if (ewhadExists) {
-                        // Skip spawning another Ewhad if one already exists
-                        return@repeat
-                    }
-                }
-                
-                // Calculate level for initial enemies
-                val enemyLevel = 1 + (state.currentWaveIndex.value - 1)
-                
-                val attacker = Attacker(
-                    id = state.nextAttackerId.value++,
-                    type = type,
-                    position = mutableStateOf(spawnPos),
-                    level = enemyLevel
-                )
-                state.attackers.add(attacker)
+        turn1Spawns.forEachIndexed { index, plannedSpawn ->
+            // Use a different spawn point for each enemy (cycle through spawn points)
+            val preferredSpawnPoint = spawnPoints[index % spawnPoints.size]
+            
+            // Find a free position near the preferred spawn point
+            val spawnPos = enemyMovement.findFreePositionNear(preferredSpawnPoint)
+            
+            if (spawnPos == null) {
+                // No free position found - skip this enemy for now
+                // This should rarely happen unless the map is completely congested
+                return@forEachIndexed
             }
+            
+            // Ensure only one Ewhad exists at a time (boss is unique)
+            if (plannedSpawn.attackerType == AttackerType.EWHAD) {
+                val ewhadExists = state.attackers.any { 
+                    it.type == AttackerType.EWHAD && !it.isDefeated.value 
+                }
+                if (ewhadExists) {
+                    // Skip spawning another Ewhad if one already exists
+                    return@forEachIndexed
+                }
+            }
+            
+            val attacker = Attacker(
+                id = state.nextAttackerId.value++,
+                type = plannedSpawn.attackerType,
+                position = mutableStateOf(spawnPos),
+                level = plannedSpawn.level
+            )
+            state.attackers.add(attacker)
         }
 
         // Move goblins immediately after initial spawning (this is not during enemy turn)
