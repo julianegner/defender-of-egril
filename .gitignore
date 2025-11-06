@@ -45,9 +45,6 @@ node_modules/
 composeApp/build/compileSync/
 composeApp/build/generated/
 
-# Generated BuildConfig
-composeApp/src/commonMain/kotlin/com/defenderofegril/BuildConfig.kt
-
 # Kotlin/JS and Kotlin/Wasm
 kotlin-js-store/
 yarn.lock
