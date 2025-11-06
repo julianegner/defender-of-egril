@@ -12,6 +12,7 @@ import androidx.compose.ui.zIndex
 import com.defenderofegril.ui.icon.LeftArrowIcon
 import com.defenderofegril.ui.editor.EditorTab
 import com.defenderofegril.ui.editor.map.MapEditorContent
+import com.defenderofegril.ui.settings.SettingsButton
 
 /**
  * Main screen for level editing with tabs for Map Editor, Level Editor, and Level Sequence
@@ -65,11 +66,18 @@ fun LevelEditorScreen(
                         style = MaterialTheme.typography.titleLarge
                     )
                     
-                    Button(onClick = onBack) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            LeftArrowIcon(size = 16.dp, tint = Color.White)
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text("Back to World Map")
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        SettingsButton()
+                        
+                        Button(onClick = onBack) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                LeftArrowIcon(size = 16.dp, tint = Color.White)
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text("Back to World Map")
+                            }
                         }
                     }
                 }
