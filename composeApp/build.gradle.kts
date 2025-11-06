@@ -12,24 +12,33 @@ plugins {
     alias(libs.plugins.kotlinSerialization)
 }
 
+// Build configuration output directory
+val buildConfigOutputDir = layout.buildDirectory.dir("generated/source/buildConfig/commonMain/kotlin")
+
 // Task to generate BuildConfig with current commit hash
 val generateBuildConfig by tasks.registering {
-    val outputDir = layout.buildDirectory.dir("generated/source/buildConfig/commonMain/kotlin")
-    val outputFile = outputDir.get().file("com/defenderofegril/BuildConfig.kt")
+    val outputFile = buildConfigOutputDir.get().file("com/defenderofegril/BuildConfig.kt")
     
-    outputs.dir(outputDir)
+    outputs.dir(buildConfigOutputDir)
     outputs.upToDateWhen { false } // Always regenerate to ensure latest commit hash
     
     doLast {
         val commitHash = try {
             val process = Runtime.getRuntime().exec("git rev-parse --short HEAD")
             val hash = process.inputStream.bufferedReader().use { it.readText().trim() }
-            process.waitFor()
-            process.destroy()
-            hash
+            val exitCode = process.waitFor()
+            if (exitCode != 0) {
+                logger.warn("git command exited with code $exitCode")
+                "unknown"
+            } else {
+                hash
+            }
         } catch (e: Exception) {
             logger.warn("Failed to get git commit hash: ${e.message}")
             "unknown"
+        } finally {
+            // Note: process.destroy() is typically not needed after waitFor()
+            // as the process has already completed, but we ensure cleanup
         }
         
         val versionName = "1.0"
@@ -94,7 +103,7 @@ kotlin {
         
         // Add generated source directory to commonMain
         commonMain {
-            kotlin.srcDir(layout.buildDirectory.dir("generated/source/buildConfig/commonMain/kotlin"))
+            kotlin.srcDir(buildConfigOutputDir)
         }
         
         androidMain.dependencies {
