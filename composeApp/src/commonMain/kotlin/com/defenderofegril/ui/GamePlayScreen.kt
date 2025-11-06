@@ -84,7 +84,6 @@ private fun GamePlayScreenContent(
     var currentDigOutcome by remember { mutableStateOf<DigOutcome?>(null) }
     var showDigOutcomeDialog by remember { mutableStateOf(false) }
     var showOverlay by remember { mutableStateOf(false) }  // MutableState for overlay visibility
-    var headerExpanded by remember { mutableStateOf(true) }  // State for header fold/expand
     var showSaveDialog by remember { mutableStateOf(false) }  // Save dialog with comment
     var saveCommentInput by remember { mutableStateOf("") }  // Comment input for save
     var showSaveConfirmation by remember { mutableStateOf(false) }  // Save confirmation
@@ -106,15 +105,6 @@ private fun GamePlayScreenContent(
             1f // Desktop unchanged
         }
         Density(density.density * uiScale, density.fontScale * textScale)
-    }
-
-    // Auto-fold header when turn 1 starts (turn 0 for mobile)
-    val currentTurn = gameState.turnNumber.value
-    LaunchedEffect(currentTurn) {
-        val collapseAtTurn = if (uiScale < 1f) 0 else 1  // Mobile: turn 0, Desktop: turn 1
-        if (currentTurn >= collapseAtTurn) {
-            headerExpanded = false
-        }
     }
     
     // Watch for cheat dig outcomes
@@ -152,9 +142,7 @@ private fun GamePlayScreenContent(
         // Header with prominent phase indicator (collapsible)
         GameHeader(
             gameState = gameState,
-            headerExpanded = headerExpanded,
             showOverlay = showOverlay,
-            onHeaderExpandedChange = { headerExpanded = it },
             onShowOverlayChange = { showOverlay = it },
             onBackToMap = onBackToMap,
             onSaveGame = if (onSaveGame != null) {{ showSaveDialog = true }} else null,

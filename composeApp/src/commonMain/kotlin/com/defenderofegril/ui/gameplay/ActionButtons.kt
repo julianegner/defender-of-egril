@@ -14,7 +14,7 @@ import com.defenderofegril.model.*
 import com.defenderofegril.ui.*
 
 // UI Constants
-private val ATTACK_BUTTON_COLOR = Color(0xFFD32F2F)
+private val ATTACK_BUTTON_COLOR = GamePlayColors.ErrorDark
 
 @Composable
 fun AttackButton(
@@ -131,27 +131,27 @@ fun UpgradeButton(
     defender: Defender,
     gameState: GameState,
     modifier: Modifier = Modifier
-        .width(240.dp)
-        .height(60.dp),
+        .width(GamePlayConstants.ButtonSizes.ActionWidth)
+        .height(GamePlayConstants.ButtonSizes.ActionHeight),
     onUpgradeDefender: (Int) -> Unit,
 ) {
     Button(
         onClick = { onUpgradeDefender(defender.id) },
         enabled = gameState.canUpgradeDefender(defender),
         modifier = modifier,
-        contentPadding = PaddingValues(horizontal = 6.dp, vertical = 4.dp)
+        contentPadding = PaddingValues(horizontal = GamePlayConstants.Padding.Medium, vertical = GamePlayConstants.Padding.Small)
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Upgrade", fontSize = 18.sp, fontWeight = FontWeight.Bold)
-            Spacer(modifier = Modifier.height(8.dp))
+            Text("Upgrade", fontSize = GamePlayConstants.TextSizes.Title, fontWeight = FontWeight.Bold)
+            Spacer(modifier = Modifier.height(GamePlayConstants.Spacing.Items))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 MoneyIcon(size = 14.dp)
-                Spacer(modifier = Modifier.width(4.dp))
+                Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
                 Text(
                     "${defender.upgradeCost}",
-                    fontSize = 16.sp,
+                    fontSize = GamePlayConstants.TextSizes.Large,
                     fontWeight = FontWeight.Bold
                 )
             }
@@ -166,8 +166,8 @@ fun UndoOrSellButton(
     onUndoTower: (Int) -> Unit,
     onSellTower: (Int) -> Unit,
     modifier: Modifier = Modifier
-        .width(240.dp)
-        .height(60.dp),
+        .width(GamePlayConstants.ButtonSizes.ActionWidth)
+        .height(GamePlayConstants.ButtonSizes.ActionHeight),
 ) {
     var showSellConfirmation by remember { mutableStateOf(false) }
 
@@ -182,21 +182,21 @@ fun UndoOrSellButton(
             enabled = true,
             modifier = modifier,
             colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF4CAF50)  // Green for undo
+                containerColor = GamePlayColors.Success  // Green for undo
             ),
-            contentPadding = PaddingValues(horizontal = 6.dp, vertical = 4.dp)
+            contentPadding = PaddingValues(horizontal = GamePlayConstants.Padding.Medium, vertical = GamePlayConstants.Padding.Small)
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text("Undo", fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                Spacer(modifier = Modifier.height(8.dp))
+                Text("Undo", fontSize = GamePlayConstants.TextSizes.Title, fontWeight = FontWeight.Bold)
+                Spacer(modifier = Modifier.height(GamePlayConstants.Spacing.Items))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     MoneyIcon(size = 14.dp)
-                    Spacer(modifier = Modifier.width(4.dp))
+                    Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
                     Text(
                         "${defender.totalCost}",
-                        fontSize = 16.sp,
+                        fontSize = GamePlayConstants.TextSizes.Large,
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -210,21 +210,21 @@ fun UndoOrSellButton(
             enabled = true,
             modifier = modifier,
             colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFFFF9800)  // Orange for sell
+                containerColor = GamePlayColors.Warning  // Orange for sell
             ),
-            contentPadding = PaddingValues(horizontal = 6.dp, vertical = 4.dp)
+            contentPadding = PaddingValues(horizontal = GamePlayConstants.Padding.Medium, vertical = GamePlayConstants.Padding.Small)
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text("Sell", fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                Spacer(modifier = Modifier.height(8.dp))
+                Text("Sell", fontSize = GamePlayConstants.TextSizes.Title, fontWeight = FontWeight.Bold)
+                Spacer(modifier = Modifier.height(GamePlayConstants.Spacing.Items))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     MoneyIcon(size = 14.dp)
-                    Spacer(modifier = Modifier.width(4.dp))
+                    Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
                     Text(
                         "$sellAmount",
-                        fontSize = 16.sp,
+                        fontSize = GamePlayConstants.TextSizes.Large,
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -246,7 +246,7 @@ fun UndoOrSellButton(
                             showSellConfirmation = false
                         },
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFFFF9800)
+                            containerColor = GamePlayColors.Warning
                         )
                     ) {
                         Text("Sell")
