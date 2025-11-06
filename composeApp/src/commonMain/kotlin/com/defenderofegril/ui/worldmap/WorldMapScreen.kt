@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.defenderofegril.model.LevelStatus
 import com.defenderofegril.model.WorldLevel
+import com.defenderofegril.ui.CheatCodeDialog
 import com.defenderofegril.ui.isEditorAvailable
 
 @Composable
