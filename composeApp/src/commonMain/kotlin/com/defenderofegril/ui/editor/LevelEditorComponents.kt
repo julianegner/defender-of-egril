@@ -123,10 +123,11 @@ fun SpawnTurnSection(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Text(
-                        text = if (expanded) "▼" else "▶",
-                        fontSize = 16.sp
-                    )
+                    if (expanded) {
+                        TriangleDownIcon(size = 16.dp)
+                    } else {
+                        TriangleRightIcon(size = 16.dp)
+                    }
                     ReloadIcon(size = 14.dp)
                     Text(
                         text = "Turn $turn",
