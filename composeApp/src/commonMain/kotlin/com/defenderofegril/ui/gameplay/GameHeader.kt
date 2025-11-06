@@ -15,6 +15,7 @@ import com.defenderofegril.ui.*
 import com.defenderofegril.ui.icon.SaveIcon
 import com.defenderofegril.ui.icon.TriangleLeftIcon
 import com.defenderofegril.ui.icon.TriangleRightIcon
+import com.defenderofegril.ui.settings.SettingsButton
 
 @Composable
 fun GameHeader(
@@ -58,11 +59,16 @@ fun GameHeader(
                 textAlign = TextAlign.Center
             )
 
-            // Three buttons at far right (four on mobile if save is available)
+            // Three buttons at far right (four on mobile if save is available, plus settings)
             Row(
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                // Settings button (icon only to save space)
+                SettingsButton(
+                    modifier = Modifier.size(GamePlayConstants.ButtonSizes.CompactHeight)
+                )
+                
                 if (onSaveGame != null) {
                     Button(
                         onClick = onSaveGame,
