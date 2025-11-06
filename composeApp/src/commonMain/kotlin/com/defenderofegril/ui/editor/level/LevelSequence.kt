@@ -1,4 +1,4 @@
-package com.defenderofegril.ui.editor
+package com.defenderofegril.ui.editor.level
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn

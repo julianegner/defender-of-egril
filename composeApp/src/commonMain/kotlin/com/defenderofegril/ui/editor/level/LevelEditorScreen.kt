@@ -1,4 +1,4 @@
-package com.defenderofegril.ui.editor
+package com.defenderofegril.ui.editor.level
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -10,6 +10,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.defenderofegril.ui.LeftArrowIcon
+import com.defenderofegril.ui.editor.EditorTab
+import com.defenderofegril.ui.editor.MapEditorContent
 
 /**
  * Main screen for level editing with tabs for Map Editor, Level Editor, and Level Sequence
@@ -80,7 +82,7 @@ fun LevelEditorScreen(
                     Button(
                         onClick = { currentTab = EditorTab.MAP_EDITOR },
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = if (currentTab == EditorTab.MAP_EDITOR) 
+                            containerColor = if (currentTab == EditorTab.MAP_EDITOR)
                                 MaterialTheme.colorScheme.primary 
                             else 
                                 MaterialTheme.colorScheme.secondary
@@ -92,7 +94,7 @@ fun LevelEditorScreen(
                     Button(
                         onClick = { currentTab = EditorTab.LEVEL_EDITOR },
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = if (currentTab == EditorTab.LEVEL_EDITOR) 
+                            containerColor = if (currentTab == EditorTab.LEVEL_EDITOR)
                                 MaterialTheme.colorScheme.primary 
                             else 
                                 MaterialTheme.colorScheme.secondary
@@ -104,7 +106,7 @@ fun LevelEditorScreen(
                     Button(
                         onClick = { currentTab = EditorTab.LEVEL_SEQUENCE },
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = if (currentTab == EditorTab.LEVEL_SEQUENCE) 
+                            containerColor = if (currentTab == EditorTab.LEVEL_SEQUENCE)
                                 MaterialTheme.colorScheme.primary 
                             else 
                                 MaterialTheme.colorScheme.secondary
