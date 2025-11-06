@@ -18,13 +18,17 @@ val generateBuildConfig by tasks.registering {
     val outputFile = outputDir.get().file("com/defenderofegril/BuildConfig.kt")
     
     outputs.dir(outputDir)
-    outputs.upToDateWhen { false } // Always regenerate to get latest commit hash
+    outputs.upToDateWhen { false } // Always regenerate to ensure latest commit hash
     
     doLast {
         val commitHash = try {
             val process = Runtime.getRuntime().exec("git rev-parse --short HEAD")
-            process.inputStream.bufferedReader().readText().trim()
+            val hash = process.inputStream.bufferedReader().use { it.readText().trim() }
+            process.waitFor()
+            process.destroy()
+            hash
         } catch (e: Exception) {
+            logger.warn("Failed to get git commit hash: ${e.message}")
             "unknown"
         }
         
@@ -47,6 +51,8 @@ val generateBuildConfig by tasks.registering {
             parentFile.mkdirs()
             writeText(buildConfigContent)
         }
+        
+        logger.info("Generated BuildConfig with commit hash: $commitHash")
     }
 }
 
