@@ -6,14 +6,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.defenderofegril.model.AttackerType
 import com.defenderofegril.ui.*
-import com.defenderofegril.ui.icon.enemy.EnemyIcon
 import com.defenderofegril.ui.icon.enemy.EnemyTypeIcon
 
 /**
