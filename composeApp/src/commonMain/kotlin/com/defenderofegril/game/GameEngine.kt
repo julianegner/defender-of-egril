@@ -76,7 +76,16 @@ class GameEngine(private val state: GameState) {
         
         turn1Spawns.forEachIndexed { index, plannedSpawn ->
             // Use a different spawn point for each enemy (cycle through spawn points)
-            val spawnPos = spawnPoints[index % spawnPoints.size]
+            val preferredSpawnPoint = spawnPoints[index % spawnPoints.size]
+            
+            // Find a free position near the preferred spawn point
+            val spawnPos = enemyMovement.findFreePositionNear(preferredSpawnPoint)
+            
+            if (spawnPos == null) {
+                // No free position found - skip this enemy for now
+                // This should rarely happen unless the map is completely congested
+                return@forEachIndexed
+            }
             
             // Ensure only one Ewhad exists at a time (boss is unique)
             if (plannedSpawn.attackerType == AttackerType.EWHAD) {
