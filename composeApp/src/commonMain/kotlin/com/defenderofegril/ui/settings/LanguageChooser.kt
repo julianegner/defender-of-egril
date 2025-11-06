@@ -110,6 +110,9 @@ private fun LanguageFlagAndName(appLocale: AppLocale) {
 private fun getCountryCode(appLocale: AppLocale): String {
     return when (appLocale) {
         AppLocale.DEFAULT -> "GB" // English - United Kingdom
-        else -> "GB" // Default to UK flag
+        AppLocale.DE -> "DE" // German - Germany
+        AppLocale.FR -> "FR" // French - France
+        AppLocale.IT -> "IT" // Italian - Italy
+        AppLocale.ES -> "ES" // Spanish - Spain
     }
 }
