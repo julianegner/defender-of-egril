@@ -114,5 +114,6 @@ private fun getCountryCode(appLocale: AppLocale): String {
         AppLocale.FR -> "FR" // French - France
         AppLocale.IT -> "IT" // Italian - Italy
         AppLocale.ES -> "ES" // Spanish - Spain
+        else -> "GB" // Fallback to UK flag for any unmapped locales
     }
 }
