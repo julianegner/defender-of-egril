@@ -64,4 +64,14 @@ data class GameState(
     fun hasActionsRemaining(): Boolean {
         return actionsRemainingThisTurn.value > 0
     }
+
+    fun getRemainingEnemyCount(): Int {
+        val totalSpawned = this.nextAttackerId.value - 1
+        val plannedSpawns = this.spawnPlan.drop(totalSpawned)
+        return plannedSpawns.size
+    }
+
+    fun getActiveEnemyCount(): Int {
+        return this.attackers.count { !it.isDefeated.value }
+    }
 }
