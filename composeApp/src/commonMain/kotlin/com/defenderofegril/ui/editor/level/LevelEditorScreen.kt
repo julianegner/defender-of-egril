@@ -11,7 +11,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.defenderofegril.ui.LeftArrowIcon
 import com.defenderofegril.ui.editor.EditorTab
-import com.defenderofegril.ui.editor.MapEditorContent
+import com.defenderofegril.ui.editor.map.MapEditorContent
 
 /**
  * Main screen for level editing with tabs for Map Editor, Level Editor, and Level Sequence
