@@ -11,6 +11,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.defenderofegril.BuildConfig
+import com.defenderofegril.ui.settings.SettingsButton
+import com.hyperether.resources.LocalizedStrings
+import com.hyperether.resources.currentLanguage
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.emoji_sword
 import defender_of_egril.composeapp.generated.resources.emoji_crown
@@ -22,16 +25,25 @@ fun MainMenuScreen(
     onStartGame: () -> Unit,
     onShowRules: () -> Unit
 ) {
+    val locale = currentLanguage.value
+    
     Box(
         modifier = Modifier.fillMaxSize().padding(16.dp)
     ) {
+        // Settings button in top-right corner
+        SettingsButton(
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(8.dp)
+        )
+        
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = "Defender of Egril",
+                text = LocalizedStrings.get("app_name", locale),
                 style = MaterialTheme.typography.displayLarge,
                 textAlign = TextAlign.Center
             )
@@ -39,7 +51,7 @@ fun MainMenuScreen(
             Spacer(modifier = Modifier.height(16.dp))
             
             Text(
-                text = "Defend the meadows of Egril against\nthe Hordes of Gleid Thyae under\nthe Banner of the evil Ewhad",
+                text = LocalizedStrings.get("app_subtitle", locale),
                 style = MaterialTheme.typography.bodyLarge,
                 textAlign = TextAlign.Center
             )
@@ -50,7 +62,7 @@ fun MainMenuScreen(
                 onClick = onStartGame,
                 modifier = Modifier.width(200.dp).height(60.dp)
             ) {
-                Text("Start Game", style = MaterialTheme.typography.titleMedium)
+                Text(LocalizedStrings.get("start_game", locale), style = MaterialTheme.typography.titleMedium)
             }
             
             Spacer(modifier = Modifier.height(16.dp))
@@ -59,7 +71,7 @@ fun MainMenuScreen(
                 onClick = onShowRules,
                 modifier = Modifier.width(200.dp).height(60.dp)
             ) {
-                Text("Rules", style = MaterialTheme.typography.titleMedium)
+                Text(LocalizedStrings.get("rules", locale), style = MaterialTheme.typography.titleMedium)
             }
         }
         
@@ -84,6 +96,8 @@ fun LevelCompleteScreen(
     onRestart: () -> Unit,
     onBackToMap: () -> Unit
 ) {
+    val locale = currentLanguage.value
+    
     // Determine which image/icon and text to show
     val imageResource = when {
         won && isLastLevel -> Res.drawable.emoji_crown  // Crown for winning the game
@@ -92,64 +106,75 @@ fun LevelCompleteScreen(
     }
     
     val title = when {
-        won && isLastLevel -> "Victory!"
-        won -> "Battle Won!"
-        else -> "Defeat"
+        won && isLastLevel -> LocalizedStrings.get("victory", locale)
+        won -> LocalizedStrings.get("battle_won", locale)
+        else -> LocalizedStrings.get("defeat", locale)
     }
     
     val message = when {
-        won && isLastLevel -> "You have successfully defended Egril!"
-        won -> "You won this battle!"
-        else -> "The enemies have breached your defenses..."
+        won && isLastLevel -> LocalizedStrings.get("victory_message", locale)
+        won -> LocalizedStrings.get("battle_won_message", locale)
+        else -> LocalizedStrings.get("defeat_message", locale)
     }
     
-    Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+    Box(
+        modifier = Modifier.fillMaxSize().padding(16.dp)
     ) {
-        // Icon/Image
-        Image(
-            painter = painterResource(imageResource),
-            contentDescription = title,
-            modifier = Modifier.size(64.dp)
-        )
-
-        
-        Spacer(modifier = Modifier.height(16.dp))
-        
-        Text(
-            text = title,
-            style = MaterialTheme.typography.displayLarge,
-            textAlign = TextAlign.Center,
-            color = if (won) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
+        // Settings button in top-right corner
+        SettingsButton(
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(8.dp)
         )
         
-        Spacer(modifier = Modifier.height(16.dp))
-        
-        Text(
-            text = message,
-            style = MaterialTheme.typography.bodyLarge,
-            textAlign = TextAlign.Center
-        )
-        
-        Spacer(modifier = Modifier.height(48.dp))
-        
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
-            Button(
-                onClick = onRestart,
-                modifier = Modifier.width(150.dp).height(50.dp)
-            ) {
-                Text("Retry")
-            }
+            // Icon/Image
+            Image(
+                painter = painterResource(imageResource),
+                contentDescription = title,
+                modifier = Modifier.size(64.dp)
+            )
+
             
-            Button(
-                onClick = onBackToMap,
-                modifier = Modifier.width(150.dp).height(50.dp)
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            Text(
+                text = title,
+                style = MaterialTheme.typography.displayLarge,
+                textAlign = TextAlign.Center,
+                color = if (won) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
+            )
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            Text(
+                text = message,
+                style = MaterialTheme.typography.bodyLarge,
+                textAlign = TextAlign.Center
+            )
+            
+            Spacer(modifier = Modifier.height(48.dp))
+            
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Text("World Map")
+                Button(
+                    onClick = onRestart,
+                    modifier = Modifier.width(150.dp).height(50.dp)
+                ) {
+                    Text(LocalizedStrings.get("retry", locale))
+                }
+                
+                Button(
+                    onClick = onBackToMap,
+                    modifier = Modifier.width(150.dp).height(50.dp)
+                ) {
+                    Text(LocalizedStrings.get("world_map", locale))
+                }
             }
         }
     }
