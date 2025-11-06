@@ -169,6 +169,7 @@ fun GameGrid(
                             } ?: false,
                             isTargetSelected = gameState.attackers.find { it.position.value == position }?.id == selectedTargetId,
                             selectedDefenderId = selectedDefenderId,
+                            selectedTargetPosition = selectedTargetPosition,
                             selectedMineAction = selectedMineAction,
                             onClick = { onCellClick(position) },
                             hexSize = hexSize
@@ -216,6 +217,7 @@ fun GridCell(
     isDefenderSelected: Boolean,
     isTargetSelected: Boolean,
     selectedDefenderId: Int?,
+    selectedTargetPosition: Position?,
     selectedMineAction: MineAction?,
     onClick: () -> Unit,
     hexSize: androidx.compose.ui.unit.Dp = 48.dp
@@ -410,6 +412,57 @@ fun GridCell(
             isTarget -> {
                 // Show target indicator when cell is empty
                 Text("Target", style = MaterialTheme.typography.labelSmall, color = GamePlayColors.Success)
+            }
+        }
+        
+        // Draw target marker for area attacks (fireball and acid)
+        // Check if this position is selected as a target position for area/lasting attacks
+        val isAreaTargetPosition = selectedTargetPosition == position
+        if (isAreaTargetPosition) {
+            // Determine the attack type to choose the correct color
+            val selectedDefender = selectedDefenderId?.let { id ->
+                gameState.defenders.find { it.id == id }
+            }
+            
+            val markerColor = when (selectedDefender?.type?.attackType) {
+                AttackType.AREA -> Color(0xFFFF5722)  // Deep orange/red for fireball
+                AttackType.LASTING -> Color(0xFF4CAF50)  // Green for acid
+                else -> null
+            }
+            
+            markerColor?.let { color ->
+                // Draw concentric circles: point in middle, circle around it, another circle around that
+                Canvas(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .zIndex(10f)  // Ensure it's drawn on top
+                ) {
+                    val centerX = size.width / 2f
+                    val centerY = size.height / 2f
+                    
+                    // Inner point (solid circle)
+                    drawCircle(
+                        color = color,
+                        radius = 4f,
+                        center = Offset(centerX, centerY)
+                    )
+                    
+                    // Middle circle (stroke)
+                    drawCircle(
+                        color = color,
+                        radius = 12f,
+                        center = Offset(centerX, centerY),
+                        style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2f)
+                    )
+                    
+                    // Outer circle (stroke)
+                    drawCircle(
+                        color = color,
+                        radius = 20f,
+                        center = Offset(centerX, centerY),
+                        style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2f)
+                    )
+                }
             }
         }
     }
