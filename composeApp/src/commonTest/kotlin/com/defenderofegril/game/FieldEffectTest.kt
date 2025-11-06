@@ -11,10 +11,11 @@ import kotlin.test.assertTrue
  */
 class FieldEffectTest {
     
-    @Test
-    fun testFireballEffectsRemovedAfterTurnEnd() {
-        // Create a simple level for testing
-        val level = Level(
+    /**
+     * Helper method to create a standard test level
+     */
+    private fun createTestLevel(): Level {
+        return Level(
             id = 1,
             name = "Test Level",
             gridWidth = 10,
@@ -27,9 +28,13 @@ class FieldEffectTest {
                 AttackerWave(listOf(AttackerType.GOBLIN, AttackerType.GOBLIN))
             ),
             initialCoins = 1000,
-            healthPoints = 10,
-            availableTowers = listOf(DefenderType.WIZARD_TOWER)
+            healthPoints = 10
         )
+    }
+    
+    @Test
+    fun testFireballEffectsRemovedAfterTurnEnd() {
+        val level = createTestLevel()
         
         val state = GameState(level)
         val engine = GameEngine(state)
@@ -75,23 +80,7 @@ class FieldEffectTest {
     
     @Test
     fun testAcidEffectsPersistMultipleTurns() {
-        // Create a simple level for testing
-        val level = Level(
-            id = 1,
-            name = "Test Level",
-            gridWidth = 10,
-            gridHeight = 6,
-            startPositions = listOf(Position(0, 3)),
-            targetPosition = Position(9, 3),
-            pathCells = (0..9).map { Position(it, 3) }.toSet(),
-            buildIslands = setOf(Position(2, 1), Position(2, 2)),
-            attackerWaves = listOf(
-                AttackerWave(listOf(AttackerType.GOBLIN, AttackerType.GOBLIN))
-            ),
-            initialCoins = 1000,
-            healthPoints = 10,
-            availableTowers = listOf(DefenderType.ALCHEMY_TOWER)
-        )
+        val level = createTestLevel()
         
         val state = GameState(level)
         val engine = GameEngine(state)
@@ -136,23 +125,7 @@ class FieldEffectTest {
     
     @Test
     fun testMultipleFireballEffectsFromSameTower() {
-        // Create a simple level for testing
-        val level = Level(
-            id = 1,
-            name = "Test Level",
-            gridWidth = 10,
-            gridHeight = 6,
-            startPositions = listOf(Position(0, 3)),
-            targetPosition = Position(9, 3),
-            pathCells = (0..9).map { Position(it, 3) }.toSet(),
-            buildIslands = setOf(Position(2, 1), Position(2, 2)),
-            attackerWaves = listOf(
-                AttackerWave(listOf(AttackerType.GOBLIN, AttackerType.GOBLIN))
-            ),
-            initialCoins = 1000,
-            healthPoints = 10,
-            availableTowers = listOf(DefenderType.WIZARD_TOWER)
-        )
+        val level = createTestLevel()
         
         val state = GameState(level)
         val engine = GameEngine(state)
