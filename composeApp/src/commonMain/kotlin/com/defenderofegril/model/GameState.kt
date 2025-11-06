@@ -40,8 +40,8 @@ data class GameState(
     val turnNumber: MutableState<Int> = mutableStateOf(0),
     val actionsRemainingThisTurn: MutableState<Int> = mutableStateOf(0),
     val spawnPlan: List<PlannedEnemySpawn> = level.directSpawnPlan ?: generateSpawnPlan(level.attackerWaves),
-    val fieldEffects: MutableList<FieldEffect> = mutableListOf(), // Track active field effects
-    val traps: MutableList<Trap> = mutableListOf()  // Track active traps
+    val fieldEffects: SnapshotStateList<FieldEffect> = mutableStateListOf(), // Track active field effects
+    val traps: SnapshotStateList<Trap> = mutableStateListOf()  // Track active traps
 ) {
     fun isLevelWon(): Boolean {
         // Check if all planned spawns have occurred and all enemies are defeated
@@ -63,5 +63,15 @@ data class GameState(
     
     fun hasActionsRemaining(): Boolean {
         return actionsRemainingThisTurn.value > 0
+    }
+
+    fun getRemainingEnemyCount(): Int {
+        val totalSpawned = this.nextAttackerId.value - 1
+        val plannedSpawns = this.spawnPlan.drop(totalSpawned)
+        return plannedSpawns.size
+    }
+
+    fun getActiveEnemyCount(): Int {
+        return this.attackers.count { !it.isDefeated.value }
     }
 }
