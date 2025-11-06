@@ -376,16 +376,14 @@ private fun GamePlayScreenContent(
         // Cheat code dialog
         if (showCheatDialog && onCheatCode != null) {
             CheatCodeDialog(
-                cheatCodeInput = cheatCodeInput,
-                onCheatCodeChange = { cheatCodeInput = it },
-                onApply = { code ->
-                    val success = onCheatCode(code)
-                    success
-                },
                 onDismiss = {
                     showCheatDialog = false
                     cheatCodeInput = ""
-                }
+                },
+                onApplyCheatCode = onCheatCode,
+                showHints = true,
+                initialInput = cheatCodeInput,
+                onInputChange = { cheatCodeInput = it }
             )
         }
     }
