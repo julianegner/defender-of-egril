@@ -1,6 +1,7 @@
 package com.defenderofegril.game
 
 import com.defenderofegril.editor.EditorStorage
+import com.defenderofegril.model.*
 import kotlin.test.Test
 import kotlin.test.assertTrue
 import kotlin.test.assertEquals
@@ -89,5 +90,47 @@ class SpawnDistributionTest {
                 )
             }
         }
+    }
+    
+    @Test
+    fun testInitialSpawnNotLimitedToSix() {
+        // Create a test level with more than 6 enemies on turn 1
+        val pathCells = setOf(
+            Position(0, 2), Position(1, 2), Position(2, 2),
+            Position(3, 2), Position(4, 2), Position(5, 2)
+        )
+        
+        // Create spawn plan with 10 enemies on turn 1
+        val spawnPlan = List(10) { 
+            PlannedEnemySpawn(AttackerType.GOBLIN, 1, 1)
+        }
+        
+        val level = Level(
+            id = 99,
+            name = "Test Initial Spawn",
+            gridWidth = 10,
+            gridHeight = 6,
+            startPositions = listOf(Position(0, 2)),
+            targetPosition = Position(9, 2),
+            pathCells = pathCells,
+            buildIslands = emptySet(),
+            attackerWaves = emptyList(),
+            initialCoins = 100,
+            healthPoints = 10,
+            directSpawnPlan = spawnPlan
+        )
+        
+        val state = GameState(level)
+        val engine = GameEngine(state)
+        
+        // Start the game (this triggers initial spawn)
+        engine.startFirstPlayerTurn()
+        
+        // Verify all 10 enemies were spawned, not just 6
+        assertEquals(
+            10,
+            state.attackers.size,
+            "All 10 enemies scheduled for turn 1 should be spawned, not limited to 6"
+        )
     }
 }
