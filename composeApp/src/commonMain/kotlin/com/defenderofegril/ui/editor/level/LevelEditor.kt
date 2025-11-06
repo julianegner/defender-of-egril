@@ -17,7 +17,7 @@ import com.defenderofegril.model.AttackerType
 import com.defenderofegril.model.DefenderType
 import com.defenderofegril.ui.*
 import com.defenderofegril.ui.editor.CreateLevelDialog
-import com.defenderofegril.ui.editor.MapSelectionCard
+import com.defenderofegril.ui.editor.map.MapSelectionCard
 import com.defenderofegril.ui.editor.SaveAsDialog
 import kotlin.random.Random
 
