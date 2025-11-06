@@ -9,6 +9,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.defenderofegril.save.SaveGameMetadata
+import com.defenderofegril.ui.settings.SettingsButton
+import com.hyperether.resources.LocalizedStrings
+import com.hyperether.resources.currentLanguage
 
 @Composable
 fun LoadGameScreen(
@@ -17,48 +20,60 @@ fun LoadGameScreen(
     onDeleteGame: (String) -> Unit,
     onBack: () -> Unit
 ) {
+    val locale = currentLanguage.value
     var showDeleteDialog by remember { mutableStateOf<String?>(null) }
     
-    Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+    Box(
+        modifier = Modifier.fillMaxSize().padding(16.dp)
     ) {
-        Text(
-            text = "Load Game",
-            style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier.padding(bottom = 16.dp)
+        // Settings button in top-right corner
+        SettingsButton(
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(8.dp)
         )
         
-        if (savedGames.isEmpty()) {
-            Box(
-                modifier = Modifier.weight(1f).fillMaxWidth(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "No saved games found",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        } else {
-            LazyColumn(
-                modifier = Modifier.weight(1f).fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(savedGames) { saveGame ->
-                    SavedGameCard(
-                        saveGame = saveGame,
-                        onLoad = { onLoadGame(saveGame.id) },
-                        onDelete = { showDeleteDialog = saveGame.id }
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = LocalizedStrings.get("load_game", locale),
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+            
+            if (savedGames.isEmpty()) {
+                Box(
+                    modifier = Modifier.weight(1f).fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "No saved games found",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
+            } else {
+                LazyColumn(
+                    modifier = Modifier.weight(1f).fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(savedGames) { saveGame ->
+                        SavedGameCard(
+                            saveGame = saveGame,
+                            onLoad = { onLoadGame(saveGame.id) },
+                            onDelete = { showDeleteDialog = saveGame.id }
+                        )
+                    }
+                }
             }
-        }
-        
-        Spacer(modifier = Modifier.height(16.dp))
-        
-        Button(onClick = onBack) {
-            Text("Back to World Map")
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            Button(onClick = onBack) {
+                Text(LocalizedStrings.get("back", locale))
+            }
         }
     }
     
