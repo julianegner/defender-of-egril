@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Main Menu -->
+    <string name="app_name">Defensor de Egril</string>
+    <string name="app_subtitle">Defiende los prados de Egril contra\nlas Hordas de Gleid Thyae bajo\nla Bandera del malvado Ewhad</string>
+    <string name="start_game">Iniciar juego</string>
+    <string name="rules">Reglas</string>
+    
+    <!-- Level Complete Screen -->
+    <string name="victory">¡Victoria!</string>
+    <string name="battle_won">¡Batalla ganada!</string>
+    <string name="defeat">Derrota</string>
+    <string name="victory_message">¡Has defendido Egril con éxito!</string>
+    <string name="battle_won_message">¡Has ganado esta batalla!</string>
+    <string name="defeat_message">Los enemigos han atravesado tus defensas...</string>
+    <string name="retry">Reintentar</string>
+    <string name="world_map">Mapa del mundo</string>
+    
+    <!-- Settings -->
+    <string name="settings">Configuración</string>
+    <string name="language">Idioma</string>
+    <string name="close">Cerrar</string>
+    
+    <!-- Common Actions -->
+    <string name="back">Atrás</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancelar</string>
+    <string name="save">Guardar</string>
+    <string name="delete">Eliminar</string>
+    <string name="edit">Editar</string>
+    
+    <!-- Game Play -->
+    <string name="coins">Monedas</string>
+    <string name="health">Salud</string>
+    <string name="turn">Turno</string>
+    <string name="level">Nivel</string>
+    <string name="upgrade">Mejorar</string>
+    <string name="sell">Vender</string>
+    <string name="attack">Ataque</string>
+    <string name="end_turn">Terminar turno</string>
+    <string name="next_turn">Siguiente turno</string>
+    <string name="save_game">Guardar partida</string>
+    <string name="load_game">Cargar partida</string>
+    
+    <!-- Towers -->
+    <string name="tower">Torre</string>
+    <string name="damage">Daño</string>
+    <string name="range">Alcance</string>
+    <string name="actions">Acciones</string>
+    
+    <!-- Enemies -->
+    <string name="enemy">Enemigo</string>
+    <string name="enemies">Enemigos</string>
+    
+    <!-- Status Messages -->
+    <string name="locked">Bloqueado</string>
+    <string name="unlocked">Desbloqueado</string>
+    <string name="completed">Completado</string>
+    
+    <!-- World Map -->
+    <string name="world_map_title">Mapa del mundo - Prados de Egril</string>
+    <string name="back_to_world_map">Volver al mapa del mundo</string>
+    
+    <!-- Load Game Screen -->
+    <string name="no_saved_games">No se encontraron partidas guardadas</string>
+    
+    <!-- Rules Screen -->
+    <string name="how_to_play">Cómo jugar</string>
+    <string name="game_overview">Descripción del juego</string>
+    <string name="game_overview_text">Defensor de Egril es un juego de defensa de torres por turnos. Defiende los prados de Egril contra oleadas de enemigos bajo la bandera malvada de Ewhad.</string>
+    <string name="initial_building_phase">Fase de construcción inicial</string>
+    <string name="at_start_of_level">Al inicio de cada nivel:</string>
+    <string name="place_towers_instantly">Coloca torres instantáneamente (sin tiempo de construcción)</string>
+    <string name="use_coins_strategically">Usa tus monedas iniciales estratégicamente</string>
+    <string name="towers_ready_to_attack">Las torres están listas para atacar de inmediato</string>
+    <string name="click_start_battle">Haz clic en \'Iniciar batalla\' cuando estés listo</string>
+    <string name="your_turn">Tu turno</string>
+    <string name="during_your_turn">Durante tu turno, puedes:</string>
+    <string name="place_new_towers">Colocar nuevas torres - cuesta monedas, requiere tiempo de construcción</string>
+    <string name="upgrade_towers">Mejorar torres existentes - aumenta daño y alcance</string>
+    <string name="attack_with_towers">Atacar con torres - selecciona torre, luego objetivo</string>
+    <string name="end_your_turn">Terminar tu turno - los enemigos se mueven y atacan</string>
+    <string name="enemy_turn">Turno enemigo</string>
+    <string name="after_end_turn">Después de terminar tu turno:</string>
+    <string name="enemies_move">Los enemigos se mueven hacia el objetivo</string>
+    <string name="enemies_attack">Los enemigos que llegan al final te cuestan 1 punto de salud</string>
+    <string name="new_enemies">Pueden aparecer nuevos enemigos</string>
+    <string name="winning_losing">Ganar y perder</string>
+    <string name="win_condition">Victoria: Elimina a todos los enemigos antes de que atraviesen tus defensas</string>
+    <string name="lose_condition">Derrota: Tu salud llega a 0</string>
+    <string name="tower_types">Tipos de torres</string>
+    <string name="spike_tower">Torre de púas (Pike): Defensa cuerpo a cuerpo, opción más barata</string>
+    <string name="spear_tower">Torre de lanzas: Ataques perforantes de alcance medio</string>
+    <string name="bow_tower">Torre de arqueros: Tiro con arco de largo alcance</string>
+    <string name="wizard_tower">Torre del mago: Bola de fuego de área de efecto</string>
+    <string name="alchemy_tower">Torre de alquimia: Daño de ácido con el tiempo</string>
+    <string name="ballista_tower">Torre de balista: Asedio de largo alcance, alcance mínimo</string>
+    <string name="dwarven_mine">Mina enana: Genera monedas</string>
+    <string name="dragons_lair">Guarida del dragón: Invoca dragones</string>
+    <string name="enemy_types">Tipos de enemigos</string>
+    <string name="goblin">Goblin: Rápido y débil</string>
+    <string name="ork">Orco: Lento pero resistente</string>
+    <string name="ogre">Ogro: Muy resistente</string>
+    <string name="skeleton">Esqueleto: No-muerto rápido</string>
+    <string name="evil_wizard">Mago malvado: Atacante mágico</string>
+    <string name="witch">Bruja: Magia oscura</string>
+    <string name="blue_demon">Demonio azul: Rápido, inmune al ácido</string>
+    <string name="red_demon">Demonio rojo: Resistente, inmune a la bola de fuego</string>
+    <string name="evil_mage">Mago oscuro: Puede invocar sirvientes</string>
+    <string name="red_witch">Bruja roja: Puede desactivar torres</string>
+    <string name="green_witch">Bruja verde: Puede curar a otros enemigos</string>
+    <string name="ewhad">Ewhad: Jefe con invocación</string>
+    <string name="dragon">Dragón: Jefe poderoso</string>
+    <string name="strategic_tips">Consejos estratégicos</string>
+    <string name="use_initial_phase">Usa la fase de construcción inicial sabiamente</string>
+    <string name="save_coins">Ahorra 20-30 monedas para el juego medio</string>
+    <string name="focus_fire">Concentra el fuego en enemigos resistentes (Ogros, Orcos)</string>
+    <string name="wizard_for_aoe">Torres de mago para daño de área masivo</string>
+    <string name="upgrade_vs_build">Mejora torres de alto nivel en lugar de construir nuevas</string>
+</resources>
