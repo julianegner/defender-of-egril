@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Main Menu -->
+    <string name="app_name">Défenseur d\'Egril</string>
+    <string name="app_subtitle">Défendez les prairies d\'Egril contre\nles Hordes de Gleid Thyae sous\nla Bannière du maléfique Ewhad</string>
+    <string name="start_game">Commencer le jeu</string>
+    <string name="rules">Règles</string>
+    
+    <!-- Level Complete Screen -->
+    <string name="victory">Victoire !</string>
+    <string name="battle_won">Bataille gagnée !</string>
+    <string name="defeat">Défaite</string>
+    <string name="victory_message">Vous avez défendu Egril avec succès !</string>
+    <string name="battle_won_message">Vous avez gagné cette bataille !</string>
+    <string name="defeat_message">Les ennemis ont percé vos défenses...</string>
+    <string name="retry">Réessayer</string>
+    <string name="world_map">Carte du monde</string>
+    
+    <!-- Settings -->
+    <string name="settings">Paramètres</string>
+    <string name="language">Langue</string>
+    <string name="close">Fermer</string>
+    
+    <!-- Common Actions -->
+    <string name="back">Retour</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Annuler</string>
+    <string name="save">Sauvegarder</string>
+    <string name="delete">Supprimer</string>
+    <string name="edit">Modifier</string>
+    
+    <!-- Game Play -->
+    <string name="coins">Pièces</string>
+    <string name="health">Santé</string>
+    <string name="turn">Tour</string>
+    <string name="level">Niveau</string>
+    <string name="upgrade">Améliorer</string>
+    <string name="sell">Vendre</string>
+    <string name="attack">Attaque</string>
+    <string name="end_turn">Terminer le tour</string>
+    <string name="next_turn">Tour suivant</string>
+    <string name="save_game">Sauvegarder la partie</string>
+    <string name="load_game">Charger la partie</string>
+    
+    <!-- Towers -->
+    <string name="tower">Tour</string>
+    <string name="damage">Dégâts</string>
+    <string name="range">Portée</string>
+    <string name="actions">Actions</string>
+    
+    <!-- Enemies -->
+    <string name="enemy">Ennemi</string>
+    <string name="enemies">Ennemis</string>
+    
+    <!-- Status Messages -->
+    <string name="locked">Verrouillé</string>
+    <string name="unlocked">Déverrouillé</string>
+    <string name="completed">Terminé</string>
+    
+    <!-- World Map -->
+    <string name="world_map_title">Carte du monde - Prairies d\'Egril</string>
+    <string name="back_to_world_map">Retour à la carte du monde</string>
+    
+    <!-- Load Game Screen -->
+    <string name="no_saved_games">Aucune partie sauvegardée trouvée</string>
+    
+    <!-- Rules Screen -->
+    <string name="how_to_play">Comment jouer</string>
+    <string name="game_overview">Aperçu du jeu</string>
+    <string name="game_overview_text">Défenseur d\'Egril est un jeu de tower defense au tour par tour. Défendez les prairies d\'Egril contre des vagues d\'ennemis sous la bannière maléfique d\'Ewhad.</string>
+    <string name="initial_building_phase">Phase de construction initiale</string>
+    <string name="at_start_of_level">Au début de chaque niveau :</string>
+    <string name="place_towers_instantly">Placez les tours instantanément (pas de temps de construction)</string>
+    <string name="use_coins_strategically">Utilisez vos pièces de départ stratégiquement</string>
+    <string name="towers_ready_to_attack">Les tours sont prêtes à attaquer immédiatement</string>
+    <string name="click_start_battle">Cliquez sur \'Commencer la bataille\' quand vous êtes prêt</string>
+    <string name="your_turn">Votre tour</string>
+    <string name="during_your_turn">Pendant votre tour, vous pouvez :</string>
+    <string name="place_new_towers">Placer de nouvelles tours - coûte des pièces, nécessite du temps de construction</string>
+    <string name="upgrade_towers">Améliorer les tours existantes - augmente les dégâts et la portée</string>
+    <string name="attack_with_towers">Attaquer avec les tours - sélectionnez la tour, puis la cible</string>
+    <string name="end_your_turn">Terminer votre tour - les ennemis se déplacent et attaquent</string>
+    <string name="enemy_turn">Tour ennemi</string>
+    <string name="after_end_turn">Après avoir terminé votre tour :</string>
+    <string name="enemies_move">Les ennemis se déplacent vers la cible</string>
+    <string name="enemies_attack">Les ennemis qui atteignent la fin vous coûtent 1 point de santé</string>
+    <string name="new_enemies">De nouveaux ennemis peuvent apparaître</string>
+    <string name="winning_losing">Gagner et perdre</string>
+    <string name="win_condition">Victoire : Éliminez tous les ennemis avant qu\'ils ne percent vos défenses</string>
+    <string name="lose_condition">Défaite : Votre santé atteint 0</string>
+    <string name="tower_types">Types de tours</string>
+    <string name="spike_tower">Tour à piques (Pike) : Défense au corps-à-corps, option la moins chère</string>
+    <string name="spear_tower">Tour à lances : Attaques perforantes à moyenne portée</string>
+    <string name="bow_tower">Tour d\'archerie : Tir à l\'arc à longue portée</string>
+    <string name="wizard_tower">Tour du sorcier : Boule de feu à effet de zone</string>
+    <string name="alchemy_tower">Tour d\'alchimie : Dégâts d\'acide sur la durée</string>
+    <string name="ballista_tower">Tour de baliste : Siège à longue portée, portée minimale</string>
+    <string name="dwarven_mine">Mine naine : Génère des pièces</string>
+    <string name="dragons_lair">Repaire du dragon : Fait apparaître des dragons</string>
+    <string name="enemy_types">Types d\'ennemis</string>
+    <string name="goblin">Gobelin : Rapide et faible</string>
+    <string name="ork">Orc : Lent mais résistant</string>
+    <string name="ogre">Ogre : Très résistant</string>
+    <string name="skeleton">Squelette : Mort-vivant rapide</string>
+    <string name="evil_wizard">Sorcier maléfique : Attaquant magique</string>
+    <string name="witch">Sorcière : Magie noire</string>
+    <string name="blue_demon">Démon bleu : Rapide, immunisé contre l\'acide</string>
+    <string name="red_demon">Démon rouge : Résistant, immunisé contre la boule de feu</string>
+    <string name="evil_mage">Mage maléfique : Peut invoquer des serviteurs</string>
+    <string name="red_witch">Sorcière rouge : Peut désactiver les tours</string>
+    <string name="green_witch">Sorcière verte : Peut soigner d\'autres ennemis</string>
+    <string name="ewhad">Ewhad : Boss avec invocation</string>
+    <string name="dragon">Dragon : Boss puissant</string>
+    <string name="strategic_tips">Conseils stratégiques</string>
+    <string name="use_initial_phase">Utilisez la phase de construction initiale judicieusement</string>
+    <string name="save_coins">Économisez 20-30 pièces pour le milieu de partie</string>
+    <string name="focus_fire">Concentrez le tir sur les ennemis résistants (Ogres, Orcs)</string>
+    <string name="wizard_for_aoe">Tours de sorcier pour des dégâts de zone massifs</string>
+    <string name="upgrade_vs_build">Améliorez les tours de haut niveau plutôt que d\'en construire de nouvelles</string>
+</resources>

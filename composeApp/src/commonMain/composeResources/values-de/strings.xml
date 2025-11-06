@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Main Menu -->
+    <string name="app_name">Verteidiger von Egril</string>
+    <string name="app_subtitle">Verteidige die Wiesen von Egril gegen\ndie Horden von Gleid Thyae unter\nder Flagge des bösen Ewhad</string>
+    <string name="start_game">Spiel starten</string>
+    <string name="rules">Regeln</string>
+    
+    <!-- Level Complete Screen -->
+    <string name="victory">Sieg!</string>
+    <string name="battle_won">Schlacht gewonnen!</string>
+    <string name="defeat">Niederlage</string>
+    <string name="victory_message">Du hast Egril erfolgreich verteidigt!</string>
+    <string name="battle_won_message">Du hast diese Schlacht gewonnen!</string>
+    <string name="defeat_message">Die Feinde haben deine Verteidigung durchbrochen...</string>
+    <string name="retry">Wiederholen</string>
+    <string name="world_map">Weltkarte</string>
+    
+    <!-- Settings -->
+    <string name="settings">Einstellungen</string>
+    <string name="language">Sprache</string>
+    <string name="close">Schließen</string>
+    
+    <!-- Common Actions -->
+    <string name="back">Zurück</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="save">Speichern</string>
+    <string name="delete">Löschen</string>
+    <string name="edit">Bearbeiten</string>
+    
+    <!-- Game Play -->
+    <string name="coins">Münzen</string>
+    <string name="health">Gesundheit</string>
+    <string name="turn">Runde</string>
+    <string name="level">Stufe</string>
+    <string name="upgrade">Aufwerten</string>
+    <string name="sell">Verkaufen</string>
+    <string name="attack">Angriff</string>
+    <string name="end_turn">Runde beenden</string>
+    <string name="next_turn">Nächste Runde</string>
+    <string name="save_game">Spiel speichern</string>
+    <string name="load_game">Spiel laden</string>
+    
+    <!-- Towers -->
+    <string name="tower">Turm</string>
+    <string name="damage">Schaden</string>
+    <string name="range">Reichweite</string>
+    <string name="actions">Aktionen</string>
+    
+    <!-- Enemies -->
+    <string name="enemy">Feind</string>
+    <string name="enemies">Feinde</string>
+    
+    <!-- Status Messages -->
+    <string name="locked">Gesperrt</string>
+    <string name="unlocked">Freigeschaltet</string>
+    <string name="completed">Abgeschlossen</string>
+    
+    <!-- World Map -->
+    <string name="world_map_title">Weltkarte - Wiesen von Egril</string>
+    <string name="back_to_world_map">Zurück zur Weltkarte</string>
+    
+    <!-- Load Game Screen -->
+    <string name="no_saved_games">Keine gespeicherten Spiele gefunden</string>
+    
+    <!-- Rules Screen -->
+    <string name="how_to_play">Wie man spielt</string>
+    <string name="game_overview">Spielübersicht</string>
+    <string name="game_overview_text">Verteidiger von Egril ist ein rundenbasiertes Tower-Defense-Spiel. Verteidige die Wiesen von Egril gegen Wellen von Feinden unter der bösen Flagge von Ewhad.</string>
+    <string name="initial_building_phase">Anfängliche Bauphase</string>
+    <string name="at_start_of_level">Zu Beginn jedes Levels:</string>
+    <string name="place_towers_instantly">Platziere Türme sofort (keine Bauzeit)</string>
+    <string name="use_coins_strategically">Nutze deine Startmünzen strategisch</string>
+    <string name="towers_ready_to_attack">Türme sind sofort bereit anzugreifen</string>
+    <string name="click_start_battle">Klicke auf \'Schlacht beginnen\', wenn du bereit bist</string>
+    <string name="your_turn">Deine Runde</string>
+    <string name="during_your_turn">Während deiner Runde kannst du:</string>
+    <string name="place_new_towers">Neue Türme platzieren - kostet Münzen, benötigt Bauzeit</string>
+    <string name="upgrade_towers">Bestehende Türme aufwerten - erhöht Schaden und Reichweite</string>
+    <string name="attack_with_towers">Mit Türmen angreifen - wähle Turm, dann Ziel</string>
+    <string name="end_your_turn">Deine Runde beenden - Feinde bewegen sich und greifen an</string>
+    <string name="enemy_turn">Feindrunde</string>
+    <string name="after_end_turn">Nachdem du deine Runde beendet hast:</string>
+    <string name="enemies_move">Feinde bewegen sich zum Ziel</string>
+    <string name="enemies_attack">Feinde, die das Ziel erreichen, kosten dich 1 Gesundheit</string>
+    <string name="new_enemies">Neue Feinde können erscheinen</string>
+    <string name="winning_losing">Gewinnen und Verlieren</string>
+    <string name="win_condition">Sieg: Eliminiere alle Feinde bevor sie deine Verteidigung durchbrechen</string>
+    <string name="lose_condition">Niederlage: Deine Gesundheit erreicht 0</string>
+    <string name="tower_types">Turmarten</string>
+    <string name="spike_tower">Stachelturm (Pike): Nahkampfverteidigung, günstigste Option</string>
+    <string name="spear_tower">Speerturm: Mittlere Reichweite, durchdringende Angriffe</string>
+    <string name="bow_tower">Bogenturm: Große Reichweite, Bogenschießen</string>
+    <string name="wizard_tower">Zauberturm: Flächenwirkung Feuerball</string>
+    <string name="alchemy_tower">Alchemieturm: Säureschaden über Zeit</string>
+    <string name="ballista_tower">Ballisteturm: Große Reichweite Belagerung, Mindestreichweite</string>
+    <string name="dwarven_mine">Zwergmine: Erzeugt Münzen</string>
+    <string name="dragons_lair">Drachenhöhle: Erschafft Drachen</string>
+    <string name="enemy_types">Feindarten</string>
+    <string name="goblin">Goblin: Schnell und schwach</string>
+    <string name="ork">Ork: Langsam aber zäh</string>
+    <string name="ogre">Oger: Sehr zäh</string>
+    <string name="skeleton">Skelett: Schnell untot</string>
+    <string name="evil_wizard">Böser Zauberer: Magischer Angreifer</string>
+    <string name="witch">Hexe: Dunkle Magie</string>
+    <string name="blue_demon">Blauer Dämon: Schnell, säureimmun</string>
+    <string name="red_demon">Roter Dämon: Zäh, feuerballimmun</string>
+    <string name="evil_mage">Böser Magier: Kann Diener beschwören</string>
+    <string name="red_witch">Rote Hexe: Kann Türme deaktivieren</string>
+    <string name="green_witch">Grüne Hexe: Kann andere Feinde heilen</string>
+    <string name="ewhad">Ewhad: Boss mit Beschwörung</string>
+    <string name="dragon">Drache: Mächtiger Boss</string>
+    <string name="strategic_tips">Strategische Tipps</string>
+    <string name="use_initial_phase">Nutze die anfängliche Bauphase weise</string>
+    <string name="save_coins">Spare 20-30 Münzen für das Mittelspiel</string>
+    <string name="focus_fire">Konzentriere Feuer auf zähe Feinde (Oger, Orks)</string>
+    <string name="wizard_for_aoe">Zaubertürme für massiven Flächenschaden</string>
+    <string name="upgrade_vs_build">Werte hochstufige Türme auf statt neue zu bauen</string>
+</resources>
