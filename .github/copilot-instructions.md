@@ -51,12 +51,12 @@ Defender of Egril is a turn-based tower defense game built with Kotlin Multiplat
   - `GameViewModel`: Central state management with save/load integration
   - `GamePlayScreen`: Main gameplay orchestrator (428 lines, refactored from 2,835 lines)
   - `gameplay/`: 8 component files for gameplay UI
-  - `editor/`: 8 component files for level editor (desktop only)
+  - `editor/`: 8 component files for level editor (desktop and web/wasm only)
   - `icon/`: Organized icon components (defenders, enemies, utilities)
   - `loadgame/`: Save game management UI
   - `worldmap/`: Level selection and world map UI
   
-- **Editor System** (`editor/`): Level creation and editing (desktop only)
+- **Editor System** (`editor/`): Level creation and editing (desktop and web/wasm only)
   - `EditorModels`: Map and level data structures
   - `EditorJsonSerializer`: Manual JSON serialization for editor data
   - `EditorStorage`: Persistent storage for maps, levels, and sequences
@@ -133,7 +133,7 @@ Defender of Egril is a turn-based tower defense game built with Kotlin Multiplat
 6. If tower has special mechanics (like Dwarven Mine), update `TowerManager.kt` and relevant game systems
 
 #### New Level (Editor Method - Recommended)
-1. Use the in-game Level Editor (desktop only):
+1. Use the in-game Level Editor (desktop and web/wasm only):
    - Create or select a map in Map Editor tab
    - Create level in Level Editor tab
    - Configure enemy spawns, starting resources, and available towers
@@ -237,7 +237,7 @@ Add to `LevelData.createLevels()` with:
 4. **State mutations**: Be careful with mutable state; prefer immutable updates where possible
 5. **Hexagonal grid constraints**: Game uses hexagonal offset coordinates (even-q); respect neighbor calculations from HexUtils
 6. **JSON serialization**: Use manual serialization (not kotlinx.serialization) to match existing patterns in EditorJsonSerializer and SaveJsonSerializer
-7. **Level Editor**: Desktop only - not available on mobile platforms
+7. **Level Editor**: Desktop and web/wasm only - not available on mobile platforms
 8. **File storage paths**: Use FileStorage interface for platform-specific paths
 9. **Large file refactoring**: Keep UI component files under 500 lines; extract into modular structure (see `ui/gameplay/` pattern)
 
@@ -259,7 +259,7 @@ Add to `LevelData.createLevels()` with:
 - `GAMEPLAY.md`: Game mechanics and rules
 - `TESTING_GUIDE.md`: Manual testing procedures for UI
 - `RUNNING.md`: Platform-specific running instructions
-- `LEVEL_EDITOR.md`: Level editor features and usage (desktop only)
+- `LEVEL_EDITOR.md`: Level editor features and usage (desktop and web/wasm only)
 - `SAVE_LOAD_IMPLEMENTATION.md`: Save/load system architecture
 - `GAMEPLAY_SCREEN_EXTRACTION.md`: UI component refactoring details
 - `LEVEL_EDITOR_REFACTORING.md`: Editor component refactoring
@@ -291,7 +291,7 @@ Add to `LevelData.createLevels()` with:
 - Dragon's Lair: Special structure that spawns dragons (cannot be sold or upgraded)
 - Enemy abilities: Some enemies can summon, heal, disable towers, or have damage immunities
 - Save/Load system: Automatic world map progress saving, manual in-game saves
-- Level Editor: Desktop only, stores data in `~/.defender-of-egril/editor/` (Linux/Mac) or `%USERPROFILE%\.defender-of-egril\editor\` (Windows)
+- Level Editor: Desktop and web/wasm only, stores data in `~/.defender-of-egril/editor/` (Linux/Mac) or `%USERPROFILE%\.defender-of-egril\editor\` (Windows)
 - Pan and Zoom: All platforms support panning (drag) and zooming (mouse wheel/pinch, 0.5x to 3x)
 - Minimap: Automatically appears when zoomed in to show current viewport position
 
