@@ -12,6 +12,44 @@ plugins {
     alias(libs.plugins.kotlinSerialization)
 }
 
+// Task to generate BuildConfig with current commit hash
+val generateBuildConfig by tasks.registering {
+    val outputDir = layout.buildDirectory.dir("generated/source/buildConfig/commonMain/kotlin")
+    val outputFile = outputDir.get().file("com/defenderofegril/BuildConfig.kt")
+    
+    outputs.dir(outputDir)
+    outputs.upToDateWhen { false } // Always regenerate to get latest commit hash
+    
+    doLast {
+        val commitHash = try {
+            val process = Runtime.getRuntime().exec("git rev-parse --short HEAD")
+            process.inputStream.bufferedReader().readText().trim()
+        } catch (e: Exception) {
+            "unknown"
+        }
+        
+        val versionName = "1.0"
+        
+        val buildConfigContent = """
+            |package com.defenderofegril
+            |
+            |/**
+            | * Build configuration with version and commit information
+            | * This file is auto-generated during build
+            | */
+            |object BuildConfig {
+            |    const val VERSION_NAME = "$versionName"
+            |    const val COMMIT_HASH = "$commitHash"
+            |}
+            |""".trimMargin()
+        
+        outputFile.asFile.apply {
+            parentFile.mkdirs()
+            writeText(buildConfigContent)
+        }
+    }
+}
+
 kotlin {
     androidTarget {
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
@@ -48,18 +86,23 @@ kotlin {
         val desktopMain by getting
         val wasmJsMain by getting
         
+        commonMain {
+            kotlin.srcDir(layout.buildDirectory.dir("generated/source/buildConfig/commonMain/kotlin"))
+            
+            dependencies {
+                implementation(compose.runtime)
+                implementation(compose.foundation)
+                implementation(compose.material3)
+                implementation(compose.ui)
+                implementation(compose.components.resources)
+                implementation(compose.components.uiToolingPreview)
+                implementation(libs.kotlinx.serialization.json)
+            }
+        }
+        
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
-        }
-        commonMain.dependencies {
-            implementation(compose.runtime)
-            implementation(compose.foundation)
-            implementation(compose.material3)
-            implementation(compose.ui)
-            implementation(compose.components.resources)
-            implementation(compose.components.uiToolingPreview)
-            implementation(libs.kotlinx.serialization.json)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -73,6 +116,11 @@ kotlin {
         iosMain.dependencies {
         }
     }
+}
+
+// Make all Kotlin compilation tasks depend on generateBuildConfig
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+    dependsOn(generateBuildConfig)
 }
 
 android {
