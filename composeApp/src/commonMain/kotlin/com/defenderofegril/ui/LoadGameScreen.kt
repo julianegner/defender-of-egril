@@ -73,31 +73,14 @@ fun LoadGameScreen(
     }
     
     // Delete confirmation dialog
-    showDeleteDialog?.let { saveId ->
-        AlertDialog(
-            onDismissRequest = { showDeleteDialog = null },
-            title = { Text("Delete Save Game") },
-            text = { Text("Are you sure you want to delete this saved game?") },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        onDeleteGame(saveId)
-                        showDeleteDialog = null
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.error
-                    )
-                ) {
-                    Text("Delete")
-                }
-            },
-            dismissButton = {
-                Button(onClick = { showDeleteDialog = null }) {
-                    Text("Cancel")
-                }
-            }
-        )
-    }
+    DeleteConfirmationDialog(
+        saveIdToDelete = showDeleteDialog,
+        onConfirmDelete = { saveId ->
+            onDeleteGame(saveId)
+            showDeleteDialog = null
+        },
+        onDismiss = { showDeleteDialog = null }
+    )
 }
 
 @Composable
@@ -159,213 +142,32 @@ fun SavedGameCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
-            // Header row with level name, date, and turn
-            Text(
-                text = saveGame.levelName,
-                style = MaterialTheme.typography.titleMedium
-            )
-            
-            Spacer(modifier = Modifier.height(4.dp))
-            
-            Text(
-                text = dateStr,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+            SavedGameCardHeader(
+                levelName = saveGame.levelName,
+                dateStr = dateStr
             )
             
             Spacer(modifier = Modifier.height(8.dp))
             
-            // Turn number and coins with symbols
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Start,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                // Turn number
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    TimerIcon(
-                        size = 16.dp
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = "Turn ${saveGame.turnNumber}",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                }
-                
-                Spacer(modifier = Modifier.width(16.dp))
-                
-                // Coins
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    MoneyIcon(size = 16.dp)
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = "${saveGame.coins}",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                }
-            }
+            SavedGameCardStats(
+                turnNumber = saveGame.turnNumber,
+                coins = saveGame.coins
+            )
             
             // Display comment if present
             if (!saveGame.comment.isNullOrBlank()) {
                 Spacer(modifier = Modifier.height(8.dp))
-                Row(
-                    verticalAlignment = Alignment.Top,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(
-                        text = "💬",
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontSize = 16.sp
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = saveGame.comment,
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
+                SavedGameCardComment(comment = saveGame.comment)
             }
             
             Spacer(modifier = Modifier.height(12.dp))
             
-            // Three-column layout: Towers | Enemies | Minimap
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                // Column 1: Built towers
-                Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.Top
-                ) {
-                    if (saveGame.defenderCounts.isNotEmpty()) {
-                        Text(
-                            text = "Built Towers:",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                            saveGame.defenderCounts.entries.forEach { (type, count) ->
-                                UnitEntry(
-                                    icon = { DefenderTypeIconSimple(type) },
-                                    name = type.displayName,
-                                    count = count
-                                )
-                            }
-                        }
-                    }
-                }
-                
-                // Column 2: Enemies (current and to come)
-                Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.Top
-                ) {
-                    // Current enemies on map
-                    if (saveGame.attackerCounts.isNotEmpty()) {
-                        Text(
-                            text = "Enemies on Map:",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                            saveGame.attackerCounts.entries.forEach { (type, count) ->
-                                UnitEntry(
-                                    icon = { EnemyTypeIcon(attackerType = type) },
-                                    name = type.displayName,
-                                    count = count
-                                )
-                            }
-                        }
-                    }
-                    
-                    if (saveGame.attackerCounts.isNotEmpty() && saveGame.remainingSpawnCounts.isNotEmpty()) {
-                        Spacer(modifier = Modifier.height(8.dp))
-                    }
-                    
-                    // Remaining spawns
-                    if (saveGame.remainingSpawnCounts.isNotEmpty()) {
-                        Text(
-                            text = "Enemies to Come:",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                            saveGame.remainingSpawnCounts.entries.forEach { (type, count) ->
-                                UnitEntry(
-                                    icon = { EnemyTypeIcon(attackerType = type) },
-                                    name = type.displayName,
-                                    count = count
-                                )
-                            }
-                        }
-                    }
-                }
-                
-                // Column 3: Minimap and delete button
-                Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.SpaceBetween,
-                    horizontalAlignment = Alignment.End
-                ) {
-                    // Minimap
-                    if (level != null) {
-                        Box(
-                            modifier = Modifier
-                                .width(300.dp)
-                                .height(120.dp)
-                                .padding(top = 20.dp)
-                        ) {
-                            val mapName = HexagonMinimap(
-                                level = level,
-                                config = MinimapConfig(
-                                    showSpawnPoints = true,
-                                    showTarget = true,
-                                    showTowers = true,
-                                    showEnemies = true,
-                                    showViewport = false,
-                                    backgroundColor = Color.Transparent,
-                                    borderColor = Color.Transparent
-                                ),
-                                gameState = minimapGameState,  // Pass the minimap game state with unit positions
-                                modifier = Modifier.fillMaxSize()
-                            )
-                            Text(
-                                text = mapName,
-                                style = MaterialTheme.typography.bodySmall,
-                                fontSize = 12.sp,
-                                modifier = Modifier.absoluteOffset(x = 0.dp, y = (-20).dp)
-                            )
-                        }
-                    }
-                    
-                    Spacer(modifier = Modifier.height(8.dp))
-                    
-                    // Delete button with text
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.End,
-                        modifier = Modifier.clickable { onDelete() }
-                    ) {
-                        Text(
-                            text = "Delete Savegame",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.error
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        TrashIcon(size = 20.dp)
-                    }
-                }
-            }
+            SavedGameCardUnitsAndMinimap(
+                saveGame = saveGame,
+                level = level,
+                minimapGameState = minimapGameState,
+                onDelete = onDelete
+            )
         }
     }
 }
@@ -402,5 +204,282 @@ private fun DefenderTypeIconSimple(defenderType: DefenderType) {
             .background(Color(0xFF2196F3)) // same color as in the game
     ) {
         TowerTypeIcon(defenderType = defenderType)
+    }
+}
+
+@Composable
+private fun SavedGameCardHeader(
+    levelName: String,
+    dateStr: String
+) {
+    Text(
+        text = levelName,
+        style = MaterialTheme.typography.titleMedium
+    )
+    
+    Spacer(modifier = Modifier.height(4.dp))
+    
+    Text(
+        text = dateStr,
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant
+    )
+}
+
+@Composable
+private fun SavedGameCardStats(
+    turnNumber: Int,
+    coins: Int
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Start,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        // Turn number
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            TimerIcon(size = 16.dp)
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(
+                text = "Turn $turnNumber",
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
+        
+        Spacer(modifier = Modifier.width(16.dp))
+        
+        // Coins
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            MoneyIcon(size = 16.dp)
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(
+                text = "$coins",
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
+    }
+}
+
+@Composable
+private fun SavedGameCardComment(comment: String) {
+    Row(
+        verticalAlignment = Alignment.Top,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text(
+            text = "💬",
+            style = MaterialTheme.typography.bodyMedium,
+            fontSize = 16.sp
+        )
+        Spacer(modifier = Modifier.width(4.dp))
+        Text(
+            text = comment,
+            style = MaterialTheme.typography.bodyMedium,
+            fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+@Composable
+private fun SavedGameCardUnitsAndMinimap(
+    saveGame: SaveGameMetadata,
+    level: Level?,
+    minimapGameState: GameState?,
+    onDelete: () -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        // Column 1: Built towers
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.Top
+        ) {
+            TowersList(defenderCounts = saveGame.defenderCounts)
+        }
+        
+        // Column 2: Enemies (current and to come)
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.Top
+        ) {
+            EnemiesList(
+                attackerCounts = saveGame.attackerCounts,
+                remainingSpawnCounts = saveGame.remainingSpawnCounts
+            )
+        }
+        
+        // Column 3: Minimap and delete button
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.SpaceBetween,
+            horizontalAlignment = Alignment.End
+        ) {
+            MinimapAndDeleteButton(
+                level = level,
+                minimapGameState = minimapGameState,
+                onDelete = onDelete
+            )
+        }
+    }
+}
+
+@Composable
+private fun TowersList(defenderCounts: Map<DefenderType, Int>) {
+    if (defenderCounts.isNotEmpty()) {
+        Text(
+            text = "Built Towers:",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            defenderCounts.entries.forEach { (type, count) ->
+                UnitEntry(
+                    icon = { DefenderTypeIconSimple(type) },
+                    name = type.displayName,
+                    count = count
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun EnemiesList(
+    attackerCounts: Map<AttackerType, Int>,
+    remainingSpawnCounts: Map<AttackerType, Int>
+) {
+    // Current enemies on map
+    if (attackerCounts.isNotEmpty()) {
+        Text(
+            text = "Enemies on Map:",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            attackerCounts.entries.forEach { (type, count) ->
+                UnitEntry(
+                    icon = { EnemyTypeIcon(attackerType = type) },
+                    name = type.displayName,
+                    count = count
+                )
+            }
+        }
+    }
+    
+    if (attackerCounts.isNotEmpty() && remainingSpawnCounts.isNotEmpty()) {
+        Spacer(modifier = Modifier.height(8.dp))
+    }
+    
+    // Remaining spawns
+    if (remainingSpawnCounts.isNotEmpty()) {
+        Text(
+            text = "Enemies to Come:",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            remainingSpawnCounts.entries.forEach { (type, count) ->
+                UnitEntry(
+                    icon = { EnemyTypeIcon(attackerType = type) },
+                    name = type.displayName,
+                    count = count
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun MinimapAndDeleteButton(
+    level: Level?,
+    minimapGameState: GameState?,
+    onDelete: () -> Unit
+) {
+    // Minimap
+    if (level != null) {
+        Box(
+            modifier = Modifier
+                .width(300.dp)
+                .height(120.dp)
+                .padding(top = 20.dp)
+        ) {
+            val mapName = HexagonMinimap(
+                level = level,
+                config = MinimapConfig(
+                    showSpawnPoints = true,
+                    showTarget = true,
+                    showTowers = true,
+                    showEnemies = true,
+                    showViewport = false,
+                    backgroundColor = Color.Transparent,
+                    borderColor = Color.Transparent
+                ),
+                gameState = minimapGameState,
+                modifier = Modifier.fillMaxSize()
+            )
+            Text(
+                text = mapName,
+                style = MaterialTheme.typography.bodySmall,
+                fontSize = 12.sp,
+                modifier = Modifier.absoluteOffset(x = 0.dp, y = (-20).dp)
+            )
+        }
+    }
+    
+    Spacer(modifier = Modifier.height(8.dp))
+    
+    // Delete button with text
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.End,
+        modifier = Modifier.clickable { onDelete() }
+    ) {
+        Text(
+            text = "Delete Savegame",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.error
+        )
+        Spacer(modifier = Modifier.width(4.dp))
+        TrashIcon(size = 20.dp)
+    }
+}
+
+@Composable
+private fun DeleteConfirmationDialog(
+    saveIdToDelete: String?,
+    onConfirmDelete: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    saveIdToDelete?.let { saveId ->
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            title = { Text("Delete Save Game") },
+            text = { Text("Are you sure you want to delete this saved game?") },
+            confirmButton = {
+                Button(
+                    onClick = { onConfirmDelete(saveId) },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error
+                    )
+                ) {
+                    Text("Delete")
+                }
+            },
+            dismissButton = {
+                Button(onClick = onDismiss) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 }
