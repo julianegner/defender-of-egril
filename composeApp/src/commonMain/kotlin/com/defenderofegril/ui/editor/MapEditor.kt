@@ -476,7 +476,7 @@ fun MapEditorHeader(
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 // All tile types are selectable
-                items(TileType.values().toList()) { tileType ->
+                items(TileType.entries) { tileType ->
                     TileTypeButton(
                         tileType = tileType,
                         selected = selectedTileType == tileType,
