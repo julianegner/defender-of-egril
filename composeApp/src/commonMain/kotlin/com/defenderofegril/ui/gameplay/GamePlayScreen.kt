@@ -1,4 +1,4 @@
-package com.defenderofegril.ui
+package com.defenderofegril.ui.gameplay
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -12,7 +12,8 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.defenderofegril.model.*
-import com.defenderofegril.ui.gameplay.*
+import com.defenderofegril.ui.CheatCodeDialog
+import com.defenderofegril.ui.getGameplayUIScale
 
 @Composable
 fun GamePlayScreen(
