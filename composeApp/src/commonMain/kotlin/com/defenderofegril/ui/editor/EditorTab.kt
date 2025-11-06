@@ -1,0 +1,10 @@
+package com.defenderofegril.ui.editor
+
+/**
+ * Tabs available in the Level Editor Screen
+ */
+enum class EditorTab {
+    MAP_EDITOR,
+    LEVEL_EDITOR,
+    LEVEL_SEQUENCE
+}
