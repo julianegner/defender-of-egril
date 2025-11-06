@@ -4,6 +4,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import com.defenderofegril.ui.*
 import com.defenderofegril.ui.editor.level.LevelEditorScreen
+import com.defenderofegril.ui.gameplay.GamePlayScreen
 import com.defenderofegril.ui.worldmap.WorldMapScreen
 
 @Composable
