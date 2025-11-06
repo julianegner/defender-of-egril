@@ -95,10 +95,12 @@ class SpawnDistributionTest {
     @Test
     fun testInitialSpawnNotLimitedToSix() {
         // Create a test level with more than 6 enemies on turn 1
-        val pathCells = setOf(
-            Position(0, 2), Position(1, 2), Position(2, 2),
-            Position(3, 2), Position(4, 2), Position(5, 2)
-        )
+        // Create a longer path to accommodate all enemies
+        val pathCells = mutableSetOf<Position>()
+        for (x in 0..9) {
+            pathCells.add(Position(x, 2))
+            pathCells.add(Position(x, 3))  // Add extra row for more space
+        }
         
         // Create spawn plan with 10 enemies on turn 1
         val spawnPlan = List(10) { 
