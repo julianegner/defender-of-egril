@@ -1,14 +1,24 @@
-package com.defenderofegril.ui
+package com.defenderofegril.ui.icon
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import com.defenderofegril.model.DigOutcome
 import defender_of_egril.composeapp.generated.resources.Res
+import defender_of_egril.composeapp.generated.resources.dig_outcome_brass
+import defender_of_egril.composeapp.generated.resources.dig_outcome_diamond
+import defender_of_egril.composeapp.generated.resources.dig_outcome_dragon
+import defender_of_egril.composeapp.generated.resources.dig_outcome_gem_blue
+import defender_of_egril.composeapp.generated.resources.dig_outcome_gem_green
+import defender_of_egril.composeapp.generated.resources.dig_outcome_gem_red
+import defender_of_egril.composeapp.generated.resources.dig_outcome_gold
+import defender_of_egril.composeapp.generated.resources.dig_outcome_rubble
+import defender_of_egril.composeapp.generated.resources.dig_outcome_silver
 import defender_of_egril.composeapp.generated.resources.emoji_checkmark
 import defender_of_egril.composeapp.generated.resources.emoji_door
 import defender_of_egril.composeapp.generated.resources.emoji_down_arrow
@@ -19,10 +29,12 @@ import defender_of_egril.composeapp.generated.resources.emoji_info
 import defender_of_egril.composeapp.generated.resources.emoji_left_arrow
 import defender_of_egril.composeapp.generated.resources.emoji_lightning
 import defender_of_egril.composeapp.generated.resources.emoji_lock
+import defender_of_egril.composeapp.generated.resources.emoji_magnifying_glass
 import defender_of_egril.composeapp.generated.resources.emoji_money
 import defender_of_egril.composeapp.generated.resources.emoji_pick
 import defender_of_egril.composeapp.generated.resources.emoji_pushpin
 import defender_of_egril.composeapp.generated.resources.emoji_reload
+import defender_of_egril.composeapp.generated.resources.emoji_save
 import defender_of_egril.composeapp.generated.resources.emoji_sword
 import defender_of_egril.composeapp.generated.resources.emoji_target
 import defender_of_egril.composeapp.generated.resources.emoji_test_tube
@@ -30,23 +42,11 @@ import defender_of_egril.composeapp.generated.resources.emoji_timer
 import defender_of_egril.composeapp.generated.resources.emoji_tools
 import defender_of_egril.composeapp.generated.resources.emoji_trash
 import defender_of_egril.composeapp.generated.resources.emoji_triangle_down
+import defender_of_egril.composeapp.generated.resources.emoji_triangle_left
 import defender_of_egril.composeapp.generated.resources.emoji_triangle_right
 import defender_of_egril.composeapp.generated.resources.emoji_triangle_up
 import defender_of_egril.composeapp.generated.resources.emoji_unlock
 import defender_of_egril.composeapp.generated.resources.emoji_up_arrow
-import defender_of_egril.composeapp.generated.resources.emoji_magnifying_glass
-import defender_of_egril.composeapp.generated.resources.emoji_triangle_left
-import defender_of_egril.composeapp.generated.resources.emoji_save
-import defender_of_egril.composeapp.generated.resources.dig_outcome_rubble
-import defender_of_egril.composeapp.generated.resources.dig_outcome_brass
-import defender_of_egril.composeapp.generated.resources.dig_outcome_silver
-import defender_of_egril.composeapp.generated.resources.dig_outcome_gold
-import defender_of_egril.composeapp.generated.resources.dig_outcome_gem_red
-import defender_of_egril.composeapp.generated.resources.dig_outcome_gem_green
-import defender_of_egril.composeapp.generated.resources.dig_outcome_gem_blue
-import defender_of_egril.composeapp.generated.resources.dig_outcome_diamond
-import defender_of_egril.composeapp.generated.resources.dig_outcome_dragon
-import com.defenderofegril.model.DigOutcome
 import org.jetbrains.compose.resources.painterResource
 import kotlin.random.Random
 
@@ -56,7 +56,7 @@ import kotlin.random.Random
  */
 @Composable
 fun LightningIcon(
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp
 ) {
     Image(
@@ -72,7 +72,7 @@ fun LightningIcon(
  */
 @Composable
 fun TimerIcon(
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier.Companion,
     size: Dp = 10.dp
 ) {
     Image(
@@ -88,7 +88,7 @@ fun TimerIcon(
  */
 @Composable
 fun SwordIcon(
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier.Companion,
     size: Dp = 14.dp
 ) {
     Image(
@@ -104,7 +104,7 @@ fun SwordIcon(
  */
 @Composable
 fun HeartIcon(
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp
 ) {
     Image(
@@ -120,7 +120,7 @@ fun HeartIcon(
  */
 @Composable
 fun ReloadIcon(
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp
 ) {
     Image(
@@ -136,7 +136,7 @@ fun ReloadIcon(
  */
 @Composable
 fun ExplosionIcon(
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp
 ) {
     Image(
@@ -152,7 +152,7 @@ fun ExplosionIcon(
  */
 @Composable
 fun TestTubeIcon(
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp
 ) {
     Image(
@@ -168,7 +168,7 @@ fun TestTubeIcon(
  */
 @Composable
 fun HoleIcon(
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier.Companion,
     size: Dp = 24.dp
 ) {
     Image(
@@ -184,7 +184,7 @@ fun HoleIcon(
  */
 @Composable
 fun TargetIcon(
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp
 ) {
     Image(
@@ -200,7 +200,7 @@ fun TargetIcon(
  */
 @Composable
 fun PickIcon(
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier.Companion,
     size: Dp = 24.dp
 ) {
     Image(
@@ -216,7 +216,7 @@ fun PickIcon(
  */
 @Composable
 fun MoneyIcon(
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp
 ) {
     Image(
@@ -232,7 +232,7 @@ fun MoneyIcon(
  */
 @Composable
 fun TriangleUpIcon(
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp,
     tint: Color? = null
 ) {
@@ -240,7 +240,7 @@ fun TriangleUpIcon(
         painter = painterResource(Res.drawable.emoji_triangle_up),
         contentDescription = "Triangle Up",
         modifier = modifier.size(size),
-        colorFilter = tint?.let { ColorFilter.tint(it) }
+        colorFilter = tint?.let { ColorFilter.Companion.tint(it) }
     )
 }
 
@@ -250,7 +250,7 @@ fun TriangleUpIcon(
  */
 @Composable
 fun TriangleRightIcon(
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp,
     tint: Color? = null
 ) {
@@ -258,7 +258,7 @@ fun TriangleRightIcon(
         painter = painterResource(Res.drawable.emoji_triangle_right),
         contentDescription = "Triangle Right",
         modifier = modifier.size(size),
-        colorFilter = tint?.let { ColorFilter.tint(it) }
+        colorFilter = tint?.let { ColorFilter.Companion.tint(it) }
     )
 }
 
@@ -268,7 +268,7 @@ fun TriangleRightIcon(
  */
 @Composable
 fun TriangleLeftIcon(
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp,
     tint: Color? = null
 ) {
@@ -276,7 +276,7 @@ fun TriangleLeftIcon(
         painter = painterResource(Res.drawable.emoji_triangle_left),
         contentDescription = "Triangle Left",
         modifier = modifier.size(size),
-        colorFilter = tint?.let { ColorFilter.tint(it) }
+        colorFilter = tint?.let { ColorFilter.Companion.tint(it) }
     )
 }
 
@@ -286,7 +286,7 @@ fun TriangleLeftIcon(
  */
 @Composable
 fun TriangleDownIcon(
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp,
     tint: Color? = null
 ) {
@@ -294,7 +294,7 @@ fun TriangleDownIcon(
         painter = painterResource(Res.drawable.emoji_triangle_down),
         contentDescription = "Triangle Down",
         modifier = modifier.size(size),
-        colorFilter = tint?.let { ColorFilter.tint(it) }
+        colorFilter = tint?.let { ColorFilter.Companion.tint(it) }
     )
 }
 
@@ -304,7 +304,7 @@ fun TriangleDownIcon(
  */
 @Composable
 fun TrashIcon(
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier.Companion,
     size: Dp = 24.dp
 ) {
     Image(
@@ -320,7 +320,7 @@ fun TrashIcon(
  */
 @Composable
 fun InfoIcon(
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp
 ) {
     Image(
@@ -336,7 +336,7 @@ fun InfoIcon(
  */
 @Composable
 fun DoorIcon(
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp
 ) {
     Image(
@@ -352,7 +352,7 @@ fun DoorIcon(
  */
 @Composable
 fun PushpinIcon(
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp
 ) {
     Image(
@@ -368,14 +368,14 @@ fun PushpinIcon(
  */
 @Composable
 fun LeftArrowIcon(
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp,
     tint: Color? = null
 ) {
     Image(
         painter = painterResource(Res.drawable.emoji_left_arrow),
         contentDescription = "Left Arrow",
-        colorFilter = tint?.let { ColorFilter.tint(it) },
+        colorFilter = tint?.let { ColorFilter.Companion.tint(it) },
         modifier = modifier.size(size)
     )
 }
@@ -386,7 +386,7 @@ fun LeftArrowIcon(
  */
 @Composable
 fun UpArrowIcon(
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp,
     tint: Color? = null
 ) {
@@ -394,7 +394,7 @@ fun UpArrowIcon(
         painter = painterResource(Res.drawable.emoji_up_arrow),
         contentDescription = "Up Arrow",
         modifier = modifier.size(size),
-        colorFilter = tint?.let { ColorFilter.tint(it) }
+        colorFilter = tint?.let { ColorFilter.Companion.tint(it) }
     )
 }
 
@@ -404,7 +404,7 @@ fun UpArrowIcon(
  */
 @Composable
 fun DownArrowIcon(
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp,
     tint: Color? = null
 ) {
@@ -412,7 +412,7 @@ fun DownArrowIcon(
         painter = painterResource(Res.drawable.emoji_down_arrow),
         contentDescription = "Down Arrow",
         modifier = modifier.size(size),
-        colorFilter = tint?.let { ColorFilter.tint(it) }
+        colorFilter = tint?.let { ColorFilter.Companion.tint(it) }
     )
 }
 
@@ -422,14 +422,14 @@ fun DownArrowIcon(
  */
 @Composable
 fun CheckmarkIcon(
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp,
     tint: Color? = null
 ) {
     Image(
         painter = painterResource(Res.drawable.emoji_checkmark),
         contentDescription = "Checkmark",
-        colorFilter = tint?.let { ColorFilter.tint(it) },
+        colorFilter = tint?.let { ColorFilter.Companion.tint(it) },
         modifier = modifier.size(size)
     )
 }
@@ -440,7 +440,7 @@ fun CheckmarkIcon(
  */
 @Composable
 fun ToolsIcon(
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier.Companion,
     size: Dp = 24.dp
 ) {
     Image(
@@ -456,7 +456,7 @@ fun ToolsIcon(
  */
 @Composable
 fun LockIcon(
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp
 ) {
     Image(
@@ -472,7 +472,7 @@ fun LockIcon(
  */
 @Composable
 fun UnlockIcon(
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp
 ) {
     Image(
@@ -488,7 +488,7 @@ fun UnlockIcon(
  */
 @Composable
 fun MagnifyingGlassIcon(
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp,
     tint: Color? = null
 ) {
@@ -496,7 +496,7 @@ fun MagnifyingGlassIcon(
         painter = painterResource(Res.drawable.emoji_magnifying_glass),
         contentDescription = "Magnifying Glass",
         modifier = modifier.size(size),
-        colorFilter = tint?.let { ColorFilter.tint(it) }
+        colorFilter = tint?.let { ColorFilter.Companion.tint(it) }
     )
 }
 
@@ -506,7 +506,7 @@ fun MagnifyingGlassIcon(
  */
 @Composable
 fun SaveIcon(
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp
 ) {
     Image(
@@ -518,7 +518,7 @@ fun SaveIcon(
 
 /**
  * Displays an icon for a dig outcome from mining
- * 
+ *
  * Note: For GEMS outcome, the gem color is randomly selected (red, green, or blue)
  * on each composition. This is intentional per requirements to add visual variety.
  * The color may change on recomposition but this is acceptable as it doesn't affect
@@ -527,7 +527,7 @@ fun SaveIcon(
 @Composable
 fun DigOutcomeIcon(
     outcome: DigOutcome,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier.Companion,
     size: Dp = 64.dp
 ) {
     val resource = when (outcome) {
@@ -538,7 +538,7 @@ fun DigOutcomeIcon(
         DigOutcome.GEMS -> {
             // Randomly select gem color (red, green, or blue) as per requirements
             // This adds visual variety and doesn't affect game state
-            when (Random.nextInt(3)) {
+            when (Random.Default.nextInt(3)) {
                 0 -> Res.drawable.dig_outcome_gem_red
                 1 -> Res.drawable.dig_outcome_gem_green
                 else -> Res.drawable.dig_outcome_gem_blue
@@ -547,7 +547,7 @@ fun DigOutcomeIcon(
         DigOutcome.DIAMOND -> Res.drawable.dig_outcome_diamond
         DigOutcome.DRAGON -> Res.drawable.dig_outcome_dragon
     }
-    
+
     Image(
         painter = painterResource(resource),
         contentDescription = outcome.displayName,
