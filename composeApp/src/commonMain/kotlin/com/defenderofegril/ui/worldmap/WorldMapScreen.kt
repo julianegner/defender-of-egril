@@ -14,6 +14,9 @@ import com.defenderofegril.model.LevelStatus
 import com.defenderofegril.model.WorldLevel
 import com.defenderofegril.ui.CheatCodeDialog
 import com.defenderofegril.ui.isEditorAvailable
+import com.defenderofegril.ui.settings.SettingsButton
+import com.hyperether.resources.LocalizedStrings
+import com.hyperether.resources.currentLanguage
 
 @Composable
 fun WorldMapScreen(
@@ -25,67 +28,79 @@ fun WorldMapScreen(
     onLoadGame: () -> Unit,
     onCheatCode: ((String) -> Boolean)? = null  // Callback for processing cheat codes, returns true if code was valid
 ) {
+    val locale = currentLanguage.value
     var showCheatDialog by remember { mutableStateOf(false) }
     
-    Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+    Box(
+        modifier = Modifier.fillMaxSize().padding(16.dp)
     ) {
-        // Title text - clickable for cheat code access (less obvious than a button)
-        Text(
-            text = "World Map - Meadows of Egril",
-            style = MaterialTheme.typography.titleLarge,
+        // Settings button in top-right corner
+        SettingsButton(
             modifier = Modifier
-                .padding(bottom = 16.dp)
-                .then(
-                    if (onCheatCode != null) {
-                        Modifier.clickable { showCheatDialog = true }
-                    } else {
-                        Modifier
-                    }
-                )
+                .align(Alignment.TopEnd)
+                .padding(8.dp)
         )
         
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            modifier = Modifier.weight(1f).fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            items(worldLevels) { worldLevel ->
-                LevelCard(
-                    worldLevel = worldLevel,
-                    onClick = {
-                        if (worldLevel.status != LevelStatus.LOCKED) {
-                            onLevelSelected(worldLevel.level.id)
+            // Title text - clickable for cheat code access (less obvious than a button)
+            Text(
+                text = "World Map - Meadows of Egril",
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier
+                    .padding(bottom = 16.dp)
+                    .then(
+                        if (onCheatCode != null) {
+                            Modifier.clickable { showCheatDialog = true }
+                        } else {
+                            Modifier
                         }
-                    }
-                )
-            }
+                    )
+            )
             
-            // Add Editor Button as a special card (only on desktop)
-            if (isEditorAvailable()) {
-                item {
-                    EditorButtonCard(onClick = onOpenEditor)
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                modifier = Modifier.weight(1f).fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                items(worldLevels) { worldLevel ->
+                    LevelCard(
+                        worldLevel = worldLevel,
+                        onClick = {
+                            if (worldLevel.status != LevelStatus.LOCKED) {
+                                onLevelSelected(worldLevel.level.id)
+                            }
+                        }
+                    )
+                }
+                
+                // Add Editor Button as a special card (only on desktop)
+                if (isEditorAvailable()) {
+                    item {
+                        EditorButtonCard(onClick = onOpenEditor)
+                    }
                 }
             }
-        }
-        
-        Spacer(modifier = Modifier.height(16.dp))
-        
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            Button(onClick = onLoadGame) {
-                Text("Load Game")
-            }
             
-            Button(onClick = onShowRules) {
-                Text("Rules")
-            }
+            Spacer(modifier = Modifier.height(16.dp))
             
-            Button(onClick = onBackToMenu) {
-                Text("Back to Menu")
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Button(onClick = onLoadGame) {
+                    Text(LocalizedStrings.get("load_game", locale))
+                }
+                
+                Button(onClick = onShowRules) {
+                    Text(LocalizedStrings.get("rules", locale))
+                }
+                
+                Button(onClick = onBackToMenu) {
+                    Text(LocalizedStrings.get("back", locale))
+                }
             }
         }
     }
