@@ -25,6 +25,7 @@ val generateBuildConfig by tasks.registering {
     doLast {
         val commitHash = try {
             val process = Runtime.getRuntime().exec("git rev-parse --short HEAD")
+            // Read output before waiting to prevent potential deadlock
             val hash = process.inputStream.bufferedReader().use { it.readText().trim() }
             val exitCode = process.waitFor()
             if (exitCode != 0) {
@@ -36,9 +37,6 @@ val generateBuildConfig by tasks.registering {
         } catch (e: Exception) {
             logger.warn("Failed to get git commit hash: ${e.message}")
             "unknown"
-        } finally {
-            // Note: process.destroy() is typically not needed after waitFor()
-            // as the process has already completed, but we ensure cleanup
         }
         
         val versionName = "1.0"
