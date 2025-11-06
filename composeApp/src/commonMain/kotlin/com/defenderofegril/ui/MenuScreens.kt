@@ -1,3 +1,5 @@
+@file:OptIn(org.jetbrains.compose.resources.InternalResourceApi::class)
+
 package com.defenderofegril.ui
 
 import androidx.compose.foundation.Image
@@ -12,8 +14,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.defenderofegril.BuildConfig
 import com.defenderofegril.ui.settings.SettingsButton
-import com.hyperether.resources.LocalizedStrings
-import com.hyperether.resources.currentLanguage
+import com.hyperether.resources.stringResource
+import defender_of_egril.composeapp.generated.resources.*
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.emoji_sword
 import defender_of_egril.composeapp.generated.resources.emoji_crown
@@ -25,8 +27,6 @@ fun MainMenuScreen(
     onStartGame: () -> Unit,
     onShowRules: () -> Unit
 ) {
-    val locale = currentLanguage.value
-    
     Box(
         modifier = Modifier.fillMaxSize().padding(16.dp)
     ) {
@@ -43,7 +43,7 @@ fun MainMenuScreen(
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = LocalizedStrings.get("app_name", locale),
+                text = stringResource(Res.string.app_name),
                 style = MaterialTheme.typography.displayLarge,
                 textAlign = TextAlign.Center
             )
@@ -51,7 +51,7 @@ fun MainMenuScreen(
             Spacer(modifier = Modifier.height(16.dp))
             
             Text(
-                text = LocalizedStrings.get("app_subtitle", locale),
+                text = stringResource(Res.string.app_subtitle),
                 style = MaterialTheme.typography.bodyLarge,
                 textAlign = TextAlign.Center
             )
@@ -62,7 +62,7 @@ fun MainMenuScreen(
                 onClick = onStartGame,
                 modifier = Modifier.width(200.dp).height(60.dp)
             ) {
-                Text(LocalizedStrings.get("start_game", locale), style = MaterialTheme.typography.titleMedium)
+                Text(stringResource(Res.string.start_game), style = MaterialTheme.typography.titleMedium)
             }
             
             Spacer(modifier = Modifier.height(16.dp))
@@ -71,7 +71,7 @@ fun MainMenuScreen(
                 onClick = onShowRules,
                 modifier = Modifier.width(200.dp).height(60.dp)
             ) {
-                Text(LocalizedStrings.get("rules", locale), style = MaterialTheme.typography.titleMedium)
+                Text(stringResource(Res.string.rules), style = MaterialTheme.typography.titleMedium)
             }
         }
         
@@ -96,8 +96,6 @@ fun LevelCompleteScreen(
     onRestart: () -> Unit,
     onBackToMap: () -> Unit
 ) {
-    val locale = currentLanguage.value
-    
     // Determine which image/icon and text to show
     val imageResource = when {
         won && isLastLevel -> Res.drawable.emoji_crown  // Crown for winning the game
@@ -106,15 +104,15 @@ fun LevelCompleteScreen(
     }
     
     val title = when {
-        won && isLastLevel -> LocalizedStrings.get("victory", locale)
-        won -> LocalizedStrings.get("battle_won", locale)
-        else -> LocalizedStrings.get("defeat", locale)
+        won && isLastLevel -> stringResource(Res.string.victory)
+        won -> stringResource(Res.string.battle_won)
+        else -> stringResource(Res.string.defeat)
     }
     
     val message = when {
-        won && isLastLevel -> LocalizedStrings.get("victory_message", locale)
-        won -> LocalizedStrings.get("battle_won_message", locale)
-        else -> LocalizedStrings.get("defeat_message", locale)
+        won && isLastLevel -> stringResource(Res.string.victory_message)
+        won -> stringResource(Res.string.battle_won_message)
+        else -> stringResource(Res.string.defeat_message)
     }
     
     Box(
@@ -166,14 +164,14 @@ fun LevelCompleteScreen(
                     onClick = onRestart,
                     modifier = Modifier.width(150.dp).height(50.dp)
                 ) {
-                    Text(LocalizedStrings.get("retry", locale))
+                    Text(stringResource(Res.string.retry))
                 }
                 
                 Button(
                     onClick = onBackToMap,
                     modifier = Modifier.width(150.dp).height(50.dp)
                 ) {
-                    Text(LocalizedStrings.get("world_map", locale))
+                    Text(stringResource(Res.string.world_map))
                 }
             }
         }

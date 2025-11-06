@@ -1,3 +1,5 @@
+@file:OptIn(org.jetbrains.compose.resources.InternalResourceApi::class)
+
 package com.defenderofegril.ui.loadgame
 
 import androidx.compose.foundation.layout.*
@@ -10,8 +12,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.defenderofegril.save.SaveGameMetadata
 import com.defenderofegril.ui.settings.SettingsButton
-import com.hyperether.resources.LocalizedStrings
-import com.hyperether.resources.currentLanguage
+import com.hyperether.resources.stringResource
+import defender_of_egril.composeapp.generated.resources.*
+import defender_of_egril.composeapp.generated.resources.Res
 
 @Composable
 fun LoadGameScreen(
@@ -20,7 +23,6 @@ fun LoadGameScreen(
     onDeleteGame: (String) -> Unit,
     onBack: () -> Unit
 ) {
-    val locale = currentLanguage.value
     var showDeleteDialog by remember { mutableStateOf<String?>(null) }
     
     Box(
@@ -38,7 +40,7 @@ fun LoadGameScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = LocalizedStrings.get("load_game", locale),
+                text = stringResource(Res.string.load_game),
                 style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
@@ -49,7 +51,7 @@ fun LoadGameScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "No saved games found",
+                        text = stringResource(Res.string.no_saved_games),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -72,7 +74,7 @@ fun LoadGameScreen(
             Spacer(modifier = Modifier.height(16.dp))
             
             Button(onClick = onBack) {
-                Text(LocalizedStrings.get("back", locale))
+                Text(stringResource(Res.string.back))
             }
         }
     }

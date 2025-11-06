@@ -1,3 +1,5 @@
+@file:OptIn(org.jetbrains.compose.resources.InternalResourceApi::class)
+
 package com.defenderofegril.ui.worldmap
 
 import androidx.compose.foundation.clickable
@@ -15,8 +17,9 @@ import com.defenderofegril.model.WorldLevel
 import com.defenderofegril.ui.CheatCodeDialog
 import com.defenderofegril.ui.isEditorAvailable
 import com.defenderofegril.ui.settings.SettingsButton
-import com.hyperether.resources.LocalizedStrings
-import com.hyperether.resources.currentLanguage
+import com.hyperether.resources.stringResource
+import defender_of_egril.composeapp.generated.resources.*
+import defender_of_egril.composeapp.generated.resources.Res
 
 @Composable
 fun WorldMapScreen(
@@ -28,7 +31,6 @@ fun WorldMapScreen(
     onLoadGame: () -> Unit,
     onCheatCode: ((String) -> Boolean)? = null  // Callback for processing cheat codes, returns true if code was valid
 ) {
-    val locale = currentLanguage.value
     var showCheatDialog by remember { mutableStateOf(false) }
     
     Box(
@@ -47,7 +49,7 @@ fun WorldMapScreen(
         ) {
             // Title text - clickable for cheat code access (less obvious than a button)
             Text(
-                text = "World Map - Meadows of Egril",
+                text = stringResource(Res.string.world_map_title),
                 style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier
                     .padding(bottom = 16.dp)
@@ -91,15 +93,15 @@ fun WorldMapScreen(
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Button(onClick = onLoadGame) {
-                    Text(LocalizedStrings.get("load_game", locale))
+                    Text(stringResource(Res.string.load_game))
                 }
                 
                 Button(onClick = onShowRules) {
-                    Text(LocalizedStrings.get("rules", locale))
+                    Text(stringResource(Res.string.rules))
                 }
                 
                 Button(onClick = onBackToMenu) {
-                    Text(LocalizedStrings.get("back", locale))
+                    Text(stringResource(Res.string.back))
                 }
             }
         }
