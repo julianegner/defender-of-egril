@@ -9,8 +9,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.defenderofegril.editor.EditorStorage
-import com.defenderofegril.ui.DownArrowIcon
-import com.defenderofegril.ui.UpArrowIcon
+import com.defenderofegril.ui.icon.DownArrowIcon
+import com.defenderofegril.ui.icon.UpArrowIcon
 
 /**
  * Main content for the Level Sequence tab

@@ -9,6 +9,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.defenderofegril.model.*
 import com.defenderofegril.ui.*
+import com.defenderofegril.ui.icon.DigOutcomeIcon
 
 @Composable
 fun DigOutcomeDialog(

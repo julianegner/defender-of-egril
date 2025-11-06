@@ -26,6 +26,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.defenderofegril.model.*
 import com.defenderofegril.ui.*
+import com.defenderofegril.ui.icon.ExplosionIcon
+import com.defenderofegril.ui.icon.HoleIcon
+import com.defenderofegril.ui.icon.TestTubeIcon
 import com.defenderofegril.ui.icon.enemy.EnemyIcon
 import kotlin.math.sqrt
 

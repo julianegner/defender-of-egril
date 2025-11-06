@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.dp
 import com.defenderofegril.editor.EditorMap
 import com.defenderofegril.editor.TileType
 import com.defenderofegril.ui.HexagonShape
-import com.defenderofegril.ui.PushpinIcon
+import com.defenderofegril.ui.icon.PushpinIcon
 import com.defenderofegril.ui.editor.SaveAsDialog
 import com.defenderofegril.ui.editor.getTileColor
 import com.defenderofegril.ui.mouseWheelZoom

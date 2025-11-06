@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.sp
 import com.defenderofegril.editor.EditorMap
 import com.defenderofegril.model.Level
 import com.defenderofegril.model.Position
-import com.defenderofegril.ui.CheckmarkIcon
+import com.defenderofegril.ui.icon.CheckmarkIcon
 import com.defenderofegril.ui.HexagonMinimapFromEditorMap
 
 /**

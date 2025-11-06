@@ -12,6 +12,11 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.defenderofegril.model.AttackerType
 import com.defenderofegril.ui.*
+import com.defenderofegril.ui.icon.HeartIcon
+import com.defenderofegril.ui.icon.MoneyIcon
+import com.defenderofegril.ui.icon.ReloadIcon
+import com.defenderofegril.ui.icon.TriangleDownIcon
+import com.defenderofegril.ui.icon.TriangleLeftIcon
 import com.defenderofegril.ui.icon.enemy.EnemyTypeIcon
 
 /**

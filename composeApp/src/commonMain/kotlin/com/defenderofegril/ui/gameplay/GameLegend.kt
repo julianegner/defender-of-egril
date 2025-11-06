@@ -19,6 +19,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.defenderofegril.model.*
 import com.defenderofegril.ui.*
+import com.defenderofegril.ui.icon.TriangleDownIcon
+import com.defenderofegril.ui.icon.TriangleLeftIcon
 import com.defenderofegril.ui.icon.enemy.EnemyIcon
 import com.defenderofegril.ui.icon.enemy.EnemyTypeIcon
 
