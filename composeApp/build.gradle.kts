@@ -12,6 +12,57 @@ plugins {
     alias(libs.plugins.kotlinSerialization)
 }
 
+// Build configuration output directory
+val buildConfigOutputDir = layout.buildDirectory.dir("generated/source/buildConfig/commonMain/kotlin")
+
+// Task to generate BuildConfig with current commit hash
+val generateBuildConfig by tasks.registering {
+    val outputFile = buildConfigOutputDir.get().file("com/defenderofegril/BuildConfig.kt")
+    
+    outputs.dir(buildConfigOutputDir)
+    outputs.upToDateWhen { false } // Always regenerate to ensure latest commit hash
+    
+    doLast {
+        val commitHash = try {
+            val process = Runtime.getRuntime().exec("git rev-parse --short HEAD")
+            // Read output before waiting to prevent potential deadlock
+            val hash = process.inputStream.bufferedReader().use { it.readText().trim() }
+            val exitCode = process.waitFor()
+            if (exitCode != 0) {
+                logger.warn("git command exited with code $exitCode")
+                "unknown"
+            } else {
+                hash
+            }
+        } catch (e: Exception) {
+            logger.warn("Failed to get git commit hash: ${e.message}")
+            "unknown"
+        }
+        
+        val versionName = "1.0"
+        
+        val buildConfigContent = """
+            |package com.defenderofegril
+            |
+            |/**
+            | * Build configuration with version and commit information
+            | * This file is auto-generated during build
+            | */
+            |object BuildConfig {
+            |    const val VERSION_NAME = "$versionName"
+            |    const val COMMIT_HASH = "$commitHash"
+            |}
+            |""".trimMargin()
+        
+        outputFile.asFile.apply {
+            parentFile.mkdirs()
+            writeText(buildConfigContent)
+        }
+        
+        logger.info("Generated BuildConfig with commit hash: $commitHash")
+    }
+}
+
 kotlin {
     androidTarget {
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
@@ -48,6 +99,11 @@ kotlin {
         val desktopMain by getting
         val wasmJsMain by getting
         
+        // Add generated source directory to commonMain
+        commonMain {
+            kotlin.srcDir(buildConfigOutputDir)
+        }
+        
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
@@ -73,6 +129,11 @@ kotlin {
         iosMain.dependencies {
         }
     }
+}
+
+// Make all Kotlin compilation tasks depend on generateBuildConfig
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.AbstractKotlinCompile<*>> {
+    dependsOn(generateBuildConfig)
 }
 
 android {
