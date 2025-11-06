@@ -106,10 +106,12 @@ private fun ExpandedGameHeader(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            GameStats(
-                gameState = gameState,
-                onCheatCode = onCheatCode
-            )
+            Column {
+                GameStats(
+                    gameState = gameState,
+                    onCheatCode = onCheatCode
+                )
+            }
 
             PhaseIndicator(phase = gameState.phase.value)
 
@@ -139,12 +141,15 @@ private fun CompactGameHeader(
         verticalAlignment = Alignment.CenterVertically
     ) {
         // Statistics at far left
-        CompactStatsRow(
-            coins = gameState.coins.value,
-            health = gameState.healthPoints.value,
-            turn = gameState.turnNumber.value,
-            onCoinsClick = onCheatCode
-        )
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(GamePlayConstants.Spacing.Items),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            GameStats(
+                gameState = gameState,
+                onCheatCode = onCheatCode
+            )
+        }
 
         // Level name in center (without prefix, bold when collapsed)
         Text(
@@ -214,21 +219,11 @@ private fun GameStats(
         coins = gameState.coins.value,
         health = gameState.healthPoints.value,
         turn = gameState.turnNumber.value,
+        activeEnemyCount = gameState.getActiveEnemyCount(),
+        remainingEnemyCount = gameState.getRemainingEnemyCount(),
         iconSize = GamePlayConstants.IconSizes.Large,
         textStyle = MaterialTheme.typography.bodyLarge,
         onCoinsClick = onCheatCode
-    )
-    
-    // Enemy count display
-    val activeEnemies = gameState.attackers.count { !it.isDefeated.value }
-    val totalSpawned = gameState.nextAttackerId.value - 1
-    val plannedSpawns = gameState.spawnPlan.drop(totalSpawned)
-    val remainingEnemies = plannedSpawns.size
-
-    Text(
-        "Enemies: $activeEnemies active, $remainingEnemies to come",
-        style = MaterialTheme.typography.bodyMedium,
-        color = GamePlayColors.Error
     )
 }
 
