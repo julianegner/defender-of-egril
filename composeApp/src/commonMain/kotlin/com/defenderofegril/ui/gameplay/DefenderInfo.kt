@@ -94,7 +94,7 @@ fun DefenderInfo(
                             Text(
                                 "Level ${defender.level.value}",
                                 style = MaterialTheme.typography.bodySmall,
-                                color = Color(0xFF4CAF50)
+                                color = GamePlayColors.Success
                             )
                             Row(
                                 verticalAlignment = Alignment.CenterVertically
@@ -169,7 +169,7 @@ fun DefenderInfo(
                                     "Lvl $nextLevel",
                                     style = MaterialTheme.typography.labelSmall,
                                     fontWeight = FontWeight.Bold,
-                                    color = if (gameState.canUpgradeDefender(defender)) Color(0xFF4CAF50) else Color.Gray
+                                    color = if (gameState.canUpgradeDefender(defender)) GamePlayColors.Success else Color.Gray
                                 )
                                 TowerStats(
                                     defender.type.minRange,
@@ -386,7 +386,7 @@ fun DefenderActionsInfo(defender: Defender) {
             Text(
                 "Building: ${defender.buildTimeRemaining.value}T",
                 style = MaterialTheme.typography.titleMedium,
-                color = Color(0xFFFF9800)
+                color = GamePlayColors.Warning
             )
         }
     } else {
