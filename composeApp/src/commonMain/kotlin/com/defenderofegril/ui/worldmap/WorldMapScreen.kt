@@ -1,3 +1,5 @@
+@file:OptIn(org.jetbrains.compose.resources.InternalResourceApi::class)
+
 package com.defenderofegril.ui.worldmap
 
 import androidx.compose.foundation.clickable
@@ -14,6 +16,10 @@ import com.defenderofegril.model.LevelStatus
 import com.defenderofegril.model.WorldLevel
 import com.defenderofegril.ui.CheatCodeDialog
 import com.defenderofegril.ui.isEditorAvailable
+import com.defenderofegril.ui.settings.SettingsButton
+import com.hyperether.resources.stringResource
+import defender_of_egril.composeapp.generated.resources.*
+import defender_of_egril.composeapp.generated.resources.Res
 
 @Composable
 fun WorldMapScreen(
@@ -27,65 +33,76 @@ fun WorldMapScreen(
 ) {
     var showCheatDialog by remember { mutableStateOf(false) }
     
-    Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+    Box(
+        modifier = Modifier.fillMaxSize().padding(16.dp)
     ) {
-        // Title text - clickable for cheat code access (less obvious than a button)
-        Text(
-            text = "World Map - Meadows of Egril",
-            style = MaterialTheme.typography.titleLarge,
+        // Settings button in top-right corner
+        SettingsButton(
             modifier = Modifier
-                .padding(bottom = 16.dp)
-                .then(
-                    if (onCheatCode != null) {
-                        Modifier.clickable { showCheatDialog = true }
-                    } else {
-                        Modifier
-                    }
-                )
+                .align(Alignment.TopEnd)
+                .padding(8.dp)
         )
         
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            modifier = Modifier.weight(1f).fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            items(worldLevels) { worldLevel ->
-                LevelCard(
-                    worldLevel = worldLevel,
-                    onClick = {
-                        if (worldLevel.status != LevelStatus.LOCKED) {
-                            onLevelSelected(worldLevel.level.id)
+            // Title text - clickable for cheat code access (less obvious than a button)
+            Text(
+                text = stringResource(Res.string.world_map_title),
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier
+                    .padding(bottom = 16.dp)
+                    .then(
+                        if (onCheatCode != null) {
+                            Modifier.clickable { showCheatDialog = true }
+                        } else {
+                            Modifier
                         }
-                    }
-                )
-            }
+                    )
+            )
             
-            // Add Editor Button as a special card (only on desktop)
-            if (isEditorAvailable()) {
-                item {
-                    EditorButtonCard(onClick = onOpenEditor)
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                modifier = Modifier.weight(1f).fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                items(worldLevels) { worldLevel ->
+                    LevelCard(
+                        worldLevel = worldLevel,
+                        onClick = {
+                            if (worldLevel.status != LevelStatus.LOCKED) {
+                                onLevelSelected(worldLevel.level.id)
+                            }
+                        }
+                    )
+                }
+                
+                // Add Editor Button as a special card (only on desktop)
+                if (isEditorAvailable()) {
+                    item {
+                        EditorButtonCard(onClick = onOpenEditor)
+                    }
                 }
             }
-        }
-        
-        Spacer(modifier = Modifier.height(16.dp))
-        
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            Button(onClick = onLoadGame) {
-                Text("Load Game")
-            }
             
-            Button(onClick = onShowRules) {
-                Text("Rules")
-            }
+            Spacer(modifier = Modifier.height(16.dp))
             
-            Button(onClick = onBackToMenu) {
-                Text("Back to Menu")
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Button(onClick = onLoadGame) {
+                    Text(stringResource(Res.string.load_game))
+                }
+                
+                Button(onClick = onShowRules) {
+                    Text(stringResource(Res.string.rules))
+                }
+                
+                Button(onClick = onBackToMenu) {
+                    Text(stringResource(Res.string.back))
+                }
             }
         }
     }
