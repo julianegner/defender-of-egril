@@ -12,6 +12,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.defenderofegril.model.*
 import com.defenderofegril.ui.*
+import com.defenderofegril.ui.icon.SaveIcon
+import com.defenderofegril.ui.icon.TriangleLeftIcon
+import com.defenderofegril.ui.icon.TriangleRightIcon
 
 @Composable
 fun GameHeader(

@@ -15,6 +15,11 @@ import com.defenderofegril.model.LevelStatus
 import com.defenderofegril.model.WorldLevel
 import com.defenderofegril.model.getEnemyTypeCounts
 import com.defenderofegril.ui.*
+import com.defenderofegril.ui.icon.CheckmarkIcon
+import com.defenderofegril.ui.icon.HeartIcon
+import com.defenderofegril.ui.icon.LockIcon
+import com.defenderofegril.ui.icon.MoneyIcon
+import com.defenderofegril.ui.icon.SwordIcon
 import com.defenderofegril.ui.icon.enemy.EnemyTypeIcon
 
 @Composable

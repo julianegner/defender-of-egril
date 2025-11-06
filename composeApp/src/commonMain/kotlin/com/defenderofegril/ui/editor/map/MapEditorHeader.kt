@@ -13,7 +13,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.defenderofegril.editor.EditorMap
 import com.defenderofegril.editor.TileType
-import com.defenderofegril.ui.MagnifyingGlassIcon
+import com.defenderofegril.ui.icon.MagnifyingGlassIcon
 import com.defenderofegril.ui.editor.TileTypeButton
 
 /**
