@@ -5,6 +5,7 @@ import androidx.compose.runtime.*
 import com.defenderofegril.ui.*
 import com.defenderofegril.ui.editor.level.LevelEditorScreen
 import com.defenderofegril.ui.gameplay.GamePlayScreen
+import com.defenderofegril.ui.loadgame.LoadGameScreen
 import com.defenderofegril.ui.worldmap.WorldMapScreen
 
 @Composable
