@@ -20,6 +20,8 @@ object EditorStorage {
     private val MAPS_DIR = "editor/maps"
     private val LEVELS_DIR = "editor/levels"
     private val SEQUENCE_FILE = "editor/sequence.json"
+    private val VERSION_FILE = "editor/version.txt"
+    private val CURRENT_VERSION = "2" // Increment when level data format changes
     
     // Initialize with converted existing levels
     init {
@@ -274,6 +276,17 @@ object EditorStorage {
      * Only initializes if files don't exist or are invalid
      */
     private fun initializeDefaultMapsAndLevels() {
+        // Check version to see if we need to regenerate levels
+        val savedVersion = fileStorage.readFile(VERSION_FILE)
+        if (savedVersion != CURRENT_VERSION) {
+            println("Level data version mismatch (saved: $savedVersion, current: $CURRENT_VERSION). Regenerating levels...")
+            // Clear all existing level data to force regeneration
+            fileStorage.writeFile(SEQUENCE_FILE, "")
+            levelSequenceCache = null
+            mapsCache.clear()
+            levelsCache.clear()
+        }
+        
         // Check if already initialized with valid data
         val sequenceJson = fileStorage.readFile(SEQUENCE_FILE)
         
@@ -407,7 +420,7 @@ object EditorStorage {
             level2Spawns.add(EditorEnemySpawn(type, 1, turn))
             if (level2Spawns.filter { it.spawnTurn == turn }.size >= 6) turn++
         }
-        turn += 2
+        turn++  // Small gap between waves
         List(15) { AttackerType.ORK }.forEach { type ->
             level2Spawns.add(EditorEnemySpawn(type, 1, turn))
             if (level2Spawns.filter { it.spawnTurn == turn }.size >= 6) turn++
@@ -431,25 +444,25 @@ object EditorStorage {
         turn = 1
         List(40) { AttackerType.GOBLIN }.forEach { type ->
             level3Spawns.add(EditorEnemySpawn(type, 1, turn))
-            if (level3Spawns.filter { it.spawnTurn == turn }.size >= 6) turn += 2
+            if (level3Spawns.filter { it.spawnTurn == turn }.size >= 6) turn++
         }
-        turn += 2
+        turn++  // Small gap between waves
         List(30) { AttackerType.ORK }.forEach { type ->
             level3Spawns.add(EditorEnemySpawn(type, 1, turn))
-            if (level3Spawns.filter { it.spawnTurn == turn }.size >= 6) turn += 2
+            if (level3Spawns.filter { it.spawnTurn == turn }.size >= 6) turn++
         }
         List(20) { AttackerType.SKELETON }.forEach { type ->
             level3Spawns.add(EditorEnemySpawn(type, 1, turn))
-            if (level3Spawns.filter { it.spawnTurn == turn }.size >= 6) turn += 2
+            if (level3Spawns.filter { it.spawnTurn == turn }.size >= 6) turn++
         }
-        turn += 2
+        turn++  // Small gap between waves
         List(20) { AttackerType.ORK }.forEach { type ->
             level3Spawns.add(EditorEnemySpawn(type, 1, turn))
-            if (level3Spawns.filter { it.spawnTurn == turn }.size >= 6) turn += 2
+            if (level3Spawns.filter { it.spawnTurn == turn }.size >= 6) turn++
         }
         List(5) { AttackerType.OGRE }.forEach { type ->
             level3Spawns.add(EditorEnemySpawn(type, 1, turn))
-            if (level3Spawns.filter { it.spawnTurn == turn }.size >= 6) turn += 2
+            if (level3Spawns.filter { it.spawnTurn == turn }.size >= 6) turn++
         }
         
         saveLevel(EditorLevel(
@@ -470,22 +483,22 @@ object EditorStorage {
         turn = 1
         (List(30) { AttackerType.GOBLIN } + List(5) { AttackerType.EVIL_WIZARD }).forEach { type ->
             level4Spawns.add(EditorEnemySpawn(type, 1, turn))
-            if (level4Spawns.filter { it.spawnTurn == turn }.size >= 6) turn += 2
+            if (level4Spawns.filter { it.spawnTurn == turn }.size >= 6) turn++
         }
-        turn += 2
+        turn++  // Small gap between waves
         (List(20) { AttackerType.ORK } + List(5) { AttackerType.WITCH }).forEach { type ->
             level4Spawns.add(EditorEnemySpawn(type, 1, turn))
-            if (level4Spawns.filter { it.spawnTurn == turn }.size >= 6) turn += 2
+            if (level4Spawns.filter { it.spawnTurn == turn }.size >= 6) turn++
         }
-        turn += 2
+        turn++  // Small gap between waves
         (List(5) { AttackerType.OGRE } + List(20) { AttackerType.SKELETON }).forEach { type ->
             level4Spawns.add(EditorEnemySpawn(type, 1, turn))
-            if (level4Spawns.filter { it.spawnTurn == turn }.size >= 6) turn += 3
+            if (level4Spawns.filter { it.spawnTurn == turn }.size >= 6) turn++
         }
-        turn += 2
+        turn++  // Small gap between waves
         (List(10) { AttackerType.EVIL_WIZARD } + List(10) { AttackerType.WITCH }).forEach { type ->
             level4Spawns.add(EditorEnemySpawn(type, 1, turn))
-            if (level4Spawns.filter { it.spawnTurn == turn }.size >= 6) turn += 2
+            if (level4Spawns.filter { it.spawnTurn == turn }.size >= 6) turn++
         }
         
         saveLevel(EditorLevel(
@@ -506,23 +519,23 @@ object EditorStorage {
         turn = 1
         (List(50) { AttackerType.SKELETON } + List(20) { AttackerType.EVIL_WIZARD }).forEach { type ->
             level5Spawns.add(EditorEnemySpawn(type, 1, turn))
-            if (level5Spawns.filter { it.spawnTurn == turn }.size >= 6) turn += 2
+            if (level5Spawns.filter { it.spawnTurn == turn }.size >= 6) turn++
         }
-        turn += 2
+        turn++  // Small gap between waves
         (List(30) { AttackerType.ORK } + List(5) { AttackerType.WITCH }).forEach { type ->
             level5Spawns.add(EditorEnemySpawn(type, 1, turn))
-            if (level5Spawns.filter { it.spawnTurn == turn }.size >= 6) turn += 2
+            if (level5Spawns.filter { it.spawnTurn == turn }.size >= 6) turn++
         }
-        turn += 2
+        turn++  // Small gap between waves
         (List(20) { AttackerType.OGRE } + List(30) { AttackerType.GOBLIN }).forEach { type ->
             level5Spawns.add(EditorEnemySpawn(type, 1, turn))
-            if (level5Spawns.filter { it.spawnTurn == turn }.size >= 6) turn += 2
+            if (level5Spawns.filter { it.spawnTurn == turn }.size >= 6) turn++
         }
-        turn += 2
+        turn++  // Small gap between waves
         (List(20) { AttackerType.OGRE } + List(10) { AttackerType.EVIL_WIZARD } + 
          List(10) { AttackerType.WITCH } + List(1) { AttackerType.EWHAD }).forEach { type ->
             level5Spawns.add(EditorEnemySpawn(type, 1, turn))
-            if (level5Spawns.filter { it.spawnTurn == turn }.size >= 6) turn += 2
+            if (level5Spawns.filter { it.spawnTurn == turn }.size >= 6) turn++
         }
         
         saveLevel(EditorLevel(
@@ -558,5 +571,8 @@ object EditorStorage {
         updateLevelSequence(LevelSequence(listOf(
             "level_1", "level_2", "level_3", "level_4", "level_5", "level_6"
         )))
+        
+        // Save version file to indicate successful initialization
+        fileStorage.writeFile(VERSION_FILE, CURRENT_VERSION)
     }
 }
