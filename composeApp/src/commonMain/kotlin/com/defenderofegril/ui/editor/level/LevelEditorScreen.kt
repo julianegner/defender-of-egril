@@ -1,3 +1,5 @@
+@file:OptIn(org.jetbrains.compose.resources.InternalResourceApi::class)
+
 package com.defenderofegril.ui.editor.level
 
 import androidx.compose.foundation.background
@@ -13,6 +15,9 @@ import com.defenderofegril.ui.icon.LeftArrowIcon
 import com.defenderofegril.ui.editor.EditorTab
 import com.defenderofegril.ui.editor.map.MapEditorContent
 import com.defenderofegril.ui.settings.SettingsButton
+import com.hyperether.resources.stringResource
+import defender_of_egril.composeapp.generated.resources.*
+import defender_of_egril.composeapp.generated.resources.Res
 
 /**
  * Main screen for level editing with tabs for Map Editor, Level Editor, and Level Sequence
@@ -76,7 +81,7 @@ fun LevelEditorScreen(
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 LeftArrowIcon(size = 16.dp, tint = Color.White)
                                 Spacer(modifier = Modifier.width(4.dp))
-                                Text("Back to World Map")
+                                Text(stringResource(Res.string.back_to_world_map))
                             }
                         }
                     }

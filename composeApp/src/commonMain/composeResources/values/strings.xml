@@ -56,4 +56,65 @@
     <string name="locked">Locked</string>
     <string name="unlocked">Unlocked</string>
     <string name="completed">Completed</string>
+    
+    <!-- World Map -->
+    <string name="world_map_title">World Map - Meadows of Egril</string>
+    <string name="back_to_world_map">Back to World Map</string>
+    
+    <!-- Load Game Screen -->
+    <string name="no_saved_games">No saved games found</string>
+    
+    <!-- Rules Screen -->
+    <string name="how_to_play">How to Play</string>
+    <string name="game_overview">Game Overview</string>
+    <string name="game_overview_text">Defender of Egril is a turn-based tower defense game. Defend the meadows of Egril against waves of enemies under the evil banner of Ewhad.</string>
+    <string name="initial_building_phase">Initial Building Phase</string>
+    <string name="at_start_of_level">At the start of each level:</string>
+    <string name="place_towers_instantly">Place towers instantly (no build time)</string>
+    <string name="use_coins_strategically">Use your starting coins strategically</string>
+    <string name="towers_ready_to_attack">Towers are ready to attack immediately</string>
+    <string name="click_start_battle">Click 'Start Battle' when ready</string>
+    <string name="your_turn">Your Turn</string>
+    <string name="during_your_turn">During your turn, you can:</string>
+    <string name="place_new_towers">Place New Towers - costs coins, requires build time</string>
+    <string name="upgrade_towers">Upgrade Existing Towers - increases damage and range</string>
+    <string name="attack_with_towers">Attack with Towers - select tower, then target</string>
+    <string name="end_your_turn">End Your Turn - enemies move and attack</string>
+    <string name="enemy_turn">Enemy Turn</string>
+    <string name="after_end_turn">After you end your turn:</string>
+    <string name="enemies_move">Enemies move towards the target</string>
+    <string name="enemies_attack">Enemies that reach the end cost you 1 health</string>
+    <string name="new_enemies">New enemies may spawn</string>
+    <string name="winning_losing">Winning and Losing</string>
+    <string name="win_condition">Win: Eliminate all enemies before they breach your defenses</string>
+    <string name="lose_condition">Lose: Your health reaches 0</string>
+    <string name="tower_types">Tower Types</string>
+    <string name="spike_tower">Spike Tower (Pike): Melee defense, cheapest option</string>
+    <string name="spear_tower">Spear Tower: Medium range piercing attacks</string>
+    <string name="bow_tower">Bow Tower: Long range archery</string>
+    <string name="wizard_tower">Wizard Tower: Area-of-effect fireball</string>
+    <string name="alchemy_tower">Alchemy Tower: Acid damage-over-time</string>
+    <string name="ballista_tower">Ballista Tower: Long range siege, minimum range</string>
+    <string name="dwarven_mine">Dwarven Mine: Generates coins</string>
+    <string name="dragons_lair">Dragon's Lair: Spawns dragons</string>
+    <string name="enemy_types">Enemy Types</string>
+    <string name="goblin">Goblin: Fast and weak</string>
+    <string name="ork">Ork: Slow but tough</string>
+    <string name="ogre">Ogre: Very tough</string>
+    <string name="skeleton">Skeleton: Fast undead</string>
+    <string name="evil_wizard">Evil Wizard: Magic attacker</string>
+    <string name="witch">Witch: Dark magic</string>
+    <string name="blue_demon">Blue Demon: Fast, acid immune</string>
+    <string name="red_demon">Red Demon: Tough, fireball immune</string>
+    <string name="evil_mage">Evil Mage: Can summon minions</string>
+    <string name="red_witch">Red Witch: Can disable towers</string>
+    <string name="green_witch">Green Witch: Can heal other enemies</string>
+    <string name="ewhad">Ewhad: Boss with summoning</string>
+    <string name="dragon">Dragon: Powerful boss</string>
+    <string name="strategic_tips">Strategic Tips</string>
+    <string name="use_initial_phase">Use initial building phase wisely</string>
+    <string name="save_coins">Save 20-30 coins for mid-game</string>
+    <string name="focus_fire">Focus fire on tough enemies (Ogres, Orks)</string>
+    <string name="wizard_for_aoe">Wizard Towers for massive Areal damage</string>
+    <string name="upgrade_vs_build">Upgrade high-level towers rather than building new ones</string>
 </resources>

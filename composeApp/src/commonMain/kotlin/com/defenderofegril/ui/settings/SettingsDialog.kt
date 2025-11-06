@@ -1,3 +1,5 @@
+@file:OptIn(org.jetbrains.compose.resources.InternalResourceApi::class)
+
 package com.defenderofegril.ui.settings
 
 import androidx.compose.foundation.layout.*
@@ -8,8 +10,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import com.hyperether.resources.LocalizedStrings
-import com.hyperether.resources.currentLanguage
+import com.hyperether.resources.stringResource
+import defender_of_egril.composeapp.generated.resources.*
+import defender_of_egril.composeapp.generated.resources.Res
 
 /**
  * Settings dialog that provides access to app settings like language selection
@@ -18,8 +21,6 @@ import com.hyperether.resources.currentLanguage
 fun SettingsDialog(
     onDismiss: () -> Unit
 ) {
-    val locale = currentLanguage.value
-    
     Dialog(onDismissRequest = onDismiss) {
         Surface(
             modifier = Modifier
@@ -37,7 +38,7 @@ fun SettingsDialog(
             ) {
                 // Title
                 Text(
-                    text = LocalizedStrings.get("settings", locale),
+                    text = stringResource(Res.string.settings),
                     style = MaterialTheme.typography.headlineMedium,
                     color = MaterialTheme.colorScheme.onSurface
                 )
@@ -49,7 +50,7 @@ fun SettingsDialog(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Text(
-                        text = LocalizedStrings.get("language", locale),
+                        text = stringResource(Res.string.language),
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onSurface
                     )
@@ -66,7 +67,7 @@ fun SettingsDialog(
                     onClick = onDismiss,
                     modifier = Modifier.align(Alignment.End)
                 ) {
-                    Text(LocalizedStrings.get("close", locale))
+                    Text(stringResource(Res.string.close))
                 }
             }
         }
