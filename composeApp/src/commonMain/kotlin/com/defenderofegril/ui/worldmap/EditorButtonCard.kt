@@ -9,6 +9,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.defenderofegril.ui.icon.ToolsIcon
+import com.hyperether.resources.stringResource
+import defender_of_egril.composeapp.generated.resources.*
 
 @Composable
 fun EditorButtonCard(
@@ -33,7 +35,7 @@ fun EditorButtonCard(
 
             Column {
                 Text(
-                    text = "Level Editor",
+                    text = stringResource(Res.string.level_editor),
                     style = MaterialTheme.typography.titleLarge,
                     color = Color.White,
                     fontSize = 20.sp
@@ -42,7 +44,7 @@ fun EditorButtonCard(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = "Create & Edit Maps and Levels",
+                    text = stringResource(Res.string.create_edit_maps_levels),
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.White,
                     fontSize = 14.sp
