@@ -15,6 +15,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.defenderofegril.model.*
 import com.defenderofegril.ui.*
+import com.hyperether.resources.stringResource
+import defender_of_egril.composeapp.generated.resources.Res
+import defender_of_egril.composeapp.generated.resources.initial_building_phase
 
 @Composable
 fun ColumnScope.TurnButton(
@@ -69,7 +72,7 @@ fun GameControlsPanel(
     val title = if (isPlayerTurn) {
         "Your Turn - Place towers and attack enemies"
     } else {
-        "Initial Building Phase - Place towers (no build time)"
+        stringResource(Res.string.initial_building_phase)
     }
     val primaryButtonText = if (isPlayerTurn) "End Turn" else "Start Battle"
     val primaryButtonColor = if (isPlayerTurn) {
