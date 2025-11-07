@@ -208,4 +208,14 @@
     <string name="building_label">Construcción:</string>
     <string name="active_label">Activos:</string>
     <string name="planned_label">Planificados:</string>
+    
+    <!-- GameLegend strings -->
+    <string name="legend">Leyenda</string>
+    <string name="areas_label">Áreas:</string>
+    <string name="build_island">Isla de construcción</string>
+    <string name="build_strip">Franja de construcción</string>
+    <string name="enemy_path">Camino enemigo</string>
+    <string name="non_playable">No jugable</string>
+    <string name="enemy_unit">Unidad enemiga</string>
+    <string name="map_label">Mapa</string>
 </resources>
