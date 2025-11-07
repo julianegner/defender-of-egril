@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -57,9 +56,8 @@ fun SettingsDialog(
                     )
                     
                     // Dark mode switch
-                    val darkModeState = remember { AppSettings.isDarkMode }
                     GenericSwitch(
-                        state = darkModeState,
+                        state = AppSettings.isDarkMode,
                         checkedText = stringResource(Res.string.dark_mode_on),
                         uncheckedText = stringResource(Res.string.dark_mode_off),
                         onCheckedChange = { enabled ->
