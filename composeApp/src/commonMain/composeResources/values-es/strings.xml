@@ -320,4 +320,10 @@
     <string name="damage_label">Daño</string>
     <string name="hp_with_level">PV: %d</string>
     <string name="add_enemy_button">➕ Añadir enemigo al turno %d</string>
+    
+    <!-- Sound Settings -->
+    <string name="sound">Sonido</string>
+    <string name="sound_enabled">Sonido activado</string>
+    <string name="sound_disabled">Sonido desactivado</string>
+    <string name="sound_volume">Volumen del sonido</string>
 </resources>
