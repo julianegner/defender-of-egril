@@ -417,10 +417,10 @@ fun GridCell(
             }
         }
         
-        // Draw target marker for area attacks (fireball and acid)
-        // Check if this position is selected as a target position for area/lasting attacks
-        val isAreaTargetPosition = selectedTargetPosition == position
-        if (isAreaTargetPosition) {
+        // Draw target marker for all attack types
+        // Check if this position is selected as a target position
+        val isTargetPosition = selectedTargetPosition == position
+        if (isTargetPosition) {
             // Determine the attack type to choose the correct color
             // Cache the selected defender to avoid repeated lookups
             val selectedDefender = remember(selectedDefenderId, gameState.defenders.size) {
@@ -429,17 +429,18 @@ fun GridCell(
                 }
             }
             
-            val markerColor = when (selectedDefender?.type?.attackType) {
+            val attackType = selectedDefender?.type?.attackType
+            val markerColor = when (attackType) {
                 AttackType.AREA -> Color(0xFFFF5722)  // Deep orange/red for fireball
                 AttackType.LASTING -> Color(0xFF4CAF50)  // Green for acid
+                AttackType.MELEE, AttackType.RANGED -> Color(0xFF2196F3)  // Blue for single-target attacks
                 else -> null
             }
             
             markerColor?.let { color ->
-                // Draw concentric circles as target marker:
-                // - Inner solid circle (4px radius) at center
-                // - Middle stroke circle (12px radius, 2px stroke)
-                // - Outer stroke circle (20px radius, 2px stroke)
+                // Draw concentric circles as target marker
+                // For AREA and LASTING attacks: 5 circles (3 for target, 2 for affected neighbors)
+                // For MELEE and RANGED attacks: 3 circles (standard target)
                 Canvas(
                     modifier = Modifier
                         .fillMaxSize()
@@ -470,6 +471,25 @@ fun GridCell(
                         center = Offset(centerX, centerY),
                         style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2f)
                     )
+                    
+                    // For AREA and LASTING attacks, add 2 more circles to show affected neighbor tiles
+                    if (attackType == AttackType.AREA || attackType == AttackType.LASTING) {
+                        // Fourth circle (stroke) - indicates affected neighbors
+                        drawCircle(
+                            color = color,
+                            radius = 28f,
+                            center = Offset(centerX, centerY),
+                            style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2f)
+                        )
+                        
+                        // Fifth circle (stroke) - outer boundary of affected area
+                        drawCircle(
+                            color = color,
+                            radius = 36f,
+                            center = Offset(centerX, centerY),
+                            style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2f)
+                        )
+                    }
                 }
             }
         }
