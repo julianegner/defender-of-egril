@@ -85,7 +85,7 @@ fun MapEditorHeader(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Click hexagons to paint (${map.width}x${map.height}). Use Ctrl+Scroll to zoom:",
+                    text = "Click or drag to paint hexagons (${map.width}x${map.height}). Use Ctrl+Scroll to zoom:",
                     style = MaterialTheme.typography.bodySmall
                 )
                 Row(
