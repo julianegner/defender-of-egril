@@ -221,4 +221,30 @@
     <string name="not_enough_actions">no hay suficientes acciones</string>
     <string name="name_label">Nombre</string>
     <string name="reward">Recompensa</string>
+    
+    <!-- EditorButtonCard strings -->
+    <string name="level_editor">Editor de niveles</string>
+    <string name="create_edit_maps_levels">Crear &amp; editar mapas y niveles</string>
+    
+    <!-- SavedGameCard additional strings -->
+    <string name="built_towers">Torres construidas:</string>
+    
+    <!-- Gameplay page strings -->
+    <string name="spawn">Spawn</string>
+    <string name="target">Objetivo</string>
+    <string name="start_battle">Iniciar batalla</string>
+    <string name="your_turn_message">Tu turno - Coloca torres y ataca enemigos</string>
+    <string name="building">en construcción</string>
+    
+    <!-- DefenderInfo mining strings -->
+    
+    <!-- Tower short names -->
+    <string name="spike_tower_short">Púas</string>
+    <string name="spear_tower_short">Lanza</string>
+    <string name="bow_tower_short">Arco</string>
+    <string name="wizard_tower_short">Mago</string>
+    <string name="alchemy_tower_short">Alquimia</string>
+    <string name="ballista_tower_short">Balista</string>
+    <string name="dwarven_mine_short">Mina</string>
+    <string name="dragons_lair_short">Guarida</string>
 </resources>

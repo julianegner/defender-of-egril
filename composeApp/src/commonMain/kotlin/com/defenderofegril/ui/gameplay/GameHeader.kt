@@ -16,6 +16,8 @@ import com.defenderofegril.ui.icon.SaveIcon
 import com.defenderofegril.ui.icon.TriangleLeftIcon
 import com.defenderofegril.ui.icon.TriangleRightIcon
 import com.defenderofegril.ui.settings.SettingsButton
+import com.hyperether.resources.stringResource
+import defender_of_egril.composeapp.generated.resources.*
 
 @Composable
 fun GameHeader(
@@ -88,7 +90,7 @@ fun GameHeader(
                     contentPadding = PaddingValues(horizontal = GamePlayConstants.Spacing.Items, vertical = 0.dp)
                 ) {
                     Text(
-                        "Map",
+                        stringResource(Res.string.map_label),
                         fontSize = GamePlayConstants.TextSizes.Body,
                         modifier = Modifier.align(Alignment.CenterVertically)
                     )

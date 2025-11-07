@@ -53,9 +53,7 @@ fun CompactDefenderButton(
 
             val locale = com.hyperether.resources.currentLanguage.value
             Text(
-                type.getLocalizedName(locale)
-                    .replace(" Tower", "")
-                    .replace("Tour", ""), // For French translations
+                type.getLocalizedShortName(locale),
                 style = MaterialTheme.typography.labelSmall,
                 fontWeight = FontWeight.Bold,
                 fontSize = 12.sp,
@@ -124,11 +122,7 @@ fun DefenderButton(
                 ) {
                     val locale = com.hyperether.resources.currentLanguage.value
                     Text(
-                        type.getLocalizedName(locale)
-                            .replace(" Tower", "")
-                            .replace("Tour", "")
-                            .replace("Torre", "")
-                            .replace("Turm", ""),
+                        type.getLocalizedShortName(locale),
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.Bold,
                         fontSize = 12.sp,
