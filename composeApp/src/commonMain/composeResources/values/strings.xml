@@ -218,4 +218,7 @@
     <string name="non_playable">Non-Playable</string>
     <string name="enemy_unit">Enemy Unit</string>
     <string name="map_label">Map</string>
+    <string name="not_enough_actions">not enough Actions</string>
+    <string name="name_label">Name</string>
+    <string name="reward">Reward</string>
 </resources>
