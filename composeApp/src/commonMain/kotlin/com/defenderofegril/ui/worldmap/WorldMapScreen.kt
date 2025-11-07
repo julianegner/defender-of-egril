@@ -37,11 +37,7 @@ fun WorldMapScreen(
         modifier = Modifier.fillMaxSize().padding(16.dp)
     ) {
         // Settings button in top-right corner
-        SettingsButton(
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(8.dp)
-        )
+        SettingsButton(modifier = Modifier.align(Alignment.TopEnd))
         
         Column(
             modifier = Modifier.fillMaxSize(),
