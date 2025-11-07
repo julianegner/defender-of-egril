@@ -117,4 +117,69 @@
     <string name="focus_fire">Concentrez le tir sur les ennemis résistants (Ogres, Orcs)</string>
     <string name="wizard_for_aoe">Tours de sorcier pour des dégâts de zone massifs</string>
     <string name="upgrade_vs_build">Améliorez les tours de haut niveau plutôt que d\'en construire de nouvelles</string>
+    
+    <!-- Additional RulesScreen strings -->
+    <string name="attack_enemies_desc">Attaquer les ennemis - cliquez sur la tour avec des actions, puis sur l\'ennemi à portée</string>
+    <string name="build_timers_advance">Les minuteries de construction avancent (compte à rebours)</string>
+    <string name="dot_effects_applied">Les effets de dégâts sur la durée sont appliqués</string>
+    <string name="attack_types">Types d\'attaques</string>
+    <string name="melee_ranged_desc">Corps-à-corps/À distance: Cible unique</string>
+    <string name="fireball_desc">Boule de feu (Zone): Endommage tous les ennemis dans un rayon de 1 case de l\'impact</string>
+    <string name="acid_desc">Acide: Dégâts continus pendant 3 tours dans un rayon de 1 case de l\'impact</string>
+    <string name="victory_defeat">Victoire &amp; Défaite</string>
+    <string name="victory_detail">Victoire: Vaincre tous les ennemis dans toutes les vagues avec au moins 1 point de santé restant</string>
+    <string name="defeat_detail">Défaite: Chaque ennemi atteignant la cible coûte 1 point de santé. À 0 point de santé, vous perdez.</string>
+    <string name="grid_legend">Légende de la grille</string>
+    <string name="spawn_desc">Spawn: Position de départ (les ennemis apparaissent)</string>
+    <string name="target_desc">Cible: Position cible (défendez ceci!)</string>
+    <string name="blue_towers">Bleu: Vos tours prêtes</string>
+    <string name="gray_towers">Gris: Tours en construction</string>
+    <string name="red_enemies">Rouge: Ennemis</string>
+    <string name="build_time_remaining">Temps de construction restant</string>
+    <string name="actions_remaining">Actions restantes ce tour</string>
+    <string name="mine_special_desc">Spécial: creusez pour trouver des objets de valeur ou placez des pièges sur le chemin</string>
+    <string name="special_building">Bâtiment spécial</string>
+    <string name="coins_label">pièces</string>
+    <string name="hp_label">PV</string>
+    <string name="speed_label">Vitesse</string>
+    
+    <!-- Status text -->
+    <string name="available">Disponible</string>
+    
+    <!-- Defender/Tower names -->
+    <string name="spike_tower_name">Tour à piques</string>
+    <string name="spear_tower_name">Tour à lances</string>
+    <string name="bow_tower_name">Tour d\'archerie</string>
+    <string name="wizard_tower_name">Tour du sorcier</string>
+    <string name="alchemy_tower_name">Tour d\'alchimie</string>
+    <string name="ballista_tower_name">Tour de baliste</string>
+    <string name="dwarven_mine_name">Mine</string>
+    <string name="dragons_lair_name">Repaire du dragon</string>
+    
+    <!-- Attack type names -->
+    <string name="attack_type_melee">Corps-à-corps</string>
+    <string name="attack_type_ranged">À distance</string>
+    <string name="attack_type_fireball">Boule de feu</string>
+    <string name="attack_type_acid">Acide</string>
+    <string name="attack_type_special">Spécial</string>
+    
+    <!-- Attacker/Enemy names -->
+    <string name="goblin_name">Gobelin</string>
+    <string name="ork_name">Orc</string>
+    <string name="ogre_name">Ogre</string>
+    <string name="skeleton_name">Squelette</string>
+    <string name="evil_wizard_name">Sorcier maléfique</string>
+    <string name="witch_name">Sorcière</string>
+    <string name="blue_demon_name">Démon bleu</string>
+    <string name="red_demon_name">Démon rouge</string>
+    <string name="evil_mage_name">Mage maléfique</string>
+    <string name="red_witch_name">Sorcière rouge</string>
+    <string name="green_witch_name">Sorcière verte</string>
+    <string name="ewhad_name">Ewhad</string>
+    <string name="dragon_name">Dragon</string>
+    
+    <!-- SavedGameCard strings -->
+    <string name="enemies_on_map">Ennemis sur la carte:</string>
+    <string name="enemies_to_come">Ennemis à venir:</string>
+    <string name="delete_savegame">Supprimer la sauvegarde</string>
 </resources>
