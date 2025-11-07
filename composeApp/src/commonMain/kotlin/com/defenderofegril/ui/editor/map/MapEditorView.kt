@@ -59,10 +59,13 @@ fun MapEditorView(
     // Track the last painted tile to avoid redundant updates
     var lastPaintedTile by remember { mutableStateOf<String?>(null) }
     
+    // Track the container's position in root coordinates
+    var containerPositionInRoot by remember { mutableStateOf(Offset.Zero) }
+    
     // Get density for coordinate conversions
     val density = androidx.compose.ui.platform.LocalDensity.current
     
-    // Helper function to find which tile is at a given position
+    // Helper function to find which tile is at a given position (in root coordinates)
     fun getTileAtPosition(position: Offset): String? {
         val hexRadiusPx = with(density) { (hexWidth / 2f).dp.toPx() }
         val closest = tilePositions.entries.minByOrNull { (_, tilePos) ->
@@ -96,6 +99,10 @@ fun MapEditorView(
                     .fillMaxWidth()
                     .padding(8.dp)
                     .onSizeChanged { containerSize = it }
+                    .onGloballyPositioned { coordinates ->
+                        // Track container position for coordinate conversion
+                        containerPositionInRoot = coordinates.positionInRoot()
+                    }
                     .mouseWheelZoom(
                         containerSize = containerSize,
                         scale = zoomLevel,
@@ -111,8 +118,13 @@ fun MapEditorView(
                         // Brush painting: detect drag gestures and paint tiles
                         detectDragGestures(
                             onDragStart = { offset ->
+                                // Convert container-relative coordinates to root coordinates
+                                val rootOffset = Offset(
+                                    containerPositionInRoot.x + offset.x,
+                                    containerPositionInRoot.y + offset.y
+                                )
                                 // Paint the tile at the start position
-                                val tileKey = getTileAtPosition(offset)
+                                val tileKey = getTileAtPosition(rootOffset)
                                 if (tileKey != null) {
                                     tiles = tiles.toMutableMap().apply {
                                         this[tileKey] = selectedTileType
@@ -121,8 +133,13 @@ fun MapEditorView(
                                 }
                             },
                             onDrag = { change, _ ->
+                                // Convert container-relative coordinates to root coordinates
+                                val rootOffset = Offset(
+                                    containerPositionInRoot.x + change.position.x,
+                                    containerPositionInRoot.y + change.position.y
+                                )
                                 // Paint tiles as the pointer moves (only if different from last)
-                                val tileKey = getTileAtPosition(change.position)
+                                val tileKey = getTileAtPosition(rootOffset)
                                 if (tileKey != null && tileKey != lastPaintedTile) {
                                     tiles = tiles.toMutableMap().apply {
                                         this[tileKey] = selectedTileType
