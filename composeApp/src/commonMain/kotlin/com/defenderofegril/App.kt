@@ -1,16 +1,35 @@
 package com.defenderofegril
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.*
 import com.defenderofegril.ui.*
 import com.defenderofegril.ui.editor.level.LevelEditorScreen
 import com.defenderofegril.ui.gameplay.GamePlayScreen
 import com.defenderofegril.ui.loadgame.LoadGameScreen
+import com.defenderofegril.ui.settings.AppSettings
 import com.defenderofegril.ui.worldmap.WorldMapScreen
 
 @Composable
 fun App() {
-    MaterialTheme {
+    // Initialize settings on app start
+    LaunchedEffect(Unit) {
+        AppSettings.initialize()
+    }
+    
+    // Observe dark mode state
+    val isDarkMode by AppSettings.isDarkMode
+    
+    // Use dark or light color scheme based on settings
+    val colorScheme = if (isDarkMode) {
+        darkColorScheme()
+    } else {
+        lightColorScheme()
+    }
+    
+    MaterialTheme(colorScheme = colorScheme) {
         val viewModel = remember { GameViewModel() }
         val currentScreen by viewModel.currentScreen.collectAsState()
         val worldLevels by viewModel.worldLevels.collectAsState()
