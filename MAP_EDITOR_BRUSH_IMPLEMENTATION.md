@@ -59,6 +59,39 @@ Each tile now has a `pointerInput` modifier that handles pointer events:
 }
 ```
 
+### Design Decisions
+
+#### Gesture Prioritization
+
+The implementation prioritizes brush painting over panning when dragging on tiles. This is intentional based on the issue requirements:
+
+- **Brush Painting**: When dragging over tiles, they are painted (gesture consumed by tiles)
+- **Panning**: Still available by dragging in empty space between/around tiles
+- **Zooming**: Unaffected - works via Ctrl+Scroll or pinch gestures
+
+This tradeoff is acceptable because:
+1. The primary use case (requested in the issue) is to paint tiles by dragging
+2. Panning is still accessible through empty areas
+3. Most editing is done while zoomed in where panning is less critical
+4. The zoom buttons provide an alternative to gesture-based zooming
+
+#### State Management Efficiency
+
+The implementation creates a new map copy for each tile paint operation:
+
+```kotlin
+tiles = tiles.toMutableMap().apply { this[key] = selectedTileType }
+```
+
+While this seems inefficient, it's the recommended pattern for Compose because:
+1. Compose's state system is optimized for immutable updates
+2. Creating new map instances ensures proper change detection
+3. The map is typically small (< 500 tiles for most maps)
+4. Paint operations are user-initiated (not continuous), limiting frequency
+5. Alternative approaches (mutable maps with manual recomposition) are more error-prone
+
+Performance profiling on real devices would be needed to justify a more complex optimization.
+
 ### How It Works
 
 1. **Pointer Down**: When the user clicks/touches a tile:
