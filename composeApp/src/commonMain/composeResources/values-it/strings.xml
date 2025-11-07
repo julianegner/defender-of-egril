@@ -68,7 +68,6 @@
     <string name="how_to_play">Come giocare</string>
     <string name="game_overview">Panoramica del gioco</string>
     <string name="game_overview_text">Difensore di Egril è un gioco tower defense a turni. Difendi i prati di Egril contro ondate di nemici sotto la bandiera malvagia di Ewhad.</string>
-    <string name="initial_building_phase">Fase di costruzione iniziale</string>
     <string name="at_start_of_level">All\'inizio di ogni livello:</string>
     <string name="place_towers_instantly">Posiziona le torri istantaneamente (nessun tempo di costruzione)</string>
     <string name="use_coins_strategically">Usa le tue monete iniziali strategicamente</string>
@@ -182,4 +181,31 @@
     <string name="enemies_on_map">Nemici sulla mappa:</string>
     <string name="enemies_to_come">Nemici in arrivo:</string>
     <string name="delete_savegame">Elimina salvataggio</string>
+    
+    <!-- Gameplay UI strings -->
+    <string name="attack_button">ATTACCO</string>
+    <string name="attack_area_button">ATTACCO AD AREA</string>
+    <string name="undo">Annulla</string>
+    <string name="sell_tower_title">Vendere la torre?</string>
+    <string name="dig">Scava</string>
+    <string name="trap">Trappola</string>
+    <string name="mining_probabilities">Probabilità di scavo</string>
+    <string name="mining_result">Risultato dello scavo</string>
+    <string name="dragons_lair_desc">La tana del drago... un promemoria delle conseguenze dell\'avidità.</string>
+    <string name="empty_dragons_lair">Tana del drago vuota</string>
+    <string name="end_turn_button">Termina turno</string>
+    <string name="enemy_turn_title">Turno nemico</string>
+    <string name="enemies_spawning">I nemici appaiono e si muovono...</string>
+    <string name="initial_building_phase">Fase di costruzione iniziale - Posiziona torri (nessun tempo di costruzione)</string>
+    <string name="add_comment">Aggiungi un commento opzionale per identificare questo salvataggio:</string>
+    <string name="game_saved">Gioco salvato</string>
+    <string name="on_map">Sulla mappa:</string>
+    <string name="planned_spawns">Apparizioni pianificate:</string>
+    <string name="position_label">Posizione:</string>
+    <string name="reward_label">Ricompensa:</string>
+    <string name="info_label">Info:</string>
+    <string name="chance_percent">Probabilità (%%)</string>
+    <string name="building_label">Costruzione:</string>
+    <string name="active_label">Attivi:</string>
+    <string name="planned_label">Pianificati:</string>
 </resources>

@@ -68,7 +68,6 @@
     <string name="how_to_play">How to Play</string>
     <string name="game_overview">Game Overview</string>
     <string name="game_overview_text">Defender of Egril is a turn-based tower defense game. Defend the meadows of Egril against waves of enemies under the evil banner of Ewhad.</string>
-    <string name="initial_building_phase">Initial Building Phase</string>
     <string name="at_start_of_level">At the start of each level:</string>
     <string name="place_towers_instantly">Place towers instantly (no build time)</string>
     <string name="use_coins_strategically">Use your starting coins strategically</string>
@@ -182,4 +181,31 @@
     <string name="enemies_on_map">Enemies on Map:</string>
     <string name="enemies_to_come">Enemies to Come:</string>
     <string name="delete_savegame">Delete Savegame</string>
+    
+    <!-- Gameplay UI strings -->
+    <string name="attack_button">ATTACK</string>
+    <string name="attack_area_button">ATTACK AREA</string>
+    <string name="undo">Undo</string>
+    <string name="sell_tower_title">Sell Tower?</string>
+    <string name="dig">Dig</string>
+    <string name="trap">Trap</string>
+    <string name="mining_probabilities">Mining Probabilities</string>
+    <string name="mining_result">Mining Result</string>
+    <string name="dragons_lair_desc">The dragon\'s lair... a reminder of greed\'s consequences.</string>
+    <string name="empty_dragons_lair">Empty Dragon\'s Lair</string>
+    <string name="end_turn_button">End Turn</string>
+    <string name="enemy_turn_title">Enemy Turn</string>
+    <string name="enemies_spawning">Enemies are spawning and moving...</string>
+    <string name="initial_building_phase">Initial Building Phase - Place towers (no build time)</string>
+    <string name="add_comment">Add an optional comment to help identify this save:</string>
+    <string name="game_saved">Game Saved</string>
+    <string name="on_map">On Map:</string>
+    <string name="planned_spawns">Planned Spawns:</string>
+    <string name="building_label">Building:</string>
+    <string name="position_label">Position:</string>
+    <string name="reward_label">Reward:</string>
+    <string name="info_label">Info:</string>
+    <string name="chance_percent">Chance (%%)</string>
+    <string name="active_label">Active:</string>
+    <string name="planned_label">Planned:</string>
 </resources>
