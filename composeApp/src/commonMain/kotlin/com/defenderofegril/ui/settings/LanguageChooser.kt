@@ -106,14 +106,8 @@ private fun LanguageFlagAndName(appLocale: AppLocale) {
 
 /**
  * Maps AppLocale to country code for flag display
+ * UK flag for English (default language)
+ * other languages: country code for flag matches locale code for language
  */
-private fun getCountryCode(appLocale: AppLocale): String {
-    return when (appLocale) {
-        AppLocale.DEFAULT -> "GB" // English - United Kingdom
-        AppLocale.DE -> "DE" // German - Germany
-        AppLocale.FR -> "FR" // French - France
-        AppLocale.IT -> "IT" // Italian - Italy
-        AppLocale.ES -> "ES" // Spanish - Spain
-        else -> "GB" // Fallback to UK flag for any unmapped locales
-    }
-}
+private fun getCountryCode(appLocale: AppLocale): String =
+    if (appLocale == AppLocale.DEFAULT) "GB" else appLocale.code
