@@ -1,38 +1,128 @@
 package com.defenderofegril.ui.gameplay
 
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import com.defenderofegril.ui.settings.AppSettings
 
 /**
  * Color palette for gameplay UI components.
  * Centralizes all color values used throughout the gameplay screens for consistency and maintainability.
+ * Provides dark mode variants with softer colors for comfortable night viewing.
  */
 object GamePlayColors {
-    // Primary action and state colors
-    val Success = Color(0xFF4CAF50)      // Green - positive actions, ready state, target
-    val Warning = Color(0xFFFF9800)      // Orange - warnings, building, spawns
-    val Error = Color(0xFFF44336)        // Red - errors, enemies, danger
-    val Info = Color(0xFF2196F3)         // Blue - info, towers ready
+    // Primary action and state colors (light mode)
+    private val SuccessLight = Color(0xFF4CAF50)      // Green - positive actions, ready state, target
+    private val WarningLight = Color(0xFFFF9800)      // Orange - warnings, building, spawns
+    private val ErrorLight = Color(0xFFF44336)        // Red - errors, enemies, danger
+    private val InfoLight = Color(0xFF2196F3)         // Blue - info, towers ready
     
-    // Extended palette for specific uses
-    val InfoDark = Color(0xFF1976D2)     // Dark blue - selected towers
-    val InfoLight = Color(0xFF7986CB)    // Light blue - towers with no actions
-    val WarningDeep = Color(0xFFFF5722)  // Deep orange - urgent warnings, fireball effects
-    val WarningDark = Color(0xFFFF6F00)  // Dark orange - special warnings
-    val ErrorDark = Color(0xFFD32F2F)    // Dark red - attack buttons, active enemies
-    val Yellow = Color(0xFFFFEB3B)       // Yellow - selected items, attack type
+    // Primary action and state colors (dark mode - softer)
+    private val SuccessDarkMode = Color(0xFF66BB6A)   // Softer green
+    private val WarningDarkMode = Color(0xFFFFB74D)   // Softer orange
+    private val ErrorDarkMode = Color(0xFFE57373)     // Softer red
+    private val InfoDarkMode = Color(0xFF64B5F6)      // Softer blue
     
-    // Map terrain colors
-    val BuildIsland = Color(0xFF8BC34A)  // Light green - build islands
-    val BuildStrip = Color(0xFFA5D6A7)   // Medium green - build strips adjacent to path
-    val Path = Color(0xFFFFF8DC)         // Cream/beige - enemy path
-    val NonPlayable = Color(0xFFE0E0E0)  // Light gray - off-path non-playable areas
-    val Building = Color(0xFF9E9E9E)     // Gray - towers under construction
+    // Extended palette for specific uses (light mode)
+    private val InfoDeepLight = Color(0xFF1976D2)     // Dark blue - selected towers
+    private val InfoTintLight = Color(0xFF7986CB)     // Light blue - towers with no actions
+    private val WarningDeepLight = Color(0xFFFF5722)  // Deep orange - urgent warnings, fireball effects
+    private val WarningIntenseLight = Color(0xFFFF6F00)  // Dark orange - special warnings
+    private val ErrorDeepLight = Color(0xFFD32F2F)    // Dark red - attack buttons, active enemies
+    private val YellowLight = Color(0xFFFFEB3B)       // Yellow - selected items, attack type
     
-    // Background colors for cards
-    val EnemyCardBackground = Color(0xFFFFEBEE)     // Light red - enemy info cards
-    val UpcomingCardBackground = Color(0xFFFFF3E0)  // Light orange - upcoming/planned items
-    val DangerCardBackground = Color(0xFFFFCDD2)    // Light red-pink - danger/warning cards
+    // Extended palette for specific uses (dark mode - softer)
+    private val InfoDeepDarkMode = Color(0xFF42A5F5)      // Softer dark blue
+    private val InfoTintDarkMode = Color(0xFF9FA8DA)      // Softer light blue
+    private val WarningDeepDarkMode = Color(0xFFFF8A65)   // Softer deep orange
+    private val WarningIntenseDarkMode = Color(0xFFFFB74D)   // Softer dark orange
+    private val ErrorDeepDarkMode = Color(0xFFE57373)     // Softer dark red
+    private val YellowDarkMode = Color(0xFFFFF59D)        // Softer yellow
     
-    // Special effect colors
-    val Trap = Color(0xFF8B4513)         // Brown - dwarven mine traps
+    // Map terrain colors (light mode)
+    private val BuildIslandLight = Color(0xFF8BC34A)  // Light green - build islands
+    private val BuildStripLight = Color(0xFFA5D6A7)   // Medium green - build strips adjacent to path
+    private val PathLight = Color(0xFFFFF8DC)         // Cream/beige - enemy path
+    private val NonPlayableLight = Color(0xFFE0E0E0)  // Light gray - off-path non-playable areas
+    private val BuildingLight = Color(0xFF9E9E9E)     // Gray - towers under construction
+    
+    // Map terrain colors (dark mode - darker, less bright)
+    private val BuildIslandDarkMode = Color(0xFF558B2F)   // Darker green - build islands
+    private val BuildStripDarkMode = Color(0xFF66BB6A)    // Medium-dark green - build strips
+    private val PathDarkMode = Color(0xFF3E3528)          // Dark brown-beige - enemy path
+    private val NonPlayableDarkMode = Color(0xFF2C2C2C)   // Dark gray - off-path non-playable areas
+    private val BuildingDarkMode = Color(0xFF5F5F5F)      // Medium gray - towers under construction
+    
+    // Background colors for cards (light mode)
+    private val EnemyCardBackgroundLight = Color(0xFFFFEBEE)     // Light red - enemy info cards
+    private val UpcomingCardBackgroundLight = Color(0xFFFFF3E0)  // Light orange - upcoming/planned items
+    private val DangerCardBackgroundLight = Color(0xFFFFCDD2)    // Light red-pink - danger/warning cards
+    
+    // Background colors for cards (dark mode - darker)
+    private val EnemyCardBackgroundDarkMode = Color(0xFF4A2C2C)      // Dark red - enemy info cards
+    private val UpcomingCardBackgroundDarkMode = Color(0xFF4A3C28)   // Dark orange - upcoming/planned items
+    private val DangerCardBackgroundDarkMode = Color(0xFF5C3333)     // Dark red-pink - danger/warning cards
+    
+    // Special effect colors (light mode)
+    private val TrapLight = Color(0xFF8B4513)         // Brown - dwarven mine traps
+    
+    // Special effect colors (dark mode - slightly softer)
+    private val TrapDarkMode = Color(0xFF9E6A3F)      // Softer brown - dwarven mine traps
+    
+    // Public properties that adapt to dark mode
+    val Success: Color
+        @Composable get() = if (AppSettings.isDarkMode.value) SuccessDarkMode else SuccessLight
+    
+    val Warning: Color
+        @Composable get() = if (AppSettings.isDarkMode.value) WarningDarkMode else WarningLight
+    
+    val Error: Color
+        @Composable get() = if (AppSettings.isDarkMode.value) ErrorDarkMode else ErrorLight
+    
+    val Info: Color
+        @Composable get() = if (AppSettings.isDarkMode.value) InfoDarkMode else InfoLight
+    
+    val InfoDark: Color
+        @Composable get() = if (AppSettings.isDarkMode.value) InfoDeepDarkMode else InfoDeepLight
+    
+    val InfoLight: Color
+        @Composable get() = if (AppSettings.isDarkMode.value) InfoTintDarkMode else InfoTintLight
+    
+    val WarningDeep: Color
+        @Composable get() = if (AppSettings.isDarkMode.value) WarningDeepDarkMode else WarningDeepLight
+    
+    val WarningDark: Color
+        @Composable get() = if (AppSettings.isDarkMode.value) WarningIntenseDarkMode else WarningIntenseLight
+    
+    val ErrorDark: Color
+        @Composable get() = if (AppSettings.isDarkMode.value) ErrorDeepDarkMode else ErrorDeepLight
+    
+    val Yellow: Color
+        @Composable get() = if (AppSettings.isDarkMode.value) YellowDarkMode else YellowLight
+    
+    val BuildIsland: Color
+        @Composable get() = if (AppSettings.isDarkMode.value) BuildIslandDarkMode else BuildIslandLight
+    
+    val BuildStrip: Color
+        @Composable get() = if (AppSettings.isDarkMode.value) BuildStripDarkMode else BuildStripLight
+    
+    val Path: Color
+        @Composable get() = if (AppSettings.isDarkMode.value) PathDarkMode else PathLight
+    
+    val NonPlayable: Color
+        @Composable get() = if (AppSettings.isDarkMode.value) NonPlayableDarkMode else NonPlayableLight
+    
+    val Building: Color
+        @Composable get() = if (AppSettings.isDarkMode.value) BuildingDarkMode else BuildingLight
+    
+    val EnemyCardBackground: Color
+        @Composable get() = if (AppSettings.isDarkMode.value) EnemyCardBackgroundDarkMode else EnemyCardBackgroundLight
+    
+    val UpcomingCardBackground: Color
+        @Composable get() = if (AppSettings.isDarkMode.value) UpcomingCardBackgroundDarkMode else UpcomingCardBackgroundLight
+    
+    val DangerCardBackground: Color
+        @Composable get() = if (AppSettings.isDarkMode.value) DangerCardBackgroundDarkMode else DangerCardBackgroundLight
+    
+    val Trap: Color
+        @Composable get() = if (AppSettings.isDarkMode.value) TrapDarkMode else TrapLight
 }
