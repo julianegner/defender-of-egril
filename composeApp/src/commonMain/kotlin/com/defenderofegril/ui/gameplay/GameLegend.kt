@@ -365,7 +365,7 @@ fun EnemyItemDetailed(attacker: Attacker, showPosition: Boolean) {
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Text(
-                        "HP: ${attacker.currentHealth.value}/${attacker.maxHealth}",
+                        "${stringResource(Res.string.hp_short)}: ${attacker.currentHealth.value}/${attacker.maxHealth}",
                         style = MaterialTheme.typography.bodySmall,
                         fontSize = 10.sp
                     )
@@ -429,7 +429,7 @@ fun PlannedEnemyItem(plannedSpawn: PlannedEnemySpawn, currentTurn: Int) {
                     }
                 }
                 Text(
-                    "HP: ${plannedSpawn.healthPoints}",
+                    "${stringResource(Res.string.hp_short)}: ${plannedSpawn.healthPoints}",
                     style = MaterialTheme.typography.bodySmall,
                     fontSize = 10.sp
                 )
@@ -481,18 +481,18 @@ fun EnemyItem(attacker: Attacker) {
             }
 
             Text(
-                "HP: ${attacker.currentHealth.value}/${attacker.maxHealth}",
+                "${stringResource(Res.string.hp_short)}: ${attacker.currentHealth.value}/${attacker.maxHealth}",
                 style = MaterialTheme.typography.bodySmall
             )
 
             Text(
-                "Reward: ${attacker.type.reward} coins",
+                "${stringResource(Res.string.reward)}: ${attacker.type.reward} coins",
                 style = MaterialTheme.typography.bodySmall,
                 color = GamePlayColors.Warning
             )
 
             Text(
-                "Position: (${attacker.position.value.x}, ${attacker.position.value.y})",
+                "${stringResource(Res.string.position_label)}: (${attacker.position.value.x}, ${attacker.position.value.y})",
                 style = MaterialTheme.typography.bodySmall,
                 color = Color.Gray
             )

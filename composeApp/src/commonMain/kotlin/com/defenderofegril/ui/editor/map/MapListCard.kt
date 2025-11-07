@@ -75,7 +75,7 @@ fun MapListCard(
                     style = MaterialTheme.typography.bodySmall
                 )
                 Text(
-                    text = if (map.readyToUse) "Ready to use" else "Not ready",
+                    text = if (map.readyToUse) stringResource(Res.string.ready_to_use) else stringResource(Res.string.not_ready),
                     style = MaterialTheme.typography.bodySmall,
                     color = if (map.readyToUse) Color.Green else Color.Red
                 )

@@ -55,7 +55,7 @@ fun LevelEditorContent() {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Levels",
+                    text = stringResource(Res.string.levels),
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
@@ -66,7 +66,7 @@ fun LevelEditorContent() {
             }
             
             Text(
-                text = "Select a level to edit:",
+                text = stringResource(Res.string.select_level_to_edit),
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
@@ -76,69 +76,7 @@ fun LevelEditorContent() {
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(levels.value) { level ->
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(
-                            containerColor = if (selectedLevelId == level.id) 
-                                MaterialTheme.colorScheme.primaryContainer 
-                            else 
-                                MaterialTheme.colorScheme.surfaceVariant
-                        )
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Column(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .clickable { 
-                                        selectedLevelId = level.id
-                                        editingLevel = level
-                                    }
-                                    .padding(12.dp)
-                            ) {
-                                Text(
-                                    text = level.title,
-                                    style = MaterialTheme.typography.titleSmall
-                                )
-                                if (level.subtitle.isNotEmpty()) {
-                                    Text(
-                                        text = level.subtitle,
-                                        style = MaterialTheme.typography.bodySmall
-                                    )
-                                }
-                                Text(
-                                    text = "File: ${level.id}",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                                Text(
-                                    text = "Map: ${level.mapId} | Coins: ${level.startCoins} | HP: ${level.startHealthPoints}",
-                                    style = MaterialTheme.typography.bodySmall
-                                )
-                                Text(
-                                    text = "Enemies: ${level.enemySpawns.size}",
-                                    style = MaterialTheme.typography.bodySmall
-                                )
-                            }
-                            Button(
-                                onClick = {
-                                    EditorStorage.deleteLevel(level.id)
-                                    levels.value = EditorStorage.getAllLevels()
-                                    if (selectedLevelId == level.id) {
-                                        selectedLevelId = null
-                                    }
-                                },
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = MaterialTheme.colorScheme.error
-                                ),
-                                modifier = Modifier.padding(end = 8.dp)
-                            ) {
-                                Text(stringResource(Res.string.delete))
-                            }
-                        }
-                    }
+                    editingLevel = LevelCard(selectedLevelId, level, editingLevel, levels)
                 }
             }
         }
@@ -176,6 +114,81 @@ fun LevelEditorContent() {
             }
         )
     }
+}
+
+@Composable
+private fun LevelCard(
+    selectedLevelId: String?,
+    level: EditorLevel,
+    editingLevel: EditorLevel?,
+    levels: MutableState<List<EditorLevel>>
+): EditorLevel? {
+    var selectedLevelId1 = selectedLevelId
+    var editingLevel1 = editingLevel
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = if (selectedLevelId1 == level.id)
+                MaterialTheme.colorScheme.primaryContainer
+            else
+                MaterialTheme.colorScheme.surfaceVariant
+        )
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .clickable {
+                        selectedLevelId1 = level.id
+                        editingLevel1 = level
+                    }
+                    .padding(12.dp)
+            ) {
+                Text(
+                    text = level.title,
+                    style = MaterialTheme.typography.titleSmall
+                )
+                if (level.subtitle.isNotEmpty()) {
+                    Text(
+                        text = level.subtitle,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+                Text(
+                    text = "${stringResource(Res.string.file)}: ${level.id}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text = "${stringResource(Res.string.map_label)}: ${level.mapId} | ${stringResource(Res.string.coins)}: ${level.startCoins} | ${stringResource(Res.string.hp_short)}: ${level.startHealthPoints}",
+                    style = MaterialTheme.typography.bodySmall
+                )
+                Text(
+                    text = "${stringResource(Res.string.enemies)}: ${level.enemySpawns.size}",
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+            Button(
+                onClick = {
+                    EditorStorage.deleteLevel(level.id)
+                    levels.value = EditorStorage.getAllLevels()
+                    if (selectedLevelId1 == level.id) {
+                        selectedLevelId1 = null
+                    }
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.error
+                ),
+                modifier = Modifier.padding(end = 8.dp)
+            ) {
+                Text(stringResource(Res.string.delete))
+            }
+        }
+    }
+    return editingLevel1
 }
 
 /**
