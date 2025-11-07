@@ -68,7 +68,6 @@
     <string name="how_to_play">Cómo jugar</string>
     <string name="game_overview">Descripción del juego</string>
     <string name="game_overview_text">Defensor de Egril es un juego de defensa de torres por turnos. Defiende los prados de Egril contra oleadas de enemigos bajo la bandera malvada de Ewhad.</string>
-    <string name="initial_building_phase">Fase de construcción inicial</string>
     <string name="at_start_of_level">Al inicio de cada nivel:</string>
     <string name="place_towers_instantly">Coloca torres instantáneamente (sin tiempo de construcción)</string>
     <string name="use_coins_strategically">Usa tus monedas iniciales estratégicamente</string>
@@ -182,4 +181,31 @@
     <string name="enemies_on_map">Enemigos en el mapa:</string>
     <string name="enemies_to_come">Enemigos por venir:</string>
     <string name="delete_savegame">Eliminar partida guardada</string>
+    
+    <!-- Gameplay UI strings -->
+    <string name="attack_button">ATAQUE</string>
+    <string name="attack_area_button">ATAQUE DE ÁREA</string>
+    <string name="undo">Deshacer</string>
+    <string name="sell_tower_title">¿Vender torre?</string>
+    <string name="dig">Excavar</string>
+    <string name="trap">Trampa</string>
+    <string name="mining_probabilities">Probabilidades de minería</string>
+    <string name="mining_result">Resultado de minería</string>
+    <string name="dragons_lair_desc">La guarida del dragón... un recordatorio de las consecuencias de la avaricia.</string>
+    <string name="empty_dragons_lair">Guarida del dragón vacía</string>
+    <string name="end_turn_button">Terminar turno</string>
+    <string name="enemy_turn_title">Turno enemigo</string>
+    <string name="enemies_spawning">Los enemigos aparecen y se mueven...</string>
+    <string name="initial_building_phase">Fase de construcción inicial - Coloca torres (sin tiempo de construcción)</string>
+    <string name="add_comment">Añade un comentario opcional para identificar esta partida guardada:</string>
+    <string name="game_saved">Juego guardado</string>
+    <string name="on_map">En el mapa:</string>
+    <string name="planned_spawns">Apariciones planificadas:</string>
+    <string name="position_label">Posición:</string>
+    <string name="reward_label">Recompensa:</string>
+    <string name="info_label">Info:</string>
+    <string name="chance_percent">Probabilidad (%%)</string>
+    <string name="building_label">Construcción:</string>
+    <string name="active_label">Activos:</string>
+    <string name="planned_label">Planificados:</string>
 </resources>
