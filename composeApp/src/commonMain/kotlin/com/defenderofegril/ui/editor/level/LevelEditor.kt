@@ -299,7 +299,7 @@ fun LevelEditorView(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Enemies (${enemySpawns.size}):",
+                        text = "${stringResource(Res.string.enemies)} (${enemySpawns.size}):",
                         style = MaterialTheme.typography.bodyMedium
                     )
                     Button(onClick = { 
@@ -386,7 +386,7 @@ fun LevelEditorView(
             // Towers section
             item {
                 Text(
-                    text = "Available Towers:",
+                    text = stringResource(Res.string.available_towers),
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
                 )

@@ -204,7 +204,7 @@
     <string name="mine_destroyed">Die Mine ist zerstört!</string>
     <string name="dragons_lair_desc">Die Drachenhöhle... eine Erinnerung an die Folgen der Gier.</string>
     <string name="empty_dragons_lair">Leere Drachenhöhle</string>
-    <string name="end_turn_button">Runde beenden</string>
+    <string name="end_turn_button">Rundenende</string>
     <string name="enemy_turn_title">Feindrunde</string>
     <string name="enemies_spawning">Feinde erscheinen und bewegen sich...</string>
     <string name="initial_building_phase">Anfängliche Bauphase - Türme platzieren (keine Bauzeit)</string>
