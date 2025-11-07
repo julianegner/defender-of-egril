@@ -310,7 +310,8 @@
     <string name="create_new_level_title">Crea nuovo livello</string>
     <string name="start_coins">Monete iniziali</string>
     <string name="start_hp">PV iniziali</string>
-    <string name="cost_damage_info">Costo: %d, Danno: %d</string>
+    <string name="cost_label">Costo</string>
+    <string name="damage_label">Danno</string>
     <string name="hp_with_level">PV: %d</string>
     <string name="add_enemy_button">➕ Aggiungi nemico al turno %d</string>
 </resources>

@@ -393,7 +393,7 @@ fun LevelEditorView(
                         }
                     )
                     TowerIconOnHexagon(defenderType = tower)
-                    Text("${tower.getLocalizedName()} (${stringResource(Res.string.cost_damage_info).replace("%d", tower.baseCost.toString()).replace("%d", tower.baseDamage.toString())})")
+                    Text("${tower.getLocalizedName()} (${stringResource(Res.string.cost_label)}: ${tower.baseCost}, ${stringResource(Res.string.damage_label)}: ${tower.baseDamage})")
                 }
             }
         }
