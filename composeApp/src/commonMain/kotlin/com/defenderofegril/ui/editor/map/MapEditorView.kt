@@ -23,6 +23,8 @@ import com.defenderofegril.ui.icon.PushpinIcon
 import com.defenderofegril.ui.editor.SaveAsDialog
 import com.defenderofegril.ui.editor.getTileColor
 import com.defenderofegril.ui.mouseWheelZoom
+import com.hyperether.resources.stringResource
+import defender_of_egril.composeapp.generated.resources.*
 import kotlin.math.sqrt
 
 /**
@@ -153,21 +155,21 @@ fun MapEditorView(
                     },
                     modifier = Modifier.weight(1f)
                 ) {
-                    Text("Save Map")
+                    Text(stringResource(Res.string.save_map))
                 }
                 
                 Button(
                     onClick = { showSaveAsDialog = true },
                     modifier = Modifier.weight(1f)
                 ) {
-                    Text("Save As New")
+                    Text(stringResource(Res.string.save_as_new))
                 }
                 
                 Button(
                     onClick = onCancel,
                     modifier = Modifier.weight(1f)
                 ) {
-                    Text("Cancel")
+                    Text(stringResource(Res.string.cancel))
                 }
             }
         }
@@ -187,8 +189,8 @@ fun MapEditorView(
     
     if (showSaveAsDialog) {
         SaveAsDialog(
-            title = "Save Map As New",
-            label = "Map Name",
+            title = stringResource(Res.string.save_map_as_new),
+            label = stringResource(Res.string.map_name),
             currentValue = mapName,
             onDismiss = { showSaveAsDialog = false },
             onSave = { newName ->
