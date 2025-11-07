@@ -117,4 +117,69 @@
     <string name="focus_fire">Concentra il fuoco su nemici resistenti (Ogre, Orchi)</string>
     <string name="wizard_for_aoe">Torri del mago per danno ad area massiccio</string>
     <string name="upgrade_vs_build">Potenzia torri ad alto livello piuttosto che costruirne di nuove</string>
+    
+    <!-- Additional RulesScreen strings -->
+    <string name="attack_enemies_desc">Attacca nemici - clicca sulla torre con azioni, poi sul nemico a portata</string>
+    <string name="build_timers_advance">I timer di costruzione avanzano (conto alla rovescia)</string>
+    <string name="dot_effects_applied">Gli effetti di danno nel tempo sono applicati</string>
+    <string name="attack_types">Tipi di attacco</string>
+    <string name="melee_ranged_desc">Corpo a corpo/A distanza: Bersaglio singolo</string>
+    <string name="fireball_desc">Palla di fuoco (Area): Danneggia tutti i nemici entro 1 cella dall\'impatto</string>
+    <string name="acid_desc">Acido: Danno continuo per 3 turni entro 1 cella dall\'impatto</string>
+    <string name="victory_defeat">Vittoria &amp; Sconfitta</string>
+    <string name="victory_detail">Vittoria: Sconfiggi tutti i nemici in tutte le ondate con almeno 1 punto salute rimanente</string>
+    <string name="defeat_detail">Sconfitta: Ogni nemico che raggiunge il bersaglio costa 1 punto salute. A 0 punti salute, perdi.</string>
+    <string name="grid_legend">Legenda della griglia</string>
+    <string name="spawn_desc">Spawn: Posizione di partenza (i nemici appaiono)</string>
+    <string name="target_desc">Bersaglio: Posizione bersaglio (difendi questo!)</string>
+    <string name="blue_towers">Blu: Le tue torri pronte</string>
+    <string name="gray_towers">Grigio: Torri in costruzione</string>
+    <string name="red_enemies">Rosso: Nemici</string>
+    <string name="build_time_remaining">Tempo di costruzione rimanente</string>
+    <string name="actions_remaining">Azioni rimanenti questo turno</string>
+    <string name="mine_special_desc">Speciale: scava per oggetti di valore o posiziona trappole sul percorso</string>
+    <string name="special_building">Edificio speciale</string>
+    <string name="coins_label">monete</string>
+    <string name="hp_label">PS</string>
+    <string name="speed_label">Velocità</string>
+    
+    <!-- Status text -->
+    <string name="available">Disponibile</string>
+    
+    <!-- Defender/Tower names -->
+    <string name="spike_tower_name">Torre a spuntoni</string>
+    <string name="spear_tower_name">Torre con lancia</string>
+    <string name="bow_tower_name">Torre con arco</string>
+    <string name="wizard_tower_name">Torre del mago</string>
+    <string name="alchemy_tower_name">Torre alchemica</string>
+    <string name="ballista_tower_name">Torre con balista</string>
+    <string name="dwarven_mine_name">Miniera</string>
+    <string name="dragons_lair_name">Tana del drago</string>
+    
+    <!-- Attack type names -->
+    <string name="attack_type_melee">Corpo a corpo</string>
+    <string name="attack_type_ranged">A distanza</string>
+    <string name="attack_type_fireball">Palla di fuoco</string>
+    <string name="attack_type_acid">Acido</string>
+    <string name="attack_type_special">Speciale</string>
+    
+    <!-- Attacker/Enemy names -->
+    <string name="goblin_name">Goblin</string>
+    <string name="ork_name">Orco</string>
+    <string name="ogre_name">Ogre</string>
+    <string name="skeleton_name">Scheletro</string>
+    <string name="evil_wizard_name">Mago malvagio</string>
+    <string name="witch_name">Strega</string>
+    <string name="blue_demon_name">Demone blu</string>
+    <string name="red_demon_name">Demone rosso</string>
+    <string name="evil_mage_name">Mago oscuro</string>
+    <string name="red_witch_name">Strega rossa</string>
+    <string name="green_witch_name">Strega verde</string>
+    <string name="ewhad_name">Ewhad</string>
+    <string name="dragon_name">Drago</string>
+    
+    <!-- SavedGameCard strings -->
+    <string name="enemies_on_map">Nemici sulla mappa:</string>
+    <string name="enemies_to_come">Nemici in arrivo:</string>
+    <string name="delete_savegame">Elimina salvataggio</string>
 </resources>
