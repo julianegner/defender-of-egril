@@ -16,6 +16,8 @@ import com.defenderofegril.ui.icon.LightningIcon
 import com.defenderofegril.ui.icon.MoneyIcon
 import com.defenderofegril.ui.icon.TargetIcon
 import com.defenderofegril.ui.icon.TimerIcon
+import com.hyperether.resources.stringResource
+import defender_of_egril.composeapp.generated.resources.*
 
 @Composable
 fun CompactDefenderButton(
@@ -49,9 +51,11 @@ fun CompactDefenderButton(
 
             Spacer(modifier = Modifier.width(4.dp))
 
+            val locale = com.hyperether.resources.currentLanguage.value
             Text(
-                type.displayName
-                    .replace(" Tower", ""),
+                type.getLocalizedName(locale)
+                    .replace(" Tower", "")
+                    .replace("Tour", ""), // For French translations
                 style = MaterialTheme.typography.labelSmall,
                 fontWeight = FontWeight.Bold,
                 fontSize = 12.sp,
@@ -118,9 +122,13 @@ fun DefenderButton(
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.Start
                 ) {
+                    val locale = com.hyperether.resources.currentLanguage.value
                     Text(
-                        type.displayName
-                            .replace(" Tower", ""),
+                        type.getLocalizedName(locale)
+                            .replace(" Tower", "")
+                            .replace("Tour", "")
+                            .replace("Torre", "")
+                            .replace("Turm", ""),
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.Bold,
                         fontSize = 12.sp,
@@ -128,7 +136,7 @@ fun DefenderButton(
                     )
 
                     Text(
-                        type.attackType.displayName,
+                        type.attackType.getLocalizedName(locale),
                         style = MaterialTheme.typography.labelSmall,
                         fontSize = 10.sp,
                         color = GamePlayColors.Yellow
