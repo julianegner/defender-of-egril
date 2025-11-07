@@ -41,6 +41,9 @@
     <string name="next_turn">Turno successivo</string>
     <string name="save_game">Salva partita</string>
     <string name="load_game">Carica partita</string>
+    <string name="add_optional_comment">Aggiungi un commento opzionale per identificare questo salvataggio:</string>
+    <string name="save_comment_placeholder">es. 'Prima dell\'ultima ondata', 'Buona posizione'...</string>
+    <string name="in_x_turns">tra %s turni</string>
     
     <!-- Towers -->
     <string name="tower">Torre</string>
@@ -191,6 +194,14 @@
     <string name="trap">Trappola</string>
     <string name="mining_probabilities">Probabilità di scavo</string>
     <string name="mining_result">Risultato dello scavo</string>
+    <string name="found_nothing">Non hai trovato nulla...</string>
+    <string name="found_brass">Hai trovato ottone!</string>
+    <string name="found_silver">Hai trovato argento!</string>
+    <string name="found_gold">Hai trovato oro!</string>
+    <string name="found_gems">Hai trovato gemme!</string>
+    <string name="found_diamond">Hai trovato un diamante!</string>
+    <string name="dragon_awakens">UN DRAGO SI RISVEGLIA!</string>
+    <string name="mine_destroyed">La miniera è distrutta!</string>
     <string name="dragons_lair_desc">La tana del drago... un promemoria delle conseguenze dell\'avidità.</string>
     <string name="empty_dragons_lair">Tana del drago vuota</string>
     <string name="end_turn_button">Termina turno</string>

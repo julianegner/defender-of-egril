@@ -41,6 +41,9 @@
     <string name="next_turn">Next Turn</string>
     <string name="save_game">Save Game</string>
     <string name="load_game">Load Game</string>
+    <string name="add_optional_comment">Add an optional comment to help identify this save:</string>
+    <string name="save_comment_placeholder">e.g., 'Before final wave', 'Good position'...</string>
+    <string name="in_x_turns">in %s turns</string>
     
     <!-- Towers -->
     <string name="tower">Tower</string>
@@ -191,6 +194,14 @@
     <string name="trap">Trap</string>
     <string name="mining_probabilities">Mining Probabilities</string>
     <string name="mining_result">Mining Result</string>
+    <string name="found_nothing">You found nothing...</string>
+    <string name="found_brass">You found brass!</string>
+    <string name="found_silver">You found silver!</string>
+    <string name="found_gold">You found gold!</string>
+    <string name="found_gems">You found gems!</string>
+    <string name="found_diamond">You found a diamond!</string>
+    <string name="dragon_awakens">A DRAGON AWAKENS!</string>
+    <string name="mine_destroyed">The mine is destroyed!</string>
     <string name="dragons_lair_desc">The dragon\'s lair... a reminder of greed\'s consequences.</string>
     <string name="empty_dragons_lair">Empty Dragon\'s Lair</string>
     <string name="end_turn_button">End Turn</string>

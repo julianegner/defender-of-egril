@@ -41,6 +41,9 @@
     <string name="next_turn">Siguiente turno</string>
     <string name="save_game">Guardar partida</string>
     <string name="load_game">Cargar partida</string>
+    <string name="add_optional_comment">Añade un comentario opcional para identificar esta partida guardada:</string>
+    <string name="save_comment_placeholder">ej. 'Antes de la oleada final', 'Buena posición'...</string>
+    <string name="in_x_turns">en %s turnos</string>
     
     <!-- Towers -->
     <string name="tower">Torre</string>
@@ -191,6 +194,14 @@
     <string name="trap">Trampa</string>
     <string name="mining_probabilities">Probabilidades de minería</string>
     <string name="mining_result">Resultado de minería</string>
+    <string name="found_nothing">No encontraste nada...</string>
+    <string name="found_brass">¡Encontraste latón!</string>
+    <string name="found_silver">¡Encontraste plata!</string>
+    <string name="found_gold">¡Encontraste oro!</string>
+    <string name="found_gems">¡Encontraste gemas!</string>
+    <string name="found_diamond">¡Encontraste un diamante!</string>
+    <string name="dragon_awakens">¡UN DRAGÓN DESPIERTA!</string>
+    <string name="mine_destroyed">¡La mina está destruida!</string>
     <string name="dragons_lair_desc">La guarida del dragón... un recordatorio de las consecuencias de la avaricia.</string>
     <string name="empty_dragons_lair">Guarida del dragón vacía</string>
     <string name="end_turn_button">Terminar turno</string>

@@ -10,6 +10,8 @@ import androidx.compose.ui.unit.dp
 import com.defenderofegril.model.*
 import com.defenderofegril.ui.*
 import com.defenderofegril.ui.icon.DigOutcomeIcon
+import com.hyperether.resources.stringResource
+import defender_of_egril.composeapp.generated.resources.*
 
 @Composable
 fun DigOutcomeDialog(
@@ -24,7 +26,7 @@ fun DigOutcomeDialog(
     
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Mining Result") },
+        title = { Text(stringResource(Res.string.mining_result)) },
         text = {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -39,13 +41,13 @@ fun DigOutcomeDialog(
                 
                 // Text on the right
                 val message = when (outcome) {
-                    DigOutcome.NOTHING -> "You found nothing..."
-                    DigOutcome.BRASS -> "You found brass!\n+${outcome.coins} coins"
-                    DigOutcome.SILVER -> "You found silver!\n+${outcome.coins} coins"
-                    DigOutcome.GOLD -> "You found gold!\n+${outcome.coins} coins"
-                    DigOutcome.GEMS -> "You found gems!\n+${outcome.coins} coins"
-                    DigOutcome.DIAMOND -> "You found a diamond!\n+${outcome.coins} coins"
-                    DigOutcome.DRAGON -> "A DRAGON AWAKENS!\nThe mine is destroyed!"
+                    DigOutcome.NOTHING -> stringResource(Res.string.found_nothing)
+                    DigOutcome.BRASS -> "${stringResource(Res.string.found_brass)}\n+${outcome.coins} ${stringResource(Res.string.coins)}"
+                    DigOutcome.SILVER -> "${stringResource(Res.string.found_silver)}\n+${outcome.coins} ${stringResource(Res.string.coins)}"
+                    DigOutcome.GOLD -> "${stringResource(Res.string.found_gold)}\n+${outcome.coins} ${stringResource(Res.string.coins)}"
+                    DigOutcome.GEMS -> "${stringResource(Res.string.found_gems)}\n+${outcome.coins} ${stringResource(Res.string.coins)}"
+                    DigOutcome.DIAMOND -> "${stringResource(Res.string.found_diamond)}\n+${outcome.coins} ${stringResource(Res.string.coins)}"
+                    DigOutcome.DRAGON -> "${stringResource(Res.string.dragon_awakens)}\n${stringResource(Res.string.mine_destroyed)}"
                 }
                 Text(
                     text = message,
@@ -55,7 +57,7 @@ fun DigOutcomeDialog(
         },
         confirmButton = {
             Button(onClick = onDismiss) {
-                Text("OK")
+                Text(stringResource(Res.string.ok))
             }
         }
     )
@@ -70,11 +72,11 @@ fun SaveGameDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Save Game") },
+        title = { Text(stringResource(Res.string.save_game)) },
         text = {
             Column {
                 Text(
-                    "Add an optional comment to help identify this save:",
+                    stringResource(Res.string.add_optional_comment),
                     style = MaterialTheme.typography.bodyMedium
                 )
                 Spacer(modifier = Modifier.height(8.dp))
@@ -86,7 +88,7 @@ fun SaveGameDialog(
                             onSaveCommentChange(it)
                         }
                     },
-                    placeholder = { Text("e.g., 'Before final wave', 'Good position'...") },
+                    placeholder = { Text(stringResource(Res.string.save_comment_placeholder)) },
                     singleLine = false,
                     maxLines = 3,
                     modifier = Modifier.fillMaxWidth(),
@@ -106,12 +108,12 @@ fun SaveGameDialog(
                     onSave(comment)
                 }
             ) {
-                Text("Save")
+                Text(stringResource(Res.string.save))
             }
         },
         dismissButton = {
             Button(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(Res.string.cancel))
             }
         }
     )
