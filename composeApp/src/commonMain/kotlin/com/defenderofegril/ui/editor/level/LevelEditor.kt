@@ -19,6 +19,8 @@ import com.defenderofegril.ui.*
 import com.defenderofegril.ui.editor.CreateLevelDialog
 import com.defenderofegril.ui.editor.map.MapSelectionCard
 import com.defenderofegril.ui.editor.SaveAsDialog
+import com.hyperether.resources.stringResource
+import defender_of_egril.composeapp.generated.resources.*
 import kotlin.random.Random
 
 /**
