@@ -19,7 +19,9 @@ import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.initial_building_phase
 import defender_of_egril.composeapp.generated.resources.end_turn_button
+import defender_of_egril.composeapp.generated.resources.enemy_turn_title
 import defender_of_egril.composeapp.generated.resources.start_battle
+import defender_of_egril.composeapp.generated.resources.turn
 import defender_of_egril.composeapp.generated.resources.your_turn_message
 
 @Composable
@@ -252,7 +254,7 @@ fun EnemyTurnInfo() {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    "Enemy Turn",
+                    stringResource(Res.string.enemy_turn_title),
                     style = MaterialTheme.typography.titleLarge,
                     color = Color.Red,
                     fontWeight = FontWeight.Bold
