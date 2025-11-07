@@ -42,6 +42,9 @@ fun MapEditorView(
     var offsetX by remember { mutableStateOf(0f) }
     var offsetY by remember { mutableStateOf(0f) }
     
+    // Brush mode state: track if the user is currently painting (mouse/pointer is down)
+    var isBrushActive by remember { mutableStateOf(false) }
+    
     // Hexagon dimensions - using same constants as game
     val hexSize = 32.dp * zoomLevel  // Radius of hexagon with zoom applied
     val sqrt3 = sqrt(3.0).toFloat()
@@ -119,6 +122,37 @@ fun MapEditorView(
                                         .clip(HexagonShape())
                                         .background(getTileColor(tileType))
                                         .border(1.5.dp, Color.Black, HexagonShape())
+                                        .pointerInput(key, selectedTileType, isBrushActive) {
+                                            awaitPointerEventScope {
+                                                while (true) {
+                                                    val event = awaitPointerEvent()
+                                                    event.changes.forEach { change ->
+                                                        when {
+                                                            change.pressed && !change.previousPressed -> {
+                                                                // Mouse/pointer down - start brush mode and paint this tile
+                                                                isBrushActive = true
+                                                                tiles = tiles.toMutableMap().apply {
+                                                                    this[key] = selectedTileType
+                                                                }
+                                                                change.consume()
+                                                            }
+                                                            !change.pressed && change.previousPressed -> {
+                                                                // Mouse/pointer up - end brush mode
+                                                                isBrushActive = false
+                                                                change.consume()
+                                                            }
+                                                            change.pressed && isBrushActive -> {
+                                                                // Mouse/pointer is down and moving - paint this tile
+                                                                tiles = tiles.toMutableMap().apply {
+                                                                    this[key] = selectedTileType
+                                                                }
+                                                                change.consume()
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
                                         .clickable {
                                             tiles = tiles.toMutableMap().apply {
                                                 this[key] = selectedTileType
