@@ -284,7 +284,7 @@ fun UndoOrSellButton(
                 Text(stringResource(Res.string.sell), fontSize = 14.sp, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    "not enough Actions",
+                    stringResource(Res.string.not_enough_actions),
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Bold
                 )
