@@ -117,4 +117,69 @@
     <string name="focus_fire">Konzentriere Feuer auf zähe Feinde (Oger, Orks)</string>
     <string name="wizard_for_aoe">Zaubertürme für massiven Flächenschaden</string>
     <string name="upgrade_vs_build">Werte hochstufige Türme auf statt neue zu bauen</string>
+    
+    <!-- Additional RulesScreen strings -->
+    <string name="attack_enemies_desc">Feinde angreifen - Turm mit Aktionen anklicken, dann Feind in Reichweite</string>
+    <string name="build_timers_advance">Bauzeiten laufen ab (zählen herunter)</string>
+    <string name="dot_effects_applied">Schaden-über-Zeit-Effekte werden angewendet</string>
+    <string name="attack_types">Angriffsarten</string>
+    <string name="melee_ranged_desc">Nahkampf/Fernkampf: Einzelziel</string>
+    <string name="fireball_desc">Feuerball (Fläche): Schädigt alle Feinde innerhalb 1 Feld des Einschlags</string>
+    <string name="acid_desc">Säure: Kontinuierlicher Schaden für 3 Runden innerhalb 1 Feld des Einschlags</string>
+    <string name="victory_defeat">Sieg &amp; Niederlage</string>
+    <string name="victory_detail">Sieg: Besiege alle Feinde in allen Wellen mit mindestens 1 Gesundheitspunkt</string>
+    <string name="defeat_detail">Niederlage: Jeder Feind, der das Ziel erreicht, kostet 1 Gesundheitspunkt. Bei 0 Gesundheit verlierst du.</string>
+    <string name="grid_legend">Rasterlegende</string>
+    <string name="spawn_desc">Spawn: Startposition (Feinde erscheinen)</string>
+    <string name="target_desc">Ziel: Zielposition (verteidige dies!)</string>
+    <string name="blue_towers">Blau: Deine bereiten Türme</string>
+    <string name="gray_towers">Grau: Türme im Bau</string>
+    <string name="red_enemies">Rot: Feinde</string>
+    <string name="build_time_remaining">Verbleibende Bauzeit</string>
+    <string name="actions_remaining">Verbleibende Aktionen diese Runde</string>
+    <string name="mine_special_desc">Spezial: grabe nach Wertsachen oder platziere Fallen auf dem Pfad</string>
+    <string name="special_building">Spezialgebäude</string>
+    <string name="coins_label">Münzen</string>
+    <string name="hp_label">Gesundheit</string>
+    <string name="speed_label">Geschwindigkeit</string>
+    
+    <!-- Status text -->
+    <string name="available">Verfügbar</string>
+    
+    <!-- Defender/Tower names -->
+    <string name="spike_tower_name">Stachelturm</string>
+    <string name="spear_tower_name">Speerturm</string>
+    <string name="bow_tower_name">Bogenturm</string>
+    <string name="wizard_tower_name">Zauberturm</string>
+    <string name="alchemy_tower_name">Alchemieturm</string>
+    <string name="ballista_tower_name">Ballisteturm</string>
+    <string name="dwarven_mine_name">Mine</string>
+    <string name="dragons_lair_name">Drachenhöhle</string>
+    
+    <!-- Attack type names -->
+    <string name="attack_type_melee">Nahkampf</string>
+    <string name="attack_type_ranged">Fernkampf</string>
+    <string name="attack_type_fireball">Feuerball</string>
+    <string name="attack_type_acid">Säure</string>
+    <string name="attack_type_special">Spezial</string>
+    
+    <!-- Attacker/Enemy names -->
+    <string name="goblin_name">Goblin</string>
+    <string name="ork_name">Ork</string>
+    <string name="ogre_name">Oger</string>
+    <string name="skeleton_name">Skelett</string>
+    <string name="evil_wizard_name">Böser Zauberer</string>
+    <string name="witch_name">Hexe</string>
+    <string name="blue_demon_name">Blauer Dämon</string>
+    <string name="red_demon_name">Roter Dämon</string>
+    <string name="evil_mage_name">Böser Magier</string>
+    <string name="red_witch_name">Rote Hexe</string>
+    <string name="green_witch_name">Grüne Hexe</string>
+    <string name="ewhad_name">Ewhad</string>
+    <string name="dragon_name">Drache</string>
+    
+    <!-- SavedGameCard strings -->
+    <string name="enemies_on_map">Feinde auf der Karte:</string>
+    <string name="enemies_to_come">Kommende Feinde:</string>
+    <string name="delete_savegame">Spielstand löschen</string>
 </resources>

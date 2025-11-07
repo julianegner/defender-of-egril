@@ -117,4 +117,69 @@
     <string name="focus_fire">Focus fire on tough enemies (Ogres, Orks)</string>
     <string name="wizard_for_aoe">Wizard Towers for massive Areal damage</string>
     <string name="upgrade_vs_build">Upgrade high-level towers rather than building new ones</string>
+    
+    <!-- Additional RulesScreen strings -->
+    <string name="attack_enemies_desc">Attack Enemies - click tower with actions, then enemy in range</string>
+    <string name="build_timers_advance">Build timers advance (counts down)</string>
+    <string name="dot_effects_applied">Damage-over-time effects are applied</string>
+    <string name="attack_types">Attack Types</string>
+    <string name="melee_ranged_desc">Melee/Ranged: Single target</string>
+    <string name="fireball_desc">Fireball (Area): Damages all enemies within 1 cell of impact</string>
+    <string name="acid_desc">Acid: Continuous damage for 3 turns within 1 cell of impact</string>
+    <string name="victory_defeat">Victory &amp; Defeat</string>
+    <string name="victory_detail">Victory: Defeat all enemies in all waves with at least 1 HP remaining</string>
+    <string name="defeat_detail">Defeat: Each enemy reaching the target costs 1 HP. At 0 HP, you lose.</string>
+    <string name="grid_legend">Grid Legend</string>
+    <string name="spawn_desc">Spawn: Start position (enemies spawn)</string>
+    <string name="target_desc">Target: Target position (defend this!)</string>
+    <string name="blue_towers">Blue: Your ready towers</string>
+    <string name="gray_towers">Gray: Towers still building</string>
+    <string name="red_enemies">Red: Enemies</string>
+    <string name="build_time_remaining">Build time remaining</string>
+    <string name="actions_remaining">Actions remaining this turn</string>
+    <string name="mine_special_desc">Special: dig for valuables or place traps on the path</string>
+    <string name="special_building">Special building</string>
+    <string name="coins_label">coins</string>
+    <string name="hp_label">HP</string>
+    <string name="speed_label">Speed</string>
+    
+    <!-- Status text -->
+    <string name="available">Available</string>
+    
+    <!-- Defender/Tower names -->
+    <string name="spike_tower_name">Spike Tower</string>
+    <string name="spear_tower_name">Spear Tower</string>
+    <string name="bow_tower_name">Bow Tower</string>
+    <string name="wizard_tower_name">Wizard Tower</string>
+    <string name="alchemy_tower_name">Alchemy Tower</string>
+    <string name="ballista_tower_name">Ballista Tower</string>
+    <string name="dwarven_mine_name">Mine</string>
+    <string name="dragons_lair_name">Dragon\'s Lair</string>
+    
+    <!-- Attack type names -->
+    <string name="attack_type_melee">Melee</string>
+    <string name="attack_type_ranged">Ranged</string>
+    <string name="attack_type_fireball">Fireball</string>
+    <string name="attack_type_acid">Acid</string>
+    <string name="attack_type_special">Special</string>
+    
+    <!-- Attacker/Enemy names -->
+    <string name="goblin_name">Goblin</string>
+    <string name="ork_name">Ork</string>
+    <string name="ogre_name">Ogre</string>
+    <string name="skeleton_name">Skeleton</string>
+    <string name="evil_wizard_name">Evil Wizard</string>
+    <string name="witch_name">Witch</string>
+    <string name="blue_demon_name">Blue Demon</string>
+    <string name="red_demon_name">Red Demon</string>
+    <string name="evil_mage_name">Evil Mage</string>
+    <string name="red_witch_name">Red Witch</string>
+    <string name="green_witch_name">Green Witch</string>
+    <string name="ewhad_name">Ewhad</string>
+    <string name="dragon_name">Dragon</string>
+    
+    <!-- SavedGameCard strings -->
+    <string name="enemies_on_map">Enemies on Map:</string>
+    <string name="enemies_to_come">Enemies to Come:</string>
+    <string name="delete_savegame">Delete Savegame</string>
 </resources>

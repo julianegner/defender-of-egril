@@ -117,4 +117,69 @@
     <string name="focus_fire">Concentra el fuego en enemigos resistentes (Ogros, Orcos)</string>
     <string name="wizard_for_aoe">Torres de mago para daño de área masivo</string>
     <string name="upgrade_vs_build">Mejora torres de alto nivel en lugar de construir nuevas</string>
+    
+    <!-- Additional RulesScreen strings -->
+    <string name="attack_enemies_desc">Atacar enemigos - haz clic en la torre con acciones, luego en el enemigo al alcance</string>
+    <string name="build_timers_advance">Los temporizadores de construcción avanzan (cuentan hacia atrás)</string>
+    <string name="dot_effects_applied">Se aplican efectos de daño con el tiempo</string>
+    <string name="attack_types">Tipos de ataques</string>
+    <string name="melee_ranged_desc">Cuerpo a cuerpo/A distancia: Objetivo único</string>
+    <string name="fireball_desc">Bola de fuego (Área): Daña a todos los enemigos dentro de 1 casilla del impacto</string>
+    <string name="acid_desc">Ácido: Daño continuo durante 3 turnos dentro de 1 casilla del impacto</string>
+    <string name="victory_defeat">Victoria &amp; Derrota</string>
+    <string name="victory_detail">Victoria: Derrota a todos los enemigos en todas las oleadas con al menos 1 punto de salud restante</string>
+    <string name="defeat_detail">Derrota: Cada enemigo que llega al objetivo cuesta 1 punto de salud. A 0 puntos de salud, pierdes.</string>
+    <string name="grid_legend">Leyenda de la cuadrícula</string>
+    <string name="spawn_desc">Spawn: Posición inicial (los enemigos aparecen)</string>
+    <string name="target_desc">Objetivo: Posición objetivo (¡defiende esto!)</string>
+    <string name="blue_towers">Azul: Tus torres listas</string>
+    <string name="gray_towers">Gris: Torres en construcción</string>
+    <string name="red_enemies">Rojo: Enemigos</string>
+    <string name="build_time_remaining">Tiempo de construcción restante</string>
+    <string name="actions_remaining">Acciones restantes este turno</string>
+    <string name="mine_special_desc">Especial: excava en busca de objetos de valor o coloca trampas en el camino</string>
+    <string name="special_building">Edificio especial</string>
+    <string name="coins_label">monedas</string>
+    <string name="hp_label">PS</string>
+    <string name="speed_label">Velocidad</string>
+    
+    <!-- Status text -->
+    <string name="available">Disponible</string>
+    
+    <!-- Defender/Tower names -->
+    <string name="spike_tower_name">Torre de púas</string>
+    <string name="spear_tower_name">Torre de lanzas</string>
+    <string name="bow_tower_name">Torre de arqueros</string>
+    <string name="wizard_tower_name">Torre del mago</string>
+    <string name="alchemy_tower_name">Torre de alquimia</string>
+    <string name="ballista_tower_name">Torre de balista</string>
+    <string name="dwarven_mine_name">Mina</string>
+    <string name="dragons_lair_name">Guarida del dragón</string>
+    
+    <!-- Attack type names -->
+    <string name="attack_type_melee">Cuerpo a cuerpo</string>
+    <string name="attack_type_ranged">A distancia</string>
+    <string name="attack_type_fireball">Bola de fuego</string>
+    <string name="attack_type_acid">Ácido</string>
+    <string name="attack_type_special">Especial</string>
+    
+    <!-- Attacker/Enemy names -->
+    <string name="goblin_name">Goblin</string>
+    <string name="ork_name">Orco</string>
+    <string name="ogre_name">Ogro</string>
+    <string name="skeleton_name">Esqueleto</string>
+    <string name="evil_wizard_name">Mago malvado</string>
+    <string name="witch_name">Bruja</string>
+    <string name="blue_demon_name">Demonio azul</string>
+    <string name="red_demon_name">Demonio rojo</string>
+    <string name="evil_mage_name">Mago oscuro</string>
+    <string name="red_witch_name">Bruja roja</string>
+    <string name="green_witch_name">Bruja verde</string>
+    <string name="ewhad_name">Ewhad</string>
+    <string name="dragon_name">Dragón</string>
+    
+    <!-- SavedGameCard strings -->
+    <string name="enemies_on_map">Enemigos en el mapa:</string>
+    <string name="enemies_to_come">Enemigos por venir:</string>
+    <string name="delete_savegame">Eliminar partida guardada</string>
 </resources>

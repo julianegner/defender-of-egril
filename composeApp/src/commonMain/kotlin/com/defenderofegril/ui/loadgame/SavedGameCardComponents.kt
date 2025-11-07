@@ -17,10 +17,15 @@ import com.defenderofegril.ui.HexagonMinimap
 import com.defenderofegril.ui.HexagonShape
 import com.defenderofegril.ui.MinimapConfig
 import com.defenderofegril.ui.TowerTypeIcon
+import com.defenderofegril.ui.getLocalizedName
 import com.defenderofegril.ui.icon.MoneyIcon
 import com.defenderofegril.ui.icon.TimerIcon
 import com.defenderofegril.ui.icon.TrashIcon
 import com.defenderofegril.ui.icon.enemy.EnemyTypeIcon
+import com.hyperether.resources.stringResource
+import defender_of_egril.composeapp.generated.resources.*
+import defender_of_egril.composeapp.generated.resources.Res
+
 
 @Composable
 fun SavedGameCardHeader(
@@ -58,7 +63,7 @@ fun SavedGameCardStats(
             TimerIcon(size = 16.dp)
             Spacer(modifier = Modifier.width(4.dp))
             Text(
-                text = "Turn $turnNumber",
+                text = "${stringResource(Res.string.turn)} $turnNumber",
                 style = MaterialTheme.typography.bodyMedium
             )
         }
@@ -171,10 +176,11 @@ fun EnemiesList(
     attackerCounts: Map<AttackerType, Int>,
     remainingSpawnCounts: Map<AttackerType, Int>
 ) {
+    val locale = com.hyperether.resources.currentLanguage.value
     // Current enemies on map
     if (attackerCounts.isNotEmpty()) {
         Text(
-            text = "Enemies on Map:",
+            text = stringResource(Res.string.enemies_on_map),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -183,7 +189,7 @@ fun EnemiesList(
             attackerCounts.entries.forEach { (type, count) ->
                 UnitEntry(
                     icon = { EnemyTypeIcon(attackerType = type) },
-                    name = type.displayName,
+                    name = type.getLocalizedName(locale),
                     count = count
                 )
             }
@@ -197,7 +203,7 @@ fun EnemiesList(
     // Remaining spawns
     if (remainingSpawnCounts.isNotEmpty()) {
         Text(
-            text = "Enemies to Come:",
+            text = stringResource(Res.string.enemies_to_come),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -206,7 +212,7 @@ fun EnemiesList(
             remainingSpawnCounts.entries.forEach { (type, count) ->
                 UnitEntry(
                     icon = { EnemyTypeIcon(attackerType = type) },
-                    name = type.displayName,
+                    name = type.getLocalizedName(locale),
                     count = count
                 )
             }
@@ -260,7 +266,7 @@ fun MinimapAndDeleteButton(
         modifier = Modifier.clickable { onDelete() }
     ) {
         Text(
-            text = "Delete Savegame",
+            text = stringResource(Res.string.delete_savegame),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.error
         )
