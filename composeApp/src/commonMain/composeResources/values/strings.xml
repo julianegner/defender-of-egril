@@ -247,4 +247,30 @@
     <string name="ballista_tower_short">Ballista</string>
     <string name="dwarven_mine_short">Mine</string>
     <string name="dragons_lair_short">Lair</string>
+    
+    <!-- Editor strings -->
+    <string name="map_editor">Map Editor</string>
+    <string name="level_sequence">Level Sequence</string>
+    <string name="maps">Maps</string>
+    <string name="levels">Levels</string>
+    <string name="create_new_map">Create New Map</string>
+    <string name="create_new_level">Create New Level</string>
+    <string name="create">Create</string>
+    <string name="save_map">Save Map</string>
+    <string name="save_level">Save Level</string>
+    <string name="save_as_new">Save As New</string>
+    <string name="map_name">Map Name</string>
+    <string name="level_title">Level Title</string>
+    <string name="subtitle_optional">Subtitle (optional)</string>
+    <string name="width">Width</string>
+    <string name="height">Height</string>
+    <string name="select_map_to_edit">Select a map to edit:</string>
+    <string name="select_level_to_edit">Select a level to edit:</string>
+    <string name="editing_map">Editing: %s</string>
+    <string name="editing_level">Editing Level: %s</string>
+    <string name="ready_to_use">Ready to use</string>
+    <string name="not_ready">Not ready</string>
+    <string name="ready">Ready</string>
+    <string name="file">File</string>
+    <string name="size">Size</string>
 </resources>
