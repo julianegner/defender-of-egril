@@ -285,7 +285,8 @@
     <string name="file">File</string>
     <string name="size">Dimensione</string>
     <string name="select_tile_type">Seleziona tipo di tessera:</string>
-    <string name="click_hexagons_to_paint">Clicca gli esagoni per dipingere (%dx%d). Usa Ctrl+Rotella per zoomare:</string>
+    <string name="click_hexagons_to_paint">Clicca o trascina per dipingere gli esagoni. Usa Ctrl+Rotella per zoomare:</string>
+    <string name="map_size_label">%dx%d</string>
     <string name="map_short">Mappa</string>
     <string name="coins_short">Monete</string>
     <string name="hp_short">PV</string>

@@ -285,7 +285,8 @@
     <string name="file">Fichier</string>
     <string name="size">Taille</string>
     <string name="select_tile_type">Sélectionner le type de tuile:</string>
-    <string name="click_hexagons_to_paint">Cliquez sur les hexagones pour peindre (%dx%d). Ctrl+Molette pour zoomer:</string>
+    <string name="click_hexagons_to_paint">Cliquez ou faites glisser pour peindre les hexagones. Ctrl+Molette pour zoomer:</string>
+    <string name="map_size_label">%dx%d</string>
     <string name="map_short">Carte</string>
     <string name="coins_short">Pièces</string>
     <string name="hp_short">PV</string>
