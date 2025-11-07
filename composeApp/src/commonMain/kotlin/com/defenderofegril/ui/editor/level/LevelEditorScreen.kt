@@ -1,3 +1,5 @@
+@file:OptIn(org.jetbrains.compose.resources.InternalResourceApi::class)
+
 package com.defenderofegril.ui.editor.level
 
 import androidx.compose.foundation.background
@@ -12,6 +14,9 @@ import androidx.compose.ui.zIndex
 import com.defenderofegril.ui.icon.LeftArrowIcon
 import com.defenderofegril.ui.editor.EditorTab
 import com.defenderofegril.ui.editor.map.MapEditorContent
+import com.defenderofegril.ui.settings.SettingsButton
+import com.hyperether.resources.stringResource
+import defender_of_egril.composeapp.generated.resources.*
 
 /**
  * Main screen for level editing with tabs for Map Editor, Level Editor, and Level Sequence
@@ -61,15 +66,22 @@ fun LevelEditorScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Level Editor",
+                        text = stringResource(Res.string.level_editor),
                         style = MaterialTheme.typography.titleLarge
                     )
                     
-                    Button(onClick = onBack) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            LeftArrowIcon(size = 16.dp, tint = Color.White)
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text("Back to World Map")
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        SettingsButton()
+                        
+                        Button(onClick = onBack) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                LeftArrowIcon(size = 16.dp, tint = Color.White)
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(stringResource(Res.string.back_to_world_map))
+                            }
                         }
                     }
                 }
@@ -88,7 +100,7 @@ fun LevelEditorScreen(
                                 MaterialTheme.colorScheme.secondary
                         )
                     ) {
-                        Text("Map Editor")
+                        Text(stringResource(Res.string.map_editor))
                     }
                     
                     Button(
@@ -100,7 +112,7 @@ fun LevelEditorScreen(
                                 MaterialTheme.colorScheme.secondary
                         )
                     ) {
-                        Text("Level Editor")
+                        Text(stringResource(Res.string.level_editor))
                     }
                     
                     Button(
@@ -112,7 +124,7 @@ fun LevelEditorScreen(
                                 MaterialTheme.colorScheme.secondary
                         )
                     ) {
-                        Text("Level Sequence")
+                        Text(stringResource(Res.string.level_sequence))
                     }
                 }
             }

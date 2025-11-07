@@ -1,0 +1,318 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Main Menu -->
+    <string name="app_name">Defender of Egril</string>
+    <string name="app_subtitle">Defend the meadows of Egril against\nthe Hordes of Gleid Thyae under\nthe Banner of the evil Ewhad</string>
+    <string name="start_game">Start Game</string>
+    <string name="rules">Rules</string>
+    
+    <!-- Level Complete Screen -->
+    <string name="victory">Victory!</string>
+    <string name="battle_won">Battle Won!</string>
+    <string name="defeat">Defeat</string>
+    <string name="victory_message">You have successfully defended Egril!</string>
+    <string name="battle_won_message">You won this battle!</string>
+    <string name="defeat_message">The enemies have breached your defenses...</string>
+    <string name="retry">Retry</string>
+    <string name="world_map">World Map</string>
+    
+    <!-- Settings -->
+    <string name="settings">Settings</string>
+    <string name="language">Language</string>
+    <string name="close">Close</string>
+    
+    <!-- Common Actions -->
+    <string name="back">Back</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="save">Save</string>
+    <string name="delete">Delete</string>
+    <string name="edit">Edit</string>
+    
+    <!-- Game Play -->
+    <string name="coins">Coins</string>
+    <string name="health">Health</string>
+    <string name="turn">Turn</string>
+    <string name="level">Level</string>
+    <string name="upgrade">Upgrade</string>
+    <string name="sell">Sell</string>
+    <string name="attack">Attack</string>
+    <string name="end_turn">End Turn</string>
+    <string name="next_turn">Next Turn</string>
+    <string name="save_game">Save Game</string>
+    <string name="load_game">Load Game</string>
+    <string name="add_optional_comment">Add an optional comment to help identify this save:</string>
+    <string name="save_comment_placeholder">e.g., 'Before final wave', 'Good position'...</string>
+    <string name="in_x_turns">in %s turns</string>
+    
+    <!-- Towers -->
+    <string name="tower">Tower</string>
+    <string name="damage">Damage</string>
+    <string name="range">Range</string>
+    <string name="actions">Actions</string>
+    
+    <!-- Enemies -->
+    <string name="enemy">Enemy</string>
+    <string name="enemies">Enemies</string>
+    
+    <!-- Status Messages -->
+    <string name="locked">Locked</string>
+    <string name="unlocked">Unlocked</string>
+    <string name="completed">Completed</string>
+    
+    <!-- World Map -->
+    <string name="world_map_title">World Map - Meadows of Egril</string>
+    <string name="back_to_world_map">Back to World Map</string>
+    
+    <!-- Load Game Screen -->
+    <string name="no_saved_games">No saved games found</string>
+    
+    <!-- Rules Screen -->
+    <string name="how_to_play">How to Play</string>
+    <string name="game_overview">Game Overview</string>
+    <string name="game_overview_text">Defender of Egril is a turn-based tower defense game. Defend the meadows of Egril against waves of enemies under the evil banner of Ewhad.</string>
+    <string name="at_start_of_level">At the start of each level:</string>
+    <string name="place_towers_instantly">Place towers instantly (no build time)</string>
+    <string name="use_coins_strategically">Use your starting coins strategically</string>
+    <string name="towers_ready_to_attack">Towers are ready to attack immediately</string>
+    <string name="click_start_battle">Click 'Start Battle' when ready</string>
+    <string name="your_turn">Your Turn</string>
+    <string name="during_your_turn">During your turn, you can:</string>
+    <string name="place_new_towers">Place New Towers - costs coins, requires build time</string>
+    <string name="upgrade_towers">Upgrade Existing Towers - increases damage and range</string>
+    <string name="attack_with_towers">Attack with Towers - select tower, then target</string>
+    <string name="end_your_turn">End Your Turn - enemies move and attack</string>
+    <string name="enemy_turn">Enemy Turn</string>
+    <string name="after_end_turn">After you end your turn:</string>
+    <string name="enemies_move">Enemies move towards the target</string>
+    <string name="enemies_attack">Enemies that reach the end cost you 1 health</string>
+    <string name="new_enemies">New enemies may spawn</string>
+    <string name="winning_losing">Winning and Losing</string>
+    <string name="win_condition">Win: Eliminate all enemies before they breach your defenses</string>
+    <string name="lose_condition">Lose: Your health reaches 0</string>
+    <string name="tower_types">Tower Types</string>
+    <string name="spike_tower">Spike Tower (Pike): Melee defense, cheapest option</string>
+    <string name="spear_tower">Spear Tower: Medium range piercing attacks</string>
+    <string name="bow_tower">Bow Tower: Long range archery</string>
+    <string name="wizard_tower">Wizard Tower: Area-of-effect fireball</string>
+    <string name="alchemy_tower">Alchemy Tower: Acid damage-over-time</string>
+    <string name="ballista_tower">Ballista Tower: Long range siege, minimum range</string>
+    <string name="dwarven_mine">Dwarven Mine: Generates coins</string>
+    <string name="dragons_lair">Dragon's Lair: Spawns dragons</string>
+    <string name="enemy_types">Enemy Types</string>
+    <string name="goblin">Goblin: Fast and weak</string>
+    <string name="ork">Ork: Slow but tough</string>
+    <string name="ogre">Ogre: Very tough</string>
+    <string name="skeleton">Skeleton: Fast undead</string>
+    <string name="evil_wizard">Evil Wizard: Magic attacker</string>
+    <string name="witch">Witch: Dark magic</string>
+    <string name="blue_demon">Blue Demon: Fast, acid immune</string>
+    <string name="red_demon">Red Demon: Tough, fireball immune</string>
+    <string name="evil_mage">Evil Mage: Can summon minions</string>
+    <string name="red_witch">Red Witch: Can disable towers</string>
+    <string name="green_witch">Green Witch: Can heal other enemies</string>
+    <string name="ewhad">Ewhad: Boss with summoning</string>
+    <string name="dragon">Dragon: Powerful boss</string>
+    <string name="strategic_tips">Strategic Tips</string>
+    <string name="use_initial_phase">Use initial building phase wisely</string>
+    <string name="save_coins">Save 20-30 coins for mid-game</string>
+    <string name="focus_fire">Focus fire on tough enemies (Ogres, Orks)</string>
+    <string name="wizard_for_aoe">Wizard Towers for massive Areal damage</string>
+    <string name="upgrade_vs_build">Upgrade high-level towers rather than building new ones</string>
+    
+    <!-- Additional RulesScreen strings -->
+    <string name="attack_enemies_desc">Attack Enemies - click tower with actions, then enemy in range</string>
+    <string name="build_timers_advance">Build timers advance (counts down)</string>
+    <string name="dot_effects_applied">Damage-over-time effects are applied</string>
+    <string name="attack_types">Attack Types</string>
+    <string name="melee_ranged_desc">Melee/Ranged: Single target</string>
+    <string name="fireball_desc">Fireball (Area): Damages all enemies within 1 cell of impact</string>
+    <string name="acid_desc">Acid: Continuous damage for 3 turns within 1 cell of impact</string>
+    <string name="victory_defeat">Victory &amp; Defeat</string>
+    <string name="victory_detail">Victory: Defeat all enemies in all waves with at least 1 HP remaining</string>
+    <string name="defeat_detail">Defeat: Each enemy reaching the target costs 1 HP. At 0 HP, you lose.</string>
+    <string name="grid_legend">Grid Legend</string>
+    <string name="spawn_desc">Spawn: Start position (enemies spawn)</string>
+    <string name="target_desc">Target: Target position (defend this!)</string>
+    <string name="blue_towers">Blue: Your ready towers</string>
+    <string name="gray_towers">Gray: Towers still building</string>
+    <string name="red_enemies">Red: Enemies</string>
+    <string name="build_time_remaining">Build time remaining</string>
+    <string name="actions_remaining">Actions remaining this turn</string>
+    <string name="mine_special_desc">Special: dig for valuables or place traps on the path</string>
+    <string name="special_building">Special building</string>
+    <string name="coins_label">coins</string>
+    <string name="hp_label">HP</string>
+    <string name="speed_label">Speed</string>
+    
+    <!-- Status text -->
+    <string name="available">Available</string>
+    
+    <!-- Defender/Tower names -->
+    <string name="spike_tower_name">Spike Tower</string>
+    <string name="spear_tower_name">Spear Tower</string>
+    <string name="bow_tower_name">Bow Tower</string>
+    <string name="wizard_tower_name">Wizard Tower</string>
+    <string name="alchemy_tower_name">Alchemy Tower</string>
+    <string name="ballista_tower_name">Ballista Tower</string>
+    <string name="dwarven_mine_name">Mine</string>
+    <string name="dragons_lair_name">Dragon\'s Lair</string>
+    
+    <!-- Attack type names -->
+    <string name="attack_type_melee">Melee</string>
+    <string name="attack_type_ranged">Ranged</string>
+    <string name="attack_type_fireball">Fireball</string>
+    <string name="attack_type_acid">Acid</string>
+    <string name="attack_type_special">Special</string>
+    
+    <!-- Attacker/Enemy names -->
+    <string name="goblin_name">Goblin</string>
+    <string name="ork_name">Ork</string>
+    <string name="ogre_name">Ogre</string>
+    <string name="skeleton_name">Skeleton</string>
+    <string name="evil_wizard_name">Evil Wizard</string>
+    <string name="witch_name">Witch</string>
+    <string name="blue_demon_name">Blue Demon</string>
+    <string name="red_demon_name">Red Demon</string>
+    <string name="evil_mage_name">Evil Mage</string>
+    <string name="red_witch_name">Red Witch</string>
+    <string name="green_witch_name">Green Witch</string>
+    <string name="ewhad_name">Ewhad</string>
+    <string name="dragon_name">Dragon</string>
+    
+    <!-- SavedGameCard strings -->
+    <string name="enemies_on_map">Enemies on Map:</string>
+    <string name="enemies_to_come">Enemies to Come:</string>
+    <string name="delete_savegame">Delete Savegame</string>
+    
+    <!-- Gameplay UI strings -->
+    <string name="attack_button">ATTACK</string>
+    <string name="attack_area_button">ATTACK AREA</string>
+    <string name="undo">Undo</string>
+    <string name="sell_tower_title">Sell Tower?</string>
+    <string name="dig">Dig</string>
+    <string name="trap">Trap</string>
+    <string name="mining_probabilities">Mining Probabilities</string>
+    <string name="mining_result">Mining Result</string>
+    <string name="found_nothing">You found nothing...</string>
+    <string name="found_brass">You found brass!</string>
+    <string name="found_silver">You found silver!</string>
+    <string name="found_gold">You found gold!</string>
+    <string name="found_gems">You found gems!</string>
+    <string name="found_diamond">You found a diamond!</string>
+    <string name="dragon_awakens">A DRAGON AWAKENS!</string>
+    <string name="mine_destroyed">The mine is destroyed!</string>
+    <string name="dragons_lair_desc">The dragon\'s lair... a reminder of greed\'s consequences.</string>
+    <string name="empty_dragons_lair">Empty Dragon\'s Lair</string>
+    <string name="end_turn_button">End Turn</string>
+    <string name="enemy_turn_title">Enemy Turn</string>
+    <string name="enemies_spawning">Enemies are spawning and moving...</string>
+    <string name="initial_building_phase">Initial Building Phase - Place towers (no build time)</string>
+    <string name="add_comment">Add an optional comment to help identify this save:</string>
+    <string name="game_saved">Game Saved</string>
+    <string name="on_map">On Map:</string>
+    <string name="planned_spawns">Planned Spawns:</string>
+    <string name="building_label">Building:</string>
+    <string name="position_label">Position:</string>
+    <string name="reward_label">Reward:</string>
+    <string name="info_label">Info:</string>
+    <string name="chance_percent">Chance (%%)</string>
+    <string name="active_label">Active:</string>
+    <string name="planned_label">Planned:</string>
+    
+    <!-- GameLegend strings -->
+    <string name="legend">Legend</string>
+    <string name="areas_label">Areas:</string>
+    <string name="build_island">Build Island</string>
+    <string name="build_strip">Build Strip</string>
+    <string name="enemy_path">Enemy Path</string>
+    <string name="non_playable">Non-Playable</string>
+    <string name="enemy_unit">Enemy Unit</string>
+    <string name="map_label">Map</string>
+    <string name="not_enough_actions">not enough Actions</string>
+    <string name="name_label">Name</string>
+    <string name="reward">Reward</string>
+    
+    <!-- EditorButtonCard strings -->
+    <string name="level_editor">Level Editor</string>
+    <string name="create_edit_maps_levels">Create &amp; Edit Maps and Levels</string>
+    
+    <!-- SavedGameCard additional strings -->
+    <string name="built_towers">Built Towers:</string>
+    
+    <!-- Gameplay page strings -->
+    <string name="spawn">Spawn</string>
+    <string name="target">Target</string>
+    <string name="start_battle">Start Battle</string>
+    <string name="your_turn_message">Your Turn - Place towers and attack enemies</string>
+    <string name="building">building</string>
+    
+    <!-- DefenderInfo mining strings -->
+    
+    <!-- Tower short names -->
+    <string name="spike_tower_short">Pike</string>
+    <string name="spear_tower_short">Spear</string>
+    <string name="bow_tower_short">Bow</string>
+    <string name="wizard_tower_short">Wizard</string>
+    <string name="alchemy_tower_short">Alchemy</string>
+    <string name="ballista_tower_short">Ballista</string>
+    <string name="dwarven_mine_short">Mine</string>
+    <string name="dragons_lair_short">Lair</string>
+    
+    <!-- Editor strings -->
+    <string name="map_editor">Map Editor</string>
+    <string name="level_sequence">Level Sequence</string>
+    <string name="maps">Maps</string>
+    <string name="levels">Levels</string>
+    <string name="create_new_map">Create New Map</string>
+    <string name="create_new_level">Create New Level</string>
+    <string name="create">Create</string>
+    <string name="save_map">Save Map</string>
+    <string name="save_level">Save Level</string>
+    <string name="save_as_new">Save As New</string>
+    <string name="map_name">Map Name</string>
+    <string name="level_title">Level Title</string>
+    <string name="subtitle_optional">Subtitle (optional)</string>
+    <string name="width">Width</string>
+    <string name="height">Height</string>
+    <string name="select_map_to_edit">Select a map to edit:</string>
+    <string name="select_level_to_edit">Select a level to edit:</string>
+    <string name="editing_map">Editing: %s</string>
+    <string name="editing_level">Editing Level: %s</string>
+    <string name="ready_to_use">Ready to use</string>
+    <string name="not_ready">Not ready</string>
+    <string name="ready">Ready</string>
+    <string name="file">File</string>
+    <string name="size">Size</string>
+    <string name="select_tile_type">Select Tile Type:</string>
+    <string name="click_hexagons_to_paint">Click or drag to paint hexagons. Use Ctrl+Scroll to zoom:</string>
+    <string name="map_size_label">%dx%d</string>
+    <string name="map_short">Map</string>
+    <string name="coins_short">Coins</string>
+    <string name="hp_short">HP</string>
+    <string name="enemies_count">Enemies (%d):</string>
+    <string name="available_towers">Available Towers:</string>
+    <string name="add_turn">Add Turn</string>
+    <string name="copy_turn">Copy Turn</string>
+    <string name="remove">Remove</string>
+    <string name="add">Add</string>
+    <string name="turn_x">Turn %d</string>
+    <string name="x_enemies">(%d enemies)</string>
+    <string name="enemy_level">Enemy Level</string>
+    <string name="enemy_type">Enemy Type:</string>
+    <string name="add_enemy_to_turn">Add Enemy to Turn %d</string>
+    <string name="ewhad_warning">⚠️ Ewhad can only be spawned once per level!</string>
+    <string name="level_lv">Lv%d</string>
+    <string name="arrange_level_order">Arrange level order:</string>
+    <string name="save_map_as_new">Save Map As New</string>
+    <string name="save_level_as_new">Save Level As New</string>
+    <string name="enter_a">Enter a %s:</string>
+    <string name="create_new_map_title">Create New Map</string>
+    <string name="create_new_level_title">Create New Level</string>
+    <string name="start_coins">Start Coins</string>
+    <string name="start_hp">Start HP</string>
+    <string name="cost_label">Cost</string>
+    <string name="damage_label">Damage</string>
+    <string name="hp_with_level">HP: %d</string>
+    <string name="add_enemy_button">➕ Add Enemy to Turn %d</string>
+</resources>

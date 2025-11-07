@@ -11,6 +11,11 @@ import androidx.compose.ui.unit.dp
 import com.defenderofegril.editor.EditorStorage
 import com.defenderofegril.ui.icon.DownArrowIcon
 import com.defenderofegril.ui.icon.UpArrowIcon
+import com.hyperether.resources.stringResource
+import defender_of_egril.composeapp.generated.resources.Res
+import defender_of_egril.composeapp.generated.resources.arrange_level_order
+import defender_of_egril.composeapp.generated.resources.hp_short
+import defender_of_egril.composeapp.generated.resources.level_sequence
 
 /**
  * Main content for the Level Sequence tab
@@ -23,13 +28,13 @@ fun LevelSequenceContent() {
         modifier = Modifier.fillMaxWidth()
     ) {
         Text(
-            text = "Level Sequence",
+            text = stringResource(Res.string.level_sequence),
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.padding(bottom = 8.dp)
         )
         
         Text(
-            text = "Arrange level order:",
+            text = stringResource(Res.string.arrange_level_order),
             style = MaterialTheme.typography.bodyMedium,
             modifier = Modifier.padding(bottom = 8.dp)
         )

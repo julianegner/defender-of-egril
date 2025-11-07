@@ -11,6 +11,8 @@ import androidx.compose.ui.unit.dp
 import com.defenderofegril.editor.EditorMap
 import com.defenderofegril.editor.EditorStorage
 import com.defenderofegril.ui.editor.CreateMapDialog
+import com.hyperether.resources.stringResource
+import defender_of_egril.composeapp.generated.resources.*
 
 /**
  * Main content for the Map Editor tab
@@ -44,18 +46,18 @@ fun MapEditorContent() {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Maps",
+                    text = stringResource(Res.string.maps),
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
                 
                 Button(onClick = { showCreateDialog = true }) {
-                    Text("Create New Map")
+                    Text(stringResource(Res.string.create_new_map))
                 }
             }
             
             Text(
-                text = "Select a map to edit:",
+                text = stringResource(Res.string.select_map_to_edit),
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
