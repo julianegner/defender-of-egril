@@ -41,6 +41,9 @@
     <string name="next_turn">Tour suivant</string>
     <string name="save_game">Sauvegarder la partie</string>
     <string name="load_game">Charger la partie</string>
+    <string name="add_optional_comment">Ajoutez un commentaire optionnel pour identifier cette sauvegarde:</string>
+    <string name="save_comment_placeholder">par ex., 'Avant la vague finale', 'Bonne position'...</string>
+    <string name="in_x_turns">dans %s tours</string>
     
     <!-- Towers -->
     <string name="tower">Tour</string>
@@ -191,6 +194,14 @@
     <string name="trap">Piège</string>
     <string name="mining_probabilities">Probabilités de minage</string>
     <string name="mining_result">Résultat du minage</string>
+    <string name="found_nothing">Vous n'avez rien trouvé...</string>
+    <string name="found_brass">Vous avez trouvé du laiton!</string>
+    <string name="found_silver">Vous avez trouvé de l'argent!</string>
+    <string name="found_gold">Vous avez trouvé de l'or!</string>
+    <string name="found_gems">Vous avez trouvé des gemmes!</string>
+    <string name="found_diamond">Vous avez trouvé un diamant!</string>
+    <string name="dragon_awakens">UN DRAGON SE RÉVEILLE!</string>
+    <string name="mine_destroyed">La mine est détruite!</string>
     <string name="dragons_lair_desc">Le repaire du dragon... un rappel des conséquences de la cupidité.</string>
     <string name="empty_dragons_lair">Repaire du dragon vide</string>
     <string name="end_turn_button">Terminer le tour</string>
