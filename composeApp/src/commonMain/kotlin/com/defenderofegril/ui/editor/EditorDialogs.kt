@@ -5,6 +5,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.hyperether.resources.stringResource
+import defender_of_egril.composeapp.generated.resources.*
 
 /**
  * Generic "Save As" dialog that can be used for both maps and levels
@@ -24,8 +26,6 @@ fun SaveAsDialog(
         title = { Text(title) },
         text = {
             Column {
-                Text("Enter a $label:")
-                Spacer(modifier = Modifier.height(8.dp))
                 OutlinedTextField(
                     value = newValue,
                     onValueChange = { newValue = it },
@@ -40,12 +40,12 @@ fun SaveAsDialog(
                 onClick = { if (newValue.isNotBlank()) onSave(newValue) },
                 enabled = newValue.isNotBlank()
             ) {
-                Text("Save")
+                Text(stringResource(Res.string.save))
             }
         },
         dismissButton = {
             Button(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(Res.string.cancel))
             }
         }
     )
@@ -65,25 +65,25 @@ fun CreateMapDialog(
     
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Create New Map") },
+        title = { Text(stringResource(Res.string.create_new_map_title)) },
         text = {
             Column {
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("Map Name") },
+                    label = { Text(stringResource(Res.string.map_name)) },
                     modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
                 )
                 OutlinedTextField(
                     value = width,
                     onValueChange = { if (it.all { c -> c.isDigit() }) width = it },
-                    label = { Text("Width") },
+                    label = { Text(stringResource(Res.string.width)) },
                     modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
                 )
                 OutlinedTextField(
                     value = height,
                     onValueChange = { if (it.all { c -> c.isDigit() }) height = it },
-                    label = { Text("Height") },
+                    label = { Text(stringResource(Res.string.height)) },
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -96,12 +96,12 @@ fun CreateMapDialog(
                     onCreate(name, w, h)
                 }
             ) {
-                Text("Create")
+                Text(stringResource(Res.string.create))
             }
         },
         dismissButton = {
             Button(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(Res.string.cancel))
             }
         }
     )
@@ -119,23 +119,23 @@ fun CreateLevelDialog(
     
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Create New Level") },
+        title = { Text(stringResource(Res.string.create_new_level_title)) },
         text = {
             OutlinedTextField(
                 value = title,
                 onValueChange = { title = it },
-                label = { Text("Level Title") },
+                label = { Text(stringResource(Res.string.level_title)) },
                 modifier = Modifier.fillMaxWidth()
             )
         },
         confirmButton = {
             Button(onClick = { onCreate(title) }) {
-                Text("Create")
+                Text(stringResource(Res.string.create))
             }
         },
         dismissButton = {
             Button(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(Res.string.cancel))
             }
         }
     )
