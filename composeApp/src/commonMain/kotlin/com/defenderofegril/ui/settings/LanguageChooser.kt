@@ -98,7 +98,7 @@ private fun LanguageFlagAndName(appLocale: AppLocale) {
         }
         
         Text(
-            text = appLocale.displayName,
+            text = "${appLocale.nativeName} (${appLocale.code})",
             style = MaterialTheme.typography.bodyLarge
         )
     }
@@ -106,10 +106,8 @@ private fun LanguageFlagAndName(appLocale: AppLocale) {
 
 /**
  * Maps AppLocale to country code for flag display
+ * UK flag for English (default language)
+ * other languages: country code for flag matches locale code for language
  */
-private fun getCountryCode(appLocale: AppLocale): String {
-    return when (appLocale) {
-        AppLocale.DEFAULT -> "GB" // English - United Kingdom
-        else -> "GB" // Default to UK flag
-    }
-}
+private fun getCountryCode(appLocale: AppLocale): String =
+    if (appLocale == AppLocale.DEFAULT) "GB" else appLocale.code

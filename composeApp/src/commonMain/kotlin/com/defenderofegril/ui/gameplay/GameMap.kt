@@ -28,6 +28,8 @@ import com.defenderofegril.model.*
 import com.defenderofegril.ui.*
 import com.defenderofegril.ui.icon.ExplosionIcon
 import com.defenderofegril.ui.icon.HoleIcon
+import com.hyperether.resources.stringResource
+import defender_of_egril.composeapp.generated.resources.*
 import com.defenderofegril.ui.icon.TestTubeIcon
 import com.defenderofegril.ui.icon.enemy.EnemyIcon
 import kotlin.math.sqrt
@@ -406,12 +408,12 @@ fun GridCell(
 
             isSpawnPoint -> {
                 // Show spawn indicator when cell is empty
-                Text("Spawn", style = MaterialTheme.typography.labelSmall, color = GamePlayColors.Warning)
+                Text(stringResource(Res.string.spawn), style = MaterialTheme.typography.labelSmall, color = GamePlayColors.Warning)
             }
 
             isTarget -> {
                 // Show target indicator when cell is empty
-                Text("Target", style = MaterialTheme.typography.labelSmall, color = GamePlayColors.Success)
+                Text(stringResource(Res.string.target), style = MaterialTheme.typography.labelSmall, color = GamePlayColors.Success)
             }
         }
         

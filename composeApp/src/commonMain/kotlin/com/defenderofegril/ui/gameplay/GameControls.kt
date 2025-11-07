@@ -15,6 +15,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.defenderofegril.model.*
 import com.defenderofegril.ui.*
+import com.hyperether.resources.stringResource
+import defender_of_egril.composeapp.generated.resources.Res
+import defender_of_egril.composeapp.generated.resources.initial_building_phase
+import defender_of_egril.composeapp.generated.resources.end_turn_button
+import defender_of_egril.composeapp.generated.resources.enemy_turn_title
+import defender_of_egril.composeapp.generated.resources.start_battle
+import defender_of_egril.composeapp.generated.resources.turn
+import defender_of_egril.composeapp.generated.resources.your_turn_message
 
 @Composable
 fun ColumnScope.TurnButton(
@@ -33,7 +41,7 @@ fun ColumnScope.TurnButton(
         },
         modifier = modifier
     ) {
-        Text(if (isPlayerTurn) "End Turn" else "Start Battle",
+        Text(if (isPlayerTurn) stringResource(Res.string.end_turn_button) else stringResource(Res.string.start_battle),
             style = MaterialTheme.typography.labelMedium,
             fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
             fontSize = 14.sp,
@@ -67,11 +75,11 @@ fun GameControlsPanel(
     // Determine phase-specific properties
     val isPlayerTurn = phase == GamePhase.PLAYER_TURN
     val title = if (isPlayerTurn) {
-        "Your Turn - Place towers and attack enemies"
+        stringResource(Res.string.your_turn_message)
     } else {
-        "Initial Building Phase - Place towers (no build time)"
+        stringResource(Res.string.initial_building_phase)
     }
-    val primaryButtonText = if (isPlayerTurn) "End Turn" else "Start Battle"
+    val primaryButtonText = if (isPlayerTurn) stringResource(Res.string.end_turn_button) else stringResource(Res.string.start_battle)
     val primaryButtonColor = if (isPlayerTurn) {
         GamePlayColors.WarningDeep
     } else {
@@ -246,26 +254,13 @@ fun EnemyTurnInfo() {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    "Enemy Turn",
+                    stringResource(Res.string.enemy_turn_title),
                     style = MaterialTheme.typography.titleLarge,
                     color = Color.Red,
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 CircularProgressIndicator(color = Color.Red)
-                Spacer(modifier = Modifier.height(12.dp))
-                Text(
-                    "Enemies are spawning and moving...",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.Red
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    "Watch the grid for changes!",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = GamePlayColors.ErrorDark,
-                    fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
-                )
             }
         }
     }

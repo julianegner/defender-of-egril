@@ -14,6 +14,8 @@ import com.defenderofegril.model.Level
 import com.defenderofegril.model.Position
 import com.defenderofegril.ui.icon.CheckmarkIcon
 import com.defenderofegril.ui.HexagonMinimapFromEditorMap
+import com.hyperether.resources.stringResource
+import defender_of_egril.composeapp.generated.resources.*
 
 /**
  * Card displaying a map in the map list
@@ -73,7 +75,7 @@ fun MapListCard(
                     style = MaterialTheme.typography.bodySmall
                 )
                 Text(
-                    text = if (map.readyToUse) "Ready to use" else "Not ready",
+                    text = if (map.readyToUse) stringResource(Res.string.ready_to_use) else stringResource(Res.string.not_ready),
                     style = MaterialTheme.typography.bodySmall,
                     color = if (map.readyToUse) Color.Green else Color.Red
                 )
@@ -118,7 +120,7 @@ fun MapListCard(
                     containerColor = MaterialTheme.colorScheme.error
                 )
             ) {
-                Text("Delete")
+                Text(stringResource(Res.string.delete))
             }
         }
     }
