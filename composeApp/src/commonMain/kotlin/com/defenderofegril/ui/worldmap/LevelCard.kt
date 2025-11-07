@@ -21,6 +21,10 @@ import com.defenderofegril.ui.icon.LockIcon
 import com.defenderofegril.ui.icon.MoneyIcon
 import com.defenderofegril.ui.icon.SwordIcon
 import com.defenderofegril.ui.icon.enemy.EnemyTypeIcon
+import com.hyperether.resources.stringResource
+import defender_of_egril.composeapp.generated.resources.*
+import defender_of_egril.composeapp.generated.resources.Res
+
 
 @Composable
 fun LevelCard(
@@ -34,9 +38,9 @@ fun LevelCard(
     }
     
     val statusText = when (worldLevel.status) {
-        LevelStatus.LOCKED -> "Locked"
-        LevelStatus.UNLOCKED -> "Available"
-        LevelStatus.WON -> "Completed"
+        LevelStatus.LOCKED -> stringResource(Res.string.locked)
+        LevelStatus.UNLOCKED -> stringResource(Res.string.available)
+        LevelStatus.WON -> stringResource(Res.string.completed)
     }
     
     // Get enemy counts for this level
@@ -201,6 +205,7 @@ fun LevelCard(
 
 @Composable
 private fun EnemyUnitEntry(attackerType: AttackerType, count: Int) {
+    val locale = com.hyperether.resources.currentLanguage.value
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start
@@ -214,7 +219,7 @@ private fun EnemyUnitEntry(attackerType: AttackerType, count: Int) {
         Spacer(modifier = Modifier.width(4.dp))
 
         Text(
-            text = "${attackerType.displayName}: ${count}",
+            text = "${attackerType.getLocalizedName(locale)}: ${count}",
             style = MaterialTheme.typography.bodySmall,
             color = Color.White,
             fontSize = 11.sp
