@@ -1,0 +1,318 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Main Menu -->
+    <string name="app_name">Verteidiger von Egril</string>
+    <string name="app_subtitle">Verteidige die Wiesen von Egril gegen\ndie Horden von Gleid Thyae unter\nder Flagge des bösen Ewhad</string>
+    <string name="start_game">Spiel starten</string>
+    <string name="rules">Regeln</string>
+    
+    <!-- Level Complete Screen -->
+    <string name="victory">Sieg!</string>
+    <string name="battle_won">Schlacht gewonnen!</string>
+    <string name="defeat">Niederlage</string>
+    <string name="victory_message">Du hast Egril erfolgreich verteidigt!</string>
+    <string name="battle_won_message">Du hast diese Schlacht gewonnen!</string>
+    <string name="defeat_message">Die Feinde haben deine Verteidigung durchbrochen...</string>
+    <string name="retry">Wiederholen</string>
+    <string name="world_map">Weltkarte</string>
+    
+    <!-- Settings -->
+    <string name="settings">Einstellungen</string>
+    <string name="language">Sprache</string>
+    <string name="close">Schließen</string>
+    
+    <!-- Common Actions -->
+    <string name="back">Zurück</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="save">Speichern</string>
+    <string name="delete">Löschen</string>
+    <string name="edit">Bearbeiten</string>
+    
+    <!-- Game Play -->
+    <string name="coins">Münzen</string>
+    <string name="health">Gesundheit</string>
+    <string name="turn">Runde</string>
+    <string name="level">Stufe</string>
+    <string name="upgrade">Aufwerten</string>
+    <string name="sell">Verkaufen</string>
+    <string name="attack">Angriff</string>
+    <string name="end_turn">Runde beenden</string>
+    <string name="next_turn">Nächste Runde</string>
+    <string name="save_game">Spiel speichern</string>
+    <string name="load_game">Spiel laden</string>
+    <string name="add_optional_comment">Füge einen optionalen Kommentar hinzu, um diesen Spielstand zu identifizieren:</string>
+    <string name="save_comment_placeholder">z.B. 'Vor der letzten Welle', 'Gute Position'...</string>
+    <string name="in_x_turns">in %s Runden</string>
+    
+    <!-- Towers -->
+    <string name="tower">Turm</string>
+    <string name="damage">Schaden</string>
+    <string name="range">Reichweite</string>
+    <string name="actions">Aktionen</string>
+    
+    <!-- Enemies -->
+    <string name="enemy">Feind</string>
+    <string name="enemies">Feinde</string>
+    
+    <!-- Status Messages -->
+    <string name="locked">Gesperrt</string>
+    <string name="unlocked">Freigeschaltet</string>
+    <string name="completed">Abgeschlossen</string>
+    
+    <!-- World Map -->
+    <string name="world_map_title">Weltkarte - Wiesen von Egril</string>
+    <string name="back_to_world_map">Zurück zur Weltkarte</string>
+    
+    <!-- Load Game Screen -->
+    <string name="no_saved_games">Keine gespeicherten Spiele gefunden</string>
+    
+    <!-- Rules Screen -->
+    <string name="how_to_play">Wie man spielt</string>
+    <string name="game_overview">Spielübersicht</string>
+    <string name="game_overview_text">Verteidiger von Egril ist ein rundenbasiertes Tower-Defense-Spiel. Verteidige die Wiesen von Egril gegen Wellen von Feinden unter der Flagge des bösen Ewhad.</string>
+    <string name="at_start_of_level">Zu Beginn jedes Levels:</string>
+    <string name="place_towers_instantly">Platziere Türme sofort (keine Bauzeit)</string>
+    <string name="use_coins_strategically">Nutze deine Startmünzen strategisch</string>
+    <string name="towers_ready_to_attack">Türme sind sofort bereit anzugreifen</string>
+    <string name="click_start_battle">Klicke auf \'Schlacht beginnen\', wenn du bereit bist</string>
+    <string name="your_turn">Deine Runde</string>
+    <string name="during_your_turn">Während deiner Runde kannst du:</string>
+    <string name="place_new_towers">Neue Türme platzieren - kostet Münzen, benötigt Bauzeit</string>
+    <string name="upgrade_towers">Bestehende Türme aufwerten - erhöht Schaden und Reichweite</string>
+    <string name="attack_with_towers">Mit Türmen angreifen - wähle Turm, dann Ziel</string>
+    <string name="end_your_turn">Deine Runde beenden - Feinde bewegen sich und greifen an</string>
+    <string name="enemy_turn">Feindrunde</string>
+    <string name="after_end_turn">Nachdem du deine Runde beendet hast:</string>
+    <string name="enemies_move">Feinde bewegen sich zum Ziel</string>
+    <string name="enemies_attack">Feinde, die das Ziel erreichen, kosten dich 1 Gesundheit</string>
+    <string name="new_enemies">Neue Feinde können erscheinen</string>
+    <string name="winning_losing">Gewinnen und Verlieren</string>
+    <string name="win_condition">Sieg: Eliminiere alle Feinde bevor sie deine Verteidigung durchbrechen</string>
+    <string name="lose_condition">Niederlage: Deine Gesundheit erreicht Null</string>
+    <string name="tower_types">Turmarten</string>
+    <string name="spike_tower">Stachelturm (Pike): Nahkampfverteidigung, günstigste Option</string>
+    <string name="spear_tower">Speerturm: Mittlere Reichweite, durchdringende Angriffe</string>
+    <string name="bow_tower">Bogenturm: Große Reichweite, Bogenschießen</string>
+    <string name="wizard_tower">Zauberturm: Flächenwirkung Feuerball</string>
+    <string name="alchemy_tower">Alchemieturm: Säureschaden über Zeit</string>
+    <string name="ballista_tower">Ballisteturm: Große Reichweite Belagerung, Mindestreichweite</string>
+    <string name="dwarven_mine">Zwergmine: Erzeugt Münzen</string>
+    <string name="dragons_lair">Drachenhöhle: Erschafft Drachen</string>
+    <string name="enemy_types">Feindarten</string>
+    <string name="goblin">Goblin: Schnell und schwach</string>
+    <string name="ork">Ork: Langsam aber zäh</string>
+    <string name="ogre">Oger: Sehr zäh</string>
+    <string name="skeleton">Skelett: Schnell untot</string>
+    <string name="evil_wizard">Böser Zauberer: Magischer Angreifer</string>
+    <string name="witch">Hexe: Dunkle Magie</string>
+    <string name="blue_demon">Blauer Dämon: Schnell, säureimmun</string>
+    <string name="red_demon">Roter Dämon: Zäh, feuerballimmun</string>
+    <string name="evil_mage">Böser Magier: Kann Diener beschwören</string>
+    <string name="red_witch">Rote Hexe: Kann Türme deaktivieren</string>
+    <string name="green_witch">Grüne Hexe: Kann andere Feinde heilen</string>
+    <string name="ewhad">Ewhad: Boss mit Beschwörung</string>
+    <string name="dragon">Drache: Mächtiger Boss</string>
+    <string name="strategic_tips">Strategische Tipps</string>
+    <string name="use_initial_phase">Nutze die anfängliche Bauphase weise</string>
+    <string name="save_coins">Spare 20-30 Münzen für das Mittelspiel</string>
+    <string name="focus_fire">Konzentriere Feuer auf zähe Feinde (Oger, Orks)</string>
+    <string name="wizard_for_aoe">Zaubertürme für massiven Flächenschaden</string>
+    <string name="upgrade_vs_build">Werte Türme auf statt Neue zu bauen</string>
+    
+    <!-- Additional RulesScreen strings -->
+    <string name="attack_enemies_desc">Feinde angreifen - Turm mit Aktionen anklicken, dann Feind in Reichweite</string>
+    <string name="build_timers_advance">Bauzeiten laufen ab (zählen herunter)</string>
+    <string name="dot_effects_applied">Schaden-über-Zeit-Effekte werden angewendet</string>
+    <string name="attack_types">Angriffsarten</string>
+    <string name="melee_ranged_desc">Nahkampf/Fernkampf: Einzelziel</string>
+    <string name="fireball_desc">Feuerball (Fläche): Schädigt alle Feinde innerhalb 1 Feld des Einschlags</string>
+    <string name="acid_desc">Säure: Kontinuierlicher Schaden für 3 Runden innerhalb 1 Feld des Einschlags</string>
+    <string name="victory_defeat">Sieg &amp; Niederlage</string>
+    <string name="victory_detail">Sieg: Besiege alle Feinde in allen Wellen mit mindestens 1 Gesundheitspunkt</string>
+    <string name="defeat_detail">Niederlage: Jeder Feind, der das Ziel erreicht, kostet 1 Gesundheitspunkt. Bei 0 Gesundheit verlierst du.</string>
+    <string name="grid_legend">Rasterlegende</string>
+    <string name="spawn_desc">Spawn: Startposition (Feinde erscheinen)</string>
+    <string name="target_desc">Ziel: Zielposition (Muss verteidigt werden!")</string>
+    <string name="blue_towers">Blau: Deine bereiten Türme</string>
+    <string name="gray_towers">Grau: Türme im Bau</string>
+    <string name="red_enemies">Rot: Feinde</string>
+    <string name="build_time_remaining">Verbleibende Bauzeit</string>
+    <string name="actions_remaining">Verbleibende Aktionen diese Runde</string>
+    <string name="mine_special_desc">Spezial: grabe nach Wertsachen oder platziere Fallen auf dem Pfad</string>
+    <string name="special_building">Spezialgebäude</string>
+    <string name="coins_label">Münzen</string>
+    <string name="hp_label">Gesundheit</string>
+    <string name="speed_label">Geschwindigkeit</string>
+    
+    <!-- Status text -->
+    <string name="available">Verfügbar</string>
+    
+    <!-- Defender/Tower names -->
+    <string name="spike_tower_name">Stachelturm (Pike)</string>
+    <string name="spear_tower_name">Speerturm</string>
+    <string name="bow_tower_name">Bogenturm</string>
+    <string name="wizard_tower_name">Zauberturm</string>
+    <string name="alchemy_tower_name">Alchemieturm</string>
+    <string name="ballista_tower_name">Ballisteturm</string>
+    <string name="dwarven_mine_name">Mine</string>
+    <string name="dragons_lair_name">Drachenhöhle</string>
+    
+    <!-- Attack type names -->
+    <string name="attack_type_melee">Nahkampf</string>
+    <string name="attack_type_ranged">Fernkampf</string>
+    <string name="attack_type_fireball">Feuerball</string>
+    <string name="attack_type_acid">Säure</string>
+    <string name="attack_type_special">Spezial</string>
+    
+    <!-- Attacker/Enemy names -->
+    <string name="goblin_name">Goblin</string>
+    <string name="ork_name">Ork</string>
+    <string name="ogre_name">Oger</string>
+    <string name="skeleton_name">Skelett</string>
+    <string name="evil_wizard_name">Böser Zauberer</string>
+    <string name="witch_name">Hexe</string>
+    <string name="blue_demon_name">Blauer Dämon</string>
+    <string name="red_demon_name">Roter Dämon</string>
+    <string name="evil_mage_name">Böser Magier</string>
+    <string name="red_witch_name">Rote Hexe</string>
+    <string name="green_witch_name">Grüne Hexe</string>
+    <string name="ewhad_name">Ewhad</string>
+    <string name="dragon_name">Drache</string>
+    
+    <!-- SavedGameCard strings -->
+    <string name="enemies_on_map">Feinde auf der Karte:</string>
+    <string name="enemies_to_come">Kommende Feinde:</string>
+    <string name="delete_savegame">Spielstand löschen</string>
+    
+    <!-- Gameplay UI strings -->
+    <string name="attack_button">ANGRIFF</string>
+    <string name="attack_area_button">FLÄCHEN-ANGRIFF</string>
+    <string name="undo">Rückgängig</string>
+    <string name="sell_tower_title">Turm verkaufen?</string>
+    <string name="dig">Graben</string>
+    <string name="trap">Falle</string>
+    <string name="mining_probabilities">Grab-Wahrscheinlichkeiten</string>
+    <string name="mining_result">Grab-Ergebnis</string>
+    <string name="found_nothing">Du hast nichts gefunden...</string>
+    <string name="found_brass">Du hast Messing gefunden!</string>
+    <string name="found_silver">Du hast Silber gefunden!</string>
+    <string name="found_gold">Du hast Gold gefunden!</string>
+    <string name="found_gems">Du hast Edelsteine gefunden!</string>
+    <string name="found_diamond">Du hast einen Diamanten gefunden!</string>
+    <string name="dragon_awakens">EIN DRACHE ERWACHT!</string>
+    <string name="mine_destroyed">Die Mine ist zerstört!</string>
+    <string name="dragons_lair_desc">Die Drachenhöhle... eine Erinnerung an die Folgen der Gier.</string>
+    <string name="empty_dragons_lair">Leere Drachenhöhle</string>
+    <string name="end_turn_button">Rundenende</string>
+    <string name="enemy_turn_title">Feindrunde</string>
+    <string name="enemies_spawning">Feinde erscheinen und bewegen sich...</string>
+    <string name="initial_building_phase">Anfängliche Bauphase - Türme platzieren (keine Bauzeit)</string>
+    <string name="add_comment">Füge einen optionalen Kommentar hinzu um diesen Spielstand zu identifizieren:</string>
+    <string name="game_saved">Spiel gespeichert</string>
+    <string name="on_map">Auf Karte:</string>
+    <string name="planned_spawns">Geplante Spawns:</string>
+    <string name="position_label">Position:</string>
+    <string name="reward_label">Belohnung:</string>
+    <string name="info_label">Info:</string>
+    <string name="chance_percent">Chance (%%)</string>
+    <string name="building_label">Bau:</string>
+    <string name="active_label">Aktiv:</string>
+    <string name="planned_label">Geplant:</string>
+    
+    <!-- GameLegend strings -->
+    <string name="legend">Legende</string>
+    <string name="areas_label">Bereiche:</string>
+    <string name="build_island">Bauinsel</string>
+    <string name="build_strip">Baustreifen</string>
+    <string name="enemy_path">Feindpfad</string>
+    <string name="non_playable">Nicht spielbar</string>
+    <string name="enemy_unit">Feindeinheit</string>
+    <string name="map_label">Karte</string>
+    <string name="not_enough_actions">nicht genug Aktionen</string>
+    <string name="name_label">Name</string>
+    <string name="reward">Belohnung</string>
+    
+    <!-- EditorButtonCard strings -->
+    <string name="level_editor">Level-Editor</string>
+    <string name="create_edit_maps_levels">Karten und Levels erstellen &amp; bearbeiten</string>
+    
+    <!-- SavedGameCard additional strings -->
+    <string name="built_towers">Gebaute Türme:</string>
+    
+    <!-- Gameplay page strings -->
+    <string name="spawn">Spawn</string>
+    <string name="target">Ziel</string>
+    <string name="start_battle">Schlacht beginnen</string>
+    <string name="your_turn_message">Dein Zug - Platziere Türme und greife Feinde an</string>
+    <string name="building">im Bau</string>
+    
+    <!-- DefenderInfo mining strings -->
+    
+    <!-- Tower short names -->
+    <string name="spike_tower_short">Stachel</string>
+    <string name="spear_tower_short">Speer</string>
+    <string name="bow_tower_short">Bogen</string>
+    <string name="wizard_tower_short">Zauberer</string>
+    <string name="alchemy_tower_short">Alchemie</string>
+    <string name="ballista_tower_short">Balliste</string>
+    <string name="dwarven_mine_short">Mine</string>
+    <string name="dragons_lair_short">Höhle</string>
+    
+    <!-- Editor strings -->
+    <string name="map_editor">Karteneditor</string>
+    <string name="level_sequence">Level-Reihenfolge</string>
+    <string name="maps">Karten</string>
+    <string name="levels">Levels</string>
+    <string name="create_new_map">Neue Karte erstellen</string>
+    <string name="create_new_level">Neues Level erstellen</string>
+    <string name="create">Erstellen</string>
+    <string name="save_map">Karte speichern</string>
+    <string name="save_level">Level speichern</string>
+    <string name="save_as_new">Als neu speichern</string>
+    <string name="map_name">Kartenname</string>
+    <string name="level_title">Level-Titel</string>
+    <string name="subtitle_optional">Untertitel (optional)</string>
+    <string name="width">Breite</string>
+    <string name="height">Höhe</string>
+    <string name="select_map_to_edit">Wähle eine Karte zum Bearbeiten:</string>
+    <string name="select_level_to_edit">Wähle ein Level zum Bearbeiten:</string>
+    <string name="editing_map">Bearbeite: %s</string>
+    <string name="editing_level">Bearbeite Level: %s</string>
+    <string name="ready_to_use">Einsatzbereit</string>
+    <string name="not_ready">Nicht bereit</string>
+    <string name="ready">Bereit</string>
+    <string name="file">Datei</string>
+    <string name="size">Größe</string>
+    <string name="select_tile_type">Kacheltyp wählen:</string>
+    <string name="click_hexagons_to_paint">Klicken oder ziehen, um Sechsecke zu malen. Strg+Mausrad zum Zoomen:</string>
+    <string name="map_size_label">%dx%d</string>
+    <string name="map_short">Karte</string>
+    <string name="coins_short">Münzen</string>
+    <string name="hp_short">LP</string>
+    <string name="enemies_count">Gegner (%d):</string>
+    <string name="available_towers">Verfügbare Türme:</string>
+    <string name="add_turn">Runde hinzufügen</string>
+    <string name="copy_turn">Runde kopieren</string>
+    <string name="remove">Entfernen</string>
+    <string name="add">Hinzufügen</string>
+    <string name="turn_x">Runde %d</string>
+    <string name="x_enemies">(%d Gegner)</string>
+    <string name="enemy_level">Gegner-Level</string>
+    <string name="enemy_type">Gegnertyp:</string>
+    <string name="add_enemy_to_turn">Gegner zu Runde %d hinzufügen</string>
+    <string name="ewhad_warning">⚠️ Ewhad kann nur einmal pro Level erscheinen!</string>
+    <string name="level_lv">Lv%d</string>
+    <string name="arrange_level_order">Level-Reihenfolge festlegen:</string>
+    <string name="save_map_as_new">Karte als neu speichern</string>
+    <string name="save_level_as_new">Level als neu speichern</string>
+    <string name="enter_a">Gib %s ein:</string>
+    <string name="create_new_map_title">Neue Karte erstellen</string>
+    <string name="create_new_level_title">Neues Level erstellen</string>
+    <string name="start_coins">Start-Münzen</string>
+    <string name="start_hp">Start-LP</string>
+    <string name="cost_label">Kosten</string>
+    <string name="damage_label">Schaden</string>
+    <string name="hp_with_level">LP: %d</string>
+    <string name="add_enemy_button">➕ Feind zu Runde %d hinzufügen</string>
+</resources>
