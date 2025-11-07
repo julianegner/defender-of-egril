@@ -14,6 +14,8 @@ import com.defenderofegril.model.*
 import com.defenderofegril.ui.*
 import com.defenderofegril.ui.icon.MoneyIcon
 import com.defenderofegril.ui.icon.SwordIcon
+import com.hyperether.resources.stringResource
+import defender_of_egril.composeapp.generated.resources.*
 
 // UI Constants
 private val ATTACK_BUTTON_COLOR = GamePlayColors.ErrorDark
@@ -49,15 +51,16 @@ fun AttackButton(
                             SwordIcon(size = 24.dp)
                             Spacer(modifier = Modifier.width(8.dp))
                             Column {
+                                val locale = com.hyperether.resources.currentLanguage.value
                                 Text(
-                                    "ATTACK",
+                                    stringResource(Res.string.attack_button),
                                     fontSize = 16.sp,
                                     fontWeight = FontWeight.Bold,
                                     maxLines = 1,
                                     overflow = TextOverflow.Clip
                                 )
                                 Text(
-                                    "${target.type.displayName} (${target.currentHealth.value}/${target.maxHealth} HP) + Area",
+                                    "${target.type.getLocalizedName(locale)} (${target.currentHealth.value}/${target.maxHealth} ${stringResource(Res.string.hp_label)}) + Area",
                                     fontSize = 11.sp
                                 )
                             }
@@ -81,7 +84,7 @@ fun AttackButton(
                         Spacer(modifier = Modifier.width(8.dp))
                         Column {
                             Text(
-                                "ATTACK AREA",
+                                stringResource(Res.string.attack_area_button),
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold
                             )
@@ -111,13 +114,14 @@ fun AttackButton(
                         SwordIcon(size = 24.dp)
                         Spacer(modifier = Modifier.width(8.dp))
                         Column {
+                            val locale = com.hyperether.resources.currentLanguage.value
                             Text(
-                                "ATTACK",
+                                stringResource(Res.string.attack_button),
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold
                             )
                             Text(
-                                "${target.type.displayName} (${target.currentHealth.value}/${target.maxHealth} HP)",
+                                "${target.type.getLocalizedName(locale)} (${target.currentHealth.value}/${target.maxHealth} ${stringResource(Res.string.hp_label)})",
                                 fontSize = 11.sp
                             )
                         }
@@ -146,7 +150,7 @@ fun UpgradeButton(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Upgrade", fontSize = GamePlayConstants.TextSizes.Title, fontWeight = FontWeight.Bold)
+            Text(stringResource(Res.string.upgrade), fontSize = GamePlayConstants.TextSizes.Title, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(GamePlayConstants.Spacing.Items))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 MoneyIcon(size = 14.dp)
@@ -191,7 +195,7 @@ fun UndoOrSellButton(
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text("Undo", fontSize = GamePlayConstants.TextSizes.Title, fontWeight = FontWeight.Bold)
+                Text(stringResource(Res.string.undo), fontSize = GamePlayConstants.TextSizes.Title, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(GamePlayConstants.Spacing.Items))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     MoneyIcon(size = 14.dp)
@@ -219,7 +223,7 @@ fun UndoOrSellButton(
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text("Sell", fontSize = GamePlayConstants.TextSizes.Title, fontWeight = FontWeight.Bold)
+                Text(stringResource(Res.string.sell), fontSize = GamePlayConstants.TextSizes.Title, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(GamePlayConstants.Spacing.Items))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     MoneyIcon(size = 14.dp)
@@ -235,11 +239,14 @@ fun UndoOrSellButton(
 
         // Confirmation dialog
         if (showSellConfirmation) {
+            val locale = com.hyperether.resources.currentLanguage.value
             AlertDialog(
                 onDismissRequest = { showSellConfirmation = false },
-                title = { Text("Sell Tower?") },
+                title = { Text(stringResource(Res.string.sell_tower_title)) },
                 text = {
-                    Text("Do you really want to sell the ${defender.type.displayName} for $sellAmount coins?")
+                    val towerName = defender.type.getLocalizedName(locale)
+                    val coinsLabel = stringResource(Res.string.coins_label)
+                    Text("Do you really want to sell the $towerName for $sellAmount $coinsLabel?")
                 },
                 confirmButton = {
                     Button(
@@ -251,14 +258,14 @@ fun UndoOrSellButton(
                             containerColor = GamePlayColors.Warning
                         )
                     ) {
-                        Text("Sell")
+                        Text(stringResource(Res.string.sell))
                     }
                 },
                 dismissButton = {
                     Button(
                         onClick = { showSellConfirmation = false }
                     ) {
-                        Text("Cancel")
+                        Text(stringResource(Res.string.cancel))
                     }
                 }
             )
@@ -274,7 +281,7 @@ fun UndoOrSellButton(
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text("Sell", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                Text(stringResource(Res.string.sell), fontSize = 14.sp, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     "not enough Actions",
