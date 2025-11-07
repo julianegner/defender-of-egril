@@ -56,17 +56,21 @@ fun MapEditorView(
     // Track tile positions for brush painting
     val tilePositions = remember { mutableStateMapOf<String, Offset>() }
     
+    // Track the last painted tile to avoid redundant updates
+    var lastPaintedTile by remember { mutableStateOf<String?>(null) }
+    
     // Get density for coordinate conversions
     val density = androidx.compose.ui.platform.LocalDensity.current
     
     // Helper function to find which tile is at a given position
     fun getTileAtPosition(position: Offset): String? {
         val hexRadiusPx = with(density) { (hexWidth / 2f).dp.toPx() }
-        return tilePositions.entries.minByOrNull { (_, tilePos) ->
+        val closest = tilePositions.entries.minByOrNull { (_, tilePos) ->
             val dx = position.x - tilePos.x
             val dy = position.y - tilePos.y
             dx * dx + dy * dy
-        }?.let { (key, tilePos) ->
+        }
+        return closest?.let { (key, tilePos) ->
             val dx = position.x - tilePos.x
             val dy = position.y - tilePos.y
             val distance = sqrt(dx * dx + dy * dy)
@@ -113,16 +117,22 @@ fun MapEditorView(
                                     tiles = tiles.toMutableMap().apply {
                                         this[tileKey] = selectedTileType
                                     }
+                                    lastPaintedTile = tileKey
                                 }
                             },
                             onDrag = { change, _ ->
-                                // Paint tiles as the pointer moves
+                                // Paint tiles as the pointer moves (only if different from last)
                                 val tileKey = getTileAtPosition(change.position)
-                                if (tileKey != null) {
+                                if (tileKey != null && tileKey != lastPaintedTile) {
                                     tiles = tiles.toMutableMap().apply {
                                         this[tileKey] = selectedTileType
                                     }
+                                    lastPaintedTile = tileKey
                                 }
+                            },
+                            onDragEnd = {
+                                // Clear last painted tile when drag ends
+                                lastPaintedTile = null
                             }
                         )
                     }
