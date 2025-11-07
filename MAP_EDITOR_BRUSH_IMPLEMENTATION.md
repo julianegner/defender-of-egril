@@ -8,56 +8,151 @@ This document describes the implementation of the brush feature for the map edit
 
 ### Files Modified
 
-1. **MapEditorView.kt** - Added brush state tracking and pointer event handling
-2. **MapEditorHeader.kt** - Updated help text to mention drag functionality
+1. **MapEditorView.kt** - Complete rewrite of brush functionality
 
-### Key Changes
+### Key Changes (v2 - Fixed Implementation)
 
-#### 1. Brush State Variable
+#### 1. Tile Position Tracking
 
-Added a state variable to track whether the brush is currently active (pointer/mouse is pressed):
+Each tile tracks its center position using `onGloballyPositioned`:
 
 ```kotlin
-var isBrushActive by remember { mutableStateOf(false) }
+val tilePositions = remember { mutableStateMapOf<String, Offset>() }
+
+// On each tile:
+.onGloballyPositioned { coordinates ->
+    val bounds = coordinates.size
+    val position = coordinates.positionInRoot()
+    val centerX = position.x + bounds.width / 2f
+    val centerY = position.y + bounds.height / 2f
+    tilePositions[key] = Offset(centerX, centerY)
+}
 ```
 
-#### 2. Pointer Event Handling
+#### 2. Tile Detection
 
-Each tile now has a `pointerInput` modifier that handles pointer events:
+Helper function to find which tile is at a given pointer position:
 
 ```kotlin
-.pointerInput(key, selectedTileType, isBrushActive) {
-    awaitPointerEventScope {
-        while (true) {
-            val event = awaitPointerEvent()
-            event.changes.forEach { change ->
-                when {
-                    change.pressed && !change.previousPressed -> {
-                        // Mouse/pointer down - start brush mode and paint this tile
-                        isBrushActive = true
-                        tiles = tiles.toMutableMap().apply {
-                            this[key] = selectedTileType
-                        }
-                        change.consume()
-                    }
-                    !change.pressed && change.previousPressed -> {
-                        // Mouse/pointer up - end brush mode
-                        isBrushActive = false
-                        change.consume()
-                    }
-                    change.pressed && isBrushActive -> {
-                        // Mouse/pointer is down and moving - paint this tile
-                        tiles = tiles.toMutableMap().apply {
-                            this[key] = selectedTileType
-                        }
-                        change.consume()
-                    }
-                }
-            }
-        }
+fun getTileAtPosition(position: Offset): String? {
+    val hexRadiusPx = with(density) { (hexWidth / 2f).dp.toPx() }
+    return tilePositions.entries.minByOrNull { (_, tilePos) ->
+        val dx = position.x - tilePos.x
+        val dy = position.y - tilePos.y
+        dx * dx + dy * dy
+    }?.let { (key, tilePos) ->
+        val dx = position.x - tilePos.x
+        val dy = position.y - tilePos.y
+        val distance = sqrt(dx * dx + dy * dy)
+        if (distance < hexRadiusPx) key else null
     }
 }
 ```
+
+#### 3. Container-Level Drag Detection
+
+Brush functionality uses `detectDragGestures` at the container level:
+
+```kotlin
+.pointerInput(selectedTileType) {
+    detectDragGestures(
+        onDragStart = { offset ->
+            val tileKey = getTileAtPosition(offset)
+            if (tileKey != null) {
+                tiles = tiles.toMutableMap().apply {
+                    this[tileKey] = selectedTileType
+                }
+            }
+        },
+        onDrag = { change, _ ->
+            val tileKey = getTileAtPosition(change.position)
+            if (tileKey != null) {
+                tiles = tiles.toMutableMap().apply {
+                    this[tileKey] = selectedTileType
+                }
+            }
+        }
+    )
+}
+```
+
+### Why The Original Implementation Didn't Work
+
+The first version had `pointerInput` on each individual tile with `awaitPointerEventScope`. This approach failed because:
+
+1. Each tile only receives pointer events when the pointer is within that tile's bounds
+2. When dragging from tile A to tile B, tile A stops receiving events once the pointer leaves
+3. Tile B only gets events when the pointer enters, but detecting "enter while pressed" is unreliable
+4. The pointer event system doesn't propagate "hover while pressed" events well to individual tiles
+
+### New Approach Benefits
+
+The container-level approach works because:
+
+1. The container receives all drag events continuously
+2. On each drag event, we calculate which tile is under the pointer
+3. We paint that tile immediately
+4. No need to track "brush active" state - the drag gesture handles it
+5. More reliable and simpler code
+
+### How It Works
+
+1. **Pointer Down**: When the user clicks/touches anywhere on the map:
+   - `onDragStart` fires with the initial position
+   - We find which tile (if any) is at that position
+   - That tile is painted with the selected tile type
+
+2. **Pointer Move**: As the user drags while holding down:
+   - `onDrag` fires continuously with the current pointer position
+   - We find which tile is under the pointer
+   - If there's a tile there, we paint it immediately
+   - This happens for every position update, so all tiles under the path get painted
+
+3. **Pointer Up**: When the user releases:
+   - The drag gesture ends automatically
+   - No cleanup needed
+
+### User Experience
+
+- **Click and Drag**: Hold down mouse button and drag over tiles - they all get painted
+- **Single Click**: Click once on a tile to paint just that tile (via the existing `.clickable` modifier)
+- **Touch and Drag**: Works on touch devices - touch and drag to paint
+- **Zoom**: Still works via Ctrl+Scroll and zoom buttons
+- **Pan**: Temporarily removed to avoid gesture conflicts (may be added back with modifier key)
+
+### Technical Notes
+
+- Uses `onGloballyPositioned` to track pixel coordinates of tile centers
+- Uses `positionInRoot()` which gives coordinates relative to the root window
+- Calculates distance from pointer to tile center to determine if pointer is "over" a tile
+- Uses hex radius as the hit detection threshold
+- Compatible with zoom (coordinates are in screen pixels, not logical units)
+- The `.clickable` modifier is kept as fallback for simple clicks
+
+### Testing
+
+The feature has been tested by:
+1. Compiling the code successfully on desktop ✅
+2. Verifying no test regressions (existing tests still pass/fail as before) ✅
+3. Manual testing recommended on desktop and web platforms
+
+### Known Limitations
+
+- Pan gestures temporarily removed to avoid conflicts with drag gestures
+  - Can be added back with a modifier key (e.g., hold Space to pan)
+  - Or use intelligent detection (long drag = pan, short drag on tile = paint)
+- Transform gestures (pinch-to-zoom) on mobile removed
+  - Zoom buttons still work as alternative
+
+### Future Enhancements
+
+Potential improvements:
+- Add back pan with a modifier key (Space bar)
+- Add back pinch-to-zoom for mobile
+- Add brush size option (paint multiple tiles at once in a radius)
+- Add eraser mode
+- Add undo/redo functionality
+- Preview which tile will be painted on hover
 
 ### Design Decisions
 
