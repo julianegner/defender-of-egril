@@ -10,6 +10,7 @@ plugins {
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.kotlinSerialization)
+    alias(libs.plugins.localization)
 }
 
 // Build configuration output directory
@@ -102,6 +103,12 @@ kotlin {
         // Add generated source directory to commonMain
         commonMain {
             kotlin.srcDir(buildConfigOutputDir)
+            kotlin.srcDirs(
+                File(
+                    layout.buildDirectory.get().asFile.path,
+                    "generated/compose/resourceGenerator/kotlin/commonCustomResClass"
+                )
+            )
         }
         
         androidMain.dependencies {
@@ -112,10 +119,13 @@ kotlin {
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material3)
+            implementation(compose.materialIconsExtended)
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
             implementation(libs.kotlinx.serialization.json)
+            implementation(libs.flagkit)
+            implementation(libs.multiplatform.settings)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

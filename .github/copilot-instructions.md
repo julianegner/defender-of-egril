@@ -17,9 +17,17 @@ Defender of Egril is a turn-based tower defense game built with Kotlin Multiplat
       - `icon/`: Icon components (defender/, enemy/, IconUtils)
       - `loadgame/`: Save/load UI components
       - `worldmap/`: World map screen components
+      - `settings/`: Settings UI components (SettingsDialog, LanguageChooser, SettingsButton)
     - `editor/`: Level editor logic (EditorModels, EditorJsonSerializer, EditorStorage, FileStorage)
     - `save/`: Save/load system (SaveModels, SaveJsonSerializer, SaveFileStorage)
     - `utils/`: Utilities (CheatCodeHandler, TimeUtils)
+  - `composeResources/`: Multiplatform resources
+    - `drawable/`: Image assets (icons, sprites)
+    - `values/strings.xml`: Default English string resources (~318 strings)
+    - `values-de/strings.xml`: German translations
+    - `values-es/strings.xml`: Spanish translations
+    - `values-fr/strings.xml`: French translations
+    - `values-it/strings.xml`: Italian translations
 - `composeApp/src/desktopMain/`: Desktop-specific code
 - `composeApp/src/androidMain/`: Android-specific code
 - `composeApp/src/iosMain/`: iOS-specific code
@@ -55,6 +63,8 @@ Defender of Egril is a turn-based tower defense game built with Kotlin Multiplat
   - `icon/`: Organized icon components (defenders, enemies, utilities)
   - `loadgame/`: Save game management UI
   - `worldmap/`: Level selection and world map UI
+  - `settings/`: Settings dialog, language chooser, and settings button components
+  - `LocalizationUtils.kt`: Extension functions for localizing game types (DefenderType, AttackerType, AttackType)
   
 - **Editor System** (`editor/`): Level creation and editing (desktop and web/wasm only)
   - `EditorModels`: Map and level data structures
@@ -76,6 +86,25 @@ Defender of Egril is a turn-based tower defense game built with Kotlin Multiplat
 - Use Jetpack Compose/Compose Multiplatform for all UI
 - Modular UI structure: Extract large screens into focused component files (see `ui/gameplay/` and `ui/editor/`)
 - Manual JSON serialization for cross-platform compatibility (see `EditorJsonSerializer`, `SaveJsonSerializer`)
+
+### Localization System
+- **Plugin**: Uses `compose-multiplatform-localize` plugin (version 1.1.1) for string resource management
+- **String Resources**: Located in `composeApp/src/commonMain/composeResources/`
+  - `values/strings.xml`: Default English strings
+  - `values-de/strings.xml`: German translations
+  - `values-es/strings.xml`: Spanish translations
+  - `values-fr/strings.xml`: French translations
+  - `values-it/strings.xml`: Italian translations
+- **Generated Code**: Plugin generates `AppLocale` enum, `LocalizedStrings` object, and `currentLanguage` state
+- **Usage in Composables**: Use `stringResource(Res.string.key_name)` for UI strings
+- **Dynamic Localization**: For runtime string access, use `LocalizedStrings.get("key_name", locale)`
+- **Language Switching**: Change `currentLanguage.value` to switch languages (triggers recomposition)
+- **Settings UI**: All screens have a settings button that opens `SettingsDialog` with language selection
+- **Type Localization**: `LocalizationUtils.kt` provides extension functions for:
+  - `DefenderType.getLocalizedName()` - Tower names
+  - `DefenderType.getLocalizedShortName()` - Compact tower names
+  - `AttackerType.getLocalizedName()` - Enemy names
+  - `AttackType.getLocalizedName()` - Attack type names
 
 ### Grid System
 - **Hexagonal Grid**: Uses offset coordinate system (even-q vertical layout)
@@ -148,6 +177,24 @@ Add to `LevelData.createLevels()` with:
 - Enemy spawn configuration (turn-based)
 - Initial coins and health points
 - Available tower types
+
+#### New Language (Localization)
+1. Create directory: `composeApp/src/commonMain/composeResources/values-{lang}/`
+   - Use ISO 639-1 language codes (e.g., `de` for German, `es` for Spanish, `fr` for French)
+2. Create `strings.xml` with translated strings:
+   ```xml
+   <?xml version="1.0" encoding="utf-8"?>
+   <resources>
+       <string name="app_name">Translated App Name</string>
+       <string name="start_game">Translated Start Game</string>
+       <!-- ... translate all strings from values/strings.xml ... -->
+   </resources>
+   ```
+3. Clean and rebuild: `./gradlew clean build`
+4. Plugin automatically generates `AppLocale.{LANG}` enum value
+5. Update `LanguageChooser.kt`'s `getCountryCode()` function if language code differs from country code
+6. Test language switching via Settings dialog
+7. All ~318 strings must be translated for complete localization
 
 ## Build and Test Commands
 
@@ -240,12 +287,18 @@ Add to `LevelData.createLevels()` with:
 7. **Level Editor**: Desktop and web/wasm only - not available on mobile platforms
 8. **File storage paths**: Use FileStorage interface for platform-specific paths
 9. **Large file refactoring**: Keep UI component files under 500 lines; extract into modular structure (see `ui/gameplay/` pattern)
+10. **Localization strings**: Always use `stringResource(Res.string.key_name)` in composables instead of hardcoded strings. For runtime string access outside composables, use `LocalizedStrings.get("key_name", locale)`. All new strings must be added to all language files (values/, values-de/, values-es/, values-fr/, values-it/)
 
 ## Dependencies
 
 ### Required
 - JDK 11 or higher
 - Gradle 8.9 (included via wrapper)
+
+### Localization
+- **compose-multiplatform-localize** plugin (v1.1.1): String resource management and code generation
+- **FlagKit** (v1.1.0): Vector flag icons for language selection UI
+- **multiplatform-settings** (v1.3.0): Cross-platform settings persistence (prepared for future use)
 
 ### Platform-Specific
 - **Android**: Android SDK, compileSdk 34, minSdk 24, targetSdk 34
@@ -265,6 +318,7 @@ Add to `LevelData.createLevels()` with:
 - `LEVEL_EDITOR_REFACTORING.md`: Editor component refactoring
 - `CODE_REFACTORING_ANALYSIS.md`: Code organization and patterns
 - `WEB_WASM_GUIDE.md`: Web/WASM platform guide
+- `LOCALIZATION_IMPLEMENTATION.md`: Localization system implementation and usage
 
 ## Version Control
 
@@ -294,6 +348,7 @@ Add to `LevelData.createLevels()` with:
 - Level Editor: Desktop and web/wasm only, stores data in `~/.defender-of-egril/editor/` (Linux/Mac) or `%USERPROFILE%\.defender-of-egril\editor\` (Windows)
 - Pan and Zoom: All platforms support panning (drag) and zooming (mouse wheel/pinch, 0.5x to 3x)
 - Minimap: Automatically appears when zoomed in to show current viewport position
+- Localization: Supports English (default), German, Spanish, French, and Italian. Language can be switched via Settings button on all screens. Uses `compose-multiplatform-localize` plugin for string resource management.
 
 ## Resources
 
@@ -305,3 +360,4 @@ For more details, refer to:
 - Save/Load: `SAVE_LOAD_IMPLEMENTATION.md`
 - UI Refactoring: `GAMEPLAY_SCREEN_EXTRACTION.md`, `LEVEL_EDITOR_REFACTORING.md`
 - Web Platform: `WEB_WASM_GUIDE.md`
+- Localization: `LOCALIZATION_IMPLEMENTATION.md`
