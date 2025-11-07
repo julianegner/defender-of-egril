@@ -310,4 +310,7 @@
     <string name="create_new_level_title">Create New Level</string>
     <string name="start_coins">Start Coins</string>
     <string name="start_hp">Start HP</string>
+    <string name="cost_damage_info">Cost: %d, Damage: %d</string>
+    <string name="hp_with_level">HP: %d</string>
+    <string name="add_enemy_button">➕ Add Enemy to Turn %d</string>
 </resources>
