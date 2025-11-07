@@ -247,4 +247,30 @@
     <string name="ballista_tower_short">Balliste</string>
     <string name="dwarven_mine_short">Mine</string>
     <string name="dragons_lair_short">Höhle</string>
+    
+    <!-- Editor strings -->
+    <string name="map_editor">Karteneditor</string>
+    <string name="level_sequence">Level-Reihenfolge</string>
+    <string name="maps">Karten</string>
+    <string name="levels">Levels</string>
+    <string name="create_new_map">Neue Karte erstellen</string>
+    <string name="create_new_level">Neues Level erstellen</string>
+    <string name="create">Erstellen</string>
+    <string name="save_map">Karte speichern</string>
+    <string name="save_level">Level speichern</string>
+    <string name="save_as_new">Als neu speichern</string>
+    <string name="map_name">Kartenname</string>
+    <string name="level_title">Level-Titel</string>
+    <string name="subtitle_optional">Untertitel (optional)</string>
+    <string name="width">Breite</string>
+    <string name="height">Höhe</string>
+    <string name="select_map_to_edit">Wähle eine Karte zum Bearbeiten:</string>
+    <string name="select_level_to_edit">Wähle ein Level zum Bearbeiten:</string>
+    <string name="editing_map">Bearbeite: %s</string>
+    <string name="editing_level">Bearbeite Level: %s</string>
+    <string name="ready_to_use">Einsatzbereit</string>
+    <string name="not_ready">Nicht bereit</string>
+    <string name="ready">Bereit</string>
+    <string name="file">Datei</string>
+    <string name="size">Größe</string>
 </resources>

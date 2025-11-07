@@ -247,4 +247,30 @@
     <string name="ballista_tower_short">Balista</string>
     <string name="dwarven_mine_short">Miniera</string>
     <string name="dragons_lair_short">Tana</string>
+    
+    <!-- Editor strings -->
+    <string name="map_editor">Editor di mappe</string>
+    <string name="level_sequence">Sequenza di livelli</string>
+    <string name="maps">Mappe</string>
+    <string name="levels">Livelli</string>
+    <string name="create_new_map">Crea nuova mappa</string>
+    <string name="create_new_level">Crea nuovo livello</string>
+    <string name="create">Crea</string>
+    <string name="save_map">Salva mappa</string>
+    <string name="save_level">Salva livello</string>
+    <string name="save_as_new">Salva come nuovo</string>
+    <string name="map_name">Nome mappa</string>
+    <string name="level_title">Titolo livello</string>
+    <string name="subtitle_optional">Sottotitolo (opzionale)</string>
+    <string name="width">Larghezza</string>
+    <string name="height">Altezza</string>
+    <string name="select_map_to_edit">Seleziona una mappa da modificare:</string>
+    <string name="select_level_to_edit">Seleziona un livello da modificare:</string>
+    <string name="editing_map">Modifica: %s</string>
+    <string name="editing_level">Modifica livello: %s</string>
+    <string name="ready_to_use">Pronto all\'uso</string>
+    <string name="not_ready">Non pronto</string>
+    <string name="ready">Pronto</string>
+    <string name="file">File</string>
+    <string name="size">Dimensione</string>
 </resources>
