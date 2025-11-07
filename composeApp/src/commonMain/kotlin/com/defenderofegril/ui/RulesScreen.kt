@@ -1,3 +1,5 @@
+@file:OptIn(org.jetbrains.compose.resources.InternalResourceApi::class)
+
 package com.defenderofegril.ui
 
 import androidx.compose.foundation.background
@@ -19,133 +21,153 @@ import com.defenderofegril.ui.icon.DoorIcon
 import com.defenderofegril.ui.icon.LightningIcon
 import com.defenderofegril.ui.icon.TargetIcon
 import com.defenderofegril.ui.icon.TimerIcon
+import com.defenderofegril.ui.settings.SettingsButton
+import com.hyperether.resources.stringResource
+import defender_of_egril.composeapp.generated.resources.*
+import defender_of_egril.composeapp.generated.resources.Res
 
 @Composable
 fun RulesScreen(
     onBack: () -> Unit
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+    Box(
+        modifier = Modifier.fillMaxSize().padding(16.dp)
     ) {
-        // Header
-        Text(
-            text = "How to Play",
-            style = MaterialTheme.typography.displayMedium,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(bottom = 16.dp)
+        // Settings button in top-right corner
+        SettingsButton(
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(8.dp)
         )
         
-        // Scrollable content
         Column(
-            modifier = Modifier
-                .weight(1f)
-                .verticalScroll(rememberScrollState())
-                .fillMaxWidth()
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Game Overview
-            SectionTitle("Game Overview")
-            SectionText("Defender of Egril is a turn-based tower defense game. Defend the meadows of Egril against waves of enemies under the evil banner of Ewhad.")
+            // Header
+            Text(
+                text = stringResource(Res.string.how_to_play),
+                style = MaterialTheme.typography.displayMedium,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
             
-            Spacer(modifier = Modifier.height(16.dp))
+            // Scrollable content
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .verticalScroll(rememberScrollState())
+                    .fillMaxWidth()
+            ) {
+                // Game Overview
+                SectionTitle(stringResource(Res.string.game_overview))
+                SectionText(stringResource(Res.string.game_overview_text))
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Initial Building Phase
+                SectionTitle(stringResource(Res.string.initial_building_phase))
+                SectionText(stringResource(Res.string.at_start_of_level))
+                BulletPoint(stringResource(Res.string.place_towers_instantly))
+                BulletPoint(stringResource(Res.string.use_coins_strategically))
+                BulletPoint(stringResource(Res.string.towers_ready_to_attack))
+                BulletPoint(stringResource(Res.string.click_start_battle))
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Your Turn
+                SectionTitle(stringResource(Res.string.your_turn))
+                SectionText(stringResource(Res.string.during_your_turn))
+                BulletPointWithIcon("Timer", { TimerIcon(size = 14.dp) }, stringResource(Res.string.place_new_towers))
+                BulletPointWithIcon("Lightning", { LightningIcon(size = 14.dp) }, stringResource(Res.string.attack_enemies_desc))
+
+                BulletPoint(stringResource(Res.string.upgrade_towers))
+                BulletPoint(stringResource(Res.string.end_your_turn))
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Enemy Turn
+                SectionTitle(stringResource(Res.string.enemy_turn))
+                SectionText(stringResource(Res.string.after_end_turn))
+                BulletPoint(stringResource(Res.string.enemies_move))
+                BulletPoint(stringResource(Res.string.new_enemies))
+                BulletPointWithIcon("Timer", { TimerIcon(size = 14.dp) }, stringResource(Res.string.build_timers_advance))
+                BulletPoint(stringResource(Res.string.dot_effects_applied))
+
+                Spacer(modifier = Modifier.height(16.dp))
             
-            // Initial Building Phase
-            SectionTitle("Initial Building Phase")
-            SectionText("At the start of each level:")
-            BulletPoint("Place towers instantly (no build time)")
-            BulletPoint("Use your starting coins strategically")
-            BulletPoint("Towers are ready to attack immediately")
-            BulletPoint("Click \"Start Battle\" when ready")
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            // Your Turn
-            SectionTitle("Your Turn")
-            SectionText("During your turn, you can:")
-            BulletPointWithIcon("Timer", { TimerIcon(size = 14.dp) }, "Place New Towers - costs coins, requires build time")
-            BulletPointWithIcon("Lightning", { LightningIcon(size = 14.dp) }, "Attack Enemies - click tower with actions, then enemy in range")
-            BulletPoint("Upgrade Towers - increases damage and range")
-            BulletPoint("End Turn - click \"End Turn\" to finish")
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            // Enemy Turn
-            SectionTitle("Enemy Turn")
-            BulletPoint("Enemies move toward the target")
-            BulletPoint("New enemies spawn")
-            BulletPointWithIcon("Timer", { TimerIcon(size = 14.dp) }, "Build timers advance (counts down)")
-            BulletPoint("Damage-over-time effects are applied")
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            // Tower Types
-            SectionTitle("Tower Types")
-            // Filter out DRAGONS_LAIR as it's not a regular tower
-            DefenderType.entries.filter { it != DefenderType.DRAGONS_LAIR }.forEach { defenderType ->
-                TowerInfo(defenderType)
-            }
+                // Winning and Losing
+                SectionTitle(stringResource(Res.string.winning_losing))
+                BulletPoint(stringResource(Res.string.win_condition))
+                BulletPoint(stringResource(Res.string.lose_condition))
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Tower Types
+                SectionTitle(stringResource(Res.string.tower_types))
+                // Filter out DRAGONS_LAIR as it's not a regular tower
+                DefenderType.entries.filter { it != DefenderType.DRAGONS_LAIR }.forEach { defenderType ->
+                    TowerInfo(defenderType)
+                }
 
             
-            Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Attack Types
+                SectionTitle(stringResource(Res.string.attack_types))
+                BulletPoint(stringResource(Res.string.melee_ranged_desc))
+                BulletPoint(stringResource(Res.string.fireball_desc))
+                BulletPoint(stringResource(Res.string.acid_desc))
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Enemies
+                SectionTitle(stringResource(Res.string.enemy_types))
+                // Filter out DRAGON as it's a boss/special enemy
+                AttackerType.entries.filter { it != AttackerType.DRAGON }.forEach { attackerType ->
+                    EnemyInfo(attackerType)
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Victory and Defeat
+                SectionTitle(stringResource(Res.string.victory_defeat))
+                SectionText(stringResource(Res.string.victory_detail))
+                SectionText(stringResource(Res.string.defeat_detail))
             
-            // Attack Types
-            SectionTitle("Attack Types")
-            BulletPoint("Melee/Ranged: Single target")
-            BulletPoint("Fireball (Area): Damages all enemies within 1 cell of impact")
-            BulletPoint("Acid: Continuous damage for 3 turns within 1 cell of impact")
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Grid Legend
+                SectionTitle(stringResource(Res.string.grid_legend))
+                BulletPointWithIcon("Door icon", { DoorIcon(size = 16.dp) }, stringResource(Res.string.spawn_desc))
+                BulletPointWithIcon("Target icon", { TargetIcon(size = 16.dp) }, stringResource(Res.string.target_desc))
+                BulletPoint(stringResource(Res.string.blue_towers))
+                BulletPoint(stringResource(Res.string.gray_towers))
+                BulletPoint(stringResource(Res.string.red_enemies))
+                BulletPointWithIcon("Timer icon", { TimerIcon(size = 16.dp) }, stringResource(Res.string.build_time_remaining))
+                BulletPointWithIcon("Lightning icon", { LightningIcon(size = 16.dp) }, stringResource(Res.string.actions_remaining))
+
+                Spacer(modifier = Modifier.height(16.dp))
             
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            // Enemies
-            SectionTitle("Enemy Types")
-            // Filter out DRAGON as it's a boss/special enemy
-            AttackerType.entries.filter { it != AttackerType.DRAGON }.forEach { attackerType ->
-                EnemyInfo(attackerType)
+                // Tips
+                SectionTitle(stringResource(Res.string.strategic_tips))
+                BulletPoint(stringResource(Res.string.use_initial_phase))
+                BulletPoint(stringResource(Res.string.save_coins))
+                BulletPoint(stringResource(Res.string.focus_fire))
+                BulletPoint(stringResource(Res.string.wizard_for_aoe))
+                BulletPoint(stringResource(Res.string.upgrade_vs_build))
+
+                Spacer(modifier = Modifier.height(24.dp))
             }
             
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            // Victory and Defeat
-            SectionTitle("Victory & Defeat")
-            SectionText("Victory: Defeat all enemies in all waves with at least 1 HP remaining")
-            SectionText("Defeat: Each enemy reaching the target costs 1 HP. At 0 HP, you lose.")
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            // Grid Legend
-            SectionTitle("Grid Legend")
-            BulletPointWithIcon("Door icon", { DoorIcon(size = 16.dp) }, "Spawn: Start position (enemies spawn)")
-            BulletPointWithIcon("Target icon", { TargetIcon(size = 16.dp) }, "Target: Target position (defend this!)")
-            BulletPoint("Blue: Your ready towers")
-            BulletPoint("Gray: Towers still building")
-            BulletPoint("Red: Enemies")
-            BulletPointWithIcon("Timer icon", { TimerIcon(size = 16.dp) }, "Build time remaining")
-            BulletPointWithIcon("Lightning icon", { LightningIcon(size = 16.dp) }, "Actions remaining this turn")
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            // Tips
-            SectionTitle("Strategic Tips")
-            BulletPoint("Use initial building phase wisely")
-            BulletPoint("Save 20-30 coins for mid-game")
-            BulletPoint("Focus fire on tough enemies (Ogres, Orks)")
-            BulletPoint("Wizard Towers for massive Areal damage")
-            BulletPoint("Upgrade high-level towers rather than building new ones")
-            
-            Spacer(modifier = Modifier.height(24.dp))
+            // Back button
+            Button(
+                onClick = onBack,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(stringResource(Res.string.back))
+            }
         }
-        
-        // Back button
-        Button(
-            onClick = onBack,
-            modifier = Modifier.width(200.dp).height(50.dp)
-        ) {
-            Text("Back")
-        }
-        
-        Spacer(modifier = Modifier.height(8.dp))
     }
 }
 
@@ -194,6 +216,7 @@ private fun BulletPointWithIcon(iconDescription: String, icon: @Composable () ->
 
 @Composable
 private fun TowerInfo(defenderType: DefenderType) {
+    val locale = com.hyperether.resources.currentLanguage.value
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -212,16 +235,20 @@ private fun TowerInfo(defenderType: DefenderType) {
         // Tower details
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = defenderType.displayName,
+                text = defenderType.getLocalizedName(locale),
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Bold
             )
             
             // Build description based on tower type
             val description = when {
-                defenderType.isMine -> "Special: dig for valuables or place traps on the path"
-                defenderType.baseDamage == 0 -> "Special building"
-                else -> "${defenderType.baseCost} coins | ${defenderType.baseDamage} damage | Range ${defenderType.baseRange} | ${defenderType.attackType.displayName}"
+                defenderType.isMine -> stringResource(Res.string.mine_special_desc)
+                defenderType.baseDamage == 0 -> stringResource(Res.string.special_building)
+                else -> {
+                    val coinsLabel = stringResource(Res.string.coins_label)
+                    val rangeLabel = stringResource(Res.string.range)
+                    "${defenderType.baseCost} $coinsLabel | ${defenderType.baseDamage} ${stringResource(Res.string.damage)} | $rangeLabel ${defenderType.baseRange} | ${defenderType.attackType.getLocalizedName(locale)}"
+                }
             }
             
             Text(
@@ -235,6 +262,7 @@ private fun TowerInfo(defenderType: DefenderType) {
 
 @Composable
 private fun EnemyInfo(attackerType: AttackerType) {
+    val locale = com.hyperether.resources.currentLanguage.value
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -253,12 +281,12 @@ private fun EnemyInfo(attackerType: AttackerType) {
         // Enemy details
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = attackerType.displayName,
+                text = attackerType.getLocalizedName(locale),
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Bold
             )
             Text(
-                text = "${attackerType.health} HP | Speed ${attackerType.speed} | ${attackerType.reward} coins",
+                text = "${attackerType.health} ${stringResource(Res.string.hp_label)} | ${stringResource(Res.string.speed_label)} ${attackerType.speed} | ${attackerType.reward} ${stringResource(Res.string.coins_label)}",
                 style = MaterialTheme.typography.bodySmall,
                 fontSize = 12.sp
             )
