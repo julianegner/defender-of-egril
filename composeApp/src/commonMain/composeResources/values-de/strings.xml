@@ -67,7 +67,7 @@
     <!-- Rules Screen -->
     <string name="how_to_play">Wie man spielt</string>
     <string name="game_overview">Spielübersicht</string>
-    <string name="game_overview_text">Verteidiger von Egril ist ein rundenbasiertes Tower-Defense-Spiel. Verteidige die Wiesen von Egril gegen Wellen von Feinden unter der bösen Flagge von Ewhad.</string>
+    <string name="game_overview_text">Verteidiger von Egril ist ein rundenbasiertes Tower-Defense-Spiel. Verteidige die Wiesen von Egril gegen Wellen von Feinden unter der Flagge des bösen Ewhad.</string>
     <string name="at_start_of_level">Zu Beginn jedes Levels:</string>
     <string name="place_towers_instantly">Platziere Türme sofort (keine Bauzeit)</string>
     <string name="use_coins_strategically">Nutze deine Startmünzen strategisch</string>
@@ -78,7 +78,7 @@
     <string name="place_new_towers">Neue Türme platzieren - kostet Münzen, benötigt Bauzeit</string>
     <string name="upgrade_towers">Bestehende Türme aufwerten - erhöht Schaden und Reichweite</string>
     <string name="attack_with_towers">Mit Türmen angreifen - wähle Turm, dann Ziel</string>
-    <string name="end_your_turn">Deine Runde beenden - Feinde bewegen sich und greifen an</string>
+    <string name="end_your_turn">Deine Runde beenden - Feinde bewegen sich und greifentache an</string>
     <string name="enemy_turn">Feindrunde</string>
     <string name="after_end_turn">Nachdem du deine Runde beendet hast:</string>
     <string name="enemies_move">Feinde bewegen sich zum Ziel</string>
@@ -86,7 +86,7 @@
     <string name="new_enemies">Neue Feinde können erscheinen</string>
     <string name="winning_losing">Gewinnen und Verlieren</string>
     <string name="win_condition">Sieg: Eliminiere alle Feinde bevor sie deine Verteidigung durchbrechen</string>
-    <string name="lose_condition">Niederlage: Deine Gesundheit erreicht 0</string>
+    <string name="lose_condition">Niederlage: Deine Gesundheit erreicht Null</string>
     <string name="tower_types">Turmarten</string>
     <string name="spike_tower">Stachelturm (Pike): Nahkampfverteidigung, günstigste Option</string>
     <string name="spear_tower">Speerturm: Mittlere Reichweite, durchdringende Angriffe</string>
@@ -115,7 +115,7 @@
     <string name="save_coins">Spare 20-30 Münzen für das Mittelspiel</string>
     <string name="focus_fire">Konzentriere Feuer auf zähe Feinde (Oger, Orks)</string>
     <string name="wizard_for_aoe">Zaubertürme für massiven Flächenschaden</string>
-    <string name="upgrade_vs_build">Werte hochstufige Türme auf statt neue zu bauen</string>
+    <string name="upgrade_vs_build">Werte Türme auf statt neue zu bauen</string>
     
     <!-- Additional RulesScreen strings -->
     <string name="attack_enemies_desc">Feinde angreifen - Turm mit Aktionen anklicken, dann Feind in Reichweite</string>
@@ -146,7 +146,7 @@
     <string name="available">Verfügbar</string>
     
     <!-- Defender/Tower names -->
-    <string name="spike_tower_name">Stachelturm</string>
+    <string name="spike_tower_name">Stachelturm (Pike)</string>
     <string name="spear_tower_name">Speerturm</string>
     <string name="bow_tower_name">Bogenturm</string>
     <string name="wizard_tower_name">Zauberturm</string>
