@@ -6,16 +6,19 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.hyperether.resources.currentLanguage
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
 import defender_of_egril.composeapp.generated.resources.Res
 
 /**
- * Settings dialog that provides access to app settings like language selection
+ * Settings dialog that provides access to app settings like language selection and dark mode
  */
 @Composable
 fun SettingsDialog(
@@ -45,6 +48,31 @@ fun SettingsDialog(
                 
                 HorizontalDivider()
                 
+                // Appearance section
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = stringResource(Res.string.appearance),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    
+                    // Dark mode switch
+                    val darkModeState = remember { AppSettings.isDarkMode }
+                    GenericSwitch(
+                        state = darkModeState,
+                        checkedText = stringResource(Res.string.dark_mode_on),
+                        uncheckedText = stringResource(Res.string.dark_mode_off),
+                        onCheckedChange = { enabled ->
+                            AppSettings.saveDarkMode(enabled)
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+                
+                HorizontalDivider()
+                
                 // Language section
                 Column(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -56,18 +84,36 @@ fun SettingsDialog(
                     )
                     
                     LanguageChooser(
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        onLanguageChanged = { locale ->
+                            AppSettings.saveLanguage(locale)
+                        }
                     )
                 }
                 
                 HorizontalDivider()
                 
-                // Close button
-                Button(
-                    onClick = onDismiss,
-                    modifier = Modifier.align(Alignment.End)
+                // Action buttons
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(stringResource(Res.string.close))
+                    // Reset button
+                    OutlinedButton(
+                        onClick = {
+                            AppSettings.resetToDefaults()
+                        }
+                    ) {
+                        Text(stringResource(Res.string.reset_settings))
+                    }
+                    
+                    // Close button
+                    Button(
+                        onClick = onDismiss
+                    ) {
+                        Text(stringResource(Res.string.close))
+                    }
                 }
             }
         }

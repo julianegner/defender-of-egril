@@ -19,6 +19,11 @@
     <!-- Settings -->
     <string name="settings">Configuración</string>
     <string name="language">Idioma</string>
+    <string name="appearance">Apariencia</string>
+    <string name="dark_mode">Modo Oscuro</string>
+    <string name="dark_mode_on">Modo Oscuro Activado</string>
+    <string name="dark_mode_off">Modo Oscuro Desactivado</string>
+    <string name="reset_settings">Restablecer Configuración</string>
     <string name="close">Cerrar</string>
     
     <!-- Common Actions -->
