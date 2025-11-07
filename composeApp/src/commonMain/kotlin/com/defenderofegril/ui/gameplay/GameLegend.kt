@@ -255,7 +255,7 @@ fun EnemyListPanel(gameState: GameState, modifier: Modifier = Modifier) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Enemies", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Text(stringResource(Res.string.enemies), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                 if (isExpanded) {
                     TriangleDownIcon(size = 20.dp)
                 } else {
@@ -263,7 +263,7 @@ fun EnemyListPanel(gameState: GameState, modifier: Modifier = Modifier) {
                 }
             }
             Text(
-                "Active: ${activeEnemies.size} | Planned: ${plannedSpawns.size}",
+                "${stringResource(Res.string.active_label)}: ${activeEnemies.size} | ${stringResource(Res.string.planned_label)}: ${plannedSpawns.size}",
                 style = MaterialTheme.typography.bodySmall
             )
 
@@ -309,7 +309,7 @@ fun EnemyListPanel(gameState: GameState, modifier: Modifier = Modifier) {
                                 Spacer(modifier = Modifier.height(8.dp))
                             }
                             Text(
-                                "Planned Spawns:",
+                                "${stringResource(Res.string.planned_spawns)}:",
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = FontWeight.Bold,
                                 color = GamePlayColors.Warning
@@ -384,47 +384,6 @@ fun EnemyItemDetailed(attacker: Attacker, showPosition: Boolean) {
 }
 
 @Composable
-fun UpcomingEnemyItem(attackerType: AttackerType) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = GamePlayColors.UpcomingCardBackground
-        )
-    ) {
-        Row(
-            modifier = Modifier.padding(6.dp).fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Enemy type icon using graphical representation
-            Box(
-                modifier = Modifier.size(32.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                EnemyTypeIcon(attackerType = attackerType, modifier = Modifier.size(28.dp))
-            }
-
-            Spacer(modifier = Modifier.width(6.dp))
-
-            // Enemy details
-            Column(modifier = Modifier.weight(1f)) {
-                val locale = com.hyperether.resources.currentLanguage.value
-                Text(
-                    attackerType.getLocalizedName(locale),
-                    style = MaterialTheme.typography.bodySmall,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    "${stringResource(Res.string.hp_label)}: ${attackerType.health}",
-                    style = MaterialTheme.typography.bodySmall,
-                    fontSize = 10.sp
-                )
-            }
-        }
-    }
-}
-
-@Composable
 fun PlannedEnemyItem(plannedSpawn: PlannedEnemySpawn, currentTurn: Int) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -479,7 +438,7 @@ fun PlannedEnemyItem(plannedSpawn: PlannedEnemySpawn, currentTurn: Int) {
             // Spawn turn
             Column(horizontalAlignment = Alignment.End) {
                 Text(
-                    "Turn ${plannedSpawn.spawnTurn}",
+                    "${stringResource(Res.string.turn)} ${plannedSpawn.spawnTurn}",
                     style = MaterialTheme.typography.bodySmall,
                     fontWeight = FontWeight.Bold,
                     fontSize = 11.sp,
