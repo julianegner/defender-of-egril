@@ -19,6 +19,8 @@ import com.defenderofegril.ui.*
 import com.defenderofegril.ui.editor.CreateLevelDialog
 import com.defenderofegril.ui.editor.map.MapSelectionCard
 import com.defenderofegril.ui.editor.SaveAsDialog
+import com.hyperether.resources.stringResource
+import defender_of_egril.composeapp.generated.resources.*
 import kotlin.random.Random
 
 /**
@@ -53,18 +55,18 @@ fun LevelEditorContent() {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Levels",
+                    text = stringResource(Res.string.levels),
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
                 
                 Button(onClick = { showCreateDialog = true }) {
-                    Text("Create New Level")
+                    Text(stringResource(Res.string.create_new_level))
                 }
             }
             
             Text(
-                text = "Select a level to edit:",
+                text = stringResource(Res.string.select_level_to_edit),
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
@@ -74,69 +76,7 @@ fun LevelEditorContent() {
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(levels.value) { level ->
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(
-                            containerColor = if (selectedLevelId == level.id) 
-                                MaterialTheme.colorScheme.primaryContainer 
-                            else 
-                                MaterialTheme.colorScheme.surfaceVariant
-                        )
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Column(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .clickable { 
-                                        selectedLevelId = level.id
-                                        editingLevel = level
-                                    }
-                                    .padding(12.dp)
-                            ) {
-                                Text(
-                                    text = level.title,
-                                    style = MaterialTheme.typography.titleSmall
-                                )
-                                if (level.subtitle.isNotEmpty()) {
-                                    Text(
-                                        text = level.subtitle,
-                                        style = MaterialTheme.typography.bodySmall
-                                    )
-                                }
-                                Text(
-                                    text = "File: ${level.id}",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                                Text(
-                                    text = "Map: ${level.mapId} | Coins: ${level.startCoins} | HP: ${level.startHealthPoints}",
-                                    style = MaterialTheme.typography.bodySmall
-                                )
-                                Text(
-                                    text = "Enemies: ${level.enemySpawns.size}",
-                                    style = MaterialTheme.typography.bodySmall
-                                )
-                            }
-                            Button(
-                                onClick = {
-                                    EditorStorage.deleteLevel(level.id)
-                                    levels.value = EditorStorage.getAllLevels()
-                                    if (selectedLevelId == level.id) {
-                                        selectedLevelId = null
-                                    }
-                                },
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = MaterialTheme.colorScheme.error
-                                ),
-                                modifier = Modifier.padding(end = 8.dp)
-                            ) {
-                                Text("Delete")
-                            }
-                        }
-                    }
+                    editingLevel = LevelCard(selectedLevelId, level, editingLevel, levels)
                 }
             }
         }
@@ -174,6 +114,81 @@ fun LevelEditorContent() {
             }
         )
     }
+}
+
+@Composable
+private fun LevelCard(
+    selectedLevelId: String?,
+    level: EditorLevel,
+    editingLevel: EditorLevel?,
+    levels: MutableState<List<EditorLevel>>
+): EditorLevel? {
+    var selectedLevelId1 = selectedLevelId
+    var editingLevel1 = editingLevel
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = if (selectedLevelId1 == level.id)
+                MaterialTheme.colorScheme.primaryContainer
+            else
+                MaterialTheme.colorScheme.surfaceVariant
+        )
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .clickable {
+                        selectedLevelId1 = level.id
+                        editingLevel1 = level
+                    }
+                    .padding(12.dp)
+            ) {
+                Text(
+                    text = level.title,
+                    style = MaterialTheme.typography.titleSmall
+                )
+                if (level.subtitle.isNotEmpty()) {
+                    Text(
+                        text = level.subtitle,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+                Text(
+                    text = "${stringResource(Res.string.file)}: ${level.id}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text = "${stringResource(Res.string.map_label)}: ${level.mapId} | ${stringResource(Res.string.coins)}: ${level.startCoins} | ${stringResource(Res.string.hp_short)}: ${level.startHealthPoints}",
+                    style = MaterialTheme.typography.bodySmall
+                )
+                Text(
+                    text = "${stringResource(Res.string.enemies)}: ${level.enemySpawns.size}",
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+            Button(
+                onClick = {
+                    EditorStorage.deleteLevel(level.id)
+                    levels.value = EditorStorage.getAllLevels()
+                    if (selectedLevelId1 == level.id) {
+                        selectedLevelId1 = null
+                    }
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.error
+                ),
+                modifier = Modifier.padding(end = 8.dp)
+            ) {
+                Text(stringResource(Res.string.delete))
+            }
+        }
+    }
+    return editingLevel1
 }
 
 /**
@@ -220,7 +235,7 @@ fun LevelEditorView(
                 OutlinedTextField(
                     value = title,
                     onValueChange = { title = it },
-                    label = { Text("Level Title") },
+                    label = { Text(stringResource(Res.string.level_title)) },
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -229,7 +244,7 @@ fun LevelEditorView(
                 OutlinedTextField(
                     value = subtitle,
                     onValueChange = { subtitle = it },
-                    label = { Text("Subtitle (optional)") },
+                    label = { Text(stringResource(Res.string.subtitle_optional)) },
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -264,13 +279,13 @@ fun LevelEditorView(
                     OutlinedTextField(
                         value = startCoins,
                         onValueChange = { if (it.all { c -> c.isDigit() }) startCoins = it },
-                        label = { Text("Start Coins") },
+                        label = { Text(stringResource(Res.string.start_coins)) },
                         modifier = Modifier.weight(1f)
                     )
                     OutlinedTextField(
                         value = startHP,
                         onValueChange = { if (it.all { c -> c.isDigit() }) startHP = it },
-                        label = { Text("Start HP") },
+                        label = { Text(stringResource(Res.string.start_hp)) },
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -284,7 +299,7 @@ fun LevelEditorView(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Enemies (${enemySpawns.size}):",
+                        text = "${stringResource(Res.string.enemies)} (${enemySpawns.size}):",
                         style = MaterialTheme.typography.bodyMedium
                     )
                     Button(onClick = { 
@@ -302,7 +317,7 @@ fun LevelEditorView(
                     }) {
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                             Text("➕")
-                            Text("Add Turn")
+                            Text(stringResource(Res.string.add_turn))
                         }
                     }
                 }
@@ -371,7 +386,7 @@ fun LevelEditorView(
             // Towers section
             item {
                 Text(
-                    text = "Available Towers:",
+                    text = stringResource(Res.string.available_towers),
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
                 )
@@ -391,7 +406,7 @@ fun LevelEditorView(
                         }
                     )
                     TowerIconOnHexagon(defenderType = tower)
-                    Text("${tower.displayName} (Cost: ${tower.baseCost}, Damage: ${tower.baseDamage})")
+                    Text("${tower.getLocalizedName()} (${stringResource(Res.string.cost_label)}: ${tower.baseCost}, ${stringResource(Res.string.damage_label)}: ${tower.baseDamage})")
                 }
             }
         }
@@ -420,14 +435,14 @@ fun LevelEditorView(
                     },
                     modifier = Modifier.weight(1f)
                 ) {
-                    Text("Save Level")
+                    Text(stringResource(Res.string.save_level))
                 }
                 
                 Button(
                     onClick = { showSaveAsDialog = true },
                     modifier = Modifier.weight(1f)
                 ) {
-                    Text("Save As New")
+                    Text(stringResource(Res.string.save_as_new))
                 }
             }
             
@@ -435,7 +450,7 @@ fun LevelEditorView(
                 onClick = onCancel,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Cancel")
+                Text(stringResource(Res.string.cancel))
             }
         }
     }
