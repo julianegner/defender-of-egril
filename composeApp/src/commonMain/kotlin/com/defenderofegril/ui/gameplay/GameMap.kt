@@ -433,7 +433,7 @@ fun GridCell(
             val markerColor = when (attackType) {
                 AttackType.AREA -> Color(0xFFFF5722)  // Deep orange/red for fireball
                 AttackType.LASTING -> Color(0xFF4CAF50)  // Green for acid
-                AttackType.MELEE, AttackType.RANGED -> Color(0xFF2196F3)  // Blue for single-target attacks
+                AttackType.MELEE, AttackType.RANGED -> Color(0xFFFFEB3B)  // Yellow for single-target attacks (visible on enemies)
                 else -> null
             }
             
@@ -474,18 +474,18 @@ fun GridCell(
                     
                     // For AREA and LASTING attacks, add 2 more circles to show affected neighbor tiles
                     if (attackType == AttackType.AREA || attackType == AttackType.LASTING) {
-                        // Fourth circle (stroke) - indicates affected neighbors
+                        // Fourth circle (stroke) - indicates affected neighbors (about 70% to neighbors)
                         drawCircle(
                             color = color,
-                            radius = 28f,
+                            radius = 48f,
                             center = Offset(centerX, centerY),
                             style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2f)
                         )
                         
-                        // Fifth circle (stroke) - outer boundary of affected area
+                        // Fifth circle (stroke) - outer boundary reaching neighbor centers (hex width ~69px)
                         drawCircle(
                             color = color,
-                            radius = 36f,
+                            radius = 69f,
                             center = Offset(centerX, centerY),
                             style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2f)
                         )
