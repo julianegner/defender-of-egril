@@ -320,4 +320,10 @@
     <string name="damage_label">Dégâts</string>
     <string name="hp_with_level">PV: %d</string>
     <string name="add_enemy_button">➕ Ajouter un ennemi au tour %d</string>
+    
+    <!-- Sound Settings -->
+    <string name="sound">Son</string>
+    <string name="sound_enabled">Son activé</string>
+    <string name="sound_disabled">Son désactivé</string>
+    <string name="sound_volume">Volume du son</string>
 </resources>

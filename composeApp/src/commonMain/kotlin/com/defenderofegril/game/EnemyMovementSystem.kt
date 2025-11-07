@@ -1,6 +1,8 @@
 package com.defenderofegril.game
 
 import androidx.compose.runtime.mutableStateOf
+import com.defenderofegril.audio.GlobalSoundManager
+import com.defenderofegril.audio.SoundEvent
 import com.defenderofegril.model.*
 
 /**
@@ -62,6 +64,9 @@ class EnemyMovementSystem(
                 level = plannedSpawn.level
             )
             state.attackers.add(attacker)
+            
+            // Play spawn sound
+            GlobalSoundManager.playSound(SoundEvent.ENEMY_SPAWN)
         }
     }
     
@@ -193,12 +198,20 @@ class EnemyMovementSystem(
                 if (occupyingAttacker == null) {
                     attacker.position.value = newPos
                     pathIndex++
+                    // Play movement sound (only once per attacker per turn to avoid spam)
+                    if (pathIndex == 2) {  // First move only
+                        GlobalSoundManager.playSound(SoundEvent.ENEMY_MOVE)
+                    }
                 } else if (attacker.type == AttackerType.EWHAD) {
                     // Ewhad can swap positions with other units
                     val oldPos = attacker.position.value
                     attacker.position.value = newPos
                     occupyingAttacker.position.value = oldPos
                     pathIndex++
+                    // Play movement sound for first move
+                    if (pathIndex == 2) {
+                        GlobalSoundManager.playSound(SoundEvent.ENEMY_MOVE)
+                    }
                 } else {
                     // Can't move further, stop trying
                     break
@@ -210,6 +223,8 @@ class EnemyMovementSystem(
                 if (attacker.position.value == target) {
                     state.healthPoints.value--
                     attacker.isDefeated.value = true
+                    // Play life lost sound
+                    GlobalSoundManager.playSound(SoundEvent.LIFE_LOST)
                     break
                 }
             }
