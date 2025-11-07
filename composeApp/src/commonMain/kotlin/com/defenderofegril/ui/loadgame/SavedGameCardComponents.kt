@@ -154,7 +154,7 @@ fun SavedGameCardUnitsAndMinimap(
 fun TowersList(defenderCounts: Map<DefenderType, Int>) {
     if (defenderCounts.isNotEmpty()) {
         Text(
-            text = "Built Towers:",
+            text = stringResource(Res.string.built_towers),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
