@@ -247,4 +247,30 @@
     <string name="ballista_tower_short">Balista</string>
     <string name="dwarven_mine_short">Mina</string>
     <string name="dragons_lair_short">Guarida</string>
+    
+    <!-- Editor strings -->
+    <string name="map_editor">Editor de mapas</string>
+    <string name="level_sequence">Secuencia de niveles</string>
+    <string name="maps">Mapas</string>
+    <string name="levels">Niveles</string>
+    <string name="create_new_map">Crear nuevo mapa</string>
+    <string name="create_new_level">Crear nuevo nivel</string>
+    <string name="create">Crear</string>
+    <string name="save_map">Guardar mapa</string>
+    <string name="save_level">Guardar nivel</string>
+    <string name="save_as_new">Guardar como nuevo</string>
+    <string name="map_name">Nombre del mapa</string>
+    <string name="level_title">Título del nivel</string>
+    <string name="subtitle_optional">Subtítulo (opcional)</string>
+    <string name="width">Ancho</string>
+    <string name="height">Alto</string>
+    <string name="select_map_to_edit">Seleccionar un mapa para editar:</string>
+    <string name="select_level_to_edit">Seleccionar un nivel para editar:</string>
+    <string name="editing_map">Editando: %s</string>
+    <string name="editing_level">Editando nivel: %s</string>
+    <string name="ready_to_use">Listo para usar</string>
+    <string name="not_ready">No listo</string>
+    <string name="ready">Listo</string>
+    <string name="file">Archivo</string>
+    <string name="size">Tamaño</string>
 </resources>
