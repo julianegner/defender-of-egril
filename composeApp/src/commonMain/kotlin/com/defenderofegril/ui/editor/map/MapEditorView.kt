@@ -3,6 +3,7 @@ package com.defenderofegril.ui.editor.map
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -10,10 +11,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.defenderofegril.editor.EditorMap
@@ -49,6 +53,34 @@ fun MapEditorView(
     val hexHeight = hexSize.value * 2f    // Height of hexagon (point-to-point)
     val verticalSpacing = hexHeight * 0.75f  // For pointy-top hexagons
     
+    // Track tile positions for brush painting
+    val tilePositions = remember { mutableStateMapOf<String, Offset>() }
+    
+    // Track the last painted tile to avoid redundant updates
+    var lastPaintedTile by remember { mutableStateOf<String?>(null) }
+    
+    // Track the container's position in root coordinates
+    var containerPositionInRoot by remember { mutableStateOf(Offset.Zero) }
+    
+    // Get density for coordinate conversions
+    val density = androidx.compose.ui.platform.LocalDensity.current
+    
+    // Helper function to find which tile is at a given position (in root coordinates)
+    fun getTileAtPosition(position: Offset): String? {
+        val hexRadiusPx = with(density) { (hexWidth / 2f).dp.toPx() }
+        val closest = tilePositions.entries.minByOrNull { (_, tilePos) ->
+            val dx = position.x - tilePos.x
+            val dy = position.y - tilePos.y
+            dx * dx + dy * dy
+        }
+        return closest?.let { (key, tilePos) ->
+            val dx = position.x - tilePos.x
+            val dy = position.y - tilePos.y
+            val distance = sqrt(dx * dx + dy * dy)
+            if (distance < hexRadiusPx) key else null
+        }
+    }
+    
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -67,6 +99,10 @@ fun MapEditorView(
                     .fillMaxWidth()
                     .padding(8.dp)
                     .onSizeChanged { containerSize = it }
+                    .onGloballyPositioned { coordinates ->
+                        // Track container position for coordinate conversion
+                        containerPositionInRoot = coordinates.positionInRoot()
+                    }
                     .mouseWheelZoom(
                         containerSize = containerSize,
                         scale = zoomLevel,
@@ -78,17 +114,44 @@ fun MapEditorView(
                             offsetY = newY
                         }
                     )
-                    .pointerInput(Unit) {
-                        detectTransformGestures { _, pan, zoom, _ ->
-                            // Apply pan
-                            offsetX += pan.x
-                            offsetY += pan.y
-                            
-                            // Apply zoom (for pinch gestures on mobile)
-                            if (zoom != 1f) {
-                                zoomLevel = (zoomLevel * zoom).coerceIn(0.5f, 3f)
+                    .pointerInput(selectedTileType) {
+                        // Brush painting: detect drag gestures and paint tiles
+                        detectDragGestures(
+                            onDragStart = { offset ->
+                                // Convert container-relative coordinates to root coordinates
+                                val rootOffset = Offset(
+                                    containerPositionInRoot.x + offset.x,
+                                    containerPositionInRoot.y + offset.y
+                                )
+                                // Paint the tile at the start position
+                                val tileKey = getTileAtPosition(rootOffset)
+                                if (tileKey != null) {
+                                    tiles = tiles.toMutableMap().apply {
+                                        this[tileKey] = selectedTileType
+                                    }
+                                    lastPaintedTile = tileKey
+                                }
+                            },
+                            onDrag = { change, _ ->
+                                // Convert container-relative coordinates to root coordinates
+                                val rootOffset = Offset(
+                                    containerPositionInRoot.x + change.position.x,
+                                    containerPositionInRoot.y + change.position.y
+                                )
+                                // Paint tiles as the pointer moves (only if different from last)
+                                val tileKey = getTileAtPosition(rootOffset)
+                                if (tileKey != null && tileKey != lastPaintedTile) {
+                                    tiles = tiles.toMutableMap().apply {
+                                        this[tileKey] = selectedTileType
+                                    }
+                                    lastPaintedTile = tileKey
+                                }
+                            },
+                            onDragEnd = {
+                                // Clear last painted tile when drag ends
+                                lastPaintedTile = null
                             }
-                        }
+                        )
                     }
             ) {
                 Column(
@@ -119,6 +182,14 @@ fun MapEditorView(
                                         .clip(HexagonShape())
                                         .background(getTileColor(tileType))
                                         .border(1.5.dp, Color.Black, HexagonShape())
+                                        .onGloballyPositioned { coordinates ->
+                                            // Track tile center position for brush painting
+                                            val bounds = coordinates.size
+                                            val position = coordinates.positionInRoot()
+                                            val centerX = position.x + bounds.width / 2f
+                                            val centerY = position.y + bounds.height / 2f
+                                            tilePositions[key] = Offset(centerX, centerY)
+                                        }
                                         .clickable {
                                             tiles = tiles.toMutableMap().apply {
                                                 this[key] = selectedTileType

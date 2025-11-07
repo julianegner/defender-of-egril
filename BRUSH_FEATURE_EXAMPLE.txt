@@ -1,0 +1,122 @@
+═══════════════════════════════════════════════════════════════════
+                MAP EDITOR BRUSH FEATURE EXAMPLE
+═══════════════════════════════════════════════════════════════════
+
+BEFORE (Click-only mode):
+─────────────────────────────────────────────────────────────────
+
+User wants to create a path across 5 tiles:
+
+    ⬡ ⬡ ⬡ ⬡ ⬡     (All gray - NO_PLAY tiles)
+
+Steps required:
+1. Click tile 1 → ⬡ turns brown (PATH)
+2. Click tile 2 → ⬡ turns brown (PATH)
+3. Click tile 3 → ⬡ turns brown (PATH)
+4. Click tile 4 → ⬡ turns brown (PATH)
+5. Click tile 5 → ⬡ turns brown (PATH)
+
+Total: 5 separate clicks
+
+AFTER (Brush mode):
+─────────────────────────────────────────────────────────────────
+
+User wants to create a path across 5 tiles:
+
+    ⬡ ⬡ ⬡ ⬡ ⬡     (All gray - NO_PLAY tiles)
+
+Steps required:
+1. Click on tile 1 (hold down mouse button)
+2. Drag cursor across tiles 2, 3, 4, 5
+3. Release mouse button
+
+    ⬢ ⬢ ⬢ ⬢ ⬢     (All brown - PATH tiles)
+
+Total: 1 click-and-drag motion
+
+RESULT: 5x faster! 🚀
+
+═══════════════════════════════════════════════════════════════════
+
+VISUAL DEMONSTRATION:
+─────────────────────────────────────────────────────────────────
+
+Step 1: User selects PATH tile type
+┌───────────────────────────────────────┐
+│ Select Tile Type:                     │
+│ [PATH✓] [ISLAND] [SPAWN] [TARGET]    │
+└───────────────────────────────────────┘
+
+Step 2: User clicks on first tile and holds
+┌───────────────────────────────────────┐
+│                                        │
+│     👆⬢ ⬡ ⬡ ⬡ ⬡                     │
+│    (click here, hold down)             │
+│                                        │
+└───────────────────────────────────────┘
+
+Step 3: User drags right while holding
+┌───────────────────────────────────────┐
+│                                        │
+│     ⬢ ⬢ ⬢ 👉⬡ ⬡                     │
+│    (dragging... tiles paint)           │
+│                                        │
+└───────────────────────────────────────┘
+
+Step 4: User continues dragging
+┌───────────────────────────────────────┐
+│                                        │
+│     ⬢ ⬢ ⬢ ⬢ ⬢                        │
+│    (all tiles painted!)                │
+│                                        │
+└───────────────────────────────────────┘
+
+Step 5: User releases mouse
+┌───────────────────────────────────────┐
+│                                        │
+│     ⬢ ⬢ ⬢ ⬢ ⬢ ✓                     │
+│    (done! brush deactivated)           │
+│                                        │
+└───────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════
+
+COMPLEX EXAMPLE: Creating an L-shaped path
+─────────────────────────────────────────────────────────────────
+
+Before: Would require 7 separate clicks
+After: Can be done with 1 click-and-drag!
+
+    ⬡ ⬡ ⬡              ⬢ ⬢ ⬢
+    ⬡ ⬡ ⬡              ⬢ ⬡ ⬡
+    ⬡ ⬡ ⬡     →        ⬢ ⬡ ⬡
+    ⬡ ⬡ ⬡              ⬢ ⬢ ⬢
+
+Drag path: Start top-left, go down 4 tiles, then right 3 tiles
+           (or start bottom-right, go up 4 tiles, then left 3 tiles)
+
+═══════════════════════════════════════════════════════════════════
+
+KEY FEATURES:
+─────────────────────────────────────────────────────────────────
+
+✓ Works with mouse (desktop)
+✓ Works with touch (tablets, phones)
+✓ Paint in any direction (up, down, left, right, diagonal)
+✓ Paint curved paths by following the hex grid
+✓ Single clicks still work for individual tiles
+✓ Zoom in/out while painting (Ctrl+Scroll)
+✓ Pan the map by dragging empty space
+
+═══════════════════════════════════════════════════════════════════
+
+TIPS FOR BEST RESULTS:
+─────────────────────────────────────────────────────────────────
+
+1. Zoom in for precision work on detailed areas
+2. Paint large areas quickly with broad strokes
+3. Use single clicks for isolated tiles
+4. Pan the map by dragging between tiles (in gray areas)
+5. Change tile type anytime to paint different features
+
+═══════════════════════════════════════════════════════════════════
