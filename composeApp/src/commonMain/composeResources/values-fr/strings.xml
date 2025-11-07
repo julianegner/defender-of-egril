@@ -310,7 +310,8 @@
     <string name="create_new_level_title">Créer un nouveau niveau</string>
     <string name="start_coins">Pièces de départ</string>
     <string name="start_hp">PV de départ</string>
-    <string name="cost_damage_info">Coût: %d, Dégâts: %d</string>
+    <string name="cost_label">Coût</string>
+    <string name="damage_label">Dégâts</string>
     <string name="hp_with_level">PV: %d</string>
     <string name="add_enemy_button">➕ Ajouter un ennemi au tour %d</string>
 </resources>
