@@ -1,8 +1,6 @@
 package com.defenderofegril
 
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.*
 import com.defenderofegril.ui.*
 import com.defenderofegril.ui.editor.level.LevelEditorScreen
@@ -21,11 +19,11 @@ fun App() {
     // Observe dark mode state
     val isDarkMode by AppSettings.isDarkMode
     
-    // Use dark or light color scheme based on settings
+    // Use custom color schemes with softer dark mode colors
     val colorScheme = if (isDarkMode) {
-        darkColorScheme()
+        AppTheme.darkColorScheme
     } else {
-        lightColorScheme()
+        AppTheme.lightColorScheme
     }
     
     MaterialTheme(colorScheme = colorScheme) {
