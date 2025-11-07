@@ -3,6 +3,7 @@ package com.defenderofegril.ui.editor.map
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -10,10 +11,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.defenderofegril.editor.EditorMap
@@ -42,15 +46,33 @@ fun MapEditorView(
     var offsetX by remember { mutableStateOf(0f) }
     var offsetY by remember { mutableStateOf(0f) }
     
-    // Brush mode state: track if the user is currently painting (mouse/pointer is down)
-    var isBrushActive by remember { mutableStateOf(false) }
-    
     // Hexagon dimensions - using same constants as game
     val hexSize = 32.dp * zoomLevel  // Radius of hexagon with zoom applied
     val sqrt3 = sqrt(3.0).toFloat()
     val hexWidth = hexSize.value * sqrt3  // Width of hexagon (flat-to-flat)
     val hexHeight = hexSize.value * 2f    // Height of hexagon (point-to-point)
     val verticalSpacing = hexHeight * 0.75f  // For pointy-top hexagons
+    
+    // Track tile positions for brush painting
+    val tilePositions = remember { mutableStateMapOf<String, Offset>() }
+    
+    // Get density for coordinate conversions
+    val density = androidx.compose.ui.platform.LocalDensity.current
+    
+    // Helper function to find which tile is at a given position
+    fun getTileAtPosition(position: Offset): String? {
+        val hexRadiusPx = with(density) { (hexWidth / 2f).dp.toPx() }
+        return tilePositions.entries.minByOrNull { (_, tilePos) ->
+            val dx = position.x - tilePos.x
+            val dy = position.y - tilePos.y
+            dx * dx + dy * dy
+        }?.let { (key, tilePos) ->
+            val dx = position.x - tilePos.x
+            val dy = position.y - tilePos.y
+            val distance = sqrt(dx * dx + dy * dy)
+            if (distance < hexRadiusPx) key else null
+        }
+    }
     
     Box(
         modifier = Modifier.fillMaxSize()
@@ -81,17 +103,28 @@ fun MapEditorView(
                             offsetY = newY
                         }
                     )
-                    .pointerInput(Unit) {
-                        detectTransformGestures { _, pan, zoom, _ ->
-                            // Apply pan
-                            offsetX += pan.x
-                            offsetY += pan.y
-                            
-                            // Apply zoom (for pinch gestures on mobile)
-                            if (zoom != 1f) {
-                                zoomLevel = (zoomLevel * zoom).coerceIn(0.5f, 3f)
+                    .pointerInput(selectedTileType) {
+                        // Brush painting: detect drag gestures and paint tiles
+                        detectDragGestures(
+                            onDragStart = { offset ->
+                                // Paint the tile at the start position
+                                val tileKey = getTileAtPosition(offset)
+                                if (tileKey != null) {
+                                    tiles = tiles.toMutableMap().apply {
+                                        this[tileKey] = selectedTileType
+                                    }
+                                }
+                            },
+                            onDrag = { change, _ ->
+                                // Paint tiles as the pointer moves
+                                val tileKey = getTileAtPosition(change.position)
+                                if (tileKey != null) {
+                                    tiles = tiles.toMutableMap().apply {
+                                        this[tileKey] = selectedTileType
+                                    }
+                                }
                             }
-                        }
+                        )
                     }
             ) {
                 Column(
@@ -122,36 +155,13 @@ fun MapEditorView(
                                         .clip(HexagonShape())
                                         .background(getTileColor(tileType))
                                         .border(1.5.dp, Color.Black, HexagonShape())
-                                        .pointerInput(key, selectedTileType, isBrushActive) {
-                                            awaitPointerEventScope {
-                                                while (true) {
-                                                    val event = awaitPointerEvent()
-                                                    event.changes.forEach { change ->
-                                                        when {
-                                                            change.pressed && !change.previousPressed -> {
-                                                                // Mouse/pointer down - start brush mode and paint this tile
-                                                                isBrushActive = true
-                                                                tiles = tiles.toMutableMap().apply {
-                                                                    this[key] = selectedTileType
-                                                                }
-                                                                change.consume()
-                                                            }
-                                                            !change.pressed && change.previousPressed -> {
-                                                                // Mouse/pointer up - end brush mode
-                                                                isBrushActive = false
-                                                                change.consume()
-                                                            }
-                                                            change.pressed && isBrushActive -> {
-                                                                // Mouse/pointer is down and moving - paint this tile
-                                                                tiles = tiles.toMutableMap().apply {
-                                                                    this[key] = selectedTileType
-                                                                }
-                                                                change.consume()
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
+                                        .onGloballyPositioned { coordinates ->
+                                            // Track tile center position for brush painting
+                                            val bounds = coordinates.size
+                                            val position = coordinates.positionInRoot()
+                                            val centerX = position.x + bounds.width / 2f
+                                            val centerY = position.y + bounds.height / 2f
+                                            tilePositions[key] = Offset(centerX, centerY)
                                         }
                                         .clickable {
                                             tiles = tiles.toMutableMap().apply {
