@@ -23,11 +23,13 @@ import com.defenderofegril.ui.icon.TriangleDownIcon
 import com.defenderofegril.ui.icon.TriangleLeftIcon
 import com.defenderofegril.ui.icon.enemy.EnemyIcon
 import com.defenderofegril.ui.icon.enemy.EnemyTypeIcon
+import com.hyperether.resources.stringResource
+import defender_of_egril.composeapp.generated.resources.*
 
 @Composable
 fun GameLegend(modifier: Modifier = Modifier) {
     ExpandableCard(
-        title = "Legend",
+        title = stringResource(Res.string.legend),
         modifier = modifier,
         defaultExpanded = false
     ) {
@@ -38,7 +40,7 @@ fun GameLegend(modifier: Modifier = Modifier) {
             item {
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    "Areas:",
+                    stringResource(Res.string.areas_label),
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.Bold
                 )
@@ -48,7 +50,7 @@ fun GameLegend(modifier: Modifier = Modifier) {
                 LegendItemHex(
                             color = GamePlayColors.BuildIsland,
                             label = "⬡",
-                            description = "Build Island",
+                            description = stringResource(Res.string.build_island),
                             border = Color.Gray
                         )
                     }
@@ -56,7 +58,7 @@ fun GameLegend(modifier: Modifier = Modifier) {
                         LegendItemHex(
                             color = GamePlayColors.BuildStrip,
                             label = "⬡",
-                            description = "Build Strip",
+                            description = stringResource(Res.string.build_strip),
                             border = Color.Gray
                         )
                     }
@@ -64,7 +66,7 @@ fun GameLegend(modifier: Modifier = Modifier) {
                         LegendItemHex(
                             color = GamePlayColors.Path,
                             label = "⬡",
-                            description = "Enemy Path",
+                            description = stringResource(Res.string.enemy_path),
                             border = Color.Gray
                         )
                     }
@@ -72,7 +74,7 @@ fun GameLegend(modifier: Modifier = Modifier) {
                         LegendItemHex(
                             color = GamePlayColors.NonPlayable,
                             label = "⬡",
-                            description = "Non-Playable",
+                            description = stringResource(Res.string.non_playable),
                             border = Color.Gray
                         )
                     }
@@ -145,7 +147,7 @@ fun GameLegend(modifier: Modifier = Modifier) {
                         LegendItemHex(
                             color = GamePlayColors.Error,
                             label = "⬡",
-                            description = "Enemy Unit",
+                            description = stringResource(Res.string.enemy_unit),
                             border = GamePlayColors.Error,
                             borderWidth = 3.dp
                         )
@@ -353,8 +355,9 @@ fun EnemyItemDetailed(attacker: Attacker, showPosition: Boolean) {
 
             // Enemy details
             Column(modifier = Modifier.weight(1f)) {
+                val locale = com.hyperether.resources.currentLanguage.value
                 Text(
-                    attacker.type.displayName,
+                    attacker.type.getLocalizedName(locale),
                     style = MaterialTheme.typography.bodySmall,
                     fontWeight = FontWeight.Bold
                 )
@@ -405,13 +408,14 @@ fun UpcomingEnemyItem(attackerType: AttackerType) {
 
             // Enemy details
             Column(modifier = Modifier.weight(1f)) {
+                val locale = com.hyperether.resources.currentLanguage.value
                 Text(
-                    attackerType.displayName,
+                    attackerType.getLocalizedName(locale),
                     style = MaterialTheme.typography.bodySmall,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    "HP: ${attackerType.health}",
+                    "${stringResource(Res.string.hp_label)}: ${attackerType.health}",
                     style = MaterialTheme.typography.bodySmall,
                     fontSize = 10.sp
                 )
@@ -445,12 +449,13 @@ fun PlannedEnemyItem(plannedSpawn: PlannedEnemySpawn, currentTurn: Int) {
 
             // Enemy details
             Column(modifier = Modifier.weight(1f)) {
+                val locale = com.hyperether.resources.currentLanguage.value
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     Text(
-                        plannedSpawn.attackerType.displayName,
+                        plannedSpawn.attackerType.getLocalizedName(locale),
                         style = MaterialTheme.typography.bodySmall,
                         fontWeight = FontWeight.Bold
                     )
@@ -500,12 +505,13 @@ fun EnemyItem(attacker: Attacker) {
         colors = CardDefaults.cardColors(containerColor = GamePlayColors.EnemyCardBackground)
     ) {
         Column(modifier = Modifier.padding(8.dp)) {
+            val locale = com.hyperether.resources.currentLanguage.value
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    attacker.type.displayName,
+                    attacker.type.getLocalizedName(locale),
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
                 )
