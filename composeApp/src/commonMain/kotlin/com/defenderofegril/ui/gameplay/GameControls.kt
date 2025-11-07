@@ -18,6 +18,9 @@ import com.defenderofegril.ui.*
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.initial_building_phase
+import defender_of_egril.composeapp.generated.resources.end_turn_button
+import defender_of_egril.composeapp.generated.resources.start_battle
+import defender_of_egril.composeapp.generated.resources.your_turn_message
 
 @Composable
 fun ColumnScope.TurnButton(
@@ -36,7 +39,7 @@ fun ColumnScope.TurnButton(
         },
         modifier = modifier
     ) {
-        Text(if (isPlayerTurn) "End Turn" else "Start Battle",
+        Text(if (isPlayerTurn) stringResource(Res.string.end_turn_button) else stringResource(Res.string.start_battle),
             style = MaterialTheme.typography.labelMedium,
             fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
             fontSize = 14.sp,
@@ -70,11 +73,11 @@ fun GameControlsPanel(
     // Determine phase-specific properties
     val isPlayerTurn = phase == GamePhase.PLAYER_TURN
     val title = if (isPlayerTurn) {
-        "Your Turn - Place towers and attack enemies"
+        stringResource(Res.string.your_turn_message)
     } else {
         stringResource(Res.string.initial_building_phase)
     }
-    val primaryButtonText = if (isPlayerTurn) "End Turn" else "Start Battle"
+    val primaryButtonText = if (isPlayerTurn) stringResource(Res.string.end_turn_button) else stringResource(Res.string.start_battle)
     val primaryButtonColor = if (isPlayerTurn) {
         GamePlayColors.WarningDeep
     } else {

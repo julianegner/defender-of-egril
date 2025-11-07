@@ -58,3 +58,20 @@ fun AttackerType.getLocalizedName(locale: AppLocale = com.hyperether.resources.c
     }
     return LocalizedStrings.get(key, locale)
 }
+
+/**
+ * Get localized short name for a DefenderType (for compact displays)
+ */
+fun DefenderType.getLocalizedShortName(locale: AppLocale = com.hyperether.resources.currentLanguage.value): String {
+    val key = when (this) {
+        DefenderType.SPIKE_TOWER -> "spike_tower_short"
+        DefenderType.SPEAR_TOWER -> "spear_tower_short"
+        DefenderType.BOW_TOWER -> "bow_tower_short"
+        DefenderType.WIZARD_TOWER -> "wizard_tower_short"
+        DefenderType.ALCHEMY_TOWER -> "alchemy_tower_short"
+        DefenderType.BALLISTA_TOWER -> "ballista_tower_short"
+        DefenderType.DWARVEN_MINE -> "dwarven_mine_short"
+        DefenderType.DRAGONS_LAIR -> "dragons_lair_short"
+    }
+    return LocalizedStrings.get(key, locale)
+}

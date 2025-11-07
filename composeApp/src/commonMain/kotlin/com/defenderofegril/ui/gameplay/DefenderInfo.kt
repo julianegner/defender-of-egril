@@ -20,6 +20,8 @@ import com.defenderofegril.ui.icon.LightningIcon
 import com.defenderofegril.ui.icon.PickIcon
 import com.defenderofegril.ui.icon.SwordIcon
 import com.defenderofegril.ui.icon.TimerIcon
+import com.hyperether.resources.stringResource
+import defender_of_egril.composeapp.generated.resources.*
 
 @Composable
 fun DefenderInfo(
@@ -262,11 +264,11 @@ private fun dwarvenMineInfoButtonArea(defender: Defender) {
         if (showMiningInfoDialog) {
             AlertDialog(
                 onDismissRequest = { showMiningInfoDialog = false },
-                title = { Text("Mining Probabilities") },
+                title = { Text(stringResource(Res.string.mining_probabilities)) },
                 text = { MiningOutcomeGrid() },
                 confirmButton = {
                     TextButton(onClick = { showMiningInfoDialog = false }) {
-                        Text("Close")
+                        Text(stringResource(Res.string.close))
                     }
                 }
             )
@@ -315,7 +317,7 @@ private fun RowScope.dwarvenMineActionButtonArea(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         PickIcon(size = 24.dp)
-                        Text("Dig", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                        Text(stringResource(Res.string.dig), fontSize = 14.sp, fontWeight = FontWeight.Bold)
                     }
                 }
             }
@@ -344,7 +346,7 @@ private fun RowScope.dwarvenMineActionButtonArea(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         HoleIcon(size = 24.dp)
-                        Text("Trap", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                        Text(stringResource(Res.string.trap), fontSize = 14.sp, fontWeight = FontWeight.Bold)
                     }
                 }
             }
