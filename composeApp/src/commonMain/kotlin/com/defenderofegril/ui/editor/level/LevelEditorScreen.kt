@@ -17,7 +17,6 @@ import com.defenderofegril.ui.editor.map.MapEditorContent
 import com.defenderofegril.ui.settings.SettingsButton
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
-import defender_of_egril.composeapp.generated.resources.Res
 
 /**
  * Main screen for level editing with tabs for Map Editor, Level Editor, and Level Sequence
@@ -67,7 +66,7 @@ fun LevelEditorScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Level Editor",
+                        text = stringResource(Res.string.level_editor),
                         style = MaterialTheme.typography.titleLarge
                     )
                     
@@ -101,7 +100,7 @@ fun LevelEditorScreen(
                                 MaterialTheme.colorScheme.secondary
                         )
                     ) {
-                        Text("Map Editor")
+                        Text(stringResource(Res.string.map_editor))
                     }
                     
                     Button(
@@ -113,7 +112,7 @@ fun LevelEditorScreen(
                                 MaterialTheme.colorScheme.secondary
                         )
                     ) {
-                        Text("Level Editor")
+                        Text(stringResource(Res.string.level_editor))
                     }
                     
                     Button(
@@ -125,7 +124,7 @@ fun LevelEditorScreen(
                                 MaterialTheme.colorScheme.secondary
                         )
                     ) {
-                        Text("Level Sequence")
+                        Text(stringResource(Res.string.level_sequence))
                     }
                 }
             }
