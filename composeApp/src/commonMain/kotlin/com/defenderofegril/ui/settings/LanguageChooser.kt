@@ -98,7 +98,7 @@ private fun LanguageFlagAndName(appLocale: AppLocale) {
         }
         
         Text(
-            text = appLocale.displayName,
+            text = "${appLocale.nativeName} (${appLocale.code})",
             style = MaterialTheme.typography.bodyLarge
         )
     }
