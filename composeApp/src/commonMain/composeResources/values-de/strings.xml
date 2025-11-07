@@ -41,6 +41,9 @@
     <string name="next_turn">Nächste Runde</string>
     <string name="save_game">Spiel speichern</string>
     <string name="load_game">Spiel laden</string>
+    <string name="add_optional_comment">Füge einen optionalen Kommentar hinzu, um diesen Spielstand zu identifizieren:</string>
+    <string name="save_comment_placeholder">z.B. 'Vor der letzten Welle', 'Gute Position'...</string>
+    <string name="in_x_turns">in %s Runden</string>
     
     <!-- Towers -->
     <string name="tower">Turm</string>
@@ -191,6 +194,14 @@
     <string name="trap">Falle</string>
     <string name="mining_probabilities">Grab-Wahrscheinlichkeiten</string>
     <string name="mining_result">Grab-Ergebnis</string>
+    <string name="found_nothing">Du hast nichts gefunden...</string>
+    <string name="found_brass">Du hast Messing gefunden!</string>
+    <string name="found_silver">Du hast Silber gefunden!</string>
+    <string name="found_gold">Du hast Gold gefunden!</string>
+    <string name="found_gems">Du hast Edelsteine gefunden!</string>
+    <string name="found_diamond">Du hast einen Diamanten gefunden!</string>
+    <string name="dragon_awakens">EIN DRACHE ERWACHT!</string>
+    <string name="mine_destroyed">Die Mine ist zerstört!</string>
     <string name="dragons_lair_desc">Die Drachenhöhle... eine Erinnerung an die Folgen der Gier.</string>
     <string name="empty_dragons_lair">Leere Drachenhöhle</string>
     <string name="end_turn_button">Runde beenden</string>
