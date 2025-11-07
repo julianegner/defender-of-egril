@@ -68,7 +68,6 @@
     <string name="how_to_play">Wie man spielt</string>
     <string name="game_overview">Spielübersicht</string>
     <string name="game_overview_text">Verteidiger von Egril ist ein rundenbasiertes Tower-Defense-Spiel. Verteidige die Wiesen von Egril gegen Wellen von Feinden unter der bösen Flagge von Ewhad.</string>
-    <string name="initial_building_phase">Anfängliche Bauphase</string>
     <string name="at_start_of_level">Zu Beginn jedes Levels:</string>
     <string name="place_towers_instantly">Platziere Türme sofort (keine Bauzeit)</string>
     <string name="use_coins_strategically">Nutze deine Startmünzen strategisch</string>
@@ -182,4 +181,31 @@
     <string name="enemies_on_map">Feinde auf der Karte:</string>
     <string name="enemies_to_come">Kommende Feinde:</string>
     <string name="delete_savegame">Spielstand löschen</string>
+    
+    <!-- Gameplay UI strings -->
+    <string name="attack_button">ANGRIFF</string>
+    <string name="attack_area_button">FLÄCHENANGRIFF</string>
+    <string name="undo">Rückgängig</string>
+    <string name="sell_tower_title">Turm verkaufen?</string>
+    <string name="dig">Graben</string>
+    <string name="trap">Falle</string>
+    <string name="mining_probabilities">Grab-Wahrscheinlichkeiten</string>
+    <string name="mining_result">Grab-Ergebnis</string>
+    <string name="dragons_lair_desc">Die Drachenhöhle... eine Erinnerung an die Folgen der Gier.</string>
+    <string name="empty_dragons_lair">Leere Drachenhöhle</string>
+    <string name="end_turn_button">Runde beenden</string>
+    <string name="enemy_turn_title">Feindrunde</string>
+    <string name="enemies_spawning">Feinde erscheinen und bewegen sich...</string>
+    <string name="initial_building_phase">Anfängliche Bauphase - Türme platzieren (keine Bauzeit)</string>
+    <string name="add_comment">Füge einen optionalen Kommentar hinzu um diesen Spielstand zu identifizieren:</string>
+    <string name="game_saved">Spiel gespeichert</string>
+    <string name="on_map">Auf Karte:</string>
+    <string name="planned_spawns">Geplante Spawns:</string>
+    <string name="position_label">Position:</string>
+    <string name="reward_label">Belohnung:</string>
+    <string name="info_label">Info:</string>
+    <string name="chance_percent">Chance (%%)</string>
+    <string name="building_label">Bau:</string>
+    <string name="active_label">Aktiv:</string>
+    <string name="planned_label">Geplant:</string>
 </resources>
