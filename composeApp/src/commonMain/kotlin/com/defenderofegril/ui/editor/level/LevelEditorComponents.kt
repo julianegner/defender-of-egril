@@ -22,6 +22,8 @@ import com.defenderofegril.ui.icon.TrashIcon
 import com.defenderofegril.ui.icon.TriangleDownIcon
 import com.defenderofegril.ui.icon.TriangleRightIcon
 import com.defenderofegril.ui.icon.UpArrowIcon
+import com.hyperether.resources.stringResource
+import defender_of_egril.composeapp.generated.resources.*
 
 /**
  * Dialog for adding an enemy to a specific turn
@@ -41,10 +43,10 @@ fun AddEnemyDialog(
     
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Add Enemy to Turn $turn") },
+        title = { Text(stringResource(Res.string.add_enemy_to_turn).replace("%d", turn.toString())) },
         text = {
             Column {
-                Text("Enemy Type:", modifier = Modifier.padding(bottom = 4.dp))
+                Text(stringResource(Res.string.enemy_type), modifier = Modifier.padding(bottom = 4.dp))
                 LazyColumn(
                     modifier = Modifier.height(150.dp).padding(bottom = 8.dp)
                 ) {
@@ -57,20 +59,20 @@ fun AddEnemyDialog(
                                 selected = selectedType == type,
                                 onClick = { selectedType = type }
                             )
-                            Text("${type.displayName} (HP: ${type.health})")
+                            Text("${type.getLocalizedName()} (${stringResource(Res.string.hp_label)}: ${type.health})")
                         }
                     }
                 }
                 OutlinedTextField(
                     value = level,
                     onValueChange = { if (it.all { c -> c.isDigit() }) level = it },
-                    label = { Text("Enemy Level") },
+                    label = { Text(stringResource(Res.string.enemy_level)) },
                     modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
                 )
-                Text("HP: ${selectedType.health * (level.toIntOrNull() ?: 1)}", fontSize = 12.sp)
+                Text(stringResource(Res.string.hp_with_level).replace("%d", (selectedType.health * (level.toIntOrNull() ?: 1)).toString()), fontSize = 12.sp)
                 if (!canAddEwhad) {
                     Text(
-                        text = "⚠️ Ewhad can only be spawned once per level!",
+                        text = stringResource(Res.string.ewhad_warning),
                         color = MaterialTheme.colorScheme.error,
                         fontSize = 12.sp
                     )
@@ -84,12 +86,12 @@ fun AddEnemyDialog(
                 },
                 enabled = canAddEwhad
             ) {
-                Text("Add")
+                Text(stringResource(Res.string.add))
             }
         },
         dismissButton = {
             Button(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(Res.string.cancel))
             }
         }
     )
@@ -191,7 +193,7 @@ fun SpawnTurnSection(
                         onClick = onAddEnemy,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text("➕ Add Enemy to Turn $turn")
+                        Text(stringResource(Res.string.add_enemy_button).replace("%d", turn.toString()))
                     }
                     
                     spawns.forEach { spawn ->
@@ -238,7 +240,7 @@ fun SpawnTurnSection(
                                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                                 ) {
                                     TrashIcon(size = 12.dp)
-                                    Text("Remove", fontSize = 11.sp)
+                                    Text(stringResource(Res.string.remove), fontSize = 11.sp)
                                 }
                             }
                         }

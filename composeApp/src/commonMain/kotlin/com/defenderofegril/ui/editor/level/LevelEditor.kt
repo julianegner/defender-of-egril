@@ -61,7 +61,7 @@ fun LevelEditorContent() {
                 )
                 
                 Button(onClick = { showCreateDialog = true }) {
-                    Text("Create New Level")
+                    Text(stringResource(Res.string.create_new_level))
                 }
             }
             
@@ -135,7 +135,7 @@ fun LevelEditorContent() {
                                 ),
                                 modifier = Modifier.padding(end = 8.dp)
                             ) {
-                                Text("Delete")
+                                Text(stringResource(Res.string.delete))
                             }
                         }
                     }
@@ -222,7 +222,7 @@ fun LevelEditorView(
                 OutlinedTextField(
                     value = title,
                     onValueChange = { title = it },
-                    label = { Text("Level Title") },
+                    label = { Text(stringResource(Res.string.level_title)) },
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -231,7 +231,7 @@ fun LevelEditorView(
                 OutlinedTextField(
                     value = subtitle,
                     onValueChange = { subtitle = it },
-                    label = { Text("Subtitle (optional)") },
+                    label = { Text(stringResource(Res.string.subtitle_optional)) },
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -266,13 +266,13 @@ fun LevelEditorView(
                     OutlinedTextField(
                         value = startCoins,
                         onValueChange = { if (it.all { c -> c.isDigit() }) startCoins = it },
-                        label = { Text("Start Coins") },
+                        label = { Text(stringResource(Res.string.start_coins)) },
                         modifier = Modifier.weight(1f)
                     )
                     OutlinedTextField(
                         value = startHP,
                         onValueChange = { if (it.all { c -> c.isDigit() }) startHP = it },
-                        label = { Text("Start HP") },
+                        label = { Text(stringResource(Res.string.start_hp)) },
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -304,7 +304,7 @@ fun LevelEditorView(
                     }) {
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                             Text("➕")
-                            Text("Add Turn")
+                            Text(stringResource(Res.string.add_turn))
                         }
                     }
                 }
@@ -393,7 +393,7 @@ fun LevelEditorView(
                         }
                     )
                     TowerIconOnHexagon(defenderType = tower)
-                    Text("${tower.displayName} (Cost: ${tower.baseCost}, Damage: ${tower.baseDamage})")
+                    Text("${tower.getLocalizedName()} (${stringResource(Res.string.cost_damage_info).replace("%d", tower.baseCost.toString()).replace("%d", tower.baseDamage.toString())})")
                 }
             }
         }
@@ -422,14 +422,14 @@ fun LevelEditorView(
                     },
                     modifier = Modifier.weight(1f)
                 ) {
-                    Text("Save Level")
+                    Text(stringResource(Res.string.save_level))
                 }
                 
                 Button(
                     onClick = { showSaveAsDialog = true },
                     modifier = Modifier.weight(1f)
                 ) {
-                    Text("Save As New")
+                    Text(stringResource(Res.string.save_as_new))
                 }
             }
             
@@ -437,7 +437,7 @@ fun LevelEditorView(
                 onClick = onCancel,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Cancel")
+                Text(stringResource(Res.string.cancel))
             }
         }
     }
