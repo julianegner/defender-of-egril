@@ -163,7 +163,7 @@ fun TowersList(defenderCounts: Map<DefenderType, Int>) {
             defenderCounts.entries.forEach { (type, count) ->
                 UnitEntry(
                     icon = { DefenderTypeIconSimple(type) },
-                    name = type.displayName,
+                    name = type.getLocalizedName(locale = com.hyperether.resources.currentLanguage.value),
                     count = count
                 )
             }
