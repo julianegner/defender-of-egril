@@ -69,6 +69,66 @@ fun SettingsDialog(
                 
                 HorizontalDivider()
                 
+                // Sound section
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = stringResource(Res.string.sound),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    
+                    // Sound enabled/disabled switch
+                    GenericSwitch(
+                        state = AppSettings.isSoundEnabled,
+                        checkedText = stringResource(Res.string.sound_enabled),
+                        uncheckedText = stringResource(Res.string.sound_disabled),
+                        onCheckedChange = { enabled ->
+                            AppSettings.saveSoundEnabled(enabled)
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    
+                    // Volume slider (only shown when sound is enabled)
+                    if (AppSettings.isSoundEnabled.value) {
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Text(
+                                text = stringResource(Res.string.sound_volume),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "🔈",
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+                                Slider(
+                                    value = AppSettings.soundVolume.value,
+                                    onValueChange = { volume ->
+                                        AppSettings.saveSoundVolume(volume)
+                                    },
+                                    modifier = Modifier.weight(1f),
+                                    valueRange = 0f..1f
+                                )
+                                Text(
+                                    text = "🔊",
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+                            }
+                        }
+                    }
+                }
+                
+                HorizontalDivider()
+                
                 // Language section
                 Column(
                     verticalArrangement = Arrangement.spacedBy(8.dp)

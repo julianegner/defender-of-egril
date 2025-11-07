@@ -1,5 +1,7 @@
 package com.defenderofegril.game
 
+import com.defenderofegril.audio.GlobalSoundManager
+import com.defenderofegril.audio.SoundEvent
 import com.defenderofegril.model.*
 
 /**
@@ -20,6 +22,16 @@ class CombatSystem(private val state: GameState) {
         
         // Mark defender as used
         defender.hasBeenUsed.value = true
+        
+        // Play attack sound based on attack type
+        val soundEvent = when (defender.type.attackType) {
+            AttackType.MELEE -> SoundEvent.ATTACK_MELEE
+            AttackType.RANGED -> SoundEvent.ATTACK_RANGED
+            AttackType.AREA -> SoundEvent.ATTACK_AREA
+            AttackType.LASTING -> SoundEvent.ATTACK_LASTING
+            AttackType.NONE -> null
+        }
+        soundEvent?.let { GlobalSoundManager.playSound(it) }
         
         // Perform attack based on type
         when (defender.type.attackType) {
@@ -56,6 +68,16 @@ class CombatSystem(private val state: GameState) {
             val target = state.attackers.find { it.position.value == targetPosition && !it.isDefeated.value }
             if (target == null) return false
         }
+
+        // Play attack sound based on attack type
+        val soundEvent = when (defender.type.attackType) {
+            AttackType.MELEE -> SoundEvent.ATTACK_MELEE
+            AttackType.RANGED -> SoundEvent.ATTACK_RANGED
+            AttackType.AREA -> SoundEvent.ATTACK_AREA
+            AttackType.LASTING -> SoundEvent.ATTACK_LASTING
+            AttackType.NONE -> null
+        }
+        soundEvent?.let { GlobalSoundManager.playSound(it) }
 
         // Perform attack based on type
         when (defender.type.attackType) {
@@ -258,6 +280,8 @@ class CombatSystem(private val state: GameState) {
         val defeated = state.attackers.filter { it.isDefeated.value && it.position.value != state.level.targetPosition }
         for (attacker in defeated) {
             state.coins.value += attacker.type.reward
+            // Play enemy destroyed sound
+            GlobalSoundManager.playSound(SoundEvent.ENEMY_DESTROYED)
         }
         state.attackers.removeAll { it.isDefeated.value }
     }
