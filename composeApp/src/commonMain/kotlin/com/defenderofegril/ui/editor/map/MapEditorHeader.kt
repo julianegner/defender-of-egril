@@ -15,6 +15,8 @@ import com.defenderofegril.editor.EditorMap
 import com.defenderofegril.editor.TileType
 import com.defenderofegril.ui.icon.MagnifyingGlassIcon
 import com.defenderofegril.ui.editor.TileTypeButton
+import com.hyperether.resources.stringResource
+import defender_of_egril.composeapp.generated.resources.*
 
 /**
  * Header for the map editor with controls
@@ -44,7 +46,7 @@ fun MapEditorHeader(
         ) {
             // Header
             Text(
-                text = "Editing: ${map.name.ifEmpty { map.id }}",
+                text = stringResource(Res.string.editing_map).replace("%s", map.name.ifEmpty { map.id }),
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
@@ -53,13 +55,13 @@ fun MapEditorHeader(
             OutlinedTextField(
                 value = mapName,
                 onValueChange = onMapNameChange,
-                label = { Text("Map Name") },
+                label = { Text(stringResource(Res.string.map_name)) },
                 modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
             )
             
             // Tile type selector
             Text(
-                text = "Select Tile Type:",
+                text = stringResource(Res.string.select_tile_type),
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(bottom = 4.dp)
             )

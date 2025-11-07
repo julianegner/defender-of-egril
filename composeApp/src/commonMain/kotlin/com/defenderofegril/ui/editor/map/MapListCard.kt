@@ -14,6 +14,8 @@ import com.defenderofegril.model.Level
 import com.defenderofegril.model.Position
 import com.defenderofegril.ui.icon.CheckmarkIcon
 import com.defenderofegril.ui.HexagonMinimapFromEditorMap
+import com.hyperether.resources.stringResource
+import defender_of_egril.composeapp.generated.resources.*
 
 /**
  * Card displaying a map in the map list
@@ -118,7 +120,7 @@ fun MapListCard(
                     containerColor = MaterialTheme.colorScheme.error
                 )
             ) {
-                Text("Delete")
+                Text(stringResource(Res.string.delete))
             }
         }
     }
