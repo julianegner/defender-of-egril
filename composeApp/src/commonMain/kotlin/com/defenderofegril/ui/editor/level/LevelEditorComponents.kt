@@ -223,7 +223,7 @@ fun SpawnTurnSection(
                                         fontSize = 14.sp
                                     )
                                     Text(
-                                        text = "HP: ${spawn.healthPoints}",
+                                        text = "${stringResource(Res.string.hp_short)}: ${spawn.healthPoints}",
                                         fontSize = 11.sp,
                                         color = Color.Gray
                                     )
