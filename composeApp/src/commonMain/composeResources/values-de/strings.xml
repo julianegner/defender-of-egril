@@ -285,7 +285,8 @@
     <string name="file">Datei</string>
     <string name="size">Größe</string>
     <string name="select_tile_type">Kacheltyp wählen:</string>
-    <string name="click_hexagons_to_paint">Klicke Sechsecke zum Malen (%dx%d). Strg+Mausrad zum Zoomen:</string>
+    <string name="click_hexagons_to_paint">Klicken oder ziehen, um Sechsecke zu malen. Strg+Mausrad zum Zoomen:</string>
+    <string name="map_size_label">%dx%d</string>
     <string name="map_short">Karte</string>
     <string name="coins_short">Münzen</string>
     <string name="hp_short">LP</string>

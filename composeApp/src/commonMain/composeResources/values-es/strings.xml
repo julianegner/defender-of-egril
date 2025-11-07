@@ -285,7 +285,8 @@
     <string name="file">Archivo</string>
     <string name="size">Tamaño</string>
     <string name="select_tile_type">Seleccionar tipo de baldosa:</string>
-    <string name="click_hexagons_to_paint">Haz clic en hexágonos para pintar (%dx%d). Usa Ctrl+Rueda para zoom:</string>
+    <string name="click_hexagons_to_paint">Haz clic o arrastra para pintar hexágonos. Usa Ctrl+Rueda para zoom:</string>
+    <string name="map_size_label">%dx%d</string>
     <string name="map_short">Mapa</string>
     <string name="coins_short">Monedas</string>
     <string name="hp_short">PV</string>
