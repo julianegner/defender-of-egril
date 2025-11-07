@@ -256,19 +256,6 @@ fun EnemyTurnInfo() {
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 CircularProgressIndicator(color = Color.Red)
-                Spacer(modifier = Modifier.height(12.dp))
-                Text(
-                    "Enemies are spawning and moving...",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.Red
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    "Watch the grid for changes!",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = GamePlayColors.ErrorDark,
-                    fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
-                )
             }
         }
     }
