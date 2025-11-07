@@ -1,0 +1,38 @@
+package com.defenderofegril.audio
+
+/**
+ * Enum representing all sound events in the game
+ */
+enum class SoundEvent {
+    // Tower attacks
+    ATTACK_MELEE,
+    ATTACK_RANGED,
+    ATTACK_AREA,  // Fireball
+    ATTACK_LASTING,  // Acid
+    
+    // Enemy events
+    ENEMY_SPAWN,
+    ENEMY_MOVE,
+    ENEMY_DESTROYED,
+    
+    // Mine events
+    MINE_DIG,
+    MINE_COIN_FOUND,
+    MINE_TRAP_BUILT,
+    MINE_DRAGON_SPAWN,
+    
+    // Trap events
+    TRAP_TRIGGERED,
+    
+    // Life loss
+    LIFE_LOST,
+    
+    // Dragon special
+    DRAGON_EAT,
+    
+    // UI sounds (optional)
+    BUTTON_CLICK,
+    TOWER_PLACED,
+    TOWER_UPGRADED,
+    TOWER_SOLD
+}
