@@ -78,7 +78,7 @@
     <string name="place_new_towers">Neue Türme platzieren - kostet Münzen, benötigt Bauzeit</string>
     <string name="upgrade_towers">Bestehende Türme aufwerten - erhöht Schaden und Reichweite</string>
     <string name="attack_with_towers">Mit Türmen angreifen - wähle Turm, dann Ziel</string>
-    <string name="end_your_turn">Deine Runde beenden - Feinde bewegen sich und greifentache an</string>
+    <string name="end_your_turn">Deine Runde beenden - Feinde bewegen sich und greifen an</string>
     <string name="enemy_turn">Feindrunde</string>
     <string name="after_end_turn">Nachdem du deine Runde beendet hast:</string>
     <string name="enemies_move">Feinde bewegen sich zum Ziel</string>
@@ -115,7 +115,7 @@
     <string name="save_coins">Spare 20-30 Münzen für das Mittelspiel</string>
     <string name="focus_fire">Konzentriere Feuer auf zähe Feinde (Oger, Orks)</string>
     <string name="wizard_for_aoe">Zaubertürme für massiven Flächenschaden</string>
-    <string name="upgrade_vs_build">Werte Türme auf statt neue zu bauen</string>
+    <string name="upgrade_vs_build">Werte Türme auf statt Neue zu bauen</string>
     
     <!-- Additional RulesScreen strings -->
     <string name="attack_enemies_desc">Feinde angreifen - Turm mit Aktionen anklicken, dann Feind in Reichweite</string>
@@ -130,7 +130,7 @@
     <string name="defeat_detail">Niederlage: Jeder Feind, der das Ziel erreicht, kostet 1 Gesundheitspunkt. Bei 0 Gesundheit verlierst du.</string>
     <string name="grid_legend">Rasterlegende</string>
     <string name="spawn_desc">Spawn: Startposition (Feinde erscheinen)</string>
-    <string name="target_desc">Ziel: Zielposition (verteidige dies!)</string>
+    <string name="target_desc">Ziel: Zielposition (Muss verteidigt werden!")</string>
     <string name="blue_towers">Blau: Deine bereiten Türme</string>
     <string name="gray_towers">Grau: Türme im Bau</string>
     <string name="red_enemies">Rot: Feinde</string>
@@ -184,7 +184,7 @@
     
     <!-- Gameplay UI strings -->
     <string name="attack_button">ANGRIFF</string>
-    <string name="attack_area_button">FLÄCHENANGRIFF</string>
+    <string name="attack_area_button">FLÄCHEN-ANGRIFF</string>
     <string name="undo">Rückgängig</string>
     <string name="sell_tower_title">Turm verkaufen?</string>
     <string name="dig">Graben</string>
