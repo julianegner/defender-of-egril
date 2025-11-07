@@ -30,7 +30,10 @@ fun GenericSwitch(
     ) {
         Switch(
             checked = state.value,
-            onCheckedChange = onCheckedChange,
+            onCheckedChange = { newValue ->
+                state.value = newValue
+                onCheckedChange(newValue)
+            },
             colors = SwitchDefaults.colors(
                 checkedThumbColor = MaterialTheme.colorScheme.primary,
                 checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
