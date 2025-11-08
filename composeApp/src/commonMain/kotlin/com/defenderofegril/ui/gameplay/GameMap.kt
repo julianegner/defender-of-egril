@@ -439,7 +439,7 @@ fun GridCell(
             
             markerColor?.let { color ->
                 // Draw concentric circles as target marker
-                // For AREA and LASTING attacks: 5 circles (3 for target, 2 for affected neighbors)
+                // For AREA and LASTING attacks: 6 circles (3 for target, 3 for affected neighbors)
                 // For MELEE and RANGED attacks: 3 circles (standard target)
                 Canvas(
                     modifier = Modifier
@@ -472,7 +472,7 @@ fun GridCell(
                         style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2f)
                     )
                     
-                    // For AREA and LASTING attacks, add 2 more circles to show affected neighbor tiles
+                    // For AREA and LASTING attacks, add 3 more circles to show affected neighbor tiles
                     if (attackType == AttackType.AREA || attackType == AttackType.LASTING) {
                         // Fourth circle (stroke) - indicates affected neighbors (about 70% to neighbors)
                         drawCircle(
@@ -486,6 +486,14 @@ fun GridCell(
                         drawCircle(
                             color = color,
                             radius = 69f,
+                            center = Offset(centerX, centerY),
+                            style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2f)
+                        )
+                        
+                        // Sixth circle (stroke) - outermost circle with consistent spacing
+                        drawCircle(
+                            color = color,
+                            radius = 90f,
                             center = Offset(centerX, centerY),
                             style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2f)
                         )
