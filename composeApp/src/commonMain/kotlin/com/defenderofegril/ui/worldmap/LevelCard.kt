@@ -31,10 +31,12 @@ fun LevelCard(
     worldLevel: WorldLevel,
     onClick: () -> Unit
 ) {
+    val isDarkMode = com.defenderofegril.ui.settings.AppSettings.isDarkMode.value
+    
     val backgroundColor = when (worldLevel.status) {
-        LevelStatus.LOCKED -> Color(0xFF9E9E9E)
-        LevelStatus.UNLOCKED -> Color(0xFF2196F3)
-        LevelStatus.WON -> Color(0xFF4CAF50)
+        LevelStatus.LOCKED -> if (isDarkMode) Color(0xFF424242) else Color(0xFF9E9E9E)
+        LevelStatus.UNLOCKED -> if (isDarkMode) Color(0xFF1565C0) else Color(0xFF2196F3)
+        LevelStatus.WON -> if (isDarkMode) Color(0xFF2E7D32) else Color(0xFF4CAF50)
     }
     
     val statusText = when (worldLevel.status) {
