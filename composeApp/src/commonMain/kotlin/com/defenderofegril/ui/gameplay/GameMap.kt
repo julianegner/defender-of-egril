@@ -181,51 +181,80 @@ fun GameGrid(
             }
         }
 
-        // Overlay for area attack large circles - drawn at GameGrid level to avoid clipping
+        // Overlay for target circles - drawn at GameGrid level to avoid clipping and ensure visibility
         if (selectedTargetPosition != null && selectedDefenderId != null) {
             val selectedDefender = remember(selectedDefenderId, gameState.defenders.size) {
                 gameState.defenders.find { it.id == selectedDefenderId }
             }
             
             val attackType = selectedDefender?.type?.attackType
-            if (attackType == AttackType.AREA || attackType == AttackType.LASTING) {
-                val markerColor = when (attackType) {
-                    AttackType.AREA -> Color(0xFFFF5722)  // Deep orange/red for fireball
-                    AttackType.LASTING -> Color(0xFF4CAF50)  // Green for acid
-                    else -> null
-                }
+            val markerColor = when (attackType) {
+                AttackType.AREA -> Color(0xFFFF5722)  // Deep orange/red for fireball
+                AttackType.LASTING -> Color(0xFF4CAF50)  // Green for acid
+                AttackType.MELEE, AttackType.RANGED -> Color(0xFFFFEB3B)  // Yellow for single-target
+                else -> null
+            }
+            
+            markerColor?.let { color ->
+                // Calculate target position in pixels
+                val targetX = selectedTargetPosition.x
+                val targetY = selectedTargetPosition.y
                 
-                markerColor?.let { color ->
-                    // Calculate target position in pixels
-                    val targetX = selectedTargetPosition.x
-                    val targetY = selectedTargetPosition.y
+                Canvas(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .graphicsLayer(
+                            scaleX = scale,
+                            scaleY = scale,
+                            translationX = offsetX,
+                            translationY = offsetY
+                        )
+                        .zIndex(11f)  // Above grid cells but below minimap
+                ) {
+                    // Calculate target position to match grid layout exactly
+                    // Each row: height of hex + vertical spacing adjustment
+                    val rowHeight = hexHeight + (-hexHeight + verticalSpacing - 7f)
+                    // Each column: width - horizontal spacing
+                    val colWidth = hexWidth - 10f
                     
-                    Canvas(
-                        modifier = Modifier
-                            .matchParentSize()
-                            .graphicsLayer(
-                                scaleX = scale,
-                                scaleY = scale,
-                                translationX = offsetX,
-                                translationY = offsetY
-                            )
-                            .zIndex(11f)  // Above grid cells but below minimap
-                    ) {
-                        // Calculate target position accounting for grid layout
-                        val hexXBase = targetX * (hexWidth - 10f)  // Account for horizontal spacing
-                        val rowOffset = if (targetY % 2 == 1) oddRowOffset else 0f
-                        val hexX = hexXBase + rowOffset
-                        
-                        val verticalSpacingAdjustment = (-hexHeight + verticalSpacing - 7f)
-                        val hexY = targetY * (hexHeight + verticalSpacingAdjustment) - (targetY - 1)
-                        
-                        // Center of the target hex cell
-                        val centerX = hexX + hexWidth / 2f
-                        val centerY = hexY + hexHeight / 2f
-                        
-                        // Draw large circles that extend over neighboring tiles
-                        // These are much larger to actually cover adjacent hexagon tiles
-                        
+                    // Base position
+                    var centerX = targetX * colWidth + hexWidth / 2f
+                    var centerY = targetY * rowHeight + hexHeight / 2f
+                    
+                    // Add odd row offset for hexagonal grid
+                    if (targetY % 2 == 1) {
+                        centerX += oddRowOffset
+                    }
+                    
+                    // Add row offset adjustment
+                    centerY -= (targetY - 1)
+                    
+                    // Draw base 3 circles (all attack types)
+                    // Inner point (solid circle)
+                    drawCircle(
+                        color = color,
+                        radius = 4f,
+                        center = Offset(centerX, centerY)
+                    )
+                    
+                    // Middle circle (stroke)
+                    drawCircle(
+                        color = color,
+                        radius = 12f,
+                        center = Offset(centerX, centerY),
+                        style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2f)
+                    )
+                    
+                    // Outer circle (stroke)
+                    drawCircle(
+                        color = color,
+                        radius = 20f,
+                        center = Offset(centerX, centerY),
+                        style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2f)
+                    )
+                    
+                    // For area attacks, draw 3 additional large circles
+                    if (attackType == AttackType.AREA || attackType == AttackType.LASTING) {
                         // Fourth circle - reaches about 1.5 tiles away
                         drawCircle(
                             color = color,
@@ -487,64 +516,6 @@ fun GridCell(
             isTarget -> {
                 // Show target indicator when cell is empty
                 Text(stringResource(Res.string.target), style = MaterialTheme.typography.labelSmall, color = GamePlayColors.Success)
-            }
-        }
-        
-        // Draw target marker for all attack types
-        // Check if this position is selected as a target position
-        val isTargetPosition = selectedTargetPosition == position
-        if (isTargetPosition) {
-            // Determine the attack type to choose the correct color
-            // Cache the selected defender to avoid repeated lookups
-            val selectedDefender = remember(selectedDefenderId, gameState.defenders.size) {
-                selectedDefenderId?.let { id ->
-                    gameState.defenders.find { it.id == id }
-                }
-            }
-            
-            val attackType = selectedDefender?.type?.attackType
-            val markerColor = when (attackType) {
-                AttackType.AREA -> Color(0xFFFF5722)  // Deep orange/red for fireball
-                AttackType.LASTING -> Color(0xFF4CAF50)  // Green for acid
-                AttackType.MELEE, AttackType.RANGED -> Color(0xFFFFEB3B)  // Yellow for single-target attacks (visible on enemies)
-                else -> null
-            }
-            
-            markerColor?.let { color ->
-                // Draw concentric circles as target marker
-                // For AREA and LASTING attacks: 3 base circles (large ones drawn at GameGrid level to avoid clipping)
-                // For MELEE and RANGED attacks: 3 circles (standard target)
-                Canvas(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .zIndex(10f)  // Ensure it's drawn on top
-                ) {
-                    val centerX = size.width / 2f
-                    val centerY = size.height / 2f
-                    
-                    // Inner point (solid circle)
-                    drawCircle(
-                        color = color,
-                        radius = 4f,
-                        center = Offset(centerX, centerY)
-                    )
-                    
-                    // Middle circle (stroke)
-                    drawCircle(
-                        color = color,
-                        radius = 12f,
-                        center = Offset(centerX, centerY),
-                        style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2f)
-                    )
-                    
-                    // Outer circle (stroke)
-                    drawCircle(
-                        color = color,
-                        radius = 20f,
-                        center = Offset(centerX, centerY),
-                        style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2f)
-                    )
-                }
             }
         }
     }
