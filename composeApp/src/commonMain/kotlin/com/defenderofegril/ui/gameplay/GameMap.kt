@@ -181,6 +181,79 @@ fun GameGrid(
             }
         }
 
+        // Overlay for area attack large circles - drawn at GameGrid level to avoid clipping
+        if (selectedTargetPosition != null && selectedDefenderId != null) {
+            val selectedDefender = remember(selectedDefenderId, gameState.defenders.size) {
+                gameState.defenders.find { it.id == selectedDefenderId }
+            }
+            
+            val attackType = selectedDefender?.type?.attackType
+            if (attackType == AttackType.AREA || attackType == AttackType.LASTING) {
+                val markerColor = when (attackType) {
+                    AttackType.AREA -> Color(0xFFFF5722)  // Deep orange/red for fireball
+                    AttackType.LASTING -> Color(0xFF4CAF50)  // Green for acid
+                    else -> null
+                }
+                
+                markerColor?.let { color ->
+                    // Calculate target position in pixels
+                    val targetX = selectedTargetPosition.x
+                    val targetY = selectedTargetPosition.y
+                    
+                    Canvas(
+                        modifier = Modifier
+                            .matchParentSize()
+                            .graphicsLayer(
+                                scaleX = scale,
+                                scaleY = scale,
+                                translationX = offsetX,
+                                translationY = offsetY
+                            )
+                            .zIndex(11f)  // Above grid cells but below minimap
+                    ) {
+                        // Calculate target position accounting for grid layout
+                        val hexXBase = targetX * (hexWidth - 10f)  // Account for horizontal spacing
+                        val rowOffset = if (targetY % 2 == 1) oddRowOffset else 0f
+                        val hexX = hexXBase + rowOffset
+                        
+                        val verticalSpacingAdjustment = (-hexHeight + verticalSpacing - 7f)
+                        val hexY = targetY * (hexHeight + verticalSpacingAdjustment) - (targetY - 1)
+                        
+                        // Center of the target hex cell
+                        val centerX = hexX + hexWidth / 2f
+                        val centerY = hexY + hexHeight / 2f
+                        
+                        // Draw large circles that extend over neighboring tiles
+                        // These are much larger to actually cover adjacent hexagon tiles
+                        
+                        // Fourth circle - reaches about 1.5 tiles away
+                        drawCircle(
+                            color = color,
+                            radius = 100f,
+                            center = Offset(centerX, centerY),
+                            style = androidx.compose.ui.graphics.drawscope.Stroke(width = 3f)
+                        )
+                        
+                        // Fifth circle - reaches about 2 tiles away
+                        drawCircle(
+                            color = color,
+                            radius = 130f,
+                            center = Offset(centerX, centerY),
+                            style = androidx.compose.ui.graphics.drawscope.Stroke(width = 3f)
+                        )
+                        
+                        // Sixth circle - reaches about 2.5 tiles away
+                        drawCircle(
+                            color = color,
+                            radius = 160f,
+                            center = Offset(centerX, centerY),
+                            style = androidx.compose.ui.graphics.drawscope.Stroke(width = 3f)
+                        )
+                    }
+                }
+            }
+        }
+
         // Minimap - shown when zoomed in
         if (scale > 1.1f) {
             Box(
@@ -439,7 +512,7 @@ fun GridCell(
             
             markerColor?.let { color ->
                 // Draw concentric circles as target marker
-                // For AREA and LASTING attacks: 6 circles (3 base + 3 large to show affected neighbors)
+                // For AREA and LASTING attacks: 3 base circles (large ones drawn at GameGrid level to avoid clipping)
                 // For MELEE and RANGED attacks: 3 circles (standard target)
                 Canvas(
                     modifier = Modifier
@@ -471,34 +544,6 @@ fun GridCell(
                         center = Offset(centerX, centerY),
                         style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2f)
                     )
-                    
-                    // For AREA and LASTING attacks, add 3 more larger circles centered on target
-                    // to show which neighboring tiles will be affected
-                    if (attackType == AttackType.AREA || attackType == AttackType.LASTING) {
-                        // Fourth circle - extends toward neighbors
-                        drawCircle(
-                            color = color,
-                            radius = 48f,
-                            center = Offset(centerX, centerY),
-                            style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2f)
-                        )
-                        
-                        // Fifth circle - reaches neighbor centers
-                        drawCircle(
-                            color = color,
-                            radius = 69f,
-                            center = Offset(centerX, centerY),
-                            style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2f)
-                        )
-                        
-                        // Sixth circle - extends beyond neighbors  
-                        drawCircle(
-                            color = color,
-                            radius = 90f,
-                            center = Offset(centerX, centerY),
-                            style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2f)
-                        )
-                    }
                 }
             }
         }
