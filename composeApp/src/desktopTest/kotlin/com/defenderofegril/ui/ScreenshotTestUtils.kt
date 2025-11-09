@@ -1,11 +1,10 @@
 package com.defenderofegril.ui
 
 import androidx.compose.ui.test.SemanticsNodeInteraction
+import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.onRoot
-import java.awt.image.BufferedImage
 import java.io.File
-import javax.imageio.ImageIO
 
 /**
  * Utility object for screenshot testing in Compose UI tests.
@@ -32,8 +31,8 @@ object ScreenshotTestUtils {
      * 
      * @param composeTestRule The compose test rule
      * @param filename Name of the screenshot file (without extension)
-     * @param width Width of the screenshot in pixels
-     * @param height Height of the screenshot in pixels
+     * @param width Width of the screenshot in pixels (ignored, uses actual size)
+     * @param height Height of the screenshot in pixels (ignored, uses actual size)
      * @return The saved screenshot file
      */
     fun captureScreenshot(
@@ -47,42 +46,44 @@ object ScreenshotTestUtils {
         // Use the test rule to capture the composable content
         composeTestRule.waitForIdle()
         
-        // For desktop, we need to use the onRoot() to capture the entire tree
-        val image = captureNodeAsImage(composeTestRule.onRoot(), width, height)
-        
-        // Save to file
-        ImageIO.write(image, "PNG", screenshotFile)
-        
-        println("Screenshot saved to: ${screenshotFile.absolutePath}")
+        try {
+            // Try to capture the main root node
+            // For dialogs and popups, there may be multiple roots, so we use useUnmergedTree = true
+            val imageBitmap = composeTestRule.onRoot(useUnmergedTree = true).captureToImage()
+            
+            // Save to file using the ImageBitmap's built-in encoding
+            imageBitmap.toAwtImage().let { bufferedImage ->
+                javax.imageio.ImageIO.write(bufferedImage, "PNG", screenshotFile)
+            }
+            
+            println("Screenshot saved to: ${screenshotFile.absolutePath}")
+        } catch (e: Exception) {
+            println("Warning: Could not capture actual UI screenshot: ${e.message}")
+            println("Creating placeholder for: ${screenshotFile.absolutePath}")
+            
+            // Fallback to placeholder if capture fails
+            createPlaceholderImage(width, height, filename).let { bufferedImage ->
+                javax.imageio.ImageIO.write(bufferedImage, "PNG", screenshotFile)
+            }
+        }
         
         return screenshotFile
     }
     
     /**
-     * Captures a specific node as an image.
-     * This is a simplified implementation for desktop testing.
+     * Creates a placeholder image when actual capture fails
      */
-    private fun captureNodeAsImage(
-        node: SemanticsNodeInteraction,
-        width: Int,
-        height: Int
-    ): BufferedImage {
-        // Create a blank image as placeholder
-        // In a real implementation, we would use the actual rendered content
-        // For now, this creates a basic image that can be replaced with actual rendering
-        val image = BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB)
+    private fun createPlaceholderImage(width: Int, height: Int, name: String): java.awt.image.BufferedImage {
+        val image = java.awt.image.BufferedImage(width, height, java.awt.image.BufferedImage.TYPE_INT_ARGB)
         val graphics = image.createGraphics()
         
-        // Fill with white background
         graphics.color = java.awt.Color.WHITE
         graphics.fillRect(0, 0, width, height)
         
-        // Add a simple marker to show this is a test screenshot
         graphics.color = java.awt.Color.BLACK
-        graphics.drawString("UI Test Screenshot", 10, 20)
+        graphics.drawString("Placeholder: $name", 10, 20)
         
         graphics.dispose()
-        
         return image
     }
     
@@ -97,4 +98,22 @@ object ScreenshotTestUtils {
     fun cleanScreenshotDirectory() {
         screenshotDir.listFiles()?.forEach { it.delete() }
     }
+}
+
+/**
+ * Extension function to convert ImageBitmap to AWT BufferedImage
+ */
+private fun androidx.compose.ui.graphics.ImageBitmap.toAwtImage(): java.awt.image.BufferedImage {
+    val bufferedImage = java.awt.image.BufferedImage(
+        width,
+        height,
+        java.awt.image.BufferedImage.TYPE_INT_ARGB
+    )
+    
+    val pixels = IntArray(width * height)
+    this.readPixels(pixels)
+    
+    bufferedImage.setRGB(0, 0, width, height, pixels, 0, width)
+    
+    return bufferedImage
 }
