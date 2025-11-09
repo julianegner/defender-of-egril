@@ -14,7 +14,7 @@ object GamePlayColors {
     private val SuccessLight = Color(0xFF4CAF50)      // Green - positive actions, ready state, target
     private val WarningLight = Color(0xFFFF9800)      // Orange - warnings, building, spawns
     private val ErrorLight = Color(0xFFF44336)        // Red - errors, enemies, danger
-    private val InfoLight = Color(0xFF2196F3)         // Blue - info, towers ready
+    private val InfoLightMode = Color(0xFF2196F3)     // Blue - info, towers ready
     
     // Primary action and state colors (dark mode - softer)
     private val SuccessDarkMode = Color(0xFF66BB6A)   // Softer green
@@ -79,7 +79,7 @@ object GamePlayColors {
         @Composable get() = if (AppSettings.isDarkMode.value) ErrorDarkMode else ErrorLight
     
     val Info: Color
-        @Composable get() = if (AppSettings.isDarkMode.value) InfoDarkMode else InfoLight
+        @Composable get() = if (AppSettings.isDarkMode.value) InfoDarkMode else InfoLightMode
     
     val InfoDark: Color
         @Composable get() = if (AppSettings.isDarkMode.value) InfoDeepDarkMode else InfoDeepLight
