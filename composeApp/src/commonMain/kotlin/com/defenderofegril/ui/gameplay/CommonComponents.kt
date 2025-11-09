@@ -38,6 +38,7 @@ fun ExpandableCard(
     content: @Composable () -> Unit
 ) {
     var isExpanded by remember { mutableStateOf(defaultExpanded) }
+    val isDarkMode = com.defenderofegril.ui.settings.AppSettings.isDarkMode.value
 
     Card(modifier = modifier) {
         Column(modifier = Modifier.padding(GamePlayConstants.Spacing.Sections)) {
@@ -49,9 +50,9 @@ fun ExpandableCard(
             ) {
                 Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                 if (isExpanded) {
-                    TriangleDownIcon(size = GamePlayConstants.IconSizes.Large)
+                    TriangleDownIcon(size = GamePlayConstants.IconSizes.Large, tint = if (isDarkMode) androidx.compose.ui.graphics.Color.White else androidx.compose.ui.graphics.Color.Black)
                 } else {
-                    TriangleLeftIcon(size = GamePlayConstants.IconSizes.Large)
+                    TriangleLeftIcon(size = GamePlayConstants.IconSizes.Large, tint = if (isDarkMode) androidx.compose.ui.graphics.Color.White else androidx.compose.ui.graphics.Color.Black)
                 }
             }
             
