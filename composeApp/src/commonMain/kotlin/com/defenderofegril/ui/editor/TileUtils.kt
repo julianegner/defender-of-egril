@@ -18,6 +18,9 @@ fun TileTypeButton(
     selected: Boolean,
     onClick: () -> Unit
 ) {
+    val isDarkMode = com.defenderofegril.ui.settings.AppSettings.isDarkMode.value
+    val textColor = if (isDarkMode) Color.White else Color.Black
+    
     Button(
         onClick = onClick,
         colors = ButtonDefaults.buttonColors(
@@ -26,9 +29,9 @@ fun TileTypeButton(
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
             if (tileType == TileType.WAYPOINT) {
-                PushpinIcon(size = 14.dp)
+                PushpinIcon(size = 14.dp, tint = textColor)
             }
-            Text(tileType.name)
+            Text(tileType.name, color = textColor)
         }
     }
 }
