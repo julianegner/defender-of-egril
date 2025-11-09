@@ -224,6 +224,8 @@ fun GridCell(
     onClick: () -> Unit,
     hexSize: androidx.compose.ui.unit.Dp = 48.dp
 ) {
+    val isDarkMode = com.defenderofegril.ui.settings.AppSettings.isDarkMode.value
+    
     val isSpawnPoint = gameState.level.isSpawnPoint(position)
     val isTarget = position == gameState.level.targetPosition
     val isOnPath = gameState.level.isOnPath(position)
@@ -265,12 +267,12 @@ fun GridCell(
     // During INITIAL_BUILDING phase, don't apply any selection tints
     // Field effects also modify the background color
     val backgroundColor = when {
-        attacker != null -> GamePlayColors.Error  // Red background for enemies
+        attacker != null -> if (isDarkMode) GamePlayColors.ErrorDark else GamePlayColors.Error  // Darker red background for enemies in dark mode
         defender != null -> {
             when {
                 !defender.isReady -> GamePlayColors.Building  // Gray for building
-                defender.actionsRemaining.value <= 0 -> GamePlayColors.InfoLight  // Blue-gray mix for used up actions
-                else -> GamePlayColors.Info  // Blue for ready with actions
+                defender.actionsRemaining.value <= 0 -> if (isDarkMode) GamePlayColors.InfoDark else GamePlayColors.InfoLight  // Darker blue for used actions in dark mode
+                else -> if (isDarkMode) GamePlayColors.InfoDark else GamePlayColors.Info  // Darker blue for ready towers in dark mode
             }
         }
 
@@ -302,10 +304,10 @@ fun GridCell(
     val borderColor = when {
         cellIsInRange && isOnPath && showRange && canPlaceTrapHere -> GamePlayColors.Success  // Green border for tiles in range (exclude enemy tiles during trap placement)
         isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> GamePlayColors.Yellow  // Yellow border for selected defender (not during initial building)
-        isSpawnPoint -> GamePlayColors.Warning  // Orange border for spawn
-        isTarget -> GamePlayColors.Success  // Green border for target
-        attacker != null -> GamePlayColors.Error  // Red border for enemies
-        defender != null -> if (defender.isReady) GamePlayColors.Info else GamePlayColors.Building  // Blue/gray border for towers
+        isSpawnPoint -> if (isDarkMode) GamePlayColors.WarningDark else GamePlayColors.Warning  // Darker orange border for spawn in dark mode
+        isTarget -> if (isDarkMode) GamePlayColors.SuccessDark else GamePlayColors.Success  // Darker green border for target in dark mode
+        attacker != null -> GamePlayColors.ErrorDark  // Darker red border for enemies
+        defender != null -> if (defender.isReady) GamePlayColors.InfoDark else GamePlayColors.Building  // Darker blue/gray border for towers
         fieldEffect != null -> {
             when (fieldEffect.type) {
                 FieldEffectType.FIREBALL -> GamePlayColors.WarningDeep  // Deep orange border for fireball
