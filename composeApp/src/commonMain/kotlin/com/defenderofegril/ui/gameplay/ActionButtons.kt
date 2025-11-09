@@ -17,9 +17,6 @@ import com.defenderofegril.ui.icon.SwordIcon
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
 
-// UI Constants
-private val ATTACK_BUTTON_COLOR = GamePlayColors.ErrorDark
-
 @Composable
 fun AttackButton(
     defender: Defender,
@@ -41,7 +38,7 @@ fun AttackButton(
                         onClick = { onDefenderAttackPosition(defender.id, selectedTargetPosition) },
                         modifier = modifier,
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = ATTACK_BUTTON_COLOR
+                            containerColor = GamePlayColors.ErrorDark
                         )
                     ) {
                         Row(
@@ -73,7 +70,7 @@ fun AttackButton(
                     onClick = { onDefenderAttackPosition(defender.id, selectedTargetPosition) },
                     modifier = modifier,
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = ATTACK_BUTTON_COLOR
+                        containerColor = GamePlayColors.ErrorDark
                     )
                 ) {
                     Row(
@@ -104,7 +101,7 @@ fun AttackButton(
                     onClick = { onDefenderAttack(defender.id, selectedTargetId) },
                     modifier = modifier,
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = ATTACK_BUTTON_COLOR
+                        containerColor = GamePlayColors.ErrorDark
                     )
                 ) {
                     Row(
