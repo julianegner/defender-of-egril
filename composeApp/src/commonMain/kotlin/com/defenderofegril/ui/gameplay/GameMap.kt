@@ -181,87 +181,6 @@ fun GameGrid(
             }
         }
 
-        // Overlay for area attack circles on neighbor tiles
-        // This needs to be drawn at the GameGrid level to span across multiple cells
-        if (selectedTargetPosition != null && selectedDefenderId != null) {
-            val selectedDefender = remember(selectedDefenderId, gameState.defenders.size) {
-                gameState.defenders.find { it.id == selectedDefenderId }
-            }
-            
-            val attackType = selectedDefender?.type?.attackType
-            if (attackType == AttackType.AREA || attackType == AttackType.LASTING) {
-                val markerColor = when (attackType) {
-                    AttackType.AREA -> Color(0xFFFF5722)  // Deep orange/red for fireball
-                    AttackType.LASTING -> Color(0xFF4CAF50)  // Green for acid
-                    else -> null
-                }
-                
-                markerColor?.let { color ->
-                    // Get all valid neighbors of the target position
-                    val neighbors = selectedTargetPosition.getHexNeighbors().filter { neighbor ->
-                        neighbor.x >= 0 && neighbor.x < gameState.level.gridWidth &&
-                        neighbor.y >= 0 && neighbor.y < gameState.level.gridHeight
-                    }
-                    
-                    Canvas(
-                        modifier = Modifier
-                            .matchParentSize()
-                            .graphicsLayer(
-                                scaleX = scale,
-                                scaleY = scale,
-                                translationX = offsetX,
-                                translationY = offsetY
-                            )
-                            .zIndex(11f)  // Above grid cells but below minimap
-                    ) {
-                        // Calculate the pixel position for each neighbor
-                        // Need to match the layout calculations from the Column/Row arrangement
-                        neighbors.forEach { neighbor ->
-                            // Horizontal position: account for hex width and odd row offset
-                            val hexXBase = neighbor.x * (hexWidth - 10f)  // Account for horizontal spacing
-                            val rowOffset = if (neighbor.y % 2 == 1) oddRowOffset else 0f
-                            val hexX = hexXBase + rowOffset
-                            
-                            // Vertical position: account for vertical spacing arrangement
-                            val verticalSpacingAdjustment = (-hexHeight + verticalSpacing - 7f)
-                            val hexY = neighbor.y * (hexHeight + verticalSpacingAdjustment) - (neighbor.y - 1)
-                            
-                            // Center of the hex cell
-                            val centerX = hexX + hexWidth / 2f
-                            val centerY = hexY + hexHeight / 2f
-                            
-                            // Draw three concentric circles on each neighbor
-                            // These represent the area of effect extending to neighboring tiles
-                            
-                            // Fourth circle (innermost of the three on neighbors)
-                            drawCircle(
-                                color = color,
-                                radius = 20f,
-                                center = Offset(centerX, centerY),
-                                style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2f)
-                            )
-                            
-                            // Fifth circle (middle)
-                            drawCircle(
-                                color = color,
-                                radius = 28f,
-                                center = Offset(centerX, centerY),
-                                style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2f)
-                            )
-                            
-                            // Sixth circle (outermost)
-                            drawCircle(
-                                color = color,
-                                radius = 36f,
-                                center = Offset(centerX, centerY),
-                                style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2f)
-                            )
-                        }
-                    }
-                }
-            }
-        }
-
         // Minimap - shown when zoomed in
         if (scale > 1.1f) {
             Box(
@@ -520,7 +439,7 @@ fun GridCell(
             
             markerColor?.let { color ->
                 // Draw concentric circles as target marker
-                // For AREA and LASTING attacks: 3 circles on target + circles on neighbor tiles (drawn at GameGrid level)
+                // For AREA and LASTING attacks: 6 circles (3 base + 3 large to show affected neighbors)
                 // For MELEE and RANGED attacks: 3 circles (standard target)
                 Canvas(
                     modifier = Modifier
@@ -552,6 +471,34 @@ fun GridCell(
                         center = Offset(centerX, centerY),
                         style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2f)
                     )
+                    
+                    // For AREA and LASTING attacks, add 3 more larger circles centered on target
+                    // to show which neighboring tiles will be affected
+                    if (attackType == AttackType.AREA || attackType == AttackType.LASTING) {
+                        // Fourth circle - extends toward neighbors
+                        drawCircle(
+                            color = color,
+                            radius = 48f,
+                            center = Offset(centerX, centerY),
+                            style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2f)
+                        )
+                        
+                        // Fifth circle - reaches neighbor centers
+                        drawCircle(
+                            color = color,
+                            radius = 69f,
+                            center = Offset(centerX, centerY),
+                            style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2f)
+                        )
+                        
+                        // Sixth circle - extends beyond neighbors  
+                        drawCircle(
+                            color = color,
+                            radius = 90f,
+                            center = Offset(centerX, centerY),
+                            style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2f)
+                        )
+                    }
                 }
             }
         }
