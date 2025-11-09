@@ -33,30 +33,35 @@ fun WorldMapScreen(
 ) {
     var showCheatDialog by remember { mutableStateOf(false) }
     
-    Box(
-        modifier = Modifier.fillMaxSize().padding(16.dp)
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
     ) {
-        // Settings button in top-right corner
-        SettingsButton(modifier = Modifier.align(Alignment.TopEnd))
-        
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally
+        Box(
+            modifier = Modifier.fillMaxSize().padding(16.dp)
         ) {
-            // Title text - clickable for cheat code access (less obvious than a button)
-            Text(
-                text = stringResource(Res.string.world_map_title),
-                style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier
-                    .padding(bottom = 16.dp)
-                    .then(
-                        if (onCheatCode != null) {
-                            Modifier.clickable { showCheatDialog = true }
-                        } else {
-                            Modifier
-                        }
-                    )
-            )
+            // Settings button in top-right corner
+            SettingsButton(modifier = Modifier.align(Alignment.TopEnd))
+            
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // Title text - clickable for cheat code access (less obvious than a button)
+                Text(
+                    text = stringResource(Res.string.world_map_title),
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier
+                        .padding(bottom = 16.dp)
+                        .then(
+                            if (onCheatCode != null) {
+                                Modifier.clickable { showCheatDialog = true }
+                            } else {
+                                Modifier
+                            }
+                        )
+                )
             
             LazyVerticalGrid(
                 columns = GridCells.Fixed(2),
@@ -100,6 +105,7 @@ fun WorldMapScreen(
                     Text(stringResource(Res.string.back))
                 }
             }
+        }
         }
     }
     
