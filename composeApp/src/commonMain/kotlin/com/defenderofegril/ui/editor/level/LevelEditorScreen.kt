@@ -27,9 +27,13 @@ fun LevelEditorScreen(
 ) {
     var currentTab by remember { mutableStateOf(EditorTab.LEVEL_EDITOR) }
     
-    Box(
-        modifier = Modifier.fillMaxSize()
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
     ) {
+        Box(
+            modifier = Modifier.fillMaxSize()
+        ) {
         // Content area (below header)
         Column(
             modifier = Modifier.fillMaxSize().padding(16.dp)
@@ -128,6 +132,7 @@ fun LevelEditorScreen(
                     }
                 }
             }
+        }
         }
     }
 }
