@@ -94,17 +94,17 @@ class FieldEffectTest {
         engine.startFirstPlayerTurn()
         alchemy.resetActions()
         
-        // Spawn an enemy
+        // Spawn an enemy at a position within range 2 of the alchemy tower
         val enemy = Attacker(
             id = state.nextAttackerId.value++,
             type = AttackerType.GOBLIN,
-            position = mutableStateOf(Position(4, 3)),
+            position = mutableStateOf(Position(2, 3)),  // Changed from (4,3) to (2,3) - within range 2
             level = 1
         )
         state.attackers.add(enemy)
         
         // Attack with alchemy tower to create acid effects
-        val targetPos = Position(4, 3)
+        val targetPos = Position(2, 3)  // Changed from (4,3) to (2,3) - within range 2
         assertTrue(engine.defenderAttackPosition(alchemy.id, targetPos), "Attack should succeed")
         
         // Verify acid effects were created
@@ -142,17 +142,17 @@ class FieldEffectTest {
         // Give wizard multiple actions for testing
         wizard.actionsRemaining.value = 2
         
-        // Spawn enemies at different positions
+        // Spawn enemies at different positions within range 3 of the wizard
         state.attackers.add(Attacker(
             id = state.nextAttackerId.value++,
             type = AttackerType.GOBLIN,
-            position = mutableStateOf(Position(4, 3)),
+            position = mutableStateOf(Position(4, 3)),  // Distance 3 from tower
             level = 1
         ))
         state.attackers.add(Attacker(
             id = state.nextAttackerId.value++,
             type = AttackerType.GOBLIN,
-            position = mutableStateOf(Position(6, 3)),
+            position = mutableStateOf(Position(1, 3)),  // Changed from (6,3) to (1,3) - within range 3
             level = 1
         ))
         
@@ -162,7 +162,7 @@ class FieldEffectTest {
         assertTrue(firstEffectCount > 0, "First attack should create fireball effects")
         
         // Second attack - old effects from same wizard should be cleared
-        assertTrue(engine.defenderAttackPosition(wizard.id, Position(6, 3)), "Second attack should succeed")
+        assertTrue(engine.defenderAttackPosition(wizard.id, Position(1, 3)), "Second attack should succeed")  // Changed from (6,3) to (1,3)
         val secondEffectCount = state.fieldEffects.filter { it.type == FieldEffectType.FIREBALL }.size
         
         // After second attack, only effects from second attack should remain (old ones cleared)
