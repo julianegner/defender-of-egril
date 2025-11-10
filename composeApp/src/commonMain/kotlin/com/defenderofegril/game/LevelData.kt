@@ -23,8 +23,28 @@ object LevelData {
             // Reload level from disk to ensure we have the latest version
             val editorLevel = EditorStorage.reloadLevel(levelId)
             println("Processing level ID: $levelId at index $index - Found: ${editorLevel != null}")
-            editorLevel?.let {
-                EditorStorage.convertToGameLevel(it, index + 1)
+            
+            editorLevel?.let { level ->
+                // Check if level is ready to play
+                if (!level.isReadyToPlay()) {
+                    println("Skipping level $levelId: not ready to play (towers: ${level.availableTowers.size}, spawns: ${level.enemySpawns.size})")
+                    return@mapIndexed null
+                }
+                
+                // Check if the map is ready to use
+                val map = EditorStorage.getMap(level.mapId)
+                if (map == null) {
+                    println("Skipping level $levelId: map ${level.mapId} not found")
+                    return@mapIndexed null
+                }
+                
+                if (!map.readyToUse) {
+                    println("Skipping level $levelId: map ${level.mapId} is not ready to use")
+                    return@mapIndexed null
+                }
+                
+                // Convert to game level
+                EditorStorage.convertToGameLevel(level, index + 1)
             }
         }.filterNotNull()
     }
