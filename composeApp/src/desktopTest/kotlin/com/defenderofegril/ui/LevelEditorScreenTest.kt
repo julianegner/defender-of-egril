@@ -43,7 +43,7 @@ class LevelEditorScreenTest {
     
     @Test
     fun testLevelEditorScreenScrolledDown() {
-        // Test the level editor screen with taller viewport to show more content
+        // Test the level editor screen with one level open for editing
         composeTestRule.setContent {
             LevelEditorScreen(
                 onBack = {}
@@ -52,15 +52,25 @@ class LevelEditorScreenTest {
         
         composeTestRule.waitForIdle()
         
+        // Try to click on the first level card to open it for editing
+        try {
+            // Look for text that appears in level cards like "File:" or "Coins"
+            composeTestRule.onAllNodesWithText("File:", substring = true, ignoreCase = true)[0]
+                .performClick()
+            composeTestRule.waitForIdle()
+        } catch (e: Exception) {
+            println("Note: Could not click on level card: ${e.message}")
+        }
+        
         // Verify the screen renders
         composeTestRule.onRoot().assertExists()
         
-        // Capture screenshot with taller height to show scrolled/more content
+        // Capture screenshot with taller height to show more content (editing view)
         ScreenshotTestUtils.captureScreenshot(
             composeTestRule,
             "editor-level-editor-scrolled",
             width = 1600,
-            height = 1400  // Taller to show more content
+            height = 1400  // Taller to show more editing form content
         )
     }
     
@@ -98,7 +108,7 @@ class LevelEditorScreenTest {
     
     @Test
     fun testMapEditorWithOpenMap() {
-        // Test map editor with an open map for editing
+        // Test map editor with a map opened for editing
         composeTestRule.setContent {
             LevelEditorScreen(
                 onBack = {}
@@ -113,13 +123,14 @@ class LevelEditorScreenTest {
                 .performClick()
             composeTestRule.waitForIdle()
             
-            // Try to click on "New Map" or "Edit" button to open a map
+            // Try to click on the first map card to open it for editing
+            // Look for text that appears in map cards like "Size:" 
             try {
-                composeTestRule.onNodeWithText("New Map", substring = true, ignoreCase = true)
+                composeTestRule.onAllNodesWithText("Size:", substring = true, ignoreCase = true)[0]
                     .performClick()
                 composeTestRule.waitForIdle()
             } catch (e2: Exception) {
-                println("Note: Could not open new map: ${e2.message}")
+                println("Note: Could not click on map card: ${e2.message}")
             }
         } catch (e: Exception) {
             println("Note: Could not switch to Map Editor: ${e.message}")
@@ -134,7 +145,7 @@ class LevelEditorScreenTest {
             println("Note: Could not verify map text: ${e.message}")
         }
         
-        // Capture screenshot of map editor with open map/dialog
+        // Capture screenshot of map editor with open map
         try {
             ScreenshotTestUtils.captureScreenshot(
                 composeTestRule,
