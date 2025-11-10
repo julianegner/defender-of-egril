@@ -53,7 +53,8 @@ object SaveJsonSerializer {
       "position": {"x": ${defender.position.x}, "y": ${defender.position.y}},
       "level": ${defender.level},
       "buildTimeRemaining": ${defender.buildTimeRemaining},
-      "placedOnTurn": ${defender.placedOnTurn}
+      "placedOnTurn": ${defender.placedOnTurn},
+      "actionsRemaining": ${defender.actionsRemaining}
     }"""
         }
         
@@ -239,8 +240,14 @@ object SaveJsonSerializer {
         val level = extractValue(json, "level").toInt()
         val buildTimeRemaining = extractValue(json, "buildTimeRemaining").toInt()
         val placedOnTurn = extractValue(json, "placedOnTurn").toInt()
+        // Backward compatibility: default to 0 if field doesn't exist in old saves
+        val actionsRemaining = try {
+            extractValue(json, "actionsRemaining").toIntOrNull() ?: 0
+        } catch (e: Exception) {
+            0
+        }
         
-        return SavedDefender(id, type, position, level, buildTimeRemaining, placedOnTurn)
+        return SavedDefender(id, type, position, level, buildTimeRemaining, placedOnTurn, actionsRemaining)
     }
     
     private fun parseSavedAttacker(json: String): SavedAttacker {
