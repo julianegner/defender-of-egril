@@ -1,6 +1,7 @@
 package com.defenderofegril.ui
 
 import androidx.compose.foundation.focusable
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
@@ -188,24 +189,31 @@ fun HexagonalMapView(
             )
             .then(
                 if (config.enablePanNavigation) {
-                    Modifier.pointerInput(Unit) {
-                        detectTransformGestures { _, pan, zoom, _ ->
-                            // Apply zoom (for pinch gestures on mobile)
-                            var newScale = scale
-                            if (zoom != 1f) {
-                                newScale = (scale * zoom).coerceIn(config.minScale, config.maxScale)
-                                onScaleChange(newScale)
+                    Modifier
+                        .pointerInput(Unit) {
+                            detectDragGestures { _, dragAmount ->
+                                // Apply pan
+                                val newOffsetX = offsetX + dragAmount.x
+                                val newOffsetY = offsetY + dragAmount.y
+
+                                // Constrain pan to keep content visible
+                                val (constrainedX, constrainedY) = constrainOffsets(newOffsetX, newOffsetY, scale)
+                                onOffsetChange(constrainedX, constrainedY)
                             }
-
-                            // Apply pan
-                            val newOffsetX = offsetX + pan.x
-                            val newOffsetY = offsetY + pan.y
-
-                            // Constrain pan to keep content visible
-                            val (constrainedX, constrainedY) = constrainOffsets(newOffsetX, newOffsetY, newScale)
-                            onOffsetChange(constrainedX, constrainedY)
                         }
-                    }
+                        .pointerInput(Unit) {
+                            // Keep detectTransformGestures for pinch-to-zoom on mobile
+                            detectTransformGestures { _, _, zoom, _ ->
+                                if (zoom != 1f) {
+                                    val newScale = (scale * zoom).coerceIn(config.minScale, config.maxScale)
+                                    onScaleChange(newScale)
+                                    
+                                    // Re-constrain offsets after zoom
+                                    val (constrainedX, constrainedY) = constrainOffsets(offsetX, offsetY, newScale)
+                                    onOffsetChange(constrainedX, constrainedY)
+                                }
+                            }
+                        }
                 } else {
                     Modifier
                 }
