@@ -208,9 +208,8 @@ fun LegendItemHex(
             Text(
                 label,
                 style = MaterialTheme.typography.labelMedium,
-                fontSize = 14.sp,
-                color = if (color.luminance() > 0.5f) Color.Black else Color.White,
-                fontWeight = FontWeight.Bold
+                fontSize = 5.sp,
+                color = border
             )
         }
         Spacer(modifier = Modifier.width(8.dp))
