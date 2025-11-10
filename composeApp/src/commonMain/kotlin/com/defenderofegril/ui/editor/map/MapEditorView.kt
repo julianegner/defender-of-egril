@@ -143,7 +143,7 @@ fun MapEditorView(
                     gridHeight = map.height,
                     config = HexagonalMapConfig(
                         hexSize = hexSize,
-                        enableKeyboardNavigation = false,  // Disable keyboard navigation for editor
+                        enableKeyboardNavigation = true,  // Enable keyboard navigation for editor
                         enablePanNavigation = false  // Disable pan navigation for editor (brush only)
                     ),
                     scale = zoomLevel,
