@@ -1,0 +1,99 @@
+package com.defenderofegril.audio
+
+import com.defenderofegril.ui.settings.AppSettings
+
+/**
+ * Sound manager that plays audio files from resources
+ * Falls back to synthesized tones if files are not available
+ */
+class FileSoundManager : SoundManager {
+    private var enabled = true
+    private var volume = 1.0f
+    
+    override fun initialize() {
+        // Load sound enabled state from settings
+        enabled = AppSettings.isSoundEnabled.value
+        volume = AppSettings.soundVolume.value
+        
+        // Initialize platform-specific audio system
+        initializeAudioSystem()
+    }
+    
+    override fun playSound(event: SoundEvent, volume: Float) {
+        if (!enabled || this.volume <= 0f) return
+        
+        // Calculate effective volume
+        val effectiveVolume = (this.volume * volume).coerceIn(0f, 1f)
+        
+        // Map events to sound file names
+        val soundFileName = when (event) {
+            // Tower attacks
+            SoundEvent.ATTACK_MELEE -> "attack_melee.wav"
+            SoundEvent.ATTACK_RANGED -> "attack_ranged.wav"
+            SoundEvent.ATTACK_AREA -> "attack_area.wav"
+            SoundEvent.ATTACK_LASTING -> "attack_lasting.wav"
+            
+            // Enemy events
+            SoundEvent.ENEMY_SPAWN -> "enemy_spawn.wav"
+            SoundEvent.ENEMY_MOVE -> "enemy_move.wav"
+            SoundEvent.ENEMY_DESTROYED -> "enemy_destroyed.wav"
+            
+            // Mine events
+            SoundEvent.MINE_DIG -> "mine_dig.wav"
+            SoundEvent.MINE_COIN_FOUND -> "mine_coin.wav"
+            SoundEvent.MINE_TRAP_BUILT -> "mine_trap.wav"
+            SoundEvent.MINE_DRAGON_SPAWN -> "mine_dragon.wav"
+            
+            // Trap events
+            SoundEvent.TRAP_TRIGGERED -> "trap_trigger.wav"
+            
+            // Life loss
+            SoundEvent.LIFE_LOST -> "life_lost.wav"
+            
+            // Dragon special
+            SoundEvent.DRAGON_EAT -> "dragon_eat.wav"
+            
+            // UI sounds
+            SoundEvent.BUTTON_CLICK -> "button_click.wav"
+            SoundEvent.TOWER_PLACED -> "tower_placed.wav"
+            SoundEvent.TOWER_UPGRADED -> "tower_upgraded.wav"
+            SoundEvent.TOWER_SOLD -> "tower_sold.wav"
+        }
+        
+        // Play the sound file on the platform
+        playSoundFile(soundFileName, effectiveVolume)
+    }
+    
+    override fun setVolume(volume: Float) {
+        this.volume = volume.coerceIn(0f, 1f)
+        AppSettings.saveSoundVolume(this.volume)
+    }
+    
+    override fun setEnabled(enabled: Boolean) {
+        this.enabled = enabled
+        AppSettings.saveSoundEnabled(enabled)
+    }
+    
+    override fun isEnabled(): Boolean = enabled
+    
+    override fun getVolume(): Float = volume
+    
+    override fun release() {
+        releaseAudioSystem()
+    }
+}
+
+/**
+ * Platform-specific audio system initialization
+ */
+expect fun initializeAudioSystem()
+
+/**
+ * Platform-specific sound file playback
+ */
+expect fun playSoundFile(fileName: String, volume: Float)
+
+/**
+ * Platform-specific audio system cleanup
+ */
+expect fun releaseAudioSystem()

@@ -12,7 +12,7 @@ import kotlin.math.sin
 /**
  * Android implementation of SoundManager factory
  */
-actual fun createSoundManager(): SoundManager = SimpleSoundManager()
+actual fun createSoundManager(): SoundManager = FileSoundManager()
 
 /**
  * Android implementation of tone playback using AudioTrack

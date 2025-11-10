@@ -12,7 +12,7 @@ import kotlin.math.sin
 /**
  * iOS implementation of SoundManager factory
  */
-actual fun createSoundManager(): SoundManager = SimpleSoundManager()
+actual fun createSoundManager(): SoundManager = FileSoundManager()
 
 /**
  * iOS implementation of tone playback using Audio Toolbox
