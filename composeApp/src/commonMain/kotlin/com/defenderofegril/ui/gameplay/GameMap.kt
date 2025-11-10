@@ -57,7 +57,8 @@ fun GameGrid(
             gridHeight = gameState.level.gridHeight,
             config = HexagonalMapConfig(
                 hexSize = hexSize.value,
-                enableKeyboardNavigation = true  // Enable keyboard navigation for gameplay
+                enableKeyboardNavigation = true,  // Enable keyboard navigation for gameplay
+                enablePanNavigation = true  // Enable pan navigation for gameplay
             ),
             scale = scale,
             offsetX = offsetX,
