@@ -29,7 +29,7 @@ import defender_of_egril.composeapp.generated.resources.*
 @Composable
 fun GameLegend(modifier: Modifier = Modifier) {
     val isDarkMode = com.defenderofegril.ui.settings.AppSettings.isDarkMode.value
-    val borderColor = if (isDarkMode) Color(0xFF505050) else Color.Gray
+    val borderColor = if (isDarkMode) Color(0xFF303030) else Color.Gray  // Even darker border in dark mode
     
     ExpandableCard(
         title = stringResource(Res.string.legend),
