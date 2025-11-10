@@ -91,7 +91,7 @@ class LevelEditorScreenTest {
     
     @Test
     fun testLevelEditorScrolledDown() {
-        // Test the level editor with a level open, using taller viewport to show more form fields
+        // Test the level editor with fully configured level (multiple turns with enemies)
         composeTestRule.setContent {
             LevelEditorScreen(
                 onBack = {}
@@ -109,7 +109,7 @@ class LevelEditorScreenTest {
             // Type a title
             try {
                 composeTestRule.onAllNodesWithText("Title", substring = true, ignoreCase = true).filter(hasSetTextAction())[0]
-                    .performTextInput("Test Level 2")
+                    .performTextInput("Test Level with Enemies")
                 composeTestRule.waitForIdle()
                 
                 // Click create button (look for button that has "Create" but not "New")
@@ -123,15 +123,82 @@ class LevelEditorScreenTest {
             println("Note: Could not click Create button: ${e.message}")
         }
         
+        // Now we should be in the level editing view
+        // Fill in the subtitle field
+        try {
+            composeTestRule.onAllNodesWithText("Subtitle", substring = true, ignoreCase = true).filter(hasSetTextAction())[0]
+                .performTextInput("Goblin Assault")
+            composeTestRule.waitForIdle()
+        } catch (e: Exception) {
+            println("Note: Could not fill subtitle: ${e.message}")
+        }
+        
+        // Update start coins
+        try {
+            composeTestRule.onAllNodesWithText("Start Coins", substring = true, ignoreCase = true).filter(hasSetTextAction())[0]
+                .performTextClearance()
+            composeTestRule.onAllNodesWithText("Start Coins", substring = true, ignoreCase = true).filter(hasSetTextAction())[0]
+                .performTextInput("150")
+            composeTestRule.waitForIdle()
+        } catch (e: Exception) {
+            println("Note: Could not set start coins: ${e.message}")
+        }
+        
+        // Add a turn by clicking "Add Turn" button (which adds Turn 1 with 1 goblin)
+        try {
+            composeTestRule.onNodeWithText("Add Turn", substring = true, ignoreCase = true)
+                .performClick()
+            composeTestRule.waitForIdle()
+        } catch (e: Exception) {
+            println("Note: Could not add turn: ${e.message}")
+        }
+        
+        // Expand the turn section by clicking on "Turn 1"
+        try {
+            composeTestRule.onNodeWithText("Turn 1", substring = true, ignoreCase = true)
+                .performClick()
+            composeTestRule.waitForIdle()
+        } catch (e: Exception) {
+            println("Note: Could not expand turn: ${e.message}")
+        }
+        
+        // Add 5 more goblins to Turn 1 (total 6 goblins)
+        for (i in 1..5) {
+            try {
+                // Click "Add Enemy to Turn 1" button
+                composeTestRule.onNodeWithText("Add Enemy to Turn 1", substring = true, ignoreCase = true)
+                    .performClick()
+                composeTestRule.waitForIdle()
+                
+                // In the dialog, Goblin is already selected by default, just click Add
+                composeTestRule.onNode(hasText("Add") and hasClickAction())
+                    .performClick()
+                composeTestRule.waitForIdle()
+            } catch (e: Exception) {
+                println("Note: Could not add goblin ${i+1}: ${e.message}")
+            }
+        }
+        
+        // Copy the turn 4 times (will create Turn 2, 3, 4, 5)
+        for (i in 1..4) {
+            try {
+                composeTestRule.onNodeWithText("Copy Turn", substring = true, ignoreCase = true)
+                    .performClick()
+                composeTestRule.waitForIdle()
+            } catch (e: Exception) {
+                println("Note: Could not copy turn ${i}: ${e.message}")
+            }
+        }
+        
         // Verify the screen renders
         composeTestRule.onRoot().assertExists()
         
-        // Capture screenshot with taller height to show more editing form content
+        // Capture screenshot with extra tall height to show all turns scrolled
         ScreenshotTestUtils.captureScreenshot(
             composeTestRule,
             "editor-level-editor-scrolled",
             width = 1600,
-            height = 1400  // Taller to show more form fields when scrolled
+            height = 1800  // Very tall to show all 5 turns with 30 goblins
         )
     }
     
