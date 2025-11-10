@@ -16,13 +16,16 @@ import defender_of_egril.composeapp.generated.resources.*
 fun EditorButtonCard(
     onClick: () -> Unit
 ) {
+    val isDarkMode = com.defenderofegril.ui.settings.AppSettings.isDarkMode.value
+    val backgroundColor = if (isDarkMode) Color(0xFF8A5A00) else Color(0xFFFF9800)  // Darker orange in dark mode
+    
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .height(100.dp)
             .clickable(onClick = onClick),
         colors = CardDefaults.cardColors(
-            containerColor = Color(0xFFFF9800)  // Distinctive orange color
+            containerColor = backgroundColor
         )
     ) {
         Row(
