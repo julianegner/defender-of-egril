@@ -24,6 +24,7 @@ import kotlin.math.sqrt
 data class HexagonalMapConfig(
     val hexSize: Float = 40f,  // Radius of hexagon (center to corner)
     val enableKeyboardNavigation: Boolean = true,  // Enable arrow keys & WASD navigation
+    val enablePanNavigation: Boolean = true,  // Enable mouse drag panning
     val keyboardPanSpeed: Float = 30f,  // Pixels to pan per key press
     val minScale: Float = 0.5f,
     val maxScale: Float = 3.0f,
@@ -158,6 +159,29 @@ fun HexagonalMapView(
             focusRequester.requestFocus()
         }
     }
+    val panNavModifier =
+    if (config.enablePanNavigation) {
+        modifier.pointerInput(Unit) {
+            detectTransformGestures { _, pan, zoom, _ ->
+                // Apply zoom (for pinch gestures on mobile)
+                var newScale = scale
+                if (zoom != 1f) {
+                    newScale = (scale * zoom).coerceIn(config.minScale, config.maxScale)
+                    onScaleChange(newScale)
+                }
+
+                // Apply pan
+                val newOffsetX = offsetX + pan.x
+                val newOffsetY = offsetY + pan.y
+
+                // Constrain pan to keep content visible
+                val (constrainedX, constrainedY) = constrainOffsets(newOffsetX, newOffsetY, newScale)
+                onOffsetChange(constrainedX, constrainedY)
+            }
+        }
+    } else {
+        modifier
+    }
 
     Box(
         modifier = modifier
@@ -180,24 +204,7 @@ fun HexagonalMapView(
                 onScaleChange = onScaleChange,
                 onOffsetChange = onOffsetChange
             )
-            .pointerInput(Unit) {
-                detectTransformGestures { _, pan, zoom, _ ->
-                    // Apply zoom (for pinch gestures on mobile)
-                    var newScale = scale
-                    if (zoom != 1f) {
-                        newScale = (scale * zoom).coerceIn(config.minScale, config.maxScale)
-                        onScaleChange(newScale)
-                    }
-
-                    // Apply pan
-                    val newOffsetX = offsetX + pan.x
-                    val newOffsetY = offsetY + pan.y
-
-                    // Constrain pan to keep content visible
-                    val (constrainedX, constrainedY) = constrainOffsets(newOffsetX, newOffsetY, newScale)
-                    onOffsetChange(constrainedX, constrainedY)
-                }
-            }
+            .then(panNavModifier)
     ) {
         // Map content with pan and zoom applied
         Column(
