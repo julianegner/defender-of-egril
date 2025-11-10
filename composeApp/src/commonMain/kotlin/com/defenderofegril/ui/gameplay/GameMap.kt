@@ -202,7 +202,7 @@ fun GameGrid(
                 
                 Canvas(
                     modifier = Modifier
-                        .fillMaxSize()
+                        .matchParentSize()
                         .graphicsLayer(
                             scaleX = scale,
                             scaleY = scale,
@@ -211,46 +211,51 @@ fun GameGrid(
                         )
                         .zIndex(11f)  // Above grid cells but below minimap
                 ) {
-                    // Calculate target position to match grid layout exactly
-                    // Each row: height of hex + vertical spacing adjustment
-                    val rowHeight = hexHeight + (-hexHeight + verticalSpacing - 7f)
-                    // Each column: width - horizontal spacing
-                    val colWidth = hexWidth - 10f
+                    // Match the exact grid layout calculations
+                    // Column spacing from Row: Arrangement.spacedBy((-10).dp)
+                    val horizontalSpacing = -10f
                     
-                    // Base position
-                    var centerX = targetX * colWidth + hexWidth / 2f
-                    var centerY = targetY * rowHeight + hexHeight / 2f
+                    // Row spacing from Column: Arrangement.spacedBy((-hexHeight + verticalSpacing - 7f).dp)
+                    val verticalSpacingValue = -hexHeight + verticalSpacing - 7f
                     
-                    // Add odd row offset for hexagonal grid
+                    // Calculate X position
+                    // Each hex takes hexWidth + horizontalSpacing pixels
+                    var centerX = targetX * (hexWidth + horizontalSpacing) + hexWidth / 2f
+                    
+                    // Add odd row offset
                     if (targetY % 2 == 1) {
                         centerX += oddRowOffset
                     }
                     
-                    // Add row offset adjustment
-                    centerY -= (targetY - 1)
+                    // Calculate Y position  
+                    // Each row takes hexHeight + verticalSpacingValue pixels
+                    var centerY = targetY * (hexHeight + verticalSpacingValue) + hexHeight / 2f
+                    
+                    // Add row offset adjustment: offset(y = (-(y-1)).dp)
+                    centerY += (-(targetY - 1))
                     
                     // Draw base 3 circles (all attack types)
                     // Inner point (solid circle)
                     drawCircle(
                         color = color,
-                        radius = 4f,
+                        radius = 6f,
                         center = Offset(centerX, centerY)
                     )
                     
                     // Middle circle (stroke)
                     drawCircle(
                         color = color,
-                        radius = 12f,
+                        radius = 14f,
                         center = Offset(centerX, centerY),
-                        style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2f)
+                        style = androidx.compose.ui.graphics.drawscope.Stroke(width = 3f)
                     )
                     
                     // Outer circle (stroke)
                     drawCircle(
                         color = color,
-                        radius = 20f,
+                        radius = 22f,
                         center = Offset(centerX, centerY),
-                        style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2f)
+                        style = androidx.compose.ui.graphics.drawscope.Stroke(width = 3f)
                     )
                     
                     // For area attacks, draw 3 additional large circles
