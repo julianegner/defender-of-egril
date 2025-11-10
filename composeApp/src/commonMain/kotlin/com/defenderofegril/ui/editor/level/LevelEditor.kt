@@ -76,7 +76,21 @@ fun LevelEditorContent() {
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(levels.value) { level ->
-                    editingLevel = LevelCard(selectedLevelId, level, editingLevel, levels)
+                    LevelCard(
+                        level = level,
+                        isSelected = selectedLevelId == level.id,
+                        onSelect = { 
+                            selectedLevelId = level.id
+                            editingLevel = level
+                        },
+                        onDelete = {
+                            EditorStorage.deleteLevel(level.id)
+                            levels.value = EditorStorage.getAllLevels()
+                            if (selectedLevelId == level.id) {
+                                selectedLevelId = null
+                            }
+                        }
+                    )
                 }
             }
         }
@@ -118,17 +132,15 @@ fun LevelEditorContent() {
 
 @Composable
 private fun LevelCard(
-    selectedLevelId: String?,
     level: EditorLevel,
-    editingLevel: EditorLevel?,
-    levels: MutableState<List<EditorLevel>>
-): EditorLevel? {
-    var selectedLevelId1 = selectedLevelId
-    var editingLevel1 = editingLevel
+    isSelected: Boolean,
+    onSelect: () -> Unit,
+    onDelete: () -> Unit
+) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = if (selectedLevelId1 == level.id)
+            containerColor = if (isSelected)
                 MaterialTheme.colorScheme.primaryContainer
             else
                 MaterialTheme.colorScheme.surfaceVariant
@@ -141,10 +153,7 @@ private fun LevelCard(
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .clickable {
-                        selectedLevelId1 = level.id
-                        editingLevel1 = level
-                    }
+                    .clickable { onSelect() }
                     .padding(12.dp)
             ) {
                 Text(
@@ -172,13 +181,7 @@ private fun LevelCard(
                 )
             }
             Button(
-                onClick = {
-                    EditorStorage.deleteLevel(level.id)
-                    levels.value = EditorStorage.getAllLevels()
-                    if (selectedLevelId1 == level.id) {
-                        selectedLevelId1 = null
-                    }
-                },
+                onClick = onDelete,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.error
                 ),
@@ -188,7 +191,6 @@ private fun LevelCard(
             }
         }
     }
-    return editingLevel1
 }
 
 /**
