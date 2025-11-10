@@ -11,7 +11,7 @@ import kotlin.math.sin
 /**
  * Web/WASM implementation of SoundManager factory
  */
-actual fun createSoundManager(): SoundManager = SimpleSoundManager()
+actual fun createSoundManager(): SoundManager = FileSoundManager()
 
 /**
  * Web implementation of tone playback using Web Audio API
