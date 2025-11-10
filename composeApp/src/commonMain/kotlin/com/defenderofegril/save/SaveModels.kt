@@ -40,7 +40,8 @@ data class SavedDefender(
     val position: Position,
     val level: Int,
     val buildTimeRemaining: Int,
-    val placedOnTurn: Int
+    val placedOnTurn: Int,
+    val actionsRemaining: Int = 0  // Default to 0 for backward compatibility with old saves
 )
 
 data class SavedAttacker(

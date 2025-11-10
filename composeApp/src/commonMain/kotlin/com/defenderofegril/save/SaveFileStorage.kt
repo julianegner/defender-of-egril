@@ -154,7 +154,8 @@ object SaveFileStorage {
                 position = defender.position,
                 level = defender.level.value,
                 buildTimeRemaining = defender.buildTimeRemaining.value,
-                placedOnTurn = defender.placedOnTurn
+                placedOnTurn = defender.placedOnTurn,
+                actionsRemaining = defender.actionsRemaining.value
             )
         }
         
@@ -237,6 +238,7 @@ object SaveFileStorage {
             )
             defender.level.value = savedDefender.level
             defender.buildTimeRemaining.value = savedDefender.buildTimeRemaining
+            defender.actionsRemaining.value = savedDefender.actionsRemaining
             gameState.defenders.add(defender)
         }
         
