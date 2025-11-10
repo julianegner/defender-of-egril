@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -13,20 +12,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.positionInRoot
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.defenderofegril.editor.EditorMap
 import com.defenderofegril.editor.TileType
 import com.defenderofegril.ui.HexagonShape
+import com.defenderofegril.ui.HexagonalMapConfig
+import com.defenderofegril.ui.HexagonalMapView
 import com.defenderofegril.ui.icon.PushpinIcon
 import com.defenderofegril.ui.editor.SaveAsDialog
 import com.defenderofegril.ui.editor.getTileColor
-import com.defenderofegril.ui.mouseWheelZoom
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
 import kotlin.math.sqrt
@@ -49,11 +46,10 @@ fun MapEditorView(
     var offsetY by remember { mutableStateOf(0f) }
     
     // Hexagon dimensions - using same constants as game
-    val hexSize = 32.dp * zoomLevel  // Radius of hexagon with zoom applied
+    val hexSize = 32f  // Radius of hexagon (not scaled here, scaling handled by HexagonalMapView)
     val sqrt3 = sqrt(3.0).toFloat()
-    val hexWidth = hexSize.value * sqrt3  // Width of hexagon (flat-to-flat)
-    val hexHeight = hexSize.value * 2f    // Height of hexagon (point-to-point)
-    val verticalSpacing = hexHeight * 0.75f  // For pointy-top hexagons
+    val hexWidth = hexSize * sqrt3  // Width of hexagon (flat-to-flat)
+    val hexHeight = hexSize * 2f    // Height of hexagon (point-to-point)
     
     // Track tile positions for brush painting
     val tilePositions = remember { mutableStateMapOf<String, Offset>() }
@@ -69,7 +65,7 @@ fun MapEditorView(
     
     // Helper function to find which tile is at a given position (in root coordinates)
     fun getTileAtPosition(position: Offset): String? {
-        val hexRadiusPx = with(density) { (hexWidth / 2f).dp.toPx() }
+        val hexRadiusPx = with(density) { (hexWidth / 2f * zoomLevel).dp.toPx() }
         val closest = tilePositions.entries.minByOrNull { (_, tilePos) ->
             val dx = position.x - tilePos.x
             val dy = position.y - tilePos.y
@@ -93,29 +89,15 @@ fun MapEditorView(
             // Spacer to account for header height
             Spacer(modifier = Modifier.height(280.dp))
             
-            var containerSize by remember { mutableStateOf(IntSize.Zero) }
-            
             Box(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
                     .padding(8.dp)
-                    .onSizeChanged { containerSize = it }
                     .onGloballyPositioned { coordinates ->
                         // Track container position for coordinate conversion
                         containerPositionInRoot = coordinates.positionInRoot()
                     }
-                    .mouseWheelZoom(
-                        containerSize = containerSize,
-                        scale = zoomLevel,
-                        offsetX = offsetX,
-                        offsetY = offsetY,
-                        onScaleChange = { newScale -> zoomLevel = newScale },
-                        onOffsetChange = { newX, newY -> 
-                            offsetX = newX
-                            offsetY = newY
-                        }
-                    )
                     .pointerInput(selectedTileType) {
                         // Brush painting: detect drag gestures and paint tiles
                         detectDragGestures(
@@ -156,19 +138,27 @@ fun MapEditorView(
                         )
                     }
             ) {
-                Column(
-                    modifier = Modifier.graphicsLayer(
-                        scaleX = zoomLevel,
-                        scaleY = zoomLevel,
-                        translationX = offsetX,
-                        translationY = offsetY
+                HexagonalMapView(
+                    gridWidth = map.width,
+                    gridHeight = map.height,
+                    config = HexagonalMapConfig(
+                        hexSize = hexSize,
+                        enableKeyboardNavigation = false  // Disable keyboard navigation for editor
                     ),
-                    verticalArrangement = Arrangement.spacedBy((-hexHeight + verticalSpacing - 7f).dp)
-                ) {
+                    scale = zoomLevel,
+                    offsetX = offsetX,
+                    offsetY = offsetY,
+                    onScaleChange = { newScale -> zoomLevel = newScale },
+                    onOffsetChange = { newX, newY ->
+                        offsetX = newX
+                        offsetY = newY
+                    },
+                    modifier = Modifier.fillMaxSize()
+                ) { hexWidthParam, hexHeightParam, verticalSpacing ->
                     for (y in 0 until map.height) {
                         Row(
                             modifier = Modifier.offset(
-                                x = if (y % 2 == 1) (hexWidth * 0.42f).dp else 0.dp,
+                                x = if (y % 2 == 1) (hexWidthParam * 0.42f).dp else 0.dp,
                                 y = (-(y-1)).dp
                             ),
                             horizontalArrangement = Arrangement.spacedBy((-10).dp)
@@ -179,8 +169,8 @@ fun MapEditorView(
                                 
                                 Box(
                                     modifier = Modifier
-                                        .width((hexWidth).dp)
-                                        .height((hexHeight).dp)
+                                        .width((hexWidthParam).dp)
+                                        .height((hexHeightParam).dp)
                                         .clip(HexagonShape())
                                         .background(getTileColor(tileType))
                                         .border(1.5.dp, Color.Black, HexagonShape())
