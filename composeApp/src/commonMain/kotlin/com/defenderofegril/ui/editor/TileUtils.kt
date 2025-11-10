@@ -29,7 +29,7 @@ fun TileTypeButton(
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
             if (tileType == TileType.WAYPOINT) {
-                PushpinIcon(size = 14.dp, tint = textColor)
+                PushpinIcon(size = 14.dp)
             }
             Text(tileType.name, color = textColor)
         }
