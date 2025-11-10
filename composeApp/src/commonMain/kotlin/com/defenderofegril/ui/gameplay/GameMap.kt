@@ -182,16 +182,21 @@ fun GameGrid(
         }
 
         // Overlay for target circles - drawn at GameGrid level to avoid clipping and ensure visibility
+        println("Rendering target marker overlay... pos: $selectedTargetPosition ID: $selectedDefenderId")
+        /* fixme the selectedTargetPosition is null for normal attacks
+         */
         if (selectedTargetPosition != null && selectedDefenderId != null) {
             val selectedDefender = remember(selectedDefenderId, gameState.defenders.size) {
                 gameState.defenders.find { it.id == selectedDefenderId }
             }
             
             val attackType = selectedDefender?.type?.attackType
+            println("Selected defender ID: $selectedDefenderId with attack type: $attackType")
             val markerColor = when (attackType) {
                 AttackType.AREA -> Color(0xFFFF5722)  // Deep orange/red for fireball
                 AttackType.LASTING -> Color(0xFF4CAF50)  // Green for acid
-                AttackType.MELEE, AttackType.RANGED -> Color(0xFFFFEB3B)  // Yellow for single-target
+                AttackType.NONE -> null  // No attack
+                AttackType.MELEE, AttackType.RANGED -> Color.DarkGray // Yellow for single-target
                 else -> null
             }
             
@@ -199,6 +204,8 @@ fun GameGrid(
                 // Calculate target position in pixels
                 val targetX = selectedTargetPosition.x
                 val targetY = selectedTargetPosition.y
+
+                println("Drawing target marker at (X: $targetX, Y: $targetY) for attack type $attackType")
                 
                 Canvas(
                     modifier = Modifier
@@ -221,7 +228,7 @@ fun GameGrid(
                     // Calculate X position
                     // Each hex takes hexWidth + horizontalSpacing pixels
                     var centerX = targetX * (hexWidth + horizontalSpacing) + hexWidth / 2f
-                    
+
                     // Add odd row offset
                     if (targetY % 2 == 1) {
                         centerX += oddRowOffset
@@ -233,6 +240,8 @@ fun GameGrid(
                     
                     // Add row offset adjustment: offset(y = (-(y-1)).dp)
                     centerY += (-(targetY - 1))
+
+                    println("Calculated marker center at ($centerX, $centerY) pixels")
                     
                     // Draw base 3 circles (all attack types)
                     // Inner point (solid circle)
