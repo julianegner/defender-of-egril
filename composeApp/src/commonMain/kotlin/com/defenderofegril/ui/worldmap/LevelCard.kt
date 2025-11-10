@@ -128,7 +128,7 @@ fun LevelCard(
                         ) {
                             enemyList.forEachIndexed { index, (attackerType, count) ->
                                 if (index % 2 == 0) {
-                                    EnemyUnitEntry(attackerType, count)
+                                    EnemyUnitEntry(attackerType, count, textColor)
                                 }
                             }
                         }
@@ -138,7 +138,7 @@ fun LevelCard(
                         ) {
                             enemyList.forEachIndexed { index, (attackerType, count) ->
                                 if (index % 2 == 1) {
-                                    EnemyUnitEntry(attackerType, count)
+                                    EnemyUnitEntry(attackerType, count, textColor)
                                 }
                             }
                         }
@@ -209,7 +209,7 @@ fun LevelCard(
 }
 
 @Composable
-private fun EnemyUnitEntry(attackerType: AttackerType, count: Int) {
+private fun EnemyUnitEntry(attackerType: AttackerType, count: Int, textColor: Color) {
     val locale = com.hyperether.resources.currentLanguage.value
     Row(
         verticalAlignment = Alignment.CenterVertically,

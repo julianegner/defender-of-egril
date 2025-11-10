@@ -304,8 +304,8 @@ fun GridCell(
     val borderColor = when {
         cellIsInRange && isOnPath && showRange && canPlaceTrapHere -> GamePlayColors.Success  // Green border for tiles in range (exclude enemy tiles during trap placement)
         isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> GamePlayColors.Yellow  // Yellow border for selected defender (not during initial building)
-        isSpawnPoint -> if (isDarkMode) GamePlayColors.WarningDark else GamePlayColors.Warning  // Darker orange border for spawn in dark mode
-        isTarget -> if (isDarkMode) GamePlayColors.SuccessDark else GamePlayColors.Success  // Darker green border for target in dark mode
+        isSpawnPoint -> GamePlayColors.WarningDark  // Darker orange border for spawn in dark mode
+        isTarget -> GamePlayColors.Success  // Green border for target (adapts to dark mode automatically)
         attacker != null -> GamePlayColors.ErrorDark  // Darker red border for enemies
         defender != null -> if (defender.isReady) GamePlayColors.InfoDark else GamePlayColors.Building  // Darker blue/gray border for towers
         fieldEffect != null -> {
