@@ -42,7 +42,7 @@ class LevelEditorScreenTest {
     }
     
     @Test
-    fun testLevelEditorScreenScrolledDown() {
+    fun testLevelEditorWithOpenLevel() {
         // Test the level editor screen with one level open for editing
         composeTestRule.setContent {
             LevelEditorScreen(
@@ -52,25 +52,86 @@ class LevelEditorScreenTest {
         
         composeTestRule.waitForIdle()
         
-        // Try to click on the first level card to open it for editing
+        // First, create a level by clicking "Create New Level" button
         try {
-            // Look for text that appears in level cards like "File:" or "Coins"
-            composeTestRule.onAllNodesWithText("File:", substring = true, ignoreCase = true)[0]
+            composeTestRule.onAllNodesWithText("Create New Level", substring = true, ignoreCase = true)[0]
                 .performClick()
             composeTestRule.waitForIdle()
+            
+            // Type a title in the dialog
+            try {
+                // Find the text field and type
+                composeTestRule.onAllNodesWithText("Title", substring = true, ignoreCase = true).filter(hasSetTextAction())[0]
+                    .performTextInput("Test Level")
+                composeTestRule.waitForIdle()
+                
+                // Click create button in dialog (look for button role)
+                composeTestRule.onNode(hasText("Create") and hasClickAction() and !hasText("New"))
+                    .performClick()
+                composeTestRule.waitForIdle()
+            } catch (e: Exception) {
+                println("Note: Could not create level in dialog: ${e.message}")
+            }
         } catch (e: Exception) {
-            println("Note: Could not click on level card: ${e.message}")
+            println("Note: Could not click Create New Level button: ${e.message}")
+        }
+        
+        // Now the level should be open for editing automatically after creation
+        // Verify the screen renders
+        composeTestRule.onRoot().assertExists()
+        
+        // Capture screenshot (should show editing view)
+        ScreenshotTestUtils.captureScreenshot(
+            composeTestRule,
+            "editor-level-editor-with-open-level",
+            width = 1600,
+            height = 1000
+        )
+    }
+    
+    @Test
+    fun testLevelEditorScrolledDown() {
+        // Test the level editor with a level open, using taller viewport to show more form fields
+        composeTestRule.setContent {
+            LevelEditorScreen(
+                onBack = {}
+            )
+        }
+        
+        composeTestRule.waitForIdle()
+        
+        // Create a level first
+        try {
+            composeTestRule.onAllNodesWithText("Create New Level", substring = true, ignoreCase = true)[0]
+                .performClick()
+            composeTestRule.waitForIdle()
+            
+            // Type a title
+            try {
+                composeTestRule.onAllNodesWithText("Title", substring = true, ignoreCase = true).filter(hasSetTextAction())[0]
+                    .performTextInput("Test Level 2")
+                composeTestRule.waitForIdle()
+                
+                // Click create button (look for button that has "Create" but not "New")
+                composeTestRule.onNode(hasText("Create") and hasClickAction() and !hasText("New"))
+                    .performClick()
+                composeTestRule.waitForIdle()
+            } catch (e: Exception) {
+                println("Note: Could not create level: ${e.message}")
+            }
+        } catch (e: Exception) {
+            println("Note: Could not click Create button: ${e.message}")
         }
         
         // Verify the screen renders
         composeTestRule.onRoot().assertExists()
         
-        // Capture screenshot with taller height to show more content (editing view)
+        // Capture screenshot with taller height to show more editing form content
         ScreenshotTestUtils.captureScreenshot(
             composeTestRule,
             "editor-level-editor-scrolled",
             width = 1600,
-            height = 1400  // Taller to show more editing form content
+            height = 1400  // Taller to show more form fields when scrolled
         )
     }
     
