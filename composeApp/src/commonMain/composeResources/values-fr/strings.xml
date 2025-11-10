@@ -215,19 +215,19 @@
     <string name="initial_building_phase">Phase de construction initiale - Placez des tours (pas de temps de construction)</string>
     <string name="add_comment">Ajoutez un commentaire optionnel pour identifier cette sauvegarde:</string>
     <string name="game_saved">Jeu sauvegardé</string>
-    <string name="on_map">Sur la carte:</string>
-    <string name="planned_spawns">Apparitions prévues:</string>
-    <string name="position_label">Position:</string>
-    <string name="reward_label">Récompense:</string>
-    <string name="info_label">Info:</string>
+    <string name="on_map">Sur la carte</string>
+    <string name="planned_spawns">Apparitions prévues</string>
+    <string name="position_label">Position</string>
+    <string name="reward_label">Récompense</string>
+    <string name="info_label">Info</string>
     <string name="chance_percent">Chance (%%)</string>
-    <string name="building_label">Construction:</string>
-    <string name="active_label">Actifs:</string>
-    <string name="planned_label">Prévus:</string>
+    <string name="building_label">Construction</string>
+    <string name="active_label">Actifs</string>
+    <string name="planned_label">Prévus</string>
     
     <!-- GameLegend strings -->
     <string name="legend">Légende</string>
-    <string name="areas_label">Zones:</string>
+    <string name="areas_label">Zones</string>
     <string name="build_island">Île de construction</string>
     <string name="build_strip">Bande de construction</string>
     <string name="enemy_path">Chemin ennemi</string>
