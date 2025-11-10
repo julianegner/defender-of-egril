@@ -27,11 +27,14 @@ fun CompactDefenderButton(
     modifier: Modifier,
     onClick: () -> Unit
 ) {
+    val isDarkMode = com.defenderofegril.ui.settings.AppSettings.isDarkMode.value
+    
     Button(
         onClick = onClick,
         enabled = canAfford,
         colors = ButtonDefaults.buttonColors(
-            containerColor = if (isSelected) GamePlayColors.InfoDark else MaterialTheme.colorScheme.primary
+            containerColor = if (isSelected) GamePlayColors.InfoDark else MaterialTheme.colorScheme.primary,
+            contentColor = if (isSelected && isDarkMode) Color.White else Color.White  // Brighter text when selected in dark mode
         ),
         modifier = modifier,
         contentPadding = PaddingValues(4.dp)
@@ -58,7 +61,8 @@ fun CompactDefenderButton(
                 fontWeight = FontWeight.Bold,
                 fontSize = 12.sp,
                 maxLines = 1,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                color = if (isSelected && isDarkMode) Color.White else Color.White  // Ensure bright text
             )
 
             Spacer(modifier = Modifier.width(4.dp))
@@ -86,6 +90,7 @@ fun DefenderButton(
     coinsState: State<Int>,  // Accept State instead of Int
     onClick: () -> Unit
 ) {
+    val isDarkMode = com.defenderofegril.ui.settings.AppSettings.isDarkMode.value
     // Recalculate canAfford based on current coins.value to ensure reactivity
     val actuallyCanAfford = coinsState.value >= type.baseCost
 
@@ -93,7 +98,8 @@ fun DefenderButton(
         onClick = onClick,
         enabled = actuallyCanAfford,  // Use recalculated value
         colors = ButtonDefaults.buttonColors(
-            containerColor = if (isSelected) GamePlayColors.InfoDark else MaterialTheme.colorScheme.primary
+            containerColor = if (isSelected) GamePlayColors.InfoDark else MaterialTheme.colorScheme.primary,
+            contentColor = if (isSelected && isDarkMode) Color.White else Color.White  // Brighter text when selected in dark mode
         ),
         modifier = Modifier.fillMaxWidth().height(70.dp),
         contentPadding = PaddingValues(2.dp)

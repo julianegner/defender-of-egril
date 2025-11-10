@@ -215,19 +215,19 @@
     <string name="initial_building_phase">Fase di costruzione iniziale - Posiziona torri (nessun tempo di costruzione)</string>
     <string name="add_comment">Aggiungi un commento opzionale per identificare questo salvataggio:</string>
     <string name="game_saved">Gioco salvato</string>
-    <string name="on_map">Sulla mappa:</string>
-    <string name="planned_spawns">Apparizioni pianificate:</string>
-    <string name="position_label">Posizione:</string>
-    <string name="reward_label">Ricompensa:</string>
-    <string name="info_label">Info:</string>
+    <string name="on_map">Sulla mappa</string>
+    <string name="planned_spawns">Apparizioni pianificate</string>
+    <string name="position_label">Posizione</string>
+    <string name="reward_label">Ricompensa</string>
+    <string name="info_label">Info</string>
     <string name="chance_percent">Probabilità (%%)</string>
-    <string name="building_label">Costruzione:</string>
-    <string name="active_label">Attivi:</string>
-    <string name="planned_label">Pianificati:</string>
+    <string name="building_label">Costruzione</string>
+    <string name="active_label">Attivi</string>
+    <string name="planned_label">Pianificati</string>
     
     <!-- GameLegend strings -->
     <string name="legend">Legenda</string>
-    <string name="areas_label">Aree:</string>
+    <string name="areas_label">Aree</string>
     <string name="build_island">Isola di costruzione</string>
     <string name="build_strip">Striscia di costruzione</string>
     <string name="enemy_path">Percorso nemico</string>
@@ -237,6 +237,16 @@
     <string name="not_enough_actions">non abbastanza azioni</string>
     <string name="name_label">Nome</string>
     <string name="reward">Ricompensa</string>
+
+    <string name="special_label">Speciale</string>
+    <string name="units_label">Unità</string>
+    <string name="tower_ready">Torre (Pronta)</string>
+    <string name="tower_building">Torre (In costruzione)</string>
+    <string name="tower_no_actions">Torre (Nessuna azione)</string>
+    <string name="legend_info_ballista">Balista: Raggio min. 3</string>
+    <string name="legend_info_tower_icons">Icone mostrano tipo torre/nemico</string>
+    <string name="legend_info_tower_actions">Livello e azioni mostrati sulle torri</string>
+    <string name="legend_info_enemy_health">Salute mostrata sui nemici</string>
     
     <!-- EditorButtonCard strings -->
     <string name="level_editor">Editor di livelli</string>
