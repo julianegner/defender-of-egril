@@ -230,7 +230,7 @@ private fun GamePlayScreenContent(
                                     gameState.attackers.find { it.position.value == position && !it.isDefeated.value }
                                 if (attacker != null) {
                                     selectedTargetId = attacker.id
-                                    selectedTargetPosition = null
+                                    selectedTargetPosition = position // to be able to show the 3 circles to highlight the target
                                 }
                             }
                         }

@@ -16,11 +16,11 @@ object GamePlayColors {
     private val ErrorLight = Color(0xFFF44336)        // Red - errors, enemies, danger
     private val InfoLightMode = Color(0xFF2196F3)     // Blue - info, towers ready
     
-    // Primary action and state colors (dark mode - softer)
-    private val SuccessDarkMode = Color(0xFF66BB6A)   // Softer green
-    private val WarningDarkMode = Color(0xFFFFB74D)   // Softer orange
-    private val ErrorDarkMode = Color(0xFFE57373)     // Softer red
-    private val InfoDarkMode = Color(0xFF64B5F6)      // Softer blue
+    // Primary action and state colors (dark mode - much softer, less bright)
+    private val SuccessDarkMode = Color(0xFF2E7D32)   // Much darker green
+    private val WarningDarkMode = Color(0xFFEF6C00)   // Much darker orange
+    private val ErrorDarkMode = Color(0xFFB71C1C)     // Much darker red
+    private val InfoDarkMode = Color(0xFF0D47A1)      // Much darker blue
     
     // Extended palette for specific uses (light mode)
     private val InfoDeepLight = Color(0xFF1976D2)     // Dark blue - selected towers
@@ -30,13 +30,13 @@ object GamePlayColors {
     private val ErrorDeepLight = Color(0xFFD32F2F)    // Dark red - attack buttons, active enemies
     private val YellowLight = Color(0xFFFFEB3B)       // Yellow - selected items, attack type
     
-    // Extended palette for specific uses (dark mode - softer)
-    private val InfoDeepDarkMode = Color(0xFF42A5F5)      // Softer dark blue
-    private val InfoTintDarkMode = Color(0xFF9FA8DA)      // Softer light blue
-    private val WarningDeepDarkMode = Color(0xFFFF8A65)   // Softer deep orange
-    private val WarningIntenseDarkMode = Color(0xFFFFB74D)   // Softer dark orange
-    private val ErrorDeepDarkMode = Color(0xFFE57373)     // Softer dark red
-    private val YellowDarkMode = Color(0xFFFFF59D)        // Softer yellow
+    // Extended palette for specific uses (dark mode - much softer)
+    private val InfoDeepDarkMode = Color(0xFF0A2647)      // Much darker blue for selected towers
+    private val InfoTintDarkMode = Color(0xFF5C6BC0)      // Darker light blue for no actions
+    private val WarningDeepDarkMode = Color(0xFFE65100)   // Much darker deep orange
+    private val WarningIntenseDarkMode = Color(0xFFEF6C00)   // Much darker orange
+    private val ErrorDeepDarkMode = Color(0xFF8B0000)     // Much darker red
+    private val YellowDarkMode = Color(0xFFC4A000)        // Much darker yellow
     
     // Map terrain colors (light mode)
     private val BuildIslandLight = Color(0xFF8BC34A)  // Light green - build islands
