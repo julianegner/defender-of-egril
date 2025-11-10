@@ -320,4 +320,10 @@
     <string name="damage_label">Dégâts</string>
     <string name="hp_with_level">PV: %d</string>
     <string name="add_enemy_button">➕ Ajouter un ennemi au tour %d</string>
+    <string name="tower_ready">Tour (Prête)</string>
+    <string name="tower_building">Tour (En construction)</string>
+    <string name="tower_no_actions">Tour (Pas d\'actions)</string>
+    <string name="legend_info_ballista">Baliste: Portée min. 3</string>
+    <string name="legend_info_tower_icons">Icônes montrent type de tour/ennemi</string>
+    <string name="legend_info_tower_actions">Niveau et actions affichés sur tours</string>
 </resources>

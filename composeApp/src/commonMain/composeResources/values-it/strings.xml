@@ -320,4 +320,10 @@
     <string name="damage_label">Danno</string>
     <string name="hp_with_level">PV: %d</string>
     <string name="add_enemy_button">➕ Aggiungi nemico al turno %d</string>
+    <string name="tower_ready">Torre (Pronta)</string>
+    <string name="tower_building">Torre (In costruzione)</string>
+    <string name="tower_no_actions">Torre (Nessuna azione)</string>
+    <string name="legend_info_ballista">Balista: Raggio min. 3</string>
+    <string name="legend_info_tower_icons">Icone mostrano tipo torre/nemico</string>
+    <string name="legend_info_tower_actions">Livello e azioni mostrati sulle torri</string>
 </resources>
