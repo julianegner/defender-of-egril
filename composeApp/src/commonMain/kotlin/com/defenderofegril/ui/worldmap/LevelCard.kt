@@ -31,11 +31,16 @@ fun LevelCard(
     worldLevel: WorldLevel,
     onClick: () -> Unit
 ) {
+    val isDarkMode = com.defenderofegril.ui.settings.AppSettings.isDarkMode.value
+    
     val backgroundColor = when (worldLevel.status) {
-        LevelStatus.LOCKED -> Color(0xFF9E9E9E)
-        LevelStatus.UNLOCKED -> Color(0xFF2196F3)
-        LevelStatus.WON -> Color(0xFF4CAF50)
+        LevelStatus.LOCKED -> if (isDarkMode) Color(0xFF2C2C2C) else Color(0xFF9E9E9E)
+        LevelStatus.UNLOCKED -> if (isDarkMode) Color(0xFF0D47A1) else Color(0xFF2196F3)
+        LevelStatus.WON -> if (isDarkMode) Color(0xFF1B5E20) else Color(0xFF4CAF50)
     }
+    
+    // Text color changes based on dark mode - darker text for better readability
+    val textColor = if (isDarkMode) Color.Black else Color.White
     
     val statusText = when (worldLevel.status) {
         LevelStatus.LOCKED -> stringResource(Res.string.locked)
@@ -69,14 +74,14 @@ fun LevelCard(
                         Text(
                             text = "Level ${worldLevel.level.id}",
                             style = MaterialTheme.typography.titleMedium,
-                            color = Color.White,
+                            color = textColor,
                             fontSize = 18.sp
                         )
 
                         Text(
                             text = worldLevel.level.name,
                             style = MaterialTheme.typography.bodyMedium,
-                            color = Color.White,
+                            color = textColor,
                             textAlign = TextAlign.Start,
                             modifier = Modifier.fillMaxWidth(),
                             fontSize = 14.sp
@@ -95,7 +100,7 @@ fun LevelCard(
                                 Text(
                                     text = "${worldLevel.level.initialCoins}",
                                     style = MaterialTheme.typography.bodySmall,
-                                    color = Color.White,
+                                    color = textColor,
                                     fontSize = 12.sp
                                 )
                             }
@@ -105,7 +110,7 @@ fun LevelCard(
                                 Text(
                                     text = "${worldLevel.level.healthPoints}",
                                     style = MaterialTheme.typography.bodySmall,
-                                    color = Color.White,
+                                    color = textColor,
                                     fontSize = 12.sp
                                 )
                             }
@@ -123,7 +128,7 @@ fun LevelCard(
                         ) {
                             enemyList.forEachIndexed { index, (attackerType, count) ->
                                 if (index % 2 == 0) {
-                                    EnemyUnitEntry(attackerType, count)
+                                    EnemyUnitEntry(attackerType, count, textColor)
                                 }
                             }
                         }
@@ -133,7 +138,7 @@ fun LevelCard(
                         ) {
                             enemyList.forEachIndexed { index, (attackerType, count) ->
                                 if (index % 2 == 1) {
-                                    EnemyUnitEntry(attackerType, count)
+                                    EnemyUnitEntry(attackerType, count, textColor)
                                 }
                             }
                         }
@@ -172,7 +177,7 @@ fun LevelCard(
                     Text(
                         text = mapName,
                         style = MaterialTheme.typography.bodySmall,
-                        color = Color.White,
+                        color = textColor,
                         fontSize = 12.sp,
                         modifier = Modifier.absoluteOffset(x = 0.dp, y = (-20).dp)
                     )
@@ -187,13 +192,13 @@ fun LevelCard(
                     when (worldLevel.status) {
                         LevelStatus.LOCKED -> LockIcon(size = 13.dp)
                         LevelStatus.UNLOCKED -> SwordIcon(size = 13.dp)
-                        LevelStatus.WON -> CheckmarkIcon(size = 13.dp, tint = Color.White)
+                        LevelStatus.WON -> CheckmarkIcon(size = 13.dp, tint = textColor)
                     }
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = statusText,
                         style = MaterialTheme.typography.bodySmall,
-                        color = Color.White,
+                        color = textColor,
                         textAlign = TextAlign.End,
                         fontSize = 13.sp
                     )
@@ -204,7 +209,7 @@ fun LevelCard(
 }
 
 @Composable
-private fun EnemyUnitEntry(attackerType: AttackerType, count: Int) {
+private fun EnemyUnitEntry(attackerType: AttackerType, count: Int, textColor: Color) {
     val locale = com.hyperether.resources.currentLanguage.value
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -221,7 +226,7 @@ private fun EnemyUnitEntry(attackerType: AttackerType, count: Int) {
         Text(
             text = "${attackerType.getLocalizedName(locale)}: ${count}",
             style = MaterialTheme.typography.bodySmall,
-            color = Color.White,
+            color = textColor,
             fontSize = 11.sp
         )
     }
