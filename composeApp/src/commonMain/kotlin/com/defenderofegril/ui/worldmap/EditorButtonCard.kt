@@ -16,13 +16,18 @@ import defender_of_egril.composeapp.generated.resources.*
 fun EditorButtonCard(
     onClick: () -> Unit
 ) {
+    val isDarkMode = com.defenderofegril.ui.settings.AppSettings.isDarkMode.value
+    val backgroundColor = if (isDarkMode) Color(0xFF8A5A00) else Color(0xFFFF9800)  // Darker orange in dark mode
+    // Text color changes based on dark mode - darker text for better readability
+    val textColor = if (isDarkMode) Color.Black else Color.White
+    
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .height(100.dp)
             .clickable(onClick = onClick),
         colors = CardDefaults.cardColors(
-            containerColor = Color(0xFFFF9800)  // Distinctive orange color
+            containerColor = backgroundColor
         )
     ) {
         Row(
@@ -37,7 +42,7 @@ fun EditorButtonCard(
                 Text(
                     text = stringResource(Res.string.level_editor),
                     style = MaterialTheme.typography.titleLarge,
-                    color = Color.White,
+                    color = textColor,
                     fontSize = 20.sp
                 )
 
@@ -46,7 +51,7 @@ fun EditorButtonCard(
                 Text(
                     text = stringResource(Res.string.create_edit_maps_levels),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = Color.White,
+                    color = textColor,
                     fontSize = 14.sp
                 )
             }
