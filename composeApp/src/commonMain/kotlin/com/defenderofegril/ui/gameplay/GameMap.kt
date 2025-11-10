@@ -181,6 +181,20 @@ fun GameGrid(
             }
         }
 
+        // Overlay for target circles - drawn at GameGrid level to avoid clipping and ensure visibility
+        TargetCirclesOverlay(
+            selectedTargetPosition = selectedTargetPosition,
+            selectedDefenderId = selectedDefenderId,
+            gameState = gameState,
+            hexWidth = hexWidth,
+            hexHeight = hexHeight,
+            verticalSpacing = verticalSpacing,
+            oddRowOffset = oddRowOffset,
+            scale = scale,
+            offsetX = offsetX,
+            offsetY = offsetY
+        )
+
         // Minimap - shown when zoomed in
         if (scale > 1.1f) {
             Box(
@@ -205,6 +219,121 @@ fun GameGrid(
                     offsetY = offsetY,
                     containerSize = containerSize,
                     modifier = Modifier.fillMaxSize()
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun TargetCirclesOverlay(
+    selectedTargetPosition: Position?,
+    selectedDefenderId: Int?,
+    gameState: GameState,
+    hexWidth: Float,
+    hexHeight: Float,
+    verticalSpacing: Float,
+    oddRowOffset: Float,
+    scale: Float,
+    offsetX: Float,
+    offsetY: Float
+) {
+    if (selectedTargetPosition == null || selectedDefenderId == null) return
+    
+    val selectedDefender = remember(selectedDefenderId, gameState.defenders.size) {
+        gameState.defenders.find { it.id == selectedDefenderId }
+    }
+    
+    val attackType = selectedDefender?.type?.attackType
+    val markerColor = when (attackType) {
+        AttackType.AREA -> Color(0xFFFF5722)  // Deep orange/red for fireball
+        AttackType.LASTING -> Color(0xFF4CAF50)  // Green for acid
+        AttackType.MELEE, AttackType.RANGED -> Color.DarkGray  // DarkGray for single-target
+        else -> null
+    }
+    
+    markerColor?.let { color ->
+        Canvas(
+            modifier = Modifier
+                .fillMaxSize()
+                .zIndex(11f)  // Above grid cells but below minimap
+        ) {
+            // Calculate position in untransformed coordinate space
+            val targetX = selectedTargetPosition.x
+            val targetY = selectedTargetPosition.y
+            
+            // Match the exact grid layout calculations
+            val horizontalSpacing = -10f
+            val verticalSpacingValue = -hexHeight + verticalSpacing - 7f
+            
+            // Calculate center position in grid coordinate space
+            var centerX = targetX * (hexWidth + horizontalSpacing) * 2 + hexWidth
+            if (targetY % 2 == 1) {
+                centerX += hexWidth // / 2f - horizontalSpacing//oddRowOffset
+            } else {
+                centerX += 10f
+            }
+            centerX -= 14f
+
+
+            // todo fix Y position offset
+            var centerY = targetY * (hexHeight + verticalSpacingValue) * 2 + hexHeight / 2f
+            centerY += (-(targetY - 1))
+
+            centerY += 35f
+            
+            // Apply scale and offset transformations manually
+            // val transformedX = centerX * scale + offsetX
+            // val transformedY = centerY * scale + offsetY
+            // val transformedCenter = Offset(transformedX, transformedY)
+
+            val transformedCenter = Offset(
+                x = centerX * scale + offsetX,
+                y = centerY * scale + offsetY
+            )
+            
+            // Draw base 3 circles (all attack types) with scaled radii
+            drawCircle(
+                color = color,
+                radius = 6f * scale,
+                center = transformedCenter
+            )
+            
+            drawCircle(
+                color = color,
+                radius = 14f * scale,
+                center = transformedCenter,
+                style = androidx.compose.ui.graphics.drawscope.Stroke(width = 3f * scale)
+            )
+            
+            drawCircle(
+                color = color,
+                radius = 22f * scale,
+                center = transformedCenter,
+                style = androidx.compose.ui.graphics.drawscope.Stroke(width = 3f * scale)
+            )
+            
+            // For area attacks, draw 3 additional large circles
+            if (attackType == AttackType.AREA || attackType == AttackType.LASTING) {
+                drawCircle(
+                    color = color,
+                    radius = 100f * scale,
+                    center = transformedCenter,
+                    style = androidx.compose.ui.graphics.drawscope.Stroke(width = 3f * scale)
+                )
+                
+                drawCircle(
+                    color = color,
+                    radius = 130f * scale,
+                    center = transformedCenter,
+                    style = androidx.compose.ui.graphics.drawscope.Stroke(width = 3f * scale)
+                )
+                
+                drawCircle(
+                    color = color,
+                    radius = 160f * scale,
+                    center = transformedCenter,
+                    style = androidx.compose.ui.graphics.drawscope.Stroke(width = 3f * scale)
                 )
             }
         }
@@ -416,63 +545,6 @@ fun GridCell(
             isTarget -> {
                 // Show target indicator when cell is empty
                 Text(stringResource(Res.string.target), style = MaterialTheme.typography.labelSmall, color = GamePlayColors.Success)
-            }
-        }
-        
-        // Draw target marker for area attacks (fireball and acid)
-        // Check if this position is selected as a target position for area/lasting attacks
-        val isAreaTargetPosition = selectedTargetPosition == position
-        if (isAreaTargetPosition) {
-            // Determine the attack type to choose the correct color
-            // Cache the selected defender to avoid repeated lookups
-            val selectedDefender = remember(selectedDefenderId, gameState.defenders.size) {
-                selectedDefenderId?.let { id ->
-                    gameState.defenders.find { it.id == id }
-                }
-            }
-            
-            val markerColor = when (selectedDefender?.type?.attackType) {
-                AttackType.AREA -> Color(0xFFFF5722)  // Deep orange/red for fireball
-                AttackType.LASTING -> Color(0xFF4CAF50)  // Green for acid
-                else -> null
-            }
-            
-            markerColor?.let { color ->
-                // Draw concentric circles as target marker:
-                // - Inner solid circle (4px radius) at center
-                // - Middle stroke circle (12px radius, 2px stroke)
-                // - Outer stroke circle (20px radius, 2px stroke)
-                Canvas(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .zIndex(10f)  // Ensure it's drawn on top
-                ) {
-                    val centerX = size.width / 2f
-                    val centerY = size.height / 2f
-                    
-                    // Inner point (solid circle)
-                    drawCircle(
-                        color = color,
-                        radius = 4f,
-                        center = Offset(centerX, centerY)
-                    )
-                    
-                    // Middle circle (stroke)
-                    drawCircle(
-                        color = color,
-                        radius = 12f,
-                        center = Offset(centerX, centerY),
-                        style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2f)
-                    )
-                    
-                    // Outer circle (stroke)
-                    drawCircle(
-                        color = color,
-                        radius = 20f,
-                        center = Offset(centerX, centerY),
-                        style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2f)
-                    )
-                }
             }
         }
     }
