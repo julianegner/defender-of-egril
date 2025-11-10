@@ -43,7 +43,7 @@ fun GameLegend(modifier: Modifier = Modifier) {
             item {
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    stringResource(Res.string.areas_label),
+                    "${stringResource(Res.string.areas_label)}:",
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.Bold
                 )
@@ -52,7 +52,7 @@ fun GameLegend(modifier: Modifier = Modifier) {
             item {
                 LegendItemHex(
                             color = GamePlayColors.BuildIsland,
-                            label = "⬡",
+                            label = "",
                             description = stringResource(Res.string.build_island),
                             border = borderColor
                         )
@@ -60,7 +60,7 @@ fun GameLegend(modifier: Modifier = Modifier) {
                     item {
                         LegendItemHex(
                             color = GamePlayColors.BuildStrip,
-                            label = "⬡",
+                            label = "",
                             description = stringResource(Res.string.build_strip),
                             border = borderColor
                         )
@@ -68,7 +68,7 @@ fun GameLegend(modifier: Modifier = Modifier) {
                     item {
                         LegendItemHex(
                             color = GamePlayColors.Path,
-                            label = "⬡",
+                            label = "", // ⬡
                             description = stringResource(Res.string.enemy_path),
                             border = borderColor
                         )
@@ -76,7 +76,7 @@ fun GameLegend(modifier: Modifier = Modifier) {
                     item {
                         LegendItemHex(
                             color = GamePlayColors.NonPlayable,
-                            label = "⬡",
+                            label = "",
                             description = stringResource(Res.string.non_playable),
                             border = borderColor
                         )
@@ -85,7 +85,7 @@ fun GameLegend(modifier: Modifier = Modifier) {
                     item {
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            "Special:",
+                            "${stringResource(Res.string.special_label)}:",
                             style = MaterialTheme.typography.labelMedium,
                             fontWeight = FontWeight.Bold
                         )
@@ -94,8 +94,8 @@ fun GameLegend(modifier: Modifier = Modifier) {
                     item {
                         LegendItemHex(
                             color = GamePlayColors.Path,
-                            label = "Spawn",
-                            description = "Spawn (3 points)",
+                            label = stringResource(Res.string.spawn),
+                            description = stringResource(Res.string.spawn_desc),
                             border = GamePlayColors.Warning,
                             borderWidth = 3.dp
                         )
@@ -103,8 +103,8 @@ fun GameLegend(modifier: Modifier = Modifier) {
                     item {
                         LegendItemHex(
                             color = GamePlayColors.Path,
-                            label = "Target",
-                            description = "Target (Defend!)",
+                            label = stringResource(Res.string.target),
+                            description = stringResource(Res.string.target_desc),
                             border = GamePlayColors.Success,
                             borderWidth = 3.dp
                         )
@@ -113,7 +113,7 @@ fun GameLegend(modifier: Modifier = Modifier) {
                     item {
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            "Units:",
+                            "${stringResource(Res.string.units_label)}:",
                             style = MaterialTheme.typography.labelMedium,
                             fontWeight = FontWeight.Bold
                         )
@@ -122,8 +122,8 @@ fun GameLegend(modifier: Modifier = Modifier) {
                     item {
                         LegendItemHex(
                             color = GamePlayColors.Info,
-                            label = "⬡",
-                            description = "Tower (Ready)",
+                            label = "",
+                            description = stringResource(Res.string.tower_ready),
                             border = GamePlayColors.Info,
                             borderWidth = 3.dp
                         )
@@ -131,8 +131,8 @@ fun GameLegend(modifier: Modifier = Modifier) {
                     item {
                         LegendItemHex(
                             color = GamePlayColors.Building,
-                            label = "⬡",
-                            description = "Tower (Building)",
+                            label = "",
+                            description = stringResource(Res.string.tower_building),
                             border = GamePlayColors.Building,
                             borderWidth = 3.dp
                         )
@@ -140,8 +140,8 @@ fun GameLegend(modifier: Modifier = Modifier) {
                     item {
                         LegendItemHex(
                             color = GamePlayColors.InfoLight,
-                            label = "⬡",
-                            description = "Tower (No Actions)",
+                            label = "",
+                            description = stringResource(Res.string.tower_no_actions),
                             border = GamePlayColors.Info,
                             borderWidth = 3.dp
                         )
@@ -149,7 +149,7 @@ fun GameLegend(modifier: Modifier = Modifier) {
                     item {
                         LegendItemHex(
                             color = GamePlayColors.Error,
-                            label = "⬡",
+                            label = "",
                             description = stringResource(Res.string.enemy_unit),
                             border = GamePlayColors.Error,
                             borderWidth = 3.dp
@@ -159,7 +159,7 @@ fun GameLegend(modifier: Modifier = Modifier) {
                     item {
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            "Info:",
+                            "${stringResource(Res.string.info_label)}:",
                             style = MaterialTheme.typography.labelMedium,
                             fontWeight = FontWeight.Bold
                         )
@@ -167,22 +167,22 @@ fun GameLegend(modifier: Modifier = Modifier) {
 
                     item {
                         Text(
-                            "• Ballista: min range 3",
+                            "• ${stringResource(Res.string.legend_info_ballista)}",
                             style = MaterialTheme.typography.bodySmall,
                             color = GamePlayColors.WarningDark
                         )
                     }
                     item {
-                        Text("• Icons show tower/enemy type", style = MaterialTheme.typography.bodySmall)
+                        Text("• ${stringResource(Res.string.legend_info_tower_icons)}", style = MaterialTheme.typography.bodySmall)
                     }
                     item {
                         Text(
-                            "• Level & actions shown on towers",
+                            "• ${stringResource(Res.string.legend_info_tower_actions)}",
                             style = MaterialTheme.typography.bodySmall
                         )
                     }
                     item {
-                        Text("• Health shown on enemies", style = MaterialTheme.typography.bodySmall)
+                        Text("• ${stringResource(Res.string.legend_info_enemy_health)}", style = MaterialTheme.typography.bodySmall)
                     }
                 }
     }
@@ -251,82 +251,67 @@ fun EnemyListPanel(gameState: GameState, modifier: Modifier = Modifier) {
     // Get the remaining planned spawns (those that haven't spawned yet)
     val plannedSpawns = gameState.spawnPlan.drop(totalSpawned)//.take(15)
 
-    Card(modifier = modifier) {
-        Column(modifier = Modifier.padding(12.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth().clickable { isExpanded = !isExpanded },
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(stringResource(Res.string.enemies), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                if (isExpanded) {
-                    TriangleDownIcon(size = 20.dp)
-                } else {
-                    TriangleLeftIcon(size = 20.dp)
+    ExpandableCard(
+        title = stringResource(Res.string.enemies),
+        modifier = modifier,
+        defaultExpanded = true
+    ) {
+        Text(
+            "${stringResource(Res.string.active_label)}: ${activeEnemies.size} | ${stringResource(Res.string.planned_label)}: ${plannedSpawns.size}",
+            style = MaterialTheme.typography.bodySmall
+        )
+        LazyColumn(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            // Active enemies on the map
+            if (activeEnemies.isNotEmpty()) {
+                item(key = "header-active") {
+                    Text(
+                        "On Map:",
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = GamePlayColors.ErrorDark
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
                 }
             }
-            Text(
-                "${stringResource(Res.string.active_label)}: ${activeEnemies.size} | ${stringResource(Res.string.planned_label)}: ${plannedSpawns.size}",
-                style = MaterialTheme.typography.bodySmall
-            )
-
-            if (isExpanded) {
-                Spacer(modifier = Modifier.height(8.dp))
-
-                LazyColumn(
-                    state = listState,
-                    modifier = Modifier.fillMaxWidth().heightIn(max = 500.dp)
+            items(
+                items = activeEnemies,
+                key = { attacker -> "active-${attacker.id}" }
+            ) { attacker ->
+                // Key by id, position and health to force recomposition when enemy moves or takes damage
+                key(
+                    attacker.id,
+                    attacker.position.value.x,
+                    attacker.position.value.y,
+                    attacker.currentHealth.value
                 ) {
-                    // Active enemies on the map
-                    if (activeEnemies.isNotEmpty()) {
-                        item(key = "header-active") {
-                            Text(
-                                "On Map:",
-                                style = MaterialTheme.typography.bodyMedium,
-                                fontWeight = FontWeight.Bold,
-                                color = GamePlayColors.ErrorDark
-                            )
-                            Spacer(modifier = Modifier.height(4.dp))
-                        }
-                    }
-                    items(
-                        items = activeEnemies,
-                        key = { attacker -> "active-${attacker.id}" }
-                    ) { attacker ->
-                        // Key by id, position and health to force recomposition when enemy moves or takes damage
-                        key(
-                            attacker.id,
-                            attacker.position.value.x,
-                            attacker.position.value.y,
-                            attacker.currentHealth.value
-                        ) {
-                            EnemyItemDetailed(attacker, showPosition = true)
-                        }
-                        Spacer(modifier = Modifier.height(4.dp))
-                    }
+                    EnemyItemDetailed(attacker, showPosition = true)
+                }
+                Spacer(modifier = Modifier.height(4.dp))
+            }
 
-                    // Planned enemy spawns (show what's left to spawn with turn information)
-                    if (plannedSpawns.isNotEmpty()) {
-                        item(key = "header-planned") {
-                            if (activeEnemies.isNotEmpty()) {
-                                Spacer(modifier = Modifier.height(8.dp))
-                            }
-                            Text(
-                                "${stringResource(Res.string.planned_spawns)}:",
-                                style = MaterialTheme.typography.bodyMedium,
-                                fontWeight = FontWeight.Bold,
-                                color = GamePlayColors.Warning
-                            )
-                            Spacer(modifier = Modifier.height(4.dp))
-                        }
-                        itemsIndexed(
-                            items = plannedSpawns,
-                            key = { index, _ -> "planned-$index" }
-                        ) { index, plannedSpawn ->
-                            PlannedEnemyItem(plannedSpawn, gameState.turnNumber.value)
-                            Spacer(modifier = Modifier.height(4.dp))
-                        }
+            // Planned enemy spawns (show what's left to spawn with turn information)
+            if (plannedSpawns.isNotEmpty()) {
+                item(key = "header-planned") {
+                    if (activeEnemies.isNotEmpty()) {
+                        Spacer(modifier = Modifier.height(8.dp))
                     }
+                    Text(
+                        "${stringResource(Res.string.planned_spawns)}:",
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = GamePlayColors.Warning
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                }
+                itemsIndexed(
+                    items = plannedSpawns,
+                    key = { index, _ -> "planned-$index" }
+                ) { index, plannedSpawn ->
+                    PlannedEnemyItem(plannedSpawn, gameState.turnNumber.value)
+                    Spacer(modifier = Modifier.height(4.dp))
                 }
             }
         }
@@ -335,6 +320,7 @@ fun EnemyListPanel(gameState: GameState, modifier: Modifier = Modifier) {
 
 @Composable
 fun EnemyItemDetailed(attacker: Attacker, showPosition: Boolean) {
+    val isDarkMode = com.defenderofegril.ui.settings.AppSettings.isDarkMode.value
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
@@ -377,7 +363,7 @@ fun EnemyItemDetailed(attacker: Attacker, showPosition: Boolean) {
                             "Pos: (${attacker.position.value.x},${attacker.position.value.y})",
                             style = MaterialTheme.typography.bodySmall,
                             fontSize = 10.sp,
-                            color = GamePlayColors.InfoDark
+                            color = if (isDarkMode) GamePlayColors.InfoLight else GamePlayColors.InfoDark
                         )
                     }
                 }

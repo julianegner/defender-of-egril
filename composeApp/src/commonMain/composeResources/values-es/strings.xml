@@ -215,19 +215,19 @@
     <string name="initial_building_phase">Fase de construcción inicial - Coloca torres (sin tiempo de construcción)</string>
     <string name="add_comment">Añade un comentario opcional para identificar esta partida guardada:</string>
     <string name="game_saved">Juego guardado</string>
-    <string name="on_map">En el mapa:</string>
-    <string name="planned_spawns">Apariciones planificadas:</string>
-    <string name="position_label">Posición:</string>
-    <string name="reward_label">Recompensa:</string>
-    <string name="info_label">Info:</string>
+    <string name="on_map">En el mapa</string>
+    <string name="planned_spawns">Apariciones planificadas</string>
+    <string name="position_label">Posición</string>
+    <string name="reward_label">Recompensa</string>
+    <string name="info_label">Info</string>
     <string name="chance_percent">Probabilidad (%%)</string>
-    <string name="building_label">Construcción:</string>
-    <string name="active_label">Activos:</string>
-    <string name="planned_label">Planificados:</string>
+    <string name="building_label">Construcción</string>
+    <string name="active_label">Activos</string>
+    <string name="planned_label">Planificados</string>
     
     <!-- GameLegend strings -->
     <string name="legend">Leyenda</string>
-    <string name="areas_label">Áreas:</string>
+    <string name="areas_label">Áreas</string>
     <string name="build_island">Isla de construcción</string>
     <string name="build_strip">Franja de construcción</string>
     <string name="enemy_path">Camino enemigo</string>

@@ -215,19 +215,19 @@
     <string name="initial_building_phase">Fase di costruzione iniziale - Posiziona torri (nessun tempo di costruzione)</string>
     <string name="add_comment">Aggiungi un commento opzionale per identificare questo salvataggio:</string>
     <string name="game_saved">Gioco salvato</string>
-    <string name="on_map">Sulla mappa:</string>
-    <string name="planned_spawns">Apparizioni pianificate:</string>
-    <string name="position_label">Posizione:</string>
-    <string name="reward_label">Ricompensa:</string>
-    <string name="info_label">Info:</string>
+    <string name="on_map">Sulla mappa</string>
+    <string name="planned_spawns">Apparizioni pianificate</string>
+    <string name="position_label">Posizione</string>
+    <string name="reward_label">Ricompensa</string>
+    <string name="info_label">Info</string>
     <string name="chance_percent">Probabilità (%%)</string>
-    <string name="building_label">Costruzione:</string>
-    <string name="active_label">Attivi:</string>
-    <string name="planned_label">Pianificati:</string>
+    <string name="building_label">Costruzione</string>
+    <string name="active_label">Attivi</string>
+    <string name="planned_label">Pianificati</string>
     
     <!-- GameLegend strings -->
     <string name="legend">Legenda</string>
-    <string name="areas_label">Aree:</string>
+    <string name="areas_label">Aree</string>
     <string name="build_island">Isola di costruzione</string>
     <string name="build_strip">Striscia di costruzione</string>
     <string name="enemy_path">Percorso nemico</string>
