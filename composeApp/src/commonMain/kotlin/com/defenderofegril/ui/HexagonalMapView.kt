@@ -79,6 +79,11 @@ fun HexagonalMapView(
 
     // Helper function to constrain pan offsets
     fun constrainOffsets(newOffsetX: Float, newOffsetY: Float, currentScale: Float): Pair<Float, Float> {
+        // If content size hasn't been measured yet, don't constrain
+        if (actualContentSize.width == 0 || actualContentSize.height == 0) {
+            return Pair(newOffsetX, newOffsetY)
+        }
+        
         val contentWidth = actualContentSize.width * currentScale
         val contentHeight = actualContentSize.height * currentScale
 
