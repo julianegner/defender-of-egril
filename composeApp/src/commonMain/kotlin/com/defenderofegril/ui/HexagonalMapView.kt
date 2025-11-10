@@ -159,29 +159,6 @@ fun HexagonalMapView(
             focusRequester.requestFocus()
         }
     }
-    val panNavModifier =
-    if (config.enablePanNavigation) {
-        modifier.pointerInput(Unit) {
-            detectTransformGestures { _, pan, zoom, _ ->
-                // Apply zoom (for pinch gestures on mobile)
-                var newScale = scale
-                if (zoom != 1f) {
-                    newScale = (scale * zoom).coerceIn(config.minScale, config.maxScale)
-                    onScaleChange(newScale)
-                }
-
-                // Apply pan
-                val newOffsetX = offsetX + pan.x
-                val newOffsetY = offsetY + pan.y
-
-                // Constrain pan to keep content visible
-                val (constrainedX, constrainedY) = constrainOffsets(newOffsetX, newOffsetY, newScale)
-                onOffsetChange(constrainedX, constrainedY)
-            }
-        }
-    } else {
-        modifier
-    }
 
     Box(
         modifier = modifier
@@ -204,7 +181,30 @@ fun HexagonalMapView(
                 onScaleChange = onScaleChange,
                 onOffsetChange = onOffsetChange
             )
-            .then(panNavModifier)
+            .then(
+                if (config.enablePanNavigation) {
+                    Modifier.pointerInput(Unit) {
+                        detectTransformGestures { _, pan, zoom, _ ->
+                            // Apply zoom (for pinch gestures on mobile)
+                            var newScale = scale
+                            if (zoom != 1f) {
+                                newScale = (scale * zoom).coerceIn(config.minScale, config.maxScale)
+                                onScaleChange(newScale)
+                            }
+
+                            // Apply pan
+                            val newOffsetX = offsetX + pan.x
+                            val newOffsetY = offsetY + pan.y
+
+                            // Constrain pan to keep content visible
+                            val (constrainedX, constrainedY) = constrainOffsets(newOffsetX, newOffsetY, newScale)
+                            onOffsetChange(constrainedX, constrainedY)
+                        }
+                    }
+                } else {
+                    Modifier
+                }
+            )
     ) {
         // Map content with pan and zoom applied
         Column(
