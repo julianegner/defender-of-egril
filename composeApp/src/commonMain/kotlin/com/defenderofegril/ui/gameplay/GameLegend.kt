@@ -28,6 +28,9 @@ import defender_of_egril.composeapp.generated.resources.*
 
 @Composable
 fun GameLegend(modifier: Modifier = Modifier) {
+    val isDarkMode = com.defenderofegril.ui.settings.AppSettings.isDarkMode.value
+    val borderColor = if (isDarkMode) Color(0xFF505050) else Color.Gray
+    
     ExpandableCard(
         title = stringResource(Res.string.legend),
         modifier = modifier,
@@ -51,7 +54,7 @@ fun GameLegend(modifier: Modifier = Modifier) {
                             color = GamePlayColors.BuildIsland,
                             label = "⬡",
                             description = stringResource(Res.string.build_island),
-                            border = Color.Gray
+                            border = borderColor
                         )
                     }
                     item {
@@ -59,7 +62,7 @@ fun GameLegend(modifier: Modifier = Modifier) {
                             color = GamePlayColors.BuildStrip,
                             label = "⬡",
                             description = stringResource(Res.string.build_strip),
-                            border = Color.Gray
+                            border = borderColor
                         )
                     }
                     item {
@@ -67,7 +70,7 @@ fun GameLegend(modifier: Modifier = Modifier) {
                             color = GamePlayColors.Path,
                             label = "⬡",
                             description = stringResource(Res.string.enemy_path),
-                            border = Color.Gray
+                            border = borderColor
                         )
                     }
                     item {
@@ -75,7 +78,7 @@ fun GameLegend(modifier: Modifier = Modifier) {
                             color = GamePlayColors.NonPlayable,
                             label = "⬡",
                             description = stringResource(Res.string.non_playable),
-                            border = Color.Gray
+                            border = borderColor
                         )
                     }
 
