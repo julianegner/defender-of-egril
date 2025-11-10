@@ -162,7 +162,7 @@ data class EditorLevel(
      * Checks if this level is ready to play.
      * A level is ready if:
      * - It has at least one available tower
-     * - It has at least one enemy spawn configured
+     * - It has at least one enemy spawn configured (each EditorEnemySpawn represents one enemy unit)
      */
     fun isReadyToPlay(): Boolean {
         return availableTowers.isNotEmpty() && enemySpawns.isNotEmpty()
