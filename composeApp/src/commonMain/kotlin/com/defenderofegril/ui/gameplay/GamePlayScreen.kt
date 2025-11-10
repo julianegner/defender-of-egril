@@ -246,7 +246,6 @@ private fun GamePlayScreenContent(
                         .align(Alignment.TopEnd)
                         .width(250.dp)
                         .fillMaxHeight()
-                        .background(Color.White.copy(alpha = 0.95f))
                         .padding(8.dp)
                 ) {
                     // Legend
