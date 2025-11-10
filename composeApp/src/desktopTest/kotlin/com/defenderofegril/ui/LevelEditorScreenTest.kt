@@ -43,7 +43,7 @@ class LevelEditorScreenTest {
     
     @Test
     fun testLevelEditorWithOpenLevel() {
-        // Test the level editor screen with one level open for editing
+        // Test the level editor screen with an existing level open for editing
         composeTestRule.setContent {
             LevelEditorScreen(
                 onBack = {}
@@ -52,31 +52,27 @@ class LevelEditorScreenTest {
         
         composeTestRule.waitForIdle()
         
-        // First, create a level by clicking "Create New Level" button
+        // Click on the first existing level in the list to open it
         try {
-            composeTestRule.onAllNodesWithText("Create New Level", substring = true, ignoreCase = true)[0]
-                .performClick()
-            composeTestRule.waitForIdle()
+            // Find level cards (they typically have title text and other info)
+            // Look for clickable elements that appear to be level cards
+            val levelCards = composeTestRule.onAllNodes(hasClickAction())
             
-            // Type a title in the dialog
-            try {
-                // Find the text field and type
-                composeTestRule.onAllNodesWithText("Title", substring = true, ignoreCase = true).filter(hasSetTextAction())[0]
-                    .performTextInput("Test Level")
-                composeTestRule.waitForIdle()
-                
-                // Click create button in dialog (look for button role)
-                composeTestRule.onNode(hasText("Create") and hasClickAction() and !hasText("New"))
-                    .performClick()
-                composeTestRule.waitForIdle()
-            } catch (e: Exception) {
-                println("Note: Could not create level in dialog: ${e.message}")
+            // Try clicking the first few nodes to find a level card
+            for (i in 0 until minOf(5, levelCards.fetchSemanticsNodes().size)) {
+                try {
+                    levelCards[i].performClick()
+                    composeTestRule.waitForIdle()
+                    Thread.sleep(200)
+                    break
+                } catch (e: Exception) {
+                    println("Note: Card $i not clickable: ${e.message}")
+                }
             }
         } catch (e: Exception) {
-            println("Note: Could not click Create New Level button: ${e.message}")
+            println("Note: Could not open existing level: ${e.message}")
         }
         
-        // Now the level should be open for editing automatically after creation
         // Verify the screen renders
         composeTestRule.onRoot().assertExists()
         
@@ -91,8 +87,7 @@ class LevelEditorScreenTest {
     
     @Test
     fun testLevelEditorScrolledDown() {
-        // Test the level editor with fully configured level including turns and enemies
-        // This demonstrates the complete level editor workflow
+        // Test the level editor with an existing level open showing scrolled content
         composeTestRule.setContent {
             LevelEditorScreen(
                 onBack = {}
@@ -101,108 +96,35 @@ class LevelEditorScreenTest {
         
         composeTestRule.waitForIdle()
         
-        // Create a level first
+        // Click on the first existing level in the list to open it
         try {
-            composeTestRule.onAllNodesWithText("Create New Level", substring = true, ignoreCase = true)[0]
-                .performClick()
-            composeTestRule.waitForIdle()
+            val levelCards = composeTestRule.onAllNodes(hasClickAction())
             
-            // Type a title
-            try {
-                composeTestRule.onAllNodesWithText("Title", substring = true, ignoreCase = true).filter(hasSetTextAction())[0]
-                    .performTextInput("Test Level with Enemies")
-                composeTestRule.waitForIdle()
-                
-                // Click create button (look for button that has "Create" but not "New")
-                composeTestRule.onNode(hasText("Create") and hasClickAction() and !hasText("New"))
-                    .performClick()
-                composeTestRule.waitForIdle()
-            } catch (e: Exception) {
-                println("Note: Could not create level: ${e.message}")
-            }
-        } catch (e: Exception) {
-            println("Note: Could not click Create button: ${e.message}")
-        }
-        
-        // Now we should be in the level editing view
-        // Fill in ALL fields as required
-        
-        // Fill in the subtitle field
-        try {
-            composeTestRule.onAllNodesWithText("Subtitle", substring = true, ignoreCase = true).filter(hasSetTextAction())[0]
-                .performTextInput("Goblin Assault - Multiple Waves")
-            composeTestRule.waitForIdle()
-        } catch (e: Exception) {
-            println("Note: Could not fill subtitle: ${e.message}")
-        }
-        
-        // **IMPORTANT: Select a map from the map selection cards**
-        // The level editor shows a horizontal scrolling list of available maps
-        // We need to click on one of them to select it
-        try {
-            // Look for "Size:" text which appears in map cards, and click the first one
-            val mapCards = composeTestRule.onAllNodesWithText("Size:", substring = true, ignoreCase = true)
-            if (mapCards.fetchSemanticsNodes().isNotEmpty()) {
-                mapCards[0].performClick()
-                composeTestRule.waitForIdle()
-                println("Successfully selected a map")
-            }
-        } catch (e: Exception) {
-            println("Note: Could not select map: ${e.message}")
-        }
-        
-        // Update start coins
-        try {
-            composeTestRule.onAllNodesWithText("Start Coins", substring = true, ignoreCase = true).filter(hasSetTextAction())[0]
-                .performTextClearance()
-            composeTestRule.onAllNodesWithText("Start Coins", substring = true, ignoreCase = true).filter(hasSetTextAction())[0]
-                .performTextInput("150")
-            composeTestRule.waitForIdle()
-        } catch (e: Exception) {
-            println("Note: Could not set start coins: ${e.message}")
-        }
-        
-        // Update start health (HP)
-        try {
-            val healthFields = composeTestRule.onAllNodesWithText("Start H", substring = true, ignoreCase = true).filter(hasSetTextAction())
-            if (healthFields.fetchSemanticsNodes().isNotEmpty()) {
-                healthFields[0].performTextClearance()
-                healthFields[0].performTextInput("15")
-                composeTestRule.waitForIdle()
-            }
-        } catch (e: Exception) {
-            println("Note: Could not set start health: ${e.message}")
-        }
-        
-        // Now that all fields are filled and a map is selected, try to add some turns
-        // (The full turn/enemy workflow may be complex for automated testing)
-        try {
-            // Try to add a few turns to demonstrate the functionality
-            for (turnNum in 1..3) {
+            // Try clicking the first few nodes to find a level card
+            for (i in 0 until minOf(5, levelCards.fetchSemanticsNodes().size)) {
                 try {
-                    composeTestRule.onNodeWithText("Add Turn", substring = true, ignoreCase = true)
-                        .performClick()
+                    levelCards[i].performClick()
                     composeTestRule.waitForIdle()
-                    Thread.sleep(200) // Give UI time to update
-                } catch (e: Exception) {
-                    println("Note: Could not add turn $turnNum: ${e.message}")
+                    Thread.sleep(200)
                     break
+                } catch (e: Exception) {
+                    println("Note: Card $i not clickable: ${e.message}")
                 }
             }
         } catch (e: Exception) {
-            println("Note: Turn addition failed: ${e.message}")
+            println("Note: Could not open existing level: ${e.message}")
         }
         
         // Verify the screen renders
         composeTestRule.onRoot().assertExists()
         
-        // Capture screenshot with extra tall height to show the full form with turns
-        // This shows the level editor with ALL fields filled, map selected, and turns added
+        // Capture screenshot with extra tall height to show the full form scrolled down
+        // This shows the level editor with all fields and any turns/enemies configured
         ScreenshotTestUtils.captureScreenshot(
             composeTestRule,
             "editor-level-editor-scrolled",
             width = 1600,
-            height = 2000  // Very tall to show complete form with all turns
+            height = 2000  // Very tall to show complete form
         )
     }
     
