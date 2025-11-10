@@ -178,6 +178,10 @@ fun TowerIcon(
  * Draw the base tower structure (trapezoid)
  */
 private fun DrawScope.drawTowerBase(centerX: Float, centerY: Float, size: Float) {
+    // Get dark mode state from AppSettings
+    val isDarkMode = com.defenderofegril.ui.settings.AppSettings.isDarkMode.value
+    val baseColor = if (isDarkMode) Color(0xFF0A2647) else Color.White  // Match game tower colors in dark mode
+    
     val path = Path().apply {
         val topWidth = size * 0.4f
         val bottomWidth = size * 0.6f
@@ -193,10 +197,10 @@ private fun DrawScope.drawTowerBase(centerX: Float, centerY: Float, size: Float)
         close()
     }
     
-    // Fill tower base
-    drawPath(path, Color.White.copy(alpha = 0.3f))
+    // Fill tower base with appropriate color
+    drawPath(path, baseColor.copy(alpha = 0.3f))
     // Draw tower outline
-    drawPath(path, Color.White, style = Stroke(width = 2f))
+    drawPath(path, baseColor, style = Stroke(width = 2f))
     
     // Add battlements on top
     val battlement = size * 0.08f
@@ -205,7 +209,7 @@ private fun DrawScope.drawTowerBase(centerX: Float, centerY: Float, size: Float)
     for (i in 0..2) {
         val x = centerX - topWidth / 2 + (topWidth / 3) * i
         drawRect(
-            color = Color.White,
+            color = baseColor,
             topLeft = Offset(x, top - battlement),
             size = Size(battlement, battlement),
             style = Stroke(width = 1.5f)

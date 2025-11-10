@@ -30,34 +30,39 @@ import defender_of_egril.composeapp.generated.resources.Res
 fun RulesScreen(
     onBack: () -> Unit
 ) {
-    Box(
-        modifier = Modifier.fillMaxSize().padding(16.dp)
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
     ) {
-        // Settings button in top-right corner
-        SettingsButton(
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(8.dp)
-        )
-        
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally
+        Box(
+            modifier = Modifier.fillMaxSize().padding(16.dp)
         ) {
-            // Header
-            Text(
-                text = stringResource(Res.string.how_to_play),
-                style = MaterialTheme.typography.displayMedium,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(bottom = 16.dp)
+            // Settings button in top-right corner
+            SettingsButton(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(8.dp)
             )
             
-            // Scrollable content
             Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .verticalScroll(rememberScrollState())
-                    .fillMaxWidth()
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // Header
+                Text(
+                    text = stringResource(Res.string.how_to_play),
+                    style = MaterialTheme.typography.displayMedium,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(bottom = 16.dp),
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+                
+                // Scrollable content
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .verticalScroll(rememberScrollState())
+                        .fillMaxWidth()
             ) {
                 // Game Overview
                 SectionTitle(stringResource(Res.string.game_overview))
@@ -168,6 +173,7 @@ fun RulesScreen(
                 Text(stringResource(Res.string.back))
             }
         }
+    }
     }
 }
 

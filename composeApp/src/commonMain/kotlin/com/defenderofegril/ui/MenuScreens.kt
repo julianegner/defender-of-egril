@@ -27,64 +27,71 @@ fun MainMenuScreen(
     onStartGame: () -> Unit,
     onShowRules: () -> Unit
 ) {
-    Box(
-        modifier = Modifier.fillMaxSize().padding(16.dp)
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
     ) {
-        // Settings button in top-right corner
-        SettingsButton(
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(8.dp)
-        )
-        
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+        Box(
+            modifier = Modifier.fillMaxSize().padding(16.dp)
         ) {
-            Text(
-                text = stringResource(Res.string.app_name),
-                style = MaterialTheme.typography.displayLarge,
-                textAlign = TextAlign.Center
+            // Settings button in top-right corner
+            SettingsButton(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(8.dp)
             )
             
-            Spacer(modifier = Modifier.height(16.dp))
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = stringResource(Res.string.app_name),
+                    style = MaterialTheme.typography.displayLarge,
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+                
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                Text(
+                    text = stringResource(Res.string.app_subtitle),
+                    style = MaterialTheme.typography.bodyLarge,
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+                
+                Spacer(modifier = Modifier.height(48.dp))
+                
+                Button(
+                    onClick = onStartGame,
+                    modifier = Modifier.width(200.dp).height(60.dp)
+                ) {
+                    Text(stringResource(Res.string.start_game), style = MaterialTheme.typography.titleMedium)
+                }
+                
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                Button(
+                    onClick = onShowRules,
+                    modifier = Modifier.width(200.dp).height(60.dp)
+                ) {
+                    Text(stringResource(Res.string.rules), style = MaterialTheme.typography.titleMedium)
+                }
+            }
             
+            // Version info at the bottom
             Text(
-                text = stringResource(Res.string.app_subtitle),
-                style = MaterialTheme.typography.bodyLarge,
-                textAlign = TextAlign.Center
+                text = "v${BuildConfig.VERSION_NAME} (${BuildConfig.COMMIT_HASH})",
+                style = MaterialTheme.typography.bodySmall,
+                fontSize = 12.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .padding(bottom = 8.dp)
             )
-            
-            Spacer(modifier = Modifier.height(48.dp))
-            
-            Button(
-                onClick = onStartGame,
-                modifier = Modifier.width(200.dp).height(60.dp)
-            ) {
-                Text(stringResource(Res.string.start_game), style = MaterialTheme.typography.titleMedium)
-            }
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            Button(
-                onClick = onShowRules,
-                modifier = Modifier.width(200.dp).height(60.dp)
-            ) {
-                Text(stringResource(Res.string.rules), style = MaterialTheme.typography.titleMedium)
-            }
         }
-        
-        // Version info at the bottom
-        Text(
-            text = "v${BuildConfig.VERSION_NAME} (${BuildConfig.COMMIT_HASH})",
-            style = MaterialTheme.typography.bodySmall,
-            fontSize = 12.sp,
-            color = Color.LightGray,
-            modifier = Modifier
-                .align(Alignment.BottomStart)
-                .padding(bottom = 8.dp)
-        )
     }
 }
 
@@ -115,63 +122,69 @@ fun LevelCompleteScreen(
         else -> stringResource(Res.string.defeat_message)
     }
     
-    Box(
-        modifier = Modifier.fillMaxSize().padding(16.dp)
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
     ) {
-        // Settings button in top-right corner
-        SettingsButton(
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(8.dp)
-        )
-        
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+        Box(
+            modifier = Modifier.fillMaxSize().padding(16.dp)
         ) {
-            // Icon/Image
-            Image(
-                painter = painterResource(imageResource),
-                contentDescription = title,
-                modifier = Modifier.size(64.dp)
-            )
-
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            Text(
-                text = title,
-                style = MaterialTheme.typography.displayLarge,
-                textAlign = TextAlign.Center,
-                color = if (won) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
+            // Settings button in top-right corner
+            SettingsButton(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(8.dp)
             )
             
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            Text(
-                text = message,
-                style = MaterialTheme.typography.bodyLarge,
-                textAlign = TextAlign.Center
-            )
-            
-            Spacer(modifier = Modifier.height(48.dp))
-            
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
-                Button(
-                    onClick = onRestart,
-                    modifier = Modifier.width(150.dp).height(50.dp)
-                ) {
-                    Text(stringResource(Res.string.retry))
-                }
+                // Icon/Image
+                Image(
+                    painter = painterResource(imageResource),
+                    contentDescription = title,
+                    modifier = Modifier.size(64.dp)
+                )
+
                 
-                Button(
-                    onClick = onBackToMap,
-                    modifier = Modifier.width(150.dp).height(50.dp)
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.displayLarge,
+                    textAlign = TextAlign.Center,
+                    color = if (won) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
+                )
+                
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                Text(
+                    text = message,
+                    style = MaterialTheme.typography.bodyLarge,
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+                
+                Spacer(modifier = Modifier.height(48.dp))
+                
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    Text(stringResource(Res.string.world_map))
+                    Button(
+                        onClick = onRestart,
+                        modifier = Modifier.width(150.dp).height(50.dp)
+                    ) {
+                        Text(stringResource(Res.string.retry))
+                    }
+                    
+                    Button(
+                        onClick = onBackToMap,
+                        modifier = Modifier.width(150.dp).height(50.dp)
+                    ) {
+                        Text(stringResource(Res.string.world_map))
+                    }
                 }
             }
         }
