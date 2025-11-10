@@ -53,13 +53,45 @@ Lightweight representation for the load game screen:
 ### Storage
 
 #### File Locations
-- **World Map Status**: `~/.defender-of-egril/savefiles/worldmap.json`
-- **Saved Games**: `~/.defender-of-egril/savefiles/savegame_<timestamp>.json`
+- **Desktop**: `~/.defender-of-egril/savefiles/`
+  - World Map Status: `worldmap.json`
+  - Saved Games: `savegame_<timestamp>.json`
+- **Android**: `<app-internal-storage>/defender-of-egril/savefiles/`
+  - Uses `Context.filesDir` (private to app, survives app restarts)
+  - World Map Status: `worldmap.json`
+  - Saved Games: `savegame_<timestamp>.json`
+- **iOS**: `<documents-directory>/defender-of-egril/savefiles/`
+  - Uses `NSDocumentDirectory` (private to app, survives app restarts)
+  - World Map Status: `worldmap.json`
+  - Saved Games: `savegame_<timestamp>.json`
+- **Web/WASM**: Browser localStorage with prefix `defender-of-egril:`
+  - World Map Status: `savefiles/worldmap.json`
+  - Saved Games: `savefiles/savegame_<timestamp>.json`
 
 The system uses the existing `FileStorage` infrastructure which provides platform-specific implementations:
-- Desktop: Local file system in user home directory
-- Android: App-specific internal storage
-- iOS: App-specific documents directory
+- **Desktop**: Local file system in user home directory (`java.io.File`)
+- **Android**: App-specific internal storage using `Context.filesDir` (persistent across app restarts)
+- **iOS**: App-specific documents directory using `NSFileManager` (persistent across app restarts)
+- **Web/WASM**: Browser localStorage API (persistent across browser sessions)
+
+#### Platform-Specific Implementation Notes
+
+**Android**:
+- Uses `AndroidContextProvider` to access application context
+- Context is initialized in `MainActivity.onCreate()`
+- Files stored in app's internal storage are:
+  - Private to the app (other apps cannot access)
+  - Automatically deleted when app is uninstalled
+  - Persistent across app restarts and device reboots
+- Includes fallback to in-memory storage for unit tests
+
+**iOS**:
+- Uses iOS `NSFileManager` and Foundation framework APIs
+- Files stored in documents directory are:
+  - Private to the app (sandboxed)
+  - Automatically backed up by iCloud (if enabled)
+  - Persistent across app restarts and device reboots
+  - Can be accessed via iTunes File Sharing if configured
 
 ### Serialization
 
@@ -196,3 +228,39 @@ If level structure changes in the editor:
 - Saved games reference levels by ID
 - Loading will fail gracefully if level doesn't exist
 - Consider adding level structure hash for validation
+
+## Mobile Platform Persistence Fix (Android & iOS)
+
+### Problem
+Prior to this fix, both Android and iOS implementations used in-memory storage (MutableMap), which meant:
+- All save game data was lost when the app was closed
+- World map progress (unlocked/won levels) was reset on app restart
+- Players could not resume their games or maintain progress
+
+### Solution
+Implemented actual persistent file storage for both platforms:
+
+**Android Implementation**:
+- Created `AndroidContextProvider` to safely access application context
+- Modified `FileStorage.android.kt` to use `java.io.File` with `Context.filesDir`
+- Files are stored in app's internal storage directory
+- Includes fallback to in-memory storage for unit tests (when context unavailable)
+- Files persist across app restarts and device reboots
+
+**iOS Implementation**:
+- Modified `FileStorage.ios.kt` to use `NSFileManager` APIs
+- Files are stored in app's documents directory (`NSDocumentDirectory`)
+- Uses standard iOS Foundation framework for file operations
+- Files persist across app restarts and device reboots
+
+### Testing
+- All existing unit tests pass with the changes
+- Tests use in-memory fallback on Android when context is not available
+- Production apps use persistent storage automatically
+
+### Files Changed
+1. `composeApp/src/androidMain/kotlin/com/defenderofegril/AndroidContextProvider.kt` (new)
+2. `composeApp/src/androidMain/kotlin/com/defenderofegril/MainActivity.kt` (context initialization)
+3. `composeApp/src/androidMain/kotlin/com/defenderofegril/editor/FileStorage.android.kt` (persistent storage)
+4. `composeApp/src/iosMain/kotlin/com/defenderofegril/editor/FileStorage.ios.kt` (persistent storage)
+
