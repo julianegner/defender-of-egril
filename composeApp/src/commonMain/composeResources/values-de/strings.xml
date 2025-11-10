@@ -245,8 +245,8 @@
     <string name="tower_no_actions">Turm (Keine Aktionen)</string>
     <string name="legend_info_ballista">Ballista: Min. Reichweite 3</string>
     <string name="legend_info_tower_icons">Symbole zeigen Turm-/Feindtyp</string>
-    <string name="legend_info_tower_actions">Level und Aktionen auf Türmen angezeigt</string>
-    <string name="legend_info_enemy_health">Gesundheit auf Feinden angezeigt</string>
+    <string name="legend_info_tower_actions">Türme zeigen Level und Aktionen</string>
+    <string name="legend_info_enemy_health">Feinde zeigen Gesundheit</string>
     
     <!-- EditorButtonCard strings -->
     <string name="level_editor">Level-Editor</string>
