@@ -248,7 +248,7 @@ fun TargetCirclesOverlay(
     val markerColor = when (attackType) {
         AttackType.AREA -> Color(0xFFFF5722)  // Deep orange/red for fireball
         AttackType.LASTING -> Color(0xFF4CAF50)  // Green for acid
-        AttackType.MELEE, AttackType.RANGED -> Color(0xFFFFEB3B)  // Yellow for single-target
+        AttackType.MELEE, AttackType.RANGED -> Color.DarkGray  // DarkGray for single-target
         else -> null
     }
     
@@ -267,18 +267,30 @@ fun TargetCirclesOverlay(
             val verticalSpacingValue = -hexHeight + verticalSpacing - 7f
             
             // Calculate center position in grid coordinate space
-            var centerX = targetX * (hexWidth + horizontalSpacing) + hexWidth / 2f
+            var centerX = targetX * (hexWidth + horizontalSpacing) * 2 + hexWidth
             if (targetY % 2 == 1) {
-                centerX += oddRowOffset
+                centerX += hexWidth // / 2f - horizontalSpacing//oddRowOffset
+            } else {
+                centerX += 10f
             }
-            
-            var centerY = targetY * (hexHeight + verticalSpacingValue) + hexHeight / 2f
+            centerX -= 14f
+
+
+            // todo fix Y position offset
+            var centerY = targetY * (hexHeight + verticalSpacingValue) * 2 + hexHeight / 2f
             centerY += (-(targetY - 1))
+
+            centerY += 35f
             
             // Apply scale and offset transformations manually
-            val transformedX = centerX * scale + offsetX
-            val transformedY = centerY * scale + offsetY
-            val transformedCenter = Offset(transformedX, transformedY)
+            // val transformedX = centerX * scale + offsetX
+            // val transformedY = centerY * scale + offsetY
+            // val transformedCenter = Offset(transformedX, transformedY)
+
+            val transformedCenter = Offset(
+                x = centerX * scale + offsetX,
+                y = centerY * scale + offsetY
+            )
             
             // Draw base 3 circles (all attack types) with scaled radii
             drawCircle(
