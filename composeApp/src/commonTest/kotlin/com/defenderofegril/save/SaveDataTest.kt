@@ -67,13 +67,15 @@ class SaveDataTest {
             position = Position(5, 3),
             level = 2,
             buildTimeRemaining = 0,
-            placedOnTurn = 1
+            placedOnTurn = 1,
+            actionsRemaining = 1
         )
         
         assertEquals(1, defender.id)
         assertEquals(DefenderType.SPIKE_TOWER, defender.type)
         assertEquals(2, defender.level)
         assertEquals(Position(5, 3), defender.position)
+        assertEquals(1, defender.actionsRemaining)
     }
     
     @Test
@@ -111,7 +113,8 @@ class SaveDataTest {
                     position = Position(5, 3),
                     level = 1,
                     buildTimeRemaining = 0,
-                    placedOnTurn = 1
+                    placedOnTurn = 1,
+                    actionsRemaining = 1
                 )
             ),
             attackers = listOf(
@@ -155,6 +158,7 @@ class SaveDataTest {
         assertEquals(1, defender.id)
         assertEquals(DefenderType.SPIKE_TOWER, defender.type)
         assertEquals(Position(5, 3), defender.position)
+        assertEquals(1, defender.actionsRemaining)
         
         // Verify attacker data
         val attacker = deserialized.attackers[0]
@@ -293,5 +297,47 @@ class SaveDataTest {
         val deserialized = SaveJsonSerializer.deserializeSavedGame(json)
         assertNotNull(deserialized)
         assertEquals(commentWithSpecialChars, deserialized.comment)
+    }
+    
+    @Test
+    fun testBackwardCompatibilityWithOldSaves() {
+        // Test that old saves without actionsRemaining field can still be loaded
+        val oldSaveJson = """{
+  "id": "old_save",
+  "timestamp": 1234567890,
+  "levelId": 1,
+  "levelName": "Test Level",
+  "turnNumber": 5,
+  "coins": 100,
+  "healthPoints": 10,
+  "phase": "PLAYER_TURN",
+  "defenders": [
+    {
+      "id": 1,
+      "type": "SPIKE_TOWER",
+      "position": {"x": 5, "y": 3},
+      "level": 2,
+      "buildTimeRemaining": 0,
+      "placedOnTurn": 1
+    }
+  ],
+  "attackers": [],
+  "nextDefenderId": 2,
+  "nextAttackerId": 1,
+  "currentWaveIndex": 0,
+  "spawnCounter": 0,
+  "attackersToSpawn": [],
+  "fieldEffects": [],
+  "traps": [],
+  "comment": null
+}"""
+        
+        // Should deserialize successfully with actionsRemaining defaulting to 0
+        val deserialized = SaveJsonSerializer.deserializeSavedGame(oldSaveJson)
+        assertNotNull(deserialized)
+        assertEquals("old_save", deserialized.id)
+        assertEquals(1, deserialized.defenders.size)
+        val defender = deserialized.defenders[0]
+        assertEquals(0, defender.actionsRemaining)  // Should default to 0 for old saves
     }
 }
