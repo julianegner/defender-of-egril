@@ -98,6 +98,7 @@ kotlin {
     
     sourceSets {
         val desktopMain by getting
+        val desktopTest by getting
         val wasmJsMain by getting
         
         // Add generated source directory to commonMain
@@ -129,8 +130,14 @@ kotlin {
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
+            @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
+            implementation(compose.uiTest)
         }
         desktopMain.dependencies {
+            implementation(compose.desktop.currentOs)
+        }
+        desktopTest.dependencies {
+            implementation(compose.desktop.uiTestJUnit4)
             implementation(compose.desktop.currentOs)
         }
         wasmJsMain.dependencies {
