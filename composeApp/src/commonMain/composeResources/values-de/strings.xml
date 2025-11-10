@@ -237,6 +237,16 @@
     <string name="not_enough_actions">nicht genug Aktionen</string>
     <string name="name_label">Name</string>
     <string name="reward">Belohnung</string>
+
+    <string name="special_label">Spezial</string>
+    <string name="units_label">Einheiten</string>
+    <string name="tower_ready">Turm (Bereit)</string>
+    <string name="tower_building">Turm (Im Bau)</string>
+    <string name="tower_no_actions">Turm (Keine Aktionen)</string>
+    <string name="legend_info_ballista">Ballista: Min. Reichweite 3</string>
+    <string name="legend_info_tower_icons">Symbole zeigen Turm-/Feindtyp</string>
+    <string name="legend_info_tower_actions">Level und Aktionen auf Türmen angezeigt</string>
+    <string name="legend_info_enemy_health">Gesundheit auf Feinden angezeigt</string>
     
     <!-- EditorButtonCard strings -->
     <string name="level_editor">Level-Editor</string>
@@ -320,10 +330,4 @@
     <string name="damage_label">Schaden</string>
     <string name="hp_with_level">LP: %d</string>
     <string name="add_enemy_button">➕ Feind zu Runde %d hinzufügen</string>
-    <string name="tower_ready">Turm (Bereit)</string>
-    <string name="tower_building">Turm (Im Bau)</string>
-    <string name="tower_no_actions">Turm (Keine Aktionen)</string>
-    <string name="legend_info_ballista">Ballista: Min. Reichweite 3</string>
-    <string name="legend_info_tower_icons">Symbole zeigen Turm-/Feindtyp</string>
-    <string name="legend_info_tower_actions">Level und Aktionen auf Türmen angezeigt</string>
 </resources>
