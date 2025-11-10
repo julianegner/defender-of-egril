@@ -136,10 +136,14 @@ private fun GamePlayScreenContent(
     }
 
     CompositionLocalProvider(LocalDensity provides scaledDensity) {
-        Column(
-            modifier = Modifier.fillMaxSize().padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = MaterialTheme.colorScheme.background
         ) {
+            Column(
+                modifier = Modifier.fillMaxSize().padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
         // Header with prominent phase indicator (collapsible)
         GameHeader(
             gameState = gameState,
@@ -242,7 +246,6 @@ private fun GamePlayScreenContent(
                         .align(Alignment.TopEnd)
                         .width(250.dp)
                         .fillMaxHeight()
-                        .background(Color.White.copy(alpha = 0.95f))
                         .padding(8.dp)
                 ) {
                     // Legend
@@ -386,6 +389,7 @@ private fun GamePlayScreenContent(
                 initialInput = cheatCodeInput,
                 onInputChange = { cheatCodeInput = it }
             )
+        }
         }
     }
     }
