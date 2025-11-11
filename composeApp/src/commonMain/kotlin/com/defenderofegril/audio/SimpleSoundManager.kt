@@ -56,6 +56,9 @@ class SimpleSoundManager : SoundManager {
             SoundEvent.TOWER_PLACED -> 600 to 100
             SoundEvent.TOWER_UPGRADED -> 1000 to 150
             SoundEvent.TOWER_SOLD -> 400 to 100
+            
+            // Game phase sounds
+            SoundEvent.BATTLE_START -> 650 to 300  // Fanfare-like tone
         }
         
         // Play the tone on the platform
