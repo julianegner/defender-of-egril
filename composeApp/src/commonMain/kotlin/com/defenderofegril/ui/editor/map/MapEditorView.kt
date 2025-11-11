@@ -51,7 +51,7 @@ fun MapEditorView(
     val hexWidth = hexSize * sqrt3  // Width of hexagon (flat-to-flat)
     val hexHeight = hexSize * 2f    // Height of hexagon (point-to-point)
     
-    // Track tile positions for brush painting
+    // Track tile positions for brush painting (storing untransformed positions)
     val tilePositions = remember { mutableStateMapOf<String, Offset>() }
     
     // Track the last painted tile to avoid redundant updates
@@ -65,20 +65,25 @@ fun MapEditorView(
     
     // Helper function to find which tile is at a given position (in root coordinates)
     fun getTileAtPosition(position: Offset): String? {
-        // Use a snapshot of current tile positions (they update via onGloballyPositioned)
-        // This approach works because graphicsLayer transformations update positionInRoot()
-        val hexRadiusPx = with(density) { (hexWidth / 2f * zoomLevel).dp.toPx() }
+        // Convert from root coordinates to local coordinates by reversing the transformations
+        // graphicsLayer applies: scale around center, then translate
+        // So to reverse: (root - translate) / scale
+        val localX = (position.x - containerPositionInRoot.x - offsetX) / zoomLevel
+        val localY = (position.y - containerPositionInRoot.y - offsetY) / zoomLevel
+        val localPosition = Offset(localX, localY)
         
-        // Find the closest tile that's within the hex radius
+        val hexRadiusPx = with(density) { (hexWidth / 2f).dp.toPx() }
+        
+        // Find the closest tile that's within the hex radius (in local coordinates)
         val closest = tilePositions.entries.minByOrNull { (_, tilePos) ->
-            val dx = position.x - tilePos.x
-            val dy = position.y - tilePos.y
+            val dx = localPosition.x - tilePos.x
+            val dy = localPosition.y - tilePos.y
             dx * dx + dy * dy
         }
         
         return closest?.let { (key, tilePos) ->
-            val dx = position.x - tilePos.x
-            val dy = position.y - tilePos.y
+            val dx = localPosition.x - tilePos.x
+            val dy = localPosition.y - tilePos.y
             val distance = sqrt(dx * dx + dy * dy)
             // Be more lenient with the distance check
             if (distance < hexRadiusPx * 1.2f) key else null
@@ -150,7 +155,8 @@ fun MapEditorView(
                     config = HexagonalMapConfig(
                         hexSize = hexSize,
                         enableKeyboardNavigation = true,  // Enable keyboard navigation for editor
-                        enablePanNavigation = false  // Disable pan navigation for editor (brush only)
+                        enablePanNavigation = false,  // Disable pan navigation for editor (brush only)
+                        keyboardPanSpeed = 50f  // Increased for better responsiveness with smaller hex size
                     ),
                     scale = zoomLevel,
                     offsetX = offsetX,
@@ -162,10 +168,8 @@ fun MapEditorView(
                     },
                     modifier = Modifier.fillMaxSize()
                 ) { hexWidthParam, hexHeightParam, verticalSpacing ->
-                    // Force recomposition when offset or zoom changes to update tile positions
-                    key(offsetX, offsetY, zoomLevel) {
-                        for (y in 0 until map.height) {
-                            Row(
+                    for (y in 0 until map.height) {
+                        Row(
                             modifier = Modifier.offset(
                                 x = if (y % 2 == 1) (hexWidthParam * 0.42f).dp else 0.dp,
                                 y = (-(y-1)).dp
@@ -185,18 +189,14 @@ fun MapEditorView(
                                         .border(1.5.dp, Color.Black, HexagonShape())
                                         .onGloballyPositioned { coordinates ->
                                             // Track tile center position for brush painting
-                                            // Note: positionInRoot() doesn't include graphicsLayer transformations,
-                                            // so we need to account for those manually
+                                            // Store the untransformed (local) position
+                                            // The graphicsLayer transformations will be applied when checking clicks
                                             val bounds = coordinates.size
                                             val position = coordinates.positionInRoot()
-                                            val centerX = position.x + bounds.width / 2f
-                                            val centerY = position.y + bounds.height / 2f
+                                            val centerX = position.x + bounds.width / 2f - containerPositionInRoot.x
+                                            val centerY = position.y + bounds.height / 2f - containerPositionInRoot.y
                                             
-                                            // Apply the graphicsLayer transformations manually
-                                            val transformedX = centerX * zoomLevel + offsetX
-                                            val transformedY = centerY * zoomLevel + offsetY
-                                            
-                                            tilePositions[key] = Offset(transformedX, transformedY)
+                                            tilePositions[key] = Offset(centerX, centerY)
                                         }
                                         .clickable {
                                             tiles = tiles.toMutableMap().apply {
@@ -211,7 +211,6 @@ fun MapEditorView(
                                 }
                             }
                         }
-                    }
                     }
                 }
             }
