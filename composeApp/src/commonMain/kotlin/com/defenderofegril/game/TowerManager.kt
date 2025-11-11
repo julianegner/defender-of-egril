@@ -30,9 +30,6 @@ class TowerManager(private val state: GameState) {
         state.defenders.add(defender)
         state.coins.value -= type.baseCost
         
-        // Play tower placed sound
-        GlobalSoundManager.playSound(SoundEvent.TOWER_PLACED)
-        
         // Reset actions if tower is ready
         if (defender.isReady) {
             defender.resetActions()
