@@ -36,13 +36,36 @@ Place WAV audio files in this directory with the following names:
 - `tower_upgraded.wav` - Tower upgrade sound
 - `tower_sold.wav` - Tower selling sound
 
+### Game Phase Sounds
+- `battle_start.wav` - Battle start sound (when "Start Battle" is clicked)
+
 ## Audio Format Requirements
 
+**Recommended Settings:**
 - **Format**: WAV (recommended for compatibility)
 - **Sample Rate**: 44100 Hz or 22050 Hz
 - **Bit Depth**: 16-bit
-- **Channels**: Mono (preferred) or Stereo
+- **Channels**: Mono (preferred, smaller file size) or Stereo
 - **Duration**: Keep sounds short (0.1 - 1.0 seconds)
+
+**Optimal Length Guidelines:**
+- **Attack sounds**: 100-200ms (quick, punchy)
+- **Enemy events**: 50-150ms (brief acknowledgment)
+- **Mine operations**: 100-250ms (slightly longer for impact)
+- **Trap/Life loss**: 150-400ms (noticeable but not intrusive)
+- **UI sounds**: 50-100ms (instant feedback)
+- **Battle start**: 300-500ms (fanfare/announcement feel)
+
+**Why short sounds?**
+- Multiple sounds may play simultaneously during gameplay
+- Shorter sounds prevent audio overlap from becoming muddy
+- Keeps the game feeling responsive and fast-paced
+- Reduces memory usage and loading time
+
+**File Size:**
+- Current placeholder sounds: 2-11 KB each
+- Keep final sounds under 50 KB for quick loading
+- Mono files are half the size of stereo with minimal quality loss for game effects
 
 ## Finding or Creating Sounds
 
