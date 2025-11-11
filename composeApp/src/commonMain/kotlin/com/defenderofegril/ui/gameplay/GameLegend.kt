@@ -344,11 +344,25 @@ fun EnemyItemDetailed(attacker: Attacker, showPosition: Boolean) {
             // Enemy details
             Column(modifier = Modifier.weight(1f)) {
                 val locale = com.hyperether.resources.currentLanguage.value
-                Text(
-                    attacker.type.getLocalizedName(locale),
-                    style = MaterialTheme.typography.bodySmall,
-                    fontWeight = FontWeight.Bold
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Text(
+                        attacker.type.getLocalizedName(locale),
+                        style = MaterialTheme.typography.bodySmall,
+                        fontWeight = FontWeight.Bold
+                    )
+                    if (attacker.level > 1) {
+                        Text(
+                            "Lv${attacker.level}",
+                            style = MaterialTheme.typography.bodySmall,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = GamePlayColors.ErrorDark
+                        )
+                    }
+                }
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {

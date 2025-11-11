@@ -57,6 +57,7 @@ fun GameControlsPanel(
     coinsState: State<Int>,
     selectedDefenderType: DefenderType?,
     selectedDefenderId: Int?,
+    selectedAttackerId: Int?,  // Add attacker selection parameter
     selectedTargetId: Int?,
     selectedTargetPosition: Position?,
     onSelectDefenderType: (DefenderType?) -> Unit,
@@ -69,8 +70,8 @@ fun GameControlsPanel(
     onMineAction: ((Int, MineAction) -> Unit)? = null,
     uiScale: Float = 1f  // Add platform scale parameter
 ) {
-    // Automatically fold buy panel when a defender is selected
-    val compactBuyPanel = selectedDefenderId != null
+    // Automatically fold buy panel when a defender or attacker is selected
+    val compactBuyPanel = selectedDefenderId != null || selectedAttackerId != null
 
     // Determine phase-specific properties
     val isPlayerTurn = phase == GamePhase.PLAYER_TURN
@@ -94,7 +95,7 @@ fun GameControlsPanel(
         }
 
         if (compactBuyPanel) {
-            // Folded view: Compact layout with defender info on left, buy buttons and End Turn on right
+            // Folded view: Compact layout with defender/attacker info on left, buy buttons and End Turn on right
             Row(modifier = Modifier.fillMaxWidth()) {
                 // Selected defender info on left (smaller)
                 selectedDefenderId?.let { defenderId ->
@@ -115,6 +116,20 @@ fun GameControlsPanel(
                                 onDefenderAttack = onDefenderAttack,
                                 onDefenderAttackPosition = onDefenderAttackPosition,
                                 isPlayerTurn = isPlayerTurn
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(8.dp))
+                    }
+                }
+                
+                // Selected attacker info on left (when no defender is selected)
+                selectedAttackerId?.let { attackerId ->
+                    val attacker = gameState.attackers.find { it.id == attackerId }
+                    if (attacker != null && selectedDefenderId == null) {
+                        Box(modifier = Modifier.weight(1f)) {
+                            AttackerInfo(
+                                attacker = attacker,
+                                isMobile = uiScale < 1f
                             )
                         }
                         Spacer(modifier = Modifier.width(8.dp))
