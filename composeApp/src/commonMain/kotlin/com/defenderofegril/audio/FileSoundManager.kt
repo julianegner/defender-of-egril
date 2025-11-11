@@ -32,6 +32,7 @@ class FileSoundManager : SoundManager {
             SoundEvent.ATTACK_RANGED -> "attack_ranged.wav"
             SoundEvent.ATTACK_AREA -> "attack_area.wav"
             SoundEvent.ATTACK_LASTING -> "attack_lasting.wav"
+            SoundEvent.ATTACK_BALLISTA -> "attack_ballista.wav"
             
             // Enemy events
             SoundEvent.ENEMY_SPAWN -> "enemy_spawn.wav"
@@ -54,8 +55,6 @@ class FileSoundManager : SoundManager {
             SoundEvent.DRAGON_EAT -> "dragon_eat.wav"
             
             // UI sounds
-            SoundEvent.BUTTON_CLICK -> "button_click.wav"
-            SoundEvent.TOWER_PLACED -> "tower_placed.wav"
             SoundEvent.TOWER_UPGRADED -> "tower_upgraded.wav"
             SoundEvent.TOWER_SOLD -> "tower_sold.wav"
             
