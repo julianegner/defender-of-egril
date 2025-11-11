@@ -41,7 +41,15 @@ data class GameState(
     val actionsRemainingThisTurn: MutableState<Int> = mutableStateOf(0),
     val spawnPlan: List<PlannedEnemySpawn> = level.directSpawnPlan ?: generateSpawnPlan(level.attackerWaves),
     val fieldEffects: SnapshotStateList<FieldEffect> = mutableStateListOf(), // Track active field effects
-    val traps: SnapshotStateList<Trap> = mutableStateListOf()  // Track active traps
+    val traps: SnapshotStateList<Trap> = mutableStateListOf(),  // Track active traps
+    val tutorialState: MutableState<TutorialState> = mutableStateOf(
+        // Enable tutorial only for the tutorial level
+        if (level.id == 1 && level.name.contains("Tutorial", ignoreCase = true)) {
+            TutorialState(isActive = true, currentStep = TutorialStep.WELCOME)
+        } else {
+            TutorialState(isActive = false, currentStep = TutorialStep.NONE)
+        }
+    )
 ) {
     fun isLevelWon(): Boolean {
         // Check if all planned spawns have occurred and all enemies are defeated

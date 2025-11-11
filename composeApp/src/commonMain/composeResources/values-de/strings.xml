@@ -345,4 +345,23 @@
     <string name="yes">Ja</string>
     <string name="confirm_delete_level">Sind Sie sicher, dass Sie dieses Level löschen möchten?</string>
     <string name="amount">Anzahl</string>
+    
+    <!-- Tutorial -->
+    <string name="tutorial_welcome_title">Willkommen bei Defender of Egril!</string>
+    <string name="tutorial_welcome">Dies ist ein Tower-Defense-Spiel. Ihr Ziel ist es, Feinde daran zu hindern, das Ziel zu erreichen, indem Sie Verteidigungstürme bauen.</string>
+    <string name="tutorial_resources_title">Ressourcen</string>
+    <string name="tutorial_resources">Sie haben Münzen zum Bauen von Türmen und Lebenspunkte. Jeder Feind, der das Ziel erreicht, kostet 1 LP.</string>
+    <string name="tutorial_build_title">Türme bauen</string>
+    <string name="tutorial_build">Wählen Sie einen Turmtyp und klicken Sie auf einen grünen Baubereich, um ihn zu platzieren. Versuchen Sie, einen Stachelturm zu platzieren!</string>
+    <string name="tutorial_towers_title">Verfügbare Türme</string>
+    <string name="tutorial_towers">Stachelturm: Nahkampf, günstig\nSpeerturm: Mittlere Reichweite\nBogenturm: Große Reichweite</string>
+    <string name="tutorial_enemies_title">Feinde im Anmarsch!</string>
+    <string name="tutorial_enemies">Goblins sind schnell, aber schwach. Der Ork ist langsam, aber zäh. Positionieren Sie Ihre Türme weise!</string>
+    <string name="tutorial_combat_title">Kampfphase</string>
+    <string name="tutorial_combat">Klicken Sie auf 'Runde starten', um zu beginnen. Türme greifen an, dann bewegen sich Feinde. Sie können Türme aufwerten und bestimmte Feinde angreifen.</string>
+    <string name="tutorial_complete_title">Sie sind bereit!</string>
+    <string name="tutorial_complete">Sie haben die Grundlagen gelernt! Verteidigen Sie nun Egril gegen die Horden. Viel Glück!</string>
+    <string name="tutorial_next">Weiter</string>
+    <string name="tutorial_got_it">Verstanden!</string>
+    <string name="tutorial_skip">Tutorial überspringen</string>
 </resources>

@@ -345,4 +345,23 @@
     <string name="yes">Yes</string>
     <string name="confirm_delete_level">Are you sure you want to delete this level?</string>
     <string name="amount">Amount</string>
+    
+    <!-- Tutorial -->
+    <string name="tutorial_welcome_title">Welcome to Defender of Egril!</string>
+    <string name="tutorial_welcome">This is a tower defense game. Your goal is to stop enemies from reaching the target by building defensive towers.</string>
+    <string name="tutorial_resources_title">Resources</string>
+    <string name="tutorial_resources">You have coins to build towers and health points. Each enemy reaching the target costs 1 HP.</string>
+    <string name="tutorial_build_title">Building Towers</string>
+    <string name="tutorial_build">Select a tower type, then click on a green build area to place it. Try placing a Spike Tower!</string>
+    <string name="tutorial_towers_title">Available Towers</string>
+    <string name="tutorial_towers">Spike Tower: Close range, cheap\nSpear Tower: Medium range\nBow Tower: Long range</string>
+    <string name="tutorial_enemies_title">Enemies Incoming!</string>
+    <string name="tutorial_enemies">Goblins are fast but weak. The Ork is slow but tough. Position your towers wisely!</string>
+    <string name="tutorial_combat_title">Combat Phase</string>
+    <string name="tutorial_combat">Click 'Start Turn' to begin. Towers will attack, then enemies move. You can upgrade towers and attack specific enemies.</string>
+    <string name="tutorial_complete_title">You're Ready!</string>
+    <string name="tutorial_complete">You've learned the basics! Now defend Egril against the hordes. Good luck!</string>
+    <string name="tutorial_next">Next</string>
+    <string name="tutorial_got_it">Got it!</string>
+    <string name="tutorial_skip">Skip Tutorial</string>
 </resources>
