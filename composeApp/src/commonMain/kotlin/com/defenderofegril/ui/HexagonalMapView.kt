@@ -190,7 +190,7 @@ fun HexagonalMapView(
             .then(
                 if (config.enablePanNavigation) {
                     Modifier
-                        .pointerInput(Unit) {
+                        .pointerInput(scale, offsetX, offsetY) {
                             detectDragGestures { _, dragAmount ->
                                 // Apply pan
                                 val newOffsetX = offsetX + dragAmount.x
@@ -201,7 +201,7 @@ fun HexagonalMapView(
                                 onOffsetChange(constrainedX, constrainedY)
                             }
                         }
-                        .pointerInput(Unit) {
+                        .pointerInput(scale, offsetX, offsetY) {
                             // Keep detectTransformGestures for pinch-to-zoom on mobile
                             detectTransformGestures { _, _, zoom, _ ->
                                 if (zoom != 1f) {
