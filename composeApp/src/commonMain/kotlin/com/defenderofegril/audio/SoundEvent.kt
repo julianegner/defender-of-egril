@@ -9,6 +9,7 @@ enum class SoundEvent {
     ATTACK_RANGED,
     ATTACK_AREA,  // Fireball
     ATTACK_LASTING,  // Acid
+    ATTACK_BALLISTA,  // Ballista
     
     // Enemy events
     ENEMY_SPAWN,
@@ -31,8 +32,6 @@ enum class SoundEvent {
     DRAGON_EAT,
     
     // UI sounds (optional)
-    BUTTON_CLICK,
-    TOWER_PLACED,
     TOWER_UPGRADED,
     TOWER_SOLD,
     
