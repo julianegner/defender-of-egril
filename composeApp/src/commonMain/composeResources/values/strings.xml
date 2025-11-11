@@ -338,4 +338,9 @@
     <string name="delete_turn">Delete Turn</string>
     <string name="cannot_delete_turn">Cannot delete this turn while later turns exist</string>
     <string name="no_enemies_in_turn">No enemies spawning in this turn</string>
+    <string name="clear_turn">Clear Turn</string>
+    <string name="remove_all_turns">Remove All Turns</string>
+    <string name="confirm_remove_all_turns">Are you sure you want to remove all spawn turns?</string>
+    <string name="copy_level">Copy Level</string>
+    <string name="yes">Yes</string>
 </resources>

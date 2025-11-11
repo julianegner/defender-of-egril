@@ -106,6 +106,7 @@ fun SpawnTurnSection(
     spawns: List<EditorEnemySpawn>,
     onRemoveEnemy: (EditorEnemySpawn) -> Unit,
     onDeleteTurn: () -> Unit,
+    onClearTurn: () -> Unit,
     canDeleteTurn: Boolean,
     onCopyTurn: () -> Unit,
     onAddEnemy: () -> Unit,
@@ -181,16 +182,30 @@ fun SpawnTurnSection(
                             modifier = Modifier.align(Alignment.CenterVertically)
                         )
                     }
-                    Button(
-                        onClick = onDeleteTurn,
-                        enabled = canDeleteTurn,
-                        modifier = Modifier.height(32.dp),
-                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = if (canDeleteTurn) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.surfaceVariant
-                        )
-                    ) {
-                        TrashIcon(size = 12.dp)
+                    // Show either Clear or Delete button depending on whether it's the last turn
+                    if (canDeleteTurn) {
+                        Button(
+                            onClick = onDeleteTurn,
+                            modifier = Modifier.height(32.dp),
+                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.error
+                            )
+                        ) {
+                            TrashIcon(size = 12.dp)
+                        }
+                    } else {
+                        Button(
+                            onClick = onClearTurn,
+                            enabled = spawns.isNotEmpty(),
+                            modifier = Modifier.height(32.dp),
+                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp)
+                        ) {
+                            Text(
+                                text = stringResource(Res.string.clear_turn),
+                                fontSize = 10.sp
+                            )
+                        }
                     }
                 }
             }
