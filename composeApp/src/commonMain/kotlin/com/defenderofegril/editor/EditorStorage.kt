@@ -21,7 +21,7 @@ object EditorStorage {
     private val LEVELS_DIR = "editor/levels"
     private val SEQUENCE_FILE = "editor/sequence.json"
     private val VERSION_FILE = "editor/version.txt"
-    private val CURRENT_VERSION = "2" // Increment when level data format changes
+    private val CURRENT_VERSION = "3" // Increment when level data format changes
     
     // Initialize with converted existing levels
     init {

@@ -43,8 +43,8 @@ data class GameState(
     val fieldEffects: SnapshotStateList<FieldEffect> = mutableStateListOf(), // Track active field effects
     val traps: SnapshotStateList<Trap> = mutableStateListOf(),  // Track active traps
     val tutorialState: MutableState<TutorialState> = mutableStateOf(
-        // Enable tutorial only for the tutorial level
-        if (level.id == 1 && level.name.contains("Tutorial", ignoreCase = true)) {
+        // Enable tutorial only for the tutorial level (id=1, title contains "Welcome")
+        if (level.id == 1 && level.name.contains("Welcome", ignoreCase = true)) {
             TutorialState(isActive = true, currentStep = TutorialStep.WELCOME)
         } else {
             TutorialState(isActive = false, currentStep = TutorialStep.NONE)
