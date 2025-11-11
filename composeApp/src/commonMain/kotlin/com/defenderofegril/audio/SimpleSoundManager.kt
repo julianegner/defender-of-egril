@@ -30,6 +30,7 @@ class SimpleSoundManager : SoundManager {
             SoundEvent.ATTACK_RANGED -> 600 to 150
             SoundEvent.ATTACK_AREA -> 800 to 200  // Higher pitch for fireball
             SoundEvent.ATTACK_LASTING -> 300 to 250  // Lower, longer for acid
+            SoundEvent.ATTACK_BALLISTA -> 500 to 200  // Deep, powerful
             
             // Enemy events
             SoundEvent.ENEMY_SPAWN -> 500 to 100
@@ -52,8 +53,6 @@ class SimpleSoundManager : SoundManager {
             SoundEvent.DRAGON_EAT -> 300 to 250
             
             // UI sounds
-            SoundEvent.BUTTON_CLICK -> 800 to 50
-            SoundEvent.TOWER_PLACED -> 600 to 100
             SoundEvent.TOWER_UPGRADED -> 1000 to 150
             SoundEvent.TOWER_SOLD -> 400 to 100
             
