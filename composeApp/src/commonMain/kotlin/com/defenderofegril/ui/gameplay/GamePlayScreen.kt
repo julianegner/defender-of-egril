@@ -76,6 +76,7 @@ private fun GamePlayScreenContent(
 ) {
     var selectedDefenderType by remember { mutableStateOf<DefenderType?>(null) }
     var selectedDefenderId by remember { mutableStateOf<Int?>(null) }
+    var selectedAttackerId by remember { mutableStateOf<Int?>(null) }  // Add enemy selection
     var selectedTargetId by remember { mutableStateOf<Int?>(null) }
     var selectedTargetPosition by remember { mutableStateOf<Position?>(null) }
     var showCheatDialog by remember { mutableStateOf(false) }
@@ -176,6 +177,8 @@ private fun GamePlayScreenContent(
                     }
 
                     val previousSelectedDefenderId = selectedDefenderId
+                    val previousSelectedAttackerId = selectedAttackerId
+                    
                     // Check if there's a defender at this position
                     val defender = gameState.defenders.find { it.position == position }
                     if (defender != null) {
@@ -183,8 +186,25 @@ private fun GamePlayScreenContent(
                             // Deselect if clicking the same defender
                             selectedDefenderId = null
                         } else {
-                            // Select this defender
+                            // Select this defender, deselect any selected attacker
                             selectedDefenderId = defender.id
+                            selectedAttackerId = null
+                            selectedTargetId = null
+                            selectedTargetPosition = null
+                            return@GameGrid
+                        }
+                    }
+                    
+                    // Check if there's an attacker at this position (only if no defender is being placed)
+                    val attacker = gameState.attackers.find { it.position.value == position && !it.isDefeated.value }
+                    if (attacker != null && selectedDefenderId == null) {
+                        if (previousSelectedAttackerId == attacker.id) {
+                            // Deselect if clicking the same attacker
+                            selectedAttackerId = null
+                        } else {
+                            // Select this attacker, deselect any selected defender
+                            selectedAttackerId = attacker.id
+                            selectedDefenderId = null
                             selectedTargetId = null
                             selectedTargetPosition = null
                             return@GameGrid
@@ -226,10 +246,10 @@ private fun GamePlayScreenContent(
                                 }
                             } else {
                                 // For single-target attacks, only allow targeting enemies
-                                val attacker =
+                                val attackerForTargeting =
                                     gameState.attackers.find { it.position.value == position && !it.isDefeated.value }
-                                if (attacker != null) {
-                                    selectedTargetId = attacker.id
+                                if (attackerForTargeting != null) {
+                                    selectedTargetId = attackerForTargeting.id
                                     selectedTargetPosition = position // to be able to show the 3 circles to highlight the target
                                 }
                             }
@@ -270,6 +290,7 @@ private fun GamePlayScreenContent(
                     coinsState = gameState.coins,
                     selectedDefenderType = selectedDefenderType,
                     selectedDefenderId = selectedDefenderId,
+                    selectedAttackerId = selectedAttackerId,
                     selectedTargetId = null,
                     selectedTargetPosition = null,
                     onSelectDefenderType = { selectedDefenderType = it },
@@ -286,6 +307,7 @@ private fun GamePlayScreenContent(
                     onPrimaryAction = {
                         selectedDefenderType = null  // Clear defender type selection when starting battle
                         selectedDefenderId = null  // Clear defender selection when starting battle
+                        selectedAttackerId = null  // Clear attacker selection when starting battle
                         onStartFirstPlayerTurn()
                     },
                     onMineAction = handleMineAction,
@@ -300,6 +322,7 @@ private fun GamePlayScreenContent(
                     coinsState = gameState.coins,
                     selectedDefenderType = selectedDefenderType,
                     selectedDefenderId = selectedDefenderId,
+                    selectedAttackerId = selectedAttackerId,
                     selectedTargetId = selectedTargetId,
                     selectedTargetPosition = selectedTargetPosition,
                     onSelectDefenderType = { selectedDefenderType = it },
