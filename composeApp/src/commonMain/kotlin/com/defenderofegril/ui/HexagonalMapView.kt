@@ -17,6 +17,7 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import com.defenderofegril.utils.isPlatformMobile
 import kotlin.math.sqrt
 
 /**
@@ -202,16 +203,17 @@ fun HexagonalMapView(
                     }
                 }
                 // Keep detectTransformGestures for pinch-to-zoom on mobile
-                // todo only enable if on mobile platform?
-                 detectTransformGestures { _, _, zoom, _ ->
-                     if (zoom != 1f) {
-                         val newScale = (scale * zoom).coerceIn(config.minScale, config.maxScale)
-                         onScaleChange(newScale)
-                         // Re-constrain offsets after zoom
-                         val (constrainedX, constrainedY) = constrainOffsets(offsetX, offsetY, newScale)
-                         onOffsetChange(constrainedX, constrainedY)
-                     }
-                 }
+                if (isPlatformMobile) {
+                    detectTransformGestures { _, _, zoom, _ ->
+                        if (zoom != 1f) {
+                            val newScale = (scale * zoom).coerceIn(config.minScale, config.maxScale)
+                            onScaleChange(newScale)
+                            // Re-constrain offsets after zoom
+                            val (constrainedX, constrainedY) = constrainOffsets(offsetX, offsetY, newScale)
+                            onOffsetChange(constrainedX, constrainedY)
+                        }
+                    }
+                }
             }
     ) {
         // Map content with pan and zoom applied
