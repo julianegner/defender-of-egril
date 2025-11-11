@@ -330,4 +330,19 @@
     <string name="damage_label">Daño</string>
     <string name="hp_with_level">PV: %d</string>
     <string name="add_enemy_button">➕ Añadir enemigo al turno %d</string>
+    <string name="add_all_towers">Añadir todas</string>
+    <string name="remove_all_towers">Eliminar todas</string>
+    <string name="level_info_tab">Info del nivel</string>
+    <string name="enemy_spawns_tab">Apariciones de enemigos</string>
+    <string name="towers_tab">Torres</string>
+    <string name="delete_turn">Eliminar turno</string>
+    <string name="cannot_delete_turn">No se puede eliminar este turno mientras existan turnos posteriores</string>
+    <string name="no_enemies_in_turn">No hay enemigos apareciendo en este turno</string>
+    <string name="clear_turn">Limpiar turno</string>
+    <string name="remove_all_turns">Eliminar todos los turnos</string>
+    <string name="confirm_remove_all_turns">¿Estás seguro de que quieres eliminar todos los turnos de aparición?</string>
+    <string name="copy_level">Copiar nivel</string>
+    <string name="yes">Sí</string>
+    <string name="confirm_delete_level">¿Estás seguro de que quieres eliminar este nivel?</string>
+    <string name="amount">Cantidad</string>
 </resources>

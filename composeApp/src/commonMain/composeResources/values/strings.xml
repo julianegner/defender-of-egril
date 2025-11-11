@@ -330,4 +330,19 @@
     <string name="damage_label">Damage</string>
     <string name="hp_with_level">HP: %d</string>
     <string name="add_enemy_button">➕ Add Enemy to Turn %d</string>
+    <string name="add_all_towers">Add All</string>
+    <string name="remove_all_towers">Remove All</string>
+    <string name="level_info_tab">Level Info</string>
+    <string name="enemy_spawns_tab">Enemy Spawns</string>
+    <string name="towers_tab">Towers</string>
+    <string name="delete_turn">Delete Turn</string>
+    <string name="cannot_delete_turn">Cannot delete this turn while later turns exist</string>
+    <string name="no_enemies_in_turn">No enemies spawning in this turn</string>
+    <string name="clear_turn">Clear Turn</string>
+    <string name="remove_all_turns">Remove All Turns</string>
+    <string name="confirm_remove_all_turns">Are you sure you want to remove all spawn turns?</string>
+    <string name="copy_level">Copy Level</string>
+    <string name="yes">Yes</string>
+    <string name="confirm_delete_level">Are you sure you want to delete this level?</string>
+    <string name="amount">Amount</string>
 </resources>
