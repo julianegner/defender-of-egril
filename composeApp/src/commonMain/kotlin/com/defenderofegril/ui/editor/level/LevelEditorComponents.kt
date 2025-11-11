@@ -105,6 +105,8 @@ fun SpawnTurnSection(
     turn: Int,
     spawns: List<EditorEnemySpawn>,
     onRemoveEnemy: (EditorEnemySpawn) -> Unit,
+    onDeleteTurn: () -> Unit,
+    canDeleteTurn: Boolean,
     onCopyTurn: () -> Unit,
     onAddEnemy: () -> Unit,
     onMoveTurnUp: () -> Unit,
@@ -179,6 +181,17 @@ fun SpawnTurnSection(
                             modifier = Modifier.align(Alignment.CenterVertically)
                         )
                     }
+                    Button(
+                        onClick = onDeleteTurn,
+                        enabled = canDeleteTurn,
+                        modifier = Modifier.height(32.dp),
+                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (canDeleteTurn) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.surfaceVariant
+                        )
+                    ) {
+                        TrashIcon(size = 12.dp)
+                    }
                 }
             }
             
@@ -196,51 +209,61 @@ fun SpawnTurnSection(
                         Text(stringResource(Res.string.add_enemy_button).replace("%d", turn.toString()))
                     }
                     
-                    spawns.forEach { spawn ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .background(Color.LightGray.copy(alpha = 0.2f))
-                                .padding(8.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
+                    if (spawns.isEmpty()) {
+                        // Show message for empty turn
+                        Text(
+                            text = stringResource(Res.string.no_enemies_in_turn),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.Gray,
+                            modifier = Modifier.padding(8.dp)
+                        )
+                    } else {
+                        spawns.forEach { spawn ->
                             Row(
-                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(Color.LightGray.copy(alpha = 0.2f))
+                                    .padding(8.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                // Enemy icon
-                                Box(modifier = Modifier.size(24.dp)) {
-                                    EnemyIconOnHexagon(
-                                        attackerType = spawn.attackerType,
-                                        size = 24.dp
-                                    )
+                                Row(
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    // Enemy icon
+                                    Box(modifier = Modifier.size(24.dp)) {
+                                        EnemyIconOnHexagon(
+                                            attackerType = spawn.attackerType,
+                                            size = 24.dp
+                                        )
+                                    }
+                                    
+                                    Column {
+                                        Text(
+                                            text = "${spawn.attackerType.displayName} Lv${spawn.level}",
+                                            fontSize = 14.sp
+                                        )
+                                        Text(
+                                            text = "${stringResource(Res.string.hp_short)}: ${spawn.healthPoints}",
+                                            fontSize = 11.sp,
+                                            color = Color.Gray
+                                        )
+                                    }
                                 }
                                 
-                                Column {
-                                    Text(
-                                        text = "${spawn.attackerType.displayName} Lv${spawn.level}",
-                                        fontSize = 14.sp
-                                    )
-                                    Text(
-                                        text = "${stringResource(Res.string.hp_short)}: ${spawn.healthPoints}",
-                                        fontSize = 11.sp,
-                                        color = Color.Gray
-                                    )
-                                }
-                            }
-                            
-                            Button(
-                                onClick = { onRemoveEnemy(spawn) },
-                                modifier = Modifier.height(36.dp),
-                                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp)
-                            ) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                Button(
+                                    onClick = { onRemoveEnemy(spawn) },
+                                    modifier = Modifier.height(36.dp),
+                                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp)
                                 ) {
-                                    TrashIcon(size = 12.dp)
-                                    Text(stringResource(Res.string.remove), fontSize = 11.sp)
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                    ) {
+                                        TrashIcon(size = 12.dp)
+                                        Text(stringResource(Res.string.remove), fontSize = 11.sp)
+                                    }
                                 }
                             }
                         }

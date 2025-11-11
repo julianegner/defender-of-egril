@@ -330,4 +330,12 @@
     <string name="damage_label">Danno</string>
     <string name="hp_with_level">PV: %d</string>
     <string name="add_enemy_button">➕ Aggiungi nemico al turno %d</string>
+    <string name="add_all_towers">Aggiungi tutto</string>
+    <string name="remove_all_towers">Rimuovi tutto</string>
+    <string name="level_info_tab">Info livello</string>
+    <string name="enemy_spawns_tab">Spawn nemici</string>
+    <string name="towers_tab">Torri</string>
+    <string name="delete_turn">Elimina turno</string>
+    <string name="cannot_delete_turn">Non è possibile eliminare questo turno mentre esistono turni successivi</string>
+    <string name="no_enemies_in_turn">Nessun nemico appare in questo turno</string>
 </resources>
