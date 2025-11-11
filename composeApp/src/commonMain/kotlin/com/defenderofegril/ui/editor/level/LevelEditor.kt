@@ -5,6 +5,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -17,9 +20,14 @@ import com.defenderofegril.editor.EditorStorage
 import com.defenderofegril.model.AttackerType
 import com.defenderofegril.model.DefenderType
 import com.defenderofegril.ui.*
+import com.defenderofegril.ui.editor.ConfirmationDialog
 import com.defenderofegril.ui.editor.CreateLevelDialog
 import com.defenderofegril.ui.editor.map.MapSelectionCard
 import com.defenderofegril.ui.editor.SaveAsDialog
+import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
 import kotlin.random.Random
@@ -72,9 +80,11 @@ fun LevelEditorContent() {
                 modifier = Modifier.padding(bottom = 8.dp)
             )
             
-            LazyColumn(
+            LazyVerticalGrid(
+                columns = GridCells.Adaptive(minSize = 300.dp),
                 modifier = Modifier.fillMaxWidth().weight(1f),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(levels.value) { level ->
                     LevelCard(
@@ -83,6 +93,18 @@ fun LevelEditorContent() {
                         onSelect = { 
                             selectedLevelId = level.id
                             editingLevel = level
+                        },
+                        onCopy = {
+                            // Copy the level with a new ID and " - Copy" suffix
+                            val copyTitle = "${level.title} - Copy"
+                            val sanitizedTitle = copyTitle.trim().replace(" ", "_").replace(Regex("[^a-zA-Z0-9_]"), "")
+                            val newId = "level_${sanitizedTitle}_${Random.nextInt(1000, 9999)}"
+                            val copiedLevel = level.copy(
+                                id = newId,
+                                title = copyTitle
+                            )
+                            EditorStorage.saveLevel(copiedLevel)
+                            levels.value = EditorStorage.getAllLevels()
                         },
                         onDelete = {
                             EditorStorage.deleteLevel(level.id)
@@ -136,6 +158,7 @@ private fun LevelCard(
     level: EditorLevel,
     isSelected: Boolean,
     onSelect: () -> Unit,
+    onCopy: () -> Unit,
     onDelete: () -> Unit
 ) {
     Card(
@@ -147,13 +170,12 @@ private fun LevelCard(
                 MaterialTheme.colorScheme.surfaceVariant
         )
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
+        Column(
+            modifier = Modifier.fillMaxWidth()
         ) {
             Column(
                 modifier = Modifier
-                    .weight(1f)
+                    .fillMaxWidth()
                     .clickable { onSelect() }
                     .padding(12.dp)
             ) {
@@ -181,14 +203,25 @@ private fun LevelCard(
                     style = MaterialTheme.typography.bodySmall
                 )
             }
-            Button(
-                onClick = onDelete,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.error
-                ),
-                modifier = Modifier.padding(end = 8.dp)
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Text(stringResource(Res.string.delete))
+                Button(
+                    onClick = onCopy,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(stringResource(Res.string.copy_level))
+                }
+                Button(
+                    onClick = onDelete,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error
+                    ),
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(stringResource(Res.string.delete))
+                }
             }
         }
     }
@@ -214,12 +247,24 @@ fun LevelEditorView(
     var showEnemyDialogForTurn by remember { mutableStateOf(1) }
     var showSaveAsDialog by remember { mutableStateOf(false) }
     var selectedTabIndex by remember { mutableStateOf(0) }
+    var showRemoveAllTurnsDialog by remember { mutableStateOf(false) }
+    // Track the maximum turn number explicitly to support empty turns
+    var maxTurnNumber by remember { 
+        mutableStateOf(level.enemySpawns.maxOfOrNull { it.spawnTurn } ?: 0) 
+    }
     
     // Get only ready-to-use maps for selection
     val maps = remember { EditorStorage.getAllMaps().filter { it.readyToUse } }
     
     // Check if Ewhad is already in spawn list
     val ewhadCount = enemySpawns.count { it.attackerType == AttackerType.EWHAD }
+    
+    // Check readiness for each tab
+    val coinsInt = startCoins.toIntOrNull() ?: 0
+    val hpInt = startHP.toIntOrNull() ?: 0
+    val isLevelInfoReady = coinsInt > 0 && hpInt > 0
+    val isEnemySpawnsReady = enemySpawns.isNotEmpty()
+    val isTowersReady = availableTowersState.isNotEmpty()
     
     Column(
         modifier = Modifier.fillMaxSize()
@@ -231,22 +276,52 @@ fun LevelEditorView(
             modifier = Modifier.padding(bottom = 8.dp)
         )
         
-        // Tab Row
+        // Tab Row with badges
         TabRow(selectedTabIndex = selectedTabIndex) {
             Tab(
                 selected = selectedTabIndex == 0,
                 onClick = { selectedTabIndex = 0 },
-                text = { Text(stringResource(Res.string.level_info_tab)) }
+                text = { 
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Text(stringResource(Res.string.level_info_tab))
+                        if (!isLevelInfoReady) {
+                            RedDotBadge()
+                        }
+                    }
+                }
             )
             Tab(
                 selected = selectedTabIndex == 1,
                 onClick = { selectedTabIndex = 1 },
-                text = { Text(stringResource(Res.string.enemy_spawns_tab)) }
+                text = { 
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Text(stringResource(Res.string.enemy_spawns_tab))
+                        if (!isEnemySpawnsReady) {
+                            RedDotBadge()
+                        }
+                    }
+                }
             )
             Tab(
                 selected = selectedTabIndex == 2,
                 onClick = { selectedTabIndex = 2 },
-                text = { Text(stringResource(Res.string.towers_tab)) }
+                text = { 
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Text(stringResource(Res.string.towers_tab))
+                        if (!isTowersReady) {
+                            RedDotBadge()
+                        }
+                    }
+                }
             )
         }
         
@@ -268,12 +343,15 @@ fun LevelEditorView(
                 )
                 1 -> EnemySpawnsTab(
                     enemySpawns = enemySpawns,
+                    maxTurnNumber = maxTurnNumber,
+                    onMaxTurnNumberChange = { maxTurnNumber = it },
                     onEnemySpawnsChange = { enemySpawns = it },
                     ewhadCount = ewhadCount,
                     onShowEnemyDialog = { turn ->
                         showEnemyDialog = true
                         showEnemyDialogForTurn = turn
-                    }
+                    },
+                    onShowRemoveAllTurnsDialog = { showRemoveAllTurnsDialog = true }
                 )
                 2 -> TowersTab(
                     availableTowers = availableTowersState,
@@ -336,6 +414,19 @@ fun LevelEditorView(
                     add(EditorEnemySpawn(enemyType, level, showEnemyDialogForTurn))
                 }
                 showEnemyDialog = false
+            }
+        )
+    }
+    
+    if (showRemoveAllTurnsDialog) {
+        ConfirmationDialog(
+            title = stringResource(Res.string.remove_all_turns),
+            message = stringResource(Res.string.confirm_remove_all_turns),
+            onDismiss = { showRemoveAllTurnsDialog = false },
+            onConfirm = {
+                enemySpawns = mutableListOf()
+                maxTurnNumber = 0
+                showRemoveAllTurnsDialog = false
             }
         )
     }
@@ -464,16 +555,19 @@ private fun LevelInfoTab(
 @Composable
 private fun EnemySpawnsTab(
     enemySpawns: MutableList<EditorEnemySpawn>,
+    maxTurnNumber: Int,
+    onMaxTurnNumberChange: (Int) -> Unit,
     onEnemySpawnsChange: (MutableList<EditorEnemySpawn>) -> Unit,
     ewhadCount: Int,
-    onShowEnemyDialog: (Int) -> Unit
+    onShowEnemyDialog: (Int) -> Unit,
+    onShowRemoveAllTurnsDialog: () -> Unit
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(vertical = 8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        // Add turn button
+        // Add turn and remove all turns buttons
         item {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -484,18 +578,30 @@ private fun EnemySpawnsTab(
                     text = "${stringResource(Res.string.enemies)} (${enemySpawns.size}):",
                     style = MaterialTheme.typography.bodyMedium
                 )
-                Button(onClick = { 
-                    // Add a new empty turn (next available)
-                    val nextTurn = (enemySpawns.maxOfOrNull { it.spawnTurn } ?: 0) + 1
-                    // Don't add any enemy, just create a turn marker by adding to the empty turns list
-                    // Since we're grouping by turn, an empty list means no enemies
-                    // We need to track empty turns separately or just let the user add enemies
-                    // Actually, we'll just show a message or handle empty turns in the UI
-                    onShowEnemyDialog(nextTurn)
-                }) {
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                        Text("➕")
-                        Text(stringResource(Res.string.add_turn))
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Button(onClick = { 
+                        // Add a new empty turn without opening dialog
+                        onMaxTurnNumberChange(maxTurnNumber + 1)
+                    }) {
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Text("➕")
+                            Text(stringResource(Res.string.add_turn))
+                        }
+                    }
+                    
+                    Button(
+                        onClick = onShowRemoveAllTurnsDialog,
+                        enabled = enemySpawns.isNotEmpty() || maxTurnNumber > 0,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (enemySpawns.isNotEmpty() || maxTurnNumber > 0) 
+                                MaterialTheme.colorScheme.error 
+                            else 
+                                MaterialTheme.colorScheme.surfaceVariant
+                        )
+                    ) {
+                        Text(stringResource(Res.string.remove_all_turns))
                     }
                 }
             }
@@ -503,10 +609,9 @@ private fun EnemySpawnsTab(
         
         // Group enemies by spawn turn and create list including empty turns
         val turnGroups = enemySpawns.groupBy { it.spawnTurn }.entries.sortedBy { it.key }
-        val maxTurn = enemySpawns.maxOfOrNull { it.spawnTurn } ?: 0
         
-        // Create list of all turns from 1 to maxTurn (including empty ones)
-        val allTurns = (1..maxTurn).map { turn ->
+        // Create list of all turns from 1 to maxTurnNumber (including empty ones)
+        val allTurns = (1..maxTurnNumber).map { turn ->
             turn to (turnGroups.find { it.key == turn }?.value ?: emptyList())
         }
         
@@ -521,22 +626,29 @@ private fun EnemySpawnsTab(
                     },
                     onDeleteTurn = {
                         // Check if this is the last turn
-                        val isLastTurn = turn == maxTurn
+                        val isLastTurn = turn == maxTurnNumber
                         if (isLastTurn) {
-                            // Remove all enemies from this turn
+                            // Remove all enemies from this turn and decrement maxTurnNumber
                             val newSpawns = enemySpawns.filter { it.spawnTurn != turn }.toMutableList()
                             onEnemySpawnsChange(newSpawns)
+                            onMaxTurnNumberChange(maxTurnNumber - 1)
                         }
                     },
-                    canDeleteTurn = turn == maxTurn,
+                    onClearTurn = {
+                        // Clear all enemies from this turn but keep the turn
+                        val newSpawns = enemySpawns.filter { it.spawnTurn != turn }.toMutableList()
+                        onEnemySpawnsChange(newSpawns)
+                    },
+                    canDeleteTurn = turn == maxTurnNumber,
                     onCopyTurn = {
                         // Copy all enemies from this turn to a new turn (next available)
                         val newSpawns = enemySpawns.toMutableList().apply {
                             spawnsInTurn.forEach { spawn ->
-                                add(spawn.copy(spawnTurn = maxTurn + 1))
+                                add(spawn.copy(spawnTurn = maxTurnNumber + 1))
                             }
                         }
                         onEnemySpawnsChange(newSpawns)
+                        onMaxTurnNumberChange(maxTurnNumber + 1)
                     },
                     onAddEnemy = {
                         // Show dialog to add enemy to this specific turn
@@ -651,4 +763,17 @@ private fun TowersTab(
             }
         }
     }
+}
+
+/**
+ * Red dot badge to indicate incomplete data
+ */
+@Composable
+private fun RedDotBadge() {
+    Box(
+        modifier = Modifier
+            .size(8.dp)
+            .clip(CircleShape)
+            .background(Color.Red)
+    )
 }
