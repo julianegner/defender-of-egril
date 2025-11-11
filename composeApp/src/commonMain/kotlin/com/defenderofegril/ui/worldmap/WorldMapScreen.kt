@@ -79,13 +79,6 @@ fun WorldMapScreen(
                         }
                     )
                 }
-                
-                // Add Editor Button as a special card (only on desktop)
-                if (isEditorAvailable()) {
-                    item {
-                        EditorButtonCard(onClick = onOpenEditor)
-                    }
-                }
             }
             
             Spacer(modifier = Modifier.height(16.dp))
@@ -103,6 +96,11 @@ fun WorldMapScreen(
                 
                 Button(onClick = onBackToMenu) {
                     Text(stringResource(Res.string.back))
+                }
+                
+                // Add Editor Button at the right end (only on desktop/wasm)
+                if (isEditorAvailable()) {
+                    EditorButtonCard(onClick = onOpenEditor)
                 }
             }
         }
