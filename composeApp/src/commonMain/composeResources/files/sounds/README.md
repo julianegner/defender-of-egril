@@ -2,6 +2,117 @@
 
 This directory contains audio files for game sound effects.
 
+## sounds from freesound.org
+
+# Tower Attacks
+attack_melee    
+342397__christopherderp__swords-clash-w-swing-1.wav
+https://freesound.org/people/SonoFxAudio/sounds/649334/
+Attribution 4.0
+
+attack_ranged
+649334__sonofxaudio__arrow_loose02.wav
+https://freesound.org/people/Christopherderp/sounds/342397/
+Creative Commons 0
+
+TO BE ADDED TO CODE - use when the ballista tower attacks
+attack_ballista
+459875__quickmusik__warrior-bass-t.wav
+https://freesound.org/people/Quickmusik/sounds/459875/
+Creative Commons 0
+
+attack_area / fireball
+564041__robinhood76__10056-giant-fireball-blow.wav
+https://freesound.org/people/Robinhood76/sounds/564041/
+Attribution NonCommercial 4.0
+
+attack_lasting / acid
+202094__spookymodem__acid-bubbling.wav
+https://freesound.org/people/spookymodem/sounds/202094/
+Creative Commons 0
+
+# Enemy Events
+enemy_spawn
+316355__littlerobotsoundfactory__orc_38.wav
+https://freesound.org/people/LittleRobotSoundFactory/sounds/316355/
+Attribution 4.0
+
+enemy_move
+661242__deqsterslab__swing-grunt.mp3
+https://freesound.org/people/DeqstersLab/sounds/661242/
+Creative Commons 0
+
+enemy_destroyed
+656726__paladinvii__deathsfx.wav
+https://freesound.org/people/PaladinVII/sounds/656726/
+Attribution 4.0
+Media: DeathSFX.wav
+by: PaladinVII
+License: Attribution 4.0
+https://creativecommons.org/licenses/by/4.0/
+
+# Mine Events
+mine_dig
+240801__ryanconway__pickaxe-mining-stone.wav
+https://freesound.org/people/ryanconway/sounds/240801/
+Attribution 4.0
+
+mine_coin
+761495__paul-sinnett__coin-clink.wav
+https://freesound.org/people/Paul%20Sinnett/sounds/761495/
+Attribution 4.0
+
+mine_trap
+537430__wavecal22__wood-misc-6.wav
+https://freesound.org/people/wavecal22/sounds/537430/
+Creative Commons 0
+
+mine_dragon
+676474__neartheatmoshphere__beast-1.wav
+https://freesound.org/people/NearTheAtmoshphere/sounds/676474/
+Creative Commons 0
+
+# Other Game Events
+trap_trigger
+434898__thebuilder15__trap-switch.wav
+https://freesound.org/people/TheBuilder15/sounds/434898/
+Creative Commons 0
+
+life_lost
+221544__joseppujol__wounded-man-scream.mp3
+https://freesound.org/people/joseppujol/sounds/221544/
+Creative Commons 0
+
+# Special Events
+dragon_eat
+389638__stubb__growl-7.wav
+https://freesound.org/people/_stubb/sounds/389638/
+Creative Commons 0
+
+#UI Sounds
+button_click - remove
+
+tower_placed - remove
+
+tower_upgraded
+810754__mokasza__level-up-02.mp3
+https://freesound.org/people/mokasza/sounds/810754/
+Attribution 4.0
+
+tower_sold
+same as mine coin
+761495__paul-sinnett__coin-clink.wav
+https://freesound.org/people/Paul%20Sinnett/sounds/761495/
+Attribution 4.0
+
+# Game Phase Sounds
+battle_start
+188815__porphyr__battle-horn.wav
+https://freesound.org/people/Porphyr/sounds/188815/
+Attribution 4.0
+
+
+
 ## Recent Updates (November 2024)
 
 All sound files have been upgraded with improved quality synthesized sounds:
