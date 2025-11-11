@@ -51,30 +51,64 @@ fun MapEditorView(
     val hexWidth = hexSize * sqrt3  // Width of hexagon (flat-to-flat)
     val hexHeight = hexSize * 2f    // Height of hexagon (point-to-point)
     
-    // Track tile positions for brush painting
-    val tilePositions = remember { mutableStateMapOf<String, Offset>() }
-    
     // Track the last painted tile to avoid redundant updates
     var lastPaintedTile by remember { mutableStateOf<String?>(null) }
     
     // Track the container's position in root coordinates
     var containerPositionInRoot by remember { mutableStateOf(Offset.Zero) }
     
-    // Get density for coordinate conversions
-    val density = androidx.compose.ui.platform.LocalDensity.current
-    
     // Helper function to find which tile is at a given position (in root coordinates)
+    // Now accounts for pan offset and zoom to correctly identify tiles after map movement
     fun getTileAtPosition(position: Offset): String? {
-        val hexRadiusPx = with(density) { (hexWidth / 2f * zoomLevel).dp.toPx() }
-        val closest = tilePositions.entries.minByOrNull { (_, tilePos) ->
-            val dx = position.x - tilePos.x
-            val dy = position.y - tilePos.y
+        // Convert from root coordinates to map-local coordinates
+        // Account for container position, offset (pan), and zoom
+        val localX = (position.x - containerPositionInRoot.x - offsetX) / zoomLevel
+        val localY = (position.y - containerPositionInRoot.y - offsetY) / zoomLevel
+        
+        val hexRadiusPx = hexWidth / 2f
+        val hexHeightPx = hexHeight
+        val verticalSpacingPx = hexHeightPx * 0.75f
+        
+        // Estimate which tile based on grid position
+        val estimatedRow = ((localY + (hexHeightPx - verticalSpacingPx)) / verticalSpacingPx).toInt().coerceIn(0, map.height - 1)
+        val xOffset = if (estimatedRow % 2 == 1) hexWidth * 0.42f else 0f
+        val estimatedCol = ((localX - xOffset) / (hexWidth * 0.9f)).toInt().coerceIn(0, map.width - 1)
+        
+        // Check the estimated tile and its neighbors
+        val candidateTiles = listOf(
+            "$estimatedCol,$estimatedRow",
+            "${(estimatedCol - 1).coerceAtLeast(0)},$estimatedRow",
+            "${(estimatedCol + 1).coerceAtMost(map.width - 1)},$estimatedRow",
+            "$estimatedCol,${(estimatedRow - 1).coerceAtLeast(0)}",
+            "$estimatedCol,${(estimatedRow + 1).coerceAtMost(map.height - 1)}"
+        )
+        
+        // Find the closest valid tile
+        return candidateTiles.minByOrNull { key ->
+            val parts = key.split(",")
+            val col = parts[0].toInt()
+            val row = parts[1].toInt()
+            
+            val rowXOffset = if (row % 2 == 1) hexWidth * 0.42f else 0f
+            val tileCenterX = col * hexWidth * 0.9f + rowXOffset + hexWidth / 2f
+            val tileCenterY = row * verticalSpacingPx + hexHeightPx / 2f
+            
+            val dx = localX - tileCenterX
+            val dy = localY - tileCenterY
             dx * dx + dy * dy
-        }
-        return closest?.let { (key, tilePos) ->
-            val dx = position.x - tilePos.x
-            val dy = position.y - tilePos.y
+        }?.let { key ->
+            val parts = key.split(",")
+            val col = parts[0].toInt()
+            val row = parts[1].toInt()
+            
+            val rowXOffset = if (row % 2 == 1) hexWidth * 0.42f else 0f
+            val tileCenterX = col * hexWidth * 0.9f + rowXOffset + hexWidth / 2f
+            val tileCenterY = row * verticalSpacingPx + hexHeightPx / 2f
+            
+            val dx = localX - tileCenterX
+            val dy = localY - tileCenterY
             val distance = sqrt(dx * dx + dy * dy)
+            
             if (distance < hexRadiusPx) key else null
         }
     }
@@ -175,14 +209,6 @@ fun MapEditorView(
                                         .clip(HexagonShape())
                                         .background(getTileColor(tileType))
                                         .border(1.5.dp, Color.Black, HexagonShape())
-                                        .onGloballyPositioned { coordinates ->
-                                            // Track tile center position for brush painting
-                                            val bounds = coordinates.size
-                                            val position = coordinates.positionInRoot()
-                                            val centerX = position.x + bounds.width / 2f
-                                            val centerY = position.y + bounds.height / 2f
-                                            tilePositions[key] = Offset(centerX, centerY)
-                                        }
                                         .clickable {
                                             tiles = tiles.toMutableMap().apply {
                                                 this[key] = selectedTileType
