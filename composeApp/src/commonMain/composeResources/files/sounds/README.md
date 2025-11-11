@@ -2,6 +2,18 @@
 
 This directory contains audio files for game sound effects.
 
+## Recent Updates (November 2024)
+
+All sound files have been upgraded with improved quality synthesized sounds:
+- **Better Audio Envelopes**: Proper fade-in/fade-out for natural sound decay
+- **Rich Harmonics**: Multiple frequencies combined for more complex tones
+- **Appropriate Effects**: Filtered noise, pitch bends, and layering for realistic game sounds
+- **Medieval Fantasy Theme**: Sounds designed to fit the tower defense fantasy setting
+- **Larger Files**: Increased from 2-18KB to 4-44KB for better audio fidelity
+- **Same Format**: Still WAV, 22050 Hz, mono for maximum compatibility
+
+The sounds were created using SoX (Sound eXchange) with carefully tuned synthesis parameters to produce game-appropriate audio effects that match each event type.
+
 ## Required Sound Files
 
 Place WAV audio files in this directory with the following names:
