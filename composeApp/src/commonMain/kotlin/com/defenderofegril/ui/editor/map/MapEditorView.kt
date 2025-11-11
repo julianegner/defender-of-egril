@@ -16,6 +16,7 @@ import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.unit.dp
 import com.defenderofegril.editor.EditorMap
 import com.defenderofegril.editor.TileType
+import com.defenderofegril.ui.HexagonMinimapFromEditorMap
 import com.defenderofegril.ui.HexagonShape
 import com.defenderofegril.ui.HexagonalMapConfig
 import com.defenderofegril.ui.HexagonalMapView
@@ -160,6 +161,10 @@ fun MapEditorView(
                         }
                     }
                 }
+                HexagonMinimapFromEditorMap(
+                    map = map,
+                    modifier = Modifier.size(150.dp).align(Alignment.BottomEnd)
+                )
             }
             
             // Action buttons
