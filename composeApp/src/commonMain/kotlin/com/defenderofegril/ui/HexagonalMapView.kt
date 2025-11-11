@@ -27,6 +27,7 @@ data class HexagonalMapConfig(
     val enableKeyboardNavigation: Boolean = true,  // Enable arrow keys & WASD navigation
     val enablePanNavigation: Boolean = true,  // Enable mouse drag panning
     val keyboardPanSpeed: Float = 30f,  // Pixels to pan per key press
+    val dragPanSensitivity: Float = 1.5f,  // Multiplier for drag pan sensitivity
     val minScale: Float = 0.5f,
     val maxScale: Float = 3.0f,
     val zoomDelta: Float = 0.1f  // Amount to zoom per button press
@@ -192,9 +193,9 @@ fun HexagonalMapView(
                     Modifier
                         .pointerInput(scale, offsetX, offsetY) {
                             detectDragGestures { _, dragAmount ->
-                                // Apply pan
-                                val newOffsetX = offsetX + dragAmount.x
-                                val newOffsetY = offsetY + dragAmount.y
+                                // Apply pan with sensitivity multiplier
+                                val newOffsetX = offsetX + (dragAmount.x * config.dragPanSensitivity)
+                                val newOffsetY = offsetY + (dragAmount.y * config.dragPanSensitivity)
 
                                 // Constrain pan to keep content visible
                                 val (constrainedX, constrainedY) = constrainOffsets(newOffsetX, newOffsetY, scale)
