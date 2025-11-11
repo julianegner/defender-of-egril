@@ -64,10 +64,9 @@ class EnemyMovementSystem(
                 level = plannedSpawn.level
             )
             state.attackers.add(attacker)
-            
-            // Play spawn sound
-            GlobalSoundManager.playSound(SoundEvent.ENEMY_SPAWN)
         }
+        // Play spawn sound
+        GlobalSoundManager.playSound(SoundEvent.ENEMY_SPAWN)
     }
     
     fun findFreeSpawnPosition(): Position? {
