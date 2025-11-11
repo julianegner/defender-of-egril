@@ -24,6 +24,7 @@ import com.defenderofegril.ui.editor.ConfirmationDialog
 import com.defenderofegril.ui.editor.CreateLevelDialog
 import com.defenderofegril.ui.editor.map.MapSelectionCard
 import com.defenderofegril.ui.editor.SaveAsDialog
+import com.defenderofegril.ui.icon.CheckmarkIcon
 import androidx.compose.foundation.background
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.draw.clip
@@ -41,6 +42,7 @@ fun LevelEditorContent() {
     var selectedLevelId by remember { mutableStateOf<String?>(null) }
     var editingLevel by remember { mutableStateOf<EditorLevel?>(null) }
     var showCreateDialog by remember { mutableStateOf(false) }
+    var levelToDelete by remember { mutableStateOf<EditorLevel?>(null) }
     
     if (editingLevel != null) {
         // Level editing view
@@ -107,16 +109,29 @@ fun LevelEditorContent() {
                             levels.value = EditorStorage.getAllLevels()
                         },
                         onDelete = {
-                            EditorStorage.deleteLevel(level.id)
-                            levels.value = EditorStorage.getAllLevels()
-                            if (selectedLevelId == level.id) {
-                                selectedLevelId = null
-                            }
+                            levelToDelete = level
                         }
                     )
                 }
             }
         }
+    }
+    
+    // Confirmation dialog for delete level
+    if (levelToDelete != null) {
+        ConfirmationDialog(
+            title = stringResource(Res.string.delete),
+            message = stringResource(Res.string.confirm_delete_level),
+            onDismiss = { levelToDelete = null },
+            onConfirm = {
+                EditorStorage.deleteLevel(levelToDelete!!.id)
+                levels.value = EditorStorage.getAllLevels()
+                if (selectedLevelId == levelToDelete!!.id) {
+                    selectedLevelId = null
+                }
+                levelToDelete = null
+            }
+        )
     }
     
     if (showCreateDialog) {
@@ -179,10 +194,28 @@ private fun LevelCard(
                     .clickable { onSelect() }
                     .padding(12.dp)
             ) {
-                Text(
-                    text = level.title,
-                    style = MaterialTheme.typography.titleSmall
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = level.title,
+                        style = MaterialTheme.typography.titleSmall
+                    )
+                    // Add ready/not ready indicator
+                    if (level.isReadyToPlay()) {
+                        CheckmarkIcon(
+                            size = 16.dp,
+                            tint = Color.Green
+                        )
+                    } else {
+                        Text(
+                            text = "✗",
+                            color = Color.Red,
+                            style = MaterialTheme.typography.titleSmall
+                        )
+                    }
+                }
                 if (level.subtitle.isNotEmpty()) {
                     Text(
                         text = level.subtitle,
@@ -201,6 +234,11 @@ private fun LevelCard(
                 Text(
                     text = "${stringResource(Res.string.enemies)}: ${level.enemySpawns.size}",
                     style = MaterialTheme.typography.bodySmall
+                )
+                Text(
+                    text = if (level.isReadyToPlay()) stringResource(Res.string.ready_to_use) else stringResource(Res.string.not_ready),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = if (level.isReadyToPlay()) Color.Green else Color.Red
                 )
             }
             Row(
@@ -409,9 +447,12 @@ fun LevelEditorView(
             ewhadCount = ewhadCount,
             turn = showEnemyDialogForTurn,
             onDismiss = { showEnemyDialog = false },
-            onAdd = { enemyType, level ->
+            onAdd = { enemyType, level, amount ->
                 enemySpawns = enemySpawns.toMutableList().apply {
-                    add(EditorEnemySpawn(enemyType, level, showEnemyDialogForTurn))
+                    // Add multiple enemies based on amount
+                    repeat(amount) {
+                        add(EditorEnemySpawn(enemyType, level, showEnemyDialogForTurn))
+                    }
                 }
                 showEnemyDialog = false
             }
@@ -562,6 +603,9 @@ private fun EnemySpawnsTab(
     onShowEnemyDialog: (Int) -> Unit,
     onShowRemoveAllTurnsDialog: () -> Unit
 ) {
+    // Track the last added turn to keep it expanded
+    var lastAddedTurn by remember { mutableStateOf<Int?>(null) }
+    
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(vertical = 8.dp),
@@ -583,7 +627,9 @@ private fun EnemySpawnsTab(
                 ) {
                     Button(onClick = { 
                         // Add a new empty turn without opening dialog
-                        onMaxTurnNumberChange(maxTurnNumber + 1)
+                        val newTurn = maxTurnNumber + 1
+                        onMaxTurnNumberChange(newTurn)
+                        lastAddedTurn = newTurn
                     }) {
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                             Text("➕")
@@ -620,6 +666,7 @@ private fun EnemySpawnsTab(
                 SpawnTurnSection(
                     turn = turn,
                     spawns = spawnsInTurn,
+                    initiallyExpanded = turn == lastAddedTurn,
                     onRemoveEnemy = { spawn ->
                         val newSpawns = enemySpawns.toMutableList().apply { remove(spawn) }
                         onEnemySpawnsChange(newSpawns)

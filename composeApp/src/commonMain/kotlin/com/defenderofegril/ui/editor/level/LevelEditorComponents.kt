@@ -33,10 +33,11 @@ fun AddEnemyDialog(
     ewhadCount: Int = 0,
     turn: Int,
     onDismiss: () -> Unit,
-    onAdd: (AttackerType, Int) -> Unit
+    onAdd: (AttackerType, Int, Int) -> Unit  // Added amount parameter
 ) {
     var selectedType by remember { mutableStateOf(AttackerType.GOBLIN) }
     var level by remember { mutableStateOf("1") }
+    var amount by remember { mutableStateOf("1") }
     
     // Check if trying to add Ewhad when one already exists
     val canAddEwhad = selectedType != AttackerType.EWHAD || ewhadCount == 0
@@ -53,22 +54,41 @@ fun AddEnemyDialog(
                     items(AttackerType.entries) { type ->
                         Row(
                             modifier = Modifier.fillMaxWidth().clickable { selectedType = type }.padding(4.dp),
-                            verticalAlignment = Alignment.CenterVertically
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             RadioButton(
                                 selected = selectedType == type,
                                 onClick = { selectedType = type }
                             )
+                            // Add enemy icon in hexagon
+                            Box(modifier = Modifier.size(24.dp)) {
+                                EnemyIconOnHexagon(
+                                    attackerType = type,
+                                    size = 24.dp
+                                )
+                            }
                             Text("${type.getLocalizedName()} (${stringResource(Res.string.hp_label)}: ${type.health})")
                         }
                     }
                 }
-                OutlinedTextField(
-                    value = level,
-                    onValueChange = { if (it.all { c -> c.isDigit() }) level = it },
-                    label = { Text(stringResource(Res.string.enemy_level)) },
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    OutlinedTextField(
+                        value = level,
+                        onValueChange = { if (it.all { c -> c.isDigit() }) level = it },
+                        label = { Text(stringResource(Res.string.enemy_level)) },
+                        modifier = Modifier.weight(1f).padding(bottom = 8.dp)
+                    )
+                    OutlinedTextField(
+                        value = amount,
+                        onValueChange = { if (it.all { c -> c.isDigit() } && it.isNotEmpty()) amount = it },
+                        label = { Text(stringResource(Res.string.amount)) },
+                        modifier = Modifier.weight(1f).padding(bottom = 8.dp)
+                    )
+                }
                 Text(stringResource(Res.string.hp_with_level).replace("%d", (selectedType.health * (level.toIntOrNull() ?: 1)).toString()), fontSize = 12.sp)
                 if (!canAddEwhad) {
                     Text(
@@ -82,7 +102,8 @@ fun AddEnemyDialog(
         confirmButton = {
             Button(
                 onClick = {
-                    onAdd(selectedType, level.toIntOrNull() ?: 1)
+                    val amountValue = amount.toIntOrNull() ?: 1
+                    onAdd(selectedType, level.toIntOrNull() ?: 1, amountValue)
                 },
                 enabled = canAddEwhad
             ) {
@@ -104,6 +125,7 @@ fun AddEnemyDialog(
 fun SpawnTurnSection(
     turn: Int,
     spawns: List<EditorEnemySpawn>,
+    initiallyExpanded: Boolean = false,
     onRemoveEnemy: (EditorEnemySpawn) -> Unit,
     onDeleteTurn: () -> Unit,
     onClearTurn: () -> Unit,
@@ -116,7 +138,7 @@ fun SpawnTurnSection(
     canMoveDown: Boolean,
     ewhadCount: Int
 ) {
-    var expanded by remember { mutableStateOf(false) }
+    var expanded by remember { mutableStateOf(initiallyExpanded) }
     
     Card(
         modifier = Modifier.fillMaxWidth()
@@ -183,23 +205,29 @@ fun SpawnTurnSection(
                         )
                     }
                     // Show either Clear or Delete button depending on whether it's the last turn
+                    // Make sure both buttons have same size by using consistent width
                     if (canDeleteTurn) {
                         Button(
                             onClick = onDeleteTurn,
-                            modifier = Modifier.height(32.dp),
-                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp),
+                            modifier = Modifier.height(32.dp).width(80.dp),
+                            contentPadding = PaddingValues(horizontal = 4.dp, vertical = 0.dp),
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = MaterialTheme.colorScheme.error
                             )
                         ) {
-                            TrashIcon(size = 12.dp)
+                            Row(
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                TrashIcon(size = 12.dp)
+                            }
                         }
                     } else {
                         Button(
                             onClick = onClearTurn,
                             enabled = spawns.isNotEmpty(),
-                            modifier = Modifier.height(32.dp),
-                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp)
+                            modifier = Modifier.height(32.dp).width(80.dp),
+                            contentPadding = PaddingValues(horizontal = 4.dp, vertical = 0.dp)
                         ) {
                             Text(
                                 text = stringResource(Res.string.clear_turn),
