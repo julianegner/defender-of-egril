@@ -26,7 +26,14 @@ class CombatSystem(private val state: GameState) {
         // Play attack sound based on attack type
         val soundEvent = when (defender.type.attackType) {
             AttackType.MELEE -> SoundEvent.ATTACK_MELEE
-            AttackType.RANGED -> SoundEvent.ATTACK_RANGED
+            AttackType.RANGED -> {
+                // Use different sound for ballista
+                if (defender.type == DefenderType.BALLISTA_TOWER) {
+                    SoundEvent.ATTACK_BALLISTA
+                } else {
+                    SoundEvent.ATTACK_RANGED
+                }
+            }
             AttackType.AREA -> SoundEvent.ATTACK_AREA
             AttackType.LASTING -> SoundEvent.ATTACK_LASTING
             AttackType.NONE -> null
@@ -72,7 +79,14 @@ class CombatSystem(private val state: GameState) {
         // Play attack sound based on attack type
         val soundEvent = when (defender.type.attackType) {
             AttackType.MELEE -> SoundEvent.ATTACK_MELEE
-            AttackType.RANGED -> SoundEvent.ATTACK_RANGED
+            AttackType.RANGED -> {
+                // Use different sound for ballista
+                if (defender.type == DefenderType.BALLISTA_TOWER) {
+                    SoundEvent.ATTACK_BALLISTA
+                } else {
+                    SoundEvent.ATTACK_RANGED
+                }
+            }
             AttackType.AREA -> SoundEvent.ATTACK_AREA
             AttackType.LASTING -> SoundEvent.ATTACK_LASTING
             AttackType.NONE -> null
