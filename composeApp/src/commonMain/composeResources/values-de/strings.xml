@@ -338,4 +338,9 @@
     <string name="delete_turn">Runde löschen</string>
     <string name="cannot_delete_turn">Diese Runde kann nicht gelöscht werden, während spätere Runden existieren</string>
     <string name="no_enemies_in_turn">Keine Gegner spawnen in dieser Runde</string>
+    <string name="clear_turn">Runde leeren</string>
+    <string name="remove_all_turns">Alle Runden entfernen</string>
+    <string name="confirm_remove_all_turns">Sind Sie sicher, dass Sie alle Spawn-Runden entfernen möchten?</string>
+    <string name="copy_level">Level kopieren</string>
+    <string name="yes">Ja</string>
 </resources>
