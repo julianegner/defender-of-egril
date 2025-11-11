@@ -69,7 +69,7 @@ fun GameGrid(
                 offsetY = newOffsetY
             },
             modifier = Modifier.fillMaxSize()
-        ) { hexWidth, hexHeight, verticalSpacing ->
+        ) { hexWidth, hexHeight, verticalSpacing, _ ->  // Ignore onTilePositioned for gameplay
             for (y in 0 until gameState.level.gridHeight) {
                 Row(
                     modifier = Modifier

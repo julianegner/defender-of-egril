@@ -27,6 +27,7 @@ data class HexagonalMapConfig(
     val hexSize: Float = 40f,  // Radius of hexagon (center to corner)
     val enableKeyboardNavigation: Boolean = true,  // Enable arrow keys & WASD navigation
     val enablePanNavigation: Boolean = true,  // Enable mouse drag panning
+    val enableBrushMode: Boolean = false,  // Enable brush painting mode (for editor)
     val keyboardPanSpeed: Float = 30f,  // Pixels to pan per key press
     val dragPanSensitivity: Float = 30f,  // Multiplier for drag pan sensitivity
     val minScale: Float = 0.5f,
@@ -48,8 +49,9 @@ data class HexagonalMapConfig(
  * @param onScaleChange Callback when zoom scale changes
  * @param onOffsetChange Callback when pan offset changes
  * @param onActualContentSizeChange Callback when content size is measured
+ * @param onBrushPaint Callback when brush painting a position (x, y in content coordinates). Only called if enableBrushMode is true.
  * @param modifier Modifier for the container
- * @param content The hexagonal grid content to display
+ * @param content The hexagonal grid content to display. Receives (hexWidth, hexHeight, verticalSpacing, onTilePositioned) where onTilePositioned should be called for each tile.
  */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -63,11 +65,13 @@ fun HexagonalMapView(
     onScaleChange: (Float) -> Unit,
     onOffsetChange: (Float, Float) -> Unit,
     onActualContentSizeChange: (IntSize) -> Unit = {},
+    onBrushPaint: ((Float, Float) -> Unit)? = null,
     modifier: Modifier = Modifier,
     content: @Composable (
         hexWidth: Float,
         hexHeight: Float,
-        verticalSpacing: Float
+        verticalSpacing: Float,
+        onTilePositioned: (String, androidx.compose.ui.geometry.Offset) -> Unit
     ) -> Unit
 ) {
     var containerSize by remember { mutableStateOf(IntSize.Zero) }
@@ -79,6 +83,25 @@ fun HexagonalMapView(
     val hexWidth = config.hexSize * sqrt3  // Width of hexagon (flat-to-flat)
     val hexHeight = config.hexSize * 2f    // Height of hexagon (point-to-point)
     val verticalSpacing = hexHeight * 0.75f  // For pointy-top hexagons
+    
+    // Track tile positions for brush mode
+    val tilePositions = remember { mutableStateMapOf<String, androidx.compose.ui.geometry.Offset>() }
+    var lastPaintedPos by remember { mutableStateOf<androidx.compose.ui.geometry.Offset?>(null) }
+    
+    // Callback for tiles to register their positions
+    val onTilePositioned: (String, androidx.compose.ui.geometry.Offset) -> Unit = { key, position ->
+        tilePositions[key] = position
+    }
+    
+    // Helper to convert screen coordinates to content coordinates
+    fun screenToContent(screenX: Float, screenY: Float): androidx.compose.ui.geometry.Offset {
+        // Convert from screen space to content space by reversing graphicsLayer transformations
+        // graphicsLayer applies: translate(offsetX, offsetY) then scale(scale, scale)
+        // To reverse: (screen - offset) / scale
+        val contentX = (screenX - offsetX) / scale
+        val contentY = (screenY - offsetY) / scale
+        return androidx.compose.ui.geometry.Offset(contentX, contentY)
+    }
 
     // Helper function to constrain pan offsets
     fun constrainOffsets(newOffsetX: Float, newOffsetY: Float, currentScale: Float): Pair<Float, Float> {
@@ -189,8 +212,31 @@ fun HexagonalMapView(
                 onScaleChange = onScaleChange,
                 onOffsetChange = onOffsetChange
             )
-            .pointerInput(scale, offsetX, offsetY) {
-                if (config.enablePanNavigation) {
+            .pointerInput(scale, offsetX, offsetY, config.enableBrushMode, config.enablePanNavigation) {
+                // Brush mode takes priority over pan navigation
+                if (config.enableBrushMode && onBrushPaint != null) {
+                    detectDragGestures(
+                        onDragStart = { offset ->
+                            val contentPos = screenToContent(offset.x, offset.y)
+                            onBrushPaint(contentPos.x, contentPos.y)
+                            lastPaintedPos = contentPos
+                        },
+                        onDrag = { change, _ ->
+                            val contentPos = screenToContent(change.position.x, change.position.y)
+                            // Only paint if we've moved to a different position (with some threshold)
+                            val lastPos = lastPaintedPos
+                            if (lastPos == null || 
+                                kotlin.math.abs(contentPos.x - lastPos.x) > 5f || 
+                                kotlin.math.abs(contentPos.y - lastPos.y) > 5f) {
+                                onBrushPaint(contentPos.x, contentPos.y)
+                                lastPaintedPos = contentPos
+                            }
+                        },
+                        onDragEnd = {
+                            lastPaintedPos = null
+                        }
+                    )
+                } else if (config.enablePanNavigation) {
                     detectDragGestures { _, dragAmount ->
                         // Apply pan with sensitivity multiplier
                         val effectiveSensitivity = config.dragPanSensitivity * scale
@@ -202,7 +248,9 @@ fun HexagonalMapView(
                         onOffsetChange(constrainedX, constrainedY)
                     }
                 }
-                // Keep detectTransformGestures for pinch-to-zoom on mobile
+            }
+            .pointerInput(scale, offsetX, offsetY) {
+                // Keep detectTransformGestures for pinch-to-zoom on mobile (separate pointerInput to avoid conflicts)
                 if (isPlatformMobile) {
                     detectTransformGestures { _, _, zoom, _ ->
                         if (zoom != 1f) {
@@ -243,7 +291,7 @@ fun HexagonalMapView(
                 ),
             verticalArrangement = Arrangement.spacedBy((-hexHeight + verticalSpacing - 7f).dp)
         ) {
-            content(hexWidth, hexHeight, verticalSpacing)
+            content(hexWidth, hexHeight, verticalSpacing, onTilePositioned)
         }
     }
 }
