@@ -7,9 +7,7 @@ import kotlinx.coroutines.launch
 import java.io.BufferedInputStream
 import java.io.ByteArrayInputStream
 import javax.sound.sampled.AudioSystem
-import javax.sound.sampled.Clip
 import javax.sound.sampled.FloatControl
-import javax.sound.sampled.LineUnavailableException
 
 /**
  * Desktop implementation of file-based sound manager
