@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.defenderofegril.editor.EditorEnemySpawn
 import com.defenderofegril.editor.EditorLevel
+import com.defenderofegril.editor.EditorMap
 import com.defenderofegril.editor.EditorStorage
 import com.defenderofegril.model.AttackerType
 import com.defenderofegril.model.DefenderType
@@ -208,10 +209,11 @@ fun LevelEditorView(
     var startHP by remember { mutableStateOf(level.startHealthPoints.toString()) }
     var selectedMapId by remember { mutableStateOf(level.mapId) }
     var enemySpawns by remember { mutableStateOf(level.enemySpawns.toMutableList()) }
-    var availableTowers by remember { mutableStateOf(level.availableTowers.toMutableSet()) }
+    var availableTowersState by remember { mutableStateOf(level.availableTowers.toSet()) }
     var showEnemyDialog by remember { mutableStateOf(false) }
     var showEnemyDialogForTurn by remember { mutableStateOf(1) }
     var showSaveAsDialog by remember { mutableStateOf(false) }
+    var selectedTabIndex by remember { mutableStateOf(0) }
     
     // Get only ready-to-use maps for selection
     val maps = remember { EditorStorage.getAllMaps().filter { it.readyToUse } }
@@ -222,194 +224,61 @@ fun LevelEditorView(
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
+        // Title above tabs
         Text(
-            text = "Editing Level: ${level.title}",
+            text = "${stringResource(Res.string.level_title)}: ${level.title}",
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.padding(bottom = 8.dp)
         )
         
-        LazyColumn(
-            modifier = Modifier.weight(1f).fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            // Title and subtitle
-            item {
-                OutlinedTextField(
-                    value = title,
-                    onValueChange = { title = it },
-                    label = { Text(stringResource(Res.string.level_title)) },
-                    modifier = Modifier.fillMaxWidth()
+        // Tab Row
+        TabRow(selectedTabIndex = selectedTabIndex) {
+            Tab(
+                selected = selectedTabIndex == 0,
+                onClick = { selectedTabIndex = 0 },
+                text = { Text(stringResource(Res.string.level_info_tab)) }
+            )
+            Tab(
+                selected = selectedTabIndex == 1,
+                onClick = { selectedTabIndex = 1 },
+                text = { Text(stringResource(Res.string.enemy_spawns_tab)) }
+            )
+            Tab(
+                selected = selectedTabIndex == 2,
+                onClick = { selectedTabIndex = 2 },
+                text = { Text(stringResource(Res.string.towers_tab)) }
+            )
+        }
+        
+        // Tab Content
+        Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
+            when (selectedTabIndex) {
+                0 -> LevelInfoTab(
+                    title = title,
+                    onTitleChange = { title = it },
+                    subtitle = subtitle,
+                    onSubtitleChange = { subtitle = it },
+                    selectedMapId = selectedMapId,
+                    onMapChange = { selectedMapId = it },
+                    maps = maps,
+                    startCoins = startCoins,
+                    onStartCoinsChange = { startCoins = it },
+                    startHP = startHP,
+                    onStartHPChange = { startHP = it }
                 )
-            }
-            
-            item {
-                OutlinedTextField(
-                    value = subtitle,
-                    onValueChange = { subtitle = it },
-                    label = { Text(stringResource(Res.string.subtitle_optional)) },
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-            
-            // Map selection with mini-maps
-            item {
-                Text(
-                    text = "Map:",
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
-                )
-                
-                LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(maps) { map ->
-                        MapSelectionCard(
-                            map = map,
-                            isSelected = selectedMapId == map.id,
-                            onClick = { selectedMapId = map.id }
-                        )
+                1 -> EnemySpawnsTab(
+                    enemySpawns = enemySpawns,
+                    onEnemySpawnsChange = { enemySpawns = it },
+                    ewhadCount = ewhadCount,
+                    onShowEnemyDialog = { turn ->
+                        showEnemyDialog = true
+                        showEnemyDialogForTurn = turn
                     }
-                }
-            }
-            
-            // Start coins and HP
-            item {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    OutlinedTextField(
-                        value = startCoins,
-                        onValueChange = { if (it.all { c -> c.isDigit() }) startCoins = it },
-                        label = { Text(stringResource(Res.string.start_coins)) },
-                        modifier = Modifier.weight(1f)
-                    )
-                    OutlinedTextField(
-                        value = startHP,
-                        onValueChange = { if (it.all { c -> c.isDigit() }) startHP = it },
-                        label = { Text(stringResource(Res.string.start_hp)) },
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-            }
-            
-            // Enemies section
-            item {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "${stringResource(Res.string.enemies)} (${enemySpawns.size}):",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                    Button(onClick = { 
-                        // Add a new turn (next available)
-                        val nextTurn = (enemySpawns.maxOfOrNull { it.spawnTurn } ?: 0) + 1
-                        enemySpawns = enemySpawns.toMutableList().apply {
-                            add(
-                                EditorEnemySpawn(
-                                    AttackerType.GOBLIN,
-                                    1,
-                                    nextTurn
-                                )
-                            )
-                        }
-                    }) {
-                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                            Text("➕")
-                            Text(stringResource(Res.string.add_turn))
-                        }
-                    }
-                }
-            }
-            
-            // Group enemies by spawn turn
-            val turnGroups = enemySpawns.groupBy { it.spawnTurn }.entries.sortedBy { it.key }
-            val turns = turnGroups.map { it.key }
-            
-            turnGroups.forEachIndexed { index, entry ->
-                val turn = entry.key
-                val spawnsInTurn = entry.value
-                item {
-                    val turnIndex = index
-                    SpawnTurnSection(
-                        turn = turn,
-                        spawns = spawnsInTurn,
-                        onRemoveEnemy = { spawn ->
-                            enemySpawns = enemySpawns.toMutableList().apply { remove(spawn) }
-                        },
-                        onCopyTurn = {
-                            // Copy all enemies from this turn to a new turn (next available)
-                            val maxTurn = enemySpawns.maxOfOrNull { it.spawnTurn } ?: 0
-                            enemySpawns = enemySpawns.toMutableList().apply {
-                                spawnsInTurn.forEach { spawn ->
-                                    add(spawn.copy(spawnTurn = maxTurn + 1))
-                                }
-                            }
-                        },
-                        onAddEnemy = {
-                            // Show dialog to add enemy to this specific turn
-                            showEnemyDialog = true
-                            showEnemyDialogForTurn = turn
-                        },
-                        onMoveTurnUp = {
-                            if (turnIndex > 0) {
-                                val prevTurn = turns[turnIndex - 1]
-                                enemySpawns = enemySpawns.map { spawn ->
-                                    when (spawn.spawnTurn) {
-                                        turn -> spawn.copy(spawnTurn = prevTurn)
-                                        prevTurn -> spawn.copy(spawnTurn = turn)
-                                        else -> spawn
-                                    }
-                                }.toMutableList()
-                            }
-                        },
-                        onMoveTurnDown = {
-                            if (turnIndex < turns.size - 1) {
-                                val nextTurn = turns[turnIndex + 1]
-                                enemySpawns = enemySpawns.map { spawn ->
-                                    when (spawn.spawnTurn) {
-                                        turn -> spawn.copy(spawnTurn = nextTurn)
-                                        nextTurn -> spawn.copy(spawnTurn = turn)
-                                        else -> spawn
-                                    }
-                                }.toMutableList()
-                            }
-                        },
-                        canMoveUp = turnIndex > 0,
-                        canMoveDown = turnIndex < turns.size - 1,
-                        ewhadCount = ewhadCount
-                    )
-                }
-            }
-            
-            // Towers section
-            item {
-                Text(
-                    text = stringResource(Res.string.available_towers),
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
                 )
-            }
-            
-            items(DefenderType.entries.filter { it != DefenderType.DRAGONS_LAIR }) { tower ->
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Checkbox(
-                        checked = availableTowers.contains(tower),
-                        onCheckedChange = { checked ->
-                            if (checked) availableTowers.add(tower)
-                            else availableTowers.remove(tower)
-                        }
-                    )
-                    TowerIconOnHexagon(defenderType = tower)
-                    Text("${tower.getLocalizedName()} (${stringResource(Res.string.cost_label)}: ${tower.baseCost}, ${stringResource(Res.string.damage_label)}: ${tower.baseDamage})")
-                }
+                2 -> TowersTab(
+                    availableTowers = availableTowersState,
+                    onAvailableTowersChange = { availableTowersState = it }
+                )
             }
         }
         
@@ -431,7 +300,7 @@ fun LevelEditorView(
                             startCoins = startCoins.toIntOrNull() ?: 100,
                             startHealthPoints = startHP.toIntOrNull() ?: 10,
                             enemySpawns = enemySpawns.toList(),
-                            availableTowers = availableTowers.toSet()
+                            availableTowers = availableTowersState
                         )
                         onSave(updatedLevel)
                     },
@@ -493,11 +362,293 @@ fun LevelEditorView(
                     startCoins = startCoins.toIntOrNull() ?: 100,
                     startHealthPoints = startHP.toIntOrNull() ?: 10,
                     enemySpawns = enemySpawns.toList(),
-                    availableTowers = availableTowers.toSet()
+                    availableTowers = availableTowersState
                 )
                 onSave(newLevel)
                 showSaveAsDialog = false
             }
         )
+    }
+}
+
+/**
+ * Tab 1: Level Info (title, subtitle, map, coins, HP)
+ */
+@Composable
+private fun LevelInfoTab(
+    title: String,
+    onTitleChange: (String) -> Unit,
+    subtitle: String,
+    onSubtitleChange: (String) -> Unit,
+    selectedMapId: String,
+    onMapChange: (String) -> Unit,
+    maps: List<EditorMap>,
+    startCoins: String,
+    onStartCoinsChange: (String) -> Unit,
+    startHP: String,
+    onStartHPChange: (String) -> Unit
+) {
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(vertical = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        // Title and subtitle
+        item {
+            OutlinedTextField(
+                value = title,
+                onValueChange = onTitleChange,
+                label = { Text(stringResource(Res.string.level_title)) },
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+        
+        item {
+            OutlinedTextField(
+                value = subtitle,
+                onValueChange = onSubtitleChange,
+                label = { Text(stringResource(Res.string.subtitle_optional)) },
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+        
+        // Map selection with mini-maps
+        item {
+            Column {
+                Text(
+                    text = "${stringResource(Res.string.map_label)}:",
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
+                )
+                
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(maps) { map ->
+                        MapSelectionCard(
+                            map = map,
+                            isSelected = selectedMapId == map.id,
+                            onClick = { onMapChange(map.id) }
+                        )
+                    }
+                }
+            }
+        }
+        
+        // Start coins and HP
+        item {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                OutlinedTextField(
+                    value = startCoins,
+                    onValueChange = { if (it.all { c -> c.isDigit() }) onStartCoinsChange(it) },
+                    label = { Text(stringResource(Res.string.start_coins)) },
+                    modifier = Modifier.weight(1f)
+                )
+                OutlinedTextField(
+                    value = startHP,
+                    onValueChange = { if (it.all { c -> c.isDigit() }) onStartHPChange(it) },
+                    label = { Text(stringResource(Res.string.start_hp)) },
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Tab 2: Enemy Spawns
+ */
+@Composable
+private fun EnemySpawnsTab(
+    enemySpawns: MutableList<EditorEnemySpawn>,
+    onEnemySpawnsChange: (MutableList<EditorEnemySpawn>) -> Unit,
+    ewhadCount: Int,
+    onShowEnemyDialog: (Int) -> Unit
+) {
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(vertical = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        // Add turn button
+        item {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "${stringResource(Res.string.enemies)} (${enemySpawns.size}):",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Button(onClick = { 
+                    // Add a new empty turn (next available)
+                    val nextTurn = (enemySpawns.maxOfOrNull { it.spawnTurn } ?: 0) + 1
+                    // Don't add any enemy, just create a turn marker by adding to the empty turns list
+                    // Since we're grouping by turn, an empty list means no enemies
+                    // We need to track empty turns separately or just let the user add enemies
+                    // Actually, we'll just show a message or handle empty turns in the UI
+                    onShowEnemyDialog(nextTurn)
+                }) {
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Text("➕")
+                        Text(stringResource(Res.string.add_turn))
+                    }
+                }
+            }
+        }
+        
+        // Group enemies by spawn turn and create list including empty turns
+        val turnGroups = enemySpawns.groupBy { it.spawnTurn }.entries.sortedBy { it.key }
+        val maxTurn = enemySpawns.maxOfOrNull { it.spawnTurn } ?: 0
+        
+        // Create list of all turns from 1 to maxTurn (including empty ones)
+        val allTurns = (1..maxTurn).map { turn ->
+            turn to (turnGroups.find { it.key == turn }?.value ?: emptyList())
+        }
+        
+        allTurns.forEachIndexed { index, (turn, spawnsInTurn) ->
+            item {
+                SpawnTurnSection(
+                    turn = turn,
+                    spawns = spawnsInTurn,
+                    onRemoveEnemy = { spawn ->
+                        val newSpawns = enemySpawns.toMutableList().apply { remove(spawn) }
+                        onEnemySpawnsChange(newSpawns)
+                    },
+                    onDeleteTurn = {
+                        // Check if this is the last turn
+                        val isLastTurn = turn == maxTurn
+                        if (isLastTurn) {
+                            // Remove all enemies from this turn
+                            val newSpawns = enemySpawns.filter { it.spawnTurn != turn }.toMutableList()
+                            onEnemySpawnsChange(newSpawns)
+                        }
+                    },
+                    canDeleteTurn = turn == maxTurn,
+                    onCopyTurn = {
+                        // Copy all enemies from this turn to a new turn (next available)
+                        val newSpawns = enemySpawns.toMutableList().apply {
+                            spawnsInTurn.forEach { spawn ->
+                                add(spawn.copy(spawnTurn = maxTurn + 1))
+                            }
+                        }
+                        onEnemySpawnsChange(newSpawns)
+                    },
+                    onAddEnemy = {
+                        // Show dialog to add enemy to this specific turn
+                        onShowEnemyDialog(turn)
+                    },
+                    onMoveTurnUp = {
+                        if (index > 0) {
+                            val prevTurn = allTurns[index - 1].first
+                            val newSpawns = enemySpawns.map { spawn ->
+                                when (spawn.spawnTurn) {
+                                    turn -> spawn.copy(spawnTurn = prevTurn)
+                                    prevTurn -> spawn.copy(spawnTurn = turn)
+                                    else -> spawn
+                                }
+                            }.toMutableList()
+                            onEnemySpawnsChange(newSpawns)
+                        }
+                    },
+                    onMoveTurnDown = {
+                        if (index < allTurns.size - 1) {
+                            val nextTurn = allTurns[index + 1].first
+                            val newSpawns = enemySpawns.map { spawn ->
+                                when (spawn.spawnTurn) {
+                                    turn -> spawn.copy(spawnTurn = nextTurn)
+                                    nextTurn -> spawn.copy(spawnTurn = turn)
+                                    else -> spawn
+                                }
+                            }.toMutableList()
+                            onEnemySpawnsChange(newSpawns)
+                        }
+                    },
+                    canMoveUp = index > 0,
+                    canMoveDown = index < allTurns.size - 1,
+                    ewhadCount = ewhadCount
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Tab 3: Available Towers
+ */
+@Composable
+private fun TowersTab(
+    availableTowers: Set<DefenderType>,
+    onAvailableTowersChange: (Set<DefenderType>) -> Unit
+) {
+    val allTowers = DefenderType.entries.filter { it != DefenderType.DRAGONS_LAIR }
+    val hasUnselectedTowers = allTowers.any { !availableTowers.contains(it) }
+    val hasSelectedTowers = availableTowers.isNotEmpty()
+    
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(vertical = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        // Add All / Remove All buttons
+        item {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Button(
+                    onClick = {
+                        onAvailableTowersChange(allTowers.toSet())
+                    },
+                    enabled = hasUnselectedTowers,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(stringResource(Res.string.add_all_towers))
+                }
+                Button(
+                    onClick = {
+                        onAvailableTowersChange(emptySet())
+                    },
+                    enabled = hasSelectedTowers,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(stringResource(Res.string.remove_all_towers))
+                }
+            }
+        }
+        
+        item {
+            Text(
+                text = stringResource(Res.string.available_towers),
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
+            )
+        }
+        
+        items(allTowers) { tower ->
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Checkbox(
+                    checked = availableTowers.contains(tower),
+                    onCheckedChange = { checked ->
+                        val newTowers = if (checked) {
+                            availableTowers + tower
+                        } else {
+                            availableTowers - tower
+                        }
+                        onAvailableTowersChange(newTowers)
+                    }
+                )
+                TowerIconOnHexagon(defenderType = tower)
+                Text("${tower.getLocalizedName()} (${stringResource(Res.string.cost_label)}: ${tower.baseCost}, ${stringResource(Res.string.damage_label)}: ${tower.baseDamage})")
+            }
+        }
     }
 }
