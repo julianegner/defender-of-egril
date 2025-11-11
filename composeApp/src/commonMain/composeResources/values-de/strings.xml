@@ -330,4 +330,12 @@
     <string name="damage_label">Schaden</string>
     <string name="hp_with_level">LP: %d</string>
     <string name="add_enemy_button">➕ Feind zu Runde %d hinzufügen</string>
+    <string name="add_all_towers">Alle hinzufügen</string>
+    <string name="remove_all_towers">Alle entfernen</string>
+    <string name="level_info_tab">Level-Info</string>
+    <string name="enemy_spawns_tab">Gegner-Spawns</string>
+    <string name="towers_tab">Türme</string>
+    <string name="delete_turn">Runde löschen</string>
+    <string name="cannot_delete_turn">Diese Runde kann nicht gelöscht werden, während spätere Runden existieren</string>
+    <string name="no_enemies_in_turn">Keine Gegner spawnen in dieser Runde</string>
 </resources>
