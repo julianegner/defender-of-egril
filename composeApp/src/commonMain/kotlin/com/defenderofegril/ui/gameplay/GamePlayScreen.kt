@@ -171,6 +171,11 @@ private fun GamePlayScreenContent(
                     selectedDefenderType?.let { type ->
                         if (onPlaceDefender(type, position)) {
                             selectedDefenderType = null
+                            // Track tutorial progress
+                            if (gameState.tutorialState.value.isActive && 
+                                !gameState.tutorialState.value.hasPlacedFirstTower) {
+                                gameState.tutorialState.value = gameState.tutorialState.value.markTowerPlaced()
+                            }
                         }
                         return@GameGrid
                     }
@@ -287,6 +292,11 @@ private fun GamePlayScreenContent(
                         selectedDefenderType = null  // Clear defender type selection when starting battle
                         selectedDefenderId = null  // Clear defender selection when starting battle
                         onStartFirstPlayerTurn()
+                        // Track tutorial progress
+                        if (gameState.tutorialState.value.isActive && 
+                            !gameState.tutorialState.value.hasStartedFirstTurn) {
+                            gameState.tutorialState.value = gameState.tutorialState.value.markTurnStarted()
+                        }
                     },
                     onMineAction = handleMineAction,
                     uiScale = uiScale
@@ -329,7 +339,14 @@ private fun GamePlayScreenContent(
                             false
                         }
                     },
-                    onPrimaryAction = onEndPlayerTurn,
+                    onPrimaryAction = {
+                        onEndPlayerTurn()
+                        // Track tutorial progress
+                        if (gameState.tutorialState.value.isActive && 
+                            !gameState.tutorialState.value.hasStartedFirstTurn) {
+                            gameState.tutorialState.value = gameState.tutorialState.value.markTurnStarted()
+                        }
+                    },
                     onMineAction = handleMineAction,
                     uiScale = uiScale
                 )
@@ -388,6 +405,20 @@ private fun GamePlayScreenContent(
                 showHints = true,
                 initialInput = cheatCodeInput,
                 onInputChange = { cheatCodeInput = it }
+            )
+        }
+        
+        // Tutorial overlay
+        if (gameState.tutorialState.value.shouldShowOverlay()) {
+            TutorialOverlay(
+                currentStep = gameState.tutorialState.value.currentStep,
+                onNext = {
+                    val currentTutorialState = gameState.tutorialState.value
+                    gameState.tutorialState.value = currentTutorialState.advanceStep()
+                },
+                onSkip = {
+                    gameState.tutorialState.value = gameState.tutorialState.value.skip()
+                }
             )
         }
         }

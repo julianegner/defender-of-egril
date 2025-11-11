@@ -345,4 +345,23 @@
     <string name="yes">Sí</string>
     <string name="confirm_delete_level">¿Estás seguro de que quieres eliminar este nivel?</string>
     <string name="amount">Cantidad</string>
+    
+    <!-- Tutorial -->
+    <string name="tutorial_welcome_title">¡Bienvenido a Defender of Egril!</string>
+    <string name="tutorial_welcome">Este es un juego de defensa de torres. Tu objetivo es evitar que los enemigos lleguen al objetivo construyendo torres defensivas.</string>
+    <string name="tutorial_resources_title">Recursos</string>
+    <string name="tutorial_resources">Tienes monedas para construir torres y puntos de salud. Cada enemigo que llega al objetivo cuesta 1 PS.</string>
+    <string name="tutorial_build_title">Construir torres</string>
+    <string name="tutorial_build">Selecciona un tipo de torre, luego haz clic en un área de construcción verde para colocarla. ¡Intenta colocar una Torre de Púas!</string>
+    <string name="tutorial_towers_title">Torres disponibles</string>
+    <string name="tutorial_towers">Torre de Púas: Corto alcance, barata\nTorre de Lanza: Alcance medio\nTorre de Arco: Largo alcance</string>
+    <string name="tutorial_enemies_title">¡Enemigos entrantes!</string>
+    <string name="tutorial_enemies">Los Goblins son rápidos pero débiles. El Orco es lento pero resistente. ¡Posiciona tus torres sabiamente!</string>
+    <string name="tutorial_combat_title">Fase de combate</string>
+    <string name="tutorial_combat">Haz clic en 'Iniciar turno' para comenzar. Las torres atacarán, luego los enemigos se mueven. Puedes mejorar torres y atacar enemigos específicos.</string>
+    <string name="tutorial_complete_title">¡Estás listo!</string>
+    <string name="tutorial_complete">¡Has aprendido lo básico! Ahora defiende Egril contra las hordas. ¡Buena suerte!</string>
+    <string name="tutorial_next">Siguiente</string>
+    <string name="tutorial_got_it">¡Entendido!</string>
+    <string name="tutorial_skip">Saltar tutorial</string>
 </resources>

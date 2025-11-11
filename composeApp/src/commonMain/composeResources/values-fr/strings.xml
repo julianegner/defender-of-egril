@@ -345,4 +345,23 @@
     <string name="yes">Oui</string>
     <string name="confirm_delete_level">Êtes-vous sûr de vouloir supprimer ce niveau?</string>
     <string name="amount">Quantité</string>
+    
+    <!-- Tutorial -->
+    <string name="tutorial_welcome_title">Bienvenue dans Defender of Egril!</string>
+    <string name="tutorial_welcome">Ceci est un jeu de défense de tours. Votre objectif est d'empêcher les ennemis d'atteindre la cible en construisant des tours défensives.</string>
+    <string name="tutorial_resources_title">Ressources</string>
+    <string name="tutorial_resources">Vous avez des pièces pour construire des tours et des points de vie. Chaque ennemi atteignant la cible coûte 1 PV.</string>
+    <string name="tutorial_build_title">Construire des tours</string>
+    <string name="tutorial_build">Sélectionnez un type de tour, puis cliquez sur une zone de construction verte pour la placer. Essayez de placer une Tour à Piques!</string>
+    <string name="tutorial_towers_title">Tours disponibles</string>
+    <string name="tutorial_towers">Tour à Piques: Courte portée, bon marché\nTour de Lance: Portée moyenne\nTour d'Arc: Longue portée</string>
+    <string name="tutorial_enemies_title">Ennemis en approche!</string>
+    <string name="tutorial_enemies">Les Gobelins sont rapides mais faibles. L'Orque est lent mais résistant. Positionnez vos tours judicieusement!</string>
+    <string name="tutorial_combat_title">Phase de combat</string>
+    <string name="tutorial_combat">Cliquez sur 'Démarrer le tour' pour commencer. Les tours attaqueront, puis les ennemis bougeront. Vous pouvez améliorer les tours et attaquer des ennemis spécifiques.</string>
+    <string name="tutorial_complete_title">Vous êtes prêt!</string>
+    <string name="tutorial_complete">Vous avez appris les bases! Maintenant, défendez Egril contre les hordes. Bonne chance!</string>
+    <string name="tutorial_next">Suivant</string>
+    <string name="tutorial_got_it">Compris!</string>
+    <string name="tutorial_skip">Passer le tutoriel</string>
 </resources>
