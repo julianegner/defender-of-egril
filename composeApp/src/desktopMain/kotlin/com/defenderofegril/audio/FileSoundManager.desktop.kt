@@ -21,12 +21,13 @@ actual fun playSoundFile(fileName: String, volume: Float) {
     GlobalScope.launch(Dispatchers.IO) {
         try {
             // Create a new clip instance for concurrent playback
-            val audioInputStream = AudioSystem.getAudioInputStream(
-                BufferedInputStream(
-                    object {}.javaClass.getResourceAsStream("/files/sounds/$fileName")
-                        ?: return@launch
-                )
-            )
+            val resourceStream = object {}.javaClass.getResourceAsStream("/files/sounds/$fileName")
+            if (resourceStream == null) {
+                println("Resource not found: /files/sounds/$fileName")
+                return@launch
+            }
+            val audioInputStream = AudioSystem.getAudioInputStream(BufferedInputStream(resourceStream))
+
             val playClip = AudioSystem.getClip()
             playClip.open(audioInputStream)
             
