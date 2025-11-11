@@ -330,4 +330,19 @@
     <string name="damage_label">Dégâts</string>
     <string name="hp_with_level">PV: %d</string>
     <string name="add_enemy_button">➕ Ajouter un ennemi au tour %d</string>
+    <string name="add_all_towers">Tout ajouter</string>
+    <string name="remove_all_towers">Tout supprimer</string>
+    <string name="level_info_tab">Info du niveau</string>
+    <string name="enemy_spawns_tab">Apparitions d\'ennemis</string>
+    <string name="towers_tab">Tours</string>
+    <string name="delete_turn">Supprimer le tour</string>
+    <string name="cannot_delete_turn">Impossible de supprimer ce tour tant que des tours ultérieurs existent</string>
+    <string name="no_enemies_in_turn">Aucun ennemi n\'apparaît dans ce tour</string>
+    <string name="clear_turn">Effacer le tour</string>
+    <string name="remove_all_turns">Supprimer tous les tours</string>
+    <string name="confirm_remove_all_turns">Êtes-vous sûr de vouloir supprimer tous les tours d\'apparition?</string>
+    <string name="copy_level">Copier le niveau</string>
+    <string name="yes">Oui</string>
+    <string name="confirm_delete_level">Êtes-vous sûr de vouloir supprimer ce niveau?</string>
+    <string name="amount">Quantité</string>
 </resources>
