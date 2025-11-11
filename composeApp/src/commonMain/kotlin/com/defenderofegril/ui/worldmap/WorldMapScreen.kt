@@ -84,21 +84,31 @@ fun WorldMapScreen(
             Spacer(modifier = Modifier.height(16.dp))
             
             Row(
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Button(onClick = onLoadGame) {
-                    Text(stringResource(Res.string.load_game))
+                // Centered buttons group
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Button(onClick = onLoadGame) {
+                        Text(stringResource(Res.string.load_game))
+                    }
+                    
+                    Button(onClick = onShowRules) {
+                        Text(stringResource(Res.string.rules))
+                    }
+                    
+                    Button(onClick = onBackToMenu) {
+                        Text(stringResource(Res.string.back))
+                    }
                 }
                 
-                Button(onClick = onShowRules) {
-                    Text(stringResource(Res.string.rules))
-                }
+                // Spacer to push editor button to the right
+                Spacer(modifier = Modifier.weight(1f))
                 
-                Button(onClick = onBackToMenu) {
-                    Text(stringResource(Res.string.back))
-                }
-                
-                // Add Editor Button at the right end (only on desktop/wasm)
+                // Editor Button at the right end (only on desktop/wasm)
                 if (isEditorAvailable()) {
                     EditorButtonCard(onClick = onOpenEditor)
                 }
