@@ -1,9 +1,11 @@
 package com.defenderofegril.audio
 
+import defender_of_egril.composeapp.generated.resources.Res
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.io.BufferedInputStream
+import java.io.ByteArrayInputStream
 import javax.sound.sampled.AudioSystem
 import javax.sound.sampled.Clip
 import javax.sound.sampled.FloatControl
@@ -20,14 +22,21 @@ actual fun initializeAudioSystem() {
 actual fun playSoundFile(fileName: String, volume: Float) {
     GlobalScope.launch(Dispatchers.IO) {
         try {
-            // Create a new clip instance for concurrent playback
-            val resourceStream = object {}.javaClass.getResourceAsStream("/files/sounds/$fileName")
-            if (resourceStream == null) {
-                println("Resource not found: /files/sounds/$fileName")
+            // Load audio file from compose resources
+            val resourcePath = "files/sounds/$fileName"
+            val bytes = try {
+                // Use Res.readBytes to load from compose resources
+                Res.readBytes(resourcePath)
+            } catch (e: Exception) {
+                println("Could not load resource from compose resources: $resourcePath - ${e.message}")
                 return@launch
             }
-            val audioInputStream = AudioSystem.getAudioInputStream(BufferedInputStream(resourceStream))
-
+            
+            // Create audio input stream from bytes
+            val audioInputStream = AudioSystem.getAudioInputStream(
+                BufferedInputStream(ByteArrayInputStream(bytes))
+            )
+            
             val playClip = AudioSystem.getClip()
             playClip.open(audioInputStream)
             
@@ -51,6 +60,7 @@ actual fun playSoundFile(fileName: String, volume: Float) {
         } catch (e: Exception) {
             // Silently fail if sound file not found or can't be played
             println("Could not play sound: $fileName - ${e.message}")
+            e.printStackTrace()
         }
     }
 }

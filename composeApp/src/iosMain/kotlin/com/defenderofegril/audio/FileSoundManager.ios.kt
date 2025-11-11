@@ -1,6 +1,11 @@
 package com.defenderofegril.audio
 
+import defender_of_egril.composeapp.generated.resources.Res
 import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.cinterop.refTo
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import platform.AVFAudio.*
 import platform.Foundation.*
 
@@ -23,38 +28,43 @@ actual fun initializeAudioSystem() {
 
 @OptIn(ExperimentalForeignApi::class)
 actual fun playSoundFile(fileName: String, volume: Float) {
-    try {
-        // Get or create audio player for this file
-        val player = audioPlayers.getOrPut(fileName) {
-            val bundle = NSBundle.mainBundle
-            val resourceName = fileName.substringBeforeLast('.')
-            val resourceExt = fileName.substringAfterLast('.', "")
-            
-            val path = bundle.pathForResource(
-                "files/sounds/$resourceName",
-                ofType = resourceExt
-            ) ?: run {
-                println("Could not find sound file: $fileName")
-                return
+    GlobalScope.launch(Dispatchers.Main) {
+        try {
+            // Load audio data from compose resources using Res.readBytes
+            val resourcePath = "files/sounds/$fileName"
+            val bytes = try {
+                Res.readBytes(resourcePath)
+            } catch (e: Exception) {
+                println("Could not load resource: $resourcePath - ${e.message}")
+                return@launch
             }
             
-            val url = NSURL.fileURLWithPath(path)
-            val player = AVAudioPlayer(contentsOfURL = url, error = null) ?: run {
+            // Create NSData from bytes
+            val data = bytes.toNSData()
+            
+            // Create audio player from data
+            val player = AVAudioPlayer(data = data, error = null) ?: run {
                 println("Could not create audio player for: $fileName")
-                return
+                return@launch
             }
             
+            // Set volume and play
+            player.volume = volume
             player.prepareToPlay()
-            player
+            player.play()
+            
+            // Cache for reuse
+            audioPlayers[fileName] = player
+        } catch (e: Exception) {
+            println("Could not play sound: $fileName - ${e.message}")
+            e.printStackTrace()
         }
-        
-        // Set volume and play
-        player.volume = volume.toFloat()
-        player.currentTime = 0.0 // Reset to beginning
-        player.play()
-    } catch (e: Exception) {
-        println("Could not play sound: $fileName - ${e.message}")
     }
+}
+
+@OptIn(ExperimentalForeignApi::class)
+private fun ByteArray.toNSData(): NSData {
+    return NSData.create(bytes = this.refTo(0), length = this.size.toULong())
 }
 
 actual fun releaseAudioSystem() {

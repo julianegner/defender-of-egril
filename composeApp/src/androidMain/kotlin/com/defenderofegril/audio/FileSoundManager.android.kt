@@ -3,9 +3,12 @@ package com.defenderofegril.audio
 import android.content.Context
 import android.media.AudioAttributes
 import android.media.SoundPool
+import defender_of_egril.composeapp.generated.resources.Res
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import java.io.File
+import java.io.FileOutputStream
 
 /**
  * Android implementation of file-based sound manager
@@ -45,23 +48,26 @@ actual fun playSoundFile(fileName: String, volume: Float) {
         try {
             // Get or load sound ID
             val soundId = soundIds.getOrPut(fileName) {
-                val resName = fileName.substringBeforeLast('.')
-                val resId = context.resources.getIdentifier(
-                    resName,
-                    "raw",
-                    context.packageName
-                )
-                if (resId != 0) {
-                    pool.load(context, resId, 1)
-                } else {
-                    // Try loading from assets
-                    try {
-                        val afd = context.assets.openFd("files/sounds/$fileName")
-                        pool.load(afd, 1)
-                    } catch (e: Exception) {
-                        println("Could not load sound: $fileName - ${e.message}")
-                        -1
-                    }
+                try {
+                    // Load from compose resources using Res.readBytes
+                    val resourcePath = "files/sounds/$fileName"
+                    val bytes = Res.readBytes(resourcePath)
+                    
+                    // Write to temp file for SoundPool
+                    val tempFile = File(context.cacheDir, fileName)
+                    FileOutputStream(tempFile).use { it.write(bytes) }
+                    
+                    // Load into SoundPool
+                    val id = pool.load(tempFile.absolutePath, 1)
+                    
+                    // Clean up temp file after loading
+                    tempFile.delete()
+                    
+                    id
+                } catch (e: Exception) {
+                    println("Could not load sound: $fileName - ${e.message}")
+                    e.printStackTrace()
+                    -1
                 }
             }
             
@@ -70,6 +76,7 @@ actual fun playSoundFile(fileName: String, volume: Float) {
             }
         } catch (e: Exception) {
             println("Could not play sound: $fileName - ${e.message}")
+            e.printStackTrace()
         }
     }
 }
