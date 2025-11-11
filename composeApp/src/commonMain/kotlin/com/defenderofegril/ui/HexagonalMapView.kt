@@ -27,7 +27,7 @@ data class HexagonalMapConfig(
     val enableKeyboardNavigation: Boolean = true,  // Enable arrow keys & WASD navigation
     val enablePanNavigation: Boolean = true,  // Enable mouse drag panning
     val keyboardPanSpeed: Float = 30f,  // Pixels to pan per key press
-    val dragPanSensitivity: Float = 10f,  // Multiplier for drag pan sensitivity
+    val dragPanSensitivity: Float = 30f,  // Multiplier for drag pan sensitivity
     val minScale: Float = 0.5f,
     val maxScale: Float = 3.0f,
     val zoomDelta: Float = 0.1f  // Amount to zoom per button press
@@ -202,6 +202,7 @@ fun HexagonalMapView(
                     }
                 }
                 // Keep detectTransformGestures for pinch-to-zoom on mobile
+                // todo only enable if on mobile platform?
                  detectTransformGestures { _, _, zoom, _ ->
                      if (zoom != 1f) {
                          val newScale = (scale * zoom).coerceIn(config.minScale, config.maxScale)
