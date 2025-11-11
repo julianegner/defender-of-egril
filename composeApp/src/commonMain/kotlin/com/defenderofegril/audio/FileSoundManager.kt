@@ -58,6 +58,9 @@ class FileSoundManager : SoundManager {
             SoundEvent.TOWER_PLACED -> "tower_placed.wav"
             SoundEvent.TOWER_UPGRADED -> "tower_upgraded.wav"
             SoundEvent.TOWER_SOLD -> "tower_sold.wav"
+            
+            // Game phase sounds
+            SoundEvent.BATTLE_START -> "battle_start.wav"
         }
         
         // Play the sound file on the platform
