@@ -12,14 +12,17 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.IntSize
 import com.defenderofegril.editor.EditorMap
 import com.defenderofegril.editor.TileType
 import com.defenderofegril.ui.HexagonMinimapFromEditorMap
 import com.defenderofegril.ui.HexagonShape
 import com.defenderofegril.ui.HexagonalMapConfig
 import com.defenderofegril.ui.HexagonalMapView
+import com.defenderofegril.ui.MinimapConfig
 import com.defenderofegril.ui.icon.PushpinIcon
 import com.defenderofegril.ui.editor.SaveAsDialog
 import com.defenderofegril.ui.editor.getTileColor
@@ -96,6 +99,11 @@ fun MapEditorView(
                     .fillMaxWidth()
                     .padding(8.dp)
             ) {
+                // Track container size for minimap viewport
+                var containerSize by remember { mutableStateOf(IntSize.Zero) }
+                // Track actual content size for minimap viewport calculations
+                var actualContentSize by remember { mutableStateOf(IntSize.Zero) }
+
                 HexagonalMapView(
                     gridWidth = map.width,
                     gridHeight = map.height,
@@ -114,8 +122,9 @@ fun MapEditorView(
                         offsetX = newX
                         offsetY = newY
                     },
+                    onActualContentSizeChange = { actualContentSize = it },
                     onBrushPaint = onBrushPaint,
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize().onSizeChanged { containerSize = it }
                 ) { hexWidthParam, hexHeightParam, verticalSpacing, onTilePositioned ->
                     for (y in 0 until map.height) {
                         Row(
@@ -163,7 +172,15 @@ fun MapEditorView(
                 }
                 HexagonMinimapFromEditorMap(
                     map = map,
-                    modifier = Modifier.size(150.dp).align(Alignment.BottomEnd)
+                    modifier = Modifier.size(150.dp).align(Alignment.BottomEnd),
+                    config = MinimapConfig(
+                        showViewport = true,
+                        minimapSizeDp = 150f
+                    ),
+                    scale = zoomLevel,
+                    offsetX = offsetX,
+                    offsetY = offsetY,
+                    containerSize = containerSize
                 )
             }
             
