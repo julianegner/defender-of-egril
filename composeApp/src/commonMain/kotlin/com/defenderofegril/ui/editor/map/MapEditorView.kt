@@ -49,8 +49,6 @@ fun MapEditorView(
     var zoomLevel by remember { mutableStateOf(1.0f) }
     var offsetX by remember { mutableStateOf(0f) }
     var offsetY by remember { mutableStateOf(0f) }
-    var brushingActive by remember { mutableStateOf(false) }
-    var scale by remember { mutableStateOf(1.0f) }
     
     // Hexagon dimensions - using same constants as game
     val hexSize = 32f  // Radius of hexagon (not scaled here, scaling handled by HexagonalMapView)
@@ -127,12 +125,7 @@ fun MapEditorView(
                         offsetY = newY
                     },
                     onActualContentSizeChange = { actualContentSize = it },
-                    // onBrushPaint = onBrushPaint,
-                    onBrushingActive = { isActive ->
-                        // Optionally show some UI feedback when brushing is active
-                        println("Brushing active: $isActive")
-                        brushingActive = isActive
-                    },
+                    onBrushPaint = onBrushPaint,
                     modifier = Modifier.fillMaxSize().onSizeChanged { containerSize = it }
                 ) { hexWidthParam, hexHeightParam, verticalSpacing, onTilePositioned ->
                     for (y in 0 until map.height) {
@@ -159,66 +152,11 @@ fun MapEditorView(
                                             // Report position in content coordinates (before transformations)
                                             val bounds = coordinates.size
                                             val position = coordinates.positionInWindow()
-                                            // println("Tile $key global position: ${position.x}, ${position.y} size: ${bounds.width}x${bounds.height}")
                                             val centerX = position.x + bounds.width / 2f
                                             val centerY = position.y + bounds.height / 2f
-                                            println("Tile $key positioned at content coords: ($centerX, $centerY)")
-
-                                            /*
-                                            if we are in brush mode, we get the correct hex tiles here
-
-                                            FIXME this does not work, because onGloballyPositioned is only called
-                                             when moving te mouse pointer, but not when dragging with button down
-                                             */
-                                            // if (brushingActive) {
-                                            //     println("Tile $key to brush")
-                                            //     tiles = tiles.toMutableMap().apply {
-                                            //         println("Brushing active - setting tile $key to $selectedTileType")
-                                            //         this[key] = selectedTileType
-                                            //     }
-                                            // }
-
                                             onTilePositioned(key, Offset(centerX, centerY))
                                             tilePositions[key] = Offset(centerX, centerY)
                                         }
-                                        /*
-                                        .pointerInput(scale, offsetX, offsetY) {
-                                            detectTapGestures(
-                                                onPress = {
-                                                    // On press, set the tile type
-                                                    tiles = tiles.toMutableMap().apply {
-                                                        this[key] = selectedTileType
-                                                    }
-                                                },
-                                                onTap = {
-                                                    // On tap, set the tile type
-                                                    tiles = tiles.toMutableMap().apply {
-                                                        this[key] = selectedTileType
-                                                    }
-                                                }
-                                            )
-                                            detectDragGestures (
-                                                onDragStart = {
-                                                    // On drag start, set the tile type
-                                                    println("Brushing active - setting tile $key to $selectedTileType")
-                                                    tiles = tiles.toMutableMap().apply {
-                                                        this[key] = selectedTileType
-                                                    }
-                                                },
-                                                onDrag = { change, _ ->
-                                                    // On drag, set the tile type
-                                                    println("Brushing active - setting tile $key to $selectedTileType")
-                                                    change.consume()
-                                                    tiles = tiles.toMutableMap().apply {
-                                                        this[key] = selectedTileType
-                                                    }
-                                                },
-                                                onDragEnd = {
-                                                    // On drag end, nothing special for now
-                                                }
-                                            )
-                                        }
-                                         */
                                         .clickable {
                                             tiles = tiles.toMutableMap().apply {
                                                 this[key] = selectedTileType
