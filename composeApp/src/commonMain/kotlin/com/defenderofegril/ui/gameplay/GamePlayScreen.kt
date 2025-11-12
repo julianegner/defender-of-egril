@@ -265,6 +265,29 @@ private fun GamePlayScreenContent(
             
             // Tutorial card (positioned in upper right corner)
             if (gameState.tutorialState.value.shouldShowOverlay()) {
+                // Check if we should allow skipping attack step
+                // (tower has no actions left or can't reach any enemies)
+                if (gameState.tutorialState.value.currentStep == TutorialStep.ATTACKING &&
+                    !gameState.tutorialState.value.canSkipAttacking) {
+                    val hasTowerWithActions = gameState.defenders.any { defender ->
+                        defender.actionsRemaining.value > 0 && defender.buildTimeRemaining.value == 0
+                    }
+                    val selectedDefender = selectedDefenderId?.let { id ->
+                        gameState.defenders.find { it.id == id }
+                    }
+                    val canReachEnemies = selectedDefender?.let { defender ->
+                        gameState.attackers.any { attacker ->
+                            !attacker.isDefeated.value &&
+                            defender.position.distanceTo(attacker.position.value) <= defender.range
+                        }
+                    } ?: false
+                    
+                    // Allow skipping if no tower has actions or selected tower can't reach enemies
+                    if (!hasTowerWithActions || (selectedDefender != null && !canReachEnemies)) {
+                        gameState.tutorialState.value = gameState.tutorialState.value.allowSkipAttacking()
+                    }
+                }
+                
                 Box(
                     modifier = Modifier
                         .align(Alignment.TopEnd)
@@ -272,6 +295,7 @@ private fun GamePlayScreenContent(
                 ) {
                     TutorialOverlay(
                         currentStep = gameState.tutorialState.value.currentStep,
+                        isNextEnabled = gameState.tutorialState.value.isNextEnabled(),
                         onNext = {
                             val currentTutorialState = gameState.tutorialState.value
                             gameState.tutorialState.value = currentTutorialState.advanceStep()
