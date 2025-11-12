@@ -69,7 +69,7 @@ fun AttackerInfo(
                         )
                         if (attacker.level > 1) {
                             Text(
-                                "Lv${attacker.level}",
+                                "Lvl ${attacker.level}",
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = FontWeight.Bold,
                                 color = GamePlayColors.ErrorDark

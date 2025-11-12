@@ -355,7 +355,7 @@ fun EnemyItemDetailed(attacker: Attacker, showPosition: Boolean) {
                     )
                     if (attacker.level > 1) {
                         Text(
-                            "Lv${attacker.level}",
+                            "Lvl ${attacker.level}",
                             style = MaterialTheme.typography.bodySmall,
                             fontSize = 10.sp,
                             fontWeight = FontWeight.Bold,
@@ -422,7 +422,7 @@ fun PlannedEnemyItem(plannedSpawn: PlannedEnemySpawn, currentTurn: Int) {
                     )
                     if (plannedSpawn.level > 1) {
                         Text(
-                            "Lv${plannedSpawn.level}",
+                            "Lvl ${plannedSpawn.level}",
                             style = MaterialTheme.typography.bodySmall,
                             fontSize = 10.sp,
                             fontWeight = FontWeight.Bold,

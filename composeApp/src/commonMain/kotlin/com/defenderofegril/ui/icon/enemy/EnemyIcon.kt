@@ -52,6 +52,20 @@ fun EnemyIcon(
             }
         }
         
+        // Level number at top center - only if level > 1
+        if (attacker.level > 1) {
+            Text(
+                text = "${attacker.level}",
+                style = MaterialTheme.typography.labelSmall,
+                fontSize = 12.sp,
+                color = Color.Red,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(top = 8.dp)
+            )
+        }
+        
         // Health number at bottom center - 10dp from bottom edge
         Text(
             text = "${attacker.currentHealth.value}",
