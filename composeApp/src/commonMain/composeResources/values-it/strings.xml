@@ -345,4 +345,11 @@
     <string name="yes">Sì</string>
     <string name="confirm_delete_level">Sei sicuro di voler eliminare questo livello?</string>
     <string name="amount">Quantità</string>
+    
+    <!-- Enemy ability descriptions -->
+    <string name="can_summon">Può evocare servitori</string>
+    <string name="can_heal">Può curare altri nemici</string>
+    <string name="can_disable_towers">Può disabilitare le torri</string>
+    <string name="immune_to_acid">Immune all\'acido</string>
+    <string name="immune_to_fireball">Immune alla palla di fuoco</string>
 </resources>
