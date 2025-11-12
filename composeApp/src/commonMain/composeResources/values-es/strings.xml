@@ -345,11 +345,42 @@
     <string name="yes">Sí</string>
     <string name="confirm_delete_level">¿Estás seguro de que quieres eliminar este nivel?</string>
     <string name="amount">Cantidad</string>
-    
+
     <!-- Enemy ability descriptions -->
     <string name="can_summon">Puede invocar secuaces</string>
     <string name="can_heal">Puede curar otros enemigos</string>
     <string name="can_disable_towers">Puede desactivar torres</string>
     <string name="immune_to_acid">Inmune al ácido</string>
     <string name="immune_to_fireball">Inmune a la bola de fuego</string>
+
+    <!-- Tutorial -->
+    <string name="tutorial_welcome_title">¡Bienvenido a Defender of Egril!</string>
+    <string name="tutorial_welcome">Este es un juego de defensa de torres. Tu objetivo es evitar que los enemigos lleguen al objetivo construyendo torres defensivas.</string>
+    <string name="tutorial_resources_title">Recursos</string>
+    <string name="tutorial_resources">Tienes monedas para construir torres y puntos de salud. Cada enemigo que llega al objetivo cuesta 1 PS.</string>
+    <string name="tutorial_towers_title">Torres disponibles</string>
+    <string name="tutorial_towers">Torre de Púas: Corto alcance, barata\nTorre de Lanza: Alcance medio\nTorre de Arco: Largo alcance\n\n¡Elige sabiamente según tu estrategia!</string>
+    <string name="tutorial_build_title">Construir torres</string>
+    <string name="tutorial_build">Selecciona un tipo de torre abajo, luego haz clic en un área de construcción verde para colocarla. ¡Construye tus defensas!</string>
+    <string name="tutorial_initial_building_title">Fase de construcción inicial</string>
+    <string name="tutorial_initial_building">En esta fase inicial, las torres se construyen instantáneamente pero aún no pueden atacar. Haz clic en una torre para ver su alcance - las casillas del camino obtienen bordes verdes. Más adelante en el juego, las torres tardarán 1-2 turnos en construirse.</string>
+    <string name="tutorial_undo_title">Deshacer torres</string>
+    <string name="tutorial_undo">Durante esta fase inicial, puedes deshacer la colocación de torres seleccionándola y vendiéndola por un reembolso completo. Después de que comience la batalla, solo puedes vender torres por el 75% de su valor.</string>
+    <string name="tutorial_combat_title">Iniciar la batalla</string>
+    <string name="tutorial_combat">Haz clic en el botón Iniciar batalla cuando estés listo. Tu objetivo es defender el Objetivo al final del camino - ¡no dejes que los enemigos lo alcancen!</string>
+    <string name="tutorial_enemies_title">¡Enemigos entrantes!</string>
+    <string name="tutorial_enemies">Los Goblins son rápidos pero débiles. El Orco es lento pero resistente. ¡Posiciona tus torres sabiamente!</string>
+    <string name="tutorial_range_title">Verificar alcance</string>
+    <string name="tutorial_range">Selecciona una torre para ver qué enemigos están en alcance (resaltados). ¡Las torres solo pueden atacar enemigos dentro de su alcance!</string>
+    <string name="tutorial_attacking_title">Atacar enemigos</string>
+    <string name="tutorial_attacking">Haz clic en un enemigo en alcance para atacar. Cada torre tiene acciones limitadas por turno mostradas por símbolos ⚡. Si tu torre no puede alcanzar enemigos o no tiene acciones, puedes terminar tu turno o colocar más torres.</string>
+    <string name="tutorial_upgrade_title">Mejorar torres</string>
+    <string name="tutorial_upgrade">Selecciona una torre y haz clic en Mejorar para aumentar sus estadísticas. Verás daño, alcance y acciones actuales por turno, además de cómo serán después de mejorar. ¡Las mejoras cuestan monedas pero hacen las torres más poderosas!</string>
+    <string name="tutorial_sell_title">Vender torres</string>
+    <string name="tutorial_sell">Selecciona una torre y haz clic en Vender para recuperar el 75% de su inversión total (costo + mejoras). Usa esto si necesitas monedas o quieres reposicionar tu defensa.</string>
+    <string name="tutorial_complete_title">¡Tutorial completado!</string>
+    <string name="tutorial_complete">¡Has dominado lo básico! En niveles posteriores, desbloquearás torres más poderosas como la Ballista, Mago y torres de Alquimia para enfrentar enemigos más fuertes como demonios y jefes. Ahora defiende Egril contra las hordas. ¡Buena suerte, defensor!</string>
+    <string name="tutorial_next">Siguiente</string>
+    <string name="tutorial_got_it">¡Entendido!</string>
+    <string name="tutorial_skip">Saltar tutorial</string>
 </resources>

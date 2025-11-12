@@ -36,6 +36,28 @@ The game features a **single-phase turn system** where you control both tower pl
 
 ## How to Play
 
+### Tutorial Level
+
+**New players should start with the tutorial level!**
+
+The first level "Welcome to Defender of Egril" is a guided tutorial that teaches you:
+- **Resources**: Understanding coins and health points
+- **Tower Placement**: How to build defensive towers
+- **Tower Types**: Learning about Spike, Spear, and Bow towers
+- **Enemy Behavior**: How goblins and orks attack
+- **Combat System**: Starting turns and defeating enemies
+
+The tutorial:
+- Uses a small, easy-to-understand map (15x8 grid)
+- Features only 5 goblins and 1 ork
+- Provides step-by-step guidance with overlay messages
+- Can be skipped if you're already familiar with tower defense games
+- Unlocks all advanced levels after completion
+
+**Tip:** Even experienced tower defense players should try the tutorial to learn Defender of Egril's unique hexagonal grid and turn-based mechanics!
+
+---
+
 ### Main Menu
 - Click **"Start Game"** to view the World Map
 
@@ -250,11 +272,16 @@ Currently all controls are mouse/touch based:
 ## Level Progression
 
 Complete levels to unlock new ones:
-1. **The First Wave** - 5 Goblins (Tutorial)
-2. **Mixed Forces** - Goblins, Skeletons, Orks
-3. **The Ork Invasion** - More Orks appear
-4. **Dark Magic Rises** - Wizards and Witches join
-5. **The Final Stand** - All enemy types!
+1. **Welcome to Defender of Egril** - Tutorial level with 5 Goblins and 1 Ork
+   - Learn the basics: tower placement, combat, and strategy
+   - Only 3 tower types available: Spike Tower, Spear Tower, Bow Tower
+   - Interactive tutorial guides you through your first battle
+2. **The First Wave** - 30 Goblins
+3. **Mixed Forces** - Goblins, Skeletons, Orks
+4. **The Ork Invasion** - More Orks appear
+5. **Dark Magic Rises** - Wizards and Witches join
+6. **The Final Stand** - All enemy types!
+7. **Ewhad's Challenge** - Face the evil Ewhad himself
 
 Each level increases in difficulty with more enemies, tougher types, and less health.
 
