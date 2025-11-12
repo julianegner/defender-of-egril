@@ -345,11 +345,42 @@
     <string name="yes">Ja</string>
     <string name="confirm_delete_level">Sind Sie sicher, dass Sie dieses Level löschen möchten?</string>
     <string name="amount">Anzahl</string>
-    
+
     <!-- Enemy ability descriptions -->
     <string name="can_summon">Kann Diener beschwören</string>
     <string name="can_heal">Kann andere Feinde heilen</string>
     <string name="can_disable_towers">Kann Türme deaktivieren</string>
     <string name="immune_to_acid">Immun gegen Säure</string>
     <string name="immune_to_fireball">Immun gegen Feuerball</string>
+
+    <!-- Tutorial -->
+    <string name="tutorial_welcome_title">Willkommen bei Defender of Egril!</string>
+    <string name="tutorial_welcome">Dies ist ein Tower-Defense-Spiel. Ihr Ziel ist es, Feinde daran zu hindern, das Ziel zu erreichen, indem Sie Verteidigungstürme bauen.</string>
+    <string name="tutorial_resources_title">Ressourcen</string>
+    <string name="tutorial_resources">Sie haben Münzen zum Bauen von Türmen und Lebenspunkte. Jeder Feind, der das Ziel erreicht, kostet 1 LP.</string>
+    <string name="tutorial_towers_title">Verfügbare Türme</string>
+    <string name="tutorial_towers">Stachelturm: Nahkampf, günstig\nSpeerturm: Mittlere Reichweite\nBogenturm: Große Reichweite\n\nWählen Sie weise basierend auf Ihrer Strategie!</string>
+    <string name="tutorial_build_title">Türme bauen</string>
+    <string name="tutorial_build">Wählen Sie unten einen Turmtyp und klicken Sie auf einen grünen Baubereich, um ihn zu platzieren. Bauen Sie Ihre Verteidigung auf!</string>
+    <string name="tutorial_initial_building_title">Anfängliche Bauphase</string>
+    <string name="tutorial_initial_building">In dieser Anfangsphase werden Türme sofort gebaut, können aber noch nicht angreifen. Klicken Sie auf einen Turm, um seine Reichweite zu sehen - Pfadfelder bekommen grüne Ränder. Später im Spiel dauert der Bau von Türmen 1-2 Runden.</string>
+    <string name="tutorial_undo_title">Türme rückgängig machen</string>
+    <string name="tutorial_undo">Während dieser Anfangsphase können Sie die Turmplatzierung rückgängig machen, indem Sie ihn auswählen und für eine vollständige Rückerstattung verkaufen. Nach Beginn der Schlacht können Sie Türme nur noch für 75% ihres Wertes verkaufen.</string>
+    <string name="tutorial_combat_title">Starten Sie die Schlacht</string>
+    <string name="tutorial_combat">Klicken Sie auf die Schaltfläche Schlacht starten, wenn Sie bereit sind. Ihr Ziel ist es, das Ziel am Ende des Pfades zu verteidigen - lassen Sie keine Feinde es erreichen!</string>
+    <string name="tutorial_enemies_title">Feinde im Anmarsch!</string>
+    <string name="tutorial_enemies">Goblins sind schnell, aber schwach. Der Ork ist langsam, aber zäh. Positionieren Sie Ihre Türme weise!</string>
+    <string name="tutorial_range_title">Reichweite prüfen</string>
+    <string name="tutorial_range">Wählen Sie einen Turm aus, um zu sehen, welche Feinde in Reichweite sind (hervorgehoben). Türme können nur Feinde in ihrer Reichweite angreifen!</string>
+    <string name="tutorial_attacking_title">Feinde angreifen</string>
+    <string name="tutorial_attacking">Klicken Sie auf einen Feind in Reichweite, um anzugreifen. Jeder Turm hat begrenzte Aktionen pro Runde, angezeigt durch ⚡ Symbole. Wenn Ihr Turm keine Feinde erreichen kann oder keine Aktionen mehr hat, können Sie Ihren Zug beenden oder weitere Türme platzieren.</string>
+    <string name="tutorial_upgrade_title">Türme aufwerten</string>
+    <string name="tutorial_upgrade">Wählen Sie einen Turm und klicken Sie auf Aufwerten, um seine Werte zu erhöhen. Sie sehen aktuellen Schaden, Reichweite und Aktionen pro Runde, plus wie sie nach dem Aufwerten sein werden. Aufwertungen kosten Münzen, machen Türme aber stärker!</string>
+    <string name="tutorial_sell_title">Türme verkaufen</string>
+    <string name="tutorial_sell">Wählen Sie einen Turm und klicken Sie auf Verkaufen, um 75% seiner Gesamtinvestition (Kosten + Aufwertungen) zurückzubekommen. Nutzen Sie dies, wenn Sie Münzen benötigen oder Ihre Verteidigung neu positionieren möchten.</string>
+    <string name="tutorial_complete_title">Tutorial abgeschlossen!</string>
+    <string name="tutorial_complete">Sie haben die Grundlagen gemeistert! In späteren Leveln schalten Sie mächtigere Türme wie Ballista, Zauberer und Alchemie-Türme frei, um stärkeren Gegnern wie Dämonen und Bossen zu begegnen. Verteidigen Sie nun Egril gegen die Horden. Viel Glück, Verteidiger!</string>
+    <string name="tutorial_next">Weiter</string>
+    <string name="tutorial_got_it">Verstanden!</string>
+    <string name="tutorial_skip">Tutorial überspringen</string>
 </resources>
