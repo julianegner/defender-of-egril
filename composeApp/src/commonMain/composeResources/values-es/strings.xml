@@ -345,7 +345,14 @@
     <string name="yes">Sí</string>
     <string name="confirm_delete_level">¿Estás seguro de que quieres eliminar este nivel?</string>
     <string name="amount">Cantidad</string>
-    
+
+    <!-- Enemy ability descriptions -->
+    <string name="can_summon">Puede invocar secuaces</string>
+    <string name="can_heal">Puede curar otros enemigos</string>
+    <string name="can_disable_towers">Puede desactivar torres</string>
+    <string name="immune_to_acid">Inmune al ácido</string>
+    <string name="immune_to_fireball">Inmune a la bola de fuego</string>
+
     <!-- Tutorial -->
     <string name="tutorial_welcome_title">¡Bienvenido a Defender of Egril!</string>
     <string name="tutorial_welcome">Este es un juego de defensa de torres. Tu objetivo es evitar que los enemigos lleguen al objetivo construyendo torres defensivas.</string>
