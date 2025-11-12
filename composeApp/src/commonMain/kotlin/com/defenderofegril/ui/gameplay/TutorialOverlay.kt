@@ -23,7 +23,7 @@ fun TutorialOverlay(
     onNext: () -> Unit,
     onSkip: () -> Unit
 ) {
-    if (currentStep == TutorialStep.NONE || currentStep == TutorialStep.COMPLETE) {
+    if (currentStep == TutorialStep.NONE) {
         return
     }
     
