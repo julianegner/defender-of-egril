@@ -4,16 +4,20 @@ package com.defenderofegril.model
  * Represents the current step in the tutorial
  */
 enum class TutorialStep {
-    WELCOME,           // Introduction to the game
-    RESOURCES,         // Explain coins and health
-    TOWER_TYPES,       // Explain available towers first
-    BUILD_TOWER,       // Guide to place first tower
-    ENEMIES_INCOMING,  // Show incoming enemies
-    START_COMBAT,      // Explain combat phase and start battle button
-    ATTACKING,         // Guide player on how to attack
-    CHECK_RANGE,       // Show how to check if enemy is in range
-    COMPLETE,          // Tutorial finished
-    NONE               // Not in tutorial or tutorial skipped
+    WELCOME,                // Introduction to the game
+    RESOURCES,              // Explain coins and health
+    TOWER_TYPES,            // Explain available towers first
+    BUILD_TOWER,            // Guide to place first tower
+    INITIAL_BUILDING,       // Explain initial building phase
+    UNDO_TOWER,             // Explain undo in initial phase
+    ENEMIES_INCOMING,       // Show incoming enemies
+    START_COMBAT,           // Explain combat phase and start battle button
+    CHECK_RANGE,            // Show how to check if enemy is in range (before attacking)
+    ATTACKING,              // Guide player on how to attack
+    UPGRADE_TOWER,          // Explain upgrading towers
+    SELL_TOWER,             // Explain selling towers
+    COMPLETE,               // Tutorial finished
+    NONE                    // Not in tutorial or tutorial skipped
 }
 
 /**
@@ -24,13 +28,26 @@ data class TutorialState(
     val currentStep: TutorialStep = TutorialStep.NONE,
     val hasPlacedFirstTower: Boolean = false,
     val hasStartedFirstTurn: Boolean = false,
-    val hasAttackedEnemy: Boolean = false
+    val hasAttackedEnemy: Boolean = false,
+    val canSkipAttacking: Boolean = false  // Allow skip if tower can't reach or action used
 ) {
     /**
      * Check if we should show the tutorial overlay for the current step
      */
     fun shouldShowOverlay(): Boolean {
         return isActive && currentStep != TutorialStep.NONE && currentStep != TutorialStep.COMPLETE
+    }
+    
+    /**
+     * Check if the Next button should be enabled for the current step
+     */
+    fun isNextEnabled(): Boolean {
+        return when (currentStep) {
+            TutorialStep.BUILD_TOWER -> hasPlacedFirstTower
+            TutorialStep.START_COMBAT -> hasStartedFirstTurn
+            TutorialStep.ATTACKING -> hasAttackedEnemy || canSkipAttacking
+            else -> true  // All other steps can advance immediately
+        }
     }
     
     /**
@@ -42,19 +59,23 @@ data class TutorialState(
             TutorialStep.RESOURCES -> TutorialStep.TOWER_TYPES
             TutorialStep.TOWER_TYPES -> TutorialStep.BUILD_TOWER
             TutorialStep.BUILD_TOWER -> {
-                if (hasPlacedFirstTower) TutorialStep.ENEMIES_INCOMING
+                if (hasPlacedFirstTower) TutorialStep.INITIAL_BUILDING
                 else TutorialStep.BUILD_TOWER
             }
+            TutorialStep.INITIAL_BUILDING -> TutorialStep.UNDO_TOWER
+            TutorialStep.UNDO_TOWER -> TutorialStep.ENEMIES_INCOMING
             TutorialStep.ENEMIES_INCOMING -> TutorialStep.START_COMBAT
             TutorialStep.START_COMBAT -> {
-                if (hasStartedFirstTurn) TutorialStep.ATTACKING
+                if (hasStartedFirstTurn) TutorialStep.CHECK_RANGE
                 else TutorialStep.START_COMBAT
             }
+            TutorialStep.CHECK_RANGE -> TutorialStep.ATTACKING
             TutorialStep.ATTACKING -> {
-                if (hasAttackedEnemy) TutorialStep.CHECK_RANGE
+                if (hasAttackedEnemy || canSkipAttacking) TutorialStep.UPGRADE_TOWER
                 else TutorialStep.ATTACKING
             }
-            TutorialStep.CHECK_RANGE -> TutorialStep.COMPLETE
+            TutorialStep.UPGRADE_TOWER -> TutorialStep.SELL_TOWER
+            TutorialStep.SELL_TOWER -> TutorialStep.COMPLETE
             TutorialStep.COMPLETE -> TutorialStep.NONE
             TutorialStep.NONE -> TutorialStep.NONE
         }
@@ -90,6 +111,13 @@ data class TutorialState(
      */
     fun markAttackedEnemy(): TutorialState {
         return copy(hasAttackedEnemy = true)
+    }
+    
+    /**
+     * Allow skipping the attacking step (tower can't reach or action used)
+     */
+    fun allowSkipAttacking(): TutorialState {
+        return copy(canSkipAttacking = true)
     }
     
     /**
