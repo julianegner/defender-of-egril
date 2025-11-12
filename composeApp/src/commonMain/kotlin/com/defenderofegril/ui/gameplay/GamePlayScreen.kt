@@ -262,6 +262,26 @@ private fun GamePlayScreenContent(
                     EnemyListPanel(gameState = gameState, modifier = Modifier.fillMaxWidth().weight(1f))
                 }
             }
+            
+            // Tutorial card (positioned in upper right corner)
+            if (gameState.tutorialState.value.shouldShowOverlay()) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(8.dp)
+                ) {
+                    TutorialOverlay(
+                        currentStep = gameState.tutorialState.value.currentStep,
+                        onNext = {
+                            val currentTutorialState = gameState.tutorialState.value
+                            gameState.tutorialState.value = currentTutorialState.advanceStep()
+                        },
+                        onSkip = {
+                            gameState.tutorialState.value = gameState.tutorialState.value.skip()
+                        }
+                    )
+                }
+            }
         }
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -405,20 +425,6 @@ private fun GamePlayScreenContent(
                 showHints = true,
                 initialInput = cheatCodeInput,
                 onInputChange = { cheatCodeInput = it }
-            )
-        }
-        
-        // Tutorial overlay
-        if (gameState.tutorialState.value.shouldShowOverlay()) {
-            TutorialOverlay(
-                currentStep = gameState.tutorialState.value.currentStep,
-                onNext = {
-                    val currentTutorialState = gameState.tutorialState.value
-                    gameState.tutorialState.value = currentTutorialState.advanceStep()
-                },
-                onSkip = {
-                    gameState.tutorialState.value = gameState.tutorialState.value.skip()
-                }
             )
         }
         }
