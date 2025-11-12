@@ -352,7 +352,7 @@
     <string name="tutorial_resources_title">Resources</string>
     <string name="tutorial_resources">You have coins to build towers and health points. Each enemy reaching the target costs 1 HP.</string>
     <string name="tutorial_build_title">Building Towers</string>
-    <string name="tutorial_build">Select a tower type, then click on a green build area to place it. Try placing a Spike Tower!</string>
+    <string name="tutorial_build">Select a tower type, then click on a green build area to place it. You can dismiss this message or leave it visible while you work. Try placing a Spike Tower!</string>
     <string name="tutorial_towers_title">Available Towers</string>
     <string name="tutorial_towers">Spike Tower: Close range, cheap\nSpear Tower: Medium range\nBow Tower: Long range</string>
     <string name="tutorial_enemies_title">Enemies Incoming!</string>
