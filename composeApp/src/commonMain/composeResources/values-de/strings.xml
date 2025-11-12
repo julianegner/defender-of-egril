@@ -352,7 +352,7 @@
     <string name="tutorial_resources_title">Ressourcen</string>
     <string name="tutorial_resources">Sie haben Münzen zum Bauen von Türmen und Lebenspunkte. Jeder Feind, der das Ziel erreicht, kostet 1 LP.</string>
     <string name="tutorial_build_title">Türme bauen</string>
-    <string name="tutorial_build">Wählen Sie einen Turmtyp und klicken Sie auf einen grünen Baubereich, um ihn zu platzieren. Versuchen Sie, einen Stachelturm zu platzieren!</string>
+    <string name="tutorial_build">Wählen Sie einen Turmtyp und klicken Sie auf einen grünen Baubereich, um ihn zu platzieren. Sie können diese Nachricht schließen oder sichtbar lassen, während Sie arbeiten. Versuchen Sie, einen Stachelturm zu platzieren!</string>
     <string name="tutorial_towers_title">Verfügbare Türme</string>
     <string name="tutorial_towers">Stachelturm: Nahkampf, günstig\nSpeerturm: Mittlere Reichweite\nBogenturm: Große Reichweite</string>
     <string name="tutorial_enemies_title">Feinde im Anmarsch!</string>
