@@ -295,7 +295,12 @@ private fun GamePlayScreenContent(
                     selectedTargetPosition = null,
                     onSelectDefenderType = { selectedDefenderType = it },
                     onUpgradeDefender = { onUpgradeDefender(it) },
-                    onUndoTower = { onUndoTower(it) },
+                    onUndoTower = { defenderId ->
+                        if (onUndoTower(defenderId)) {
+                            selectedDefenderType = null
+                            selectedDefenderId = null
+                        }
+                    },
                     onSellTower = { defenderId ->
                         if (onSellTower(defenderId)) {
                             selectedDefenderType = null
@@ -327,7 +332,12 @@ private fun GamePlayScreenContent(
                     selectedTargetPosition = selectedTargetPosition,
                     onSelectDefenderType = { selectedDefenderType = it },
                     onUpgradeDefender = { onUpgradeDefender(it) },
-                    onUndoTower = { onUndoTower(it) },
+                    onUndoTower = { defenderId ->
+                        if (onUndoTower(defenderId)) {
+                            selectedDefenderType = null
+                            selectedDefenderId = null
+                        }
+                    },
                     onSellTower = { defenderId ->
                         if (onSellTower(defenderId)) {
                             selectedDefenderType = null
