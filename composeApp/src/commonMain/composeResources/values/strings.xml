@@ -356,13 +356,13 @@
     <string name="tutorial_build_title">Building Towers</string>
     <string name="tutorial_build">Select a tower type from below, then click on a green build area to place it. Build your defenses!</string>
     <string name="tutorial_initial_building_title">Initial Building Phase</string>
-    <string name="tutorial_initial_building">In this initial phase, towers are built instantly and ready to attack immediately. Later in the game, towers will take 1-2 turns to build.</string>
+    <string name="tutorial_initial_building">In this initial phase, towers are built instantly but cannot attack yet. Click on a tower to see its range - path tiles get green borders. Later in the game, towers will take 1-2 turns to build.</string>
     <string name="tutorial_undo_title">Undo Towers</string>
     <string name="tutorial_undo">During this initial phase, you can undo tower placement by selecting it and selling for a full refund. After the battle starts, you can only sell towers for 75% of their value.</string>
     <string name="tutorial_combat_title">Start the Battle</string>
     <string name="tutorial_combat">Click the Start Battle button when ready. Your goal is to defend the Target at the end of the path - don't let enemies reach it!</string>
     <string name="tutorial_enemies_title">Enemies Incoming!</string>
-    <string name="tutorial_enemies">Goblins are fast but weak. The Ork is slow but tough. In later levels, mightier enemies will appear!</string>
+    <string name="tutorial_enemies">Goblins are fast but weak. The Ork is slow but tough. Position your towers wisely!</string>
     <string name="tutorial_range_title">Check Range</string>
     <string name="tutorial_range">Select a tower to see which enemies are in range (highlighted). Towers can only attack enemies within their range!</string>
     <string name="tutorial_attacking_title">Attack Enemies</string>
@@ -372,7 +372,7 @@
     <string name="tutorial_sell_title">Sell Towers</string>
     <string name="tutorial_sell">Select a tower and click Sell to get back 75% of its total investment (cost + upgrades). Use this if you need coins or want to reposition your defense.</string>
     <string name="tutorial_complete_title">Tutorial Complete!</string>
-    <string name="tutorial_complete">You've mastered the basics! In later levels, you'll unlock mightier towers like the Ballista, Wizard, and Alchemy towers to face stronger foes. Now defend Egril against the hordes. Good luck, defender!</string>
+    <string name="tutorial_complete">You've mastered the basics! In later levels, you'll unlock mightier towers like the Ballista, Wizard, and Alchemy towers to face stronger foes like demons and bosses. Now defend Egril against the hordes. Good luck, defender!</string>
     <string name="tutorial_next">Next</string>
     <string name="tutorial_got_it">Got it!</string>
     <string name="tutorial_skip">Skip Tutorial</string>

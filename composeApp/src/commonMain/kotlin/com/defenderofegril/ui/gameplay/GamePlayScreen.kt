@@ -336,10 +336,15 @@ private fun GamePlayScreenContent(
                         selectedDefenderType = null  // Clear defender type selection when starting battle
                         selectedDefenderId = null  // Clear defender selection when starting battle
                         onStartFirstPlayerTurn()
-                        // Track tutorial progress
-                        if (gameState.tutorialState.value.isActive && 
-                            !gameState.tutorialState.value.hasStartedFirstTurn) {
-                            gameState.tutorialState.value = gameState.tutorialState.value.markTurnStarted()
+                        // Track tutorial progress and auto-advance START_COMBAT step
+                        if (gameState.tutorialState.value.isActive) {
+                            if (!gameState.tutorialState.value.hasStartedFirstTurn) {
+                                gameState.tutorialState.value = gameState.tutorialState.value.markTurnStarted()
+                            }
+                            // Auto-advance if currently showing START_COMBAT step
+                            if (gameState.tutorialState.value.currentStep == TutorialStep.START_COMBAT) {
+                                gameState.tutorialState.value = gameState.tutorialState.value.advanceStep()
+                            }
                         }
                     },
                     onMineAction = handleMineAction,
