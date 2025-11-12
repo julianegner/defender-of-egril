@@ -19,7 +19,37 @@ class TutorialStateTest {
         assertFalse(state.hasPlacedFirstTower, "Should not have placed tower yet")
         assertFalse(state.hasStartedFirstTurn, "Should not have started turn yet")
         assertFalse(state.hasAttackedEnemy, "Should not have attacked enemy yet")
+        assertFalse(state.canSkipAttacking, "Should not be able to skip attacking yet")
         assertTrue(state.shouldShowOverlay(), "Should show overlay for WELCOME step")
+        assertTrue(state.isNextEnabled(), "Next should be enabled for WELCOME step")
+    }
+    
+    @Test
+    fun testNextButtonDisabling() {
+        // Build tower step should have Next disabled until tower placed
+        var state = TutorialState(isActive = true, currentStep = TutorialStep.BUILD_TOWER)
+        assertFalse(state.isNextEnabled(), "Next should be disabled at BUILD_TOWER without tower")
+        
+        state = state.markTowerPlaced()
+        assertTrue(state.isNextEnabled(), "Next should be enabled at BUILD_TOWER after tower placed")
+        
+        // Start combat step should have Next disabled until turn started
+        state = TutorialState(isActive = true, currentStep = TutorialStep.START_COMBAT)
+        assertFalse(state.isNextEnabled(), "Next should be disabled at START_COMBAT without turn start")
+        
+        state = state.markTurnStarted()
+        assertTrue(state.isNextEnabled(), "Next should be enabled at START_COMBAT after turn started")
+        
+        // Attacking step should have Next disabled until attack or skip allowed
+        state = TutorialState(isActive = true, currentStep = TutorialStep.ATTACKING)
+        assertFalse(state.isNextEnabled(), "Next should be disabled at ATTACKING without attack")
+        
+        state = state.markAttackedEnemy()
+        assertTrue(state.isNextEnabled(), "Next should be enabled at ATTACKING after attack")
+        
+        // Or if skip is allowed
+        state = TutorialState(isActive = true, currentStep = TutorialStep.ATTACKING, canSkipAttacking = true)
+        assertTrue(state.isNextEnabled(), "Next should be enabled at ATTACKING if skip allowed")
     }
     
     @Test
@@ -29,7 +59,6 @@ class TutorialStateTest {
         // WELCOME -> RESOURCES
         state = state.advanceStep()
         assertEquals(TutorialStep.RESOURCES, state.currentStep, "Should advance to RESOURCES")
-        assertTrue(state.shouldShowOverlay(), "Should show overlay for RESOURCES step")
         
         // RESOURCES -> TOWER_TYPES
         state = state.advanceStep()
@@ -45,11 +74,18 @@ class TutorialStateTest {
         
         // Mark tower placed
         state = state.markTowerPlaced()
-        assertTrue(state.hasPlacedFirstTower, "Should mark tower as placed")
         
-        // BUILD_TOWER -> ENEMIES_INCOMING (now that tower is placed)
+        // BUILD_TOWER -> INITIAL_BUILDING
         state = state.advanceStep()
-        assertEquals(TutorialStep.ENEMIES_INCOMING, state.currentStep, "Should advance to ENEMIES_INCOMING after tower placed")
+        assertEquals(TutorialStep.INITIAL_BUILDING, state.currentStep, "Should advance to INITIAL_BUILDING")
+        
+        // INITIAL_BUILDING -> UNDO_TOWER
+        state = state.advanceStep()
+        assertEquals(TutorialStep.UNDO_TOWER, state.currentStep, "Should advance to UNDO_TOWER")
+        
+        // UNDO_TOWER -> ENEMIES_INCOMING
+        state = state.advanceStep()
+        assertEquals(TutorialStep.ENEMIES_INCOMING, state.currentStep, "Should advance to ENEMIES_INCOMING")
         
         // ENEMIES_INCOMING -> START_COMBAT
         state = state.advanceStep()
@@ -61,25 +97,31 @@ class TutorialStateTest {
         
         // Mark turn started
         state = state.markTurnStarted()
-        assertTrue(state.hasStartedFirstTurn, "Should mark turn as started")
         
-        // START_COMBAT -> ATTACKING (now that turn is started)
+        // START_COMBAT -> CHECK_RANGE
         state = state.advanceStep()
-        assertEquals(TutorialStep.ATTACKING, state.currentStep, "Should advance to ATTACKING after turn started")
+        assertEquals(TutorialStep.CHECK_RANGE, state.currentStep, "Should advance to CHECK_RANGE")
         
-        // ATTACKING -> ATTACKING (waiting for attack)
+        // CHECK_RANGE -> ATTACKING
         state = state.advanceStep()
-        assertEquals(TutorialStep.ATTACKING, state.currentStep, "Should stay at ATTACKING until enemy is attacked")
+        assertEquals(TutorialStep.ATTACKING, state.currentStep, "Should advance to ATTACKING")
+        
+        // ATTACKING -> ATTACKING (waiting for attack or skip)
+        state = state.advanceStep()
+        assertEquals(TutorialStep.ATTACKING, state.currentStep, "Should stay at ATTACKING until enemy attacked or skip allowed")
         
         // Mark enemy attacked
         state = state.markAttackedEnemy()
-        assertTrue(state.hasAttackedEnemy, "Should mark enemy as attacked")
         
-        // ATTACKING -> CHECK_RANGE (now that enemy is attacked)
+        // ATTACKING -> UPGRADE_TOWER
         state = state.advanceStep()
-        assertEquals(TutorialStep.CHECK_RANGE, state.currentStep, "Should advance to CHECK_RANGE after enemy attacked")
+        assertEquals(TutorialStep.UPGRADE_TOWER, state.currentStep, "Should advance to UPGRADE_TOWER")
         
-        // CHECK_RANGE -> COMPLETE
+        // UPGRADE_TOWER -> SELL_TOWER
+        state = state.advanceStep()
+        assertEquals(TutorialStep.SELL_TOWER, state.currentStep, "Should advance to SELL_TOWER")
+        
+        // SELL_TOWER -> COMPLETE
         state = state.advanceStep()
         assertEquals(TutorialStep.COMPLETE, state.currentStep, "Should advance to COMPLETE")
         
@@ -110,52 +152,18 @@ class TutorialStateTest {
     }
     
     @Test
-    fun testGetNextStep() {
-        val state = TutorialState(isActive = true, currentStep = TutorialStep.WELCOME)
-        
-        assertEquals(TutorialStep.RESOURCES, state.getNextStep(), "Next step from WELCOME should be RESOURCES")
-    }
-    
-    @Test
-    fun testBuildTowerGating() {
-        var state = TutorialState(isActive = true, currentStep = TutorialStep.BUILD_TOWER)
-        
-        // Should not advance past BUILD_TOWER without tower placement
-        assertEquals(TutorialStep.BUILD_TOWER, state.getNextStep(), "Should stay at BUILD_TOWER")
-        
-        // Mark tower placed
-        state = state.markTowerPlaced()
-        
-        // Should now advance to next step
-        assertEquals(TutorialStep.ENEMIES_INCOMING, state.getNextStep(), "Should advance to ENEMIES_INCOMING after tower placed")
-    }
-    
-    @Test
-    fun testStartCombatGating() {
-        var state = TutorialState(isActive = true, currentStep = TutorialStep.START_COMBAT)
-        
-        // Should not advance past START_COMBAT without turn start
-        assertEquals(TutorialStep.START_COMBAT, state.getNextStep(), "Should stay at START_COMBAT")
-        
-        // Mark turn started
-        state = state.markTurnStarted()
-        
-        // Should now advance to next step
-        assertEquals(TutorialStep.ATTACKING, state.getNextStep(), "Should advance to ATTACKING after turn started")
-    }
-    
-    @Test
-    fun testAttackingGating() {
+    fun testAttackingWithSkip() {
         var state = TutorialState(isActive = true, currentStep = TutorialStep.ATTACKING)
         
-        // Should not advance past ATTACKING without attacking enemy
+        // Should not advance without attack or skip permission
         assertEquals(TutorialStep.ATTACKING, state.getNextStep(), "Should stay at ATTACKING")
         
-        // Mark enemy attacked
-        state = state.markAttackedEnemy()
+        // Allow skip (tower can't reach or no actions)
+        state = state.allowSkipAttacking()
+        assertTrue(state.canSkipAttacking, "Should mark skip as allowed")
         
         // Should now advance to next step
-        assertEquals(TutorialStep.CHECK_RANGE, state.getNextStep(), "Should advance to CHECK_RANGE after enemy attacked")
+        assertEquals(TutorialStep.UPGRADE_TOWER, state.getNextStep(), "Should advance to UPGRADE_TOWER when skip allowed")
     }
 }
 
