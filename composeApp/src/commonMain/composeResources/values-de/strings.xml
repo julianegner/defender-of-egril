@@ -215,7 +215,7 @@
     <string name="initial_building_phase">Anfängliche Bauphase - Türme platzieren (keine Bauzeit)</string>
     <string name="add_comment">Füge einen optionalen Kommentar hinzu um diesen Spielstand zu identifizieren:</string>
     <string name="game_saved">Spiel gespeichert</string>
-    <string name="on_map">Auf Karte</string>
+    <string name="on_map">Auf der Karte</string>
     <string name="planned_spawns">Geplante Spawns</string>
     <string name="position_label">Position</string>
     <string name="reward_label">Belohnung</string>
