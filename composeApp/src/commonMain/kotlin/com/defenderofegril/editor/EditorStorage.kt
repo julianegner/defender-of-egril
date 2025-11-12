@@ -267,7 +267,8 @@ object EditorStorage {
             attackerWaves = waves,
             initialCoins = editorLevel.startCoins,
             healthPoints = editorLevel.startHealthPoints,
-            directSpawnPlan = directSpawnPlan
+            directSpawnPlan = directSpawnPlan,
+            availableTowers = editorLevel.availableTowers
         )
     }
     
