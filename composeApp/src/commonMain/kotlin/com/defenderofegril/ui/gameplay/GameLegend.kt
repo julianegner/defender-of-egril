@@ -267,7 +267,7 @@ fun EnemyListPanel(gameState: GameState, modifier: Modifier = Modifier) {
             if (activeEnemies.isNotEmpty()) {
                 item(key = "header-active") {
                     Text(
-                        "On Map:",
+                        "${stringResource(Res.string.on_map)}:",
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.Bold,
                         color = GamePlayColors.ErrorDark
