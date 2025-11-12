@@ -352,7 +352,7 @@
     <string name="tutorial_resources_title">Ressources</string>
     <string name="tutorial_resources">Vous avez des pièces pour construire des tours et des points de vie. Chaque ennemi atteignant la cible coûte 1 PV.</string>
     <string name="tutorial_build_title">Construire des tours</string>
-    <string name="tutorial_build">Sélectionnez un type de tour, puis cliquez sur une zone de construction verte pour la placer. Essayez de placer une Tour à Piques!</string>
+    <string name="tutorial_build">Sélectionnez un type de tour, puis cliquez sur une zone de construction verte pour la placer. Vous pouvez fermer ce message ou le laisser visible pendant que vous travaillez. Essayez de placer une Tour à Piques!</string>
     <string name="tutorial_towers_title">Tours disponibles</string>
     <string name="tutorial_towers">Tour à Piques: Courte portée, bon marché\nTour de Lance: Portée moyenne\nTour d'Arc: Longue portée</string>
     <string name="tutorial_enemies_title">Ennemis en approche!</string>

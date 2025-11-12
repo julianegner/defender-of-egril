@@ -352,7 +352,7 @@
     <string name="tutorial_resources_title">Recursos</string>
     <string name="tutorial_resources">Tienes monedas para construir torres y puntos de salud. Cada enemigo que llega al objetivo cuesta 1 PS.</string>
     <string name="tutorial_build_title">Construir torres</string>
-    <string name="tutorial_build">Selecciona un tipo de torre, luego haz clic en un área de construcción verde para colocarla. ¡Intenta colocar una Torre de Púas!</string>
+    <string name="tutorial_build">Selecciona un tipo de torre, luego haz clic en un área de construcción verde para colocarla. Puedes cerrar este mensaje o dejarlo visible mientras trabajas. ¡Intenta colocar una Torre de Púas!</string>
     <string name="tutorial_towers_title">Torres disponibles</string>
     <string name="tutorial_towers">Torre de Púas: Corto alcance, barata\nTorre de Lanza: Alcance medio\nTorre de Arco: Largo alcance</string>
     <string name="tutorial_enemies_title">¡Enemigos entrantes!</string>
