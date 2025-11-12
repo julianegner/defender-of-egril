@@ -9,14 +9,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import com.defenderofegril.model.TutorialStep
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
 
 /**
- * Tutorial overlay that shows step-by-step instructions
+ * Tutorial card that shows step-by-step instructions in the upper right corner
  */
 @Composable
 fun TutorialOverlay(
@@ -28,73 +26,64 @@ fun TutorialOverlay(
         return
     }
     
-    Dialog(
-        onDismissRequest = { 
-            // Allow dismissing during BUILD_TOWER step so user can place towers
-            if (currentStep == TutorialStep.BUILD_TOWER) {
-                onNext()
-            }
-        },
-        properties = DialogProperties(
-            dismissOnBackPress = false,
-            dismissOnClickOutside = currentStep == TutorialStep.BUILD_TOWER
-        )
+    Card(
+        modifier = Modifier
+            .width(300.dp)
+            .padding(8.dp),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
     ) {
-        Card(
+        Column(
             modifier = Modifier
-                .fillMaxWidth(0.9f)
-                .padding(16.dp),
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surface
-            ),
-            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+                .padding(16.dp)
+                .fillMaxWidth(),
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Column(
-                modifier = Modifier
-                    .padding(24.dp)
-                    .fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+            // Title
+            Text(
+                text = getTutorialTitle(currentStep),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
+            
+            // Content
+            Text(
+                text = getTutorialContent(currentStep),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            
+            // Buttons
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                // Title
-                Text(
-                    text = getTutorialTitle(currentStep),
-                    style = MaterialTheme.typography.headlineSmall,
-                    color = MaterialTheme.colorScheme.primary
-                )
-                
-                // Content
-                Text(
-                    text = getTutorialContent(currentStep),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                
-                Spacer(modifier = Modifier.height(8.dp))
-                
-                // Buttons
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    // Skip button (only on first few steps)
-                    if (shouldShowSkipButton(currentStep)) {
-                        OutlinedButton(
-                            onClick = onSkip,
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            Text(stringResource(Res.string.tutorial_skip))
-                        }
-                    }
-                    
-                    // Next/Got it button
-                    Button(
-                        onClick = onNext,
+                // Skip button (only on first few steps)
+                if (shouldShowSkipButton(currentStep)) {
+                    OutlinedButton(
+                        onClick = onSkip,
                         modifier = Modifier.weight(1f)
                     ) {
-                        Text(getButtonText(currentStep))
+                        Text(
+                            text = stringResource(Res.string.tutorial_skip),
+                            style = MaterialTheme.typography.labelSmall
+                        )
                     }
+                }
+                
+                // Next/Got it button
+                Button(
+                    onClick = onNext,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(
+                        text = getButtonText(currentStep),
+                        style = MaterialTheme.typography.labelSmall
+                    )
                 }
             }
         }
