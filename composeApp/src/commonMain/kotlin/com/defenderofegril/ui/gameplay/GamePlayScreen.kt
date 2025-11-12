@@ -345,6 +345,11 @@ private fun GamePlayScreenContent(
                         if (onDefenderAttack(defenderId, targetId)) {
                             selectedTargetId = null
                             selectedTargetPosition = null
+                            // Track tutorial progress
+                            if (gameState.tutorialState.value.isActive && 
+                                !gameState.tutorialState.value.hasAttackedEnemy) {
+                                gameState.tutorialState.value = gameState.tutorialState.value.markAttackedEnemy()
+                            }
                             true
                         } else {
                             false
@@ -354,6 +359,11 @@ private fun GamePlayScreenContent(
                         if (onDefenderAttackPosition(defenderId, targetPos)) {
                             selectedTargetId = null
                             selectedTargetPosition = null
+                            // Track tutorial progress
+                            if (gameState.tutorialState.value.isActive && 
+                                !gameState.tutorialState.value.hasAttackedEnemy) {
+                                gameState.tutorialState.value = gameState.tutorialState.value.markAttackedEnemy()
+                            }
                             true
                         } else {
                             false
