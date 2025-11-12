@@ -345,7 +345,14 @@
     <string name="yes">Oui</string>
     <string name="confirm_delete_level">Êtes-vous sûr de vouloir supprimer ce niveau?</string>
     <string name="amount">Quantité</string>
-    
+
+    <!-- Enemy ability descriptions -->
+    <string name="can_summon">Peut invoquer des serviteurs</string>
+    <string name="can_heal">Peut soigner d\'autres ennemis</string>
+    <string name="can_disable_towers">Peut désactiver les tours</string>
+    <string name="immune_to_acid">Immunisé contre l\'acide</string>
+    <string name="immune_to_fireball">Immunisé contre la boule de feu</string>
+
     <!-- Tutorial -->
     <string name="tutorial_welcome_title">Bienvenue dans Defender of Egril!</string>
     <string name="tutorial_welcome">Ceci est un jeu de défense de tours. Votre objectif est d'empêcher les ennemis d'atteindre la cible en construisant des tours défensives.</string>

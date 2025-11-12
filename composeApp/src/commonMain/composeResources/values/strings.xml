@@ -345,7 +345,14 @@
     <string name="yes">Yes</string>
     <string name="confirm_delete_level">Are you sure you want to delete this level?</string>
     <string name="amount">Amount</string>
-    
+
+    <!-- Enemy ability descriptions -->
+    <string name="can_summon">Can summon minions</string>
+    <string name="can_heal">Can heal other enemies</string>
+    <string name="can_disable_towers">Can disable towers</string>
+    <string name="immune_to_acid">Immune to acid</string>
+    <string name="immune_to_fireball">Immune to fireball</string>
+
     <!-- Tutorial -->
     <string name="tutorial_welcome_title">Welcome to Defender of Egril!</string>
     <string name="tutorial_welcome">This is a tower defense game. Your goal is to stop enemies from reaching the target by building defensive towers.</string>
