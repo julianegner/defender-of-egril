@@ -15,7 +15,6 @@ attack_ranged
 https://freesound.org/people/Christopherderp/sounds/342397/
 Creative Commons 0
 
-TO BE ADDED TO CODE - use when the ballista tower attacks
 attack_ballista
 459875__quickmusik__warrior-bass-t.wav
 https://freesound.org/people/Quickmusik/sounds/459875/
@@ -32,14 +31,9 @@ https://freesound.org/people/spookymodem/sounds/202094/
 Creative Commons 0
 
 # Enemy Events
-enemy_spawn
-316355__littlerobotsoundfactory__orc_38.wav
-https://freesound.org/people/LittleRobotSoundFactory/sounds/316355/
-Attribution 4.0
-
-enemy_move
-661242__deqsterslab__swing-grunt.mp3
-https://freesound.org/people/DeqstersLab/sounds/661242/
+enemy_spawn and enemy_move
+384898__ali_6868__knight-left-footstep-forestgrass-3-with-chainmail.wav
+https://freesound.org/people/Ali_6868/sounds/384898/
 Creative Commons 0
 
 enemy_destroyed
