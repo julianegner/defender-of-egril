@@ -157,9 +157,11 @@ fun GameControlsPanel(
                         verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
 
-                        val types = DefenderType.entries
-                            // hack: we need dragons lair as the last one, as the last one is overridden by the Next turn Button
-                            // .filter { it != DefenderType.DRAGONS_LAIR }
+                        val types = gameState.level.availableTowers
+                            // hack: we need an additional entry
+                            // that is overridden by the start game/end turn button
+                            // in the compact view
+                            .plus(DefenderType.DRAGONS_LAIR)
                             .toTypedArray()
 
                         itemsIndexed(types, key = { index: Int, type: DefenderType -> "${type.name}_folded_${coinsState.value}" }) { index: Int, type: DefenderType ->
@@ -193,7 +195,7 @@ fun GameControlsPanel(
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 items(
-                    DefenderType.entries
+                    gameState.level.availableTowers
                         .filter { it != DefenderType.DRAGONS_LAIR }
                         .toTypedArray(),
                     key = { type -> "${type.name}_${coinsState.value}_${gameState.defenders.count { it.type == type }}" }) { type ->
