@@ -62,7 +62,7 @@ data class GameState(
     }
     
     fun canPlaceDefender(type: DefenderType): Boolean {
-        return coins.value >= type.baseCost
+        return coins.value >= type.baseCost && level.availableTowers.contains(type)
     }
     
     fun canUpgradeDefender(defender: Defender): Boolean {

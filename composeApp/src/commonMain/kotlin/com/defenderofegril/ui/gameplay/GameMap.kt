@@ -476,8 +476,8 @@ fun GridCell(
         when {
             attacker != null -> {
                 // Use graphical icon for enemy units
-                // Key by id, position, and currentHealth to force recomposition when any changes
-                key(attacker.id, attacker.position.value.x, attacker.position.value.y, attacker.currentHealth.value) {
+                // Key by id, position, level, and currentHealth to force recomposition when any changes
+                key(attacker.id, attacker.position.value.x, attacker.position.value.y, attacker.level, attacker.currentHealth.value) {
                     EnemyIcon(attacker = attacker)
                 }
             }
