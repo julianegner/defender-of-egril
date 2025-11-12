@@ -63,12 +63,12 @@ data class TutorialState(
                 else TutorialStep.BUILD_TOWER
             }
             TutorialStep.INITIAL_BUILDING -> TutorialStep.UNDO_TOWER
-            TutorialStep.UNDO_TOWER -> TutorialStep.ENEMIES_INCOMING
-            TutorialStep.ENEMIES_INCOMING -> TutorialStep.START_COMBAT
+            TutorialStep.UNDO_TOWER -> TutorialStep.START_COMBAT
             TutorialStep.START_COMBAT -> {
-                if (hasStartedFirstTurn) TutorialStep.CHECK_RANGE
+                if (hasStartedFirstTurn) TutorialStep.ENEMIES_INCOMING
                 else TutorialStep.START_COMBAT
             }
+            TutorialStep.ENEMIES_INCOMING -> TutorialStep.CHECK_RANGE
             TutorialStep.CHECK_RANGE -> TutorialStep.ATTACKING
             TutorialStep.ATTACKING -> {
                 if (hasAttackedEnemy || canSkipAttacking) TutorialStep.UPGRADE_TOWER
