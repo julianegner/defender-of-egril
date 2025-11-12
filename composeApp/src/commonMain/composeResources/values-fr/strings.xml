@@ -383,4 +383,10 @@
     <string name="tutorial_next">Suivant</string>
     <string name="tutorial_got_it">Compris!</string>
     <string name="tutorial_skip">Passer le tutoriel</string>
+
+    <!-- Sound Settings -->
+    <string name="sound">Son</string>
+    <string name="sound_enabled">Son activé</string>
+    <string name="sound_disabled">Son désactivé</string>
+    <string name="sound_volume">Volume du son</string>
 </resources>
