@@ -1,6 +1,8 @@
 package com.defenderofegril.game
 
 import androidx.compose.runtime.mutableStateOf
+import com.defenderofegril.audio.GlobalSoundManager
+import com.defenderofegril.audio.SoundEvent
 import com.defenderofegril.model.*
 
 /**
@@ -54,6 +56,10 @@ class GameEngine(private val state: GameState) {
     // Turn Management
     fun startFirstPlayerTurn() {
         if (state.phase.value != GamePhase.INITIAL_BUILDING) return
+        
+        // Play battle start sound
+        GlobalSoundManager.playSound(SoundEvent.BATTLE_START)
+        
         state.phase.value = GamePhase.PLAYER_TURN
         state.turnNumber.value = 1  // Start at turn 1 when game begins
         
