@@ -19,6 +19,7 @@ import defender_of_egril.composeapp.generated.resources.*
 @Composable
 fun TutorialOverlay(
     currentStep: TutorialStep,
+    isNextEnabled: Boolean,
     onNext: () -> Unit,
     onSkip: () -> Unit
 ) {
@@ -78,6 +79,7 @@ fun TutorialOverlay(
                 // Next/Got it button
                 Button(
                     onClick = onNext,
+                    enabled = isNextEnabled,
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(
@@ -97,10 +99,14 @@ private fun getTutorialTitle(step: TutorialStep): String {
         TutorialStep.RESOURCES -> stringResource(Res.string.tutorial_resources_title)
         TutorialStep.TOWER_TYPES -> stringResource(Res.string.tutorial_towers_title)
         TutorialStep.BUILD_TOWER -> stringResource(Res.string.tutorial_build_title)
+        TutorialStep.INITIAL_BUILDING -> stringResource(Res.string.tutorial_initial_building_title)
+        TutorialStep.UNDO_TOWER -> stringResource(Res.string.tutorial_undo_title)
         TutorialStep.ENEMIES_INCOMING -> stringResource(Res.string.tutorial_enemies_title)
         TutorialStep.START_COMBAT -> stringResource(Res.string.tutorial_combat_title)
-        TutorialStep.ATTACKING -> stringResource(Res.string.tutorial_attacking_title)
         TutorialStep.CHECK_RANGE -> stringResource(Res.string.tutorial_range_title)
+        TutorialStep.ATTACKING -> stringResource(Res.string.tutorial_attacking_title)
+        TutorialStep.UPGRADE_TOWER -> stringResource(Res.string.tutorial_upgrade_title)
+        TutorialStep.SELL_TOWER -> stringResource(Res.string.tutorial_sell_title)
         TutorialStep.COMPLETE -> stringResource(Res.string.tutorial_complete_title)
         TutorialStep.NONE -> ""
     }
@@ -113,10 +119,14 @@ private fun getTutorialContent(step: TutorialStep): String {
         TutorialStep.RESOURCES -> stringResource(Res.string.tutorial_resources)
         TutorialStep.TOWER_TYPES -> stringResource(Res.string.tutorial_towers)
         TutorialStep.BUILD_TOWER -> stringResource(Res.string.tutorial_build)
+        TutorialStep.INITIAL_BUILDING -> stringResource(Res.string.tutorial_initial_building)
+        TutorialStep.UNDO_TOWER -> stringResource(Res.string.tutorial_undo)
         TutorialStep.ENEMIES_INCOMING -> stringResource(Res.string.tutorial_enemies)
         TutorialStep.START_COMBAT -> stringResource(Res.string.tutorial_combat)
-        TutorialStep.ATTACKING -> stringResource(Res.string.tutorial_attacking)
         TutorialStep.CHECK_RANGE -> stringResource(Res.string.tutorial_range)
+        TutorialStep.ATTACKING -> stringResource(Res.string.tutorial_attacking)
+        TutorialStep.UPGRADE_TOWER -> stringResource(Res.string.tutorial_upgrade)
+        TutorialStep.SELL_TOWER -> stringResource(Res.string.tutorial_sell)
         TutorialStep.COMPLETE -> stringResource(Res.string.tutorial_complete)
         TutorialStep.NONE -> ""
     }
