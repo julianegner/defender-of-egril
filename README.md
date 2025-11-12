@@ -36,7 +36,7 @@ Defend the meadows of Egril against waves of attackers including goblins, orks, 
 - **Upgrade System**: Earn coins by defeating enemies and use them to upgrade your towers for more damage and range
 - **Indestructible Defenses**: Your towers cannot be destroyed
 - **Health System**: Each enemy that reaches the end costs you one health point
-- **Level Progression**: Five levels with increasing difficulty
+- **Level Progression**: Seven levels with increasing difficulty, starting with an interactive tutorial
 - **World Map**: Track your progress and see which levels are unlocked
 - **Interactive Game Board**: Pan and zoom the game board for better visibility
   - **Pan/Scroll**: Drag with mouse or finger to pan in any direction
@@ -161,11 +161,16 @@ composeApp/src/
 
 ### Level Progression
 
-1. **The First Wave**: 5 Goblins - Tutorial level
-2. **Mixed Forces**: Mixed enemies including Goblins, Skeletons, and Orks
-3. **The Ork Invasion**: Tougher waves with more Orks
-4. **Dark Magic Rises**: Introduction of Wizards and Witches
-5. **The Final Stand**: All enemy types in multiple waves
+1. **Welcome to Defender of Egril**: Interactive tutorial - 5 Goblins + 1 Ork
+   - Learn tower placement, combat basics, and strategy
+   - Guided overlays explain each game mechanic
+   - Only 3 tower types available for simplicity
+2. **The First Wave**: 30 Goblins - First real challenge
+3. **Mixed Forces**: Mixed enemies including Goblins, Skeletons, and Orks
+4. **The Ork Invasion**: Tougher waves with more Orks
+5. **Dark Magic Rises**: Introduction of Wizards and Witches
+6. **The Final Stand**: All enemy types in multiple waves
+7. **Ewhad's Challenge**: Face the evil Ewhad boss
 
 ### Combat System
 

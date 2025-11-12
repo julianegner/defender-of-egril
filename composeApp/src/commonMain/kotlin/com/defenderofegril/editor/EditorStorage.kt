@@ -21,7 +21,7 @@ object EditorStorage {
     private val LEVELS_DIR = "editor/levels"
     private val SEQUENCE_FILE = "editor/sequence.json"
     private val VERSION_FILE = "editor/version.txt"
-    private val CURRENT_VERSION = "2" // Increment when level data format changes
+    private val CURRENT_VERSION = "3" // Increment when level data format changes
     
     // Initialize with converted existing levels
     init {
@@ -393,6 +393,95 @@ object EditorStorage {
             saveMap(validatedMap)
         }
         
+        // Create tutorial map - small and simple (15x8)
+        val tutorialTiles = mutableMapOf<String, TileType>()
+        
+        // Tutorial spawn points - just 1 spawn point for simplicity
+        tutorialTiles["0,4"] = TileType.SPAWN_POINT
+        
+        // Tutorial target
+        tutorialTiles["14,4"] = TileType.TARGET
+        
+        // Simple straight path with slight curve
+        for (x in 0..14) {
+            val y = when {
+                x < 3 -> 4
+                x < 6 -> 3 + (x - 3) / 2  // Move from 4 to 5
+                x < 9 -> 5
+                x < 12 -> 5 - (x - 9) / 2  // Move from 5 to 4
+                else -> 4
+            }
+            tutorialTiles["$x,$y"] = TileType.PATH
+            // Add width to path
+            if (y > 0) tutorialTiles["$x,${y-1}"] = TileType.PATH
+            if (y < 7) tutorialTiles["$x,${y+1}"] = TileType.PATH
+        }
+        
+        // Add build areas adjacent to path
+        for (x in 0..14) {
+            for (y in 0..7) {
+                val key = "$x,$y"
+                if (tutorialTiles.containsKey(key)) continue
+                
+                val pos = com.defenderofegril.model.Position(x, y)
+                val neighbors = pos.getHexNeighbors()
+                val isAdjacentToPath = neighbors.any { neighbor ->
+                    neighbor.x >= 0 && neighbor.x < 15 &&
+                    neighbor.y >= 0 && neighbor.y < 8 &&
+                    tutorialTiles["${neighbor.x},${neighbor.y}"] == TileType.PATH
+                }
+                
+                if (isAdjacentToPath) {
+                    tutorialTiles[key] = TileType.BUILD_AREA
+                }
+            }
+        }
+        
+        // Add a couple of islands for strategic placement
+        for ((baseX, baseY) in listOf(5 to 1, 9 to 6)) {
+            for (dx in 0..1) {
+                for (dy in 0..1) {
+                    tutorialTiles["${baseX + dx},${baseY + dy}"] = TileType.ISLAND
+                }
+            }
+        }
+        
+        val tutorialMap = EditorMap(
+            id = "map_tutorial",
+            name = "Tutorial Map",
+            width = 15,
+            height = 8,
+            tiles = tutorialTiles,
+            readyToUse = false
+        )
+        val validatedTutorialMap = tutorialMap.copy(readyToUse = tutorialMap.validateReadyToUse())
+        saveMap(validatedTutorialMap)
+        
+        // Tutorial Level: Welcome to Defender of Egril
+        // 5 goblins + 1 ork, only 3 tower types available
+        val tutorialSpawns = mutableListOf<EditorEnemySpawn>()
+        // 5 goblins - spawn on turns 1, 2, 3, 4, 5
+        for (i in 1..5) {
+            tutorialSpawns.add(EditorEnemySpawn(AttackerType.GOBLIN, 1, i))
+        }
+        // 1 ork on turn 8 (give player time to see goblins)
+        tutorialSpawns.add(EditorEnemySpawn(AttackerType.ORK, 1, 8))
+        
+        saveLevel(EditorLevel(
+            id = "level_tutorial",
+            mapId = "map_tutorial",
+            title = "Welcome to Defender of Egril",
+            subtitle = "Tutorial",
+            startCoins = 60,  // Enough for 6 spike towers or 4 spear towers or 3 bow towers
+            startHealthPoints = 10,
+            enemySpawns = tutorialSpawns,
+            availableTowers = setOf(
+                DefenderType.SPIKE_TOWER,
+                DefenderType.SPEAR_TOWER,
+                DefenderType.BOW_TOWER
+            )
+        ))
+        
         // Create levels based on existing LevelData
         // Level 1: The First Wave
         saveLevel(EditorLevel(
@@ -568,9 +657,9 @@ object EditorStorage {
             }.toSet()
         ))
         
-        // Set initial level sequence
+        // Set initial level sequence (tutorial first!)
         updateLevelSequence(LevelSequence(listOf(
-            "level_1", "level_2", "level_3", "level_4", "level_5", "level_6"
+            "level_tutorial", "level_1", "level_2", "level_3", "level_4", "level_5", "level_6"
         )))
         
         // Save version file to indicate successful initialization
