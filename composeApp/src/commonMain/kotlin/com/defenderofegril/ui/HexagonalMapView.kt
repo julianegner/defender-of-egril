@@ -66,6 +66,7 @@ fun HexagonalMapView(
     onOffsetChange: (Float, Float) -> Unit,
     onActualContentSizeChange: (IntSize) -> Unit = {},
     onBrushPaint: ((Float, Float) -> Unit)? = null,
+    onBrushingActive: ((Boolean) -> Unit) = {},
     modifier: Modifier = Modifier,
     content: @Composable (
         hexWidth: Float,
@@ -98,8 +99,14 @@ fun HexagonalMapView(
         // Convert from screen space to content space by reversing graphicsLayer transformations
         // graphicsLayer applies: translate(offsetX, offsetY) then scale(scale, scale)
         // To reverse: (screen - offset) / scale
+
         val contentX = (screenX - offsetX) / scale
         val contentY = (screenY - offsetY) / scale
+
+        println("offsetX: ${offsetX}, offsetY: ${offsetY}")
+        println("scale: ${scale}")
+        println("screenToContent: screen=($screenX, $screenY) -> content=($contentX, $contentY)")
+
         return androidx.compose.ui.geometry.Offset(contentX, contentY)
     }
 
@@ -214,26 +221,35 @@ fun HexagonalMapView(
             )
             .pointerInput(scale, offsetX, offsetY, config.enableBrushMode, config.enablePanNavigation) {
                 // Brush mode takes priority over pan navigation
-                if (config.enableBrushMode && onBrushPaint != null) {
+                if (config.enableBrushMode){ //&& onBrushPaint != null) {
                     detectDragGestures(
                         onDragStart = { offset ->
+                            /*
                             val contentPos = screenToContent(offset.x, offset.y)
                             onBrushPaint(contentPos.x, contentPos.y)
                             lastPaintedPos = contentPos
+                             */
+                            onBrushingActive(true)
                         },
                         onDrag = { change, _ ->
+                            /*
                             val contentPos = screenToContent(change.position.x, change.position.y)
+
                             // Only paint if we've moved to a different position (with some threshold)
                             val lastPos = lastPaintedPos
-                            if (lastPos == null || 
-                                kotlin.math.abs(contentPos.x - lastPos.x) > 5f || 
+                            if (lastPos == null ||
+                                kotlin.math.abs(contentPos.x - lastPos.x) > 5f ||
                                 kotlin.math.abs(contentPos.y - lastPos.y) > 5f) {
                                 onBrushPaint(contentPos.x, contentPos.y)
                                 lastPaintedPos = contentPos
                             }
+                             */
                         },
                         onDragEnd = {
+                            /*
                             lastPaintedPos = null
+                             */
+                            onBrushingActive(false)
                         }
                     )
                 } else if (config.enablePanNavigation) {
