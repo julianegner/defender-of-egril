@@ -18,6 +18,7 @@ class TutorialStateTest {
         assertEquals(TutorialStep.WELCOME, state.currentStep, "Should start at WELCOME step")
         assertFalse(state.hasPlacedFirstTower, "Should not have placed tower yet")
         assertFalse(state.hasStartedFirstTurn, "Should not have started turn yet")
+        assertFalse(state.hasAttackedEnemy, "Should not have attacked enemy yet")
         assertTrue(state.shouldShowOverlay(), "Should show overlay for WELCOME step")
     }
     
@@ -30,7 +31,11 @@ class TutorialStateTest {
         assertEquals(TutorialStep.RESOURCES, state.currentStep, "Should advance to RESOURCES")
         assertTrue(state.shouldShowOverlay(), "Should show overlay for RESOURCES step")
         
-        // RESOURCES -> BUILD_TOWER
+        // RESOURCES -> TOWER_TYPES
+        state = state.advanceStep()
+        assertEquals(TutorialStep.TOWER_TYPES, state.currentStep, "Should advance to TOWER_TYPES")
+        
+        // TOWER_TYPES -> BUILD_TOWER
         state = state.advanceStep()
         assertEquals(TutorialStep.BUILD_TOWER, state.currentStep, "Should advance to BUILD_TOWER")
         
@@ -42,12 +47,118 @@ class TutorialStateTest {
         state = state.markTowerPlaced()
         assertTrue(state.hasPlacedFirstTower, "Should mark tower as placed")
         
-        // BUILD_TOWER -> TOWER_TYPES (now that tower is placed)
+        // BUILD_TOWER -> ENEMIES_INCOMING (now that tower is placed)
         state = state.advanceStep()
-        assertEquals(TutorialStep.TOWER_TYPES, state.currentStep, "Should advance to TOWER_TYPES after tower placed")
+        assertEquals(TutorialStep.ENEMIES_INCOMING, state.currentStep, "Should advance to ENEMIES_INCOMING after tower placed")
         
-        // TOWER_TYPES -> ENEMIES_INCOMING
+        // ENEMIES_INCOMING -> START_COMBAT
         state = state.advanceStep()
+        assertEquals(TutorialStep.START_COMBAT, state.currentStep, "Should advance to START_COMBAT")
+        
+        // START_COMBAT -> START_COMBAT (waiting for turn start)
+        state = state.advanceStep()
+        assertEquals(TutorialStep.START_COMBAT, state.currentStep, "Should stay at START_COMBAT until turn is started")
+        
+        // Mark turn started
+        state = state.markTurnStarted()
+        assertTrue(state.hasStartedFirstTurn, "Should mark turn as started")
+        
+        // START_COMBAT -> ATTACKING (now that turn is started)
+        state = state.advanceStep()
+        assertEquals(TutorialStep.ATTACKING, state.currentStep, "Should advance to ATTACKING after turn started")
+        
+        // ATTACKING -> ATTACKING (waiting for attack)
+        state = state.advanceStep()
+        assertEquals(TutorialStep.ATTACKING, state.currentStep, "Should stay at ATTACKING until enemy is attacked")
+        
+        // Mark enemy attacked
+        state = state.markAttackedEnemy()
+        assertTrue(state.hasAttackedEnemy, "Should mark enemy as attacked")
+        
+        // ATTACKING -> CHECK_RANGE (now that enemy is attacked)
+        state = state.advanceStep()
+        assertEquals(TutorialStep.CHECK_RANGE, state.currentStep, "Should advance to CHECK_RANGE after enemy attacked")
+        
+        // CHECK_RANGE -> COMPLETE
+        state = state.advanceStep()
+        assertEquals(TutorialStep.COMPLETE, state.currentStep, "Should advance to COMPLETE")
+        
+        // COMPLETE -> NONE
+        state = state.advanceStep()
+        assertEquals(TutorialStep.NONE, state.currentStep, "Should advance to NONE after COMPLETE")
+        assertFalse(state.isActive, "Tutorial should be inactive after COMPLETE")
+        assertFalse(state.shouldShowOverlay(), "Should not show overlay after tutorial ends")
+    }
+    
+    @Test
+    fun testSkipTutorial() {
+        val state = TutorialState(isActive = true, currentStep = TutorialStep.RESOURCES)
+        val skippedState = state.skip()
+        
+        assertFalse(skippedState.isActive, "Tutorial should be inactive after skip")
+        assertEquals(TutorialStep.NONE, skippedState.currentStep, "Step should be NONE after skip")
+        assertFalse(skippedState.shouldShowOverlay(), "Should not show overlay after skip")
+    }
+    
+    @Test
+    fun testInactiveTutorial() {
+        val state = TutorialState(isActive = false, currentStep = TutorialStep.NONE)
+        
+        assertFalse(state.isActive, "Tutorial should be inactive")
+        assertEquals(TutorialStep.NONE, state.currentStep, "Step should be NONE")
+        assertFalse(state.shouldShowOverlay(), "Should not show overlay when inactive")
+    }
+    
+    @Test
+    fun testGetNextStep() {
+        val state = TutorialState(isActive = true, currentStep = TutorialStep.WELCOME)
+        
+        assertEquals(TutorialStep.RESOURCES, state.getNextStep(), "Next step from WELCOME should be RESOURCES")
+    }
+    
+    @Test
+    fun testBuildTowerGating() {
+        var state = TutorialState(isActive = true, currentStep = TutorialStep.BUILD_TOWER)
+        
+        // Should not advance past BUILD_TOWER without tower placement
+        assertEquals(TutorialStep.BUILD_TOWER, state.getNextStep(), "Should stay at BUILD_TOWER")
+        
+        // Mark tower placed
+        state = state.markTowerPlaced()
+        
+        // Should now advance to next step
+        assertEquals(TutorialStep.ENEMIES_INCOMING, state.getNextStep(), "Should advance to ENEMIES_INCOMING after tower placed")
+    }
+    
+    @Test
+    fun testStartCombatGating() {
+        var state = TutorialState(isActive = true, currentStep = TutorialStep.START_COMBAT)
+        
+        // Should not advance past START_COMBAT without turn start
+        assertEquals(TutorialStep.START_COMBAT, state.getNextStep(), "Should stay at START_COMBAT")
+        
+        // Mark turn started
+        state = state.markTurnStarted()
+        
+        // Should now advance to next step
+        assertEquals(TutorialStep.ATTACKING, state.getNextStep(), "Should advance to ATTACKING after turn started")
+    }
+    
+    @Test
+    fun testAttackingGating() {
+        var state = TutorialState(isActive = true, currentStep = TutorialStep.ATTACKING)
+        
+        // Should not advance past ATTACKING without attacking enemy
+        assertEquals(TutorialStep.ATTACKING, state.getNextStep(), "Should stay at ATTACKING")
+        
+        // Mark enemy attacked
+        state = state.markAttackedEnemy()
+        
+        // Should now advance to next step
+        assertEquals(TutorialStep.CHECK_RANGE, state.getNextStep(), "Should advance to CHECK_RANGE after enemy attacked")
+    }
+}
+
         assertEquals(TutorialStep.ENEMIES_INCOMING, state.currentStep, "Should advance to ENEMIES_INCOMING")
         
         // ENEMIES_INCOMING -> START_COMBAT

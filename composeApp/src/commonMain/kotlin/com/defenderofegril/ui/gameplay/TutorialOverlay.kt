@@ -95,10 +95,12 @@ private fun getTutorialTitle(step: TutorialStep): String {
     return when (step) {
         TutorialStep.WELCOME -> stringResource(Res.string.tutorial_welcome_title)
         TutorialStep.RESOURCES -> stringResource(Res.string.tutorial_resources_title)
-        TutorialStep.BUILD_TOWER -> stringResource(Res.string.tutorial_build_title)
         TutorialStep.TOWER_TYPES -> stringResource(Res.string.tutorial_towers_title)
+        TutorialStep.BUILD_TOWER -> stringResource(Res.string.tutorial_build_title)
         TutorialStep.ENEMIES_INCOMING -> stringResource(Res.string.tutorial_enemies_title)
         TutorialStep.START_COMBAT -> stringResource(Res.string.tutorial_combat_title)
+        TutorialStep.ATTACKING -> stringResource(Res.string.tutorial_attacking_title)
+        TutorialStep.CHECK_RANGE -> stringResource(Res.string.tutorial_range_title)
         TutorialStep.COMPLETE -> stringResource(Res.string.tutorial_complete_title)
         TutorialStep.NONE -> ""
     }
@@ -109,10 +111,12 @@ private fun getTutorialContent(step: TutorialStep): String {
     return when (step) {
         TutorialStep.WELCOME -> stringResource(Res.string.tutorial_welcome)
         TutorialStep.RESOURCES -> stringResource(Res.string.tutorial_resources)
-        TutorialStep.BUILD_TOWER -> stringResource(Res.string.tutorial_build)
         TutorialStep.TOWER_TYPES -> stringResource(Res.string.tutorial_towers)
+        TutorialStep.BUILD_TOWER -> stringResource(Res.string.tutorial_build)
         TutorialStep.ENEMIES_INCOMING -> stringResource(Res.string.tutorial_enemies)
         TutorialStep.START_COMBAT -> stringResource(Res.string.tutorial_combat)
+        TutorialStep.ATTACKING -> stringResource(Res.string.tutorial_attacking)
+        TutorialStep.CHECK_RANGE -> stringResource(Res.string.tutorial_range)
         TutorialStep.COMPLETE -> stringResource(Res.string.tutorial_complete)
         TutorialStep.NONE -> ""
     }
@@ -130,6 +134,7 @@ private fun shouldShowSkipButton(step: TutorialStep): Boolean {
     return step in listOf(
         TutorialStep.WELCOME,
         TutorialStep.RESOURCES,
+        TutorialStep.TOWER_TYPES,
         TutorialStep.BUILD_TOWER
     )
 }
