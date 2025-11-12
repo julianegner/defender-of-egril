@@ -6,10 +6,12 @@ package com.defenderofegril.model
 enum class TutorialStep {
     WELCOME,           // Introduction to the game
     RESOURCES,         // Explain coins and health
+    TOWER_TYPES,       // Explain available towers first
     BUILD_TOWER,       // Guide to place first tower
-    TOWER_TYPES,       // Explain available towers
     ENEMIES_INCOMING,  // Show incoming enemies
-    START_COMBAT,      // Explain combat phase
+    START_COMBAT,      // Explain combat phase and start battle button
+    ATTACKING,         // Guide player on how to attack
+    CHECK_RANGE,       // Show how to check if enemy is in range
     COMPLETE,          // Tutorial finished
     NONE               // Not in tutorial or tutorial skipped
 }
@@ -21,7 +23,8 @@ data class TutorialState(
     val isActive: Boolean = false,
     val currentStep: TutorialStep = TutorialStep.NONE,
     val hasPlacedFirstTower: Boolean = false,
-    val hasStartedFirstTurn: Boolean = false
+    val hasStartedFirstTurn: Boolean = false,
+    val hasAttackedEnemy: Boolean = false
 ) {
     /**
      * Check if we should show the tutorial overlay for the current step
@@ -36,17 +39,22 @@ data class TutorialState(
     fun getNextStep(): TutorialStep {
         return when (currentStep) {
             TutorialStep.WELCOME -> TutorialStep.RESOURCES
-            TutorialStep.RESOURCES -> TutorialStep.BUILD_TOWER
+            TutorialStep.RESOURCES -> TutorialStep.TOWER_TYPES
+            TutorialStep.TOWER_TYPES -> TutorialStep.BUILD_TOWER
             TutorialStep.BUILD_TOWER -> {
-                if (hasPlacedFirstTower) TutorialStep.TOWER_TYPES
+                if (hasPlacedFirstTower) TutorialStep.ENEMIES_INCOMING
                 else TutorialStep.BUILD_TOWER
             }
-            TutorialStep.TOWER_TYPES -> TutorialStep.ENEMIES_INCOMING
             TutorialStep.ENEMIES_INCOMING -> TutorialStep.START_COMBAT
             TutorialStep.START_COMBAT -> {
-                if (hasStartedFirstTurn) TutorialStep.COMPLETE
+                if (hasStartedFirstTurn) TutorialStep.ATTACKING
                 else TutorialStep.START_COMBAT
             }
+            TutorialStep.ATTACKING -> {
+                if (hasAttackedEnemy) TutorialStep.CHECK_RANGE
+                else TutorialStep.ATTACKING
+            }
+            TutorialStep.CHECK_RANGE -> TutorialStep.COMPLETE
             TutorialStep.COMPLETE -> TutorialStep.NONE
             TutorialStep.NONE -> TutorialStep.NONE
         }
@@ -75,6 +83,13 @@ data class TutorialState(
      */
     fun markTurnStarted(): TutorialState {
         return copy(hasStartedFirstTurn = true)
+    }
+    
+    /**
+     * Mark that the player has attacked an enemy
+     */
+    fun markAttackedEnemy(): TutorialState {
+        return copy(hasAttackedEnemy = true)
     }
     
     /**
