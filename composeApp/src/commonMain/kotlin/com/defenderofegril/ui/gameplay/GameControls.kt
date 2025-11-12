@@ -157,7 +157,12 @@ fun GameControlsPanel(
                         verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
 
-                        val types = gameState.level.availableTowers.toTypedArray()
+                        val types = gameState.level.availableTowers
+                            // hack: we need an additional entry
+                            // that is overridden by the start game/end turn button
+                            // in the compact view
+                            .plus(DefenderType.DRAGONS_LAIR)
+                            .toTypedArray()
 
                         itemsIndexed(types, key = { index: Int, type: DefenderType -> "${type.name}_folded_${coinsState.value}" }) { index: Int, type: DefenderType ->
                             val isLast = index == types.lastIndex
