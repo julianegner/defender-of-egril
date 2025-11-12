@@ -66,7 +66,6 @@ fun HexagonalMapView(
     onOffsetChange: (Float, Float) -> Unit,
     onActualContentSizeChange: (IntSize) -> Unit = {},
     onBrushPaint: ((Float, Float) -> Unit)? = null,
-    onBrushingActive: ((Boolean) -> Unit) = {},
     modifier: Modifier = Modifier,
     content: @Composable (
         hexWidth: Float,
@@ -102,10 +101,6 @@ fun HexagonalMapView(
 
         val contentX = (screenX - offsetX) / scale
         val contentY = (screenY - offsetY) / scale
-
-        println("offsetX: ${offsetX}, offsetY: ${offsetY}")
-        println("scale: ${scale}")
-        println("screenToContent: screen=($screenX, $screenY) -> content=($contentX, $contentY)")
 
         return androidx.compose.ui.geometry.Offset(contentX, contentY)
     }
@@ -221,19 +216,21 @@ fun HexagonalMapView(
             )
             .pointerInput(scale, offsetX, offsetY, config.enableBrushMode, config.enablePanNavigation) {
                 // Brush mode takes priority over pan navigation
-                if (config.enableBrushMode){ //&& onBrushPaint != null) {
+                if (config.enableBrushMode && onBrushPaint != null) {
+
+                    // this is a hack to offset the brush position to match the hex grid alignment
+                    // does not work when zoomed in or out
+                    val moveX = 0.5f * hexWidth
+                    val moveY = 14 * hexHeight // (15 * (scale - 1)
+
                     detectDragGestures(
                         onDragStart = { offset ->
-                            /*
-                            val contentPos = screenToContent(offset.x, offset.y)
+                            val contentPos = screenToContent(offset.x + moveX, offset.y + moveY)
                             onBrushPaint(contentPos.x, contentPos.y)
                             lastPaintedPos = contentPos
-                             */
-                            onBrushingActive(true)
                         },
-                        onDrag = { change, _ ->
-                            /*
-                            val contentPos = screenToContent(change.position.x, change.position.y)
+                        onDrag = { change, offset ->
+                            val contentPos = screenToContent(offset.x + change.position.x + moveX, offset.y + change.position.y + moveY)
 
                             // Only paint if we've moved to a different position (with some threshold)
                             val lastPos = lastPaintedPos
@@ -243,13 +240,9 @@ fun HexagonalMapView(
                                 onBrushPaint(contentPos.x, contentPos.y)
                                 lastPaintedPos = contentPos
                             }
-                             */
                         },
                         onDragEnd = {
-                            /*
                             lastPaintedPos = null
-                             */
-                            onBrushingActive(false)
                         }
                     )
                 } else if (config.enablePanNavigation) {
