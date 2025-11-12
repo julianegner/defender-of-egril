@@ -3,6 +3,8 @@ package com.defenderofegril.ui.editor.map
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -11,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.positionInWindow
@@ -28,7 +31,6 @@ import com.defenderofegril.ui.editor.SaveAsDialog
 import com.defenderofegril.ui.editor.getTileColor
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
-import com.defenderofegril.ui.icon.TestTubeIcon
 import kotlin.math.sqrt
 
 /**
@@ -47,6 +49,8 @@ fun MapEditorView(
     var zoomLevel by remember { mutableStateOf(1.0f) }
     var offsetX by remember { mutableStateOf(0f) }
     var offsetY by remember { mutableStateOf(0f) }
+    var brushingActive by remember { mutableStateOf(false) }
+    var scale by remember { mutableStateOf(1.0f) }
     
     // Hexagon dimensions - using same constants as game
     val hexSize = 32f  // Radius of hexagon (not scaled here, scaling handled by HexagonalMapView)
@@ -60,7 +64,7 @@ fun MapEditorView(
     // Get density for coordinate conversions
     val density = androidx.compose.ui.platform.LocalDensity.current
     val hexRadiusPx = with(density) { (hexWidth / 2f).dp.toPx() }
-    
+
     // Brush paint callback - called when user drags in brush mode
     val onBrushPaint: (Float, Float) -> Unit = { contentX, contentY ->
         // Find the closest tile to the content position
@@ -82,7 +86,7 @@ fun MapEditorView(
             }
         }
     }
-    
+
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -123,7 +127,12 @@ fun MapEditorView(
                         offsetY = newY
                     },
                     onActualContentSizeChange = { actualContentSize = it },
-                    onBrushPaint = onBrushPaint,
+                    // onBrushPaint = onBrushPaint,
+                    onBrushingActive = { isActive ->
+                        // Optionally show some UI feedback when brushing is active
+                        println("Brushing active: $isActive")
+                        brushingActive = isActive
+                    },
                     modifier = Modifier.fillMaxSize().onSizeChanged { containerSize = it }
                 ) { hexWidthParam, hexHeightParam, verticalSpacing, onTilePositioned ->
                     for (y in 0 until map.height) {
@@ -150,11 +159,66 @@ fun MapEditorView(
                                             // Report position in content coordinates (before transformations)
                                             val bounds = coordinates.size
                                             val position = coordinates.positionInWindow()
+                                            // println("Tile $key global position: ${position.x}, ${position.y} size: ${bounds.width}x${bounds.height}")
                                             val centerX = position.x + bounds.width / 2f
                                             val centerY = position.y + bounds.height / 2f
+                                            println("Tile $key positioned at content coords: ($centerX, $centerY)")
+
+                                            /*
+                                            if we are in brush mode, we get the correct hex tiles here
+
+                                            FIXME this does not work, because onGloballyPositioned is only called
+                                             when moving te mouse pointer, but not when dragging with button down
+                                             */
+                                            // if (brushingActive) {
+                                            //     println("Tile $key to brush")
+                                            //     tiles = tiles.toMutableMap().apply {
+                                            //         println("Brushing active - setting tile $key to $selectedTileType")
+                                            //         this[key] = selectedTileType
+                                            //     }
+                                            // }
+
                                             onTilePositioned(key, Offset(centerX, centerY))
                                             tilePositions[key] = Offset(centerX, centerY)
                                         }
+                                        /*
+                                        .pointerInput(scale, offsetX, offsetY) {
+                                            detectTapGestures(
+                                                onPress = {
+                                                    // On press, set the tile type
+                                                    tiles = tiles.toMutableMap().apply {
+                                                        this[key] = selectedTileType
+                                                    }
+                                                },
+                                                onTap = {
+                                                    // On tap, set the tile type
+                                                    tiles = tiles.toMutableMap().apply {
+                                                        this[key] = selectedTileType
+                                                    }
+                                                }
+                                            )
+                                            detectDragGestures (
+                                                onDragStart = {
+                                                    // On drag start, set the tile type
+                                                    println("Brushing active - setting tile $key to $selectedTileType")
+                                                    tiles = tiles.toMutableMap().apply {
+                                                        this[key] = selectedTileType
+                                                    }
+                                                },
+                                                onDrag = { change, _ ->
+                                                    // On drag, set the tile type
+                                                    println("Brushing active - setting tile $key to $selectedTileType")
+                                                    change.consume()
+                                                    tiles = tiles.toMutableMap().apply {
+                                                        this[key] = selectedTileType
+                                                    }
+                                                },
+                                                onDragEnd = {
+                                                    // On drag end, nothing special for now
+                                                }
+                                            )
+                                        }
+                                         */
                                         .clickable {
                                             tiles = tiles.toMutableMap().apply {
                                                 this[key] = selectedTileType
@@ -219,7 +283,7 @@ fun MapEditorView(
                 }
             }
         }
-        
+
         // Header overlay (on top with elevated z-index)
         MapEditorHeader(
             map = map,
