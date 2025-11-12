@@ -29,10 +29,15 @@ fun TutorialOverlay(
     }
     
     Dialog(
-        onDismissRequest = { /* Don't dismiss on outside click */ },
+        onDismissRequest = { 
+            // Allow dismissing during BUILD_TOWER step so user can place towers
+            if (currentStep == TutorialStep.BUILD_TOWER) {
+                onNext()
+            }
+        },
         properties = DialogProperties(
             dismissOnBackPress = false,
-            dismissOnClickOutside = false
+            dismissOnClickOutside = currentStep == TutorialStep.BUILD_TOWER
         )
     ) {
         Card(
