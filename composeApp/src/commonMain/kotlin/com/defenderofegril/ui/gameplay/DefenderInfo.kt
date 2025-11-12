@@ -123,6 +123,24 @@ fun DefenderInfo(
                             dwarvenMineInfoButtonArea(defender)
                         }
                     }
+                
+                // Show undo button for towers that are still building (in same turn as placed)
+                if (!defender.isReady && defender.placedOnTurn == gameState.turnNumber.value && !defender.hasBeenUsed.value) {
+                    Spacer(modifier = Modifier.width(horizontalSpacing))
+                    Column(modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.Center,
+                    ) {
+                        UndoOrSellButton(
+                            defender = defender,
+                            gameState = gameState,
+                            onUndoTower = onUndoTower,
+                            onSellTower = onSellTower,
+                            modifier = Modifier
+                                .width(240.dp)
+                                .height(buttonHeight)
+                        )
+                    }
+                }
 
                 if (defender.isReady) {
                     if (defender.type == DefenderType.DRAGONS_LAIR) {
