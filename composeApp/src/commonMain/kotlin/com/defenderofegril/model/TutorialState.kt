@@ -35,7 +35,7 @@ data class TutorialState(
      * Check if we should show the tutorial overlay for the current step
      */
     fun shouldShowOverlay(): Boolean {
-        return isActive && currentStep != TutorialStep.NONE && currentStep != TutorialStep.COMPLETE
+        return isActive && currentStep != TutorialStep.NONE
     }
     
     /**
@@ -88,7 +88,7 @@ data class TutorialState(
         val nextStep = getNextStep()
         return copy(
             currentStep = nextStep,
-            isActive = nextStep != TutorialStep.NONE && nextStep != TutorialStep.COMPLETE
+            isActive = nextStep != TutorialStep.NONE
         )
     }
     
