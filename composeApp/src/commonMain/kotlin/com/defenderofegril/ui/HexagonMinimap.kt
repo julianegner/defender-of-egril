@@ -118,7 +118,11 @@ fun HexagonMinimap(
 fun HexagonMinimapFromEditorMap(
     map: com.defenderofegril.editor.EditorMap,
     modifier: Modifier = Modifier,
-    config: MinimapConfig = MinimapConfig()
+    config: MinimapConfig = MinimapConfig(),
+    scale: Float? = null,
+    offsetX: Float? = null,
+    offsetY: Float? = null,
+    containerSize: IntSize? = null
 ) {
     val dummyLevel = remember(map.id) {
         Level(
@@ -146,10 +150,10 @@ fun HexagonMinimapFromEditorMap(
             level = dummyLevel,
             config = config,
             gameState = null,
-            scale = null,
-            offsetX = null,
-            offsetY = null,
-            containerSize = null
+            scale = scale,
+            offsetX = offsetX,
+            offsetY = offsetY,
+            containerSize = containerSize
         )
     }
 }
