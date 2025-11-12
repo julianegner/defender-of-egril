@@ -83,11 +83,7 @@ class TutorialStateTest {
         state = state.advanceStep()
         assertEquals(TutorialStep.UNDO_TOWER, state.currentStep, "Should advance to UNDO_TOWER")
         
-        // UNDO_TOWER -> ENEMIES_INCOMING
-        state = state.advanceStep()
-        assertEquals(TutorialStep.ENEMIES_INCOMING, state.currentStep, "Should advance to ENEMIES_INCOMING")
-        
-        // ENEMIES_INCOMING -> START_COMBAT
+        // UNDO_TOWER -> START_COMBAT
         state = state.advanceStep()
         assertEquals(TutorialStep.START_COMBAT, state.currentStep, "Should advance to START_COMBAT")
         
@@ -98,7 +94,11 @@ class TutorialStateTest {
         // Mark turn started
         state = state.markTurnStarted()
         
-        // START_COMBAT -> CHECK_RANGE
+        // START_COMBAT -> ENEMIES_INCOMING (after turn started)
+        state = state.advanceStep()
+        assertEquals(TutorialStep.ENEMIES_INCOMING, state.currentStep, "Should advance to ENEMIES_INCOMING after turn started")
+        
+        // ENEMIES_INCOMING -> CHECK_RANGE
         state = state.advanceStep()
         assertEquals(TutorialStep.CHECK_RANGE, state.currentStep, "Should advance to CHECK_RANGE")
         
