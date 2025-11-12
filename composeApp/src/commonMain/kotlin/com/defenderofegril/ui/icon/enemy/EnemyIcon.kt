@@ -58,7 +58,7 @@ fun EnemyIcon(
                 text = "${attacker.level}",
                 style = MaterialTheme.typography.labelSmall,
                 fontSize = 12.sp,
-                color = Color.Red,
+                color = healthTextColor,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier
                     .align(Alignment.TopCenter)
