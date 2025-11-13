@@ -110,10 +110,11 @@ fun MapEditorView(
                             detectDragGestures { change, _ ->
                                 val pointerPos = change.position
 
-                                // Adjust pointer position for spacer and centering
+                                // Adjust pointer position for centering
                                 // When content is smaller than container, it's centered
+                                val adjustedX = pointerPos.x - (containerSize.width - actualContentSize.width) / 2f
                                 val adjustedY = pointerPos.y - (containerSize.height - actualContentSize.height) / 2f
-                                val adjustedPointerPos = Offset(pointerPos.x, adjustedY)
+                                val adjustedPointerPos = Offset(adjustedX, adjustedY)
 
                                 val tilePos = screenToHexGridPosition(adjustedPointerPos, offsetX, offsetY, zoomLevel, hexSizePx)
                                 if (tilePos != null) {
