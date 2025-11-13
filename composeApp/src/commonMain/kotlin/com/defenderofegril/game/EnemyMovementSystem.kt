@@ -235,6 +235,119 @@ class EnemyMovementSystem(
      * - Odd turns (1, 3, 5...): 1 step on path (walking)
      * - Even turns (2, 4, 6...): up to 5 steps (flying), can move over obstacles but must end on path
      */
+    /**
+     * Calculate dragon movement path for the turn-based movement system.
+     * Returns a list of positions the dragon should move through.
+     * This increments the dragon's turn counter and calculates movement based on alternating walk/fly pattern.
+     */
+    fun calculateDragonMovementPath(dragon: Attacker): List<Position> {
+        val startPos = dragon.position.value
+        dragon.dragonTurnsSinceSpawned.value++
+        
+        // Determine speed and if flying - alternates every turn
+        val isOddTurn = dragon.dragonTurnsSinceSpawned.value % 2 == 1
+        val speed = if (isOddTurn) {
+            dragon.isFlying.value = false
+            1  // Walking on odd turns
+        } else {
+            dragon.isFlying.value = true
+            5  // Flying on even turns
+        }
+        
+        println("=== DRAGON MOVEMENT CALCULATION ===")
+        println("Dragon ID: ${dragon.id}")
+        println("Turns since spawned: ${dragon.dragonTurnsSinceSpawned.value}")
+        println("Is odd turn: $isOddTurn")
+        println("Is flying: ${dragon.isFlying.value}")
+        println("Speed: $speed")
+        println("Start position: $startPos")
+        
+        val target = state.level.targetPosition
+        val result = mutableListOf<Position>()
+        
+        // For flying, calculate the target position using BFS
+        if (dragon.isFlying.value) {
+            val currentPos = startPos
+            val currentDistToTarget = currentPos.distanceTo(target)
+            
+            // Get all positions on path within flying range (up to 5 tiles away)
+            val reachablePathPositions = mutableListOf<Pair<Position, Int>>()
+            
+            // BFS to find all positions within 5 hexagonal distance
+            val visited = mutableSetOf(currentPos)
+            val queue = mutableListOf(Pair(currentPos, 0))
+            
+            while (queue.isNotEmpty()) {
+                val (pos, dist) = queue.removeAt(0)
+                
+                // Check if this position is on path
+                if (pos != currentPos && state.level.isOnPath(pos)) {
+                    reachablePathPositions.add(Pair(pos, dist))
+                }
+                
+                // Explore neighbors if we haven't reached max flying distance
+                if (dist < speed) {
+                    for (neighbor in pos.getHexNeighbors()) {
+                        // Check bounds
+                        if (neighbor.x < 0 || neighbor.x >= state.level.gridWidth ||
+                            neighbor.y < 0 || neighbor.y >= state.level.gridHeight) {
+                            continue
+                        }
+                        
+                        if (neighbor !in visited) {
+                            visited.add(neighbor)
+                            queue.add(Pair(neighbor, dist + 1))
+                        }
+                    }
+                }
+            }
+            
+            println("Flying dragon BFS: visited ${visited.size}, found ${reachablePathPositions.size} path positions")
+            
+            // Choose the path position that gets us closest to target
+            val bestPosition = reachablePathPositions.minByOrNull { (pos, _) ->
+                pos.distanceTo(target)
+            }?.first
+            
+            val finalPos = if (bestPosition != null) {
+                println("  Best position from BFS: $bestPosition")
+                bestPosition
+            } else {
+                // Fallback: if no reachable path positions, use pathfinding to move along path
+                println("  BFS failed, using pathfinding fallback")
+                val path = pathfinding.findPath(currentPos, target, dragon)
+                if (path.size > 1) {
+                    val pathIndex = minOf(speed, path.size - 1)
+                    println("  Using path index $pathIndex: ${path[pathIndex]}")
+                    path[pathIndex]
+                } else {
+                    println("  Pathfinding also failed, staying in place")
+                    currentPos
+                }
+            }
+            
+            // For flying, we move directly to the final position
+            if (finalPos != currentPos) {
+                result.add(finalPos)
+            }
+        } else {
+            // Walking - follow path normally up to 'speed' tiles
+            val path = pathfinding.findPath(startPos, target, dragon)
+            println("Walking dragon: path size ${path.size}")
+            
+            if (path.size > 1) {
+                val stepsToTake = minOf(speed, path.size - 1)
+                for (i in 1..stepsToTake) {
+                    result.add(path[i])
+                }
+            }
+        }
+        
+        println("Movement path: $result")
+        println("===================================")
+        return result
+    }
+    
     private fun moveDragon(dragon: Attacker) {
         val startPos = dragon.position.value
         dragon.dragonTurnsSinceSpawned.value++
