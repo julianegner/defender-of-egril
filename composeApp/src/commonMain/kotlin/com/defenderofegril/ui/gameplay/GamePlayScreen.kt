@@ -76,6 +76,7 @@ private fun GamePlayScreenContent(
 ) {
     var selectedDefenderType by remember { mutableStateOf<DefenderType?>(null) }
     var selectedDefenderId by remember { mutableStateOf<Int?>(null) }
+    var selectedAttackerId by remember { mutableStateOf<Int?>(null) }  // Add enemy selection
     var selectedTargetId by remember { mutableStateOf<Int?>(null) }
     var selectedTargetPosition by remember { mutableStateOf<Position?>(null) }
     var showCheatDialog by remember { mutableStateOf(false) }
@@ -171,11 +172,18 @@ private fun GamePlayScreenContent(
                     selectedDefenderType?.let { type ->
                         if (onPlaceDefender(type, position)) {
                             selectedDefenderType = null
+                            // Track tutorial progress
+                            if (gameState.tutorialState.value.isActive && 
+                                !gameState.tutorialState.value.hasPlacedFirstTower) {
+                                gameState.tutorialState.value = gameState.tutorialState.value.markTowerPlaced()
+                            }
                         }
                         return@GameGrid
                     }
 
                     val previousSelectedDefenderId = selectedDefenderId
+                    val previousSelectedAttackerId = selectedAttackerId
+                    
                     // Check if there's a defender at this position
                     val defender = gameState.defenders.find { it.position == position }
                     if (defender != null) {
@@ -183,8 +191,25 @@ private fun GamePlayScreenContent(
                             // Deselect if clicking the same defender
                             selectedDefenderId = null
                         } else {
-                            // Select this defender
+                            // Select this defender, deselect any selected attacker
                             selectedDefenderId = defender.id
+                            selectedAttackerId = null
+                            selectedTargetId = null
+                            selectedTargetPosition = null
+                            return@GameGrid
+                        }
+                    }
+                    
+                    // Check if there's an attacker at this position (only if no defender is being placed)
+                    val attacker = gameState.attackers.find { it.position.value == position && !it.isDefeated.value }
+                    if (attacker != null && selectedDefenderId == null) {
+                        if (previousSelectedAttackerId == attacker.id) {
+                            // Deselect if clicking the same attacker
+                            selectedAttackerId = null
+                        } else {
+                            // Select this attacker, deselect any selected defender
+                            selectedAttackerId = attacker.id
+                            selectedDefenderId = null
                             selectedTargetId = null
                             selectedTargetPosition = null
                             return@GameGrid
@@ -226,10 +251,10 @@ private fun GamePlayScreenContent(
                                 }
                             } else {
                                 // For single-target attacks, only allow targeting enemies
-                                val attacker =
+                                val attackerForTargeting =
                                     gameState.attackers.find { it.position.value == position && !it.isDefeated.value }
-                                if (attacker != null) {
-                                    selectedTargetId = attacker.id
+                                if (attackerForTargeting != null) {
+                                    selectedTargetId = attackerForTargeting.id
                                     selectedTargetPosition = position // to be able to show the 3 circles to highlight the target
                                 }
                             }
@@ -257,6 +282,50 @@ private fun GamePlayScreenContent(
                     EnemyListPanel(gameState = gameState, modifier = Modifier.fillMaxWidth().weight(1f))
                 }
             }
+            
+            // Tutorial card (positioned in upper right corner)
+            if (gameState.tutorialState.value.shouldShowOverlay()) {
+                // Check if we should allow skipping attack step
+                // (tower has no actions left or can't reach any enemies)
+                if (gameState.tutorialState.value.currentStep == TutorialStep.ATTACKING &&
+                    !gameState.tutorialState.value.canSkipAttacking) {
+                    val hasTowerWithActions = gameState.defenders.any { defender ->
+                        defender.actionsRemaining.value > 0 && defender.buildTimeRemaining.value == 0
+                    }
+                    val selectedDefender = selectedDefenderId?.let { id ->
+                        gameState.defenders.find { it.id == id }
+                    }
+                    val canReachEnemies = selectedDefender?.let { defender ->
+                        gameState.attackers.any { attacker ->
+                            !attacker.isDefeated.value &&
+                            defender.position.distanceTo(attacker.position.value) <= defender.range
+                        }
+                    } ?: false
+                    
+                    // Allow skipping if no tower has actions or selected tower can't reach enemies
+                    if (!hasTowerWithActions || (selectedDefender != null && !canReachEnemies)) {
+                        gameState.tutorialState.value = gameState.tutorialState.value.allowSkipAttacking()
+                    }
+                }
+                
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(8.dp)
+                ) {
+                    TutorialOverlay(
+                        currentStep = gameState.tutorialState.value.currentStep,
+                        isNextEnabled = gameState.tutorialState.value.isNextEnabled(),
+                        onNext = {
+                            val currentTutorialState = gameState.tutorialState.value
+                            gameState.tutorialState.value = currentTutorialState.advanceStep()
+                        },
+                        onSkip = {
+                            gameState.tutorialState.value = gameState.tutorialState.value.skip()
+                        }
+                    )
+                }
+            }
         }
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -270,11 +339,17 @@ private fun GamePlayScreenContent(
                     coinsState = gameState.coins,
                     selectedDefenderType = selectedDefenderType,
                     selectedDefenderId = selectedDefenderId,
+                    selectedAttackerId = selectedAttackerId,
                     selectedTargetId = null,
                     selectedTargetPosition = null,
                     onSelectDefenderType = { selectedDefenderType = it },
                     onUpgradeDefender = { onUpgradeDefender(it) },
-                    onUndoTower = { onUndoTower(it) },
+                    onUndoTower = { defenderId ->
+                        if (onUndoTower(defenderId)) {
+                            selectedDefenderType = null
+                            selectedDefenderId = null
+                        }
+                    },
                     onSellTower = { defenderId ->
                         if (onSellTower(defenderId)) {
                             selectedDefenderType = null
@@ -286,7 +361,18 @@ private fun GamePlayScreenContent(
                     onPrimaryAction = {
                         selectedDefenderType = null  // Clear defender type selection when starting battle
                         selectedDefenderId = null  // Clear defender selection when starting battle
+                        selectedAttackerId = null  // Clear attacker selection when starting battle
                         onStartFirstPlayerTurn()
+                        // Track tutorial progress and auto-advance START_COMBAT step
+                        if (gameState.tutorialState.value.isActive) {
+                            if (!gameState.tutorialState.value.hasStartedFirstTurn) {
+                                gameState.tutorialState.value = gameState.tutorialState.value.markTurnStarted()
+                            }
+                            // Auto-advance if currently showing START_COMBAT step
+                            if (gameState.tutorialState.value.currentStep == TutorialStep.START_COMBAT) {
+                                gameState.tutorialState.value = gameState.tutorialState.value.advanceStep()
+                            }
+                        }
                     },
                     onMineAction = handleMineAction,
                     uiScale = uiScale
@@ -300,11 +386,17 @@ private fun GamePlayScreenContent(
                     coinsState = gameState.coins,
                     selectedDefenderType = selectedDefenderType,
                     selectedDefenderId = selectedDefenderId,
+                    selectedAttackerId = selectedAttackerId,
                     selectedTargetId = selectedTargetId,
                     selectedTargetPosition = selectedTargetPosition,
                     onSelectDefenderType = { selectedDefenderType = it },
                     onUpgradeDefender = { onUpgradeDefender(it) },
-                    onUndoTower = { onUndoTower(it) },
+                    onUndoTower = { defenderId ->
+                        if (onUndoTower(defenderId)) {
+                            selectedDefenderType = null
+                            selectedDefenderId = null
+                        }
+                    },
                     onSellTower = { defenderId ->
                         if (onSellTower(defenderId)) {
                             selectedDefenderType = null
@@ -315,6 +407,11 @@ private fun GamePlayScreenContent(
                         if (onDefenderAttack(defenderId, targetId)) {
                             selectedTargetId = null
                             selectedTargetPosition = null
+                            // Track tutorial progress
+                            if (gameState.tutorialState.value.isActive && 
+                                !gameState.tutorialState.value.hasAttackedEnemy) {
+                                gameState.tutorialState.value = gameState.tutorialState.value.markAttackedEnemy()
+                            }
                             true
                         } else {
                             false
@@ -324,12 +421,24 @@ private fun GamePlayScreenContent(
                         if (onDefenderAttackPosition(defenderId, targetPos)) {
                             selectedTargetId = null
                             selectedTargetPosition = null
+                            // Track tutorial progress
+                            if (gameState.tutorialState.value.isActive && 
+                                !gameState.tutorialState.value.hasAttackedEnemy) {
+                                gameState.tutorialState.value = gameState.tutorialState.value.markAttackedEnemy()
+                            }
                             true
                         } else {
                             false
                         }
                     },
-                    onPrimaryAction = onEndPlayerTurn,
+                    onPrimaryAction = {
+                        onEndPlayerTurn()
+                        // Track tutorial progress
+                        if (gameState.tutorialState.value.isActive && 
+                            !gameState.tutorialState.value.hasStartedFirstTurn) {
+                            gameState.tutorialState.value = gameState.tutorialState.value.markTurnStarted()
+                        }
+                    },
                     onMineAction = handleMineAction,
                     uiScale = uiScale
                 )

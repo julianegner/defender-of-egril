@@ -1,6 +1,8 @@
 package com.defenderofegril.game
 
 import androidx.compose.runtime.mutableStateOf
+import com.defenderofegril.audio.GlobalSoundManager
+import com.defenderofegril.audio.SoundEvent
 import com.defenderofegril.model.*
 
 /**
@@ -46,6 +48,9 @@ class TowerManager(private val state: GameState) {
         state.coins.value -= defender.upgradeCost
         defender.level.value++
         
+        // Play tower upgraded sound
+        GlobalSoundManager.playSound(SoundEvent.TOWER_UPGRADED)
+        
         // Calculate the new actionsPerTurn after upgrade
         val newActionsPerTurn = defender.actionsPerTurnCalculated
         
@@ -86,6 +91,9 @@ class TowerManager(private val state: GameState) {
         val refund = (defender.totalCost * 0.75).toInt()
         state.coins.value += refund
         state.defenders.remove(defender)
+        
+        // Play tower sold sound
+        GlobalSoundManager.playSound(SoundEvent.TOWER_SOLD)
         
         return true
     }

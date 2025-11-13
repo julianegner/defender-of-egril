@@ -330,4 +330,63 @@
     <string name="damage_label">Dégâts</string>
     <string name="hp_with_level">PV: %d</string>
     <string name="add_enemy_button">➕ Ajouter un ennemi au tour %d</string>
+    <string name="add_all_towers">Tout ajouter</string>
+    <string name="remove_all_towers">Tout supprimer</string>
+    <string name="level_info_tab">Info du niveau</string>
+    <string name="enemy_spawns_tab">Apparitions d\'ennemis</string>
+    <string name="towers_tab">Tours</string>
+    <string name="delete_turn">Supprimer le tour</string>
+    <string name="cannot_delete_turn">Impossible de supprimer ce tour tant que des tours ultérieurs existent</string>
+    <string name="no_enemies_in_turn">Aucun ennemi n\'apparaît dans ce tour</string>
+    <string name="clear_turn">Effacer le tour</string>
+    <string name="remove_all_turns">Supprimer tous les tours</string>
+    <string name="confirm_remove_all_turns">Êtes-vous sûr de vouloir supprimer tous les tours d\'apparition?</string>
+    <string name="copy_level">Copier le niveau</string>
+    <string name="yes">Oui</string>
+    <string name="confirm_delete_level">Êtes-vous sûr de vouloir supprimer ce niveau?</string>
+    <string name="amount">Quantité</string>
+
+    <!-- Enemy ability descriptions -->
+    <string name="can_summon">Peut invoquer des serviteurs</string>
+    <string name="can_heal">Peut soigner d\'autres ennemis</string>
+    <string name="can_disable_towers">Peut désactiver les tours</string>
+    <string name="immune_to_acid">Immunisé contre l\'acide</string>
+    <string name="immune_to_fireball">Immunisé contre la boule de feu</string>
+
+    <!-- Tutorial -->
+    <string name="tutorial_welcome_title">Bienvenue dans Defender of Egril!</string>
+    <string name="tutorial_welcome">Ceci est un jeu de défense de tours. Votre objectif est d'empêcher les ennemis d'atteindre la cible en construisant des tours défensives.</string>
+    <string name="tutorial_resources_title">Ressources</string>
+    <string name="tutorial_resources">Vous avez des pièces pour construire des tours et des points de vie. Chaque ennemi atteignant la cible coûte 1 PV.</string>
+    <string name="tutorial_towers_title">Tours disponibles</string>
+    <string name="tutorial_towers">Tour à Piques: Courte portée, bon marché\nTour de Lance: Portée moyenne\nTour d'Arc: Longue portée\n\nChoisissez judicieusement selon votre stratégie!</string>
+    <string name="tutorial_build_title">Construire des tours</string>
+    <string name="tutorial_build">Sélectionnez un type de tour ci-dessous, puis cliquez sur une zone de construction verte pour la placer. Construisez vos défenses!</string>
+    <string name="tutorial_initial_building_title">Phase de construction initiale</string>
+    <string name="tutorial_initial_building">Dans cette phase initiale, les tours sont construites instantanément mais ne peuvent pas encore attaquer. Cliquez sur une tour pour voir sa portée - les tuiles du chemin obtiennent des bordures vertes. Plus tard dans le jeu, les tours prendront 1-2 tours pour se construire.</string>
+    <string name="tutorial_undo_title">Annuler les tours</string>
+    <string name="tutorial_undo">Pendant cette phase initiale, vous pouvez annuler le placement d'une tour en la sélectionnant et en la vendant pour un remboursement complet. Après le début de la bataille, vous ne pouvez vendre les tours que pour 75% de leur valeur.</string>
+    <string name="tutorial_combat_title">Démarrer la bataille</string>
+    <string name="tutorial_combat">Cliquez sur le bouton Démarrer la bataille lorsque vous êtes prêt. Votre objectif est de défendre la Cible à la fin du chemin - ne laissez pas les ennemis l'atteindre!</string>
+    <string name="tutorial_enemies_title">Ennemis en approche!</string>
+    <string name="tutorial_enemies">Les Gobelins sont rapides mais faibles. L'Orque est lent mais résistant. Positionnez vos tours judicieusement!</string>
+    <string name="tutorial_range_title">Vérifier la portée</string>
+    <string name="tutorial_range">Sélectionnez une tour pour voir quels ennemis sont à portée (mis en évidence). Les tours ne peuvent attaquer que les ennemis à leur portée!</string>
+    <string name="tutorial_attacking_title">Attaquer les ennemis</string>
+    <string name="tutorial_attacking">Cliquez sur un ennemi à portée pour attaquer. Chaque tour a des actions limitées par tour indiquées par des symboles ⚡. Si votre tour ne peut pas atteindre les ennemis ou n'a plus d'actions, vous pouvez terminer votre tour ou placer plus de tours.</string>
+    <string name="tutorial_upgrade_title">Améliorer les tours</string>
+    <string name="tutorial_upgrade">Sélectionnez une tour et cliquez sur Améliorer pour augmenter ses statistiques. Vous verrez les dégâts, la portée et les actions actuelles par tour, ainsi que ce qu'elles seront après l'amélioration. Les améliorations coûtent des pièces mais rendent les tours plus puissantes!</string>
+    <string name="tutorial_sell_title">Vendre des tours</string>
+    <string name="tutorial_sell">Sélectionnez une tour et cliquez sur Vendre pour récupérer 75% de son investissement total (coût + améliorations). Utilisez ceci si vous avez besoin de pièces ou souhaitez repositionner votre défense.</string>
+    <string name="tutorial_complete_title">Tutoriel terminé!</string>
+    <string name="tutorial_complete">Vous avez maîtrisé les bases! Dans les niveaux ultérieurs, vous débloquerez des tours plus puissantes comme la Baliste, le Mage et les tours d'Alchimie pour affronter des ennemis plus forts comme des démons et des boss. Maintenant défendez Egril contre les hordes. Bonne chance, défenseur!</string>
+    <string name="tutorial_next">Suivant</string>
+    <string name="tutorial_got_it">Compris!</string>
+    <string name="tutorial_skip">Passer le tutoriel</string>
+
+    <!-- Sound Settings -->
+    <string name="sound">Son</string>
+    <string name="sound_enabled">Son activé</string>
+    <string name="sound_disabled">Son désactivé</string>
+    <string name="sound_volume">Volume du son</string>
 </resources>
