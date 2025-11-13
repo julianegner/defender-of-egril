@@ -39,12 +39,14 @@ fun screenToHexGridPosition(
     val oddRowOffset = hexWidth * 0.42f
     
     // Calculate row (y) from vertical position
-    // Formula (accounting for Row.offset modifier on line 269 of HexagonalMapView.kt):
-    // yPixel = y * rowSpacing + (-(y-1)) + hexHeight/2
-    // yPixel = y * rowSpacing - y + 1 + hexHeight/2
-    // yPixel = y * (rowSpacing - 1) + 1 + hexHeight/2
-    // Reverse: y = (yPixel - 1 - hexHeight/2) / (rowSpacing - 1)
-    val yApprox = (py - 1f - hexHeight / 2f) / (rowSpacing - 1f)
+    // Formula (accounting for Row.offset modifier and Arrangement.spacedBy):
+    // Each row is placed at: y * (hexHeight + rowSpacing)
+    // Then offset by: -(y-1) = -y + 1
+    // Hex center is at: hexHeight/2
+    // Combined: yPixel = y * (hexHeight + rowSpacing) - y + 1 + hexHeight/2
+    //                  = y * (hexHeight + rowSpacing - 1) + 1 + hexHeight/2
+    // Reverse: y = (yPixel - 1 - hexHeight/2) / (hexHeight + rowSpacing - 1)
+    val yApprox = (py - 1f - hexHeight / 2f) / (hexHeight + rowSpacing - 1f)
     val y = kotlin.math.round(yApprox).toInt()
     
     // Calculate column (x) from horizontal position, accounting for odd row offset
