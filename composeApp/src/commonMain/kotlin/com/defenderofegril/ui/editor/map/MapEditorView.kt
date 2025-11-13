@@ -1,37 +1,26 @@
 package com.defenderofegril.ui.editor.map
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.IntSize
 import com.defenderofegril.editor.EditorMap
 import com.defenderofegril.editor.TileType
 import com.defenderofegril.model.Position
+import com.defenderofegril.ui.BaseGridCell
 import com.defenderofegril.ui.HexagonMinimapFromEditorMap
-import com.defenderofegril.ui.HexagonShape
 import com.defenderofegril.ui.HexagonalMapConfig
 import com.defenderofegril.ui.HexagonalMapView
 import com.defenderofegril.ui.MinimapConfig
 import com.defenderofegril.ui.icon.PushpinIcon
 import com.defenderofegril.ui.editor.SaveAsDialog
 import com.defenderofegril.ui.editor.getTileColor
-import com.defenderofegril.ui.gameplay.BaseGridCell
-import com.defenderofegril.ui.gameplay.GridCell
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
 import kotlin.math.sqrt
@@ -54,20 +43,29 @@ fun MapEditorView(
     var offsetY by remember { mutableStateOf(0f) }
     
     // Hexagon dimensions - using same constants as game
-    val hexSize = 32f  // Radius of hexagon (not scaled here, scaling handled by HexagonalMapView)
-    val sqrt3 = sqrt(3.0).toFloat()
-    val hexWidth = hexSize * sqrt3  // Width of hexagon (flat-to-flat)
-    val hexHeight = hexSize * 2f    // Height of hexagon (point-to-point)
+    // val hexSize = 32f  // Radius of hexagon (not scaled here, scaling handled by HexagonalMapView)
+    val hexSize = 40.dp
+    // val sqrt3 = sqrt(3.0).toFloat()
+    // val hexWidth = hexSize * sqrt3  // Width of hexagon (flat-to-flat)
+    // val hexHeight = hexSize * 2f    // Height of hexagon (point-to-point)
     
     // Track tile positions for brush painting
-    val tilePositions = remember { mutableStateMapOf<String, Offset>() }
+    // val tilePositions = remember { mutableStateMapOf<String, Offset>() }
     
     // Get density for coordinate conversions
-    val density = androidx.compose.ui.platform.LocalDensity.current
-    val hexRadiusPx = with(density) { (hexWidth / 2f).dp.toPx() }
+    // val density = androidx.compose.ui.platform.LocalDensity.current
+    // val hexRadiusPx = with(density) { (hexWidth / 2f).dp.toPx() }
 
     // Brush paint callback - called when user drags in brush mode
-    val onBrushPaint: (Float, Float) -> Unit = { contentX, contentY ->
+    val onBrushPaint: (position: Position) -> Unit = { position ->
+
+        println("Brush paint at content coords: x=${position.x}, y={$position.y}")
+
+        val key = "${position.x},${position.y}"
+        tiles.apply {
+            this[key] = selectedTileType
+        }
+        /*
         // Find the closest tile to the content position
         val closest = tilePositions.entries.minByOrNull { (_, tilePos) ->
             val dx = contentX - tilePos.x
@@ -86,6 +84,7 @@ fun MapEditorView(
                 }
             }
         }
+         */
     }
 
     Box(
@@ -113,7 +112,7 @@ fun MapEditorView(
                     gridWidth = map.width,
                     gridHeight = map.height,
                     config = HexagonalMapConfig(
-                        hexSize = hexSize,
+                        hexSize = hexSize.value,
                         enableKeyboardNavigation = true,  // Enable keyboard navigation for editor
                         enablePanNavigation = false,  // Disable pan navigation (use brush mode instead)
                         enableBrushMode = true,  // Enable brush mode for tile painting
@@ -141,12 +140,23 @@ fun MapEditorView(
                         ) {
                             for (x in 0 until map.width) {
 /******************************************************************************************/
-                                val key = "$x,$y"
-                                val tileType = tiles[key] ?: TileType.NO_PLAY
-
-
+                                // val key = "$x,$y"
                                 val position = Position(x, y)
-                                // BaseGridCell
+                                val key = "${position.x},${position.y}"
+                                val tileType = tiles[key] ?: TileType.NO_PLAY
+                                BaseGridCell(
+                                    hexSize = hexSize,
+                                    backgroundColor = getTileColor(tileType),
+                                    borderColor = Color.Black,
+                                    borderWidth = 1.5.dp,
+                                    onClick = {
+                                        tiles = tiles.toMutableMap().apply {
+                                            this[key] = selectedTileType
+                                        }
+                                    }
+                                ) {
+
+                                /*
                                 Box(
                                     modifier = Modifier
                                         .width((hexWidthParam).dp)
@@ -171,10 +181,13 @@ fun MapEditorView(
                                         },
                                     contentAlignment = Alignment.Center
                                 ) {
+
+                                 */
                                     if (tileType == TileType.WAYPOINT) {
                                         PushpinIcon(size = 20.dp)
                                     }
                                 }
+
                             }
                         }
                     }
