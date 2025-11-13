@@ -298,8 +298,16 @@ class EnemyMovementSystem(
             val finalPos = if (bestPosition != null) {
                 bestPosition
             } else {
-                // Fallback: if no reachable path positions (shouldn't happen), stay in place
-                currentPos
+                // Fallback: if no reachable path positions, use pathfinding to move along path
+                // This ensures the dragon always moves even if BFS fails
+                val path = pathfinding.findPath(currentPos, target, dragon)
+                if (path.size > 1) {
+                    // Move along path up to 5 steps
+                    val pathIndex = minOf(speed, path.size - 1)
+                    path[pathIndex]
+                } else {
+                    currentPos  // Stay in place if pathfinding also fails
+                }
             }
             
             // Check if landing on an enemy unit (eat it)
