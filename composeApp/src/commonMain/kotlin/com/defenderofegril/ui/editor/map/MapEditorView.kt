@@ -74,7 +74,6 @@ fun MapEditorView(
             Spacer(modifier = Modifier.height(280.dp))
 
             val hexSizePx = with(LocalDensity.current) { hexSize.toPx() }
-            val placeholderSpacerPx = with(LocalDensity.current) { 280.dp.toPx() }
             Box(
                 modifier = Modifier
                     .weight(1f)
@@ -111,12 +110,7 @@ fun MapEditorView(
                             detectDragGestures { change, _ ->
                                 val pointerPos = change.position
 
-                                // val offsetAdjustedPointerPos = Offset(
-                                //     x = pointerPos.x - (containerSize.width - actualContentSize.width) / 2f,
-                                //     y = pointerPos.y + placeholderSpacerPx - (containerSize.height - actualContentSize.height) / 2f
-                                // )
-
-                                val tilePos = screenToHexGridPosition(pointerPos, offsetX, offsetY - placeholderSpacerPx, zoomLevel, hexSizePx)
+                                val tilePos = screenToHexGridPosition(pointerPos, offsetX, offsetY, zoomLevel, hexSizePx)
                                 if (tilePos != null) {
                                     onBrushPaint(tilePos)
                                 }
