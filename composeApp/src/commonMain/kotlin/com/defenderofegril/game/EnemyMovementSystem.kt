@@ -249,53 +249,89 @@ class EnemyMovementSystem(
         
         val target = state.level.targetPosition
         
-        // For flying, we can move directly towards target ignoring path
+        // For flying, we can move up to 5 tiles but must end on path
         if (dragon.isFlying.value) {
-            // Get all valid positions to move to (within speed range)
-            var currentPos = dragon.position.value
-            var remainingSpeed = speed
+            // Find all path positions within 5 hexagonal distance that get us closer to target
+            val currentPos = dragon.position.value
+            val currentDistToTarget = currentPos.distanceTo(target)
             
-            while (remainingSpeed > 0) {
-                // Find next position closer to target
-                val neighbors = currentPos.neighbors()
-                val nextPos = neighbors.minByOrNull { it.distanceTo(target) } ?: break
+            // Get all positions on path within flying range (up to 5 tiles away)
+            val reachablePathPositions = mutableListOf<Pair<Position, Int>>() // Position to distance from current
+            
+            // BFS to find all positions within 5 hexagonal distance
+            val visited = mutableSetOf(currentPos)
+            val queue = mutableListOf(Pair(currentPos, 0))
+            
+            while (queue.isNotEmpty()) {
+                val (pos, dist) = queue.removeAt(0)
                 
-                // If we're not getting closer, stop
-                if (nextPos.distanceTo(target) >= currentPos.distanceTo(target)) {
-                    break
+                // Check if this position is on path and gets us closer to target
+                if (pos != currentPos && 
+                    state.level.isOnPath(pos) && 
+                    pos.distanceTo(target) < currentDistToTarget) {
+                    reachablePathPositions.add(Pair(pos, dist))
                 }
                 
-                currentPos = nextPos
-                remainingSpeed--
-                
-                // Check if reached target
-                if (currentPos == target) {
-                    state.healthPoints.value--
-                    dragon.isDefeated.value = true
-                    break
+                // Explore neighbors if we haven't reached max flying distance
+                if (dist < speed) {
+                    for (neighbor in pos.getHexNeighbors()) {
+                        // Check bounds
+                        if (neighbor.x < 0 || neighbor.x >= state.level.gridWidth ||
+                            neighbor.y < 0 || neighbor.y >= state.level.gridHeight) {
+                            continue
+                        }
+                        
+                        if (neighbor !in visited) {
+                            visited.add(neighbor)
+                            queue.add(Pair(neighbor, dist + 1))
+                        }
+                    }
                 }
+            }
+            
+            // Choose the path position that gets us closest to target
+            val bestPosition = reachablePathPositions.minByOrNull { (pos, _) ->
+                pos.distanceTo(target)
+            }?.first
+            
+            val finalPos = if (bestPosition != null) {
+                bestPosition
+            } else {
+                // Fallback: if no reachable path positions (shouldn't happen), stay in place
+                currentPos
             }
             
             // Check if landing on an enemy unit (eat it)
             val unitAtPosition = state.attackers.find { 
-                it.id != dragon.id && !it.isDefeated.value && it.position.value == currentPos
+                it.id != dragon.id && !it.isDefeated.value && it.position.value == finalPos
             }
             if (unitAtPosition != null && unitAtPosition.type != AttackerType.EWHAD) {
                 // Eat the unit and gain its health
                 dragon.currentHealth.value += unitAtPosition.currentHealth.value
                 unitAtPosition.isDefeated.value = true
             } else if (unitAtPosition != null && unitAtPosition.type == AttackerType.EWHAD) {
-                // Move to adjacent position instead
-                val adjacentPositions = currentPos.neighbors()
-                val alternatePos = adjacentPositions.firstOrNull { pos ->
-                    state.attackers.none { it.position.value == pos && !it.isDefeated.value }
-                }
+                // Can't land on Ewhad - find alternate position nearby
+                val alternatePos = finalPos.getHexNeighbors()
+                    .filter { pos ->
+                        state.level.isOnPath(pos) &&
+                        state.attackers.none { it.position.value == pos && !it.isDefeated.value }
+                    }
+                    .minByOrNull { it.distanceTo(target) }
+                
                 if (alternatePos != null) {
-                    currentPos = alternatePos
+                    dragon.position.value = alternatePos
+                } else {
+                    dragon.position.value = finalPos // No choice, land anyway
                 }
+            } else {
+                dragon.position.value = finalPos
             }
             
-            dragon.position.value = currentPos
+            // Check if reached target
+            if (dragon.position.value == target) {
+                state.healthPoints.value--
+                dragon.isDefeated.value = true
+            }
         } else {
             // Walking - follow path normally
             val path = pathfinding.findPath(dragon.position.value, target, dragon)
