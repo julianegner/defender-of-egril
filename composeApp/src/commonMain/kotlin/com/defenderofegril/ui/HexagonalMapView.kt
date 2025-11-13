@@ -75,10 +75,7 @@ fun HexagonalMapView(
     onBrushPaint: ((Position) -> Unit)? = null,
     modifier: Modifier = Modifier,
     content: @Composable (
-        hexWidth: Float,
-        hexHeight: Float,
-        verticalSpacing: Float,
-        onTilePositioned: (String, androidx.compose.ui.geometry.Offset) -> Unit
+        position: Position
     ) -> Unit
 ) {
     var containerSize by remember { mutableStateOf(IntSize.Zero) }
@@ -221,52 +218,6 @@ fun HexagonalMapView(
                 onScaleChange = onScaleChange,
                 onOffsetChange = onOffsetChange
             )
-            .pointerInput(scale, offsetX, offsetY, config.enableBrushMode, config.enablePanNavigation) {
-                // Brush mode takes priority over pan navigation
-                if (config.enableBrushMode && onBrushPaint != null) {
-
-                    // this is a hack to offset the brush position to match the hex grid alignment
-                    // does not work when zoomed in or out
-                    val moveX = 0.5f * hexWidth
-                    val moveY = 14 * hexHeight // (15 * (scale - 1)
-
-                    detectDragGestures(
-                        onDragStart = { offset ->
-                            val contentPos = screenToContent(offset.x + moveX, offset.y + moveY)
-                            // todo thsi is a placeholder value to test brush painting
-                            onBrushPaint(Position(1,1))
-                            lastPaintedPos = contentPos
-                        },
-                        onDrag = { change, offset ->
-                            val contentPos = screenToContent(offset.x + change.position.x + moveX, offset.y + change.position.y + moveY)
-
-                            // Only paint if we've moved to a different position (with some threshold)
-                            val lastPos = lastPaintedPos
-                            if (lastPos == null ||
-                                kotlin.math.abs(contentPos.x - lastPos.x) > 5f ||
-                                kotlin.math.abs(contentPos.y - lastPos.y) > 5f) {
-                                onBrushPaint(Position(1,1))
-                                // onBrushPaint(contentPos.x, contentPos.y)
-                                lastPaintedPos = contentPos
-                            }
-                        },
-                        onDragEnd = {
-                            lastPaintedPos = null
-                        }
-                    )
-                } else if (config.enablePanNavigation) {
-                    detectDragGestures { _, dragAmount ->
-                        // Apply pan with sensitivity multiplier
-                        val effectiveSensitivity = config.dragPanSensitivity * scale
-                        val newOffsetX = offsetX + (dragAmount.x * effectiveSensitivity)
-                        val newOffsetY = offsetY + (dragAmount.y * effectiveSensitivity)
-
-                        // Constrain pan to keep content visible
-                        val (constrainedX, constrainedY) = constrainOffsets(newOffsetX, newOffsetY, scale)
-                        onOffsetChange(constrainedX, constrainedY)
-                    }
-                }
-            }
             .pointerInput(scale, offsetX, offsetY) {
                 // Keep detectTransformGestures for pinch-to-zoom on mobile (separate pointerInput to avoid conflicts)
                 if (isPlatformMobile) {
@@ -309,7 +260,21 @@ fun HexagonalMapView(
                 ),
             verticalArrangement = Arrangement.spacedBy((-hexHeight + verticalSpacing - 7f).dp)
         ) {
-            content(hexWidth, hexHeight, verticalSpacing, onTilePositioned)
+            for (y in 0 until gridHeight) {
+                Row(
+                    modifier = Modifier
+                        .padding(
+                            start = if (y % 2 == 1) (hexWidth * 0.42f).dp else 0.dp
+                        )
+                        .offset(y = (-(y - 1)).dp),
+                    horizontalArrangement = Arrangement.spacedBy((-10).dp)
+                ) {
+                    for (x in 0 until gridWidth) {
+                        val position = Position(x, y)
+                        content(position)
+                    }
+                }
+            }
         }
     }
 }
@@ -321,6 +286,7 @@ fun BaseGridCell(
     borderColor: Color,
     borderWidth: androidx.compose.ui.unit.Dp,
     onClick: () -> Unit,
+    modifier: Modifier = Modifier,
     content: @Composable BoxScope.() -> Unit = { }
 ) {
     val sqrt3 = sqrt(3.0).toFloat()
@@ -334,7 +300,8 @@ fun BaseGridCell(
             .clip(HexagonShape())
             .background(backgroundColor)
             .border(borderWidth, borderColor, HexagonShape())
-            .clickable(onClick = onClick),
+            .clickable(onClick = onClick)
+            .then(modifier),
         contentAlignment = Alignment.Center
     ) {
         content()
