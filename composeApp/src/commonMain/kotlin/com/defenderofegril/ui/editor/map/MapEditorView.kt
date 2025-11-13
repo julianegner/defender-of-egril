@@ -106,11 +106,16 @@ fun MapEditorView(
                     modifier = Modifier
                         .fillMaxSize()
                         .onSizeChanged { containerSize = it }
-                        .pointerInput(Unit) {
+                        .pointerInput(containerSize, actualContentSize) {
                             detectDragGestures { change, _ ->
                                 val pointerPos = change.position
 
-                                val tilePos = screenToHexGridPosition(pointerPos, offsetX, offsetY, zoomLevel, hexSizePx)
+                                // Adjust pointer position for spacer and centering
+                                // When content is smaller than container, it's centered
+                                val adjustedY = pointerPos.y - (containerSize.height - actualContentSize.height) / 2f
+                                val adjustedPointerPos = Offset(pointerPos.x, adjustedY)
+
+                                val tilePos = screenToHexGridPosition(adjustedPointerPos, offsetX, offsetY, zoomLevel, hexSizePx)
                                 if (tilePos != null) {
                                     onBrushPaint(tilePos)
                                 }
