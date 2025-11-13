@@ -22,6 +22,7 @@ import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
 import com.defenderofegril.ui.icon.TestTubeIcon
 import com.defenderofegril.ui.icon.enemy.EnemyIcon
+import com.defenderofegril.utils.isPlatformMobile
 import kotlin.math.sqrt
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -168,20 +169,33 @@ fun TargetCirclesOverlay(
             val verticalSpacingValue = -hexHeight + verticalSpacing - 7f
             
             // Calculate center position in grid coordinate space
-            var centerX = targetX * (hexWidth + horizontalSpacing) * 2 + hexWidth
+            var centerX =
+                if (isPlatformMobile)
+                    targetX * (hexWidth + (horizontalSpacing * 2)) * 2 + hexWidth
+                else
+                    targetX * (hexWidth + horizontalSpacing) * 2 + hexWidth
             if (targetY % 2 == 1) {
-                centerX += hexWidth // / 2f - horizontalSpacing//oddRowOffset
+                centerX += hexWidth
             } else {
                 centerX += 10f
             }
-            centerX -= 14f
+            if (isPlatformMobile)
+                centerX -= 28f
+            else
+                centerX -= 14f
 
 
             // todo fix Y position offset
-            var centerY = targetY * (hexHeight + verticalSpacingValue) * 2 + hexHeight / 2f
+            var centerY =
+                if (isPlatformMobile)
+                    targetY * (hexHeight + verticalSpacingValue) * 2
+                else
+                    targetY * (hexHeight + verticalSpacingValue) * 2 + hexHeight / 2f
             centerY += (-(targetY - 1))
-
-            centerY += 35f
+            if (isPlatformMobile)
+                centerY += 0f
+            else
+                centerY += 35f
             
             // Apply scale and offset transformations manually
             // val transformedX = centerX * scale + offsetX
