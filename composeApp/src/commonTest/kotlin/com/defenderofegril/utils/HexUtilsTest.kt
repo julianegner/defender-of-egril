@@ -19,21 +19,22 @@ class HexUtilsTest {
         val offsetY = 0f
         
         // Calculated hex center positions for hexSize=40:
-        // Position(0, 0): x=34.64, y=40.00
-        // Position(1, 0): x=93.92, y=40.00
+        // (accounting for Row.offset(y = (-(y-1)).dp) modifier)
+        // Position(0, 0): x=34.64, y=41.00
+        // Position(1, 0): x=93.92, y=41.00
         // Position(0, 1): x=63.74, y=13.00
         // Position(1, 1): x=123.02, y=13.00
-        // Position(0, 2): x=34.64, y=-14.00
+        // Position(0, 2): x=34.64, y=-15.00
         
         // Test even row positions
         var result = screenToHexGridPosition(
-            Offset(34.64f, 40.00f), 
+            Offset(34.64f, 41.00f), 
             offsetX, offsetY, zoomLevel, hexSize
         )
         assertEquals(Position(0, 0), result, "Should map to Position(0, 0)")
         
         result = screenToHexGridPosition(
-            Offset(93.92f, 40.00f), 
+            Offset(93.92f, 41.00f), 
             offsetX, offsetY, zoomLevel, hexSize
         )
         assertEquals(Position(1, 0), result, "Should map to Position(1, 0)")
@@ -53,7 +54,7 @@ class HexUtilsTest {
         
         // Test another even row
         result = screenToHexGridPosition(
-            Offset(34.64f, -14.00f), 
+            Offset(34.64f, -15.00f), 
             offsetX, offsetY, zoomLevel, hexSize
         )
         assertEquals(Position(0, 2), result, "Should map to Position(0, 2)")
@@ -69,13 +70,13 @@ class HexUtilsTest {
         val offsetX = 50f
         val offsetY = 30f
         
-        // Position(0, 0) center in content space: (34.64, 40.00)
+        // Position(0, 0) center in content space: (34.64, 41.00)
         // In screen space with zoom=2.0 and offset=(50, 30):
         // screenX = contentX * zoom + offsetX = 34.64 * 2.0 + 50 = 119.28
-        // screenY = contentY * zoom + offsetY = 40.00 * 2.0 + 30 = 110.00
+        // screenY = contentY * zoom + offsetY = 41.00 * 2.0 + 30 = 112.00
         
         val result = screenToHexGridPosition(
-            Offset(119.28f, 110.00f), 
+            Offset(119.28f, 112.00f), 
             offsetX, offsetY, zoomLevel, hexSize
         )
         assertEquals(Position(0, 0), result, "Should map to Position(0, 0) with zoom and pan")
@@ -91,10 +92,10 @@ class HexUtilsTest {
         val offsetX = 0f
         val offsetY = 0f
         
-        // Test a position slightly offset from Position(0, 0) center (34.64, 40.00)
+        // Test a position slightly offset from Position(0, 0) center (34.64, 41.00)
         // Should still round to Position(0, 0)
         var result = screenToHexGridPosition(
-            Offset(40.0f, 35.0f), 
+            Offset(40.0f, 36.0f), 
             offsetX, offsetY, zoomLevel, hexSize
         )
         assertEquals(Position(0, 0), result, "Position near (0,0) center should map to Position(0, 0)")
@@ -102,7 +103,7 @@ class HexUtilsTest {
         // Test a position between hex (0, 0) and (1, 0)
         // Closer to (1, 0) at x=93.92, should map there
         result = screenToHexGridPosition(
-            Offset(80.0f, 40.0f), 
+            Offset(80.0f, 41.0f), 
             offsetX, offsetY, zoomLevel, hexSize
         )
         assertEquals(Position(1, 0), result, "Position closer to (1,0) should map to Position(1, 0)")
