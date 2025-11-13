@@ -1,16 +1,12 @@
 package com.defenderofegril.ui.gameplay
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
@@ -385,23 +381,6 @@ fun GridCell(
         borderWidth = borderWidth,
         onClick = onClick
     ) {
-    /*
-    // Calculate hex dimensions for proper sizing
-    val sqrt3 = sqrt(3.0).toFloat()
-    val hexWidth = hexSize.value * sqrt3
-    val hexHeight = hexSize.value * 2f
-
-    Box(
-        modifier = Modifier
-            .width((hexWidth).dp)
-            .height((hexHeight).dp)
-            .clip(HexagonShape())
-            .background(backgroundColor)
-            .border(borderWidth, borderColor, HexagonShape())
-            .clickable(onClick = onClick),
-        contentAlignment = Alignment.Center
-    ) {
-     */
         when {
             attacker != null -> {
                 // Use graphical icon for enemy units
@@ -476,32 +455,5 @@ fun GridCell(
                 Text(stringResource(Res.string.target), style = MaterialTheme.typography.labelSmall, color = GamePlayColors.Success)
             }
         }
-    }
-}
-
-@Composable
-fun BaseGridCell(
-    hexSize: androidx.compose.ui.unit.Dp,
-    backgroundColor: Color,
-    borderColor: Color,
-    borderWidth: androidx.compose.ui.unit.Dp,
-    onClick: () -> Unit,
-    content: @Composable BoxScope.() -> Unit = { }
-) {
-    val sqrt3 = sqrt(3.0).toFloat()
-    val hexWidth = hexSize.value * sqrt3
-    val hexHeight = hexSize.value * 2f
-
-    Box(
-        modifier = Modifier
-            .width((hexWidth).dp)
-            .height((hexHeight).dp)
-            .clip(HexagonShape())
-            .background(backgroundColor)
-            .border(borderWidth, borderColor, HexagonShape())
-            .clickable(onClick = onClick),
-        contentAlignment = Alignment.Center
-    ) {
-        content()
     }
 }
