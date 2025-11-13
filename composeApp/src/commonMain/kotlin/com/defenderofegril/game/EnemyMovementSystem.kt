@@ -236,6 +236,7 @@ class EnemyMovementSystem(
      * - Even turns (2, 4, 6...): up to 5 steps (flying), can move over obstacles but must end on path
      */
     private fun moveDragon(dragon: Attacker) {
+        val startPos = dragon.position.value
         dragon.dragonTurnsSinceSpawned.value++
         
         // Determine speed and if flying - alternates every turn
@@ -247,6 +248,14 @@ class EnemyMovementSystem(
             dragon.isFlying.value = true
             5  // Flying on even turns
         }
+        
+        println("=== DRAGON MOVEMENT DEBUG ===")
+        println("Dragon ID: ${dragon.id}")
+        println("Turns since spawned: ${dragon.dragonTurnsSinceSpawned.value}")
+        println("Is odd turn: $isOddTurn")
+        println("Is flying: ${dragon.isFlying.value}")
+        println("Speed: $speed")
+        println("Start position: $startPos")
         
         val target = state.level.targetPosition
         
@@ -289,26 +298,40 @@ class EnemyMovementSystem(
                 }
             }
             
+            println("Flying dragon BFS:")
+            println("  Visited tiles: ${visited.size}")
+            println("  Reachable path positions: ${reachablePathPositions.size}")
+            if (reachablePathPositions.isNotEmpty()) {
+                println("  Reachable positions (first 10): ${reachablePathPositions.take(10).map { (pos, dist) -> "($pos, dist=$dist)" }}")
+            }
+            
             // Choose the path position that gets us closest to target
             val bestPosition = reachablePathPositions.minByOrNull { (pos, _) ->
                 pos.distanceTo(target)
             }?.first
+            
+            println("  Best position from BFS: $bestPosition")
             
             val finalPos = if (bestPosition != null) {
                 bestPosition
             } else {
                 // Fallback: if no reachable path positions, use pathfinding to move along path
                 // This ensures the dragon always moves even if BFS fails
+                println("  BFS failed, using pathfinding fallback")
                 val path = pathfinding.findPath(currentPos, target, dragon)
+                println("  Pathfinding result: path size = ${path.size}")
                 if (path.size > 1) {
                     // Move along path up to 5 steps
                     val pathIndex = minOf(speed, path.size - 1)
+                    println("  Using path index $pathIndex: ${path[pathIndex]}")
                     path[pathIndex]
                 } else {
+                    println("  Pathfinding also failed, staying in place")
                     currentPos  // Stay in place if pathfinding also fails
                 }
             }
             
+            println("  Final flying position: $finalPos")
             // Check if landing on an enemy unit (eat it)
             val unitAtPosition = state.attackers.find { 
                 it.id != dragon.id && !it.isDefeated.value && it.position.value == finalPos
@@ -342,8 +365,15 @@ class EnemyMovementSystem(
             }
         } else {
             // Walking - follow path normally
+            println("Walking dragon:")
             val path = pathfinding.findPath(dragon.position.value, target, dragon)
-            if (path.isEmpty()) return
+            println("  Path size: ${path.size}")
+            if (path.isEmpty()) {
+                println("  Path is empty, returning")
+                println("End position: ${dragon.position.value}")
+                println("=============================")
+                return
+            }
             
             var pathIndex = 1
             var remainingSpeed = speed
@@ -358,10 +388,12 @@ class EnemyMovementSystem(
                 
                 if (unitAtPosition != null && unitAtPosition.type != AttackerType.EWHAD) {
                     // Eat the unit and gain its health
+                    println("  Eating unit ${unitAtPosition.type} at $newPos, gaining ${unitAtPosition.currentHealth.value} HP")
                     dragon.currentHealth.value += unitAtPosition.currentHealth.value
                     unitAtPosition.isDefeated.value = true
                 } else if (unitAtPosition != null && unitAtPosition.type == AttackerType.EWHAD) {
                     // Can't move to Ewhad's position, stop
+                    println("  Blocked by Ewhad at $newPos, stopping")
                     break
                 }
                 
@@ -376,7 +408,11 @@ class EnemyMovementSystem(
                     break
                 }
             }
+            println("  Walked to: ${dragon.position.value}")
         }
+        
+        println("End position: ${dragon.position.value}")
+        println("=============================")
     }
 
     fun moveGoblinsAfterSpawn() {
