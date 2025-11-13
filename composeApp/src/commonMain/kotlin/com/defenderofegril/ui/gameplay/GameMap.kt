@@ -47,7 +47,6 @@ fun GameGrid(
     // Odd rows are offset to the right to create hexagonal grid pattern
     val oddRowOffset = hexSize.value * sqrt(3.0).toFloat() * 0.42f
     Box(modifier = modifier.onSizeChanged { containerSize = it }) {
-/******************************************************************************************/
         HexagonalMapView(
             gridWidth = gameState.level.gridWidth,
             gridHeight = gameState.level.gridHeight,
@@ -65,37 +64,23 @@ fun GameGrid(
                 offsetY = newOffsetY
             },
             modifier = Modifier.fillMaxSize()
-        ) { hexWidth, hexHeight, verticalSpacing, _ ->  // Ignore onTilePositioned for gameplay
-            for (y in 0 until gameState.level.gridHeight) {
-                Row(
-                    modifier = Modifier
-                        .padding(
-                            start = if (y % 2 == 1) (hexWidth * 0.42f).dp else 0.dp
-                        )
-                        .offset(y = (-(y-1)).dp),
-                    horizontalArrangement = Arrangement.spacedBy((-10).dp)
-                ) {
-                    for (x in 0 until gameState.level.gridWidth) {
-/******************************************************************************************/
-                        val position = Position(x, y)
-                        GridCell(
-                            position = position,
-                            gameState = gameState,
-                            isSelected = selectedDefenderType != null,
-                            isDefenderSelected = selectedDefenderId?.let { selId ->
-                                gameState.defenders.find { it.position == position }?.id == selId
-                            } ?: false,
-                            isTargetSelected = gameState.attackers.find { it.position.value == position }?.id == selectedTargetId,
-                            selectedDefenderId = selectedDefenderId,
-                            selectedTargetPosition = selectedTargetPosition,
-                            selectedMineAction = selectedMineAction,
-                            onClick = { onCellClick(position) },
-                            hexSize = hexSize
-                        )
-                    }
-                }
-            }
+        ) { position ->
+            GridCell(
+                position = position,
+                gameState = gameState,
+                isSelected = selectedDefenderType != null,
+                isDefenderSelected = selectedDefenderId?.let { selId ->
+                    gameState.defenders.find { it.position == position }?.id == selId
+                } ?: false,
+                isTargetSelected = gameState.attackers.find { it.position.value == position }?.id == selectedTargetId,
+                selectedDefenderId = selectedDefenderId,
+                selectedTargetPosition = selectedTargetPosition,
+                selectedMineAction = selectedMineAction,
+                onClick = { onCellClick(position) },
+                hexSize = hexSize
+            )
         }
+
 
         // Overlay for target circles - drawn at GameGrid level to avoid clipping and ensure visibility
         TargetCirclesOverlay(
