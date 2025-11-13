@@ -2,21 +2,46 @@
 
 ## Issue Description
 
-The dragon unit was moving incorrectly. It should move as follows:
-- **Turn 1**: 1 tile on the path (walking)
-- **Turn 2+**: Up to 5 tiles, flying over any terrain, but **must end on a path tile**
+The dragon unit was moving incorrectly. It should move with alternating behavior:
+- **Odd turns (1, 3, 5...)**: 1 tile on the path (walking)
+- **Even turns (2, 4, 6...)**: Up to 5 tiles, flying over any terrain, but **must end on a path tile**
 
-The previous implementation allowed the dragon to end on any tile when flying, not just path tiles.
+The previous implementation:
+1. Had dragon fly continuously after turn 1 (not alternating)
+2. Allowed the dragon to end on any tile when flying, not just path tiles
 
 ## Root Cause
 
-The flying movement logic in `EnemyMovementSystem.moveDragon()` used a greedy approach:
-- It moved one hex at a time towards the target
-- It didn't validate that the final position was on the path
-- This could result in the dragon landing on non-path tiles (build areas, islands, etc.)
+Two issues in `EnemyMovementSystem.moveDragon()`:
+1. **Movement pattern**: Used `if (turn == 1) walk else fly` instead of alternating every turn
+2. **Flying movement logic**: Used a greedy approach that:
+   - Moved one hex at a time towards the target
+   - Didn't validate that the final position was on the path
+   - Could result in the dragon landing on non-path tiles (build areas, islands, etc.)
 
 ## Solution
 
+### 1. Alternating Movement Pattern
+Changed from:
+```kotlin
+val speed = if (dragon.dragonTurnsSinceSpawned.value == 1) {
+    1  // Walking on first turn
+} else {
+    5  // Flying on subsequent turns
+}
+```
+
+To:
+```kotlin
+val isOddTurn = dragon.dragonTurnsSinceSpawned.value % 2 == 1
+val speed = if (isOddTurn) {
+    1  // Walking on odd turns (1, 3, 5...)
+} else {
+    5  // Flying on even turns (2, 4, 6...)
+}
+```
+
+### 2. Flying Movement BFS Algorithm
 Replaced the greedy movement with a proper BFS (Breadth-First Search) algorithm:
 
 1. **BFS Exploration**: Starting from the dragon's current position, explore all tiles within 5 hexagonal distance
@@ -25,8 +50,9 @@ Replaced the greedy movement with a proper BFS (Breadth-First Search) algorithm:
 4. **Best Selection**: Choose the path position that is closest to the target
 
 This ensures:
+- ✅ Dragon alternates between walking and flying
 - ✅ Dragon can fly over any terrain (islands, build areas, non-path tiles)
-- ✅ Dragon always ends on a path tile
+- ✅ Dragon always ends on a path tile when flying
 - ✅ Dragon moves optimally towards the target
 - ✅ Dragon respects the maximum flying distance of 5 tiles
 
@@ -87,13 +113,14 @@ if (dragon.isFlying.value) {
 
 ## Tests Added
 
-Created `DragonMovementTest.kt` with 5 comprehensive tests:
+Created `DragonMovementTest.kt` with 6 comprehensive tests:
 
-1. **testDragonWalksOnFirstTurn**: Validates that dragons walk 1 tile on their first turn
-2. **testDragonFliesOnSecondTurn**: Validates that dragons fly up to 5 tiles on subsequent turns
+1. **testDragonWalksOnFirstTurn**: Validates that dragons walk 1 tile on turn 1 (odd turn)
+2. **testDragonFliesOnSecondTurn**: Validates that dragons fly up to 5 tiles on turn 2 (even turn)
 3. **testDragonFliesOverObstacles**: Validates that dragons can fly over islands/obstacles
-4. **testDragonMustEndOnPath**: Validates dragons always end on path tiles across multiple turns
+4. **testDragonMustEndOnPath**: Validates dragons always end on path tiles, whether walking or flying
 5. **testDragonCannotEndOffPath**: Specific test that fails with old implementation, passes with new one
+6. **testDragonAlternatesWalkingAndFlying**: Validates the alternating pattern across turns 1-4
 
 All tests pass with the new implementation.
 

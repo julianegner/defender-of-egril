@@ -9,8 +9,8 @@ import kotlin.test.assertTrue
 
 /**
  * Tests for dragon movement mechanics:
- * - Turn 1: 1 tile on path (walking)
- * - Turn 2+: Up to 5 tiles, flying over obstacles, but must end on path
+ * - Odd turns (1, 3, 5...): 1 tile on path (walking)
+ * - Even turns (2, 4, 6...): Up to 5 tiles, flying over obstacles, but must end on path
  */
 class DragonMovementTest {
     
@@ -246,13 +246,17 @@ class DragonMovementTest {
                 findPathPositionNearTower = { state.level.targetPosition }
             )
             
-            // Each turn after first, dragon must end on path
+            // Dragon must always end on path whether walking or flying
             assertTrue(state.level.isOnPath(dragon.position.value),
                 "Turn $turn: Dragon at ${dragon.position.value} must be on path")
-            assertTrue(dragon.isFlying.value, "Turn $turn: Dragon should be flying")
+            
+            // Turn 2 and 4 are even (flying), turn 3 is odd (walking)
+            // Starting at dragonTurnsSinceSpawned=1, so turns are 2, 3, 4
+            val expectedFlying = (dragon.dragonTurnsSinceSpawned.value % 2 == 0)
+            assertEquals(expectedFlying, dragon.isFlying.value, 
+                "Turn $turn (dragonTurn ${dragon.dragonTurnsSinceSpawned.value}): Flying should be $expectedFlying")
         }
     }
-    
     /**
      * Test that demonstrates the bug: dragon flies off-path when moving directly to target
      */
@@ -306,5 +310,86 @@ class DragonMovementTest {
         assertTrue(state.level.isOnPath(dragon.position.value),
             "Dragon at ${dragon.position.value} MUST be on path after flying. Path cells: $pathCells")
         assertTrue(dragon.isFlying.value)
+    }
+    
+    /**
+     * Test that dragon alternates between walking and flying
+     */
+    @Test
+    fun testDragonAlternatesWalkingAndFlying() {
+        // Create a simple level with a straight path
+        val pathCells = (0..20).map { Position(it, 3) }.toSet()
+        val level = Level(
+            id = 1,
+            name = "Test",
+            gridWidth = 25,
+            gridHeight = 8,
+            startPositions = listOf(Position(0, 3)),
+            targetPosition = Position(20, 3),
+            pathCells = pathCells,
+            buildIslands = emptySet(),
+            attackerWaves = emptyList(),
+            initialCoins = 100,
+            healthPoints = 10
+        )
+        
+        val state = GameState(level, mutableStateOf(GamePhase.ENEMY_TURN))
+        val pathfinding = PathfindingSystem(state)
+        val movementSystem = EnemyMovementSystem(state, pathfinding)
+        
+        // Spawn dragon at start
+        val dragon = Attacker(
+            id = 1,
+            type = AttackerType.DRAGON,
+            position = mutableStateOf(Position(0, 3)),
+            level = 1
+        )
+        state.attackers.add(dragon)
+        
+        // Turn 1: Walk (1 tile)
+        movementSystem.moveAttackers(
+            findNearestActiveTower = { null },
+            findPathPositionNearTower = { state.level.targetPosition }
+        )
+        assertEquals(Position(1, 3), dragon.position.value, "Turn 1: Should walk 1 tile")
+        assertFalse(dragon.isFlying.value, "Turn 1: Should be walking")
+        assertEquals(1, dragon.dragonTurnsSinceSpawned.value)
+        
+        // Turn 2: Fly (up to 5 tiles)
+        val positionAfterTurn1 = dragon.position.value
+        movementSystem.moveAttackers(
+            findNearestActiveTower = { null },
+            findPathPositionNearTower = { state.level.targetPosition }
+        )
+        assertTrue(dragon.isFlying.value, "Turn 2: Should be flying")
+        val distanceMoved = dragon.position.value.x - positionAfterTurn1.x
+        assertTrue(distanceMoved > 1, "Turn 2: Should fly more than 1 tile")
+        assertTrue(distanceMoved <= 5, "Turn 2: Should fly at most 5 tiles")
+        assertTrue(state.level.isOnPath(dragon.position.value), "Turn 2: Must end on path")
+        assertEquals(2, dragon.dragonTurnsSinceSpawned.value)
+        
+        // Turn 3: Walk (1 tile)
+        val positionAfterTurn2 = dragon.position.value
+        movementSystem.moveAttackers(
+            findNearestActiveTower = { null },
+            findPathPositionNearTower = { state.level.targetPosition }
+        )
+        assertFalse(dragon.isFlying.value, "Turn 3: Should be walking")
+        assertEquals(positionAfterTurn2.x + 1, dragon.position.value.x, "Turn 3: Should walk 1 tile")
+        assertTrue(state.level.isOnPath(dragon.position.value), "Turn 3: Must be on path")
+        assertEquals(3, dragon.dragonTurnsSinceSpawned.value)
+        
+        // Turn 4: Fly (up to 5 tiles)
+        val positionAfterTurn3 = dragon.position.value
+        movementSystem.moveAttackers(
+            findNearestActiveTower = { null },
+            findPathPositionNearTower = { state.level.targetPosition }
+        )
+        assertTrue(dragon.isFlying.value, "Turn 4: Should be flying")
+        val distanceMovedTurn4 = dragon.position.value.x - positionAfterTurn3.x
+        assertTrue(distanceMovedTurn4 > 1, "Turn 4: Should fly more than 1 tile")
+        assertTrue(distanceMovedTurn4 <= 5, "Turn 4: Should fly at most 5 tiles")
+        assertTrue(state.level.isOnPath(dragon.position.value), "Turn 4: Must end on path")
+        assertEquals(4, dragon.dragonTurnsSinceSpawned.value)
     }
 }

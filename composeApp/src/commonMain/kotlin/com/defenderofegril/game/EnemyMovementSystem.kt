@@ -232,19 +232,20 @@ class EnemyMovementSystem(
     
     /**
      * Move dragon with special rules:
-     * - Turn 1 after spawn: 1 step (walking)
-     * - Turn 2+: 5 steps (flying), can move over units and island fields
+     * - Odd turns (1, 3, 5...): 1 step on path (walking)
+     * - Even turns (2, 4, 6...): up to 5 steps (flying), can move over obstacles but must end on path
      */
     private fun moveDragon(dragon: Attacker) {
         dragon.dragonTurnsSinceSpawned.value++
         
-        // Determine speed and if flying
-        val speed = if (dragon.dragonTurnsSinceSpawned.value == 1) {
+        // Determine speed and if flying - alternates every turn
+        val isOddTurn = dragon.dragonTurnsSinceSpawned.value % 2 == 1
+        val speed = if (isOddTurn) {
             dragon.isFlying.value = false
-            1  // Walking on first turn
+            1  // Walking on odd turns
         } else {
             dragon.isFlying.value = true
-            5  // Flying on subsequent turns
+            5  // Flying on even turns
         }
         
         val target = state.level.targetPosition
