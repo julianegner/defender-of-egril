@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.IntSize
 import com.defenderofegril.editor.EditorMap
 import com.defenderofegril.editor.TileType
+import com.defenderofegril.model.Position
 import com.defenderofegril.ui.HexagonMinimapFromEditorMap
 import com.defenderofegril.ui.HexagonShape
 import com.defenderofegril.ui.HexagonalMapConfig
@@ -29,6 +30,8 @@ import com.defenderofegril.ui.MinimapConfig
 import com.defenderofegril.ui.icon.PushpinIcon
 import com.defenderofegril.ui.editor.SaveAsDialog
 import com.defenderofegril.ui.editor.getTileColor
+import com.defenderofegril.ui.gameplay.BaseGridCell
+import com.defenderofegril.ui.gameplay.GridCell
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
 import kotlin.math.sqrt
@@ -105,7 +108,7 @@ fun MapEditorView(
                 var containerSize by remember { mutableStateOf(IntSize.Zero) }
                 // Track actual content size for minimap viewport calculations
                 var actualContentSize by remember { mutableStateOf(IntSize.Zero) }
-
+/******************************************************************************************/
                 HexagonalMapView(
                     gridWidth = map.width,
                     gridHeight = map.height,
@@ -137,9 +140,13 @@ fun MapEditorView(
                             horizontalArrangement = Arrangement.spacedBy((-10).dp)
                         ) {
                             for (x in 0 until map.width) {
+/******************************************************************************************/
                                 val key = "$x,$y"
                                 val tileType = tiles[key] ?: TileType.NO_PLAY
-                                
+
+
+                                val position = Position(x, y)
+                                // BaseGridCell
                                 Box(
                                     modifier = Modifier
                                         .width((hexWidthParam).dp)
