@@ -218,21 +218,21 @@ fun TargetCirclesOverlay(
             if (attackType == AttackType.AREA || attackType == AttackType.LASTING) {
                 drawCircle(
                     color = color,
-                    radius = 100f * scale,
+                    radius = 80f * scale,
                     center = transformedCenter,
                     style = androidx.compose.ui.graphics.drawscope.Stroke(width = 3f * scale)
                 )
                 
                 drawCircle(
                     color = color,
-                    radius = 130f * scale,
+                    radius = 110f * scale,
                     center = transformedCenter,
                     style = androidx.compose.ui.graphics.drawscope.Stroke(width = 3f * scale)
                 )
                 
                 drawCircle(
                     color = color,
-                    radius = 160f * scale,
+                    radius = 140f * scale,
                     center = transformedCenter,
                     style = androidx.compose.ui.graphics.drawscope.Stroke(width = 3f * scale)
                 )
