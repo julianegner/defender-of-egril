@@ -266,10 +266,9 @@ class EnemyMovementSystem(
             while (queue.isNotEmpty()) {
                 val (pos, dist) = queue.removeAt(0)
                 
-                // Check if this position is on path and gets us closer to target
-                if (pos != currentPos && 
-                    state.level.isOnPath(pos) && 
-                    pos.distanceTo(target) < currentDistToTarget) {
+                // Check if this position is on path
+                // We collect all path positions within flying range
+                if (pos != currentPos && state.level.isOnPath(pos)) {
                     reachablePathPositions.add(Pair(pos, dist))
                 }
                 
