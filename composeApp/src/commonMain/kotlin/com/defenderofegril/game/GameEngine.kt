@@ -117,48 +117,6 @@ class GameEngine(private val state: GameState) {
         enemyMovement.moveGoblinsAfterSpawn()
     }
     
-    fun endPlayerTurn() {
-        if (state.phase.value != GamePhase.PLAYER_TURN && state.phase.value != GamePhase.ENEMY_TURN) return
-        
-        // Only increment turn and process if we're actually starting enemy turn
-        if (state.phase.value == GamePhase.PLAYER_TURN) {
-            state.turnNumber.value++
-        }
-        
-        state.phase.value = GamePhase.ENEMY_TURN
-        
-        // Spawn new attackers
-        enemyMovement.spawnAttackers()
-        
-        // Move attackers
-        enemyMovement.moveAttackers(
-            findNearestActiveTower = { witch -> enemyAbilities.findNearestActiveTower(witch) },
-            findPathPositionNearTower = { pos -> enemyAbilities.findPathPositionNearTower(pos) }
-        )
-        
-        // Check and activate traps
-        checkAndActivateTraps()
-        
-        // Apply damage over time effects
-        combatSystem.applyLastingEffects()
-        
-        // Update field effects
-        enemyMovement.updateFieldEffects()
-
-        // Remove defeated attackers and give rewards
-        combatSystem.processDefeatedAttackers()
-        
-        // Check if we should load next wave
-        if (state.attackersToSpawn.isEmpty() && state.attackers.isEmpty()) {
-            enemyMovement.loadNextWave()
-        }
-        
-        // Advance building timers and start next player turn
-        advanceBuildTimers()
-        state.phase.value = GamePhase.PLAYER_TURN
-        resetDefenderActions()
-    }
-    
     /**
      * Calculate all movement steps for attackers during enemy turn without applying them.
      * Returns a list of movement steps, where each step contains all movements that should happen together.
