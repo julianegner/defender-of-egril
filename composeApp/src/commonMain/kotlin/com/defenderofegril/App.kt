@@ -11,9 +11,10 @@ import com.defenderofegril.ui.worldmap.WorldMapScreen
 
 @Composable
 fun App() {
-    // Initialize settings on app start
+    // Initialize settings and sound on app start
     LaunchedEffect(Unit) {
         AppSettings.initialize()
+        com.defenderofegril.audio.GlobalSoundManager.initialize()
     }
     
     // Observe dark mode state
