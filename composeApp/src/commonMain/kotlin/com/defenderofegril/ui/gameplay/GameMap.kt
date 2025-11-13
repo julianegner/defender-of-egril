@@ -50,8 +50,8 @@ fun GameGrid(
 
     // Odd rows are offset to the right to create hexagonal grid pattern
     val oddRowOffset = hexSize.value * sqrt(3.0).toFloat() * 0.42f
-
     Box(modifier = modifier.onSizeChanged { containerSize = it }) {
+/******************************************************************************************/
         HexagonalMapView(
             gridWidth = gameState.level.gridWidth,
             gridHeight = gameState.level.gridHeight,
@@ -80,6 +80,7 @@ fun GameGrid(
                     horizontalArrangement = Arrangement.spacedBy((-10).dp)
                 ) {
                     for (x in 0 until gameState.level.gridWidth) {
+/******************************************************************************************/
                         val position = Position(x, y)
                         GridCell(
                             position = position,
@@ -377,6 +378,14 @@ fun GridCell(
         else -> 0.dp  // No border for empty cells
     }
 
+    BaseGridCell(
+        hexSize = hexSize,
+        backgroundColor = backgroundColor,
+        borderColor = borderColor,
+        borderWidth = borderWidth,
+        onClick = onClick
+    ) {
+    /*
     // Calculate hex dimensions for proper sizing
     val sqrt3 = sqrt(3.0).toFloat()
     val hexWidth = hexSize.value * sqrt3
@@ -392,6 +401,7 @@ fun GridCell(
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
+     */
         when {
             attacker != null -> {
                 // Use graphical icon for enemy units
@@ -466,5 +476,32 @@ fun GridCell(
                 Text(stringResource(Res.string.target), style = MaterialTheme.typography.labelSmall, color = GamePlayColors.Success)
             }
         }
+    }
+}
+
+@Composable
+fun BaseGridCell(
+    hexSize: androidx.compose.ui.unit.Dp,
+    backgroundColor: Color,
+    borderColor: Color,
+    borderWidth: androidx.compose.ui.unit.Dp,
+    onClick: () -> Unit,
+    content: @Composable BoxScope.() -> Unit = { }
+) {
+    val sqrt3 = sqrt(3.0).toFloat()
+    val hexWidth = hexSize.value * sqrt3
+    val hexHeight = hexSize.value * 2f
+
+    Box(
+        modifier = Modifier
+            .width((hexWidth).dp)
+            .height((hexHeight).dp)
+            .clip(HexagonShape())
+            .background(backgroundColor)
+            .border(borderWidth, borderColor, HexagonShape())
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center
+    ) {
+        content()
     }
 }
