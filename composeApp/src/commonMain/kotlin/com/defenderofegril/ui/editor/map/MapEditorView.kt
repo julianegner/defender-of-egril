@@ -1,5 +1,6 @@
 package com.defenderofegril.ui.editor.map
 
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -7,7 +8,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.IntSize
 import com.defenderofegril.editor.EditorMap
@@ -21,9 +24,9 @@ import com.defenderofegril.ui.MinimapConfig
 import com.defenderofegril.ui.icon.PushpinIcon
 import com.defenderofegril.ui.editor.SaveAsDialog
 import com.defenderofegril.ui.editor.getTileColor
+import com.defenderofegril.utils.screenToHexGridPosition
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
-import kotlin.math.sqrt
 
 /**
  * View for editing a map
@@ -41,50 +44,23 @@ fun MapEditorView(
     var zoomLevel by remember { mutableStateOf(1.0f) }
     var offsetX by remember { mutableStateOf(0f) }
     var offsetY by remember { mutableStateOf(0f) }
+    var lastPaintedPos by remember { mutableStateOf<Position?>(null) }
     
-    // Hexagon dimensions - using same constants as game
-    // val hexSize = 32f  // Radius of hexagon (not scaled here, scaling handled by HexagonalMapView)
+    // Hexagon dimensions - using same constants as game (40.dp)
     val hexSize = 40.dp
-    // val sqrt3 = sqrt(3.0).toFloat()
-    // val hexWidth = hexSize * sqrt3  // Width of hexagon (flat-to-flat)
-    // val hexHeight = hexSize * 2f    // Height of hexagon (point-to-point)
-    
-    // Track tile positions for brush painting
-    // val tilePositions = remember { mutableStateMapOf<String, Offset>() }
-    
-    // Get density for coordinate conversions
-    // val density = androidx.compose.ui.platform.LocalDensity.current
-    // val hexRadiusPx = with(density) { (hexWidth / 2f).dp.toPx() }
 
     // Brush paint callback - called when user drags in brush mode
     val onBrushPaint: (position: Position) -> Unit = { position ->
 
-        println("Brush paint at content coords: x=${position.x}, y={$position.y}")
+        if (lastPaintedPos == null || lastPaintedPos != position) {
+            println("Brush paint at content coords: $position")
 
-        val key = "${position.x},${position.y}"
-        tiles.apply {
-            this[key] = selectedTileType
-        }
-        /*
-        // Find the closest tile to the content position
-        val closest = tilePositions.entries.minByOrNull { (_, tilePos) ->
-            val dx = contentX - tilePos.x
-            val dy = contentY - tilePos.y
-            dx * dx + dy * dy
-        }
-        
-        closest?.let { (key, tilePos) ->
-            val dx = contentX - tilePos.x
-            val dy = contentY - tilePos.y
-            val distance = sqrt(dx * dx + dy * dy)
-            // Check if within hex radius (with some tolerance)
-            if (distance < hexRadiusPx * 1.5f) {
-                tiles = tiles.toMutableMap().apply {
-                    this[key] = selectedTileType
-                }
+            val key = "${position.x},${position.y}"
+            tiles = tiles.toMutableMap().apply {
+                this[key] = selectedTileType
             }
+            lastPaintedPos = position
         }
-         */
     }
 
     Box(
@@ -96,7 +72,9 @@ fun MapEditorView(
         ) {
             // Spacer to account for header height
             Spacer(modifier = Modifier.height(280.dp))
-            
+
+            val hexSizePx = with(LocalDensity.current) { hexSize.toPx() }
+            val placeholderSpacerPx = with(LocalDensity.current) { 280.dp.toPx() }
             Box(
                 modifier = Modifier
                     .weight(1f)
@@ -105,9 +83,7 @@ fun MapEditorView(
             ) {
                 // Track container size for minimap viewport
                 var containerSize by remember { mutableStateOf(IntSize.Zero) }
-                // Track actual content size for minimap viewport calculations
                 var actualContentSize by remember { mutableStateOf(IntSize.Zero) }
-/******************************************************************************************/
                 HexagonalMapView(
                     gridWidth = map.width,
                     gridHeight = map.height,
@@ -128,70 +104,66 @@ fun MapEditorView(
                     },
                     onActualContentSizeChange = { actualContentSize = it },
                     onBrushPaint = onBrushPaint,
-                    modifier = Modifier.fillMaxSize().onSizeChanged { containerSize = it }
-                ) { hexWidthParam, hexHeightParam, verticalSpacing, onTilePositioned ->
-                    for (y in 0 until map.height) {
-                        Row(
-                            modifier = Modifier.offset(
-                                x = if (y % 2 == 1) (hexWidthParam * 0.42f).dp else 0.dp,
-                                y = (-(y-1)).dp
-                            ),
-                            horizontalArrangement = Arrangement.spacedBy((-10).dp)
-                        ) {
-                            for (x in 0 until map.width) {
-/******************************************************************************************/
-                                // val key = "$x,$y"
-                                val position = Position(x, y)
-                                val key = "${position.x},${position.y}"
-                                val tileType = tiles[key] ?: TileType.NO_PLAY
-                                BaseGridCell(
-                                    hexSize = hexSize,
-                                    backgroundColor = getTileColor(tileType),
-                                    borderColor = Color.Black,
-                                    borderWidth = 1.5.dp,
-                                    onClick = {
-                                        tiles = tiles.toMutableMap().apply {
-                                            this[key] = selectedTileType
-                                        }
-                                    }
-                                ) {
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .onSizeChanged { containerSize = it }
+                        .pointerInput(Unit) {
+                            detectDragGestures { change, _ ->
+                                val pointerPos = change.position
 
-                                /*
-                                Box(
-                                    modifier = Modifier
-                                        .width((hexWidthParam).dp)
-                                        .height((hexHeightParam).dp)
-                                        .clip(HexagonShape())
-                                        .background(getTileColor(tileType))
-                                        .border(1.5.dp, Color.Black, HexagonShape())
-                                        .onGloballyPositioned { coordinates ->
-                                            // Track tile center position for brush painting
-                                            // Report position in content coordinates (before transformations)
-                                            val bounds = coordinates.size
-                                            val position = coordinates.positionInWindow()
-                                            val centerX = position.x + bounds.width / 2f
-                                            val centerY = position.y + bounds.height / 2f
-                                            onTilePositioned(key, Offset(centerX, centerY))
-                                            tilePositions[key] = Offset(centerX, centerY)
-                                        }
-                                        .clickable {
-                                            tiles = tiles.toMutableMap().apply {
-                                                this[key] = selectedTileType
-                                            }
-                                        },
-                                    contentAlignment = Alignment.Center
-                                ) {
+                                // val offsetAdjustedPointerPos = Offset(
+                                //     x = pointerPos.x - (containerSize.width - actualContentSize.width) / 2f,
+                                //     y = pointerPos.y + placeholderSpacerPx - (containerSize.height - actualContentSize.height) / 2f
+                                // )
 
-                                 */
-                                    if (tileType == TileType.WAYPOINT) {
-                                        PushpinIcon(size = 20.dp)
-                                    }
+                                val tilePos = screenToHexGridPosition(pointerPos, offsetX, offsetY - placeholderSpacerPx, zoomLevel, hexSizePx)
+                                if (tilePos != null) {
+                                    onBrushPaint(tilePos)
                                 }
-
                             }
+                        }
+                ) { position ->
+                    val key = "${position.x},${position.y}"
+                    val tileType = tiles[key] ?: TileType.NO_PLAY
+                    BaseGridCell(
+                        hexSize = hexSize,
+                        backgroundColor = getTileColor(tileType),
+                        borderColor = Color.Black,
+                        borderWidth = 1.5.dp,
+                        onClick = {
+                            tiles = tiles.toMutableMap().apply {
+                                this[key] = selectedTileType
+                            }
+                        },
+                        /*
+                        modifier = Modifier
+                                .pointerInput(offsetX, offsetY,) {
+                                detectDragGestures(
+                                    onDragStart = { offset ->
+                                        onBrushPaint(position)
+                                    },
+                                    onDrag = { change, offset ->
+                                        println("Drag at $position")
+                                        onBrushPaint(position)
+                                    },
+                                    onDragEnd = {
+                                        lastPaintedPos = null
+                                    }
+                                )
+                        }
+                         */
+                    ) {
+                        Text(
+                            text = "${position.x},${position.y}",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Color.White
+                        )
+                        if (tileType == TileType.WAYPOINT) {
+                            PushpinIcon(size = 20.dp)
                         }
                     }
                 }
+
                 HexagonMinimapFromEditorMap(
                     map = map,
                     modifier = Modifier.size(150.dp).align(Alignment.BottomEnd),
