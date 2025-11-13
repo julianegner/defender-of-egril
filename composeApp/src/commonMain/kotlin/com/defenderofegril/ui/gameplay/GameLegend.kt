@@ -267,7 +267,7 @@ fun EnemyListPanel(gameState: GameState, modifier: Modifier = Modifier) {
             if (activeEnemies.isNotEmpty()) {
                 item(key = "header-active") {
                     Text(
-                        "On Map:",
+                        "${stringResource(Res.string.on_map)}:",
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.Bold,
                         color = GamePlayColors.ErrorDark
@@ -344,11 +344,25 @@ fun EnemyItemDetailed(attacker: Attacker, showPosition: Boolean) {
             // Enemy details
             Column(modifier = Modifier.weight(1f)) {
                 val locale = com.hyperether.resources.currentLanguage.value
-                Text(
-                    attacker.type.getLocalizedName(locale),
-                    style = MaterialTheme.typography.bodySmall,
-                    fontWeight = FontWeight.Bold
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Text(
+                        attacker.type.getLocalizedName(locale),
+                        style = MaterialTheme.typography.bodySmall,
+                        fontWeight = FontWeight.Bold
+                    )
+                    if (attacker.level > 1) {
+                        Text(
+                            "Lvl ${attacker.level}",
+                            style = MaterialTheme.typography.bodySmall,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = GamePlayColors.ErrorDark
+                        )
+                    }
+                }
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
@@ -408,7 +422,7 @@ fun PlannedEnemyItem(plannedSpawn: PlannedEnemySpawn, currentTurn: Int) {
                     )
                     if (plannedSpawn.level > 1) {
                         Text(
-                            "Lv${plannedSpawn.level}",
+                            "Lvl ${plannedSpawn.level}",
                             style = MaterialTheme.typography.bodySmall,
                             fontSize = 10.sp,
                             fontWeight = FontWeight.Bold,
