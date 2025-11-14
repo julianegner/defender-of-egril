@@ -26,7 +26,8 @@ class CircularSegmentDrawerTest {
         val angle = CircularSegmentDrawer.calculateAngleToNeighbor(center, west)
         
         // West should be PI radians (or -PI)
-        assertTrue(abs(abs(angle) - PI.toFloat()) < 0.1f, "West neighbor should be at PI radians, got $angle")
+        val angleDiff = abs(abs(angle) - PI.toFloat())
+        assertTrue(angleDiff < 0.1f, "West neighbor should be at PI radians, got $angle")
     }
     
     @Test
@@ -35,9 +36,9 @@ class CircularSegmentDrawerTest {
         val north = Position(5, 5)
         val angle = CircularSegmentDrawer.calculateAngleToNeighbor(center, north)
         
-        // North should be positive (screen Y is inverted)
+        // North should be negative (screen Y increases downward, so going up is negative Y)
         // Due to hexagonal grid offset, the exact angle may vary
-        assertTrue(angle > 0, "North neighbor should have positive angle, got $angle")
+        assertTrue(angle < 0, "North neighbor should have negative angle, got $angle")
     }
     
     @Test
@@ -46,9 +47,9 @@ class CircularSegmentDrawerTest {
         val south = Position(5, 6)
         val angle = CircularSegmentDrawer.calculateAngleToNeighbor(center, south)
         
-        // South should be negative (screen Y is inverted)
+        // South should be positive (screen Y increases downward, so going down is positive Y)
         // Due to hexagonal grid offset, the exact angle may vary
-        assertTrue(angle < 0, "South neighbor should have negative angle, got $angle")
+        assertTrue(angle > 0, "South neighbor should have positive angle, got $angle")
     }
     
     @Test
@@ -61,7 +62,7 @@ class CircularSegmentDrawerTest {
         assertTrue(neighbors.size == 6, "Should have 6 neighbors, got ${neighbors.size}")
         
         // All neighbors should have different angles
-        val angles = neighbors.map { neighbor ->
+        val angles: List<Float> = neighbors.map { neighbor ->
             CircularSegmentDrawer.calculateAngleToNeighbor(center, neighbor)
         }
         
@@ -79,7 +80,7 @@ class CircularSegmentDrawerTest {
         assertTrue(neighbors.size == 6, "Should have 6 neighbors, got ${neighbors.size}")
         
         // All neighbors should have different angles
-        val angles = neighbors.map { neighbor ->
+        val angles: List<Float> = neighbors.map { neighbor ->
             CircularSegmentDrawer.calculateAngleToNeighbor(center, neighbor)
         }
         
