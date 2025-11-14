@@ -125,6 +125,9 @@ class MineOperations(private val state: GameState) {
      * Spawn a dragon when a mine is destroyed
      */
     private fun spawnDragonFromMine(mine: Defender) {
+        // Get a random dragon name
+        val dragonName = DragonNames.getRandomName()
+        
         // Spawn dragon first to get its ID
         var dragonHealth = 500 + mine.coinsGenerated.value
         val dragon = Attacker(
@@ -133,7 +136,8 @@ class MineOperations(private val state: GameState) {
             position = mutableStateOf(Position(0, 0)), // Temporary position
             level = mutableStateOf(1),
             currentHealth = mutableStateOf(dragonHealth),
-            spawnedFromLairId = null  // Will be set after lair is created
+            spawnedFromLairId = null,  // Will be set after lair is created
+            dragonName = dragonName
         )
         
         // Replace mine with dragon's lair and link to dragon
@@ -142,7 +146,8 @@ class MineOperations(private val state: GameState) {
             type = DefenderType.DRAGONS_LAIR,
             position = mine.position,
             buildTimeRemaining = mutableStateOf(0),
-            dragonId = mutableStateOf(dragon.id)
+            dragonId = mutableStateOf(dragon.id),
+            dragonName = dragonName
         )
         state.defenders.remove(mine)
         state.defenders.add(lairDefender)
