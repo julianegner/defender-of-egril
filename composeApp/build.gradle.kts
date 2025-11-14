@@ -18,7 +18,7 @@ val buildConfigOutputDir = layout.buildDirectory.dir("generated/source/buildConf
 
 // Task to generate BuildConfig with current commit hash
 val generateBuildConfig by tasks.registering {
-    val outputFile = buildConfigOutputDir.get().file("com/defenderofegril/BuildConfig.kt")
+    val outputFile = buildConfigOutputDir.get().file("de/egril/defender/BuildConfig.kt")
     
     outputs.dir(buildConfigOutputDir)
     outputs.upToDateWhen { false } // Always regenerate to ensure latest commit hash
@@ -43,7 +43,7 @@ val generateBuildConfig by tasks.registering {
         val versionName = "1.0"
         
         val buildConfigContent = """
-            |package com.defenderofegril
+            |package de.egril.defender
             |
             |/**
             | * Build configuration with version and commit information
@@ -154,11 +154,11 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.AbstractKotlinCompile<*>> {
 }
 
 android {
-    namespace = "com.defenderofegril"
+    namespace = "de.egril.defender"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     defaultConfig {
-        applicationId = "com.defenderofegril"
+        applicationId = "de.egril.defender"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
@@ -186,11 +186,11 @@ dependencies {
 
 compose.desktop {
     application {
-        mainClass = "com.defenderofegril.MainKt"
+        mainClass = "de.egril.defender.MainKt"
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "com.defenderofegril"
+            packageName = "de.egril.defender"
             packageVersion = "1.0.0"
         }
     }
