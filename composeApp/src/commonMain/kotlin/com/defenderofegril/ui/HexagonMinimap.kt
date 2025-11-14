@@ -117,10 +117,28 @@ fun HexagonMinimap(
 @Composable
 fun HexagonMinimapFromEditorMap(
     map: com.defenderofegril.editor.EditorMap,
-    level: Level,
     modifier: Modifier = Modifier,
-    config: MinimapConfig = MinimapConfig()
+    config: MinimapConfig = MinimapConfig(),
+    scale: Float? = null,
+    offsetX: Float? = null,
+    offsetY: Float? = null,
+    containerSize: IntSize? = null
 ) {
+    val dummyLevel = remember(map.id) {
+        Level(
+            id = 0,
+            name = map.name,
+            gridWidth = map.width,
+            gridHeight = map.height,
+            startPositions = emptyList(),
+            targetPosition = Position(0, 0),
+            pathCells = emptySet(),
+            buildIslands = emptySet(),
+            attackerWaves = emptyList()
+        )
+    }
+
+
     Box(
         modifier = modifier
             .background(config.backgroundColor)
@@ -129,13 +147,13 @@ fun HexagonMinimapFromEditorMap(
     ) {
         HexagonMinimapContent(
             map = map,
-            level = level,
+            level = dummyLevel,
             config = config,
             gameState = null,
-            scale = null,
-            offsetX = null,
-            offsetY = null,
-            containerSize = null
+            scale = scale,
+            offsetX = offsetX,
+            offsetY = offsetY,
+            containerSize = containerSize
         )
     }
 }
@@ -151,6 +169,8 @@ private fun HexagonMinimapContent(
     offsetY: Float?,
     containerSize: IntSize?
 ) {
+    val isDarkMode = com.defenderofegril.ui.settings.AppSettings.isDarkMode.value
+    
     // Cache tile type checks for performance
     val hasSpawnTile = remember(map.tiles) { map.tiles.values.contains(TileType.SPAWN_POINT) }
     val hasTargetTile = remember(map.tiles) { map.tiles.values.contains(TileType.TARGET) }
@@ -201,13 +221,21 @@ private fun HexagonMinimapContent(
                     
                     // Get color for tile type
                     val color = when (tileType) {
-                        TileType.PATH -> Color(0xFF8B4513)
-                        TileType.BUILD_AREA -> Color(0xFF90EE90)
-                        TileType.ISLAND -> Color(0xFF228B22)
-                        TileType.SPAWN_POINT -> if (config.showSpawnPoints) Color(0xFFDC143C) else Color(0xFF8B4513)
-                        TileType.TARGET -> if (config.showTarget) Color(0xFF4169E1) else Color(0xFF8B4513)
-                        TileType.NO_PLAY -> Color(0xFF808080)
-                        TileType.WAYPOINT -> Color(0xFFFFD700)
+                        TileType.PATH -> if (isDarkMode) Color(0xFF3E3528) else Color(0xFF8B4513)
+                        TileType.BUILD_AREA -> if (isDarkMode) Color(0xFF2E5C1A) else Color(0xFF90EE90)
+                        TileType.ISLAND -> if (isDarkMode) Color(0xFF1B4D0E) else Color(0xFF228B22)
+                        TileType.SPAWN_POINT -> if (config.showSpawnPoints) {
+                            if (isDarkMode) Color(0xFF8B0000) else Color(0xFFDC143C)
+                        } else {
+                            if (isDarkMode) Color(0xFF3E3528) else Color(0xFF8B4513)
+                        }
+                        TileType.TARGET -> if (config.showTarget) {
+                            if (isDarkMode) Color(0xFF1E3A8A) else Color(0xFF4169E1)
+                        } else {
+                            if (isDarkMode) Color(0xFF3E3528) else Color(0xFF8B4513)
+                        }
+                        TileType.NO_PLAY -> if (isDarkMode) Color(0xFF2C2C2C) else Color(0xFF808080)
+                        TileType.WAYPOINT -> if (isDarkMode) Color(0xFF9A7B00) else Color(0xFFFFD700)
                     }
                     
                     // Draw hexagon

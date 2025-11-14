@@ -18,6 +18,9 @@ fun TileTypeButton(
     selected: Boolean,
     onClick: () -> Unit
 ) {
+    val isDarkMode = com.defenderofegril.ui.settings.AppSettings.isDarkMode.value
+    val textColor = if (isDarkMode) Color.White else Color.Black
+    
     Button(
         onClick = onClick,
         colors = ButtonDefaults.buttonColors(
@@ -28,7 +31,7 @@ fun TileTypeButton(
             if (tileType == TileType.WAYPOINT) {
                 PushpinIcon(size = 14.dp)
             }
-            Text(tileType.name)
+            Text(tileType.name, color = textColor)
         }
     }
 }
@@ -37,13 +40,15 @@ fun TileTypeButton(
  * Get the color for a specific tile type
  */
 fun getTileColor(tileType: TileType): Color {
+    val isDarkMode = com.defenderofegril.ui.settings.AppSettings.isDarkMode.value
+    
     return when (tileType) {
-        TileType.PATH -> Color(0xFF8B4513)        // Brown
-        TileType.BUILD_AREA -> Color(0xFF90EE90)  // Light green
-        TileType.ISLAND -> Color(0xFF228B22)      // Forest green
-        TileType.NO_PLAY -> Color(0xFF404040)     // Dark gray
-        TileType.SPAWN_POINT -> Color(0xFFFF0000) // Red
-        TileType.TARGET -> Color(0xFF0000FF)      // Blue
-        TileType.WAYPOINT -> Color(0xFF8B4513)    // Brown (same as PATH)
+        TileType.PATH -> if (isDarkMode) Color(0xFF4A2F1A) else Color(0xFF8B4513)  // Darker brown
+        TileType.BUILD_AREA -> if (isDarkMode) Color(0xFF456C2E) else Color(0xFF90EE90)  // Much darker green
+        TileType.ISLAND -> if (isDarkMode) Color(0xFF1B4D0E) else Color(0xFF228B22)  // Much darker forest green
+        TileType.NO_PLAY -> if (isDarkMode) Color(0xFF1A1A1A) else Color(0xFF404040)  // Much darker gray
+        TileType.SPAWN_POINT -> if (isDarkMode) Color(0xFF8B0000) else Color(0xFFFF0000)  // Dark red
+        TileType.TARGET -> if (isDarkMode) Color(0xFF00008B) else Color(0xFF0000FF)  // Dark blue
+        TileType.WAYPOINT -> if (isDarkMode) Color(0xFF4A2F1A) else Color(0xFF8B4513)  // Darker brown (same as PATH)
     }
 }

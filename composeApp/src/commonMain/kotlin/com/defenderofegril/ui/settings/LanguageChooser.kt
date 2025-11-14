@@ -24,7 +24,8 @@ import dev.carlsen.flagkit.FlagKit
  */
 @Composable
 fun LanguageChooser(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onLanguageChanged: ((AppLocale) -> Unit)? = null
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -63,6 +64,7 @@ fun LanguageChooser(
                     },
                     onClick = {
                         currentLanguage.value = locale
+                        onLanguageChanged?.invoke(locale)
                         expanded = false
                     }
                 )

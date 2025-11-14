@@ -79,44 +79,66 @@ fun MapEditorHeader(
                     )
                 }
             }
-            
-            // Zoom controls
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+
+            // fixme: zoom deactivated because it breaks the brush painting
+            // ZoomControls(
+            //     map = map,
+            //     zoomLevel = zoomLevel,
+            //     onZoomIn = onZoomIn,
+            //     onZoomOut = onZoomOut
+            // )
+        }
+    }
+}
+
+@Composable
+fun ZoomControls(
+    map: EditorMap,
+    zoomLevel: Float,
+    onZoomIn: () -> Unit,
+    onZoomOut: () -> Unit
+) {
+    // Zoom controls
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = "${stringResource(Res.string.click_hexagons_to_paint)} (${map.width}x${map.height})",
+            style = MaterialTheme.typography.bodySmall
+        )
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Button(
+                onClick = onZoomOut,
+                modifier = Modifier.height(32.dp)
             ) {
-                Text(
-                    text = "${stringResource(Res.string.click_hexagons_to_paint)} (${map.width}x${map.height})",
-                    style = MaterialTheme.typography.bodySmall
-                )
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(2.dp)
                 ) {
-                    Button(
-                        onClick = onZoomOut,
-                        modifier = Modifier.height(32.dp)
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                            MagnifyingGlassIcon(size = 14.dp, tint = Color.White)
-                            Text("-", fontSize = 12.sp)
-                        }
-                    }
-                    Text(
-                        text = "${(zoomLevel * 100).toInt()}%",
-                        fontSize = 12.sp,
-                        modifier = Modifier.padding(horizontal = 4.dp)
-                    )
-                    Button(
-                        onClick = onZoomIn,
-                        modifier = Modifier.height(32.dp)
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                            MagnifyingGlassIcon(size = 14.dp, tint = Color.White)
-                            Text("+", fontSize = 12.sp)
-                        }
-                    }
+                    MagnifyingGlassIcon(size = 14.dp, tint = Color.White)
+                    Text("-", fontSize = 12.sp)
+                }
+            }
+            Text(
+                text = "${(zoomLevel * 100).toInt()}%",
+                fontSize = 12.sp,
+                modifier = Modifier.padding(horizontal = 4.dp)
+            )
+            Button(
+                onClick = onZoomIn,
+                modifier = Modifier.height(32.dp)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(2.dp)
+                ) {
+                    MagnifyingGlassIcon(size = 14.dp, tint = Color.White)
+                    Text("+", fontSize = 12.sp)
                 }
             }
         }

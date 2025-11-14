@@ -1,35 +1,32 @@
 package com.defenderofegril.ui.editor.map
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.layout.positionInRoot
-import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.IntSize
 import com.defenderofegril.editor.EditorMap
 import com.defenderofegril.editor.TileType
-import com.defenderofegril.ui.HexagonShape
+import com.defenderofegril.model.Position
+import com.defenderofegril.ui.BaseGridCell
+import com.defenderofegril.ui.HexagonMinimapFromEditorMap
+import com.defenderofegril.ui.HexagonalMapConfig
+import com.defenderofegril.ui.HexagonalMapView
+import com.defenderofegril.ui.MinimapConfig
 import com.defenderofegril.ui.icon.PushpinIcon
 import com.defenderofegril.ui.editor.SaveAsDialog
 import com.defenderofegril.ui.editor.getTileColor
-import com.defenderofegril.ui.mouseWheelZoom
+import com.defenderofegril.utils.screenToHexGridPosition
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
-import kotlin.math.sqrt
 
 /**
  * View for editing a map
@@ -47,42 +44,25 @@ fun MapEditorView(
     var zoomLevel by remember { mutableStateOf(1.0f) }
     var offsetX by remember { mutableStateOf(0f) }
     var offsetY by remember { mutableStateOf(0f) }
+    var lastPaintedPos by remember { mutableStateOf<Position?>(null) }
     
-    // Hexagon dimensions - using same constants as game
-    val hexSize = 32.dp * zoomLevel  // Radius of hexagon with zoom applied
-    val sqrt3 = sqrt(3.0).toFloat()
-    val hexWidth = hexSize.value * sqrt3  // Width of hexagon (flat-to-flat)
-    val hexHeight = hexSize.value * 2f    // Height of hexagon (point-to-point)
-    val verticalSpacing = hexHeight * 0.75f  // For pointy-top hexagons
-    
-    // Track tile positions for brush painting
-    val tilePositions = remember { mutableStateMapOf<String, Offset>() }
-    
-    // Track the last painted tile to avoid redundant updates
-    var lastPaintedTile by remember { mutableStateOf<String?>(null) }
-    
-    // Track the container's position in root coordinates
-    var containerPositionInRoot by remember { mutableStateOf(Offset.Zero) }
-    
-    // Get density for coordinate conversions
-    val density = androidx.compose.ui.platform.LocalDensity.current
-    
-    // Helper function to find which tile is at a given position (in root coordinates)
-    fun getTileAtPosition(position: Offset): String? {
-        val hexRadiusPx = with(density) { (hexWidth / 2f).dp.toPx() }
-        val closest = tilePositions.entries.minByOrNull { (_, tilePos) ->
-            val dx = position.x - tilePos.x
-            val dy = position.y - tilePos.y
-            dx * dx + dy * dy
-        }
-        return closest?.let { (key, tilePos) ->
-            val dx = position.x - tilePos.x
-            val dy = position.y - tilePos.y
-            val distance = sqrt(dx * dx + dy * dy)
-            if (distance < hexRadiusPx) key else null
+    // Hexagon dimensions - using same constants as game (40.dp)
+    val hexSize = 40.dp
+
+    // Brush paint callback - called when user drags in brush mode
+    val onBrushPaint: (position: Position) -> Unit = { position ->
+
+        if (lastPaintedPos == null || lastPaintedPos != position) {
+            println("Brush paint at content coords: $position")
+
+            val key = "${position.x},${position.y}"
+            tiles = tiles.toMutableMap().apply {
+                this[key] = selectedTileType
+            }
+            lastPaintedPos = position
         }
     }
-    
+
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -92,121 +72,94 @@ fun MapEditorView(
         ) {
             // Spacer to account for header height
             Spacer(modifier = Modifier.height(280.dp))
-            
-            var containerSize by remember { mutableStateOf(IntSize.Zero) }
-            
+
+            val hexSizePx = with(LocalDensity.current) { hexSize.toPx() }
             Box(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
                     .padding(8.dp)
-                    .onSizeChanged { containerSize = it }
-                    .onGloballyPositioned { coordinates ->
-                        // Track container position for coordinate conversion
-                        containerPositionInRoot = coordinates.positionInRoot()
-                    }
-                    .mouseWheelZoom(
-                        containerSize = containerSize,
-                        scale = zoomLevel,
-                        offsetX = offsetX,
-                        offsetY = offsetY,
-                        onScaleChange = { newScale -> zoomLevel = newScale },
-                        onOffsetChange = { newX, newY -> 
-                            offsetX = newX
-                            offsetY = newY
-                        }
-                    )
-                    .pointerInput(selectedTileType) {
-                        // Brush painting: detect drag gestures and paint tiles
-                        detectDragGestures(
-                            onDragStart = { offset ->
-                                // Convert container-relative coordinates to root coordinates
-                                val rootOffset = Offset(
-                                    containerPositionInRoot.x + offset.x,
-                                    containerPositionInRoot.y + offset.y
-                                )
-                                // Paint the tile at the start position
-                                val tileKey = getTileAtPosition(rootOffset)
-                                if (tileKey != null) {
-                                    tiles = tiles.toMutableMap().apply {
-                                        this[tileKey] = selectedTileType
-                                    }
-                                    lastPaintedTile = tileKey
-                                }
-                            },
-                            onDrag = { change, _ ->
-                                // Convert container-relative coordinates to root coordinates
-                                val rootOffset = Offset(
-                                    containerPositionInRoot.x + change.position.x,
-                                    containerPositionInRoot.y + change.position.y
-                                )
-                                // Paint tiles as the pointer moves (only if different from last)
-                                val tileKey = getTileAtPosition(rootOffset)
-                                if (tileKey != null && tileKey != lastPaintedTile) {
-                                    tiles = tiles.toMutableMap().apply {
-                                        this[tileKey] = selectedTileType
-                                    }
-                                    lastPaintedTile = tileKey
-                                }
-                            },
-                            onDragEnd = {
-                                // Clear last painted tile when drag ends
-                                lastPaintedTile = null
-                            }
-                        )
-                    }
             ) {
-                Column(
-                    modifier = Modifier.graphicsLayer(
-                        scaleX = zoomLevel,
-                        scaleY = zoomLevel,
-                        translationX = offsetX,
-                        translationY = offsetY
+                // Track container size for minimap viewport
+                var containerSize by remember { mutableStateOf(IntSize.Zero) }
+                var actualContentSize by remember { mutableStateOf(IntSize.Zero) }
+                HexagonalMapView(
+                    gridWidth = map.width,
+                    gridHeight = map.height,
+                    config = HexagonalMapConfig(
+                        hexSize = hexSize.value,
+                        enableKeyboardNavigation = true,  // Enable keyboard navigation for editor
+                        enablePanNavigation = false,  // Disable pan navigation (use brush mode instead)
+                        enableBrushMode = true,  // Enable brush mode for tile painting
+                        keyboardPanSpeed = 50f,  // Increased for better responsiveness
+                        enableZoomMode = false // fixme: zoom deactivated because it breaks the brush painting
                     ),
-                    verticalArrangement = Arrangement.spacedBy((-hexHeight + verticalSpacing - 7f).dp)
-                ) {
-                    for (y in 0 until map.height) {
-                        Row(
-                            modifier = Modifier.offset(
-                                x = if (y % 2 == 1) (hexWidth * 0.42f).dp else 0.dp,
-                                y = (-(y-1)).dp
-                            ),
-                            horizontalArrangement = Arrangement.spacedBy((-10).dp)
-                        ) {
-                            for (x in 0 until map.width) {
-                                val key = "$x,$y"
-                                val tileType = tiles[key] ?: TileType.NO_PLAY
-                                
-                                Box(
-                                    modifier = Modifier
-                                        .width((hexWidth).dp)
-                                        .height((hexHeight).dp)
-                                        .clip(HexagonShape())
-                                        .background(getTileColor(tileType))
-                                        .border(1.5.dp, Color.Black, HexagonShape())
-                                        .onGloballyPositioned { coordinates ->
-                                            // Track tile center position for brush painting
-                                            val bounds = coordinates.size
-                                            val position = coordinates.positionInRoot()
-                                            val centerX = position.x + bounds.width / 2f
-                                            val centerY = position.y + bounds.height / 2f
-                                            tilePositions[key] = Offset(centerX, centerY)
-                                        }
-                                        .clickable {
-                                            tiles = tiles.toMutableMap().apply {
-                                                this[key] = selectedTileType
-                                            }
-                                        },
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    if (tileType == TileType.WAYPOINT) {
-                                        PushpinIcon(size = 20.dp)
-                                    }
+                    scale = zoomLevel,
+                    offsetX = offsetX,
+                    offsetY = offsetY,
+                    onScaleChange = { newScale -> zoomLevel = newScale },
+                    onOffsetChange = { newX, newY ->
+                        offsetX = newX
+                        offsetY = newY
+                    },
+                    onActualContentSizeChange = { actualContentSize = it },
+                    onBrushPaint = onBrushPaint,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .onSizeChanged { containerSize = it }
+                        .pointerInput(containerSize, actualContentSize) {
+                            detectDragGestures { change, _ ->
+                                val pointerPos = change.position
+
+                                // Adjust pointer position for centering
+                                // When content is smaller than container, it's centered
+                                val adjustedX = pointerPos.x - (containerSize.width - actualContentSize.width) / 2f
+                                val adjustedY = pointerPos.y - (containerSize.height - actualContentSize.height) / 2f
+                                val adjustedPointerPos = Offset(adjustedX, adjustedY)
+
+                                val tilePos = screenToHexGridPosition(adjustedPointerPos, offsetX, offsetY, zoomLevel, hexSizePx)
+                                if (tilePos != null) {
+                                    onBrushPaint(tilePos)
                                 }
                             }
+                        }
+                ) { position ->
+                    val key = "${position.x},${position.y}"
+                    val tileType = tiles[key] ?: TileType.NO_PLAY
+                    BaseGridCell(
+                        hexSize = hexSize,
+                        backgroundColor = getTileColor(tileType),
+                        borderColor = Color.Black,
+                        borderWidth = 1.5.dp,
+                        onClick = {
+                            tiles = tiles.toMutableMap().apply {
+                                this[key] = selectedTileType
+                            }
+                        },
+                    ) {
+                        Text(
+                            text = "${position.x},${position.y}",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Color.White
+                        )
+                        if (tileType == TileType.WAYPOINT) {
+                            PushpinIcon(size = 20.dp)
                         }
                     }
                 }
+
+                HexagonMinimapFromEditorMap(
+                    map = map,
+                    modifier = Modifier.size(150.dp).align(Alignment.BottomEnd),
+                    config = MinimapConfig(
+                        showViewport = true,
+                        minimapSizeDp = 150f
+                    ),
+                    scale = zoomLevel,
+                    offsetX = offsetX,
+                    offsetY = offsetY,
+                    containerSize = containerSize
+                )
             }
             
             // Action buttons
@@ -244,7 +197,7 @@ fun MapEditorView(
                 }
             }
         }
-        
+
         // Header overlay (on top with elevated z-index)
         MapEditorHeader(
             map = map,

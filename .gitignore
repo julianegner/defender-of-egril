@@ -48,3 +48,7 @@ composeApp/build/generated/
 # Kotlin/JS and Kotlin/Wasm
 kotlin-js-store/
 yarn.lock
+
+# UI Test Screenshots (regenerated during test runs)
+test-screenshots/*.png
+test-screenshots/*.jpg

@@ -17,7 +17,8 @@ data class Level(
     val attackerWaves: List<AttackerWave>,
     val initialCoins: Int = 100,
     val healthPoints: Int = 10,
-    val directSpawnPlan: List<PlannedEnemySpawn>? = null  // Direct spawn plan from editor
+    val directSpawnPlan: List<PlannedEnemySpawn>? = null,  // Direct spawn plan from editor
+    val availableTowers: Set<DefenderType> = DefenderType.entries.toSet()  // Towers available in this level
 ) {
     fun isOnPath(position: Position): Boolean {
         return pathCells.contains(position)

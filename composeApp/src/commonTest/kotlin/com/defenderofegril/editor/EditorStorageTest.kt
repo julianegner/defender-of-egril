@@ -2,6 +2,7 @@ package com.defenderofegril.editor
 
 import com.defenderofegril.game.LevelData
 import com.defenderofegril.model.AttackerType
+import com.defenderofegril.model.DefenderType
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -84,6 +85,53 @@ class EditorStorageTest {
         assertEquals("level_1", sequence.sequence[0])
         assertEquals("level_2", sequence.sequence[1])
         assertEquals("level_3", sequence.sequence[2])
+    }
+    
+    @Test
+    fun testLevelReadyToPlay() {
+        // Level with towers and enemy spawns - should be ready
+        val readyLevel = EditorLevel(
+            id = "ready_level",
+            mapId = "test_map",
+            title = "Ready Level",
+            startCoins = 100,
+            enemySpawns = listOf(EditorEnemySpawn(AttackerType.GOBLIN, 1, 1)),
+            availableTowers = setOf(DefenderType.SPIKE_TOWER)
+        )
+        assertTrue(readyLevel.isReadyToPlay())
+        
+        // Level without towers - should not be ready
+        val noTowersLevel = EditorLevel(
+            id = "no_towers",
+            mapId = "test_map",
+            title = "No Towers",
+            startCoins = 100,
+            enemySpawns = listOf(EditorEnemySpawn(AttackerType.GOBLIN, 1, 1)),
+            availableTowers = emptySet()
+        )
+        assertTrue(!noTowersLevel.isReadyToPlay())
+        
+        // Level without enemy spawns - should not be ready
+        val noSpawnsLevel = EditorLevel(
+            id = "no_spawns",
+            mapId = "test_map",
+            title = "No Spawns",
+            startCoins = 100,
+            enemySpawns = emptyList(),
+            availableTowers = setOf(DefenderType.SPIKE_TOWER)
+        )
+        assertTrue(!noSpawnsLevel.isReadyToPlay())
+        
+        // Level with neither - should not be ready
+        val emptyLevel = EditorLevel(
+            id = "empty",
+            mapId = "test_map",
+            title = "Empty",
+            startCoins = 100,
+            enemySpawns = emptyList(),
+            availableTowers = emptySet()
+        )
+        assertTrue(!emptyLevel.isReadyToPlay())
     }
     
     @Test

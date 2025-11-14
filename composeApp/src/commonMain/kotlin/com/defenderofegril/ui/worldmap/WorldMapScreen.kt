@@ -33,30 +33,35 @@ fun WorldMapScreen(
 ) {
     var showCheatDialog by remember { mutableStateOf(false) }
     
-    Box(
-        modifier = Modifier.fillMaxSize().padding(16.dp)
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
     ) {
-        // Settings button in top-right corner
-        SettingsButton(modifier = Modifier.align(Alignment.TopEnd))
-        
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally
+        Box(
+            modifier = Modifier.fillMaxSize().padding(16.dp)
         ) {
-            // Title text - clickable for cheat code access (less obvious than a button)
-            Text(
-                text = stringResource(Res.string.world_map_title),
-                style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier
-                    .padding(bottom = 16.dp)
-                    .then(
-                        if (onCheatCode != null) {
-                            Modifier.clickable { showCheatDialog = true }
-                        } else {
-                            Modifier
-                        }
-                    )
-            )
+            // Settings button in top-right corner
+            SettingsButton(modifier = Modifier.align(Alignment.TopEnd))
+            
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // Title text - clickable for cheat code access (less obvious than a button)
+                Text(
+                    text = stringResource(Res.string.world_map_title),
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier
+                        .padding(bottom = 16.dp)
+                        .then(
+                            if (onCheatCode != null) {
+                                Modifier.clickable { showCheatDialog = true }
+                            } else {
+                                Modifier
+                            }
+                        )
+                )
             
             LazyVerticalGrid(
                 columns = GridCells.Fixed(2),
@@ -74,32 +79,41 @@ fun WorldMapScreen(
                         }
                     )
                 }
-                
-                // Add Editor Button as a special card (only on desktop)
-                if (isEditorAvailable()) {
-                    item {
-                        EditorButtonCard(onClick = onOpenEditor)
-                    }
-                }
             }
             
             Spacer(modifier = Modifier.height(16.dp))
             
             Row(
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Button(onClick = onLoadGame) {
-                    Text(stringResource(Res.string.load_game))
+                // Centered buttons group
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Button(onClick = onLoadGame) {
+                        Text(stringResource(Res.string.load_game))
+                    }
+                    
+                    Button(onClick = onShowRules) {
+                        Text(stringResource(Res.string.rules))
+                    }
+                    
+                    Button(onClick = onBackToMenu) {
+                        Text(stringResource(Res.string.back))
+                    }
                 }
                 
-                Button(onClick = onShowRules) {
-                    Text(stringResource(Res.string.rules))
-                }
+                // Spacer to push editor button to the right
+                Spacer(modifier = Modifier.weight(1f))
                 
-                Button(onClick = onBackToMenu) {
-                    Text(stringResource(Res.string.back))
+                // Editor Button at the right end (only on desktop/wasm)
+                if (isEditorAvailable()) {
+                    EditorButtonCard(onClick = onOpenEditor)
                 }
             }
+        }
         }
     }
     
