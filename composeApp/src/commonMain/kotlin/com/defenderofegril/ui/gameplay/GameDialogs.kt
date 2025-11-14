@@ -17,7 +17,8 @@ import defender_of_egril.composeapp.generated.resources.*
 fun DigOutcomeDialog(
     outcome: DigOutcome,
     onDismiss: () -> Unit,
-    onResetSelections: () -> Unit
+    onResetSelections: () -> Unit,
+    dragonName: String? = null  // Optional dragon name for DRAGON outcome
 ) {
     // Reset selections when dragon awakes
     if (outcome == DigOutcome.DRAGON) {
@@ -47,7 +48,13 @@ fun DigOutcomeDialog(
                     DigOutcome.GOLD -> "${stringResource(Res.string.found_gold)}\n+${outcome.coins} ${stringResource(Res.string.coins)}"
                     DigOutcome.GEMS -> "${stringResource(Res.string.found_gems)}\n+${outcome.coins} ${stringResource(Res.string.coins)}"
                     DigOutcome.DIAMOND -> "${stringResource(Res.string.found_diamond)}\n+${outcome.coins} ${stringResource(Res.string.coins)}"
-                    DigOutcome.DRAGON -> "${stringResource(Res.string.dragon_awakens)}\n${stringResource(Res.string.mine_destroyed)}"
+                    DigOutcome.DRAGON -> {
+                        if (dragonName != null) {
+                            "${stringResource(Res.string.the_dragon)} $dragonName ${stringResource(Res.string.awakens)}!\n${stringResource(Res.string.mine_destroyed)}"
+                        } else {
+                            "${stringResource(Res.string.dragon_awakens)}\n${stringResource(Res.string.mine_destroyed)}"
+                        }
+                    }
                 }
                 Text(
                     text = message,

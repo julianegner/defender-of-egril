@@ -41,7 +41,8 @@ data class SavedDefender(
     val level: Int,
     val buildTimeRemaining: Int,
     val placedOnTurn: Int,
-    val actionsRemaining: Int = 0  // Default to 0 for backward compatibility with old saves
+    val actionsRemaining: Int = 0,  // Default to 0 for backward compatibility with old saves
+    val dragonName: String? = null  // Dragon's name (for dragon's lair only)
 )
 
 data class SavedAttacker(
@@ -50,7 +51,8 @@ data class SavedAttacker(
     val position: Position,
     val level: Int,
     val currentHealth: Int,
-    val isDefeated: Boolean
+    val isDefeated: Boolean,
+    val dragonName: String? = null  // Dragon's name (for dragons only)
 )
 
 data class SavedFieldEffect(

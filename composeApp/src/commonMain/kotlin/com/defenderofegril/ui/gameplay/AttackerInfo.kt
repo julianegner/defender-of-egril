@@ -62,8 +62,14 @@ fun AttackerInfo(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
+                        // Show "The dragon [name]" for dragons, otherwise just the type name
+                        val displayName = if (attacker.type.isDragon && attacker.dragonName != null) {
+                            "${stringResource(Res.string.the_dragon)} ${attacker.dragonName}"
+                        } else {
+                            attacker.type.getLocalizedName(locale)
+                        }
                         Text(
-                            attacker.type.getLocalizedName(locale),
+                            displayName,
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold
                         )
