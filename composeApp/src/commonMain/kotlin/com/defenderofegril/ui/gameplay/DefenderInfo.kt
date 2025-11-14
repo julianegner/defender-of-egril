@@ -86,7 +86,16 @@ fun DefenderInfo(
                                     it.id == dragonId && !it.isDefeated.value
                                 }
                             } ?: false
-                            if (dragonAlive) stringResource(Res.string.dragons_lair) else stringResource(Res.string.empty_dragons_lair)
+                            if (dragonAlive) {
+                                // Show "Lair of the Dragon [name]" in normal text above the italic desc
+                                if (defender.dragonName != null) {
+                                    "${stringResource(Res.string.lair_of_the_dragon)} ${defender.dragonName}"
+                                } else {
+                                    stringResource(Res.string.dragons_lair)
+                                }
+                            } else {
+                                stringResource(Res.string.empty_dragons_lair)
+                            }
                         } else {
                             defender.type.displayName
                         }
