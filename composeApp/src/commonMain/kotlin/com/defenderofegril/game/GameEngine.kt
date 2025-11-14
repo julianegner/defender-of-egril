@@ -504,7 +504,8 @@ class GameEngine(private val state: GameState) {
             id = state.nextAttackerId.value++,
             type = type,
             position = mutableStateOf(spawnPos),
-            currentHealth = mutableStateOf(scaledHealth)
+            currentHealth = mutableStateOf(scaledHealth),
+            dragonName = if (type.isDragon) DragonNames.getRandomName() else null
         )
         
         // Add to attackers list

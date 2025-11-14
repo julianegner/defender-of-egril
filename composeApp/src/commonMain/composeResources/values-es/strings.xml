@@ -391,4 +391,9 @@
     <string name="sound_enabled">Sonido activado</string>
     <string name="sound_disabled">Sonido desactivado</string>
     <string name="sound_volume">Volumen del sonido</string>
+    
+    <!-- Dragon Names -->
+    <string name="the_dragon">El dragón</string>
+    <string name="awakens">despierta</string>
+    <string name="lair_of_the_dragon">Guarida del Dragón</string>
 </resources>

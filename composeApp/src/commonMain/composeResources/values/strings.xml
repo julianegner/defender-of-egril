@@ -398,4 +398,9 @@
     <string name="dragon_info_eating">Dragons devour enemies they land on (except Ewhad), gaining their health points!</string>
     <string name="dragon_info_level">Dragon level increases with health: Level = HP ÷ 500 (min. 1)</string>
     <string name="got_it">Got it!</string>
+    
+    <!-- Dragon Names -->
+    <string name="the_dragon">The dragon</string>
+    <string name="awakens">awakens</string>
+    <string name="lair_of_the_dragon">Lair of the Dragon</string>
 </resources>
