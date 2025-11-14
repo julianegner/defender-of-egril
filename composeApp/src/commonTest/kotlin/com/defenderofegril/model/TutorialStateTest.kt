@@ -121,7 +121,11 @@ class TutorialStateTest {
         state = state.advanceStep()
         assertEquals(TutorialStep.SELL_TOWER, state.currentStep, "Should advance to SELL_TOWER")
         
-        // SELL_TOWER -> COMPLETE
+        // SELL_TOWER -> SAVE_GAME
+        state = state.advanceStep()
+        assertEquals(TutorialStep.SAVE_GAME, state.currentStep, "Should advance to SAVE_GAME")
+        
+        // SAVE_GAME -> COMPLETE
         state = state.advanceStep()
         assertEquals(TutorialStep.COMPLETE, state.currentStep, "Should advance to COMPLETE")
         
