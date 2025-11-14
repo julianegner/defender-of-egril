@@ -30,12 +30,12 @@ fun screenToHexGridPosition(
     // Hex geometry (matching HexagonalMapView.kt)
     val sqrt3 = sqrt(3f)
     val hexWidth = hexSize * sqrt3
-    val hexHeight = hexSize * 2f
+    val hexHeight = (hexSize * 2f)
     val verticalSpacing = hexHeight * 0.75f
     
     // Layout spacing (matching HexagonalMapView.kt)
-    val rowSpacing = -hexHeight + verticalSpacing - 7f  // -27.0 for hexSize=40
-    val colSpacing = -10f
+    val rowSpacing = -hexHeight + verticalSpacing - 15f //7f  // -27.0 for hexSize=40
+    val colSpacing = -18f //-10f
     val oddRowOffset = hexWidth * 0.42f
     
     // Calculate row (y) from vertical position
@@ -52,10 +52,12 @@ fun screenToHexGridPosition(
     // Calculate column (x) from horizontal position, accounting for odd row offset
     // Formula (even row): xPixel = x * (hexWidth + colSpacing) + hexWidth/2
     // Formula (odd row):  xPixel = oddRowOffset + x * (hexWidth + colSpacing) + hexWidth/2
+    val halfHexWidth = hexWidth * 0.5f
+
     val xApprox = if (y % 2 == 0) {
-        (px - hexWidth / 2f) / (hexWidth + colSpacing)
+        (px - halfHexWidth) / (hexWidth + colSpacing)
     } else {
-        (px - oddRowOffset - hexWidth / 2f) / (hexWidth + colSpacing)
+        (px - oddRowOffset - halfHexWidth) / (hexWidth + colSpacing)
     }
     val x = kotlin.math.round(xApprox).toInt()
     
