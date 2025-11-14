@@ -91,7 +91,8 @@ fun MapEditorView(
                         enableKeyboardNavigation = true,  // Enable keyboard navigation for editor
                         enablePanNavigation = false,  // Disable pan navigation (use brush mode instead)
                         enableBrushMode = true,  // Enable brush mode for tile painting
-                        keyboardPanSpeed = 50f  // Increased for better responsiveness
+                        keyboardPanSpeed = 50f,  // Increased for better responsiveness
+                        enableZoomMode = false // fixme: zoom deactivated because it breaks the brush painting
                     ),
                     scale = zoomLevel,
                     offsetX = offsetX,
@@ -135,23 +136,6 @@ fun MapEditorView(
                                 this[key] = selectedTileType
                             }
                         },
-                        /*
-                        modifier = Modifier
-                                .pointerInput(offsetX, offsetY,) {
-                                detectDragGestures(
-                                    onDragStart = { offset ->
-                                        onBrushPaint(position)
-                                    },
-                                    onDrag = { change, offset ->
-                                        println("Drag at $position")
-                                        onBrushPaint(position)
-                                    },
-                                    onDragEnd = {
-                                        lastPaintedPos = null
-                                    }
-                                )
-                        }
-                         */
                     ) {
                         Text(
                             text = "${position.x},${position.y}",
