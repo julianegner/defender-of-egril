@@ -228,20 +228,6 @@ fun HexagonalMapView(
                     Modifier
                 }
             )
-            .pointerInput(scale, offsetX, offsetY) {
-                // Keep detectTransformGestures for pinch-to-zoom on mobile (separate pointerInput to avoid conflicts)
-                if (isPlatformMobile) {
-                    detectTransformGestures { _, _, zoom, _ ->
-                        if (zoom != 1f) {
-                            val newScale = (scale * zoom).coerceIn(config.minScale, config.maxScale)
-                            onScaleChange(newScale)
-                            // Re-constrain offsets after zoom
-                            val (constrainedX, constrainedY) = constrainOffsets(offsetX, offsetY, newScale)
-                            onOffsetChange(constrainedX, constrainedY)
-                        }
-                    }
-                }
-            }
     ) {
         // Map content with pan and zoom applied
         Column(
