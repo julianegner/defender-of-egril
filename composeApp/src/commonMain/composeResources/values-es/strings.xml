@@ -135,7 +135,7 @@
     <string name="acid_desc">Ácido: Daño continuo durante 3 turnos dentro de 1 casilla del impacto</string>
     <string name="victory_defeat">Victoria &amp; Derrota</string>
     <string name="victory_detail">Victoria: Derrota a todos los enemigos en todas las oleadas con al menos 1 punto de salud restante</string>
-    <string name="defeat_detail">Derrota: Los enemigos débiles (goblins, orcos, ogros, esqueletos, magos malvados) cuestan 1 punto de salud al llegar al objetivo. Los enemigos poderosos (magos, brujas, demonios, dragones) cuestan puntos de salud igual a su nivel. Ewhad cuesta todos tus puntos de salud. A 0 puntos de salud, pierdes.</string>
+    <string name="defeat_detail">Derrota: Los enemigos débiles (goblins, orcos, ogros, esqueletos) cuestan 1 punto de salud al llegar al objetivo. Los enemigos poderosos (magos, brujas, magos malvados, demonios, dragones) cuestan puntos de salud igual a su nivel. Ewhad cuesta todos tus puntos de salud. A 0 puntos de salud, pierdes.</string>
     <string name="grid_legend">Leyenda de la cuadrícula</string>
     <string name="spawn_desc">Spawn: Posición inicial (los enemigos aparecen)</string>
     <string name="target_desc">Objetivo: Posición objetivo (¡defiende esto!)</string>
@@ -357,7 +357,7 @@
     <string name="tutorial_welcome_title">¡Bienvenido a Defender of Egril!</string>
     <string name="tutorial_welcome">Este es un juego de defensa de torres. Tu objetivo es evitar que los enemigos lleguen al objetivo construyendo torres defensivas.</string>
     <string name="tutorial_resources_title">Recursos</string>
-    <string name="tutorial_resources">Tienes monedas para construir torres y puntos de salud. Los enemigos débiles cuestan 1 PS, pero los enemigos poderosos (magos, brujas, demonios) cuestan PS igual a su nivel. ¡Ewhad cuesta todos tus PS!</string>
+    <string name="tutorial_resources">Tienes monedas para construir torres y puntos de salud. Los enemigos débiles cuestan 1 PS, pero los enemigos poderosos (magos, brujas, magos malvados, demonios, dragones) cuestan PS igual a su nivel. ¡Ewhad cuesta todos tus PS!</string>
     <string name="tutorial_towers_title">Torres disponibles</string>
     <string name="tutorial_towers">Torre de Púas: Corto alcance, barata\nTorre de Lanza: Alcance medio\nTorre de Arco: Largo alcance\n\n¡Elige sabiamente según tu estrategia!</string>
     <string name="tutorial_build_title">Construir torres</string>
