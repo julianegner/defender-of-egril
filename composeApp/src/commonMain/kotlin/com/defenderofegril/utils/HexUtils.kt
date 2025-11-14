@@ -47,7 +47,7 @@ fun screenToHexGridPosition(
     //                  = y * (hexHeight + rowSpacing - 1) + 1 + hexHeight/2
     // Reverse: y = (yPixel - 1 - hexHeight/2) / (hexHeight + rowSpacing - 1)
     val yApprox = (py - 1f - hexHeight / 2f) / (hexHeight + rowSpacing - 1f)
-    val y = kotlin.math.round(yApprox + 0.5f).toInt()  // Rounding bias to fix accumulating error
+    val y = kotlin.math.round(yApprox).toInt()
     
     // Calculate column (x) from horizontal position, accounting for odd row offset
     // Formula (even row): xPixel = x * (hexWidth + colSpacing) + hexWidth/2
@@ -57,7 +57,9 @@ fun screenToHexGridPosition(
     } else {
         (px - oddRowOffset - hexWidth / 2f) / (hexWidth + colSpacing)
     }
-    val x = kotlin.math.round(xApprox + 0.5f).toInt()  // Rounding bias to fix offset
+    val x = kotlin.math.round(xApprox).toInt()
+    
+    println("Debug HexUtils: px=$px, py=$py -> xApprox=$xApprox, yApprox=$yApprox -> x=$x, y=$y")
     
     return Position(x, y)
 }
