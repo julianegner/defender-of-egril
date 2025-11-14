@@ -185,7 +185,10 @@ The Spike Tower has unique upgrade characteristics:
 
 ### Defeat Conditions
 - All health points lost (0 HP)
-- Each enemy reaching the target costs 1 HP
+- **Variable Damage:** Different enemies cause different damage when reaching the target:
+  - **Weak enemies** (Goblin, Ork, Ogre, Skeleton, Evil Mage): 1 HP each
+  - **Mighty enemies** (Evil Wizard, Witch, Red Witch, Green Witch, Blue Demon, Red Demon, Dragon): HP equal to their level
+  - **Ewhad (Boss)**: All remaining HP (instant defeat)
 
 ---
 

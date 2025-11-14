@@ -251,7 +251,13 @@ class GameEngine(private val state: GameState) {
             
             // Check if reached target
             if (attacker.position.value == state.level.targetPosition) {
-                state.healthPoints.value--
+                val damage = attacker.calculateTargetDamage()
+                // Ewhad causes all remaining HP damage
+                if (damage == Int.MAX_VALUE) {
+                    state.healthPoints.value = 0
+                } else {
+                    state.healthPoints.value = maxOf(0, state.healthPoints.value - damage)
+                }
                 attacker.isDefeated.value = true
             }
             return
@@ -274,7 +280,13 @@ class GameEngine(private val state: GameState) {
             
             // Check if reached target
             if (newPosition == state.level.targetPosition) {
-                state.healthPoints.value--
+                val damage = attacker.calculateTargetDamage()
+                // Ewhad causes all remaining HP damage
+                if (damage == Int.MAX_VALUE) {
+                    state.healthPoints.value = 0
+                } else {
+                    state.healthPoints.value = maxOf(0, state.healthPoints.value - damage)
+                }
                 attacker.isDefeated.value = true
             }
         }
