@@ -155,7 +155,8 @@ object SaveFileStorage {
                 level = defender.level.value,
                 buildTimeRemaining = defender.buildTimeRemaining.value,
                 placedOnTurn = defender.placedOnTurn,
-                actionsRemaining = defender.actionsRemaining.value
+                actionsRemaining = defender.actionsRemaining.value,
+                dragonName = defender.dragonName
             )
         }
         
@@ -166,7 +167,8 @@ object SaveFileStorage {
                 position = attacker.position.value,
                 level = attacker.level.value,
                 currentHealth = attacker.currentHealth.value,
-                isDefeated = attacker.isDefeated.value
+                isDefeated = attacker.isDefeated.value,
+                dragonName = attacker.dragonName
             )
         }
         
@@ -234,7 +236,8 @@ object SaveFileStorage {
                 id = savedDefender.id,
                 type = savedDefender.type,
                 position = savedDefender.position,
-                placedOnTurn = savedDefender.placedOnTurn
+                placedOnTurn = savedDefender.placedOnTurn,
+                dragonName = savedDefender.dragonName
             )
             defender.level.value = savedDefender.level
             defender.buildTimeRemaining.value = savedDefender.buildTimeRemaining
@@ -249,7 +252,8 @@ object SaveFileStorage {
                 id = savedAttacker.id,
                 type = savedAttacker.type,
                 position = mutableStateOf(savedAttacker.position),
-                level = mutableStateOf(savedAttacker.level)
+                level = mutableStateOf(savedAttacker.level),
+                dragonName = savedAttacker.dragonName
             )
             attacker.currentHealth.value = savedAttacker.currentHealth
             attacker.isDefeated.value = savedAttacker.isDefeated
