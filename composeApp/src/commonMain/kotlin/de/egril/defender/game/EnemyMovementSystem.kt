@@ -271,6 +271,20 @@ class EnemyMovementSystem(
         return result
     }
     
+    /**
+     * Apply damage to health points when an enemy reaches the target.
+     * Handles variable damage based on enemy type and marks the attacker as defeated.
+     */
+    private fun applyTargetDamage(attacker: Attacker) {
+        val damage = attacker.calculateTargetDamage()
+        // Ewhad causes all remaining HP damage
+        if (damage == Int.MAX_VALUE) {
+            state.healthPoints.value = 0
+        } else {
+            state.healthPoints.value = maxOf(0, state.healthPoints.value - damage)
+        }
+        attacker.isDefeated.value = true
+    }
 
     fun moveGoblinsAfterSpawn() {
         // Move only goblins that just spawned (those still at spawn points)
@@ -310,14 +324,7 @@ class EnemyMovementSystem(
                 
                 // Check if reached target
                 if (attacker.position.value == target) {
-                    val damage = attacker.calculateTargetDamage()
-                    // Ewhad causes all remaining HP damage
-                    if (damage == Int.MAX_VALUE) {
-                        state.healthPoints.value = 0
-                    } else {
-                        state.healthPoints.value = maxOf(0, state.healthPoints.value - damage)
-                    }
-                    attacker.isDefeated.value = true
+                    applyTargetDamage(attacker)
                     break
                 }
             }
