@@ -17,35 +17,6 @@ import kotlin.math.sqrt
 object CircularSegmentDrawer {
     
     /**
-     * Calculate the angle from center position to neighbor position in radians.
-     * Used for determining the orientation of circular segments.
-     * 
-     * @param center The central position
-     * @param neighbor The neighbor position
-     * @return The angle in radians
-     */
-    fun calculateAngleToNeighbor(center: Position, neighbor: Position): Float {
-        val hexSize = 40f
-        val hexWidth = hexSize * sqrt(3f)
-        val verticalSpacing = hexSize * 2f * 0.75f
-        
-        // Calculate pixel offsets
-        val dx = (neighbor.x - center.x).toFloat()
-        val dy = (neighbor.y - center.y).toFloat()
-        
-        var offsetX = dx * hexWidth
-        var offsetY = dy * verticalSpacing
-        
-        // Adjust for hexagonal offset (even-q vertical layout)
-        val neighborRowOffset = if (neighbor.y % 2 == 1) hexWidth * 0.42f else 0f
-        val centerRowOffset = if (center.y % 2 == 1) hexWidth * 0.42f else 0f
-        offsetX += (neighborRowOffset - centerRowOffset)
-        
-        // Calculate angle using atan2
-        return atan2(offsetY, offsetX)
-    }
-    
-    /**
      * Draw a circular arc segment on a neighbor tile.
      * The arc is part of a larger circle centered on the target tile.
      * 
