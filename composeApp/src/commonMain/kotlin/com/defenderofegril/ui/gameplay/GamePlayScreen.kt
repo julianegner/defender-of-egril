@@ -293,7 +293,7 @@ private fun GamePlayScreenContent(
             }
             
             // Tutorial card (positioned in upper right corner)
-            if (gameState.tutorialState.value.shouldShowOverlay()) {
+            if (gameState.tutorialState.value.shouldShowOverlay() || showDragonInfoDialog) {
                 // Check if we should allow skipping attack step
                 // (tower has no actions left or can't reach any enemies)
                 if (gameState.tutorialState.value.currentStep == TutorialStep.ATTACKING &&
