@@ -49,7 +49,8 @@ data class GameState(
         } else {
             TutorialState(isActive = false, currentStep = TutorialStep.NONE)
         }
-    )
+    ),
+    val hasSeenDragonInfo: MutableState<Boolean> = mutableStateOf(false)  // Track if dragon tutorial has been shown
 ) {
     fun isLevelWon(): Boolean {
         // Check if all planned spawns have occurred and all enemies are defeated

@@ -225,6 +225,7 @@ class GameEngine(private val state: GameState) {
                 // Dragon eats the unit and gains its health
                 println("Dragon ${attacker.id} eating ${unitAtPosition.type} at $newPosition, gaining ${unitAtPosition.currentHealth.value} HP")
                 attacker.currentHealth.value += unitAtPosition.currentHealth.value
+                attacker.updateDragonLevel()  // Update level based on new health
                 unitAtPosition.isDefeated.value = true
                 attacker.position.value = newPosition
             } else if (unitAtPosition != null && unitAtPosition.type == AttackerType.EWHAD) {
