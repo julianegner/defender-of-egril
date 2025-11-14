@@ -117,10 +117,28 @@ fun HexagonMinimap(
 @Composable
 fun HexagonMinimapFromEditorMap(
     map: com.defenderofegril.editor.EditorMap,
-    level: Level,
     modifier: Modifier = Modifier,
-    config: MinimapConfig = MinimapConfig()
+    config: MinimapConfig = MinimapConfig(),
+    scale: Float? = null,
+    offsetX: Float? = null,
+    offsetY: Float? = null,
+    containerSize: IntSize? = null
 ) {
+    val dummyLevel = remember(map.id) {
+        Level(
+            id = 0,
+            name = map.name,
+            gridWidth = map.width,
+            gridHeight = map.height,
+            startPositions = emptyList(),
+            targetPosition = Position(0, 0),
+            pathCells = emptySet(),
+            buildIslands = emptySet(),
+            attackerWaves = emptyList()
+        )
+    }
+
+
     Box(
         modifier = modifier
             .background(config.backgroundColor)
@@ -129,13 +147,13 @@ fun HexagonMinimapFromEditorMap(
     ) {
         HexagonMinimapContent(
             map = map,
-            level = level,
+            level = dummyLevel,
             config = config,
             gameState = null,
-            scale = null,
-            offsetX = null,
-            offsetY = null,
-            containerSize = null
+            scale = scale,
+            offsetX = offsetX,
+            offsetY = offsetY,
+            containerSize = containerSize
         )
     }
 }
