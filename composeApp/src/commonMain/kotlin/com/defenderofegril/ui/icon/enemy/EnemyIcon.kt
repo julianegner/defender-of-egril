@@ -53,9 +53,9 @@ fun EnemyIcon(
         }
         
         // Level number at top center - only if level > 1
-        if (attacker.level > 1) {
+        if (attacker.level.value > 1) {
             Text(
-                text = "${attacker.level}",
+                text = "${attacker.level.value}",
                 style = MaterialTheme.typography.labelSmall,
                 fontSize = 12.sp,
                 color = healthTextColor,

@@ -58,7 +58,7 @@ class EnemyLevelTest {
             type = AttackerType.OGRE,
             position = mutableStateOf(Position(0, 0))
         )
-        assertEquals(1, attacker.level, "Attacker should default to level 1")
+        assertEquals(1, attacker.level.value, "Attacker should default to level 1")
         assertEquals(AttackerType.OGRE.health, attacker.maxHealth, 
             "Attacker max health should be base health when level is 1")
     }
@@ -70,9 +70,9 @@ class EnemyLevelTest {
             id = 1,
             type = AttackerType.OGRE,
             position = mutableStateOf(Position(0, 0)),
-            level = 4
+            level = mutableStateOf(4)
         )
-        assertEquals(4, attacker.level, "Attacker should store the specified level")
+        assertEquals(4, attacker.level.value, "Attacker should store the specified level")
         assertEquals(AttackerType.OGRE.health * 4, attacker.maxHealth, 
             "Attacker max health should be base health * level")
         assertEquals(AttackerType.OGRE.health * 4, attacker.currentHealth.value, 
@@ -97,9 +97,9 @@ class EnemyLevelTest {
                     id = 1,
                     type = type,
                     position = mutableStateOf(Position(0, 0)),
-                    level = level
+                    level = mutableStateOf(level)
                 )
-                assertEquals(level, attacker.level, 
+                assertEquals(level, attacker.level.value, 
                     "Attacker ${type.displayName} should have level $level")
                 assertEquals(type.health * level, attacker.maxHealth, 
                     "Attacker ${type.displayName} at level $level should have health ${type.health * level}")

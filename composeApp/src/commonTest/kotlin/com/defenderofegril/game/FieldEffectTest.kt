@@ -57,7 +57,7 @@ class FieldEffectTest {
             id = state.nextAttackerId.value++,
             type = AttackerType.GOBLIN,
             position = mutableStateOf(Position(4, 3)),  // On the path, in range
-            level = 1
+            level = mutableStateOf(1)
         )
         state.attackers.add(enemy)
         
@@ -71,7 +71,7 @@ class FieldEffectTest {
         assertTrue(fireballEffects.all { it.turnsRemaining == 1 }, "Fireball effects should have 1 turn remaining")
         
         // End the player turn
-        engine.endPlayerTurn()
+        engine.startEnemyTurn(); engine.completeEnemyTurn()
         
         // Verify field effects were removed after turn end
         val remainingFireballEffects = state.fieldEffects.filter { it.type == FieldEffectType.FIREBALL }
@@ -99,7 +99,7 @@ class FieldEffectTest {
             id = state.nextAttackerId.value++,
             type = AttackerType.GOBLIN,
             position = mutableStateOf(Position(2, 3)),  // Changed from (4,3) to (2,3) - within range 2
-            level = 1
+            level = mutableStateOf(1)
         )
         state.attackers.add(enemy)
         
@@ -114,7 +114,7 @@ class FieldEffectTest {
         assertTrue(initialTurns > 1, "Acid effects should last multiple turns")
         
         // End the player turn
-        engine.endPlayerTurn()
+        engine.startEnemyTurn(); engine.completeEnemyTurn()
         
         // Verify acid effects still exist but with decremented turns
         val remainingAcidEffects = state.fieldEffects.filter { it.type == FieldEffectType.ACID }
@@ -147,13 +147,13 @@ class FieldEffectTest {
             id = state.nextAttackerId.value++,
             type = AttackerType.GOBLIN,
             position = mutableStateOf(Position(4, 3)),  // Distance 3 from tower
-            level = 1
+            level = mutableStateOf(1)
         ))
         state.attackers.add(Attacker(
             id = state.nextAttackerId.value++,
             type = AttackerType.GOBLIN,
             position = mutableStateOf(Position(1, 3)),  // Changed from (6,3) to (1,3) - within range 3
-            level = 1
+            level = mutableStateOf(1)
         ))
         
         // First attack

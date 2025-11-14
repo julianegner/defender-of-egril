@@ -65,7 +65,7 @@ class DeadEndPathfindingTest {
             id = 1,
             type = AttackerType.GOBLIN,
             position = mutableStateOf(Position(0, 0)),
-            level = 1
+            level = mutableStateOf(1)
         )
         state.attackers.add(enemy)
         

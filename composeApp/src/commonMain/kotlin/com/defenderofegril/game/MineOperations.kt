@@ -126,12 +126,12 @@ class MineOperations(private val state: GameState) {
      */
     private fun spawnDragonFromMine(mine: Defender) {
         // Spawn dragon first to get its ID
-        val dragonHealth = 500 + mine.coinsGenerated.value
+        var dragonHealth = 500 + mine.coinsGenerated.value
         val dragon = Attacker(
             id = state.nextAttackerId.value++,
             type = AttackerType.DRAGON,
             position = mutableStateOf(Position(0, 0)), // Temporary position
-            level = 1,
+            level = mutableStateOf(1),
             currentHealth = mutableStateOf(dragonHealth),
             spawnedFromLairId = null  // Will be set after lair is created
         )
@@ -166,8 +166,12 @@ class MineOperations(private val state: GameState) {
             }
             adjacentPathPositions.minByOrNull { it.distanceTo(mine.position) } ?: closestPathPos
         } else {
-            // Remove the unit if it's not Ewhad
+            // Remove the unit if it's not Ewhad - dragon eats it!
             if (unitAtPosition != null) {
+                println("Dragon eating ${unitAtPosition.type} on spawn at $closestPathPos, gaining ${unitAtPosition.currentHealth.value} HP")
+                dragonHealth += unitAtPosition.currentHealth.value
+                dragon.currentHealth.value = dragonHealth  // Update dragon health
+                dragon.updateDragonLevel()  // Update level based on health
                 unitAtPosition.isDefeated.value = true
             }
             closestPathPos
