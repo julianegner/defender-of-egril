@@ -27,11 +27,11 @@ class EnemyAbilitySystem(private val state: GameState) {
                     // Only summon if cooldown is 0
                     if (attacker.summonCooldown.value == 0) {
                         // Summon 1 blue demon per level
-                        repeat(attacker.level) {
+                        repeat(attacker.level.value) {
                             spawnDemonNear(attacker, AttackerType.BLUE_DEMON, state.turnNumber.value)
                         }
                         // Summon red demons (level / 2)
-                        repeat(attacker.level / 2) {
+                        repeat(attacker.level.value / 2) {
                             spawnDemonNear(attacker, AttackerType.RED_DEMON, state.turnNumber.value)
                         }
                         // Set cooldown to 3 turns (summons every 3 turns)
@@ -42,10 +42,10 @@ class EnemyAbilitySystem(private val state: GameState) {
                     // Only summon if cooldown is 0
                     if (attacker.summonCooldown.value == 0) {
                         // Ewhad spawns double the demons of a regular evil mage
-                        repeat(attacker.level * 2) {
+                        repeat(attacker.level.value * 2) {
                             spawnDemonNear(attacker, AttackerType.BLUE_DEMON, state.turnNumber.value)
                         }
-                        repeat(attacker.level) {
+                        repeat(attacker.level.value) {
                             spawnDemonNear(attacker, AttackerType.RED_DEMON, state.turnNumber.value)
                         }
                         // Additional 3 undead
@@ -64,7 +64,7 @@ class EnemyAbilitySystem(private val state: GameState) {
                             !it.isDefeated.value && it.id != attacker.id && it.position.value == adjacent 
                         }
                         if (adjacentEnemy != null) {
-                            val healAmount = min(attacker.level, adjacentEnemy.maxHealth - adjacentEnemy.currentHealth.value)
+                            val healAmount = min(attacker.level.value, adjacentEnemy.maxHealth - adjacentEnemy.currentHealth.value)
                             adjacentEnemy.currentHealth.value += healAmount
                         }
                     }
@@ -112,7 +112,7 @@ class EnemyAbilitySystem(private val state: GameState) {
             id = state.nextAttackerId.value++,
             type = demonType,
             position = mutableStateOf(spawnPos),
-            level = level
+            level = mutableStateOf(level)
         )
         state.attackers.add(demon)
     }
@@ -135,7 +135,7 @@ class EnemyAbilitySystem(private val state: GameState) {
         val eligibleTowers = state.defenders.filter { tower ->
             tower.isReady && 
             !tower.isDisabled.value && 
-            tower.level.value <= witch.level
+            tower.level.value <= witch.level.value
         }
         
         if (eligibleTowers.isEmpty()) return
@@ -171,7 +171,7 @@ class EnemyAbilitySystem(private val state: GameState) {
      */
     fun findNearestActiveTower(witch: Attacker): Defender? {
         val eligibleTowers = state.defenders.filter { tower ->
-            tower.isReady && !tower.isDisabled.value && tower.level.value <= witch.level
+            tower.isReady && !tower.isDisabled.value && tower.level.value <= witch.level.value
         }
         
         if (eligibleTowers.isEmpty()) return null
