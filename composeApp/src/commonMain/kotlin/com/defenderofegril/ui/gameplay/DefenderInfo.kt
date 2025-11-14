@@ -86,7 +86,16 @@ fun DefenderInfo(
                                     it.id == dragonId && !it.isDefeated.value
                                 }
                             } ?: false
-                            if (dragonAlive) stringResource(Res.string.dragons_lair) else stringResource(Res.string.empty_dragons_lair)
+                            if (dragonAlive) {
+                                // Show "Lair of the Dragon [name]" in normal text above the italic desc
+                                if (defender.dragonName != null) {
+                                    "${stringResource(Res.string.lair_of_the_dragon)} ${defender.dragonName}"
+                                } else {
+                                    stringResource(Res.string.dragons_lair)
+                                }
+                            } else {
+                                stringResource(Res.string.empty_dragons_lair)
+                            }
                         } else {
                             defender.type.displayName
                         }
@@ -145,6 +154,22 @@ fun DefenderInfo(
                 if (defender.isReady) {
                     if (defender.type == DefenderType.DRAGONS_LAIR) {
                         // Dragon's lair - no actions, can't be sold
+                        // Show dragon name in normal text if available
+                        val dragonAlive = defender.dragonId.value?.let { dragonId ->
+                            gameState.attackers.any {
+                                it.id == dragonId && !it.isDefeated.value
+                            }
+                        } ?: false
+                        
+                        if (dragonAlive && defender.dragonName != null) {
+                            Text(
+                                "${stringResource(Res.string.lair_of_the_dragon)} ${defender.dragonName}",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = GamePlayColors.ErrorDark,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                        
                         Text(
                             stringResource(Res.string.dragons_lair_desc),
                             style = MaterialTheme.typography.bodySmall,

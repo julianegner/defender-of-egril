@@ -47,6 +47,7 @@ object SaveJsonSerializer {
     
     fun serializeSavedGame(savedGame: SavedGame): String {
         val defendersJson = savedGame.defenders.joinToString(",\n    ") { defender ->
+            val dragonNameStr = if (defender.dragonName != null) "\"${defender.dragonName}\"" else "null"
             """{
       "id": ${defender.id},
       "type": "${defender.type.name}",
@@ -54,18 +55,21 @@ object SaveJsonSerializer {
       "level": ${defender.level},
       "buildTimeRemaining": ${defender.buildTimeRemaining},
       "placedOnTurn": ${defender.placedOnTurn},
-      "actionsRemaining": ${defender.actionsRemaining}
+      "actionsRemaining": ${defender.actionsRemaining},
+      "dragonName": $dragonNameStr
     }"""
         }
         
         val attackersJson = savedGame.attackers.joinToString(",\n    ") { attacker ->
+            val dragonNameStr = if (attacker.dragonName != null) "\"${attacker.dragonName}\"" else "null"
             """{
       "id": ${attacker.id},
       "type": "${attacker.type.name}",
       "position": {"x": ${attacker.position.x}, "y": ${attacker.position.y}},
       "level": ${attacker.level},
       "currentHealth": ${attacker.currentHealth},
-      "isDefeated": ${attacker.isDefeated}
+      "isDefeated": ${attacker.isDefeated},
+      "dragonName": $dragonNameStr
     }"""
         }
         
@@ -246,8 +250,15 @@ object SaveJsonSerializer {
         } catch (e: Exception) {
             0
         }
+        // Backward compatibility: default to null if field doesn't exist in old saves
+        val dragonName = try {
+            val value = extractValue(json, "dragonName")
+            if (value == "null") null else value
+        } catch (e: Exception) {
+            null
+        }
         
-        return SavedDefender(id, type, position, level, buildTimeRemaining, placedOnTurn, actionsRemaining)
+        return SavedDefender(id, type, position, level, buildTimeRemaining, placedOnTurn, actionsRemaining, dragonName)
     }
     
     private fun parseSavedAttacker(json: String): SavedAttacker {
@@ -257,8 +268,15 @@ object SaveJsonSerializer {
         val level = extractValue(json, "level").toInt()
         val currentHealth = extractValue(json, "currentHealth").toInt()
         val isDefeated = extractValue(json, "isDefeated").toBoolean()
+        // Backward compatibility: default to null if field doesn't exist in old saves
+        val dragonName = try {
+            val value = extractValue(json, "dragonName")
+            if (value == "null") null else value
+        } catch (e: Exception) {
+            null
+        }
         
-        return SavedAttacker(id, type, position, level, currentHealth, isDefeated)
+        return SavedAttacker(id, type, position, level, currentHealth, isDefeated, dragonName)
     }
     
     private fun parseSavedFieldEffect(json: String): SavedFieldEffect {
