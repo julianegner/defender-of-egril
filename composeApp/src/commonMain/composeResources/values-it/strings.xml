@@ -19,6 +19,11 @@
     <!-- Settings -->
     <string name="settings">Impostazioni</string>
     <string name="language">Lingua</string>
+    <string name="appearance">Aspetto</string>
+    <string name="dark_mode">Modalità Scura</string>
+    <string name="dark_mode_on">Modalità Scura Attiva</string>
+    <string name="dark_mode_off">Modalità Scura Disattiva</string>
+    <string name="reset_settings">Ripristina Impostazioni</string>
     <string name="close">Chiudi</string>
     
     <!-- Common Actions -->
@@ -210,19 +215,19 @@
     <string name="initial_building_phase">Fase di costruzione iniziale - Posiziona torri (nessun tempo di costruzione)</string>
     <string name="add_comment">Aggiungi un commento opzionale per identificare questo salvataggio:</string>
     <string name="game_saved">Gioco salvato</string>
-    <string name="on_map">Sulla mappa:</string>
-    <string name="planned_spawns">Apparizioni pianificate:</string>
-    <string name="position_label">Posizione:</string>
-    <string name="reward_label">Ricompensa:</string>
-    <string name="info_label">Info:</string>
+    <string name="on_map">Sulla mappa</string>
+    <string name="planned_spawns">Apparizioni pianificate</string>
+    <string name="position_label">Posizione</string>
+    <string name="reward_label">Ricompensa</string>
+    <string name="info_label">Info</string>
     <string name="chance_percent">Probabilità (%%)</string>
-    <string name="building_label">Costruzione:</string>
-    <string name="active_label">Attivi:</string>
-    <string name="planned_label">Pianificati:</string>
+    <string name="building_label">Costruzione</string>
+    <string name="active_label">Attivi</string>
+    <string name="planned_label">Pianificati</string>
     
     <!-- GameLegend strings -->
     <string name="legend">Legenda</string>
-    <string name="areas_label">Aree:</string>
+    <string name="areas_label">Aree</string>
     <string name="build_island">Isola di costruzione</string>
     <string name="build_strip">Striscia di costruzione</string>
     <string name="enemy_path">Percorso nemico</string>
@@ -232,6 +237,16 @@
     <string name="not_enough_actions">non abbastanza azioni</string>
     <string name="name_label">Nome</string>
     <string name="reward">Ricompensa</string>
+
+    <string name="special_label">Speciale</string>
+    <string name="units_label">Unità</string>
+    <string name="tower_ready">Torre (Pronta)</string>
+    <string name="tower_building">Torre (In costruzione)</string>
+    <string name="tower_no_actions">Torre (Nessuna azione)</string>
+    <string name="legend_info_ballista">Balista: Raggio min. 3</string>
+    <string name="legend_info_tower_icons">Icone mostrano tipo torre/nemico</string>
+    <string name="legend_info_tower_actions">Livello e azioni mostrati sulle torri</string>
+    <string name="legend_info_enemy_health">Salute mostrata sui nemici</string>
     
     <!-- EditorButtonCard strings -->
     <string name="level_editor">Editor di livelli</string>
@@ -315,4 +330,63 @@
     <string name="damage_label">Danno</string>
     <string name="hp_with_level">PV: %d</string>
     <string name="add_enemy_button">➕ Aggiungi nemico al turno %d</string>
+    <string name="add_all_towers">Aggiungi tutto</string>
+    <string name="remove_all_towers">Rimuovi tutto</string>
+    <string name="level_info_tab">Info livello</string>
+    <string name="enemy_spawns_tab">Spawn nemici</string>
+    <string name="towers_tab">Torri</string>
+    <string name="delete_turn">Elimina turno</string>
+    <string name="cannot_delete_turn">Non è possibile eliminare questo turno mentre esistono turni successivi</string>
+    <string name="no_enemies_in_turn">Nessun nemico appare in questo turno</string>
+    <string name="clear_turn">Svuota turno</string>
+    <string name="remove_all_turns">Rimuovi tutti i turni</string>
+    <string name="confirm_remove_all_turns">Sei sicuro di voler rimuovere tutti i turni di spawn?</string>
+    <string name="copy_level">Copia livello</string>
+    <string name="yes">Sì</string>
+    <string name="confirm_delete_level">Sei sicuro di voler eliminare questo livello?</string>
+    <string name="amount">Quantità</string>
+
+    <!-- Enemy ability descriptions -->
+    <string name="can_summon">Può evocare servitori</string>
+    <string name="can_heal">Può curare altri nemici</string>
+    <string name="can_disable_towers">Può disabilitare le torri</string>
+    <string name="immune_to_acid">Immune all\'acido</string>
+    <string name="immune_to_fireball">Immune alla palla di fuoco</string>
+
+    <!-- Tutorial -->
+    <string name="tutorial_welcome_title">Benvenuto in Defender of Egril!</string>
+    <string name="tutorial_welcome">Questo è un gioco di difesa delle torri. Il tuo obiettivo è impedire ai nemici di raggiungere il bersaglio costruendo torri difensive.</string>
+    <string name="tutorial_resources_title">Risorse</string>
+    <string name="tutorial_resources">Hai monete per costruire torri e punti vita. Ogni nemico che raggiunge il bersaglio costa 1 PV.</string>
+    <string name="tutorial_towers_title">Torri disponibili</string>
+    <string name="tutorial_towers">Torre di Punte: Corto raggio, economica\nTorre di Lancia: Raggio medio\nTorre ad Arco: Lungo raggio\n\nScegli saggiamente in base alla tua strategia!</string>
+    <string name="tutorial_build_title">Costruire torri</string>
+    <string name="tutorial_build">Seleziona un tipo di torre sotto, quindi fai clic su un'area di costruzione verde per posizionarla. Costruisci le tue difese!</string>
+    <string name="tutorial_initial_building_title">Fase di costruzione iniziale</string>
+    <string name="tutorial_initial_building">In questa fase iniziale, le torri vengono costruite istantaneamente ma non possono ancora attaccare. Fai clic su una torre per vedere il suo raggio - le caselle del percorso ottengono bordi verdi. Più avanti nel gioco, le torri impiegheranno 1-2 turni per essere costruite.</string>
+    <string name="tutorial_undo_title">Annulla torri</string>
+    <string name="tutorial_undo">Durante questa fase iniziale, puoi annullare il posizionamento della torre selezionandola e vendendola per un rimborso completo. Dopo l'inizio della battaglia, puoi vendere le torri solo per il 75% del loro valore.</string>
+    <string name="tutorial_combat_title">Inizia la battaglia</string>
+    <string name="tutorial_combat">Fai clic sul pulsante Inizia battaglia quando sei pronto. Il tuo obiettivo è difendere il Bersaglio alla fine del percorso - non lasciare che i nemici lo raggiungano!</string>
+    <string name="tutorial_enemies_title">Nemici in arrivo!</string>
+    <string name="tutorial_enemies">I Goblin sono veloci ma deboli. L'Orco è lento ma resistente. Posiziona le tue torri saggiamente!</string>
+    <string name="tutorial_range_title">Controlla il raggio</string>
+    <string name="tutorial_range">Seleziona una torre per vedere quali nemici sono nel raggio (evidenziati). Le torri possono attaccare solo i nemici nel loro raggio!</string>
+    <string name="tutorial_attacking_title">Attacca i nemici</string>
+    <string name="tutorial_attacking">Fai clic su un nemico nel raggio per attaccare. Ogni torre ha azioni limitate per turno mostrate dai simboli ⚡. Se la tua torre non può raggiungere i nemici o non ha azioni, puoi terminare il turno o piazzare più torri.</string>
+    <string name="tutorial_upgrade_title">Potenzia torri</string>
+    <string name="tutorial_upgrade">Seleziona una torre e fai clic su Potenzia per aumentare le sue statistiche. Vedrai danno, raggio e azioni attuali per turno, più come saranno dopo il potenziamento. I potenziamenti costano monete ma rendono le torri più potenti!</string>
+    <string name="tutorial_sell_title">Vendi torri</string>
+    <string name="tutorial_sell">Seleziona una torre e fai clic su Vendi per ottenere il 75% del suo investimento totale (costo + potenziamenti). Usa questo se hai bisogno di monete o vuoi riposizionare la tua difesa.</string>
+    <string name="tutorial_complete_title">Tutorial completato!</string>
+    <string name="tutorial_complete">Hai padroneggiato le basi! Nei livelli successivi, sbloccherai torri più potenti come la Balista, il Mago e le torri di Alchimia per affrontare nemici più forti come demoni e boss. Ora difendi Egril contro le orde. Buona fortuna, difensore!</string>
+    <string name="tutorial_next">Avanti</string>
+    <string name="tutorial_got_it">Capito!</string>
+    <string name="tutorial_skip">Salta tutorial</string>
+
+    <!-- Sound Settings -->
+    <string name="sound">Audio</string>
+    <string name="sound_enabled">Audio attivato</string>
+    <string name="sound_disabled">Audio disattivato</string>
+    <string name="sound_volume">Volume audio</string>
 </resources>

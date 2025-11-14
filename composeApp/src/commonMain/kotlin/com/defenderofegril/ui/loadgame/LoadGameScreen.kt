@@ -25,25 +25,30 @@ fun LoadGameScreen(
 ) {
     var showDeleteDialog by remember { mutableStateOf<String?>(null) }
     
-    Box(
-        modifier = Modifier.fillMaxSize().padding(16.dp)
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
     ) {
-        // Settings button in top-right corner
-        SettingsButton(
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(8.dp)
-        )
-        
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally
+        Box(
+            modifier = Modifier.fillMaxSize().padding(16.dp)
         ) {
-            Text(
-                text = stringResource(Res.string.load_game),
-                style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.padding(bottom = 16.dp)
+            // Settings button in top-right corner
+            SettingsButton(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(8.dp)
             )
+            
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = stringResource(Res.string.load_game),
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.padding(bottom = 16.dp),
+                    color = MaterialTheme.colorScheme.onBackground
+                )
             
             if (savedGames.isEmpty()) {
                 Box(
@@ -76,6 +81,7 @@ fun LoadGameScreen(
             Button(onClick = onBack) {
                 Text(stringResource(Res.string.back))
             }
+        }
         }
     }
     

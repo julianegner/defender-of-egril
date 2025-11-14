@@ -1,6 +1,8 @@
 package com.defenderofegril.game
 
 import androidx.compose.runtime.mutableStateOf
+import com.defenderofegril.audio.GlobalSoundManager
+import com.defenderofegril.audio.SoundEvent
 import com.defenderofegril.model.*
 
 /**
@@ -16,16 +18,23 @@ class MineOperations(private val state: GameState) {
         // Roll for outcome
         val outcome = DigOutcome.roll()
         
+        // Play dig sound
+        GlobalSoundManager.playSound(SoundEvent.MINE_DIG)
+        
         // Process outcome
         when (outcome) {
             DigOutcome.DRAGON -> {
                 // Dragon awakens - destroy mine and spawn dragon
                 spawnDragonFromMine(mine)
+                GlobalSoundManager.playSound(SoundEvent.MINE_DRAGON_SPAWN)
             }
             else -> {
                 // Add coins
                 state.coins.value += outcome.coins
                 mine.coinsGenerated.value += outcome.coins
+                if (outcome.coins > 0) {
+                    GlobalSoundManager.playSound(SoundEvent.MINE_COIN_FOUND)
+                }
             }
         }
         
@@ -45,16 +54,23 @@ class MineOperations(private val state: GameState) {
         
         if (!mine.isReady || mine.actionsRemaining.value <= 0) return null
         
+        // Play dig sound
+        GlobalSoundManager.playSound(SoundEvent.MINE_DIG)
+        
         // Process outcome
         when (outcomeType) {
             DigOutcome.DRAGON -> {
                 // Dragon awakens - destroy mine and spawn dragon
                 spawnDragonFromMine(mine)
+                GlobalSoundManager.playSound(SoundEvent.MINE_DRAGON_SPAWN)
             }
             else -> {
                 // Add coins
                 state.coins.value += outcomeType.coins
                 mine.coinsGenerated.value += outcomeType.coins
+                if (outcomeType.coins > 0) {
+                    GlobalSoundManager.playSound(SoundEvent.MINE_COIN_FOUND)
+                }
             }
         }
         
@@ -94,6 +110,9 @@ class MineOperations(private val state: GameState) {
         )
         
         state.traps.add(trap)
+        
+        // Play trap built sound
+        GlobalSoundManager.playSound(SoundEvent.MINE_TRAP_BUILT)
         
         // Consume action
         mine.actionsRemaining.value--
@@ -171,6 +190,9 @@ class MineOperations(private val state: GameState) {
             }
             
             if (enemyAtPosition != null) {
+                // Play trap trigger sound
+                GlobalSoundManager.playSound(SoundEvent.TRAP_TRIGGERED)
+                
                 // Deal damage to enemy
                 enemyAtPosition.currentHealth.value -= trap.damage
                 
