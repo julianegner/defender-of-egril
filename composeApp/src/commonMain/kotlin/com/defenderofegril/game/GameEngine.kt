@@ -108,55 +108,13 @@ class GameEngine(private val state: GameState) {
                 id = state.nextAttackerId.value++,
                 type = plannedSpawn.attackerType,
                 position = mutableStateOf(spawnPos),
-                level = plannedSpawn.level
+                level = mutableStateOf(plannedSpawn.level)
             )
             state.attackers.add(attacker)
         }
 
         // Move goblins immediately after initial spawning (this is not during enemy turn)
         enemyMovement.moveGoblinsAfterSpawn()
-    }
-    
-    fun endPlayerTurn() {
-        if (state.phase.value != GamePhase.PLAYER_TURN && state.phase.value != GamePhase.ENEMY_TURN) return
-        
-        // Only increment turn and process if we're actually starting enemy turn
-        if (state.phase.value == GamePhase.PLAYER_TURN) {
-            state.turnNumber.value++
-        }
-        
-        state.phase.value = GamePhase.ENEMY_TURN
-        
-        // Spawn new attackers
-        enemyMovement.spawnAttackers()
-        
-        // Move attackers
-        enemyMovement.moveAttackers(
-            findNearestActiveTower = { witch -> enemyAbilities.findNearestActiveTower(witch) },
-            findPathPositionNearTower = { pos -> enemyAbilities.findPathPositionNearTower(pos) }
-        )
-        
-        // Check and activate traps
-        checkAndActivateTraps()
-        
-        // Apply damage over time effects
-        combatSystem.applyLastingEffects()
-        
-        // Update field effects
-        enemyMovement.updateFieldEffects()
-
-        // Remove defeated attackers and give rewards
-        combatSystem.processDefeatedAttackers()
-        
-        // Check if we should load next wave
-        if (state.attackersToSpawn.isEmpty() && state.attackers.isEmpty()) {
-            enemyMovement.loadNextWave()
-        }
-        
-        // Advance building timers and start next player turn
-        advanceBuildTimers()
-        state.phase.value = GamePhase.PLAYER_TURN
-        resetDefenderActions()
     }
     
     /**
@@ -167,24 +125,37 @@ class GameEngine(private val state: GameState) {
     fun calculateEnemyTurnMovements(): List<List<Pair<Int, Position>>> {
         val allMovementSteps = mutableListOf<List<Pair<Int, Position>>>()
         
-        // Get all non-defeated attackers
-        val movingAttackers = state.attackers.filter { !it.isDefeated.value }.toMutableList()
+        // Get all non-defeated attackers, separating dragons from regular units
+        val allAttackers = state.attackers.filter { !it.isDefeated.value }
+        val dragons = allAttackers.filter { it.type.isDragon }
+        val regularAttackers = allAttackers.filter { !it.type.isDragon }.toMutableList()
         
-        if (movingAttackers.isEmpty()) return allMovementSteps
+        if (allAttackers.isEmpty()) return allMovementSteps
+        
+        // Handle dragon movement separately (they have special alternating walk/fly behavior)
+        for (dragon in dragons) {
+            val movementPath = enemyMovement.calculateDragonMovementPath(dragon)
+            for (position in movementPath) {
+                allMovementSteps.add(listOf(Pair(dragon.id, position)))
+            }
+        }
+        
+        // Handle regular attacker movement
+        if (regularAttackers.isEmpty()) return allMovementSteps
         
         // Track current positions for collision detection during simulation
         val currentPositions = mutableMapOf<Int, Position>()
-        movingAttackers.forEach { currentPositions[it.id] = it.position.value }
+        regularAttackers.forEach { currentPositions[it.id] = it.position.value }
         
         // Find the maximum speed to know how many steps to simulate
-        val maxSpeed = movingAttackers.maxOfOrNull { it.type.speed } ?: 0
+        val maxSpeed = regularAttackers.maxOfOrNull { it.type.speed } ?: 0
         
         // Simulate movement step by step
         for (stepIndex in 0 until maxSpeed) {
             val movementsInThisStep = mutableListOf<Pair<Int, Position>>()
             val positionsToOccupy = mutableSetOf<Position>()
             
-            for (attacker in movingAttackers) {
+            for (attacker in regularAttackers) {
                 val currentPos = currentPositions[attacker.id] ?: continue
                 
                 // Check if this attacker has more moves left
@@ -243,6 +214,50 @@ class GameEngine(private val state: GameState) {
         val attacker = state.attackers.find { it.id == attackerId } ?: return
         if (attacker.isDefeated.value) return
         
+        // Special handling for dragons - they can eat other units
+        if (attacker.type.isDragon) {
+            // Check if landing on another unit
+            val unitAtPosition = state.attackers.find {
+                it.id != attacker.id && !it.isDefeated.value && it.position.value == newPosition
+            }
+            
+            if (unitAtPosition != null && unitAtPosition.type != AttackerType.EWHAD) {
+                // Dragon eats the unit and gains its health
+                println("Dragon ${attacker.id} eating ${unitAtPosition.type} at $newPosition, gaining ${unitAtPosition.currentHealth.value} HP")
+                attacker.currentHealth.value += unitAtPosition.currentHealth.value
+                attacker.updateDragonLevel()  // Update level based on new health
+                unitAtPosition.isDefeated.value = true
+                attacker.position.value = newPosition
+            } else if (unitAtPosition != null && unitAtPosition.type == AttackerType.EWHAD) {
+                // Can't land on Ewhad, try to find alternate position
+                val alternatePos = newPosition.getHexNeighbors()
+                    .filter { pos ->
+                        state.level.isOnPath(pos) &&
+                        state.attackers.none { it.position.value == pos && !it.isDefeated.value }
+                    }
+                    .minByOrNull { it.distanceTo(state.level.targetPosition) }
+                
+                if (alternatePos != null) {
+                    println("Dragon ${attacker.id} can't land on Ewhad, moving to alternate position $alternatePos")
+                    attacker.position.value = alternatePos
+                } else {
+                    println("Dragon ${attacker.id} blocked by Ewhad at $newPosition, staying in place")
+                    // Stay in current position
+                }
+            } else {
+                // No unit at target position, move normally
+                attacker.position.value = newPosition
+            }
+            
+            // Check if reached target
+            if (attacker.position.value == state.level.targetPosition) {
+                state.healthPoints.value--
+                attacker.isDefeated.value = true
+            }
+            return
+        }
+        
+        // Regular unit movement (non-dragons)
         // Check if position is occupied by another alive attacker
         // Exception: Allow movement to target position even if occupied (units get defeated immediately)
         val isOccupied = if (newPosition == state.level.targetPosition) {
