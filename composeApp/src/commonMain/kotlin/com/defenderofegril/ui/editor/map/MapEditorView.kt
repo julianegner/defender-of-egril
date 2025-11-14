@@ -74,7 +74,6 @@ fun MapEditorView(
             Spacer(modifier = Modifier.height(280.dp))
 
             val hexSizePx = with(LocalDensity.current) { hexSize.toPx() }
-            val placeholderSpacerPx = with(LocalDensity.current) { 280.dp.toPx() }
             Box(
                 modifier = Modifier
                     .weight(1f)
@@ -107,16 +106,17 @@ fun MapEditorView(
                     modifier = Modifier
                         .fillMaxSize()
                         .onSizeChanged { containerSize = it }
-                        .pointerInput(Unit) {
+                        .pointerInput(containerSize, actualContentSize) {
                             detectDragGestures { change, _ ->
                                 val pointerPos = change.position
 
-                                // val offsetAdjustedPointerPos = Offset(
-                                //     x = pointerPos.x - (containerSize.width - actualContentSize.width) / 2f,
-                                //     y = pointerPos.y + placeholderSpacerPx - (containerSize.height - actualContentSize.height) / 2f
-                                // )
+                                // Adjust pointer position for centering
+                                // When content is smaller than container, it's centered
+                                val adjustedX = pointerPos.x - (containerSize.width - actualContentSize.width) / 2f
+                                val adjustedY = pointerPos.y - (containerSize.height - actualContentSize.height) / 2f
+                                val adjustedPointerPos = Offset(adjustedX, adjustedY)
 
-                                val tilePos = screenToHexGridPosition(pointerPos, offsetX, offsetY - placeholderSpacerPx, zoomLevel, hexSizePx)
+                                val tilePos = screenToHexGridPosition(adjustedPointerPos, offsetX, offsetY, zoomLevel, hexSizePx)
                                 if (tilePos != null) {
                                     onBrushPaint(tilePos)
                                 }
