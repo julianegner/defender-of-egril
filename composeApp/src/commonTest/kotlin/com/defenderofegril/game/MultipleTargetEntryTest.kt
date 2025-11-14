@@ -40,13 +40,13 @@ class MultipleTargetEntryTest {
             id = 1,
             type = AttackerType.GOBLIN,
             position = mutableStateOf(Position(8, 2)),
-            level = 1
+            level = mutableStateOf(1)
         )
         val goblin2 = Attacker(
             id = 2,
             type = AttackerType.GOBLIN,
             position = mutableStateOf(Position(9, 1)),
-            level = 1
+            level = mutableStateOf(1)
         )
         
         state.attackers.add(goblin1)
@@ -104,19 +104,19 @@ class MultipleTargetEntryTest {
             id = 1,
             type = AttackerType.ORK,
             position = mutableStateOf(Position(8, 2)),
-            level = 1
+            level = mutableStateOf(1)
         )
         val ork2 = Attacker(
             id = 2,
             type = AttackerType.ORK,
             position = mutableStateOf(Position(9, 1)),
-            level = 1
+            level = mutableStateOf(1)
         )
         val ork3 = Attacker(
             id = 3,
             type = AttackerType.ORK,
             position = mutableStateOf(Position(9, 3)),
-            level = 1
+            level = mutableStateOf(1)
         )
         
         state.attackers.add(ork1)

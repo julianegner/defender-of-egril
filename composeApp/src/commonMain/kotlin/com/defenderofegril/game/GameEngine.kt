@@ -108,7 +108,7 @@ class GameEngine(private val state: GameState) {
                 id = state.nextAttackerId.value++,
                 type = plannedSpawn.attackerType,
                 position = mutableStateOf(spawnPos),
-                level = plannedSpawn.level
+                level = mutableStateOf(plannedSpawn.level)
             )
             state.attackers.add(attacker)
         }

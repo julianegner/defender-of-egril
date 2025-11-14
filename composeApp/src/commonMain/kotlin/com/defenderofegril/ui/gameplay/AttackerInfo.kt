@@ -28,7 +28,7 @@ fun AttackerInfo(
     // Use key to force recomposition when attacker stats change
     key(
         attacker.id,
-        attacker.level,
+        attacker.level.value,
         attacker.currentHealth.value,
         attacker.position.value.x,
         attacker.position.value.y
@@ -67,9 +67,9 @@ fun AttackerInfo(
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold
                         )
-                        if (attacker.level > 1) {
+                        if (attacker.level.value > 1) {
                             Text(
-                                "Lvl ${attacker.level}",
+                                "Lvl ${attacker.level.value}",
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = FontWeight.Bold,
                                 color = GamePlayColors.ErrorDark

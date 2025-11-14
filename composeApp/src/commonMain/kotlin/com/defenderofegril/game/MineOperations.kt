@@ -126,12 +126,12 @@ class MineOperations(private val state: GameState) {
      */
     private fun spawnDragonFromMine(mine: Defender) {
         // Spawn dragon first to get its ID
-        val dragonHealth = 500 + mine.coinsGenerated.value
+        var dragonHealth = 500 + mine.coinsGenerated.value
         val dragon = Attacker(
             id = state.nextAttackerId.value++,
             type = AttackerType.DRAGON,
             position = mutableStateOf(Position(0, 0)), // Temporary position
-            level = 1,
+            level = mutableStateOf(1),
             currentHealth = mutableStateOf(dragonHealth),
             spawnedFromLairId = null  // Will be set after lair is created
         )

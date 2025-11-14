@@ -41,7 +41,7 @@ class DragonMovementIntegrationTest {
             id = 1,
             type = AttackerType.DRAGON,
             position = mutableStateOf(Position(0, 3)),
-            level = 1
+            level = mutableStateOf(1)
         )
         state.attackers.add(dragon)
         
@@ -130,7 +130,7 @@ class DragonMovementIntegrationTest {
             id = 1,
             type = AttackerType.DRAGON,
             position = mutableStateOf(Position(0, 3)),
-            level = 1,
+            level = mutableStateOf(1),
             currentHealth = mutableStateOf(500)
         )
         state.attackers.add(dragon)
@@ -140,7 +140,7 @@ class DragonMovementIntegrationTest {
             id = 2,
             type = AttackerType.GOBLIN,
             position = mutableStateOf(Position(1, 3)),
-            level = 1,
+            level = mutableStateOf(1),
             currentHealth = mutableStateOf(20)
         )
         state.attackers.add(goblin)
@@ -186,7 +186,7 @@ class DragonMovementIntegrationTest {
             id = 1,
             type = AttackerType.DRAGON,
             position = mutableStateOf(Position(0, 3)),
-            level = 1
+            level = mutableStateOf(1)
         )
         state.attackers.add(dragon)
         
@@ -195,7 +195,7 @@ class DragonMovementIntegrationTest {
             id = 2,
             type = AttackerType.EWHAD,
             position = mutableStateOf(Position(1, 3)),
-            level = 1
+            level = mutableStateOf(1)
         )
         state.attackers.add(ewhad)
         
@@ -248,7 +248,7 @@ class DragonMovementIntegrationTest {
             id = 1,
             type = AttackerType.DRAGON,
             position = mutableStateOf(Position(0, 3)),
-            level = 1
+            level = mutableStateOf(1)
         )
         state.attackers.add(dragon)
         
