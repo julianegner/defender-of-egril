@@ -46,6 +46,11 @@ fun MapEditorView(
     var offsetY by remember { mutableStateOf(0f) }
     var lastPaintedPos by remember { mutableStateOf<Position?>(null) }
     
+    // Create updated map for minimap that reflects current tiles state
+    val currentMap = remember(tiles) {
+        map.copy(tiles = tiles.toMap())
+    }
+    
     // Hexagon dimensions - using same constants as game (40.dp)
     val hexSize = 40.dp
 
@@ -149,7 +154,7 @@ fun MapEditorView(
                 }
 
                 HexagonMinimapFromEditorMap(
-                    map = map,
+                    map = currentMap,
                     modifier = Modifier.size(150.dp).align(Alignment.BottomEnd),
                     config = MinimapConfig(
                         showViewport = true,
