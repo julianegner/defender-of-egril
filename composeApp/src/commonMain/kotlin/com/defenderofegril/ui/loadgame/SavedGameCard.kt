@@ -47,7 +47,7 @@ fun SavedGameCard(
                     id = saved.id,
                     type = saved.type,
                     position = mutableStateOf(saved.position),
-                    level = saved.level,
+                    level = mutableStateOf(saved.level),
                     currentHealth = mutableStateOf(saved.currentHealth),
                     isDefeated = mutableStateOf(false)
                 )

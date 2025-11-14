@@ -61,7 +61,7 @@ class EnemyMovementSystem(
                 id = state.nextAttackerId.value++,
                 type = plannedSpawn.attackerType,
                 position = mutableStateOf(spawnPos),
-                level = plannedSpawn.level
+                level = mutableStateOf(plannedSpawn.level)
             )
             state.attackers.add(attacker)
         }
@@ -153,187 +153,124 @@ class EnemyMovementSystem(
         return null  // No free position found nearby
     }
     
-    fun moveAttackers(
-        findNearestActiveTower: (Attacker) -> Defender?,
-        findPathPositionNearTower: (Position) -> Position
-    ) {
-        for (attacker in state.attackers) {
-            if (attacker.isDefeated.value) continue
-            
-            // Handle dragon movement separately
-            if (attacker.type.isDragon) {
-                moveDragon(attacker)
-                continue
-            }
-            
-            // Red Witch targets nearest active tower instead of the goal
-            val target = if (attacker.type == AttackerType.RED_WITCH) {
-                val nearestTower = findNearestActiveTower(attacker)
-                if (nearestTower != null) {
-                    // Find a path position near the tower
-                    findPathPositionNearTower(nearestTower.position)
-                } else {
-                    state.level.targetPosition
-                }
-            } else {
-                state.level.targetPosition
-            }
-            
-            val path = pathfinding.findPath(attacker.position.value, target, attacker)
-            
-            if (path.isEmpty()) continue
-            
-            var remainingSpeed = attacker.type.speed
-            var pathIndex = 1 // Skip current position (index 0)
-            
-            while (remainingSpeed > 0 && pathIndex < path.size) {
-                val newPos = path[pathIndex]
-                
-                // Check if new position is occupied by another alive attacker
-                val occupyingAttacker = state.attackers.find {
-                    it.id != attacker.id && !it.isDefeated.value && it.position.value == newPos
-                }
-
-                if (occupyingAttacker == null) {
-                    attacker.position.value = newPos
-                    pathIndex++
-                    // Play movement sound (only once per attacker per turn to avoid spam)
-                    if (pathIndex == 2) {  // First move only
-                        GlobalSoundManager.playSound(SoundEvent.ENEMY_MOVE)
-                    }
-                } else if (attacker.type == AttackerType.EWHAD) {
-                    // Ewhad can swap positions with other units
-                    val oldPos = attacker.position.value
-                    attacker.position.value = newPos
-                    occupyingAttacker.position.value = oldPos
-                    pathIndex++
-                    // Play movement sound for first move
-                    if (pathIndex == 2) {
-                        GlobalSoundManager.playSound(SoundEvent.ENEMY_MOVE)
-                    }
-                } else {
-                    // Can't move further, stop trying
-                    break
-                }
-
-                remainingSpeed--
-
-                // Check if reached target
-                if (attacker.position.value == target) {
-                    state.healthPoints.value--
-                    attacker.isDefeated.value = true
-                    // Play life lost sound
-                    GlobalSoundManager.playSound(SoundEvent.LIFE_LOST)
-                    break
-                }
-            }
-        }
-    }
-    
     /**
      * Move dragon with special rules:
-     * - Turn 1 after spawn: 1 step (walking)
-     * - Turn 2+: 5 steps (flying), can move over units and island fields
+     * - Odd turns (1, 3, 5...): 1 step on path (walking)
+     * - Even turns (2, 4, 6...): up to 5 steps (flying), can move over obstacles but must end on path
      */
-    private fun moveDragon(dragon: Attacker) {
+    /**
+     * Calculate dragon movement path for the turn-based movement system.
+     * Returns a list of positions the dragon should move through.
+     * This increments the dragon's turn counter and calculates movement based on alternating walk/fly pattern.
+     */
+    fun calculateDragonMovementPath(dragon: Attacker): List<Position> {
+        val startPos = dragon.position.value
         dragon.dragonTurnsSinceSpawned.value++
         
-        // Determine speed and if flying
-        val speed = if (dragon.dragonTurnsSinceSpawned.value == 1) {
+        // Determine speed and if flying - alternates every turn
+        val isOddTurn = dragon.dragonTurnsSinceSpawned.value % 2 == 1
+        val speed = if (isOddTurn) {
             dragon.isFlying.value = false
-            1  // Walking on first turn
+            1  // Walking on odd turns
         } else {
             dragon.isFlying.value = true
-            5  // Flying on subsequent turns
+            5  // Flying on even turns
         }
+        
+        println("=== DRAGON MOVEMENT CALCULATION ===")
+        println("Dragon ID: ${dragon.id}")
+        println("Turns since spawned: ${dragon.dragonTurnsSinceSpawned.value}")
+        println("Is odd turn: $isOddTurn")
+        println("Is flying: ${dragon.isFlying.value}")
+        println("Speed: $speed")
+        println("Start position: $startPos")
         
         val target = state.level.targetPosition
+        val result = mutableListOf<Position>()
         
-        // For flying, we can move directly towards target ignoring path
+        // For flying, calculate the target position using BFS
         if (dragon.isFlying.value) {
-            // Get all valid positions to move to (within speed range)
-            var currentPos = dragon.position.value
-            var remainingSpeed = speed
+            val currentPos = startPos
+            val currentDistToTarget = currentPos.distanceTo(target)
             
-            while (remainingSpeed > 0) {
-                // Find next position closer to target
-                val neighbors = currentPos.neighbors()
-                val nextPos = neighbors.minByOrNull { it.distanceTo(target) } ?: break
+            // Get all positions on path within flying range (up to 5 tiles away)
+            val reachablePathPositions = mutableListOf<Pair<Position, Int>>()
+            
+            // BFS to find all positions within 5 hexagonal distance
+            val visited = mutableSetOf(currentPos)
+            val queue = mutableListOf(Pair(currentPos, 0))
+            
+            while (queue.isNotEmpty()) {
+                val (pos, dist) = queue.removeAt(0)
                 
-                // If we're not getting closer, stop
-                if (nextPos.distanceTo(target) >= currentPos.distanceTo(target)) {
-                    break
+                // Check if this position is on path
+                if (pos != currentPos && state.level.isOnPath(pos)) {
+                    reachablePathPositions.add(Pair(pos, dist))
                 }
                 
-                currentPos = nextPos
-                remainingSpeed--
-                
-                // Check if reached target
-                if (currentPos == target) {
-                    state.healthPoints.value--
-                    dragon.isDefeated.value = true
-                    break
+                // Explore neighbors if we haven't reached max flying distance
+                if (dist < speed) {
+                    for (neighbor in pos.getHexNeighbors()) {
+                        // Check bounds
+                        if (neighbor.x < 0 || neighbor.x >= state.level.gridWidth ||
+                            neighbor.y < 0 || neighbor.y >= state.level.gridHeight) {
+                            continue
+                        }
+                        
+                        if (neighbor !in visited) {
+                            visited.add(neighbor)
+                            queue.add(Pair(neighbor, dist + 1))
+                        }
+                    }
                 }
             }
             
-            // Check if landing on an enemy unit (eat it)
-            val unitAtPosition = state.attackers.find { 
-                it.id != dragon.id && !it.isDefeated.value && it.position.value == currentPos
-            }
-            if (unitAtPosition != null && unitAtPosition.type != AttackerType.EWHAD) {
-                // Eat the unit and gain its health
-                dragon.currentHealth.value += unitAtPosition.currentHealth.value
-                unitAtPosition.isDefeated.value = true
-            } else if (unitAtPosition != null && unitAtPosition.type == AttackerType.EWHAD) {
-                // Move to adjacent position instead
-                val adjacentPositions = currentPos.neighbors()
-                val alternatePos = adjacentPositions.firstOrNull { pos ->
-                    state.attackers.none { it.position.value == pos && !it.isDefeated.value }
-                }
-                if (alternatePos != null) {
-                    currentPos = alternatePos
+            println("Flying dragon BFS: visited ${visited.size}, found ${reachablePathPositions.size} path positions")
+            
+            // Choose the path position that gets us closest to target
+            val bestPosition = reachablePathPositions.minByOrNull { (pos, _) ->
+                pos.distanceTo(target)
+            }?.first
+            
+            val finalPos = if (bestPosition != null) {
+                println("  Best position from BFS: $bestPosition")
+                bestPosition
+            } else {
+                // Fallback: if no reachable path positions, use pathfinding to move along path
+                println("  BFS failed, using pathfinding fallback")
+                val path = pathfinding.findPath(currentPos, target, dragon)
+                if (path.size > 1) {
+                    val pathIndex = minOf(speed, path.size - 1)
+                    println("  Using path index $pathIndex: ${path[pathIndex]}")
+                    path[pathIndex]
+                } else {
+                    println("  Pathfinding also failed, staying in place")
+                    currentPos
                 }
             }
             
-            dragon.position.value = currentPos
+            // For flying, we move directly to the final position
+            if (finalPos != currentPos) {
+                result.add(finalPos)
+            }
         } else {
-            // Walking - follow path normally
-            val path = pathfinding.findPath(dragon.position.value, target, dragon)
-            if (path.isEmpty()) return
+            // Walking - follow path normally up to 'speed' tiles
+            val path = pathfinding.findPath(startPos, target, dragon)
+            println("Walking dragon: path size ${path.size}")
             
-            var pathIndex = 1
-            var remainingSpeed = speed
-            
-            while (remainingSpeed > 0 && pathIndex < path.size) {
-                val newPos = path[pathIndex]
-                
-                // Check for unit at position (eat it)
-                val unitAtPosition = state.attackers.find {
-                    it.id != dragon.id && !it.isDefeated.value && it.position.value == newPos
-                }
-                
-                if (unitAtPosition != null && unitAtPosition.type != AttackerType.EWHAD) {
-                    // Eat the unit and gain its health
-                    dragon.currentHealth.value += unitAtPosition.currentHealth.value
-                    unitAtPosition.isDefeated.value = true
-                } else if (unitAtPosition != null && unitAtPosition.type == AttackerType.EWHAD) {
-                    // Can't move to Ewhad's position, stop
-                    break
-                }
-                
-                dragon.position.value = newPos
-                pathIndex++
-                remainingSpeed--
-                
-                // Check if reached target
-                if (dragon.position.value == target) {
-                    state.healthPoints.value--
-                    dragon.isDefeated.value = true
-                    break
+            if (path.size > 1) {
+                val stepsToTake = minOf(speed, path.size - 1)
+                for (i in 1..stepsToTake) {
+                    result.add(path[i])
                 }
             }
         }
+        
+        println("Movement path: $result")
+        println("===================================")
+        return result
     }
+    
 
     fun moveGoblinsAfterSpawn() {
         // Move only goblins that just spawned (those still at spawn points)
