@@ -16,6 +16,7 @@ enum class TutorialStep {
     ATTACKING,              // Guide player on how to attack
     UPGRADE_TOWER,          // Explain upgrading towers
     SELL_TOWER,             // Explain selling towers
+    SAVE_GAME,              // Explain saving and loading games
     COMPLETE,               // Tutorial finished
     NONE                    // Not in tutorial or tutorial skipped
 }
@@ -75,7 +76,8 @@ data class TutorialState(
                 else TutorialStep.ATTACKING
             }
             TutorialStep.UPGRADE_TOWER -> TutorialStep.SELL_TOWER
-            TutorialStep.SELL_TOWER -> TutorialStep.COMPLETE
+            TutorialStep.SELL_TOWER -> TutorialStep.SAVE_GAME
+            TutorialStep.SAVE_GAME -> TutorialStep.COMPLETE
             TutorialStep.COMPLETE -> TutorialStep.NONE
             TutorialStep.NONE -> TutorialStep.NONE
         }
