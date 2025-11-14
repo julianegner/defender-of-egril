@@ -204,30 +204,40 @@ fun HexagonalMapView(
                     Modifier
                 }
             )
-            .pointerInput(scale, offsetX, offsetY) {
-                detectDragGestures { _, dragAmount ->
-                    // Apply pan with sensitivity multiplier
-                    val effectiveSensitivity = config.dragPanSensitivity * scale
-                    val newOffsetX = offsetX + (dragAmount.x * effectiveSensitivity)
-                    val newOffsetY = offsetY + (dragAmount.y * effectiveSensitivity)
+            .then(
+                if (config.enablePanNavigation) {
+                    Modifier.pointerInput(scale, offsetX, offsetY) {
+                        detectDragGestures { _, dragAmount ->
+                            // Apply pan directly without scale multiplication to avoid juddering
+                            val newOffsetX = offsetX + dragAmount.x
+                            val newOffsetY = offsetY + dragAmount.y
 
-                    // Constrain pan to keep content visible
-                    val (constrainedX, constrainedY) = constrainOffsets(newOffsetX, newOffsetY, scale)
-                    onOffsetChange(constrainedX, constrainedY)
-                }
-                // Keep detectTransformGestures for pinch-to-zoom on mobile (separate pointerInput to avoid conflicts)
-                if (isPlatformMobile) {
-                    detectTransformGestures { _, _, zoom, _ ->
-                        if (zoom != 1f) {
-                            val newScale = (scale * zoom).coerceIn(config.minScale, config.maxScale)
-                            onScaleChange(newScale)
-                            // Re-constrain offsets after zoom
-                            val (constrainedX, constrainedY) = constrainOffsets(offsetX, offsetY, newScale)
+                            // Constrain pan to keep content visible
+                            val (constrainedX, constrainedY) = constrainOffsets(newOffsetX, newOffsetY, scale)
                             onOffsetChange(constrainedX, constrainedY)
                         }
                     }
+                } else {
+                    Modifier
                 }
-            }
+            )
+            .then(
+                if (isPlatformMobile) {
+                    Modifier.pointerInput(scale, offsetX, offsetY) {
+                        detectTransformGestures { _, _, zoom, _ ->
+                            if (zoom != 1f) {
+                                val newScale = (scale * zoom).coerceIn(config.minScale, config.maxScale)
+                                onScaleChange(newScale)
+                                // Re-constrain offsets after zoom
+                                val (constrainedX, constrainedY) = constrainOffsets(offsetX, offsetY, newScale)
+                                onOffsetChange(constrainedX, constrainedY)
+                            }
+                        }
+                    }
+                } else {
+                    Modifier
+                }
+            )
     ) {
         // Map content with pan and zoom applied
         Column(
