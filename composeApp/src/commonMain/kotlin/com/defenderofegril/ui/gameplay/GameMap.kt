@@ -12,6 +12,7 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import com.defenderofegril.model.*
 import com.defenderofegril.ui.*
 import com.defenderofegril.ui.icon.ExplosionIcon
@@ -69,11 +70,15 @@ fun GameGrid(
                 
                 // For AREA and LASTING attacks, add neighbor tiles that are on the path
                 if (attackType == AttackType.AREA || attackType == AttackType.LASTING) {
-                    val neighbors = selectedTargetPosition.getHexNeighbors().filter { neighbor ->
-                        neighbor.x >= 0 && neighbor.x < gameState.level.gridWidth &&
-                        neighbor.y >= 0 && neighbor.y < gameState.level.gridHeight &&
+                    val neighbors = selectedTargetPosition.getHexNeighbors()
+                        /*
+                        .filter { neighbor ->
+                        // neighbor.x >= 0 && neighbor.x < gameState.level.gridWidth &&
+                        // neighbor.y >= 0 && neighbor.y < gameState.level.gridHeight &&
                         gameState.level.isOnPath(neighbor)
                     }
+
+                         */
                     
                     for (neighbor in neighbors) {
                         result[neighbor] = TargetCircleInfo.NeighborTarget(
@@ -84,7 +89,7 @@ fun GameGrid(
                         )
                     }
                 }
-                
+                println("Target circle map: $result")
                 result
             }
         }
@@ -284,9 +289,12 @@ fun GridCell(
     ) {
         // Draw target circles if this tile is triggered
         targetCircleInfo?.let { info ->
-            Canvas(modifier = Modifier.matchParentSize()) {
+            Canvas(modifier = Modifier
+                .matchParentSize()
+                .zIndex(11f)) {
                 when (info) {
                     is TargetCircleInfo.CentralTarget -> {
+                        println("Drawing central target circles at $position with color ${info.color}")
                         // Draw 3 inner circles on the central target tile
                         val centerX = size.width / 2
                         val centerY = size.height / 2
@@ -318,7 +326,6 @@ fun GridCell(
                             )
                         )
                     }
-                    
                     is TargetCircleInfo.NeighborTarget -> {
                         // Draw outer ring segments on neighbor tiles (only for AREA and LASTING)
                         if (info.attackType == AttackType.AREA || info.attackType == AttackType.LASTING) {
