@@ -89,27 +89,6 @@ fun HexagonalMapView(
     val hexHeight = config.hexSize * 2f    // Height of hexagon (point-to-point)
     val verticalSpacing = hexHeight * 0.75f  // For pointy-top hexagons
     
-    // Track tile positions for brush mode
-    val tilePositions = remember { mutableStateMapOf<String, androidx.compose.ui.geometry.Offset>() }
-    var lastPaintedPos by remember { mutableStateOf<androidx.compose.ui.geometry.Offset?>(null) }
-    
-    // Callback for tiles to register their positions
-    val onTilePositioned: (String, androidx.compose.ui.geometry.Offset) -> Unit = { key, position ->
-        tilePositions[key] = position
-    }
-    
-    // Helper to convert screen coordinates to content coordinates
-    fun screenToContent(screenX: Float, screenY: Float): androidx.compose.ui.geometry.Offset {
-        // Convert from screen space to content space by reversing graphicsLayer transformations
-        // graphicsLayer applies: translate(offsetX, offsetY) then scale(scale, scale)
-        // To reverse: (screen - offset) / scale
-
-        val contentX = (screenX - offsetX) / scale
-        val contentY = (screenY - offsetY) / scale
-
-        return androidx.compose.ui.geometry.Offset(contentX, contentY)
-    }
-
     // Helper function to constrain pan offsets
     fun constrainOffsets(newOffsetX: Float, newOffsetY: Float, currentScale: Float): Pair<Float, Float> {
         // If content size hasn't been measured yet, don't constrain
@@ -221,6 +200,30 @@ fun HexagonalMapView(
                         onScaleChange = onScaleChange,
                         onOffsetChange = onOffsetChange
                     )
+                } else {
+                    Modifier
+                }
+            )
+            .then(
+                if (config.enablePanNavigation) {
+                    Modifier.pointerInput(Unit) {
+                        detectTransformGestures { _, pan, zoom, _ ->
+                            // Apply zoom (for pinch gestures on mobile)
+                            var newScale = scale
+                            if (zoom != 1f) {
+                                newScale = (scale * zoom).coerceIn(config.minScale, config.maxScale)
+                                onScaleChange(newScale)
+                            }
+
+                            // Apply pan
+                            val newOffsetX = offsetX + pan.x
+                            val newOffsetY = offsetY + pan.y
+
+                            // Constrain pan to keep content visible
+                            val (constrainedX, constrainedY) = constrainOffsets(newOffsetX, newOffsetY, newScale)
+                            onOffsetChange(constrainedX, constrainedY)
+                        }
+                    }
                 } else {
                     Modifier
                 }
