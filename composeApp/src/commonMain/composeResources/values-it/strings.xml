@@ -378,6 +378,8 @@
     <string name="tutorial_upgrade">Seleziona una torre e fai clic su Potenzia per aumentare le sue statistiche. Vedrai danno, raggio e azioni attuali per turno, più come saranno dopo il potenziamento. I potenziamenti costano monete ma rendono le torri più potenti!</string>
     <string name="tutorial_sell_title">Vendi torri</string>
     <string name="tutorial_sell">Seleziona una torre e fai clic su Vendi per ottenere il 75% del suo investimento totale (costo + potenziamenti). Usa questo se hai bisogno di monete o vuoi riposizionare la tua difesa.</string>
+    <string name="tutorial_save_game_title">Salva i tuoi progressi</string>
+    <string name="tutorial_save_game">Puoi salvare il tuo gioco in qualsiasi momento usando il pulsante Salva gioco. Questo ti permette di provare diverse strategie o continuare più tardi. Per caricare un gioco salvato, usa il pulsante Carica gioco sulla schermata della mappa del mondo.</string>
     <string name="tutorial_complete_title">Tutorial completato!</string>
     <string name="tutorial_complete">Hai padroneggiato le basi! Nei livelli successivi, sbloccherai torri più potenti come la Balista, il Mago e le torri di Alchimia per affrontare nemici più forti come demoni e boss. Ora difendi Egril contro le orde. Buona fortuna, difensore!</string>
     <string name="tutorial_next">Avanti</string>

@@ -116,6 +116,7 @@ private fun getTutorialTitle(step: TutorialStep): String {
         TutorialStep.ATTACKING -> stringResource(Res.string.tutorial_attacking_title)
         TutorialStep.UPGRADE_TOWER -> stringResource(Res.string.tutorial_upgrade_title)
         TutorialStep.SELL_TOWER -> stringResource(Res.string.tutorial_sell_title)
+        TutorialStep.SAVE_GAME -> stringResource(Res.string.tutorial_save_game_title)
         TutorialStep.COMPLETE -> stringResource(Res.string.tutorial_complete_title)
         TutorialStep.NONE -> ""
     }
@@ -136,6 +137,7 @@ private fun getTutorialContent(step: TutorialStep): String {
         TutorialStep.ATTACKING -> stringResource(Res.string.tutorial_attacking)
         TutorialStep.UPGRADE_TOWER -> stringResource(Res.string.tutorial_upgrade)
         TutorialStep.SELL_TOWER -> stringResource(Res.string.tutorial_sell)
+        TutorialStep.SAVE_GAME -> stringResource(Res.string.tutorial_save_game)
         TutorialStep.COMPLETE -> stringResource(Res.string.tutorial_complete)
         TutorialStep.NONE -> ""
     }
