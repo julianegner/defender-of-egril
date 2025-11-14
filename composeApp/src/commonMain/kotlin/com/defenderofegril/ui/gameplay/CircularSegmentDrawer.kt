@@ -60,6 +60,9 @@ object CircularSegmentDrawer {
         neighborPos: Position,
         hexSize: Float
     ) {
+        test(drawScope, radius, strokeWidth, centerPos, neighborPos)
+
+
         // Calculate the angle from center to this neighbor
         val angleToNeighbor = calculateAngleToNeighbor(centerPos, neighborPos)
         
@@ -111,4 +114,40 @@ object CircularSegmentDrawer {
             style = Stroke(width = strokeWidth)
         )
     }
+}
+
+fun test(
+    drawScope: DrawScope,
+    radius: Float,
+    strokeWidth: Float,
+    centerPos: Position,
+    neighborPos: Position
+) {
+    // Just a test function to draw a full circle at the calculated position
+    val dx = (centerPos.x - neighborPos.x).toFloat()
+    val dy = (centerPos.y - neighborPos.y).toFloat()
+
+    val hexSize = 40f
+    val hexWidth = hexSize * sqrt(3f)
+    val verticalSpacing = hexSize * 2f * 0.75f
+
+    var offsetX = dx * hexWidth
+    val offsetY = dy * verticalSpacing
+
+    val neighborRowOffset = if (neighborPos.y % 2 == 1) hexWidth * 0.42f else 0f
+    val centerRowOffset = if (centerPos.y % 2 == 1) hexWidth * 0.42f else 0f
+    offsetX += (centerRowOffset - neighborRowOffset)
+
+    val tileCenterX = drawScope.size.width / 2
+    val tileCenterY = drawScope.size.height / 2
+
+    val arcCenterX = tileCenterX + offsetX
+    val arcCenterY = tileCenterY + offsetY
+
+    drawScope.drawCircle(
+        color = Color.Magenta.copy(alpha = 0.3f),
+        radius = radius,
+        center = Offset(arcCenterX, arcCenterY),
+        style = Stroke(width = strokeWidth)
+    )
 }
