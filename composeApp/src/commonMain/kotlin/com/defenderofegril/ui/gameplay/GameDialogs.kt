@@ -64,6 +64,45 @@ fun DigOutcomeDialog(
 }
 
 @Composable
+fun DragonInfoDialog(
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { 
+            Text(
+                text = stringResource(Res.string.dragon_info_title),
+                style = MaterialTheme.typography.titleLarge
+            )
+        },
+        text = {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Text(
+                    text = stringResource(Res.string.dragon_info_movement),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Text(
+                    text = stringResource(Res.string.dragon_info_eating),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Text(
+                    text = stringResource(Res.string.dragon_info_level),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+        },
+        confirmButton = {
+            Button(onClick = onDismiss) {
+                Text(stringResource(Res.string.got_it))
+            }
+        }
+    )
+}
+
+@Composable
 fun SaveGameDialog(
     saveCommentInput: String,
     onSaveCommentChange: (String) -> Unit,

@@ -85,6 +85,7 @@ private fun GamePlayScreenContent(
     var selectedMineAction by remember { mutableStateOf<MineAction?>(null) }
     var currentDigOutcome by remember { mutableStateOf<DigOutcome?>(null) }
     var showDigOutcomeDialog by remember { mutableStateOf(false) }
+    var showDragonInfoDialog by remember { mutableStateOf(false) }  // Dragon info tutorial
     var showOverlay by remember { mutableStateOf(false) }  // MutableState for overlay visibility
     var showSaveDialog by remember { mutableStateOf(false) }  // Save dialog with comment
     var saveCommentInput by remember { mutableStateOf("") }  // Comment input for save
@@ -115,6 +116,14 @@ private fun GamePlayScreenContent(
             currentDigOutcome = cheatDigOutcome
             showDigOutcomeDialog = true
             onClearCheatDigOutcome?.invoke()
+        }
+    }
+    
+    // Check if a dragon exists and show info if it's the first time
+    LaunchedEffect(gameState.attackers.size, gameState.hasSeenDragonInfo.value) {
+        val hasDragon = gameState.attackers.any { it.type.isDragon && !it.isDefeated.value }
+        if (hasDragon && !gameState.hasSeenDragonInfo.value) {
+            showDragonInfoDialog = true
         }
     }
 
@@ -457,6 +466,16 @@ private fun GamePlayScreenContent(
                 onResetSelections = {
                     selectedDefenderType = null
                     selectedDefenderId = null
+                }
+            )
+        }
+        
+        // Dragon info dialog (shown once when dragon first appears)
+        if (showDragonInfoDialog) {
+            DragonInfoDialog(
+                onDismiss = {
+                    showDragonInfoDialog = false
+                    gameState.hasSeenDragonInfo.value = true
                 }
             )
         }
