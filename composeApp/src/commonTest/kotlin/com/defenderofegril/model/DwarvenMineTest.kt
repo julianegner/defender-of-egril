@@ -82,7 +82,7 @@ class DwarvenMineTest {
             id = 1,
             type = AttackerType.DRAGON,
             position = mutableStateOf(position),
-            level = 1
+            level = mutableStateOf(1)
         )
         
         assertTrue(dragon.type.isDragon, "Dragon should have isDragon flag set")
