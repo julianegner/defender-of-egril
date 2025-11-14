@@ -389,4 +389,9 @@
     <string name="sound_enabled">Audio attivato</string>
     <string name="sound_disabled">Audio disattivato</string>
     <string name="sound_volume">Volume audio</string>
+    
+    <!-- Dragon Names -->
+    <string name="the_dragon">Il drago</string>
+    <string name="awakens">si sveglia</string>
+    <string name="lair_of_the_dragon">Tana del Drago</string>
 </resources>
