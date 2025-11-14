@@ -310,7 +310,13 @@ class EnemyMovementSystem(
                 
                 // Check if reached target
                 if (attacker.position.value == target) {
-                    state.healthPoints.value--
+                    val damage = attacker.calculateTargetDamage()
+                    // Ewhad causes all remaining HP damage
+                    if (damage == Int.MAX_VALUE) {
+                        state.healthPoints.value = 0
+                    } else {
+                        state.healthPoints.value = maxOf(0, state.healthPoints.value - damage)
+                    }
                     attacker.isDefeated.value = true
                     break
                 }
