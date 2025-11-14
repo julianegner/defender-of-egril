@@ -64,7 +64,7 @@ class SpecificDeadEndTest {
             id = 1,
             type = AttackerType.GOBLIN,
             position = mutableStateOf(Position(0, 0)),
-            level = 1
+            level = mutableStateOf(1)
         )
         state.attackers.add(goblin)
         
@@ -160,7 +160,7 @@ class SpecificDeadEndTest {
             id = 1,
             type = AttackerType.DRAGON,
             position = mutableStateOf(Position(1, 0)),  // In the dead end
-            level = 1
+            level = mutableStateOf(1)
         )
         state.attackers.add(dragon)
         
