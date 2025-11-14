@@ -35,6 +35,7 @@ data class HexagonalMapConfig(
     val enableKeyboardNavigation: Boolean = true,  // Enable arrow keys & WASD navigation
     val enablePanNavigation: Boolean = true,  // Enable mouse drag panning
     val enableBrushMode: Boolean = false,  // Enable brush painting mode (for editor)
+    val enableZoomMode: Boolean = true,
     val keyboardPanSpeed: Float = 30f,  // Pixels to pan per key press
     val dragPanSensitivity: Float = 30f,  // Multiplier for drag pan sensitivity
     val minScale: Float = 0.5f,
@@ -210,13 +211,19 @@ fun HexagonalMapView(
                     Modifier
                 }
             )
-            .mouseWheelZoom(
-                containerSize = containerSize,
-                scale = scale,
-                offsetX = offsetX,
-                offsetY = offsetY,
-                onScaleChange = onScaleChange,
-                onOffsetChange = onOffsetChange
+            .then(
+                if (config.enableZoomMode) {
+                    Modifier.mouseWheelZoom(
+                        containerSize = containerSize,
+                        scale = scale,
+                        offsetX = offsetX,
+                        offsetY = offsetY,
+                        onScaleChange = onScaleChange,
+                        onOffsetChange = onOffsetChange
+                    )
+                } else {
+                    Modifier
+                }
             )
             .pointerInput(scale, offsetX, offsetY) {
                 // Keep detectTransformGestures for pinch-to-zoom on mobile (separate pointerInput to avoid conflicts)
