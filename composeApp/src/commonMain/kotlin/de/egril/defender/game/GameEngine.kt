@@ -208,6 +208,21 @@ class GameEngine(private val state: GameState) {
     }
     
     /**
+     * Apply damage to health points when an enemy reaches the target.
+     * Handles variable damage based on enemy type and marks the attacker as defeated.
+     */
+    private fun applyTargetDamage(attacker: Attacker) {
+        val damage = attacker.calculateTargetDamage()
+        // Ewhad causes all remaining HP damage
+        if (damage == Int.MAX_VALUE) {
+            state.healthPoints.value = 0
+        } else {
+            state.healthPoints.value = maxOf(0, state.healthPoints.value - damage)
+        }
+        attacker.isDefeated.value = true
+    }
+    
+    /**
      * Apply a single movement step for the given attacker.
      */
     fun applyMovement(attackerId: Int, newPosition: Position) {
@@ -251,14 +266,7 @@ class GameEngine(private val state: GameState) {
             
             // Check if reached target
             if (attacker.position.value == state.level.targetPosition) {
-                val damage = attacker.calculateTargetDamage()
-                // Ewhad causes all remaining HP damage
-                if (damage == Int.MAX_VALUE) {
-                    state.healthPoints.value = 0
-                } else {
-                    state.healthPoints.value = maxOf(0, state.healthPoints.value - damage)
-                }
-                attacker.isDefeated.value = true
+                applyTargetDamage(attacker)
             }
             return
         }
@@ -280,14 +288,7 @@ class GameEngine(private val state: GameState) {
             
             // Check if reached target
             if (newPosition == state.level.targetPosition) {
-                val damage = attacker.calculateTargetDamage()
-                // Ewhad causes all remaining HP damage
-                if (damage == Int.MAX_VALUE) {
-                    state.healthPoints.value = 0
-                } else {
-                    state.healthPoints.value = maxOf(0, state.healthPoints.value - damage)
-                }
-                attacker.isDefeated.value = true
+                applyTargetDamage(attacker)
             }
         }
     }
