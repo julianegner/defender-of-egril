@@ -84,6 +84,7 @@ private fun GamePlayScreenContent(
     var showMineActionDialog by remember { mutableStateOf(false) }
     var selectedMineAction by remember { mutableStateOf<MineAction?>(null) }
     var currentDigOutcome by remember { mutableStateOf<DigOutcome?>(null) }
+    var currentDragonName by remember { mutableStateOf<String?>(null) }  // Track dragon name for dig outcome
     var showDigOutcomeDialog by remember { mutableStateOf(false) }
     var showDragonInfoDialog by remember { mutableStateOf(false) }  // Dragon info tutorial
     var showOverlay by remember { mutableStateOf(false) }  // MutableState for overlay visibility
@@ -134,6 +135,13 @@ private fun GamePlayScreenContent(
                 val outcome = onMineDig?.invoke(mineId)
                 if (outcome != null) {
                     currentDigOutcome = outcome
+                    // If a dragon was spawned, find the newly created lair and get the dragon's name
+                    if (outcome == DigOutcome.DRAGON) {
+                        val newLair = gameState.defenders.lastOrNull { it.type == DefenderType.DRAGONS_LAIR }
+                        currentDragonName = newLair?.dragonName
+                    } else {
+                        currentDragonName = null
+                    }
                     showDigOutcomeDialog = true
                 }
             }
@@ -472,7 +480,8 @@ private fun GamePlayScreenContent(
                 onResetSelections = {
                     selectedDefenderType = null
                     selectedDefenderId = null
-                }
+                },
+                dragonName = currentDragonName
             )
         }
         
