@@ -74,23 +74,22 @@ object CircularSegmentDrawer {
         val dx = (centerPos.x - neighborPos.x).toFloat()
         val dy = (centerPos.y - neighborPos.y).toFloat()
         
-        // Adjust for hexagonal grid offset
-        val adjustedDx = if (neighborPos.y % 2 == 0 && centerPos.y % 2 == 1) {
-            dx + 0.5f
-        } else if (neighborPos.y % 2 == 1 && centerPos.y % 2 == 0) {
-            dx - 0.5f
-        } else {
-            dx
-        }
-        
         // Convert grid distances to pixel distances
         // For hexagonal grids, horizontal distance is hexWidth per column
         // Vertical distance is verticalSpacing (hexHeight * 0.75) per row
         val hexWidth = hexSize * sqrt(3f)
         val verticalSpacing = hexSize * 2f * 0.75f
         
-        val offsetX = adjustedDx * hexWidth
+        // Calculate base pixel offsets
+        var offsetX = dx * hexWidth
         val offsetY = dy * verticalSpacing
+        
+        // Adjust for hexagonal grid row offset
+        // In HexagonalMapView, odd rows (y % 2 == 1) are offset to the right by hexWidth * 0.42f
+        // So if the rows have different parities, we need to account for this offset
+        val neighborRowOffset = if (neighborPos.y % 2 == 1) hexWidth * 0.42f else 0f
+        val centerRowOffset = if (centerPos.y % 2 == 1) hexWidth * 0.42f else 0f
+        offsetX += (centerRowOffset - neighborRowOffset)
         
         // Center of this tile's drawing area
         val tileCenterX = drawScope.size.width / 2
