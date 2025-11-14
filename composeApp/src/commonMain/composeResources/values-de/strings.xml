@@ -378,6 +378,8 @@
     <string name="tutorial_upgrade">Wählen Sie einen Turm und klicken Sie auf Aufwerten, um seine Werte zu erhöhen. Sie sehen aktuellen Schaden, Reichweite und Aktionen pro Runde, plus wie sie nach dem Aufwerten sein werden. Aufwertungen kosten Münzen, machen Türme aber stärker!</string>
     <string name="tutorial_sell_title">Türme verkaufen</string>
     <string name="tutorial_sell">Wählen Sie einen Turm und klicken Sie auf Verkaufen, um 75% seiner Gesamtinvestition (Kosten + Aufwertungen) zurückzubekommen. Nutzen Sie dies, wenn Sie Münzen benötigen oder Ihre Verteidigung neu positionieren möchten.</string>
+    <string name="tutorial_save_game_title">Speichern Sie Ihren Fortschritt</string>
+    <string name="tutorial_save_game">Sie können Ihr Spiel jederzeit mit der Schaltfläche Spiel speichern sichern. So können Sie verschiedene Strategien ausprobieren oder später weiterspielen. Um ein gespeichertes Spiel zu laden, verwenden Sie die Schaltfläche Spiel laden auf dem Weltkarten-Bildschirm.</string>
     <string name="tutorial_complete_title">Tutorial abgeschlossen!</string>
     <string name="tutorial_complete">Sie haben die Grundlagen gemeistert! In späteren Leveln schalten Sie mächtigere Türme wie Ballista, Zauberer und Alchemie-Türme frei, um stärkeren Gegnern wie Dämonen und Bossen zu begegnen. Verteidigen Sie nun Egril gegen die Horden. Viel Glück, Verteidiger!</string>
     <string name="tutorial_next">Weiter</string>
