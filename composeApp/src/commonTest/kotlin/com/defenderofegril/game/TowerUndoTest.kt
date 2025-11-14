@@ -165,7 +165,7 @@ class TowerUndoTest {
         assertEquals(1, tower.placedOnTurn, "Placed on turn 1")
         
         // End turn and start new turn
-        engine.endPlayerTurn()
+        engine.startEnemyTurn(); engine.completeEnemyTurn()
         engine.startEnemyTurn()
         engine.completeEnemyTurn()
         state.turnNumber.value = 2

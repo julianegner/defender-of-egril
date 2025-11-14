@@ -17,7 +17,7 @@ class NewEnemiesTest {
             id = 1,
             type = AttackerType.BLUE_DEMON,
             position = mutableStateOf(Position(0, 0)),
-            level = 1
+            level = mutableStateOf(1)
         )
         
         assertTrue(blueDemon.canBeDamagedByFireball(), "Blue Demon should be damaged by fireballs")
@@ -30,7 +30,7 @@ class NewEnemiesTest {
             id = 1,
             type = AttackerType.RED_DEMON,
             position = mutableStateOf(Position(0, 0)),
-            level = 1
+            level = mutableStateOf(1)
         )
         
         assertTrue(redDemon.canBeDamagedByAcid(), "Red Demon should be damaged by acid")
@@ -43,14 +43,14 @@ class NewEnemiesTest {
             id = 1,
             type = AttackerType.GOBLIN,
             position = mutableStateOf(Position(0, 0)),
-            level = 1
+            level = mutableStateOf(1)
         )
         
         val goblin5 = Attacker(
             id = 2,
             type = AttackerType.GOBLIN,
             position = mutableStateOf(Position(1, 0)),
-            level = 5
+            level = mutableStateOf(5)
         )
         
         assertEquals(20, goblin1.maxHealth, "Level 1 goblin should have 20 health")
@@ -65,7 +65,7 @@ class NewEnemiesTest {
             id = 1,
             type = AttackerType.EWHAD,
             position = mutableStateOf(Position(0, 0)),
-            level = 1
+            level = mutableStateOf(1)
         )
         
         assertTrue(ewhad.type.isBoss, "Ewhad should be marked as a boss")
@@ -78,7 +78,7 @@ class NewEnemiesTest {
             id = 1,
             type = AttackerType.EVIL_MAGE,
             position = mutableStateOf(Position(0, 0)),
-            level = 1
+            level = mutableStateOf(1)
         )
         
         assertTrue(evilMage.type.canSummon, "Evil Mage should be able to summon")
@@ -90,7 +90,7 @@ class NewEnemiesTest {
             id = 1,
             type = AttackerType.RED_WITCH,
             position = mutableStateOf(Position(0, 0)),
-            level = 1
+            level = mutableStateOf(1)
         )
         
         assertTrue(redWitch.type.canDisableTowers, "Red Witch should be able to disable towers")
@@ -102,7 +102,7 @@ class NewEnemiesTest {
             id = 1,
             type = AttackerType.GREEN_WITCH,
             position = mutableStateOf(Position(0, 0)),
-            level = 1
+            level = mutableStateOf(1)
         )
         
         assertTrue(greenWitch.type.canHeal, "Green Witch should be able to heal")
@@ -134,7 +134,7 @@ class NewEnemiesTest {
             id = 2,
             type = AttackerType.GOBLIN,
             position = mutableStateOf(Position(1, 0)),
-            level = 1
+            level = mutableStateOf(1)
         )
         
         assertFalse(tower.canAttack(enemy), "Disabled tower should not be able to attack")

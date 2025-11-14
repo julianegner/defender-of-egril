@@ -353,9 +353,9 @@ fun EnemyItemDetailed(attacker: Attacker, showPosition: Boolean) {
                         style = MaterialTheme.typography.bodySmall,
                         fontWeight = FontWeight.Bold
                     )
-                    if (attacker.level > 1) {
+                    if (attacker.level.value > 1) {
                         Text(
-                            "Lvl ${attacker.level}",
+                            "Lvl ${attacker.level.value}",
                             style = MaterialTheme.typography.bodySmall,
                             fontSize = 10.sp,
                             fontWeight = FontWeight.Bold,
