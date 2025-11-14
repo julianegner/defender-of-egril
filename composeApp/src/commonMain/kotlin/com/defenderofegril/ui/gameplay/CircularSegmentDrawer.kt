@@ -17,29 +17,6 @@ import kotlin.math.sqrt
 object CircularSegmentDrawer {
     
     /**
-     * Calculate the angle from the center tile to a neighbor tile in hexagonal grid.
-     * Returns angle in radians where 0 is East, PI/2 is North, PI is West, -PI/2 is South.
-     */
-    fun calculateAngleToNeighbor(centerPos: Position, neighborPos: Position): Float {
-        val dx = (neighborPos.x - centerPos.x).toFloat()
-        // For hexagonal grid with odd-row offset, adjust for the vertical offset
-        val dy = (neighborPos.y - centerPos.y).toFloat()
-        
-        // For odd-row offset hexagons, we need to adjust x based on row parity
-        val adjustedDx = if (centerPos.y % 2 == 0 && neighborPos.y % 2 == 1) {
-            dx - 0.5f
-        } else if (centerPos.y % 2 == 1 && neighborPos.y % 2 == 0) {
-            dx + 0.5f
-        } else {
-            dx
-        }
-        
-        // Standard atan2 gives angle from positive x-axis, counter-clockwise
-        // We need to flip Y because screen coordinates have Y increasing downward
-        return atan2(-dy, adjustedDx)
-    }
-    
-    /**
      * Draw a circular arc segment on a neighbor tile.
      * The arc is part of a larger circle centered on the target tile.
      * 
@@ -60,94 +37,31 @@ object CircularSegmentDrawer {
         neighborPos: Position,
         hexSize: Float
     ) {
-        test(drawScope, radius, strokeWidth, centerPos, neighborPos)
-
-
-        // Calculate the angle from center to this neighbor
-        val angleToNeighbor = calculateAngleToNeighbor(centerPos, neighborPos)
-        
-        // For a hexagonal grid, each neighbor covers approximately 60 degrees (PI/3 radians)
-        // We'll draw an arc that spans a bit more to ensure good visual coverage
-        val arcSpan = (PI / 2.8).toFloat()  // About 64 degrees - slightly more than 60 to ensure coverage
-        val startAngle = (angleToNeighbor - arcSpan / 2) * 180f / PI.toFloat()
-        val sweepAngle = arcSpan * 180f / PI.toFloat()
-        
-        // Calculate the offset from this tile's center to the target tile's center
-        // This determines where to center the arc
         val dx = (centerPos.x - neighborPos.x).toFloat()
         val dy = (centerPos.y - neighborPos.y).toFloat()
-        
-        // Convert grid distances to pixel distances
-        // For hexagonal grids, horizontal distance is hexWidth per column
-        // Vertical distance is verticalSpacing (hexHeight * 0.75) per row
+
+        val hexSize = 40f
         val hexWidth = hexSize * sqrt(3f)
         val verticalSpacing = hexSize * 2f * 0.75f
-        
-        // Calculate base pixel offsets
-        var offsetX = dx * hexWidth
-        val offsetY = dy * verticalSpacing
-        
-        // Adjust for hexagonal grid row offset
-        // In HexagonalMapView, odd rows (y % 2 == 1) are offset to the right by hexWidth * 0.42f
-        // So if the rows have different parities, we need to account for this offset
+
+        var offsetX = (dx * hexWidth)
+        var offsetY = (dy * verticalSpacing)
+
         val neighborRowOffset = if (neighborPos.y % 2 == 1) hexWidth * 0.42f else 0f
         val centerRowOffset = if (centerPos.y % 2 == 1) hexWidth * 0.42f else 0f
         offsetX += (centerRowOffset - neighborRowOffset)
-        
-        // Center of this tile's drawing area
+
         val tileCenterX = drawScope.size.width / 2
         val tileCenterY = drawScope.size.height / 2
-        
-        // Center of the arc circle (offset from this tile's center)
+
         val arcCenterX = tileCenterX + offsetX
         val arcCenterY = tileCenterY + offsetY
-        
-        // Draw the arc
-        // The arc is defined by a bounding box (top-left, size) and angles
-        drawScope.drawArc(
-            color = color,
-            startAngle = startAngle,
-            sweepAngle = sweepAngle,
-            useCenter = false,
-            topLeft = Offset(arcCenterX - radius, arcCenterY - radius),
-            size = Size(radius * 2, radius * 2),
+
+        drawScope.drawCircle(
+            color = color, // .copy(alpha = 0.3f),
+            radius = radius,
+            center = Offset(arcCenterX, arcCenterY),
             style = Stroke(width = strokeWidth)
         )
     }
-}
-
-fun test(
-    drawScope: DrawScope,
-    radius: Float,
-    strokeWidth: Float,
-    centerPos: Position,
-    neighborPos: Position
-) {
-    // Just a test function to draw a full circle at the calculated position
-    val dx = (centerPos.x - neighborPos.x).toFloat()
-    val dy = (centerPos.y - neighborPos.y).toFloat()
-
-    val hexSize = 40f
-    val hexWidth = hexSize * sqrt(3f)
-    val verticalSpacing = hexSize * 2f * 0.75f
-
-    var offsetX = dx * hexWidth
-    val offsetY = dy * verticalSpacing
-
-    val neighborRowOffset = if (neighborPos.y % 2 == 1) hexWidth * 0.42f else 0f
-    val centerRowOffset = if (centerPos.y % 2 == 1) hexWidth * 0.42f else 0f
-    offsetX += (centerRowOffset - neighborRowOffset)
-
-    val tileCenterX = drawScope.size.width / 2
-    val tileCenterY = drawScope.size.height / 2
-
-    val arcCenterX = tileCenterX + offsetX
-    val arcCenterY = tileCenterY + offsetY
-
-    drawScope.drawCircle(
-        color = Color.Magenta.copy(alpha = 0.3f),
-        radius = radius,
-        center = Offset(arcCenterX, arcCenterY),
-        style = Stroke(width = strokeWidth)
-    )
 }
