@@ -1,27 +1,16 @@
 package com.defenderofegril.ui.gameplay
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.layout.layout
-import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.defenderofegril.model.*
@@ -32,7 +21,6 @@ import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
 import com.defenderofegril.ui.icon.TestTubeIcon
 import com.defenderofegril.ui.icon.enemy.EnemyIcon
-import kotlin.math.sqrt
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -51,134 +39,93 @@ fun GameGrid(
     var offsetX by remember { mutableStateOf(0f) }
     var offsetY by remember { mutableStateOf(0f) }
     var containerSize by remember { mutableStateOf(IntSize.Zero) }
-    var actualContentSize by remember { mutableStateOf(IntSize.Zero) }
 
     val hexSize = 40.dp  // Radius of hexagon (center to corner)
 
-    // Calculate hex dimensions for pointy-top hexagons
-    val sqrt3 = sqrt(3.0).toFloat()
-    val hexWidth = hexSize.value * sqrt3  // Width of hexagon (flat-to-flat)
-    val hexHeight = hexSize.value * 2f    // Height of hexagon (point-to-point)
+    // Calculate target circle info for each tile
+    val targetCircleMap = remember(selectedTargetPosition, selectedDefenderId, gameState.defenders.size) {
+        if (selectedTargetPosition == null || selectedDefenderId == null) {
+            emptyMap()
+        } else {
+            val selectedDefender = gameState.defenders.find { it.id == selectedDefenderId }
+            val attackType = selectedDefender?.type?.attackType
+            
+            val markerColor = when (attackType) {
+                AttackType.AREA -> Color(0xFFFF5722)  // Deep orange/red for fireball
+                AttackType.LASTING -> Color(0xFF4CAF50)  // Green for acid
+                AttackType.MELEE, AttackType.RANGED -> Color.DarkGray  // DarkGray for single-target
+                else -> null
+            }
+            
+            if (markerColor == null || attackType == null) {
+                emptyMap()
+            } else {
+                val result = mutableMapOf<Position, TargetCircleInfo>()
+                
+                // Central target tile
+                result[selectedTargetPosition] = TargetCircleInfo.CentralTarget(
+                    color = markerColor,
+                    attackType = attackType
+                )
+                
+                // For AREA and LASTING attacks, add neighbor tiles that are on the path
+                if (attackType == AttackType.AREA || attackType == AttackType.LASTING) {
+                    val neighbors = selectedTargetPosition.getHexNeighbors()
+                        .filter { neighbor ->
+                        neighbor.x >= 0 && neighbor.x < gameState.level.gridWidth &&
+                        neighbor.y >= 0 && neighbor.y < gameState.level.gridHeight &&
+                        gameState.level.isOnPath(neighbor)
+                    }
 
-    // For pointy-top hexagons, vertical spacing between centers is 3/4 of height
-    val verticalSpacing = hexHeight * 0.75f
-
-    // Odd rows are offset to the right to create hexagonal grid pattern
-    val oddRowOffset = hexWidth * 0.42f
-
-    // Calculate total grid dimensions
-    // Need enough width for all hexagons without compression
-    // Each hexagon is hexWidth wide, we have gridWidth hexagons per row
-    // Odd rows add oddRowOffset padding at the start
-    // Add generous buffer (3 extra hexWidths) to ensure no compression
-    val totalGridWidth = ((gameState.level.gridWidth + 3) * hexWidth + oddRowOffset).dp
-    val totalGridHeight = ((gameState.level.gridHeight) * verticalSpacing + hexHeight).dp
-
-    Box(
-        modifier = modifier
-            .onSizeChanged { containerSize = it }
-            .mouseWheelZoom(
-                containerSize = containerSize,
-                scale = scale,
-                offsetX = offsetX,
-                offsetY = offsetY,
-                onScaleChange = { newScale -> scale = newScale },
-                onOffsetChange = { newOffsetX, newOffsetY -> 
-                    offsetX = newOffsetX
-                    offsetY = newOffsetY
+                    for (neighbor in neighbors) {
+                        result[neighbor] = TargetCircleInfo.NeighborTarget(
+                            color = markerColor,
+                            attackType = attackType,
+                            centerPosition = selectedTargetPosition,
+                            thisPosition = neighbor
+                        )
+                    }
                 }
+                println("Target circle map: $result")
+                result
+            }
+        }
+    }
+
+    Box(modifier = modifier.onSizeChanged { containerSize = it }) {
+        HexagonalMapView(
+            gridWidth = gameState.level.gridWidth,
+            gridHeight = gameState.level.gridHeight,
+            config = HexagonalMapConfig(
+                hexSize = hexSize.value,
+                enableKeyboardNavigation = true,  // Enable keyboard navigation for gameplay
+                enablePanNavigation = true  // Enable pan navigation for gameplay
+            ),
+            scale = scale,
+            offsetX = offsetX,
+            offsetY = offsetY,
+            onScaleChange = { newScale -> scale = newScale },
+            onOffsetChange = { newOffsetX, newOffsetY ->
+                offsetX = newOffsetX
+                offsetY = newOffsetY
+            },
+            modifier = Modifier.fillMaxSize()
+        ) { position ->
+            GridCell(
+                position = position,
+                gameState = gameState,
+                isSelected = selectedDefenderType != null,
+                isDefenderSelected = selectedDefenderId?.let { selId ->
+                    gameState.defenders.find { it.position == position }?.id == selId
+                } ?: false,
+                isTargetSelected = gameState.attackers.find { it.position.value == position }?.id == selectedTargetId,
+                selectedDefenderId = selectedDefenderId,
+                selectedTargetPosition = selectedTargetPosition,
+                selectedMineAction = selectedMineAction,
+                targetCircleInfo = targetCircleMap[position],
+                onClick = { onCellClick(position) },
+                hexSize = hexSize
             )
-            // Combined gesture handling for pan and pinch-zoom
-            .pointerInput(Unit) {
-                detectTransformGestures { _, pan, zoom, _ ->
-                    // Apply zoom (for pinch gestures on mobile)
-                    if (zoom != 1f) {
-                        scale = (scale * zoom).coerceIn(0.5f, 3f)
-                    }
-
-                    // Apply pan
-                    offsetX += pan.x
-                    offsetY += pan.y
-
-                    // Constrain pan to keep content visible
-                    // Center the content initially and allow symmetric panning to see all edges
-                    // Use actualContentSize which is the measured size of the Column
-                    val contentWidth = actualContentSize.width * scale
-                    val contentHeight = actualContentSize.height * scale
-
-                    val maxOffsetX = if (contentWidth > containerSize.width) {
-                        (contentWidth - containerSize.width) / 2  // Half the overflow for symmetric panning
-                    } else {
-                        (containerSize.width * (scale - 1) / 2).coerceAtLeast(0f)
-                    }
-
-                    val maxOffsetY = if (contentHeight > containerSize.height) {
-                        (contentHeight - containerSize.height) / 2  // Half the overflow for symmetric panning
-                    } else {
-                        (containerSize.height * (scale - 1) / 2).coerceAtLeast(0f)
-                    }
-
-                    // Allow symmetric panning: +maxOffset (left/top edge) to -maxOffset (right/bottom edge)
-                    offsetX = offsetX.coerceIn(-maxOffsetX, maxOffsetX)
-                    offsetY = offsetY.coerceIn(-maxOffsetY, maxOffsetY)
-                }
-            }
-    ) {
-        // Map content with pan and zoom applied
-        // Use layout modifier to allow Column to exceed parent bounds
-        Column(
-            modifier = Modifier
-                .layout { measurable, constraints ->
-                    // Measure with infinite constraints to prevent compression
-                    val placeable = measurable.measure(
-                        constraints.copy(
-                            maxWidth = Constraints.Infinity,
-                            maxHeight = Constraints.Infinity
-                        )
-                    )
-                    // Capture the actual content size for pan calculations
-                    actualContentSize = IntSize(placeable.width, placeable.height)
-                    // Report the actual size to parent (for proper container sizing)
-                    layout(placeable.width, placeable.height) {
-                        placeable.place(0, 0)
-                    }
-                }
-                .graphicsLayer(
-                    scaleX = scale,
-                    scaleY = scale,
-                    translationX = offsetX,
-                    translationY = offsetY
-                ),
-            verticalArrangement = Arrangement.spacedBy((-hexHeight + verticalSpacing - 7f).dp)
-        ) {
-            for (y in 0 until gameState.level.gridHeight) {
-                Row(
-                    modifier = Modifier
-                        .padding(
-                            start = if (y % 2 == 1) (hexWidth * 0.42f).dp else 0.dp
-                        )
-                        .offset(y = (-(y-1)).dp),
-                    horizontalArrangement = Arrangement.spacedBy((-10).dp)
-                ) {
-                    for (x in 0 until gameState.level.gridWidth) {
-                        val position = Position(x, y)
-                        GridCell(
-                            position = position,
-                            gameState = gameState,
-                            isSelected = selectedDefenderType != null,
-                            isDefenderSelected = selectedDefenderId?.let { selId ->
-                                gameState.defenders.find { it.position == position }?.id == selId
-                            } ?: false,
-                            isTargetSelected = gameState.attackers.find { it.position.value == position }?.id == selectedTargetId,
-                            selectedDefenderId = selectedDefenderId,
-                            selectedTargetPosition = selectedTargetPosition,
-                            selectedMineAction = selectedMineAction,
-                            onClick = { onCellClick(position) },
-                            hexSize = hexSize
-                        )
-                    }
-                }
-            }
         }
 
         // Minimap - shown when zoomed in
@@ -221,9 +168,12 @@ fun GridCell(
     selectedDefenderId: Int?,
     selectedTargetPosition: Position?,
     selectedMineAction: MineAction?,
+    targetCircleInfo: TargetCircleInfo?,
     onClick: () -> Unit,
     hexSize: androidx.compose.ui.unit.Dp = 48.dp
 ) {
+    val isDarkMode = com.defenderofegril.ui.settings.AppSettings.isDarkMode.value
+    
     val isSpawnPoint = gameState.level.isSpawnPoint(position)
     val isTarget = position == gameState.level.targetPosition
     val isOnPath = gameState.level.isOnPath(position)
@@ -265,12 +215,12 @@ fun GridCell(
     // During INITIAL_BUILDING phase, don't apply any selection tints
     // Field effects also modify the background color
     val backgroundColor = when {
-        attacker != null -> GamePlayColors.Error  // Red background for enemies
+        attacker != null -> if (isDarkMode) GamePlayColors.ErrorDark else GamePlayColors.Error  // Darker red background for enemies in dark mode
         defender != null -> {
             when {
                 !defender.isReady -> GamePlayColors.Building  // Gray for building
-                defender.actionsRemaining.value <= 0 -> GamePlayColors.InfoLight  // Blue-gray mix for used up actions
-                else -> GamePlayColors.Info  // Blue for ready with actions
+                defender.actionsRemaining.value <= 0 -> if (isDarkMode) GamePlayColors.InfoDark else GamePlayColors.InfoLight  // Darker blue for used actions in dark mode
+                else -> if (isDarkMode) GamePlayColors.InfoDark else GamePlayColors.Info  // Darker blue for ready towers in dark mode
             }
         }
 
@@ -302,10 +252,10 @@ fun GridCell(
     val borderColor = when {
         cellIsInRange && isOnPath && showRange && canPlaceTrapHere -> GamePlayColors.Success  // Green border for tiles in range (exclude enemy tiles during trap placement)
         isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> GamePlayColors.Yellow  // Yellow border for selected defender (not during initial building)
-        isSpawnPoint -> GamePlayColors.Warning  // Orange border for spawn
-        isTarget -> GamePlayColors.Success  // Green border for target
-        attacker != null -> GamePlayColors.Error  // Red border for enemies
-        defender != null -> if (defender.isReady) GamePlayColors.Info else GamePlayColors.Building  // Blue/gray border for towers
+        isSpawnPoint -> GamePlayColors.WarningDark  // Darker orange border for spawn in dark mode
+        isTarget -> GamePlayColors.Success  // Green border for target (adapts to dark mode automatically)
+        attacker != null -> GamePlayColors.ErrorDark  // Darker red border for enemies
+        defender != null -> if (defender.isReady) GamePlayColors.InfoDark else GamePlayColors.Building  // Darker blue/gray border for towers
         fieldEffect != null -> {
             when (fieldEffect.type) {
                 FieldEffectType.FIREBALL -> GamePlayColors.WarningDeep  // Deep orange border for fireball
@@ -327,26 +277,104 @@ fun GridCell(
         else -> 0.dp  // No border for empty cells
     }
 
-    // Calculate hex dimensions for proper sizing
-    val sqrt3 = sqrt(3.0).toFloat()
-    val hexWidth = hexSize.value * sqrt3
-    val hexHeight = hexSize.value * 2f
-
-    Box(
-        modifier = Modifier
-            .width((hexWidth).dp)
-            .height((hexHeight).dp)
-            .clip(HexagonShape())
-            .background(backgroundColor)
-            .border(borderWidth, borderColor, HexagonShape())
-            .clickable(onClick = onClick),
-        contentAlignment = Alignment.Center
+    BaseGridCell(
+        hexSize = hexSize,
+        backgroundColor = backgroundColor,
+        borderColor = borderColor,
+        borderWidth = borderWidth,
+        onClick = onClick
     ) {
+        // Draw target circles if this tile is triggered
+        targetCircleInfo?.let { info ->
+            Canvas(modifier = Modifier
+                .matchParentSize()
+                .zIndex(11f)) {
+                when (info) {
+                    is TargetCircleInfo.CentralTarget -> {
+                        println("Drawing central target circles at $position with color ${info.color}")
+                        // Draw 3 inner circles on the central target tile
+                        val centerX = size.width / 2
+                        val centerY = size.height / 2
+                        val center = androidx.compose.ui.geometry.Offset(centerX, centerY)
+                        
+                        // Filled inner circle
+                        drawCircle(
+                            color = info.color,
+                            radius = TargetCircleConstants.INNER_CIRCLE_1_RADIUS,
+                            center = center
+                        )
+                        
+                        // Two stroke circles
+                        drawCircle(
+                            color = info.color,
+                            radius = TargetCircleConstants.INNER_CIRCLE_2_RADIUS,
+                            center = center,
+                            style = androidx.compose.ui.graphics.drawscope.Stroke(
+                                width = TargetCircleConstants.INNER_CIRCLE_STROKE_WIDTH
+                            )
+                        )
+                        
+                        drawCircle(
+                            color = info.color,
+                            radius = TargetCircleConstants.INNER_CIRCLE_3_RADIUS,
+                            center = center,
+                            style = androidx.compose.ui.graphics.drawscope.Stroke(
+                                width = TargetCircleConstants.INNER_CIRCLE_STROKE_WIDTH
+                            )
+                        )
+                    }
+                    is TargetCircleInfo.NeighborTarget -> {
+                        // Draw outer ring segments on neighbor tiles (only for AREA and LASTING)
+                        if (info.attackType == AttackType.AREA || info.attackType == AttackType.LASTING) {
+                            println("Drawing neighbor target circles at $position with color ${info.color}, center at ${info.centerPosition}")
+                            // this is for debugging
+                            // drawCircle(
+                            //     color = info.color,
+                            //     radius = TargetCircleConstants.INNER_CIRCLE_1_RADIUS,
+                            //     center = center
+                            // )
+
+                            // Draw 3 concentric arc segments
+                            CircularSegmentDrawer.drawArcSegment(
+                                drawScope = this,
+                                color = info.color,
+                                radius = TargetCircleConstants.OUTER_CIRCLE_1_RADIUS,
+                                strokeWidth = TargetCircleConstants.OUTER_CIRCLE_STROKE_WIDTH,
+                                centerPos = info.centerPosition,
+                                neighborPos = info.thisPosition,
+                                hexSize = hexSize.value
+                            )
+                            
+                            CircularSegmentDrawer.drawArcSegment(
+                                drawScope = this,
+                                color = info.color,
+                                radius = TargetCircleConstants.OUTER_CIRCLE_2_RADIUS,
+                                strokeWidth = TargetCircleConstants.OUTER_CIRCLE_STROKE_WIDTH,
+                                centerPos = info.centerPosition,
+                                neighborPos = info.thisPosition,
+                                hexSize = hexSize.value
+                            )
+                            
+                            CircularSegmentDrawer.drawArcSegment(
+                                drawScope = this,
+                                color = info.color,
+                                radius = TargetCircleConstants.OUTER_CIRCLE_3_RADIUS,
+                                strokeWidth = TargetCircleConstants.OUTER_CIRCLE_STROKE_WIDTH,
+                                centerPos = info.centerPosition,
+                                neighborPos = info.thisPosition,
+                                hexSize = hexSize.value
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        
         when {
             attacker != null -> {
                 // Use graphical icon for enemy units
-                // Key by id, position, and currentHealth to force recomposition when any changes
-                key(attacker.id, attacker.position.value.x, attacker.position.value.y, attacker.currentHealth.value) {
+                // Key by id, position, level, and currentHealth to force recomposition when any changes
+                key(attacker.id, attacker.position.value.x, attacker.position.value.y, attacker.level, attacker.currentHealth.value) {
                     EnemyIcon(attacker = attacker)
                 }
             }
@@ -414,63 +442,6 @@ fun GridCell(
             isTarget -> {
                 // Show target indicator when cell is empty
                 Text(stringResource(Res.string.target), style = MaterialTheme.typography.labelSmall, color = GamePlayColors.Success)
-            }
-        }
-        
-        // Draw target marker for area attacks (fireball and acid)
-        // Check if this position is selected as a target position for area/lasting attacks
-        val isAreaTargetPosition = selectedTargetPosition == position
-        if (isAreaTargetPosition) {
-            // Determine the attack type to choose the correct color
-            // Cache the selected defender to avoid repeated lookups
-            val selectedDefender = remember(selectedDefenderId, gameState.defenders.size) {
-                selectedDefenderId?.let { id ->
-                    gameState.defenders.find { it.id == id }
-                }
-            }
-            
-            val markerColor = when (selectedDefender?.type?.attackType) {
-                AttackType.AREA -> Color(0xFFFF5722)  // Deep orange/red for fireball
-                AttackType.LASTING -> Color(0xFF4CAF50)  // Green for acid
-                else -> null
-            }
-            
-            markerColor?.let { color ->
-                // Draw concentric circles as target marker:
-                // - Inner solid circle (4px radius) at center
-                // - Middle stroke circle (12px radius, 2px stroke)
-                // - Outer stroke circle (20px radius, 2px stroke)
-                Canvas(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .zIndex(10f)  // Ensure it's drawn on top
-                ) {
-                    val centerX = size.width / 2f
-                    val centerY = size.height / 2f
-                    
-                    // Inner point (solid circle)
-                    drawCircle(
-                        color = color,
-                        radius = 4f,
-                        center = Offset(centerX, centerY)
-                    )
-                    
-                    // Middle circle (stroke)
-                    drawCircle(
-                        color = color,
-                        radius = 12f,
-                        center = Offset(centerX, centerY),
-                        style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2f)
-                    )
-                    
-                    // Outer circle (stroke)
-                    drawCircle(
-                        color = color,
-                        radius = 20f,
-                        center = Offset(centerX, centerY),
-                        style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2f)
-                    )
-                }
             }
         }
     }

@@ -5,7 +5,7 @@
     <string name="app_subtitle">Verteidige die Wiesen von Egril gegen\ndie Horden von Gleid Thyae unter\nder Flagge des bösen Ewhad</string>
     <string name="start_game">Spiel starten</string>
     <string name="rules">Regeln</string>
-    
+
     <!-- Level Complete Screen -->
     <string name="victory">Sieg!</string>
     <string name="battle_won">Schlacht gewonnen!</string>
@@ -19,6 +19,11 @@
     <!-- Settings -->
     <string name="settings">Einstellungen</string>
     <string name="language">Sprache</string>
+    <string name="appearance">Erscheinungsbild</string>
+    <string name="dark_mode">Dunkler Modus</string>
+    <string name="dark_mode_on">Dunkler Modus an</string>
+    <string name="dark_mode_off">Dunkler Modus aus</string>
+    <string name="reset_settings">Einstellungen zurücksetzen</string>
     <string name="close">Schließen</string>
     
     <!-- Common Actions -->
@@ -133,7 +138,7 @@
     <string name="defeat_detail">Niederlage: Jeder Feind, der das Ziel erreicht, kostet 1 Gesundheitspunkt. Bei 0 Gesundheit verlierst du.</string>
     <string name="grid_legend">Rasterlegende</string>
     <string name="spawn_desc">Spawn: Startposition (Feinde erscheinen)</string>
-    <string name="target_desc">Ziel: Zielposition (Muss verteidigt werden!")</string>
+    <string name="target_desc">Ziel: Zielposition (Muss verteidigt werden!)</string>
     <string name="blue_towers">Blau: Deine bereiten Türme</string>
     <string name="gray_towers">Grau: Türme im Bau</string>
     <string name="red_enemies">Rot: Feinde</string>
@@ -210,19 +215,19 @@
     <string name="initial_building_phase">Anfängliche Bauphase - Türme platzieren (keine Bauzeit)</string>
     <string name="add_comment">Füge einen optionalen Kommentar hinzu um diesen Spielstand zu identifizieren:</string>
     <string name="game_saved">Spiel gespeichert</string>
-    <string name="on_map">Auf Karte:</string>
-    <string name="planned_spawns">Geplante Spawns:</string>
-    <string name="position_label">Position:</string>
-    <string name="reward_label">Belohnung:</string>
-    <string name="info_label">Info:</string>
+    <string name="on_map">Auf der Karte</string>
+    <string name="planned_spawns">Geplante Spawns</string>
+    <string name="position_label">Position</string>
+    <string name="reward_label">Belohnung</string>
+    <string name="info_label">Info</string>
     <string name="chance_percent">Chance (%%)</string>
-    <string name="building_label">Bau:</string>
-    <string name="active_label">Aktiv:</string>
-    <string name="planned_label">Geplant:</string>
+    <string name="building_label">Bau</string>
+    <string name="active_label">Aktiv</string>
+    <string name="planned_label">Geplant</string>
     
     <!-- GameLegend strings -->
     <string name="legend">Legende</string>
-    <string name="areas_label">Bereiche:</string>
+    <string name="areas_label">Bereiche</string>
     <string name="build_island">Bauinsel</string>
     <string name="build_strip">Baustreifen</string>
     <string name="enemy_path">Feindpfad</string>
@@ -232,6 +237,16 @@
     <string name="not_enough_actions">nicht genug Aktionen</string>
     <string name="name_label">Name</string>
     <string name="reward">Belohnung</string>
+
+    <string name="special_label">Spezial</string>
+    <string name="units_label">Einheiten</string>
+    <string name="tower_ready">Turm (Bereit)</string>
+    <string name="tower_building">Turm (Im Bau)</string>
+    <string name="tower_no_actions">Turm (Keine Aktionen)</string>
+    <string name="legend_info_ballista">Ballista: Min. Reichweite 3</string>
+    <string name="legend_info_tower_icons">Symbole zeigen Turm-/Feindtyp</string>
+    <string name="legend_info_tower_actions">Türme zeigen Level und Aktionen</string>
+    <string name="legend_info_enemy_health">Feinde zeigen Gesundheit</string>
     
     <!-- EditorButtonCard strings -->
     <string name="level_editor">Level-Editor</string>
@@ -315,4 +330,63 @@
     <string name="damage_label">Schaden</string>
     <string name="hp_with_level">LP: %d</string>
     <string name="add_enemy_button">➕ Feind zu Runde %d hinzufügen</string>
+    <string name="add_all_towers">Alle hinzufügen</string>
+    <string name="remove_all_towers">Alle entfernen</string>
+    <string name="level_info_tab">Level-Info</string>
+    <string name="enemy_spawns_tab">Gegner-Spawns</string>
+    <string name="towers_tab">Türme</string>
+    <string name="delete_turn">Runde löschen</string>
+    <string name="cannot_delete_turn">Diese Runde kann nicht gelöscht werden, während spätere Runden existieren</string>
+    <string name="no_enemies_in_turn">Keine Gegner spawnen in dieser Runde</string>
+    <string name="clear_turn">Runde leeren</string>
+    <string name="remove_all_turns">Alle Runden entfernen</string>
+    <string name="confirm_remove_all_turns">Sind Sie sicher, dass Sie alle Spawn-Runden entfernen möchten?</string>
+    <string name="copy_level">Level kopieren</string>
+    <string name="yes">Ja</string>
+    <string name="confirm_delete_level">Sind Sie sicher, dass Sie dieses Level löschen möchten?</string>
+    <string name="amount">Anzahl</string>
+
+    <!-- Enemy ability descriptions -->
+    <string name="can_summon">Kann Diener beschwören</string>
+    <string name="can_heal">Kann andere Feinde heilen</string>
+    <string name="can_disable_towers">Kann Türme deaktivieren</string>
+    <string name="immune_to_acid">Immun gegen Säure</string>
+    <string name="immune_to_fireball">Immun gegen Feuerball</string>
+
+    <!-- Tutorial -->
+    <string name="tutorial_welcome_title">Willkommen bei Defender of Egril!</string>
+    <string name="tutorial_welcome">Dies ist ein Tower-Defense-Spiel. Ihr Ziel ist es, Feinde daran zu hindern, das Ziel zu erreichen, indem Sie Verteidigungstürme bauen.</string>
+    <string name="tutorial_resources_title">Ressourcen</string>
+    <string name="tutorial_resources">Sie haben Münzen zum Bauen von Türmen und Lebenspunkte. Jeder Feind, der das Ziel erreicht, kostet 1 LP.</string>
+    <string name="tutorial_towers_title">Verfügbare Türme</string>
+    <string name="tutorial_towers">Stachelturm: Nahkampf, günstig\nSpeerturm: Mittlere Reichweite\nBogenturm: Große Reichweite\n\nWählen Sie weise basierend auf Ihrer Strategie!</string>
+    <string name="tutorial_build_title">Türme bauen</string>
+    <string name="tutorial_build">Wählen Sie unten einen Turmtyp und klicken Sie auf einen grünen Baubereich, um ihn zu platzieren. Bauen Sie Ihre Verteidigung auf!</string>
+    <string name="tutorial_initial_building_title">Anfängliche Bauphase</string>
+    <string name="tutorial_initial_building">In dieser Anfangsphase werden Türme sofort gebaut, können aber noch nicht angreifen. Klicken Sie auf einen Turm, um seine Reichweite zu sehen - Pfadfelder bekommen grüne Ränder. Später im Spiel dauert der Bau von Türmen 1-2 Runden.</string>
+    <string name="tutorial_undo_title">Türme rückgängig machen</string>
+    <string name="tutorial_undo">Während dieser Anfangsphase können Sie die Turmplatzierung rückgängig machen, indem Sie ihn auswählen und für eine vollständige Rückerstattung verkaufen. Nach Beginn der Schlacht können Sie Türme nur noch für 75% ihres Wertes verkaufen.</string>
+    <string name="tutorial_combat_title">Starten Sie die Schlacht</string>
+    <string name="tutorial_combat">Klicken Sie auf die Schaltfläche Schlacht starten, wenn Sie bereit sind. Ihr Ziel ist es, das Ziel am Ende des Pfades zu verteidigen - lassen Sie keine Feinde es erreichen!</string>
+    <string name="tutorial_enemies_title">Feinde im Anmarsch!</string>
+    <string name="tutorial_enemies">Goblins sind schnell, aber schwach. Der Ork ist langsam, aber zäh. Positionieren Sie Ihre Türme weise!</string>
+    <string name="tutorial_range_title">Reichweite prüfen</string>
+    <string name="tutorial_range">Wählen Sie einen Turm aus, um zu sehen, welche Feinde in Reichweite sind (hervorgehoben). Türme können nur Feinde in ihrer Reichweite angreifen!</string>
+    <string name="tutorial_attacking_title">Feinde angreifen</string>
+    <string name="tutorial_attacking">Klicken Sie auf einen Feind in Reichweite, um anzugreifen. Jeder Turm hat begrenzte Aktionen pro Runde, angezeigt durch ⚡ Symbole. Wenn Ihr Turm keine Feinde erreichen kann oder keine Aktionen mehr hat, können Sie Ihren Zug beenden oder weitere Türme platzieren.</string>
+    <string name="tutorial_upgrade_title">Türme aufwerten</string>
+    <string name="tutorial_upgrade">Wählen Sie einen Turm und klicken Sie auf Aufwerten, um seine Werte zu erhöhen. Sie sehen aktuellen Schaden, Reichweite und Aktionen pro Runde, plus wie sie nach dem Aufwerten sein werden. Aufwertungen kosten Münzen, machen Türme aber stärker!</string>
+    <string name="tutorial_sell_title">Türme verkaufen</string>
+    <string name="tutorial_sell">Wählen Sie einen Turm und klicken Sie auf Verkaufen, um 75% seiner Gesamtinvestition (Kosten + Aufwertungen) zurückzubekommen. Nutzen Sie dies, wenn Sie Münzen benötigen oder Ihre Verteidigung neu positionieren möchten.</string>
+    <string name="tutorial_complete_title">Tutorial abgeschlossen!</string>
+    <string name="tutorial_complete">Sie haben die Grundlagen gemeistert! In späteren Leveln schalten Sie mächtigere Türme wie Ballista, Zauberer und Alchemie-Türme frei, um stärkeren Gegnern wie Dämonen und Bossen zu begegnen. Verteidigen Sie nun Egril gegen die Horden. Viel Glück, Verteidiger!</string>
+    <string name="tutorial_next">Weiter</string>
+    <string name="tutorial_got_it">Verstanden!</string>
+    <string name="tutorial_skip">Tutorial überspringen</string>
+
+    <!-- Sound Settings -->
+    <string name="sound">Sound</string>
+    <string name="sound_enabled">Sound aktiviert</string>
+    <string name="sound_disabled">Sound deaktiviert</string>
+    <string name="sound_volume">Lautstärke</string>
 </resources>

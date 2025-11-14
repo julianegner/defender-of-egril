@@ -107,7 +107,6 @@ fun MapListCard(
                 // Use HexagonMinimap with a direct map reference
                 HexagonMinimapFromEditorMap(
                     map = map,
-                    level = dummyLevel,
                     modifier = Modifier.fillMaxSize()
                 )
             }
