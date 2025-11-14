@@ -37,7 +37,7 @@ data class HexagonalMapConfig(
     val enableBrushMode: Boolean = false,  // Enable brush painting mode (for editor)
     val enableZoomMode: Boolean = true,
     val keyboardPanSpeed: Float = 30f,  // Pixels to pan per key press
-    val dragPanSensitivity: Float = 30f,  // Multiplier for drag pan sensitivity
+    val dragPanSensitivity: Float = 30f,  // UNUSED: Previously used for drag pan sensitivity multiplier (removed to fix juddering)
     val minScale: Float = 0.5f,
     val maxScale: Float = 3.0f,
     val zoomDelta: Float = 0.1f  // Amount to zoom per button press
