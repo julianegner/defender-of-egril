@@ -322,27 +322,23 @@ private fun GamePlayScreenContent(
                         .align(Alignment.TopEnd)
                         .padding(8.dp)
                 ) {
-                    // Show tutorial or dragon info, but not both at the same time
-                    if (showDragonInfoDialog) {
-                        DragonInfoOverlay(
-                            onDismiss = {
-                                showDragonInfoDialog = false
-                                gameState.hasSeenDragonInfo.value = true
-                            }
-                        )
-                    } else {
-                        TutorialOverlay(
-                            currentStep = gameState.tutorialState.value.currentStep,
-                            isNextEnabled = gameState.tutorialState.value.isNextEnabled(),
-                            onNext = {
-                                val currentTutorialState = gameState.tutorialState.value
-                                gameState.tutorialState.value = currentTutorialState.advanceStep()
-                            },
-                            onSkip = {
-                                gameState.tutorialState.value = gameState.tutorialState.value.skip()
-                            }
-                        )
-                    }
+                    // Show dragon info or tutorial in the tutorial overlay
+                    TutorialOverlay(
+                        currentStep = gameState.tutorialState.value.currentStep,
+                        isNextEnabled = gameState.tutorialState.value.isNextEnabled(),
+                        onNext = {
+                            val currentTutorialState = gameState.tutorialState.value
+                            gameState.tutorialState.value = currentTutorialState.advanceStep()
+                        },
+                        onSkip = {
+                            gameState.tutorialState.value = gameState.tutorialState.value.skip()
+                        },
+                        showDragonInfo = showDragonInfoDialog,
+                        onDismissDragonInfo = {
+                            showDragonInfoDialog = false
+                            gameState.hasSeenDragonInfo.value = true
+                        }
+                    )
                 }
             }
         }
