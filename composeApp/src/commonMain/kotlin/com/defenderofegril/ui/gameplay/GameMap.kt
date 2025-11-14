@@ -71,15 +71,12 @@ fun GameGrid(
                 // For AREA and LASTING attacks, add neighbor tiles that are on the path
                 if (attackType == AttackType.AREA || attackType == AttackType.LASTING) {
                     val neighbors = selectedTargetPosition.getHexNeighbors()
-                        /*
                         .filter { neighbor ->
-                        // neighbor.x >= 0 && neighbor.x < gameState.level.gridWidth &&
-                        // neighbor.y >= 0 && neighbor.y < gameState.level.gridHeight &&
+                        neighbor.x >= 0 && neighbor.x < gameState.level.gridWidth &&
+                        neighbor.y >= 0 && neighbor.y < gameState.level.gridHeight &&
                         gameState.level.isOnPath(neighbor)
                     }
 
-                         */
-                    
                     for (neighbor in neighbors) {
                         result[neighbor] = TargetCircleInfo.NeighborTarget(
                             color = markerColor,
@@ -329,6 +326,14 @@ fun GridCell(
                     is TargetCircleInfo.NeighborTarget -> {
                         // Draw outer ring segments on neighbor tiles (only for AREA and LASTING)
                         if (info.attackType == AttackType.AREA || info.attackType == AttackType.LASTING) {
+                            println("Drawing neighbor target circles at $position with color ${info.color}, center at ${info.centerPosition}")
+                            // this is for debugging
+                            drawCircle(
+                                color = info.color,
+                                radius = TargetCircleConstants.INNER_CIRCLE_1_RADIUS,
+                                center = center
+                            )
+
                             // Draw 3 concentric arc segments
                             CircularSegmentDrawer.drawArcSegment(
                                 drawScope = this,
