@@ -327,14 +327,12 @@ fun GridCell(
                         // Draw outer ring segments on neighbor tiles (only for AREA and LASTING)
                         if (info.attackType == AttackType.AREA || info.attackType == AttackType.LASTING) {
                             println("Drawing neighbor target circles at $position with color ${info.color}, center at ${info.centerPosition}")
-                            // this is for debugging - draw a small circle at this tile's center
-                            val centerX = size.width / 2
-                            val centerY = size.height / 2
-                            drawCircle(
-                                color = info.color,
-                                radius = TargetCircleConstants.INNER_CIRCLE_1_RADIUS,
-                                center = androidx.compose.ui.geometry.Offset(centerX, centerY)
-                            )
+                            // this is for debugging
+                            // drawCircle(
+                            //     color = info.color,
+                            //     radius = TargetCircleConstants.INNER_CIRCLE_1_RADIUS,
+                            //     center = center
+                            // )
 
                             // Draw 3 concentric arc segments
                             CircularSegmentDrawer.drawArcSegment(
