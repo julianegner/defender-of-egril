@@ -28,7 +28,7 @@ class TrapTest {
             id = 1,
             type = AttackerType.GOBLIN,
             position = mutableStateOf(trapPosition),
-            level = 1
+            level = mutableStateOf(1)
         )
         gameState.attackers.add(enemy)
         
@@ -61,7 +61,7 @@ class TrapTest {
             id = 1,
             type = AttackerType.GOBLIN,
             position = mutableStateOf(trapPosition),
-            level = 1,
+            level = mutableStateOf(1),
             currentHealth = mutableStateOf(10)
         )
         gameState.attackers.add(enemy)

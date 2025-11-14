@@ -35,8 +35,8 @@ data class Attacker(
     val id: Int,
     val type: AttackerType,
     val position: MutableState<Position>,
-    val level: Int = 1,
-    val currentHealth: MutableState<Int> = mutableStateOf(type.health * level),
+    val level: MutableState<Int> = mutableStateOf(1),  // Made mutable for dragons to scale with health
+    val currentHealth: MutableState<Int> = mutableStateOf(type.health * level.value),
     val isDefeated: MutableState<Boolean> = mutableStateOf(false),
     val isDisabled: MutableState<Boolean> = mutableStateOf(false), // For towers disabled by Red Witch
     val disabledTurnsRemaining: MutableState<Int> = mutableStateOf(0),
@@ -45,9 +45,22 @@ data class Attacker(
     val isFlying: MutableState<Boolean> = mutableStateOf(false),  // Track if dragon is flying
     val spawnedFromLairId: Int? = null  // Track which lair this dragon came from (for dragons only)
 ) {
-    val maxHealth: Int get() = type.health * level
+    val maxHealth: Int get() = type.health * level.value
     
     // Helper to check if this enemy can be damaged by specific attack types
     fun canBeDamagedByAcid(): Boolean = !type.immuneToAcid
     fun canBeDamagedByFireball(): Boolean = !type.immuneToFireball
+    
+    /**
+     * Update dragon level based on current health.
+     * Dragon level = max(1, currentHealth / baseHealth)
+     * Only applies to dragons.
+     */
+    fun updateDragonLevel() {
+        if (type.isDragon && currentHealth.value > 0) {
+            val baseHealth = type.health
+            val newLevel = maxOf(1, currentHealth.value / baseHealth)
+            level.value = newLevel
+        }
+    }
 }

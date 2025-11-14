@@ -85,6 +85,7 @@ private fun GamePlayScreenContent(
     var selectedMineAction by remember { mutableStateOf<MineAction?>(null) }
     var currentDigOutcome by remember { mutableStateOf<DigOutcome?>(null) }
     var showDigOutcomeDialog by remember { mutableStateOf(false) }
+    var showDragonInfoDialog by remember { mutableStateOf(false) }  // Dragon info tutorial
     var showOverlay by remember { mutableStateOf(false) }  // MutableState for overlay visibility
     var showSaveDialog by remember { mutableStateOf(false) }  // Save dialog with comment
     var saveCommentInput by remember { mutableStateOf("") }  // Comment input for save
@@ -115,6 +116,14 @@ private fun GamePlayScreenContent(
             currentDigOutcome = cheatDigOutcome
             showDigOutcomeDialog = true
             onClearCheatDigOutcome?.invoke()
+        }
+    }
+    
+    // Check if a dragon exists and show info if it's the first time
+    LaunchedEffect(gameState.attackers.size, gameState.hasSeenDragonInfo.value) {
+        val hasDragon = gameState.attackers.any { it.type.isDragon && !it.isDefeated.value }
+        if (hasDragon && !gameState.hasSeenDragonInfo.value) {
+            showDragonInfoDialog = true
         }
     }
 
@@ -284,7 +293,7 @@ private fun GamePlayScreenContent(
             }
             
             // Tutorial card (positioned in upper right corner)
-            if (gameState.tutorialState.value.shouldShowOverlay()) {
+            if (gameState.tutorialState.value.shouldShowOverlay() || showDragonInfoDialog) {
                 // Check if we should allow skipping attack step
                 // (tower has no actions left or can't reach any enemies)
                 if (gameState.tutorialState.value.currentStep == TutorialStep.ATTACKING &&
@@ -313,6 +322,7 @@ private fun GamePlayScreenContent(
                         .align(Alignment.TopEnd)
                         .padding(8.dp)
                 ) {
+                    // Show dragon info or tutorial in the tutorial overlay
                     TutorialOverlay(
                         currentStep = gameState.tutorialState.value.currentStep,
                         isNextEnabled = gameState.tutorialState.value.isNextEnabled(),
@@ -322,6 +332,11 @@ private fun GamePlayScreenContent(
                         },
                         onSkip = {
                             gameState.tutorialState.value = gameState.tutorialState.value.skip()
+                        },
+                        showDragonInfo = showDragonInfoDialog,
+                        onDismissDragonInfo = {
+                            showDragonInfoDialog = false
+                            gameState.hasSeenDragonInfo.value = true
                         }
                     )
                 }

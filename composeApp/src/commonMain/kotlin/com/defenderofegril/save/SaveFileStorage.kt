@@ -164,7 +164,7 @@ object SaveFileStorage {
                 id = attacker.id,
                 type = attacker.type,
                 position = attacker.position.value,
-                level = attacker.level,
+                level = attacker.level.value,
                 currentHealth = attacker.currentHealth.value,
                 isDefeated = attacker.isDefeated.value
             )
@@ -249,7 +249,7 @@ object SaveFileStorage {
                 id = savedAttacker.id,
                 type = savedAttacker.type,
                 position = mutableStateOf(savedAttacker.position),
-                level = savedAttacker.level
+                level = mutableStateOf(savedAttacker.level)
             )
             attacker.currentHealth.value = savedAttacker.currentHealth
             attacker.isDefeated.value = savedAttacker.isDefeated
