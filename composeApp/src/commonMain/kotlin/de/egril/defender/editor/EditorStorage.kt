@@ -266,6 +266,13 @@ object EditorStorage {
         }
         println("Converted ${gameWaypoints.size} waypoints")
         
+        // Include waypoint positions in pathCells so enemies can walk on them
+        val pathCellsWithWaypoints = map.getPathCells().toMutableSet()
+        gameWaypoints.forEach { waypoint ->
+            pathCellsWithWaypoints.add(waypoint.position)
+        }
+        println("Path cells: ${map.getPathCells().size}, with waypoints: ${pathCellsWithWaypoints.size}")
+        
         return Level(
             id = numericId,
             name = editorLevel.title,
@@ -273,7 +280,7 @@ object EditorStorage {
             gridHeight = map.height,
             startPositions = map.getSpawnPoints(),
             targetPosition = target,
-            pathCells = map.getPathCells(),
+            pathCells = pathCellsWithWaypoints,
             buildIslands = map.getBuildIslands(),
             buildAreas = map.getBuildAreas(),
             attackerWaves = waves,
@@ -734,30 +741,43 @@ object EditorStorage {
         
         // Level 9: The Dance
         // Create waypoints for circular dancing pattern
+        // Three circles: outer (radius 18), middle (radius 10), inner (radius 6) -> center
         val danceCenter = Position(20, 20)
-        // Outer ring waypoints at distance 4 (approximately 4 waypoints evenly spaced)
+        
+        // Outermost ring waypoints at distance ~18
         val outerWaypoints = listOf(
-            Position(24, 20),  // East at distance 4
-            Position(20, 16),  // North at distance 4
-            Position(16, 20),  // West at distance 4
-            Position(20, 24)   // South at distance 4
+            Position(38, 20),  // East at distance ~18
+            Position(20, 2),   // North at distance ~18
+            Position(2, 20),   // West at distance ~18
+            Position(20, 38)   // South at distance ~18
         )
-        // Inner ring waypoints at distance 2
+        // Middle ring waypoints at distance ~10
+        val middleWaypoints = listOf(
+            Position(30, 20),  // East at distance ~10
+            Position(20, 10),  // North at distance ~10
+            Position(10, 20),  // West at distance ~10
+            Position(20, 30)   // South at distance ~10
+        )
+        // Inner ring waypoints at distance ~6
         val innerWaypoints = listOf(
-            Position(22, 20),  // East at distance 2
-            Position(20, 18),  // North at distance 2
-            Position(18, 20),  // West at distance 2
-            Position(20, 22)   // South at distance 2
+            Position(26, 20),  // East at distance ~6
+            Position(20, 14),  // North at distance ~6
+            Position(14, 20),  // West at distance ~6
+            Position(20, 26)   // South at distance ~6
         )
         
-        // Create waypoint chain: outer ring (clockwise) -> inner ring (clockwise) -> target
-        // Enemies will circle the outer ring, then circle the inner ring, then go to target
+        // Create waypoint chain: outer ring (clockwise) -> middle ring (clockwise) -> inner ring (clockwise) -> target
         val danceWaypoints = listOf(
             // Outer ring - clockwise circle
             EditorWaypoint(outerWaypoints[0], outerWaypoints[1]),  // East -> North
             EditorWaypoint(outerWaypoints[1], outerWaypoints[2]),  // North -> West
             EditorWaypoint(outerWaypoints[2], outerWaypoints[3]),  // West -> South
-            EditorWaypoint(outerWaypoints[3], innerWaypoints[0]),  // South -> Inner East (transition to inner ring)
+            EditorWaypoint(outerWaypoints[3], middleWaypoints[0]), // South -> Middle East (transition)
+            // Middle ring - clockwise circle
+            EditorWaypoint(middleWaypoints[0], middleWaypoints[1]),  // Middle East -> Middle North
+            EditorWaypoint(middleWaypoints[1], middleWaypoints[2]),  // Middle North -> Middle West
+            EditorWaypoint(middleWaypoints[2], middleWaypoints[3]),  // Middle West -> Middle South
+            EditorWaypoint(middleWaypoints[3], innerWaypoints[0]),   // Middle South -> Inner East (transition)
             // Inner ring - clockwise circle
             EditorWaypoint(innerWaypoints[0], innerWaypoints[1]),  // Inner East -> Inner North
             EditorWaypoint(innerWaypoints[1], innerWaypoints[2]),  // Inner North -> Inner West
