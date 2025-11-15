@@ -39,8 +39,20 @@ fun GameGrid(
     var offsetX by remember { mutableStateOf(0f) }
     var offsetY by remember { mutableStateOf(0f) }
     var containerSize by remember { mutableStateOf(IntSize.Zero) }
+    var isInitialized by remember { mutableStateOf(false) }
 
     val hexSize = 40.dp  // Radius of hexagon (center to corner)
+
+    // Initialize viewport to show spawn points (upper left) instead of center
+    LaunchedEffect(containerSize) {
+        if (!isInitialized && containerSize.width > 0 && containerSize.height > 0) {
+            // Position viewport to show the left side of the map where spawn points are
+            // Positive offset moves content to the right, showing the left edge
+            offsetX = containerSize.width * 0.3f
+            offsetY = 0f
+            isInitialized = true
+        }
+    }
 
     // Calculate target circle info for each tile
     val targetCircleMap = remember(selectedTargetPosition, selectedDefenderId, gameState.defenders.size) {
