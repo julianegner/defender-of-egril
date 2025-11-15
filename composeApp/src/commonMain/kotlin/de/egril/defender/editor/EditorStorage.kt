@@ -668,6 +668,11 @@ object EditorStorage {
         val validatedPlainsMap = plainsMap.copy(readyToUse = plainsMap.validateReadyToUse())
         saveMap(validatedPlainsMap)
         
+        // Create dance map - circular dancing path with broken ring
+        val danceMap = MapGenerator.createDanceMap()
+        val validatedDanceMap = danceMap.copy(readyToUse = danceMap.validateReadyToUse())
+        saveMap(validatedDanceMap)
+        
         // Level 7: The Spiral Challenge
         saveLevel(EditorLevel(
             id = "level_7",
@@ -715,9 +720,34 @@ object EditorStorage {
             }.toSet()
         ))
         
-        // Set initial level sequence (tutorial first, then spiral and plains before final stand!)
+        // Level 9: The Dance
+        saveLevel(EditorLevel(
+            id = "level_9",
+            mapId = "map_dance",
+            title = "The Dance",
+            subtitle = "Follow the Rhythm",
+            startCoins = 220,
+            startHealthPoints = 10,
+            enemySpawns = List(45) { index ->
+                // Mix of enemy types with emphasis on speed
+                val enemyType = when (index % 6) {
+                    0 -> AttackerType.GOBLIN
+                    1 -> AttackerType.SKELETON
+                    2 -> AttackerType.GOBLIN
+                    3 -> AttackerType.SKELETON
+                    4 -> AttackerType.ORK
+                    else -> AttackerType.EVIL_WIZARD
+                }
+                EditorEnemySpawn(enemyType, 1, index / 6 + 1)
+            },
+            availableTowers = DefenderType.entries.filter { 
+                it != DefenderType.DRAGONS_LAIR 
+            }.toSet()
+        ))
+        
+        // Set initial level sequence (tutorial first, then spiral, plains, and dance before final stand!)
         updateLevelSequence(LevelSequence(listOf(
-            "level_tutorial", "level_1", "level_2", "level_3", "level_4", "level_7", "level_8", "level_5", "level_6"
+            "level_tutorial", "level_1", "level_2", "level_3", "level_4", "level_7", "level_8", "level_9", "level_5", "level_6"
         )))
         
         // Save version file to indicate successful initialization
