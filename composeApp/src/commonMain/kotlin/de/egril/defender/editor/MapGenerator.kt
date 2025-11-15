@@ -160,6 +160,172 @@ object MapGenerator {
     }
     
     /**
+     * Create "The Dance" map with circular paths that make enemies dance around
+     * Target in center, spawn points at edge centers, broken ring of buildable tiles at distance 4
+     */
+    fun createDanceMap(
+        id: String = "map_dance",
+        name: String = "The Dance",
+        size: Int = 40
+    ): EditorMap {
+        val center = size / 2
+        val tiles = mutableMapOf<String, TileType>()
+        
+        // Set spawn points at centers of all 4 edges
+        tiles["$center,0"] = TileType.SPAWN_POINT          // Top
+        tiles["$center,${size - 1}"] = TileType.SPAWN_POINT  // Bottom
+        tiles["0,$center"] = TileType.SPAWN_POINT          // Left
+        tiles["${size - 1},$center"] = TileType.SPAWN_POINT  // Right
+        
+        // Set target at center
+        tiles["$center,$center"] = TileType.TARGET
+        
+        // Create broken ring of buildable tiles at distance 4 from center
+        // Pattern: 3 BUILD_AREA, 3 PATH, repeating
+        val ringPositions = mutableListOf<Position>()
+        for (x in 0 until size) {
+            for (y in 0 until size) {
+                val pos = Position(x, y)
+                val dist = pos.hexDistanceTo(Position(center, center))
+                if (dist == 4) {
+                    ringPositions.add(pos)
+                }
+            }
+        }
+        
+        // Sort ring positions by angle to create a coherent ring pattern
+        ringPositions.sortBy { pos ->
+            kotlin.math.atan2((pos.y - center).toDouble(), (pos.x - center).toDouble())
+        }
+        
+        // Apply alternating pattern: 3 BUILD_AREA, 3 PATH
+        ringPositions.forEachIndexed { index, pos ->
+            val patternIndex = index % 6
+            tiles["${pos.x},${pos.y}"] = if (patternIndex < 3) {
+                TileType.BUILD_AREA
+            } else {
+                TileType.PATH
+            }
+        }
+        
+        // Create circular path that guides enemies in a dancing pattern
+        // The path will create concentric circular movements
+        val dancePath = generateDancePath(size, center)
+        dancePath.forEach { pos ->
+            val key = "${pos.x},${pos.y}"
+            if (!tiles.containsKey(key)) {
+                tiles[key] = TileType.PATH
+            }
+        }
+        
+        // Fill remaining tiles with NO_PLAY to create the dance floor aesthetic
+        for (x in 0 until size) {
+            for (y in 0 until size) {
+                val key = "$x,$y"
+                if (!tiles.containsKey(key)) {
+                    tiles[key] = TileType.NO_PLAY
+                }
+            }
+        }
+        
+        return EditorMap(
+            id = id,
+            name = name,
+            width = size,
+            height = size,
+            tiles = tiles,
+            readyToUse = false
+        )
+    }
+    
+    /**
+     * Generate a dancing path pattern with circular movements
+     * Creates paths from edge spawn points that circle around before reaching center
+     */
+    private fun generateDancePath(size: Int, center: Int): Set<Position> {
+        val path = mutableSetOf<Position>()
+        val centerPos = Position(center, center)
+        
+        // Define spawn points at edge centers
+        val spawnPoints = listOf(
+            Position(center, 0),           // Top
+            Position(center, size - 1),    // Bottom
+            Position(0, center),           // Left
+            Position(size - 1, center)     // Right
+        )
+        
+        // Create circular path layers that connect spawns to center
+        // Outer circle (distance ~18 from center)
+        val outerRadius = 18
+        val middleRadius = 10
+        val innerRadius = 6
+        
+        // Add circular paths at different radii with extra width for connectivity
+        for (radius in listOf(outerRadius, middleRadius, innerRadius)) {
+            for (x in 0 until size) {
+                for (y in 0 until size) {
+                    val pos = Position(x, y)
+                    val dist = pos.hexDistanceTo(centerPos)
+                    // Create circular bands with extra width to ensure connectivity
+                    if (dist >= radius - 2 && dist <= radius + 2) {
+                        path.add(pos)
+                    }
+                }
+            }
+        }
+        
+        // Add radial connecting paths between all circles
+        // Use 8 radial spokes at different angles for better connectivity
+        for (angle in listOf(0, 45, 90, 135, 180, 225, 270, 315)) {
+            val radians = angle * kotlin.math.PI / 180
+            for (radius in 0..outerRadius) {
+                val x = center + (radius * kotlin.math.cos(radians)).toInt()
+                val y = center + (radius * kotlin.math.sin(radians)).toInt()
+                if (x >= 0 && x < size && y >= 0 && y < size) {
+                    path.add(Position(x, y))
+                    // Add adjacent cells for better connectivity
+                    val pos = Position(x, y)
+                    pos.getHexNeighbors().forEach { neighbor ->
+                        if (neighbor.x >= 0 && neighbor.x < size && neighbor.y >= 0 && neighbor.y < size) {
+                            path.add(neighbor)
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Connect spawn points directly to the path network
+        spawnPoints.forEach { spawn ->
+            // Create straight path from spawn toward center
+            val dx = if (spawn.x < center) 1 else if (spawn.x > center) -1 else 0
+            val dy = if (spawn.y < center) 1 else if (spawn.y > center) -1 else 0
+            
+            var current = spawn
+            for (step in 0..10) {
+                path.add(current)
+                // Add neighbors for width
+                current.getHexNeighbors().forEach { neighbor ->
+                    if (neighbor.x >= 0 && neighbor.x < size && neighbor.y >= 0 && neighbor.y < size) {
+                        path.add(neighbor)
+                    }
+                }
+                current = Position(current.x + dx, current.y + dy)
+                if (current.x < 0 || current.x >= size || current.y < 0 || current.y >= size) break
+            }
+        }
+        
+        // Ensure center is connected
+        path.add(centerPos)
+        centerPos.getHexNeighbors().forEach { neighbor ->
+            if (neighbor.x >= 0 && neighbor.x < size && neighbor.y >= 0 && neighbor.y < size) {
+                path.add(neighbor)
+            }
+        }
+        
+        return path
+    }
+    
+    /**
      * Generate a spiral path from corners toward center
      * Creates multiple spiral arms starting from each corner
      */
