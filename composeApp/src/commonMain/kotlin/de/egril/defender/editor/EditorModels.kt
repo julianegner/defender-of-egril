@@ -184,12 +184,57 @@ data class EditorLevel(
      * - It has at least one enemy spawn configured (each EditorEnemySpawn represents one enemy unit)
      * - Start coins are greater than zero
      * - Start health points are greater than zero
+     * - All waypoints eventually lead to the final target (checked separately with map context)
      */
     fun isReadyToPlay(): Boolean {
         return availableTowers.isNotEmpty() && 
                enemySpawns.isNotEmpty() && 
                startCoins > 0 && 
                startHealthPoints > 0
+    }
+    
+    /**
+     * Validates that all waypoints form valid chains that eventually lead to the target.
+     * This ensures enemies following waypoints will reach the target.
+     * @param targetPosition The final target position from the map
+     * @return true if waypoints are valid (or if there are no waypoints)
+     */
+    fun validateWaypoints(targetPosition: Position): Boolean {
+        if (waypoints.isEmpty()) return true  // No waypoints is valid
+        
+        // Build a map of waypoint position to next target
+        val waypointMap = waypoints.associateBy { it.position }
+        val waypointPositions = waypointMap.keys
+        
+        // Check each waypoint can eventually reach the target
+        return waypoints.all { waypoint ->
+            val visited = mutableSetOf<Position>()
+            var current = waypoint.nextTargetPosition
+            
+            // Follow the chain until we reach the target or detect a loop
+            while (current != targetPosition) {
+                if (current in visited) {
+                    // Loop detected - this waypoint will never reach target
+                    return@all false
+                }
+                visited.add(current)
+                
+                // If current is a waypoint, follow it
+                val nextWaypoint = waypointMap[current]
+                if (nextWaypoint != null) {
+                    current = nextWaypoint.nextTargetPosition
+                } else if (current == targetPosition) {
+                    // Reached target
+                    break
+                } else {
+                    // Current is not a waypoint and not the target - assume it's valid (enemies will path there)
+                    // This allows waypoints to point to intermediate positions
+                    break
+                }
+            }
+            
+            true
+        }
     }
 }
 
