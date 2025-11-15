@@ -1,0 +1,264 @@
+package de.egril.defender.editor
+
+import de.egril.defender.model.Position
+import de.egril.defender.model.getHexNeighbors
+import de.egril.defender.model.hexDistanceTo
+
+/**
+ * Map generation utilities for creating various map patterns
+ */
+object MapGenerator {
+    
+    /**
+     * Create a spiral map with target in center and spawn points in corners
+     */
+    fun createSpiralMap(
+        id: String = "map_spiral",
+        name: String = "Spiral Challenge Map",
+        size: Int = 40
+    ): EditorMap {
+        val center = size / 2
+        val tiles = mutableMapOf<String, TileType>()
+        
+        // Set spawn points in corners
+        tiles["0,0"] = TileType.SPAWN_POINT
+        tiles["${size - 1},0"] = TileType.SPAWN_POINT
+        tiles["0,${size - 1}"] = TileType.SPAWN_POINT
+        tiles["${size - 1},${size - 1}"] = TileType.SPAWN_POINT
+        
+        // Set target at center
+        tiles["$center,$center"] = TileType.TARGET
+        
+        // Generate spiral path from corners toward center
+        val spiralPath = generateSpiralPath(size, center)
+        spiralPath.forEach { pos ->
+            val key = "${pos.x},${pos.y}"
+            if (!tiles.containsKey(key)) {
+                tiles[key] = TileType.PATH
+            }
+        }
+        
+        // Define circular region around center
+        val innerRadius = size / 4  // Inner circular area
+        val outerRadius = size / 3  // Outer edge of path area
+        
+        // Mark cells within the circular region (mostly NO_PLAY)
+        for (x in 0 until size) {
+            for (y in 0 until size) {
+                val key = "$x,$y"
+                if (tiles.containsKey(key)) continue
+                
+                val pos = Position(x, y)
+                val distanceFromCenter = pos.hexDistanceTo(Position(center, center))
+                
+                // Within the circular region - mostly NO_PLAY, except adjacent to path
+                if (distanceFromCenter <= outerRadius) {
+                    val neighbors = pos.getHexNeighbors()
+                    val isAdjacentToPath = neighbors.any { neighbor ->
+                        neighbor.x >= 0 && neighbor.x < size &&
+                        neighbor.y >= 0 && neighbor.y < size &&
+                        tiles["${neighbor.x},${neighbor.y}"] == TileType.PATH
+                    }
+                    
+                    if (isAdjacentToPath) {
+                        // Partly buildable - cells adjacent to path within circle
+                        tiles[key] = TileType.BUILD_AREA
+                    } else {
+                        // Mostly non-buildable
+                        tiles[key] = TileType.NO_PLAY
+                    }
+                } else {
+                    // Outside the circular region - check if adjacent to path
+                    val neighbors = pos.getHexNeighbors()
+                    val isAdjacentToPath = neighbors.any { neighbor ->
+                        neighbor.x >= 0 && neighbor.x < size &&
+                        neighbor.y >= 0 && neighbor.y < size &&
+                        tiles["${neighbor.x},${neighbor.y}"] == TileType.PATH
+                    }
+                    
+                    if (isAdjacentToPath) {
+                        tiles[key] = TileType.BUILD_AREA
+                    }
+                }
+            }
+        }
+        
+        return EditorMap(
+            id = id,
+            name = name,
+            width = size,
+            height = size,
+            tiles = tiles,
+            readyToUse = false
+        )
+    }
+    
+    /**
+     * Create "The Plains" map with target in center, spawn points in corners,
+     * and 4 2x2 islands positioned 3 tiles away from the center target
+     */
+    fun createPlainsMap(
+        id: String = "map_plains",
+        name: String = "The Plains",
+        size: Int = 40
+    ): EditorMap {
+        val center = size / 2
+        val tiles = mutableMapOf<String, TileType>()
+        
+        // Set spawn points in corners
+        tiles["0,0"] = TileType.SPAWN_POINT
+        tiles["${size - 1},0"] = TileType.SPAWN_POINT
+        tiles["0,${size - 1}"] = TileType.SPAWN_POINT
+        tiles["${size - 1},${size - 1}"] = TileType.SPAWN_POINT
+        
+        // Set target at center
+        tiles["$center,$center"] = TileType.TARGET
+        
+        // Create 4 2x2 islands 3 tiles away from center in all directions
+        // North, South, East, West
+        val islandOffsets = listOf(
+            Pair(0, -3),   // North
+            Pair(0, 3),    // South
+            Pair(3, 0),    // East
+            Pair(-3, 0)    // West
+        )
+        
+        for ((dx, dy) in islandOffsets) {
+            val islandX = center + dx
+            val islandY = center + dy
+            
+            // Create 2x2 island
+            for (ix in 0..1) {
+                for (iy in 0..1) {
+                    val x = islandX + ix - 1  // Center the 2x2 block
+                    val y = islandY + iy - 1
+                    if (x >= 0 && x < size && y >= 0 && y < size) {
+                        tiles["$x,$y"] = TileType.ISLAND
+                    }
+                }
+            }
+        }
+        
+        // All other tiles are PATH (except islands, spawn points, and target)
+        for (x in 0 until size) {
+            for (y in 0 until size) {
+                val key = "$x,$y"
+                if (!tiles.containsKey(key)) {
+                    tiles[key] = TileType.PATH
+                }
+            }
+        }
+        
+        return EditorMap(
+            id = id,
+            name = name,
+            width = size,
+            height = size,
+            tiles = tiles,
+            readyToUse = false
+        )
+    }
+    
+    /**
+     * Generate a spiral path from corners toward center
+     * Creates multiple spiral arms starting from each corner
+     */
+    private fun generateSpiralPath(size: Int, center: Int): Set<Position> {
+        val path = mutableSetOf<Position>()
+        
+        // Create spiral paths from each corner
+        val corners = listOf(
+            Position(0, 0),
+            Position(size - 1, 0),
+            Position(0, size - 1),
+            Position(size - 1, size - 1)
+        )
+        
+        // Generate a single unified spiral that connects all corners to center
+        val spiralPoints = mutableListOf<Position>()
+        
+        // Start from outer edge and spiral inward
+        var currentRadius = (size / 2) - 2
+        val centerPos = Position(center, center)
+        
+        // Create spiral layers moving inward
+        while (currentRadius > 0) {
+            // Get points at this radius distance from center
+            for (x in 0 until size) {
+                for (y in 0 until size) {
+                    val pos = Position(x, y)
+                    val dist = pos.hexDistanceTo(centerPos)
+                    
+                    // Add points at current radius with some spiral pattern
+                    if (dist == currentRadius) {
+                        // Use modulo to create spiral gaps (not all points at radius)
+                        val angle = kotlin.math.atan2((y - center).toDouble(), (x - center).toDouble())
+                        val angleDegrees = (angle * 180 / kotlin.math.PI).toInt()
+                        
+                        // Create spiral effect by only including certain angles
+                        if ((angleDegrees + currentRadius * 30) % 120 < 60) {
+                            spiralPoints.add(pos)
+                        }
+                    }
+                }
+            }
+            currentRadius -= 2
+        }
+        
+        // Connect corners to the spiral
+        corners.forEach { corner ->
+            // Find the nearest spiral point to this corner
+            val nearestSpiral = spiralPoints.minByOrNull { it.hexDistanceTo(corner) }
+            if (nearestSpiral != null) {
+                // Create a path from corner to nearest spiral point
+                path.addAll(createPathBetween(corner, nearestSpiral, size))
+            }
+        }
+        
+        // Add all spiral points
+        path.addAll(spiralPoints)
+        
+        // Ensure center is connected
+        path.add(centerPos)
+        
+        // Add some width to the path for better gameplay
+        val widenedPath = mutableSetOf<Position>()
+        widenedPath.addAll(path)
+        path.forEach { pos ->
+            val neighbors = pos.getHexNeighbors()
+            neighbors.filter { it.x >= 0 && it.x < size && it.y >= 0 && it.y < size }
+                .take(2)  // Add 2 neighbors to widen the path
+                .forEach { widenedPath.add(it) }
+        }
+        
+        return widenedPath
+    }
+    
+    /**
+     * Create a simple path between two positions
+     */
+    private fun createPathBetween(
+        start: Position,
+        end: Position,
+        size: Int
+    ): List<Position> {
+        val path = mutableListOf<Position>()
+        var current = start
+        path.add(current)
+        
+        while (current != end && path.size < size * 2) {  // Limit path length
+            val neighbors = current.getHexNeighbors()
+                .filter { it.x >= 0 && it.x < size && it.y >= 0 && it.y < size }
+                .sortedBy { it.hexDistanceTo(end) }
+            
+            if (neighbors.isEmpty()) break
+            
+            current = neighbors.first()
+            if (!path.contains(current)) {
+                path.add(current)
+            }
+        }
+        
+        return path
+    }
+}
