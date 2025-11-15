@@ -198,6 +198,12 @@ object EditorStorage {
         }
     }
     
+    /**
+     * Add a level to the level sequence.
+     * If the level is already in the sequence, does nothing.
+     * @param levelId The ID of the level to add
+     * @param atIndex Optional index where to insert the level. If null, adds to the end.
+     */
     fun addLevelToSequence(levelId: String, atIndex: Int? = null) {
         val currentSequence = getLevelSequence().sequence.toMutableList()
         if (!currentSequence.contains(levelId)) {
@@ -210,6 +216,11 @@ object EditorStorage {
         }
     }
     
+    /**
+     * Remove a level from the level sequence.
+     * The level file is not deleted and can be added back to the sequence later.
+     * @param levelId The ID of the level to remove from the sequence
+     */
     fun removeLevelFromSequence(levelId: String) {
         val currentSequence = getLevelSequence().sequence.toMutableList()
         currentSequence.remove(levelId)
