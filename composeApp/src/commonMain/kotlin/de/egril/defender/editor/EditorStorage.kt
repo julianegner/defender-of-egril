@@ -227,6 +227,27 @@ object EditorStorage {
         updateLevelSequence(LevelSequence(currentSequence))
     }
     
+    /**
+     * Checks if a level is ready to play.
+     * A level is ready if:
+     * - It has at least one available tower
+     * - It has at least one enemy spawn configured
+     * - Start coins are greater than zero
+     * - Start health points are greater than zero
+     * - Its associated map is ready to use (has valid path from spawn to target)
+     * @param level The level to check
+     * @return true if the level is ready to play, false otherwise
+     */
+    fun isLevelReadyToPlay(level: EditorLevel): Boolean {
+        if (!level.isReadyToPlay()) {
+            return false
+        }
+        
+        // Also check if the map is ready to use
+        val map = getMap(level.mapId)
+        return map?.readyToUse == true
+    }
+    
     fun deleteMap(mapId: String) {
         // Remove from cache
         mapsCache.remove(mapId)

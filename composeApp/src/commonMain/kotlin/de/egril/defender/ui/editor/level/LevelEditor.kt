@@ -203,7 +203,7 @@ private fun LevelCard(
                         style = MaterialTheme.typography.titleSmall
                     )
                     // Add ready/not ready indicator
-                    if (level.isReadyToPlay()) {
+                    if (EditorStorage.isLevelReadyToPlay(level)) {
                         CheckmarkIcon(
                             size = 16.dp,
                             tint = Color.Green
@@ -236,9 +236,9 @@ private fun LevelCard(
                     style = MaterialTheme.typography.bodySmall
                 )
                 Text(
-                    text = if (level.isReadyToPlay()) stringResource(Res.string.ready_to_use) else stringResource(Res.string.not_ready),
+                    text = if (EditorStorage.isLevelReadyToPlay(level)) stringResource(Res.string.ready_to_use) else stringResource(Res.string.not_ready),
                     style = MaterialTheme.typography.bodySmall,
-                    color = if (level.isReadyToPlay()) Color.Green else Color.Red
+                    color = if (EditorStorage.isLevelReadyToPlay(level)) Color.Green else Color.Red
                 )
             }
             Row(
