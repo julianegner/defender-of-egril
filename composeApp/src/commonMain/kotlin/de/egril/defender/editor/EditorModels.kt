@@ -76,6 +76,14 @@ data class EditorMap(
             .toSet()
     }
     
+    fun getWaypoints(): List<Position> {
+        return tiles.filter { it.value == TileType.WAYPOINT }
+            .map { 
+                val parts = it.key.split(",")
+                Position(parts[0].toInt(), parts[1].toInt())
+            }
+    }
+    
     /**
      * Validates if map is ready to use:
      * - Has at least one spawn point
@@ -90,10 +98,11 @@ data class EditorMap(
         if (spawnPoints.isEmpty()) return false
         if (target == null) return false
         
-        // Build set of traversable cells (spawn points + path cells + target)
+        // Build set of traversable cells (spawn points + path cells + target + waypoints)
         val traversableCells = pathCells.toMutableSet()
         traversableCells.addAll(spawnPoints)
         traversableCells.add(target)
+        traversableCells.addAll(getWaypoints())  // Waypoints are also traversable
         
         // Check if there's a path from any spawn point to target using BFS
         return spawnPoints.any { spawn ->
@@ -146,6 +155,15 @@ data class EditorEnemySpawn(
 }
 
 /**
+ * Waypoint configuration for the editor
+ * Stores waypoint position and the next target position (another waypoint or final target)
+ */
+data class EditorWaypoint(
+    val position: Position,
+    val nextTargetPosition: Position
+)
+
+/**
  * Level configuration for the editor
  */
 data class EditorLevel(
@@ -156,7 +174,8 @@ data class EditorLevel(
     val startCoins: Int,
     val startHealthPoints: Int = 10,
     val enemySpawns: List<EditorEnemySpawn>,
-    val availableTowers: Set<DefenderType>  // Which towers can be built
+    val availableTowers: Set<DefenderType>,  // Which towers can be built
+    val waypoints: List<EditorWaypoint> = emptyList()  // Waypoints for complex pathing
 ) {
     /**
      * Checks if this level is ready to play.
