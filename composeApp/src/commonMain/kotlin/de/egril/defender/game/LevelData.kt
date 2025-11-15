@@ -26,21 +26,10 @@ object LevelData {
             println("Processing level ID: $levelId at index $index - Found: ${editorLevel != null}")
             
             editorLevel?.let { level ->
-                // Check if level is ready to play
-                if (!level.isReadyToPlay()) {
-                    println("Skipping level $levelId: not ready to play (towers: ${level.availableTowers.size}, spawns: ${level.enemySpawns.size})")
-                    return@mapIndexedNotNull null
-                }
-                
-                // Check if the map is ready to use
-                val map = EditorStorage.getMap(level.mapId)
-                if (map == null) {
-                    println("Skipping level $levelId: map ${level.mapId} not found")
-                    return@mapIndexedNotNull null
-                }
-                
-                if (!map.readyToUse) {
-                    println("Skipping level $levelId: map ${level.mapId} is not ready to use")
+                // Check if level is ready to play (includes map readiness check)
+                if (!EditorStorage.isLevelReadyToPlay(level)) {
+                    val map = EditorStorage.getMap(level.mapId)
+                    println("Skipping level $levelId: not ready to play (towers: ${level.availableTowers.size}, spawns: ${level.enemySpawns.size}, map ready: ${map?.readyToUse})")
                     return@mapIndexedNotNull null
                 }
                 
