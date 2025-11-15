@@ -28,14 +28,14 @@ fun LevelSequenceContent() {
     // Get levels in sequence that are ready to play
     val levelsInSequence = sequence.value.sequence.mapNotNull { levelId ->
         val level = EditorStorage.getLevel(levelId)
-        if (level != null && level.isReadyToPlay()) {
+        if (level != null && EditorStorage.isLevelReadyToPlay(level)) {
             levelId to level
         } else null
     }
     
     // Get all levels not in sequence that are ready to play
     val availableLevels = allLevels.value.filter { level ->
-        level.isReadyToPlay() && !sequence.value.sequence.contains(level.id)
+        EditorStorage.isLevelReadyToPlay(level) && !sequence.value.sequence.contains(level.id)
     }
     
     Column(
