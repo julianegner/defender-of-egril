@@ -659,7 +659,14 @@ object EditorStorage {
         ))
         
         // Create spiral map - square map with spiral path
-        createSpiralMap()
+        val spiralMap = MapGenerator.createSpiralMap()
+        val validatedSpiralMap = spiralMap.copy(readyToUse = spiralMap.validateReadyToUse())
+        saveMap(validatedSpiralMap)
+        
+        // Create plains map - simple map with 4 islands
+        val plainsMap = MapGenerator.createPlainsMap()
+        val validatedPlainsMap = plainsMap.copy(readyToUse = plainsMap.validateReadyToUse())
+        saveMap(validatedPlainsMap)
         
         // Level 7: The Spiral Challenge
         saveLevel(EditorLevel(
@@ -685,199 +692,35 @@ object EditorStorage {
             }.toSet()
         ))
         
-        // Set initial level sequence (tutorial first!)
+        // Level 8: The Plains
+        saveLevel(EditorLevel(
+            id = "level_8",
+            mapId = "map_plains",
+            title = "The Plains",
+            subtitle = "Open Field Battle",
+            startCoins = 200,
+            startHealthPoints = 10,
+            enemySpawns = List(40) { index ->
+                // Mix of basic enemy types
+                val enemyType = when (index % 4) {
+                    0 -> AttackerType.GOBLIN
+                    1 -> AttackerType.SKELETON
+                    2 -> AttackerType.ORK
+                    else -> AttackerType.OGRE
+                }
+                EditorEnemySpawn(enemyType, 1, index / 6 + 1)
+            },
+            availableTowers = DefenderType.entries.filter { 
+                it != DefenderType.DRAGONS_LAIR 
+            }.toSet()
+        ))
+        
+        // Set initial level sequence (tutorial first, then spiral and plains before final stand!)
         updateLevelSequence(LevelSequence(listOf(
-            "level_tutorial", "level_1", "level_2", "level_3", "level_4", "level_5", "level_6", "level_7"
+            "level_tutorial", "level_1", "level_2", "level_3", "level_4", "level_7", "level_8", "level_5", "level_6"
         )))
         
         // Save version file to indicate successful initialization
         fileStorage.writeFile(VERSION_FILE, CURRENT_VERSION)
-    }
-    
-    /**
-     * Create a spiral map with target in center and spawn points in corners
-     */
-    private fun createSpiralMap() {
-        val size = 40  // Square map 40x40
-        val center = size / 2
-        val tiles = mutableMapOf<String, TileType>()
-        
-        // Set spawn points in corners
-        tiles["0,0"] = TileType.SPAWN_POINT
-        tiles["${size - 1},0"] = TileType.SPAWN_POINT
-        tiles["0,${size - 1}"] = TileType.SPAWN_POINT
-        tiles["${size - 1},${size - 1}"] = TileType.SPAWN_POINT
-        
-        // Set target at center
-        tiles["$center,$center"] = TileType.TARGET
-        
-        // Generate spiral path from corners toward center
-        val spiralPath = generateSpiralPath(size, center)
-        spiralPath.forEach { pos ->
-            val key = "${pos.x},${pos.y}"
-            if (!tiles.containsKey(key)) {
-                tiles[key] = TileType.PATH
-            }
-        }
-        
-        // Define circular region around center
-        val innerRadius = size / 4  // Inner circular area
-        val outerRadius = size / 3  // Outer edge of path area
-        
-        // Mark cells within the circular region (mostly NO_PLAY)
-        for (x in 0 until size) {
-            for (y in 0 until size) {
-                val key = "$x,$y"
-                if (tiles.containsKey(key)) continue
-                
-                val pos = de.egril.defender.model.Position(x, y)
-                val distanceFromCenter = pos.hexDistanceTo(de.egril.defender.model.Position(center, center))
-                
-                // Within the circular region - mostly NO_PLAY, except adjacent to path
-                if (distanceFromCenter <= outerRadius) {
-                    val neighbors = pos.getHexNeighbors()
-                    val isAdjacentToPath = neighbors.any { neighbor ->
-                        neighbor.x >= 0 && neighbor.x < size &&
-                        neighbor.y >= 0 && neighbor.y < size &&
-                        tiles["${neighbor.x},${neighbor.y}"] == TileType.PATH
-                    }
-                    
-                    if (isAdjacentToPath) {
-                        // Partly buildable - cells adjacent to path within circle
-                        tiles[key] = TileType.BUILD_AREA
-                    } else {
-                        // Mostly non-buildable
-                        tiles[key] = TileType.NO_PLAY
-                    }
-                } else {
-                    // Outside the circular region - check if adjacent to path
-                    val neighbors = pos.getHexNeighbors()
-                    val isAdjacentToPath = neighbors.any { neighbor ->
-                        neighbor.x >= 0 && neighbor.x < size &&
-                        neighbor.y >= 0 && neighbor.y < size &&
-                        tiles["${neighbor.x},${neighbor.y}"] == TileType.PATH
-                    }
-                    
-                    if (isAdjacentToPath) {
-                        tiles[key] = TileType.BUILD_AREA
-                    }
-                }
-            }
-        }
-        
-        val spiralMap = EditorMap(
-            id = "map_spiral",
-            name = "Spiral Challenge Map",
-            width = size,
-            height = size,
-            tiles = tiles,
-            readyToUse = false
-        )
-        
-        val validatedMap = spiralMap.copy(readyToUse = spiralMap.validateReadyToUse())
-        saveMap(validatedMap)
-    }
-    
-    /**
-     * Generate a spiral path from corners toward center
-     * Creates multiple spiral arms starting from each corner
-     */
-    private fun generateSpiralPath(size: Int, center: Int): Set<de.egril.defender.model.Position> {
-        val path = mutableSetOf<de.egril.defender.model.Position>()
-        
-        // Create spiral paths from each corner
-        val corners = listOf(
-            de.egril.defender.model.Position(0, 0),
-            de.egril.defender.model.Position(size - 1, 0),
-            de.egril.defender.model.Position(0, size - 1),
-            de.egril.defender.model.Position(size - 1, size - 1)
-        )
-        
-        // Generate a single unified spiral that connects all corners to center
-        val spiralPoints = mutableListOf<de.egril.defender.model.Position>()
-        
-        // Start from outer edge and spiral inward
-        var currentRadius = (size / 2) - 2
-        val centerPos = de.egril.defender.model.Position(center, center)
-        
-        // Create spiral layers moving inward
-        while (currentRadius > 0) {
-            // Get points at this radius distance from center
-            for (x in 0 until size) {
-                for (y in 0 until size) {
-                    val pos = de.egril.defender.model.Position(x, y)
-                    val dist = pos.hexDistanceTo(centerPos)
-                    
-                    // Add points at current radius with some spiral pattern
-                    if (dist == currentRadius) {
-                        // Use modulo to create spiral gaps (not all points at radius)
-                        val angle = kotlin.math.atan2((y - center).toDouble(), (x - center).toDouble())
-                        val angleDegrees = (angle * 180 / kotlin.math.PI).toInt()
-                        
-                        // Create spiral effect by only including certain angles
-                        if ((angleDegrees + currentRadius * 30) % 120 < 60) {
-                            spiralPoints.add(pos)
-                        }
-                    }
-                }
-            }
-            currentRadius -= 2
-        }
-        
-        // Connect corners to the spiral
-        corners.forEach { corner ->
-            // Find the nearest spiral point to this corner
-            val nearestSpiral = spiralPoints.minByOrNull { it.hexDistanceTo(corner) }
-            if (nearestSpiral != null) {
-                // Create a path from corner to nearest spiral point
-                path.addAll(createPathBetween(corner, nearestSpiral, size))
-            }
-        }
-        
-        // Add all spiral points
-        path.addAll(spiralPoints)
-        
-        // Ensure center is connected
-        path.add(centerPos)
-        
-        // Add some width to the path for better gameplay
-        val widenedPath = mutableSetOf<de.egril.defender.model.Position>()
-        widenedPath.addAll(path)
-        path.forEach { pos ->
-            val neighbors = pos.getHexNeighbors()
-            neighbors.filter { it.x >= 0 && it.x < size && it.y >= 0 && it.y < size }
-                .take(2)  // Add 2 neighbors to widen the path
-                .forEach { widenedPath.add(it) }
-        }
-        
-        return widenedPath
-    }
-    
-    /**
-     * Create a simple path between two positions
-     */
-    private fun createPathBetween(
-        start: de.egril.defender.model.Position,
-        end: de.egril.defender.model.Position,
-        size: Int
-    ): List<de.egril.defender.model.Position> {
-        val path = mutableListOf<de.egril.defender.model.Position>()
-        var current = start
-        path.add(current)
-        
-        while (current != end && path.size < size * 2) {  // Limit path length
-            val neighbors = current.getHexNeighbors()
-                .filter { it.x >= 0 && it.x < size && it.y >= 0 && it.y < size }
-                .sortedBy { it.hexDistanceTo(end) }
-            
-            if (neighbors.isEmpty()) break
-            
-            current = neighbors.first()
-            if (!path.contains(current)) {
-                path.add(current)
-            }
-        }
-        
-        return path
     }
 }
