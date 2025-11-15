@@ -199,8 +199,6 @@ object MapGenerator {
         }
         
         // Apply alternating pattern: 3 BUILD_AREA, 3 PATH
-        // Also mark some path positions as waypoints for circular movement
-        val waypointPositions = mutableListOf<Position>()
         ringPositions.forEachIndexed { index, pos ->
             val patternIndex = index % 6
             tiles["${pos.x},${pos.y}"] = if (patternIndex < 3) {
@@ -208,34 +206,6 @@ object MapGenerator {
             } else {
                 TileType.PATH
             }
-            
-            // Mark waypoints at specific intervals for circular movement
-            // Place waypoints at 0°, 90°, 180°, 270° positions (approximately)
-            val angle = kotlin.math.atan2((pos.y - center).toDouble(), (pos.x - center).toDouble())
-            val angleDegrees = (angle * 180 / kotlin.math.PI).toInt()
-            // Place waypoints at cardinal directions
-            if (patternIndex >= 3 && (angleDegrees in -10..10 || angleDegrees in 80..100 || 
-                angleDegrees in 170..180 || angleDegrees in -180..-170 || angleDegrees in -100..-80)) {
-                waypointPositions.add(pos)
-            }
-        }
-        
-        // Select 4 evenly spaced waypoints from the ring
-        val selectedWaypoints = if (waypointPositions.size >= 4) {
-            val step = waypointPositions.size / 4
-            listOf(
-                waypointPositions[0],
-                waypointPositions[step],
-                waypointPositions[step * 2],
-                waypointPositions[step * 3]
-            )
-        } else {
-            waypointPositions.take(4)
-        }
-        
-        // Mark waypoints on the map
-        selectedWaypoints.forEach { pos ->
-            tiles["${pos.x},${pos.y}"] = TileType.WAYPOINT
         }
         
         // Create circular path that guides enemies in a dancing pattern
@@ -245,28 +215,6 @@ object MapGenerator {
             val key = "${pos.x},${pos.y}"
             if (!tiles.containsKey(key)) {
                 tiles[key] = TileType.PATH
-            }
-        }
-        
-        // Add more waypoints at inner circle (distance 2 from center)
-        val innerWaypoints = mutableListOf<Position>()
-        for (x in 0 until size) {
-            for (y in 0 until size) {
-                val pos = Position(x, y)
-                val dist = pos.hexDistanceTo(Position(center, center))
-                if (dist == 2) {
-                    val angle = kotlin.math.atan2((pos.y - center).toDouble(), (pos.x - center).toDouble())
-                    val angleDegrees = (angle * 180 / kotlin.math.PI).toInt()
-                    // Place waypoints at cardinal directions on inner circle
-                    if (angleDegrees in -10..10 || angleDegrees in 80..100 || 
-                        angleDegrees in 170..180 || angleDegrees in -180..-170 || angleDegrees in -100..-80) {
-                        innerWaypoints.add(pos)
-                        // Make sure this is on the path
-                        if (tiles["${pos.x},${pos.y}"] != TileType.TARGET) {
-                            tiles["${pos.x},${pos.y}"] = TileType.WAYPOINT
-                        }
-                    }
-                }
             }
         }
         
