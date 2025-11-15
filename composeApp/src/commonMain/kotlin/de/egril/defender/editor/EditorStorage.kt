@@ -5,6 +5,8 @@ import de.egril.defender.model.DefenderType
 import de.egril.defender.model.AttackerWave
 import de.egril.defender.model.Level
 import de.egril.defender.model.PlannedEnemySpawn
+import de.egril.defender.model.Position
+import de.egril.defender.model.Waypoint
 import de.egril.defender.model.getHexNeighbors
 import de.egril.defender.model.hexDistanceTo
 
@@ -255,6 +257,15 @@ object EditorStorage {
         val target = map.getTarget() ?: return null
         println("Target position: $target")
         
+        // Convert editor waypoints to game waypoints
+        val gameWaypoints = editorLevel.waypoints.map { editorWaypoint ->
+            Waypoint(
+                position = editorWaypoint.position,
+                nextTarget = editorWaypoint.nextTargetPosition
+            )
+        }
+        println("Converted ${gameWaypoints.size} waypoints")
+        
         return Level(
             id = numericId,
             name = editorLevel.title,
@@ -269,7 +280,8 @@ object EditorStorage {
             initialCoins = editorLevel.startCoins,
             healthPoints = editorLevel.startHealthPoints,
             directSpawnPlan = directSpawnPlan,
-            availableTowers = editorLevel.availableTowers
+            availableTowers = editorLevel.availableTowers,
+            waypoints = gameWaypoints
         )
     }
     
@@ -721,6 +733,38 @@ object EditorStorage {
         ))
         
         // Level 9: The Dance
+        // Create waypoints for circular dancing pattern
+        val danceCenter = Position(20, 20)
+        // Outer ring waypoints at distance 4 (approximately 4 waypoints evenly spaced)
+        val outerWaypoints = listOf(
+            Position(24, 20),  // East at distance 4
+            Position(20, 16),  // North at distance 4
+            Position(16, 20),  // West at distance 4
+            Position(20, 24)   // South at distance 4
+        )
+        // Inner ring waypoints at distance 2
+        val innerWaypoints = listOf(
+            Position(22, 20),  // East at distance 2
+            Position(20, 18),  // North at distance 2
+            Position(18, 20),  // West at distance 2
+            Position(20, 22)   // South at distance 2
+        )
+        
+        // Create waypoint chain: outer ring (clockwise) -> inner ring (clockwise) -> target
+        // Enemies will circle the outer ring, then circle the inner ring, then go to target
+        val danceWaypoints = listOf(
+            // Outer ring - clockwise circle
+            EditorWaypoint(outerWaypoints[0], outerWaypoints[1]),  // East -> North
+            EditorWaypoint(outerWaypoints[1], outerWaypoints[2]),  // North -> West
+            EditorWaypoint(outerWaypoints[2], outerWaypoints[3]),  // West -> South
+            EditorWaypoint(outerWaypoints[3], innerWaypoints[0]),  // South -> Inner East (transition to inner ring)
+            // Inner ring - clockwise circle
+            EditorWaypoint(innerWaypoints[0], innerWaypoints[1]),  // Inner East -> Inner North
+            EditorWaypoint(innerWaypoints[1], innerWaypoints[2]),  // Inner North -> Inner West
+            EditorWaypoint(innerWaypoints[2], innerWaypoints[3]),  // Inner West -> Inner South
+            EditorWaypoint(innerWaypoints[3], danceCenter)         // Inner South -> Target
+        )
+        
         saveLevel(EditorLevel(
             id = "level_9",
             mapId = "map_dance",
@@ -742,7 +786,8 @@ object EditorStorage {
             },
             availableTowers = DefenderType.entries.filter { 
                 it != DefenderType.DRAGONS_LAIR 
-            }.toSet()
+            }.toSet(),
+            waypoints = danceWaypoints
         ))
         
         // Set initial level sequence (tutorial first, then spiral, plains, and dance before final stand!)

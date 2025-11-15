@@ -108,7 +108,8 @@ class GameEngine(private val state: GameState) {
                 id = state.nextAttackerId.value++,
                 type = plannedSpawn.attackerType,
                 position = mutableStateOf(spawnPos),
-                level = mutableStateOf(plannedSpawn.level)
+                level = mutableStateOf(plannedSpawn.level),
+                currentTarget = mutableStateOf(enemyMovement.getInitialTarget())
             )
             state.attackers.add(attacker)
         }
@@ -161,12 +162,22 @@ class GameEngine(private val state: GameState) {
                 // Check if this attacker has more moves left
                 if (stepIndex >= attacker.type.speed) continue
                 
-                val target = state.level.targetPosition
+                // Use the attacker's current target if set, otherwise use level target
+                val target = attacker.currentTarget?.value ?: state.level.targetPosition
                 val path = pathfinding.findPath(currentPos, target, attacker)
                 
                 if (path.size < 2) continue  // No movement possible
                 
                 val newPos = path[1]  // Next position in path
+                
+                // Check if arrived at a waypoint and update target
+                if (newPos == target && state.level.isWaypoint(newPos)) {
+                    val waypoint = state.level.getWaypointAt(newPos)
+                    if (waypoint != null && attacker.currentTarget != null) {
+                        // Update target to the next waypoint or final target
+                        attacker.currentTarget.value = waypoint.nextTarget
+                    }
+                }
                 
                 // Check if this position is already occupied or will be occupied by another unit in this step
                 // Exception: Allow multiple units to move to the target position (they get defeated immediately)
@@ -505,7 +516,8 @@ class GameEngine(private val state: GameState) {
             type = type,
             position = mutableStateOf(spawnPos),
             currentHealth = mutableStateOf(scaledHealth),
-            dragonName = if (type.isDragon) DragonNames.getRandomName() else null
+            dragonName = if (type.isDragon) DragonNames.getRandomName() else null,
+            currentTarget = mutableStateOf(enemyMovement.getInitialTarget())
         )
         
         // Add to attackers list
