@@ -198,6 +198,24 @@ object EditorStorage {
         }
     }
     
+    fun addLevelToSequence(levelId: String, atIndex: Int? = null) {
+        val currentSequence = getLevelSequence().sequence.toMutableList()
+        if (!currentSequence.contains(levelId)) {
+            if (atIndex != null && atIndex >= 0 && atIndex <= currentSequence.size) {
+                currentSequence.add(atIndex, levelId)
+            } else {
+                currentSequence.add(levelId)
+            }
+            updateLevelSequence(LevelSequence(currentSequence))
+        }
+    }
+    
+    fun removeLevelFromSequence(levelId: String) {
+        val currentSequence = getLevelSequence().sequence.toMutableList()
+        currentSequence.remove(levelId)
+        updateLevelSequence(LevelSequence(currentSequence))
+    }
+    
     fun deleteMap(mapId: String) {
         // Remove from cache
         mapsCache.remove(mapId)

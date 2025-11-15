@@ -319,6 +319,12 @@
     <string name="ewhad_warning">⚠️ Ewhad può apparire solo una volta per livello!</string>
     <string name="level_lv">Liv%d</string>
     <string name="arrange_level_order">Organizza ordine dei livelli:</string>
+    <string name="levels_in_sequence">Livelli nella sequenza:</string>
+    <string name="available_levels">Livelli disponibili (Non nella sequenza):</string>
+    <string name="add_to_sequence">Aggiungi alla sequenza</string>
+    <string name="remove_from_sequence">Rimuovi dalla sequenza</string>
+    <string name="remove_level_confirmation_title">Rimuovere il livello dalla sequenza?</string>
+    <string name="remove_level_confirmation_message">Sei sicuro di voler rimuovere "%s" dalla sequenza dei livelli? Il livello non sarà cancellato e potrà essere aggiunto di nuovo più tardi.</string>
     <string name="save_map_as_new">Salva mappa come nuova</string>
     <string name="save_level_as_new">Salva livello come nuovo</string>
     <string name="enter_a">Inserisci %s:</string>
