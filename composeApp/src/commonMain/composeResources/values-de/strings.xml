@@ -428,8 +428,8 @@
     <string name="click_to_connect_waypoints">Klicken Sie auf Wegpunkte auf der Karte, um sie zu verbinden</string>
     <string name="select_on_map">Auf Karte auswählen</string>
     <string name="waypoint_chains_title">Wegpunkt-Ketten</string>
-    <string name="unconnected_waypoint_warning">⚠ Nicht verbundener Wegpunkt</string>
-    <string name="circular_dependency_warning">⚠ Zirkuläre Abhängigkeit</string>
+    <string name="unconnected_waypoint_warning">Nicht verbundener Wegpunkt</string>
+    <string name="circular_dependency_warning">Zirkuläre Abhängigkeit</string>
     <string name="waypoint_tree_view">Baumansicht</string>
     <string name="waypoint_list_view">Listenansicht</string>
     <string name="click_source_waypoint">1. Klicken Sie auf eine Quelle (Spawn oder Wegpunkt)</string>
