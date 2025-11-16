@@ -396,4 +396,26 @@
     <string name="the_dragon">Il drago</string>
     <string name="awakens">si sveglia</string>
     <string name="lair_of_the_dragon">Tana del Drago</string>
+
+<!-- Waypoint Editor -->
+    <string name="waypoints_tab">Punti di Passaggio</string>
+    <string name="waypoints_title">Connessioni dei Punti di Passaggio</string>
+    <string name="waypoints_description">Configura le connessioni dei punti di passaggio per questo livello. I punti di passaggio definiscono il percorso che seguiranno i nemici.</string>
+    <string name="waypoint_source">Sorgente</string>
+    <string name="waypoint_target">Obiettivo</string>
+    <string name="add_waypoint">➕ Aggiungi Punto di Passaggio</string>
+    <string name="delete_waypoint">Elimina</string>
+    <string name="no_waypoints_configured">Nessun punto di passaggio configurato per questo livello.</string>
+    <string name="available_waypoint_tiles">Caselle di punti di passaggio disponibili dalla mappa: %d</string>
+    <string name="waypoint_validation_success">✓ La configurazione dei punti di passaggio è valida</string>
+    <string name="waypoint_validation_error">✗ La configurazione dei punti di passaggio presenta errori</string>
+    <string name="circular_dependency_detected">Dipendenza circolare rilevata! Correggi le connessioni dei punti di passaggio.</string>
+    <string name="waypoint_position_format">Posizione (%d, %d)</string>
+    <string name="spawn_point_text">Punto di Spawn</string>
+    <string name="target_text">Obiettivo</string>
+    <string name="select_source_position">Seleziona posizione sorgente</string>
+    <string name="select_target_position">Seleziona posizione obiettivo</string>
+    <string name="waypoint_exists_error">Esiste già una connessione di punto di passaggio da questa posizione</string>
+    <string name="remove_all_waypoints">Rimuovi Tutto</string>
+    <string name="confirm_remove_all_waypoints">Sei sicuro di voler rimuovere tutte le connessioni dei punti di passaggio?</string>
 </resources>
