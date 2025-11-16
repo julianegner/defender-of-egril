@@ -1,5 +1,13 @@
 package de.egril.defender.model
 
+/**
+ * Represents a waypoint that enemies must pass through
+ */
+data class Waypoint(
+    val position: Position,
+    val nextTarget: Position  // Position to head to after reaching this waypoint (can be another waypoint or the final target)
+)
+
 data class Level(
     val id: Int,
     val name: String,
@@ -18,7 +26,8 @@ data class Level(
     val initialCoins: Int = 100,
     val healthPoints: Int = 10,
     val directSpawnPlan: List<PlannedEnemySpawn>? = null,  // Direct spawn plan from editor
-    val availableTowers: Set<DefenderType> = DefenderType.entries.toSet()  // Towers available in this level
+    val availableTowers: Set<DefenderType> = DefenderType.entries.toSet(),  // Towers available in this level
+    val waypoints: List<Waypoint> = emptyList()  // Waypoints for complex pathing
 ) {
     fun isOnPath(position: Position): Boolean {
         return pathCells.contains(position)
@@ -42,6 +51,14 @@ data class Level(
     
     fun isSpawnPoint(position: Position): Boolean {
         return startPositions.contains(position)
+    }
+    
+    fun isWaypoint(position: Position): Boolean {
+        return waypoints.any { it.position == position }
+    }
+    
+    fun getWaypointAt(position: Position): Waypoint? {
+        return waypoints.firstOrNull { it.position == position }
     }
     
     companion object {

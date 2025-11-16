@@ -33,6 +33,13 @@ object LevelData {
                     return@mapIndexedNotNull null
                 }
                 
+                // Check if waypoints are valid (all eventually lead to target)
+                val target = map.getTarget()
+                if (target != null && !level.validateWaypoints(target)) {
+                    println("Skipping level $levelId: waypoints do not all lead to target")
+                    return@mapIndexedNotNull null
+                }
+                
                 // Return the editor level for conversion
                 level
             }
