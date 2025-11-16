@@ -377,12 +377,7 @@ class GameEngine(private val state: GameState) {
      */
     private fun applyTargetDamage(attacker: Attacker) {
         val damage = attacker.calculateTargetDamage()
-        // Ewhad causes all remaining HP damage
-        if (damage == Int.MAX_VALUE) {
-            state.healthPoints.value = 0
-        } else {
-            state.healthPoints.value = maxOf(0, state.healthPoints.value - damage)
-        }
+        state.healthPoints.value = maxOf(0, state.healthPoints.value - damage)
         attacker.isDefeated.value = true
     }
     
