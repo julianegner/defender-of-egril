@@ -39,17 +39,32 @@ fun GameGrid(
     var offsetX by remember { mutableStateOf(0f) }
     var offsetY by remember { mutableStateOf(0f) }
     var containerSize by remember { mutableStateOf(IntSize.Zero) }
+    var contentSize by remember { mutableStateOf(IntSize.Zero) }
     var isInitialized by remember { mutableStateOf(false) }
 
     val hexSize = 40.dp  // Radius of hexagon (center to corner)
 
     // Initialize viewport to show spawn points (upper left) instead of center
-    LaunchedEffect(containerSize) {
-        if (!isInitialized && containerSize.width > 0 && containerSize.height > 0) {
-            // Position viewport to show the left side of the map where spawn points are
-            // Positive offset moves content to the right, showing the left edge
-            offsetX = containerSize.width * 0.3f
-            offsetY = 0f
+    LaunchedEffect(containerSize, contentSize) {
+        if (!isInitialized && containerSize.width > 0 && containerSize.height > 0 
+            && contentSize.width > 0 && contentSize.height > 0) {
+            // Calculate the maximum offset to show the left edge (spawn points at x=0)
+            // When content is larger than container, we can pan within the range
+            val contentWidth = contentSize.width * scale
+            val contentHeight = contentSize.height * scale
+            
+            if (contentWidth > containerSize.width) {
+                // Set offsetX to maximum positive value to show left edge (spawn points)
+                val maxOffsetX = (contentWidth - containerSize.width) / 2
+                offsetX = maxOffsetX
+            }
+            
+            if (contentHeight > containerSize.height) {
+                // Set offsetY to maximum positive value to show top edge
+                val maxOffsetY = (contentHeight - containerSize.height) / 2
+                offsetY = maxOffsetY
+            }
+            
             isInitialized = true
         }
     }
@@ -120,6 +135,9 @@ fun GameGrid(
             onOffsetChange = { newOffsetX, newOffsetY ->
                 offsetX = newOffsetX
                 offsetY = newOffsetY
+            },
+            onActualContentSizeChange = { newContentSize ->
+                contentSize = newContentSize
             },
             modifier = Modifier.fillMaxSize()
         ) { position ->
