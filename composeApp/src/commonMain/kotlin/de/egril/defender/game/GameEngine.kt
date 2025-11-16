@@ -372,6 +372,16 @@ class GameEngine(private val state: GameState) {
     }
     
     /**
+     * Apply damage to health points when an enemy reaches the target.
+     * Handles variable damage based on enemy type and marks the attacker as defeated.
+     */
+    private fun applyTargetDamage(attacker: Attacker) {
+        val damage = attacker.calculateTargetDamage()
+        state.healthPoints.value = maxOf(0, state.healthPoints.value - damage)
+        attacker.isDefeated.value = true
+    }
+    
+    /**
      * Apply a single movement step for the given attacker.
      */
     fun applyMovement(attackerId: Int, newPosition: Position) {
@@ -443,8 +453,7 @@ class GameEngine(private val state: GameState) {
             
             // Check if reached target
             if (attacker.position.value == state.level.targetPosition) {
-                state.healthPoints.value--
-                attacker.isDefeated.value = true
+                applyTargetDamage(attacker)
             }
             
             // Process dragon greed mechanics if not defeated
@@ -492,8 +501,7 @@ class GameEngine(private val state: GameState) {
             
             // Check if reached target
             if (newPosition == state.level.targetPosition) {
-                state.healthPoints.value--
-                attacker.isDefeated.value = true
+                applyTargetDamage(attacker)
             }
         }
     }
