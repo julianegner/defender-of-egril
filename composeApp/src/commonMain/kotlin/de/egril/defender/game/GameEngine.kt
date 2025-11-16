@@ -53,6 +53,157 @@ class GameEngine(private val state: GameState) {
         mineOperations.checkAndActivateTraps { combatSystem.processDefeatedAttackers() }
     }
     
+    /**
+     * Process dragon greed: eat adjacent units based on greed level.
+     * Called after dragon movement.
+     */
+    private fun processDragonGreed(dragon: Attacker) {
+        if (!dragon.type.isDragon || dragon.greed <= 0) return
+        
+        val dragonPos = dragon.position.value
+        val neighbors = dragonPos.getHexNeighbors()
+        
+        // Find all adjacent units (excluding Ewhad)
+        val adjacentUnits = state.attackers.filter { unit ->
+            unit.id != dragon.id &&
+            !unit.isDefeated.value &&
+            unit.type != AttackerType.EWHAD &&
+            neighbors.contains(unit.position.value)
+        }
+        
+        // Sort by health (eat weakest first) and limit to greed amount
+        val unitsToEat = adjacentUnits.sortedBy { it.currentHealth.value }.take(dragon.greed)
+        
+        for (unit in unitsToEat) {
+            println("Dragon ${dragon.id} (greed ${dragon.greed}) eating adjacent ${unit.type} at ${unit.position.value}, gaining ${unit.currentHealth.value} HP")
+            dragon.currentHealth.value += unit.currentHealth.value
+            unit.isDefeated.value = true
+        }
+        
+        // Update dragon level after eating
+        if (unitsToEat.isNotEmpty()) {
+            dragon.updateDragonLevel()
+        }
+    }
+    
+    /**
+     * Find the nearest mine to a position.
+     * Returns the mine defender and its distance, or null if no mines exist.
+     */
+    private fun findNearestMine(from: Position): Pair<Defender, Int>? {
+        val mines = state.defenders.filter { 
+            it.type == DefenderType.DWARVEN_MINE && 
+            !state.destroyedMinePositions.contains(it.position)
+        }
+        
+        if (mines.isEmpty()) return null
+        
+        return mines.map { mine -> 
+            Pair(mine, from.distanceTo(mine.position))
+        }.minByOrNull { it.second }
+    }
+    
+    /**
+     * Check if dragon should target mines (greed > 5 and mines exist).
+     * Updates dragon's target if needed.
+     */
+    private fun updateDragonMineTargeting(dragon: Attacker) {
+        if (!dragon.type.isDragon || dragon.greed <= 5) {
+            // Not greedy enough, clear mine target if set
+            if (dragon.targetMineId.value != null) {
+                dragon.targetMineId.value = null
+                dragon.currentTarget?.value = if (state.level.waypoints.isNotEmpty()) {
+                    state.level.waypoints.first().position
+                } else {
+                    state.level.targetPosition
+                }
+            }
+            return
+        }
+        
+        // Very greedy - target nearest mine
+        val nearestMine = findNearestMine(dragon.position.value)
+        if (nearestMine != null) {
+            val (mine, _) = nearestMine
+            if (dragon.targetMineId.value != mine.id) {
+                dragon.targetMineId.value = mine.id
+                dragon.currentTarget?.value = mine.position
+                dragon.mineWarningShown.value = false
+                println("Dragon ${dragon.id} (greed ${dragon.greed}) now targeting mine ${mine.id} at ${mine.position}")
+            }
+        } else {
+            // No mines left, go back to normal target
+            if (dragon.targetMineId.value != null) {
+                dragon.targetMineId.value = null
+                dragon.currentTarget?.value = if (state.level.waypoints.isNotEmpty()) {
+                    state.level.waypoints.first().position
+                } else {
+                    state.level.targetPosition
+                }
+                println("Dragon ${dragon.id} no more mines, returning to normal target")
+            }
+        }
+    }
+    
+    /**
+     * Check if dragon is adjacent to its target mine and show warning.
+     */
+    private fun checkMineWarning(dragon: Attacker) {
+        if (dragon.targetMineId.value == null || dragon.mineWarningShown.value) return
+        
+        val targetMine = state.defenders.find { it.id == dragon.targetMineId.value }
+        if (targetMine == null) return
+        
+        val distance = dragon.position.value.distanceTo(targetMine.position)
+        if (distance == 1) {
+            // Dragon is adjacent to mine, show warning
+            if (!state.mineWarnings.contains(targetMine.id)) {
+                state.mineWarnings.add(targetMine.id)
+            }
+            dragon.mineWarningShown.value = true
+            println("Warning: Dragon ${dragon.id} is adjacent to mine ${targetMine.id}!")
+        }
+    }
+    
+    /**
+     * Destroy mine if dragon reaches it.
+     * Dragon gains health equal to a new dragon (500 HP).
+     */
+    private fun checkAndDestroyMine(dragon: Attacker) {
+        if (dragon.targetMineId.value == null) return
+        
+        val targetMine = state.defenders.find { it.id == dragon.targetMineId.value }
+        if (targetMine == null) return
+        
+        // Check if dragon reached the mine position or is adjacent and warning was shown
+        val isAtMine = dragon.position.value == targetMine.position
+        val isAdjacentWithWarning = dragon.position.value.distanceTo(targetMine.position) == 1 && 
+                                     dragon.mineWarningShown.value
+        
+        if (isAdjacentWithWarning) {
+            // Destroy the mine
+            println("Dragon ${dragon.id} destroys mine ${targetMine.id} at ${targetMine.position}")
+            
+            // Add health (same as new dragon base health: 500)
+            val healthGain = AttackerType.DRAGON.health
+            dragon.currentHealth.value += healthGain
+            dragon.updateDragonLevel()
+            
+            // Mark position as destroyed
+            state.destroyedMinePositions.add(targetMine.position)
+            
+            // Remove the mine
+            state.defenders.remove(targetMine)
+            
+            // Remove warning
+            state.mineWarnings.remove(targetMine.id)
+            
+            // Clear target to find next mine
+            dragon.targetMineId.value = null
+            dragon.mineWarningShown.value = false
+        }
+    }
+    
     // Turn Management
     fun startFirstPlayerTurn() {
         if (state.phase.value != GamePhase.INITIAL_BUILDING) return
@@ -284,6 +435,22 @@ class GameEngine(private val state: GameState) {
                 state.healthPoints.value--
                 attacker.isDefeated.value = true
             }
+            
+            // Process dragon greed mechanics if not defeated
+            if (!attacker.isDefeated.value) {
+                // Update mine targeting if greed > 5
+                updateDragonMineTargeting(attacker)
+                
+                // Check for mine warning
+                checkMineWarning(attacker)
+                
+                // Check and destroy mine if applicable
+                checkAndDestroyMine(attacker)
+                
+                // Eat adjacent units based on greed
+                processDragonGreed(attacker)
+            }
+            
             return
         }
         
