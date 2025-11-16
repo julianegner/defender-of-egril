@@ -20,6 +20,7 @@ import de.egril.defender.editor.EditorWaypoint
 import de.egril.defender.editor.WaypointChain
 import de.egril.defender.editor.WaypointValidationResult
 import de.egril.defender.model.Position
+import de.egril.defender.ui.icon.*
 import defender_of_egril.composeapp.generated.resources.*
 
 /**
@@ -155,11 +156,18 @@ private fun WaypointChainNode(
     ) {
         // Arrow indicator (except for first node)
         if (indentLevel > 0) {
-            Text(
-                text = if (isInCircular) "🔴→" else "→",
-                style = MaterialTheme.typography.bodyMedium,
-                color = if (isInCircular) Color.Red else Color.Black
-            )
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(2.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (isInCircular) {
+                    RedCircleIcon(size = 12.dp)
+                }
+                RightArrowIcon(
+                    size = 14.dp,
+                    tint = if (isInCircular) Color.Red else Color.Black
+                )
+            }
         }
         
         // Position and type
@@ -175,17 +183,13 @@ private fun WaypointChainNode(
                 
                 // Warning icons
                 if (isInCircular) {
-                    Text(
-                        text = "⚠",
-                        color = Color.Red,
-                        style = MaterialTheme.typography.bodySmall
+                    WarningIcon(
+                        size = 14.dp
                     )
                 }
                 if (isUnconnected) {
-                    Text(
-                        text = "⚠",
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodySmall
+                    WarningIcon(
+                        size = 14.dp
                     )
                 }
             }
@@ -231,7 +235,7 @@ private fun WaypointChainNode(
         // Delete button (if allowed)
         if (onDelete != null) {
             IconButton(onClick = onDelete) {
-                Text("🗑️", style = MaterialTheme.typography.titleMedium)
+                TrashIcon(size = 20.dp)
             }
         }
     }
@@ -309,10 +313,7 @@ fun QuickAddWaypointDialog(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
-                        Text(
-                            text = "1️⃣",
-                            style = MaterialTheme.typography.titleSmall
-                        )
+                        Number1Icon(size = 18.dp)
                         Text(
                             text = stringResource(Res.string.waypoint_source),
                             style = MaterialTheme.typography.titleSmall
@@ -338,7 +339,7 @@ fun QuickAddWaypointDialog(
                                     )
                                 },
                                 leadingIcon = if (selectedSource == pos) {
-                                    { Text("✓") }
+                                    { CheckmarkIcon(size = 14.dp) }
                                 } else null
                             )
                         }
@@ -355,10 +356,7 @@ fun QuickAddWaypointDialog(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
-                        Text(
-                            text = "2️⃣",
-                            style = MaterialTheme.typography.titleSmall
-                        )
+                        Number2Icon(size = 18.dp)
                         Text(
                             text = stringResource(Res.string.waypoint_target),
                             style = MaterialTheme.typography.titleSmall
@@ -384,7 +382,7 @@ fun QuickAddWaypointDialog(
                                     )
                                 },
                                 leadingIcon = if (selectedTarget == pos) {
-                                    { Text("✓") }
+                                    { CheckmarkIcon(size = 14.dp) }
                                 } else null
                             )
                         }
