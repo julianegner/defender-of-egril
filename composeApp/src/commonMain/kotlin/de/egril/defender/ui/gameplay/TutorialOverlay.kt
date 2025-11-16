@@ -15,7 +15,7 @@ import defender_of_egril.composeapp.generated.resources.*
 
 /**
  * Tutorial card that shows step-by-step instructions in the upper right corner
- * Can also show dragon info when showDragonInfo is true
+ * Can also show dragon info and greed dialogs
  */
 @Composable
 fun TutorialOverlay(
@@ -24,11 +24,32 @@ fun TutorialOverlay(
     onNext: () -> Unit,
     onSkip: () -> Unit,
     showDragonInfo: Boolean = false,
-    onDismissDragonInfo: (() -> Unit)? = null
+    onDismissDragonInfo: (() -> Unit)? = null,
+    showGreedInfo: Boolean = false,
+    onDismissGreedInfo: (() -> Unit)? = null,
+    showVeryGreedyInfo: Boolean = false,
+    onDismissVeryGreedyInfo: (() -> Unit)? = null,
+    showMineWarning: Boolean = false,
+    onDismissMineWarning: (() -> Unit)? = null
 ) {
-    // Show dragon info if requested, otherwise show tutorial
+    // Priority order: Dragon info > Greed info > Very greedy info > Mine warning > Tutorial
     if (showDragonInfo) {
         DragonInfoContent(onDismiss = onDismissDragonInfo ?: {})
+        return
+    }
+    
+    if (showGreedInfo) {
+        GreedInfoContent(onDismiss = onDismissGreedInfo ?: {})
+        return
+    }
+    
+    if (showVeryGreedyInfo) {
+        VeryGreedyInfoContent(onDismiss = onDismissVeryGreedyInfo ?: {})
+        return
+    }
+    
+    if (showMineWarning) {
+        MineWarningContent(onDismiss = onDismissMineWarning ?: {})
         return
     }
     
@@ -214,6 +235,150 @@ private fun DragonInfoContent(onDismiss: () -> Unit) {
             Button(
                 onClick = onDismiss,
                 modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = stringResource(Res.string.got_it),
+                    style = MaterialTheme.typography.labelSmall
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Dragon greed info dialog (greed > 0)
+ */
+@Composable
+private fun GreedInfoContent(onDismiss: () -> Unit) {
+    Card(
+        modifier = Modifier
+            .width(300.dp)
+            .padding(8.dp),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Text(
+                text = stringResource(Res.string.dragon_greed_title),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
+            
+            Text(
+                text = stringResource(Res.string.dragon_greed_message),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            
+            Button(
+                onClick = onDismiss,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = stringResource(Res.string.got_it),
+                    style = MaterialTheme.typography.labelSmall
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Dragon very greedy info dialog (greed > 5)
+ */
+@Composable
+private fun VeryGreedyInfoContent(onDismiss: () -> Unit) {
+    Card(
+        modifier = Modifier
+            .width(300.dp)
+            .padding(8.dp),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Text(
+                text = stringResource(Res.string.dragon_very_greedy_title),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
+            
+            Text(
+                text = stringResource(Res.string.dragon_very_greedy_message),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            
+            Button(
+                onClick = onDismiss,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = stringResource(Res.string.got_it),
+                    style = MaterialTheme.typography.labelSmall
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Mine warning dialog
+ */
+@Composable
+private fun MineWarningContent(onDismiss: () -> Unit) {
+    Card(
+        modifier = Modifier
+            .width(300.dp)
+            .padding(8.dp),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.errorContainer
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Text(
+                text = stringResource(Res.string.mine_warning_title),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.error
+            )
+            
+            Text(
+                text = stringResource(Res.string.mine_warning_message),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onErrorContainer
+            )
+            
+            Button(
+                onClick = onDismiss,
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.error
+                )
             ) {
                 Text(
                     text = stringResource(Res.string.got_it),
