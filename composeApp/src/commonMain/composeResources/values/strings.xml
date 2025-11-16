@@ -399,6 +399,14 @@
     <string name="dragon_info_level">Dragon level increases with health: Level = HP ÷ 500 (min. 1)</string>
     <string name="got_it">Got it!</string>
     
+    <!-- Dragon Greed Info -->
+    <string name="dragon_greed_title">Dragon Greed!</string>
+    <string name="dragon_greed_message">The dragon has grown greedy! Greed = Dragon Level ÷ 5\n\nThe dragon will now devour units on adjacent tiles equal to its greed level each turn.</string>
+    <string name="dragon_very_greedy_title">Dragon Mining Raid!</string>
+    <string name="dragon_very_greedy_message">The dragon is very greedy (greed > 5)!\n\nIt will now hunt down and destroy dwarven mines, absorbing all the health a new dragon would have (500 HP per mine).\n\nMines will become destroyed rubble. Defend them or rebuild quickly!</string>
+    <string name="mine_warning_title">Mine Under Threat!</string>
+    <string name="mine_warning_message">The dragon approaches! The dwarves prepare to defend their mine, but it may not be enough...</string>
+    
     <!-- Dragon Names -->
     <string name="the_dragon">The dragon</string>
     <string name="awakens">awakens</string>
