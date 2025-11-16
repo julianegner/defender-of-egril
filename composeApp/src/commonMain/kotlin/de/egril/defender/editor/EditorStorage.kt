@@ -5,7 +5,10 @@ import de.egril.defender.model.DefenderType
 import de.egril.defender.model.AttackerWave
 import de.egril.defender.model.Level
 import de.egril.defender.model.PlannedEnemySpawn
+import de.egril.defender.model.Position
+import de.egril.defender.model.Waypoint
 import de.egril.defender.model.getHexNeighbors
+import de.egril.defender.model.hexDistanceTo
 
 /**
  * File-based storage for maps and levels
@@ -21,7 +24,7 @@ object EditorStorage {
     private val LEVELS_DIR = "editor/levels"
     private val SEQUENCE_FILE = "editor/sequence.json"
     private val VERSION_FILE = "editor/version.txt"
-    private val CURRENT_VERSION = "3" // Increment when level data format changes
+    private val CURRENT_VERSION = "4" // Increment when level data format changes
     
     // Initialize with converted existing levels
     init {
@@ -254,6 +257,22 @@ object EditorStorage {
         val target = map.getTarget() ?: return null
         println("Target position: $target")
         
+        // Convert editor waypoints to game waypoints
+        val gameWaypoints = editorLevel.waypoints.map { editorWaypoint ->
+            Waypoint(
+                position = editorWaypoint.position,
+                nextTarget = editorWaypoint.nextTargetPosition
+            )
+        }
+        println("Converted ${gameWaypoints.size} waypoints")
+        
+        // Include waypoint positions in pathCells so enemies can walk on them
+        val pathCellsWithWaypoints = map.getPathCells().toMutableSet()
+        gameWaypoints.forEach { waypoint ->
+            pathCellsWithWaypoints.add(waypoint.position)
+        }
+        println("Path cells: ${map.getPathCells().size}, with waypoints: ${pathCellsWithWaypoints.size}")
+        
         return Level(
             id = numericId,
             name = editorLevel.title,
@@ -261,14 +280,15 @@ object EditorStorage {
             gridHeight = map.height,
             startPositions = map.getSpawnPoints(),
             targetPosition = target,
-            pathCells = map.getPathCells(),
+            pathCells = pathCellsWithWaypoints,
             buildIslands = map.getBuildIslands(),
             buildAreas = map.getBuildAreas(),
             attackerWaves = waves,
             initialCoins = editorLevel.startCoins,
             healthPoints = editorLevel.startHealthPoints,
             directSpawnPlan = directSpawnPlan,
-            availableTowers = editorLevel.availableTowers
+            availableTowers = editorLevel.availableTowers,
+            waypoints = gameWaypoints
         )
     }
     
@@ -657,9 +677,142 @@ object EditorStorage {
             }.toSet()
         ))
         
-        // Set initial level sequence (tutorial first!)
+        // Create spiral map - square map with spiral path
+        val spiralMap = MapGenerator.createSpiralMap()
+        val validatedSpiralMap = spiralMap.copy(readyToUse = spiralMap.validateReadyToUse())
+        saveMap(validatedSpiralMap)
+        
+        // Create plains map - simple map with 4 islands
+        val plainsMap = MapGenerator.createPlainsMap()
+        val validatedPlainsMap = plainsMap.copy(readyToUse = plainsMap.validateReadyToUse())
+        saveMap(validatedPlainsMap)
+        
+        // Create dance map - circular dancing path with broken ring
+        val danceMap = MapGenerator.createDanceMap()
+        val validatedDanceMap = danceMap.copy(readyToUse = danceMap.validateReadyToUse())
+        saveMap(validatedDanceMap)
+        
+        // Level 7: The Spiral Challenge
+        saveLevel(EditorLevel(
+            id = "level_7",
+            mapId = "map_spiral",
+            title = "The Spiral Challenge",
+            subtitle = "Navigate the Spiral",
+            startCoins = 250,
+            startHealthPoints = 10,
+            enemySpawns = List(50) { index ->
+                // Mix of enemy types
+                val enemyType = when (index % 5) {
+                    0 -> AttackerType.GOBLIN
+                    1 -> AttackerType.SKELETON
+                    2 -> AttackerType.ORK
+                    3 -> AttackerType.EVIL_WIZARD
+                    else -> AttackerType.WITCH
+                }
+                EditorEnemySpawn(enemyType, 1, index / 6 + 1)
+            },
+            availableTowers = DefenderType.entries.filter { 
+                it != DefenderType.DRAGONS_LAIR 
+            }.toSet()
+        ))
+        
+        // Level 8: The Plains
+        saveLevel(EditorLevel(
+            id = "level_8",
+            mapId = "map_plains",
+            title = "The Plains",
+            subtitle = "Open Field Battle",
+            startCoins = 200,
+            startHealthPoints = 10,
+            enemySpawns = List(40) { index ->
+                // Mix of basic enemy types
+                val enemyType = when (index % 4) {
+                    0 -> AttackerType.GOBLIN
+                    1 -> AttackerType.SKELETON
+                    2 -> AttackerType.ORK
+                    else -> AttackerType.OGRE
+                }
+                EditorEnemySpawn(enemyType, 1, index / 6 + 1)
+            },
+            availableTowers = DefenderType.entries.filter { 
+                it != DefenderType.DRAGONS_LAIR 
+            }.toSet()
+        ))
+        
+        // Level 9: The Dance
+        // Create waypoints for circular dancing pattern
+        // Three circles: outer (radius 18), middle (radius 10), inner (radius 6) -> center
+        val danceCenter = Position(20, 20)
+        
+        // Outermost ring waypoints at distance ~18
+        val outerWaypoints = listOf(
+            Position(38, 20),  // East at distance ~18
+            Position(20, 2),   // North at distance ~18
+            Position(2, 20),   // West at distance ~18
+            Position(20, 38)   // South at distance ~18
+        )
+        // Middle ring waypoints at distance ~10
+        val middleWaypoints = listOf(
+            Position(30, 20),  // East at distance ~10
+            Position(20, 10),  // North at distance ~10
+            Position(10, 20),  // West at distance ~10
+            Position(20, 30)   // South at distance ~10
+        )
+        // Inner ring waypoints at distance ~6
+        val innerWaypoints = listOf(
+            Position(26, 20),  // East at distance ~6
+            Position(20, 14),  // North at distance ~6
+            Position(14, 20),  // West at distance ~6
+            Position(20, 26)   // South at distance ~6
+        )
+        
+        // Create waypoint chain: outer ring (clockwise) -> middle ring (clockwise) -> inner ring (clockwise) -> target
+        val danceWaypoints = listOf(
+            // Outer ring - clockwise circle
+            EditorWaypoint(outerWaypoints[0], outerWaypoints[1]),  // East -> North
+            EditorWaypoint(outerWaypoints[1], outerWaypoints[2]),  // North -> West
+            EditorWaypoint(outerWaypoints[2], outerWaypoints[3]),  // West -> South
+            EditorWaypoint(outerWaypoints[3], middleWaypoints[0]), // South -> Middle East (transition)
+            // Middle ring - clockwise circle
+            EditorWaypoint(middleWaypoints[0], middleWaypoints[1]),  // Middle East -> Middle North
+            EditorWaypoint(middleWaypoints[1], middleWaypoints[2]),  // Middle North -> Middle West
+            EditorWaypoint(middleWaypoints[2], middleWaypoints[3]),  // Middle West -> Middle South
+            EditorWaypoint(middleWaypoints[3], innerWaypoints[0]),   // Middle South -> Inner East (transition)
+            // Inner ring - clockwise circle
+            EditorWaypoint(innerWaypoints[0], innerWaypoints[1]),  // Inner East -> Inner North
+            EditorWaypoint(innerWaypoints[1], innerWaypoints[2]),  // Inner North -> Inner West
+            EditorWaypoint(innerWaypoints[2], innerWaypoints[3]),  // Inner West -> Inner South
+            EditorWaypoint(innerWaypoints[3], danceCenter)         // Inner South -> Target
+        )
+        
+        saveLevel(EditorLevel(
+            id = "level_9",
+            mapId = "map_dance",
+            title = "The Dance",
+            subtitle = "Follow the Rhythm",
+            startCoins = 220,
+            startHealthPoints = 10,
+            enemySpawns = List(45) { index ->
+                // Mix of enemy types with emphasis on speed
+                val enemyType = when (index % 6) {
+                    0 -> AttackerType.GOBLIN
+                    1 -> AttackerType.SKELETON
+                    2 -> AttackerType.GOBLIN
+                    3 -> AttackerType.SKELETON
+                    4 -> AttackerType.ORK
+                    else -> AttackerType.EVIL_WIZARD
+                }
+                EditorEnemySpawn(enemyType, 1, index / 6 + 1)
+            },
+            availableTowers = DefenderType.entries.filter { 
+                it != DefenderType.DRAGONS_LAIR 
+            }.toSet(),
+            waypoints = danceWaypoints
+        ))
+        
+        // Set initial level sequence (tutorial first, then spiral, plains, and dance before final stand!)
         updateLevelSequence(LevelSequence(listOf(
-            "level_tutorial", "level_1", "level_2", "level_3", "level_4", "level_5", "level_6"
+            "level_tutorial", "level_1", "level_2", "level_3", "level_4", "level_7", "level_8", "level_9", "level_5", "level_6"
         )))
         
         // Save version file to indicate successful initialization

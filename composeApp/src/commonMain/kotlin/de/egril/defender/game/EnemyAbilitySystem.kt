@@ -112,7 +112,12 @@ class EnemyAbilitySystem(private val state: GameState) {
             id = state.nextAttackerId.value++,
             type = demonType,
             position = mutableStateOf(spawnPos),
-            level = mutableStateOf(level)
+            level = mutableStateOf(level),
+            currentTarget = mutableStateOf(if (state.level.waypoints.isNotEmpty()) {
+                state.level.waypoints.first().position
+            } else {
+                state.level.targetPosition
+            })
         )
         state.attackers.add(demon)
     }
