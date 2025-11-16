@@ -80,13 +80,12 @@ fun MapEditorHeader(
                 }
             }
 
-            // fixme: zoom deactivated because it breaks the brush painting
-            // ZoomControls(
-            //     map = map,
-            //     zoomLevel = zoomLevel,
-            //     onZoomIn = onZoomIn,
-            //     onZoomOut = onZoomOut
-            // )
+            ZoomControls(
+                map = map,
+                zoomLevel = zoomLevel,
+                onZoomIn = onZoomIn,
+                onZoomOut = onZoomOut
+            )
         }
     }
 }
