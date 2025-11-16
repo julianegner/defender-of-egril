@@ -44,7 +44,8 @@ data class Attacker(
     val dragonTurnsSinceSpawned: MutableState<Int> = mutableStateOf(0), // Track dragon movement state
     val isFlying: MutableState<Boolean> = mutableStateOf(false),  // Track if dragon is flying
     val spawnedFromLairId: Int? = null,  // Track which lair this dragon came from (for dragons only)
-    val dragonName: String? = null  // Dragon's name (for dragons only)
+    val dragonName: String? = null,  // Dragon's name (for dragons only)
+    val currentTarget: MutableState<Position>? = null  // Current target position (waypoint or final target). Null means use level target.
 ) {
     val maxHealth: Int get() = type.health * level.value
     
