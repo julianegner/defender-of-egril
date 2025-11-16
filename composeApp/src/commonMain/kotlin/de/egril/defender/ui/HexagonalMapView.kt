@@ -205,15 +205,17 @@ fun HexagonalMapView(
                 }
             )
             .pointerInput(scale, offsetX, offsetY) {
-                detectDragGestures { _, dragAmount ->
-                    // Apply pan with sensitivity multiplier
-                    val effectiveSensitivity = config.dragPanSensitivity * scale
-                    val newOffsetX = offsetX + (dragAmount.x * effectiveSensitivity)
-                    val newOffsetY = offsetY + (dragAmount.y * effectiveSensitivity)
+                if (config.enablePanNavigation) {
+                    detectDragGestures { _, dragAmount ->
+                        // Apply pan with sensitivity multiplier
+                        val effectiveSensitivity = config.dragPanSensitivity * scale
+                        val newOffsetX = offsetX + (dragAmount.x * effectiveSensitivity)
+                        val newOffsetY = offsetY + (dragAmount.y * effectiveSensitivity)
 
-                    // Constrain pan to keep content visible
-                    val (constrainedX, constrainedY) = constrainOffsets(newOffsetX, newOffsetY, scale)
-                    onOffsetChange(constrainedX, constrainedY)
+                        // Constrain pan to keep content visible
+                        val (constrainedX, constrainedY) = constrainOffsets(newOffsetX, newOffsetY, scale)
+                        onOffsetChange(constrainedX, constrainedY)
+                    }
                 }
                 // Keep detectTransformGestures for pinch-to-zoom on mobile (separate pointerInput to avoid conflicts)
                 if (isPlatformMobile) {
