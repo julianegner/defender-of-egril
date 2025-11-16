@@ -87,6 +87,10 @@ private fun GamePlayScreenContent(
     var currentDragonName by remember { mutableStateOf<String?>(null) }  // Track dragon name for dig outcome
     var showDigOutcomeDialog by remember { mutableStateOf(false) }
     var showDragonInfoDialog by remember { mutableStateOf(false) }  // Dragon info tutorial
+    var showGreedInfoDialog by remember { mutableStateOf(false) }  // Dragon greed tutorial (greed > 0)
+    var showVeryGreedyInfoDialog by remember { mutableStateOf(false) }  // Dragon very greedy tutorial (greed > 5)
+    var showMineWarningDialog by remember { mutableStateOf(false) }  // Mine warning dialog
+    var warningMineId by remember { mutableStateOf<Int?>(null) }  // Track which mine has warning
     var showOverlay by remember { mutableStateOf(false) }  // MutableState for overlay visibility
     var showSaveDialog by remember { mutableStateOf(false) }  // Save dialog with comment
     var saveCommentInput by remember { mutableStateOf("") }  // Comment input for save
@@ -125,6 +129,34 @@ private fun GamePlayScreenContent(
         val hasDragon = gameState.attackers.any { it.type.isDragon && !it.isDefeated.value }
         if (hasDragon && !gameState.hasSeenDragonInfo.value) {
             showDragonInfoDialog = true
+        }
+    }
+    
+    // Check for dragon greed (greed > 0) and show tutorial
+    LaunchedEffect(gameState.attackers.size, gameState.hasSeenGreedInfo.value) {
+        val hasGreedyDragon = gameState.attackers.any { 
+            it.type.isDragon && !it.isDefeated.value && it.greed > 0 
+        }
+        if (hasGreedyDragon && !gameState.hasSeenGreedInfo.value) {
+            showGreedInfoDialog = true
+        }
+    }
+    
+    // Check for very greedy dragon (greed > 5) and show tutorial
+    LaunchedEffect(gameState.attackers.size, gameState.hasSeenVeryGreedyInfo.value) {
+        val hasVeryGreedyDragon = gameState.attackers.any { 
+            it.type.isDragon && !it.isDefeated.value && it.greed > 5 
+        }
+        if (hasVeryGreedyDragon && !gameState.hasSeenVeryGreedyInfo.value) {
+            showVeryGreedyInfoDialog = true
+        }
+    }
+    
+    // Check for mine warnings
+    LaunchedEffect(gameState.mineWarnings.size) {
+        if (gameState.mineWarnings.isNotEmpty()) {
+            warningMineId = gameState.mineWarnings.first()
+            showMineWarningDialog = true
         }
     }
 
@@ -301,7 +333,8 @@ private fun GamePlayScreenContent(
             }
             
             // Tutorial card (positioned in upper right corner)
-            if (gameState.tutorialState.value.shouldShowOverlay() || showDragonInfoDialog) {
+            if (gameState.tutorialState.value.shouldShowOverlay() || showDragonInfoDialog || 
+                showGreedInfoDialog || showVeryGreedyInfoDialog || showMineWarningDialog) {
                 // Check if we should allow skipping attack step
                 // (tower has no actions left or can't reach any enemies)
                 if (gameState.tutorialState.value.currentStep == TutorialStep.ATTACKING &&
@@ -345,6 +378,22 @@ private fun GamePlayScreenContent(
                         onDismissDragonInfo = {
                             showDragonInfoDialog = false
                             gameState.hasSeenDragonInfo.value = true
+                        },
+                        showGreedInfo = showGreedInfoDialog,
+                        onDismissGreedInfo = {
+                            showGreedInfoDialog = false
+                            gameState.hasSeenGreedInfo.value = true
+                        },
+                        showVeryGreedyInfo = showVeryGreedyInfoDialog,
+                        onDismissVeryGreedyInfo = {
+                            showVeryGreedyInfoDialog = false
+                            gameState.hasSeenVeryGreedyInfo.value = true
+                        },
+                        showMineWarning = showMineWarningDialog,
+                        onDismissMineWarning = {
+                            showMineWarningDialog = false
+                            warningMineId?.let { gameState.mineWarnings.remove(it) }
+                            warningMineId = null
                         }
                     )
                 }
