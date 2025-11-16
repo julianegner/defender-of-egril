@@ -146,7 +146,8 @@ class GameEngine(private val state: GameState) {
     }
     
     /**
-     * Check if dragon is adjacent to its target mine and show warning.
+     * Check if dragon can reach its target mine in the next turn and show warning.
+     * Warning is shown when dragon could reach mine on next move based on its movement pattern.
      */
     private fun checkMineWarning(dragon: Attacker) {
         if (dragon.targetMineId.value == null || dragon.mineWarningShown.value) return
@@ -154,14 +155,26 @@ class GameEngine(private val state: GameState) {
         val targetMine = state.defenders.find { it.id == dragon.targetMineId.value }
         if (targetMine == null) return
         
-        val distance = dragon.position.value.distanceTo(targetMine.position)
-        if (distance == 1) {
-            // Dragon is adjacent to mine, show warning
+        // Calculate if dragon can reach mine in next turn
+        // Dragon alternates: odd turns walk (1 tile), even turns fly (5 tiles)
+        val nextTurnNumber = dragon.dragonTurnsSinceSpawned.value + 1
+        val isNextTurnOdd = nextTurnNumber % 2 == 1
+        val nextTurnSpeed = if (isNextTurnOdd) 1 else 5  // Walking or flying
+        
+        val currentPos = dragon.position.value
+        val minePos = targetMine.position
+        val distance = currentPos.distanceTo(minePos)
+        
+        // Check if dragon can reach mine with next turn's movement
+        val canReachNextTurn = distance <= nextTurnSpeed
+        
+        if (canReachNextTurn) {
+            // Dragon can reach mine next turn, show warning
             if (!state.mineWarnings.contains(targetMine.id)) {
                 state.mineWarnings.add(targetMine.id)
             }
             dragon.mineWarningShown.value = true
-            println("Warning: Dragon ${dragon.id} is adjacent to mine ${targetMine.id}!")
+            println("Warning: Dragon ${dragon.id} can reach mine ${targetMine.id} next turn! (distance: $distance, next speed: $nextTurnSpeed)")
         }
     }
     
@@ -175,13 +188,11 @@ class GameEngine(private val state: GameState) {
         val targetMine = state.defenders.find { it.id == dragon.targetMineId.value }
         if (targetMine == null) return
         
-        // Check if dragon reached the mine position or is adjacent and warning was shown
+        // Check if dragon reached the mine position (now dragons can move to mine tiles)
         val isAtMine = dragon.position.value == targetMine.position
-        val isAdjacentWithWarning = dragon.position.value.distanceTo(targetMine.position) == 1 && 
-                                     dragon.mineWarningShown.value
         
-        if (isAdjacentWithWarning) {
-            // Destroy the mine
+        if (isAtMine && dragon.mineWarningShown.value) {
+            // Destroy the mine - dragon has reached it and warning was already shown
             println("Dragon ${dragon.id} destroys mine ${targetMine.id} at ${targetMine.position}")
             
             // Add health (same as new dragon base health: 500)
