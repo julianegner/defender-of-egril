@@ -162,13 +162,17 @@ class PathfindingSystem(private val state: GameState) {
         return pos.getHexNeighbors().filter { neighbor ->
             neighbor.x >= 0 && neighbor.x < state.level.gridWidth &&
             neighbor.y >= 0 && neighbor.y < state.level.gridHeight &&
-            (state.level.isOnPath(neighbor) || neighbor == state.level.targetPosition || isGoalMineForDragon(neighbor, goal, attacker)) &&
+            (state.level.isOnPath(neighbor) || 
+             neighbor == state.level.targetPosition || 
+             isGoalMineForDragon(neighbor, goal, attacker) ||
+             isDestroyedMinePosition(neighbor)) &&
             !isBlocked(neighbor)
         }
     }
     
     /**
      * Check if the position is the goal and it's a mine being targeted by a dragon.
+     * This allows dragons to path to mines even if surrounded by non-playable tiles.
      */
     private fun isGoalMineForDragon(pos: Position, goal: Position, attacker: Attacker?): Boolean {
         if (pos != goal) return false
@@ -184,6 +188,14 @@ class PathfindingSystem(private val state: GameState) {
         return mine != null
     }
     
+    /**
+     * Check if the position is a destroyed mine.
+     * Destroyed mine positions are always valid for dragons to move through.
+     */
+    private fun isDestroyedMinePosition(pos: Position): Boolean {
+        return state.destroyedMinePositions.contains(pos)
+    }
+    
     private fun isBlocked(pos: Position): Boolean {
         // Check if position has a build island (these block enemies)
         return state.level.isBuildIsland(pos)
@@ -197,7 +209,10 @@ class PathfindingSystem(private val state: GameState) {
         val validNeighbors = hexNeighbors.filter { neighbor ->
             neighbor.x >= 0 && neighbor.x < state.level.gridWidth &&
             neighbor.y >= 0 && neighbor.y < state.level.gridHeight &&
-            (state.level.isOnPath(neighbor) || neighbor == state.level.targetPosition || isGoalMineForDragon(neighbor, to, attacker)) &&
+            (state.level.isOnPath(neighbor) || 
+             neighbor == state.level.targetPosition || 
+             isGoalMineForDragon(neighbor, to, attacker) ||
+             isDestroyedMinePosition(neighbor)) &&
             !isBlocked(neighbor)
         }
         
