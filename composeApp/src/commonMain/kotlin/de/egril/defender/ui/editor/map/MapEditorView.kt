@@ -97,7 +97,7 @@ fun MapEditorView(
                         enablePanNavigation = false,  // Disable pan navigation (use brush mode instead)
                         enableBrushMode = true,  // Enable brush mode for tile painting
                         keyboardPanSpeed = 50f,  // Increased for better responsiveness
-                        enableZoomMode = false // fixme: zoom deactivated because it breaks the brush painting
+                        enableZoomMode = true  // Zoom now works with brush painting
                     ),
                     scale = zoomLevel,
                     offsetX = offsetX,
@@ -112,14 +112,17 @@ fun MapEditorView(
                     modifier = Modifier
                         .fillMaxSize()
                         .onSizeChanged { containerSize = it }
-                        .pointerInput(containerSize, actualContentSize) {
+                        .pointerInput(containerSize, actualContentSize, zoomLevel) {
                             detectDragGestures { change, _ ->
                                 val pointerPos = change.position
 
                                 // Adjust pointer position for centering
                                 // When content is smaller than container, it's centered
-                                val adjustedX = pointerPos.x - (containerSize.width - actualContentSize.width) / 2f
-                                val adjustedY = pointerPos.y - (containerSize.height - actualContentSize.height) / 2f
+                                // The centering must account for the scaled content size
+                                val scaledWidth = actualContentSize.width * zoomLevel
+                                val scaledHeight = actualContentSize.height * zoomLevel
+                                val adjustedX = pointerPos.x - (containerSize.width - scaledWidth) / 2f
+                                val adjustedY = pointerPos.y - (containerSize.height - scaledHeight) / 2f
                                 val adjustedPointerPos = Offset(adjustedX, adjustedY)
 
                                 val tilePos = screenToHexGridPosition(adjustedPointerPos, offsetX, offsetY, zoomLevel, hexSizePx)
