@@ -206,9 +206,10 @@ fun HexagonalMapView(
             )
             .then(
                 if (config.enablePanNavigation) {
-                    Modifier.pointerInput(scale, offsetX, offsetY) {
+                    Modifier.pointerInput(Unit) {
                         detectDragGestures { _, dragAmount ->
                             // Apply pan directly without scale multiplication to avoid juddering
+                            // Use current values captured in the lambda closure
                             val newOffsetX = offsetX + dragAmount.x
                             val newOffsetY = offsetY + dragAmount.y
 
@@ -223,7 +224,7 @@ fun HexagonalMapView(
             )
             .then(
                 if (isPlatformMobile) {
-                    Modifier.pointerInput(scale, offsetX, offsetY) {
+                    Modifier.pointerInput(Unit) {
                         detectTransformGestures { _, _, zoom, _ ->
                             if (zoom != 1f) {
                                 val newScale = (scale * zoom).coerceIn(config.minScale, config.maxScale)
