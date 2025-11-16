@@ -45,9 +45,25 @@ data class Attacker(
     val isFlying: MutableState<Boolean> = mutableStateOf(false),  // Track if dragon is flying
     val spawnedFromLairId: Int? = null,  // Track which lair this dragon came from (for dragons only)
     val dragonName: String? = null,  // Dragon's name (for dragons only)
-    val currentTarget: MutableState<Position>? = null  // Current target position (waypoint or final target). Null means use level target.
+    val currentTarget: MutableState<Position>? = null,  // Current target position (waypoint or final target). Null means use level target.
+    val targetMineId: MutableState<Int?> = mutableStateOf(null),  // ID of mine being targeted (for greedy dragons)
+    val mineWarningShown: MutableState<Boolean> = mutableStateOf(false)  // Track if mine warning has been shown for current target
 ) {
     val maxHealth: Int get() = type.health * level.value
+    
+    /**
+     * Calculate dragon's greed level based on its level.
+     * Greed = level / 5
+     * Level 0-4: greed = 0
+     * Level 5-9: greed = 1
+     * Level 10-14: greed = 2, etc.
+     */
+    val greed: Int get() = if (type.isDragon) level.value / 5 else 0
+    
+    /**
+     * Check if dragon is very greedy (greed > 5, meaning level > 25)
+     */
+    val isVeryGreedy: Boolean get() = greed > 5
     
     // Helper to check if this enemy can be damaged by specific attack types
     fun canBeDamagedByAcid(): Boolean = !type.immuneToAcid
