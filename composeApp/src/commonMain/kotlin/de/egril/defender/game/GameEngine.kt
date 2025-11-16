@@ -108,7 +108,8 @@ class GameEngine(private val state: GameState) {
                 id = state.nextAttackerId.value++,
                 type = plannedSpawn.attackerType,
                 position = mutableStateOf(spawnPos),
-                level = mutableStateOf(plannedSpawn.level)
+                level = mutableStateOf(plannedSpawn.level),
+                currentTarget = mutableStateOf(enemyMovement.getInitialTarget())
             )
             state.attackers.add(attacker)
         }
@@ -161,7 +162,8 @@ class GameEngine(private val state: GameState) {
                 // Check if this attacker has more moves left
                 if (stepIndex >= attacker.type.speed) continue
                 
-                val target = state.level.targetPosition
+                // Use the attacker's current target if set, otherwise use level target
+                val target = attacker.currentTarget?.value ?: state.level.targetPosition
                 val path = pathfinding.findPath(currentPos, target, attacker)
                 
                 if (path.size < 2) continue  // No movement possible
@@ -243,6 +245,15 @@ class GameEngine(private val state: GameState) {
                 attacker.updateDragonLevel()  // Update level based on new health
                 unitAtPosition.isDefeated.value = true
                 attacker.position.value = newPosition
+                
+                // Check if reached a waypoint and update target
+                if (state.level.isWaypoint(newPosition)) {
+                    val waypoint = state.level.getWaypointAt(newPosition)
+                    if (waypoint != null && attacker.currentTarget != null) {
+                        attacker.currentTarget.value = waypoint.nextTarget
+                        println("Dragon ${attacker.id} reached waypoint at $newPosition, next target: ${waypoint.nextTarget}")
+                    }
+                }
             } else if (unitAtPosition != null && unitAtPosition.type == AttackerType.EWHAD) {
                 // Can't land on Ewhad, try to find alternate position
                 val alternatePos = newPosition.getHexNeighbors()
@@ -255,6 +266,15 @@ class GameEngine(private val state: GameState) {
                 if (alternatePos != null) {
                     println("Dragon ${attacker.id} can't land on Ewhad, moving to alternate position $alternatePos")
                     attacker.position.value = alternatePos
+                    
+                    // Check if reached a waypoint and update target
+                    if (state.level.isWaypoint(alternatePos)) {
+                        val waypoint = state.level.getWaypointAt(alternatePos)
+                        if (waypoint != null && attacker.currentTarget != null) {
+                            attacker.currentTarget.value = waypoint.nextTarget
+                            println("Dragon ${attacker.id} reached waypoint at $alternatePos, next target: ${waypoint.nextTarget}")
+                        }
+                    }
                 } else {
                     println("Dragon ${attacker.id} blocked by Ewhad at $newPosition, staying in place")
                     // Stay in current position
@@ -262,6 +282,16 @@ class GameEngine(private val state: GameState) {
             } else {
                 // No unit at target position, move normally
                 attacker.position.value = newPosition
+            }
+            
+            // Check if reached a waypoint and update target
+            if (state.level.isWaypoint(attacker.position.value)) {
+                val waypoint = state.level.getWaypointAt(attacker.position.value)
+                if (waypoint != null && attacker.currentTarget != null) {
+                    // Update target to the next waypoint or final target
+                    attacker.currentTarget.value = waypoint.nextTarget
+                    println("Dragon ${attacker.id} reached waypoint at ${attacker.position.value}, next target: ${waypoint.nextTarget}")
+                }
             }
             
             // Check if reached target
@@ -285,6 +315,16 @@ class GameEngine(private val state: GameState) {
         // Only move if position is not occupied
         if (!isOccupied) {
             attacker.position.value = newPosition
+            
+            // Check if reached a waypoint and update target
+            if (state.level.isWaypoint(newPosition)) {
+                val waypoint = state.level.getWaypointAt(newPosition)
+                if (waypoint != null && attacker.currentTarget != null) {
+                    // Update target to the next waypoint or final target
+                    attacker.currentTarget.value = waypoint.nextTarget
+                    println("Attacker ${attacker.id} reached waypoint at $newPosition, next target: ${waypoint.nextTarget}")
+                }
+            }
             
             // Check if reached target
             if (newPosition == state.level.targetPosition) {
@@ -518,7 +558,8 @@ class GameEngine(private val state: GameState) {
             type = type,
             position = mutableStateOf(spawnPos),
             currentHealth = mutableStateOf(scaledHealth),
-            dragonName = if (type.isDragon) DragonNames.getRandomName() else null
+            dragonName = if (type.isDragon) DragonNames.getRandomName() else null,
+            currentTarget = mutableStateOf(enemyMovement.getInitialTarget())
         )
         
         // Add to attackers list
