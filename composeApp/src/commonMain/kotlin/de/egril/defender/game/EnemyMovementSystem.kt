@@ -198,7 +198,10 @@ class EnemyMovementSystem(
         println("Speed: $speed")
         println("Start position: $startPos")
         
-        val target = state.level.targetPosition
+        // Use currentTarget if set (for mine targeting), otherwise use level target
+        val target = dragon.currentTarget?.value ?: state.level.targetPosition
+        println("Target: $target")
+        
         val result = mutableListOf<Position>()
         
         // For flying, calculate the target position using BFS
@@ -207,17 +210,33 @@ class EnemyMovementSystem(
             val currentDistToTarget = currentPos.distanceTo(target)
             
             // Get all positions on path within flying range (up to 5 tiles away)
+            // Also include mine position if it's the target, and destroyed mine positions
             val reachablePathPositions = mutableListOf<Pair<Position, Int>>()
             
             // BFS to find all positions within 5 hexagonal distance
             val visited = mutableSetOf(currentPos)
             val queue = mutableListOf(Pair(currentPos, 0))
             
+            // Check if target is a mine being targeted by this dragon
+            val targetMine = state.defenders.find { 
+                it.type == DefenderType.DWARVEN_MINE && 
+                it.position == target &&
+                dragon.targetMineId.value == it.id
+            }
+            
             while (queue.isNotEmpty()) {
                 val (pos, dist) = queue.removeAt(0)
                 
-                // Check if this position is on path
-                if (pos != currentPos && state.level.isOnPath(pos)) {
+                // Check if this position is on path OR is the target mine OR is a destroyed mine position
+                val isValidPosition = if (pos != currentPos) {
+                    state.level.isOnPath(pos) || 
+                    (targetMine != null && pos == target) ||
+                    state.destroyedMinePositions.contains(pos)
+                } else {
+                    false
+                }
+                
+                if (isValidPosition) {
                     reachablePathPositions.add(Pair(pos, dist))
                 }
                 
@@ -284,6 +303,15 @@ class EnemyMovementSystem(
         return result
     }
     
+    /**
+     * Apply damage to health points when an enemy reaches the target.
+     * Handles variable damage based on enemy type and marks the attacker as defeated.
+     */
+    private fun applyTargetDamage(attacker: Attacker) {
+        val damage = attacker.calculateTargetDamage()
+        state.healthPoints.value = maxOf(0, state.healthPoints.value - damage)
+        attacker.isDefeated.value = true
+    }
 
     fun moveGoblinsAfterSpawn() {
         // Move only goblins that just spawned (those still at spawn points)
@@ -323,8 +351,7 @@ class EnemyMovementSystem(
                 
                 // Check if reached target
                 if (attacker.position.value == target) {
-                    state.healthPoints.value--
-                    attacker.isDefeated.value = true
+                    applyTargetDamage(attacker)
                     break
                 }
             }

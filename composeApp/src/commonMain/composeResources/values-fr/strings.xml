@@ -135,7 +135,7 @@
     <string name="acid_desc">Acide: Dégâts continus pendant 3 tours dans un rayon de 1 case de l\'impact</string>
     <string name="victory_defeat">Victoire &amp; Défaite</string>
     <string name="victory_detail">Victoire: Vaincre tous les ennemis dans toutes les vagues avec au moins 1 point de santé restant</string>
-    <string name="defeat_detail">Défaite: Chaque ennemi atteignant la cible coûte 1 point de santé. À 0 point de santé, vous perdez.</string>
+    <string name="defeat_detail">Défaite: Les ennemis faibles (gobelins, orcs, ogres, squelettes) coûtent 1 point de santé en atteignant la cible. Les ennemis puissants (sorciers, sorcières, mages maléfiques, démons, dragons) coûtent des points de santé égaux à leur niveau. Ewhad coûte tous vos points de santé. À 0 point de santé, vous perdez.</string>
     <string name="grid_legend">Légende de la grille</string>
     <string name="spawn_desc">Spawn: Position de départ (les ennemis apparaissent)</string>
     <string name="target_desc">Cible: Position cible (défendez ceci!)</string>
@@ -363,7 +363,7 @@
     <string name="tutorial_welcome_title">Bienvenue dans Defender of Egril!</string>
     <string name="tutorial_welcome">Ceci est un jeu de défense de tours. Votre objectif est d'empêcher les ennemis d'atteindre la cible en construisant des tours défensives.</string>
     <string name="tutorial_resources_title">Ressources</string>
-    <string name="tutorial_resources">Vous avez des pièces pour construire des tours et des points de vie. Chaque ennemi atteignant la cible coûte 1 PV.</string>
+    <string name="tutorial_resources">Vous avez des pièces pour construire des tours et des points de vie. Les ennemis faibles coûtent 1 PV, mais les ennemis puissants (sorciers, sorcières, mages maléfiques, démons, dragons) coûtent des PV égaux à leur niveau. Ewhad coûte tous vos PV!</string>
     <string name="tutorial_towers_title">Tours disponibles</string>
     <string name="tutorial_towers">Tour à Piques: Courte portée, bon marché\nTour de Lance: Portée moyenne\nTour d'Arc: Longue portée\n\nChoisissez judicieusement selon votre stratégie!</string>
     <string name="tutorial_build_title">Construire des tours</string>
@@ -402,4 +402,33 @@
     <string name="the_dragon">Le dragon</string>
     <string name="awakens">se réveille</string>
     <string name="lair_of_the_dragon">Repaire du Dragon</string>
+
+    <!-- Dragon Greed Info -->
+    <string name="dragon_greed_title">Avidité du Dragon !</string>
+    <string name="dragon_greed_message">Le dragon est devenu avide ! Avidité = Niveau du Dragon ÷ 5\n\nLe dragon dévorera désormais des unités sur les tuiles adjacentes selon son niveau d\'avidité à chaque tour.</string>
+    <string name="dragon_very_greedy_title">Raid Minier du Dragon !</string>
+    <string name="dragon_very_greedy_message">Le dragon est très avide (avidité > 5) !\n\nIl va maintenant traquer et détruire les mines naines, absorbant toute la santé qu\'aurait un nouveau dragon (500 PV par mine).\n\nLes mines deviendront des décombres détruits. Défendez-les ou reconstruisez rapidement !</string>
+    <string name="mine_warning_title">Mine Menacée !</string>
+    <string name="mine_warning_message">Le dragon approche ! Les nains se préparent à défendre leur mine, mais cela pourrait ne pas suffire...</string>
+<!-- Waypoint Editor -->
+    <string name="waypoints_tab">Points de Passage</string>
+    <string name="waypoints_title">Connexions des Points de Passage</string>
+    <string name="waypoints_description">Configurez les connexions des points de passage pour ce niveau. Les points de passage définissent le chemin que suivront les ennemis.</string>
+    <string name="waypoint_source">Source</string>
+    <string name="waypoint_target">Cible</string>
+    <string name="add_waypoint">➕ Ajouter un Point de Passage</string>
+    <string name="delete_waypoint">Supprimer</string>
+    <string name="no_waypoints_configured">Aucun point de passage configuré pour ce niveau.</string>
+    <string name="available_waypoint_tiles">Tuiles de points de passage disponibles sur la carte : %d</string>
+    <string name="waypoint_validation_success">✓ La configuration des points de passage est valide</string>
+    <string name="waypoint_validation_error">✗ La configuration des points de passage contient des erreurs</string>
+    <string name="circular_dependency_detected">Dépendance circulaire détectée ! Corrigez les connexions des points de passage.</string>
+    <string name="waypoint_position_format">Position (%d, %d)</string>
+    <string name="spawn_point_text">Point d\'Apparition</string>
+    <string name="target_text">Cible</string>
+    <string name="select_source_position">Sélectionner la position source</string>
+    <string name="select_target_position">Sélectionner la position cible</string>
+    <string name="waypoint_exists_error">Une connexion de point de passage depuis cette position existe déjà</string>
+    <string name="remove_all_waypoints">Tout Supprimer</string>
+    <string name="confirm_remove_all_waypoints">Êtes-vous sûr de vouloir supprimer toutes les connexions de points de passage ?</string>
 </resources>

@@ -135,7 +135,7 @@
     <string name="acid_desc">Acid: Continuous damage for 3 turns within 1 cell of impact</string>
     <string name="victory_defeat">Victory &amp; Defeat</string>
     <string name="victory_detail">Victory: Defeat all enemies in all waves with at least 1 HP remaining</string>
-    <string name="defeat_detail">Defeat: Each enemy reaching the target costs 1 HP. At 0 HP, you lose.</string>
+    <string name="defeat_detail">Defeat: Weak enemies (goblins, orks, ogres, skeletons) cost 1 HP when reaching the target. Mighty enemies (wizards, witches, mages, demons, dragons) cost HP equal to their level. Ewhad costs all your HP. At 0 HP, you lose.</string>
     <string name="grid_legend">Grid Legend</string>
     <string name="spawn_desc">Spawn: Start position (enemies spawn)</string>
     <string name="target_desc">Target: Target position (defend this!)</string>
@@ -363,7 +363,7 @@
     <string name="tutorial_welcome_title">Welcome to Defender of Egril!</string>
     <string name="tutorial_welcome">This is a tower defense game. Your goal is to stop enemies from reaching the target by building defensive towers.</string>
     <string name="tutorial_resources_title">Resources</string>
-    <string name="tutorial_resources">You have coins to build towers and health points. Each enemy reaching the target costs 1 HP.</string>
+    <string name="tutorial_resources">You have coins to build towers and health points. Weak enemies cost 1 HP, but mighty enemies (wizards, witches, mages, demons, dragons) cost HP equal to their level. Ewhad costs all your HP!</string>
     <string name="tutorial_towers_title">Available Towers</string>
     <string name="tutorial_towers">Spike Tower: Close range, cheap\nSpear Tower: Medium range\nBow Tower: Long range\n\nChoose wisely based on your strategy!</string>
     <string name="tutorial_build_title">Building Towers</string>
@@ -405,8 +405,38 @@
     <string name="dragon_info_level">Dragon level increases with health: Level = HP ÷ 500 (min. 1)</string>
     <string name="got_it">Got it!</string>
     
+    <!-- Dragon Greed Info -->
+    <string name="dragon_greed_title">Dragon Greed!</string>
+    <string name="dragon_greed_message">The dragon has grown greedy! Greed = Dragon Level ÷ 5\n\nThe dragon will now devour units on adjacent tiles equal to its greed level each turn.</string>
+    <string name="dragon_very_greedy_title">Dragon Mining Raid!</string>
+    <string name="dragon_very_greedy_message">The dragon is very greedy (greed > 5)!\n\nIt will now hunt down and destroy dwarven mines, absorbing all the health a new dragon would have (500 HP per mine).\n\nMines will become destroyed rubble. Defend them or rebuild quickly!</string>
+    <string name="mine_warning_title">Mine Under Threat!</string>
+    <string name="mine_warning_message">The dragon approaches! The dwarves prepare to defend their mine, but it may not be enough...</string>
+    
     <!-- Dragon Names -->
     <string name="the_dragon">The dragon</string>
     <string name="awakens">awakens</string>
     <string name="lair_of_the_dragon">Lair of the Dragon</string>
+
+<!-- Waypoint Editor -->
+    <string name="waypoints_tab">Waypoints</string>
+    <string name="waypoints_title">Waypoint Connections</string>
+    <string name="waypoints_description">Configure waypoint connections for this level. Waypoints define the path enemies will follow.</string>
+    <string name="waypoint_source">Source</string>
+    <string name="waypoint_target">Target</string>
+    <string name="add_waypoint">➕ Add Waypoint</string>
+    <string name="delete_waypoint">Delete</string>
+    <string name="no_waypoints_configured">No waypoints configured for this level.</string>
+    <string name="available_waypoint_tiles">Available waypoint tiles from map: %d</string>
+    <string name="waypoint_validation_success">✓ Waypoint configuration is valid</string>
+    <string name="waypoint_validation_error">✗ Waypoint configuration has errors</string>
+    <string name="circular_dependency_detected">Circular dependency detected! Fix waypoint connections.</string>
+    <string name="waypoint_position_format">Position (%d, %d)</string>
+    <string name="spawn_point_text">Spawn Point</string>
+    <string name="target_text">Target</string>
+    <string name="select_source_position">Select source position</string>
+    <string name="select_target_position">Select target position</string>
+    <string name="waypoint_exists_error">A waypoint connection from this position already exists</string>
+    <string name="remove_all_waypoints">Remove All</string>
+    <string name="confirm_remove_all_waypoints">Are you sure you want to remove all waypoint connections?</string>
 </resources>
