@@ -411,4 +411,26 @@
     <string name="the_dragon">The dragon</string>
     <string name="awakens">awakens</string>
     <string name="lair_of_the_dragon">Lair of the Dragon</string>
+
+<!-- Waypoint Editor -->
+    <string name="waypoints_tab">Waypoints</string>
+    <string name="waypoints_title">Waypoint Connections</string>
+    <string name="waypoints_description">Configure waypoint connections for this level. Waypoints define the path enemies will follow.</string>
+    <string name="waypoint_source">Source</string>
+    <string name="waypoint_target">Target</string>
+    <string name="add_waypoint">➕ Add Waypoint</string>
+    <string name="delete_waypoint">Delete</string>
+    <string name="no_waypoints_configured">No waypoints configured for this level.</string>
+    <string name="available_waypoint_tiles">Available waypoint tiles from map: %d</string>
+    <string name="waypoint_validation_success">✓ Waypoint configuration is valid</string>
+    <string name="waypoint_validation_error">✗ Waypoint configuration has errors</string>
+    <string name="circular_dependency_detected">Circular dependency detected! Fix waypoint connections.</string>
+    <string name="waypoint_position_format">Position (%d, %d)</string>
+    <string name="spawn_point_text">Spawn Point</string>
+    <string name="target_text">Target</string>
+    <string name="select_source_position">Select source position</string>
+    <string name="select_target_position">Select target position</string>
+    <string name="waypoint_exists_error">A waypoint connection from this position already exists</string>
+    <string name="remove_all_waypoints">Remove All</string>
+    <string name="confirm_remove_all_waypoints">Are you sure you want to remove all waypoint connections?</string>
 </resources>
