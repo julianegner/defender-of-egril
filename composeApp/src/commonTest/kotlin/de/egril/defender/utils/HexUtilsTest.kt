@@ -109,4 +109,95 @@ class HexUtilsTest {
         )
         assertEquals(Position(1, 0), result, "Position closer to (1,0) should map to Position(1, 0)")
     }
+    
+    /**
+     * Test screenToHexGridPosition with various zoom levels
+     * This test validates that the coordinate conversion works correctly with zoom
+     */
+    @Test
+    fun testScreenToHexGridPosition_variousZoomLevels() {
+        val hexSize = 40f
+        val offsetX = 0f
+        val offsetY = 0f
+        
+        // Position(0, 0) center in content space: (34.64, 41.00)
+        val contentX = 34.64f
+        val contentY = 41.00f
+        
+        // Test with zoom = 0.5x (zoomed out)
+        var zoomLevel = 0.5f
+        var screenX = contentX * zoomLevel + offsetX  // 17.32
+        var screenY = contentY * zoomLevel + offsetY  // 20.5
+        var result = screenToHexGridPosition(
+            Offset(screenX, screenY),
+            offsetX, offsetY, zoomLevel, hexSize
+        )
+        assertEquals(Position(0, 0), result, "Should map to Position(0, 0) at zoom 0.5x")
+        
+        // Test with zoom = 1.5x (zoomed in)
+        zoomLevel = 1.5f
+        screenX = contentX * zoomLevel + offsetX  // 51.96
+        screenY = contentY * zoomLevel + offsetY  // 61.5
+        result = screenToHexGridPosition(
+            Offset(screenX, screenY),
+            offsetX, offsetY, zoomLevel, hexSize
+        )
+        assertEquals(Position(0, 0), result, "Should map to Position(0, 0) at zoom 1.5x")
+        
+        // Test with zoom = 3.0x (max zoom)
+        zoomLevel = 3.0f
+        screenX = contentX * zoomLevel + offsetX  // 103.92
+        screenY = contentY * zoomLevel + offsetY  // 123.0
+        result = screenToHexGridPosition(
+            Offset(screenX, screenY),
+            offsetX, offsetY, zoomLevel, hexSize
+        )
+        assertEquals(Position(0, 0), result, "Should map to Position(0, 0) at zoom 3.0x")
+    }
+    
+    /**
+     * Test screenToHexGridPosition with zoom and centering adjustment
+     * This simulates what happens in MapEditorView when content is centered
+     */
+    @Test
+    fun testScreenToHexGridPosition_withZoomAndCentering() {
+        val hexSize = 40f
+        val zoomLevel = 2.0f
+        
+        // Simulate container and content sizes
+        val containerWidth = 800f
+        val containerHeight = 600f
+        val contentWidth = 400f
+        val contentHeight = 300f
+        
+        // Calculate scaled dimensions
+        val scaledWidth = contentWidth * zoomLevel  // 800
+        val scaledHeight = contentHeight * zoomLevel  // 600
+        
+        // Calculate centering offsets
+        val centeringOffsetX = (containerWidth - scaledWidth) / 2f  // 0
+        val centeringOffsetY = (containerHeight - scaledHeight) / 2f  // 0
+        
+        // Position(0, 0) center in content space: (34.64, 41.00)
+        val contentX = 34.64f
+        val contentY = 41.00f
+        
+        // With no pan offset
+        val offsetX = 0f
+        val offsetY = 0f
+        
+        // Screen position (what user sees after zoom and centering)
+        val rawScreenX = contentX * zoomLevel + offsetX  // 69.28
+        val rawScreenY = contentY * zoomLevel + offsetY  // 82.0
+        
+        // Adjust for centering (what MapEditorView does)
+        val adjustedScreenX = rawScreenX + centeringOffsetX  // 69.28
+        val adjustedScreenY = rawScreenY + centeringOffsetY  // 82.0
+        
+        val result = screenToHexGridPosition(
+            Offset(adjustedScreenX, adjustedScreenY),
+            offsetX, offsetY, zoomLevel, hexSize
+        )
+        assertEquals(Position(0, 0), result, "Should map to Position(0, 0) with zoom and centering")
+    }
 }

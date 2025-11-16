@@ -404,4 +404,25 @@
     <string name="dragon_very_greedy_message">Le dragon est très avide (avidité > 5) !\n\nIl va maintenant traquer et détruire les mines naines, absorbant toute la santé qu\'aurait un nouveau dragon (500 PV par mine).\n\nLes mines deviendront des décombres détruits. Défendez-les ou reconstruisez rapidement !</string>
     <string name="mine_warning_title">Mine Menacée !</string>
     <string name="mine_warning_message">Le dragon approche ! Les nains se préparent à défendre leur mine, mais cela pourrait ne pas suffire...</string>
+<!-- Waypoint Editor -->
+    <string name="waypoints_tab">Points de Passage</string>
+    <string name="waypoints_title">Connexions des Points de Passage</string>
+    <string name="waypoints_description">Configurez les connexions des points de passage pour ce niveau. Les points de passage définissent le chemin que suivront les ennemis.</string>
+    <string name="waypoint_source">Source</string>
+    <string name="waypoint_target">Cible</string>
+    <string name="add_waypoint">➕ Ajouter un Point de Passage</string>
+    <string name="delete_waypoint">Supprimer</string>
+    <string name="no_waypoints_configured">Aucun point de passage configuré pour ce niveau.</string>
+    <string name="available_waypoint_tiles">Tuiles de points de passage disponibles sur la carte : %d</string>
+    <string name="waypoint_validation_success">✓ La configuration des points de passage est valide</string>
+    <string name="waypoint_validation_error">✗ La configuration des points de passage contient des erreurs</string>
+    <string name="circular_dependency_detected">Dépendance circulaire détectée ! Corrigez les connexions des points de passage.</string>
+    <string name="waypoint_position_format">Position (%d, %d)</string>
+    <string name="spawn_point_text">Point d\'Apparition</string>
+    <string name="target_text">Cible</string>
+    <string name="select_source_position">Sélectionner la position source</string>
+    <string name="select_target_position">Sélectionner la position cible</string>
+    <string name="waypoint_exists_error">Une connexion de point de passage depuis cette position existe déjà</string>
+    <string name="remove_all_waypoints">Tout Supprimer</string>
+    <string name="confirm_remove_all_waypoints">Êtes-vous sûr de vouloir supprimer toutes les connexions de points de passage ?</string>
 </resources>
