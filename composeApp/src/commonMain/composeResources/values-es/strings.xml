@@ -396,4 +396,26 @@
     <string name="the_dragon">El dragón</string>
     <string name="awakens">despierta</string>
     <string name="lair_of_the_dragon">Guarida del Dragón</string>
+
+<!-- Waypoint Editor -->
+    <string name="waypoints_tab">Puntos de Paso</string>
+    <string name="waypoints_title">Conexiones de Puntos de Paso</string>
+    <string name="waypoints_description">Configure las conexiones de puntos de paso para este nivel. Los puntos de paso definen el camino que seguirán los enemigos.</string>
+    <string name="waypoint_source">Origen</string>
+    <string name="waypoint_target">Destino</string>
+    <string name="add_waypoint">➕ Añadir Punto de Paso</string>
+    <string name="delete_waypoint">Eliminar</string>
+    <string name="no_waypoints_configured">No hay puntos de paso configurados para este nivel.</string>
+    <string name="available_waypoint_tiles">Casillas de puntos de paso disponibles en el mapa: %d</string>
+    <string name="waypoint_validation_success">✓ La configuración de puntos de paso es válida</string>
+    <string name="waypoint_validation_error">✗ La configuración de puntos de paso tiene errores</string>
+    <string name="circular_dependency_detected">¡Dependencia circular detectada! Corrija las conexiones de puntos de paso.</string>
+    <string name="waypoint_position_format">Posición (%d, %d)</string>
+    <string name="spawn_point_text">Punto de Aparición</string>
+    <string name="target_text">Objetivo</string>
+    <string name="select_source_position">Seleccionar posición de origen</string>
+    <string name="select_target_position">Seleccionar posición de destino</string>
+    <string name="waypoint_exists_error">Ya existe una conexión de punto de paso desde esta posición</string>
+    <string name="remove_all_waypoints">Eliminar Todo</string>
+    <string name="confirm_remove_all_waypoints">¿Está seguro de que desea eliminar todas las conexiones de puntos de paso?</string>
 </resources>
