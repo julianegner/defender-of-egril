@@ -198,7 +198,10 @@ class EnemyMovementSystem(
         println("Speed: $speed")
         println("Start position: $startPos")
         
-        val target = state.level.targetPosition
+        // Use currentTarget if set (for mine targeting), otherwise use level target
+        val target = dragon.currentTarget?.value ?: state.level.targetPosition
+        println("Target: $target")
+        
         val result = mutableListOf<Position>()
         
         // For flying, calculate the target position using BFS
