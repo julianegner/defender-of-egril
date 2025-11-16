@@ -18,6 +18,7 @@ import de.egril.defender.editor.EditorLevel
 import de.egril.defender.editor.EditorMap
 import de.egril.defender.editor.EditorStorage
 import de.egril.defender.editor.EditorWaypoint
+import de.egril.defender.editor.WaypointValidationResult
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.DefenderType
 import de.egril.defender.model.Position
@@ -861,11 +862,32 @@ private fun WaypointsTab(
 ) {
     var showAddDialog by remember { mutableStateOf(false) }
     var showRemoveAllDialog by remember { mutableStateOf(false) }
+    var showTreeView by remember { mutableStateOf(true) }  // Default to tree view
     
     // Get waypoint tiles, spawn points, and target from the map
     val waypointTiles = remember(map) { map?.getWaypoints() ?: emptyList() }
     val spawnPoints = remember(map) { map?.getSpawnPoints() ?: emptyList() }
     val target = remember(map) { map?.getTarget() }
+    
+    // Perform detailed validation
+    val validationResult = remember(waypoints, target, spawnPoints) {
+        if (target != null) {
+            // Create a temporary EditorLevel to use validation
+            val tempLevel = EditorLevel(
+                id = "temp",
+                mapId = "",
+                title = "",
+                startCoins = 0,
+                startHealthPoints = 0,
+                enemySpawns = emptyList(),
+                availableTowers = emptySet(),
+                waypoints = waypoints.toList()
+            )
+            tempLevel.validateWaypointsDetailed(target, spawnPoints)
+        } else {
+            WaypointValidationResult(isValid = true)
+        }
+    }
     
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -890,37 +912,52 @@ private fun WaypointsTab(
             )
         }
         
-        // Validation status
+        // Validation status with detailed messages
         item {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            Column(
+                verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                if (isValid) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    if (validationResult.isValid) {
+                        Text(
+                            text = stringResource(Res.string.waypoint_validation_success),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.Green
+                        )
+                    } else {
+                        Text(
+                            text = stringResource(Res.string.waypoint_validation_error),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.Red
+                        )
+                    }
+                }
+                
+                // Show specific validation issues
+                if (validationResult.circularDependencies.isNotEmpty()) {
                     Text(
-                        text = stringResource(Res.string.waypoint_validation_success),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color.Green
+                        text = stringResource(Res.string.circular_dependency_detected),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.Red,
+                        modifier = Modifier.padding(top = 4.dp)
                     )
-                } else {
+                }
+                
+                if (validationResult.unconnectedWaypoints.isNotEmpty()) {
                     Text(
-                        text = stringResource(Res.string.waypoint_validation_error),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color.Red
+                        text = "${stringResource(Res.string.unconnected_waypoint_warning)}: ${validationResult.unconnectedWaypoints.size} waypoint(s)",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.padding(top = 4.dp)
                     )
                 }
             }
-            if (!isValid && waypoints.isNotEmpty()) {
-                Text(
-                    text = stringResource(Res.string.circular_dependency_detected),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color.Red,
-                    modifier = Modifier.padding(top = 4.dp)
-                )
-            }
         }
         
-        // Add and Remove All buttons
+        // Action buttons row
         item {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -950,8 +987,49 @@ private fun WaypointsTab(
             }
         }
         
-        // Waypoint list header
+        // View toggle button
         if (waypoints.isNotEmpty()) {
+            item {
+                Button(
+                    onClick = { showTreeView = !showTreeView },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        if (showTreeView) 
+                            stringResource(Res.string.waypoint_list_view)
+                        else 
+                            stringResource(Res.string.waypoint_tree_view)
+                    )
+                }
+            }
+        }
+        
+        // Display waypoints in tree view or list view
+        if (waypoints.isEmpty()) {
+            item {
+                Text(
+                    text = stringResource(Res.string.no_waypoints_configured),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(vertical = 16.dp)
+                )
+            }
+        } else if (showTreeView) {
+            // Tree view - shows hierarchical chain structure
+            item {
+                WaypointTreeView(
+                    validationResult = validationResult,
+                    map = map,
+                    onDeleteConnection = { position ->
+                        val newWaypoints = waypoints.toMutableList().apply {
+                            removeAll { it.position == position }
+                        }
+                        onWaypointsChange(newWaypoints)
+                    }
+                )
+            }
+        } else {
+            // List view - original simple list
             item {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -975,29 +1053,23 @@ private fun WaypointsTab(
                     Spacer(modifier = Modifier.width(40.dp)) // Space for delete button
                 }
             }
-        } else {
-            item {
-                Text(
-                    text = stringResource(Res.string.no_waypoints_configured),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(vertical = 16.dp)
+            
+            items(waypoints) { waypoint ->
+                WaypointConnectionCard(
+                    waypoint = waypoint,
+                    spawnPoints = spawnPoints,
+                    waypointTiles = waypointTiles,
+                    target = target,
+                    isInCircular = validationResult.circularDependencies.contains(waypoint.position) ||
+                                  validationResult.circularDependencies.contains(waypoint.nextTargetPosition),
+                    isUnconnected = validationResult.unconnectedWaypoints.contains(waypoint.position) ||
+                                   validationResult.unconnectedWaypoints.contains(waypoint.nextTargetPosition),
+                    onDelete = {
+                        val newWaypoints = waypoints.toMutableList().apply { remove(waypoint) }
+                        onWaypointsChange(newWaypoints)
+                    }
                 )
             }
-        }
-        
-        // Waypoint connections list
-        items(waypoints) { waypoint ->
-            WaypointConnectionCard(
-                waypoint = waypoint,
-                spawnPoints = spawnPoints,
-                waypointTiles = waypointTiles,
-                target = target,
-                onDelete = {
-                    val newWaypoints = waypoints.toMutableList().apply { remove(waypoint) }
-                    onWaypointsChange(newWaypoints)
-                }
-            )
         }
     }
     
@@ -1041,12 +1113,18 @@ private fun WaypointConnectionCard(
     spawnPoints: List<Position>,
     waypointTiles: List<Position>,
     target: Position?,
+    isInCircular: Boolean,
+    isUnconnected: Boolean,
     onDelete: () -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
+            containerColor = if (isInCircular) {
+                MaterialTheme.colorScheme.errorContainer
+            } else {
+                MaterialTheme.colorScheme.surfaceVariant
+            }
         )
     ) {
         Row(
@@ -1080,20 +1158,43 @@ private fun WaypointConnectionCard(
             
             // Arrow
             Text(
-                text = "→",
+                text = if (isInCircular) "🔴→" else "→",
                 style = MaterialTheme.typography.titleMedium,
+                color = if (isInCircular) Color.Red else Color.Unspecified,
                 modifier = Modifier.padding(horizontal = 8.dp)
             )
             
             // Target position
             Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = stringResource(Res.string.waypoint_position_format).format(
-                        waypoint.nextTargetPosition.x,
-                        waypoint.nextTargetPosition.y
-                    ),
-                    style = MaterialTheme.typography.bodyMedium
-                )
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = stringResource(Res.string.waypoint_position_format).format(
+                            waypoint.nextTargetPosition.x,
+                            waypoint.nextTargetPosition.y
+                        ),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    
+                    // Warning icons
+                    if (isInCircular) {
+                        Text(
+                            text = "⚠",
+                            color = Color.Red,
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                    if (isUnconnected) {
+                        Text(
+                            text = "⚠",
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                }
+                
                 if (target == waypoint.nextTargetPosition) {
                     Text(
                         text = stringResource(Res.string.target_text),
@@ -1105,6 +1206,22 @@ private fun WaypointConnectionCard(
                         text = "WAYPOINT",
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.secondary
+                    )
+                }
+                
+                // Show warning messages
+                if (isInCircular) {
+                    Text(
+                        text = stringResource(Res.string.circular_dependency_warning),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Color.Red
+                    )
+                }
+                if (isUnconnected) {
+                    Text(
+                        text = stringResource(Res.string.unconnected_waypoint_warning),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.error
                     )
                 }
             }
