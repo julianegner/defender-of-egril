@@ -47,6 +47,12 @@ import defender_of_egril.composeapp.generated.resources.emoji_triangle_right
 import defender_of_egril.composeapp.generated.resources.emoji_triangle_up
 import defender_of_egril.composeapp.generated.resources.emoji_unlock
 import defender_of_egril.composeapp.generated.resources.emoji_up_arrow
+import defender_of_egril.composeapp.generated.resources.emoji_warning
+import defender_of_egril.composeapp.generated.resources.emoji_right_arrow
+import defender_of_egril.composeapp.generated.resources.emoji_red_circle
+import defender_of_egril.composeapp.generated.resources.emoji_map
+import defender_of_egril.composeapp.generated.resources.emoji_number_1
+import defender_of_egril.composeapp.generated.resources.emoji_number_2
 import org.jetbrains.compose.resources.painterResource
 import kotlin.random.Random
 
@@ -551,6 +557,102 @@ fun DigOutcomeIcon(
     Image(
         painter = painterResource(resource),
         contentDescription = outcome.displayName,
+        modifier = modifier.size(size)
+    )
+}
+
+/**
+ * Displays a warning triangle icon using Image for cross-platform compatibility
+ * Source: Custom icon (U+26A0)
+ */
+@Composable
+fun WarningIcon(
+    modifier: Modifier = Modifier.Companion,
+    size: Dp = 16.dp
+) {
+    Image(
+        painter = painterResource(Res.drawable.emoji_warning),
+        contentDescription = "Warning",
+        modifier = modifier.size(size)
+    )
+}
+
+/**
+ * Displays a right arrow icon using Image for cross-platform compatibility
+ * Source: Custom icon (U+2192)
+ */
+@Composable
+fun RightArrowIcon(
+    modifier: Modifier = Modifier.Companion,
+    size: Dp = 16.dp,
+    tint: Color? = null
+) {
+    Image(
+        painter = painterResource(Res.drawable.emoji_right_arrow),
+        contentDescription = "Right Arrow",
+        modifier = modifier.size(size),
+        colorFilter = tint?.let { ColorFilter.Companion.tint(it) }
+    )
+}
+
+/**
+ * Displays a red circle icon using Image for cross-platform compatibility
+ * Used to indicate circular dependencies or errors
+ */
+@Composable
+fun RedCircleIcon(
+    modifier: Modifier = Modifier.Companion,
+    size: Dp = 12.dp
+) {
+    Image(
+        painter = painterResource(Res.drawable.emoji_red_circle),
+        contentDescription = "Error",
+        modifier = modifier.size(size)
+    )
+}
+
+/**
+ * Displays a map icon using Image for cross-platform compatibility
+ * Source: Custom icon (U+1F5FA)
+ */
+@Composable
+fun MapIcon(
+    modifier: Modifier = Modifier.Companion,
+    size: Dp = 16.dp
+) {
+    Image(
+        painter = painterResource(Res.drawable.emoji_map),
+        contentDescription = "Map",
+        modifier = modifier.size(size)
+    )
+}
+
+/**
+ * Displays a number 1 icon using Image for cross-platform compatibility
+ */
+@Composable
+fun Number1Icon(
+    modifier: Modifier = Modifier.Companion,
+    size: Dp = 16.dp
+) {
+    Image(
+        painter = painterResource(Res.drawable.emoji_number_1),
+        contentDescription = "1",
+        modifier = modifier.size(size)
+    )
+}
+
+/**
+ * Displays a number 2 icon using Image for cross-platform compatibility
+ */
+@Composable
+fun Number2Icon(
+    modifier: Modifier = Modifier.Companion,
+    size: Dp = 16.dp
+) {
+    Image(
+        painter = painterResource(Res.drawable.emoji_number_2),
+        contentDescription = "2",
         modifier = modifier.size(size)
     )
 }

@@ -27,7 +27,7 @@ import de.egril.defender.ui.editor.ConfirmationDialog
 import de.egril.defender.ui.editor.CreateLevelDialog
 import de.egril.defender.ui.editor.map.MapSelectionCard
 import de.egril.defender.ui.editor.SaveAsDialog
-import de.egril.defender.ui.icon.CheckmarkIcon
+import de.egril.defender.ui.icon.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.draw.clip
@@ -1004,7 +1004,7 @@ private fun WaypointsTab(
                         horizontalArrangement = Arrangement.spacedBy(4.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("🗺️")
+                        MapIcon(size = 16.dp)
                         Text(stringResource(Res.string.select_on_map))
                     }
                 }
@@ -1196,12 +1196,19 @@ private fun WaypointConnectionCard(
             }
             
             // Arrow
-            Text(
-                text = if (isInCircular) "🔴→" else "→",
-                style = MaterialTheme.typography.titleMedium,
-                color = if (isInCircular) Color.Red else Color.Unspecified,
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(2.dp),
+                verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(horizontal = 8.dp)
-            )
+            ) {
+                if (isInCircular) {
+                    RedCircleIcon(size = 12.dp)
+                }
+                RightArrowIcon(
+                    size = 16.dp,
+                    tint = if (isInCircular) Color.Red else Color.Black
+                )
+            }
             
             // Target position
             Column(modifier = Modifier.weight(1f)) {
@@ -1219,18 +1226,10 @@ private fun WaypointConnectionCard(
                     
                     // Warning icons
                     if (isInCircular) {
-                        Text(
-                            text = "⚠",
-                            color = Color.Red,
-                            style = MaterialTheme.typography.bodySmall
-                        )
+                        WarningIcon(size = 14.dp)
                     }
                     if (isUnconnected) {
-                        Text(
-                            text = "⚠",
-                            color = MaterialTheme.colorScheme.error,
-                            style = MaterialTheme.typography.bodySmall
-                        )
+                        WarningIcon(size = 14.dp)
                     }
                 }
                 
@@ -1267,7 +1266,7 @@ private fun WaypointConnectionCard(
             
             // Delete button
             IconButton(onClick = onDelete) {
-                Text("🗑️", style = MaterialTheme.typography.titleMedium)
+                TrashIcon(size = 20.dp)
             }
         }
     }
