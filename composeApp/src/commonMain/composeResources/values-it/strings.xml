@@ -397,6 +397,13 @@
     <string name="awakens">si sveglia</string>
     <string name="lair_of_the_dragon">Tana del Drago</string>
 
+    <!-- Dragon Greed Info -->
+    <string name="dragon_greed_title">Avidità del Drago!</string>
+    <string name="dragon_greed_message">Il drago è diventato avido! Avidità = Livello del Drago ÷ 5\n\nIl drago divorerà ora unità su caselle adiacenti pari al suo livello di avidità ogni turno.</string>
+    <string name="dragon_very_greedy_title">Incursione Mineraria del Drago!</string>
+    <string name="dragon_very_greedy_message">Il drago è molto avido (avidità > 5)!\n\nOra caccerà e distruggerà miniere naniche, assorbendo tutta la salute che avrebbe un nuovo drago (500 PS per miniera).\n\nLe miniere diventeranno macerie distrutte. Difendile o ricostruisci rapidamente!</string>
+    <string name="mine_warning_title">Miniera Minacciata!</string>
+    <string name="mine_warning_message">Il drago si avvicina! I nani si preparano a difendere la loro miniera, ma potrebbe non essere sufficiente...</string>
 <!-- Waypoint Editor -->
     <string name="waypoints_tab">Punti di Passaggio</string>
     <string name="waypoints_title">Connessioni dei Punti di Passaggio</string>

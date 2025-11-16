@@ -397,6 +397,13 @@
     <string name="awakens">despierta</string>
     <string name="lair_of_the_dragon">Guarida del Dragón</string>
 
+    <!-- Dragon Greed Info -->
+    <string name="dragon_greed_title">¡Avaricia de Dragón!</string>
+    <string name="dragon_greed_message">¡El dragón se ha vuelto codicioso! Avaricia = Nivel del Dragón ÷ 5\n\nEl dragón devorará unidades en casillas adyacentes según su nivel de avaricia cada turno.</string>
+    <string name="dragon_very_greedy_title">¡Asalto Minero del Dragón!</string>
+    <string name="dragon_very_greedy_message">¡El dragón es muy codicioso (avaricia > 5)!\n\nAhora cazará y destruirá minas enanas, absorbiendo toda la salud que tendría un nuevo dragón (500 PS por mina).\n\n¡Las minas se convertirán en escombros destruidos. Defiéndelas o reconstruye rápidamente!</string>
+    <string name="mine_warning_title">¡Mina Amenazada!</string>
+    <string name="mine_warning_message">¡El dragón se acerca! Los enanos se preparan para defender su mina, pero puede que no sea suficiente...</string>
 <!-- Waypoint Editor -->
     <string name="waypoints_tab">Puntos de Paso</string>
     <string name="waypoints_title">Conexiones de Puntos de Paso</string>

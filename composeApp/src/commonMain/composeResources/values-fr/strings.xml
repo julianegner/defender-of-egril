@@ -397,6 +397,13 @@
     <string name="awakens">se réveille</string>
     <string name="lair_of_the_dragon">Repaire du Dragon</string>
 
+    <!-- Dragon Greed Info -->
+    <string name="dragon_greed_title">Avidité du Dragon !</string>
+    <string name="dragon_greed_message">Le dragon est devenu avide ! Avidité = Niveau du Dragon ÷ 5\n\nLe dragon dévorera désormais des unités sur les tuiles adjacentes selon son niveau d\'avidité à chaque tour.</string>
+    <string name="dragon_very_greedy_title">Raid Minier du Dragon !</string>
+    <string name="dragon_very_greedy_message">Le dragon est très avide (avidité > 5) !\n\nIl va maintenant traquer et détruire les mines naines, absorbant toute la santé qu\'aurait un nouveau dragon (500 PV par mine).\n\nLes mines deviendront des décombres détruits. Défendez-les ou reconstruisez rapidement !</string>
+    <string name="mine_warning_title">Mine Menacée !</string>
+    <string name="mine_warning_message">Le dragon approche ! Les nains se préparent à défendre leur mine, mais cela pourrait ne pas suffire...</string>
 <!-- Waypoint Editor -->
     <string name="waypoints_tab">Points de Passage</string>
     <string name="waypoints_title">Connexions des Points de Passage</string>
