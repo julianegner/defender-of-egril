@@ -26,15 +26,17 @@ object LevelData {
             println("Processing level ID: $levelId at index $index - Found: ${editorLevel != null}")
             
             editorLevel?.let { level ->
+                // Get the map for validation checks
+                val map = EditorStorage.getMap(level.mapId)
+                
                 // Check if level is ready to play (includes map readiness check)
                 if (!EditorStorage.isLevelReadyToPlay(level)) {
-                    val map = EditorStorage.getMap(level.mapId)
                     println("Skipping level $levelId: not ready to play (towers: ${level.availableTowers.size}, spawns: ${level.enemySpawns.size}, map ready: ${map?.readyToUse})")
                     return@mapIndexedNotNull null
                 }
                 
                 // Check if waypoints are valid (all eventually lead to target)
-                val target = map.getTarget()
+                val target = map?.getTarget()
                 if (target != null && !level.validateWaypoints(target)) {
                     println("Skipping level $levelId: waypoints do not all lead to target")
                     return@mapIndexedNotNull null
