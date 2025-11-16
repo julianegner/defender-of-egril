@@ -433,4 +433,15 @@
     <string name="waypoint_exists_error">A waypoint connection from this position already exists</string>
     <string name="remove_all_waypoints">Remove All</string>
     <string name="confirm_remove_all_waypoints">Are you sure you want to remove all waypoint connections?</string>
+    <string name="click_to_connect_waypoints">Click on waypoints on the map to connect them</string>
+    <string name="select_on_map">Select on Map</string>
+    <string name="waypoint_chains_title">Waypoint Chains</string>
+    <string name="unconnected_waypoint_warning">⚠ Unconnected waypoint</string>
+    <string name="circular_dependency_warning">⚠ Circular dependency</string>
+    <string name="waypoint_tree_view">Tree View</string>
+    <string name="waypoint_list_view">List View</string>
+    <string name="click_source_waypoint">1. Click a source (spawn or waypoint)</string>
+    <string name="click_target_waypoint">2. Click a target (waypoint or target)</string>
+    <string name="connection_mode_active">Connection mode active</string>
+    <string name="cancel_connection">Cancel</string>
 </resources>
