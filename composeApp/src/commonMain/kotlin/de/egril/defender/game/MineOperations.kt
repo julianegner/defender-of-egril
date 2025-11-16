@@ -137,7 +137,12 @@ class MineOperations(private val state: GameState) {
             level = mutableStateOf(1),
             currentHealth = mutableStateOf(dragonHealth),
             spawnedFromLairId = null,  // Will be set after lair is created
-            dragonName = dragonName
+            dragonName = dragonName,
+            currentTarget = mutableStateOf(if (state.level.waypoints.isNotEmpty()) {
+                state.level.waypoints.first().position
+            } else {
+                state.level.targetPosition
+            })
         )
         
         // Replace mine with dragon's lair and link to dragon

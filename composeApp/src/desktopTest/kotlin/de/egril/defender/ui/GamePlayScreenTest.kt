@@ -219,7 +219,7 @@ class GamePlayScreenTest {
             id = 1,
             type = de.egril.defender.model.AttackerType.GOBLIN,
             position = androidx.compose.runtime.mutableStateOf(de.egril.defender.model.Position(5, 4)),
-            level = 1
+            level = androidx.compose.runtime.mutableStateOf(1)
         )
         gameState.attackers.add(enemy1)
         
@@ -279,7 +279,7 @@ class GamePlayScreenTest {
             id = 1,
             type = de.egril.defender.model.AttackerType.GOBLIN,
             position = androidx.compose.runtime.mutableStateOf(de.egril.defender.model.Position(7, 4)),
-            level = 1
+            level = androidx.compose.runtime.mutableStateOf(1)
         )
         
         // Add a second enemy
@@ -287,7 +287,7 @@ class GamePlayScreenTest {
             id = 2,
             type = de.egril.defender.model.AttackerType.ORK,
             position = androidx.compose.runtime.mutableStateOf(de.egril.defender.model.Position(9, 3)),
-            level = 1
+            level = androidx.compose.runtime.mutableStateOf(1)
         )
         
         gameState.attackers.add(enemy1)
@@ -349,21 +349,21 @@ class GamePlayScreenTest {
             id = 1,
             type = de.egril.defender.model.AttackerType.GOBLIN,
             position = androidx.compose.runtime.mutableStateOf(de.egril.defender.model.Position(7, 4)),
-            level = 1
+            level = androidx.compose.runtime.mutableStateOf(1)
         )
         
         val enemy2 = de.egril.defender.model.Attacker(
             id = 2,
             type = de.egril.defender.model.AttackerType.GOBLIN,
             position = androidx.compose.runtime.mutableStateOf(de.egril.defender.model.Position(8, 4)),
-            level = 1
+            level = androidx.compose.runtime.mutableStateOf(1)
         )
         
         val enemy3 = de.egril.defender.model.Attacker(
             id = 3,
             type = de.egril.defender.model.AttackerType.ORK,
             position = androidx.compose.runtime.mutableStateOf(de.egril.defender.model.Position(7, 3)),
-            level = 1
+            level = androidx.compose.runtime.mutableStateOf(1)
         )
         
         gameState.attackers.add(enemy1)
@@ -426,14 +426,14 @@ class GamePlayScreenTest {
             id = 1,
             type = de.egril.defender.model.AttackerType.OGRE,
             position = androidx.compose.runtime.mutableStateOf(de.egril.defender.model.Position(10, 4)),
-            level = 1
+            level = androidx.compose.runtime.mutableStateOf(1)
         )
         
         val enemy2 = de.egril.defender.model.Attacker(
             id = 2,
             type = de.egril.defender.model.AttackerType.SKELETON,
             position = androidx.compose.runtime.mutableStateOf(de.egril.defender.model.Position(11, 3)),
-            level = 1
+            level = androidx.compose.runtime.mutableStateOf(1)
         )
         
         // Add an enemy that already has acid damage (to show DoT effect)
@@ -441,7 +441,7 @@ class GamePlayScreenTest {
             id = 3,
             type = de.egril.defender.model.AttackerType.GOBLIN,
             position = androidx.compose.runtime.mutableStateOf(de.egril.defender.model.Position(9, 4)),
-            level = 1,
+            level = androidx.compose.runtime.mutableStateOf(1),
             currentHealth = androidx.compose.runtime.mutableStateOf(15) // Reduced health to show damage
         )
         
@@ -526,14 +526,14 @@ class GamePlayScreenTest {
             id = 1,
             type = de.egril.defender.model.AttackerType.GOBLIN,
             position = androidx.compose.runtime.mutableStateOf(de.egril.defender.model.Position(5, 4)),
-            level = 1
+            level = androidx.compose.runtime.mutableStateOf(1)
         )
         
         val enemy2 = de.egril.defender.model.Attacker(
             id = 2,
             type = de.egril.defender.model.AttackerType.ORK,
             position = androidx.compose.runtime.mutableStateOf(de.egril.defender.model.Position(6, 3)),
-            level = 1
+            level = androidx.compose.runtime.mutableStateOf(1)
         )
         
         gameState.attackers.add(enemy1)
@@ -631,14 +631,14 @@ class GamePlayScreenTest {
             id = 1,
             type = de.egril.defender.model.AttackerType.GOBLIN,
             position = androidx.compose.runtime.mutableStateOf(de.egril.defender.model.Position(1, 4)),
-            level = 1
+            level = androidx.compose.runtime.mutableStateOf(1)
         )
         
         val enemy2 = de.egril.defender.model.Attacker(
             id = 2,
             type = de.egril.defender.model.AttackerType.GOBLIN,
             position = androidx.compose.runtime.mutableStateOf(de.egril.defender.model.Position(0, 1)),
-            level = 1
+            level = androidx.compose.runtime.mutableStateOf(1)
         )
         
         gameState.attackers.add(enemy1)
