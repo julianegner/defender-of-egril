@@ -29,9 +29,10 @@ class SettingsDialogTest {
         
         composeTestRule.waitForIdle()
         
-        // Verify the dialog title is displayed
-        composeTestRule.onNodeWithText("Settings", substring = true, ignoreCase = true)
-            .assertExists()
+        // Verify the dialog title is displayed - use assertIsDisplayed instead of assertExists
+        // to avoid matching both "Settings" title and "Reset Settings" button
+        composeTestRule.onNodeWithText("Settings", substring = false, ignoreCase = false)
+            .assertIsDisplayed()
         
         // Verify language section is displayed
         composeTestRule.onNodeWithText("Language", substring = true, ignoreCase = true)
