@@ -13,6 +13,18 @@ class EnemyMovementSystem(
     private val pathfinding: PathfindingSystem
 ) {
     
+    /**
+     * Gets the initial target for a newly spawned attacker.
+     * Returns the first waypoint if waypoints exist, otherwise the final target.
+     */
+    fun getInitialTarget(): Position {
+        return if (state.level.waypoints.isNotEmpty()) {
+            state.level.waypoints.first().position
+        } else {
+            state.level.targetPosition
+        }
+    }
+    
     fun loadNextWave() {
         if (state.currentWaveIndex.value >= state.level.attackerWaves.size) {
             return
@@ -61,7 +73,8 @@ class EnemyMovementSystem(
                 id = state.nextAttackerId.value++,
                 type = plannedSpawn.attackerType,
                 position = mutableStateOf(spawnPos),
-                level = mutableStateOf(plannedSpawn.level)
+                level = mutableStateOf(plannedSpawn.level),
+                currentTarget = mutableStateOf(getInitialTarget())
             )
             state.attackers.add(attacker)
         }
