@@ -217,18 +217,30 @@ private fun WaypointChainNode(
             
             // Warning messages
             if (isInCircular) {
-                Text(
-                    text = stringResource(Res.string.circular_dependency_warning),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = Color.Red
-                )
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    WarningIcon(size = 12.dp)
+                    Text(
+                        text = stringResource(Res.string.circular_dependency_warning),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Color.Red
+                    )
+                }
             }
             if (isUnconnected) {
-                Text(
-                    text = stringResource(Res.string.unconnected_waypoint_warning),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.error
-                )
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    WarningIcon(size = 12.dp)
+                    Text(
+                        text = stringResource(Res.string.unconnected_waypoint_warning),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
             }
         }
         
