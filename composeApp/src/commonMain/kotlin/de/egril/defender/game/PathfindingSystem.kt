@@ -37,7 +37,7 @@ class PathfindingSystem(private val state: GameState) {
             
             openSet.remove(current)
             
-            for (neighbor in getNeighbors(current)) {
+            for (neighbor in getNeighbors(current, goal, attacker)) {
                 val moveCost = calculateMoveCost(neighbor, attacker)
                 val tentativeGScore = (gScore[current] ?: Int.MAX_VALUE) + moveCost
                 
@@ -54,7 +54,7 @@ class PathfindingSystem(private val state: GameState) {
         }
         
         // No path found or max iterations reached, return simple path towards goal
-        return listOf(start, moveTowards(start, goal))
+        return listOf(start, moveTowards(start, goal, attacker))
     }
     
     /**
@@ -157,14 +157,31 @@ class PathfindingSystem(private val state: GameState) {
         return path
     }
     
-    private fun getNeighbors(pos: Position): List<Position> {
+    private fun getNeighbors(pos: Position, goal: Position, attacker: Attacker?): List<Position> {
         // Use hexagonal neighbors instead of square grid
         return pos.getHexNeighbors().filter { neighbor ->
             neighbor.x >= 0 && neighbor.x < state.level.gridWidth &&
             neighbor.y >= 0 && neighbor.y < state.level.gridHeight &&
-            (state.level.isOnPath(neighbor) || neighbor == state.level.targetPosition) &&
+            (state.level.isOnPath(neighbor) || neighbor == state.level.targetPosition || isGoalMineForDragon(neighbor, goal, attacker)) &&
             !isBlocked(neighbor)
         }
+    }
+    
+    /**
+     * Check if the position is the goal and it's a mine being targeted by a dragon.
+     */
+    private fun isGoalMineForDragon(pos: Position, goal: Position, attacker: Attacker?): Boolean {
+        if (pos != goal) return false
+        if (attacker == null || !attacker.type.isDragon) return false
+        
+        // Check if this is a mine position that the dragon is targeting
+        val mine = state.defenders.find { 
+            it.type == DefenderType.DWARVEN_MINE && 
+            it.position == pos &&
+            attacker.targetMineId.value == it.id
+        }
+        
+        return mine != null
     }
     
     private fun isBlocked(pos: Position): Boolean {
@@ -172,7 +189,7 @@ class PathfindingSystem(private val state: GameState) {
         return state.level.isBuildIsland(pos)
     }
     
-    fun moveTowards(from: Position, to: Position): Position {
+    fun moveTowards(from: Position, to: Position, attacker: Attacker? = null): Position {
         // Use hexagonal neighbors to find the best next position
         val hexNeighbors = from.getHexNeighbors()
         
@@ -180,7 +197,7 @@ class PathfindingSystem(private val state: GameState) {
         val validNeighbors = hexNeighbors.filter { neighbor ->
             neighbor.x >= 0 && neighbor.x < state.level.gridWidth &&
             neighbor.y >= 0 && neighbor.y < state.level.gridHeight &&
-            (state.level.isOnPath(neighbor) || neighbor == state.level.targetPosition) &&
+            (state.level.isOnPath(neighbor) || neighbor == state.level.targetPosition || isGoalMineForDragon(neighbor, to, attacker)) &&
             !isBlocked(neighbor)
         }
         

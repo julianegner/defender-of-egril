@@ -210,17 +210,31 @@ class EnemyMovementSystem(
             val currentDistToTarget = currentPos.distanceTo(target)
             
             // Get all positions on path within flying range (up to 5 tiles away)
+            // Also include mine position if it's the target
             val reachablePathPositions = mutableListOf<Pair<Position, Int>>()
             
             // BFS to find all positions within 5 hexagonal distance
             val visited = mutableSetOf(currentPos)
             val queue = mutableListOf(Pair(currentPos, 0))
             
+            // Check if target is a mine being targeted by this dragon
+            val targetMine = state.defenders.find { 
+                it.type == DefenderType.DWARVEN_MINE && 
+                it.position == target &&
+                dragon.targetMineId.value == it.id
+            }
+            
             while (queue.isNotEmpty()) {
                 val (pos, dist) = queue.removeAt(0)
                 
-                // Check if this position is on path
-                if (pos != currentPos && state.level.isOnPath(pos)) {
+                // Check if this position is on path OR is the target mine
+                val isValidPosition = if (pos != currentPos) {
+                    state.level.isOnPath(pos) || (targetMine != null && pos == target)
+                } else {
+                    false
+                }
+                
+                if (isValidPosition) {
                     reachablePathPositions.add(Pair(pos, dist))
                 }
                 
