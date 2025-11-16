@@ -210,7 +210,7 @@ class EnemyMovementSystem(
             val currentDistToTarget = currentPos.distanceTo(target)
             
             // Get all positions on path within flying range (up to 5 tiles away)
-            // Also include mine position if it's the target
+            // Also include mine position if it's the target, and destroyed mine positions
             val reachablePathPositions = mutableListOf<Pair<Position, Int>>()
             
             // BFS to find all positions within 5 hexagonal distance
@@ -227,9 +227,11 @@ class EnemyMovementSystem(
             while (queue.isNotEmpty()) {
                 val (pos, dist) = queue.removeAt(0)
                 
-                // Check if this position is on path OR is the target mine
+                // Check if this position is on path OR is the target mine OR is a destroyed mine position
                 val isValidPosition = if (pos != currentPos) {
-                    state.level.isOnPath(pos) || (targetMine != null && pos == target)
+                    state.level.isOnPath(pos) || 
+                    (targetMine != null && pos == target) ||
+                    state.destroyedMinePositions.contains(pos)
                 } else {
                     false
                 }
