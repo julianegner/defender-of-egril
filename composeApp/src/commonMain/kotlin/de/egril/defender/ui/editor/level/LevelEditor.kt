@@ -861,6 +861,7 @@ private fun WaypointsTab(
     isValid: Boolean
 ) {
     var showAddDialog by remember { mutableStateOf(false) }
+    var showQuickAddDialog by remember { mutableStateOf(false) }
     var showRemoveAllDialog by remember { mutableStateOf(false) }
     var showTreeView by remember { mutableStateOf(true) }  // Default to tree view
     
@@ -959,30 +960,53 @@ private fun WaypointsTab(
         
         // Action buttons row
         item {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Button(
-                    onClick = { showAddDialog = true },
-                    enabled = waypointTiles.isNotEmpty(),
-                    modifier = Modifier.weight(1f)
+                // First row: Add and Remove
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Text(stringResource(Res.string.add_waypoint))
+                    Button(
+                        onClick = { showAddDialog = true },
+                        enabled = waypointTiles.isNotEmpty(),
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text(stringResource(Res.string.add_waypoint))
+                    }
+                    
+                    Button(
+                        onClick = { showRemoveAllDialog = true },
+                        enabled = waypoints.isNotEmpty(),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (waypoints.isNotEmpty()) 
+                                MaterialTheme.colorScheme.error 
+                            else 
+                                MaterialTheme.colorScheme.surfaceVariant
+                        ),
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text(stringResource(Res.string.remove_all_waypoints))
+                    }
                 }
                 
+                // Second row: Quick Add button
                 Button(
-                    onClick = { showRemoveAllDialog = true },
-                    enabled = waypoints.isNotEmpty(),
+                    onClick = { showQuickAddDialog = true },
+                    enabled = waypointTiles.isNotEmpty(),
+                    modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = if (waypoints.isNotEmpty()) 
-                            MaterialTheme.colorScheme.error 
-                        else 
-                            MaterialTheme.colorScheme.surfaceVariant
-                    ),
-                    modifier = Modifier.weight(1f)
+                        containerColor = MaterialTheme.colorScheme.secondary
+                    )
                 ) {
-                    Text(stringResource(Res.string.remove_all_waypoints))
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("🗺️")
+                        Text(stringResource(Res.string.select_on_map))
+                    }
                 }
             }
         }
@@ -1086,6 +1110,21 @@ private fun WaypointsTab(
                 val newWaypoints = waypoints.toMutableList().apply { add(newWaypoint) }
                 onWaypointsChange(newWaypoints)
                 showAddDialog = false
+            }
+        )
+    }
+    
+    // Quick add waypoint dialog (map-based selection)
+    if (showQuickAddDialog) {
+        QuickAddWaypointDialog(
+            map = map,
+            existingWaypoints = waypoints,
+            onDismiss = { showQuickAddDialog = false },
+            onAdd = { source, targetPos ->
+                val newWaypoint = EditorWaypoint(source, targetPos)
+                val newWaypoints = waypoints.toMutableList().apply { add(newWaypoint) }
+                onWaypointsChange(newWaypoints)
+                showQuickAddDialog = false
             }
         )
     }
