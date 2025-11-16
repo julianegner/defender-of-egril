@@ -5,6 +5,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -252,3 +253,178 @@ data class WaypointConnectionState(
     val mode: WaypointConnectionMode = WaypointConnectionMode.INACTIVE,
     val selectedSource: Position? = null
 )
+
+/**
+ * Quick add dialog that shows map positions for easier waypoint creation
+ */
+@Composable
+fun QuickAddWaypointDialog(
+    map: EditorMap?,
+    existingWaypoints: List<EditorWaypoint>,
+    onDismiss: () -> Unit,
+    onAdd: (Position, Position) -> Unit
+) {
+    val waypointTiles = remember(map) { map?.getWaypoints() ?: emptyList() }
+    val spawnPoints = remember(map) { map?.getSpawnPoints() ?: emptyList() }
+    val target = remember(map) { map?.getTarget() }
+    
+    var selectedSource by remember { mutableStateOf<Position?>(null) }
+    var selectedTarget by remember { mutableStateOf<Position?>(null) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+    
+    val validSources = remember(spawnPoints, waypointTiles) {
+        (spawnPoints + waypointTiles).distinct().sortedWith(compareBy({ it.y }, { it.x }))
+    }
+    
+    val validTargets = remember(waypointTiles, target) {
+        val targets = waypointTiles.toMutableList()
+        if (target != null) targets.add(target)
+        targets.distinct().sortedWith(compareBy({ it.y }, { it.x }))
+    }
+    
+    val waypointExistsErrorMsg = stringResource(Res.string.waypoint_exists_error)
+    
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { 
+            Text(stringResource(Res.string.select_on_map)) 
+        },
+        text = {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                // Instructions
+                Text(
+                    text = stringResource(Res.string.click_to_connect_waypoints),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                
+                // Source selection section
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Text(
+                            text = "1️⃣",
+                            style = MaterialTheme.typography.titleSmall
+                        )
+                        Text(
+                            text = stringResource(Res.string.waypoint_source),
+                            style = MaterialTheme.typography.titleSmall
+                        )
+                    }
+                    
+                    LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        items(validSources) { pos ->
+                            val isSpawn = spawnPoints.contains(pos)
+                            FilterChip(
+                                selected = selectedSource == pos,
+                                onClick = {
+                                    selectedSource = pos
+                                    errorMessage = null
+                                },
+                                label = { 
+                                    Text(
+                                        text = if (isSpawn) "S(${pos.x},${pos.y})" else "W(${pos.x},${pos.y})",
+                                        style = MaterialTheme.typography.bodySmall
+                                    )
+                                },
+                                leadingIcon = if (selectedSource == pos) {
+                                    { Text("✓") }
+                                } else null
+                            )
+                        }
+                    }
+                }
+                
+                HorizontalDivider()
+                
+                // Target selection section
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Text(
+                            text = "2️⃣",
+                            style = MaterialTheme.typography.titleSmall
+                        )
+                        Text(
+                            text = stringResource(Res.string.waypoint_target),
+                            style = MaterialTheme.typography.titleSmall
+                        )
+                    }
+                    
+                    LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        items(validTargets) { pos ->
+                            val isTarget = target == pos
+                            FilterChip(
+                                selected = selectedTarget == pos,
+                                onClick = {
+                                    selectedTarget = pos
+                                    errorMessage = null
+                                },
+                                label = { 
+                                    Text(
+                                        text = if (isTarget) "T(${pos.x},${pos.y})" else "W(${pos.x},${pos.y})",
+                                        style = MaterialTheme.typography.bodySmall
+                                    )
+                                },
+                                leadingIcon = if (selectedTarget == pos) {
+                                    { Text("✓") }
+                                } else null
+                            )
+                        }
+                    }
+                }
+                
+                // Error message
+                if (errorMessage != null) {
+                    Text(
+                        text = errorMessage!!,
+                        color = Color.Red,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    if (selectedSource == null || selectedTarget == null) {
+                        errorMessage = "Please select both source and target"
+                        return@Button
+                    }
+                    
+                    val exists = existingWaypoints.any { it.position == selectedSource }
+                    if (exists) {
+                        errorMessage = waypointExistsErrorMsg
+                        return@Button
+                    }
+                    
+                    onAdd(selectedSource!!, selectedTarget!!)
+                }
+            ) {
+                Text(stringResource(Res.string.add_waypoint))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(Res.string.cancel))
+            }
+        }
+    )
+}
