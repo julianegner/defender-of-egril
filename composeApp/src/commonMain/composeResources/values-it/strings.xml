@@ -425,4 +425,15 @@
     <string name="waypoint_exists_error">Esiste già una connessione di punto di passaggio da questa posizione</string>
     <string name="remove_all_waypoints">Rimuovi Tutto</string>
     <string name="confirm_remove_all_waypoints">Sei sicuro di voler rimuovere tutte le connessioni dei punti di passaggio?</string>
+    <string name="click_to_connect_waypoints">Fai clic sui punti di passaggio sulla mappa per connetterli</string>
+    <string name="select_on_map">Seleziona sulla Mappa</string>
+    <string name="waypoint_chains_title">Catene di Punti di Passaggio</string>
+    <string name="unconnected_waypoint_warning">⚠ Punto di passaggio non connesso</string>
+    <string name="circular_dependency_warning">⚠ Dipendenza circolare</string>
+    <string name="waypoint_tree_view">Vista ad Albero</string>
+    <string name="waypoint_list_view">Vista a Elenco</string>
+    <string name="click_source_waypoint">1. Fai clic su un'origine (spawn o punto di passaggio)</string>
+    <string name="click_target_waypoint">2. Fai clic su un obiettivo (punto di passaggio o obiettivo)</string>
+    <string name="connection_mode_active">Modalità connessione attiva</string>
+    <string name="cancel_connection">Annulla</string>
 </resources>
