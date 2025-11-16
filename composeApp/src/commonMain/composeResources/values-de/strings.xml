@@ -397,6 +397,13 @@
     <string name="awakens">erwacht</string>
     <string name="lair_of_the_dragon">Höhle des Drachen</string>
 
+    <!-- Dragon Greed Info -->
+    <string name="dragon_greed_title">Drachengier!</string>
+    <string name="dragon_greed_message">Der Drache ist gierig geworden! Gier = Drachenlevel ÷ 5\n\nDer Drache verschlingt nun pro Runde Einheiten auf benachbarten Feldern entsprechend seiner Gierstufe.</string>
+    <string name="dragon_very_greedy_title">Drachen-Bergwerksüberfall!</string>
+    <string name="dragon_very_greedy_message">Der Drache ist sehr gierig (Gier > 5)!\n\nEr wird nun Zwergenmine jagen und zerstören und dabei all die Gesundheit aufnehmen, die ein neuer Drache hätte (500 LP pro Mine).\n\nMinen werden zu zerstörten Trümmern. Verteidige sie oder baue schnell wieder auf!</string>
+    <string name="mine_warning_title">Mine bedroht!</string>
+    <string name="mine_warning_message">Der Drache nähert sich! Die Zwerge bereiten sich vor, ihre Mine zu verteidigen, aber es könnte nicht genug sein...</string>
 <!-- Waypoint Editor -->
     <string name="waypoints_tab">Wegpunkte</string>
     <string name="waypoints_title">Wegpunkt-Verbindungen</string>
