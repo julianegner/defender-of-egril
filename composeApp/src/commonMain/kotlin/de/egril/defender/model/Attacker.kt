@@ -81,4 +81,25 @@ data class Attacker(
             level.value = newLevel
         }
     }
+    
+    /**
+     * Calculate damage when this enemy reaches the target.
+     * - Mighty enemies (wizards, witches, mages, demons, dragons): 1 HP × enemy level
+     * - Ewhad (boss): All remaining health points (special handling required by caller)
+     * - All other enemies: 1 HP
+     */
+    fun calculateTargetDamage(): Int {
+        return when (type) {
+            AttackerType.EVIL_WIZARD,
+            AttackerType.WITCH,
+            AttackerType.RED_WITCH,
+            AttackerType.GREEN_WITCH,
+            AttackerType.EVIL_MAGE,
+            AttackerType.BLUE_DEMON,
+            AttackerType.RED_DEMON,
+            AttackerType.DRAGON -> level.value
+            AttackerType.EWHAD -> Int.MAX_VALUE  // Special marker for "all HP" - caller must handle
+            else -> 1  // Goblin, Ork, Ogre, Skeleton
+        }
+    }
 }
