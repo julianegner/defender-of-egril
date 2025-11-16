@@ -436,8 +436,8 @@
     <string name="click_to_connect_waypoints">Click on waypoints on the map to connect them</string>
     <string name="select_on_map">Select on Map</string>
     <string name="waypoint_chains_title">Waypoint Chains</string>
-    <string name="unconnected_waypoint_warning">⚠ Unconnected waypoint</string>
-    <string name="circular_dependency_warning">⚠ Circular dependency</string>
+    <string name="unconnected_waypoint_warning">Unconnected waypoint</string>
+    <string name="circular_dependency_warning">Circular dependency</string>
     <string name="waypoint_tree_view">Tree View</string>
     <string name="waypoint_list_view">List View</string>
     <string name="click_source_waypoint">1. Click a source (spawn or waypoint)</string>

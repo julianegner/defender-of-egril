@@ -428,8 +428,8 @@
     <string name="click_to_connect_waypoints">Cliquez sur les points de passage sur la carte pour les connecter</string>
     <string name="select_on_map">Sélectionner sur la Carte</string>
     <string name="waypoint_chains_title">Chaînes de Points de Passage</string>
-    <string name="unconnected_waypoint_warning">⚠ Point de passage non connecté</string>
-    <string name="circular_dependency_warning">⚠ Dépendance circulaire</string>
+    <string name="unconnected_waypoint_warning">Point de passage non connecté</string>
+    <string name="circular_dependency_warning">Dépendance circulaire</string>
     <string name="waypoint_tree_view">Vue en Arbre</string>
     <string name="waypoint_list_view">Vue en Liste</string>
     <string name="click_source_waypoint">1. Cliquez sur une source (spawn ou point de passage)</string>
