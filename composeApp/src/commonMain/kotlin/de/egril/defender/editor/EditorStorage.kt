@@ -231,6 +231,30 @@ object EditorStorage {
     }
     
     /**
+     * Move a level to a specific position in the sequence.
+     * If the level is already in the sequence, it is moved to the new position.
+     * If the level is not in the sequence, it is added at the specified position.
+     * @param levelId The ID of the level to move
+     * @param toIndex The target index (0-based) in the sequence
+     */
+    fun moveLevelToPosition(levelId: String, toIndex: Int) {
+        val currentSequence = getLevelSequence().sequence.toMutableList()
+        val fromIndex = currentSequence.indexOf(levelId)
+        
+        if (fromIndex >= 0) {
+            // Level is already in sequence, move it
+            currentSequence.removeAt(fromIndex)
+            val adjustedIndex = if (fromIndex < toIndex) toIndex - 1 else toIndex
+            currentSequence.add(adjustedIndex.coerceIn(0, currentSequence.size), levelId)
+        } else {
+            // Level not in sequence, add it at the specified position
+            currentSequence.add(toIndex.coerceIn(0, currentSequence.size), levelId)
+        }
+        
+        updateLevelSequence(LevelSequence(currentSequence))
+    }
+    
+    /**
      * Checks if a level is ready to play.
      * A level is ready if:
      * - It has at least one available tower
