@@ -194,4 +194,55 @@ class EditorStorageTest {
         assertEquals("level_2", sequence.sequence[1])
         assertEquals("level_3", sequence.sequence[2])
     }
+    
+    @Test
+    fun testMoveLevelToPosition() {
+        // Test moving a level forward in the sequence
+        var sequence = LevelSequence(listOf("level_1", "level_2", "level_3", "level_4"))
+        
+        // Move level_2 from index 1 to index 3
+        val fromIndex = sequence.sequence.indexOf("level_2")
+        val toIndex = 3
+        var newSeq = sequence.sequence.toMutableList()
+        newSeq.removeAt(fromIndex)
+        val adjustedIndex = if (fromIndex < toIndex) toIndex - 1 else toIndex
+        newSeq.add(adjustedIndex, "level_2")
+        sequence = LevelSequence(newSeq)
+        
+        assertEquals(4, sequence.sequence.size)
+        assertEquals("level_1", sequence.sequence[0])
+        assertEquals("level_3", sequence.sequence[1])
+        assertEquals("level_2", sequence.sequence[2])
+        assertEquals("level_4", sequence.sequence[3])
+        
+        // Test moving a level backward in the sequence
+        sequence = LevelSequence(listOf("level_1", "level_2", "level_3", "level_4"))
+        
+        // Move level_3 from index 2 to index 0
+        val fromIndex2 = sequence.sequence.indexOf("level_3")
+        val toIndex2 = 0
+        newSeq = sequence.sequence.toMutableList()
+        newSeq.removeAt(fromIndex2)
+        val adjustedIndex2 = if (fromIndex2 < toIndex2) toIndex2 - 1 else toIndex2
+        newSeq.add(adjustedIndex2, "level_3")
+        sequence = LevelSequence(newSeq)
+        
+        assertEquals(4, sequence.sequence.size)
+        assertEquals("level_3", sequence.sequence[0])
+        assertEquals("level_1", sequence.sequence[1])
+        assertEquals("level_2", sequence.sequence[2])
+        assertEquals("level_4", sequence.sequence[3])
+        
+        // Test adding a new level at specific position
+        newSeq = sequence.sequence.toMutableList()
+        newSeq.add(2, "level_new")
+        sequence = LevelSequence(newSeq)
+        
+        assertEquals(5, sequence.sequence.size)
+        assertEquals("level_3", sequence.sequence[0])
+        assertEquals("level_1", sequence.sequence[1])
+        assertEquals("level_new", sequence.sequence[2])
+        assertEquals("level_2", sequence.sequence[3])
+        assertEquals("level_4", sequence.sequence[4])
+    }
 }
