@@ -319,6 +319,12 @@
     <string name="ewhad_warning">⚠️ Ewhad can only be spawned once per level!</string>
     <string name="level_lv">Lv%d</string>
     <string name="arrange_level_order">Arrange level order:</string>
+    <string name="levels_in_sequence">Levels in Sequence:</string>
+    <string name="available_levels">Available Levels (Not in Sequence):</string>
+    <string name="add_to_sequence">Add to Sequence</string>
+    <string name="remove_from_sequence">Remove from Sequence</string>
+    <string name="remove_level_confirmation_title">Remove Level from Sequence?</string>
+    <string name="remove_level_confirmation_message">Are you sure you want to remove "%s" from the level sequence? The level will not be deleted and can be added back later.</string>
     <string name="save_map_as_new">Save Map As New</string>
     <string name="save_level_as_new">Save Level As New</string>
     <string name="enter_a">Enter a %s:</string>
