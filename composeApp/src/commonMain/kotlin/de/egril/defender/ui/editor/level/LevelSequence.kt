@@ -206,9 +206,25 @@ fun LevelSequenceContent() {
                                 if (isDropTargetAvailableArea && state.isFromSequence) {
                                     // Remove from sequence
                                     EditorStorage.removeLevelFromSequence(state.levelId)
-                                } else if (dropTargetIndex != null) {
-                                    // Move to specific position
-                                    EditorStorage.moveLevelToPosition(state.levelId, dropTargetIndex!!)
+                                } else if (dropTargetIndex != null && state.isFromSequence) {
+                                    // Moving within sequence - handle directly to avoid adjustment issues
+                                    val currentSequence = EditorStorage.getLevelSequence().sequence.toMutableList()
+                                    val fromIndex = currentSequence.indexOf(state.levelId)
+                                    
+                                    if (fromIndex >= 0 && fromIndex != dropTargetIndex) {
+                                        currentSequence.removeAt(fromIndex)
+                                        // After removal, adjust target index if needed
+                                        val actualTargetIndex = if (fromIndex < dropTargetIndex!!) {
+                                            dropTargetIndex!! - 1
+                                        } else {
+                                            dropTargetIndex!!
+                                        }
+                                        currentSequence.add(actualTargetIndex.coerceIn(0, currentSequence.size), state.levelId)
+                                        EditorStorage.updateLevelSequence(de.egril.defender.editor.LevelSequence(currentSequence))
+                                    }
+                                } else if (dropTargetIndex != null && !state.isFromSequence) {
+                                    // Adding from available levels - use addLevelToSequence
+                                    EditorStorage.addLevelToSequence(state.levelId, dropTargetIndex)
                                 }
                                 sequence.value = EditorStorage.getLevelSequence()
                                 allLevels.value = EditorStorage.getAllLevels()
@@ -242,12 +258,30 @@ fun LevelSequenceContent() {
         )
         
         if (availableLevels.isEmpty()) {
-            Text(
-                text = "No available levels",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
+            // Show empty drop area that can receive items
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(100.dp)
+                    .background(
+                        if (isDropTargetAvailableArea) {
+                            MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+                        } else {
+                            MaterialTheme.colorScheme.surfaceVariant
+                        }
+                    )
+                    .onGloballyPositioned { coordinates ->
+                        availableAreaBounds = coordinates.positionInRoot() to 
+                            IntSize(coordinates.size.width, coordinates.size.height)
+                    }
+            ) {
+                Text(
+                    text = "Drag levels here to remove from sequence",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.align(Alignment.Center)
+                )
+            }
         } else {
             Box(
                 modifier = Modifier
