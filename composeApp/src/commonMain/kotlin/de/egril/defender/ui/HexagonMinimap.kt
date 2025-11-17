@@ -60,8 +60,9 @@ fun HexagonMinimap(
 ): String {
     // Get map data from editor storage
     val sequence = remember { EditorStorage.getLevelSequence() }
-    val editorLevelId = remember(level.id) {
-        if (level.id > 0 && level.id <= sequence.sequence.size) {
+    val editorLevelId = remember(level.editorLevelId) {
+        // Use the stored editor level ID if available, otherwise fall back to old behavior for backwards compatibility
+        level.editorLevelId ?: if (level.id > 0 && level.id <= sequence.sequence.size) {
             sequence.sequence[level.id - 1]
         } else {
             null
