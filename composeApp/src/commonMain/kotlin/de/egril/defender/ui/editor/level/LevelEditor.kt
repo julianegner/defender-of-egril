@@ -862,6 +862,7 @@ private fun WaypointsTab(
 ) {
     var showAddDialog by remember { mutableStateOf(false) }
     var showQuickAddDialog by remember { mutableStateOf(false) }
+    var preselectedSource by remember { mutableStateOf<Position?>(null) }
     var showRemoveAllDialog by remember { mutableStateOf(false) }
     var showTreeView by remember { mutableStateOf(true) }  // Default to tree view
     
@@ -1055,6 +1056,10 @@ private fun WaypointsTab(
                             removeAll { it.position == position }
                         }
                         onWaypointsChange(newWaypoints)
+                    },
+                    onConnectWaypoint = { position ->
+                        preselectedSource = position
+                        showQuickAddDialog = true
                     }
                 )
             }
@@ -1125,13 +1130,18 @@ private fun WaypointsTab(
         QuickAddWaypointDialog(
             map = map,
             existingWaypoints = waypoints,
-            onDismiss = { showQuickAddDialog = false },
+            onDismiss = { 
+                showQuickAddDialog = false
+                preselectedSource = null
+            },
             onAdd = { source, targetPos ->
                 val newWaypoint = EditorWaypoint(source, targetPos)
                 val newWaypoints = waypoints.toMutableList().apply { add(newWaypoint) }
                 onWaypointsChange(newWaypoints)
                 showQuickAddDialog = false
-            }
+                preselectedSource = null
+            },
+            preselectedSource = preselectedSource
         )
     }
     

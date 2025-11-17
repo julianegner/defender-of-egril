@@ -433,6 +433,8 @@
     <string name="confirm_remove_all_waypoints">Êtes-vous sûr de vouloir supprimer toutes les connexions de points de passage ?</string>
     <string name="click_to_connect_waypoints">Cliquez sur les points de passage sur la carte pour les connecter</string>
     <string name="select_on_map">Connecter Points de Passage</string>
+    <string name="show_connected">Afficher connectés</string>
+    <string name="connect">Connecter</string>
     <string name="waypoint_chains_title">Chaînes de Points de Passage</string>
     <string name="unconnected_waypoint_warning">Point de passage non connecté</string>
     <string name="circular_dependency_warning">Dépendance circulaire</string>

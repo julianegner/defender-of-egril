@@ -39,7 +39,8 @@ import kotlin.math.sqrt
 fun WaypointTreeView(
     validationResult: WaypointValidationResult,
     map: EditorMap?,
-    onDeleteConnection: (Position) -> Unit
+    onDeleteConnection: (Position) -> Unit,
+    onConnectWaypoint: (Position) -> Unit
 ) {
     val spawnPoints = remember(map) { map?.getSpawnPoints() ?: emptyList() }
     val target = remember(map) { map?.getTarget() }
@@ -71,7 +72,8 @@ fun WaypointTreeView(
                 target = target,
                 circularDeps = validationResult.circularDependencies,
                 unconnectedWaypoints = validationResult.unconnectedWaypoints,
-                onDeleteConnection = onDeleteConnection
+                onDeleteConnection = onDeleteConnection,
+                onConnectWaypoint = onConnectWaypoint
             )
         }
     }
@@ -87,7 +89,8 @@ private fun WaypointChainCard(
     target: Position?,
     circularDeps: Set<Position>,
     unconnectedWaypoints: Set<Position>,
-    onDeleteConnection: (Position) -> Unit
+    onDeleteConnection: (Position) -> Unit,
+    onConnectWaypoint: (Position) -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -103,6 +106,9 @@ private fun WaypointChainCard(
             modifier = Modifier.fillMaxWidth().padding(12.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
+            // Check if start position is unconnected spawn point
+            val isStartUnconnected = spawnPoints.contains(chain.startPosition) && chain.endPosition == null
+            
             // Start position (spawn point or waypoint)
             WaypointChainNode(
                 position = chain.startPosition,
@@ -111,11 +117,18 @@ private fun WaypointChainCard(
                 isInCircular = circularDeps.contains(chain.startPosition),
                 isUnconnected = unconnectedWaypoints.contains(chain.startPosition),
                 indentLevel = 0,
-                onDelete = { onDeleteConnection(chain.startPosition) }
+                onDelete = { onDeleteConnection(chain.startPosition) },
+                onConnect = if (isStartUnconnected) {
+                    { onConnectWaypoint(chain.startPosition) }
+                } else null
             )
             
             // Intermediate waypoints
             chain.positions.forEachIndexed { index, pos ->
+                // Check if this is the last waypoint and not connected to target
+                val isLastWaypoint = index == chain.positions.size - 1
+                val isWaypointUnconnected = isLastWaypoint && chain.endPosition == null
+                
                 WaypointChainNode(
                     position = pos,
                     isSpawn = false,
@@ -123,7 +136,10 @@ private fun WaypointChainCard(
                     isInCircular = circularDeps.contains(pos),
                     isUnconnected = unconnectedWaypoints.contains(pos),
                     indentLevel = index + 1,
-                    onDelete = { onDeleteConnection(pos) }
+                    onDelete = { onDeleteConnection(pos) },
+                    onConnect = if (isWaypointUnconnected) {
+                        { onConnectWaypoint(pos) }
+                    } else null
                 )
             }
             
@@ -154,7 +170,8 @@ private fun WaypointChainNode(
     isInCircular: Boolean,
     isUnconnected: Boolean,
     indentLevel: Int,
-    onDelete: (() -> Unit)?
+    onDelete: (() -> Unit)?,
+    onConnect: (() -> Unit)? = null
 ) {
     Row(
         modifier = Modifier
@@ -253,6 +270,20 @@ private fun WaypointChainNode(
             }
         }
         
+        // Connect button (if unconnected)
+        if (onConnect != null) {
+            Button(
+                onClick = onConnect,
+                modifier = Modifier.height(32.dp),
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
+            ) {
+                Text(
+                    text = stringResource(Res.string.connect),
+                    style = MaterialTheme.typography.labelSmall
+                )
+            }
+        }
+        
         // Delete button (if allowed)
         if (onDelete != null) {
             IconButton(onClick = onDelete) {
@@ -287,18 +318,31 @@ fun QuickAddWaypointDialog(
     map: EditorMap?,
     existingWaypoints: List<EditorWaypoint>,
     onDismiss: () -> Unit,
-    onAdd: (Position, Position) -> Unit
+    onAdd: (Position, Position) -> Unit,
+    preselectedSource: Position? = null
 ) {
     val waypointTiles = remember(map) { map?.getWaypoints() ?: emptyList() }
     val spawnPoints = remember(map) { map?.getSpawnPoints() ?: emptyList() }
     val target = remember(map) { map?.getTarget() }
     
-    var selectedSource by remember { mutableStateOf<Position?>(null) }
+    var selectedSource by remember { mutableStateOf(preselectedSource) }
     var selectedTarget by remember { mutableStateOf<Position?>(null) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
+    var showConnectedSources by remember { mutableStateOf(false) }
     
-    val validSources = remember(spawnPoints, waypointTiles) {
-        (spawnPoints + waypointTiles).distinct().sortedWith(compareBy({ it.y }, { it.x }))
+    // Build set of positions that already have connections from them
+    val connectedSources = remember(existingWaypoints) {
+        existingWaypoints.map { it.position }.toSet()
+    }
+    
+    val validSources = remember(spawnPoints, waypointTiles, showConnectedSources, connectedSources) {
+        val allSources = (spawnPoints + waypointTiles).distinct()
+        val filtered = if (showConnectedSources) {
+            allSources
+        } else {
+            allSources.filter { it !in connectedSources }
+        }
+        filtered.sortedWith(compareBy({ it.y }, { it.x }))
     }
     
     val validTargets = remember(waypointTiles, target) {
@@ -380,13 +424,29 @@ fun QuickAddWaypointDialog(
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.fillMaxWidth()
                     ) {
                         Number1Icon(size = 18.dp)
                         Text(
                             text = stringResource(Res.string.waypoint_source),
-                            style = MaterialTheme.typography.titleSmall
+                            style = MaterialTheme.typography.titleSmall,
+                            modifier = Modifier.weight(1f)
                         )
+                        // Checkbox to show/hide already connected sources
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Checkbox(
+                                checked = showConnectedSources,
+                                onCheckedChange = { showConnectedSources = it }
+                            )
+                            Text(
+                                text = stringResource(Res.string.show_connected),
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
                     }
                     
                     LazyRow(
@@ -570,7 +630,7 @@ private fun WaypointMinimap(
                 
                 // Get color for tile type
                 val color = when {
-                    isSelected && pos == selectedSource -> Color(0xFFFFAA00) // Orange for selected source
+                    isSelected && pos == selectedSource -> Color(0xFFFF00FF) // Magenta for selected source
                     isSelected && pos == selectedTarget -> Color(0xFF00AAFF) // Cyan for selected target
                     tileType == TileType.SPAWN_POINT -> if (isDarkMode) Color(0xFF8B0000) else Color(0xFFDC143C)
                     tileType == TileType.TARGET -> if (isDarkMode) Color(0xFF1E3A8A) else Color(0xFF4169E1)
