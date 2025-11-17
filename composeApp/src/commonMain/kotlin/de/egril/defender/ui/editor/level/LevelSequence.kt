@@ -24,6 +24,7 @@ import de.egril.defender.ui.editor.ConfirmationDialog
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.*
+import kotlin.math.abs
 
 /**
  * Drag state to track which level is being dragged
@@ -31,7 +32,16 @@ import defender_of_egril.composeapp.generated.resources.*
 data class DragState(
     val levelId: String,
     val isFromSequence: Boolean,
-    val dragOffset: Offset = Offset.Zero
+    val currentPosition: Offset = Offset.Zero
+)
+
+/**
+ * Item bounds for drop target detection
+ */
+data class ItemBounds(
+    val index: Int,
+    val position: Offset,
+    val size: IntSize
 )
 
 /**
@@ -46,7 +56,8 @@ fun LevelSequenceContent() {
     var dropTargetIndex by remember { mutableStateOf<Int?>(null) }
     var isDropTargetAvailableArea by remember { mutableStateOf(false) }
     
-    // Track bounds of the available levels section
+    // Track bounds of items and available area
+    val itemBounds = remember { mutableStateMapOf<Int, ItemBounds>() }
     var availableAreaBounds by remember { mutableStateOf<Pair<Offset, IntSize>?>(null) }
     
     // Get levels in sequence that are ready to play
@@ -127,22 +138,30 @@ fun LevelSequenceContent() {
                             dragState = DragState(levelId, true, offset)
                             dropTargetIndex = null
                             isDropTargetAvailableArea = false
+                            itemBounds.clear()
                         },
                         onDrag = { change, dragAmount ->
                             dragState?.let { state ->
-                                val newOffset = state.dragOffset + Offset(dragAmount.x, dragAmount.y)
-                                dragState = state.copy(dragOffset = newOffset)
+                                val newPosition = state.currentPosition + Offset(dragAmount.x, dragAmount.y)
+                                dragState = state.copy(currentPosition = newPosition)
                                 
                                 // Check if over available area
                                 availableAreaBounds?.let { (position, size) ->
-                                    val globalPos = state.dragOffset
-                                    val isOverAvailable = globalPos.x >= position.x && 
-                                                         globalPos.x <= position.x + size.width &&
-                                                         globalPos.y >= position.y && 
-                                                         globalPos.y <= position.y + size.height
+                                    val isOverAvailable = newPosition.x >= position.x && 
+                                                         newPosition.x <= position.x + size.width &&
+                                                         newPosition.y >= position.y && 
+                                                         newPosition.y <= position.y + size.height
                                     isDropTargetAvailableArea = isOverAvailable
                                     if (isOverAvailable) {
                                         dropTargetIndex = null
+                                    } else {
+                                        // Find closest item position
+                                        val closestIndex = itemBounds.values
+                                            .minByOrNull { bounds ->
+                                                val centerY = bounds.position.y + bounds.size.height / 2
+                                                abs(centerY - newPosition.y)
+                                            }?.index
+                                        dropTargetIndex = closestIndex
                                     }
                                 }
                             }
@@ -163,17 +182,11 @@ fun LevelSequenceContent() {
                             dragState = null
                             dropTargetIndex = null
                             isDropTargetAvailableArea = false
+                            itemBounds.clear()
                         },
-                        onPositionChanged = { globalPosition ->
-                            // Calculate which index this position corresponds to
-                            if (dragState != null) {
-                                val itemHeight = 80 // Approximate height
-                                val relativeIndex = ((globalPosition.y - 300) / itemHeight).toInt()
-                                val newIndex = relativeIndex.coerceIn(0, levelsInSequence.size)
-                                if (newIndex != dropTargetIndex) {
-                                    dropTargetIndex = newIndex
-                                }
-                            }
+                        onPositionChanged = { position, size ->
+                            // Track item bounds for drop target detection
+                            itemBounds[index] = ItemBounds(index, position, size)
                         }
                     )
                     
@@ -243,8 +256,8 @@ fun LevelSequenceContent() {
                             },
                             onDrag = { change, dragAmount ->
                                 dragState?.let { state ->
-                                    val newOffset = state.dragOffset + Offset(dragAmount.x, dragAmount.y)
-                                    dragState = state.copy(dragOffset = newOffset)
+                                    val newPosition = state.currentPosition + Offset(dragAmount.x, dragAmount.y)
+                                    dragState = state.copy(currentPosition = newPosition)
                                 }
                                 change.consume()
                             },
@@ -316,16 +329,18 @@ fun LevelSequenceItem(
     onDragStart: (Offset) -> Unit,
     onDrag: (androidx.compose.ui.input.pointer.PointerInputChange, Offset) -> Unit,
     onDragEnd: () -> Unit,
-    onPositionChanged: (Offset) -> Unit
+    onPositionChanged: (Offset, IntSize) -> Unit
 ) {
     var itemPosition by remember { mutableStateOf(Offset.Zero) }
+    var itemSize by remember { mutableStateOf(IntSize.Zero) }
     
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .onGloballyPositioned { coordinates ->
                 itemPosition = coordinates.positionInRoot()
-                onPositionChanged(itemPosition)
+                itemSize = coordinates.size
+                onPositionChanged(itemPosition, itemSize)
             }
             .pointerInput(Unit) {
                 detectDragGesturesAfterLongPress(
