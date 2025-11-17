@@ -1,7 +1,7 @@
 package de.egril.defender.ui.editor.level
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -155,13 +155,43 @@ fun LevelSequenceContent() {
                                     if (isOverAvailable) {
                                         dropTargetIndex = null
                                     } else {
-                                        // Find closest item position
-                                        val closestIndex = itemBounds.values
-                                            .minByOrNull { bounds ->
-                                                val centerY = bounds.position.y + bounds.size.height / 2
-                                                abs(centerY - newPosition.y)
-                                            }?.index
-                                        dropTargetIndex = closestIndex
+                                        // Calculate drop position based on Y coordinate
+                                        // Find which items the drag position is between
+                                        val sortedBounds = itemBounds.values.sortedBy { it.index }
+                                        var targetIndex: Int? = null
+                                        
+                                        if (sortedBounds.isNotEmpty()) {
+                                            // Check if before first item
+                                            val firstItem = sortedBounds.first()
+                                            if (newPosition.y < firstItem.position.y) {
+                                                targetIndex = 0
+                                            } else {
+                                                // Check between items and after last item
+                                                for (i in 0 until sortedBounds.size) {
+                                                    val currentItem = sortedBounds[i]
+                                                    val itemBottom = currentItem.position.y + currentItem.size.height
+                                                    
+                                                    // Check if after this item
+                                                    if (i == sortedBounds.size - 1) {
+                                                        // Last item - check if after it
+                                                        if (newPosition.y >= itemBottom) {
+                                                            targetIndex = currentItem.index + 1
+                                                        } else {
+                                                            targetIndex = currentItem.index
+                                                        }
+                                                    } else {
+                                                        val nextItem = sortedBounds[i + 1]
+                                                        // Check if between this item and next
+                                                        if (newPosition.y >= itemBottom && newPosition.y < nextItem.position.y) {
+                                                            targetIndex = currentItem.index + 1
+                                                            break
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        
+                                        dropTargetIndex = targetIndex
                                     }
                                 }
                             }
@@ -258,6 +288,46 @@ fun LevelSequenceContent() {
                                 dragState?.let { state ->
                                     val newPosition = state.currentPosition + Offset(dragAmount.x, dragAmount.y)
                                     dragState = state.copy(currentPosition = newPosition)
+                                    
+                                    // Calculate drop position based on Y coordinate
+                                    val sortedBounds = itemBounds.values.sortedBy { it.index }
+                                    var targetIndex: Int? = null
+                                    
+                                    if (sortedBounds.isNotEmpty()) {
+                                        // Check if before first item
+                                        val firstItem = sortedBounds.first()
+                                        if (newPosition.y < firstItem.position.y) {
+                                            targetIndex = 0
+                                        } else {
+                                            // Check between items and after last item
+                                            for (i in 0 until sortedBounds.size) {
+                                                val currentItem = sortedBounds[i]
+                                                val itemBottom = currentItem.position.y + currentItem.size.height
+                                                
+                                                // Check if after this item
+                                                if (i == sortedBounds.size - 1) {
+                                                    // Last item - check if after it
+                                                    if (newPosition.y >= itemBottom) {
+                                                        targetIndex = currentItem.index + 1
+                                                    } else {
+                                                        targetIndex = currentItem.index
+                                                    }
+                                                } else {
+                                                    val nextItem = sortedBounds[i + 1]
+                                                    // Check if between this item and next
+                                                    if (newPosition.y >= itemBottom && newPosition.y < nextItem.position.y) {
+                                                        targetIndex = currentItem.index + 1
+                                                        break
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    } else {
+                                        // No items yet, insert at position 0
+                                        targetIndex = 0
+                                    }
+                                    
+                                    dropTargetIndex = targetIndex
                                 }
                                 change.consume()
                             },
@@ -343,7 +413,7 @@ fun LevelSequenceItem(
                 onPositionChanged(itemPosition, itemSize)
             }
             .pointerInput(Unit) {
-                detectDragGesturesAfterLongPress(
+                detectDragGestures(
                     onDragStart = { offset ->
                         onDragStart(itemPosition + offset)
                     },
@@ -373,7 +443,7 @@ fun LevelSequenceItem(
                     style = MaterialTheme.typography.titleSmall
                 )
                 Text(
-                    text = "Long-press to drag",
+                    text = "Drag to reorder",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -431,7 +501,7 @@ fun AvailableLevelCard(
                 cardPosition = coordinates.positionInRoot()
             }
             .pointerInput(Unit) {
-                detectDragGesturesAfterLongPress(
+                detectDragGestures(
                     onDragStart = { offset ->
                         onDragStart(cardPosition + offset)
                     },
@@ -477,7 +547,7 @@ fun AvailableLevelCard(
             }
             
             Text(
-                text = "Long-press to drag",
+                text = "Drag to add",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
