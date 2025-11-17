@@ -198,12 +198,15 @@ data class EditorLevel(
     val waypoints: List<EditorWaypoint> = emptyList()  // Waypoints for complex pathing
 ) {
     /**
-     * Checks if this level is ready to play.
+     * Checks if this level is ready to play (level-specific checks only).
      * A level is ready if:
      * - It has at least one available tower
      * - It has at least one enemy spawn configured (each EditorEnemySpawn represents one enemy unit)
      * - Start coins are greater than zero
      * - Start health points are greater than zero
+     * 
+     * Note: This does NOT check if the associated map is ready.
+     * Use EditorStorage.isLevelReadyToPlay() for a complete readiness check including map validation.
      * - All waypoints eventually lead to the final target (checked separately with map context)
      */
     fun isReadyToPlay(): Boolean {
