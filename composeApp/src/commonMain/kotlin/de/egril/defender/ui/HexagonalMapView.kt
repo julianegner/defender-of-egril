@@ -207,16 +207,30 @@ fun HexagonalMapView(
             .then(
                 if (config.enablePanNavigation) {
                     Modifier.pointerInput(Unit) {
-                        detectDragGestures { _, dragAmount ->
-                            // Apply pan directly without scale multiplication to avoid juddering
-                            // Use current values captured in the lambda closure
-                            val newOffsetX = offsetX + dragAmount.x
-                            val newOffsetY = offsetY + dragAmount.y
+                        var dragStartOffsetX = 0f
+                        var dragStartOffsetY = 0f
+                        
+                        detectDragGestures(
+                            onDragStart = {
+                                // Capture the current offset when drag starts
+                                dragStartOffsetX = offsetX
+                                dragStartOffsetY = offsetY
+                            },
+                            onDrag = { _, dragAmount ->
+                                // Apply pan directly without scale multiplication to avoid juddering
+                                // dragAmount is incremental, so add to current position
+                                val newOffsetX = dragStartOffsetX + dragAmount.x
+                                val newOffsetY = dragStartOffsetY + dragAmount.y
+                                
+                                // Update the drag start for next delta
+                                dragStartOffsetX = newOffsetX
+                                dragStartOffsetY = newOffsetY
 
-                            // Constrain pan to keep content visible
-                            val (constrainedX, constrainedY) = constrainOffsets(newOffsetX, newOffsetY, scale)
-                            onOffsetChange(constrainedX, constrainedY)
-                        }
+                                // Constrain pan to keep content visible
+                                val (constrainedX, constrainedY) = constrainOffsets(newOffsetX, newOffsetY, scale)
+                                onOffsetChange(constrainedX, constrainedY)
+                            }
+                        )
                     }
                 } else {
                     Modifier
