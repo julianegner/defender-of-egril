@@ -441,6 +441,8 @@
     <string name="confirm_remove_all_waypoints">Are you sure you want to remove all waypoint connections?</string>
     <string name="click_to_connect_waypoints">Click on waypoints on the map to connect them</string>
     <string name="select_on_map">Connect Waypoints</string>
+    <string name="show_connected">Show connected</string>
+    <string name="connect">Connect</string>
     <string name="waypoint_chains_title">Waypoint Chains</string>
     <string name="unconnected_waypoint_warning">Unconnected waypoint</string>
     <string name="circular_dependency_warning">Circular dependency</string>
