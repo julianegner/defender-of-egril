@@ -362,7 +362,8 @@ object EditorStorage {
             healthPoints = editorLevel.startHealthPoints,
             directSpawnPlan = directSpawnPlan,
             availableTowers = editorLevel.availableTowers,
-            waypoints = gameWaypoints
+            waypoints = gameWaypoints,
+            editorLevelId = editorLevel.id  // Store editor level ID for minimap lookup
         )
     }
     
