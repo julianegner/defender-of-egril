@@ -1,13 +1,22 @@
 package de.egril.defender.ui.editor.level
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.IntSize
 import de.egril.defender.editor.EditorStorage
 import de.egril.defender.ui.icon.DownArrowIcon
 import de.egril.defender.ui.icon.UpArrowIcon
@@ -17,6 +26,15 @@ import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.*
 
 /**
+ * Drag state to track which level is being dragged
+ */
+data class DragState(
+    val levelId: String,
+    val isFromSequence: Boolean,
+    val dragOffset: Offset = Offset.Zero
+)
+
+/**
  * Main content for the Level Sequence tab
  */
 @Composable
@@ -24,6 +42,12 @@ fun LevelSequenceContent() {
     val sequence = remember { mutableStateOf(EditorStorage.getLevelSequence()) }
     val allLevels = remember { mutableStateOf(EditorStorage.getAllLevels()) }
     var levelToRemove by remember { mutableStateOf<Pair<String, String>?>(null) }
+    var dragState by remember { mutableStateOf<DragState?>(null) }
+    var dropTargetIndex by remember { mutableStateOf<Int?>(null) }
+    var isDropTargetAvailableArea by remember { mutableStateOf(false) }
+    
+    // Track bounds of the available levels section
+    var availableAreaBounds by remember { mutableStateOf<Pair<Offset, IntSize>?>(null) }
     
     // Get levels in sequence that are ready to play
     val levelsInSequence = sequence.value.sequence.mapNotNull { levelId ->
@@ -75,61 +99,87 @@ fun LevelSequenceContent() {
                 items(levelsInSequence.size) { index ->
                     val (levelId, level) = levelsInSequence[index]
                     
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant
-                        )
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(12.dp).fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Column(
-                                modifier = Modifier.weight(1f)
-                            ) {
-                                Text(
-                                    text = "${index + 1}. ${level.title}",
-                                    style = MaterialTheme.typography.titleSmall
-                                )
+                    // Show drop indicator before this item
+                    if (dropTargetIndex == index && !isDropTargetAvailableArea) {
+                        DropIndicator()
+                    }
+                    
+                    LevelSequenceItem(
+                        index = index,
+                        levelId = levelId,
+                        levelTitle = level.title,
+                        isInSequence = true,
+                        isDragging = dragState?.levelId == levelId,
+                        canMoveUp = index > 0,
+                        canMoveDown = index < levelsInSequence.size - 1,
+                        onMoveUp = {
+                            EditorStorage.moveLevelUp(levelId)
+                            sequence.value = EditorStorage.getLevelSequence()
+                        },
+                        onMoveDown = {
+                            EditorStorage.moveLevelDown(levelId)
+                            sequence.value = EditorStorage.getLevelSequence()
+                        },
+                        onRemove = {
+                            levelToRemove = levelId to level.title
+                        },
+                        onDragStart = { offset ->
+                            dragState = DragState(levelId, true, offset)
+                            dropTargetIndex = null
+                            isDropTargetAvailableArea = false
+                        },
+                        onDrag = { change, dragAmount ->
+                            dragState?.let { state ->
+                                val newOffset = state.dragOffset + Offset(dragAmount.x, dragAmount.y)
+                                dragState = state.copy(dragOffset = newOffset)
+                                
+                                // Check if over available area
+                                availableAreaBounds?.let { (position, size) ->
+                                    val globalPos = state.dragOffset
+                                    val isOverAvailable = globalPos.x >= position.x && 
+                                                         globalPos.x <= position.x + size.width &&
+                                                         globalPos.y >= position.y && 
+                                                         globalPos.y <= position.y + size.height
+                                    isDropTargetAvailableArea = isOverAvailable
+                                    if (isOverAvailable) {
+                                        dropTargetIndex = null
+                                    }
+                                }
                             }
-                            
-                            Row(
-                                horizontalArrangement = Arrangement.spacedBy(4.dp)
-                            ) {
-                                Button(
-                                    onClick = {
-                                        EditorStorage.moveLevelUp(levelId)
-                                        sequence.value = EditorStorage.getLevelSequence()
-                                    },
-                                    enabled = index > 0
-                                ) {
-                                    UpArrowIcon(size = 16.dp, tint = Color.White)
+                            change.consume()
+                        },
+                        onDragEnd = {
+                            dragState?.let { state ->
+                                if (isDropTargetAvailableArea && state.isFromSequence) {
+                                    // Remove from sequence
+                                    EditorStorage.removeLevelFromSequence(state.levelId)
+                                } else if (dropTargetIndex != null) {
+                                    // Move to specific position
+                                    EditorStorage.moveLevelToPosition(state.levelId, dropTargetIndex!!)
                                 }
-                                
-                                Button(
-                                    onClick = {
-                                        EditorStorage.moveLevelDown(levelId)
-                                        sequence.value = EditorStorage.getLevelSequence()
-                                    },
-                                    enabled = index < levelsInSequence.size - 1
-                                ) {
-                                    DownArrowIcon(size = 16.dp, tint = Color.White)
-                                }
-                                
-                                Button(
-                                    onClick = {
-                                        levelToRemove = levelId to level.title
-                                    },
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = MaterialTheme.colorScheme.error
-                                    )
-                                ) {
-                                    Text(stringResource(Res.string.remove_from_sequence))
+                                sequence.value = EditorStorage.getLevelSequence()
+                                allLevels.value = EditorStorage.getAllLevels()
+                            }
+                            dragState = null
+                            dropTargetIndex = null
+                            isDropTargetAvailableArea = false
+                        },
+                        onPositionChanged = { globalPosition ->
+                            // Calculate which index this position corresponds to
+                            if (dragState != null) {
+                                val itemHeight = 80 // Approximate height
+                                val relativeIndex = ((globalPosition.y - 300) / itemHeight).toInt()
+                                val newIndex = relativeIndex.coerceIn(0, levelsInSequence.size)
+                                if (newIndex != dropTargetIndex) {
+                                    dropTargetIndex = newIndex
                                 }
                             }
                         }
+                    )
+                    
+                    // Show drop indicator after last item
+                    if (index == levelsInSequence.size - 1 && dropTargetIndex == levelsInSequence.size && !isDropTargetAvailableArea) {
+                        DropIndicator()
                     }
                 }
             }
@@ -152,48 +202,66 @@ fun LevelSequenceContent() {
                 modifier = Modifier.padding(bottom = 16.dp)
             )
         } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxWidth().weight(0.5f),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(availableLevels.size) { index ->
-                    val level = availableLevels[index]
-                    
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.secondaryContainer
-                        )
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(12.dp).fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Column(
-                                modifier = Modifier.weight(1f)
-                            ) {
-                                Text(
-                                    text = level.title,
-                                    style = MaterialTheme.typography.titleSmall
-                                )
-                                Text(
-                                    text = level.subtitle.ifBlank { level.id },
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                            
-                            Button(
-                                onClick = {
-                                    EditorStorage.addLevelToSequence(level.id)
-                                    sequence.value = EditorStorage.getLevelSequence()
-                                    allLevels.value = EditorStorage.getAllLevels()
-                                }
-                            ) {
-                                Text(stringResource(Res.string.add_to_sequence))
-                            }
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(0.5f)
+                    .background(
+                        if (isDropTargetAvailableArea) {
+                            MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+                        } else {
+                            Color.Transparent
                         }
+                    )
+                    .onGloballyPositioned { coordinates ->
+                        availableAreaBounds = coordinates.positionInRoot() to 
+                            IntSize(coordinates.size.width, coordinates.size.height)
+                    }
+            ) {
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(4),
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(availableLevels.size) { index ->
+                        val level = availableLevels[index]
+                        
+                        AvailableLevelCard(
+                            level = level,
+                            isDragging = dragState?.levelId == level.id,
+                            onAddToSequence = {
+                                EditorStorage.addLevelToSequence(level.id)
+                                sequence.value = EditorStorage.getLevelSequence()
+                                allLevels.value = EditorStorage.getAllLevels()
+                            },
+                            onDragStart = { offset ->
+                                dragState = DragState(level.id, false, offset)
+                                dropTargetIndex = 0 // Default to start of sequence
+                                isDropTargetAvailableArea = false
+                            },
+                            onDrag = { change, dragAmount ->
+                                dragState?.let { state ->
+                                    val newOffset = state.dragOffset + Offset(dragAmount.x, dragAmount.y)
+                                    dragState = state.copy(dragOffset = newOffset)
+                                }
+                                change.consume()
+                            },
+                            onDragEnd = {
+                                dragState?.let { state ->
+                                    if (!state.isFromSequence && dropTargetIndex != null) {
+                                        // Add to sequence at specific position
+                                        EditorStorage.addLevelToSequence(state.levelId, dropTargetIndex)
+                                        sequence.value = EditorStorage.getLevelSequence()
+                                        allLevels.value = EditorStorage.getAllLevels()
+                                    }
+                                }
+                                dragState = null
+                                dropTargetIndex = null
+                                isDropTargetAvailableArea = false
+                            }
+                        )
                     }
                 }
             }
@@ -213,5 +281,191 @@ fun LevelSequenceContent() {
                 levelToRemove = null
             }
         )
+    }
+}
+
+/**
+ * Visual indicator for drop target position
+ */
+@Composable
+fun DropIndicator() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(4.dp)
+            .background(MaterialTheme.colorScheme.primary)
+            .padding(vertical = 2.dp)
+    )
+}
+
+/**
+ * Level item in the sequence list with drag support
+ */
+@Composable
+fun LevelSequenceItem(
+    index: Int,
+    levelId: String,
+    levelTitle: String,
+    isInSequence: Boolean,
+    isDragging: Boolean,
+    canMoveUp: Boolean,
+    canMoveDown: Boolean,
+    onMoveUp: () -> Unit,
+    onMoveDown: () -> Unit,
+    onRemove: () -> Unit,
+    onDragStart: (Offset) -> Unit,
+    onDrag: (androidx.compose.ui.input.pointer.PointerInputChange, Offset) -> Unit,
+    onDragEnd: () -> Unit,
+    onPositionChanged: (Offset) -> Unit
+) {
+    var itemPosition by remember { mutableStateOf(Offset.Zero) }
+    
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .onGloballyPositioned { coordinates ->
+                itemPosition = coordinates.positionInRoot()
+                onPositionChanged(itemPosition)
+            }
+            .pointerInput(Unit) {
+                detectDragGesturesAfterLongPress(
+                    onDragStart = { offset ->
+                        onDragStart(itemPosition + offset)
+                    },
+                    onDrag = onDrag,
+                    onDragEnd = onDragEnd,
+                    onDragCancel = onDragEnd
+                )
+            },
+        colors = CardDefaults.cardColors(
+            containerColor = if (isDragging) {
+                MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
+            } else {
+                MaterialTheme.colorScheme.surfaceVariant
+            }
+        )
+    ) {
+        Row(
+            modifier = Modifier.padding(12.dp).fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = "${index + 1}. $levelTitle",
+                    style = MaterialTheme.typography.titleSmall
+                )
+                Text(
+                    text = "Long-press to drag",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Button(
+                    onClick = onMoveUp,
+                    enabled = canMoveUp && !isDragging
+                ) {
+                    UpArrowIcon(size = 16.dp, tint = Color.White)
+                }
+                
+                Button(
+                    onClick = onMoveDown,
+                    enabled = canMoveDown && !isDragging
+                ) {
+                    DownArrowIcon(size = 16.dp, tint = Color.White)
+                }
+                
+                Button(
+                    onClick = onRemove,
+                    enabled = !isDragging,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error
+                    )
+                ) {
+                    Text(stringResource(Res.string.remove_from_sequence))
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Available level card in grid layout with drag support
+ */
+@Composable
+fun AvailableLevelCard(
+    level: de.egril.defender.editor.EditorLevel,
+    isDragging: Boolean,
+    onAddToSequence: () -> Unit,
+    onDragStart: (Offset) -> Unit,
+    onDrag: (androidx.compose.ui.input.pointer.PointerInputChange, Offset) -> Unit,
+    onDragEnd: () -> Unit
+) {
+    var cardPosition by remember { mutableStateOf(Offset.Zero) }
+    
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .onGloballyPositioned { coordinates ->
+                cardPosition = coordinates.positionInRoot()
+            }
+            .pointerInput(Unit) {
+                detectDragGesturesAfterLongPress(
+                    onDragStart = { offset ->
+                        onDragStart(cardPosition + offset)
+                    },
+                    onDrag = onDrag,
+                    onDragEnd = onDragEnd,
+                    onDragCancel = onDragEnd
+                )
+            },
+        colors = CardDefaults.cardColors(
+            containerColor = if (isDragging) {
+                MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
+            } else {
+                MaterialTheme.colorScheme.tertiaryContainer
+            }
+        )
+    ) {
+        Column(
+            modifier = Modifier.padding(12.dp).fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = level.title,
+                style = MaterialTheme.typography.titleSmall,
+                maxLines = 2
+            )
+            if (level.subtitle.isNotBlank()) {
+                Text(
+                    text = level.subtitle,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1
+                )
+            }
+            
+            Spacer(modifier = Modifier.height(8.dp))
+            
+            Button(
+                onClick = onAddToSequence,
+                enabled = !isDragging,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(stringResource(Res.string.add_to_sequence))
+            }
+            
+            Text(
+                text = "Long-press to drag",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
     }
 }
