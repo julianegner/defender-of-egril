@@ -135,7 +135,7 @@
     <string name="acid_desc">Ácido: Daño continuo durante 3 turnos dentro de 1 casilla del impacto</string>
     <string name="victory_defeat">Victoria &amp; Derrota</string>
     <string name="victory_detail">Victoria: Derrota a todos los enemigos en todas las oleadas con al menos 1 punto de salud restante</string>
-    <string name="defeat_detail">Derrota: Cada enemigo que llega al objetivo cuesta 1 punto de salud. A 0 puntos de salud, pierdes.</string>
+    <string name="defeat_detail">Derrota: Los enemigos débiles (goblins, orcos, ogros, esqueletos) cuestan 1 punto de salud al llegar al objetivo. Los enemigos poderosos (magos, brujas, magos malvados, demonios, dragones) cuestan puntos de salud igual a su nivel. Ewhad cuesta todos tus puntos de salud. A 0 puntos de salud, pierdes.</string>
     <string name="grid_legend">Leyenda de la cuadrícula</string>
     <string name="spawn_desc">Spawn: Posición inicial (los enemigos aparecen)</string>
     <string name="target_desc">Objetivo: Posición objetivo (¡defiende esto!)</string>
@@ -319,6 +319,12 @@
     <string name="ewhad_warning">⚠️ Ewhad solo puede aparecer una vez por nivel!</string>
     <string name="level_lv">Nv%d</string>
     <string name="arrange_level_order">Organizar orden de niveles:</string>
+    <string name="levels_in_sequence">Niveles en secuencia:</string>
+    <string name="available_levels">Niveles disponibles (No en secuencia):</string>
+    <string name="add_to_sequence">Añadir a secuencia</string>
+    <string name="remove_from_sequence">Eliminar de secuencia</string>
+    <string name="remove_level_confirmation_title">¿Eliminar nivel de secuencia?</string>
+    <string name="remove_level_confirmation_message">¿Estás seguro de que quieres eliminar "%s" de la secuencia de niveles? El nivel no será borrado y podrá ser añadido de nuevo más tarde.</string>
     <string name="save_map_as_new">Guardar mapa como nuevo</string>
     <string name="save_level_as_new">Guardar nivel como nuevo</string>
     <string name="enter_a">Ingresa %s:</string>
@@ -357,7 +363,7 @@
     <string name="tutorial_welcome_title">¡Bienvenido a Defender of Egril!</string>
     <string name="tutorial_welcome">Este es un juego de defensa de torres. Tu objetivo es evitar que los enemigos lleguen al objetivo construyendo torres defensivas.</string>
     <string name="tutorial_resources_title">Recursos</string>
-    <string name="tutorial_resources">Tienes monedas para construir torres y puntos de salud. Cada enemigo que llega al objetivo cuesta 1 PS.</string>
+    <string name="tutorial_resources">Tienes monedas para construir torres y puntos de salud. Los enemigos débiles cuestan 1 PS, pero los enemigos poderosos (magos, brujas, magos malvados, demonios, dragones) cuestan PS igual a su nivel. ¡Ewhad cuesta todos tus PS!</string>
     <string name="tutorial_towers_title">Torres disponibles</string>
     <string name="tutorial_towers">Torre de Púas: Corto alcance, barata\nTorre de Lanza: Alcance medio\nTorre de Arco: Largo alcance\n\n¡Elige sabiamente según tu estrategia!</string>
     <string name="tutorial_build_title">Construir torres</string>
@@ -378,6 +384,8 @@
     <string name="tutorial_upgrade">Selecciona una torre y haz clic en Mejorar para aumentar sus estadísticas. Verás daño, alcance y acciones actuales por turno, además de cómo serán después de mejorar. ¡Las mejoras cuestan monedas pero hacen las torres más poderosas!</string>
     <string name="tutorial_sell_title">Vender torres</string>
     <string name="tutorial_sell">Selecciona una torre y haz clic en Vender para recuperar el 75% de su inversión total (costo + mejoras). Usa esto si necesitas monedas o quieres reposicionar tu defensa.</string>
+    <string name="tutorial_save_game_title">Guarda tu progreso</string>
+    <string name="tutorial_save_game">Puedes guardar tu juego en cualquier momento usando el botón Guardar Juego. Esto te permite probar diferentes estrategias o continuar más tarde. Para cargar una partida guardada, usa el botón Cargar Juego en la pantalla del mapa mundial.</string>
     <string name="tutorial_complete_title">¡Tutorial completado!</string>
     <string name="tutorial_complete">¡Has dominado lo básico! En niveles posteriores, desbloquearás torres más poderosas como la Ballista, Mago y torres de Alquimia para enfrentar enemigos más fuertes como demonios y jefes. Ahora defiende Egril contra las hordas. ¡Buena suerte, defensor!</string>
     <string name="tutorial_next">Siguiente</string>
@@ -389,4 +397,38 @@
     <string name="sound_enabled">Sonido activado</string>
     <string name="sound_disabled">Sonido desactivado</string>
     <string name="sound_volume">Volumen del sonido</string>
+    
+    <!-- Dragon Names -->
+    <string name="the_dragon">El dragón</string>
+    <string name="awakens">despierta</string>
+    <string name="lair_of_the_dragon">Guarida del Dragón</string>
+
+    <!-- Dragon Greed Info -->
+    <string name="dragon_greed_title">¡Avaricia de Dragón!</string>
+    <string name="dragon_greed_message">¡El dragón se ha vuelto codicioso! Avaricia = Nivel del Dragón ÷ 5\n\nEl dragón devorará unidades en casillas adyacentes según su nivel de avaricia cada turno.</string>
+    <string name="dragon_very_greedy_title">¡Asalto Minero del Dragón!</string>
+    <string name="dragon_very_greedy_message">¡El dragón es muy codicioso (avaricia > 5)!\n\nAhora cazará y destruirá minas enanas, absorbiendo toda la salud que tendría un nuevo dragón (500 PS por mina).\n\n¡Las minas se convertirán en escombros destruidos. Defiéndelas o reconstruye rápidamente!</string>
+    <string name="mine_warning_title">¡Mina Amenazada!</string>
+    <string name="mine_warning_message">¡El dragón se acerca! Los enanos se preparan para defender su mina, pero puede que no sea suficiente...</string>
+<!-- Waypoint Editor -->
+    <string name="waypoints_tab">Puntos de Paso</string>
+    <string name="waypoints_title">Conexiones de Puntos de Paso</string>
+    <string name="waypoints_description">Configure las conexiones de puntos de paso para este nivel. Los puntos de paso definen el camino que seguirán los enemigos.</string>
+    <string name="waypoint_source">Origen</string>
+    <string name="waypoint_target">Destino</string>
+    <string name="add_waypoint">➕ Añadir Punto de Paso</string>
+    <string name="delete_waypoint">Eliminar</string>
+    <string name="no_waypoints_configured">No hay puntos de paso configurados para este nivel.</string>
+    <string name="available_waypoint_tiles">Casillas de puntos de paso disponibles en el mapa: %d</string>
+    <string name="waypoint_validation_success">✓ La configuración de puntos de paso es válida</string>
+    <string name="waypoint_validation_error">✗ La configuración de puntos de paso tiene errores</string>
+    <string name="circular_dependency_detected">¡Dependencia circular detectada! Corrija las conexiones de puntos de paso.</string>
+    <string name="waypoint_position_format">Posición (%d, %d)</string>
+    <string name="spawn_point_text">Punto de Aparición</string>
+    <string name="target_text">Objetivo</string>
+    <string name="select_source_position">Seleccionar posición de origen</string>
+    <string name="select_target_position">Seleccionar posición de destino</string>
+    <string name="waypoint_exists_error">Ya existe una conexión de punto de paso desde esta posición</string>
+    <string name="remove_all_waypoints">Eliminar Todo</string>
+    <string name="confirm_remove_all_waypoints">¿Está seguro de que desea eliminar todas las conexiones de puntos de paso?</string>
 </resources>
