@@ -2,6 +2,7 @@ package de.egril.defender.editor
 
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.DefenderType
+import de.egril.defender.model.Position
 
 /**
  * Simple JSON serialization for editor data
@@ -69,6 +70,10 @@ object EditorJsonSerializer {
         
         val towersJson = level.availableTowers.joinToString(", ") { "\"${it.name}\"" }
         
+        val waypointsJson = level.waypoints.joinToString(",\n    ") { waypoint ->
+            """{"position": {"x": ${waypoint.position.x}, "y": ${waypoint.position.y}}, "nextTargetPosition": {"x": ${waypoint.nextTargetPosition.x}, "y": ${waypoint.nextTargetPosition.y}}}"""
+        }
+        
         return """{
   "id": "${level.id}",
   "mapId": "${level.mapId}",
@@ -79,7 +84,10 @@ object EditorJsonSerializer {
   "enemySpawns": [
     $spawnsJson
   ],
-  "availableTowers": [$towersJson]
+  "availableTowers": [$towersJson],
+  "waypoints": [
+    $waypointsJson
+  ]
 }"""
     }
     
@@ -116,7 +124,82 @@ object EditorJsonSerializer {
                 }
             }
             
-            return EditorLevel(id, mapId, title, subtitle, startCoins, startHealthPoints, spawns, towers)
+            // Parse waypoints (optional for backward compatibility)
+            val waypoints = mutableListOf<EditorWaypoint>()
+            if (json.contains("\"waypoints\"")) {
+                try {
+                    // Find the waypoints array section
+                    val waypointsStart = json.indexOf("\"waypoints\": [")
+                    if (waypointsStart >= 0) {
+                        val arrayStart = json.indexOf("[", waypointsStart)
+                        var arrayEnd = arrayStart + 1
+                        var depth = 1
+                        
+                        // Find matching closing bracket
+                        while (depth > 0 && arrayEnd < json.length) {
+                            when (json[arrayEnd]) {
+                                '[' -> depth++
+                                ']' -> depth--
+                            }
+                            arrayEnd++
+                        }
+                        
+                        val waypointsSection = json.substring(arrayStart + 1, arrayEnd - 1).trim()
+                        
+                        if (waypointsSection.isNotEmpty()) {
+                            // Split by "}," but need to be careful about nested braces
+                            val waypointEntries = mutableListOf<String>()
+                            var currentEntry = ""
+                            var braceDepth = 0
+                            
+                            for (i in waypointsSection.indices) {
+                                val char = waypointsSection[i]
+                                currentEntry += char
+                                
+                                when (char) {
+                                    '{' -> braceDepth++
+                                    '}' -> {
+                                        braceDepth--
+                                        if (braceDepth == 0 && i + 1 < waypointsSection.length && waypointsSection[i + 1] == ',') {
+                                            waypointEntries.add(currentEntry.trim())
+                                            currentEntry = ""
+                                            // Skip the comma
+                                            continue
+                                        }
+                                    }
+                                }
+                            }
+                            if (currentEntry.trim().isNotEmpty()) {
+                                waypointEntries.add(currentEntry.trim())
+                            }
+                            
+                            for (entry in waypointEntries) {
+                                if (!entry.contains("position")) continue
+                                
+                                // Extract position
+                                val posSection = entry.substringAfter("\"position\": {").substringBefore("},")
+                                val posX = extractValue(posSection, "x").toInt()
+                                val posY = extractValue(posSection, "y").toInt()
+                                val position = Position(posX, posY)
+                                
+                                // Extract nextTargetPosition - it's the last object, so use } not },
+                                val targetSection = entry.substringAfter("\"nextTargetPosition\": {").substringBefore("}")
+                                val targetX = extractValue(targetSection, "x").toInt()
+                                val targetY = extractValue(targetSection, "y").toInt()
+                                val nextTargetPosition = Position(targetX, targetY)
+                                
+                                waypoints.add(EditorWaypoint(position, nextTargetPosition))
+                            }
+                        }
+                    }
+                } catch (e: Exception) {
+                    println("Error parsing waypoints (continuing without them): ${e.message}")
+                    e.printStackTrace()
+                    // Continue without waypoints for backward compatibility
+                }
+            }
+            
+            return EditorLevel(id, mapId, title, subtitle, startCoins, startHealthPoints, spawns, towers, waypoints)
         } catch (e: Exception) {
             println("Error deserializing level: ${e.message}")
             return null

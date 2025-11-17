@@ -135,7 +135,7 @@
     <string name="acid_desc">Acido: Danno continuo per 3 turni entro 1 cella dall\'impatto</string>
     <string name="victory_defeat">Vittoria &amp; Sconfitta</string>
     <string name="victory_detail">Vittoria: Sconfiggi tutti i nemici in tutte le ondate con almeno 1 punto salute rimanente</string>
-    <string name="defeat_detail">Sconfitta: Ogni nemico che raggiunge il bersaglio costa 1 punto salute. A 0 punti salute, perdi.</string>
+    <string name="defeat_detail">Sconfitta: I nemici deboli (goblin, orchi, ogre, scheletri) costano 1 punto salute quando raggiungono il bersaglio. I nemici potenti (maghi, streghe, maghi malvagi, demoni, draghi) costano punti salute pari al loro livello. Ewhad costa tutti i tuoi punti salute. A 0 punti salute, perdi.</string>
     <string name="grid_legend">Legenda della griglia</string>
     <string name="spawn_desc">Spawn: Posizione di partenza (i nemici appaiono)</string>
     <string name="target_desc">Bersaglio: Posizione bersaglio (difendi questo!)</string>
@@ -319,6 +319,12 @@
     <string name="ewhad_warning">⚠️ Ewhad può apparire solo una volta per livello!</string>
     <string name="level_lv">Liv%d</string>
     <string name="arrange_level_order">Organizza ordine dei livelli:</string>
+    <string name="levels_in_sequence">Livelli nella sequenza:</string>
+    <string name="available_levels">Livelli disponibili (Non nella sequenza):</string>
+    <string name="add_to_sequence">Aggiungi alla sequenza</string>
+    <string name="remove_from_sequence">Rimuovi dalla sequenza</string>
+    <string name="remove_level_confirmation_title">Rimuovere il livello dalla sequenza?</string>
+    <string name="remove_level_confirmation_message">Sei sicuro di voler rimuovere "%s" dalla sequenza dei livelli? Il livello non sarà cancellato e potrà essere aggiunto di nuovo più tardi.</string>
     <string name="save_map_as_new">Salva mappa come nuova</string>
     <string name="save_level_as_new">Salva livello come nuovo</string>
     <string name="enter_a">Inserisci %s:</string>
@@ -357,7 +363,7 @@
     <string name="tutorial_welcome_title">Benvenuto in Defender of Egril!</string>
     <string name="tutorial_welcome">Questo è un gioco di difesa delle torri. Il tuo obiettivo è impedire ai nemici di raggiungere il bersaglio costruendo torri difensive.</string>
     <string name="tutorial_resources_title">Risorse</string>
-    <string name="tutorial_resources">Hai monete per costruire torri e punti vita. Ogni nemico che raggiunge il bersaglio costa 1 PV.</string>
+    <string name="tutorial_resources">Hai monete per costruire torri e punti vita. I nemici deboli costano 1 PV, ma i nemici potenti (maghi, streghe, maghi malvagi, demoni, draghi) costano PV pari al loro livello. Ewhad costa tutti i tuoi PV!</string>
     <string name="tutorial_towers_title">Torri disponibili</string>
     <string name="tutorial_towers">Torre di Punte: Corto raggio, economica\nTorre di Lancia: Raggio medio\nTorre ad Arco: Lungo raggio\n\nScegli saggiamente in base alla tua strategia!</string>
     <string name="tutorial_build_title">Costruire torri</string>
@@ -396,4 +402,33 @@
     <string name="the_dragon">Il drago</string>
     <string name="awakens">si sveglia</string>
     <string name="lair_of_the_dragon">Tana del Drago</string>
+
+    <!-- Dragon Greed Info -->
+    <string name="dragon_greed_title">Avidità del Drago!</string>
+    <string name="dragon_greed_message">Il drago è diventato avido! Avidità = Livello del Drago ÷ 5\n\nIl drago divorerà ora unità su caselle adiacenti pari al suo livello di avidità ogni turno.</string>
+    <string name="dragon_very_greedy_title">Incursione Mineraria del Drago!</string>
+    <string name="dragon_very_greedy_message">Il drago è molto avido (avidità > 5)!\n\nOra caccerà e distruggerà miniere naniche, assorbendo tutta la salute che avrebbe un nuovo drago (500 PS per miniera).\n\nLe miniere diventeranno macerie distrutte. Difendile o ricostruisci rapidamente!</string>
+    <string name="mine_warning_title">Miniera Minacciata!</string>
+    <string name="mine_warning_message">Il drago si avvicina! I nani si preparano a difendere la loro miniera, ma potrebbe non essere sufficiente...</string>
+<!-- Waypoint Editor -->
+    <string name="waypoints_tab">Punti di Passaggio</string>
+    <string name="waypoints_title">Connessioni dei Punti di Passaggio</string>
+    <string name="waypoints_description">Configura le connessioni dei punti di passaggio per questo livello. I punti di passaggio definiscono il percorso che seguiranno i nemici.</string>
+    <string name="waypoint_source">Sorgente</string>
+    <string name="waypoint_target">Obiettivo</string>
+    <string name="add_waypoint">➕ Aggiungi Punto di Passaggio</string>
+    <string name="delete_waypoint">Elimina</string>
+    <string name="no_waypoints_configured">Nessun punto di passaggio configurato per questo livello.</string>
+    <string name="available_waypoint_tiles">Caselle di punti di passaggio disponibili dalla mappa: %d</string>
+    <string name="waypoint_validation_success">✓ La configurazione dei punti di passaggio è valida</string>
+    <string name="waypoint_validation_error">✗ La configurazione dei punti di passaggio presenta errori</string>
+    <string name="circular_dependency_detected">Dipendenza circolare rilevata! Correggi le connessioni dei punti di passaggio.</string>
+    <string name="waypoint_position_format">Posizione (%d, %d)</string>
+    <string name="spawn_point_text">Punto di Spawn</string>
+    <string name="target_text">Obiettivo</string>
+    <string name="select_source_position">Seleziona posizione sorgente</string>
+    <string name="select_target_position">Seleziona posizione obiettivo</string>
+    <string name="waypoint_exists_error">Esiste già una connessione di punto di passaggio da questa posizione</string>
+    <string name="remove_all_waypoints">Rimuovi Tutto</string>
+    <string name="confirm_remove_all_waypoints">Sei sicuro di voler rimuovere tutte le connessioni dei punti di passaggio?</string>
 </resources>

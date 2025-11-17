@@ -162,4 +162,36 @@ class EditorStorageTest {
         assertEquals("test", deserialized.id)
         assertEquals(10, deserialized.width)
     }
+    
+    @Test
+    fun testLevelSequenceAddRemove() {
+        // Test adding a level to sequence
+        val initialSequence = listOf("level_1", "level_2")
+        var sequence = LevelSequence(initialSequence)
+        
+        // Simulate adding a level
+        val newSequence = sequence.sequence + "level_3"
+        sequence = LevelSequence(newSequence)
+        
+        assertEquals(3, sequence.sequence.size)
+        assertEquals("level_3", sequence.sequence[2])
+        
+        // Test adding at specific index
+        val insertedSequence = sequence.sequence.toMutableList()
+        insertedSequence.add(1, "level_1_5")
+        sequence = LevelSequence(insertedSequence)
+        
+        assertEquals(4, sequence.sequence.size)
+        assertEquals("level_1_5", sequence.sequence[1])
+        assertEquals("level_2", sequence.sequence[2])
+        
+        // Simulate removing a level
+        val removedSequence = sequence.sequence.filter { it != "level_1_5" }
+        sequence = LevelSequence(removedSequence)
+        
+        assertEquals(3, sequence.sequence.size)
+        assertEquals("level_1", sequence.sequence[0])
+        assertEquals("level_2", sequence.sequence[1])
+        assertEquals("level_3", sequence.sequence[2])
+    }
 }
