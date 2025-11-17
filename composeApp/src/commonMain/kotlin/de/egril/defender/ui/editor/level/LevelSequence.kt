@@ -161,29 +161,33 @@ fun LevelSequenceContent() {
                                         var targetIndex: Int? = null
                                         
                                         if (sortedBounds.isNotEmpty()) {
-                                            // Check if before first item
+                                            // Check if before first item (above its midpoint)
                                             val firstItem = sortedBounds.first()
-                                            if (newPosition.y < firstItem.position.y) {
+                                            val firstMidpoint = firstItem.position.y + firstItem.size.height / 2
+                                            if (newPosition.y < firstMidpoint) {
                                                 targetIndex = 0
                                             } else {
-                                                // Check between items and after last item
+                                                // Check each item to find insertion point
+                                                var found = false
                                                 for (i in 0 until sortedBounds.size) {
                                                     val currentItem = sortedBounds[i]
-                                                    val itemBottom = currentItem.position.y + currentItem.size.height
+                                                    val currentMidpoint = currentItem.position.y + currentItem.size.height / 2
                                                     
-                                                    // Check if after this item
                                                     if (i == sortedBounds.size - 1) {
-                                                        // Last item - check if after it
-                                                        if (newPosition.y >= itemBottom) {
-                                                            targetIndex = currentItem.index + 1
+                                                        // Last item - check if below its midpoint
+                                                        if (newPosition.y >= currentMidpoint) {
+                                                            targetIndex = sortedBounds.size
                                                         } else {
-                                                            targetIndex = currentItem.index
+                                                            targetIndex = i
                                                         }
                                                     } else {
                                                         val nextItem = sortedBounds[i + 1]
-                                                        // Check if between this item and next
-                                                        if (newPosition.y >= itemBottom && newPosition.y < nextItem.position.y) {
-                                                            targetIndex = currentItem.index + 1
+                                                        val nextMidpoint = nextItem.position.y + nextItem.size.height / 2
+                                                        
+                                                        // Check if between current midpoint and next midpoint
+                                                        if (newPosition.y >= currentMidpoint && newPosition.y < nextMidpoint) {
+                                                            targetIndex = i + 1
+                                                            found = true
                                                             break
                                                         }
                                                     }
@@ -294,29 +298,31 @@ fun LevelSequenceContent() {
                                     var targetIndex: Int? = null
                                     
                                     if (sortedBounds.isNotEmpty()) {
-                                        // Check if before first item
+                                        // Check if before first item (above its midpoint)
                                         val firstItem = sortedBounds.first()
-                                        if (newPosition.y < firstItem.position.y) {
+                                        val firstMidpoint = firstItem.position.y + firstItem.size.height / 2
+                                        if (newPosition.y < firstMidpoint) {
                                             targetIndex = 0
                                         } else {
-                                            // Check between items and after last item
+                                            // Check each item to find insertion point
                                             for (i in 0 until sortedBounds.size) {
                                                 val currentItem = sortedBounds[i]
-                                                val itemBottom = currentItem.position.y + currentItem.size.height
+                                                val currentMidpoint = currentItem.position.y + currentItem.size.height / 2
                                                 
-                                                // Check if after this item
                                                 if (i == sortedBounds.size - 1) {
-                                                    // Last item - check if after it
-                                                    if (newPosition.y >= itemBottom) {
-                                                        targetIndex = currentItem.index + 1
+                                                    // Last item - check if below its midpoint
+                                                    if (newPosition.y >= currentMidpoint) {
+                                                        targetIndex = sortedBounds.size
                                                     } else {
-                                                        targetIndex = currentItem.index
+                                                        targetIndex = i
                                                     }
                                                 } else {
                                                     val nextItem = sortedBounds[i + 1]
-                                                    // Check if between this item and next
-                                                    if (newPosition.y >= itemBottom && newPosition.y < nextItem.position.y) {
-                                                        targetIndex = currentItem.index + 1
+                                                    val nextMidpoint = nextItem.position.y + nextItem.size.height / 2
+                                                    
+                                                    // Check if between current midpoint and next midpoint
+                                                    if (newPosition.y >= currentMidpoint && newPosition.y < nextMidpoint) {
+                                                        targetIndex = i + 1
                                                         break
                                                     }
                                                 }
