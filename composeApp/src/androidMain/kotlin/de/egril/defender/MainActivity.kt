@@ -7,6 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import de.egril.defender.audio.initializeAndroidAudio
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -14,6 +15,9 @@ class MainActivity : ComponentActivity() {
         
         // Initialize context provider for file storage
         AndroidContextProvider.initialize(this)
+        
+        // Initialize Android audio system for sound playback
+        initializeAndroidAudio(this)
         
         enableEdgeToEdge()
         

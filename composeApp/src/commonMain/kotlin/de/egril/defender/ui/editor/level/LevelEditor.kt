@@ -912,7 +912,7 @@ private fun WaypointsTab(
         // Available waypoint tiles info
         item {
             Text(
-                text = stringResource(Res.string.available_waypoint_tiles).format(waypointTiles.size),
+                text = stringResource(Res.string.available_waypoint_tiles).replace("%d", waypointTiles.size.toString()),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -1194,10 +1194,7 @@ private fun WaypointConnectionCard(
             // Source position
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = stringResource(Res.string.waypoint_position_format).format(
-                        waypoint.position.x,
-                        waypoint.position.y
-                    ),
+                    text = "Position (${waypoint.position.x}, ${waypoint.position.y})",
                     style = MaterialTheme.typography.bodyMedium
                 )
                 if (spawnPoints.contains(waypoint.position)) {
