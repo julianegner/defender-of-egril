@@ -37,7 +37,7 @@ data class HexagonalMapConfig(
     val enableBrushMode: Boolean = false,  // Enable brush painting mode (for editor)
     val enableZoomMode: Boolean = true,
     val keyboardPanSpeed: Float = 30f,  // Pixels to pan per key press
-    val dragPanSensitivity: Float = 30f,  // Multiplier for drag pan sensitivity
+    val dragPanSensitivity: Float = 30f,  // UNUSED: Previously used for drag pan sensitivity multiplier (removed to fix juddering)
     val minScale: Float = 0.5f,
     val maxScale: Float = 3.0f,
     val zoomDelta: Float = 0.1f  // Amount to zoom per button press
@@ -204,32 +204,55 @@ fun HexagonalMapView(
                     Modifier
                 }
             )
-            .pointerInput(scale, offsetX, offsetY) {
+            .then(
                 if (config.enablePanNavigation) {
-                    detectDragGestures { _, dragAmount ->
-                        // Apply pan with sensitivity multiplier
-                        val effectiveSensitivity = config.dragPanSensitivity * scale
-                        val newOffsetX = offsetX + (dragAmount.x * effectiveSensitivity)
-                        val newOffsetY = offsetY + (dragAmount.y * effectiveSensitivity)
+                    Modifier.pointerInput(Unit) {
+                        var dragStartOffsetX = 0f
+                        var dragStartOffsetY = 0f
+                        
+                        detectDragGestures(
+                            onDragStart = {
+                                // Capture the current offset when drag starts
+                                dragStartOffsetX = offsetX
+                                dragStartOffsetY = offsetY
+                            },
+                            onDrag = { _, dragAmount ->
+                                // Apply pan directly without scale multiplication to avoid juddering
+                                // dragAmount is incremental, so add to current position
+                                val newOffsetX = dragStartOffsetX + dragAmount.x
+                                val newOffsetY = dragStartOffsetY + dragAmount.y
+                                
+                                // Update the drag start for next delta
+                                dragStartOffsetX = newOffsetX
+                                dragStartOffsetY = newOffsetY
 
-                        // Constrain pan to keep content visible
-                        val (constrainedX, constrainedY) = constrainOffsets(newOffsetX, newOffsetY, scale)
-                        onOffsetChange(constrainedX, constrainedY)
+                                // Constrain pan to keep content visible
+                                val (constrainedX, constrainedY) = constrainOffsets(newOffsetX, newOffsetY, scale)
+                                onOffsetChange(constrainedX, constrainedY)
+                            }
+                        )
                     }
+                } else {
+                    Modifier
                 }
-                // Keep detectTransformGestures for pinch-to-zoom on mobile (separate pointerInput to avoid conflicts)
+            )
+            .then(
                 if (isPlatformMobile) {
-                    detectTransformGestures { _, _, zoom, _ ->
-                        if (zoom != 1f) {
-                            val newScale = (scale * zoom).coerceIn(config.minScale, config.maxScale)
-                            onScaleChange(newScale)
-                            // Re-constrain offsets after zoom
-                            val (constrainedX, constrainedY) = constrainOffsets(offsetX, offsetY, newScale)
-                            onOffsetChange(constrainedX, constrainedY)
+                    Modifier.pointerInput(Unit) {
+                        detectTransformGestures { _, _, zoom, _ ->
+                            if (zoom != 1f) {
+                                val newScale = (scale * zoom).coerceIn(config.minScale, config.maxScale)
+                                onScaleChange(newScale)
+                                // Re-constrain offsets after zoom
+                                val (constrainedX, constrainedY) = constrainOffsets(offsetX, offsetY, newScale)
+                                onOffsetChange(constrainedX, constrainedY)
+                            }
                         }
                     }
+                } else {
+                    Modifier
                 }
-            }
+            )
     ) {
         // Map content with pan and zoom applied
         Column(

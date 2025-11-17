@@ -201,6 +201,56 @@ object EditorStorage {
         }
     }
     
+    /**
+     * Add a level to the level sequence.
+     * If the level is already in the sequence, does nothing.
+     * @param levelId The ID of the level to add
+     * @param atIndex Optional index where to insert the level. If null, adds to the end.
+     */
+    fun addLevelToSequence(levelId: String, atIndex: Int? = null) {
+        val currentSequence = getLevelSequence().sequence.toMutableList()
+        if (!currentSequence.contains(levelId)) {
+            if (atIndex != null && atIndex >= 0 && atIndex <= currentSequence.size) {
+                currentSequence.add(atIndex, levelId)
+            } else {
+                currentSequence.add(levelId)
+            }
+            updateLevelSequence(LevelSequence(currentSequence))
+        }
+    }
+    
+    /**
+     * Remove a level from the level sequence.
+     * The level file is not deleted and can be added back to the sequence later.
+     * @param levelId The ID of the level to remove from the sequence
+     */
+    fun removeLevelFromSequence(levelId: String) {
+        val currentSequence = getLevelSequence().sequence.toMutableList()
+        currentSequence.remove(levelId)
+        updateLevelSequence(LevelSequence(currentSequence))
+    }
+    
+    /**
+     * Checks if a level is ready to play.
+     * A level is ready if:
+     * - It has at least one available tower
+     * - It has at least one enemy spawn configured
+     * - Start coins are greater than zero
+     * - Start health points are greater than zero
+     * - Its associated map is ready to use (has valid path from spawn to target)
+     * @param level The level to check
+     * @return true if the level is ready to play, false otherwise
+     */
+    fun isLevelReadyToPlay(level: EditorLevel): Boolean {
+        if (!level.isReadyToPlay()) {
+            return false
+        }
+        
+        // Also check if the map is ready to use
+        val map = getMap(level.mapId)
+        return map?.readyToUse == true
+    }
+    
     fun deleteMap(mapId: String) {
         // Remove from cache
         mapsCache.remove(mapId)
