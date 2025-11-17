@@ -17,8 +17,10 @@ import de.egril.defender.editor.EditorEnemySpawn
 import de.egril.defender.editor.EditorLevel
 import de.egril.defender.editor.EditorMap
 import de.egril.defender.editor.EditorStorage
+import de.egril.defender.editor.EditorWaypoint
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.DefenderType
+import de.egril.defender.model.Position
 import de.egril.defender.ui.*
 import de.egril.defender.ui.editor.ConfirmationDialog
 import de.egril.defender.ui.editor.CreateLevelDialog
@@ -203,7 +205,7 @@ private fun LevelCard(
                         style = MaterialTheme.typography.titleSmall
                     )
                     // Add ready/not ready indicator
-                    if (level.isReadyToPlay()) {
+                    if (EditorStorage.isLevelReadyToPlay(level)) {
                         CheckmarkIcon(
                             size = 16.dp,
                             tint = Color.Green
@@ -236,9 +238,9 @@ private fun LevelCard(
                     style = MaterialTheme.typography.bodySmall
                 )
                 Text(
-                    text = if (level.isReadyToPlay()) stringResource(Res.string.ready_to_use) else stringResource(Res.string.not_ready),
+                    text = if (EditorStorage.isLevelReadyToPlay(level)) stringResource(Res.string.ready_to_use) else stringResource(Res.string.not_ready),
                     style = MaterialTheme.typography.bodySmall,
-                    color = if (level.isReadyToPlay()) Color.Green else Color.Red
+                    color = if (EditorStorage.isLevelReadyToPlay(level)) Color.Green else Color.Red
                 )
             }
             Row(
@@ -281,6 +283,7 @@ fun LevelEditorView(
     var selectedMapId by remember { mutableStateOf(level.mapId) }
     var enemySpawns by remember { mutableStateOf(level.enemySpawns.toMutableList()) }
     var availableTowersState by remember { mutableStateOf(level.availableTowers.toSet()) }
+    var waypointsState by remember { mutableStateOf(level.waypoints.toMutableList()) }
     var showEnemyDialog by remember { mutableStateOf(false) }
     var showEnemyDialogForTurn by remember { mutableStateOf(1) }
     var showSaveAsDialog by remember { mutableStateOf(false) }
@@ -294,6 +297,9 @@ fun LevelEditorView(
     // Get only ready-to-use maps for selection
     val maps = remember { EditorStorage.getAllMaps().filter { it.readyToUse } }
     
+    // Get current map to access waypoint tiles and target
+    val currentMap = remember(selectedMapId) { EditorStorage.getMap(selectedMapId) }
+    
     // Check if Ewhad is already in spawn list
     val ewhadCount = enemySpawns.count { it.attackerType == AttackerType.EWHAD }
     
@@ -303,6 +309,14 @@ fun LevelEditorView(
     val isLevelInfoReady = coinsInt > 0 && hpInt > 0
     val isEnemySpawnsReady = enemySpawns.isNotEmpty()
     val isTowersReady = availableTowersState.isNotEmpty()
+    // Waypoints are optional, but if present they should be valid
+    val isWaypointsValid = if (waypointsState.isEmpty()) {
+        true  // No waypoints is valid
+    } else {
+        currentMap?.getTarget()?.let { target ->
+            level.copy(waypoints = waypointsState.toList()).validateWaypoints(target)
+        } ?: false
+    }
     
     Column(
         modifier = Modifier.fillMaxSize()
@@ -361,6 +375,21 @@ fun LevelEditorView(
                     }
                 }
             )
+            Tab(
+                selected = selectedTabIndex == 3,
+                onClick = { selectedTabIndex = 3 },
+                text = { 
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Text(stringResource(Res.string.waypoints_tab))
+                        if (!isWaypointsValid) {
+                            RedDotBadge()
+                        }
+                    }
+                }
+            )
         }
         
         // Tab Content
@@ -395,6 +424,12 @@ fun LevelEditorView(
                     availableTowers = availableTowersState,
                     onAvailableTowersChange = { availableTowersState = it }
                 )
+                3 -> WaypointsTab(
+                    waypoints = waypointsState,
+                    onWaypointsChange = { waypointsState = it },
+                    map = currentMap,
+                    isValid = isWaypointsValid
+                )
             }
         }
         
@@ -416,7 +451,8 @@ fun LevelEditorView(
                             startCoins = startCoins.toIntOrNull() ?: 100,
                             startHealthPoints = startHP.toIntOrNull() ?: 10,
                             enemySpawns = enemySpawns.toList(),
-                            availableTowers = availableTowersState
+                            availableTowers = availableTowersState,
+                            waypoints = waypointsState.toList()
                         )
                         onSave(updatedLevel)
                     },
@@ -494,7 +530,8 @@ fun LevelEditorView(
                     startCoins = startCoins.toIntOrNull() ?: 100,
                     startHealthPoints = startHP.toIntOrNull() ?: 10,
                     enemySpawns = enemySpawns.toList(),
-                    availableTowers = availableTowersState
+                    availableTowers = availableTowersState,
+                    waypoints = waypointsState.toList()
                 )
                 onSave(newLevel)
                 showSaveAsDialog = false
@@ -810,6 +847,427 @@ private fun TowersTab(
             }
         }
     }
+}
+
+/**
+ * Tab 4: Waypoints Configuration
+ */
+@Composable
+private fun WaypointsTab(
+    waypoints: MutableList<EditorWaypoint>,
+    onWaypointsChange: (MutableList<EditorWaypoint>) -> Unit,
+    map: EditorMap?,
+    isValid: Boolean
+) {
+    var showAddDialog by remember { mutableStateOf(false) }
+    var showRemoveAllDialog by remember { mutableStateOf(false) }
+    
+    // Get waypoint tiles, spawn points, and target from the map
+    val waypointTiles = remember(map) { map?.getWaypoints() ?: emptyList() }
+    val spawnPoints = remember(map) { map?.getSpawnPoints() ?: emptyList() }
+    val target = remember(map) { map?.getTarget() }
+    
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(vertical = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        // Description
+        item {
+            Text(
+                text = stringResource(Res.string.waypoints_description),
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+        }
+        
+        // Available waypoint tiles info
+        item {
+            Text(
+                text = stringResource(Res.string.available_waypoint_tiles).format(waypointTiles.size),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        
+        // Validation status
+        item {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                if (isValid) {
+                    Text(
+                        text = stringResource(Res.string.waypoint_validation_success),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.Green
+                    )
+                } else {
+                    Text(
+                        text = stringResource(Res.string.waypoint_validation_error),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.Red
+                    )
+                }
+            }
+            if (!isValid && waypoints.isNotEmpty()) {
+                Text(
+                    text = stringResource(Res.string.circular_dependency_detected),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.Red,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+            }
+        }
+        
+        // Add and Remove All buttons
+        item {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Button(
+                    onClick = { showAddDialog = true },
+                    enabled = waypointTiles.isNotEmpty(),
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(stringResource(Res.string.add_waypoint))
+                }
+                
+                Button(
+                    onClick = { showRemoveAllDialog = true },
+                    enabled = waypoints.isNotEmpty(),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (waypoints.isNotEmpty()) 
+                            MaterialTheme.colorScheme.error 
+                        else 
+                            MaterialTheme.colorScheme.surfaceVariant
+                    ),
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(stringResource(Res.string.remove_all_waypoints))
+                }
+            }
+        }
+        
+        // Waypoint list header
+        if (waypoints.isNotEmpty()) {
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = stringResource(Res.string.waypoint_source),
+                        style = MaterialTheme.typography.titleSmall,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Text(
+                        text = "→",
+                        style = MaterialTheme.typography.titleSmall,
+                        modifier = Modifier.padding(horizontal = 8.dp)
+                    )
+                    Text(
+                        text = stringResource(Res.string.waypoint_target),
+                        style = MaterialTheme.typography.titleSmall,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Spacer(modifier = Modifier.width(40.dp)) // Space for delete button
+                }
+            }
+        } else {
+            item {
+                Text(
+                    text = stringResource(Res.string.no_waypoints_configured),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(vertical = 16.dp)
+                )
+            }
+        }
+        
+        // Waypoint connections list
+        items(waypoints) { waypoint ->
+            WaypointConnectionCard(
+                waypoint = waypoint,
+                spawnPoints = spawnPoints,
+                waypointTiles = waypointTiles,
+                target = target,
+                onDelete = {
+                    val newWaypoints = waypoints.toMutableList().apply { remove(waypoint) }
+                    onWaypointsChange(newWaypoints)
+                }
+            )
+        }
+    }
+    
+    // Add waypoint dialog
+    if (showAddDialog) {
+        AddWaypointDialog(
+            waypointTiles = waypointTiles,
+            spawnPoints = spawnPoints,
+            target = target,
+            existingWaypoints = waypoints,
+            onDismiss = { showAddDialog = false },
+            onAdd = { source, targetPos ->
+                val newWaypoint = EditorWaypoint(source, targetPos)
+                val newWaypoints = waypoints.toMutableList().apply { add(newWaypoint) }
+                onWaypointsChange(newWaypoints)
+                showAddDialog = false
+            }
+        )
+    }
+    
+    // Remove all confirmation dialog
+    if (showRemoveAllDialog) {
+        ConfirmationDialog(
+            title = stringResource(Res.string.remove_all_waypoints),
+            message = stringResource(Res.string.confirm_remove_all_waypoints),
+            onDismiss = { showRemoveAllDialog = false },
+            onConfirm = {
+                onWaypointsChange(mutableListOf())
+                showRemoveAllDialog = false
+            }
+        )
+    }
+}
+
+/**
+ * Card showing a single waypoint connection
+ */
+@Composable
+private fun WaypointConnectionCard(
+    waypoint: EditorWaypoint,
+    spawnPoints: List<Position>,
+    waypointTiles: List<Position>,
+    target: Position?,
+    onDelete: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            // Source position
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = stringResource(Res.string.waypoint_position_format).format(
+                        waypoint.position.x,
+                        waypoint.position.y
+                    ),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                if (spawnPoints.contains(waypoint.position)) {
+                    Text(
+                        text = stringResource(Res.string.spawn_point_text),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                } else if (waypointTiles.contains(waypoint.position)) {
+                    Text(
+                        text = "WAYPOINT",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.secondary
+                    )
+                }
+            }
+            
+            // Arrow
+            Text(
+                text = "→",
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(horizontal = 8.dp)
+            )
+            
+            // Target position
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = stringResource(Res.string.waypoint_position_format).format(
+                        waypoint.nextTargetPosition.x,
+                        waypoint.nextTargetPosition.y
+                    ),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                if (target == waypoint.nextTargetPosition) {
+                    Text(
+                        text = stringResource(Res.string.target_text),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Color.Green
+                    )
+                } else if (waypointTiles.contains(waypoint.nextTargetPosition)) {
+                    Text(
+                        text = "WAYPOINT",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.secondary
+                    )
+                }
+            }
+            
+            // Delete button
+            IconButton(onClick = onDelete) {
+                Text("🗑️", style = MaterialTheme.typography.titleMedium)
+            }
+        }
+    }
+}
+
+/**
+ * Dialog for adding a new waypoint connection
+ */
+@Composable
+private fun AddWaypointDialog(
+    waypointTiles: List<Position>,
+    spawnPoints: List<Position>,
+    target: Position?,
+    existingWaypoints: List<EditorWaypoint>,
+    onDismiss: () -> Unit,
+    onAdd: (Position, Position) -> Unit
+) {
+    var selectedSource by remember { mutableStateOf<Position?>(null) }
+    var selectedTarget by remember { mutableStateOf<Position?>(null) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+    
+    // Valid source positions: spawn points + waypoint tiles
+    val validSources = remember(spawnPoints, waypointTiles) {
+        (spawnPoints + waypointTiles).distinct()
+    }
+    
+    // Valid target positions: waypoint tiles + target
+    val validTargets = remember(waypointTiles, target) {
+        val targets = waypointTiles.toMutableList()
+        if (target != null) targets.add(target)
+        targets.distinct()
+    }
+    
+    // Get error message strings in composable context
+    val waypointExistsErrorMsg = stringResource(Res.string.waypoint_exists_error)
+    
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(Res.string.add_waypoint)) },
+        text = {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                // Source selection
+                Text(
+                    text = stringResource(Res.string.select_source_position),
+                    style = MaterialTheme.typography.labelMedium
+                )
+                
+                LazyColumn(
+                    modifier = Modifier.fillMaxWidth().height(200.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    items(validSources) { pos ->
+                        val isSpawn = spawnPoints.contains(pos)
+                        val label = if (isSpawn) {
+                            "${stringResource(Res.string.spawn_point_text)} (${pos.x}, ${pos.y})"
+                        } else {
+                            "WAYPOINT (${pos.x}, ${pos.y})"
+                        }
+                        
+                        Row(
+                            modifier = Modifier.fillMaxWidth().clickable {
+                                selectedSource = pos
+                                errorMessage = null
+                            },
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(
+                                selected = selectedSource == pos,
+                                onClick = {
+                                    selectedSource = pos
+                                    errorMessage = null
+                                }
+                            )
+                            Text(label)
+                        }
+                    }
+                }
+                
+                Spacer(modifier = Modifier.height(8.dp))
+                
+                // Target selection
+                Text(
+                    text = stringResource(Res.string.select_target_position),
+                    style = MaterialTheme.typography.labelMedium
+                )
+                
+                LazyColumn(
+                    modifier = Modifier.fillMaxWidth().height(200.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    items(validTargets) { pos ->
+                        val isTarget = target == pos
+                        val label = if (isTarget) {
+                            "${stringResource(Res.string.target_text)} (${pos.x}, ${pos.y})"
+                        } else {
+                            "WAYPOINT (${pos.x}, ${pos.y})"
+                        }
+                        
+                        Row(
+                            modifier = Modifier.fillMaxWidth().clickable {
+                                selectedTarget = pos
+                                errorMessage = null
+                            },
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(
+                                selected = selectedTarget == pos,
+                                onClick = {
+                                    selectedTarget = pos
+                                    errorMessage = null
+                                }
+                            )
+                            Text(label)
+                        }
+                    }
+                }
+                
+                // Error message
+                if (errorMessage != null) {
+                    Text(
+                        text = errorMessage!!,
+                        color = Color.Red,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    if (selectedSource == null || selectedTarget == null) {
+                        errorMessage = "Please select both source and target positions"
+                        return@Button
+                    }
+                    
+                    // Check if waypoint already exists for this source
+                    val exists = existingWaypoints.any { it.position == selectedSource }
+                    if (exists) {
+                        errorMessage = waypointExistsErrorMsg
+                        return@Button
+                    }
+                    
+                    onAdd(selectedSource!!, selectedTarget!!)
+                }
+            ) {
+                Text(stringResource(Res.string.add_waypoint))
+            }
+        },
+        dismissButton = {
+            Button(onClick = onDismiss) {
+                Text(stringResource(Res.string.cancel))
+            }
+        }
+    )
 }
 
 /**
