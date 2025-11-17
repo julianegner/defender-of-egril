@@ -106,8 +106,8 @@ private fun WaypointChainCard(
             modifier = Modifier.fillMaxWidth().padding(12.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            // Check if start position is unconnected spawn point
-            val isStartUnconnected = spawnPoints.contains(chain.startPosition) && chain.endPosition == null
+            // Check if start position has no outgoing connection
+            val startHasNoConnection = unconnectedWaypoints.contains(chain.startPosition)
             
             // Start position (spawn point or waypoint)
             WaypointChainNode(
@@ -118,16 +118,15 @@ private fun WaypointChainCard(
                 isUnconnected = unconnectedWaypoints.contains(chain.startPosition),
                 indentLevel = 0,
                 onDelete = { onDeleteConnection(chain.startPosition) },
-                onConnect = if (isStartUnconnected) {
+                onConnect = if (startHasNoConnection) {
                     { onConnectWaypoint(chain.startPosition) }
                 } else null
             )
             
             // Intermediate waypoints
             chain.positions.forEachIndexed { index, pos ->
-                // Check if this is the last waypoint and not connected to target
-                val isLastWaypoint = index == chain.positions.size - 1
-                val isWaypointUnconnected = isLastWaypoint && chain.endPosition == null
+                // Check if this waypoint has no outgoing connection
+                val waypointHasNoConnection = unconnectedWaypoints.contains(pos)
                 
                 WaypointChainNode(
                     position = pos,
@@ -137,7 +136,7 @@ private fun WaypointChainCard(
                     isUnconnected = unconnectedWaypoints.contains(pos),
                     indentLevel = index + 1,
                     onDelete = { onDeleteConnection(pos) },
-                    onConnect = if (isWaypointUnconnected) {
+                    onConnect = if (waypointHasNoConnection) {
                         { onConnectWaypoint(pos) }
                     } else null
                 )
@@ -630,7 +629,7 @@ private fun WaypointMinimap(
                 
                 // Get color for tile type
                 val color = when {
-                    isSelected && pos == selectedSource -> Color(0xFFFF00FF) // Magenta for selected source
+                    isSelected && pos == selectedSource -> Color(0xFF40E0D0) // Turquoise for selected source
                     isSelected && pos == selectedTarget -> Color(0xFF00AAFF) // Cyan for selected target
                     tileType == TileType.SPAWN_POINT -> if (isDarkMode) Color(0xFF8B0000) else Color(0xFFDC143C)
                     tileType == TileType.TARGET -> if (isDarkMode) Color(0xFF1E3A8A) else Color(0xFF4169E1)

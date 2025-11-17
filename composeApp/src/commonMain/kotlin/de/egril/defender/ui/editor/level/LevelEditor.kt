@@ -315,7 +315,11 @@ fun LevelEditorView(
         true  // No waypoints is valid
     } else {
         currentMap?.getTarget()?.let { target ->
-            level.copy(waypoints = waypointsState.toList()).validateWaypoints(target)
+            val spawnPoints = currentMap.getSpawnPoints()
+            val tempLevel = level.copy(waypoints = waypointsState.toList())
+            val validationResult = tempLevel.validateWaypointsDetailed(target, spawnPoints)
+            // Valid if there are no circular dependencies and no unconnected waypoints
+            validationResult.circularDependencies.isEmpty() && validationResult.unconnectedWaypoints.isEmpty()
         } ?: false
     }
     
