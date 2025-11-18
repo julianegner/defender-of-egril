@@ -8,8 +8,6 @@ import de.egril.defender.model.PlannedEnemySpawn
 import de.egril.defender.model.Position
 import de.egril.defender.model.Waypoint
 import de.egril.defender.model.getHexNeighbors
-import de.egril.defender.model.hexDistanceTo
-
 /**
  * File-based storage for maps and levels
  * Stores data in ~/.defender-of-egril/ directory on desktop
@@ -248,7 +246,17 @@ object EditorStorage {
         
         // Also check if the map is ready to use
         val map = getMap(level.mapId)
-        return map?.readyToUse == true
+        if (map == null || !map.readyToUse) {
+            return false
+        }
+        // check if the waypoints of the level are valid
+        map.getTarget()?.let { target ->
+            val spawnPoints = map.getSpawnPoints()
+            val waypointValidationResult = level.validateWaypointsDetailed(targetPosition = target!!, spawnPoints = spawnPoints)
+            return waypointValidationResult.isValid
+        }
+
+        return false
     }
     
     fun deleteMap(mapId: String) {
