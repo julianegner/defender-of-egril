@@ -28,6 +28,7 @@ import defender_of_egril.composeapp.generated.resources.connect
 import defender_of_egril.composeapp.generated.resources.spawn_point_text
 import defender_of_egril.composeapp.generated.resources.target_text
 import defender_of_egril.composeapp.generated.resources.unconnected_waypoint_warning
+import defender_of_egril.composeapp.generated.resources.waypoint
 import defender_of_egril.composeapp.generated.resources.waypoint_position_format
 
 /**
@@ -177,7 +178,7 @@ private fun WaypointTypeLabel(isSpawn: Boolean, isTarget: Boolean) {
         )
     } else {
         Text(
-            text = "WAYPOINT",
+            text = stringResource(Res.string.waypoint),
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.secondary
         )

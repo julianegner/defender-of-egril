@@ -434,6 +434,7 @@
     <string name="waypoint_position_format">Position (%d, %d)</string>
     <string name="spawn_point_text">Spawn Point</string>
     <string name="target_text">Target</string>
+    <string name="waypoint">Waypoint</string>
     <string name="select_source_position">Select source position</string>
     <string name="select_target_position">Select target position</string>
     <string name="waypoint_exists_error">A waypoint connection from this position already exists</string>
