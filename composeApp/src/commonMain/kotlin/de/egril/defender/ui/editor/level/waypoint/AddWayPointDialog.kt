@@ -33,6 +33,7 @@ import defender_of_egril.composeapp.generated.resources.select_source_position
 import defender_of_egril.composeapp.generated.resources.select_target_position
 import defender_of_egril.composeapp.generated.resources.spawn_point_text
 import defender_of_egril.composeapp.generated.resources.target_text
+import defender_of_egril.composeapp.generated.resources.waypoint
 import defender_of_egril.composeapp.generated.resources.waypoint_exists_error
 
 /**
@@ -88,7 +89,7 @@ fun AddWaypointDialog(
                         val label = if (isSpawn) {
                             "${stringResource(Res.string.spawn_point_text)} (${pos.x}, ${pos.y})"
                         } else {
-                            "WAYPOINT (${pos.x}, ${pos.y})"
+                            "${stringResource(Res.string.waypoint)} (${pos.x}, ${pos.y})"
                         }
 
                         Row(
@@ -127,7 +128,7 @@ fun AddWaypointDialog(
                         val label = if (isTarget) {
                             "${stringResource(Res.string.target_text)} (${pos.x}, ${pos.y})"
                         } else {
-                            "WAYPOINT (${pos.x}, ${pos.y})"
+                            "${stringResource(Res.string.waypoint)} (${pos.x}, ${pos.y})"
                         }
 
                         Row(

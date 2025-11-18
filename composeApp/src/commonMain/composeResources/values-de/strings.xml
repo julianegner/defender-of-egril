@@ -426,6 +426,7 @@
     <string name="waypoint_position_format">Position (%d, %d)</string>
     <string name="spawn_point_text">Spawn-Punkt</string>
     <string name="target_text">Ziel</string>
+    <string name="waypoint">Wegpunkt</string>
     <string name="select_source_position">Quellposition auswählen</string>
     <string name="select_target_position">Zielposition auswählen</string>
     <string name="waypoint_exists_error">Eine Wegpunkt-Verbindung von dieser Position existiert bereits</string>
