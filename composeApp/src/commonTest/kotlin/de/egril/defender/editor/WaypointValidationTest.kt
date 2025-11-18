@@ -187,4 +187,128 @@ class WaypointValidationTest {
             "Dance level waypoints should form valid chains to target (outer -> middle -> inner -> center)"
         )
     }
+    
+    @Test
+    fun testDetailedValidationNoWaypoints() {
+        val level = EditorLevel(
+            id = "test_level",
+            mapId = "test_map",
+            title = "Test Level",
+            startCoins = 100,
+            startHealthPoints = 10,
+            enemySpawns = emptyList(),
+            availableTowers = emptySet(),
+            waypoints = emptyList()
+        )
+        
+        val target = Position(20, 20)
+        val spawnPoints = listOf(Position(5, 5))
+        val result = level.validateWaypointsDetailed(target, spawnPoints)
+        
+        assertTrue(result.isValid, "No waypoints should be valid")
+        assertTrue(result.circularDependencies.isEmpty(), "No circular dependencies expected")
+        assertTrue(result.unconnectedWaypoints.isEmpty(), "No unconnected waypoints expected")
+    }
+    
+    @Test
+    fun testDetailedValidationCircularDependency() {
+        val target = Position(20, 20)
+        val waypoint1 = EditorWaypoint(
+            position = Position(5, 5),
+            nextTargetPosition = Position(10, 10)
+        )
+        val waypoint2 = EditorWaypoint(
+            position = Position(10, 10),
+            nextTargetPosition = Position(5, 5)  // Points back to waypoint1 - creates a loop!
+        )
+        
+        val level = EditorLevel(
+            id = "test_level",
+            mapId = "test_map",
+            title = "Test Level",
+            startCoins = 100,
+            startHealthPoints = 10,
+            enemySpawns = emptyList(),
+            availableTowers = emptySet(),
+            waypoints = listOf(waypoint1, waypoint2)
+        )
+        
+        val spawnPoints = listOf(Position(0, 0))
+        val result = level.validateWaypointsDetailed(target, spawnPoints)
+        
+        assertFalse(result.isValid, "Circular dependency should make validation fail")
+        assertTrue(result.circularDependencies.contains(Position(5, 5)), "Position (5,5) should be in circular deps")
+        assertTrue(result.circularDependencies.contains(Position(10, 10)), "Position (10,10) should be in circular deps")
+    }
+    
+    @Test
+    fun testDetailedValidationUnconnectedWaypoint() {
+        val target = Position(20, 20)
+        // Waypoint that has no incoming connection and is not a spawn point
+        val waypoint1 = EditorWaypoint(
+            position = Position(5, 5),
+            nextTargetPosition = target
+        )
+        // Waypoint that points to a non-waypoint, non-target position
+        val waypoint2 = EditorWaypoint(
+            position = Position(10, 10),
+            nextTargetPosition = Position(15, 15)  // Unconnected position
+        )
+        
+        val level = EditorLevel(
+            id = "test_level",
+            mapId = "test_map",
+            title = "Test Level",
+            startCoins = 100,
+            startHealthPoints = 10,
+            enemySpawns = emptyList(),
+            availableTowers = emptySet(),
+            waypoints = listOf(waypoint1, waypoint2)
+        )
+        
+        val spawnPoints = listOf(Position(0, 0))  // waypoint1 is not a spawn point
+        val result = level.validateWaypointsDetailed(target, spawnPoints)
+        
+        assertFalse(result.isValid, "Unconnected waypoints should make validation fail")
+        assertTrue(result.unconnectedWaypoints.contains(Position(5, 5)), "Position (5,5) should be unconnected")
+        assertTrue(result.unconnectedWaypoints.contains(Position(15, 15)), "Position (15,15) should be unconnected")
+    }
+    
+    @Test
+    fun testDetailedValidationValidChain() {
+        val target = Position(20, 20)
+        val spawn = Position(0, 0)
+        val waypoint1 = EditorWaypoint(
+            position = spawn,
+            nextTargetPosition = Position(10, 10)
+        )
+        val waypoint2 = EditorWaypoint(
+            position = Position(10, 10),
+            nextTargetPosition = target
+        )
+        
+        val level = EditorLevel(
+            id = "test_level",
+            mapId = "test_map",
+            title = "Test Level",
+            startCoins = 100,
+            startHealthPoints = 10,
+            enemySpawns = emptyList(),
+            availableTowers = emptySet(),
+            waypoints = listOf(waypoint1, waypoint2)
+        )
+        
+        val spawnPoints = listOf(spawn)
+        val result = level.validateWaypointsDetailed(target, spawnPoints)
+        
+        assertTrue(result.isValid, "Valid chain should pass validation")
+        assertTrue(result.circularDependencies.isEmpty(), "No circular dependencies expected")
+        assertTrue(result.unconnectedWaypoints.isEmpty(), "No unconnected waypoints expected")
+        assertTrue(result.waypointChains.isNotEmpty(), "Should have at least one chain")
+        
+        val chain = result.waypointChains.first()
+        assertTrue(chain.startPosition == spawn, "Chain should start from spawn point")
+        assertTrue(chain.endPosition == target, "Chain should end at target")
+        assertFalse(chain.hasCircularDependency, "Chain should not have circular dependency")
+    }
 }
