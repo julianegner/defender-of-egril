@@ -164,6 +164,26 @@ data class EditorWaypoint(
 )
 
 /**
+ * Result of waypoint validation containing detailed information
+ */
+data class WaypointValidationResult(
+    val isValid: Boolean,
+    val circularDependencies: Set<Position> = emptySet(),  // Positions involved in circular paths
+    val unconnectedWaypoints: Set<Position> = emptySet(),  // Waypoints without connections
+    val waypointChains: List<WaypointChain> = emptyList()  // All waypoint chains from spawn to target
+)
+
+/**
+ * Represents a chain of waypoints from a spawn point to the target
+ */
+data class WaypointChain(
+    val startPosition: Position,  // Spawn point or first waypoint
+    val positions: List<Position>,  // Intermediate waypoints
+    val endPosition: Position?,  // Target or null if incomplete
+    val hasCircularDependency: Boolean = false
+)
+
+/**
  * Level configuration for the editor
  */
 data class EditorLevel(
@@ -238,6 +258,116 @@ data class EditorLevel(
             
             true
         }
+    }
+    
+    /**
+     * Performs detailed waypoint validation and returns comprehensive results.
+     * @param targetPosition The final target position from the map
+     * @param spawnPoints List of spawn points from the map
+     * @return WaypointValidationResult with detailed validation information
+     */
+    fun validateWaypointsDetailed(
+        targetPosition: Position,
+        spawnPoints: List<Position>
+    ): WaypointValidationResult {
+        if (waypoints.isEmpty()) {
+            return WaypointValidationResult(isValid = true)
+        }
+        
+        val waypointMap = waypoints.associateBy { it.position }
+        val waypointPositions = waypointMap.keys
+        val circularDeps = mutableSetOf<Position>()
+        val chains = mutableListOf<WaypointChain>()
+        
+        // Find waypoints that are sources (have a next target) but not targets (no incoming)
+        val targetsSet = waypoints.map { it.nextTargetPosition }.toSet()
+        val sourcesSet = waypoints.map { it.position }.toSet()
+        
+        // Unconnected: waypoints that are either:
+        // 1. Sources without being targets (no incoming connection)
+        // 2. Targets without being sources (no outgoing connection)
+        val unconnectedPositions = mutableSetOf<Position>()
+        
+        // Find waypoints without incoming connections (except if they're spawn points)
+        sourcesSet.forEach { pos ->
+            if (pos !in targetsSet && pos !in spawnPoints) {
+                unconnectedPositions.add(pos)
+            }
+        }
+        
+        // Find waypoints without outgoing connections (except if they point to target)
+        targetsSet.forEach { pos ->
+            if (pos !in sourcesSet && pos != targetPosition) {
+                unconnectedPositions.add(pos)
+            }
+        }
+        
+        // Build chains starting from each spawn point and waypoint source
+        val allStarts = (spawnPoints + sourcesSet).distinct()
+        
+        for (start in allStarts) {
+            val chain = mutableListOf<Position>()
+            val visited = mutableSetOf<Position>()
+            var current = start
+            var hasCircular = false
+            var reachedTarget = false
+            
+            // Follow the chain
+            while (true) {
+                val waypoint = waypointMap[current]
+                if (waypoint == null) {
+                    // Not a waypoint - check if it's the target
+                    if (current == targetPosition) {
+                        reachedTarget = true
+                    }
+                    break
+                }
+                
+                if (current in visited) {
+                    // Circular dependency detected
+                    hasCircular = true
+                    circularDeps.add(current)
+                    // Add all positions in the cycle
+                    val cycleStart = current
+                    var pos = waypoint.nextTargetPosition
+                    while (pos != cycleStart && pos in waypointMap) {
+                        circularDeps.add(pos)
+                        pos = waypointMap[pos]!!.nextTargetPosition
+                    }
+                    break
+                }
+                
+                visited.add(current)
+                chain.add(current)
+                current = waypoint.nextTargetPosition
+                
+                if (current == targetPosition) {
+                    reachedTarget = true
+                    break
+                }
+            }
+            
+            // Only add chains that start from spawn points or unconnected waypoints
+            if (start in spawnPoints || start in unconnectedPositions) {
+                chains.add(
+                    WaypointChain(
+                        startPosition = start,
+                        positions = chain,
+                        endPosition = if (reachedTarget) targetPosition else current,
+                        hasCircularDependency = hasCircular
+                    )
+                )
+            }
+        }
+        
+        val isValid = circularDeps.isEmpty() && unconnectedPositions.isEmpty()
+        
+        return WaypointValidationResult(
+            isValid = isValid,
+            circularDependencies = circularDeps,
+            unconnectedWaypoints = unconnectedPositions,
+            waypointChains = chains
+        )
     }
 }
 
