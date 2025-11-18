@@ -407,7 +407,7 @@
     <string name="dragon_greed_title">Drachengier!</string>
     <string name="dragon_greed_message">Der Drache ist gierig geworden! Gier = Drachenlevel ÷ 5\n\nDer Drache verschlingt nun pro Runde Einheiten auf benachbarten Feldern entsprechend seiner Gierstufe.</string>
     <string name="dragon_very_greedy_title">Drachen-Bergwerksüberfall!</string>
-    <string name="dragon_very_greedy_message">Der Drache ist sehr gierig (Gier > 5)!\n\nEr wird nun Zwergenmine jagen und zerstören und dabei all die Gesundheit aufnehmen, die ein neuer Drache hätte (500 LP pro Mine).\n\nMinen werden zu zerstörten Trümmern. Verteidige sie oder baue schnell wieder auf!</string>
+    <string name="dragon_very_greedy_message">Der Drache ist sehr gierig (Gier > 5)!\n\nEr wird nun Zwergenminen angreifen und zerstören und dabei all die Gesundheit aufnehmen, die ein neuer Drache hätte (500 LP pro Mine + die geschürften Münzen als LP).\n\nMinen werden zu zerstörten Trümmern. Verteidige sie oder baue schnell wieder auf!</string>
     <string name="mine_warning_title">Mine bedroht!</string>
     <string name="mine_warning_message">Der Drache nähert sich! Die Zwerge bereiten sich vor, ihre Mine zu verteidigen, aber es könnte nicht genug sein...</string>
 <!-- Waypoint Editor -->
@@ -426,9 +426,23 @@
     <string name="waypoint_position_format">Position (%d, %d)</string>
     <string name="spawn_point_text">Spawn-Punkt</string>
     <string name="target_text">Ziel</string>
+    <string name="waypoint">Wegpunkt</string>
     <string name="select_source_position">Quellposition auswählen</string>
     <string name="select_target_position">Zielposition auswählen</string>
     <string name="waypoint_exists_error">Eine Wegpunkt-Verbindung von dieser Position existiert bereits</string>
     <string name="remove_all_waypoints">Alle entfernen</string>
     <string name="confirm_remove_all_waypoints">Sind Sie sicher, dass Sie alle Wegpunkt-Verbindungen entfernen möchten?</string>
+    <string name="click_to_connect_waypoints">Klicken Sie auf Wegpunkte auf der Karte, um sie zu verbinden</string>
+    <string name="select_on_map">Wegpunkte verbinden</string>
+    <string name="show_connected">Verbundene anzeigen</string>
+    <string name="connect">Verbinden</string>
+    <string name="waypoint_chains_title">Wegpunkt-Ketten</string>
+    <string name="unconnected_waypoint_warning">Nicht verbundener Wegpunkt</string>
+    <string name="circular_dependency_warning">Zirkuläre Abhängigkeit</string>
+    <string name="waypoint_tree_view">Baumansicht</string>
+    <string name="waypoint_list_view">Listenansicht</string>
+    <string name="click_source_waypoint">1. Klicken Sie auf eine Quelle (Spawn oder Wegpunkt)</string>
+    <string name="click_target_waypoint">2. Klicken Sie auf ein Ziel (Wegpunkt oder Ziel)</string>
+    <string name="connection_mode_active">Verbindungsmodus aktiv</string>
+    <string name="cancel_connection">Abbrechen</string>
 </resources>
