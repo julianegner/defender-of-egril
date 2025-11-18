@@ -24,9 +24,6 @@ import kotlin.math.sqrt
 @Composable
 fun WaypointMinimap(
     map: EditorMap,
-    spawnPoints: List<Position>,
-    waypointTiles: List<Position>,
-    target: Position?,
     selectedSource: Position?,
     selectedTarget: Position?,
     existingWaypoints: List<EditorWaypoint>
