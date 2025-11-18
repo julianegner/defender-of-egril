@@ -318,17 +318,7 @@ fun LevelEditorView(
     val isEnemySpawnsReady = enemySpawns.isNotEmpty()
     val isTowersReady = availableTowersState.isNotEmpty()
     // Waypoints are optional, but if present they should be valid
-    val isWaypointsValid = if (waypointsState.isEmpty()) {
-        true  // No waypoints is valid
-    } else {
-        currentMap?.getTarget()?.let { target ->
-            val spawnPoints = currentMap.getSpawnPoints()
-            val tempLevel = level.copy(waypoints = waypointsState.toList())
-            val validationResult = tempLevel.validateWaypointsDetailed(target, spawnPoints)
-            // Valid if there are no circular dependencies and no unconnected waypoints
-            validationResult.circularDependencies.isEmpty() && validationResult.unconnectedWaypoints.isEmpty()
-        } ?: false
-    }
+    val isWaypointsValid = areWaypointsValid(waypointsState, currentMap, level)
     
     Column(
         modifier = Modifier.fillMaxSize()
@@ -550,6 +540,22 @@ fun LevelEditorView(
             }
         )
     }
+}
+
+private fun areWaypointsValid(
+    waypointsState: MutableList<EditorWaypoint>,
+    currentMap: EditorMap?,
+    level: EditorLevel
+): Boolean = if (waypointsState.isEmpty()) {
+    true  // No waypoints is valid
+} else {
+    currentMap?.getTarget()?.let { target ->
+        val spawnPoints = currentMap.getSpawnPoints()
+        val tempLevel = level.copy(waypoints = waypointsState.toList())
+        val validationResult = tempLevel.validateWaypointsDetailed(target, spawnPoints)
+        // Valid if there are no circular dependencies and no unconnected waypoints
+        validationResult.circularDependencies.isEmpty() && validationResult.unconnectedWaypoints.isEmpty()
+    } ?: false
 }
 
 /**
