@@ -106,39 +106,17 @@ private fun WaypointChainCard(
             modifier = Modifier.fillMaxWidth().padding(12.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            // Check if start position has no outgoing connection
-            val startHasNoConnection = unconnectedWaypoints.contains(chain.startPosition)
-            
-            // Start position (spawn point or waypoint)
-            WaypointChainNode(
-                position = chain.startPosition,
-                isSpawn = spawnPoints.contains(chain.startPosition),
-                isTarget = false,
-                isInCircular = circularDeps.contains(chain.startPosition),
-                isUnconnected = unconnectedWaypoints.contains(chain.startPosition),
-                indentLevel = 0,
-                onDelete = { onDeleteConnection(chain.startPosition) },
-                onConnect = if (startHasNoConnection) {
-                    { onConnectWaypoint(chain.startPosition) }
-                } else null
-            )
-            
-            // Intermediate waypoints
+            // waypoints
             chain.positions.forEachIndexed { index, pos ->
-                // Check if this waypoint has no outgoing connection
-                val waypointHasNoConnection = unconnectedWaypoints.contains(pos)
-                
                 WaypointChainNode(
                     position = pos,
-                    isSpawn = false,
+                    isSpawn = spawnPoints.contains(pos),
                     isTarget = false,
                     isInCircular = circularDeps.contains(pos),
                     isUnconnected = unconnectedWaypoints.contains(pos),
-                    indentLevel = index + 1,
+                    indentLevel = index,
                     onDelete = { onDeleteConnection(pos) },
-                    onConnect = if (waypointHasNoConnection) {
-                        { onConnectWaypoint(pos) }
-                    } else null
+                    onConnect = { onConnectWaypoint(pos) }
                 )
             }
             
@@ -150,8 +128,9 @@ private fun WaypointChainCard(
                     isTarget = chain.endPosition == target,
                     isInCircular = circularDeps.contains(chain.endPosition),
                     isUnconnected = unconnectedWaypoints.contains(chain.endPosition),
-                    indentLevel = chain.positions.size + 1,
-                    onDelete = null  // Can't delete target
+                    indentLevel = chain.positions.size,
+                    onDelete = null,  // Can't delete target
+                    onConnect = { onConnectWaypoint(chain.endPosition) }
                 )
             }
         }
@@ -255,31 +234,33 @@ private fun WaypointChainNode(
                 }
             }
             if (isUnconnected) {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    WarningIcon(size = 12.dp)
-                    Text(
-                        text = stringResource(Res.string.unconnected_waypoint_warning),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.error
-                    )
+                if (!isSpawn) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        WarningIcon(size = 12.dp)
+                        Text(
+                            text = stringResource(Res.string.unconnected_waypoint_warning),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
                 }
-            }
-        }
-        
-        // Connect button (if unconnected)
-        if (onConnect != null) {
-            Button(
-                onClick = onConnect,
-                modifier = Modifier.height(32.dp),
-                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
-            ) {
-                Text(
-                    text = stringResource(Res.string.connect),
-                    style = MaterialTheme.typography.labelSmall
-                )
+
+                // Connect button (if unconnected)
+                if (onConnect != null) {
+                    Button(
+                        onClick = onConnect,
+                        modifier = Modifier.height(32.dp),
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
+                    ) {
+                        Text(
+                            text = stringResource(Res.string.connect),
+                            style = MaterialTheme.typography.labelSmall
+                        )
+                    }
+                }
             }
         }
         
