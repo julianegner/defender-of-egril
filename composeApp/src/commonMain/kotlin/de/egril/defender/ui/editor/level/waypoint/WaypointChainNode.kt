@@ -115,7 +115,7 @@ private fun PositionAndTypeRow(
         verticalAlignment = Alignment.Companion.CenterVertically
     ) {
         Text(
-            text = "Position (${position.x}, ${position.y})",
+            text = stringResource(Res.string.waypoint_position_format, position.x, position.y),
             style = MaterialTheme.typography.bodyMedium
         )
 

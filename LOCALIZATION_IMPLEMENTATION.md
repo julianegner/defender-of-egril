@@ -1,7 +1,7 @@
 # Localization Implementation Summary
 
 ## Overview
-This implementation adds base localization support to Defender of Egril using the `compose-multiplatform-localize` library, along with a language chooser and settings dialog accessible from all screens.
+This implementation adds localization support to Defender of Egril using the `compose-multiplatform-localize` library (version 2.0.0), with language chooser, settings dialog, and **plural string support** accessible from all screens.
 
 ## Dependencies Added
 
@@ -10,7 +10,7 @@ This implementation adds base localization support to Defender of Egril using th
 [versions]
 flagkit = "1.1.0"
 multiplatform-settings = "1.3.0"
-localization = "1.1.1"
+localization = "2.0.0"
 
 [libraries]
 flagkit = { module = "dev.carlsen.flagkit:flagkit", version.ref = "flagkit" }
@@ -157,6 +157,39 @@ To add a new language (e.g., German):
 ✅ English localization working  
 ✅ No breaking changes to existing functionality
 
+## Plural String Support (New in v2.0.0)
+
+Version 2.0.0 adds support for plurals, allowing grammatically correct messages based on quantity.
+
+### Available Plurals
+- `enemy_count` - "1 enemy" vs "X enemies"  
+- `turn_count` - "1 turn" vs "X turns"
+- `coin_count` - "1 coin" vs "X coins"
+- `health_point_count` - "1 health point" vs "X health points"
+
+### Usage in Composables
+```kotlin
+import com.hyperether.resources.Res
+import com.hyperether.resources.pluralStringResource
+
+@Composable
+fun EnemyCountDisplay(count: Int) {
+    Text(pluralStringResource(Res.plurals.enemy_count, count, count))
+}
+```
+
+### Usage Outside Composables
+```kotlin
+import com.hyperether.resources.LocalizedStrings
+import com.hyperether.resources.Res
+
+fun getEnemyCountText(count: Int): String {
+    return LocalizedStrings.getPlural(Res.plurals.enemy_count, count, count)
+}
+```
+
+See `PLURALS_USAGE.md` for detailed documentation and examples.
+
 ## Future Enhancements
 
 1. **Add More Languages**: Create additional `values-{lang}/strings.xml` files
@@ -164,7 +197,8 @@ To add a new language (e.g., German):
 3. **Complete String Coverage**: Localize remaining hardcoded strings (Rules screen content, GamePlay UI, Editor screens)
 4. **RTL Support**: Add right-to-left language support if needed
 5. **Date/Time Formatting**: Add locale-specific formatting for timestamps in saved games
-6. **Plurals**: Add plural string resources if needed (e.g., "1 enemy" vs "2 enemies")
+6. **Integrate Plurals**: Use plural resources in UI for enemy counts, turn counts, coin displays, etc.
+7. **Add More Plurals**: Extend plural resources for additional use cases (tower counts, action counts, etc.)
 
 ## Testing Recommendations
 
@@ -176,6 +210,7 @@ When testing with a display:
 5. Verify all localized strings display correctly
 6. Verify settings button appears on all 7 screens
 7. Test navigation between screens maintains language selection
+8. Test plural strings with different quantities (1 vs 2+ items)
 
 ## Notes
 
@@ -184,3 +219,4 @@ When testing with a display:
 - FlagKit provides vector flag icons for 250+ countries
 - Localization plugin is Kotlin Multiplatform compatible (works on Desktop, Android, iOS, Web)
 - Current implementation uses `LocalizedStrings.get()` directly instead of `stringResource()` composable due to internal visibility of generated string resources
+- **Version 2.0.0 Note**: The library has a known issue with `\n` newline escapes in XML strings. Use spaces or remove newlines instead.
