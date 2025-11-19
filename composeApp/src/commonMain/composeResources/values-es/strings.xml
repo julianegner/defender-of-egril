@@ -2,7 +2,7 @@
 <resources>
     <!-- Main Menu -->
     <string name="app_name">Defensor de Egril</string>
-    <string name="app_subtitle">Defiende los prados de Egril contra\nlas Hordas de Gleid Thyae bajo\nla Bandera del malvado Ewhad</string>
+    <string name="app_subtitle">Defiende los prados de Egril contra las Hordas de Gleid Thyae bajo la Bandera del malvado Ewhad</string>
     <string name="start_game">Iniciar juego</string>
     <string name="rules">Reglas</string>
     
@@ -365,7 +365,7 @@
     <string name="tutorial_resources_title">Recursos</string>
     <string name="tutorial_resources">Tienes monedas para construir torres y puntos de salud. Los enemigos débiles cuestan 1 PS, pero los enemigos poderosos (magos, brujas, magos malvados, demonios, dragones) cuestan PS igual a su nivel. ¡Ewhad cuesta todos tus PS!</string>
     <string name="tutorial_towers_title">Torres disponibles</string>
-    <string name="tutorial_towers">Torre de Púas: Corto alcance, barata\nTorre de Lanza: Alcance medio\nTorre de Arco: Largo alcance\n\n¡Elige sabiamente según tu estrategia!</string>
+    <string name="tutorial_towers">Torre de Púas: Corto alcance, barata. Torre de Lanza: Alcance medio. Torre de Arco: Largo alcance. ¡Elige sabiamente según tu estrategia!</string>
     <string name="tutorial_build_title">Construir torres</string>
     <string name="tutorial_build">Selecciona un tipo de torre abajo, luego haz clic en un área de construcción verde para colocarla. ¡Construye tus defensas!</string>
     <string name="tutorial_initial_building_title">Fase de construcción inicial</string>
@@ -405,9 +405,9 @@
 
     <!-- Dragon Greed Info -->
     <string name="dragon_greed_title">¡Avaricia de Dragón!</string>
-    <string name="dragon_greed_message">¡El dragón se ha vuelto codicioso! Avaricia = Nivel del Dragón ÷ 5\n\nEl dragón devorará unidades en casillas adyacentes según su nivel de avaricia cada turno.</string>
+    <string name="dragon_greed_message">¡El dragón se ha vuelto codicioso! Avaricia = Nivel del Dragón ÷ 5. El dragón devorará unidades en casillas adyacentes según su nivel de avaricia cada turno.</string>
     <string name="dragon_very_greedy_title">¡Asalto Minero del Dragón!</string>
-    <string name="dragon_very_greedy_message">¡El dragón es muy codicioso (avaricia > 5)!\n\nAhora cazará y destruirá minas enanas, absorbiendo toda la salud que tendría un nuevo dragón (500 PS por mina).\n\n¡Las minas se convertirán en escombros destruidos. Defiéndelas o reconstruye rápidamente!</string>
+    <string name="dragon_very_greedy_message">¡El dragón es muy codicioso (avaricia > 5)! Ahora cazará y destruirá minas enanas, absorbiendo toda la salud que tendría un nuevo dragón (500 PS por mina). ¡Las minas se convertirán en escombros destruidos. Defiéndelas o reconstruye rápidamente!</string>
     <string name="mine_warning_title">¡Mina Amenazada!</string>
     <string name="mine_warning_message">¡El dragón se acerca! Los enanos se preparan para defender su mina, pero puede que no sea suficiente...</string>
 <!-- Waypoint Editor -->
@@ -445,4 +445,22 @@
     <string name="click_target_waypoint">2. Haga clic en un destino (punto de paso u objetivo)</string>
     <string name="connection_mode_active">Modo de conexión activo</string>
     <string name="cancel_connection">Cancelar</string>
+    
+    <!-- Plurals -->
+    <plurals name="enemy_count">
+        <item quantity="one">%d enemigo</item>
+        <item quantity="other">%d enemigos</item>
+    </plurals>
+    <plurals name="turn_count">
+        <item quantity="one">%d turno</item>
+        <item quantity="other">%d turnos</item>
+    </plurals>
+    <plurals name="coin_count">
+        <item quantity="one">%d moneda</item>
+        <item quantity="other">%d monedas</item>
+    </plurals>
+    <plurals name="health_point_count">
+        <item quantity="one">%d punto de salud</item>
+        <item quantity="other">%d puntos de salud</item>
+    </plurals>
 </resources>
