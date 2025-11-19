@@ -413,6 +413,14 @@
     <string name="mine_warning_title">Mine Under Threat!</string>
     <string name="mine_warning_message">The dragon approaches! The dwarves prepare to defend their mine, but it may not be enough...</string>
     
+    <!-- Enemy Info Display -->
+    <string name="greedy_label">greedy</string>
+    <string name="very_greedy_label">very greedy</string>
+    <string name="greedy_desc">Eats surrounding enemy units</string>
+    <string name="very_greedy_desc">Eats surrounding enemy units and destroys mines one after another</string>
+    <string name="greed_level_label">Greed</string>
+    <string name="dragon_info_button">ℹ What does a dragon do?</string>
+    
     <!-- Dragon Names -->
     <string name="the_dragon">The dragon</string>
     <string name="awakens">awakens</string>
