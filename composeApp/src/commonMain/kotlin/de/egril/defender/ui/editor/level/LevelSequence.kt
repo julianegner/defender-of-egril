@@ -20,7 +20,6 @@ import androidx.compose.ui.unit.IntSize
 import de.egril.defender.editor.EditorStorage
 import de.egril.defender.ui.icon.DownArrowIcon
 import de.egril.defender.ui.icon.UpArrowIcon
-import de.egril.defender.ui.editor.ConfirmationDialog
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.*
@@ -51,7 +50,6 @@ data class ItemBounds(
 fun LevelSequenceContent() {
     val sequence = remember { mutableStateOf(EditorStorage.getLevelSequence()) }
     val allLevels = remember { mutableStateOf(EditorStorage.getAllLevels()) }
-    var levelToRemove by remember { mutableStateOf<Pair<String, String>?>(null) }
     var dragState by remember { mutableStateOf<DragState?>(null) }
     var dropTargetIndex by remember { mutableStateOf<Int?>(null) }
     var isDropTargetAvailableArea by remember { mutableStateOf(false) }
@@ -139,7 +137,9 @@ fun LevelSequenceContent() {
                             sequence.value = EditorStorage.getLevelSequence()
                         },
                         onRemove = {
-                            levelToRemove = levelId to level.title
+                            EditorStorage.removeLevelFromSequence(levelId)
+                            sequence.value = EditorStorage.getLevelSequence()
+                            allLevels.value = EditorStorage.getAllLevels()
                         },
                         onDragStart = { offset ->
                             dragState = DragState(levelId, true, offset)
@@ -357,7 +357,7 @@ fun LevelSequenceContent() {
                                             val firstItem = sortedBounds.first()
                                             val firstMidpoint = firstItem.position.y + firstItem.size.height / 2
                                             if (newPosition.y < firstMidpoint) {
-                                                targetIndex = firstItem.index
+                                                targetIndex = 0
                                             } else {
                                                 // Check each item to find insertion point
                                                 for (i in 0 until sortedBounds.size) {
@@ -367,10 +367,10 @@ fun LevelSequenceContent() {
                                                     if (i == sortedBounds.size - 1) {
                                                         // Last item - check if below its midpoint
                                                         if (newPosition.y >= currentMidpoint) {
-                                                            targetIndex = currentItem.index + 1
+                                                            targetIndex = sortedBounds.size
                                                         } else {
                                                             // Above the last item's midpoint, insert before it
-                                                            targetIndex = currentItem.index
+                                                            targetIndex = i
                                                         }
                                                     } else {
                                                         val nextItem = sortedBounds[i + 1]
@@ -378,7 +378,7 @@ fun LevelSequenceContent() {
                                                         
                                                         // Check if between current midpoint and next midpoint
                                                         if (newPosition.y >= currentMidpoint && newPosition.y < nextMidpoint) {
-                                                            targetIndex = currentItem.index + 1
+                                                            targetIndex = i + 1
                                                             break
                                                         }
                                                     }
@@ -415,21 +415,6 @@ fun LevelSequenceContent() {
                 }
             }
         }
-    }
-    
-    // Confirmation dialog for removing level from sequence
-    levelToRemove?.let { (levelId, levelTitle) ->
-        ConfirmationDialog(
-            title = stringResource(Res.string.remove_level_confirmation_title),
-            message = stringResource(Res.string.remove_level_confirmation_message).replace("%s", levelTitle),
-            onDismiss = { levelToRemove = null },
-            onConfirm = {
-                EditorStorage.removeLevelFromSequence(levelId)
-                sequence.value = EditorStorage.getLevelSequence()
-                allLevels.value = EditorStorage.getAllLevels()
-                levelToRemove = null
-            }
-        )
     }
 }
 
