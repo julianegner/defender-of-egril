@@ -59,6 +59,7 @@ fun LevelSequenceContent() {
     // Track bounds of items and available area
     val itemBounds = remember { mutableStateMapOf<Int, ItemBounds>() }
     var availableAreaBounds by remember { mutableStateOf<Pair<Offset, IntSize>?>(null) }
+    var sequenceAreaBounds by remember { mutableStateOf<Pair<Offset, IntSize>?>(null) }
     
     // Get levels in sequence that are ready to play
     val levelsInSequence = sequence.value.sequence.mapNotNull { levelId ->
@@ -104,7 +105,13 @@ fun LevelSequenceContent() {
             )
         } else {
             LazyColumn(
-                modifier = Modifier.fillMaxWidth().weight(0.5f),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(0.5f)
+                    .onGloballyPositioned { coordinates ->
+                        sequenceAreaBounds = coordinates.positionInRoot() to 
+                            IntSize(coordinates.size.width, coordinates.size.height)
+                    },
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(levelsInSequence.size) { index ->
@@ -323,7 +330,7 @@ fun LevelSequenceContent() {
                             },
                             onDragStart = { offset ->
                                 dragState = DragState(level.id, false, offset)
-                                dropTargetIndex = 0 // Default to start of sequence
+                                dropTargetIndex = null  // Don't preset - only set if over sequence
                                 isDropTargetAvailableArea = false
                             },
                             onDrag = { change, dragAmount ->
@@ -331,47 +338,62 @@ fun LevelSequenceContent() {
                                     val newPosition = state.currentPosition + Offset(dragAmount.x, dragAmount.y)
                                     dragState = state.copy(currentPosition = newPosition)
                                     
-                                    // Calculate drop position based on Y coordinate
-                                    val sortedBounds = itemBounds.values.sortedBy { it.index }
-                                    var targetIndex: Int? = null
+                                    // Check if over sequence area
+                                    var isOverSequence = false
+                                    sequenceAreaBounds?.let { (position, size) ->
+                                        isOverSequence = newPosition.x >= position.x && 
+                                                        newPosition.x <= position.x + size.width &&
+                                                        newPosition.y >= position.y && 
+                                                        newPosition.y <= position.y + size.height
+                                    }
                                     
-                                    if (sortedBounds.isNotEmpty()) {
-                                        // Check if before first item (above its midpoint)
-                                        val firstItem = sortedBounds.first()
-                                        val firstMidpoint = firstItem.position.y + firstItem.size.height / 2
-                                        if (newPosition.y < firstMidpoint) {
-                                            targetIndex = 0
-                                        } else {
-                                            // Check each item to find insertion point
-                                            for (i in 0 until sortedBounds.size) {
-                                                val currentItem = sortedBounds[i]
-                                                val currentMidpoint = currentItem.position.y + currentItem.size.height / 2
-                                                
-                                                if (i == sortedBounds.size - 1) {
-                                                    // Last item - check if below its midpoint
-                                                    if (newPosition.y >= currentMidpoint) {
-                                                        targetIndex = sortedBounds.size
-                                                    } else {
-                                                        targetIndex = i
-                                                    }
-                                                } else {
-                                                    val nextItem = sortedBounds[i + 1]
-                                                    val nextMidpoint = nextItem.position.y + nextItem.size.height / 2
+                                    if (isOverSequence) {
+                                        // Calculate drop position based on Y coordinate
+                                        val sortedBounds = itemBounds.values.sortedBy { it.index }
+                                        var targetIndex: Int? = null
+                                        
+                                        if (sortedBounds.isNotEmpty()) {
+                                            // Check if before first item (above its midpoint)
+                                            val firstItem = sortedBounds.first()
+                                            val firstMidpoint = firstItem.position.y + firstItem.size.height / 2
+                                            if (newPosition.y < firstMidpoint) {
+                                                targetIndex = 0
+                                            } else {
+                                                // Check each item to find insertion point
+                                                for (i in 0 until sortedBounds.size) {
+                                                    val currentItem = sortedBounds[i]
+                                                    val currentMidpoint = currentItem.position.y + currentItem.size.height / 2
                                                     
-                                                    // Check if between current midpoint and next midpoint
-                                                    if (newPosition.y >= currentMidpoint && newPosition.y < nextMidpoint) {
-                                                        targetIndex = i + 1
-                                                        break
+                                                    if (i == sortedBounds.size - 1) {
+                                                        // Last item - check if below its midpoint
+                                                        if (newPosition.y >= currentMidpoint) {
+                                                            targetIndex = sortedBounds.size
+                                                        } else {
+                                                            // Above the last item's midpoint, insert before it
+                                                            targetIndex = i
+                                                        }
+                                                    } else {
+                                                        val nextItem = sortedBounds[i + 1]
+                                                        val nextMidpoint = nextItem.position.y + nextItem.size.height / 2
+                                                        
+                                                        // Check if between current midpoint and next midpoint
+                                                        if (newPosition.y >= currentMidpoint && newPosition.y < nextMidpoint) {
+                                                            targetIndex = i + 1
+                                                            break
+                                                        }
                                                     }
                                                 }
                                             }
+                                        } else {
+                                            // No items yet, insert at position 0
+                                            targetIndex = 0
                                         }
+                                        
+                                        dropTargetIndex = targetIndex
                                     } else {
-                                        // No items yet, insert at position 0
-                                        targetIndex = 0
+                                        // Not over sequence area - clear drop target
+                                        dropTargetIndex = null
                                     }
-                                    
-                                    dropTargetIndex = targetIndex
                                 }
                                 change.consume()
                             },
@@ -456,7 +478,7 @@ fun LevelSequenceItem(
                 itemSize = coordinates.size
                 onPositionChanged(itemPosition, itemSize)
             }
-            .pointerInput(Unit) {
+            .pointerInput(levelId) {  // Key by level ID to ensure stable drag handling
                 detectDragGestures(
                     onDragStart = { offset ->
                         onDragStart(itemPosition + offset)
@@ -544,7 +566,7 @@ fun AvailableLevelCard(
             .onGloballyPositioned { coordinates ->
                 cardPosition = coordinates.positionInRoot()
             }
-            .pointerInput(Unit) {
+            .pointerInput(level.id) {  // Key by level ID to ensure stable drag handling
                 detectDragGestures(
                     onDragStart = { offset ->
                         onDragStart(cardPosition + offset)
