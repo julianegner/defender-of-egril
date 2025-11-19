@@ -357,7 +357,7 @@ fun LevelSequenceContent() {
                                             val firstItem = sortedBounds.first()
                                             val firstMidpoint = firstItem.position.y + firstItem.size.height / 2
                                             if (newPosition.y < firstMidpoint) {
-                                                targetIndex = 0
+                                                targetIndex = firstItem.index
                                             } else {
                                                 // Check each item to find insertion point
                                                 for (i in 0 until sortedBounds.size) {
@@ -367,10 +367,10 @@ fun LevelSequenceContent() {
                                                     if (i == sortedBounds.size - 1) {
                                                         // Last item - check if below its midpoint
                                                         if (newPosition.y >= currentMidpoint) {
-                                                            targetIndex = sortedBounds.size
+                                                            targetIndex = currentItem.index + 1
                                                         } else {
                                                             // Above the last item's midpoint, insert before it
-                                                            targetIndex = i
+                                                            targetIndex = currentItem.index
                                                         }
                                                     } else {
                                                         val nextItem = sortedBounds[i + 1]
@@ -378,7 +378,7 @@ fun LevelSequenceContent() {
                                                         
                                                         // Check if between current midpoint and next midpoint
                                                         if (newPosition.y >= currentMidpoint && newPosition.y < nextMidpoint) {
-                                                            targetIndex = i + 1
+                                                            targetIndex = currentItem.index + 1
                                                             break
                                                         }
                                                     }
