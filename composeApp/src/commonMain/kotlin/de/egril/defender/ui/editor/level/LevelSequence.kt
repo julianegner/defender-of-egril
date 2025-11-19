@@ -157,7 +157,10 @@ fun LevelSequenceContent() {
                                     } else {
                                         // Calculate drop position based on Y coordinate
                                         // Find which items the drag position is between
-                                        val sortedBounds = itemBounds.values.sortedBy { it.index }
+                                        // Exclude the item being dragged from calculations
+                                        val sortedBounds = itemBounds.values
+                                            .filter { it.index != levelsInSequence.indexOfFirst { pair -> pair.first == state.levelId } }
+                                            .sortedBy { it.index }
                                         var targetIndex: Int? = null
                                         
                                         if (sortedBounds.isNotEmpty()) {
@@ -168,7 +171,6 @@ fun LevelSequenceContent() {
                                                 targetIndex = 0
                                             } else {
                                                 // Check each item to find insertion point
-                                                var found = false
                                                 for (i in 0 until sortedBounds.size) {
                                                     val currentItem = sortedBounds[i]
                                                     val currentMidpoint = currentItem.position.y + currentItem.size.height / 2
@@ -178,6 +180,7 @@ fun LevelSequenceContent() {
                                                         if (newPosition.y >= currentMidpoint) {
                                                             targetIndex = sortedBounds.size
                                                         } else {
+                                                            // Above the last item's midpoint, insert before it
                                                             targetIndex = i
                                                         }
                                                     } else {
@@ -187,12 +190,14 @@ fun LevelSequenceContent() {
                                                         // Check if between current midpoint and next midpoint
                                                         if (newPosition.y >= currentMidpoint && newPosition.y < nextMidpoint) {
                                                             targetIndex = i + 1
-                                                            found = true
                                                             break
                                                         }
                                                     }
                                                 }
                                             }
+                                        } else {
+                                            // No other items, insert at position 0
+                                            targetIndex = 0
                                         }
                                         
                                         dropTargetIndex = targetIndex
@@ -206,25 +211,24 @@ fun LevelSequenceContent() {
                                 if (isDropTargetAvailableArea && state.isFromSequence) {
                                     // Remove from sequence
                                     EditorStorage.removeLevelFromSequence(state.levelId)
-                                } else if (dropTargetIndex != null && state.isFromSequence) {
-                                    // Moving within sequence - handle directly to avoid adjustment issues
-                                    val currentSequence = EditorStorage.getLevelSequence().sequence.toMutableList()
-                                    val fromIndex = currentSequence.indexOf(state.levelId)
-                                    
-                                    if (fromIndex >= 0 && fromIndex != dropTargetIndex) {
-                                        currentSequence.removeAt(fromIndex)
-                                        // After removal, adjust target index if needed
-                                        val actualTargetIndex = if (fromIndex < dropTargetIndex!!) {
-                                            dropTargetIndex!! - 1
-                                        } else {
-                                            dropTargetIndex!!
+                                } else if (dropTargetIndex != null) {
+                                    if (state.isFromSequence) {
+                                        // Moving within sequence
+                                        val currentSequence = EditorStorage.getLevelSequence().sequence.toMutableList()
+                                        val fromIndex = currentSequence.indexOf(state.levelId)
+                                        
+                                        if (fromIndex >= 0 && fromIndex != dropTargetIndex) {
+                                            currentSequence.removeAt(fromIndex)
+                                            // No adjustment needed - dropTargetIndex is already correct
+                                            // since we excluded the dragged item from calculations
+                                            val insertIndex = dropTargetIndex!!.coerceIn(0, currentSequence.size)
+                                            currentSequence.add(insertIndex, state.levelId)
+                                            EditorStorage.updateLevelSequence(de.egril.defender.editor.LevelSequence(currentSequence))
                                         }
-                                        currentSequence.add(actualTargetIndex.coerceIn(0, currentSequence.size), state.levelId)
-                                        EditorStorage.updateLevelSequence(de.egril.defender.editor.LevelSequence(currentSequence))
+                                    } else {
+                                        // Adding from available levels
+                                        EditorStorage.addLevelToSequence(state.levelId, dropTargetIndex)
                                     }
-                                } else if (dropTargetIndex != null && !state.isFromSequence) {
-                                    // Adding from available levels - use addLevelToSequence
-                                    EditorStorage.addLevelToSequence(state.levelId, dropTargetIndex)
                                 }
                                 sequence.value = EditorStorage.getLevelSequence()
                                 allLevels.value = EditorStorage.getAllLevels()
