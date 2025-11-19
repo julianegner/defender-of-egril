@@ -101,7 +101,10 @@ fun WaypointConnectionCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Position (${waypoint.nextTargetPosition.x}, ${waypoint.nextTargetPosition.y})",
+                        text = stringResource(Res.string.waypoint_position_format,
+                            waypoint.nextTargetPosition.x,
+                            waypoint.nextTargetPosition.y
+                        ),
                         style = MaterialTheme.typography.bodyMedium
                     )
 

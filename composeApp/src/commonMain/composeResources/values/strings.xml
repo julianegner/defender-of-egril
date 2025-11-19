@@ -2,7 +2,7 @@
 <resources>
     <!-- Main Menu -->
     <string name="app_name">Defender of Egril</string>
-    <string name="app_subtitle">Defend the meadows of Egril against\nthe Hordes of Gleid Thyae under\nthe Banner of the evil Ewhad</string>
+    <string name="app_subtitle">Defend the meadows of Egril against the Hordes of Gleid Thyae under the Banner of the evil Ewhad</string>
     <string name="start_game">Start Game</string>
     <string name="rules">Rules</string>
     
@@ -365,7 +365,7 @@
     <string name="tutorial_resources_title">Resources</string>
     <string name="tutorial_resources">You have coins to build towers and health points. Weak enemies cost 1 HP, but mighty enemies (wizards, witches, mages, demons, dragons) cost HP equal to their level. Ewhad costs all your HP!</string>
     <string name="tutorial_towers_title">Available Towers</string>
-    <string name="tutorial_towers">Spike Tower: Close range, cheap\nSpear Tower: Medium range\nBow Tower: Long range\n\nChoose wisely based on your strategy!</string>
+    <string name="tutorial_towers">Spike Tower: Close range, cheap. Spear Tower: Medium range. Bow Tower: Long range. Choose wisely based on your strategy!</string>
     <string name="tutorial_build_title">Building Towers</string>
     <string name="tutorial_build">Select a tower type from below, then click on a green build area to place it. Build your defenses!</string>
     <string name="tutorial_initial_building_title">Initial Building Phase</string>
@@ -400,16 +400,16 @@
 
     <!-- Dragon Info -->
     <string name="dragon_info_title">Dragon Alert!</string>
-    <string name="dragon_info_movement">The dragon alternates movement:\n• Turn 1, 3, 5...: Walks 1 tile on path\n• Turn 2, 4, 6...: Flies up to 5 tiles, can cross obstacles but must land on path</string>
+    <string name="dragon_info_movement">The dragon alternates movement: Turn 1, 3, 5...: Walks 1 tile on path. Turn 2, 4, 6...: Flies up to 5 tiles, can cross obstacles but must land on path</string>
     <string name="dragon_info_eating">Dragons devour enemies they land on (except Ewhad), gaining their health points!</string>
     <string name="dragon_info_level">Dragon level increases with health: Level = HP ÷ 500 (min. 1)</string>
     <string name="got_it">Got it!</string>
     
     <!-- Dragon Greed Info -->
     <string name="dragon_greed_title">Dragon Greed!</string>
-    <string name="dragon_greed_message">The dragon has grown greedy! Greed = Dragon Level ÷ 5\n\nThe dragon will now devour units on adjacent tiles equal to its greed level each turn.</string>
+    <string name="dragon_greed_message">The dragon has grown greedy! Greed = Dragon Level ÷ 5. The dragon will now devour units on adjacent tiles equal to its greed level each turn.</string>
     <string name="dragon_very_greedy_title">Dragon Mining Raid!</string>
-    <string name="dragon_very_greedy_message">The dragon is very greedy (greed > 5)!\n\nIt will now hunt down and destroy dwarven mines, absorbing all the health a new dragon would have (500 HP per mine).\n\nMines will become destroyed rubble. Defend them or rebuild quickly!</string>
+    <string name="dragon_very_greedy_message">The dragon is very greedy (greed > 5)! It will now hunt down and destroy dwarven mines, absorbing all the health a new dragon would have (500 HP per mine). Mines will become destroyed rubble. Defend them or rebuild quickly!</string>
     <string name="mine_warning_title">Mine Under Threat!</string>
     <string name="mine_warning_message">The dragon approaches! The dwarves prepare to defend their mine, but it may not be enough...</string>
     
@@ -453,4 +453,22 @@
     <string name="click_target_waypoint">2. Click a target (waypoint or target)</string>
     <string name="connection_mode_active">Connection mode active</string>
     <string name="cancel_connection">Cancel</string>
+    
+    <!-- Plurals -->
+    <plurals name="enemy_count">
+        <item quantity="one">%d enemy</item>
+        <item quantity="other">%d enemies</item>
+    </plurals>
+    <plurals name="turn_count">
+        <item quantity="one">%d turn</item>
+        <item quantity="other">%d turns</item>
+    </plurals>
+    <plurals name="coin_count">
+        <item quantity="one">%d coin</item>
+        <item quantity="other">%d coins</item>
+    </plurals>
+    <plurals name="health_point_count">
+        <item quantity="one">%d health point</item>
+        <item quantity="other">%d health points</item>
+    </plurals>
 </resources>
