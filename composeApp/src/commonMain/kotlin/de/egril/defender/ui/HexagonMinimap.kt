@@ -246,22 +246,29 @@ private fun HexagonMinimapContent(
             
             // Draw units if gameState is provided and config allows
             // Note: Units use the game's grid coordinate system (gameState.level.gridWidth x gridHeight)
-            // which is independent of the hexagon map tile layout. Units are rendered as overlay circles
-            // positioned relative to the scaled and centered hex map.
+            // Units must be positioned using the same hexagonal offset logic as the map tiles
             if (gameState != null) {
-                // Units are positioned relative to the scaled map area
-                val cellWidth = scaledMapWidth / level.gridWidth
-                val cellHeight = scaledMapHeight / level.gridHeight
+                // Helper function to calculate hexagon center position for a given grid position
+                fun getHexCenterPosition(position: Position): Offset {
+                    val row = position.y
+                    val col = position.x
+                    
+                    // Calculate hex center position using the same logic as map tile rendering
+                    val offsetXHex = if (row % 2 == 1) hexWidth / 2 else 0.0f
+                    val centerX = offsetXCanvas + col * hexWidth + offsetXHex + hexWidth / 2
+                    val centerY = offsetYCanvas + row * verticalSpacing + hexHeight / 2
+                    
+                    return Offset(centerX, centerY)
+                }
                 
                 // Draw defenders (towers)
                 if (config.showTowers) {
                     gameState.defenders.forEach { defender ->
-                        val x = offsetXCanvas + defender.position.x * cellWidth + cellWidth / 2
-                        val y = offsetYCanvas + defender.position.y * cellHeight + cellHeight / 2
+                        val center = getHexCenterPosition(defender.position)
                         drawCircle(
                             color = Color(0xFF2196F3),  // Blue - same as ready towers on main map
-                            radius = cellWidth.coerceAtMost(cellHeight) / 3,
-                            center = Offset(x, y)
+                            radius = hexSize / 2,
+                            center = center
                         )
                     }
                 }
@@ -269,12 +276,11 @@ private fun HexagonMinimapContent(
                 // Draw attackers (enemies)
                 if (config.showEnemies) {
                     gameState.attackers.filter { !it.isDefeated.value }.forEach { attacker ->
-                        val x = offsetXCanvas + attacker.position.value.x * cellWidth + cellWidth / 2
-                        val y = offsetYCanvas + attacker.position.value.y * cellHeight + cellHeight / 2
+                        val center = getHexCenterPosition(attacker.position.value)
                         drawCircle(
                             color = Color.Red,
-                            radius = cellWidth.coerceAtMost(cellHeight) / 4,
-                            center = Offset(x, y)
+                            radius = hexSize / 2.5f,
+                            center = center
                         )
                     }
                 }
@@ -282,24 +288,22 @@ private fun HexagonMinimapContent(
                 // Draw spawn points (if not already shown as tiles)
                 if (config.showSpawnPoints && !hasSpawnTile) {
                     level.startPositions.forEach { spawnPos ->
-                        val x = offsetXCanvas + spawnPos.x * cellWidth + cellWidth / 2
-                        val y = offsetYCanvas + spawnPos.y * cellHeight + cellHeight / 2
+                        val center = getHexCenterPosition(spawnPos)
                         drawCircle(
                             color = Color(0xFFFF9800),  // Orange
-                            radius = cellWidth.coerceAtMost(cellHeight) / 3,
-                            center = Offset(x, y)
+                            radius = hexSize / 2,
+                            center = center
                         )
                     }
                 }
                 
                 // Draw target position (if not already shown as tiles)
                 if (config.showTarget && !hasTargetTile) {
-                    val targetX = offsetXCanvas + level.targetPosition.x * cellWidth + cellWidth / 2
-                    val targetY = offsetYCanvas + level.targetPosition.y * cellHeight + cellHeight / 2
+                    val center = getHexCenterPosition(level.targetPosition)
                     drawCircle(
                         color = Color(0xFF4CAF50),  // Green
-                        radius = cellWidth.coerceAtMost(cellHeight) / 3,
-                        center = Offset(targetX, targetY)
+                        radius = hexSize / 2,
+                        center = center
                     )
                 }
             }

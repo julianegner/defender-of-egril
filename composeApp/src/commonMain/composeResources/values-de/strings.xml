@@ -2,7 +2,7 @@
 <resources>
     <!-- Main Menu -->
     <string name="app_name">Verteidiger von Egril</string>
-    <string name="app_subtitle">Verteidige die Wiesen von Egril gegen\ndie Horden von Gleid Thyae unter\nder Flagge des bösen Ewhad</string>
+    <string name="app_subtitle">Verteidige die Wiesen von Egril gegen die Horden von Gleid Thyae unter der Flagge des bösen Ewhad</string>
     <string name="start_game">Spiel starten</string>
     <string name="rules">Regeln</string>
 
@@ -365,7 +365,7 @@
     <string name="tutorial_resources_title">Ressourcen</string>
     <string name="tutorial_resources">Sie haben Münzen zum Bauen von Türmen und Lebenspunkte. Schwache Feinde kosten 1 LP, aber mächtige Feinde (Zauberer, Hexen, Magier, Dämonen, Drachen) kosten LP gleich ihrer Stufe. Ewhad kostet alle LP!</string>
     <string name="tutorial_towers_title">Verfügbare Türme</string>
-    <string name="tutorial_towers">Stachelturm: Nahkampf, günstig\nSpeerturm: Mittlere Reichweite\nBogenturm: Große Reichweite\n\nWählen Sie weise basierend auf Ihrer Strategie!</string>
+    <string name="tutorial_towers">Stachelturm: Nahkampf, günstig. Speerturm: Mittlere Reichweite. Bogenturm: Große Reichweite. Wählen Sie weise basierend auf Ihrer Strategie!</string>
     <string name="tutorial_build_title">Türme bauen</string>
     <string name="tutorial_build">Wählen Sie unten einen Turmtyp und klicken Sie auf einen grünen Baubereich, um ihn zu platzieren. Bauen Sie Ihre Verteidigung auf!</string>
     <string name="tutorial_initial_building_title">Anfängliche Bauphase</string>
@@ -405,9 +405,9 @@
 
     <!-- Dragon Greed Info -->
     <string name="dragon_greed_title">Drachengier!</string>
-    <string name="dragon_greed_message">Der Drache ist gierig geworden! Gier = Drachenlevel ÷ 5\n\nDer Drache verschlingt nun pro Runde Einheiten auf benachbarten Feldern entsprechend seiner Gierstufe.</string>
+    <string name="dragon_greed_message">Der Drache ist gierig geworden! Gier = Drachenlevel ÷ 5. Der Drache verschlingt nun pro Runde Einheiten auf benachbarten Feldern entsprechend seiner Gierstufe.</string>
     <string name="dragon_very_greedy_title">Drachen-Bergwerksüberfall!</string>
-    <string name="dragon_very_greedy_message">Der Drache ist sehr gierig (Gier > 5)!\n\nEr wird nun Zwergenminen angreifen und zerstören und dabei all die Gesundheit aufnehmen, die ein neuer Drache hätte (500 LP pro Mine + die geschürften Münzen als LP).\n\nMinen werden zu zerstörten Trümmern. Verteidige sie oder baue schnell wieder auf!</string>
+    <string name="dragon_very_greedy_message">Der Drache ist sehr gierig (Gier > 5)! Er wird nun Zwergenminen angreifen und zerstören und dabei all die Gesundheit aufnehmen, die ein neuer Drache hätte (500 LP pro Mine + die geschürften Münzen als LP). Minen werden zu zerstörten Trümmern. Verteidige sie oder baue schnell wieder auf!</string>
     <string name="mine_warning_title">Mine bedroht!</string>
     <string name="mine_warning_message">Der Drache nähert sich! Die Zwerge bereiten sich vor, ihre Mine zu verteidigen, aber es könnte nicht genug sein...</string>
 <!-- Waypoint Editor -->
@@ -445,4 +445,22 @@
     <string name="click_target_waypoint">2. Klicken Sie auf ein Ziel (Wegpunkt oder Ziel)</string>
     <string name="connection_mode_active">Verbindungsmodus aktiv</string>
     <string name="cancel_connection">Abbrechen</string>
+    
+    <!-- Plurals -->
+    <plurals name="enemy_count">
+        <item quantity="one">%d Feind</item>
+        <item quantity="other">%d Feinde</item>
+    </plurals>
+    <plurals name="turn_count">
+        <item quantity="one">%d Runde</item>
+        <item quantity="other">%d Runden</item>
+    </plurals>
+    <plurals name="coin_count">
+        <item quantity="one">%d Münze</item>
+        <item quantity="other">%d Münzen</item>
+    </plurals>
+    <plurals name="health_point_count">
+        <item quantity="one">%d Lebenspunkt</item>
+        <item quantity="other">%d Lebenspunkte</item>
+    </plurals>
 </resources>
