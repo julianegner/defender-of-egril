@@ -28,7 +28,8 @@ data class Level(
     val directSpawnPlan: List<PlannedEnemySpawn>? = null,  // Direct spawn plan from editor
     val availableTowers: Set<DefenderType> = DefenderType.entries.toSet(),  // Towers available in this level
     val waypoints: List<Waypoint> = emptyList(),  // Waypoints for complex pathing
-    val editorLevelId: String? = null  // ID of the editor level this was created from
+    val editorLevelId: String? = null,  // ID of the editor level this was created from
+    val mapId: String? = null  // ID of the map this level uses
 ) {
     fun isOnPath(position: Position): Boolean {
         return pathCells.contains(position)

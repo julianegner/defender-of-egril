@@ -313,14 +313,43 @@ class GameViewModel {
     fun loadGame(saveId: String) {
         val savedGame = de.egril.defender.save.SaveFileStorage.loadGameState(saveId) ?: return
         
-        // Find the level
-        val level = _worldLevels.value.find { it.level.id == savedGame.levelId }?.level ?: return
+        // Find the level by ID
+        val level = _worldLevels.value.find { it.level.id == savedGame.levelId }?.level
         
-        // Convert saved game to game state
-        val gameState = de.egril.defender.save.SaveFileStorage.convertSavedGameToGameState(savedGame, level)
-        _gameState.value = gameState
-        gameEngine = GameEngine(gameState)
-        _currentScreen.value = Screen.GamePlay(savedGame.levelId)
+        // Verify map ID matches if both are available
+        if (level != null && savedGame.mapId != null && level.mapId != null) {
+            if (savedGame.mapId != level.mapId) {
+                // Map mismatch - the level at this numeric ID now uses a different map
+                println("WARNING: Save file has different map ID (saved: ${savedGame.mapId}, current: ${level.mapId})")
+                println("Level sequence may have changed. Attempting to find level with matching map ID...")
+                
+                // Try to find any level that uses the same map as the saved game
+                val levelWithCorrectMap = _worldLevels.value
+                    .map { it.level }
+                    .find { it.mapId == savedGame.mapId }
+                
+                if (levelWithCorrectMap != null) {
+                    println("Found level with matching map ID: ${levelWithCorrectMap.name} (ID: ${levelWithCorrectMap.id})")
+                    val gameState = de.egril.defender.save.SaveFileStorage.convertSavedGameToGameState(savedGame, levelWithCorrectMap)
+                    _gameState.value = gameState
+                    gameEngine = GameEngine(gameState)
+                    _currentScreen.value = Screen.GamePlay(levelWithCorrectMap.id)
+                    return
+                } else {
+                    println("ERROR: Could not find any level with map ID ${savedGame.mapId}. Save file may be incompatible.")
+                    // TODO: Show error dialog to user
+                    return
+                }
+            }
+        }
+        
+        // No map ID mismatch or one/both map IDs are null (backward compatibility)
+        if (level != null) {
+            val gameState = de.egril.defender.save.SaveFileStorage.convertSavedGameToGameState(savedGame, level)
+            _gameState.value = gameState
+            gameEngine = GameEngine(gameState)
+            _currentScreen.value = Screen.GamePlay(savedGame.levelId)
+        }
     }
     
     fun deleteSavedGame(saveId: String) {

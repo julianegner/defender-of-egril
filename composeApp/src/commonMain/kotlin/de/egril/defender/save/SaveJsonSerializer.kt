@@ -106,6 +106,9 @@ object SaveJsonSerializer {
             "\"$escaped\""
         } ?: "null"
         
+        // Map ID (optional field for backward compatibility)
+        val mapIdJson = savedGame.mapId?.let { "\"$it\"" } ?: "null"
+        
         return """{
   "id": "${savedGame.id}",
   "timestamp": ${savedGame.timestamp},
@@ -132,7 +135,8 @@ object SaveJsonSerializer {
   "traps": [
     $trapsJson
   ],
-  "comment": $commentJson
+  "comment": $commentJson,
+  "mapId": $mapIdJson
 }"""
     }
     
@@ -210,6 +214,14 @@ object SaveJsonSerializer {
                 null  // If comment field doesn't exist (old save), default to null
             }
             
+            // Parse mapId (optional field, may not exist in older saves)
+            val mapId = try {
+                val value = extractValue(json, "mapId")
+                if (value.isBlank() || value == "null") null else value
+            } catch (e: Exception) {
+                null  // If mapId field doesn't exist (old save), default to null
+            }
+            
             return SavedGame(
                 id = id,
                 timestamp = timestamp,
@@ -228,7 +240,8 @@ object SaveJsonSerializer {
                 attackersToSpawn = attackersToSpawn,
                 fieldEffects = fieldEffects,
                 traps = traps,
-                comment = comment
+                comment = comment,
+                mapId = mapId
             )
         } catch (e: Exception) {
             println("Error deserializing saved game: ${e.message}")
