@@ -161,50 +161,88 @@ fun GameGrid(
             )
         }
 
-        // Control pad and zoom controls - positioned to the left of minimap
+        // Control pad and zoom controls - positioned at bottom-right, just above button region
         if (de.egril.defender.ui.settings.AppSettings.showControlPad.value) {
-            Row(
+            Box(
                 modifier = Modifier
+                    .fillMaxSize()
                     .align(Alignment.BottomEnd)
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.Bottom
             ) {
-                // Directional pad
-                ControlPad(
-                    onUp = {
-                        val newOffsetY = offsetY + 30f
-                        offsetY = newOffsetY
-                    },
-                    onDown = {
-                        val newOffsetY = offsetY - 30f
-                        offsetY = newOffsetY
-                    },
-                    onLeft = {
-                        val newOffsetX = offsetX + 30f
-                        offsetX = newOffsetX
-                    },
-                    onRight = {
-                        val newOffsetX = offsetX - 30f
-                        offsetX = newOffsetX
+                Row(
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(bottom = 16.dp, end = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.Bottom
+                ) {
+                    // Directional pad
+                    ControlPad(
+                        onUp = {
+                            val newOffsetY = offsetY + 30f
+                            offsetY = newOffsetY
+                        },
+                        onDown = {
+                            val newOffsetY = offsetY - 30f
+                            offsetY = newOffsetY
+                        },
+                        onLeft = {
+                            val newOffsetX = offsetX + 30f
+                            offsetX = newOffsetX
+                        },
+                        onRight = {
+                            val newOffsetX = offsetX - 30f
+                            offsetX = newOffsetX
+                        }
+                    )
+                    
+                    // Zoom controls
+                    ZoomControls(
+                        onZoomIn = {
+                            val newScale = (scale + 0.1f).coerceIn(0.5f, 3.0f)
+                            scale = newScale
+                        },
+                        onZoomOut = {
+                            val newScale = (scale - 0.1f).coerceIn(0.5f, 3.0f)
+                            scale = newScale
+                        }
+                    )
+                    
+                    // Minimap
+                    Box(
+                        modifier = Modifier.size(120.dp)
+                    ) {
+                        HexagonMinimap(
+                            level = gameState.level,
+                            config = MinimapConfig(
+                                showSpawnPoints = true,
+                                showTarget = true,
+                                showTowers = true,
+                                showEnemies = true,
+                                showViewport = true,
+                                minimapSizeDp = 120f
+                            ),
+                            gameState = gameState,
+                            scale = scale,
+                            offsetX = offsetX,
+                            offsetY = offsetY,
+                            containerSize = containerSize,
+                            modifier = Modifier.fillMaxSize()
+                        )
                     }
-                )
-                
-                // Zoom controls
-                ZoomControls(
-                    onZoomIn = {
-                        val newScale = (scale + 0.1f).coerceIn(0.5f, 3.0f)
-                        scale = newScale
-                    },
-                    onZoomOut = {
-                        val newScale = (scale - 0.1f).coerceIn(0.5f, 3.0f)
-                        scale = newScale
-                    }
-                )
-                
-                // Minimap
+                }
+            }
+        } else {
+            // Minimap only (when control pad is disabled)
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .align(Alignment.BottomEnd)
+            ) {
                 Box(
-                    modifier = Modifier.size(120.dp)
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(bottom = 16.dp, end = 16.dp)
+                        .size(120.dp)
                 ) {
                     HexagonMinimap(
                         level = gameState.level,
@@ -224,32 +262,6 @@ fun GameGrid(
                         modifier = Modifier.fillMaxSize()
                     )
                 }
-            }
-        } else {
-            // Minimap only (when control pad is disabled)
-            Box(
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(16.dp)
-                    .size(120.dp)
-            ) {
-                HexagonMinimap(
-                    level = gameState.level,
-                    config = MinimapConfig(
-                        showSpawnPoints = true,
-                        showTarget = true,
-                        showTowers = true,
-                        showEnemies = true,
-                        showViewport = true,
-                        minimapSizeDp = 120f
-                    ),
-                    gameState = gameState,
-                    scale = scale,
-                    offsetX = offsetX,
-                    offsetY = offsetY,
-                    containerSize = containerSize,
-                    modifier = Modifier.fillMaxSize()
-                )
             }
         }
     }
