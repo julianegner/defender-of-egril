@@ -12,6 +12,7 @@ import de.egril.defender.model.*
 import de.egril.defender.ui.*
 import de.egril.defender.ui.icon.enemy.EnemyIcon
 import com.hyperether.resources.stringResource
+import de.egril.defender.ui.icon.InfoIcon
 import defender_of_egril.composeapp.generated.resources.*
 
 /**
@@ -153,6 +154,7 @@ fun AttackerInfo(
                             onClick = onShowDragonInfo,
                             modifier = Modifier.padding(top = 4.dp)
                         ) {
+                            InfoIcon(size = 16.dp)
                             Text(
                                 stringResource(Res.string.dragon_info_button),
                                 style = MaterialTheme.typography.bodySmall,
