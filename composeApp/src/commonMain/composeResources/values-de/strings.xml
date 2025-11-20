@@ -397,6 +397,12 @@
     <string name="sound_enabled">Sound aktiviert</string>
     <string name="sound_disabled">Sound deaktiviert</string>
     <string name="sound_volume">Lautstärke</string>
+
+    <!-- Control Pad Settings -->
+    <string name="controls">Steuerung</string>
+    <string name="show_control_pad">Steuerkreuz anzeigen</string>
+    <string name="control_pad_enabled">Steuerkreuz aktiviert</string>
+    <string name="control_pad_disabled">Steuerkreuz deaktiviert</string>
     
     <!-- Dragon Names -->
     <string name="the_dragon">Der Drache</string>
