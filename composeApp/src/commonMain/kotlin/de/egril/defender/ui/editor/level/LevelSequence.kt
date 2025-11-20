@@ -94,24 +94,27 @@ fun LevelSequenceContent() {
             modifier = Modifier.padding(bottom = 8.dp)
         )
         
-        if (levelsInSequence.isEmpty()) {
-            Text(
-                text = "No levels in sequence",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
-        } else {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(0.5f)
-                    .onGloballyPositioned { coordinates ->
-                        sequenceAreaBounds = coordinates.positionInRoot() to 
-                            IntSize(coordinates.size.width, coordinates.size.height)
-                    },
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
+        // Always show the LazyColumn (even if empty) so it can accept drops
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(0.5f)
+                .onGloballyPositioned { coordinates ->
+                    sequenceAreaBounds = coordinates.positionInRoot() to 
+                        IntSize(coordinates.size.width, coordinates.size.height)
+                },
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            if (levelsInSequence.isEmpty()) {
+                item {
+                    Text(
+                        text = "No levels in sequence - drag levels here to add them",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(vertical = 16.dp)
+                    )
+                }
+            } else {
                 items(levelsInSequence.size) { index ->
                     val (levelId, level) = levelsInSequence[index]
                     
@@ -297,7 +300,6 @@ fun LevelSequenceContent() {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(0.5f)
                     .background(
                         if (isDropTargetAvailableArea) {
                             MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
@@ -370,8 +372,8 @@ fun LevelSequenceContent() {
                                                             targetIndex = sortedBounds.size
                                                         } else {
                                                             // Above the last item's midpoint
-                                                            // Insert after current item (add 2 instead of 1 to compensate for off-by-one)
-                                                            targetIndex = currentItem.index + 2
+                                                            // Insert after current item
+                                                            targetIndex = currentItem.index + 1
                                                         }
                                                     } else {
                                                         val nextItem = sortedBounds[i + 1]
@@ -379,8 +381,8 @@ fun LevelSequenceContent() {
                                                         
                                                         // Check if between current midpoint and next midpoint
                                                         if (newPosition.y >= currentMidpoint && newPosition.y < nextMidpoint) {
-                                                            // Insert after current item (add 2 instead of 1 to compensate for off-by-one)
-                                                            targetIndex = currentItem.index + 2
+                                                            // Insert before next item (at next item's current index)
+                                                            targetIndex = nextItem.index
                                                             break
                                                         }
                                                     }
