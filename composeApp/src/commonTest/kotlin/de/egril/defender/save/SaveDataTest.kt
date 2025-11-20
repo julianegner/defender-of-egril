@@ -344,4 +344,69 @@ class SaveDataTest {
         val defender = deserialized.defenders[0]
         assertEquals(0, defender.actionsRemaining)  // Should default to 0 for old saves
     }
+    
+    @Test
+    fun testBackwardCompatibilityWithoutMapId() {
+        // Test that old saves without mapId field can still be loaded
+        val oldSaveJson = """{
+  "id": "old_save_no_map",
+  "timestamp": 1234567890,
+  "levelId": 1,
+  "levelName": "Test Level",
+  "turnNumber": 5,
+  "coins": 100,
+  "healthPoints": 10,
+  "phase": "PLAYER_TURN",
+  "defenders": [],
+  "attackers": [],
+  "nextDefenderId": 1,
+  "nextAttackerId": 1,
+  "currentWaveIndex": 0,
+  "spawnCounter": 0,
+  "attackersToSpawn": [],
+  "fieldEffects": [],
+  "traps": [],
+  "comment": null
+}"""
+        
+        // Should deserialize successfully with mapId defaulting to null
+        val deserialized = SaveJsonSerializer.deserializeSavedGame(oldSaveJson)
+        assertNotNull(deserialized)
+        assertEquals("old_save_no_map", deserialized.id)
+        assertEquals(null, deserialized.mapId)  // Should default to null for old saves
+    }
+    
+    @Test
+    fun testSavedGameWithMapId() {
+        val savedGame = SavedGame(
+            id = "test_save_with_map",
+            timestamp = System.currentTimeMillis(),
+            levelId = 1,
+            levelName = "The First Wave",
+            turnNumber = 3,
+            coins = 100,
+            healthPoints = 10,
+            phase = GamePhase.PLAYER_TURN,
+            defenders = emptyList(),
+            attackers = emptyList(),
+            nextDefenderId = 1,
+            nextAttackerId = 1,
+            currentWaveIndex = 0,
+            spawnCounter = 0,
+            attackersToSpawn = emptyList(),
+            fieldEffects = emptyList(),
+            traps = emptyList(),
+            comment = null,
+            mapId = "map_test_123"
+        )
+        
+        // Test serialization
+        val json = SaveJsonSerializer.serializeSavedGame(savedGame)
+        assertNotNull(json)
+        
+        // Test deserialization
+        val deserialized = SaveJsonSerializer.deserializeSavedGame(json)
+        assertNotNull(deserialized)
+        assertEquals("map_test_123", deserialized.mapId)
+    }
 }
