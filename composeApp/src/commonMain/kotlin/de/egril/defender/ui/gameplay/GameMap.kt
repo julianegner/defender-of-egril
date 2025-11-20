@@ -163,6 +163,39 @@ fun GameGrid(
             )
         }
 
+        // Draw target rings overlay for AREA and LASTING attacks
+        if (selectedTargetPosition != null && selectedDefenderId != null) {
+            val selectedDefender = gameState.defenders.find { it.id == selectedDefenderId }
+            val attackType = selectedDefender?.type?.attackType
+            
+            if (attackType == AttackType.AREA || attackType == AttackType.LASTING) {
+                val markerColor = when (attackType) {
+                    AttackType.AREA -> Color(0xFFFF5722)  // Deep orange/red for fireball
+                    AttackType.LASTING -> Color(0xFF4CAF50)  // Green for acid
+                    else -> Color.DarkGray
+                }
+                
+                val pathNeighbors = selectedTargetPosition.getHexNeighbors()
+                    .filter { neighbor ->
+                        neighbor.x >= 0 && neighbor.x < gameState.level.gridWidth &&
+                        neighbor.y >= 0 && neighbor.y < gameState.level.gridHeight &&
+                        gameState.level.isOnPath(neighbor)
+                    }
+                
+                TargetRingsOverlay(
+                    targetPosition = selectedTargetPosition,
+                    pathNeighbors = pathNeighbors,
+                    color = markerColor,
+                    hexSize = hexSize.value,
+                    scale = scale,
+                    offsetX = offsetX,
+                    offsetY = offsetY,
+                    containerSize = containerSize,
+                    contentSize = contentSize,
+                    modifier = Modifier.zIndex(10f)
+                )
+            }
+        }
 
         MapControls(
             mapControlState = MapControlState(
