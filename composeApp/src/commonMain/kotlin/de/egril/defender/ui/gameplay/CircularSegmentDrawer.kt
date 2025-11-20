@@ -11,14 +11,15 @@ import kotlin.math.atan2
 import kotlin.math.sqrt
 
 /**
- * Helper for drawing circular segment arcs on neighbor tiles.
- * Uses circular segment calculation as described in: https://en.wikipedia.org/wiki/Circular_segment
+ * Helper for drawing circular arc segments on neighbor tiles.
+ * Draws only the portion of a ring that overlaps with a specific tile.
  */
 object CircularSegmentDrawer {
     
     /**
      * Draw a circular arc segment on a neighbor tile.
      * The arc is part of a larger circle centered on the target tile.
+     * Only the portion of the circle that passes through this tile is drawn.
      * 
      * @param drawScope The DrawScope to draw in
      * @param color The color of the arc
@@ -37,30 +38,47 @@ object CircularSegmentDrawer {
         neighborPos: Position,
         hexSize: Float
     ) {
-        val dx = (centerPos.x - neighborPos.x).toFloat()
-        val dy = (centerPos.y - neighborPos.y).toFloat()
-
-        val hexSize = 40f
-        val hexWidth = hexSize * sqrt(3f)
+        // Calculate hexagonal grid dimensions
+        val sqrt3 = sqrt(3f)
+        val hexWidth = hexSize * sqrt3
         val verticalSpacing = hexSize * 2f * 0.75f
-
-        var offsetX = (dx * hexWidth)
-        var offsetY = (dy * verticalSpacing)
-
+        
+        // Calculate direction from center to neighbor
+        val dx = (neighborPos.x - centerPos.x).toFloat()
+        val dy = (neighborPos.y - centerPos.y).toFloat()
+        
+        // Calculate offset in pixels, accounting for row offsets
+        var offsetX = dx * hexWidth
+        var offsetY = dy * verticalSpacing
+        
         val neighborRowOffset = if (neighborPos.y % 2 == 1) hexWidth * 0.42f else 0f
         val centerRowOffset = if (centerPos.y % 2 == 1) hexWidth * 0.42f else 0f
-        offsetX += (centerRowOffset - neighborRowOffset)
-
+        offsetX += (neighborRowOffset - centerRowOffset)
+        
+        // Calculate tile center
         val tileCenterX = drawScope.size.width / 2
         val tileCenterY = drawScope.size.height / 2
-
+        
+        // Calculate where the center of the target tile is relative to this tile
         val arcCenterX = tileCenterX + offsetX
         val arcCenterY = tileCenterY + offsetY
-
-        drawScope.drawCircle(
-            color = color, // .copy(alpha = 0.3f),
-            radius = radius,
-            center = Offset(arcCenterX, arcCenterY),
+        
+        // Calculate the angle from center to this neighbor tile
+        val angleRad = atan2(offsetY, offsetX)
+        val angleDeg = (angleRad * 180 / PI).toFloat()
+        
+        // Calculate arc span - cover approximately 60 degrees (one hexagon face) plus overlap
+        val arcSpan = 70f
+        val startAngle = angleDeg - arcSpan / 2
+        
+        // Draw the arc segment
+        drawScope.drawArc(
+            color = color,
+            startAngle = startAngle,
+            sweepAngle = arcSpan,
+            useCenter = false,
+            topLeft = Offset(arcCenterX - radius, arcCenterY - radius),
+            size = Size(radius * 2, radius * 2),
             style = Stroke(width = strokeWidth)
         )
     }
