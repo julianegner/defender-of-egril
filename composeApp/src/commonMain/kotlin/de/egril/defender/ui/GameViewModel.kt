@@ -321,22 +321,22 @@ class GameViewModel {
             if (savedGame.mapId != level.mapId) {
                 // Map mismatch - the level at this numeric ID now uses a different map
                 println("WARNING: Save file has different map ID (saved: ${savedGame.mapId}, current: ${level.mapId})")
-                println("Level sequence may have changed. Attempting to find level by editorLevelId...")
+                println("Level sequence may have changed. Attempting to find level with matching map ID...")
                 
-                // Try to find level by editorLevelId instead
-                val levelByEditorId = if (level.editorLevelId != null) {
-                    _worldLevels.value.find { it.level.editorLevelId == level.editorLevelId }?.level
-                } else null
+                // Try to find any level that uses the same map as the saved game
+                val levelWithCorrectMap = _worldLevels.value
+                    .map { it.level }
+                    .find { it.mapId == savedGame.mapId }
                 
-                if (levelByEditorId != null && levelByEditorId.mapId == savedGame.mapId) {
-                    println("Found matching level by editorLevelId with correct map: ${levelByEditorId.name}")
-                    val gameState = de.egril.defender.save.SaveFileStorage.convertSavedGameToGameState(savedGame, levelByEditorId)
+                if (levelWithCorrectMap != null) {
+                    println("Found level with matching map ID: ${levelWithCorrectMap.name} (ID: ${levelWithCorrectMap.id})")
+                    val gameState = de.egril.defender.save.SaveFileStorage.convertSavedGameToGameState(savedGame, levelWithCorrectMap)
                     _gameState.value = gameState
                     gameEngine = GameEngine(gameState)
-                    _currentScreen.value = Screen.GamePlay(levelByEditorId.id)
+                    _currentScreen.value = Screen.GamePlay(levelWithCorrectMap.id)
                     return
                 } else {
-                    println("ERROR: Could not find level with matching map ID. Save file may be incompatible.")
+                    println("ERROR: Could not find any level with map ID ${savedGame.mapId}. Save file may be incompatible.")
                     // TODO: Show error dialog to user
                     return
                 }
