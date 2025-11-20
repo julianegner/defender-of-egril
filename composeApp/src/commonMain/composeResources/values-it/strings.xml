@@ -403,6 +403,13 @@
     <string name="awakens">si sveglia</string>
     <string name="lair_of_the_dragon">Tana del Drago</string>
 
+    <!-- Dragon Info -->
+    <string name="dragon_info_title">Allarme Drago!</string>
+    <string name="dragon_info_movement">Il drago alterna il movimento: Turno 1, 3, 5...: Cammina 1 casella sul percorso. Turno 2, 4, 6...: Vola fino a 5 caselle, può attraversare ostacoli ma deve atterrare sul percorso</string>
+    <string name="dragon_info_eating">I draghi divorano i nemici su cui atterrano (eccetto Ewhad), guadagnando i loro punti salute!</string>
+    <string name="dragon_info_level">Il livello del drago aumenta con la salute: Livello = PS ÷ 500 (min. 1)</string>
+    <string name="got_it">Capito!</string>
+
     <!-- Dragon Greed Info -->
     <string name="dragon_greed_title">Avidità del Drago!</string>
     <string name="dragon_greed_message">Il drago è diventato avido! Avidità = Livello del Drago ÷ 5. Il drago divorerà ora unità su caselle adiacenti pari al suo livello di avidità ogni turno.</string>
@@ -410,6 +417,14 @@
     <string name="dragon_very_greedy_message">Il drago è molto avido (avidità > 5)! Ora caccerà e distruggerà miniere naniche, assorbendo tutta la salute che avrebbe un nuovo drago (500 PS per miniera). Le miniere diventeranno macerie distrutte. Difendile o ricostruisci rapidamente!</string>
     <string name="mine_warning_title">Miniera Minacciata!</string>
     <string name="mine_warning_message">Il drago si avvicina! I nani si preparano a difendere la loro miniera, ma potrebbe non essere sufficiente...</string>
+    
+    <!-- Enemy Info Display -->
+    <string name="greedy_label">avido</string>
+    <string name="very_greedy_label">molto avido</string>
+    <string name="greedy_desc">Mangia unità nemiche circostanti</string>
+    <string name="very_greedy_desc">Mangia unità nemiche circostanti e distrugge miniere una dopo l\'altra</string>
+    <string name="greed_level_label">Avidità</string>
+    <string name="dragon_info_button">Cosa fa un drago?</string>
 <!-- Waypoint Editor -->
     <string name="waypoints_tab">Punti di Passaggio</string>
     <string name="waypoints_title">Connessioni dei Punti di Passaggio</string>

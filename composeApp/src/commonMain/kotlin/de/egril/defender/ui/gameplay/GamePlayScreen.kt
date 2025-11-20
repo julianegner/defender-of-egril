@@ -447,7 +447,8 @@ private fun GamePlayScreenContent(
                         }
                     },
                     onMineAction = handleMineAction,
-                    uiScale = uiScale
+                    uiScale = uiScale,
+                    onShowDragonInfo = { showDragonInfoDialog = true }
                 )
             }
 
@@ -512,7 +513,8 @@ private fun GamePlayScreenContent(
                         }
                     },
                     onMineAction = handleMineAction,
-                    uiScale = uiScale
+                    uiScale = uiScale,
+                    onShowDragonInfo = { showDragonInfoDialog = true }
                 )
             }
 
