@@ -142,6 +142,40 @@ class EditorStorageTest {
     }
     
     @Test
+    fun testIsLevelReadyToPlayFunction() {
+        // Note: This test can only validate the logic, not actual file I/O
+        // The function would return false for these test levels since maps don't exist in storage
+        
+        // Test that a level with proper structure would pass initial checks
+        val validLevel = EditorLevel(
+            id = "valid_test",
+            mapId = "valid_map",
+            title = "Valid Test",
+            startCoins = 100,
+            startHealthPoints = 10,
+            enemySpawns = listOf(EditorEnemySpawn(AttackerType.GOBLIN, 1, 1)),
+            availableTowers = setOf(DefenderType.SPIKE_TOWER),
+            waypoints = emptyList() // Valid for a level
+        )
+        
+        // The level itself should be ready (has towers and spawns)
+        assertTrue(validLevel.isReadyToPlay())
+        
+        // Test that a level without essential fields fails initial check
+        val invalidLevel = EditorLevel(
+            id = "invalid_test",
+            mapId = "valid_map",
+            title = "Invalid Test",
+            startCoins = 100,
+            startHealthPoints = 10,
+            enemySpawns = emptyList(), // Missing spawns
+            availableTowers = setOf(DefenderType.SPIKE_TOWER)
+        )
+        
+        assertTrue(!invalidLevel.isReadyToPlay())
+    }
+    
+    @Test
     fun testJsonSerialization() {
         // Test map serialization
         val map = EditorMap(
