@@ -156,18 +156,70 @@ fun MapEditorView(
                     }
                 }
 
-                HexagonMinimapFromEditorMap(
-                    map = currentMap,
-                    modifier = Modifier.size(150.dp).align(Alignment.BottomEnd),
-                    config = MinimapConfig(
-                        showViewport = true,
-                        minimapSizeDp = 150f
-                    ),
-                    scale = zoomLevel,
-                    offsetX = offsetX,
-                    offsetY = offsetY,
-                    containerSize = containerSize
-                )
+                // Control pad and zoom controls - positioned to the left of minimap
+                if (de.egril.defender.ui.settings.AppSettings.showControlPad.value) {
+                    Row(
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .padding(8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.Bottom
+                    ) {
+                        // Directional pad
+                        de.egril.defender.ui.ControlPad(
+                            onUp = {
+                                offsetY += 30f
+                            },
+                            onDown = {
+                                offsetY -= 30f
+                            },
+                            onLeft = {
+                                offsetX += 30f
+                            },
+                            onRight = {
+                                offsetX -= 30f
+                            }
+                        )
+                        
+                        // Zoom controls
+                        de.egril.defender.ui.ZoomControls(
+                            onZoomIn = {
+                                zoomLevel = (zoomLevel + 0.1f).coerceIn(0.5f, 3.0f)
+                            },
+                            onZoomOut = {
+                                zoomLevel = (zoomLevel - 0.1f).coerceIn(0.5f, 3.0f)
+                            }
+                        )
+                        
+                        // Minimap
+                        HexagonMinimapFromEditorMap(
+                            map = currentMap,
+                            modifier = Modifier.size(150.dp),
+                            config = MinimapConfig(
+                                showViewport = true,
+                                minimapSizeDp = 150f
+                            ),
+                            scale = zoomLevel,
+                            offsetX = offsetX,
+                            offsetY = offsetY,
+                            containerSize = containerSize
+                        )
+                    }
+                } else {
+                    // Minimap only (when control pad is disabled)
+                    HexagonMinimapFromEditorMap(
+                        map = currentMap,
+                        modifier = Modifier.size(150.dp).align(Alignment.BottomEnd).padding(8.dp),
+                        config = MinimapConfig(
+                            showViewport = true,
+                            minimapSizeDp = 150f
+                        ),
+                        scale = zoomLevel,
+                        offsetX = offsetX,
+                        offsetY = offsetY,
+                        containerSize = containerSize
+                    )
+                }
             }
             
             // Action buttons

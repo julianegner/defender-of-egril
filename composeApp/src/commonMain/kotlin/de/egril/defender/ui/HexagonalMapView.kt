@@ -298,59 +298,6 @@ fun HexagonalMapView(
                 }
             }
         }
-        
-        // Control pad overlay (bottom-right corner)
-        if (AppSettings.showControlPad.value) {
-            Row(
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.Bottom
-            ) {
-                // Directional pad
-                ControlPad(
-                    onUp = {
-                        val newOffsetY = offsetY + config.keyboardPanSpeed
-                        val (constrainedX, constrainedY) = constrainOffsets(offsetX, newOffsetY, scale)
-                        onOffsetChange(constrainedX, constrainedY)
-                    },
-                    onDown = {
-                        val newOffsetY = offsetY - config.keyboardPanSpeed
-                        val (constrainedX, constrainedY) = constrainOffsets(offsetX, newOffsetY, scale)
-                        onOffsetChange(constrainedX, constrainedY)
-                    },
-                    onLeft = {
-                        val newOffsetX = offsetX + config.keyboardPanSpeed
-                        val (constrainedX, constrainedY) = constrainOffsets(newOffsetX, offsetY, scale)
-                        onOffsetChange(constrainedX, constrainedY)
-                    },
-                    onRight = {
-                        val newOffsetX = offsetX - config.keyboardPanSpeed
-                        val (constrainedX, constrainedY) = constrainOffsets(newOffsetX, offsetY, scale)
-                        onOffsetChange(constrainedX, constrainedY)
-                    }
-                )
-                
-                // Zoom controls
-                ZoomControls(
-                    onZoomIn = {
-                        val newScale = (scale + config.zoomDelta).coerceIn(config.minScale, config.maxScale)
-                        onScaleChange(newScale)
-                        // Re-constrain offsets after zoom
-                        val (constrainedX, constrainedY) = constrainOffsets(offsetX, offsetY, newScale)
-                        onOffsetChange(constrainedX, constrainedY)
-                    },
-                    onZoomOut = {
-                        val newScale = (scale - config.zoomDelta).coerceIn(config.minScale, config.maxScale)
-                        onScaleChange(newScale)
-                        // Re-constrain offsets after zoom
-                        val (constrainedX, constrainedY) = constrainOffsets(offsetX, offsetY, newScale)
-                        onOffsetChange(constrainedX, constrainedY)
-                    }
-                )
-            }
-        }
     }
 }
 
