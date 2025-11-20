@@ -2,7 +2,8 @@ package de.egril.defender.audio
 
 import defender_of_egril.composeapp.generated.resources.Res
 import kotlinx.cinterop.ExperimentalForeignApi
-import kotlinx.cinterop.refTo
+import kotlinx.cinterop.addressOf
+import kotlinx.cinterop.usePinned
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -62,9 +63,11 @@ actual fun playSoundFile(fileName: String, volume: Float) {
     }
 }
 
-@OptIn(ExperimentalForeignApi::class)
+@OptIn(ExperimentalForeignApi::class, kotlinx.cinterop.BetaInteropApi::class)
 private fun ByteArray.toNSData(): NSData {
-    return NSData.create(bytes = this.refTo(0), length = this.size.toULong())
+    return usePinned { pinned ->
+        NSData.create(bytes = pinned.addressOf(0), length = this.size.toULong())
+    }
 }
 
 actual fun releaseAudioSystem() {
