@@ -59,6 +59,22 @@ fun LevelSequenceContent() {
     var availableAreaBounds by remember { mutableStateOf<Pair<Offset, IntSize>?>(null) }
     var sequenceAreaBounds by remember { mutableStateOf<Pair<Offset, IntSize>?>(null) }
     
+    // Clean up sequence on first load: remove deleted/invalid levels
+    LaunchedEffect(Unit) {
+        val currentSequence = sequence.value.sequence
+        val validLevelIds = currentSequence.filter { levelId ->
+            val level = EditorStorage.getLevel(levelId)
+            level != null && EditorStorage.isLevelReadyToPlay(level)
+        }
+        
+        // If we filtered out any invalid levels, update the sequence
+        if (validLevelIds.size != currentSequence.size) {
+            val cleanedSequence = sequence.value.copy(sequence = validLevelIds)
+            EditorStorage.updateLevelSequence(cleanedSequence)
+            sequence.value = cleanedSequence
+        }
+    }
+    
     // Get levels in sequence that are ready to play
     val levelsInSequence = sequence.value.sequence.mapNotNull { levelId ->
         val level = EditorStorage.getLevel(levelId)
@@ -99,6 +115,7 @@ fun LevelSequenceContent() {
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(0.5f)
+                .heightIn(min = 100.dp) // Ensure minimum height for drop zone
                 .onGloballyPositioned { coordinates ->
                     sequenceAreaBounds = coordinates.positionInRoot() to 
                         IntSize(coordinates.size.width, coordinates.size.height)
@@ -107,12 +124,19 @@ fun LevelSequenceContent() {
         ) {
             if (levelsInSequence.isEmpty()) {
                 item {
-                    Text(
-                        text = "No levels in sequence - drag levels here to add them",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(vertical = 16.dp)
-                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(min = 80.dp)
+                            .padding(vertical = 16.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "No levels in sequence - drag levels here to add them",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
             } else {
                 items(levelsInSequence.size) { index ->
