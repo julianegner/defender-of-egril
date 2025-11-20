@@ -179,7 +179,8 @@ fun MapEditorView(
                         scale = zoomLevel,
                         offsetX = offsetX,
                         offsetY = offsetY,
-                        containerSize = containerSize
+                        containerSize = containerSize,
+                        contentSize = actualContentSize
                     )
                 }
 
@@ -235,7 +236,8 @@ fun MapEditorView(
                             scale = zoomLevel,
                             offsetX = offsetX,
                             offsetY = offsetY,
-                            containerSize = containerSize
+                            containerSize = containerSize,
+                            contentSize = actualContentSize
                         )
                     }
                 }
