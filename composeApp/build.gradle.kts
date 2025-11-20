@@ -76,7 +76,6 @@ kotlin {
     
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
-        moduleName = "defenderOfEgril"
         browser {
             commonWebpackConfig {
                 outputFileName = "defenderOfEgril.js"
