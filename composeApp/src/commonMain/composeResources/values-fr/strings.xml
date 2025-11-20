@@ -403,6 +403,13 @@
     <string name="awakens">se réveille</string>
     <string name="lair_of_the_dragon">Repaire du Dragon</string>
 
+    <!-- Dragon Info -->
+    <string name="dragon_info_title">Alerte Dragon !</string>
+    <string name="dragon_info_movement">Le dragon alterne ses mouvements : Tour 1, 3, 5... : Marche 1 case sur le chemin. Tour 2, 4, 6... : Vole jusqu\'à 5 cases, peut traverser les obstacles mais doit atterrir sur le chemin</string>
+    <string name="dragon_info_eating">Les dragons dévorent les ennemis sur lesquels ils atterrissent (sauf Ewhad), gagnant leurs points de vie !</string>
+    <string name="dragon_info_level">Le niveau du dragon augmente avec la santé : Niveau = PV ÷ 500 (min. 1)</string>
+    <string name="got_it">Compris !</string>
+
     <!-- Dragon Greed Info -->
     <string name="dragon_greed_title">Avidité du Dragon !</string>
     <string name="dragon_greed_message">Le dragon est devenu avide ! Avidité = Niveau du Dragon ÷ 5. Le dragon dévorera désormais des unités sur les tuiles adjacentes selon son niveau d\'avidité à chaque tour.</string>
