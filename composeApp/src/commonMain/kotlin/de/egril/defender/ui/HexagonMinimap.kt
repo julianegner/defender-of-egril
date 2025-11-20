@@ -312,8 +312,10 @@ private fun HexagonMinimapContent(
         // Viewport indicator (shows current view) - only if all viewport params are provided
         if (config.showViewport && scale != null && offsetX != null && offsetY != null && containerSize != null) {
             if (containerSize.width > 0 && containerSize.height > 0) {
-                val viewportWidthRatio = 1f / scale
-                val viewportHeightRatio = 1f / scale
+                // When zoomed in (scale > 1), viewport shows less (ratio < 1)
+                // When zoomed out (scale < 1), viewport shows more (ratio would be > 1, but clamp to 1)
+                val viewportWidthRatio = (1f / scale).coerceAtMost(1f)
+                val viewportHeightRatio = (1f / scale).coerceAtMost(1f)
 
                 // Calculate normalized offset (-1 to 1 range)
                 val maxOffsetX = (containerSize.width * (scale - 1) / 2).coerceAtLeast(0.01f)
