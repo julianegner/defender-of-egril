@@ -7,16 +7,18 @@ import com.hyperether.resources.currentLanguage
 import com.russhwolf.settings.Settings
 import com.russhwolf.settings.get
 import com.russhwolf.settings.set
+import de.egril.defender.utils.isPlatformMobile
 
 /**
  * Manages application settings using multiplatform-settings library
- * Persists dark mode preference, language selection, and sound settings
+ * Persists dark mode preference, language selection, sound settings, and control pad visibility
  */
 object AppSettings {
     private const val KEY_DARK_MODE = "dark_mode"
     private const val KEY_LANGUAGE = "language"
     private const val KEY_SOUND_ENABLED = "sound_enabled"
     private const val KEY_SOUND_VOLUME = "sound_volume"
+    private const val KEY_SHOW_CONTROL_PAD = "show_control_pad"
     
     private val settings: Settings = Settings()
     
@@ -34,6 +36,14 @@ object AppSettings {
      * Sound volume level (0.0 to 1.0) - automatically saved when changed
      */
     val soundVolume: MutableState<Float> = mutableStateOf(settings.getFloat(KEY_SOUND_VOLUME, 0.7f))
+    
+    /**
+     * Control pad visibility state - automatically saved when changed
+     * Default is ON for mobile platforms, OFF for desktop/web
+     */
+    val showControlPad: MutableState<Boolean> = mutableStateOf(
+        settings.getBoolean(KEY_SHOW_CONTROL_PAD, isPlatformMobile)
+    )
     
     /**
      * Initialize settings on app start
@@ -88,6 +98,14 @@ object AppSettings {
     }
     
     /**
+     * Save control pad visibility preference
+     */
+    fun saveShowControlPad(show: Boolean) {
+        showControlPad.value = show
+        settings.putBoolean(KEY_SHOW_CONTROL_PAD, show)
+    }
+    
+    /**
      * Reset all settings to defaults
      */
     fun resetToDefaults() {
@@ -100,5 +118,8 @@ object AppSettings {
         // Reset sound settings
         saveSoundEnabled(true)
         saveSoundVolume(0.7f)
+        
+        // Reset control pad to platform default
+        saveShowControlPad(isPlatformMobile)
     }
 }

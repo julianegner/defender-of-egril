@@ -397,6 +397,12 @@
     <string name="sound_enabled">Sonido activado</string>
     <string name="sound_disabled">Sonido desactivado</string>
     <string name="sound_volume">Volumen del sonido</string>
+
+    <!-- Control Pad Settings -->
+    <string name="controls">Controles</string>
+    <string name="show_control_pad">Mostrar panel de control</string>
+    <string name="control_pad_enabled">Panel de control activado</string>
+    <string name="control_pad_disabled">Panel de control desactivado</string>
     
     <!-- Dragon Names -->
     <string name="the_dragon">El dragón</string>

@@ -397,6 +397,12 @@
     <string name="sound_enabled">Son activé</string>
     <string name="sound_disabled">Son désactivé</string>
     <string name="sound_volume">Volume du son</string>
+
+    <!-- Control Pad Settings -->
+    <string name="controls">Contrôles</string>
+    <string name="show_control_pad">Afficher le pavé directionnel</string>
+    <string name="control_pad_enabled">Pavé directionnel activé</string>
+    <string name="control_pad_disabled">Pavé directionnel désactivé</string>
     
     <!-- Dragon Names -->
     <string name="the_dragon">Le dragon</string>
