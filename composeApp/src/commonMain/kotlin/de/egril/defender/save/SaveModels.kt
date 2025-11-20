@@ -31,7 +31,8 @@ data class SavedGame(
     val attackersToSpawn: List<AttackerType>,
     val fieldEffects: List<SavedFieldEffect>,
     val traps: List<SavedTrap>,
-    val comment: String? = null  // Optional player comment
+    val comment: String? = null,  // Optional player comment
+    val mapId: String? = null  // Map identifier (for ensuring correct map is loaded)
 )
 
 data class SavedDefender(
