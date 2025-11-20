@@ -126,7 +126,8 @@ object SaveFileStorage {
                             remainingSpawnCounts = remainingSpawnCounts,
                             comment = savedGame.comment,
                             defenderPositions = savedGame.defenders,
-                            attackerPositions = savedGame.attackers
+                            attackerPositions = savedGame.attackers,
+                            mapId = savedGame.mapId  // Include map ID for minimap display
                         )
                     )
                 }
