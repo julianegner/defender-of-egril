@@ -47,34 +47,6 @@ fun GameGrid(
 
     val hexSize = 40.dp  // Radius of hexagon (center to corner)
 
-    // Helper function to constrain pan offsets (same logic as HexagonalMapView)
-    fun constrainOffsets(newOffsetX: Float, newOffsetY: Float, currentScale: Float): Pair<Float, Float> {
-        // If content size hasn't been measured yet, don't constrain
-        if (contentSize.width == 0 || contentSize.height == 0) {
-            return Pair(newOffsetX, newOffsetY)
-        }
-        
-        val contentWidth = contentSize.width * currentScale
-        val contentHeight = contentSize.height * currentScale
-
-        val maxOffsetX = if (contentWidth > containerSize.width) {
-            (contentWidth - containerSize.width) / 2
-        } else {
-            (containerSize.width * (currentScale - 1) / 2).coerceAtLeast(0f)
-        }
-
-        val maxOffsetY = if (contentHeight > containerSize.height) {
-            (contentHeight - containerSize.height) / 2
-        } else {
-            (containerSize.height * (currentScale - 1) / 2).coerceAtLeast(0f)
-        }
-
-        return Pair(
-            newOffsetX.coerceIn(-maxOffsetX, maxOffsetX),
-            newOffsetY.coerceIn(-maxOffsetY, maxOffsetY)
-        )
-    }
-
     // Initialize viewport to show spawn points (upper left) instead of center
     LaunchedEffect(containerSize, contentSize) {
         if (!isInitialized && containerSize.width > 0 && containerSize.height > 0 
@@ -200,7 +172,13 @@ fun GameGrid(
             ),
             onStateChange = { newState ->
                 val newScale = newState.zoomLevel
-                val (constrainedX, constrainedY) = constrainOffsets(newState.offsetX, newState.offsetY, newScale)
+                val (constrainedX, constrainedY) = constrainMapOffsets(
+                    newState.offsetX, 
+                    newState.offsetY, 
+                    newScale,
+                    containerSize,
+                    contentSize
+                )
                 scale = newScale
                 offsetX = constrainedX
                 offsetY = constrainedY
