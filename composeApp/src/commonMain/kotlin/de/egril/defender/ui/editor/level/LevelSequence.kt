@@ -73,7 +73,9 @@ fun LevelSequenceContent() {
     }
     
     Column(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight()
     ) {
         Text(
             text = stringResource(Res.string.level_sequence),
@@ -98,8 +100,8 @@ fun LevelSequenceContent() {
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(0.5f)
-                .heightIn(min = 100.dp) // Ensure minimum height for drop zone
+                .weight(1f, fill = false) // Take available space but don't force fill
+                .heightIn(min = 100.dp, max = 400.dp) // Min/max bounds for better layout
                 .onGloballyPositioned { coordinates ->
                     sequenceAreaBounds = coordinates.positionInRoot() to 
                         IntSize(coordinates.size.width, coordinates.size.height)
@@ -308,6 +310,8 @@ fun LevelSequenceContent() {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .weight(1f, fill = false) // Take remaining space but don't force fill
+                    .heightIn(max = 400.dp) // Limit max height so it doesn't push sequence off screen
                     .background(
                         if (isDropTargetAvailableArea) {
                             MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
@@ -322,7 +326,9 @@ fun LevelSequenceContent() {
             ) {
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(4),
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight(), // Don't fill full height, just wrap content
                     contentPadding = PaddingValues(4.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
