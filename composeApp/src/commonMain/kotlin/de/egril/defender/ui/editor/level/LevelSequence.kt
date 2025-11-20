@@ -369,8 +369,8 @@ fun LevelSequenceContent() {
                                                         if (newPosition.y >= currentMidpoint) {
                                                             targetIndex = sortedBounds.size
                                                         } else {
-                                                            // Above the last item's midpoint, insert before it
-                                                            // For available items, we want to insert AFTER current item
+                                                            // Above the last item's midpoint
+                                                            // Insert after current item
                                                             targetIndex = currentItem.index + 1
                                                         }
                                                     } else {
@@ -379,8 +379,8 @@ fun LevelSequenceContent() {
                                                         
                                                         // Check if between current midpoint and next midpoint
                                                         if (newPosition.y >= currentMidpoint && newPosition.y < nextMidpoint) {
-                                                            // For available items, use actual item index
-                                                            targetIndex = nextItem.index
+                                                            // Insert after current item (which is same as before next item)
+                                                            targetIndex = currentItem.index + 1
                                                             break
                                                         }
                                                     }
