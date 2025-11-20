@@ -209,7 +209,8 @@ object SaveFileStorage {
             attackersToSpawn = gameState.attackersToSpawn.toList(),
             fieldEffects = fieldEffects,
             traps = traps,
-            comment = comment
+            comment = comment,
+            mapId = gameState.level.mapId  // Save the map ID for verification on load
         )
     }
     
