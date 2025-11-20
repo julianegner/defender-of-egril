@@ -1,6 +1,7 @@
 package de.egril.defender.ui.gameplay
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -18,6 +19,8 @@ import de.egril.defender.ui.*
 import de.egril.defender.ui.icon.ExplosionIcon
 import de.egril.defender.ui.icon.HoleIcon
 import com.hyperether.resources.stringResource
+import de.egril.defender.ui.editor.map.MapControlState
+import de.egril.defender.ui.editor.map.MapControls
 import defender_of_egril.composeapp.generated.resources.*
 import de.egril.defender.ui.icon.TestTubeIcon
 import de.egril.defender.ui.icon.enemy.EnemyIcon
@@ -119,7 +122,9 @@ fun GameGrid(
         }
     }
 
-    Box(modifier = modifier.onSizeChanged { containerSize = it }) {
+    Box(modifier = modifier
+        .onSizeChanged { containerSize = it }
+    ) {
         HexagonalMapView(
             gridWidth = gameState.level.gridWidth,
             gridHeight = gameState.level.gridHeight,
@@ -158,13 +163,21 @@ fun GameGrid(
             )
         }
 
-        // Minimap - shown when zoomed in
-        if (scale > 1.1f) {
+
+        MapControls(
+            mapControlState = MapControlState(
+                zoomLevel = scale,
+                offsetX = offsetX,
+                offsetY = offsetY
+            )
+        ) {
+            // Update zoom and offsets from controls
+            scale = it.zoomLevel
+            offsetX = it.offsetX
+            offsetY = it.offsetY
+            // Minimap
             Box(
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(16.dp)
-                    .size(120.dp)
+                modifier = Modifier.size(120.dp)
             ) {
                 HexagonMinimap(
                     level = gameState.level,

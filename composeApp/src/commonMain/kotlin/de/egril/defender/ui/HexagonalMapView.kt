@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import de.egril.defender.model.Position
+import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.utils.isPlatformMobile
 import kotlin.math.sqrt
 
