@@ -22,7 +22,7 @@ object EditorStorage {
     private val LEVELS_DIR = "editor/levels"
     private val SEQUENCE_FILE = "editor/sequence.json"
     private val VERSION_FILE = "editor/version.txt"
-    private val CURRENT_VERSION = "4" // Increment when level data format changes
+    private val CURRENT_VERSION = "5" // Increment when level data format changes
     
     // Initialize with converted existing levels
     init {
@@ -347,7 +347,8 @@ object EditorStorage {
             directSpawnPlan = directSpawnPlan,
             availableTowers = editorLevel.availableTowers,
             waypoints = gameWaypoints,
-            editorLevelId = editorLevel.id  // Store editor level ID for minimap lookup
+            editorLevelId = editorLevel.id,  // Store editor level ID for minimap lookup
+            mapId = editorLevel.mapId  // Store map ID for save/load verification
         )
     }
     
@@ -547,7 +548,7 @@ object EditorStorage {
         tutorialSpawns.add(EditorEnemySpawn(AttackerType.ORK, 1, 8))
         
         saveLevel(EditorLevel(
-            id = "level_tutorial",
+            id = "welcome_to_defender_of_egril",
             mapId = "map_tutorial",
             title = "Welcome to Defender of Egril",
             subtitle = "Tutorial",
@@ -564,7 +565,7 @@ object EditorStorage {
         // Create levels based on existing LevelData
         // Level 1: The First Wave
         saveLevel(EditorLevel(
-            id = "level_1",
+            id = "the_first_wave",
             mapId = "map_30x8",
             title = "The First Wave",
             subtitle = "",
@@ -596,7 +597,7 @@ object EditorStorage {
         }
         
         saveLevel(EditorLevel(
-            id = "level_2",
+            id = "mixed_forces",
             mapId = "map_35x9",
             title = "Mixed Forces",
             subtitle = "",
@@ -635,7 +636,7 @@ object EditorStorage {
         }
         
         saveLevel(EditorLevel(
-            id = "level_3",
+            id = "the_ork_invasion",
             mapId = "map_40x10",
             title = "The Ork Invasion",
             subtitle = "",
@@ -671,7 +672,7 @@ object EditorStorage {
         }
         
         saveLevel(EditorLevel(
-            id = "level_4",
+            id = "dark_magic_rises",
             mapId = "map_45x11",
             title = "Dark Magic Rises",
             subtitle = "",
@@ -708,7 +709,7 @@ object EditorStorage {
         }
         
         saveLevel(EditorLevel(
-            id = "level_5",
+            id = "the_final_stand",
             mapId = "map_50x12",
             title = "The Final Stand",
             subtitle = "",
@@ -722,7 +723,7 @@ object EditorStorage {
         
         // Level 6: Ewhad's Challenge
         saveLevel(EditorLevel(
-            id = "level_6",
+            id = "ewhads_challenge",
             mapId = "map_50x12",
             title = "Ewhad's Challenge",
             subtitle = "",
@@ -753,7 +754,7 @@ object EditorStorage {
         
         // Level 7: The Spiral Challenge
         saveLevel(EditorLevel(
-            id = "level_7",
+            id = "the_spiral_challenge",
             mapId = "map_spiral",
             title = "The Spiral Challenge",
             subtitle = "Navigate the Spiral",
@@ -777,7 +778,7 @@ object EditorStorage {
         
         // Level 8: The Plains
         saveLevel(EditorLevel(
-            id = "level_8",
+            id = "the_plains",
             mapId = "map_plains",
             title = "The Plains",
             subtitle = "Open Field Battle",
@@ -845,7 +846,7 @@ object EditorStorage {
         )
         
         saveLevel(EditorLevel(
-            id = "level_9",
+            id = "the_dance",
             mapId = "map_dance",
             title = "The Dance",
             subtitle = "Follow the Rhythm",
@@ -871,7 +872,7 @@ object EditorStorage {
         
         // Set initial level sequence (tutorial first, then spiral, plains, and dance before final stand!)
         updateLevelSequence(LevelSequence(listOf(
-            "level_tutorial", "level_1", "level_2", "level_3", "level_4", "level_7", "level_8", "level_9", "level_5", "level_6"
+            "welcome_to_defender_of_egril", "the_first_wave", "mixed_forces", "the_ork_invasion", "dark_magic_rises", "the_spiral_challenge", "the_plains", "the_dance", "the_final_stand", "ewhads_challenge"
         )))
         
         // Save version file to indicate successful initialization
