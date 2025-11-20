@@ -59,33 +59,17 @@ fun LevelSequenceContent() {
     var availableAreaBounds by remember { mutableStateOf<Pair<Offset, IntSize>?>(null) }
     var sequenceAreaBounds by remember { mutableStateOf<Pair<Offset, IntSize>?>(null) }
     
-    // Clean up sequence on first load: remove deleted/invalid levels
-    LaunchedEffect(Unit) {
-        val currentSequence = sequence.value.sequence
-        val validLevelIds = currentSequence.filter { levelId ->
-            val level = EditorStorage.getLevel(levelId)
-            level != null && EditorStorage.isLevelReadyToPlay(level)
-        }
-        
-        // If we filtered out any invalid levels, update the sequence
-        if (validLevelIds.size != currentSequence.size) {
-            val cleanedSequence = sequence.value.copy(sequence = validLevelIds)
-            EditorStorage.updateLevelSequence(cleanedSequence)
-            sequence.value = cleanedSequence
-        }
-    }
-    
-    // Get levels in sequence that are ready to play
+    // Get levels in sequence - show all levels from the sequence
     val levelsInSequence = sequence.value.sequence.mapNotNull { levelId ->
         val level = EditorStorage.getLevel(levelId)
-        if (level != null && EditorStorage.isLevelReadyToPlay(level)) {
+        if (level != null) {
             levelId to level
         } else null
     }
     
-    // Get all levels not in sequence that are ready to play
+    // Get all levels not in sequence
     val availableLevels = allLevels.value.filter { level ->
-        EditorStorage.isLevelReadyToPlay(level) && !sequence.value.sequence.contains(level.id)
+        !sequence.value.sequence.contains(level.id)
     }
     
     Column(

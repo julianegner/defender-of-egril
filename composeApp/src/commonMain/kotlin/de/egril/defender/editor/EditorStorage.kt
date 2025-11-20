@@ -273,14 +273,16 @@ object EditorStorage {
         if (map == null || !map.readyToUse) {
             return false
         }
+        
         // check if the waypoints of the level are valid
-        map.getTarget()?.let { target ->
-            val spawnPoints = map.getSpawnPoints()
-            val waypointValidationResult = level.validateWaypointsDetailed(targetPosition = target!!, spawnPoints = spawnPoints)
-            return waypointValidationResult.isValid
+        val target = map.getTarget()
+        if (target == null) {
+            return false
         }
-
-        return false
+        
+        val spawnPoints = map.getSpawnPoints()
+        val waypointValidationResult = level.validateWaypointsDetailed(targetPosition = target, spawnPoints = spawnPoints)
+        return waypointValidationResult.isValid
     }
     
     fun deleteMap(mapId: String) {
