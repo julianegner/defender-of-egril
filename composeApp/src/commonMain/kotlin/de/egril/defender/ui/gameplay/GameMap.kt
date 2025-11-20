@@ -163,40 +163,6 @@ fun GameGrid(
             )
         }
 
-        // Draw target rings overlay for AREA and LASTING attacks
-        if (selectedTargetPosition != null && selectedDefenderId != null) {
-            val selectedDefender = gameState.defenders.find { it.id == selectedDefenderId }
-            val attackType = selectedDefender?.type?.attackType
-            
-            if (attackType == AttackType.AREA || attackType == AttackType.LASTING) {
-                val markerColor = when (attackType) {
-                    AttackType.AREA -> Color(0xFFFF5722)  // Deep orange/red for fireball
-                    AttackType.LASTING -> Color(0xFF4CAF50)  // Green for acid
-                    else -> Color.DarkGray
-                }
-                
-                val pathNeighbors = selectedTargetPosition.getHexNeighbors()
-                    .filter { neighbor ->
-                        neighbor.x >= 0 && neighbor.x < gameState.level.gridWidth &&
-                        neighbor.y >= 0 && neighbor.y < gameState.level.gridHeight &&
-                        gameState.level.isOnPath(neighbor)
-                    }
-                
-                TargetRingsOverlay(
-                    targetPosition = selectedTargetPosition,
-                    pathNeighbors = pathNeighbors,
-                    color = markerColor,
-                    hexSize = hexSize.value,
-                    scale = scale,
-                    offsetX = offsetX,
-                    offsetY = offsetY,
-                    containerSize = containerSize,
-                    contentSize = contentSize,
-                    modifier = Modifier.zIndex(10f)
-                )
-            }
-        }
-
         MapControls(
             mapControlState = MapControlState(
                 zoomLevel = scale,
@@ -361,14 +327,14 @@ fun GridCell(
         borderWidth = borderWidth,
         onClick = onClick
     ) {
-        // Draw target circles if this tile is triggered
+        // Draw inner target circles on the central target tile
+        // Outer rings are drawn on neighbor tiles via CircularSegmentDrawer
         targetCircleInfo?.let { info ->
             Canvas(modifier = Modifier
                 .matchParentSize()
                 .zIndex(11f)) {
                 when (info) {
                     is TargetCircleInfo.CentralTarget -> {
-                        println("Drawing central target circles at $position with color ${info.color}")
                         // Draw 3 inner circles on the central target tile
                         val centerX = size.width / 2
                         val centerY = size.height / 2
@@ -403,14 +369,6 @@ fun GridCell(
                     is TargetCircleInfo.NeighborTarget -> {
                         // Draw outer ring segments on neighbor tiles (only for AREA and LASTING)
                         if (info.attackType == AttackType.AREA || info.attackType == AttackType.LASTING) {
-                            println("Drawing neighbor target circles at $position with color ${info.color}, center at ${info.centerPosition}")
-                            // this is for debugging
-                            // drawCircle(
-                            //     color = info.color,
-                            //     radius = TargetCircleConstants.INNER_CIRCLE_1_RADIUS,
-                            //     center = center
-                            // )
-
                             // Draw 3 concentric arc segments
                             CircularSegmentDrawer.drawArcSegment(
                                 drawScope = this,
