@@ -194,6 +194,7 @@ fun GameGrid(
                     offsetX = offsetX,
                     offsetY = offsetY,
                     containerSize = containerSize,
+                    contentSize = contentSize,
                     modifier = Modifier.fillMaxSize()
                 )
             }
