@@ -88,5 +88,6 @@ data class SaveGameMetadata(
     val remainingSpawnCounts: Map<AttackerType, Int>,  // Count of enemies still to spawn
     val comment: String? = null,  // Optional player comment
     val defenderPositions: List<SavedDefender> = emptyList(),  // Positions for minimap display
-    val attackerPositions: List<SavedAttacker> = emptyList()  // Positions for minimap display
+    val attackerPositions: List<SavedAttacker> = emptyList(),  // Positions for minimap display
+    val mapId: String? = null  // Map identifier (for minimap display)
 )
