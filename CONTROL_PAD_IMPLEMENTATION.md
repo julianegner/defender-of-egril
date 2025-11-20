@@ -13,6 +13,35 @@ The control pad consists of two components:
 
 Both components appear in the bottom-right corner of the map view when enabled.
 
+### Visual Layout
+
+```
+Map View
+┌──────────────────────────────────────────┐
+│                                          │
+│                                          │
+│        Hexagonal Game Map                │
+│                                          │
+│                                          │
+│                          ┌────┐          │
+│                    ╭─────┴──┴─╮   ┌──┐  │
+│                   ╱      ▲      ╲  │ + │  │
+│                  │   <   •   >   │ ├──┤  │
+│                   ╲      ▼      ╱  │ - │  │
+│                    ╰────────────╯  └──┘  │
+│                   Control Pad   Zoom     │
+└──────────────────────────────────────────┘
+
+Legend:
+• Center indicator
+▲▼◀▶ Directional arrows
++ - Zoom in/out buttons
+```
+
+The control pad is circular (120dp diameter) divided into 4 equal quadrants by perpendicular lines.
+Each quadrant contains a directional button (60dp × 60dp touch target).
+The zoom controls are a vertical stack (60dp wide, 122dp tall with divider).
+
 ## Implementation Details
 
 ### Settings
