@@ -46,6 +46,10 @@ fun MapEditorView(
     var offsetY by remember { mutableStateOf(0f) }
     var lastPaintedPos by remember { mutableStateOf<Position?>(null) }
     
+    // Track container and content sizes for constraint calculation
+    var containerSize by remember { mutableStateOf(IntSize.Zero) }
+    var actualContentSize by remember { mutableStateOf(IntSize.Zero) }
+    
     // Create updated map for minimap that reflects current tiles state
     val currentMap = remember(tiles) {
         map.copy(tiles = tiles.toMap())
@@ -53,6 +57,34 @@ fun MapEditorView(
     
     // Hexagon dimensions - using same constants as game (40.dp)
     val hexSize = 40.dp
+
+    // Helper function to constrain pan offsets (same logic as HexagonalMapView)
+    fun constrainOffsets(newOffsetX: Float, newOffsetY: Float, currentScale: Float): Pair<Float, Float> {
+        // If content size hasn't been measured yet, don't constrain
+        if (actualContentSize.width == 0 || actualContentSize.height == 0) {
+            return Pair(newOffsetX, newOffsetY)
+        }
+        
+        val contentWidth = actualContentSize.width * currentScale
+        val contentHeight = actualContentSize.height * currentScale
+
+        val maxOffsetX = if (contentWidth > containerSize.width) {
+            (contentWidth - containerSize.width) / 2
+        } else {
+            (containerSize.width * (currentScale - 1) / 2).coerceAtLeast(0f)
+        }
+
+        val maxOffsetY = if (contentHeight > containerSize.height) {
+            (contentHeight - containerSize.height) / 2
+        } else {
+            (containerSize.height * (currentScale - 1) / 2).coerceAtLeast(0f)
+        }
+
+        return Pair(
+            newOffsetX.coerceIn(-maxOffsetX, maxOffsetX),
+            newOffsetY.coerceIn(-maxOffsetY, maxOffsetY)
+        )
+    }
 
     // Brush paint callback - called when user drags in brush mode
     val onBrushPaint: (position: Position) -> Unit = { position ->
@@ -85,9 +117,6 @@ fun MapEditorView(
                     .fillMaxWidth()
                     .padding(8.dp)
             ) {
-                // Track container size for minimap viewport
-                var containerSize by remember { mutableStateOf(IntSize.Zero) }
-                var actualContentSize by remember { mutableStateOf(IntSize.Zero) }
                 HexagonalMapView(
                     gridWidth = map.width,
                     gridHeight = map.height,
@@ -161,13 +190,15 @@ fun MapEditorView(
                         zoomLevel = zoomLevel,
                         offsetX = offsetX,
                         offsetY = offsetY
-                    )
+                    ),
+                    onStateChange = { newState ->
+                        val newScale = newState.zoomLevel
+                        val (constrainedX, constrainedY) = constrainOffsets(newState.offsetX, newState.offsetY, newScale)
+                        zoomLevel = newScale
+                        offsetX = constrainedX
+                        offsetY = constrainedY
+                    }
                 ) {
-                    // Update zoom and offsets from controls
-                    zoomLevel = it.zoomLevel
-                    offsetX = it.offsetX
-                    offsetY = it.offsetY
-
                     // Minimap
                     HexagonMinimapFromEditorMap(
                         map = currentMap,
