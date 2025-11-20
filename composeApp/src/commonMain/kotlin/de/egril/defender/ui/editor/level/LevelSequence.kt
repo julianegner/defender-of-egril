@@ -370,8 +370,8 @@ fun LevelSequenceContent() {
                                                             targetIndex = sortedBounds.size
                                                         } else {
                                                             // Above the last item's midpoint
-                                                            // Insert after current item
-                                                            targetIndex = currentItem.index + 1
+                                                            // Insert after current item (add 2 instead of 1 to compensate for off-by-one)
+                                                            targetIndex = currentItem.index + 2
                                                         }
                                                     } else {
                                                         val nextItem = sortedBounds[i + 1]
@@ -379,8 +379,8 @@ fun LevelSequenceContent() {
                                                         
                                                         // Check if between current midpoint and next midpoint
                                                         if (newPosition.y >= currentMidpoint && newPosition.y < nextMidpoint) {
-                                                            // Insert after current item (which is same as before next item)
-                                                            targetIndex = currentItem.index + 1
+                                                            // Insert after current item (add 2 instead of 1 to compensate for off-by-one)
+                                                            targetIndex = currentItem.index + 2
                                                             break
                                                         }
                                                     }
