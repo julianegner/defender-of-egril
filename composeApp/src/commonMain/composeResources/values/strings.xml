@@ -398,6 +398,12 @@
     <string name="sound_disabled">Sound Disabled</string>
     <string name="sound_volume">Sound Volume</string>
 
+    <!-- Control Pad Settings -->
+    <string name="controls">Controls</string>
+    <string name="show_control_pad">Show Control Pad</string>
+    <string name="control_pad_enabled">Control Pad Enabled</string>
+    <string name="control_pad_disabled">Control Pad Disabled</string>
+
     <!-- Dragon Info -->
     <string name="dragon_info_title">Dragon Alert!</string>
     <string name="dragon_info_movement">The dragon alternates movement: Turn 1, 3, 5...: Walks 1 tile on path. Turn 2, 4, 6...: Flies up to 5 tiles, can cross obstacles but must land on path</string>
