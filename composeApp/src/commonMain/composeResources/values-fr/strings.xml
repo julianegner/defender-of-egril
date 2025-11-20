@@ -417,7 +417,7 @@
     <string name="greedy_desc">Mange les unités ennemies environnantes</string>
     <string name="very_greedy_desc">Mange les unités ennemies environnantes et détruit les mines l\'une après l\'autre</string>
     <string name="greed_level_label">Avidité</string>
-    <string name="dragon_info_button">ℹ Que fait un dragon ?</string>
+    <string name="dragon_info_button">Que fait un dragon ?</string>
 <!-- Waypoint Editor -->
     <string name="waypoints_tab">Points de Passage</string>
     <string name="waypoints_title">Connexions des Points de Passage</string>

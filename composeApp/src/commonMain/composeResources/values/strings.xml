@@ -419,7 +419,7 @@
     <string name="greedy_desc">Eats surrounding enemy units</string>
     <string name="very_greedy_desc">Eats surrounding enemy units and destroys mines one after another</string>
     <string name="greed_level_label">Greed</string>
-    <string name="dragon_info_button">ℹ What does a dragon do?</string>
+    <string name="dragon_info_button">What does a dragon do?</string>
     
     <!-- Dragon Names -->
     <string name="the_dragon">The dragon</string>

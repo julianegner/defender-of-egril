@@ -417,7 +417,7 @@
     <string name="greedy_desc">Come unidades enemigas cercanas</string>
     <string name="very_greedy_desc">Come unidades enemigas cercanas y destruye minas una tras otra</string>
     <string name="greed_level_label">Avaricia</string>
-    <string name="dragon_info_button">ℹ ¿Qué hace un dragón?</string>
+    <string name="dragon_info_button">¿Qué hace un dragón?</string>
 <!-- Waypoint Editor -->
     <string name="waypoints_tab">Puntos de Paso</string>
     <string name="waypoints_title">Conexiones de Puntos de Paso</string>

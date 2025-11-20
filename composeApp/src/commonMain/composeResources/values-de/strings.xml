@@ -417,7 +417,7 @@
     <string name="greedy_desc">Frisst umliegende feindliche Einheiten</string>
     <string name="very_greedy_desc">Frisst umliegende feindliche Einheiten und zerstört nacheinander Minen</string>
     <string name="greed_level_label">Gier</string>
-    <string name="dragon_info_button">ℹ Was macht ein Drache?</string>
+    <string name="dragon_info_button">Was macht ein Drache?</string>
 <!-- Waypoint Editor -->
     <string name="waypoints_tab">Wegpunkte</string>
     <string name="waypoints_title">Wegpunkt-Verbindungen</string>
