@@ -1,6 +1,7 @@
 package de.egril.defender.ui.gameplay
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -18,6 +19,8 @@ import de.egril.defender.ui.*
 import de.egril.defender.ui.icon.ExplosionIcon
 import de.egril.defender.ui.icon.HoleIcon
 import com.hyperether.resources.stringResource
+import de.egril.defender.ui.editor.map.MapControlState
+import de.egril.defender.ui.editor.map.MapControls
 import defender_of_egril.composeapp.generated.resources.*
 import de.egril.defender.ui.icon.TestTubeIcon
 import de.egril.defender.ui.icon.enemy.EnemyIcon
@@ -121,7 +124,6 @@ fun GameGrid(
 
     Box(modifier = modifier
         .onSizeChanged { containerSize = it }
-        .padding(bottom = 152.dp) // Add padding to ensure map can be panned to show all content (120dp minimap + 16dp padding * 2)
     ) {
         HexagonalMapView(
             gridWidth = gameState.level.gridWidth,
@@ -161,107 +163,39 @@ fun GameGrid(
             )
         }
 
-        // Control pad and zoom controls - positioned at bottom-right, just above button region
-        if (de.egril.defender.ui.settings.AppSettings.showControlPad.value) {
+
+        MapControls(
+            mapControlState = MapControlState(
+                zoomLevel = scale,
+                offsetX = offsetX,
+                offsetY = offsetY
+            )
+        ) {
+            // Update zoom and offsets from controls
+            scale = it.zoomLevel
+            offsetX = it.offsetX
+            offsetY = it.offsetY
+            // Minimap
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .align(Alignment.BottomEnd)
+                modifier = Modifier.size(120.dp)
             ) {
-                Row(
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(bottom = 16.dp, end = 16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.Bottom
-                ) {
-                    // Directional pad
-                    ControlPad(
-                        onUp = {
-                            val newOffsetY = offsetY + 30f
-                            offsetY = newOffsetY
-                        },
-                        onDown = {
-                            val newOffsetY = offsetY - 30f
-                            offsetY = newOffsetY
-                        },
-                        onLeft = {
-                            val newOffsetX = offsetX + 30f
-                            offsetX = newOffsetX
-                        },
-                        onRight = {
-                            val newOffsetX = offsetX - 30f
-                            offsetX = newOffsetX
-                        }
-                    )
-                    
-                    // Zoom controls
-                    ZoomControls(
-                        onZoomIn = {
-                            val newScale = (scale + 0.1f).coerceIn(0.5f, 3.0f)
-                            scale = newScale
-                        },
-                        onZoomOut = {
-                            val newScale = (scale - 0.1f).coerceIn(0.5f, 3.0f)
-                            scale = newScale
-                        }
-                    )
-                    
-                    // Minimap
-                    Box(
-                        modifier = Modifier.size(120.dp)
-                    ) {
-                        HexagonMinimap(
-                            level = gameState.level,
-                            config = MinimapConfig(
-                                showSpawnPoints = true,
-                                showTarget = true,
-                                showTowers = true,
-                                showEnemies = true,
-                                showViewport = true,
-                                minimapSizeDp = 120f
-                            ),
-                            gameState = gameState,
-                            scale = scale,
-                            offsetX = offsetX,
-                            offsetY = offsetY,
-                            containerSize = containerSize,
-                            modifier = Modifier.fillMaxSize()
-                        )
-                    }
-                }
-            }
-        } else {
-            // Minimap only (when control pad is disabled)
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .align(Alignment.BottomEnd)
-            ) {
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(bottom = 16.dp, end = 16.dp)
-                        .size(120.dp)
-                ) {
-                    HexagonMinimap(
-                        level = gameState.level,
-                        config = MinimapConfig(
-                            showSpawnPoints = true,
-                            showTarget = true,
-                            showTowers = true,
-                            showEnemies = true,
-                            showViewport = true,
-                            minimapSizeDp = 120f
-                        ),
-                        gameState = gameState,
-                        scale = scale,
-                        offsetX = offsetX,
-                        offsetY = offsetY,
-                        containerSize = containerSize,
-                        modifier = Modifier.fillMaxSize()
-                    )
-                }
+                HexagonMinimap(
+                    level = gameState.level,
+                    config = MinimapConfig(
+                        showSpawnPoints = true,
+                        showTarget = true,
+                        showTowers = true,
+                        showEnemies = true,
+                        showViewport = true,
+                        minimapSizeDp = 120f
+                    ),
+                    gameState = gameState,
+                    scale = scale,
+                    offsetX = offsetX,
+                    offsetY = offsetY,
+                    containerSize = containerSize,
+                    modifier = Modifier.fillMaxSize()
+                )
             }
         }
     }

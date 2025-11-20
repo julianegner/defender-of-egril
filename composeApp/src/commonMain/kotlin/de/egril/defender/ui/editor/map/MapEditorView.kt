@@ -156,20 +156,47 @@ fun MapEditorView(
                     }
                 }
 
-                // Control pad and zoom controls - positioned at bottom-right
-                if (de.egril.defender.ui.settings.AppSettings.showControlPad.value) {
-                    Box(
+                MapControls(
+                    mapControlState = MapControlState(
+                        zoomLevel = zoomLevel,
+                        offsetX = offsetX,
+                        offsetY = offsetY
+                    )
+                ) {
+                    // Update zoom and offsets from controls
+                    zoomLevel = it.zoomLevel
+                    offsetX = it.offsetX
+                    offsetY = it.offsetY
+
+                    // Minimap
+                    HexagonMinimapFromEditorMap(
+                        map = currentMap,
+                        modifier = Modifier.size(150.dp),
+                        config = MinimapConfig(
+                            showViewport = true,
+                            minimapSizeDp = 150f
+                        ),
+                        scale = zoomLevel,
+                        offsetX = offsetX,
+                        offsetY = offsetY,
+                        containerSize = containerSize
+                    )
+                }
+
+                /*
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .align(Alignment.BottomEnd)
+                ) {
+                    Row(
                         modifier = Modifier
-                            .fillMaxSize()
                             .align(Alignment.BottomEnd)
+                            .padding(bottom = 8.dp, end = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.Bottom
                     ) {
-                        Row(
-                            modifier = Modifier
-                                .align(Alignment.BottomEnd)
-                                .padding(bottom = 8.dp, end = 8.dp),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalAlignment = Alignment.Bottom
-                        ) {
+                        if (de.egril.defender.ui.settings.AppSettings.showControlPad.value) {
                             // Directional pad
                             de.egril.defender.ui.ControlPad(
                                 onUp = {
@@ -185,7 +212,7 @@ fun MapEditorView(
                                     offsetX -= 30f
                                 }
                             )
-                            
+
                             // Zoom controls
                             de.egril.defender.ui.ZoomControls(
                                 onZoomIn = {
@@ -195,35 +222,12 @@ fun MapEditorView(
                                     zoomLevel = (zoomLevel - 0.1f).coerceIn(0.5f, 3.0f)
                                 }
                             )
-                            
-                            // Minimap
-                            HexagonMinimapFromEditorMap(
-                                map = currentMap,
-                                modifier = Modifier.size(150.dp),
-                                config = MinimapConfig(
-                                    showViewport = true,
-                                    minimapSizeDp = 150f
-                                ),
-                                scale = zoomLevel,
-                                offsetX = offsetX,
-                                offsetY = offsetY,
-                                containerSize = containerSize
-                            )
                         }
-                    }
-                } else {
-                    // Minimap only (when control pad is disabled)
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .align(Alignment.BottomEnd)
-                    ) {
+
+                        // Minimap
                         HexagonMinimapFromEditorMap(
                             map = currentMap,
-                            modifier = Modifier
-                                .size(150.dp)
-                                .align(Alignment.BottomEnd)
-                                .padding(bottom = 8.dp, end = 8.dp),
+                            modifier = Modifier.size(150.dp),
                             config = MinimapConfig(
                                 showViewport = true,
                                 minimapSizeDp = 150f
@@ -235,6 +239,7 @@ fun MapEditorView(
                         )
                     }
                 }
+                */
             }
             
             // Action buttons
