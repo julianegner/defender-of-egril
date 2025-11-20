@@ -347,7 +347,8 @@ object EditorStorage {
             directSpawnPlan = directSpawnPlan,
             availableTowers = editorLevel.availableTowers,
             waypoints = gameWaypoints,
-            editorLevelId = editorLevel.id  // Store editor level ID for minimap lookup
+            editorLevelId = editorLevel.id,  // Store editor level ID for minimap lookup
+            mapId = editorLevel.mapId  // Store map ID for save/load verification
         )
     }
     
