@@ -323,6 +323,8 @@
     <string name="available_levels">Niveaux disponibles (Pas dans la séquence):</string>
     <string name="add_to_sequence">Ajouter à la séquence</string>
     <string name="remove_from_sequence">Retirer de la séquence</string>
+    <string name="drag_to_reorder">Glisser pour réorganiser</string>
+    <string name="drag_to_add">Glisser pour ajouter</string>
     <string name="remove_level_confirmation_title">Retirer le niveau de la séquence?</string>
     <string name="remove_level_confirmation_message">Êtes-vous sûr de vouloir retirer "%s" de la séquence de niveaux? Le niveau ne sera pas supprimé et pourra être rajouté plus tard.</string>
     <string name="save_map_as_new">Enregistrer la carte comme nouvelle</string>
@@ -466,6 +468,8 @@
     <string name="click_target_waypoint">2. Cliquez sur une cible (point de passage ou cible)</string>
     <string name="connection_mode_active">Mode connexion actif</string>
     <string name="cancel_connection">Annuler</string>
+    <string name="drag_to_reorder">Glisser pour réorganiser</string>
+    <string name="drag_to_add">Glisser pour ajouter</string>
     
     <!-- Plurals -->
     <plurals name="enemy_count">

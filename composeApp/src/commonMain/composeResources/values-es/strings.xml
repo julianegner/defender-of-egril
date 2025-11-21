@@ -466,6 +466,8 @@
     <string name="click_target_waypoint">2. Haga clic en un destino (punto de paso u objetivo)</string>
     <string name="connection_mode_active">Modo de conexión activo</string>
     <string name="cancel_connection">Cancelar</string>
+    <string name="drag_to_reorder">Arrastra para reordenar</string>
+    <string name="drag_to_add">Arrastra para agregar</string>
     
     <!-- Plurals -->
     <plurals name="enemy_count">
