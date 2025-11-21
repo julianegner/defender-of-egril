@@ -148,7 +148,7 @@ kotlin {
 }
 
 // Make all Kotlin compilation tasks depend on generateBuildConfig
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.AbstractKotlinCompile<*>> {
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask<*>> {
     dependsOn(generateBuildConfig)
 }
 
