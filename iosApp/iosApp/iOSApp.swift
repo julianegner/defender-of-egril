@@ -1,5 +1,5 @@
 import SwiftUI
-import ComposeApp
+import DefenderOfEgril
 
 @main
 struct iOSApp: App {
