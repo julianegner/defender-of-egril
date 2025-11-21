@@ -14,17 +14,16 @@ import de.egril.defender.ui.ControlPad
 import de.egril.defender.ui.ZoomControls
 
 data class MapControlState(
-    var zoomLevel: Float,
-    var offsetX: Float,
-    var offsetY: Float
+    val zoomLevel: Float,
+    val offsetX: Float,
+    val offsetY: Float
 )
 
 @Composable
 fun BoxScope.MapControls(
     mapControlState: MapControlState,
-    content: @Composable (
-        updatedState: MapControlState
-    ) -> Unit
+    onStateChange: (MapControlState) -> Unit,
+    content: @Composable () -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -42,30 +41,30 @@ fun BoxScope.MapControls(
                 // Directional pad
                 ControlPad(
                     onUp = {
-                        mapControlState.offsetY += 30f
+                        onStateChange(mapControlState.copy(offsetY = mapControlState.offsetY + 30f))
                     },
                     onDown = {
-                        mapControlState.offsetY -= 30f
+                        onStateChange(mapControlState.copy(offsetY = mapControlState.offsetY - 30f))
                     },
                     onLeft = {
-                        mapControlState.offsetX += 30f
+                        onStateChange(mapControlState.copy(offsetX = mapControlState.offsetX + 30f))
                     },
                     onRight = {
-                        mapControlState.offsetX -= 30f
+                        onStateChange(mapControlState.copy(offsetX = mapControlState.offsetX - 30f))
                     }
                 )
 
                 // Zoom controls
                 ZoomControls(
                     onZoomIn = {
-                        mapControlState.zoomLevel = (mapControlState.zoomLevel + 0.1f).coerceIn(0.5f, 3.0f)
+                        onStateChange(mapControlState.copy(zoomLevel = (mapControlState.zoomLevel + 0.1f).coerceIn(0.5f, 3.0f)))
                     },
                     onZoomOut = {
-                        mapControlState.zoomLevel = (mapControlState.zoomLevel - 0.1f).coerceIn(0.5f, 3.0f)
+                        onStateChange(mapControlState.copy(zoomLevel = (mapControlState.zoomLevel - 0.1f).coerceIn(0.5f, 3.0f)))
                     }
                 )
             }
-            content(mapControlState)
+            content()
         }
     }
 }

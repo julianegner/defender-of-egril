@@ -169,12 +169,21 @@ fun GameGrid(
                 zoomLevel = scale,
                 offsetX = offsetX,
                 offsetY = offsetY
-            )
+            ),
+            onStateChange = { newState ->
+                val newScale = newState.zoomLevel
+                val (constrainedX, constrainedY) = constrainMapOffsets(
+                    newState.offsetX, 
+                    newState.offsetY, 
+                    newScale,
+                    containerSize,
+                    contentSize
+                )
+                scale = newScale
+                offsetX = constrainedX
+                offsetY = constrainedY
+            }
         ) {
-            // Update zoom and offsets from controls
-            scale = it.zoomLevel
-            offsetX = it.offsetX
-            offsetY = it.offsetY
             // Minimap
             Box(
                 modifier = Modifier.size(120.dp)
