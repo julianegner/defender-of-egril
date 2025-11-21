@@ -1,6 +1,8 @@
 package de.egril.defender.save
 
+import androidx.compose.runtime.mutableStateOf
 import de.egril.defender.model.*
+import de.egril.defender.utils.JsonUtils
 
 /**
  * JSON serialization for save data
@@ -142,24 +144,24 @@ object SaveJsonSerializer {
     
     fun deserializeSavedGame(json: String): SavedGame? {
         try {
-            val id = extractValue(json, "id")
-            val timestamp = extractValue(json, "timestamp").toLong()
-            val levelId = extractValue(json, "levelId").toInt()
-            val levelName = extractValue(json, "levelName")
-            val turnNumber = extractValue(json, "turnNumber").toInt()
-            val coins = extractValue(json, "coins").toInt()
-            val healthPoints = extractValue(json, "healthPoints").toInt()
-            val phase = GamePhase.valueOf(extractValue(json, "phase"))
-            val nextDefenderId = extractValue(json, "nextDefenderId").toInt()
-            val nextAttackerId = extractValue(json, "nextAttackerId").toInt()
-            val currentWaveIndex = extractValue(json, "currentWaveIndex").toInt()
-            val spawnCounter = extractValue(json, "spawnCounter").toInt()
+            val id = JsonUtils.extractValue(json, "id")
+            val timestamp = JsonUtils.extractValue(json, "timestamp").toLong()
+            val levelId = JsonUtils.extractValue(json, "levelId").toInt()
+            val levelName = JsonUtils.extractValue(json, "levelName")
+            val turnNumber = JsonUtils.extractValue(json, "turnNumber").toInt()
+            val coins = JsonUtils.extractValue(json, "coins").toInt()
+            val healthPoints = JsonUtils.extractValue(json, "healthPoints").toInt()
+            val phase = GamePhase.valueOf(JsonUtils.extractValue(json, "phase"))
+            val nextDefenderId = JsonUtils.extractValue(json, "nextDefenderId").toInt()
+            val nextAttackerId = JsonUtils.extractValue(json, "nextAttackerId").toInt()
+            val currentWaveIndex = JsonUtils.extractValue(json, "currentWaveIndex").toInt()
+            val spawnCounter = JsonUtils.extractValue(json, "spawnCounter").toInt()
             
             // Parse defenders
             val defenders = mutableListOf<SavedDefender>()
             val defendersSection = json.substringAfter("\"defenders\": [").substringBefore("],")
             if (defendersSection.isNotBlank()) {
-                val defenderEntries = splitJsonArray(defendersSection)
+                val defenderEntries = JsonUtils.splitJsonArray(defendersSection)
                 for (entry in defenderEntries) {
                     defenders.add(parseSavedDefender(entry))
                 }
@@ -169,7 +171,7 @@ object SaveJsonSerializer {
             val attackers = mutableListOf<SavedAttacker>()
             val attackersSection = json.substringAfter("\"attackers\": [").substringBefore("],")
             if (attackersSection.isNotBlank()) {
-                val attackerEntries = splitJsonArray(attackersSection)
+                val attackerEntries = JsonUtils.splitJsonArray(attackersSection)
                 for (entry in attackerEntries) {
                     attackers.add(parseSavedAttacker(entry))
                 }
@@ -191,7 +193,7 @@ object SaveJsonSerializer {
             val fieldEffects = mutableListOf<SavedFieldEffect>()
             val fieldEffectsSection = json.substringAfter("\"fieldEffects\": [").substringBefore("],")
             if (fieldEffectsSection.isNotBlank()) {
-                val effectEntries = splitJsonArray(fieldEffectsSection)
+                val effectEntries = JsonUtils.splitJsonArray(fieldEffectsSection)
                 for (entry in effectEntries) {
                     fieldEffects.add(parseSavedFieldEffect(entry))
                 }
@@ -201,7 +203,7 @@ object SaveJsonSerializer {
             val traps = mutableListOf<SavedTrap>()
             val trapsSection = json.substringAfter("\"traps\": [").substringBeforeLast("]")
             if (trapsSection.isNotBlank()) {
-                val trapEntries = splitJsonArray(trapsSection)
+                val trapEntries = JsonUtils.splitJsonArray(trapsSection)
                 for (entry in trapEntries) {
                     traps.add(parseSavedTrap(entry))
                 }
@@ -216,7 +218,7 @@ object SaveJsonSerializer {
             
             // Parse mapId (optional field, may not exist in older saves)
             val mapId = try {
-                val value = extractValue(json, "mapId")
+                val value = JsonUtils.extractValue(json, "mapId")
                 if (value.isBlank() || value == "null") null else value
             } catch (e: Exception) {
                 null  // If mapId field doesn't exist (old save), default to null
@@ -251,21 +253,21 @@ object SaveJsonSerializer {
     }
     
     private fun parseSavedDefender(json: String): SavedDefender {
-        val id = extractValue(json, "id").toInt()
-        val type = DefenderType.valueOf(extractValue(json, "type"))
+        val id = JsonUtils.extractValue(json, "id").toInt()
+        val type = DefenderType.valueOf(JsonUtils.extractValue(json, "type"))
         val position = parsePosition(json)
-        val level = extractValue(json, "level").toInt()
-        val buildTimeRemaining = extractValue(json, "buildTimeRemaining").toInt()
-        val placedOnTurn = extractValue(json, "placedOnTurn").toInt()
+        val level = JsonUtils.extractValue(json, "level").toInt()
+        val buildTimeRemaining = JsonUtils.extractValue(json, "buildTimeRemaining").toInt()
+        val placedOnTurn = JsonUtils.extractValue(json, "placedOnTurn").toInt()
         // Backward compatibility: default to 0 if field doesn't exist in old saves
         val actionsRemaining = try {
-            extractValue(json, "actionsRemaining").toIntOrNull() ?: 0
+            JsonUtils.extractValue(json, "actionsRemaining").toIntOrNull() ?: 0
         } catch (e: Exception) {
             0
         }
         // Backward compatibility: default to null if field doesn't exist in old saves
         val dragonName = try {
-            val value = extractValue(json, "dragonName")
+            val value = JsonUtils.extractValue(json, "dragonName")
             if (value == "null") null else value
         } catch (e: Exception) {
             null
@@ -275,15 +277,15 @@ object SaveJsonSerializer {
     }
     
     private fun parseSavedAttacker(json: String): SavedAttacker {
-        val id = extractValue(json, "id").toInt()
-        val type = AttackerType.valueOf(extractValue(json, "type"))
+        val id = JsonUtils.extractValue(json, "id").toInt()
+        val type = AttackerType.valueOf(JsonUtils.extractValue(json, "type"))
         val position = parsePosition(json)
-        val level = extractValue(json, "level").toInt()
-        val currentHealth = extractValue(json, "currentHealth").toInt()
-        val isDefeated = extractValue(json, "isDefeated").toBoolean()
+        val level = JsonUtils.extractValue(json, "level").toInt()
+        val currentHealth = JsonUtils.extractValue(json, "currentHealth").toInt()
+        val isDefeated = JsonUtils.extractValue(json, "isDefeated").toBoolean()
         // Backward compatibility: default to null if field doesn't exist in old saves
         val dragonName = try {
-            val value = extractValue(json, "dragonName")
+            val value = JsonUtils.extractValue(json, "dragonName")
             if (value == "null") null else value
         } catch (e: Exception) {
             null
@@ -294,11 +296,11 @@ object SaveJsonSerializer {
     
     private fun parseSavedFieldEffect(json: String): SavedFieldEffect {
         val position = parsePosition(json)
-        val type = FieldEffectType.valueOf(extractValue(json, "type"))
-        val damage = extractValue(json, "damage").toInt()
-        val turnsRemaining = extractValue(json, "turnsRemaining").toInt()
-        val defenderId = extractValue(json, "defenderId").toInt()
-        val attackerIdStr = extractValue(json, "attackerId")
+        val type = FieldEffectType.valueOf(JsonUtils.extractValue(json, "type"))
+        val damage = JsonUtils.extractValue(json, "damage").toInt()
+        val turnsRemaining = JsonUtils.extractValue(json, "turnsRemaining").toInt()
+        val defenderId = JsonUtils.extractValue(json, "defenderId").toInt()
+        val attackerIdStr = JsonUtils.extractValue(json, "attackerId")
         val attackerId = if (attackerIdStr == "null") null else attackerIdStr.toInt()
         
         return SavedFieldEffect(position, type, damage, turnsRemaining, defenderId, attackerId)
@@ -306,26 +308,26 @@ object SaveJsonSerializer {
     
     private fun parseSavedTrap(json: String): SavedTrap {
         val position = parsePosition(json)
-        val damage = extractValue(json, "damage").toInt()
-        val mineId = extractValue(json, "mineId").toInt()
+        val damage = JsonUtils.extractValue(json, "damage").toInt()
+        val mineId = JsonUtils.extractValue(json, "mineId").toInt()
         return SavedTrap(position, damage, mineId)
     }
     
     private fun parsePosition(json: String): Position {
         val posSection = json.substringAfter("\"position\": {").substringBefore("}")
-        val x = extractValue(posSection, "x").toInt()
-        val y = extractValue(posSection, "y").toInt()
+        val x = JsonUtils.extractValue(posSection, "x").toInt()
+        val y = JsonUtils.extractValue(posSection, "y").toInt()
         return Position(x, y)
     }
     
-    private fun extractValue(json: String, key: String): String {
+    private fun JsonUtils.extractValue(json: String, key: String): String {
         val pattern = "\"$key\":\\s*\"?([^,\"\\}\\]]+)\"?"
         val regex = Regex(pattern)
         val match = regex.find(json)
         return match?.groupValues?.get(1)?.trim() ?: ""
     }
     
-    private fun splitJsonArray(arrayContent: String): List<String> {
+    private fun JsonUtils.splitJsonArray(arrayContent: String): List<String> {
         val result = mutableListOf<String>()
         var depth = 0
         var currentItem = StringBuilder()
