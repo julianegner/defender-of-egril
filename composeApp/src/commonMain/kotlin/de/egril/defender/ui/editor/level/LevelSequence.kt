@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.IntSize
 import de.egril.defender.editor.EditorStorage
 import de.egril.defender.ui.icon.DownArrowIcon
 import de.egril.defender.ui.icon.UpArrowIcon
+import de.egril.defender.ui.icon.CheckmarkIcon
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.*
@@ -48,8 +49,8 @@ data class ItemBounds(
  */
 @Composable
 fun LevelSequenceContent() {
-    val sequence = remember { mutableStateOf(EditorStorage.getLevelSequence()) }
-    val allLevels = remember { mutableStateOf(EditorStorage.getAllLevels()) }
+    var sequence by remember { mutableStateOf(EditorStorage.getLevelSequence()) }
+    var allLevels by remember { mutableStateOf(EditorStorage.getAllLevels()) }
     var dragState by remember { mutableStateOf<DragState?>(null) }
     var dropTargetIndex by remember { mutableStateOf<Int?>(null) }
     var isDropTargetAvailableArea by remember { mutableStateOf(false) }
@@ -59,8 +60,14 @@ fun LevelSequenceContent() {
     var availableAreaBounds by remember { mutableStateOf<Pair<Offset, IntSize>?>(null) }
     var sequenceAreaBounds by remember { mutableStateOf<Pair<Offset, IntSize>?>(null) }
     
+    // Reload data when composable is first shown (fixes disappearing levels on navigation)
+    LaunchedEffect(Unit) {
+        sequence = EditorStorage.getLevelSequence()
+        allLevels = EditorStorage.getAllLevels()
+    }
+    
     // Get levels in sequence - show all levels from the sequence
-    val levelsInSequence = sequence.value.sequence.mapNotNull { levelId ->
+    val levelsInSequence = sequence.sequence.mapNotNull { levelId ->
         val level = EditorStorage.getLevel(levelId)
         if (level != null) {
             levelId to level
@@ -68,8 +75,8 @@ fun LevelSequenceContent() {
     }
     
     // Get all levels not in sequence
-    val availableLevels = allLevels.value.filter { level ->
-        !sequence.value.sequence.contains(level.id)
+    val availableLevels = allLevels.filter { level ->
+        !sequence.sequence.contains(level.id)
     }
     
     Column(
@@ -136,23 +143,23 @@ fun LevelSequenceContent() {
                     LevelSequenceItem(
                         index = index,
                         levelId = levelId,
-                        levelTitle = level.title,
+                        level = level,
                         isInSequence = true,
                         isDragging = dragState?.levelId == levelId,
                         canMoveUp = index > 0,
                         canMoveDown = index < levelsInSequence.size - 1,
                         onMoveUp = {
                             EditorStorage.moveLevelUp(levelId)
-                            sequence.value = EditorStorage.getLevelSequence()
+                            sequence = EditorStorage.getLevelSequence()
                         },
                         onMoveDown = {
                             EditorStorage.moveLevelDown(levelId)
-                            sequence.value = EditorStorage.getLevelSequence()
+                            sequence = EditorStorage.getLevelSequence()
                         },
                         onRemove = {
                             EditorStorage.removeLevelFromSequence(levelId)
-                            sequence.value = EditorStorage.getLevelSequence()
-                            allLevels.value = EditorStorage.getAllLevels()
+                            sequence = EditorStorage.getLevelSequence()
+                            allLevels = EditorStorage.getAllLevels()
                         },
                         onDragStart = { offset ->
                             dragState = DragState(levelId, true, offset)
@@ -250,8 +257,8 @@ fun LevelSequenceContent() {
                                         EditorStorage.addLevelToSequence(state.levelId, dropTargetIndex)
                                     }
                                 }
-                                sequence.value = EditorStorage.getLevelSequence()
-                                allLevels.value = EditorStorage.getAllLevels()
+                                sequence = EditorStorage.getLevelSequence()
+                                allLevels = EditorStorage.getAllLevels()
                             }
                             dragState = null
                             dropTargetIndex = null
@@ -341,8 +348,8 @@ fun LevelSequenceContent() {
                             isDragging = dragState?.levelId == level.id,
                             onAddToSequence = {
                                 EditorStorage.addLevelToSequence(level.id)
-                                sequence.value = EditorStorage.getLevelSequence()
-                                allLevels.value = EditorStorage.getAllLevels()
+                                sequence = EditorStorage.getLevelSequence()
+                                allLevels = EditorStorage.getAllLevels()
                             },
                             onDragStart = { offset ->
                                 dragState = DragState(level.id, false, offset)
@@ -420,8 +427,8 @@ fun LevelSequenceContent() {
                                     if (!state.isFromSequence && dropTargetIndex != null) {
                                         // Add to sequence at specific position
                                         EditorStorage.addLevelToSequence(state.levelId, dropTargetIndex)
-                                        sequence.value = EditorStorage.getLevelSequence()
-                                        allLevels.value = EditorStorage.getAllLevels()
+                                        sequence = EditorStorage.getLevelSequence()
+                                        allLevels = EditorStorage.getAllLevels()
                                     }
                                 }
                                 dragState = null
@@ -457,7 +464,7 @@ fun DropIndicator() {
 fun LevelSequenceItem(
     index: Int,
     levelId: String,
-    levelTitle: String,
+    level: de.egril.defender.editor.EditorLevel,
     isInSequence: Boolean,
     isDragging: Boolean,
     canMoveUp: Boolean,
@@ -499,26 +506,78 @@ fun LevelSequenceItem(
             }
         )
     ) {
-        Row(
-            modifier = Modifier.padding(12.dp).fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+        Column(
+            modifier = Modifier.padding(12.dp).fillMaxWidth()
         ) {
-            Column(
-                modifier = Modifier.weight(1f)
+            // Title row with ready indicator
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Text(
-                    text = "${index + 1}. $levelTitle",
+                    text = "${index + 1}. ${level.title}",
                     style = MaterialTheme.typography.titleSmall
                 )
+                // Add ready/not ready indicator
+                if (EditorStorage.isLevelReadyToPlay(level)) {
+                    CheckmarkIcon(
+                        size = 16.dp,
+                        tint = Color.Green
+                    )
+                } else {
+                    Text(
+                        text = "✗",
+                        color = Color.Red,
+                        style = MaterialTheme.typography.titleSmall
+                    )
+                }
+            }
+            
+            // Subtitle
+            if (level.subtitle.isNotEmpty()) {
                 Text(
-                    text = "Drag to reorder",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    text = level.subtitle,
+                    style = MaterialTheme.typography.bodySmall
                 )
             }
             
+            // File ID
+            Text(
+                text = "${stringResource(Res.string.file)}: ${level.id}",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            
+            // Map, coins, HP
+            Text(
+                text = "${stringResource(Res.string.map_label)}: ${level.mapId} | ${stringResource(Res.string.coins)}: ${level.startCoins} | ${stringResource(Res.string.hp_short)}: ${level.startHealthPoints}",
+                style = MaterialTheme.typography.bodySmall
+            )
+            
+            // Enemy count
+            Text(
+                text = "${stringResource(Res.string.enemies)}: ${level.enemySpawns.size}",
+                style = MaterialTheme.typography.bodySmall
+            )
+            
+            // Ready status
+            Text(
+                text = if (EditorStorage.isLevelReadyToPlay(level)) stringResource(Res.string.ready_to_use) else stringResource(Res.string.not_ready),
+                style = MaterialTheme.typography.bodySmall,
+                color = if (EditorStorage.isLevelReadyToPlay(level)) Color.Green else Color.Red
+            )
+            
+            // Drag hint
+            Text(
+                text = "Drag to reorder",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 4.dp)
+            )
+            
+            // Action buttons
             Row(
+                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Button(
@@ -588,14 +647,36 @@ fun AvailableLevelCard(
         )
     ) {
         Column(
-            modifier = Modifier.padding(12.dp).fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
+            modifier = Modifier.padding(8.dp).fillMaxWidth()
         ) {
-            Text(
-                text = level.title,
-                style = MaterialTheme.typography.titleSmall,
-                maxLines = 2
-            )
+            // Title with ready indicator
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = level.title,
+                    style = MaterialTheme.typography.titleSmall,
+                    maxLines = 2,
+                    modifier = Modifier.weight(1f)
+                )
+                // Add ready/not ready indicator
+                if (EditorStorage.isLevelReadyToPlay(level)) {
+                    CheckmarkIcon(
+                        size = 14.dp,
+                        tint = Color.Green
+                    )
+                } else {
+                    Text(
+                        text = "✗",
+                        color = Color.Red,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+            }
+            
+            // Subtitle
             if (level.subtitle.isNotBlank()) {
                 Text(
                     text = level.subtitle,
@@ -605,20 +686,43 @@ fun AvailableLevelCard(
                 )
             }
             
-            Spacer(modifier = Modifier.height(8.dp))
+            // File ID (truncated for grid)
+            Text(
+                text = level.id,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1
+            )
             
+            // Map, coins, HP (compact)
+            Text(
+                text = "${level.mapId} | ${level.startCoins}₵ | ${level.startHealthPoints}HP",
+                style = MaterialTheme.typography.bodySmall,
+                maxLines = 1
+            )
+            
+            // Enemy count
+            Text(
+                text = "${stringResource(Res.string.enemies)}: ${level.enemySpawns.size}",
+                style = MaterialTheme.typography.bodySmall
+            )
+            
+            Spacer(modifier = Modifier.height(4.dp))
+            
+            // Button and hint
             Button(
                 onClick = onAddToSequence,
                 enabled = !isDragging,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(stringResource(Res.string.add_to_sequence))
+                Text(stringResource(Res.string.add_to_sequence), style = MaterialTheme.typography.bodySmall)
             }
             
             Text(
                 text = "Drag to add",
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.align(Alignment.CenterHorizontally)
             )
         }
     }
