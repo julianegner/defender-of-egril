@@ -1,0 +1,94 @@
+package de.egril.defender.utils
+
+/**
+ * Simple JSON parsing utilities for manual JSON serialization
+ * Shared between SaveJsonSerializer and EditorJsonSerializer
+ */
+object JsonUtils {
+    /**
+     * Extract a value for a given key from a JSON string
+     * Supports both string and numeric values
+     */
+    fun extractValue(json: String, key: String): String {
+        val pattern = "\"$key\":\\s*\"?([^,\"\\}\\]]+)\"?"
+        val regex = Regex(pattern)
+        val match = regex.find(json)
+        return match?.groupValues?.get(1)?.trim() ?: ""
+    }
+    
+    /**
+     * Extract a string value (quoted) for a given key from a JSON string
+     */
+    fun extractStringValue(json: String, key: String): String {
+        val pattern = "\"$key\"\\s*:\\s*\"([^\"]*)\""
+        val regex = Regex(pattern)
+        val match = regex.find(json)
+        return match?.groupValues?.get(1) ?: ""
+    }
+    
+    /**
+     * Extract a numeric value for a given key from a JSON string
+     */
+    fun extractNumericValue(json: String, key: String): String {
+        val pattern = "\"$key\"\\s*:\\s*([0-9.-]+)"
+        val regex = Regex(pattern)
+        val match = regex.find(json)
+        return match?.groupValues?.get(1) ?: ""
+    }
+    
+    /**
+     * Extract a boolean value for a given key from a JSON string
+     */
+    fun extractBooleanValue(json: String, key: String): Boolean {
+        val pattern = "\"$key\"\\s*:\\s*(true|false)"
+        val regex = Regex(pattern)
+        val match = regex.find(json)
+        return match?.groupValues?.get(1) == "true"
+    }
+    
+    /**
+     * Split a JSON array content into individual elements
+     * Handles nested objects and arrays
+     */
+    fun splitJsonArray(arrayContent: String): List<String> {
+        val elements = mutableListOf<String>()
+        var depth = 0
+        var currentElement = StringBuilder()
+        var inString = false
+        
+        for (char in arrayContent) {
+            when {
+                char == '"' && (currentElement.isEmpty() || currentElement.last() != '\\') -> {
+                    inString = !inString
+                    currentElement.append(char)
+                }
+                inString -> {
+                    currentElement.append(char)
+                }
+                char == '{' || char == '[' -> {
+                    depth++
+                    currentElement.append(char)
+                }
+                char == '}' || char == ']' -> {
+                    depth--
+                    currentElement.append(char)
+                }
+                char == ',' && depth == 0 -> {
+                    if (currentElement.isNotBlank()) {
+                        elements.add(currentElement.toString().trim())
+                    }
+                    currentElement = StringBuilder()
+                }
+                else -> {
+                    currentElement.append(char)
+                }
+            }
+        }
+        
+        if (currentElement.isNotBlank()) {
+            elements.add(currentElement.toString().trim())
+        }
+        
+        return elements
+    }
+}
