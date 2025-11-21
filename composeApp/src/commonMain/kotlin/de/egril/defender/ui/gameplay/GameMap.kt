@@ -327,8 +327,83 @@ fun GridCell(
         borderWidth = borderWidth,
         onClick = onClick
     ) {
-        // Draw inner target circles on the central target tile
-        // Outer rings are drawn on neighbor tiles via CircularSegmentDrawer
+        when {
+            attacker != null -> {
+                // Use graphical icon for enemy units
+                // Key by id, position, level, and currentHealth to force recomposition when any changes
+                key(attacker.id, attacker.position.value.x, attacker.position.value.y, attacker.level, attacker.currentHealth.value) {
+                    EnemyIcon(attacker = attacker)
+                }
+            }
+
+            defender != null -> {
+                // Use graphical icon for towers
+                // Key by id, level and actionsRemaining to force recomposition when these change
+                key(defender.id, defender.level, defender.actionsRemaining.value, defender.buildTimeRemaining.value) {
+                    TowerIcon(defender = defender, gameState = gameState)
+                }
+            }
+
+            fieldEffect != null -> {
+                // Show field effect info
+                when (fieldEffect.type) {
+                    FieldEffectType.FIREBALL -> {
+                        // Show fireball symbol
+                        ExplosionIcon(size = 28.dp)
+                    }
+
+                    FieldEffectType.ACID -> {
+                        // Show acid splash with damage and duration
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            TestTubeIcon(size = 20.dp)
+                            Text(
+                                "-${fieldEffect.damage}",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                "${fieldEffect.turnsRemaining}T",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = GamePlayColors.Yellow
+                            )
+                        }
+                    }
+                }
+            }
+
+            trap != null -> {
+                // Show trap icon with damage (no duration since traps are permanent until triggered)
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    HoleIcon(size = 20.dp)
+                    Text(
+                        "-${trap.damage}",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+
+            isSpawnPoint -> {
+                // Show spawn indicator when cell is empty
+                Text(stringResource(Res.string.spawn), style = MaterialTheme.typography.labelSmall, color = GamePlayColors.Warning)
+            }
+
+            isTarget -> {
+                // Show target indicator when cell is empty
+                Text(stringResource(Res.string.target), style = MaterialTheme.typography.labelSmall, color = GamePlayColors.Success)
+            }
+        }
+        
+        // Draw target circles AFTER other content so they appear on top
+        // Inner circles on central target tile, outer ring segments on neighbor tiles
         targetCircleInfo?.let { info ->
             Canvas(modifier = Modifier
                 .matchParentSize()
@@ -402,81 +477,6 @@ fun GridCell(
                         }
                     }
                 }
-            }
-        }
-        
-        when {
-            attacker != null -> {
-                // Use graphical icon for enemy units
-                // Key by id, position, level, and currentHealth to force recomposition when any changes
-                key(attacker.id, attacker.position.value.x, attacker.position.value.y, attacker.level, attacker.currentHealth.value) {
-                    EnemyIcon(attacker = attacker)
-                }
-            }
-
-            defender != null -> {
-                // Use graphical icon for towers
-                // Key by id, level and actionsRemaining to force recomposition when these change
-                key(defender.id, defender.level, defender.actionsRemaining.value, defender.buildTimeRemaining.value) {
-                    TowerIcon(defender = defender, gameState = gameState)
-                }
-            }
-
-            fieldEffect != null -> {
-                // Show field effect info
-                when (fieldEffect.type) {
-                    FieldEffectType.FIREBALL -> {
-                        // Show fireball symbol
-                        ExplosionIcon(size = 28.dp)
-                    }
-
-                    FieldEffectType.ACID -> {
-                        // Show acid splash with damage and duration
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
-                        ) {
-                            TestTubeIcon(size = 20.dp)
-                            Text(
-                                "-${fieldEffect.damage}",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = Color.White,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Text(
-                                "${fieldEffect.turnsRemaining}T",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = GamePlayColors.Yellow
-                            )
-                        }
-                    }
-                }
-            }
-
-            trap != null -> {
-                // Show trap icon with damage (no duration since traps are permanent until triggered)
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    HoleIcon(size = 20.dp)
-                    Text(
-                        "-${trap.damage}",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = Color.White,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            }
-
-            isSpawnPoint -> {
-                // Show spawn indicator when cell is empty
-                Text(stringResource(Res.string.spawn), style = MaterialTheme.typography.labelSmall, color = GamePlayColors.Warning)
-            }
-
-            isTarget -> {
-                // Show target indicator when cell is empty
-                Text(stringResource(Res.string.target), style = MaterialTheme.typography.labelSmall, color = GamePlayColors.Success)
             }
         }
     }
