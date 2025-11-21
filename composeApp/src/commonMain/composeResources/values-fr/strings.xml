@@ -468,8 +468,6 @@
     <string name="click_target_waypoint">2. Cliquez sur une cible (point de passage ou cible)</string>
     <string name="connection_mode_active">Mode connexion actif</string>
     <string name="cancel_connection">Annuler</string>
-    <string name="drag_to_reorder">Glisser pour réorganiser</string>
-    <string name="drag_to_add">Glisser pour ajouter</string>
     
     <!-- Plurals -->
     <plurals name="enemy_count">
