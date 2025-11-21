@@ -95,31 +95,11 @@ private fun DirectionalButton(
     onAction: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val coroutineScope = rememberCoroutineScope()
-    var pressJob by remember { mutableStateOf<Job?>(null) }
-    
-    Box(
-        modifier = modifier
-            .size(60.dp, 60.dp)
-            .pointerInput(Unit) {
-                detectTapGestures(
-                    onPress = {
-                        // Start continuous action
-                        pressJob = coroutineScope.launch {
-                            onAction() // First action immediately
-                            delay(300) // Initial delay before repeat
-                            while (true) {
-                                onAction()
-                                delay(50) // Repeat delay
-                            }
-                        }
-                        tryAwaitRelease()
-                        pressJob?.cancel()
-                        pressJob = null
-                    }
-                )
-            },
-        contentAlignment = Alignment.Center
+    ContinuousActionButton(
+        onAction = onAction,
+        initialDelay = 300,
+        repeatDelay = 50,
+        modifier = modifier.size(60.dp, 60.dp)
     ) {
         Icon(
             imageVector = icon,
@@ -182,32 +162,13 @@ private fun ZoomButton(
     contentDescription: String,
     onAction: () -> Unit
 ) {
-    val coroutineScope = rememberCoroutineScope()
-    var pressJob by remember { mutableStateOf<Job?>(null) }
-    
-    Box(
+    ContinuousActionButton(
+        onAction = onAction,
+        initialDelay = 300,
+        repeatDelay = 100,
         modifier = Modifier
             .fillMaxWidth()
             .height(60.dp)
-            .pointerInput(Unit) {
-                detectTapGestures(
-                    onPress = {
-                        // Start continuous action
-                        pressJob = coroutineScope.launch {
-                            onAction() // First action immediately
-                            delay(300) // Initial delay before repeat
-                            while (true) {
-                                onAction()
-                                delay(100) // Repeat delay (slower than directional)
-                            }
-                        }
-                        tryAwaitRelease()
-                        pressJob?.cancel()
-                        pressJob = null
-                    }
-                )
-            },
-        contentAlignment = Alignment.Center
     ) {
         Icon(
             imageVector = icon,
@@ -216,4 +177,53 @@ private fun ZoomButton(
             modifier = Modifier.size(32.dp)
         )
     }
+}
+
+/**
+ * Reusable button component that supports continuous action when held down.
+ * Executes the action immediately on press, then after an initial delay,
+ * repeatedly executes the action at a specified interval until released.
+ *
+ * @param onAction Callback to execute on press and repeatedly while held
+ * @param initialDelay Delay in milliseconds before starting repeated actions (default: 300ms)
+ * @param repeatDelay Delay in milliseconds between repeated actions (default: 100ms)
+ * @param modifier Modifier for the button container
+ * @param content Content to display in the button
+ */
+@Composable
+private fun ContinuousActionButton(
+    onAction: () -> Unit,
+    initialDelay: Long = 300,
+    repeatDelay: Long = 100,
+    modifier: Modifier = Modifier,
+    content: @Composable BoxScope.() -> Unit
+) {
+    val coroutineScope = rememberCoroutineScope()
+    var pressJob by remember { mutableStateOf<Job?>(null) }
+    // Use rememberUpdatedState to always get the latest callback without recreating the gesture handler
+    val currentOnAction by rememberUpdatedState(onAction)
+    
+    Box(
+        modifier = modifier
+            .pointerInput(Unit) {
+                detectTapGestures(
+                    onPress = {
+                        // Start continuous action
+                        pressJob = coroutineScope.launch {
+                            currentOnAction() // First action immediately
+                            delay(initialDelay) // Initial delay before repeat
+                            while (true) {
+                                currentOnAction()
+                                delay(repeatDelay) // Repeat delay
+                            }
+                        }
+                        tryAwaitRelease()
+                        pressJob?.cancel()
+                        pressJob = null
+                    }
+                )
+            },
+        contentAlignment = Alignment.Center,
+        content = content
+    )
 }

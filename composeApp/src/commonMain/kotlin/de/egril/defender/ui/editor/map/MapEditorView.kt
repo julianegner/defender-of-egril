@@ -21,6 +21,7 @@ import de.egril.defender.ui.HexagonMinimapFromEditorMap
 import de.egril.defender.ui.HexagonalMapConfig
 import de.egril.defender.ui.HexagonalMapView
 import de.egril.defender.ui.MinimapConfig
+import de.egril.defender.ui.constrainMapOffsets
 import de.egril.defender.ui.icon.PushpinIcon
 import de.egril.defender.ui.editor.SaveAsDialog
 import de.egril.defender.ui.editor.getTileColor
@@ -45,6 +46,10 @@ fun MapEditorView(
     var offsetX by remember { mutableStateOf(0f) }
     var offsetY by remember { mutableStateOf(0f) }
     var lastPaintedPos by remember { mutableStateOf<Position?>(null) }
+    
+    // Track container and content sizes for constraint calculation
+    var containerSize by remember { mutableStateOf(IntSize.Zero) }
+    var actualContentSize by remember { mutableStateOf(IntSize.Zero) }
     
     // Create updated map for minimap that reflects current tiles state
     val currentMap = remember(tiles) {
@@ -85,9 +90,6 @@ fun MapEditorView(
                     .fillMaxWidth()
                     .padding(8.dp)
             ) {
-                // Track container size for minimap viewport
-                var containerSize by remember { mutableStateOf(IntSize.Zero) }
-                var actualContentSize by remember { mutableStateOf(IntSize.Zero) }
                 HexagonalMapView(
                     gridWidth = map.width,
                     gridHeight = map.height,
@@ -161,13 +163,21 @@ fun MapEditorView(
                         zoomLevel = zoomLevel,
                         offsetX = offsetX,
                         offsetY = offsetY
-                    )
+                    ),
+                    onStateChange = { newState ->
+                        val newScale = newState.zoomLevel
+                        val (constrainedX, constrainedY) = constrainMapOffsets(
+                            newState.offsetX, 
+                            newState.offsetY, 
+                            newScale,
+                            containerSize,
+                            actualContentSize
+                        )
+                        zoomLevel = newScale
+                        offsetX = constrainedX
+                        offsetY = constrainedY
+                    }
                 ) {
-                    // Update zoom and offsets from controls
-                    zoomLevel = it.zoomLevel
-                    offsetX = it.offsetX
-                    offsetY = it.offsetY
-
                     // Minimap
                     HexagonMinimapFromEditorMap(
                         map = currentMap,
