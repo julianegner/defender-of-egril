@@ -466,6 +466,8 @@
     <string name="click_target_waypoint">2. Klicken Sie auf ein Ziel (Wegpunkt oder Ziel)</string>
     <string name="connection_mode_active">Verbindungsmodus aktiv</string>
     <string name="cancel_connection">Abbrechen</string>
+    <string name="drag_to_reorder">Zum Neuordnen ziehen</string>
+    <string name="drag_to_add">Zum Hinzufügen ziehen</string>
     
     <!-- Plurals -->
     <plurals name="enemy_count">

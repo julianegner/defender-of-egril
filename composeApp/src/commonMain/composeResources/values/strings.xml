@@ -323,6 +323,8 @@
     <string name="available_levels">Available Levels (Not in Sequence):</string>
     <string name="add_to_sequence">Add to Sequence</string>
     <string name="remove_from_sequence">Remove from Sequence</string>
+    <string name="drag_to_reorder">Drag to reorder</string>
+    <string name="drag_to_add">Drag to add</string>
     <string name="remove_level_confirmation_title">Remove Level from Sequence?</string>
     <string name="remove_level_confirmation_message">Are you sure you want to remove "%s" from the level sequence? The level will not be deleted and can be added back later.</string>
     <string name="save_map_as_new">Save Map As New</string>
@@ -467,6 +469,8 @@
     <string name="click_target_waypoint">2. Click a target (waypoint or target)</string>
     <string name="connection_mode_active">Connection mode active</string>
     <string name="cancel_connection">Cancel</string>
+    <string name="drag_to_reorder">Drag to reorder</string>
+    <string name="drag_to_add">Drag to add</string>
     
     <!-- Plurals -->
     <plurals name="enemy_count">
