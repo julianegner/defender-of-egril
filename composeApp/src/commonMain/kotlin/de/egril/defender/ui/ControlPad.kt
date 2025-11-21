@@ -200,18 +200,20 @@ private fun ContinuousActionButton(
 ) {
     val coroutineScope = rememberCoroutineScope()
     var pressJob by remember { mutableStateOf<Job?>(null) }
+    // Use rememberUpdatedState to always get the latest callback without recreating the gesture handler
+    val currentOnAction by rememberUpdatedState(onAction)
     
     Box(
         modifier = modifier
-            .pointerInput(onAction) {
+            .pointerInput(Unit) {
                 detectTapGestures(
                     onPress = {
                         // Start continuous action
                         pressJob = coroutineScope.launch {
-                            onAction() // First action immediately
+                            currentOnAction() // First action immediately
                             delay(initialDelay) // Initial delay before repeat
                             while (true) {
-                                onAction()
+                                currentOnAction()
                                 delay(repeatDelay) // Repeat delay
                             }
                         }
