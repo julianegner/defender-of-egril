@@ -126,7 +126,7 @@ Defender of Egril is a turn-based tower defense game built with Kotlin Multiplat
 - **Wizard Tower**: Area-of-effect fireball, 3 range, 2 turn build time (50 coins)
 - **Alchemy Tower**: Acid damage-over-time, 2 range (40 coins)
 - **Ballista Tower**: Long-range siege, 5 range, minimum range 3, 2 turn build time (60 coins)
-- **Dwarven Mine**: Generates coins through mining, 0 damage, special dig action (30 coins)
+- **Dwarven Mine**: Generates coins through mining, 0 damage, special dig action, 3 turn build time (100 coins)
 - **Dragon's Lair**: Spawns dragons, cannot be sold or upgraded (0 coins - special placement)
 
 ### Current Enemy Types
