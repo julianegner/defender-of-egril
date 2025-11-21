@@ -24,7 +24,8 @@ import de.egril.defender.ui.icon.CheckmarkIcon
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.*
-import kotlin.math.abs
+import de.egril.defender.ui.common.LevelInfoEnemiesColumn
+import de.egril.defender.ui.gameplay.ExpandableCard
 
 /**
  * Drag state to track which level is being dragged
@@ -96,7 +97,7 @@ fun LevelSequenceContent() {
             style = MaterialTheme.typography.titleSmall,
             modifier = Modifier.padding(bottom = 8.dp)
         )
-        
+
         // Always show the LazyColumn (even if empty) so it can accept drops
         LazyColumn(
             modifier = Modifier
@@ -477,6 +478,7 @@ fun LevelSequenceItem(
     Card(
         modifier = Modifier
             .fillMaxWidth()
+            .padding(start =  8.dp)
             .onGloballyPositioned { coordinates ->
                 itemPosition = coordinates.positionInRoot()
                 itemSize = coordinates.size
@@ -500,102 +502,108 @@ fun LevelSequenceItem(
             }
         )
     ) {
-        Column(
-            modifier = Modifier.padding(12.dp).fillMaxWidth()
+        // Title row with ready indicator
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            // Title row with ready indicator
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
+            Text(
+                text = "${index + 1}. ${level.title}",
+                style = MaterialTheme.typography.titleSmall
+            )
+            // Add ready/not ready indicator
+            if (EditorStorage.isLevelReadyToPlay(level)) {
+                CheckmarkIcon(
+                    size = 16.dp,
+                    tint = Color.Green
+                )
+            } else {
                 Text(
-                    text = "${index + 1}. ${level.title}",
+                    text = "✗",
+                    color = Color.Red,
                     style = MaterialTheme.typography.titleSmall
                 )
-                // Add ready/not ready indicator
-                if (EditorStorage.isLevelReadyToPlay(level)) {
-                    CheckmarkIcon(
-                        size = 16.dp,
-                        tint = Color.Green
-                    )
-                } else {
+            }
+        }
+        Row {
+            Column (modifier = Modifier.weight(1f)) {
+                ExpandableCard(
+                    title = "",
+                    defaultExpanded = false,
+                    modifier = Modifier.padding(12.dp).fillMaxWidth()
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxSize().padding(12.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        LevelInfoEnemiesColumn(
+                            level = level.toLevelInfoEnemiesLevelData(index + 1),
+                            textColor = MaterialTheme.colorScheme.onSurface
+                        )
+                        Column {
+                            // Add ready/not ready indicator
+                            if (EditorStorage.isLevelReadyToPlay(level)) {
+                                CheckmarkIcon(
+                                    size = 16.dp,
+                                    tint = Color.Green
+                                )
+                            } else {
+                                Text(
+                                    text = "✗",
+                                    color = Color.Red,
+                                    style = MaterialTheme.typography.titleSmall
+                                )
+                            }
+                        }
+                    }
+                }
+                Row {
+                    // File ID
                     Text(
-                        text = "✗",
-                        color = Color.Red,
-                        style = MaterialTheme.typography.titleSmall
+                        text = "${stringResource(Res.string.file)}: ${level.id}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
+                    // Ready status
+                    Text(
+                        text = if (EditorStorage.isLevelReadyToPlay(level)) stringResource(Res.string.ready_to_use) else stringResource(
+                            Res.string.not_ready
+                        ),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = if (EditorStorage.isLevelReadyToPlay(level)) Color.Green else Color.Red
                     )
                 }
             }
-            
-            // Subtitle
-            if (level.subtitle.isNotEmpty()) {
-                Text(
-                    text = level.subtitle,
-                    style = MaterialTheme.typography.bodySmall
-                )
-            }
-            
-            // File ID
-            Text(
-                text = "${stringResource(Res.string.file)}: ${level.id}",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            
-            // Map, coins, HP
-            Text(
-                text = "${stringResource(Res.string.map_label)}: ${level.mapId} | ${stringResource(Res.string.coins)}: ${level.startCoins} | ${stringResource(Res.string.hp_short)}: ${level.startHealthPoints}",
-                style = MaterialTheme.typography.bodySmall
-            )
-            
-            // Enemy count
-            Text(
-                text = "${stringResource(Res.string.enemies)}: ${level.enemySpawns.size}",
-                style = MaterialTheme.typography.bodySmall
-            )
-            
-            // Ready status
-            Text(
-                text = if (EditorStorage.isLevelReadyToPlay(level)) stringResource(Res.string.ready_to_use) else stringResource(Res.string.not_ready),
-                style = MaterialTheme.typography.bodySmall,
-                color = if (EditorStorage.isLevelReadyToPlay(level)) Color.Green else Color.Red
-            )
-            
-            // Drag hint
-            Text(
-                text = "Drag to reorder",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = 4.dp)
-            )
-            
-            // Action buttons
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                Button(
-                    onClick = onMoveUp,
-                    enabled = canMoveUp && !isDragging
+            Column (modifier = Modifier.weight(1f)) {
+                // Action buttons
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    UpArrowIcon(size = 16.dp, tint = Color.White)
-                }
-                
-                Button(
-                    onClick = onMoveDown,
-                    enabled = canMoveDown && !isDragging
-                ) {
-                    DownArrowIcon(size = 16.dp, tint = Color.White)
-                }
-                
-                Button(
-                    onClick = onRemove,
-                    enabled = !isDragging,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.error
-                    )
-                ) {
-                    Text(stringResource(Res.string.remove_from_sequence))
+                    Button(
+                        onClick = onMoveUp,
+                        enabled = canMoveUp && !isDragging
+                    ) {
+                        UpArrowIcon(size = 16.dp, tint = Color.White)
+                    }
+
+                    Button(
+                        onClick = onMoveDown,
+                        enabled = canMoveDown && !isDragging
+                    ) {
+                        DownArrowIcon(size = 16.dp, tint = Color.White)
+                    }
+
+                    Button(
+                        onClick = onRemove,
+                        enabled = !isDragging,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.error
+                        )
+                    ) {
+                        Text(stringResource(Res.string.remove_from_sequence))
+                    }
                 }
             }
         }

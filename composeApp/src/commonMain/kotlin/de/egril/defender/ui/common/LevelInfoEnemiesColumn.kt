@@ -21,8 +21,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.egril.defender.model.AttackerType
-import de.egril.defender.model.Level
-import de.egril.defender.model.getEnemyTypeCounts
 import de.egril.defender.ui.getLocalizedName
 import de.egril.defender.ui.icon.HeartIcon
 import de.egril.defender.ui.icon.MoneyIcon
@@ -30,14 +28,21 @@ import de.egril.defender.ui.icon.enemy.EnemyTypeIcon
 import kotlin.collections.component1
 import kotlin.collections.component2
 
+data class LevelInfoEnemiesLevelData(
+    val id: String,
+    val name: String,
+    val initialCoins: Int,
+    val healthPoints: Int,
+    val enemyTypeCounts: Map<AttackerType, Int>
+)
+
 @Composable
 fun RowScope.LevelInfoEnemiesColumn(
-    level: Level,
+    level: LevelInfoEnemiesLevelData,
     textColor: Color
 ) {
-    // Get enemy counts for this level
-    val enemyCounts = level.getEnemyTypeCounts()
-    val enemyList = enemyCounts.entries.toList()
+
+    val enemyList = level.enemyTypeCounts.entries.toList()
 
     // Left column: Level info, coins, health, and enemies
     Column(
