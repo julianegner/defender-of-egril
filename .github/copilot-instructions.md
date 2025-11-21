@@ -310,15 +310,15 @@ Add to `LevelData.createLevels()` with:
 - `README.md`: Overview and quick start
 - `DEVELOPMENT.md`: Detailed architecture and development guide
 - `GAMEPLAY.md`: Game mechanics and rules
-- `TESTING_GUIDE.md`: Manual testing procedures for UI
+- `docs/guides/TESTING_GUIDE.md`: Manual testing procedures for UI
 - `RUNNING.md`: Platform-specific running instructions
-- `LEVEL_EDITOR.md`: Level editor features and usage (desktop and web/wasm only)
-- `SAVE_LOAD_IMPLEMENTATION.md`: Save/load system architecture
-- `GAMEPLAY_SCREEN_EXTRACTION.md`: UI component refactoring details
-- `LEVEL_EDITOR_REFACTORING.md`: Editor component refactoring
-- `CODE_REFACTORING_ANALYSIS.md`: Code organization and patterns
-- `WEB_WASM_GUIDE.md`: Web/WASM platform guide
-- `LOCALIZATION_IMPLEMENTATION.md`: Localization system implementation and usage
+- `docs/guides/LEVEL_EDITOR.md`: Level editor features and usage (desktop and web/wasm only)
+- `docs/implementation/SAVE_LOAD_IMPLEMENTATION.md`: Save/load system architecture
+- `docs/features/GAMEPLAY_SCREEN_EXTRACTION.md`: UI component refactoring details
+- `docs/features/LEVEL_EDITOR_REFACTORING.md`: Editor component refactoring
+- `docs/features/CODE_REFACTORING_ANALYSIS.md`: Code organization and patterns
+- `docs/guides/WEB_WASM_GUIDE.md`: Web/WASM platform guide
+- `docs/implementation/LOCALIZATION_IMPLEMENTATION.md`: Localization system implementation and usage
 
 ## Version Control
 
@@ -355,9 +355,9 @@ Add to `LevelData.createLevels()` with:
 For more details, refer to:
 - Architecture: `DEVELOPMENT.md`
 - Game rules: `GAMEPLAY.md`
-- Testing: `TESTING_GUIDE.md`
-- Level Editor: `LEVEL_EDITOR.md`
-- Save/Load: `SAVE_LOAD_IMPLEMENTATION.md`
-- UI Refactoring: `GAMEPLAY_SCREEN_EXTRACTION.md`, `LEVEL_EDITOR_REFACTORING.md`
-- Web Platform: `WEB_WASM_GUIDE.md`
-- Localization: `LOCALIZATION_IMPLEMENTATION.md`
+- Testing: `docs/guides/TESTING_GUIDE.md`
+- Level Editor: `docs/guides/LEVEL_EDITOR.md`
+- Save/Load: `docs/implementation/SAVE_LOAD_IMPLEMENTATION.md`
+- UI Refactoring: `docs/features/GAMEPLAY_SCREEN_EXTRACTION.md`, `docs/features/LEVEL_EDITOR_REFACTORING.md`
+- Web Platform: `docs/guides/WEB_WASM_GUIDE.md`
+- Localization: `docs/implementation/LOCALIZATION_IMPLEMENTATION.md`
