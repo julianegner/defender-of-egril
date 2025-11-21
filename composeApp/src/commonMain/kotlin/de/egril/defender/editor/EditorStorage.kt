@@ -916,6 +916,9 @@ object EditorStorage {
     /**
      * Try to load maps and levels from repository resources.
      * Returns true if repository files were found and loaded successfully.
+     * 
+     * Note: Uses runBlocking because it's called from the init block which is synchronous.
+     * This is acceptable since it only runs once during app initialization.
      */
     private fun tryLoadRepositoryFiles(): Boolean {
         return try {
