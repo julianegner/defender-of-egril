@@ -43,9 +43,9 @@ object CircularSegmentDrawer {
         val hexWidth = hexSize * sqrt3
         val verticalSpacing = hexSize * 2f * 0.75f
         
-        // Calculate direction from center to neighbor
-        val dx = (neighborPos.x - centerPos.x).toFloat()
-        val dy = (neighborPos.y - centerPos.y).toFloat()
+        // Calculate direction from neighbor to center (for positioning the arc center)
+        val dx = (centerPos.x - neighborPos.x).toFloat()
+        val dy = (centerPos.y - neighborPos.y).toFloat()
         
         // Calculate offset in pixels, accounting for row offsets
         var offsetX = dx * hexWidth
@@ -53,7 +53,7 @@ object CircularSegmentDrawer {
         
         val neighborRowOffset = if (neighborPos.y % 2 == 1) hexWidth * 0.42f else 0f
         val centerRowOffset = if (centerPos.y % 2 == 1) hexWidth * 0.42f else 0f
-        offsetX += (neighborRowOffset - centerRowOffset)
+        offsetX += (centerRowOffset - neighborRowOffset)
         
         // Calculate tile center
         val tileCenterX = drawScope.size.width / 2
@@ -63,8 +63,8 @@ object CircularSegmentDrawer {
         val arcCenterX = tileCenterX + offsetX
         val arcCenterY = tileCenterY + offsetY
         
-        // Calculate the angle from center to this neighbor tile
-        val angleRad = atan2(offsetY, offsetX)
+        // Calculate the angle from center TO this neighbor tile (opposite of offset direction)
+        val angleRad = atan2(-offsetY, -offsetX)
         val angleDeg = (angleRad * 180 / PI).toFloat()
         
         // Calculate arc span - cover approximately 60 degrees (one hexagon face) plus overlap
