@@ -151,3 +151,28 @@ The following features are planned for future versions:
 - File operations are platform-specific (JVM File I/O on desktop)
 - The editor storage initialization only runs once (checks for `sequence.json` existence)
 - All 6 default levels are recreated from the original hardcoded level data
+
+## Deploying Levels with the App
+
+You can package custom levels with the app by placing them in the repository directory:
+
+```
+composeApp/src/commonMain/composeResources/files/repository/
+├── maps/
+│   └── your_map.json
+├── levels/
+│   └── your_level.json
+└── sequence.json
+```
+
+When the app starts:
+1. If no levels exist in the platform-specific storage, it checks the repository
+2. If repository files exist, they are copied to the storage directory
+3. Otherwise, default levels are generated programmatically
+
+This allows you to:
+- Create levels using the desktop editor
+- Copy the JSON files from `~/.defender-of-egril/editor/` to the repository
+- Rebuild the app to include your levels on all platforms
+
+See `composeApp/src/commonMain/composeResources/files/repository/README.md` for detailed documentation on the repository format and usage.
