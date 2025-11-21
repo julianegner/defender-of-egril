@@ -99,6 +99,7 @@ kotlin {
         val desktopMain by getting
         val desktopTest by getting
         val wasmJsMain by getting
+        val androidMain by getting
         
         // Add generated source directory to commonMain
         commonMain {
@@ -109,6 +110,21 @@ kotlin {
                     "generated/compose/resourceGenerator/kotlin/commonCustomResClass"
                 )
             )
+        }
+        
+        // Create jvmMain as intermediate source set shared by Android and Desktop
+        val jvmMain by creating {
+            dependsOn(commonMain.get())
+        }
+        
+        // Configure androidMain to depend on jvmMain
+        androidMain.apply {
+            dependsOn(jvmMain)
+        }
+        
+        // Configure desktopMain to depend on jvmMain
+        desktopMain.apply {
+            dependsOn(jvmMain)
         }
         
         androidMain.dependencies {
