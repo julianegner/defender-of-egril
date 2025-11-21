@@ -397,11 +397,24 @@
     <string name="sound_enabled">Sound aktiviert</string>
     <string name="sound_disabled">Sound deaktiviert</string>
     <string name="sound_volume">Lautstärke</string>
+
+    <!-- Control Pad Settings -->
+    <string name="controls">Steuerung</string>
+    <string name="show_control_pad">Steuerkreuz anzeigen</string>
+    <string name="control_pad_enabled">Steuerkreuz aktiviert</string>
+    <string name="control_pad_disabled">Steuerkreuz deaktiviert</string>
     
     <!-- Dragon Names -->
     <string name="the_dragon">Der Drache</string>
     <string name="awakens">erwacht</string>
     <string name="lair_of_the_dragon">Höhle des Drachen</string>
+
+    <!-- Dragon Info -->
+    <string name="dragon_info_title">Drachen-Alarm!</string>
+    <string name="dragon_info_movement">Der Drache wechselt seine Bewegung: Runde 1, 3, 5...: Geht 1 Feld auf Pfad. Runde 2, 4, 6...: Fliegt bis zu 5 Felder, kann Hindernisse überfliegen, muss aber auf Pfad landen</string>
+    <string name="dragon_info_eating">Drachen verschlingen Gegner, auf denen sie landen (außer Ewhad), und gewinnen deren Gesundheitspunkte!</string>
+    <string name="dragon_info_level">Drachenlevel steigt mit Gesundheit: Level = LP ÷ 500 (min. 1)</string>
+    <string name="got_it">Verstanden!</string>
 
     <!-- Dragon Greed Info -->
     <string name="dragon_greed_title">Drachengier!</string>
@@ -410,6 +423,14 @@
     <string name="dragon_very_greedy_message">Der Drache ist sehr gierig (Gier > 5)! Er wird nun Zwergenminen angreifen und zerstören und dabei all die Gesundheit aufnehmen, die ein neuer Drache hätte (500 LP pro Mine + die geschürften Münzen als LP). Minen werden zu zerstörten Trümmern. Verteidige sie oder baue schnell wieder auf!</string>
     <string name="mine_warning_title">Mine bedroht!</string>
     <string name="mine_warning_message">Der Drache nähert sich! Die Zwerge bereiten sich vor, ihre Mine zu verteidigen, aber es könnte nicht genug sein...</string>
+    
+    <!-- Enemy Info Display -->
+    <string name="greedy_label">gierig</string>
+    <string name="very_greedy_label">sehr gierig</string>
+    <string name="greedy_desc">Frisst umliegende feindliche Einheiten</string>
+    <string name="very_greedy_desc">Frisst umliegende feindliche Einheiten und zerstört nacheinander Minen</string>
+    <string name="greed_level_label">Gier</string>
+    <string name="dragon_info_button">Was macht ein Drache?</string>
 <!-- Waypoint Editor -->
     <string name="waypoints_tab">Wegpunkte</string>
     <string name="waypoints_title">Wegpunkt-Verbindungen</string>

@@ -133,6 +133,30 @@ fun SettingsDialog(
                 
                 HorizontalDivider()
                 
+                // Controls section
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = stringResource(Res.string.controls),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    
+                    // Control pad switch
+                    GenericSwitch(
+                        state = AppSettings.showControlPad,
+                        checkedText = stringResource(Res.string.control_pad_enabled),
+                        uncheckedText = stringResource(Res.string.control_pad_disabled),
+                        onCheckedChange = { enabled ->
+                            AppSettings.saveShowControlPad(enabled)
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+                
+                HorizontalDivider()
+                
                 // Language section
                 Column(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
