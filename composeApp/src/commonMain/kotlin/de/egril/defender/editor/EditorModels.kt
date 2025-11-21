@@ -3,6 +3,7 @@ package de.egril.defender.editor
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.DefenderType
 import de.egril.defender.model.Position
+import de.egril.defender.ui.common.LevelInfoEnemiesLevelData
 
 /**
  * Represents tile types in the map editor
@@ -367,6 +368,26 @@ data class EditorLevel(
             circularDependencies = circularDeps,
             unconnectedWaypoints = unconnectedPositions,
             waypointChains = chains
+        )
+    }
+
+    fun toLevelInfoEnemiesLevelData(index: Int): LevelInfoEnemiesLevelData {
+
+        val enemyCountMap: Map<AttackerType, Int> = mutableMapOf()
+
+        enemySpawns
+            .groupingBy { it.attackerType }.eachCount()
+            .entries
+            .forEach { (attackerType, count) ->
+                (enemyCountMap as MutableMap)[attackerType] = count
+            }
+
+        return LevelInfoEnemiesLevelData(
+            id = "" + index,
+            name = this.title,
+            initialCoins = startCoins,
+            healthPoints = startHealthPoints,
+            enemyTypeCounts = enemyCountMap
         )
     }
 }

@@ -10,17 +10,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import de.egril.defender.model.AttackerType
 import de.egril.defender.model.LevelStatus
 import de.egril.defender.model.WorldLevel
-import de.egril.defender.model.getEnemyTypeCounts
 import de.egril.defender.ui.*
 import de.egril.defender.ui.icon.CheckmarkIcon
-import de.egril.defender.ui.icon.HeartIcon
 import de.egril.defender.ui.icon.LockIcon
-import de.egril.defender.ui.icon.MoneyIcon
 import de.egril.defender.ui.icon.SwordIcon
-import de.egril.defender.ui.icon.enemy.EnemyTypeIcon
 import com.hyperether.resources.stringResource
 import de.egril.defender.ui.common.LevelInfoEnemiesColumn
 import defender_of_egril.composeapp.generated.resources.*
@@ -60,7 +55,7 @@ fun LevelCard(
             modifier = Modifier.fillMaxSize().padding(12.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            LevelInfoEnemiesColumn(worldLevel.level, textColor)
+            LevelInfoEnemiesColumn(worldLevel.level.toLevelInfoEnemiesLevelData(), textColor)
 
             // Right column: Minimap and status
             Column(

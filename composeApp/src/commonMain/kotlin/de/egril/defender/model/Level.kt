@@ -1,5 +1,8 @@
 package de.egril.defender.model
 
+import de.egril.defender.editor.EditorLevel
+import de.egril.defender.ui.common.LevelInfoEnemiesLevelData
+
 /**
  * Represents a waypoint that enemies must pass through
  */
@@ -148,6 +151,17 @@ data class Level(
             
             return PathAndIslands(path, islands)
         }
+    }
+
+    fun toLevelInfoEnemiesLevelData(): LevelInfoEnemiesLevelData {
+        val enemyCounts = getEnemyTypeCounts()
+        return LevelInfoEnemiesLevelData(
+            id = "" + this.id,
+            name = this.name,
+            initialCoins = this.initialCoins,
+            healthPoints = this.healthPoints,
+            enemyTypeCounts = enemyCounts
+        )
     }
 }
 
