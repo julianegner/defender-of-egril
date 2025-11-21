@@ -423,6 +423,14 @@ object EditorStorage {
         fileStorage.createDirectory(MAPS_DIR)
         fileStorage.createDirectory(LEVELS_DIR)
         
+        // Try to load from repository first
+        println("Checking for repository files...")
+        if (tryLoadRepositoryFiles()) {
+            println("Successfully loaded files from repository")
+            return
+        }
+        println("No repository files found, generating default maps and levels...")
+        
         // Create default maps based on the existing level generation
         for (size in listOf(
             Triple("map_30x8", 30, 8),
@@ -903,5 +911,21 @@ object EditorStorage {
         
         // Save version file to indicate successful initialization
         fileStorage.writeFile(VERSION_FILE, CURRENT_VERSION)
+    }
+    
+    /**
+     * Try to load maps and levels from repository resources.
+     * Returns true if repository files were found and loaded successfully.
+     */
+    private fun tryLoadRepositoryFiles(): Boolean {
+        return try {
+            // Use runBlocking to make this synchronous
+            kotlinx.coroutines.runBlocking {
+                RepositoryLoader.loadAndSaveRepositoryFiles(fileStorage)
+            }
+        } catch (e: Exception) {
+            println("Could not load repository files: ${e.message}")
+            false
+        }
     }
 }
