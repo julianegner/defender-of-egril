@@ -56,7 +56,8 @@ fun HexagonMinimap(
     scale: Float? = null,
     offsetX: Float? = null,
     offsetY: Float? = null,
-    containerSize: IntSize? = null
+    containerSize: IntSize? = null,
+    contentSize: IntSize? = null
 ): String {
     // Get map data from editor storage
     val sequence = remember { EditorStorage.getLevelSequence() }
@@ -105,7 +106,8 @@ fun HexagonMinimap(
             scale = scale,
             offsetX = offsetX,
             offsetY = offsetY,
-            containerSize = containerSize
+            containerSize = containerSize,
+            contentSize = contentSize
         )
     }
     
@@ -123,7 +125,8 @@ fun HexagonMinimapFromEditorMap(
     scale: Float? = null,
     offsetX: Float? = null,
     offsetY: Float? = null,
-    containerSize: IntSize? = null
+    containerSize: IntSize? = null,
+    contentSize: IntSize? = null
 ) {
     val dummyLevel = remember(map.id) {
         Level(
@@ -154,7 +157,8 @@ fun HexagonMinimapFromEditorMap(
             scale = scale,
             offsetX = offsetX,
             offsetY = offsetY,
-            containerSize = containerSize
+            containerSize = containerSize,
+            contentSize = contentSize
         )
     }
 }
@@ -168,7 +172,8 @@ private fun HexagonMinimapContent(
     scale: Float?,
     offsetX: Float?,
     offsetY: Float?,
-    containerSize: IntSize?
+    containerSize: IntSize?,
+    contentSize: IntSize?
 ) {
     val isDarkMode = de.egril.defender.ui.settings.AppSettings.isDarkMode.value
     
@@ -310,20 +315,37 @@ private fun HexagonMinimapContent(
         }
         
         // Viewport indicator (shows current view) - only if all viewport params are provided
-        if (config.showViewport && scale != null && offsetX != null && offsetY != null && containerSize != null) {
-            if (containerSize.width > 0 && containerSize.height > 0) {
-                val viewportWidthRatio = 1f / scale
-                val viewportHeightRatio = 1f / scale
+        if (config.showViewport && scale != null && offsetX != null && offsetY != null && containerSize != null && contentSize != null) {
+            if (containerSize.width > 0 && containerSize.height > 0 && contentSize.width > 0 && contentSize.height > 0) {
+                // Calculate what portion of the map is actually visible
+                // scaledContentSize is the size of the map at the current zoom level
+                val scaledContentWidth = contentSize.width * scale
+                val scaledContentHeight = contentSize.height * scale
+                
+                // Calculate viewport ratio - what fraction of the map is visible
+                // When zoomed in, less of the map is visible (smaller ratio)
+                // When zoomed out, more of the map is visible (larger ratio, but clamped to 1.0)
+                val viewportWidthRatio = (containerSize.width.toFloat() / scaledContentWidth).coerceAtMost(1f)
+                val viewportHeightRatio = (containerSize.height.toFloat() / scaledContentHeight).coerceAtMost(1f)
 
-                // Calculate normalized offset (-1 to 1 range)
-                val maxOffsetX = (containerSize.width * (scale - 1) / 2).coerceAtLeast(0.01f)
-                val maxOffsetY = (containerSize.height * (scale - 1) / 2).coerceAtLeast(0.01f)
-                val normalizedOffsetX = -offsetX / maxOffsetX
-                val normalizedOffsetY = -offsetY / maxOffsetY
+                // Calculate viewport position
+                // The viewport can be panned within the bounds of (scaledContentSize - containerSize)
+                // maxOffset is how far we can pan in each direction from center
+                val maxOffsetX = ((scaledContentWidth - containerSize.width) / 2).coerceAtLeast(0.01f)
+                val maxOffsetY = ((scaledContentHeight - containerSize.height) / 2).coerceAtLeast(0.01f)
+                
+                // Normalize the current offset to 0-1 range (0 = left/top edge, 1 = right/bottom edge)
+                // offsetX is positive when panned left (showing right side), negative when panned right (showing left side)
+                // So we negate it to get the correct direction
+                val normalizedOffsetX = (-offsetX / maxOffsetX).coerceIn(-1f, 1f)
+                val normalizedOffsetY = (-offsetY / maxOffsetY).coerceIn(-1f, 1f)
 
                 // Calculate viewport position in minimap
-                val viewportX = (normalizedOffsetX * (1f - viewportWidthRatio) / 2f + (1f - viewportWidthRatio) / 2f)
-                val viewportY = (normalizedOffsetY * (1f - viewportHeightRatio) / 2f + (1f - viewportHeightRatio) / 2f)
+                // The viewport box can move within the area: (1.0 - viewportRatio)
+                // normalizedOffset ranges from -1 (left/top) to 1 (right/bottom)
+                // We map this to 0 (left/top of minimap) to (1 - viewportRatio) (right/bottom of minimap)
+                val viewportX = ((normalizedOffsetX + 1f) / 2f) * (1f - viewportWidthRatio)
+                val viewportY = ((normalizedOffsetY + 1f) / 2f) * (1f - viewportHeightRatio)
 
                 Box(
                     modifier = Modifier

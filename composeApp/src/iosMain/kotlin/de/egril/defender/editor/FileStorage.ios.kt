@@ -1,5 +1,6 @@
 package de.egril.defender.editor
 
+import kotlinx.cinterop.ExperimentalForeignApi
 import platform.Foundation.*
 
 /**
@@ -8,6 +9,8 @@ import platform.Foundation.*
  */
 class IosFileStorage : FileStorage {
     private val fileManager = NSFileManager.defaultManager
+    
+    @OptIn(ExperimentalForeignApi::class)
     private val baseDir: String
         get() {
             val paths = fileManager.URLsForDirectory(
@@ -30,6 +33,7 @@ class IosFileStorage : FileStorage {
             return defenderDir.path!!
         }
     
+    @OptIn(ExperimentalForeignApi::class)
     override fun writeFile(path: String, content: String) {
         val filePath = "$baseDir/$path"
         val fileURL = NSURL.fileURLWithPath(filePath)
@@ -53,6 +57,7 @@ class IosFileStorage : FileStorage {
         )
     }
     
+    @OptIn(ExperimentalForeignApi::class)
     override fun readFile(path: String): String? {
         val filePath = "$baseDir/$path"
         return if (fileManager.fileExistsAtPath(filePath)) {
@@ -66,6 +71,7 @@ class IosFileStorage : FileStorage {
         }
     }
     
+    @OptIn(ExperimentalForeignApi::class)
     override fun listFiles(directory: String): List<String> {
         val dirPath = "$baseDir/$directory"
         return if (fileManager.fileExistsAtPath(dirPath)) {
@@ -76,11 +82,13 @@ class IosFileStorage : FileStorage {
         }
     }
     
+    @OptIn(ExperimentalForeignApi::class)
     override fun fileExists(path: String): Boolean {
         val filePath = "$baseDir/$path"
         return fileManager.fileExistsAtPath(filePath)
     }
     
+    @OptIn(ExperimentalForeignApi::class)
     override fun createDirectory(path: String) {
         val dirPath = "$baseDir/$path"
         fileManager.createDirectoryAtPath(
@@ -91,6 +99,7 @@ class IosFileStorage : FileStorage {
         )
     }
     
+    @OptIn(ExperimentalForeignApi::class)
     override fun deleteFile(path: String) {
         val filePath = "$baseDir/$path"
         fileManager.removeItemAtPath(filePath, error = null)

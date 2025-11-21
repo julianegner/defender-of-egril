@@ -67,9 +67,9 @@ class SpiralMapTest {
     
     @Test
     fun testSpiralLevelExists() {
-        val level = EditorStorage.getLevel("level_7")
-        assertNotNull(level, "Level 7 should exist")
-        assertEquals("level_7", level.id)
+        val level = EditorStorage.getLevel("the_spiral_challenge")
+        assertNotNull(level, "The Spiral Challenge should exist")
+        assertEquals("the_spiral_challenge", level.id)
         assertEquals("map_spiral", level.mapId)
         assertEquals("The Spiral Challenge", level.title)
         assertEquals(250, level.startCoins)
@@ -162,9 +162,9 @@ class SpiralMapTest {
     
     @Test
     fun testPlainsLevelExists() {
-        val level = EditorStorage.getLevel("level_8")
-        assertNotNull(level, "Level 8 should exist")
-        assertEquals("level_8", level.id)
+        val level = EditorStorage.getLevel("the_plains")
+        assertNotNull(level, "The Plains should exist")
+        assertEquals("the_plains", level.id)
         assertEquals("map_plains", level.mapId)
         assertEquals("The Plains", level.title)
         assertEquals(200, level.startCoins)
@@ -281,9 +281,9 @@ class SpiralMapTest {
     
     @Test
     fun testDanceLevelExists() {
-        val level = EditorStorage.getLevel("level_9")
-        assertNotNull(level, "Level 9 should exist")
-        assertEquals("level_9", level.id)
+        val level = EditorStorage.getLevel("the_dance")
+        assertNotNull(level, "The Dance should exist")
+        assertEquals("the_dance", level.id)
         assertEquals("map_dance", level.mapId)
         assertEquals("The Dance", level.title)
         assertEquals(220, level.startCoins)
@@ -327,19 +327,19 @@ class SpiralMapTest {
         println("\n=== Level Sequence ===")
         println("Sequence: ${sequence.sequence}")
         
-        // Check that level_7, level_8, and level_9 come before level_5 (The Final Stand)
-        val level7Index = sequence.sequence.indexOf("level_7")
-        val level8Index = sequence.sequence.indexOf("level_8")
-        val level9Index = sequence.sequence.indexOf("level_9")
-        val level5Index = sequence.sequence.indexOf("level_5")
+        // Check that the_spiral_challenge, the_plains, and the_dance come before the_final_stand
+        val spiralIndex = sequence.sequence.indexOf("the_spiral_challenge")
+        val plainsIndex = sequence.sequence.indexOf("the_plains")
+        val danceIndex = sequence.sequence.indexOf("the_dance")
+        val finalStandIndex = sequence.sequence.indexOf("the_final_stand")
         
-        assertTrue(level7Index >= 0, "Level 7 should be in sequence")
-        assertTrue(level8Index >= 0, "Level 8 should be in sequence")
-        assertTrue(level9Index >= 0, "Level 9 should be in sequence")
-        assertTrue(level5Index >= 0, "Level 5 should be in sequence")
+        assertTrue(spiralIndex >= 0, "The Spiral Challenge should be in sequence")
+        assertTrue(plainsIndex >= 0, "The Plains should be in sequence")
+        assertTrue(danceIndex >= 0, "The Dance should be in sequence")
+        assertTrue(finalStandIndex >= 0, "The Final Stand should be in sequence")
         
-        assertTrue(level7Index < level5Index, "Level 7 should come before Level 5")
-        assertTrue(level8Index < level5Index, "Level 8 should come before Level 5")
-        assertTrue(level9Index < level5Index, "Level 9 should come before Level 5")
+        assertTrue(spiralIndex < finalStandIndex, "The Spiral Challenge should come before The Final Stand")
+        assertTrue(plainsIndex < finalStandIndex, "The Plains should come before The Final Stand")
+        assertTrue(danceIndex < finalStandIndex, "The Dance should come before The Final Stand")
     }
 }

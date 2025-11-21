@@ -21,8 +21,14 @@ fun SavedGameCard(
     
     // Get the level to access map for minimap
     val levels = remember { LevelData.createLevels() }
-    val level = remember(saveGame.levelId) { 
-        levels.find { it.id == saveGame.levelId }
+    val level = remember(saveGame.levelId, saveGame.mapId) {
+        // Try to find level by mapId first (more reliable)
+        if (saveGame.mapId != null) {
+            levels.find { it.mapId == saveGame.mapId }
+        } else {
+            // Fallback to levelId for backward compatibility
+            levels.find { it.id == saveGame.levelId }
+        }
     }
     
     // Create a minimal GameState for minimap rendering
