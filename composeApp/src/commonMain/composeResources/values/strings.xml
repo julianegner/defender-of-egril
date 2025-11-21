@@ -469,8 +469,6 @@
     <string name="click_target_waypoint">2. Click a target (waypoint or target)</string>
     <string name="connection_mode_active">Connection mode active</string>
     <string name="cancel_connection">Cancel</string>
-    <string name="drag_to_reorder">Drag to reorder</string>
-    <string name="drag_to_add">Drag to add</string>
     
     <!-- Plurals -->
     <plurals name="enemy_count">
