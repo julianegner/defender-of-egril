@@ -63,7 +63,7 @@ class GreenWitchHealingTest {
         val healthBeforeHealing = damagedGoblin.currentHealth.value
         assertEquals(10, healthBeforeHealing, "Goblin should have 10 HP before healing")
         
-        // Process enemy abilities (this should trigger healing)
+        // Process enemy abilities (this simulates the enemy turn phase where green witch healing occurs)
         val enemyAbilities = EnemyAbilitySystem(state)
         enemyAbilities.processEnemyAbilities()
         
@@ -152,27 +152,21 @@ class GreenWitchHealingTest {
         )
         state.attackers.add(greenWitch)
         
-        // Get hex neighbors of position (3, 3)
+        // Get hex neighbors of position (3, 3) and filter to valid path positions
         val neighbors = Position(3, 3).getHexNeighbors()
         
-        // Create damaged enemies at the first 3 neighbor positions
+        // Create damaged enemies at the first 3 valid neighbor positions (on the path)
         val damagedEnemies = mutableListOf<Attacker>()
-        for (i in 0 until 3) {
-            if (i < neighbors.size) {
-                val neighbor = neighbors[i]
-                // Only place on valid positions (on the path)
-                if (level.isOnPath(neighbor)) {
-                    val enemy = Attacker(
-                        id = state.nextAttackerId.value++,
-                        type = AttackerType.GOBLIN,
-                        position = mutableStateOf(neighbor),
-                        level = mutableStateOf(1)
-                    )
-                    enemy.currentHealth.value = 10  // 20 max HP, damaged to 10
-                    state.attackers.add(enemy)
-                    damagedEnemies.add(enemy)
-                }
-            }
+        for (neighbor in neighbors.filter { level.isOnPath(it) }.take(3)) {
+            val enemy = Attacker(
+                id = state.nextAttackerId.value++,
+                type = AttackerType.GOBLIN,
+                position = mutableStateOf(neighbor),
+                level = mutableStateOf(1)
+            )
+            enemy.currentHealth.value = 10  // 20 max HP, damaged to 10
+            state.attackers.add(enemy)
+            damagedEnemies.add(enemy)
         }
         
         // Process enemy abilities
