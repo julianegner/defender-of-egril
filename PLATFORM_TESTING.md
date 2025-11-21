@@ -41,8 +41,8 @@
 ```
 
 **APK Details**:
-- Debug APK: `composeApp/build/outputs/apk/debug/composeApp-debug.apk` (9.0 MB)
-- Release APK: `composeApp/build/outputs/apk/release/composeApp-release-unsigned.apk`
+- Debug APK: `composeApp/build/outputs/apk/debug/de.egril.defender-debug.apk` (9.0 MB)
+- Release APK: `composeApp/build/outputs/apk/release/de.egril.defender-release.apk`
 - Minimum SDK: API 24 (Android 7.0)
 - Target SDK: API 34 (Android 14)
 
@@ -77,7 +77,7 @@ iosSimulatorArm64()
 **Source Code**: ✅ READY
 - iOS main view controller: `composeApp/src/iosMain/kotlin/com/defenderofegril/MainViewController.kt`
 - Swift app wrapper: `iosApp/iosApp/iOSApp.swift`
-- Framework base name: `ComposeApp`
+- Framework base name: `DefenderOfEgril`
 
 **Compilation**: ⏭️ SKIPPED
 - Requires macOS with Xcode
