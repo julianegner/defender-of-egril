@@ -111,7 +111,7 @@ Then open http://localhost:8080 in your browser
 
 ### Running Android
 
-Install the APK from `composeApp/build/outputs/apk/debug/composeApp-debug.apk` on an Android device or emulator.
+Install the APK from `composeApp/build/outputs/apk/debug/de.egril.defender-debug.apk` on an Android device or emulator.
 
 ### Running iOS
 
