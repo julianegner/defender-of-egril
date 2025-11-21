@@ -3,6 +3,7 @@ package de.egril.defender.editor
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.DefenderType
 import de.egril.defender.model.Position
+import de.egril.defender.utils.JsonUtils
 
 /**
  * Simple JSON serialization for editor data
@@ -30,12 +31,12 @@ object EditorJsonSerializer {
     
     fun deserializeMap(json: String): EditorMap? {
         try {
-            val id = extractValue(json, "id")
-            val name = extractValue(json, "name")
-            val width = extractValue(json, "width").toInt()
-            val height = extractValue(json, "height").toInt()
+            val id = JsonUtils.JsonUtils.extractValue(json, "id")
+            val name = JsonUtils.JsonUtils.extractValue(json, "name")
+            val width = JsonUtils.JsonUtils.extractValue(json, "width").toInt()
+            val height = JsonUtils.JsonUtils.extractValue(json, "height").toInt()
             val readyToUse = try {
-                extractValue(json, "readyToUse").toBoolean()
+                JsonUtils.extractBooleanValue(json, "readyToUse")
             } catch (e: Exception) {
                 false  // Default to false for backward compatibility
             }
@@ -93,12 +94,12 @@ object EditorJsonSerializer {
     
     fun deserializeLevel(json: String): EditorLevel? {
         try {
-            val id = extractValue(json, "id")
-            val mapId = extractValue(json, "mapId")
-            val title = extractValue(json, "title")
-            val subtitle = extractValue(json, "subtitle")
-            val startCoins = extractValue(json, "startCoins").toInt()
-            val startHealthPoints = extractValue(json, "startHealthPoints").toInt()
+            val id = JsonUtils.extractValue(json, "id")
+            val mapId = JsonUtils.extractValue(json, "mapId")
+            val title = JsonUtils.extractValue(json, "title")
+            val subtitle = JsonUtils.extractValue(json, "subtitle")
+            val startCoins = JsonUtils.extractValue(json, "startCoins").toInt()
+            val startHealthPoints = JsonUtils.extractValue(json, "startHealthPoints").toInt()
             
             // Parse enemy spawns
             val spawns = mutableListOf<EditorEnemySpawn>()
@@ -107,9 +108,9 @@ object EditorJsonSerializer {
             
             for (entry in spawnEntries) {
                 if (!entry.contains("attackerType")) continue
-                val attackerType = AttackerType.valueOf(extractValue(entry, "attackerType"))
-                val level = extractValue(entry, "level").toInt()
-                val spawnTurn = extractValue(entry, "spawnTurn").toInt()
+                val attackerType = AttackerType.valueOf(JsonUtils.extractValue(entry, "attackerType"))
+                val level = JsonUtils.extractValue(entry, "level").toInt()
+                val spawnTurn = JsonUtils.extractValue(entry, "spawnTurn").toInt()
                 spawns.add(EditorEnemySpawn(attackerType, level, spawnTurn))
             }
             
@@ -178,14 +179,14 @@ object EditorJsonSerializer {
                                 
                                 // Extract position
                                 val posSection = entry.substringAfter("\"position\": {").substringBefore("},")
-                                val posX = extractValue(posSection, "x").toInt()
-                                val posY = extractValue(posSection, "y").toInt()
+                                val posX = JsonUtils.extractValue(posSection, "x").toInt()
+                                val posY = JsonUtils.extractValue(posSection, "y").toInt()
                                 val position = Position(posX, posY)
                                 
                                 // Extract nextTargetPosition - it's the last object, so use } not },
                                 val targetSection = entry.substringAfter("\"nextTargetPosition\": {").substringBefore("}")
-                                val targetX = extractValue(targetSection, "x").toInt()
-                                val targetY = extractValue(targetSection, "y").toInt()
+                                val targetX = JsonUtils.extractValue(targetSection, "x").toInt()
+                                val targetY = JsonUtils.extractValue(targetSection, "y").toInt()
                                 val nextTargetPosition = Position(targetX, targetY)
                                 
                                 waypoints.add(EditorWaypoint(position, nextTargetPosition))
@@ -225,14 +226,5 @@ object EditorJsonSerializer {
             println("Error deserializing sequence: ${e.message}")
             return null
         }
-    }
-    
-    private fun extractValue(json: String, key: String): String {
-        val pattern = "\"$key\"\\s*:\\s*\"([^\"]*)\"|\"$key\"\\s*:\\s*([0-9]+)"
-        val regex = Regex(pattern)
-        val match = regex.find(json)
-        return match?.let {
-            it.groupValues[1].ifEmpty { it.groupValues[2] }
-        } ?: ""
     }
 }
