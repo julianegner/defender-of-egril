@@ -20,7 +20,7 @@ enum class DefenderType(
     WIZARD_TOWER("Wizard Tower", baseCost = 50, baseDamage = 30, baseRange = 3, attackType = AttackType.AREA, actionsPerTurn = 1, buildTime = 2),
     ALCHEMY_TOWER("Alchemy Tower", baseCost = 40, baseDamage = 15, baseRange = 2, attackType = AttackType.LASTING, actionsPerTurn = 1, buildTime = 1),
     BALLISTA_TOWER("Ballista Tower", baseCost = 60, baseDamage = 50, baseRange = 5, attackType = AttackType.RANGED, actionsPerTurn = 1, buildTime = 2, minRange = 3),
-    DWARVEN_MINE("Mine", baseCost = 30, baseDamage = 0, baseRange = 3, attackType = AttackType.NONE, actionsPerTurn = 0, buildTime = 1, isMine = true),
+    DWARVEN_MINE("Mine", baseCost = 100, baseDamage = 0, baseRange = 3, attackType = AttackType.NONE, actionsPerTurn = 0, buildTime = 3, isMine = true),
     DRAGONS_LAIR("Dragon's Lair", baseCost = 0, baseDamage = 0, baseRange = 0, attackType = AttackType.NONE, actionsPerTurn = 0, buildTime = 0)
 }
 
