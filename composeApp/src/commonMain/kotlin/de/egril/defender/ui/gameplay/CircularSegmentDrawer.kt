@@ -48,7 +48,9 @@ object CircularSegmentDrawer {
         val dy = (centerPos.y - neighborPos.y).toFloat()
         
         // Calculate offset in pixels, accounting for row offsets
-        var offsetX = dx * hexWidth
+        // Horizontal spacing has -10dp overlap (from HexagonalMapView.kt line 292)
+        val horizontalSpacing = hexWidth - 10f
+        var offsetX = dx * horizontalSpacing
         var offsetY = dy * verticalSpacing
         
         val neighborRowOffset = if (neighborPos.y % 2 == 1) hexWidth * 0.42f else 0f
