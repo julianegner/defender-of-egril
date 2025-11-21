@@ -31,10 +31,10 @@ object EditorJsonSerializer {
     
     fun deserializeMap(json: String): EditorMap? {
         try {
-            val id = JsonUtils.JsonUtils.extractValue(json, "id")
-            val name = JsonUtils.JsonUtils.extractValue(json, "name")
-            val width = JsonUtils.JsonUtils.extractValue(json, "width").toInt()
-            val height = JsonUtils.JsonUtils.extractValue(json, "height").toInt()
+            val id = JsonUtils.extractValue(json, "id")
+            val name = JsonUtils.extractValue(json, "name")
+            val width = JsonUtils.extractValue(json, "width").toInt()
+            val height = JsonUtils.extractValue(json, "height").toInt()
             val readyToUse = try {
                 JsonUtils.extractBooleanValue(json, "readyToUse")
             } catch (e: Exception) {
