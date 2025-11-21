@@ -67,7 +67,7 @@ The package will be created in `composeApp/build/compose/binaries/main/deb/`
    ```
 
 2. The APK will be located at:
-   `composeApp/build/outputs/apk/debug/composeApp-debug.apk`
+   `composeApp/build/outputs/apk/debug/de.egril.defender-debug.apk`
 
 3. Transfer the APK to your Android device
 
