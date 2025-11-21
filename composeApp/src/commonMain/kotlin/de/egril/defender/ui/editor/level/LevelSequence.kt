@@ -87,18 +87,12 @@ fun LevelSequenceContent() {
         Text(
             text = stringResource(Res.string.level_sequence),
             style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-        
-        Text(
-            text = stringResource(Res.string.arrange_level_order),
-            style = MaterialTheme.typography.bodyMedium,
             modifier = Modifier.padding(bottom = 16.dp)
         )
         
-        // Section: Levels in Sequence
+        // Section: Levels in Sequence (with drag hint in title)
         Text(
-            text = stringResource(Res.string.levels_in_sequence),
+            text = "${stringResource(Res.string.levels_in_sequence)} (${stringResource(Res.string.drag_to_reorder)})",
             style = MaterialTheme.typography.titleSmall,
             modifier = Modifier.padding(bottom = 8.dp)
         )
@@ -281,9 +275,9 @@ fun LevelSequenceContent() {
         
         Spacer(modifier = Modifier.height(24.dp))
         
-        // Section: Available Levels
+        // Section: Available Levels (with drag hint in title)
         Text(
-            text = stringResource(Res.string.available_levels),
+            text = "${stringResource(Res.string.available_levels)} (${stringResource(Res.string.drag_to_add)})",
             style = MaterialTheme.typography.titleSmall,
             modifier = Modifier.padding(bottom = 8.dp)
         )
