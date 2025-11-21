@@ -83,6 +83,10 @@ fun HexagonalMapView(
     var containerSize by remember { mutableStateOf(IntSize.Zero) }
     var actualContentSize by remember { mutableStateOf(IntSize.Zero) }
     val focusRequester = remember { FocusRequester() }
+    
+    // Use rememberUpdatedState to avoid capturing stale offset values in gesture handlers
+    val currentOffsetX by rememberUpdatedState(offsetX)
+    val currentOffsetY by rememberUpdatedState(offsetY)
 
     // Calculate hex dimensions for pointy-top hexagons
     val sqrt3 = sqrt(3.0).toFloat()
@@ -213,9 +217,9 @@ fun HexagonalMapView(
                         
                         detectDragGestures(
                             onDragStart = {
-                                // Capture the current offset when drag starts
-                                dragStartOffsetX = offsetX
-                                dragStartOffsetY = offsetY
+                                // Capture the current offset when drag starts using rememberUpdatedState values
+                                dragStartOffsetX = currentOffsetX
+                                dragStartOffsetY = currentOffsetY
                             },
                             onDrag = { _, dragAmount ->
                                 // Apply pan directly without scale multiplication to avoid juddering
