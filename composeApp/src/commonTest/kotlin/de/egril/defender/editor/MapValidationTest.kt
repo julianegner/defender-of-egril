@@ -176,10 +176,10 @@ class MapValidationTest {
         pathCells.add(target)
         pathCells.addAll(spiralMap.getWaypoints())
         
-        // Check each spawn point individually for debugging
+        // Check each spawn point individually to provide detailed diagnostics
         val unreachableSpawns = mutableListOf<Position>()
         spawnPoints.forEach { spawn ->
-            // Use reflection or create a public test helper to check connectivity
+            // Implement BFS to check connectivity from spawn to target
             val visited = mutableSetOf(spawn)
             val queue = mutableListOf(spawn)
             var found = false
@@ -217,7 +217,6 @@ class MapValidationTest {
             
             if (!found) {
                 unreachableSpawns.add(spawn)
-                println("Spawn point $spawn has NO PATH to target $target")
             }
         }
         
