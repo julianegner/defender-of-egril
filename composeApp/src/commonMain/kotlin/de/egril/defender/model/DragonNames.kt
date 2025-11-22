@@ -45,7 +45,7 @@ object DragonNames {
         "Humblevalley", "Modestheart", "Simplefang", "Plainwing", "Basicscale",
         "Ancientone", "Elderwing", "Wisestone", "Oldguard", "Timeworn",
         "Youngblood", "Newborn", "Freshwing", "Brightfuture", "Hopespring",
-        "Eternalsoul", "Immortalspirit", "Endslesslife", "Foreverwing", "Timelessheart",
+        "Eternalsoul", "Immortalspirit", "Endlesslife", "Foreverwing", "Timelessheart",
         "Mortalfear", "Deathrattle", "Endtimes", "Finalbreath", "Lastcall",
         "Mysticseer", "Magicweaver", "Spellcaster", "Enchantedwing", "Arcanescale",
         "Holysanct", "Divinelight", "Blessedone", "Sacredflame", "Purewing"
@@ -57,6 +57,9 @@ object DragonNames {
     
     /**
      * Get the list of dragon names (from repository or defaults)
+     * Note: First access will block briefly to load from repository.
+     * This is acceptable as dragon names are only needed when spawning dragons,
+     * which happens after the game is already running.
      */
     val names: List<String>
         get() {
