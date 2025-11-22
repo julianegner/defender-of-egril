@@ -271,7 +271,7 @@ class GameEngine(private val state: GameState) {
                 type = plannedSpawn.attackerType,
                 position = mutableStateOf(spawnPos),
                 level = mutableStateOf(plannedSpawn.level),
-                currentTarget = mutableStateOf(enemyMovement.getInitialTarget())
+                currentTarget = mutableStateOf(enemyMovement.getInitialTarget(spawnPos))
             )
             state.attackers.add(attacker)
         }
@@ -732,7 +732,7 @@ class GameEngine(private val state: GameState) {
             position = mutableStateOf(spawnPos),
             currentHealth = mutableStateOf(scaledHealth),
             dragonName = if (type.isDragon) DragonNames.getRandomName() else null,
-            currentTarget = mutableStateOf(enemyMovement.getInitialTarget())
+            currentTarget = mutableStateOf(enemyMovement.getInitialTarget(spawnPos))
         )
         
         // Add to attackers list
