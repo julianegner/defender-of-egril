@@ -287,7 +287,8 @@ async function scrapeNames() {
 
     try {
         const context = await browser.newContext({
-            userAgent: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+            userAgent: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            ignoreHTTPSErrors: true
         });
         const page = await context.newPage();
         
@@ -297,10 +298,13 @@ async function scrapeNames() {
             timeout: 30000
         });
 
-        console.error('Page loaded, waiting for form...');
+        console.error('Page loaded, waiting for generator to load...');
         
-        // Wait for text inputs to be visible (the 5 name fields)
-        await page.waitForSelector('input[type="text"]', { timeout: 10000 });
+        // Wait for the generate button to be visible
+        await page.waitForSelector('.Generator_generateButton__T3RUZ', { timeout: 15000 });
+        
+        // Wait a bit for JavaScript to fully initialize
+        await page.waitForTimeout(2000);
 
         const allNames = new Set();
         let iteration = 0;
@@ -311,21 +315,16 @@ async function scrapeNames() {
             console.error(`Iteration ${iteration}/${maxIterations} - Names collected: ${allNames.size}/200`);
             
             try {
-                // Look for the generate button - try multiple selectors
-                const button = await page.locator('button').filter({ hasText: /generate names/i }).first()
-                    .or(page.locator('input[type="submit"]'))
-                    .or(page.locator('button').first());
+                // Click the generate button
+                await page.click('.Generator_generateButton__T3RUZ');
                 
-                // Click the button
-                await button.click({ timeout: 5000 });
-                
-                // Wait a bit for names to be generated
+                // Wait for names to be generated
                 await page.waitForTimeout(1500);
 
-                // Extract names from text input fields
+                // Extract names from the result text elements
                 const names = await page.evaluate(() => {
-                    const inputs = Array.from(document.querySelectorAll('input[type="text"]'));
-                    return inputs.map(input => input.value).filter(v => v && v.trim());
+                    const nameElements = Array.from(document.querySelectorAll('.Generator_resultText__6lwl4'));
+                    return nameElements.map(el => el.textContent?.trim()).filter(v => v && v.trim());
                 });
 
                 console.error(`  Found ${names.length} names in this iteration`);
