@@ -275,13 +275,13 @@ object EditorStorage {
         }
         
         // check if the waypoints of the level are valid
-        val target = map.getTarget()
-        if (target == null) {
+        val targets = map.getTargets()
+        if (targets.isEmpty()) {
             return false
         }
         
         val spawnPoints = map.getSpawnPoints()
-        val waypointValidationResult = level.validateWaypointsDetailed(targetPosition = target, spawnPoints = spawnPoints)
+        val waypointValidationResult = level.validateWaypointsDetailed(targetPositions = targets, spawnPoints = spawnPoints)
         return waypointValidationResult.isValid
     }
     

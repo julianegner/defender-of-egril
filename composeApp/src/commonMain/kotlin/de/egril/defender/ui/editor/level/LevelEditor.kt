@@ -549,13 +549,16 @@ private fun areWaypointsValid(
 ): Boolean = if (waypointsState.isEmpty()) {
     true  // No waypoints is valid
 } else {
-    currentMap?.getTarget()?.let { target ->
+    val targets = currentMap?.getTargets() ?: emptyList()
+    if (targets.isNotEmpty() && currentMap != null) {
         val spawnPoints = currentMap.getSpawnPoints()
         val tempLevel = level.copy(waypoints = waypointsState.toList())
-        val validationResult = tempLevel.validateWaypointsDetailed(target, spawnPoints)
+        val validationResult = tempLevel.validateWaypointsDetailed(targets, spawnPoints)
         // Valid if there are no circular dependencies and no unconnected waypoints
         validationResult.circularDependencies.isEmpty() && validationResult.unconnectedWaypoints.isEmpty()
-    } ?: false
+    } else {
+        false
+    }
 }
 
 /**
