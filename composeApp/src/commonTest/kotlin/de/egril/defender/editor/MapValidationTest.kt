@@ -1,6 +1,7 @@
 package de.egril.defender.editor
 
 import de.egril.defender.model.Position
+import de.egril.defender.model.getHexNeighbors
 import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
@@ -192,15 +193,8 @@ class MapValidationTest {
                     break
                 }
                 
-                // Check hex neighbors
-                val neighbors = listOf(
-                    Position(current.x + 1, current.y),
-                    Position(current.x - 1, current.y),
-                    Position(current.x, current.y + 1),
-                    Position(current.x, current.y - 1),
-                    Position(current.x + if (current.y % 2 == 0) -1 else 1, current.y + 1),
-                    Position(current.x + if (current.y % 2 == 0) -1 else 1, current.y - 1)
-                )
+                // Check hex neighbors using existing utility function
+                val neighbors = current.getHexNeighbors()
                 
                 for (neighbor in neighbors) {
                     if (neighbor == target) {
