@@ -55,7 +55,7 @@ Added `infoState: MutableState<InfoState>` to manage single tutorial infos:
 val infoState: MutableState<InfoState> = mutableStateOf(InfoState())
 ```
 
-**Note:** The `mineWarnings` SnapshotStateList is still maintained as it's used by the GameEngine to track which mines are under threat. The InfoState system reads from this list to display warnings.
+**Note:** The `mineWarnings` SnapshotStateList is maintained in GameState as it's used by the GameEngine to track which mines are under threat. The InfoState system reads from this list to display warnings.
 
 ### TutorialOverlay
 
