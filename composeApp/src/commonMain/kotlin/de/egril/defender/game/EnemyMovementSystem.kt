@@ -14,10 +14,18 @@ class EnemyMovementSystem(
 ) {
     
     /**
-     * Gets the initial target for a newly spawned attacker.
-     * Returns the first waypoint if waypoints exist, otherwise the final target.
+     * Gets the initial target for a newly spawned attacker based on spawn position.
+     * If the spawn position has a waypoint, returns the next target from that waypoint.
+     * Otherwise, returns the first waypoint position if waypoints exist, or the final target.
      */
-    fun getInitialTarget(): Position {
+    fun getInitialTarget(spawnPosition: Position): Position {
+        // Check if spawn position itself is a waypoint with a next target
+        val waypointAtSpawn = state.level.getWaypointAt(spawnPosition)
+        if (waypointAtSpawn != null) {
+            return waypointAtSpawn.nextTarget
+        }
+        
+        // Otherwise use first waypoint if exists, or default target
         return if (state.level.waypoints.isNotEmpty()) {
             state.level.waypoints.first().position
         } else {
@@ -74,7 +82,7 @@ class EnemyMovementSystem(
                 type = plannedSpawn.attackerType,
                 position = mutableStateOf(spawnPos),
                 level = mutableStateOf(plannedSpawn.level),
-                currentTarget = mutableStateOf(getInitialTarget())
+                currentTarget = mutableStateOf(getInitialTarget(spawnPos))
             )
             state.attackers.add(attacker)
         }
