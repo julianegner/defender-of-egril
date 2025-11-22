@@ -25,42 +25,12 @@ fun TutorialOverlay(
     onNext: () -> Unit,
     onSkip: () -> Unit,
     currentInfo: InfoType = InfoType.NONE,
-    onDismissInfo: (() -> Unit)? = null,
-    // Legacy parameters - kept for backward compatibility but not recommended for new code
-    showDragonInfo: Boolean = false,
-    onDismissDragonInfo: (() -> Unit)? = null,
-    showGreedInfo: Boolean = false,
-    onDismissGreedInfo: (() -> Unit)? = null,
-    showVeryGreedyInfo: Boolean = false,
-    onDismissVeryGreedyInfo: (() -> Unit)? = null,
-    showMineWarning: Boolean = false,
-    onDismissMineWarning: (() -> Unit)? = null
+    onDismissInfo: (() -> Unit)? = null
 ) {
     // Priority: Single info > Tutorial
-    // Handle new unified info system
+    // Handle unified info system
     if (currentInfo != InfoType.NONE) {
         InfoContent(infoType = currentInfo, onDismiss = onDismissInfo ?: {})
-        return
-    }
-    
-    // Handle deprecated boolean flags for backward compatibility
-    if (showDragonInfo) {
-        InfoContent(infoType = InfoType.DRAGON_INFO, onDismiss = onDismissDragonInfo ?: {})
-        return
-    }
-    
-    if (showGreedInfo) {
-        InfoContent(infoType = InfoType.GREED_INFO, onDismiss = onDismissGreedInfo ?: {})
-        return
-    }
-    
-    if (showVeryGreedyInfo) {
-        InfoContent(infoType = InfoType.VERY_GREEDY_INFO, onDismiss = onDismissVeryGreedyInfo ?: {})
-        return
-    }
-    
-    if (showMineWarning) {
-        InfoContent(infoType = InfoType.MINE_WARNING, onDismiss = onDismissMineWarning ?: {})
         return
     }
     

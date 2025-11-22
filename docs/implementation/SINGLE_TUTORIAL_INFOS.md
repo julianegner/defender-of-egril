@@ -55,28 +55,19 @@ Added `infoState: MutableState<InfoState>` to manage single tutorial infos:
 val infoState: MutableState<InfoState> = mutableStateOf(InfoState())
 ```
 
-**Legacy Fields (Maintained for Backward Compatibility):**
-- `hasSeenDragonInfo`
-- `hasSeenGreedInfo`
-- `hasSeenVeryGreedyInfo`
-- `mineWarnings` (SnapshotStateList)
-
-These legacy fields remain functional but new code should use `infoState` instead.
+**Note:** The `mineWarnings` SnapshotStateList is still maintained as it's used by the GameEngine to track which mines are under threat. The InfoState system reads from this list to display warnings.
 
 ### TutorialOverlay
 
 Updated to support both sequential tutorials and single infos:
 
-**New Parameters:**
+**Parameters:**
 - `currentInfo: InfoType = InfoType.NONE`
 - `onDismissInfo: (() -> Unit)? = null`
 
 **Priority System:**
 1. Single info (if currentInfo != NONE)
 2. Sequential tutorial (if currentStep != NONE)
-
-**Backward Compatibility:**
-Legacy boolean parameters (showDragonInfo, showGreedInfo, etc.) are maintained for backward compatibility but map to the unified InfoContent composable internally.
 
 ### GamePlayScreen
 
@@ -226,11 +217,6 @@ Comprehensive test coverage in `InfoStateTest.kt`:
 - Prevents re-showing seen infos
 - Priority system ensures important infos shown first
 
-### Backward Compatibility
-- Legacy fields and parameters maintained
-- Gradual migration path
-- No breaking changes to existing code
-
 ## Future Enhancements
 
 ### Potential Additions
@@ -239,12 +225,6 @@ Comprehensive test coverage in `InfoStateTest.kt`:
 - Info queuing for multiple simultaneous triggers
 - Persistent storage of seen infos across sessions
 - Analytics tracking for info effectiveness
-
-### Migration Path
-1. Current: Legacy fields working alongside InfoState
-2. Phase 1: Update all internal code to use InfoState
-3. Phase 2: Deprecate legacy fields in documentation
-4. Phase 3: Remove legacy fields (major version bump)
 
 ## Related Files
 
