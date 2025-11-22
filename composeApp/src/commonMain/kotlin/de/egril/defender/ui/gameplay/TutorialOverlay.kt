@@ -28,7 +28,7 @@ fun TutorialOverlay(
     onDismissInfo: (() -> Unit)? = null
 ) {
     // Priority: Single info > Tutorial
-    // Handle unified info system
+    // Handle info system
     if (currentInfo != InfoType.NONE) {
         InfoContent(infoType = currentInfo, onDismiss = onDismissInfo ?: {})
         return
