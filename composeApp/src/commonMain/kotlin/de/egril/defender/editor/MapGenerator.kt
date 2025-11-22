@@ -349,12 +349,13 @@ object MapGenerator {
         }
         
         // Generate spiral decoration points that connect to the main paths
+        // These add visual interest and provide alternative paths, but are not required for connectivity
         val spiralPoints = mutableListOf<Position>()
         
         // Start from outer edge and spiral inward
         var currentRadius = (size / 2) - 2
         
-        // Create spiral layers moving inward
+        // Create spiral layers moving inward - these will intersect with the guaranteed corner-to-center paths
         while (currentRadius > 0) {
             // Get points at this radius distance from center
             for (x in 0 until size) {
@@ -369,6 +370,7 @@ object MapGenerator {
                         val angleDegrees = (angle * 180 / kotlin.math.PI).toInt()
                         
                         // Create spiral effect by only including certain angles
+                        // This creates a spiral pattern that will naturally intersect with the guaranteed paths
                         if ((angleDegrees + currentRadius * 30) % 120 < 60) {
                             spiralPoints.add(pos)
                         }
