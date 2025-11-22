@@ -66,14 +66,14 @@ fun WaypointsTab(
     var showRemoveAllDialog by remember { mutableStateOf(false) }
     var showTreeView by remember { mutableStateOf(true) }  // Default to tree view
 
-    // Get waypoint tiles, spawn points, and target from the map
+    // Get waypoint tiles, spawn points, and targets from the map
     val waypointTiles = remember(map) { map?.getWaypoints() ?: emptyList() }
     val spawnPoints = remember(map) { map?.getSpawnPoints() ?: emptyList() }
-    val target = remember(map) { map?.getTarget() }
+    val targets = remember(map) { map?.getTargets() ?: emptyList() }
 
     // Perform detailed validation
-    val validationResult = remember(waypoints, target, spawnPoints) {
-        if (target != null) {
+    val validationResult = remember(waypoints, targets, spawnPoints) {
+        if (targets.isNotEmpty()) {
             // Create a temporary EditorLevel to use validation
             val tempLevel = EditorLevel(
                 id = "temp",
@@ -85,7 +85,7 @@ fun WaypointsTab(
                 availableTowers = emptySet(),
                 waypoints = waypoints.toList()
             )
-            tempLevel.validateWaypointsDetailed(target, spawnPoints)
+            tempLevel.validateWaypointsDetailed(targets, spawnPoints)
         } else {
             WaypointValidationResult(isValid = true)
         }
@@ -294,7 +294,7 @@ fun WaypointsTab(
                     waypoint = waypoint,
                     spawnPoints = spawnPoints,
                     waypointTiles = waypointTiles,
-                    target = target,
+                    targets = targets,
                     isInCircular = validationResult.circularDependencies.contains(waypoint.position) ||
                             validationResult.circularDependencies.contains(waypoint.nextTargetPosition),
                     isUnconnected = validationResult.unconnectedWaypoints.contains(waypoint.position) ||
@@ -313,7 +313,7 @@ fun WaypointsTab(
         AddWaypointDialog(
             waypointTiles = waypointTiles,
             spawnPoints = spawnPoints,
-            target = target,
+            targets = targets,
             existingWaypoints = waypoints,
             onDismiss = { showAddDialog = false },
             onAdd = { source, targetPos ->

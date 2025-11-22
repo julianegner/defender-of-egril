@@ -42,12 +42,15 @@ data class EditorMap(
     }
     
     fun getTarget(): Position? {
+        return getTargets().firstOrNull()
+    }
+    
+    fun getTargets(): List<Position> {
         return tiles.filter { it.value == TileType.TARGET }
             .map { 
                 val parts = it.key.split(",")
                 Position(parts[0].toInt(), parts[1].toInt())
             }
-            .firstOrNull()
     }
     
     fun getPathCells(): Set<Position> {
@@ -89,25 +92,27 @@ data class EditorMap(
      * Validates if map is ready to use:
      * - Has at least one spawn point
      * - Has at least one target
-     * - Has a continuous path from spawn to target
+     * - Has a continuous path from spawn to at least one target
      */
     fun validateReadyToUse(): Boolean {
         val spawnPoints = getSpawnPoints()
-        val target = getTarget()
+        val targets = getTargets()
         val pathCells = getPathCells()
         
         if (spawnPoints.isEmpty()) return false
-        if (target == null) return false
+        if (targets.isEmpty()) return false
         
-        // Build set of traversable cells (spawn points + path cells + target + waypoints)
+        // Build set of traversable cells (spawn points + path cells + all targets + waypoints)
         val traversableCells = pathCells.toMutableSet()
         traversableCells.addAll(spawnPoints)
-        traversableCells.add(target)
+        traversableCells.addAll(targets)
         traversableCells.addAll(getWaypoints())  // Waypoints are also traversable
         
-        // Check if there's a path from any spawn point to target using BFS
+        // Check if there's a path from any spawn point to any target using BFS
         return spawnPoints.any { spawn ->
-            hasPathBFS(spawn, target, traversableCells)
+            targets.any { target ->
+                hasPathBFS(spawn, target, traversableCells)
+            }
         }
     }
     
@@ -218,27 +223,29 @@ data class EditorLevel(
     }
     
     /**
-     * Validates that all waypoints form valid chains that eventually lead to the target.
-     * This ensures enemies following waypoints will reach the target.
-     * @param targetPosition The final target position from the map
+     * Validates that all waypoints form valid chains that eventually lead to a target.
+     * This ensures enemies following waypoints will reach one of the targets.
+     * @param targetPositions List of valid target positions from the map
      * @return true if waypoints are valid (or if there are no waypoints)
      */
-    fun validateWaypoints(targetPosition: Position): Boolean {
+    fun validateWaypoints(targetPositions: List<Position>): Boolean {
         if (waypoints.isEmpty()) return true  // No waypoints is valid
+        if (targetPositions.isEmpty()) return false  // No targets is invalid
         
         // Build a map of waypoint position to next target
         val waypointMap = waypoints.associateBy { it.position }
         val waypointPositions = waypointMap.keys
+        val targetSet = targetPositions.toSet()
         
-        // Check each waypoint can eventually reach the target
+        // Check each waypoint can eventually reach a target
         return waypoints.all { waypoint ->
             val visited = mutableSetOf<Position>()
             var current = waypoint.nextTargetPosition
             
-            // Follow the chain until we reach the target or detect a loop
-            while (current != targetPosition) {
+            // Follow the chain until we reach a target or detect a loop
+            while (current !in targetSet) {
                 if (current in visited) {
-                    // Loop detected - this waypoint will never reach target
+                    // Loop detected - this waypoint will never reach a target
                     return@all false
                 }
                 visited.add(current)
@@ -247,11 +254,11 @@ data class EditorLevel(
                 val nextWaypoint = waypointMap[current]
                 if (nextWaypoint != null) {
                     current = nextWaypoint.nextTargetPosition
-                } else if (current == targetPosition) {
-                    // Reached target
+                } else if (current in targetSet) {
+                    // Reached a target
                     break
                 } else {
-                    // Current is not a waypoint and not the target - assume it's valid (enemies will path there)
+                    // Current is not a waypoint and not a target - assume it's valid (enemies will path there)
                     // This allows waypoints to point to intermediate positions
                     break
                 }
@@ -263,22 +270,27 @@ data class EditorLevel(
     
     /**
      * Performs detailed waypoint validation and returns comprehensive results.
-     * @param targetPosition The final target position from the map
+     * @param targetPositions List of valid target positions from the map
      * @param spawnPoints List of spawn points from the map
      * @return WaypointValidationResult with detailed validation information
      */
     fun validateWaypointsDetailed(
-        targetPosition: Position,
+        targetPositions: List<Position>,
         spawnPoints: List<Position>
     ): WaypointValidationResult {
         if (waypoints.isEmpty()) {
             return WaypointValidationResult(isValid = true)
         }
         
+        if (targetPositions.isEmpty()) {
+            return WaypointValidationResult(isValid = false)
+        }
+        
         val waypointMap = waypoints.associateBy { it.position }
         val waypointPositions = waypointMap.keys
         val circularDeps = mutableSetOf<Position>()
         val chains = mutableListOf<WaypointChain>()
+        val targetSet = targetPositions.toSet()
         
         // Find waypoints that are sources (have a next target) but not targets (no incoming)
         val targetsSet = waypoints.map { it.nextTargetPosition }.toSet()
@@ -296,9 +308,9 @@ data class EditorLevel(
             }
         }
         
-        // Find waypoints without outgoing connections (except if they point to target)
+        // Find waypoints without outgoing connections (except if they point to a target)
         targetsSet.forEach { pos ->
-            if (pos !in sourcesSet && pos != targetPosition) {
+            if (pos !in sourcesSet && pos !in targetSet) {
                 unconnectedPositions.add(pos)
             }
         }
@@ -311,15 +323,15 @@ data class EditorLevel(
             val visited = mutableSetOf<Position>()
             var current = start
             var hasCircular = false
-            var reachedTarget = false
+            var reachedTarget: Position? = null
             
             // Follow the chain
             while (true) {
                 val waypoint = waypointMap[current]
                 if (waypoint == null) {
-                    // Not a waypoint - check if it's the target
-                    if (current == targetPosition) {
-                        reachedTarget = true
+                    // Not a waypoint - check if it's a target
+                    if (current in targetSet) {
+                        reachedTarget = current
                     }
                     break
                 }
@@ -342,8 +354,8 @@ data class EditorLevel(
                 chain.add(current)
                 current = waypoint.nextTargetPosition
                 
-                if (current == targetPosition) {
-                    reachedTarget = true
+                if (current in targetSet) {
+                    reachedTarget = current
                     break
                 }
             }
@@ -354,7 +366,7 @@ data class EditorLevel(
                     WaypointChain(
                         startPosition = start,
                         positions = chain,
-                        endPosition = if (reachedTarget) targetPosition else current,
+                        endPosition = reachedTarget ?: current,
                         hasCircularDependency = hasCircular
                     )
                 )

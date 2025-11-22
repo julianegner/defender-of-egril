@@ -58,7 +58,7 @@ fun QuickAddWaypointDialog(
 ) {
     val waypointTiles = remember(map) { map?.getWaypoints() ?: emptyList() }
     val spawnPoints = remember(map) { map?.getSpawnPoints() ?: emptyList() }
-    val target = remember(map) { map?.getTarget() }
+    val targets = remember(map) { map?.getTargets() ?: emptyList() }
 
     var selectedSource by remember { mutableStateOf<Position?>(null) }
     selectedSource = preselectedSource
@@ -81,22 +81,21 @@ fun QuickAddWaypointDialog(
         filtered.sortedWith(compareBy({ it.y }, { it.x }))
     }
 
-    val validTargets = remember(waypointTiles, target) {
-        val targets = waypointTiles.toMutableList()
-        if (target != null) targets.add(target)
-        targets.distinct().sortedWith(compareBy({ it.y }, { it.x }))
+    val validTargets = remember(waypointTiles, targets) {
+        (waypointTiles + targets).distinct().sortedWith(compareBy({ it.y }, { it.x }))
     }
 
     // Build map of positions that are already connected to targets
-    val connectedToTarget = remember(existingWaypoints, target) {
+    val connectedToTarget = remember(existingWaypoints, targets) {
         val connected = mutableSetOf<Position>()
+        val targetSet = targets.toSet()
 
         // Build a map for quick lookup
         val waypointMap = existingWaypoints.associateBy { it.position }
 
-        // For each position, check if it eventually leads to target
+        // For each position, check if it eventually leads to a target
         fun leadsToTarget(pos: Position, visited: MutableSet<Position> = mutableSetOf()): Boolean {
-            if (pos == target) return true
+            if (pos in targetSet) return true
             if (pos in visited) return false // Circular reference
             visited.add(pos)
 
@@ -105,7 +104,7 @@ fun QuickAddWaypointDialog(
         }
 
         for (pos in validTargets) {
-            if (pos == target || leadsToTarget(pos)) {
+            if (pos in targetSet || leadsToTarget(pos)) {
                 connected.add(pos)
             }
         }
@@ -230,7 +229,7 @@ fun QuickAddWaypointDialog(
                         modifier = Modifier.Companion.fillMaxWidth()
                     ) {
                         items(validTargets) { pos ->
-                            val isTarget = target == pos
+                            val isTarget = targets.contains(pos)
                             val isConnectedToTarget = connectedToTarget.contains(pos)
                             FilterChip(
                                 selected = selectedTarget == pos,

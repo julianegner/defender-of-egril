@@ -38,7 +38,7 @@ fun WaypointConnectionCard(
     waypoint: EditorWaypoint,
     spawnPoints: List<Position>,
     waypointTiles: List<Position>,
-    target: Position?,
+    targets: List<Position>,
     isInCircular: Boolean,
     isUnconnected: Boolean,
     onDelete: () -> Unit
@@ -117,7 +117,7 @@ fun WaypointConnectionCard(
                     }
                 }
 
-                if (target == waypoint.nextTargetPosition) {
+                if (targets.contains(waypoint.nextTargetPosition)) {
                     Text(
                         text = stringResource(Res.string.target_text),
                         style = MaterialTheme.typography.labelSmall,
