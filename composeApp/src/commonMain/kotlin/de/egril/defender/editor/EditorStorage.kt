@@ -338,11 +338,10 @@ object EditorStorage {
         }
         println("Converted to ${waves.size} attacker waves for compatibility.")
 
-        // For gameplay, we use the first target position
-        // (Editor supports multiple targets for waypoint configuration,
-        // but during gameplay enemies path to a single target)
-        val target = map.getTarget() ?: return null
-        println("Target position: $target")
+        // Get all target positions from the map
+        val targets = map.getTargets()
+        if (targets.isEmpty()) return null
+        println("Target positions: $targets")
         
         // Convert editor waypoints to game waypoints
         val gameWaypoints = editorLevel.waypoints.map { editorWaypoint ->
@@ -366,7 +365,7 @@ object EditorStorage {
             gridWidth = map.width,
             gridHeight = map.height,
             startPositions = map.getSpawnPoints(),
-            targetPosition = target,
+            targetPositions = targets,
             pathCells = pathCellsWithWaypoints,
             buildIslands = map.getBuildIslands(),
             buildAreas = map.getBuildAreas(),
