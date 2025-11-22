@@ -87,7 +87,7 @@ TROLL("Troll", health = 100, speed = 1, reward = 25)
 CATAPULT("Catapult", baseCost = 60, baseDamage = 40, baseRange = 4, attackType = AttackType.AOE)
 ```
 
-#### Adding a New Level
+#### Adding a New Level (Code Method - Legacy)
 
 Add to `LevelData.createLevels()`:
 
@@ -105,6 +105,21 @@ private fun createLevel6() = Level(
     healthPoints = 5
 )
 ```
+
+#### Adding a New Level (Repository Method - Recommended)
+
+1. Create levels using the desktop Level Editor
+2. Copy JSON files from `~/.defender-of-egril/editor/` to repository:
+   ```
+   composeApp/src/commonMain/composeResources/files/repository/
+   ├── maps/your_map.json
+   ├── levels/your_level.json
+   └── sequence.json
+   ```
+3. Rebuild the app - repository files will be deployed to all platforms
+
+On first launch, the app checks for repository files and uses them instead of generating defaults. See `docs/guides/LEVEL_EDITOR.md` for details.
+
 
 ### Game Balance
 
