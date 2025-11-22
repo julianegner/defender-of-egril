@@ -266,14 +266,16 @@ class GameEngine(private val state: GameState) {
                 }
             }
             
+            val initialTarget = enemyMovement.getInitialTarget(spawnPos)
             val attacker = Attacker(
                 id = state.nextAttackerId.value++,
                 type = plannedSpawn.attackerType,
                 position = mutableStateOf(spawnPos),
                 level = mutableStateOf(plannedSpawn.level),
-                currentTarget = mutableStateOf(enemyMovement.getInitialTarget(spawnPos))
+                currentTarget = mutableStateOf(initialTarget)
             )
             state.attackers.add(attacker)
+            println("Spawned attacker ${attacker.id} at $spawnPos with initial target: $initialTarget")
         }
 
         // Move goblins immediately after initial spawning (this is not during enemy turn)
