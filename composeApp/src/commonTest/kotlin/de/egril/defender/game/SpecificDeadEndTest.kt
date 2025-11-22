@@ -43,7 +43,7 @@ class SpecificDeadEndTest {
             gridWidth = 10,
             gridHeight = 6,
             startPositions = listOf(Position(0, 0)),  // Spawn in dead end
-            targetPosition = Position(9, 2),
+            targetPositions = listOf(Position(9, 2)),
             pathCells = pathCells,
             buildIslands = emptySet(),
             attackerWaves = listOf(
@@ -139,7 +139,7 @@ class SpecificDeadEndTest {
             gridWidth = 10,
             gridHeight = 6,
             startPositions = listOf(Position(0, 0)),
-            targetPosition = Position(9, 2),
+            targetPositions = listOf(Position(9, 2)),
             pathCells = pathCells,
             buildIslands = emptySet(),
             attackerWaves = listOf(

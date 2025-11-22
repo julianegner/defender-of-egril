@@ -26,7 +26,7 @@ class TargetEntryTest {
             gridWidth = 10,
             gridHeight = 6,
             startPositions = listOf(Position(0, 2)),
-            targetPosition = Position(9, 2),
+            targetPositions = listOf(Position(9, 2)),
             pathCells = pathCells,
             buildIslands = emptySet(),
             attackerWaves = listOf(

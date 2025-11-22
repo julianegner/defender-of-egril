@@ -44,7 +44,7 @@ class DeadEndPathfindingTest {
             gridWidth = 10,
             gridHeight = 6,
             startPositions = listOf(Position(0, 0)),
-            targetPosition = Position(9, 2),
+            targetPositions = listOf(Position(9, 2)),
             pathCells = pathCells,
             buildIslands = emptySet(),
             attackerWaves = listOf(

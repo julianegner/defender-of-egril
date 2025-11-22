@@ -24,7 +24,7 @@ class PathfindingTest {
             gridWidth = 10,
             gridHeight = 6,
             startPositions = listOf(Position(0, 0)),
-            targetPosition = Position(9, 0),
+            targetPositions = listOf(Position(9, 0)),
             pathCells = (0..9).map { x -> Position(x, 0) }.toSet(),
             buildIslands = emptySet(),
             attackerWaves = listOf(
@@ -102,7 +102,7 @@ class PathfindingTest {
             gridWidth = 10,
             gridHeight = 6,
             startPositions = listOf(Position(0, 2)),
-            targetPosition = Position(9, 2),
+            targetPositions = listOf(Position(9, 2)),
             pathCells = pathCells,
             buildIslands = emptySet(),
             attackerWaves = listOf(
@@ -167,7 +167,7 @@ class PathfindingTest {
             gridWidth = 10,
             gridHeight = 6,
             startPositions = listOf(Position(0, 2)),
-            targetPosition = Position(9, 2),
+            targetPositions = listOf(Position(9, 2)),
             pathCells = (0..9).flatMap { x ->
                 listOf(Position(x, 1), Position(x, 2), Position(x, 3))
             }.toSet(),
