@@ -227,7 +227,7 @@ fun GridCell(
     val isDarkMode = de.egril.defender.ui.settings.AppSettings.isDarkMode.value
     
     val isSpawnPoint = gameState.level.isSpawnPoint(position)
-    val isTarget = position == gameState.level.targetPosition
+    val isTarget = gameState.level.isTargetPosition(position)
     val isOnPath = gameState.level.isOnPath(position)
     val isBuildIsland = gameState.level.isBuildIsland(position)
     val isBuildArea = gameState.level.isBuildArea(position)
