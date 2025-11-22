@@ -92,7 +92,7 @@ data class EditorMap(
      * Validates if map is ready to use:
      * - Has at least one spawn point
      * - Has at least one target
-     * - Has a continuous path from spawn to at least one target
+     * - ALL spawn points have a continuous path at least one target
      */
     fun validateReadyToUse(): Boolean {
         val spawnPoints = getSpawnPoints()
@@ -108,9 +108,9 @@ data class EditorMap(
         traversableCells.addAll(targets)
         traversableCells.addAll(getWaypoints())  // Waypoints are also traversable
         
-        // Check if there's a path from any spawn point to any target using BFS
-        return spawnPoints.any { spawn ->
-            targets.any { target ->
+        // Check if there's a path from all spawn points to any target using BFS
+        return spawnPoints.all{ spawn ->
+            targets.any{ target ->
                 hasPathBFS(spawn, target, traversableCells)
             }
         }

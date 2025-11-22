@@ -50,9 +50,7 @@ data class GameState(
             TutorialState(isActive = false, currentStep = TutorialStep.NONE)
         }
     ),
-    val hasSeenDragonInfo: MutableState<Boolean> = mutableStateOf(false),  // Track if dragon tutorial has been shown
-    val hasSeenGreedInfo: MutableState<Boolean> = mutableStateOf(false),  // Track if greed tutorial has been shown (greed > 0)
-    val hasSeenVeryGreedyInfo: MutableState<Boolean> = mutableStateOf(false),  // Track if very greedy tutorial has been shown (greed > 5)
+    val infoState: MutableState<InfoState> = mutableStateOf(InfoState()),  // Single tutorial infos system
     val destroyedMinePositions: SnapshotStateList<Position> = mutableStateListOf(),  // Positions where mines have been destroyed
     val mineWarnings: SnapshotStateList<Int> = mutableStateListOf()  // Mine IDs with active warnings (dragon about to destroy)
 ) {
