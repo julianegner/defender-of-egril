@@ -340,12 +340,19 @@ object MapGenerator {
             Position(size - 1, size - 1)
         )
         
-        // Generate a single unified spiral that connects all corners to center
+        val centerPos = Position(center, center)
+        
+        // First, create direct paths from each corner to the center
+        // This ensures all spawn points are connected
+        corners.forEach { corner ->
+            path.addAll(createPathBetween(corner, centerPos, size))
+        }
+        
+        // Generate spiral decoration points that connect to the main paths
         val spiralPoints = mutableListOf<Position>()
         
         // Start from outer edge and spiral inward
         var currentRadius = (size / 2) - 2
-        val centerPos = Position(center, center)
         
         // Create spiral layers moving inward
         while (currentRadius > 0) {
@@ -371,17 +378,7 @@ object MapGenerator {
             currentRadius -= 2
         }
         
-        // Connect corners to the spiral
-        corners.forEach { corner ->
-            // Find the nearest spiral point to this corner
-            val nearestSpiral = spiralPoints.minByOrNull { it.hexDistanceTo(corner) }
-            if (nearestSpiral != null) {
-                // Create a path from corner to nearest spiral point
-                path.addAll(createPathBetween(corner, nearestSpiral, size))
-            }
-        }
-        
-        // Add all spiral points
+        // Add spiral points to the path
         path.addAll(spiralPoints)
         
         // Ensure center is connected
