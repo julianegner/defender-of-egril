@@ -229,4 +229,37 @@ class MapValidationTest {
                 "Spiral map with disconnected spawn points should not be ready. Unreachable: $unreachableSpawns")
         }
     }
+    
+    @Test
+    fun testMapWithWaypointsButDisconnectedSpawnIsInvalid() {
+        // Create a map where waypoints exist but one spawn point cannot reach them
+        val tiles = mutableMapOf<String, TileType>()
+        
+        // 15x15 map with spawn points in corners and target in center
+        tiles["0,0"] = TileType.SPAWN_POINT   // Connected via waypoint
+        tiles["14,0"] = TileType.SPAWN_POINT  // NOT connected (isolated)
+        tiles["7,7"] = TileType.TARGET
+        
+        // Waypoint in the middle left area
+        tiles["3,7"] = TileType.WAYPOINT
+        
+        // Create path from top-left corner to waypoint to center
+        for (i in 0..7) {
+            tiles["$i,7"] = TileType.PATH
+        }
+        
+        // Note: Top-right corner (14,0) has NO path to the waypoint or target
+        
+        val map = EditorMap(
+            id = "test_waypoint_disconnected",
+            name = "Test Waypoint with Disconnected Spawn",
+            width = 15,
+            height = 15,
+            tiles = tiles,
+            readyToUse = false
+        )
+        
+        assertFalse(map.validateReadyToUse(), 
+            "Map with waypoint but disconnected spawn point should be invalid")
+    }
 }
