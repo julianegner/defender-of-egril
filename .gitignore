@@ -52,3 +52,9 @@ yarn.lock
 # UI Test Screenshots (regenerated during test runs)
 test-screenshots/*.png
 test-screenshots/*.jpg
+
+# Scripts directory - generated files
+scripts/node_modules/
+scripts/package-lock.json
+scripts/.scraper_temp.js
+scripts/package.json
