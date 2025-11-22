@@ -65,6 +65,38 @@ object RepositoryLoader {
     }
     
     /**
+     * Load dragon names from repository
+     */
+    suspend fun loadDragonNames(): List<String>? {
+        return try {
+            val bytes = Res.readBytes("files/repository/dragon_names.json")
+            val json = bytes.decodeToString()
+            parseDragonNames(json)
+        } catch (e: Exception) {
+            println("Could not load dragon names from repository: ${e.message}")
+            null
+        }
+    }
+    
+    /**
+     * Parse dragon names from JSON
+     */
+    private fun parseDragonNames(json: String): List<String>? {
+        return try {
+            // Extract the names array from JSON
+            val namesSection = json.substringAfter("\"names\": [").substringBefore("]")
+            val names = namesSection.split(",")
+                .map { it.trim().removeSurrounding("\"") }
+                .filter { it.isNotBlank() }
+            
+            if (names.isEmpty()) null else names
+        } catch (e: Exception) {
+            println("Error parsing dragon names: ${e.message}")
+            null
+        }
+    }
+    
+    /**
      * Load all repository files and save them to file storage
      * @return true if repository files were successfully loaded and saved
      */
