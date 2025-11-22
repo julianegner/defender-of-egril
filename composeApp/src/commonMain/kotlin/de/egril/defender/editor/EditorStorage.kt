@@ -338,6 +338,9 @@ object EditorStorage {
         }
         println("Converted to ${waves.size} attacker waves for compatibility.")
 
+        // For gameplay, we use the first target position
+        // (Editor supports multiple targets for waypoint configuration,
+        // but during gameplay enemies path to a single target)
         val target = map.getTarget() ?: return null
         println("Target position: $target")
         
