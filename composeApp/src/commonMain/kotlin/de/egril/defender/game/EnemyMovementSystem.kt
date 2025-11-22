@@ -19,18 +19,25 @@ class EnemyMovementSystem(
      * Otherwise, returns the first waypoint position if waypoints exist, or the final target.
      */
     fun getInitialTarget(spawnPosition: Position): Position {
+        println("=== GET INITIAL TARGET ===")
+        println("Spawn position: $spawnPosition")
+        println("Total waypoints in level: ${state.level.waypoints.size}")
+        
         // Check if spawn position itself is a waypoint with a next target
         val waypointAtSpawn = state.level.getWaypointAt(spawnPosition)
         if (waypointAtSpawn != null) {
+            println("Found waypoint at spawn position: $spawnPosition -> ${waypointAtSpawn.nextTarget}")
             return waypointAtSpawn.nextTarget
         }
         
         // Otherwise use first waypoint if exists, or default target
-        return if (state.level.waypoints.isNotEmpty()) {
+        val initialTarget = if (state.level.waypoints.isNotEmpty()) {
             state.level.waypoints.first().position
         } else {
             state.level.targetPosition
         }
+        println("No waypoint at spawn, using initial target: $initialTarget")
+        return initialTarget
     }
     
     fun loadNextWave() {
