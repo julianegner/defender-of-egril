@@ -20,16 +20,16 @@ class WaypointValidationTest {
             waypoints = emptyList()
         )
         
-        val target = Position(20, 20)
-        assertTrue(level.validateWaypoints(target), "Level with no waypoints should be valid")
+        val targets = listOf(Position(20, 20))
+        assertTrue(level.validateWaypoints(targets), "Level with no waypoints should be valid")
     }
     
     @Test
     fun testSingleWaypointToTarget() {
-        val target = Position(20, 20)
+        val targets = listOf(Position(20, 20))
         val waypoint = EditorWaypoint(
             position = Position(10, 10),
-            nextTargetPosition = target
+            nextTargetPosition = targets[0]
         )
         
         val level = EditorLevel(
@@ -43,12 +43,12 @@ class WaypointValidationTest {
             waypoints = listOf(waypoint)
         )
         
-        assertTrue(level.validateWaypoints(target), "Waypoint directly to target should be valid")
+        assertTrue(level.validateWaypoints(targets), "Waypoint directly to target should be valid")
     }
     
     @Test
     fun testChainedWaypointsToTarget() {
-        val target = Position(20, 20)
+        val targets = listOf(Position(20, 20))
         val waypoint1 = EditorWaypoint(
             position = Position(5, 5),
             nextTargetPosition = Position(10, 10)
@@ -59,7 +59,7 @@ class WaypointValidationTest {
         )
         val waypoint3 = EditorWaypoint(
             position = Position(15, 15),
-            nextTargetPosition = target
+            nextTargetPosition = targets[0]
         )
         
         val level = EditorLevel(
@@ -73,12 +73,12 @@ class WaypointValidationTest {
             waypoints = listOf(waypoint1, waypoint2, waypoint3)
         )
         
-        assertTrue(level.validateWaypoints(target), "Chained waypoints to target should be valid")
+        assertTrue(level.validateWaypoints(targets), "Chained waypoints to target should be valid")
     }
     
     @Test
     fun testWaypointLoopIsInvalid() {
-        val target = Position(20, 20)
+        val targets = listOf(Position(20, 20))
         val waypoint1 = EditorWaypoint(
             position = Position(5, 5),
             nextTargetPosition = Position(10, 10)
@@ -99,12 +99,12 @@ class WaypointValidationTest {
             waypoints = listOf(waypoint1, waypoint2)
         )
         
-        assertFalse(level.validateWaypoints(target), "Waypoint loop should be invalid")
+        assertFalse(level.validateWaypoints(targets), "Waypoint loop should be invalid")
     }
     
     @Test
     fun testWaypointToIntermediatePositionIsValid() {
-        val target = Position(20, 20)
+        val targets = listOf(Position(20, 20))
         val waypoint = EditorWaypoint(
             position = Position(10, 10),
             nextTargetPosition = Position(15, 15)  // Not a waypoint, not the target - just a position
@@ -122,7 +122,7 @@ class WaypointValidationTest {
         )
         
         assertTrue(
-            level.validateWaypoints(target), 
+            level.validateWaypoints(targets), 
             "Waypoint to intermediate position should be valid (enemies will pathfind from there)"
         )
     }
@@ -183,7 +183,7 @@ class WaypointValidationTest {
         )
         
         assertTrue(
-            level.validateWaypoints(danceCenter),
+            level.validateWaypoints(listOf(danceCenter)),
             "Dance level waypoints should form valid chains to target (outer -> middle -> inner -> center)"
         )
     }
@@ -201,9 +201,9 @@ class WaypointValidationTest {
             waypoints = emptyList()
         )
         
-        val target = Position(20, 20)
+        val targets = listOf(Position(20, 20))
         val spawnPoints = listOf(Position(5, 5))
-        val result = level.validateWaypointsDetailed(target, spawnPoints)
+        val result = level.validateWaypointsDetailed(targets, spawnPoints)
         
         assertTrue(result.isValid, "No waypoints should be valid")
         assertTrue(result.circularDependencies.isEmpty(), "No circular dependencies expected")
@@ -212,7 +212,7 @@ class WaypointValidationTest {
     
     @Test
     fun testDetailedValidationCircularDependency() {
-        val target = Position(20, 20)
+        val targets = listOf(Position(20, 20))
         val waypoint1 = EditorWaypoint(
             position = Position(5, 5),
             nextTargetPosition = Position(10, 10)
@@ -234,7 +234,7 @@ class WaypointValidationTest {
         )
         
         val spawnPoints = listOf(Position(0, 0))
-        val result = level.validateWaypointsDetailed(target, spawnPoints)
+        val result = level.validateWaypointsDetailed(targets, spawnPoints)
         
         assertFalse(result.isValid, "Circular dependency should make validation fail")
         assertTrue(result.circularDependencies.contains(Position(5, 5)), "Position (5,5) should be in circular deps")
@@ -243,11 +243,11 @@ class WaypointValidationTest {
     
     @Test
     fun testDetailedValidationUnconnectedWaypoint() {
-        val target = Position(20, 20)
+        val targets = listOf(Position(20, 20))
         // Waypoint that has no incoming connection and is not a spawn point
         val waypoint1 = EditorWaypoint(
             position = Position(5, 5),
-            nextTargetPosition = target
+            nextTargetPosition = targets[0]
         )
         // Waypoint that points to a non-waypoint, non-target position
         val waypoint2 = EditorWaypoint(
@@ -267,7 +267,7 @@ class WaypointValidationTest {
         )
         
         val spawnPoints = listOf(Position(0, 0))  // waypoint1 is not a spawn point
-        val result = level.validateWaypointsDetailed(target, spawnPoints)
+        val result = level.validateWaypointsDetailed(targets, spawnPoints)
         
         assertFalse(result.isValid, "Unconnected waypoints should make validation fail")
         assertTrue(result.unconnectedWaypoints.contains(Position(5, 5)), "Position (5,5) should be unconnected")
@@ -276,7 +276,7 @@ class WaypointValidationTest {
     
     @Test
     fun testDetailedValidationValidChain() {
-        val target = Position(20, 20)
+        val targets = listOf(Position(20, 20))
         val spawn = Position(0, 0)
         val waypoint1 = EditorWaypoint(
             position = spawn,
@@ -284,7 +284,7 @@ class WaypointValidationTest {
         )
         val waypoint2 = EditorWaypoint(
             position = Position(10, 10),
-            nextTargetPosition = target
+            nextTargetPosition = targets[0]
         )
         
         val level = EditorLevel(
@@ -299,7 +299,7 @@ class WaypointValidationTest {
         )
         
         val spawnPoints = listOf(spawn)
-        val result = level.validateWaypointsDetailed(target, spawnPoints)
+        val result = level.validateWaypointsDetailed(targets, spawnPoints)
         
         assertTrue(result.isValid, "Valid chain should pass validation")
         assertTrue(result.circularDependencies.isEmpty(), "No circular dependencies expected")
@@ -308,7 +308,48 @@ class WaypointValidationTest {
         
         val chain = result.waypointChains.first()
         assertTrue(chain.startPosition == spawn, "Chain should start from spawn point")
-        assertTrue(chain.endPosition == target, "Chain should end at target")
+        assertTrue(chain.endPosition == targets[0], "Chain should end at target")
         assertFalse(chain.hasCircularDependency, "Chain should not have circular dependency")
+    }
+    
+    @Test
+    fun testMultipleTargetsSupport() {
+        // Test that waypoints can lead to different targets
+        val target1 = Position(20, 20)
+        val target2 = Position(30, 30)
+        val targets = listOf(target1, target2)
+        
+        val spawn1 = Position(0, 0)
+        val spawn2 = Position(1, 1)
+        
+        val waypoint1 = EditorWaypoint(
+            position = spawn1,
+            nextTargetPosition = target1  // Points to first target
+        )
+        val waypoint2 = EditorWaypoint(
+            position = spawn2,
+            nextTargetPosition = target2  // Points to second target
+        )
+        
+        val level = EditorLevel(
+            id = "test_level",
+            mapId = "test_map",
+            title = "Test Level",
+            startCoins = 100,
+            startHealthPoints = 10,
+            enemySpawns = emptyList(),
+            availableTowers = emptySet(),
+            waypoints = listOf(waypoint1, waypoint2)
+        )
+        
+        assertTrue(level.validateWaypoints(targets), "Waypoints pointing to different targets should be valid")
+        
+        val spawnPoints = listOf(spawn1, spawn2)
+        val result = level.validateWaypointsDetailed(targets, spawnPoints)
+        
+        // Both waypoints should be valid even though they point to different targets
+        assertTrue(result.isValid, "Multiple targets should be supported")
+        assertTrue(result.circularDependencies.isEmpty(), "No circular dependencies expected")
+        assertTrue(result.unconnectedWaypoints.isEmpty(), "No unconnected waypoints expected")
     }
 }
