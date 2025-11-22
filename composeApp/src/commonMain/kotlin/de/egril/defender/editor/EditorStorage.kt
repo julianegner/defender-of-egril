@@ -341,7 +341,8 @@ object EditorStorage {
         // Get all target positions from the map
         val targets = map.getTargets()
         if (targets.isEmpty()) return null
-        println("Target positions: $targets")
+        println("=== LEVEL CONVERSION DEBUG ===")
+        println("Target positions from map: $targets")
         
         // Convert editor waypoints to game waypoints
         val gameWaypoints = editorLevel.waypoints.map { editorWaypoint ->
@@ -350,7 +351,10 @@ object EditorStorage {
                 nextTarget = editorWaypoint.nextTargetPosition
             )
         }
-        println("Converted ${gameWaypoints.size} waypoints")
+        println("Converted ${gameWaypoints.size} waypoints:")
+        gameWaypoints.forEach { wp ->
+            println("  Waypoint: ${wp.position} -> ${wp.nextTarget}")
+        }
         
         // Include waypoint positions in pathCells so enemies can walk on them
         val pathCellsWithWaypoints = map.getPathCells().toMutableSet()
@@ -358,8 +362,10 @@ object EditorStorage {
             pathCellsWithWaypoints.add(waypoint.position)
         }
         println("Path cells: ${map.getPathCells().size}, with waypoints: ${pathCellsWithWaypoints.size}")
+        println("Spawn points: ${map.getSpawnPoints()}")
+        println("=== END LEVEL CONVERSION DEBUG ===")
         
-        return Level(
+        val level = Level(
             id = numericId,
             name = editorLevel.title,
             gridWidth = map.width,
@@ -378,6 +384,15 @@ object EditorStorage {
             editorLevelId = editorLevel.id,  // Store editor level ID for minimap lookup
             mapId = editorLevel.mapId  // Store map ID for save/load verification
         )
+        
+        println("=== CREATED LEVEL ===")
+        println("Level: ${level.name} (ID: ${level.id})")
+        println("Target positions: ${level.targetPositions}")
+        println("Waypoints count: ${level.waypoints.size}")
+        println("Start positions: ${level.startPositions}")
+        println("=== END CREATED LEVEL ===")
+        
+        return level
     }
     
     /**
