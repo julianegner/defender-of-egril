@@ -1,5 +1,6 @@
 package de.egril.defender.editor
 
+import de.egril.defender.utils.JsonUtils
 import defender_of_egril.composeapp.generated.resources.Res
 
 /**
@@ -85,7 +86,7 @@ object RepositoryLoader {
         return try {
             // Extract the names array from JSON
             val namesSection = json.substringAfter("\"names\": [").substringBefore("]")
-            val names = namesSection.split(",")
+            val names = JsonUtils.splitJsonArray(namesSection)
                 .map { it.trim().removeSurrounding("\"") }
                 .filter { it.isNotBlank() }
             
