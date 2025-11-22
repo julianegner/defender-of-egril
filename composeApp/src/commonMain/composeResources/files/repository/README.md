@@ -12,7 +12,8 @@ repository/
 ├── levels/             # Level files (one per level)
 │   ├── welcome_to_defender_of_egril.json
 │   └── ...
-└── sequence.json       # Level sequence (order of levels)
+├── sequence.json       # Level sequence (order of levels)
+└── dragon_names.json   # Dragon names (200 names for spawned dragons)
 ```
 
 ## File Formats
@@ -26,6 +27,20 @@ Defines the order in which levels appear in the game.
   "sequence": ["level_id_1", "level_id_2", "level_id_3"]
 }
 ```
+
+### dragon_names.json
+
+Defines the list of dragon names that will be randomly assigned to spawned dragons.
+
+```json
+{
+  "names": [
+    "Flameheart", "Shadowwing", "Frostfang", "..."
+  ]
+}
+```
+
+You can customize this file to add your own dragon names. The game will randomly select from this list when spawning dragons from the Dragon's Lair.
 
 ### Map File (maps/{map_id}.json)
 
