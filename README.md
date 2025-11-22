@@ -193,3 +193,11 @@ This game is built using:
 - Kotlin 2.0.21
 - Compose Multiplatform 1.7.0
 - Kotlin Multiplatform for cross-platform support
+
+For detailed development information, see [DEVELOPMENT.md](DEVELOPMENT.md).
+
+### Utility Scripts
+
+The `scripts/` directory contains utility scripts for the project:
+- **Dragon Names Scraper** (`scripts/scrape_dragon_names.sh`): Automated web scraper for collecting dragon names from mythopedia.com
+  - See [scripts/README.md](scripts/README.md) for usage instructions
