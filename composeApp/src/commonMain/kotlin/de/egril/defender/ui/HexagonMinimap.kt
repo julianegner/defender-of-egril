@@ -135,7 +135,7 @@ fun HexagonMinimapFromEditorMap(
             gridWidth = map.width,
             gridHeight = map.height,
             startPositions = emptyList(),
-            targetPosition = Position(0, 0),
+            targetPositions = listOf(Position(0, 0)),
             pathCells = emptySet(),
             buildIslands = emptySet(),
             attackerWaves = emptyList()

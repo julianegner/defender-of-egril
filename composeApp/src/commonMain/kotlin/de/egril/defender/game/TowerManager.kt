@@ -13,8 +13,8 @@ class TowerManager(private val state: GameState) {
     fun placeDefender(type: DefenderType, position: Position): Boolean {
         if (!state.canPlaceDefender(type)) return false
         if (isPositionOccupied(position)) return false
-        // Cannot place on spawn points or target
-        if (state.level.isSpawnPoint(position) || position == state.level.targetPosition) return false
+        // Cannot place on spawn points or any target
+        if (state.level.isSpawnPoint(position) || state.level.isTargetPosition(position)) return false
         // Can place in build areas (which now includes path cells)
         if (!state.level.isBuildArea(position)) return false
         

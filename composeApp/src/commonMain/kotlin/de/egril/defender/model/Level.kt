@@ -21,7 +21,7 @@ data class Level(
         Position(0, 4),
         Position(0, 7)
     ),
-    val targetPosition: Position = Position(gridWidth - 1, gridHeight / 2),
+    val targetPositions: List<Position> = listOf(Position(gridWidth - 1, gridHeight / 2)),
     val pathCells: Set<Position>,
     val buildIslands: Set<Position>,
     val buildAreas: Set<Position> = emptySet(),  // Explicit build areas from map
@@ -34,6 +34,8 @@ data class Level(
     val editorLevelId: String? = null,  // ID of the editor level this was created from
     val mapId: String? = null  // ID of the map this level uses
 ) {
+    // Backward compatibility: return first target for code that expects single target
+    val targetPosition: Position get() = targetPositions.firstOrNull() ?: Position(gridWidth - 1, gridHeight / 2)
     fun isOnPath(position: Position): Boolean {
         return pathCells.contains(position)
     }
@@ -43,8 +45,8 @@ data class Level(
     }
     
     fun isBuildArea(position: Position): Boolean {
-        // Cannot build on path itself, spawn points, or target
-        if (isSpawnPoint(position) || position == targetPosition) return false
+        // Cannot build on path itself, spawn points, or targets
+        if (isSpawnPoint(position) || targetPositions.contains(position)) return false
         if (isOnPath(position)) return false
         
         // Can build on islands
@@ -52,6 +54,10 @@ data class Level(
         
         // Can build on explicitly defined build areas
         return buildAreas.contains(position)
+    }
+    
+    fun isTargetPosition(position: Position): Boolean {
+        return targetPositions.contains(position)
     }
     
     fun isSpawnPoint(position: Position): Boolean {
