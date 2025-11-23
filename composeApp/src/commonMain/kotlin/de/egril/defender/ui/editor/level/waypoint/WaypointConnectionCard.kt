@@ -53,116 +53,126 @@ fun WaypointConnectionCard(
             }
         )
     ) {
-        Row(
+        Column(
             modifier = Modifier.fillMaxWidth().padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            // Source position
-            Column(modifier = Modifier.weight(1f)) {
+            // Header row with delete button
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Text(
-                    text = "Position (${waypoint.position.x}, ${waypoint.position.y})",
-                    style = MaterialTheme.typography.bodyMedium
+                    text = stringResource(Res.string.waypoint_position_format,
+                        waypoint.position.x,
+                        waypoint.position.y
+                    ),
+                    style = MaterialTheme.typography.titleMedium
                 )
+                IconButton(onClick = onDelete) {
+                    TrashIcon(size = 20.dp)
+                }
+            }
+
+            // Source position info
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 if (spawnPoints.contains(waypoint.position)) {
                     Text(
                         text = stringResource(Res.string.spawn_point_text),
-                        style = MaterialTheme.typography.labelSmall,
+                        style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.primary
                     )
                 } else if (waypointTiles.contains(waypoint.position)) {
                     Text(
                         text = stringResource(Res.string.waypoint),
-                        style = MaterialTheme.typography.labelSmall,
+                        style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.secondary
                     )
                 }
             }
 
-            // Arrow
+            // Arrow indicator with warning circle if needed
             Row(
-                horizontalArrangement = Arrangement.spacedBy(2.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(horizontal = 8.dp)
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 if (isInCircular) {
-                    RedCircleIcon(size = 12.dp)
+                    RedCircleIcon(size = 14.dp)
                 }
                 RightArrowIcon(
-                    size = 16.dp,
-                    tint = if (isInCircular) Color.Red else Color.Black
+                    size = 20.dp,
+                    tint = if (isInCircular) Color.Red else MaterialTheme.colorScheme.onSurfaceVariant
                 )
+                Text(
+                    text = stringResource(Res.string.waypoint_position_format,
+                        waypoint.nextTargetPosition.x,
+                        waypoint.nextTargetPosition.y
+                    ),
+                    style = MaterialTheme.typography.bodyLarge
+                )
+                
+                // Warning icons next to target position
+                if (isInCircular || isUnconnected) {
+                    WarningIcon(size = 16.dp)
+                }
             }
 
-            // Target position
-            Column(modifier = Modifier.weight(1f)) {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = stringResource(Res.string.waypoint_position_format,
-                            waypoint.nextTargetPosition.x,
-                            waypoint.nextTargetPosition.y
-                        ),
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-
-                    // Warning icons
-                    if (isInCircular) {
-                        WarningIcon(size = 14.dp)
-                    }
-                    if (isUnconnected) {
-                        WarningIcon(size = 14.dp)
-                    }
-                }
-
+            // Target position type
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 if (target == waypoint.nextTargetPosition) {
                     Text(
                         text = stringResource(Res.string.target_text),
-                        style = MaterialTheme.typography.labelSmall,
+                        style = MaterialTheme.typography.labelMedium,
                         color = Color.Green
                     )
                 } else if (waypointTiles.contains(waypoint.nextTargetPosition)) {
                     Text(
                         text = stringResource(Res.string.waypoint),
-                        style = MaterialTheme.typography.labelSmall,
+                        style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.secondary
                     )
                 }
-
-                // Show warning messages
-                if (isInCircular) {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        WarningIcon(size = 12.dp)
-                        Text(
-                            text = stringResource(Res.string.circular_dependency_warning),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = Color.Red
-                        )
-                    }
-                }
-                if (isUnconnected) {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        WarningIcon(size = 12.dp)
-                        Text(
-                            text = stringResource(Res.string.unconnected_waypoint_warning),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.error
-                        )
-                    }
-                }
             }
 
-            // Delete button
-            IconButton(onClick = onDelete) {
-                TrashIcon(size = 20.dp)
+            // Warning messages section
+            if (isInCircular || isUnconnected) {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    if (isInCircular) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            WarningIcon(size = 12.dp)
+                            Text(
+                                text = stringResource(Res.string.circular_dependency_warning),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color.Red
+                            )
+                        }
+                    }
+                    if (isUnconnected) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            WarningIcon(size = 12.dp)
+                            Text(
+                                text = stringResource(Res.string.unconnected_waypoint_warning),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.error
+                            )
+                        }
+                    }
+                }
             }
         }
     }
