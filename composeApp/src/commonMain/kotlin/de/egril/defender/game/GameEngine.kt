@@ -328,6 +328,9 @@ class GameEngine(private val state: GameState) {
                 
                 // Use the attacker's current target if set, otherwise use level target
                 val target = attacker.currentTarget?.value ?: state.level.targetPosition
+                if (stepIndex == 0) {
+                    println("Enemy turn: Attacker ${attacker.id} (${attacker.type}) at $currentPos pathing to target: $target")
+                }
                 val path = pathfinding.findPath(currentPos, target, attacker)
                 
                 if (path.size < 2) continue  // No movement possible
