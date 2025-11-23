@@ -337,7 +337,9 @@ class EnemyMovementSystem(
             // Check if goblin is at a spawn point
             if (!state.level.isSpawnPoint(attacker.position.value)) continue
 
-            val target = state.level.targetPosition
+            // Use the attacker's current target if set, otherwise use level target
+            val target = attacker.currentTarget?.value ?: state.level.targetPosition
+            println("Goblin ${attacker.id} at spawn ${attacker.position.value} moving towards target: $target (currentTarget: ${attacker.currentTarget?.value})")
             val path = pathfinding.findPath(attacker.position.value, target, attacker)
 
             if (path.isEmpty() || path.size < 2) continue
@@ -356,6 +358,16 @@ class EnemyMovementSystem(
                 
                 if (!isOccupied) {
                     attacker.position.value = newPos
+                    
+                    // Check if reached a waypoint and update target
+                    if (state.level.isWaypoint(newPos)) {
+                        val waypoint = state.level.getWaypointAt(newPos)
+                        if (waypoint != null && attacker.currentTarget != null) {
+                            attacker.currentTarget.value = waypoint.nextTarget
+                            println("Goblin ${attacker.id} reached waypoint at $newPos, next target: ${waypoint.nextTarget}")
+                        }
+                    }
+                    
                     pathIndex++
                 } else {
                     // Can't move further, stop trying
@@ -364,8 +376,8 @@ class EnemyMovementSystem(
                 
                 remainingSpeed--
                 
-                // Check if reached target
-                if (attacker.position.value == target) {
+                // Check if reached any target
+                if (state.level.isTargetPosition(attacker.position.value)) {
                     applyTargetDamage(attacker)
                     break
                 }
