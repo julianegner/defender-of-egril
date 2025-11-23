@@ -14,37 +14,29 @@ class EnemyMovementSystem(
 ) {
     
     /**
-     * Gets the initial target for a newly spawned attacker based on spawn position.
-     * Finds the nearest spawn point, then uses the waypoint starting from that spawn point.
+     * Gets the initial target for a newly spawned attacker based on preferred spawn point.
+     * Checks if the spawn point has a waypoint entry and uses the waypoint's nextTarget.
      * If no waypoints exist, uses the first target position.
      */
-    fun getInitialTarget(spawnPosition: Position): Position {
+    fun getInitialTarget(preferredSpawnPoint: Position): Position {
         println("=== GET INITIAL TARGET ===")
-        println("Spawn position: $spawnPosition")
+        println("Preferred spawn point: $preferredSpawnPoint")
         println("Total waypoints in level: ${state.level.waypoints.size}")
         
-        // Find the nearest designated spawn point to the actual spawn position
-        val nearestSpawnPoint = state.level.startPositions
-            .minByOrNull { it.distanceTo(spawnPosition) }
-        
-        if (nearestSpawnPoint != null) {
-            println("Nearest spawn point to $spawnPosition is $nearestSpawnPoint")
-            
-            // Check if that spawn point has a waypoint
-            val waypointAtNearestSpawn = state.level.getWaypointAt(nearestSpawnPoint)
-            if (waypointAtNearestSpawn != null) {
-                println("Found waypoint at nearest spawn point: $nearestSpawnPoint -> ${waypointAtNearestSpawn.nextTarget}")
-                return waypointAtNearestSpawn.nextTarget
-            }
+        // Check if the preferred spawn point has a waypoint
+        val waypointAtSpawn = state.level.getWaypointAt(preferredSpawnPoint)
+        if (waypointAtSpawn != null) {
+            println("Found waypoint at spawn point: $preferredSpawnPoint -> ${waypointAtSpawn.nextTarget}")
+            return waypointAtSpawn.nextTarget
         }
         
-        // Fallback: if no waypoint at nearest spawn point, use default target
+        // Fallback: if no waypoint at spawn point, use default target
         val initialTarget = if (state.level.waypoints.isNotEmpty()) {
             state.level.waypoints.first().position
         } else {
             state.level.targetPositions.first()
         }
-        println("No waypoint at nearest spawn point, using fallback target: $initialTarget")
+        println("No waypoint at spawn point, using fallback target: $initialTarget")
         return initialTarget
     }
     
@@ -72,6 +64,9 @@ class EnemyMovementSystem(
             // Use a different spawn point for each enemy (cycle through spawn points)
             val preferredSpawnPoint = spawnPoints[index % spawnPoints.size]
             
+            // Get the initial target based on the preferred spawn point (before finding actual position)
+            val initialTarget = getInitialTarget(preferredSpawnPoint)
+            
             // Find a free position near the preferred spawn point
             val spawnPos = findFreePositionNear(preferredSpawnPoint)
             
@@ -97,7 +92,7 @@ class EnemyMovementSystem(
                 type = plannedSpawn.attackerType,
                 position = mutableStateOf(spawnPos),
                 level = mutableStateOf(plannedSpawn.level),
-                currentTarget = mutableStateOf(getInitialTarget(spawnPos))
+                currentTarget = mutableStateOf(initialTarget)
             )
             state.attackers.add(attacker)
         }
