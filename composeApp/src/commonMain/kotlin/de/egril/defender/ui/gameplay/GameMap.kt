@@ -73,28 +73,28 @@ fun GameGrid(
     }
 
     // Calculate target circle info for each tile
-    // Get actionsRemaining for the selected defender to track changes
-    val selectedDefenderActions = gameState.defenders.find { it.id == selectedDefenderId }?.actionsRemaining?.value
+    // Find the selected defender and track its actions for dependency tracking
+    val selectedDefender = gameState.defenders.find { it.id == selectedDefenderId }
+    val selectedDefenderActions = selectedDefender?.actionsRemaining?.value
     
     val targetCircleMap = remember(selectedTargetPosition, selectedDefenderId, selectedDefenderActions, gameState.defenders.size) {
-        if (selectedTargetPosition == null || selectedDefenderId == null) {
+        if (selectedTargetPosition == null || selectedDefenderId == null || selectedDefender == null) {
             emptyMap()
         } else {
-            val selectedDefender = gameState.defenders.find { it.id == selectedDefenderId }
-            val attackType = selectedDefender?.type?.attackType
+            val attackType = selectedDefender.type.attackType
             
             // Don't show target circles if the tower has no action points left
-            if (selectedDefender == null || selectedDefender.actionsRemaining.value <= 0) {
+            if (selectedDefender.actionsRemaining.value <= 0) {
                 emptyMap()
             } else {
                 val markerColor = when (attackType) {
                     AttackType.AREA -> Color(0xFFFF5722)  // Deep orange/red for fireball
                     AttackType.LASTING -> Color(0xFF4CAF50)  // Green for acid
                     AttackType.MELEE, AttackType.RANGED -> Color.DarkGray  // DarkGray for single-target
-                    else -> null
+                    AttackType.NONE -> null  // No target circles for special structures
                 }
                 
-                if (markerColor == null || attackType == null) {
+                if (markerColor == null) {
                     emptyMap()
                 } else {
                     val result = mutableMapOf<Position, TargetCircleInfo>()
