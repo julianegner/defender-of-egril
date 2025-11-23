@@ -13,7 +13,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
 import de.egril.defender.editor.EditorWaypoint
@@ -63,13 +62,7 @@ fun WaypointConnectionCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = stringResource(Res.string.waypoint_position_format,
-                        waypoint.position.x,
-                        waypoint.position.y
-                    ),
-                    style = MaterialTheme.typography.titleMedium
-                )
+                PositionText(waypoint.position, MaterialTheme.typography.titleMedium)
                 IconButton(onClick = onDelete) {
                     TrashIcon(size = 20.dp)
                 }
@@ -105,15 +98,9 @@ fun WaypointConnectionCard(
                 }
                 RightArrowIcon(
                     size = 20.dp,
-                    tint = if (isInCircular) Color.Red else MaterialTheme.colorScheme.onSurfaceVariant
+                    tint = if (isInCircular) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                Text(
-                    text = stringResource(Res.string.waypoint_position_format,
-                        waypoint.nextTargetPosition.x,
-                        waypoint.nextTargetPosition.y
-                    ),
-                    style = MaterialTheme.typography.bodyLarge
-                )
+                PositionText(waypoint.nextTargetPosition, MaterialTheme.typography.bodyLarge)
                 
                 // Warning icons next to target position
                 if (isInCircular || isUnconnected) {
@@ -130,7 +117,7 @@ fun WaypointConnectionCard(
                     Text(
                         text = stringResource(Res.string.target_text),
                         style = MaterialTheme.typography.labelMedium,
-                        color = Color.Green
+                        color = MaterialTheme.colorScheme.tertiary
                     )
                 } else if (waypointTiles.contains(waypoint.nextTargetPosition)) {
                     Text(
@@ -155,7 +142,7 @@ fun WaypointConnectionCard(
                             Text(
                                 text = stringResource(Res.string.circular_dependency_warning),
                                 style = MaterialTheme.typography.bodySmall,
-                                color = Color.Red
+                                color = MaterialTheme.colorScheme.error
                             )
                         }
                     }
@@ -176,4 +163,15 @@ fun WaypointConnectionCard(
             }
         }
     }
+}
+
+/**
+ * Helper composable to display a position using the standard format
+ */
+@Composable
+private fun PositionText(position: Position, style: androidx.compose.ui.text.TextStyle) {
+    Text(
+        text = stringResource(Res.string.waypoint_position_format, position.x, position.y),
+        style = style
+    )
 }
