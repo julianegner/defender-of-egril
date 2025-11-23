@@ -560,7 +560,9 @@ class GameEngine(private val state: GameState) {
                 // Check if this attacker has more moves left
                 if (stepIndex >= attacker.type.speed) continue
                 
-                val target = state.level.targetPosition
+                // Use the attacker's current target if set, otherwise use level target
+                val target = attacker.currentTarget?.value ?: state.level.targetPosition
+                println("Newly spawned attacker ${attacker.id} at $currentPos pathing to target: $target (currentTarget: ${attacker.currentTarget?.value})")
                 val path = pathfinding.findPath(currentPos, target, attacker)
                 
                 if (path.size < 2) continue  // No movement possible
@@ -581,7 +583,7 @@ class GameEngine(private val state: GameState) {
                 
                 if (!isOccupied) {
                     movementsInThisStep.add(Pair(attacker.id, newPos))
-                    if (newPos != state.level.targetPosition) {
+                    if (!state.level.isTargetPosition(newPos)) {
                         // Only mark non-target positions as occupied
                         positionsToOccupy.add(newPos)
                     }
@@ -592,7 +594,7 @@ class GameEngine(private val state: GameState) {
                     val alternativePos = findAlternativePosition(currentPos, target, attacker.id, currentPositions, positionsToOccupy)
                     if (alternativePos != null) {
                         movementsInThisStep.add(Pair(attacker.id, alternativePos))
-                        if (alternativePos != state.level.targetPosition) {
+                        if (!state.level.isTargetPosition(alternativePos)) {
                             positionsToOccupy.add(alternativePos)
                         }
                         currentPositions[attacker.id] = alternativePos
