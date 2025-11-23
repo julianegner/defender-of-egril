@@ -256,7 +256,7 @@ class DragonGreedTest {
             position = mutableStateOf(Position(5, 3)),
             level = mutableStateOf(30),
             currentHealth = mutableStateOf(15000),
-            currentTarget = mutableStateOf(state.level.targetPosition)
+            currentTarget = mutableStateOf(state.level.targetPositions.first())
         )
         state.attackers.add(dragon)
         assertTrue(dragon.isVeryGreedy, "Dragon should be very greedy")
