@@ -88,8 +88,8 @@ class DeadEndPathfindingTest {
             if (positions.size >= 2) {
                 val prevPos = positions[positions.size - 2]
                 val currPos = positions[positions.size - 1]
-                val prevDist = prevPos.distanceTo(level.targetPosition)
-                val currDist = currPos.distanceTo(level.targetPosition)
+                val prevDist = prevPos.distanceTo(level.targetPositions.first())
+                val currDist = currPos.distanceTo(level.targetPositions.first())
                 
                 // Distance should decrease or stay same (if blocked), but not increase (backtracking)
                 assertTrue(
@@ -100,8 +100,8 @@ class DeadEndPathfindingTest {
         }
         
         // Final position should be significantly closer to target than start
-        val startDist = positions.first().distanceTo(level.targetPosition)
-        val endDist = positions.last().distanceTo(level.targetPosition)
+        val startDist = positions.first().distanceTo(level.targetPositions.first())
+        val endDist = positions.last().distanceTo(level.targetPositions.first())
         
         assertTrue(
             endDist < startDist,

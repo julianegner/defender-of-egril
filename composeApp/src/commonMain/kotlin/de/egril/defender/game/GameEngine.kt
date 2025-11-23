@@ -115,7 +115,7 @@ class GameEngine(private val state: GameState) {
                 dragon.currentTarget?.value = if (state.level.waypoints.isNotEmpty()) {
                     state.level.waypoints.first().position
                 } else {
-                    state.level.targetPosition
+                    state.level.targetPositions.first()
                 }
             }
             return
@@ -138,7 +138,7 @@ class GameEngine(private val state: GameState) {
                 dragon.currentTarget?.value = if (state.level.waypoints.isNotEmpty()) {
                     state.level.waypoints.first().position
                 } else {
-                    state.level.targetPosition
+                    state.level.targetPositions.first()
                 }
                 println("Dragon ${dragon.id} no more mines, returning to normal target")
             }
@@ -327,7 +327,7 @@ class GameEngine(private val state: GameState) {
                 if (stepIndex >= attacker.type.speed) continue
                 
                 // Use the attacker's current target if set, otherwise use level target
-                val target = attacker.currentTarget?.value ?: state.level.targetPosition
+                val target = attacker.currentTarget?.value ?: state.level.targetPositions.first()
                 if (stepIndex == 0) {
                     println("Enemy turn: Attacker ${attacker.id} (${attacker.type}) at $currentPos pathing to target: $target")
                 }
@@ -423,7 +423,7 @@ class GameEngine(private val state: GameState) {
                         state.level.isOnPath(pos) &&
                         state.attackers.none { it.position.value == pos && !it.isDefeated.value }
                     }
-                    .minByOrNull { it.distanceTo(state.level.targetPosition) }
+                    .minByOrNull { it.distanceTo(state.level.targetPositions.first()) }
                 
                 if (alternatePos != null) {
                     println("Dragon ${attacker.id} can't land on Ewhad, moving to alternate position $alternatePos")
@@ -564,7 +564,7 @@ class GameEngine(private val state: GameState) {
                 if (stepIndex >= attacker.type.speed) continue
                 
                 // Use the attacker's current target if set, otherwise use level target
-                val target = attacker.currentTarget?.value ?: state.level.targetPosition
+                val target = attacker.currentTarget?.value ?: state.level.targetPositions.first()
                 println("Newly spawned attacker ${attacker.id} at $currentPos pathing to target: $target (currentTarget: ${attacker.currentTarget?.value})")
                 val path = pathfinding.findPath(currentPos, target, attacker)
                 

@@ -141,7 +141,7 @@ class MineOperations(private val state: GameState) {
             currentTarget = mutableStateOf(if (state.level.waypoints.isNotEmpty()) {
                 state.level.waypoints.first().position
             } else {
-                state.level.targetPosition
+                state.level.targetPositions.first()
             })
         )
         
