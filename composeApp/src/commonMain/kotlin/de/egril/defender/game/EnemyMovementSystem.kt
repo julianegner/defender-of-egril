@@ -15,28 +15,36 @@ class EnemyMovementSystem(
     
     /**
      * Gets the initial target for a newly spawned attacker based on spawn position.
-     * If the spawn position has a waypoint, returns the next target from that waypoint.
-     * Otherwise, returns the first waypoint position if waypoints exist, or the final target.
+     * Finds the nearest spawn point, then uses the waypoint starting from that spawn point.
+     * If no waypoints exist, uses the first target position.
      */
     fun getInitialTarget(spawnPosition: Position): Position {
         println("=== GET INITIAL TARGET ===")
         println("Spawn position: $spawnPosition")
         println("Total waypoints in level: ${state.level.waypoints.size}")
         
-        // Check if spawn position itself is a waypoint with a next target
-        val waypointAtSpawn = state.level.getWaypointAt(spawnPosition)
-        if (waypointAtSpawn != null) {
-            println("Found waypoint at spawn position: $spawnPosition -> ${waypointAtSpawn.nextTarget}")
-            return waypointAtSpawn.nextTarget
+        // Find the nearest designated spawn point to the actual spawn position
+        val nearestSpawnPoint = state.level.startPositions
+            .minByOrNull { it.distanceTo(spawnPosition) }
+        
+        if (nearestSpawnPoint != null) {
+            println("Nearest spawn point to $spawnPosition is $nearestSpawnPoint")
+            
+            // Check if that spawn point has a waypoint
+            val waypointAtNearestSpawn = state.level.getWaypointAt(nearestSpawnPoint)
+            if (waypointAtNearestSpawn != null) {
+                println("Found waypoint at nearest spawn point: $nearestSpawnPoint -> ${waypointAtNearestSpawn.nextTarget}")
+                return waypointAtNearestSpawn.nextTarget
+            }
         }
         
-        // Otherwise use first waypoint if exists, or default target
+        // Fallback: if no waypoint at nearest spawn point, use default target
         val initialTarget = if (state.level.waypoints.isNotEmpty()) {
             state.level.waypoints.first().position
         } else {
             state.level.targetPositions.first()
         }
-        println("No waypoint at spawn, using initial target: $initialTarget")
+        println("No waypoint at nearest spawn point, using fallback target: $initialTarget")
         return initialTarget
     }
     
