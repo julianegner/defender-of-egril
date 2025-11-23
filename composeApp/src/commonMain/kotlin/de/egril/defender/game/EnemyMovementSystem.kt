@@ -34,7 +34,7 @@ class EnemyMovementSystem(
         val initialTarget = if (state.level.waypoints.isNotEmpty()) {
             state.level.waypoints.first().position
         } else {
-            state.level.targetPosition
+            state.level.targetPositions.first()
         }
         println("No waypoint at spawn, using initial target: $initialTarget")
         return initialTarget
@@ -214,7 +214,7 @@ class EnemyMovementSystem(
         println("Start position: $startPos")
         
         // Use currentTarget if set (for mine targeting), otherwise use level target
-        val target = dragon.currentTarget?.value ?: state.level.targetPosition
+        val target = dragon.currentTarget?.value ?: state.level.targetPositions.first()
         println("Target: $target")
         
         val result = mutableListOf<Position>()
@@ -338,7 +338,7 @@ class EnemyMovementSystem(
             if (!state.level.isSpawnPoint(attacker.position.value)) continue
 
             // Use the attacker's current target if set, otherwise use level target
-            val target = attacker.currentTarget?.value ?: state.level.targetPosition
+            val target = attacker.currentTarget?.value ?: state.level.targetPositions.first()
             println("Goblin ${attacker.id} at spawn ${attacker.position.value} moving towards target: $target (currentTarget: ${attacker.currentTarget?.value})")
             val path = pathfinding.findPath(attacker.position.value, target, attacker)
 
