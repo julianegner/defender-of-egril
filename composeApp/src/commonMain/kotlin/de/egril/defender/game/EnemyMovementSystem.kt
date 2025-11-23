@@ -340,19 +340,21 @@ class EnemyMovementSystem(
             // Check if goblin is at a spawn point
             if (!state.level.isSpawnPoint(attacker.position.value)) continue
 
-            // Use the attacker's current target if set, otherwise use level target
-            val target = attacker.currentTarget?.value ?: state.level.targetPositions.first()
-            println("Goblin ${attacker.id} at spawn ${attacker.position.value} moving towards target: $target (currentTarget: ${attacker.currentTarget?.value})")
-            val path = pathfinding.findPath(attacker.position.value, target, attacker)
-
-            if (path.isEmpty() || path.size < 2) continue
-
             // Move goblin using their speed
             var remainingSpeed = attacker.type.speed
-            var pathIndex = 1 // Skip current position (index 0)
 
-            while (remainingSpeed > 0 && pathIndex < path.size) {
-                val newPos = path[pathIndex]
+            while (remainingSpeed > 0) {
+                // Re-calculate path with current target for each step
+                val target = attacker.currentTarget?.value ?: state.level.targetPositions.first()
+                println("Goblin ${attacker.id} at ${attacker.position.value} moving towards target: $target (remainingSpeed: $remainingSpeed)")
+                val path = pathfinding.findPath(attacker.position.value, target, attacker)
+
+                if (path.isEmpty() || path.size < 2) {
+                    // No valid path, stop movement
+                    break
+                }
+
+                val newPos = path[1] // Next position in path
 
                 // Check if new position is occupied by another alive attacker
                 val isOccupied = state.attackers.any {
@@ -362,7 +364,7 @@ class EnemyMovementSystem(
                 if (!isOccupied) {
                     attacker.position.value = newPos
                     
-                    // Check if reached a waypoint and update target
+                    // Check if reached a waypoint and update target BEFORE next move
                     if (state.level.isWaypoint(newPos)) {
                         val waypoint = state.level.getWaypointAt(newPos)
                         if (waypoint != null && attacker.currentTarget != null) {
@@ -371,17 +373,15 @@ class EnemyMovementSystem(
                         }
                     }
                     
-                    pathIndex++
+                    remainingSpeed--
+                    
+                    // Check if reached any target
+                    if (state.level.isTargetPosition(attacker.position.value)) {
+                        applyTargetDamage(attacker)
+                        break
+                    }
                 } else {
                     // Can't move further, stop trying
-                    break
-                }
-                
-                remainingSpeed--
-                
-                // Check if reached any target
-                if (state.level.isTargetPosition(attacker.position.value)) {
-                    applyTargetDamage(attacker)
                     break
                 }
             }

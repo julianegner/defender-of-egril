@@ -534,6 +534,7 @@ class GameEngine(private val state: GameState) {
      * Calculate movement steps for newly spawned units (those at spawn points).
      * This moves them away from spawn points to make room for future spawns.
      * Uses a simulated approach to handle collisions between units moving simultaneously.
+     * Updates waypoint targets during movement so fast units don't stop at waypoints.
      */
     fun calculateNewlySpawnedMovements(): List<List<Pair<Int, Position>>> {
         val allMovementSteps = mutableListOf<List<Pair<Int, Position>>>()
@@ -591,6 +592,16 @@ class GameEngine(private val state: GameState) {
                         positionsToOccupy.add(newPos)
                     }
                     currentPositions[attacker.id] = newPos
+                    
+                    // Update waypoint target immediately if reached a waypoint
+                    // This ensures the next step uses the new target
+                    if (state.level.isWaypoint(newPos)) {
+                        val waypoint = state.level.getWaypointAt(newPos)
+                        if (waypoint != null && attacker.currentTarget != null) {
+                            attacker.currentTarget.value = waypoint.nextTarget
+                            println("Attacker ${attacker.id} reached waypoint at $newPos during spawn movement, next target: ${waypoint.nextTarget}")
+                        }
+                    }
                 } else {
                     // If optimal path is blocked, try to find an alternative position
                     // This is crucial for clearing spawn points
@@ -601,6 +612,15 @@ class GameEngine(private val state: GameState) {
                             positionsToOccupy.add(alternativePos)
                         }
                         currentPositions[attacker.id] = alternativePos
+                        
+                        // Update waypoint target if the alternative position is a waypoint
+                        if (state.level.isWaypoint(alternativePos)) {
+                            val waypoint = state.level.getWaypointAt(alternativePos)
+                            if (waypoint != null && attacker.currentTarget != null) {
+                                attacker.currentTarget.value = waypoint.nextTarget
+                                println("Attacker ${attacker.id} reached waypoint at $alternativePos during spawn movement, next target: ${waypoint.nextTarget}")
+                            }
+                        }
                     }
                     // If no alternative found, unit stays in place for this step
                 }
