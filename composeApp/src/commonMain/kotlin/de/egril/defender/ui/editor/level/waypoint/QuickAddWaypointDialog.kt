@@ -5,12 +5,12 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
@@ -48,6 +48,7 @@ import defender_of_egril.composeapp.generated.resources.waypoint_target
 /**
  * Quick add dialog that shows map positions for easier waypoint creation
  */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun QuickAddWaypointDialog(
     map: EditorMap?,
@@ -182,11 +183,12 @@ fun QuickAddWaypointDialog(
                         }
                     }
 
-                    LazyRow(
+                    FlowRow(
                         horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp),
                         modifier = Modifier.Companion.fillMaxWidth()
                     ) {
-                        items(validSources) { pos ->
+                        validSources.forEach { pos ->
                             val isSpawn = spawnPoints.contains(pos)
                             FilterChip(
                                 selected = selectedSource == pos,
@@ -225,11 +227,12 @@ fun QuickAddWaypointDialog(
                         )
                     }
 
-                    LazyRow(
+                    FlowRow(
                         horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp),
                         modifier = Modifier.Companion.fillMaxWidth()
                     ) {
-                        items(validTargets) { pos ->
+                        validTargets.forEach { pos ->
                             val isTarget = target == pos
                             val isConnectedToTarget = connectedToTarget.contains(pos)
                             FilterChip(
