@@ -188,6 +188,6 @@ Potential improvements:
 ## Related Documentation
 
 - [LEVEL_EDITOR.md](LEVEL_EDITOR.md): General level editor guide
-- [GAMEPLAY.md](GAMEPLAY.md): Game mechanics including enemy movement
+- [GAMEPLAY.md](../root/GAMEPLAY.md): Game mechanics including enemy movement
 - [EditorModels.kt](composeApp/src/commonMain/kotlin/de/egril/defender/editor/EditorModels.kt): Data model definitions
 - [WaypointValidationTest.kt](composeApp/src/commonTest/kotlin/de/egril/defender/editor/WaypointValidationTest.kt): Waypoint validation tests
