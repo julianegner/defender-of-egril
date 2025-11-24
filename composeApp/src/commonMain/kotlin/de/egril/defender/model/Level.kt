@@ -180,7 +180,8 @@ data class AttackerWave(
 data class PlannedEnemySpawn(
     val attackerType: AttackerType,
     val spawnTurn: Int,
-    val level: Int = 1
+    val level: Int = 1,
+    val spawnPoint: Position? = null  // Fixed spawn point for this enemy (null for backward compatibility)
 ) {
     val healthPoints: Int get() = attackerType.health * level
 }
