@@ -141,7 +141,36 @@ fun QuickAddWaypointDialog(
                             map = map,
                             selectedSource = selectedSource,
                             selectedTarget = selectedTarget,
-                            existingWaypoints = existingWaypoints
+                            existingWaypoints = existingWaypoints,
+                            onTileClick = { clickedPos ->
+                                // Determine if clicked position is a valid source or target
+                                val isValidSource = validSources.contains(clickedPos)
+                                val isValidTarget = validTargets.contains(clickedPos)
+                                
+                                when {
+                                    // If no source is selected yet, select this position as source if valid
+                                    selectedSource == null && isValidSource -> {
+                                        selectedSource = clickedPos
+                                        errorMessage = null
+                                    }
+                                    // If source is selected but no target, select as target if valid
+                                    selectedSource != null && selectedTarget == null && isValidTarget -> {
+                                        selectedTarget = clickedPos
+                                        errorMessage = null
+                                    }
+                                    // If both are selected, clicking a valid source resets and selects new source
+                                    selectedSource != null && selectedTarget != null && isValidSource -> {
+                                        selectedSource = clickedPos
+                                        selectedTarget = null
+                                        errorMessage = null
+                                    }
+                                    // If both selected and clicking a valid target, just update target
+                                    selectedSource != null && selectedTarget != null && isValidTarget -> {
+                                        selectedTarget = clickedPos
+                                        errorMessage = null
+                                    }
+                                }
+                            }
                         )
                     }
                 }
