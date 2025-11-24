@@ -167,7 +167,7 @@ Defender of Egril is a turn-based tower defense game built with Kotlin Multiplat
    - Create level in Level Editor tab
    - Configure enemy spawns, starting resources, and available towers
    - Arrange in Level Sequence tab
-2. Files are saved in `~/.defender-of-egril/editor/` (Linux/Mac) or `%USERPROFILE%\.defender-of-egril\editor\` (Windows)
+2. Files are saved in `~/.defender-of-egril/gamedata/` (Linux/Mac) or `%USERPROFILE%\.defender-of-egril\gamedata\` (Windows)
 
 #### New Level (Code Method - Legacy)
 Add to `LevelData.createLevels()` with:
@@ -345,7 +345,7 @@ Add to `LevelData.createLevels()` with:
 - Dragon's Lair: Special structure that spawns dragons (cannot be sold or upgraded)
 - Enemy abilities: Some enemies can summon, heal, disable towers, or have damage immunities
 - Save/Load system: Automatic world map progress saving, manual in-game saves
-- Level Editor: Desktop and web/wasm only, stores data in `~/.defender-of-egril/editor/` (Linux/Mac) or `%USERPROFILE%\.defender-of-egril\editor\` (Windows)
+- Level Editor: Desktop and web/wasm only, stores data in `~/.defender-of-egril/gamedata/` (Linux/Mac) or `%USERPROFILE%\.defender-of-egril\gamedata\` (Windows)
 - Pan and Zoom: All platforms support panning (drag) and zooming (mouse wheel/pinch, 0.5x to 3x)
 - Minimap: Automatically appears when zoomed in to show current viewport position
 - Localization: Supports English (default), German, Spanish, French, and Italian. Language can be switched via Settings button on all screens. Uses `compose-multiplatform-localize` plugin for string resource management.

@@ -11,7 +11,7 @@ import de.egril.defender.model.getHexNeighbors
 import de.egril.defender.utils.runBlockingCompat
 /**
  * File-based storage for maps and levels
- * Stores data in ~/.defender-of-egril/ directory on desktop
+ * Stores data in ~/.defender-of-egril/gamedata/ directory on desktop
  */
 object EditorStorage {
     private val fileStorage = getFileStorage()
@@ -19,10 +19,10 @@ object EditorStorage {
     private val levelsCache = mutableMapOf<String, EditorLevel>()
     private var levelSequenceCache: LevelSequence? = null
     
-    private val MAPS_DIR = "editor/maps"
-    private val LEVELS_DIR = "editor/levels"
-    private val SEQUENCE_FILE = "editor/sequence.json"
-    private val VERSION_FILE = "editor/version.txt"
+    private val MAPS_DIR = "gamedata/maps"
+    private val LEVELS_DIR = "gamedata/levels"
+    private val SEQUENCE_FILE = "gamedata/sequence.json"
+    private val VERSION_FILE = "gamedata/version.txt"
     private val CURRENT_VERSION = "6" // Increment when level data format changes - v6: added spawn points to enemies
     
     // Initialize with converted existing levels
@@ -435,44 +435,27 @@ object EditorStorage {
     
     /**
      * Convert existing levels to editor format
-     * Only initializes if files don't exist or are invalid
+     * Only initializes if the gamedata directory is completely empty
      */
     private fun initializeDefaultMapsAndLevels() {
-        // Check version to see if we need to regenerate levels
-        val savedVersion = fileStorage.readFile(VERSION_FILE)
-        if (savedVersion != CURRENT_VERSION) {
-            println("Level data version mismatch (saved: $savedVersion, current: $CURRENT_VERSION). Regenerating levels...")
-            // Clear all existing level data to force regeneration
-            fileStorage.writeFile(SEQUENCE_FILE, "")
-            levelSequenceCache = null
-            mapsCache.clear()
-            levelsCache.clear()
-        }
+        // First check if gamedata directory has any existing user data
+        // If it has any content, assume user has data and skip initialization
+        val hasUserData = hasExistingGamedataFiles()
         
-        // Check if already initialized with valid data
-        val sequenceJson = fileStorage.readFile(SEQUENCE_FILE)
-        
-        if (sequenceJson != null) {
-            val sequence = EditorJsonSerializer.deserializeSequence(sequenceJson)
-            
-            if (sequence != null && sequence.sequence.isNotEmpty()) {
-                // Valid sequence exists, check if levels exist
-                val firstLevelId = sequence.sequence.firstOrNull()
-                
-                if (firstLevelId != null && firstLevelId.isNotBlank()) {
-                    val fileExists = fileStorage.fileExists("$LEVELS_DIR/$firstLevelId.json")
-                    
-                    if (fileExists) {
-                        // Also verify we can actually load the first level
-                        val firstLevel = getLevel(firstLevelId)
-                        
-                        if (firstLevel != null) {
-                            return  // Already initialized with valid data
-                        }
-                    }
+        if (hasUserData) {
+            println("Gamedata directory is not empty - preserving existing user data")
+            // Try to load the sequence to populate cache
+            val sequenceJson = fileStorage.readFile(SEQUENCE_FILE)
+            if (sequenceJson != null) {
+                val sequence = EditorJsonSerializer.deserializeSequence(sequenceJson)
+                if (sequence != null && sequence.sequence.isNotEmpty()) {
+                    levelSequenceCache = sequence
                 }
             }
+            return
         }
+        
+        println("Gamedata directory is empty - initializing from repository or generating defaults")
         
         // Create directories
         fileStorage.createDirectory(MAPS_DIR)
@@ -985,5 +968,29 @@ object EditorStorage {
             println("Could not load repository files: ${e.message}")
             false
         }
+    }
+    
+    /**
+     * Check if the gamedata directory contains any existing user files
+     * @return true if any user data files exist, false if directory is empty
+     */
+    private fun hasExistingGamedataFiles(): Boolean {
+        // Check if the sequence file exists (most reliable indicator)
+        if (fileStorage.fileExists(SEQUENCE_FILE)) {
+            return true
+        }
+        
+        // Check if any maps exist
+        if (fileStorage.listFiles(MAPS_DIR).isNotEmpty()) {
+            return true
+        }
+        
+        // Check if any levels exist
+        if (fileStorage.listFiles(LEVELS_DIR).isNotEmpty()) {
+            return true
+        }
+        
+        // No user data found
+        return false
     }
 }
