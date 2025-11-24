@@ -226,10 +226,15 @@ object RepositoryManager {
             // Backup sequence file if it exists and there's a new sequence
             if (newData.hasNewSequence && fileStorage.fileExists("$GAMEDATA_DIR/sequence.json")) {
                 val sequenceBackupName = findNextSequenceBackupName()
-                val sequenceContent = fileStorage.readFile("$GAMEDATA_DIR/sequence.json")
-                if (sequenceContent != null) {
-                    fileStorage.writeFile("$GAMEDATA_DIR/$sequenceBackupName", sequenceContent)
-                    println("Backed up sequence to $sequenceBackupName")
+                if (sequenceBackupName != null) {
+                    val sequenceContent = fileStorage.readFile("$GAMEDATA_DIR/sequence.json")
+                    if (sequenceContent != null) {
+                        fileStorage.writeFile("$GAMEDATA_DIR/$sequenceBackupName", sequenceContent)
+                        println("Backed up sequence to $sequenceBackupName")
+                    }
+                } else {
+                    println("Warning: Could not backup sequence file - maximum backups reached")
+                    // Continue anyway, but log the warning
                 }
             }
             
@@ -283,13 +288,20 @@ object RepositoryManager {
     
     /**
      * Find the next available sequence backup name (sequence-1.json, sequence-2.json, etc.)
+     * @return The backup filename, or null if maximum backups reached
      */
-    private fun findNextSequenceBackupName(): String {
+    private fun findNextSequenceBackupName(): String? {
         var counter = 1
-        while (fileStorage.fileExists("$GAMEDATA_DIR/sequence-$counter.json")) {
+        val maxBackups = 999  // Safety limit to prevent infinite loop
+        while (counter <= maxBackups && fileStorage.fileExists("$GAMEDATA_DIR/sequence-$counter.json")) {
             counter++
         }
-        return "sequence-$counter.json"
+        return if (counter <= maxBackups) {
+            "sequence-$counter.json"
+        } else {
+            println("Warning: Maximum number of sequence backups ($maxBackups) reached")
+            null
+        }
     }
     
     /**
