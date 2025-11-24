@@ -157,19 +157,19 @@ fun QuickAddWaypointDialog(
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     Row(
-                        verticalAlignment = Alignment.Companion.CenterVertically,
+                        verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier.Companion.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth()
                     ) {
                         Number1Icon(size = 18.dp)
                         Text(
                             text = stringResource(Res.string.waypoint_source),
                             style = MaterialTheme.typography.titleSmall,
-                            modifier = Modifier.Companion.weight(1f)
+                            modifier = Modifier.weight(1f)
                         )
                         // Checkbox to show/hide already connected sources
                         Row(
-                            verticalAlignment = Alignment.Companion.CenterVertically,
+                            verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
                             Checkbox(
@@ -196,12 +196,7 @@ fun QuickAddWaypointDialog(
                                     selectedSource = pos
                                     errorMessage = null
                                 },
-                                label = {
-                                    Text(
-                                        text = if (isSpawn) "S(${pos.x},${pos.y})" else "W(${pos.x},${pos.y})",
-                                        style = MaterialTheme.typography.bodySmall
-                                    )
-                                },
+                                label = { WaypointLabel(pos, isSpawn, false, false) },
                                 leadingIcon = if (selectedSource == pos) {
                                     { CheckmarkIcon(size = 14.dp) }
                                 } else null
@@ -217,7 +212,7 @@ fun QuickAddWaypointDialog(
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     Row(
-                        verticalAlignment = Alignment.Companion.CenterVertically,
+                        verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         Number2Icon(size = 18.dp)
@@ -230,7 +225,7 @@ fun QuickAddWaypointDialog(
                     FlowRow(
                         horizontalArrangement = Arrangement.spacedBy(4.dp),
                         verticalArrangement = Arrangement.spacedBy(4.dp),
-                        modifier = Modifier.Companion.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth()
                     ) {
                         validTargets.forEach { pos ->
                             val isTarget = target == pos
@@ -241,21 +236,7 @@ fun QuickAddWaypointDialog(
                                     selectedTarget = pos
                                     errorMessage = null
                                 },
-                                label = {
-                                    Row(
-                                        horizontalArrangement = Arrangement.spacedBy(4.dp),
-                                        verticalAlignment = Alignment.Companion.CenterVertically
-                                    ) {
-                                        Text(
-                                            text = if (isTarget) "T(${pos.x},${pos.y})" else "W(${pos.x},${pos.y})",
-                                            style = MaterialTheme.typography.bodySmall
-                                        )
-                                        // Show green checkmark if this position is the target or connected to target
-                                        if (isConnectedToTarget) {
-                                            CheckmarkIcon(size = 12.dp, tint = Color.Companion.Green)
-                                        }
-                                    }
-                                },
+                                label = { WaypointLabel(pos, false, isTarget, isConnectedToTarget) },
                                 leadingIcon = if (selectedTarget == pos) {
                                     { CheckmarkIcon(size = 14.dp) }
                                 } else null
@@ -268,7 +249,7 @@ fun QuickAddWaypointDialog(
                 if (errorMessage != null) {
                     Text(
                         text = errorMessage!!,
-                        color = Color.Companion.Red,
+                        color = Color.Red,
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
@@ -300,4 +281,36 @@ fun QuickAddWaypointDialog(
             }
         }
     )
+}
+
+/*
+                                label = {
+                                    Text(
+                                        text = (if (isSpawn) "S" else "W") + "(${pos.x},${pos.y})",
+                                        style = MaterialTheme.typography.bodySmall
+                                    )
+                                },
+ */
+@Composable
+private fun WaypointLabel(
+    pos: Position,
+    isSpawn: Boolean,
+    isTarget: Boolean,
+    isConnectedToTarget: Boolean
+){
+    val waypointPrefix = if (isTarget) "T" else if (isSpawn) "S" else "W"
+
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = "$waypointPrefix(${pos.x},${pos.y})",
+            style = MaterialTheme.typography.bodySmall
+        )
+        // Show green checkmark if this position is the target or connected to target
+        if (isConnectedToTarget) {
+            CheckmarkIcon(size = 12.dp, tint = Color.Green)
+        }
+    }
 }
