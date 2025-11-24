@@ -24,8 +24,13 @@ import kotlin.math.sqrt
 
 // Minimap configuration
 private const val MINIMAP_HEX_SIZE = 2.0f  // Doubled from original 1.0f for better visibility
+private const val CONNECTION_STROKE_WIDTH = 2.0f  // Stroke width for waypoint connections
 
-// Color palette for different target destinations
+/**
+ * Color palette for different target destinations.
+ * Supports up to 8 distinct targets. If there are more than 8 targets,
+ * colors will wrap around using modulo operator (e.g., 9th target uses same color as 1st).
+ */
 private val TARGET_COLORS = listOf(
     Color(0xFFFFD700), // Gold
     Color(0xFF00FFFF), // Cyan
@@ -38,9 +43,10 @@ private val TARGET_COLORS = listOf(
 )
 
 /**
- * Determines which final target position a waypoint ultimately leads to by following the chain
+ * Determines which final target position a waypoint ultimately leads to by following the chain.
+ * Made internal for testing purposes.
  */
-private fun findUltimateTarget(
+internal fun findUltimateTarget(
     waypoint: EditorWaypoint,
     allWaypoints: List<EditorWaypoint>,
     targets: List<Position>
@@ -331,7 +337,7 @@ fun WaypointMinimap(
                 color = connectionColor,
                 start = Offset(sourceCenterX, sourceCenterY),
                 end = Offset(targetCenterX, targetCenterY),
-                strokeWidth = 2.0f
+                strokeWidth = CONNECTION_STROKE_WIDTH
             )
         }
     }
