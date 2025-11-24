@@ -155,7 +155,8 @@ data class EditorMap(
 data class EditorEnemySpawn(
     val attackerType: AttackerType,
     val level: Int = 1,
-    val spawnTurn: Int
+    val spawnTurn: Int,
+    val spawnPoint: Position? = null  // Fixed spawn point for this enemy (null for backward compatibility)
 ) {
     val healthPoints: Int get() = attackerType.health * level
 }

@@ -448,6 +448,8 @@
     <string name="circular_dependency_detected">Dipendenza circolare rilevata! Correggi le connessioni dei punti di passaggio.</string>
     <string name="waypoint_position_format">Posizione (%d, %d)</string>
     <string name="spawn_point_text">Punto di Spawn</string>
+    <string name="spawn_point">Punto di Spawn</string>
+    <string name="select_spawn_point">Seleziona punto di spawn</string>
     <string name="target_text">Obiettivo</string>
     <string name="waypoint">Punto di Passaggio</string>
     <string name="select_source_position">Seleziona posizione sorgente</string>

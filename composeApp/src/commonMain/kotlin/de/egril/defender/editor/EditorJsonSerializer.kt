@@ -66,7 +66,12 @@ object EditorJsonSerializer {
     
     fun serializeLevel(level: EditorLevel): String {
         val spawnsJson = level.enemySpawns.joinToString(",\n    ") { spawn ->
-            """{"attackerType": "${spawn.attackerType.name}", "level": ${spawn.level}, "spawnTurn": ${spawn.spawnTurn}}"""
+            val spawnPointJson = if (spawn.spawnPoint != null) {
+                """, "spawnPoint": {"x": ${spawn.spawnPoint.x}, "y": ${spawn.spawnPoint.y}}"""
+            } else {
+                ""
+            }
+            """{"attackerType": "${spawn.attackerType.name}", "level": ${spawn.level}, "spawnTurn": ${spawn.spawnTurn}$spawnPointJson}"""
         }
         
         val towersJson = level.availableTowers.joinToString(", ") { "\"${it.name}\"" }
@@ -111,7 +116,22 @@ object EditorJsonSerializer {
                 val attackerType = AttackerType.valueOf(JsonUtils.extractValue(entry, "attackerType"))
                 val level = JsonUtils.extractValue(entry, "level").toInt()
                 val spawnTurn = JsonUtils.extractValue(entry, "spawnTurn").toInt()
-                spawns.add(EditorEnemySpawn(attackerType, level, spawnTurn))
+                
+                // Parse spawn point (optional for backward compatibility)
+                val spawnPoint = if (entry.contains("\"spawnPoint\"")) {
+                    try {
+                        val spawnPointSection = entry.substringAfter("\"spawnPoint\": {").substringBefore("}")
+                        val x = JsonUtils.extractValue("{$spawnPointSection}", "x").toInt()
+                        val y = JsonUtils.extractValue("{$spawnPointSection}", "y").toInt()
+                        Position(x, y)
+                    } catch (e: Exception) {
+                        null
+                    }
+                } else {
+                    null
+                }
+                
+                spawns.add(EditorEnemySpawn(attackerType, level, spawnTurn, spawnPoint))
             }
             
             // Parse available towers

@@ -322,7 +322,8 @@ object EditorStorage {
             PlannedEnemySpawn(
                 attackerType = spawn.attackerType,
                 spawnTurn = spawn.spawnTurn,
-                level = spawn.level
+                level = spawn.level,
+                spawnPoint = spawn.spawnPoint
             )
         }.sortedBy { it.spawnTurn }
         
