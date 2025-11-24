@@ -1,6 +1,7 @@
 package de.egril.defender.model
 
 import de.egril.defender.editor.RepositoryLoader
+import de.egril.defender.utils.runBlockingCompat
 
 /**
  * List of dragon names that can be loaded from repository or fall back to defaults
@@ -231,7 +232,7 @@ object DragonNames {
             // Try to load from repository
             try {
                 loadAttempted = true
-                kotlinx.coroutines.runBlocking {
+                runBlockingCompat {
                     loadedNames = RepositoryLoader.loadDragonNames()
                 }
                 
