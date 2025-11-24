@@ -29,6 +29,7 @@ fun SettingsDialog(
     var showRestoreConfirmation by remember { mutableStateOf(false) }
     var showRestoreSuccess by remember { mutableStateOf(false) }
     var backupPath by remember { mutableStateOf("") }
+    var isRestoring by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     
     Dialog(onDismissRequest = onDismiss) {
@@ -200,7 +201,8 @@ fun SettingsDialog(
                         onClick = {
                             showRestoreConfirmation = true
                         },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = !isRestoring
                     ) {
                         Text(stringResource(Res.string.restore_game_data))
                     }
@@ -239,12 +241,18 @@ fun SettingsDialog(
         ConfirmationDialog(
             title = stringResource(Res.string.restore_game_data_confirm_title),
             message = stringResource(Res.string.restore_game_data_confirm_message),
-            onDismiss = { showRestoreConfirmation = false },
+            onDismiss = { 
+                if (!isRestoring) {
+                    showRestoreConfirmation = false
+                }
+            },
             onConfirm = {
                 showRestoreConfirmation = false
+                isRestoring = true
                 // Perform restore in a coroutine
                 scope.launch {
                     val result = RepositoryManager.restoreFromRepository()
+                    isRestoring = false
                     if (result != null) {
                         backupPath = result
                         showRestoreSuccess = true
