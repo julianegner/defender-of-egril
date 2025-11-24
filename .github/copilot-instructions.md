@@ -308,10 +308,10 @@ Add to `LevelData.createLevels()` with:
 ## Documentation
 
 - `README.md`: Overview and quick start
-- `DEVELOPMENT.md`: Detailed architecture and development guide
-- `GAMEPLAY.md`: Game mechanics and rules
+- `docs/root/DEVELOPMENT.md`: Detailed architecture and development guide
+- `docs/root/GAMEPLAY.md`: Game mechanics and rules
 - `docs/guides/TESTING_GUIDE.md`: Manual testing procedures for UI
-- `RUNNING.md`: Platform-specific running instructions
+- `docs/root/RUNNING.md`: Platform-specific running instructions
 - `docs/guides/LEVEL_EDITOR.md`: Level editor features and usage (desktop and web/wasm only)
 - `docs/implementation/SAVE_LOAD_IMPLEMENTATION.md`: Save/load system architecture
 - `docs/features/GAMEPLAY_SCREEN_EXTRACTION.md`: UI component refactoring details
@@ -353,8 +353,8 @@ Add to `LevelData.createLevels()` with:
 ## Resources
 
 For more details, refer to:
-- Architecture: `DEVELOPMENT.md`
-- Game rules: `GAMEPLAY.md`
+- Architecture: `docs/root/DEVELOPMENT.md`
+- Game rules: `docs/root/GAMEPLAY.md`
 - Testing: `docs/guides/TESTING_GUIDE.md`
 - Level Editor: `docs/guides/LEVEL_EDITOR.md`
 - Save/Load: `docs/implementation/SAVE_LOAD_IMPLEMENTATION.md`
