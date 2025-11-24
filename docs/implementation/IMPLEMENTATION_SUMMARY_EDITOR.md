@@ -11,7 +11,7 @@ This document provides a summary of the level editor feature implementation for 
    - Implemented platform-specific file storage (desktop: filesystem, mobile: in-memory)
    - Created custom JSON serialization for saving/loading editor data
    - Converted all 6 existing levels to the new format
-   - Storage location on desktop: `~/.defender-of-egril/editor/`
+   - Storage location on desktop: `~/.defender-of-egril/gamedata/`
 
 2. **Level Editor UI**
    - Three-tab interface accessible from World Map (desktop only)
@@ -97,7 +97,7 @@ composeApp/src/
 ### Runtime File Structure (Desktop)
 
 ```
-~/.defender-of-egril/editor/
+~/.defender-of-egril/gamedata/
 ├── maps/
 │   ├── map_30x8.json
 │   ├── map_35x9.json
@@ -129,7 +129,7 @@ composeApp/src/
 - View all maps and their properties
 - View all levels and their configuration
 - Reorder levels using up/down buttons in the Level Sequence tab
-- Manually edit JSON files in `~/.defender-of-egril/editor/`
+- Manually edit JSON files in `~/.defender-of-egril/gamedata/`
 - Create new maps/levels by copying and modifying JSON files
 
 **What You Cannot Do (Yet):**
@@ -142,7 +142,7 @@ composeApp/src/
 
 You can manually edit the JSON files to create custom content:
 
-1. Navigate to `~/.defender-of-egril/editor/`
+1. Navigate to `~/.defender-of-egril/gamedata/`
 2. Copy an existing file (e.g., `cp levels/level_1.json levels/level_custom.json`)
 3. Edit the JSON file with any text editor
 4. Update `sequence.json` to include your new level
