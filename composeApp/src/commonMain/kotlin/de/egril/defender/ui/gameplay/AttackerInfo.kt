@@ -199,6 +199,39 @@ fun AttackerInfo(
                             color = GamePlayColors.InfoDark
                         )
                     }
+                    
+                    // Mighty unit warning - for wizards, witches, demons, dragons
+                    val isMightyUnit = when (attacker.type) {
+                        AttackerType.EVIL_WIZARD,
+                        AttackerType.WITCH,
+                        AttackerType.RED_WITCH,
+                        AttackerType.GREEN_WITCH,
+                        AttackerType.EVIL_MAGE,
+                        AttackerType.BLUE_DEMON,
+                        AttackerType.RED_DEMON,
+                        AttackerType.DRAGON -> true
+                        else -> false
+                    }
+                    
+                    if (isMightyUnit) {
+                        val damage = attacker.level.value
+                        Text(
+                            stringResource(Res.string.mighty_unit_warning).replace("%d", damage.toString()),
+                            style = MaterialTheme.typography.bodySmall,
+                            fontWeight = FontWeight.Bold,
+                            color = GamePlayColors.ErrorDark
+                        )
+                    }
+                    
+                    // Special Ewhad warning
+                    if (attacker.type == AttackerType.EWHAD) {
+                        Text(
+                            stringResource(Res.string.ewhad_target_warning),
+                            style = MaterialTheme.typography.bodySmall,
+                            fontWeight = FontWeight.Bold,
+                            color = GamePlayColors.ErrorDark
+                        )
+                    }
                 }
             }
         }
