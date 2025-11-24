@@ -32,4 +32,34 @@ class RepositoryManagerTest {
         
         assertTrue(true, "Placeholder test")
     }
+    
+    @Test
+    fun testNewRepositoryDataStructure() {
+        // Test that NewRepositoryData data class can be created correctly
+        val newData = RepositoryManager.NewRepositoryData(
+            newMaps = listOf("map_test1", "map_test2"),
+            newLevels = listOf("level_test1", "level_test2", "level_test3"),
+            hasNewSequence = true
+        )
+        
+        assertNotNull(newData, "NewRepositoryData should not be null")
+        assertTrue(newData.newMaps.size == 2, "Should have 2 new maps")
+        assertTrue(newData.newLevels.size == 3, "Should have 3 new levels")
+        assertTrue(newData.hasNewSequence, "Should indicate new sequence")
+    }
+    
+    @Test
+    fun testNewRepositoryDataEmptyLists() {
+        // Test that NewRepositoryData handles empty lists correctly
+        val newData = RepositoryManager.NewRepositoryData(
+            newMaps = emptyList(),
+            newLevels = emptyList(),
+            hasNewSequence = false
+        )
+        
+        assertNotNull(newData, "NewRepositoryData should not be null")
+        assertTrue(newData.newMaps.isEmpty(), "Should have no new maps")
+        assertTrue(newData.newLevels.isEmpty(), "Should have no new levels")
+        assertFalse(newData.hasNewSequence, "Should not indicate new sequence")
+    }
 }
