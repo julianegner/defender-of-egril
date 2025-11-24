@@ -501,4 +501,14 @@
         <item quantity="one">%d health point</item>
         <item quantity="other">%d health points</item>
     </plurals>
+    
+    <!-- New Repository Data Dialog -->
+    <string name="new_repository_data_title">New Content Available</string>
+    <string name="new_repository_data_message">New maps and levels have been found in the repository that are not in your game data. Would you like to add them?</string>
+    <string name="new_maps_found">%d new map(s) found:</string>
+    <string name="new_levels_found">%d new level(s) found:</string>
+    <string name="and_more">and %d more...</string>
+    <string name="sequence_will_be_replaced">The level sequence will be updated.</string>
+    <string name="sequence_backup_warning">Note: If you had changed the sequence file, you will need to redo those changes. Your current sequence will be backed up to sequence-N.json.</string>
+    <string name="add_data">Add New Content</string>
 </resources>
