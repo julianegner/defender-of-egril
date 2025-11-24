@@ -24,6 +24,12 @@
     <string name="dark_mode_on">Dark Mode On</string>
     <string name="dark_mode_off">Dark Mode Off</string>
     <string name="reset_settings">Reset Settings</string>
+    <string name="restore_game_data">Restore Game Data</string>
+    <string name="restore_game_data_confirm_title">Restore Game Data?</string>
+    <string name="restore_game_data_confirm_message">This will backup your current game data and restore the original levels from the repository. Your current data will be preserved in a backup folder. Are you sure?</string>
+    <string name="restore_game_data_success_title">Game Data Restored</string>
+    <string name="restore_game_data_success_message">Game data has been restored from the repository.\n\nYour previous data was backed up to:\n%s</string>
+    <string name="game_data">Game Data</string>
     <string name="close">Close</string>
     
     <!-- Common Actions -->

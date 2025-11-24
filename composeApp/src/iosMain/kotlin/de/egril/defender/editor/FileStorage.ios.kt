@@ -104,6 +104,46 @@ class IosFileStorage : FileStorage {
         val filePath = "$baseDir/$path"
         fileManager.removeItemAtPath(filePath, error = null)
     }
+    
+    @OptIn(ExperimentalForeignApi::class)
+    override fun renameDirectory(oldPath: String, newPath: String): Boolean {
+        val oldDirPath = "$baseDir/$oldPath"
+        val newDirPath = "$baseDir/$newPath"
+        
+        if (!fileManager.fileExistsAtPath(oldDirPath)) {
+            return false
+        }
+        
+        return fileManager.moveItemAtPath(oldDirPath, toPath = newDirPath, error = null)
+    }
+    
+    @OptIn(ExperimentalForeignApi::class)
+    override fun copyDirectory(sourcePath: String, targetPath: String): Boolean {
+        val sourceDirPath = "$baseDir/$sourcePath"
+        val targetDirPath = "$baseDir/$targetPath"
+        
+        if (!fileManager.fileExistsAtPath(sourceDirPath)) {
+            return false
+        }
+        
+        return fileManager.copyItemAtPath(sourceDirPath, toPath = targetDirPath, error = null)
+    }
+    
+    @OptIn(ExperimentalForeignApi::class)
+    override fun deleteDirectory(path: String): Boolean {
+        val dirPath = "$baseDir/$path"
+        
+        if (!fileManager.fileExistsAtPath(dirPath)) {
+            return true // Already doesn't exist
+        }
+        
+        return fileManager.removeItemAtPath(dirPath, error = null)
+    }
+    
+    @OptIn(ExperimentalForeignApi::class)
+    override fun getAbsolutePath(path: String): String {
+        return "$baseDir/$path"
+    }
 }
 
 actual fun getFileStorage(): FileStorage = IosFileStorage()
