@@ -439,6 +439,8 @@
     <string name="very_greedy_desc">Mange les unités ennemies environnantes et détruit les mines l\'une après l\'autre</string>
     <string name="greed_level_label">Avidité</string>
     <string name="dragon_info_button">Que fait un dragon ?</string>
+    <string name="mighty_unit_warning">⚠️ Unité puissante ! Inflige %d PV de dégâts si elle atteint la cible (niveau × 1 PV)</string>
+    <string name="ewhad_target_warning">⚠️ BOSS ! Si Ewhad atteint la cible, le niveau est perdu !</string>
 <!-- Waypoint Editor -->
     <string name="waypoints_tab">Points de Passage</string>
     <string name="waypoints_title">Connexions des Points de Passage</string>
