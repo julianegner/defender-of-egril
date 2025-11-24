@@ -51,7 +51,8 @@ fun App() {
                     onShowRules = { viewModel.navigateToRules() },
                     onOpenEditor = { viewModel.navigateToLevelEditor() },
                     onLoadGame = { viewModel.navigateToLoadGame() },
-                    onCheatCode = { code -> viewModel.applyWorldMapCheatCode(code) }
+                    onCheatCode = { code -> viewModel.applyWorldMapCheatCode(code) },
+                    onReloadWorldMap = { viewModel.reloadWorldMap() }
                 )
             }
             

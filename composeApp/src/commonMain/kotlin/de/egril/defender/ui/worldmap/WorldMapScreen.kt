@@ -33,6 +33,7 @@ fun WorldMapScreen(
     onOpenEditor: () -> Unit,
     onLoadGame: () -> Unit,
     onCheatCode: ((String) -> Boolean)? = null,  // Callback for processing cheat codes, returns true if code was valid
+    onReloadWorldMap: (() -> Unit)? = null,  // Callback to reload world map after syncing repository files
     checkForNewRepositoryData: Boolean = true  // Set to false in tests to avoid repository checks
 ) {
     var showCheatDialog by remember { mutableStateOf(false) }
@@ -161,10 +162,10 @@ fun WorldMapScreen(
                         val success = RepositoryManager.syncNewRepositoryFiles()
                         if (success) {
                             println("Successfully synced new repository files")
-                            // Could show a success message here if desired
+                            // Reload the world map to show the new levels
+                            onReloadWorldMap?.invoke()
                         } else {
                             println("Failed to sync repository files")
-                            // Could show an error message here if desired
                         }
                     } catch (e: Exception) {
                         println("Error syncing repository files: ${e.message}")
