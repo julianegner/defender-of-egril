@@ -510,4 +510,10 @@
     <string name="sequence_will_be_replaced">Die Level-Reihenfolge wird aktualisiert.</string>
     <string name="sequence_backup_warning">Hinweis: Wenn Sie die Sequenzdatei geändert haben, müssen Sie diese Änderungen erneut vornehmen. Ihre aktuelle Sequenz wird unter sequence-N.json gesichert.</string>
     <string name="add_data">Neue Inhalte hinzufügen</string>
+    
+    <!-- Unsaved Changes Dialog -->
+    <string name="unsaved_changes_title">Nicht gespeicherte Änderungen</string>
+    <string name="unsaved_changes_message">Sie haben nicht gespeicherten Fortschritt in diesem Level. Was möchten Sie tun?</string>
+    <string name="save_and_exit">Speichern und Beenden</string>
+    <string name="discard_changes">Änderungen verwerfen</string>
 </resources>
