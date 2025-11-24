@@ -28,6 +28,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
 import de.egril.defender.editor.EditorMap
@@ -312,7 +313,8 @@ private fun WaypointLabel(
     ) {
         Text(
             text = "$waypointPrefix(${pos.x},${pos.y})",
-            style = MaterialTheme.typography.bodySmall
+            style = MaterialTheme.typography.bodySmall,
+            fontWeight = if (isSpawn || isTarget) FontWeight.Bold else FontWeight.Normal
         )
         // Show green checkmark if this position is the target or connected to target
         if (isConnectedToTarget) {
