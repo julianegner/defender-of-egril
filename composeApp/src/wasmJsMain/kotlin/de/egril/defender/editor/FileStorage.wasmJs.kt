@@ -48,6 +48,76 @@ class WasmJsFileStorage : FileStorage {
     override fun deleteFile(path: String) {
         localStorage.removeItem(PREFIX + path)
     }
+    
+    override fun renameDirectory(oldPath: String, newPath: String): Boolean {
+        // For localStorage, we need to rename all keys with the old prefix
+        val oldPrefix = PREFIX + oldPath + "/"
+        val newPrefix = PREFIX + newPath + "/"
+        val keysToRename = mutableListOf<Pair<String, String>>()
+        
+        for (i in 0 until localStorage.length) {
+            val key = localStorage.key(i)
+            if (key != null && key.startsWith(oldPrefix)) {
+                val content = localStorage.getItem(key) ?: continue
+                val newKey = key.replaceFirst(oldPrefix, newPrefix)
+                keysToRename.add(key to newKey)
+            }
+        }
+        
+        // Perform the rename
+        keysToRename.forEach { (oldKey, newKey) ->
+            val content = localStorage.getItem(oldKey)
+            if (content != null) {
+                localStorage.setItem(newKey, content)
+                localStorage.removeItem(oldKey)
+            }
+        }
+        
+        return keysToRename.isNotEmpty()
+    }
+    
+    override fun copyDirectory(sourcePath: String, targetPath: String): Boolean {
+        // For localStorage, we need to copy all keys with the source prefix
+        val sourcePrefix = PREFIX + sourcePath + "/"
+        val targetPrefix = PREFIX + targetPath + "/"
+        var copied = false
+        
+        for (i in 0 until localStorage.length) {
+            val key = localStorage.key(i)
+            if (key != null && key.startsWith(sourcePrefix)) {
+                val content = localStorage.getItem(key) ?: continue
+                val newKey = key.replaceFirst(sourcePrefix, targetPrefix)
+                localStorage.setItem(newKey, content)
+                copied = true
+            }
+        }
+        
+        return copied
+    }
+    
+    override fun deleteDirectory(path: String): Boolean {
+        // For localStorage, we need to delete all keys with the prefix
+        val prefix = PREFIX + path + "/"
+        val keysToDelete = mutableListOf<String>()
+        
+        for (i in 0 until localStorage.length) {
+            val key = localStorage.key(i)
+            if (key != null && key.startsWith(prefix)) {
+                keysToDelete.add(key)
+            }
+        }
+        
+        keysToDelete.forEach { key ->
+            localStorage.removeItem(key)
+        }
+        
+        return true
+    }
+    
+    override fun getAbsolutePath(path: String): String {
+        // For browser storage, return a descriptive path
+        return "Browser Storage: $path"
+    }
 }
 
 actual fun getFileStorage(): FileStorage = WasmJsFileStorage()
