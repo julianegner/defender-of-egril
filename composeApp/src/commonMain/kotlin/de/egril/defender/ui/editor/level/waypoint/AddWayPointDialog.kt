@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
@@ -41,7 +42,8 @@ import defender_of_egril.composeapp.generated.resources.waypoint_exists_error
  */
 @Composable
 fun AddWaypointDialog(
-    validWaypointPositions: List<Position>,
+    existingWaypointPositions: List<Position>,
+    pathTiles: List<Position>,
     spawnPoints: List<Position>,
     targets: List<Position>,
     existingWaypoints: List<EditorWaypoint>,
@@ -51,15 +53,21 @@ fun AddWaypointDialog(
     var selectedSource by remember { mutableStateOf<Position?>(null) }
     var selectedTarget by remember { mutableStateOf<Position?>(null) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
+    var showAllPathTiles by remember { mutableStateOf(false) }
 
-    // Valid source positions: spawn points + all valid waypoint positions
-    val validSources = remember(spawnPoints, validWaypointPositions) {
-        (spawnPoints + validWaypointPositions).distinct()
+    // Valid source positions: spawn points + existing waypoint positions
+    val validSources = remember(spawnPoints, existingWaypointPositions) {
+        (spawnPoints + existingWaypointPositions).distinct()
     }
 
-    // Valid target positions: all valid waypoint positions + all targets
-    val validTargets = remember(validWaypointPositions, targets) {
-        (validWaypointPositions + targets).distinct()
+    // Valid target positions: existing waypoint positions + targets + optionally all path tiles
+    val validTargets = remember(existingWaypointPositions, targets, pathTiles, showAllPathTiles) {
+        val baseTargets = (existingWaypointPositions + targets).distinct()
+        if (showAllPathTiles) {
+            (baseTargets + pathTiles).distinct()
+        } else {
+            baseTargets
+        }
     }
 
     // Get error message strings in composable context
@@ -112,10 +120,28 @@ fun AddWaypointDialog(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 // Target selection
-                Text(
-                    text = stringResource(Res.string.select_target_position),
-                    style = MaterialTheme.typography.labelMedium
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = stringResource(Res.string.select_target_position),
+                        style = MaterialTheme.typography.labelMedium
+                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Checkbox(
+                            checked = showAllPathTiles,
+                            onCheckedChange = { showAllPathTiles = it }
+                        )
+                        Text(
+                            text = "Show all path tiles",
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                }
 
                 LazyColumn(
                     modifier = Modifier.fillMaxWidth().height(200.dp),
@@ -123,10 +149,11 @@ fun AddWaypointDialog(
                 ) {
                     items(validTargets) { pos ->
                         val isTarget = targets.contains(pos)
-                        val label = if (isTarget) {
-                            "${stringResource(Res.string.target_text)} (${pos.x}, ${pos.y})"
-                        } else {
-                            "${stringResource(Res.string.waypoint)} (${pos.x}, ${pos.y})"
+                        val isExistingWaypoint = existingWaypointPositions.contains(pos)
+                        val label = when {
+                            isTarget -> "${stringResource(Res.string.target_text)} (${pos.x}, ${pos.y})"
+                            isExistingWaypoint -> "${stringResource(Res.string.waypoint)} (${pos.x}, ${pos.y})"
+                            else -> "Path (${pos.x}, ${pos.y})"
                         }
 
                         Row(
