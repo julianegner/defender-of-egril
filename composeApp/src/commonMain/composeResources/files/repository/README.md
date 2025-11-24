@@ -108,8 +108,8 @@ You can create new levels using the in-game Level Editor (desktop and web/wasm o
 4. Create/edit levels in the Level Editor tab
 5. Arrange levels in the Level Sequence tab
 6. Files are automatically saved to your local editor directory:
-   - Linux/Mac: `~/.defender-of-egril/editor/`
-   - Windows: `%USERPROFILE%\.defender-of-egril\editor\`
+   - Linux/Mac: `~/.defender-of-egril/gamedata/`
+   - Windows: `%USERPROFILE%\.defender-of-egril\gamedata\`
 
 To add these files to the repository:
 

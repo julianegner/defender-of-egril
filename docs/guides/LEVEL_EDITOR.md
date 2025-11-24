@@ -15,13 +15,13 @@ The Level Editor is a desktop-only feature that allows you to create and edit cu
 
 All editor data is stored in JSON format on your local filesystem:
 
-- **Linux/Mac**: `~/.defender-of-egril/editor/`
-- **Windows**: `%USERPROFILE%\.defender-of-egril\editor\`
+- **Linux/Mac**: `~/.defender-of-egril/gamedata/`
+- **Windows**: `%USERPROFILE%\.defender-of-egril\gamedata\`
 
 ### Directory Structure
 
 ```
-~/.defender-of-egril/editor/
+~/.defender-of-egril/gamedata/
 ├── maps/
 │   ├── map_30x8.json
 │   ├── map_35x9.json
@@ -172,7 +172,7 @@ When the app starts:
 
 This allows you to:
 - Create levels using the desktop editor
-- Copy the JSON files from `~/.defender-of-egril/editor/` to the repository
+- Copy the JSON files from `~/.defender-of-egril/gamedata/` to the repository
 - Rebuild the app to include your levels on all platforms
 
 See `composeApp/src/commonMain/composeResources/files/repository/README.md` for detailed documentation on the repository format and usage.
