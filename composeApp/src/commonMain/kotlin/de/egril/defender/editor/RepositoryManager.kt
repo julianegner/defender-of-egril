@@ -7,6 +7,8 @@ import de.egril.defender.utils.runBlockingCompat
  */
 object RepositoryManager {
     private val fileStorage = getFileStorage()
+    private const val GAMEDATA_DIR = "gamedata"
+    private const val GAMEDATA_BACKUP_PREFIX = "gamedata-"
     
     /**
      * Restore game data from repository.
@@ -28,8 +30,8 @@ object RepositoryManager {
             val backupFolderName = findNextBackupFolderName()
             
             // Backup current gamedata if it exists
-            if (fileStorage.fileExists("gamedata")) {
-                val renamed = fileStorage.renameDirectory("gamedata", backupFolderName)
+            if (fileStorage.fileExists(GAMEDATA_DIR)) {
+                val renamed = fileStorage.renameDirectory(GAMEDATA_DIR, backupFolderName)
                 if (!renamed) {
                     println("Failed to backup gamedata folder")
                     return null
@@ -38,9 +40,9 @@ object RepositoryManager {
             }
             
             // Create new gamedata directory
-            fileStorage.createDirectory("gamedata")
-            fileStorage.createDirectory("gamedata/maps")
-            fileStorage.createDirectory("gamedata/levels")
+            fileStorage.createDirectory(GAMEDATA_DIR)
+            fileStorage.createDirectory("$GAMEDATA_DIR/maps")
+            fileStorage.createDirectory("$GAMEDATA_DIR/levels")
             
             // Load and save repository files
             val success = RepositoryLoader.loadAndSaveRepositoryFiles(fileStorage)
@@ -49,8 +51,8 @@ object RepositoryManager {
                 println("Failed to load repository files")
                 // Try to restore backup if loading failed
                 if (fileStorage.fileExists(backupFolderName)) {
-                    fileStorage.deleteDirectory("gamedata")
-                    fileStorage.renameDirectory(backupFolderName, "gamedata")
+                    fileStorage.deleteDirectory(GAMEDATA_DIR)
+                    fileStorage.renameDirectory(backupFolderName, GAMEDATA_DIR)
                 }
                 return null
             }
@@ -79,10 +81,10 @@ object RepositoryManager {
      */
     private fun findNextBackupFolderName(): String {
         var counter = 1
-        while (fileStorage.fileExists("gamedata-$counter")) {
+        while (fileStorage.fileExists("$GAMEDATA_BACKUP_PREFIX$counter")) {
             counter++
         }
-        return "gamedata-$counter"
+        return "$GAMEDATA_BACKUP_PREFIX$counter"
     }
     
     /**
