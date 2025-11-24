@@ -500,4 +500,14 @@
         <item quantity="one">%d Lebenspunkt</item>
         <item quantity="other">%d Lebenspunkte</item>
     </plurals>
+    
+    <!-- New Repository Data Dialog -->
+    <string name="new_repository_data_title">Neue Inhalte verfügbar</string>
+    <string name="new_repository_data_message">Neue Karten und Level wurden im Repository gefunden, die nicht in Ihren Spieldaten vorhanden sind. Möchten Sie diese hinzufügen?</string>
+    <string name="new_maps_found">%d neue Karte(n) gefunden:</string>
+    <string name="new_levels_found">%d neue(s) Level gefunden:</string>
+    <string name="and_more">und %d weitere...</string>
+    <string name="sequence_will_be_replaced">Die Level-Reihenfolge wird aktualisiert.</string>
+    <string name="sequence_backup_warning">Hinweis: Wenn Sie die Sequenzdatei geändert haben, müssen Sie diese Änderungen erneut vornehmen. Ihre aktuelle Sequenz wird unter sequence-N.json gesichert.</string>
+    <string name="add_data">Neue Inhalte hinzufügen</string>
 </resources>
