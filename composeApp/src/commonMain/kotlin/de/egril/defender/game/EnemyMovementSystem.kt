@@ -365,7 +365,8 @@ class EnemyMovementSystem(
                     attacker.position.value = newPos
                     
                     // Check if reached a waypoint and update target BEFORE next move
-                    if (state.level.isWaypoint(newPos)) {
+                    // Only update if the waypoint position is the current target
+                    if (state.level.isWaypoint(newPos) && attacker.currentTarget?.value == newPos) {
                         val waypoint = state.level.getWaypointAt(newPos)
                         if (waypoint != null && attacker.currentTarget != null) {
                             attacker.currentTarget.value = waypoint.nextTarget
