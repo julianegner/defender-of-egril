@@ -180,7 +180,7 @@ fun MyScreen() {
 - **LOCALIZATION_IMPLEMENTATION.md** - Complete technical guide
 - **SETTINGS_UI_GUIDE.md** - Visual mockups and UI guide
 - **README.md** - Should be updated to mention localization support
-- **DEVELOPMENT.md** - Should be updated with localization info
+- **../root/DEVELOPMENT.md** - Should be updated with localization info
 
 ## Verification Checklist
 

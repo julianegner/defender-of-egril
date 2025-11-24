@@ -144,9 +144,11 @@ defender-of-egril/
 │   ├── wrapper/              # Gradle wrapper
 │   └── libs.versions.toml    # Version catalog
 ├── README.md                 # Project overview
-├── QUICKSTART.md             # Getting started
-├── RUNNING.md                # Runtime instructions
-├── DEVELOPMENT.md            # Developer guide
+├── docs/
+│   └── root/
+│       ├── QUICKSTART.md     # Getting started
+│       ├── RUNNING.md        # Runtime instructions
+│       └── DEVELOPMENT.md    # Developer guide
 ├── LICENSE                   # GNU Affero General Public License
 ├── build.gradle.kts          # Root build config
 ├── settings.gradle.kts       # Project settings
