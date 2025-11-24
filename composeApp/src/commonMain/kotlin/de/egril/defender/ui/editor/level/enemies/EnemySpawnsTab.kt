@@ -20,6 +20,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
 import de.egril.defender.editor.EditorEnemySpawn
+import de.egril.defender.editor.EditorMap
+import de.egril.defender.ui.editor.level.ChangeSpawnPointDialog
 import de.egril.defender.ui.editor.level.SpawnTurnSection
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.add_turn
@@ -37,10 +39,14 @@ fun EnemySpawnsTab(
     onEnemySpawnsChange: (MutableList<EditorEnemySpawn>) -> Unit,
     ewhadCount: Int,
     onShowEnemyDialog: (Int) -> Unit,
-    onShowRemoveAllTurnsDialog: () -> Unit
+    onShowRemoveAllTurnsDialog: () -> Unit,
+    map: EditorMap?
 ) {
     // Track the last added turn to keep it expanded
     var lastAddedTurn by remember { mutableStateOf<Int?>(null) }
+    
+    // Track spawn point change dialog
+    var spawnToChange by remember { mutableStateOf<EditorEnemySpawn?>(null) }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -165,9 +171,32 @@ fun EnemySpawnsTab(
                     },
                     canMoveUp = index > 0,
                     canMoveDown = index < allTurns.size - 1,
-                    ewhadCount = ewhadCount
+                    ewhadCount = ewhadCount,
+                    onChangeSpawnPoint = { spawn ->
+                        spawnToChange = spawn
+                    }
                 )
             }
         }
+    }
+    
+    // Change spawn point dialog
+    spawnToChange?.let { spawn ->
+        ChangeSpawnPointDialog(
+            spawn = spawn,
+            map = map,
+            onDismiss = { spawnToChange = null },
+            onChange = { newSpawnPoint ->
+                val newSpawns = enemySpawns.map {
+                    if (it === spawn) {
+                        it.copy(spawnPoint = newSpawnPoint)
+                    } else {
+                        it
+                    }
+                }.toMutableList()
+                onEnemySpawnsChange(newSpawns)
+                spawnToChange = null
+            }
+        )
     }
 }
