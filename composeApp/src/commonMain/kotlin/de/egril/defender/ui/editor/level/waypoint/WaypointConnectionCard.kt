@@ -37,7 +37,7 @@ fun WaypointConnectionCard(
     waypoint: EditorWaypoint,
     spawnPoints: List<Position>,
     waypointTiles: List<Position>,
-    target: Position?,
+    targets: List<Position>,
     isInCircular: Boolean,
     isUnconnected: Boolean,
     onDelete: () -> Unit
@@ -101,7 +101,7 @@ fun WaypointConnectionCard(
                     tint = if (isInCircular) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 PositionText(waypoint.nextTargetPosition, MaterialTheme.typography.bodyLarge)
-                
+
                 // Warning icons next to target position
                 if (isInCircular || isUnconnected) {
                     WarningIcon(size = 16.dp)
@@ -109,11 +109,29 @@ fun WaypointConnectionCard(
             }
 
             // Target position type
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                if (target == waypoint.nextTargetPosition) {
+            Column(modifier = Modifier.weight(1f)) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = stringResource(Res.string.waypoint_position_format,
+                            waypoint.nextTargetPosition.x,
+                            waypoint.nextTargetPosition.y
+                        ),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+
+                    // Warning icons
+                    if (isInCircular) {
+                        WarningIcon(size = 14.dp)
+                    }
+                    if (isUnconnected) {
+                        WarningIcon(size = 14.dp)
+                    }
+                }
+
+                if (targets.contains(waypoint.nextTargetPosition)) {
                     Text(
                         text = stringResource(Res.string.target_text),
                         style = MaterialTheme.typography.labelMedium,

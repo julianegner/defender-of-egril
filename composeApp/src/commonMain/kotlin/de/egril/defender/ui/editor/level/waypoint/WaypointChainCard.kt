@@ -20,7 +20,7 @@ import de.egril.defender.model.Position
 fun WaypointChainCard(
     chain: WaypointChain,
     spawnPoints: List<Position>,
-    target: Position?,
+    targets: List<Position>,
     circularDeps: Set<Position>,
     unconnectedWaypoints: Set<Position>,
     onDeleteConnection: (Position) -> Unit,
@@ -59,7 +59,7 @@ fun WaypointChainCard(
                 WaypointChainNode(
                     position = chain.endPosition,
                     isSpawn = false,
-                    isTarget = chain.endPosition == target,
+                    isTarget = targets.contains(chain.endPosition),
                     isInCircular = circularDeps.contains(chain.endPosition),
                     isUnconnected = unconnectedWaypoints.contains(chain.endPosition),
                     indentLevel = chain.positions.size,

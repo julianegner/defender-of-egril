@@ -276,13 +276,13 @@ object EditorStorage {
         }
         
         // check if the waypoints of the level are valid
-        val target = map.getTarget()
-        if (target == null) {
+        val targets = map.getTargets()
+        if (targets.isEmpty()) {
             return false
         }
         
         val spawnPoints = map.getSpawnPoints()
-        val waypointValidationResult = level.validateWaypointsDetailed(targetPosition = target, spawnPoints = spawnPoints)
+        val waypointValidationResult = level.validateWaypointsDetailed(targetPositions = targets, spawnPoints = spawnPoints)
         return waypointValidationResult.isValid
     }
     
@@ -339,8 +339,11 @@ object EditorStorage {
         }
         println("Converted to ${waves.size} attacker waves for compatibility.")
 
-        val target = map.getTarget() ?: return null
-        println("Target position: $target")
+        // Get all target positions from the map
+        val targets = map.getTargets()
+        if (targets.isEmpty()) return null
+        println("=== LEVEL CONVERSION DEBUG ===")
+        println("Target positions from map: $targets")
         
         // Convert editor waypoints to game waypoints
         val gameWaypoints = editorLevel.waypoints.map { editorWaypoint ->
@@ -349,7 +352,10 @@ object EditorStorage {
                 nextTarget = editorWaypoint.nextTargetPosition
             )
         }
-        println("Converted ${gameWaypoints.size} waypoints")
+        println("Converted ${gameWaypoints.size} waypoints:")
+        gameWaypoints.forEach { wp ->
+            println("  Waypoint: ${wp.position} -> ${wp.nextTarget}")
+        }
         
         // Include waypoint positions in pathCells so enemies can walk on them
         val pathCellsWithWaypoints = map.getPathCells().toMutableSet()
@@ -357,14 +363,16 @@ object EditorStorage {
             pathCellsWithWaypoints.add(waypoint.position)
         }
         println("Path cells: ${map.getPathCells().size}, with waypoints: ${pathCellsWithWaypoints.size}")
+        println("Spawn points: ${map.getSpawnPoints()}")
+        println("=== END LEVEL CONVERSION DEBUG ===")
         
-        return Level(
+        val level = Level(
             id = numericId,
             name = editorLevel.title,
             gridWidth = map.width,
             gridHeight = map.height,
             startPositions = map.getSpawnPoints(),
-            targetPosition = target,
+            targetPositions = targets,
             pathCells = pathCellsWithWaypoints,
             buildIslands = map.getBuildIslands(),
             buildAreas = map.getBuildAreas(),
@@ -377,6 +385,15 @@ object EditorStorage {
             editorLevelId = editorLevel.id,  // Store editor level ID for minimap lookup
             mapId = editorLevel.mapId  // Store map ID for save/load verification
         )
+        
+        println("=== CREATED LEVEL ===")
+        println("Level: ${level.name} (ID: ${level.id})")
+        println("Target positions: ${level.targetPositions}")
+        println("Waypoints count: ${level.waypoints.size}")
+        println("Start positions: ${level.startPositions}")
+        println("=== END CREATED LEVEL ===")
+        
+        return level
     }
     
     /**

@@ -26,7 +26,7 @@ class TargetEntryTest {
             gridWidth = 10,
             gridHeight = 6,
             startPositions = listOf(Position(0, 2)),
-            targetPosition = Position(9, 2),
+            targetPositions = listOf(Position(9, 2)),
             pathCells = pathCells,
             buildIslands = emptySet(),
             attackerWaves = listOf(
@@ -55,7 +55,7 @@ class TargetEntryTest {
         var turnCount = 0
         val maxTurns = 20
         
-        while (goblin.position.value != level.targetPosition && 
+        while (goblin.position.value != level.targetPositions.first() && 
                !goblin.isDefeated.value && 
                turnCount < maxTurns) {
             
@@ -73,7 +73,7 @@ class TargetEntryTest {
         // Verify goblin reached the target (which should mark it as defeated)
         assertTrue(
             goblin.isDefeated.value,
-            "Goblin should reach target and be defeated. Position: ${goblin.position.value}, Target: ${level.targetPosition}"
+            "Goblin should reach target and be defeated. Position: ${goblin.position.value}, Target: ${level.targetPositions.first()}"
         )
         
         // Verify health was reduced

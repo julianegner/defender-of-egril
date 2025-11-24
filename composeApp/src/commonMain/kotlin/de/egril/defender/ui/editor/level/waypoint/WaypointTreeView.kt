@@ -30,7 +30,7 @@ fun WaypointTreeView(
     onConnectWaypoint: (Position) -> Unit
 ) {
     val spawnPoints = remember(map) { map?.getSpawnPoints() ?: emptyList() }
-    val target = remember(map) { map?.getTarget() }
+    val targets = remember(map) { map?.getTargets() ?: emptyList() }
 
     if (validationResult.waypointChains.isEmpty()) {
         Text(
@@ -56,7 +56,7 @@ fun WaypointTreeView(
             WaypointChainCard(
                 chain = chain,
                 spawnPoints = spawnPoints,
-                target = target,
+                targets = targets,
                 circularDeps = validationResult.circularDependencies,
                 unconnectedWaypoints = validationResult.unconnectedWaypoints,
                 onDeleteConnection = onDeleteConnection,

@@ -108,16 +108,19 @@ class EnemyAbilitySystem(private val state: GameState) {
         // Pick a random position
         val spawnPos = validPositions.random()
         
+        // Inherit the summoner's current target so demons follow the same waypoint chain
+        val inheritedTarget = summoner.currentTarget?.value ?: if (state.level.waypoints.isNotEmpty()) {
+            state.level.waypoints.first().position
+        } else {
+            state.level.targetPositions.first()
+        }
+        
         val demon = Attacker(
             id = state.nextAttackerId.value++,
             type = demonType,
             position = mutableStateOf(spawnPos),
             level = mutableStateOf(level),
-            currentTarget = mutableStateOf(if (state.level.waypoints.isNotEmpty()) {
-                state.level.waypoints.first().position
-            } else {
-                state.level.targetPosition
-            })
+            currentTarget = mutableStateOf(inheritedTarget)
         )
         state.attackers.add(demon)
     }
