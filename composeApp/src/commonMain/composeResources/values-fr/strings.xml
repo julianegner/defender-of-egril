@@ -448,6 +448,14 @@
     <string name="circular_dependency_detected">Dépendance circulaire détectée ! Corrigez les connexions des points de passage.</string>
     <string name="waypoint_position_format">Position (%d, %d)</string>
     <string name="spawn_point_text">Point d\'Apparition</string>
+    <string name="spawn_point">Point d\'Apparition</string>
+    <string name="select_spawn_point">Sélectionner le point d\'apparition</string>
+    <string name="change_spawn_point">Changer le Point d\'Apparition</string>
+    <string name="select_spawn_point_for_enemy">Sélectionnez le point d\'apparition pour cet ennemi</string>
+    <string name="no_spawn_points_available">Aucun point d\'apparition disponible sur cette carte</string>
+    <string name="no_spawn_point_set">Aucun point d\'apparition défini</string>
+    <string name="change">Changer</string>
+    <string name="select">Sélectionner</string>
     <string name="target_text">Cible</string>
     <string name="waypoint">Point de Passage</string>
     <string name="select_source_position">Sélectionner la position source</string>

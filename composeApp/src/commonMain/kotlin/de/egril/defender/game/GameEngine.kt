@@ -255,8 +255,8 @@ class GameEngine(private val state: GameState) {
         val spawnPoints = state.level.startPositions
         
         turn1Spawns.forEachIndexed { index, plannedSpawn ->
-            // Use a different spawn point for each enemy (cycle through spawn points)
-            val preferredSpawnPoint = spawnPoints[index % spawnPoints.size]
+            // Use fixed spawn point if specified, otherwise use round-robin
+            val preferredSpawnPoint = plannedSpawn.spawnPoint ?: spawnPoints[index % spawnPoints.size]
             
             // Find a free position near the preferred spawn point
             val spawnPos = enemyMovement.findFreePositionNear(preferredSpawnPoint)
