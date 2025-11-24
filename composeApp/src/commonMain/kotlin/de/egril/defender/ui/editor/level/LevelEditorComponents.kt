@@ -14,7 +14,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.egril.defender.editor.EditorEnemySpawn
+import de.egril.defender.editor.EditorMap
 import de.egril.defender.model.AttackerType
+import de.egril.defender.model.Position
 import de.egril.defender.ui.*
 import de.egril.defender.ui.icon.DownArrowIcon
 import de.egril.defender.ui.icon.ReloadIcon
@@ -32,12 +34,17 @@ import defender_of_egril.composeapp.generated.resources.*
 fun AddEnemyDialog(
     ewhadCount: Int = 0,
     turn: Int,
+    map: EditorMap?,
     onDismiss: () -> Unit,
-    onAdd: (AttackerType, Int, Int) -> Unit  // Added amount parameter
+    onAdd: (AttackerType, Int, Int, Position?) -> Unit  // Added spawnPoint parameter
 ) {
     var selectedType by remember { mutableStateOf(AttackerType.GOBLIN) }
     var level by remember { mutableStateOf("1") }
     var amount by remember { mutableStateOf("1") }
+    
+    // Get available spawn points from the map
+    val spawnPoints = remember(map) { map?.getSpawnPoints() ?: emptyList() }
+    var selectedSpawnPoint by remember { mutableStateOf<Position?>(spawnPoints.firstOrNull()) }
     
     // Check if trying to add Ewhad when one already exists
     val canAddEwhad = selectedType != AttackerType.EWHAD || ewhadCount == 0
@@ -89,6 +96,44 @@ fun AddEnemyDialog(
                         modifier = Modifier.weight(1f).padding(bottom = 8.dp)
                     )
                 }
+                
+                // Spawn point selection dropdown
+                if (spawnPoints.isNotEmpty()) {
+                    Text(
+                        text = stringResource(Res.string.spawn_point),
+                        modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
+                    )
+                    
+                    var expanded by remember { mutableStateOf(false) }
+                    
+                    Box {
+                        OutlinedButton(
+                            onClick = { expanded = true },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = selectedSpawnPoint?.let { "Position (${it.x}, ${it.y})" } 
+                                    ?: stringResource(Res.string.select_spawn_point)
+                            )
+                        }
+                        
+                        DropdownMenu(
+                            expanded = expanded,
+                            onDismissRequest = { expanded = false }
+                        ) {
+                            spawnPoints.forEach { point ->
+                                DropdownMenuItem(
+                                    text = { Text("Position (${point.x}, ${point.y})") },
+                                    onClick = {
+                                        selectedSpawnPoint = point
+                                        expanded = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
+                
                 Text(stringResource(Res.string.hp_with_level).replace("%d", (selectedType.health * (level.toIntOrNull() ?: 1)).toString()), fontSize = 12.sp)
                 if (!canAddEwhad) {
                     Text(
@@ -103,7 +148,7 @@ fun AddEnemyDialog(
             Button(
                 onClick = {
                     val amountValue = amount.toIntOrNull() ?: 1
-                    onAdd(selectedType, level.toIntOrNull() ?: 1, amountValue)
+                    onAdd(selectedType, level.toIntOrNull() ?: 1, amountValue, selectedSpawnPoint)
                 },
                 enabled = canAddEwhad
             ) {

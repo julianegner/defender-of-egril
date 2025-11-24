@@ -484,12 +484,13 @@ fun LevelEditorView(
         AddEnemyDialog(
             ewhadCount = ewhadCount,
             turn = showEnemyDialogForTurn,
+            map = currentMap,
             onDismiss = { showEnemyDialog = false },
-            onAdd = { enemyType, level, amount ->
+            onAdd = { enemyType, level, amount, spawnPoint ->
                 enemySpawns = enemySpawns.toMutableList().apply {
                     // Add multiple enemies based on amount
                     repeat(amount) {
-                        add(EditorEnemySpawn(enemyType, level, showEnemyDialogForTurn))
+                        add(EditorEnemySpawn(enemyType, level, showEnemyDialogForTurn, spawnPoint))
                     }
                 }
                 showEnemyDialog = false
