@@ -71,7 +71,7 @@ Open `iosApp/iosApp.xcodeproj` in Xcode and click Run
 ```
 Then open http://localhost:8080 in your browser
 
-📖 **For detailed gameplay instructions, see [GAMEPLAY.md](GAMEPLAY.md)**
+📖 **For detailed gameplay instructions, see [GAMEPLAY.md](docs/root/GAMEPLAY.md)**
 
 ## Building and Running
 
@@ -194,7 +194,7 @@ This game is built using:
 - Compose Multiplatform 1.7.0
 - Kotlin Multiplatform for cross-platform support
 
-For detailed development information, see [DEVELOPMENT.md](DEVELOPMENT.md).
+For detailed development information, see [DEVELOPMENT.md](docs/root/DEVELOPMENT.md).
 
 ### Utility Scripts
 
