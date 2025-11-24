@@ -453,6 +453,7 @@
     <string name="no_spawn_points_available">Keine Spawn-Punkte auf dieser Karte verfügbar</string>
     <string name="no_spawn_point_set">Kein Spawn-Punkt gesetzt</string>
     <string name="change">Ändern</string>
+    <string name="select">Auswählen</string>
     <string name="target_text">Ziel</string>
     <string name="waypoint">Wegpunkt</string>
     <string name="select_source_position">Quellposition auswählen</string>
