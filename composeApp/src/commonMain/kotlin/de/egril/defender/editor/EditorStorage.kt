@@ -11,7 +11,7 @@ import de.egril.defender.model.getHexNeighbors
 import de.egril.defender.utils.runBlockingCompat
 /**
  * File-based storage for maps and levels
- * Stores data in ~/.defender-of-egril/ directory on desktop
+ * Stores data in ~/.defender-of-egril/gamedata/ directory on desktop
  */
 object EditorStorage {
     private val fileStorage = getFileStorage()
@@ -19,10 +19,10 @@ object EditorStorage {
     private val levelsCache = mutableMapOf<String, EditorLevel>()
     private var levelSequenceCache: LevelSequence? = null
     
-    private val MAPS_DIR = "editor/maps"
-    private val LEVELS_DIR = "editor/levels"
-    private val SEQUENCE_FILE = "editor/sequence.json"
-    private val VERSION_FILE = "editor/version.txt"
+    private val MAPS_DIR = "gamedata/maps"
+    private val LEVELS_DIR = "gamedata/levels"
+    private val SEQUENCE_FILE = "gamedata/sequence.json"
+    private val VERSION_FILE = "gamedata/version.txt"
     private val CURRENT_VERSION = "6" // Increment when level data format changes - v6: added spawn points to enemies
     
     // Initialize with converted existing levels
@@ -435,44 +435,27 @@ object EditorStorage {
     
     /**
      * Convert existing levels to editor format
-     * Only initializes if files don't exist or are invalid
+     * Only initializes if the gamedata directory is completely empty
      */
     private fun initializeDefaultMapsAndLevels() {
-        // Check version to see if we need to regenerate levels
-        val savedVersion = fileStorage.readFile(VERSION_FILE)
-        if (savedVersion != CURRENT_VERSION) {
-            println("Level data version mismatch (saved: $savedVersion, current: $CURRENT_VERSION). Regenerating levels...")
-            // Clear all existing level data to force regeneration
-            fileStorage.writeFile(SEQUENCE_FILE, "")
-            levelSequenceCache = null
-            mapsCache.clear()
-            levelsCache.clear()
-        }
+        // First check if gamedata directory is empty
+        // If it has any content, assume user has data and skip initialization
+        val isGamedataEmpty = isGamedataDirectoryEmpty()
         
-        // Check if already initialized with valid data
-        val sequenceJson = fileStorage.readFile(SEQUENCE_FILE)
-        
-        if (sequenceJson != null) {
-            val sequence = EditorJsonSerializer.deserializeSequence(sequenceJson)
-            
-            if (sequence != null && sequence.sequence.isNotEmpty()) {
-                // Valid sequence exists, check if levels exist
-                val firstLevelId = sequence.sequence.firstOrNull()
-                
-                if (firstLevelId != null && firstLevelId.isNotBlank()) {
-                    val fileExists = fileStorage.fileExists("$LEVELS_DIR/$firstLevelId.json")
-                    
-                    if (fileExists) {
-                        // Also verify we can actually load the first level
-                        val firstLevel = getLevel(firstLevelId)
-                        
-                        if (firstLevel != null) {
-                            return  // Already initialized with valid data
-                        }
-                    }
+        if (!isGamedataEmpty) {
+            println("Gamedata directory is not empty - preserving existing user data")
+            // Try to load the sequence to populate cache
+            val sequenceJson = fileStorage.readFile(SEQUENCE_FILE)
+            if (sequenceJson != null) {
+                val sequence = EditorJsonSerializer.deserializeSequence(sequenceJson)
+                if (sequence != null && sequence.sequence.isNotEmpty()) {
+                    levelSequenceCache = sequence
                 }
             }
+            return
         }
+        
+        println("Gamedata directory is empty - initializing from repository or generating defaults")
         
         // Create directories
         fileStorage.createDirectory(MAPS_DIR)
@@ -985,5 +968,19 @@ object EditorStorage {
             println("Could not load repository files: ${e.message}")
             false
         }
+    }
+    
+    /**
+     * Check if the gamedata directory is empty or doesn't exist
+     * @return true if the directory is empty or doesn't exist, false if it contains any files
+     */
+    private fun isGamedataDirectoryEmpty(): Boolean {
+        // Check if any of the expected directories or files exist with content
+        val mapsExist = fileStorage.listFiles(MAPS_DIR).isNotEmpty()
+        val levelsExist = fileStorage.listFiles(LEVELS_DIR).isNotEmpty()
+        val sequenceExists = fileStorage.fileExists(SEQUENCE_FILE)
+        
+        // Directory is considered empty if none of these exist
+        return !mapsExist && !levelsExist && !sequenceExists
     }
 }
