@@ -1,6 +1,7 @@
 package de.egril.defender.ui.editor.level.waypoint
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -8,15 +9,21 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.pointerInput
 import de.egril.defender.editor.EditorMap
 import de.egril.defender.editor.EditorWaypoint
 import de.egril.defender.editor.TileType
 import de.egril.defender.model.Position
 import de.egril.defender.ui.settings.AppSettings
 import kotlin.math.PI
+import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
+
+// Minimap configuration
+private const val MINIMAP_HEX_SIZE = 2.0f  // Doubled from original 1.0f for better visibility
 
 /**
  * Minimap showing waypoint positions with highlighting
@@ -26,17 +33,156 @@ fun WaypointMinimap(
     map: EditorMap,
     selectedSource: Position?,
     selectedTarget: Position?,
-    existingWaypoints: List<EditorWaypoint>
+    existingWaypoints: List<EditorWaypoint>,
+    onTileClick: (Position) -> Unit = {},
+    onHoverChange: (Position?) -> Unit = {}
 ) {
     val isDarkMode = AppSettings.isDarkMode.value
 
-    Canvas(modifier = Modifier.Companion.fillMaxSize()) {
+    Canvas(modifier = Modifier.Companion.fillMaxSize()
+        .pointerInput(Unit) {
+            awaitPointerEventScope {
+                while (true) {
+                    val event = awaitPointerEvent()
+                    val offset = event.changes.firstOrNull()?.position ?: continue
+                    
+                    when (event.type) {
+                        PointerEventType.Move, PointerEventType.Enter -> {
+                            // Calculate hovered position
+                            val mapWidth = map.width
+                            val mapHeight = map.height
+                            val baseHexSize = MINIMAP_HEX_SIZE
+                            val baseHexWidth = (sqrt(3.0) * baseHexSize).toFloat()
+                            val baseHexHeight = 2.0f * baseHexSize
+                            val baseVerticalSpacing = baseHexHeight * 0.75f
+                            val totalMapWidth = (mapWidth) * baseHexWidth + baseHexWidth / 2
+                            val totalMapHeight = (mapHeight - 1) * baseVerticalSpacing + baseHexHeight
+                            val padding = 4f
+                            val scaleX = (size.width - padding * 2) / totalMapWidth
+                            val scaleY = (size.height - padding * 2) / totalMapHeight
+                            val mapScale = minOf(scaleX, scaleY)
+                            val hexWidth = baseHexWidth * mapScale
+                            val hexHeight = baseHexHeight * mapScale
+                            val verticalSpacing = baseVerticalSpacing * mapScale
+                            val scaledMapWidth = totalMapWidth * mapScale
+                            val scaledMapHeight = totalMapHeight * mapScale
+                            val offsetXCanvas = (size.width - scaledMapWidth) / 2
+                            val offsetYCanvas = (size.height - scaledMapHeight) / 2
+
+                            var hoveredPosition: Position? = null
+                            var minDistance = Float.MAX_VALUE
+
+                            for (row in 0 until map.height) {
+                                for (col in 0 until map.width) {
+                                    val tileType = map.tiles.getOrElse("$col,$row") { TileType.NO_PLAY }
+                                    if (tileType == TileType.SPAWN_POINT || 
+                                        tileType == TileType.WAYPOINT || 
+                                        tileType == TileType.TARGET) {
+                                        val pos = Position(col, row)
+                                        val offsetXHex = if (row % 2 == 1) hexWidth / 2 else 0.0f
+                                        val centerX = offsetXCanvas + col * hexWidth + offsetXHex + hexWidth / 2
+                                        val centerY = offsetYCanvas + row * verticalSpacing + hexHeight / 2
+                                        val dx = offset.x - centerX
+                                        val dy = offset.y - centerY
+                                        val distance = sqrt(dx * dx + dy * dy)
+                                        val hitRadius = hexHeight / 2
+                                        if (distance < hitRadius && distance < minDistance) {
+                                            minDistance = distance
+                                            hoveredPosition = pos
+                                        }
+                                    }
+                                }
+                            }
+                            onHoverChange(hoveredPosition)
+                        }
+                        PointerEventType.Exit -> {
+                            onHoverChange(null)
+                        }
+                    }
+                }
+            }
+        }
+        .pointerInput(Unit) {
+            detectTapGestures { offset ->
+                // Calculate map dimensions in hex coordinates
+                val mapWidth = map.width
+                val mapHeight = map.height
+
+                // Calculate the size needed for the hex grid (doubled)
+                val baseHexSize = MINIMAP_HEX_SIZE
+                val baseHexWidth = (sqrt(3.0) * baseHexSize).toFloat()
+                val baseHexHeight = 2.0f * baseHexSize
+                val baseVerticalSpacing = baseHexHeight * 0.75f
+
+                // Calculate total map dimensions in base units
+                val totalMapWidth = (mapWidth) * baseHexWidth + baseHexWidth / 2
+                val totalMapHeight = (mapHeight - 1) * baseVerticalSpacing + baseHexHeight
+
+                // Scale to fit in canvas with some padding
+                val padding = 4f
+                val scaleX = (size.width - padding * 2) / totalMapWidth
+                val scaleY = (size.height - padding * 2) / totalMapHeight
+                val mapScale = minOf(scaleX, scaleY)
+
+                // Calculate actual hex dimensions after scaling
+                val hexSize = baseHexSize * mapScale
+                val hexWidth = baseHexWidth * mapScale
+                val hexHeight = baseHexHeight * mapScale
+                val verticalSpacing = baseVerticalSpacing * mapScale
+
+                // Center the map in the canvas
+                val scaledMapWidth = totalMapWidth * mapScale
+                val scaledMapHeight = totalMapHeight * mapScale
+                val offsetXCanvas = (size.width - scaledMapWidth) / 2
+                val offsetYCanvas = (size.height - scaledMapHeight) / 2
+
+                // Find which hex was clicked
+                var clickedPosition: Position? = null
+                var minDistance = Float.MAX_VALUE
+
+                for (row in 0 until map.height) {
+                    for (col in 0 until map.width) {
+                        val tileType = map.tiles.getOrElse("$col,$row") { TileType.NO_PLAY }
+                        
+                        // Only consider valid waypoint-related tiles
+                        if (tileType == TileType.SPAWN_POINT || 
+                            tileType == TileType.WAYPOINT || 
+                            tileType == TileType.TARGET) {
+                            
+                            val pos = Position(col, row)
+                            
+                            // Calculate hex center position
+                            val offsetXHex = if (row % 2 == 1) hexWidth / 2 else 0.0f
+                            val centerX = offsetXCanvas + col * hexWidth + offsetXHex + hexWidth / 2
+                            val centerY = offsetYCanvas + row * verticalSpacing + hexHeight / 2
+
+                            // Check if click is within this hex 
+                            // For hexagons, we use a slightly larger radius than hexSize
+                            // to account for the circumscribed circle
+                            val dx = offset.x - centerX
+                            val dy = offset.y - centerY
+                            val distance = sqrt(dx * dx + dy * dy)
+
+                            // Use hexHeight/2 as the hit radius for better accuracy
+                            val hitRadius = hexHeight / 2
+                            if (distance < hitRadius && distance < minDistance) {
+                                minDistance = distance
+                                clickedPosition = pos
+                            }
+                        }
+                    }
+                }
+
+                clickedPosition?.let { onTileClick(it) }
+            }
+        }
+    ) {
         // Calculate map dimensions in hex coordinates
         val mapWidth = map.width
         val mapHeight = map.height
 
-        // Calculate the size needed for the hex grid
-        val baseHexSize = 1.0f
+        // Calculate the size needed for the hex grid (doubled)
+        val baseHexSize = MINIMAP_HEX_SIZE
         val baseHexWidth = (sqrt(3.0) * baseHexSize).toFloat()
         val baseHexHeight = 2.0f * baseHexSize
         val baseVerticalSpacing = baseHexHeight * 0.75f
