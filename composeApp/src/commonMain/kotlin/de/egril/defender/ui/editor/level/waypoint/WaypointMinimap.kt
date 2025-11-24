@@ -25,6 +25,53 @@ import kotlin.math.sqrt
 // Minimap configuration
 private const val MINIMAP_HEX_SIZE = 2.0f  // Doubled from original 1.0f for better visibility
 
+// Color palette for different target destinations
+private val TARGET_COLORS = listOf(
+    Color(0xFFFFD700), // Gold
+    Color(0xFF00FFFF), // Cyan
+    Color(0xFFFF00FF), // Magenta
+    Color(0xFF00FF00), // Lime
+    Color(0xFFFF6600), // Orange
+    Color(0xFF9966FF), // Purple
+    Color(0xFFFF0066), // Pink
+    Color(0xFF66FF99), // Mint
+)
+
+/**
+ * Determines which final target position a waypoint ultimately leads to by following the chain
+ */
+private fun findUltimateTarget(
+    waypoint: EditorWaypoint,
+    allWaypoints: List<EditorWaypoint>,
+    targets: List<Position>
+): Position? {
+    val visited = mutableSetOf<Position>()
+    var current = waypoint.nextTargetPosition
+    
+    // Follow the chain until we reach a target or detect a loop
+    while (true) {
+        // Check if we reached a target
+        if (targets.contains(current)) {
+            return current
+        }
+        
+        // Check for circular dependency
+        if (visited.contains(current)) {
+            return null // Circular dependency detected
+        }
+        visited.add(current)
+        
+        // Find the next waypoint in the chain
+        val nextWaypoint = allWaypoints.find { it.position == current }
+        if (nextWaypoint == null) {
+            // No more waypoints, current position might be the target
+            return if (targets.contains(current)) current else null
+        }
+        
+        current = nextWaypoint.nextTargetPosition
+    }
+}
+
 /**
  * Minimap showing waypoint positions with highlighting
  */
@@ -38,6 +85,21 @@ fun WaypointMinimap(
     onHoverChange: (Position?) -> Unit = {}
 ) {
     val isDarkMode = AppSettings.isDarkMode.value
+    
+    // Get all target positions from the map
+    val targets = map.getTargets()
+    
+    // Create a map of waypoint position to its ultimate target and color
+    val waypointTargetColors = existingWaypoints.associate { waypoint ->
+        val ultimateTarget = findUltimateTarget(waypoint, existingWaypoints, targets)
+        val targetIndex = ultimateTarget?.let { targets.indexOf(it) } ?: -1
+        val color = if (targetIndex >= 0) {
+            TARGET_COLORS[targetIndex % TARGET_COLORS.size]
+        } else {
+            Color.Gray // For waypoints that don't lead to a valid target
+        }
+        waypoint.position to color
+    }
 
     Canvas(modifier = Modifier.Companion.fillMaxSize()
         .pointerInput(Unit) {
@@ -238,28 +300,39 @@ fun WaypointMinimap(
 
                 // Draw hexagon
                 drawHexagon(centerX, centerY, hexSize, color)
-
-                // Draw connection lines for existing waypoints
-                val waypoint = existingWaypoints.find { it.position == pos }
-                if (waypoint != null) {
-                    val targetPos = waypoint.nextTargetPosition
-                    val targetCol = targetPos.x
-                    val targetRow = targetPos.y
-                    if (targetCol in 0 until mapWidth && targetRow in 0 until mapHeight) {
-                        val targetOffsetXHex = if (targetRow % 2 == 1) hexWidth / 2 else 0.0f
-                        val targetCenterX = offsetXCanvas + targetCol * hexWidth + targetOffsetXHex + hexWidth / 2
-                        val targetCenterY = offsetYCanvas + targetRow * verticalSpacing + hexHeight / 2
-
-                        // Draw arrow line
-                        drawLine(
-                            color = Color.Companion.Yellow,
-                            start = Offset(centerX, centerY),
-                            end = Offset(targetCenterX, targetCenterY),
-                            strokeWidth = 1.5f
-                        )
-                    }
-                }
             }
+        }
+        
+        // Draw connection lines for ALL waypoints (after tiles are drawn)
+        // This ensures connections are always visible, even if waypoint positions aren't on the tile grid
+        for (waypoint in existingWaypoints) {
+            val sourcePos = waypoint.position
+            val targetPos = waypoint.nextTargetPosition
+            
+            // Get the color for this waypoint based on its ultimate target
+            val connectionColor = waypointTargetColors[sourcePos] ?: Color.Gray
+            
+            // Calculate source position
+            val sourceCol = sourcePos.x
+            val sourceRow = sourcePos.y
+            val sourceOffsetXHex = if (sourceRow % 2 == 1) hexWidth / 2 else 0.0f
+            val sourceCenterX = offsetXCanvas + sourceCol * hexWidth + sourceOffsetXHex + hexWidth / 2
+            val sourceCenterY = offsetYCanvas + sourceRow * verticalSpacing + hexHeight / 2
+            
+            // Calculate target position
+            val targetCol = targetPos.x
+            val targetRow = targetPos.y
+            val targetOffsetXHex = if (targetRow % 2 == 1) hexWidth / 2 else 0.0f
+            val targetCenterX = offsetXCanvas + targetCol * hexWidth + targetOffsetXHex + hexWidth / 2
+            val targetCenterY = offsetYCanvas + targetRow * verticalSpacing + hexHeight / 2
+            
+            // Draw connection line
+            drawLine(
+                color = connectionColor,
+                start = Offset(sourceCenterX, sourceCenterY),
+                end = Offset(targetCenterX, targetCenterY),
+                strokeWidth = 2.0f
+            )
         }
     }
 }
