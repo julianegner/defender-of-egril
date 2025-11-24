@@ -160,12 +160,17 @@ fun UnsavedChangesDialog(
             )
         },
         confirmButton = {
-            Button(onClick = onSaveAndExit) {
-                Text(stringResource(Res.string.save_and_exit))
-            }
-        },
-        dismissButton = {
-            Column {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Button(
+                    onClick = onCancel,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.secondary
+                    )
+                ) {
+                    Text(stringResource(Res.string.cancel))
+                }
                 Button(
                     onClick = onDiscardChanges,
                     colors = ButtonDefaults.buttonColors(
@@ -174,9 +179,8 @@ fun UnsavedChangesDialog(
                 ) {
                     Text(stringResource(Res.string.discard_changes))
                 }
-                Spacer(modifier = Modifier.height(8.dp))
-                Button(onClick = onCancel) {
-                    Text(stringResource(Res.string.cancel))
+                Button(onClick = onSaveAndExit) {
+                    Text(stringResource(Res.string.save_and_exit))
                 }
             }
         }
