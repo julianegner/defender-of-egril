@@ -205,6 +205,6 @@ To verify iOS functionality:
 - Critical for version display in the app
 
 ## Related Documentation
-- [RUNNING.md](RUNNING.md) - Platform-specific build instructions
+- [RUNNING.md](../root/RUNNING.md) - Platform-specific build instructions
 - [LOCALIZATION_IMPLEMENTATION.md](LOCALIZATION_IMPLEMENTATION.md) - Contains note about library v2.0.0 issues
-- [DEVELOPMENT.md](DEVELOPMENT.md) - Build and development guidelines
+- [DEVELOPMENT.md](../root/DEVELOPMENT.md) - Build and development guidelines
