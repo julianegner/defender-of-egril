@@ -446,6 +446,8 @@
     <string name="circular_dependency_detected">Zirkuläre Abhängigkeit erkannt! Beheben Sie die Wegpunkt-Verbindungen.</string>
     <string name="waypoint_position_format">Position (%d, %d)</string>
     <string name="spawn_point_text">Spawn-Punkt</string>
+    <string name="spawn_point">Spawn-Punkt</string>
+    <string name="select_spawn_point">Spawn-Punkt auswählen</string>
     <string name="target_text">Ziel</string>
     <string name="waypoint">Wegpunkt</string>
     <string name="select_source_position">Quellposition auswählen</string>
