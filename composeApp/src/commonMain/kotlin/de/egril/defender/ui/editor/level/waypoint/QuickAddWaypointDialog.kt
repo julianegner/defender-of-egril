@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
@@ -33,10 +35,12 @@ import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
 import de.egril.defender.editor.EditorMap
 import de.egril.defender.editor.EditorWaypoint
+import de.egril.defender.editor.TileType
 import de.egril.defender.model.Position
 import de.egril.defender.ui.icon.CheckmarkIcon
 import de.egril.defender.ui.icon.Number1Icon
 import de.egril.defender.ui.icon.Number2Icon
+import de.egril.defender.ui.settings.AppSettings
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.add_waypoint
 import defender_of_egril.composeapp.generated.resources.cancel
@@ -68,6 +72,9 @@ fun QuickAddWaypointDialog(
     var selectedTarget by remember { mutableStateOf<Position?>(null) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var showConnectedSources by remember { mutableStateOf(false) }
+    var hoveredPosition by remember { mutableStateOf<Position?>(null) }
+    
+    val isDarkMode = AppSettings.isDarkMode.value
 
     // Build set of positions that already have connections from them
     val connectedSources = remember(existingWaypoints) {
@@ -129,20 +136,123 @@ fun QuickAddWaypointDialog(
             ) {
                 // Minimap showing spawn points, waypoints, and targets
                 if (map != null) {
-                    Box(
-                        modifier = Modifier.Companion
-                            .fillMaxWidth()
-                            .height(150.dp)
-                            .background(Color(0xCC000000))
-                            .border(2.dp, Color.Companion.White)
-                            .padding(4.dp)
+                    Row(
+                        modifier = Modifier.Companion.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        WaypointMinimap(
-                            map = map,
-                            selectedSource = selectedSource,
-                            selectedTarget = selectedTarget,
-                            existingWaypoints = existingWaypoints
-                        )
+                        // Minimap
+                        Box(
+                            modifier = Modifier.Companion
+                                .weight(1f)
+                                .height(250.dp)
+                                .background(Color(0xCC000000))
+                                .border(2.dp, Color.Companion.White)
+                                .padding(4.dp)
+                        ) {
+                            WaypointMinimap(
+                                map = map,
+                                selectedSource = selectedSource,
+                                selectedTarget = selectedTarget,
+                                existingWaypoints = existingWaypoints,
+                                onTileClick = { clickedPos ->
+                                    // Determine if clicked position is a valid source or target
+                                    val isValidSource = validSources.contains(clickedPos)
+                                    val isValidTarget = validTargets.contains(clickedPos)
+                                    
+                                    when {
+                                        // If no source is selected yet, select this position as source if valid
+                                        selectedSource == null && isValidSource -> {
+                                            selectedSource = clickedPos
+                                            errorMessage = null
+                                        }
+                                        // If source is selected but no target, select as target if valid
+                                        selectedSource != null && selectedTarget == null && isValidTarget -> {
+                                            selectedTarget = clickedPos
+                                            errorMessage = null
+                                        }
+                                        // If both are selected, clicking a valid source resets and selects new source
+                                        selectedSource != null && selectedTarget != null && isValidSource -> {
+                                            selectedSource = clickedPos
+                                            selectedTarget = null
+                                            errorMessage = null
+                                        }
+                                        // If both selected and clicking a valid target, just update target
+                                        selectedSource != null && selectedTarget != null && isValidTarget -> {
+                                            selectedTarget = clickedPos
+                                            errorMessage = null
+                                        }
+                                    }
+                                },
+                                onHoverChange = { pos ->
+                                    hoveredPosition = pos
+                                }
+                            )
+                        }
+                        
+                        // Legend and hover info
+                        Column(
+                            modifier = Modifier.width(110.dp),
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            // Legend title
+                            Text(
+                                text = "Legend",
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.Bold
+                            )
+                            
+                            // Legend items
+                            LegendItem("Spawn", if (isDarkMode) Color(0xFF8B0000) else Color(0xFFDC143C))
+                            LegendItem("Target", if (isDarkMode) Color(0xFF1E3A8A) else Color(0xFF4169E1))
+                            LegendItem("Waypoint", if (isDarkMode) Color(0xFF9A7B00) else Color(0xFFFFD700))
+                            LegendItem("Selected Src", Color(0xFF40E0D0))
+                            LegendItem("Selected Tgt", Color(0xFF00AAFF))
+                            
+                            Spacer(modifier = Modifier.height(8.dp))
+                            
+                            // Hover position display
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(Color(0x44000000))
+                                    .border(1.dp, MaterialTheme.colorScheme.outline)
+                                    .padding(6.dp)
+                            ) {
+                                Column(
+                                    verticalArrangement = Arrangement.spacedBy(2.dp)
+                                ) {
+                                    Text(
+                                        text = "Hover:",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    if (hoveredPosition != null) {
+                                        val pos = hoveredPosition!!
+                                        val tileType = map.tiles.getOrElse("${pos.x},${pos.y}") { TileType.NO_PLAY }
+                                        val typeLabel = when (tileType) {
+                                            TileType.SPAWN_POINT -> "Spawn"
+                                            TileType.WAYPOINT -> "Waypoint"
+                                            TileType.TARGET -> "Target"
+                                            else -> "Unknown"
+                                        }
+                                        Text(
+                                            text = typeLabel,
+                                            style = MaterialTheme.typography.bodySmall
+                                        )
+                                        Text(
+                                            text = "(${pos.x}, ${pos.y})",
+                                            style = MaterialTheme.typography.bodySmall
+                                        )
+                                    } else {
+                                        Text(
+                                            text = "—",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
 
@@ -288,6 +398,28 @@ fun QuickAddWaypointDialog(
             }
         }
     )
+}
+
+/**
+ * Legend item showing a color swatch and label
+ */
+@Composable
+private fun LegendItem(label: String, color: Color) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .size(12.dp)
+                .background(color)
+                .border(0.5.dp, MaterialTheme.colorScheme.outline)
+        )
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall
+        )
+    }
 }
 
 /*
