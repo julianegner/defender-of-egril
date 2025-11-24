@@ -1,6 +1,7 @@
 package de.egril.defender.ui.editor.level
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -181,7 +182,8 @@ fun SpawnTurnSection(
     onMoveTurnDown: () -> Unit,
     canMoveUp: Boolean,
     canMoveDown: Boolean,
-    ewhadCount: Int
+    ewhadCount: Int,
+    onChangeSpawnPoint: (EditorEnemySpawn) -> Unit
 ) {
     var expanded by remember { mutableStateOf(initiallyExpanded) }
     
@@ -307,57 +309,228 @@ fun SpawnTurnSection(
                         )
                     } else {
                         spawns.forEach { spawn ->
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .background(Color.LightGray.copy(alpha = 0.2f))
-                                    .padding(8.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Row(
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    // Enemy icon
-                                    Box(modifier = Modifier.size(24.dp)) {
-                                        EnemyIconOnHexagon(
-                                            attackerType = spawn.attackerType,
-                                            size = 24.dp
-                                        )
-                                    }
-                                    
-                                    Column {
-                                        Text(
-                                            text = "${spawn.attackerType.displayName} Lv${spawn.level}",
-                                            fontSize = 14.sp
-                                        )
-                                        Text(
-                                            text = "${stringResource(Res.string.hp_short)}: ${spawn.healthPoints}",
-                                            fontSize = 11.sp,
-                                            color = Color.Gray
-                                        )
-                                    }
-                                }
-                                
-                                Button(
-                                    onClick = { onRemoveEnemy(spawn) },
-                                    modifier = Modifier.height(36.dp),
-                                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp)
-                                ) {
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.spacedBy(4.dp)
-                                    ) {
-                                        TrashIcon(size = 12.dp)
-                                        Text(stringResource(Res.string.remove), fontSize = 11.sp)
-                                    }
-                                }
-                            }
+                            EnemySpawnRow(
+                                spawn = spawn,
+                                onRemoveEnemy = { onRemoveEnemy(spawn) },
+                                onChangeSpawnPoint = onChangeSpawnPoint
+                            )
                         }
                     }
                 }
             }
         }
     }
+}
+
+/**
+ * Row displaying a single enemy spawn with its information and actions
+ */
+@Composable
+private fun EnemySpawnRow(
+    spawn: EditorEnemySpawn,
+    onRemoveEnemy: () -> Unit,
+    onChangeSpawnPoint: (EditorEnemySpawn) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color.LightGray.copy(alpha = 0.2f))
+            .padding(8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.weight(1f)
+        ) {
+            // Enemy icon
+            Box(modifier = Modifier.size(24.dp)) {
+                EnemyIconOnHexagon(
+                    attackerType = spawn.attackerType,
+                    size = 24.dp
+                )
+            }
+            
+            Column {
+                Text(
+                    text = "${spawn.attackerType.displayName} Lv${spawn.level}",
+                    fontSize = 14.sp
+                )
+                Text(
+                    text = "${stringResource(Res.string.hp_short)}: ${spawn.healthPoints}",
+                    fontSize = 11.sp,
+                    color = Color.Gray
+                )
+                // Display spawn point
+                spawn.spawnPoint?.let { spawnPoint ->
+                    Text(
+                        text = "${stringResource(Res.string.spawn_point)}: (${spawnPoint.x}, ${spawnPoint.y})",
+                        fontSize = 10.sp,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+            }
+        }
+        
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            // Change spawn point button
+            Button(
+                onClick = { onChangeSpawnPoint(spawn) },
+                modifier = Modifier.height(36.dp),
+                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp)
+            ) {
+                Text("📍", fontSize = 12.sp)
+            }
+            
+            // Remove button
+            Button(
+                onClick = onRemoveEnemy,
+                modifier = Modifier.height(36.dp),
+                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    TrashIcon(size = 12.dp)
+                    Text(stringResource(Res.string.remove), fontSize = 11.sp)
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Dialog for changing the spawn point of an enemy with a minimap
+ */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+fun ChangeSpawnPointDialog(
+    spawn: EditorEnemySpawn,
+    map: EditorMap?,
+    onDismiss: () -> Unit,
+    onChange: (Position) -> Unit
+) {
+    val spawnPoints = remember(map) { map?.getSpawnPoints() ?: emptyList() }
+    var selectedSpawnPoint by remember { mutableStateOf(spawn.spawnPoint ?: spawnPoints.firstOrNull()) }
+    
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(stringResource(Res.string.change_spawn_point))
+        },
+        text = {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                // Enemy info
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(modifier = Modifier.size(32.dp)) {
+                        EnemyIconOnHexagon(
+                            attackerType = spawn.attackerType,
+                            size = 32.dp
+                        )
+                    }
+                    Column {
+                        Text(
+                            text = "${spawn.attackerType.displayName} Lv${spawn.level}",
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                        Text(
+                            text = "${stringResource(Res.string.hp_short)}: ${spawn.healthPoints}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.Gray
+                        )
+                    }
+                }
+                
+                HorizontalDivider()
+                
+                // Minimap showing spawn points
+                if (map != null && spawnPoints.isNotEmpty()) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(150.dp)
+                            .background(Color(0xCC000000))
+                            .border(2.dp, Color.White)
+                            .padding(4.dp)
+                    ) {
+                        SpawnPointMinimap(
+                            map = map,
+                            selectedSpawnPoint = selectedSpawnPoint
+                        )
+                    }
+                }
+                
+                // Instructions
+                Text(
+                    text = stringResource(Res.string.select_spawn_point_for_enemy),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                
+                // Spawn point selection
+                if (spawnPoints.isNotEmpty()) {
+                    Text(
+                        text = stringResource(Res.string.spawn_point),
+                        style = MaterialTheme.typography.titleSmall
+                    )
+                    
+                    FlowRow(
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        spawnPoints.forEach { point ->
+                            FilterChip(
+                                modifier = Modifier.height(32.dp),
+                                selected = selectedSpawnPoint == point,
+                                onClick = { selectedSpawnPoint = point },
+                                label = {
+                                    Text(
+                                        text = "S(${point.x},${point.y})",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                },
+                                leadingIcon = if (selectedSpawnPoint == point) {
+                                    { Text("✓", fontSize = 14.sp) }
+                                } else null
+                            )
+                        }
+                    }
+                } else {
+                    Text(
+                        text = stringResource(Res.string.no_spawn_points_available),
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    selectedSpawnPoint?.let { onChange(it) }
+                },
+                enabled = selectedSpawnPoint != null
+            ) {
+                Text(stringResource(Res.string.change))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(Res.string.cancel))
+            }
+        }
+    )
 }

@@ -420,7 +420,8 @@ fun LevelEditorView(
                         showEnemyDialog = true
                         showEnemyDialogForTurn = turn
                     },
-                    onShowRemoveAllTurnsDialog = { showRemoveAllTurnsDialog = true }
+                    onShowRemoveAllTurnsDialog = { showRemoveAllTurnsDialog = true },
+                    map = currentMap
                 )
                 2 -> TowersTab(
                     availableTowers = availableTowersState,
