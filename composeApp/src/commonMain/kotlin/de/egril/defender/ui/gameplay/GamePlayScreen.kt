@@ -32,7 +32,8 @@ fun GamePlayScreen(
     onMineDig: ((Int) -> DigOutcome?)? = null,  // Add mine dig callback
     onMineBuildTrap: ((Int, Position) -> Boolean)? = null,  // Add mine build trap callback
     cheatDigOutcome: DigOutcome? = null,  // Dig outcome from cheat code
-    onClearCheatDigOutcome: (() -> Unit)? = null  // Callback to clear cheat dig outcome
+    onClearCheatDigOutcome: (() -> Unit)? = null,  // Callback to clear cheat dig outcome
+    hasUnsavedChanges: (() -> Boolean)? = null  // Callback to check for unsaved changes
 ) {
     GamePlayScreenContent(
         gameState = gameState,
@@ -50,7 +51,8 @@ fun GamePlayScreen(
         onMineDig = onMineDig,
         onMineBuildTrap = onMineBuildTrap,
         cheatDigOutcome = cheatDigOutcome,
-        onClearCheatDigOutcome = onClearCheatDigOutcome
+        onClearCheatDigOutcome = onClearCheatDigOutcome,
+        hasUnsavedChanges = hasUnsavedChanges
     )
 }
 
@@ -71,7 +73,8 @@ private fun GamePlayScreenContent(
     onMineDig: ((Int) -> DigOutcome?)? = null,
     onMineBuildTrap: ((Int, Position) -> Boolean)? = null,
     cheatDigOutcome: DigOutcome? = null,  // Dig outcome from cheat code
-    onClearCheatDigOutcome: (() -> Unit)? = null  // Callback to clear cheat dig outcome
+    onClearCheatDigOutcome: (() -> Unit)? = null,  // Callback to clear cheat dig outcome
+    hasUnsavedChanges: (() -> Boolean)? = null  // Callback to check for unsaved changes
 
 ) {
     var selectedDefenderType by remember { mutableStateOf<DefenderType?>(null) }
@@ -90,6 +93,7 @@ private fun GamePlayScreenContent(
     var showSaveDialog by remember { mutableStateOf(false) }  // Save dialog with comment
     var saveCommentInput by remember { mutableStateOf("") }  // Comment input for save
     var showSaveConfirmation by remember { mutableStateOf(false) }  // Save confirmation
+    var showUnsavedChangesDialog by remember { mutableStateOf(false) }  // Unsaved changes dialog
 
     // Get platform-specific UI scale for mobile (affects layout, not just rendering)
     val uiScale = getGameplayUIScale()
@@ -205,7 +209,14 @@ private fun GamePlayScreenContent(
             gameState = gameState,
             showOverlay = showOverlay,
             onShowOverlayChange = { showOverlay = it },
-            onBackToMap = onBackToMap,
+            onBackToMap = {
+                // Check for unsaved changes before navigating back
+                if (hasUnsavedChanges?.invoke() == true && onSaveGame != null) {
+                    showUnsavedChangesDialog = true
+                } else {
+                    onBackToMap()
+                }
+            },
             onSaveGame = if (onSaveGame != null) {{ showSaveDialog = true }} else null,
             onCheatCode = if (onCheatCode != null) {{ showCheatDialog = true }} else null
         )
@@ -571,6 +582,28 @@ private fun GamePlayScreenContent(
                 showHints = true,
                 initialInput = cheatCodeInput,
                 onInputChange = { cheatCodeInput = it }
+            )
+        }
+        
+        // Unsaved changes dialog
+        if (showUnsavedChangesDialog && onSaveGame != null) {
+            UnsavedChangesDialog(
+                onSaveAndExit = {
+                    // Save the game first
+                    onSaveGame(null)
+                    showUnsavedChangesDialog = false
+                    // Then navigate back to map
+                    onBackToMap()
+                },
+                onDiscardChanges = {
+                    showUnsavedChangesDialog = false
+                    // Navigate back without saving
+                    onBackToMap()
+                },
+                onCancel = {
+                    // Just close the dialog and stay in the game
+                    showUnsavedChangesDialog = false
+                }
             )
         }
         }
