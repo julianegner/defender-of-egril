@@ -23,7 +23,7 @@ object EditorStorage {
     private val LEVELS_DIR = "editor/levels"
     private val SEQUENCE_FILE = "editor/sequence.json"
     private val VERSION_FILE = "editor/version.txt"
-    private val CURRENT_VERSION = "5" // Increment when level data format changes
+    private val CURRENT_VERSION = "6" // Increment when level data format changes - v6: added spawn points to enemies
     
     // Initialize with converted existing levels
     init {
@@ -98,15 +98,51 @@ object EditorStorage {
         return mapsCache.values.toList()
     }
     
+    /**
+     * Helper function to ensure all enemy spawns have spawn points assigned.
+     * For enemies without spawn points, assigns them in round-robin fashion.
+     */
+    private fun ensureSpawnPoints(level: EditorLevel): EditorLevel {
+        // Get the map to find available spawn points
+        val map = getMap(level.mapId) ?: return level
+        val spawnPoints = map.getSpawnPoints()
+        
+        if (spawnPoints.isEmpty()) {
+            // No spawn points available, can't assign
+            return level
+        }
+        
+        // Check if any enemy needs a spawn point
+        val needsUpdate = level.enemySpawns.any { it.spawnPoint == null }
+        if (!needsUpdate) {
+            return level
+        }
+        
+        // Assign spawn points to enemies that don't have them
+        val updatedSpawns = level.enemySpawns.mapIndexed { index, spawn ->
+            if (spawn.spawnPoint == null) {
+                // Assign in round-robin fashion
+                spawn.copy(spawnPoint = spawnPoints[index % spawnPoints.size])
+            } else {
+                spawn
+            }
+        }
+        
+        return level.copy(enemySpawns = updatedSpawns)
+    }
+    
     fun saveLevel(level: EditorLevel) {
-        levelsCache[level.id] = level
-        val json = EditorJsonSerializer.serializeLevel(level)
-        fileStorage.writeFile("$LEVELS_DIR/${level.id}.json", json)
+        // Ensure all enemy spawns have spawn points
+        val levelWithSpawnPoints = ensureSpawnPoints(level)
+        
+        levelsCache[levelWithSpawnPoints.id] = levelWithSpawnPoints
+        val json = EditorJsonSerializer.serializeLevel(levelWithSpawnPoints)
+        fileStorage.writeFile("$LEVELS_DIR/${levelWithSpawnPoints.id}.json", json)
         
         // Update sequence if this is a new level
         val sequence = getLevelSequence()
-        if (!sequence.sequence.contains(level.id)) {
-            val newSequence = LevelSequence(sequence.sequence + level.id)
+        if (!sequence.sequence.contains(levelWithSpawnPoints.id)) {
+            val newSequence = LevelSequence(sequence.sequence + levelWithSpawnPoints.id)
             updateLevelSequence(newSequence)
         }
     }
