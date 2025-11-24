@@ -17,9 +17,12 @@ import de.egril.defender.model.WorldLevel
 import de.egril.defender.ui.CheatCodeDialog
 import de.egril.defender.ui.isEditorAvailable
 import de.egril.defender.ui.settings.SettingsButton
+import de.egril.defender.ui.NewRepositoryDataDialog
+import de.egril.defender.editor.RepositoryManager
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
 import defender_of_egril.composeapp.generated.resources.Res
+import kotlinx.coroutines.launch
 
 @Composable
 fun WorldMapScreen(
@@ -32,6 +35,30 @@ fun WorldMapScreen(
     onCheatCode: ((String) -> Boolean)? = null  // Callback for processing cheat codes, returns true if code was valid
 ) {
     var showCheatDialog by remember { mutableStateOf(false) }
+    var showNewRepoDataDialog by remember { mutableStateOf(false) }
+    var newRepoData by remember { mutableStateOf<RepositoryManager.NewRepositoryData?>(null) }
+    var hasCheckedForNewData by remember { mutableStateOf(false) }
+    
+    val scope = rememberCoroutineScope()
+    
+    // Check for new repository data on first load
+    LaunchedEffect(Unit) {
+        if (!hasCheckedForNewData) {
+            hasCheckedForNewData = true
+            scope.launch {
+                try {
+                    val detectedData = RepositoryManager.detectNewRepositoryFiles()
+                    if (detectedData != null) {
+                        newRepoData = detectedData
+                        showNewRepoDataDialog = true
+                    }
+                } catch (e: Exception) {
+                    println("Error checking for new repository data: ${e.message}")
+                    e.printStackTrace()
+                }
+            }
+        }
+    }
     
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -122,6 +149,34 @@ fun WorldMapScreen(
         CheatCodeDialog(
             onDismiss = { showCheatDialog = false },
             onApplyCheatCode = onCheatCode
+        )
+    }
+    
+    // New repository data dialog
+    if (showNewRepoDataDialog && newRepoData != null) {
+        NewRepositoryDataDialog(
+            newData = newRepoData!!,
+            onAccept = {
+                scope.launch {
+                    try {
+                        val success = RepositoryManager.syncNewRepositoryFiles()
+                        if (success) {
+                            println("Successfully synced new repository files")
+                            // Could show a success message here if desired
+                        } else {
+                            println("Failed to sync repository files")
+                            // Could show an error message here if desired
+                        }
+                    } catch (e: Exception) {
+                        println("Error syncing repository files: ${e.message}")
+                        e.printStackTrace()
+                    }
+                    showNewRepoDataDialog = false
+                }
+            },
+            onDismiss = {
+                showNewRepoDataDialog = false
+            }
         )
     }
 }
