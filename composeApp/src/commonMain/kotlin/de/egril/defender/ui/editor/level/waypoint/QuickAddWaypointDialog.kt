@@ -63,9 +63,12 @@ fun QuickAddWaypointDialog(
     onAdd: (Position, Position) -> Unit,
     preselectedSource: Position? = null
 ) {
-    val waypointTiles = remember(map) { map?.getWaypoints() ?: emptyList() }
+    val pathTiles = remember(map) { map?.getPathCells()?.toList() ?: emptyList() }
     val spawnPoints = remember(map) { map?.getSpawnPoints() ?: emptyList() }
     val targets = remember(map) { map?.getTargets() ?: emptyList() }
+    val validWaypointPositions = remember(pathTiles, spawnPoints, targets) {
+        (pathTiles + spawnPoints + targets).distinct()
+    }
 
     var selectedSource by remember { mutableStateOf<Position?>(null) }
     selectedSource = preselectedSource
@@ -81,8 +84,8 @@ fun QuickAddWaypointDialog(
         existingWaypoints.map { it.position }.toSet()
     }
 
-    val validSources = remember(spawnPoints, waypointTiles, showConnectedSources, connectedSources) {
-        val allSources = (spawnPoints + waypointTiles).distinct()
+    val validSources = remember(spawnPoints, validWaypointPositions, showConnectedSources, connectedSources) {
+        val allSources = (spawnPoints + validWaypointPositions).distinct()
         val filtered = if (showConnectedSources) {
             allSources
         } else {
@@ -91,8 +94,8 @@ fun QuickAddWaypointDialog(
         filtered.sortedWith(compareBy({ it.y }, { it.x }))
     }
 
-    val validTargets = remember(waypointTiles, targets) {
-        (waypointTiles + targets).distinct().sortedWith(compareBy({ it.y }, { it.x }))
+    val validTargets = remember(validWaypointPositions, targets) {
+        (validWaypointPositions + targets).distinct().sortedWith(compareBy({ it.y }, { it.x }))
     }
 
     // Build map of positions that are already connected to targets
