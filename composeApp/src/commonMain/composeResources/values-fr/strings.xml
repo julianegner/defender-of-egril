@@ -28,7 +28,7 @@
     <string name="restore_game_data_confirm_title">Restaurer les Données du Jeu ?</string>
     <string name="restore_game_data_confirm_message">Cela sauvegardera vos données actuelles du jeu et restaurera les niveaux d\'origine depuis le dépôt. Vos données actuelles seront conservées dans un dossier de sauvegarde. Êtes-vous sûr ?</string>
     <string name="restore_game_data_success_title">Données du Jeu Restaurées</string>
-    <string name="restore_game_data_success_message">Les données du jeu ont été restaurées depuis le dépôt.\n\nVos données précédentes ont été sauvegardées dans :\n%s</string>
+    <string name="restore_game_data_success_message">Les données du jeu ont été restaurées depuis le dépôt. Vos données précédentes ont été sauvegardées dans : %s</string>
     <string name="game_data">Données du Jeu</string>
     <string name="close">Fermer</string>
     
