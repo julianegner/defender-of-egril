@@ -227,7 +227,8 @@ fun QuickAddWaypointDialog(
                                         fontWeight = FontWeight.Bold
                                     )
                                     if (hoveredPosition != null) {
-                                        val tileType = map.tiles.getOrElse("${hoveredPosition!!.x},${hoveredPosition!!.y}") { TileType.NO_PLAY }
+                                        val pos = hoveredPosition!!
+                                        val tileType = map.tiles.getOrElse("${pos.x},${pos.y}") { TileType.NO_PLAY }
                                         val typeLabel = when (tileType) {
                                             TileType.SPAWN_POINT -> "Spawn"
                                             TileType.WAYPOINT -> "Waypoint"
@@ -239,7 +240,7 @@ fun QuickAddWaypointDialog(
                                             style = MaterialTheme.typography.bodySmall
                                         )
                                         Text(
-                                            text = "(${hoveredPosition!!.x}, ${hoveredPosition!!.y})",
+                                            text = "(${pos.x}, ${pos.y})",
                                             style = MaterialTheme.typography.bodySmall
                                         )
                                     } else {
@@ -412,7 +413,7 @@ private fun LegendItem(label: String, color: Color) {
             modifier = Modifier
                 .size(12.dp)
                 .background(color)
-                .border(0.5.dp, Color.Black)
+                .border(0.5.dp, MaterialTheme.colorScheme.outline)
         )
         Text(
             text = label,
