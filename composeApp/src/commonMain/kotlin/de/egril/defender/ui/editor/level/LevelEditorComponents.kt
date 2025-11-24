@@ -362,15 +362,16 @@ private fun EnemySpawnRow(
                     fontSize = 11.sp,
                     color = Color.Gray
                 )
-                // Display spawn point
-                spawn.spawnPoint?.let { spawnPoint ->
-                    Text(
-                        text = "${stringResource(Res.string.spawn_point)}: (${spawnPoint.x}, ${spawnPoint.y})",
-                        fontSize = 10.sp,
-                        color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                }
+                // Display spawn point - always show it
+                val spawnPointText = spawn.spawnPoint?.let { spawnPoint ->
+                    "${stringResource(Res.string.spawn_point)}: (${spawnPoint.x}, ${spawnPoint.y})"
+                } ?: stringResource(Res.string.no_spawn_point_set)
+                Text(
+                    text = spawnPointText,
+                    fontSize = 10.sp,
+                    color = if (spawn.spawnPoint != null) MaterialTheme.colorScheme.primary else Color.Gray,
+                    fontWeight = if (spawn.spawnPoint != null) FontWeight.SemiBold else FontWeight.Normal
+                )
             }
         }
         

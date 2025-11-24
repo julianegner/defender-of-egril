@@ -454,6 +454,7 @@
     <string name="change_spawn_point">Change Spawn Point</string>
     <string name="select_spawn_point_for_enemy">Select the spawn point for this enemy</string>
     <string name="no_spawn_points_available">No spawn points available on this map</string>
+    <string name="no_spawn_point_set">No spawn point set</string>
     <string name="change">Change</string>
     <string name="target_text">Target</string>
     <string name="waypoint">Waypoint</string>
