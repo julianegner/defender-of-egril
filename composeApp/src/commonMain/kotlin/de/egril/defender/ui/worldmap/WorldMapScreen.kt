@@ -44,7 +44,6 @@ fun WorldMapScreen(
     // Check for new repository data on first load (if enabled)
     LaunchedEffect(checkForNewRepositoryData) {
         if (checkForNewRepositoryData) {
-            kotlinx.coroutines.delay(100) // Small delay to let UI settle
             scope.launch {
                 try {
                     val detectedData = RepositoryManager.detectNewRepositoryFiles()
@@ -53,8 +52,8 @@ fun WorldMapScreen(
                         showNewRepoDataDialog = true
                     }
                 } catch (e: Exception) {
-                    println("Error checking for new repository data: ${e.message}")
-                    // Silently ignore errors in test environments
+                    // Silently ignore repository check errors to avoid disrupting the user experience
+                    println("Info: Repository check skipped - ${e.message}")
                 }
             }
         }
