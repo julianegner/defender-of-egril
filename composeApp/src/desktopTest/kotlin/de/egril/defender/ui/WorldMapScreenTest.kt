@@ -53,7 +53,8 @@ class WorldMapScreenTest {
                 onBackToMenu = { backToMenuClicked = true },
                 onShowRules = { showRulesClicked = true },
                 onOpenEditor = { openEditorClicked = true },
-                onLoadGame = { loadGameClicked = true }
+                onLoadGame = { loadGameClicked = true },
+                checkForNewRepositoryData = false  // Disable repository check in tests
             )
         }
         
@@ -101,7 +102,8 @@ class WorldMapScreenTest {
                 onBackToMenu = {},
                 onShowRules = {},
                 onOpenEditor = {},
-                onLoadGame = {}
+                onLoadGame = {},
+                checkForNewRepositoryData = false  // Disable repository check in tests
             )
         }
         
@@ -133,7 +135,8 @@ class WorldMapScreenTest {
                 onBackToMenu = {},
                 onShowRules = {},
                 onOpenEditor = {},
-                onLoadGame = {}
+                onLoadGame = {},
+                checkForNewRepositoryData = false  // Disable repository check in tests
             )
         }
         
@@ -165,7 +168,8 @@ class WorldMapScreenTest {
                 onBackToMenu = {},
                 onShowRules = {},
                 onOpenEditor = {},
-                onLoadGame = {}
+                onLoadGame = {},
+                checkForNewRepositoryData = false  // Disable repository check in tests
             )
         }
         
@@ -197,7 +201,8 @@ class WorldMapScreenTest {
                 onBackToMenu = { backToMenuClicked = true },
                 onShowRules = { showRulesClicked = true },
                 onOpenEditor = {},
-                onLoadGame = { loadGameClicked = true }
+                onLoadGame = { loadGameClicked = true },
+                checkForNewRepositoryData = false  // Disable repository check in tests
             )
         }
         
