@@ -66,12 +66,14 @@ fun WaypointsTab(
     var showRemoveAllDialog by remember { mutableStateOf(false) }
     var showTreeView by remember { mutableStateOf(true) }  // Default to tree view
 
-    // Get valid waypoint positions (path tiles + spawn points), and targets from the map
+    // Get path tiles, spawn points, and targets from the map
     val pathTiles = remember(map) { map?.getPathCells()?.toList() ?: emptyList() }
     val spawnPoints = remember(map) { map?.getSpawnPoints() ?: emptyList() }
     val targets = remember(map) { map?.getTargets() ?: emptyList() }
-    val validWaypointPositions = remember(pathTiles, spawnPoints, targets) {
-        (pathTiles + spawnPoints + targets).distinct()
+    
+    // Extract existing waypoint positions from the waypoints list
+    val existingWaypointPositions = remember(waypoints) {
+        waypoints.map { it.position }.toSet().toList()
     }
 
     // Perform detailed validation
@@ -108,10 +110,10 @@ fun WaypointsTab(
             )
         }
 
-        // Available waypoint positions info
+        // Available path tiles info
         item {
             Text(
-                text = stringResource(Res.string.available_waypoint_tiles).replace("%d", validWaypointPositions.size.toString()),
+                text = stringResource(Res.string.available_waypoint_tiles).replace("%d", pathTiles.size.toString()),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -180,7 +182,7 @@ fun WaypointsTab(
                 ) {
                     Button(
                         onClick = { showAddDialog = true },
-                        enabled = validWaypointPositions.isNotEmpty(),
+                        enabled = pathTiles.isNotEmpty(),
                         modifier = Modifier.weight(1f)
                     ) {
                         Text(stringResource(Res.string.add_waypoint))
@@ -204,7 +206,7 @@ fun WaypointsTab(
                 // Second row: Quick Add button
                 Button(
                     onClick = { showQuickAddDialog = true },
-                    enabled = validWaypointPositions.isNotEmpty(),
+                    enabled = pathTiles.isNotEmpty(),
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.secondary
@@ -296,7 +298,7 @@ fun WaypointsTab(
                 WaypointConnectionCard(
                     waypoint = waypoint,
                     spawnPoints = spawnPoints,
-                    validWaypointPositions = validWaypointPositions,
+                    validWaypointPositions = existingWaypointPositions,
                     targets = targets,
                     isInCircular = validationResult.circularDependencies.contains(waypoint.position) ||
                             validationResult.circularDependencies.contains(waypoint.nextTargetPosition),
@@ -314,7 +316,8 @@ fun WaypointsTab(
     // Add waypoint dialog
     if (showAddDialog) {
         AddWaypointDialog(
-            validWaypointPositions = validWaypointPositions,
+            existingWaypointPositions = existingWaypointPositions,
+            pathTiles = pathTiles,
             spawnPoints = spawnPoints,
             targets = targets,
             existingWaypoints = waypoints,
