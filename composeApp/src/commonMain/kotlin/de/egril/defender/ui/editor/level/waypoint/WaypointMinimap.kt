@@ -21,6 +21,9 @@ import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
 
+// Minimap configuration
+private const val MINIMAP_HEX_SIZE = 2.0f  // Doubled from original 1.0f for better visibility
+
 /**
  * Minimap showing waypoint positions with highlighting
  */
@@ -42,7 +45,7 @@ fun WaypointMinimap(
                 val mapHeight = map.height
 
                 // Calculate the size needed for the hex grid (doubled)
-                val baseHexSize = 2.0f
+                val baseHexSize = MINIMAP_HEX_SIZE
                 val baseHexWidth = (sqrt(3.0) * baseHexSize).toFloat()
                 val baseHexHeight = 2.0f * baseHexSize
                 val baseVerticalSpacing = baseHexHeight * 0.75f
@@ -89,12 +92,16 @@ fun WaypointMinimap(
                             val centerX = offsetXCanvas + col * hexWidth + offsetXHex + hexWidth / 2
                             val centerY = offsetYCanvas + row * verticalSpacing + hexHeight / 2
 
-                            // Check if click is within this hex (using distance to center)
+                            // Check if click is within this hex 
+                            // For hexagons, we use a slightly larger radius than hexSize
+                            // to account for the circumscribed circle
                             val dx = offset.x - centerX
                             val dy = offset.y - centerY
                             val distance = sqrt(dx * dx + dy * dy)
 
-                            if (distance < hexSize && distance < minDistance) {
+                            // Use hexHeight/2 as the hit radius for better accuracy
+                            val hitRadius = hexHeight / 2
+                            if (distance < hitRadius && distance < minDistance) {
                                 minDistance = distance
                                 clickedPosition = pos
                             }
@@ -111,7 +118,7 @@ fun WaypointMinimap(
         val mapHeight = map.height
 
         // Calculate the size needed for the hex grid (doubled)
-        val baseHexSize = 2.0f
+        val baseHexSize = MINIMAP_HEX_SIZE
         val baseHexWidth = (sqrt(3.0) * baseHexSize).toFloat()
         val baseHexHeight = 2.0f * baseHexSize
         val baseVerticalSpacing = baseHexHeight * 0.75f
