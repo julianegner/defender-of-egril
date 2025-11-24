@@ -106,6 +106,19 @@ Defender of Egril is a turn-based tower defense game built with Kotlin Multiplat
   - `AttackerType.getLocalizedName()` - Enemy names
   - `AttackType.getLocalizedName()` - Attack type names
 
+### Icons and Emojis
+- **DO NOT use Unicode emojis/icons in Kotlin code** - They don't display correctly on WASM
+- **DO NOT include Unicode emojis/icons in string resources** - Use icon components instead
+- **Use Icon Components**: All icons are in `ui/icon/IconUtils.kt` (e.g., `WarningIcon`, `InfoIcon`, `LightningIcon`, `HeartIcon`, `LockIcon`)
+- **Display Icons**: Use composable icon functions with `Row` and proper spacing
+- **Example**: Instead of `"⚠️ Warning text"`, use:
+  ```kotlin
+  Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+      WarningIcon(size = 14.dp)
+      Text("Warning text")
+  }
+  ```
+
 ### Grid System
 - **Hexagonal Grid**: Uses offset coordinate system (even-q vertical layout)
 - **HexUtils**: Provides neighbor detection, distance calculation, and line-of-sight
