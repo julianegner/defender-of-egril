@@ -58,7 +58,6 @@ class WasmJsFileStorage : FileStorage {
         for (i in 0 until localStorage.length) {
             val key = localStorage.key(i)
             if (key != null && key.startsWith(oldPrefix)) {
-                val content = localStorage.getItem(key) ?: continue
                 val newKey = key.replaceFirst(oldPrefix, newPrefix)
                 keysToRename.add(key to newKey)
             }

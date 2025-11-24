@@ -72,6 +72,12 @@ abstract class JvmFileStorage : FileStorage {
             return false
         }
         
+        // Check if target already exists
+        if (targetDir.exists()) {
+            println("Target directory already exists: $targetPath")
+            return false
+        }
+        
         return try {
             sourceDir.copyRecursively(targetDir, overwrite = false)
             true
