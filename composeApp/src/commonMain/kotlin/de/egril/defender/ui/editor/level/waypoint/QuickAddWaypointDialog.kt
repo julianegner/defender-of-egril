@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -183,14 +184,17 @@ fun QuickAddWaypointDialog(
                         }
                     }
 
+                    Spacer(modifier = Modifier.height(4.dp))
+
                     FlowRow(
                         horizontalArrangement = Arrangement.spacedBy(4.dp),
                         verticalArrangement = Arrangement.spacedBy(4.dp),
-                        modifier = Modifier.Companion.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth()
                     ) {
                         validSources.forEach { pos ->
                             val isSpawn = spawnPoints.contains(pos)
                             FilterChip(
+                                modifier = Modifier.height(28.dp),
                                 selected = selectedSource == pos,
                                 onClick = {
                                     selectedSource = pos
@@ -222,6 +226,8 @@ fun QuickAddWaypointDialog(
                         )
                     }
 
+                    Spacer(modifier = Modifier.height(4.dp))
+
                     FlowRow(
                         horizontalArrangement = Arrangement.spacedBy(4.dp),
                         verticalArrangement = Arrangement.spacedBy(4.dp),
@@ -231,6 +237,7 @@ fun QuickAddWaypointDialog(
                             val isTarget = target == pos
                             val isConnectedToTarget = connectedToTarget.contains(pos)
                             FilterChip(
+                                modifier = Modifier.height(28.dp),
                                 selected = selectedTarget == pos,
                                 onClick = {
                                     selectedTarget = pos
