@@ -437,6 +437,8 @@
     <string name="very_greedy_desc">Frisst umliegende feindliche Einheiten und zerstört nacheinander Minen</string>
     <string name="greed_level_label">Gier</string>
     <string name="dragon_info_button">Was macht ein Drache?</string>
+    <string name="mighty_unit_warning">⚠️ Mächtige Einheit! Verursacht %d LP Schaden, wenn sie das Ziel erreicht (Stufe × 1 LP)</string>
+    <string name="ewhad_target_warning">⚠️ BOSS! Wenn Ewhad das Ziel erreicht, ist die Stufe verloren!</string>
 <!-- Waypoint Editor -->
     <string name="waypoints_tab">Wegpunkte</string>
     <string name="waypoints_title">Wegpunkt-Verbindungen</string>
