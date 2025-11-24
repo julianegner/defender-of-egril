@@ -109,7 +109,7 @@ private fun createLevel6() = Level(
 #### Adding a New Level (Repository Method - Recommended)
 
 1. Create levels using the desktop Level Editor
-2. Copy JSON files from `~/.defender-of-egril/editor/` to repository:
+2. Copy JSON files from `~/.defender-of-egril/gamedata/` to repository:
    ```
    composeApp/src/commonMain/composeResources/files/repository/
    ├── maps/your_map.json
