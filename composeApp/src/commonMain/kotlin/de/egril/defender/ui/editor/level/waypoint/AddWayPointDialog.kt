@@ -41,7 +41,7 @@ import defender_of_egril.composeapp.generated.resources.waypoint_exists_error
  */
 @Composable
 fun AddWaypointDialog(
-    waypointTiles: List<Position>,
+    validWaypointPositions: List<Position>,
     spawnPoints: List<Position>,
     targets: List<Position>,
     existingWaypoints: List<EditorWaypoint>,
@@ -52,14 +52,14 @@ fun AddWaypointDialog(
     var selectedTarget by remember { mutableStateOf<Position?>(null) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
-    // Valid source positions: spawn points + waypoint tiles
-    val validSources = remember(spawnPoints, waypointTiles) {
-        (spawnPoints + waypointTiles).distinct()
+    // Valid source positions: spawn points + all valid waypoint positions
+    val validSources = remember(spawnPoints, validWaypointPositions) {
+        (spawnPoints + validWaypointPositions).distinct()
     }
 
-    // Valid target positions: waypoint tiles + all targets
-    val validTargets = remember(waypointTiles, targets) {
-        (waypointTiles + targets).distinct()
+    // Valid target positions: all valid waypoint positions + all targets
+    val validTargets = remember(validWaypointPositions, targets) {
+        (validWaypointPositions + targets).distinct()
     }
 
     // Get error message strings in composable context
