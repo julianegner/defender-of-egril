@@ -234,8 +234,8 @@ fun QuickAddWaypointDialog(
                                         val tileType = map.tiles.getOrElse("${pos.x},${pos.y}") { TileType.NO_PLAY }
                                         val typeLabel = when (tileType) {
                                             TileType.SPAWN_POINT -> "Spawn"
-                                            TileType.WAYPOINT -> "Waypoint"
                                             TileType.TARGET -> "Target"
+                                            TileType.PATH -> "Path"
                                             else -> "Unknown"
                                         }
                                         Text(
