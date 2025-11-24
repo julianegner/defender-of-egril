@@ -8,6 +8,7 @@ import de.egril.defender.model.PlannedEnemySpawn
 import de.egril.defender.model.Position
 import de.egril.defender.model.Waypoint
 import de.egril.defender.model.getHexNeighbors
+import de.egril.defender.utils.runBlockingCompat
 /**
  * File-based storage for maps and levels
  * Stores data in ~/.defender-of-egril/ directory on desktop
@@ -939,8 +940,8 @@ object EditorStorage {
      */
     private fun tryLoadRepositoryFiles(): Boolean {
         return try {
-            // Use runBlocking to make this synchronous
-            kotlinx.coroutines.runBlocking {
+            // Use runBlockingCompat to make this synchronous
+            runBlockingCompat {
                 RepositoryLoader.loadAndSaveRepositoryFiles(fileStorage)
             }
         } catch (e: Exception) {
