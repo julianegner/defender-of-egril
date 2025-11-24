@@ -104,6 +104,16 @@ class GameEngine(private val state: GameState) {
     }
     
     /**
+     * Find the closest target position from a given position.
+     * Used for dragons when not targeting mines.
+     */
+    private fun findClosestTargetPosition(from: Position): Position {
+        return state.level.targetPositions.minByOrNull { 
+            from.distanceTo(it) 
+        } ?: state.level.targetPositions.first()
+    }
+    
+    /**
      * Check if dragon should target mines (greed > 5 and mines exist).
      * Updates dragon's target if needed.
      */
@@ -112,10 +122,11 @@ class GameEngine(private val state: GameState) {
             // Not greedy enough, clear mine target if set
             if (dragon.targetMineId.value != null) {
                 dragon.targetMineId.value = null
+                // Target closest target position instead of first
                 dragon.currentTarget?.value = if (state.level.waypoints.isNotEmpty()) {
                     state.level.waypoints.first().position
                 } else {
-                    state.level.targetPositions.first()
+                    findClosestTargetPosition(dragon.position.value)
                 }
             }
             return
@@ -132,15 +143,16 @@ class GameEngine(private val state: GameState) {
                 println("Dragon ${dragon.id} (greed ${dragon.greed}) now targeting mine ${mine.id} at ${mine.position}")
             }
         } else {
-            // No mines left, go back to normal target
+            // No mines left, go back to closest target
             if (dragon.targetMineId.value != null) {
                 dragon.targetMineId.value = null
+                // Target closest target position instead of first
                 dragon.currentTarget?.value = if (state.level.waypoints.isNotEmpty()) {
                     state.level.waypoints.first().position
                 } else {
-                    state.level.targetPositions.first()
+                    findClosestTargetPosition(dragon.position.value)
                 }
-                println("Dragon ${dragon.id} no more mines, returning to normal target")
+                println("Dragon ${dragon.id} no more mines, returning to closest target")
             }
         }
     }
