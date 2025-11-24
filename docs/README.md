@@ -5,10 +5,10 @@ This directory contains detailed documentation for the Defender of Egril project
 ## Quick Links to Root Documentation
 
 - [README](../README.md) - Main project overview
-- [QUICKSTART](../QUICKSTART.md) - Quick start guide
-- [DEVELOPMENT](../DEVELOPMENT.md) - Developer guide and architecture
-- [GAMEPLAY](../GAMEPLAY.md) - Game mechanics and rules
-- [RUNNING](../RUNNING.md) - Platform-specific running instructions
+- [QUICKSTART](root/QUICKSTART.md) - Quick start guide
+- [DEVELOPMENT](root/DEVELOPMENT.md) - Developer guide and architecture
+- [GAMEPLAY](root/GAMEPLAY.md) - Game mechanics and rules
+- [RUNNING](root/RUNNING.md) - Platform-specific running instructions
 
 ## Documentation Structure
 
