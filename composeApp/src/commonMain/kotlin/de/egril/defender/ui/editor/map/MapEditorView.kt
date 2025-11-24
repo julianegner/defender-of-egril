@@ -152,9 +152,6 @@ fun MapEditorView(
                             style = MaterialTheme.typography.labelSmall,
                             color = Color.White
                         )
-                        if (tileType == TileType.WAYPOINT) {
-                            PushpinIcon(size = 20.dp)
-                        }
                     }
                 }
 
