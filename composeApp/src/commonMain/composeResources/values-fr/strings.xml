@@ -500,4 +500,14 @@
         <item quantity="one">%d point de vie</item>
         <item quantity="other">%d points de vie</item>
     </plurals>
+    
+    <!-- New Repository Data Dialog -->
+    <string name="new_repository_data_title">Nouveau contenu disponible</string>
+    <string name="new_repository_data_message">De nouvelles cartes et niveaux ont été trouvés dans le référentiel qui ne sont pas dans vos données de jeu. Voulez-vous les ajouter ?</string>
+    <string name="new_maps_found">%d nouvelle(s) carte(s) trouvée(s) :</string>
+    <string name="new_levels_found">%d nouveau(x) niveau(x) trouvé(s) :</string>
+    <string name="and_more">et %d de plus...</string>
+    <string name="sequence_will_be_replaced">La séquence de niveaux sera mise à jour.</string>
+    <string name="sequence_backup_warning">Remarque : Si vous avez modifié le fichier de séquence, vous devrez refaire ces modifications. Votre séquence actuelle sera sauvegardée dans sequence-N.json.</string>
+    <string name="add_data">Ajouter du nouveau contenu</string>
 </resources>

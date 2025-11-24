@@ -500,4 +500,14 @@
         <item quantity="one">%d punto de salud</item>
         <item quantity="other">%d puntos de salud</item>
     </plurals>
+    
+    <!-- New Repository Data Dialog -->
+    <string name="new_repository_data_title">Nuevo contenido disponible</string>
+    <string name="new_repository_data_message">Se han encontrado nuevos mapas y niveles en el repositorio que no están en sus datos del juego. ¿Desea agregarlos?</string>
+    <string name="new_maps_found">%d nuevo(s) mapa(s) encontrado(s):</string>
+    <string name="new_levels_found">%d nuevo(s) nivel(es) encontrado(s):</string>
+    <string name="and_more">y %d más...</string>
+    <string name="sequence_will_be_replaced">La secuencia de niveles se actualizará.</string>
+    <string name="sequence_backup_warning">Nota: Si ha modificado el archivo de secuencia, deberá rehacer esos cambios. Su secuencia actual se respaldará en sequence-N.json.</string>
+    <string name="add_data">Agregar nuevo contenido</string>
 </resources>
