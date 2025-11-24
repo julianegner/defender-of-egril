@@ -352,54 +352,50 @@ private fun EnemySpawnRow(
                 )
             }
             
-            Column {
-                Text(
-                    text = "${spawn.attackerType.displayName} Lv${spawn.level}",
-                    fontSize = 14.sp
-                )
-                Text(
-                    text = "${stringResource(Res.string.hp_short)}: ${spawn.healthPoints}",
-                    fontSize = 11.sp,
-                    color = Color.Gray
-                )
-                // Display spawn point - always show it
-                val spawnPointText = spawn.spawnPoint?.let { spawnPoint ->
-                    "${stringResource(Res.string.spawn_point)}: (${spawnPoint.x}, ${spawnPoint.y})"
-                } ?: stringResource(Res.string.no_spawn_point_set)
-                Text(
-                    text = spawnPointText,
-                    fontSize = 10.sp,
-                    color = if (spawn.spawnPoint != null) MaterialTheme.colorScheme.primary else Color.Gray,
-                    fontWeight = if (spawn.spawnPoint != null) FontWeight.SemiBold else FontWeight.Normal
-                )
+            // Enemy info in horizontal layout
+            Text(
+                text = "${spawn.attackerType.displayName} Lv${spawn.level}",
+                fontSize = 14.sp
+            )
+            Text(
+                text = "${stringResource(Res.string.hp_short)}: ${spawn.healthPoints}",
+                fontSize = 11.sp,
+                color = Color.Gray
+            )
+            
+            // Display spawn point - always show it
+            val spawnPointText = spawn.spawnPoint?.let { spawnPoint ->
+                "${stringResource(Res.string.spawn_point)}: (${spawnPoint.x}, ${spawnPoint.y})"
+            } ?: stringResource(Res.string.no_spawn_point_set)
+            Text(
+                text = spawnPointText,
+                fontSize = 10.sp,
+                color = if (spawn.spawnPoint != null) MaterialTheme.colorScheme.primary else Color.Gray,
+                fontWeight = if (spawn.spawnPoint != null) FontWeight.SemiBold else FontWeight.Normal
+            )
+            
+            // Change spawn point button - right after spawn point info
+            Button(
+                onClick = { onChangeSpawnPoint(spawn) },
+                modifier = Modifier.height(28.dp),
+                contentPadding = PaddingValues(horizontal = 6.dp, vertical = 0.dp)
+            ) {
+                Text("📍", fontSize = 10.sp)
             }
         }
         
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
+        // Remove button on the far right
+        Button(
+            onClick = onRemoveEnemy,
+            modifier = Modifier.height(36.dp),
+            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp)
         ) {
-            // Change spawn point button
-            Button(
-                onClick = { onChangeSpawnPoint(spawn) },
-                modifier = Modifier.height(36.dp),
-                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                Text("📍", fontSize = 12.sp)
-            }
-            
-            // Remove button
-            Button(
-                onClick = onRemoveEnemy,
-                modifier = Modifier.height(36.dp),
-                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp)
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    TrashIcon(size = 12.dp)
-                    Text(stringResource(Res.string.remove), fontSize = 11.sp)
-                }
+                TrashIcon(size = 12.dp)
+                Text(stringResource(Res.string.remove), fontSize = 11.sp)
             }
         }
     }
