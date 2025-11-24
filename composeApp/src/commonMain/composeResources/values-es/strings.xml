@@ -453,6 +453,7 @@
     <string name="no_spawn_points_available">No hay puntos de aparición disponibles en este mapa</string>
     <string name="no_spawn_point_set">Sin punto de aparición establecido</string>
     <string name="change">Cambiar</string>
+    <string name="select">Seleccionar</string>
     <string name="target_text">Objetivo</string>
     <string name="waypoint">Punto de Paso</string>
     <string name="select_source_position">Seleccionar posición de origen</string>

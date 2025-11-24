@@ -455,6 +455,7 @@
     <string name="no_spawn_points_available">Aucun point d\'apparition disponible sur cette carte</string>
     <string name="no_spawn_point_set">Aucun point d\'apparition défini</string>
     <string name="change">Changer</string>
+    <string name="select">Sélectionner</string>
     <string name="target_text">Cible</string>
     <string name="waypoint">Point de Passage</string>
     <string name="select_source_position">Sélectionner la position source</string>
