@@ -438,11 +438,11 @@ object EditorStorage {
      * Only initializes if the gamedata directory is completely empty
      */
     private fun initializeDefaultMapsAndLevels() {
-        // First check if gamedata directory is empty
+        // First check if gamedata directory has any existing user data
         // If it has any content, assume user has data and skip initialization
-        val isGamedataEmpty = isGamedataDirectoryEmpty()
+        val hasUserData = hasExistingGamedataFiles()
         
-        if (!isGamedataEmpty) {
+        if (hasUserData) {
             println("Gamedata directory is not empty - preserving existing user data")
             // Try to load the sequence to populate cache
             val sequenceJson = fileStorage.readFile(SEQUENCE_FILE)
@@ -971,16 +971,26 @@ object EditorStorage {
     }
     
     /**
-     * Check if the gamedata directory is empty or doesn't exist
-     * @return true if the directory is empty or doesn't exist, false if it contains any files
+     * Check if the gamedata directory contains any existing user files
+     * @return true if any user data files exist, false if directory is empty
      */
-    private fun isGamedataDirectoryEmpty(): Boolean {
-        // Check if any of the expected directories or files exist with content
-        val mapsExist = fileStorage.listFiles(MAPS_DIR).isNotEmpty()
-        val levelsExist = fileStorage.listFiles(LEVELS_DIR).isNotEmpty()
-        val sequenceExists = fileStorage.fileExists(SEQUENCE_FILE)
+    private fun hasExistingGamedataFiles(): Boolean {
+        // Check if the sequence file exists (most reliable indicator)
+        if (fileStorage.fileExists(SEQUENCE_FILE)) {
+            return true
+        }
         
-        // Directory is considered empty if none of these exist
-        return !mapsExist && !levelsExist && !sequenceExists
+        // Check if any maps exist
+        if (fileStorage.listFiles(MAPS_DIR).isNotEmpty()) {
+            return true
+        }
+        
+        // Check if any levels exist
+        if (fileStorage.listFiles(LEVELS_DIR).isNotEmpty()) {
+            return true
+        }
+        
+        // No user data found
+        return false
     }
 }
