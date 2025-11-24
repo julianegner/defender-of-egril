@@ -32,19 +32,19 @@ fun WorldMapScreen(
     onShowRules: () -> Unit,
     onOpenEditor: () -> Unit,
     onLoadGame: () -> Unit,
-    onCheatCode: ((String) -> Boolean)? = null  // Callback for processing cheat codes, returns true if code was valid
+    onCheatCode: ((String) -> Boolean)? = null,  // Callback for processing cheat codes, returns true if code was valid
+    checkForNewRepositoryData: Boolean = true  // Set to false in tests to avoid repository checks
 ) {
     var showCheatDialog by remember { mutableStateOf(false) }
     var showNewRepoDataDialog by remember { mutableStateOf(false) }
     var newRepoData by remember { mutableStateOf<RepositoryManager.NewRepositoryData?>(null) }
-    var hasCheckedForNewData by remember { mutableStateOf(false) }
     
     val scope = rememberCoroutineScope()
     
-    // Check for new repository data on first load
-    LaunchedEffect(Unit) {
-        if (!hasCheckedForNewData) {
-            hasCheckedForNewData = true
+    // Check for new repository data on first load (if enabled)
+    LaunchedEffect(checkForNewRepositoryData) {
+        if (checkForNewRepositoryData) {
+            kotlinx.coroutines.delay(100) // Small delay to let UI settle
             scope.launch {
                 try {
                     val detectedData = RepositoryManager.detectNewRepositoryFiles()
@@ -54,7 +54,7 @@ fun WorldMapScreen(
                     }
                 } catch (e: Exception) {
                     println("Error checking for new repository data: ${e.message}")
-                    e.printStackTrace()
+                    // Silently ignore errors in test environments
                 }
             }
         }
