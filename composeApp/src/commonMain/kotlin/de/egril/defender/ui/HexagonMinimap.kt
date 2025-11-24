@@ -135,7 +135,7 @@ fun HexagonMinimapFromEditorMap(
             gridWidth = map.width,
             gridHeight = map.height,
             startPositions = emptyList(),
-            targetPosition = Position(0, 0),
+            targetPositions = listOf(Position(0, 0)),
             pathCells = emptySet(),
             buildIslands = emptySet(),
             attackerWaves = emptyList()
@@ -302,14 +302,16 @@ private fun HexagonMinimapContent(
                     }
                 }
                 
-                // Draw target position (if not already shown as tiles)
+                // Draw target positions (if not already shown as tiles)
                 if (config.showTarget && !hasTargetTile) {
-                    val center = getHexCenterPosition(level.targetPosition)
-                    drawCircle(
-                        color = Color(0xFF4CAF50),  // Green
-                        radius = hexSize / 2,
-                        center = center
-                    )
+                    level.targetPositions.forEach { targetPos ->
+                        val center = getHexCenterPosition(targetPos)
+                        drawCircle(
+                            color = Color(0xFF4CAF50),  // Green
+                            radius = hexSize / 2,
+                            center = center
+                        )
+                    }
                 }
             }
         }

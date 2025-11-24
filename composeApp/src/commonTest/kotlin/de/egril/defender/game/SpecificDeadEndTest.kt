@@ -43,7 +43,7 @@ class SpecificDeadEndTest {
             gridWidth = 10,
             gridHeight = 6,
             startPositions = listOf(Position(0, 0)),  // Spawn in dead end
-            targetPosition = Position(9, 2),
+            targetPositions = listOf(Position(9, 2)),
             pathCells = pathCells,
             buildIslands = emptySet(),
             attackerWaves = listOf(
@@ -86,8 +86,8 @@ class SpecificDeadEndTest {
             
             // Check no backtracking (distance should not increase)
             if (path.size >= 2) {
-                val prevDist = path[path.size - 2].distanceTo(level.targetPosition)
-                val currDist = newPos.distanceTo(level.targetPosition)
+                val prevDist = path[path.size - 2].distanceTo(level.targetPositions.first())
+                val currDist = newPos.distanceTo(level.targetPositions.first())
                 
                 assertTrue(
                     currDist <= prevDist,
@@ -96,14 +96,14 @@ class SpecificDeadEndTest {
             }
             
             // If reached target, stop
-            if (newPos == level.targetPosition) {
+            if (newPos == level.targetPositions.first()) {
                 return@repeat
             }
         }
         
         // Verify goblin made progress toward the goal
-        val startDist = path.first().distanceTo(level.targetPosition)
-        val endDist = path.last().distanceTo(level.targetPosition)
+        val startDist = path.first().distanceTo(level.targetPositions.first())
+        val endDist = path.last().distanceTo(level.targetPositions.first())
         
         assertTrue(
             endDist < startDist,
@@ -139,7 +139,7 @@ class SpecificDeadEndTest {
             gridWidth = 10,
             gridHeight = 6,
             startPositions = listOf(Position(0, 0)),
-            targetPosition = Position(9, 2),
+            targetPositions = listOf(Position(9, 2)),
             pathCells = pathCells,
             buildIslands = emptySet(),
             attackerWaves = listOf(
@@ -181,8 +181,8 @@ class SpecificDeadEndTest {
         )
         
         // Should move toward target (closer)
-        val startDist = Position(1, 0).distanceTo(level.targetPosition)
-        val endDist = posAfterTurn1.distanceTo(level.targetPosition)
+        val startDist = Position(1, 0).distanceTo(level.targetPositions.first())
+        val endDist = posAfterTurn1.distanceTo(level.targetPositions.first())
         
         assertTrue(
             endDist <= startDist,
