@@ -278,7 +278,8 @@ class GameEngine(private val state: GameState) {
                 }
             }
             
-            val initialTarget = enemyMovement.getInitialTarget(spawnPos)
+            // Get initial target based on preferred spawn point (BEFORE congestion offsets)
+            val initialTarget = enemyMovement.getInitialTarget(preferredSpawnPoint)
             val attacker = Attacker(
                 id = state.nextAttackerId.value++,
                 type = plannedSpawn.attackerType,
@@ -287,7 +288,7 @@ class GameEngine(private val state: GameState) {
                 currentTarget = mutableStateOf(initialTarget)
             )
             state.attackers.add(attacker)
-            println("Spawned attacker ${attacker.id} at $spawnPos with initial target: $initialTarget")
+            println("Spawned attacker ${attacker.id} at $spawnPos (preferred: $preferredSpawnPoint) with initial target: $initialTarget")
         }
 
         // Move goblins immediately after initial spawning (this is not during enemy turn)
@@ -394,6 +395,7 @@ class GameEngine(private val state: GameState) {
      */
     private fun applyTargetDamage(attacker: Attacker) {
         val damage = attacker.calculateTargetDamage()
+        println("!!! ENEMY ENTERED TARGET !!! Turn ${state.turnNumber.value}: ${attacker.type} (ID ${attacker.id}) at ${attacker.position.value} dealt $damage damage. HP: ${state.healthPoints.value} -> ${state.healthPoints.value - damage}")
         state.healthPoints.value = maxOf(0, state.healthPoints.value - damage)
         attacker.isDefeated.value = true
     }
