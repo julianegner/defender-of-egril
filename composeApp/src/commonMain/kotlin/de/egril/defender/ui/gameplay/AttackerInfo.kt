@@ -13,6 +13,10 @@ import de.egril.defender.ui.*
 import de.egril.defender.ui.icon.enemy.EnemyIcon
 import com.hyperether.resources.stringResource
 import de.egril.defender.ui.icon.InfoIcon
+import de.egril.defender.ui.icon.WarningIcon
+import de.egril.defender.ui.icon.LightningIcon
+import de.egril.defender.ui.icon.HeartIcon
+import de.egril.defender.ui.icon.LockIcon
 import defender_of_egril.composeapp.generated.resources.*
 
 /**
@@ -165,39 +169,75 @@ fun AttackerInfo(
                     
                     // Additional info about special abilities
                     if (attacker.type.canSummon) {
-                        Text(
-                            "⚡ ${stringResource(Res.string.can_summon)}",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = GamePlayColors.Warning
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            LightningIcon(size = 14.dp)
+                            Text(
+                                stringResource(Res.string.can_summon),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = GamePlayColors.Warning
+                            )
+                        }
                     }
                     if (attacker.type.canHeal) {
-                        Text(
-                            "💚 ${stringResource(Res.string.can_heal)}",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = GamePlayColors.Success
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            HeartIcon(size = 14.dp)
+                            Text(
+                                stringResource(Res.string.can_heal),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = GamePlayColors.Success
+                            )
+                        }
                     }
                     if (attacker.type.canDisableTowers) {
-                        Text(
-                            "🔒 ${stringResource(Res.string.can_disable_towers)}",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = GamePlayColors.ErrorDark
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            LockIcon(size = 14.dp)
+                            Text(
+                                stringResource(Res.string.can_disable_towers),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = GamePlayColors.ErrorDark
+                            )
+                        }
                     }
                     if (attacker.type.immuneToAcid) {
-                        Text(
-                            "🛡️ ${stringResource(Res.string.immune_to_acid)}",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = GamePlayColors.InfoDark
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Text(
+                                "🛡️",
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                            Text(
+                                stringResource(Res.string.immune_to_acid),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = GamePlayColors.InfoDark
+                            )
+                        }
                     }
                     if (attacker.type.immuneToFireball) {
-                        Text(
-                            "🛡️ ${stringResource(Res.string.immune_to_fireball)}",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = GamePlayColors.InfoDark
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Text(
+                                "🛡️",
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                            Text(
+                                stringResource(Res.string.immune_to_fireball),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = GamePlayColors.InfoDark
+                            )
+                        }
                     }
                     
                     // Mighty unit warning - for wizards, witches, demons, dragons
@@ -215,22 +255,34 @@ fun AttackerInfo(
                     
                     if (isMightyUnit) {
                         val damage = attacker.level.value
-                        Text(
-                            stringResource(Res.string.mighty_unit_warning).replace("%d", damage.toString()),
-                            style = MaterialTheme.typography.bodySmall,
-                            fontWeight = FontWeight.Bold,
-                            color = GamePlayColors.ErrorDark
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            WarningIcon(size = 14.dp)
+                            Text(
+                                stringResource(Res.string.mighty_unit_warning).replace("%d", damage.toString()),
+                                style = MaterialTheme.typography.bodySmall,
+                                fontWeight = FontWeight.Bold,
+                                color = GamePlayColors.ErrorDark
+                            )
+                        }
                     }
                     
                     // Special Ewhad warning
                     if (attacker.type == AttackerType.EWHAD) {
-                        Text(
-                            stringResource(Res.string.ewhad_target_warning),
-                            style = MaterialTheme.typography.bodySmall,
-                            fontWeight = FontWeight.Bold,
-                            color = GamePlayColors.ErrorDark
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            WarningIcon(size = 14.dp)
+                            Text(
+                                stringResource(Res.string.ewhad_target_warning),
+                                style = MaterialTheme.typography.bodySmall,
+                                fontWeight = FontWeight.Bold,
+                                color = GamePlayColors.ErrorDark
+                            )
+                        }
                     }
                 }
             }
