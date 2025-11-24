@@ -66,8 +66,10 @@ fun QuickAddWaypointDialog(
     val pathTiles = remember(map) { map?.getPathCells()?.toList() ?: emptyList() }
     val spawnPoints = remember(map) { map?.getSpawnPoints() ?: emptyList() }
     val targets = remember(map) { map?.getTargets() ?: emptyList() }
-    val validWaypointPositions = remember(pathTiles, spawnPoints, targets) {
-        (pathTiles + spawnPoints + targets).distinct()
+    
+    // Extract existing waypoint positions from the waypoints list
+    val existingWaypointPositions = remember(existingWaypoints) {
+        existingWaypoints.map { it.position }.toSet().toList()
     }
 
     var selectedSource by remember { mutableStateOf<Position?>(null) }
@@ -75,6 +77,7 @@ fun QuickAddWaypointDialog(
     var selectedTarget by remember { mutableStateOf<Position?>(null) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var showConnectedSources by remember { mutableStateOf(false) }
+    var showAllPathTiles by remember { mutableStateOf(false) }
     var hoveredPosition by remember { mutableStateOf<Position?>(null) }
     
     val isDarkMode = AppSettings.isDarkMode.value
@@ -84,8 +87,9 @@ fun QuickAddWaypointDialog(
         existingWaypoints.map { it.position }.toSet()
     }
 
-    val validSources = remember(spawnPoints, validWaypointPositions, showConnectedSources, connectedSources) {
-        val allSources = (spawnPoints + validWaypointPositions).distinct()
+    // Valid sources: spawn points + existing waypoint positions
+    val validSources = remember(spawnPoints, existingWaypointPositions, showConnectedSources, connectedSources) {
+        val allSources = (spawnPoints + existingWaypointPositions).distinct()
         val filtered = if (showConnectedSources) {
             allSources
         } else {
@@ -94,8 +98,14 @@ fun QuickAddWaypointDialog(
         filtered.sortedWith(compareBy({ it.y }, { it.x }))
     }
 
-    val validTargets = remember(validWaypointPositions, targets) {
-        (validWaypointPositions + targets).distinct().sortedWith(compareBy({ it.y }, { it.x }))
+    // Valid targets: existing waypoint positions + targets + optionally all path tiles
+    val validTargets = remember(existingWaypointPositions, targets, pathTiles, showAllPathTiles) {
+        val baseTargets = (existingWaypointPositions + targets).distinct()
+        if (showAllPathTiles) {
+            (baseTargets + pathTiles).distinct().sortedWith(compareBy({ it.y }, { it.x }))
+        } else {
+            baseTargets.sortedWith(compareBy({ it.y }, { it.x }))
+        }
     }
 
     // Build map of positions that are already connected to targets
@@ -306,6 +316,7 @@ fun QuickAddWaypointDialog(
                     ) {
                         validSources.forEach { pos ->
                             val isSpawn = spawnPoints.contains(pos)
+                            val isExistingWaypoint = existingWaypointPositions.contains(pos)
                             FilterChip(
                                 modifier = Modifier.height(28.dp),
                                 selected = selectedSource == pos,
@@ -313,7 +324,7 @@ fun QuickAddWaypointDialog(
                                     selectedSource = pos
                                     errorMessage = null
                                 },
-                                label = { WaypointLabel(pos, isSpawn, false, false) },
+                                label = { WaypointLabel(pos, isSpawn, false, false, isExistingWaypoint) },
                                 leadingIcon = if (selectedSource == pos) {
                                     { CheckmarkIcon(size = 14.dp) }
                                 } else null
@@ -329,14 +340,34 @@ fun QuickAddWaypointDialog(
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     Row(
+                        modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Number2Icon(size = 18.dp)
-                        Text(
-                            text = stringResource(Res.string.waypoint_target),
-                            style = MaterialTheme.typography.titleSmall
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Number2Icon(size = 18.dp)
+                            Text(
+                                text = stringResource(Res.string.waypoint_target),
+                                style = MaterialTheme.typography.titleSmall
+                            )
+                        }
+                        
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Checkbox(
+                                checked = showAllPathTiles,
+                                onCheckedChange = { showAllPathTiles = it }
+                            )
+                            Text(
+                                text = "Show all path tiles",
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
                     }
 
                     Spacer(modifier = Modifier.height(4.dp))
@@ -348,6 +379,7 @@ fun QuickAddWaypointDialog(
                     ) {
                         validTargets.forEach { pos ->
                             val isTarget = targets.contains(pos)
+                            val isExistingWaypoint = existingWaypointPositions.contains(pos)
                             val isConnectedToTarget = connectedToTarget.contains(pos)
                             FilterChip(
                                 modifier = Modifier.height(28.dp),
@@ -356,7 +388,7 @@ fun QuickAddWaypointDialog(
                                     selectedTarget = pos
                                     errorMessage = null
                                 },
-                                label = { WaypointLabel(pos, false, isTarget, isConnectedToTarget) },
+                                label = { WaypointLabel(pos, false, isTarget, isConnectedToTarget, isExistingWaypoint) },
                                 leadingIcon = if (selectedTarget == pos) {
                                     { CheckmarkIcon(size = 14.dp) }
                                 } else null
@@ -438,9 +470,15 @@ private fun WaypointLabel(
     pos: Position,
     isSpawn: Boolean,
     isTarget: Boolean,
-    isConnectedToTarget: Boolean
+    isConnectedToTarget: Boolean,
+    isExistingWaypoint: Boolean = true
 ){
-    val waypointPrefix = if (isTarget) "T" else if (isSpawn) "S" else "W"
+    val waypointPrefix = when {
+        isTarget -> "T"
+        isSpawn -> "S"
+        isExistingWaypoint -> "W"
+        else -> "P"  // Path tile
+    }
 
     Row(
         horizontalArrangement = Arrangement.spacedBy(4.dp),
