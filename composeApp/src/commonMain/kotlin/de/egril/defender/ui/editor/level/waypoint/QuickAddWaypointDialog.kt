@@ -5,12 +5,13 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
@@ -48,6 +49,7 @@ import defender_of_egril.composeapp.generated.resources.waypoint_target
 /**
  * Quick add dialog that shows map positions for easier waypoint creation
  */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun QuickAddWaypointDialog(
     map: EditorMap?,
@@ -155,19 +157,19 @@ fun QuickAddWaypointDialog(
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     Row(
-                        verticalAlignment = Alignment.Companion.CenterVertically,
+                        verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier.Companion.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth()
                     ) {
                         Number1Icon(size = 18.dp)
                         Text(
                             text = stringResource(Res.string.waypoint_source),
                             style = MaterialTheme.typography.titleSmall,
-                            modifier = Modifier.Companion.weight(1f)
+                            modifier = Modifier.weight(1f)
                         )
                         // Checkbox to show/hide already connected sources
                         Row(
-                            verticalAlignment = Alignment.Companion.CenterVertically,
+                            verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
                             Checkbox(
@@ -181,24 +183,23 @@ fun QuickAddWaypointDialog(
                         }
                     }
 
-                    LazyRow(
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    FlowRow(
                         horizontalArrangement = Arrangement.spacedBy(4.dp),
-                        modifier = Modifier.Companion.fillMaxWidth()
+                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                        modifier = Modifier.fillMaxWidth()
                     ) {
-                        items(validSources) { pos ->
+                        validSources.forEach { pos ->
                             val isSpawn = spawnPoints.contains(pos)
                             FilterChip(
+                                modifier = Modifier.height(28.dp),
                                 selected = selectedSource == pos,
                                 onClick = {
                                     selectedSource = pos
                                     errorMessage = null
                                 },
-                                label = {
-                                    Text(
-                                        text = if (isSpawn) "S(${pos.x},${pos.y})" else "W(${pos.x},${pos.y})",
-                                        style = MaterialTheme.typography.bodySmall
-                                    )
-                                },
+                                label = { WaypointLabel(pos, isSpawn, false, false) },
                                 leadingIcon = if (selectedSource == pos) {
                                     { CheckmarkIcon(size = 14.dp) }
                                 } else null
@@ -214,7 +215,7 @@ fun QuickAddWaypointDialog(
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     Row(
-                        verticalAlignment = Alignment.Companion.CenterVertically,
+                        verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         Number2Icon(size = 18.dp)
@@ -224,34 +225,24 @@ fun QuickAddWaypointDialog(
                         )
                     }
 
-                    LazyRow(
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    FlowRow(
                         horizontalArrangement = Arrangement.spacedBy(4.dp),
-                        modifier = Modifier.Companion.fillMaxWidth()
+                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                        modifier = Modifier.fillMaxWidth()
                     ) {
-                        items(validTargets) { pos ->
+                        validTargets.forEach { pos ->
                             val isTarget = targets.contains(pos)
                             val isConnectedToTarget = connectedToTarget.contains(pos)
                             FilterChip(
+                                modifier = Modifier.height(28.dp),
                                 selected = selectedTarget == pos,
                                 onClick = {
                                     selectedTarget = pos
                                     errorMessage = null
                                 },
-                                label = {
-                                    Row(
-                                        horizontalArrangement = Arrangement.spacedBy(4.dp),
-                                        verticalAlignment = Alignment.Companion.CenterVertically
-                                    ) {
-                                        Text(
-                                            text = if (isTarget) "T(${pos.x},${pos.y})" else "W(${pos.x},${pos.y})",
-                                            style = MaterialTheme.typography.bodySmall
-                                        )
-                                        // Show green checkmark if this position is the target or connected to target
-                                        if (isConnectedToTarget) {
-                                            CheckmarkIcon(size = 12.dp, tint = Color.Companion.Green)
-                                        }
-                                    }
-                                },
+                                label = { WaypointLabel(pos, false, isTarget, isConnectedToTarget) },
                                 leadingIcon = if (selectedTarget == pos) {
                                     { CheckmarkIcon(size = 14.dp) }
                                 } else null
@@ -264,7 +255,7 @@ fun QuickAddWaypointDialog(
                 if (errorMessage != null) {
                     Text(
                         text = errorMessage!!,
-                        color = Color.Companion.Red,
+                        color = Color.Red,
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
@@ -296,4 +287,36 @@ fun QuickAddWaypointDialog(
             }
         }
     )
+}
+
+/*
+                                label = {
+                                    Text(
+                                        text = (if (isSpawn) "S" else "W") + "(${pos.x},${pos.y})",
+                                        style = MaterialTheme.typography.bodySmall
+                                    )
+                                },
+ */
+@Composable
+private fun WaypointLabel(
+    pos: Position,
+    isSpawn: Boolean,
+    isTarget: Boolean,
+    isConnectedToTarget: Boolean
+){
+    val waypointPrefix = if (isTarget) "T" else if (isSpawn) "S" else "W"
+
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = "$waypointPrefix(${pos.x},${pos.y})",
+            style = MaterialTheme.typography.bodySmall
+        )
+        // Show green checkmark if this position is the target or connected to target
+        if (isConnectedToTarget) {
+            CheckmarkIcon(size = 12.dp, tint = Color.Green)
+        }
+    }
 }
