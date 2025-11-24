@@ -124,7 +124,7 @@ object RepositoryLoader {
                 if (level != null) {
                     // Save level to storage
                     val levelJson = EditorJsonSerializer.serializeLevel(level)
-                    storage.writeFile("editor/levels/$levelId.json", levelJson)
+                    storage.writeFile("gamedata/levels/$levelId.json", levelJson)
                     println("Loaded and saved level: $levelId")
                     
                     // Track the map ID
@@ -141,7 +141,7 @@ object RepositoryLoader {
                 val map = loadMap(mapId)
                 if (map != null) {
                     val mapJson = EditorJsonSerializer.serializeMap(map)
-                    storage.writeFile("editor/maps/$mapId.json", mapJson)
+                    storage.writeFile("gamedata/maps/$mapId.json", mapJson)
                     println("Loaded and saved map: $mapId")
                     mapCount++
                 } else {
@@ -151,11 +151,11 @@ object RepositoryLoader {
             
             // Save sequence
             val sequenceJson = EditorJsonSerializer.serializeSequence(sequence)
-            storage.writeFile("editor/sequence.json", sequenceJson)
+            storage.writeFile("gamedata/sequence.json", sequenceJson)
             println("Saved sequence")
             
             // Save version file
-            storage.writeFile("editor/version.txt", "5")
+            storage.writeFile("gamedata/version.txt", "6")
             
             println("Repository files loaded successfully: $successCount levels, $mapCount maps")
             successCount > 0
