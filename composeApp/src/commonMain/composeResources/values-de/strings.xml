@@ -24,6 +24,12 @@
     <string name="dark_mode_on">Dunkler Modus an</string>
     <string name="dark_mode_off">Dunkler Modus aus</string>
     <string name="reset_settings">Einstellungen zurücksetzen</string>
+    <string name="restore_game_data">Spieldaten wiederherstellen</string>
+    <string name="restore_game_data_confirm_title">Spieldaten wiederherstellen?</string>
+    <string name="restore_game_data_confirm_message">Dies wird Ihre aktuellen Spieldaten sichern und die ursprünglichen Level aus dem Repository wiederherstellen. Ihre aktuellen Daten werden in einem Backup-Ordner gespeichert. Sind Sie sicher?</string>
+    <string name="restore_game_data_success_title">Spieldaten wiederhergestellt</string>
+    <string name="restore_game_data_success_message">Spieldaten wurden aus dem Repository wiederhergestellt. Ihre vorherigen Daten wurden gesichert in: %s</string>
+    <string name="game_data">Spieldaten</string>
     <string name="close">Schließen</string>
     
     <!-- Common Actions -->
