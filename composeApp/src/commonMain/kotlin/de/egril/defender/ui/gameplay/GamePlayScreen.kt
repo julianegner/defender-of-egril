@@ -94,6 +94,9 @@ private fun GamePlayScreenContent(
     var saveCommentInput by remember { mutableStateOf("") }  // Comment input for save
     var showSaveConfirmation by remember { mutableStateOf(false) }  // Save confirmation
     var showUnsavedChangesDialog by remember { mutableStateOf(false) }  // Unsaved changes dialog
+    
+    // Check if unsaved changes feature is enabled (both hasUnsavedChanges and onSaveGame must be available)
+    val unsavedChangesEnabled = hasUnsavedChanges != null && onSaveGame != null
 
     // Get platform-specific UI scale for mobile (affects layout, not just rendering)
     val uiScale = getGameplayUIScale()
@@ -211,7 +214,7 @@ private fun GamePlayScreenContent(
             onShowOverlayChange = { showOverlay = it },
             onBackToMap = {
                 // Check for unsaved changes before navigating back
-                if (hasUnsavedChanges?.invoke() == true && onSaveGame != null) {
+                if (unsavedChangesEnabled && hasUnsavedChanges!!.invoke()) {
                     showUnsavedChangesDialog = true
                 } else {
                     onBackToMap()
@@ -586,11 +589,11 @@ private fun GamePlayScreenContent(
         }
         
         // Unsaved changes dialog
-        if (showUnsavedChangesDialog && onSaveGame != null) {
+        if (showUnsavedChangesDialog && unsavedChangesEnabled) {
             UnsavedChangesDialog(
                 onSaveAndExit = {
                     // Save the game first
-                    onSaveGame(null)
+                    onSaveGame!!(null)
                     showUnsavedChangesDialog = false
                     // Then navigate back to map
                     onBackToMap()
