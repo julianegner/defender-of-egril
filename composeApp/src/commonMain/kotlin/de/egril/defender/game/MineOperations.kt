@@ -130,6 +130,12 @@ class MineOperations(private val state: GameState) {
         
         // Spawn dragon first to get its ID
         var dragonHealth = 500 + mine.coinsGenerated.value
+        
+        // Find the closest target position from the mine
+        val closestTarget = state.level.targetPositions.minByOrNull { 
+            it.distanceTo(mine.position) 
+        } ?: state.level.targetPositions.first()
+        
         val dragon = Attacker(
             id = state.nextAttackerId.value++,
             type = AttackerType.DRAGON,
@@ -141,7 +147,7 @@ class MineOperations(private val state: GameState) {
             currentTarget = mutableStateOf(if (state.level.waypoints.isNotEmpty()) {
                 state.level.waypoints.first().position
             } else {
-                state.level.targetPositions.first()
+                closestTarget
             })
         )
         
