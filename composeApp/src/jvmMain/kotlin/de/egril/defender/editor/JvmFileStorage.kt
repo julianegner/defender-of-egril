@@ -50,4 +50,56 @@ abstract class JvmFileStorage : FileStorage {
         val dir = baseDir ?: return
         File(dir, path).delete()
     }
+    
+    override fun renameDirectory(oldPath: String, newPath: String): Boolean {
+        val dir = baseDir ?: return false
+        val oldDir = File(dir, oldPath)
+        val newDir = File(dir, newPath)
+        
+        if (!oldDir.exists() || !oldDir.isDirectory) {
+            return false
+        }
+        
+        return oldDir.renameTo(newDir)
+    }
+    
+    override fun copyDirectory(sourcePath: String, targetPath: String): Boolean {
+        val dir = baseDir ?: return false
+        val sourceDir = File(dir, sourcePath)
+        val targetDir = File(dir, targetPath)
+        
+        if (!sourceDir.exists() || !sourceDir.isDirectory) {
+            return false
+        }
+        
+        // Check if target already exists
+        if (targetDir.exists()) {
+            println("Target directory already exists: $targetPath")
+            return false
+        }
+        
+        return try {
+            sourceDir.copyRecursively(targetDir, overwrite = false)
+            true
+        } catch (e: Exception) {
+            println("Error copying directory: ${e.message}")
+            false
+        }
+    }
+    
+    override fun deleteDirectory(path: String): Boolean {
+        val dir = baseDir ?: return false
+        val targetDir = File(dir, path)
+        
+        if (!targetDir.exists()) {
+            return true // Already doesn't exist
+        }
+        
+        return targetDir.deleteRecursively()
+    }
+    
+    override fun getAbsolutePath(path: String): String {
+        val dir = baseDir ?: return path
+        return File(dir, path).absolutePath
+    }
 }

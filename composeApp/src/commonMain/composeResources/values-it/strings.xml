@@ -24,6 +24,12 @@
     <string name="dark_mode_on">Modalità Scura Attiva</string>
     <string name="dark_mode_off">Modalità Scura Disattiva</string>
     <string name="reset_settings">Ripristina Impostazioni</string>
+    <string name="restore_game_data">Ripristina Dati di Gioco</string>
+    <string name="restore_game_data_confirm_title">Ripristinare i Dati di Gioco?</string>
+    <string name="restore_game_data_confirm_message">Questo eseguirà il backup dei dati di gioco correnti e ripristinerà i livelli originali dal repository. I dati correnti saranno conservati in una cartella di backup. Sei sicuro?</string>
+    <string name="restore_game_data_success_title">Dati di Gioco Ripristinati</string>
+    <string name="restore_game_data_success_message">I dati di gioco sono stati ripristinati dal repository. I dati precedenti sono stati salvati in: %s</string>
+    <string name="game_data">Dati di Gioco</string>
     <string name="close">Chiudi</string>
     
     <!-- Common Actions -->

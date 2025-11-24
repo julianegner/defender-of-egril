@@ -93,6 +93,44 @@ class AndroidFileStorage : FileStorage {
             jvmStorage.deleteFile(path)
         }
     }
+    
+    override fun renameDirectory(oldPath: String, newPath: String): Boolean {
+        return if (useInMemory || baseDir == null) {
+            // Fallback for tests - not implemented for in-memory
+            false
+        } else {
+            jvmStorage.renameDirectory(oldPath, newPath)
+        }
+    }
+    
+    override fun copyDirectory(sourcePath: String, targetPath: String): Boolean {
+        return if (useInMemory || baseDir == null) {
+            // Fallback for tests - not implemented for in-memory
+            false
+        } else {
+            jvmStorage.copyDirectory(sourcePath, targetPath)
+        }
+    }
+    
+    override fun deleteDirectory(path: String): Boolean {
+        return if (useInMemory || baseDir == null) {
+            // Fallback for tests
+            inMemoryFiles.keys.removeAll { it.startsWith("$path/") }
+            inMemoryDirectories.remove(path)
+            true
+        } else {
+            jvmStorage.deleteDirectory(path)
+        }
+    }
+    
+    override fun getAbsolutePath(path: String): String {
+        return if (useInMemory || baseDir == null) {
+            // Fallback for tests
+            path
+        } else {
+            jvmStorage.getAbsolutePath(path)
+        }
+    }
 }
 
 actual fun getFileStorage(): FileStorage = AndroidFileStorage()
