@@ -4,6 +4,7 @@ import de.egril.defender.editor.EditorMap
 import de.egril.defender.editor.EditorWaypoint
 import de.egril.defender.editor.TileType
 import de.egril.defender.model.Position
+import de.egril.defender.ui.editor.level.waypoint.findUltimateTarget
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -21,7 +22,7 @@ class WaypointMinimapConnectionTest {
         val waypoint = EditorWaypoint(Position(5, 5), target)
         val targets = listOf(target)
         
-        val result = findUltimateTargetForTest(waypoint, listOf(waypoint), targets)
+        val result = findUltimateTarget(waypoint, listOf(waypoint), targets)
         
         assertEquals(target, result)
     }
@@ -34,7 +35,7 @@ class WaypointMinimapConnectionTest {
         val waypoint1 = EditorWaypoint(Position(5, 5), Position(7, 7))
         val targets = listOf(target)
         
-        val result = findUltimateTargetForTest(waypoint1, listOf(waypoint1, waypoint2), targets)
+        val result = findUltimateTarget(waypoint1, listOf(waypoint1, waypoint2), targets)
         
         assertEquals(target, result)
     }
@@ -48,7 +49,7 @@ class WaypointMinimapConnectionTest {
         val waypoint1 = EditorWaypoint(Position(5, 5), Position(7, 7))
         val targets = listOf(target)
         
-        val result = findUltimateTargetForTest(
+        val result = findUltimateTarget(
             waypoint1, 
             listOf(waypoint1, waypoint2, waypoint3), 
             targets
@@ -64,7 +65,7 @@ class WaypointMinimapConnectionTest {
         val waypoint1 = EditorWaypoint(Position(5, 5), Position(7, 7))
         val targets = listOf(Position(10, 10))
         
-        val result = findUltimateTargetForTest(waypoint1, listOf(waypoint1, waypoint2), targets)
+        val result = findUltimateTarget(waypoint1, listOf(waypoint1, waypoint2), targets)
         
         assertNull(result, "Circular dependency should return null")
     }
@@ -75,7 +76,7 @@ class WaypointMinimapConnectionTest {
         val waypoint = EditorWaypoint(Position(5, 5), Position(7, 7))
         val targets = listOf(Position(10, 10))
         
-        val result = findUltimateTargetForTest(waypoint, listOf(waypoint), targets)
+        val result = findUltimateTarget(waypoint, listOf(waypoint), targets)
         
         assertNull(result, "Waypoint not leading to a target should return null")
     }
@@ -88,7 +89,7 @@ class WaypointMinimapConnectionTest {
         val waypoint = EditorWaypoint(Position(5, 5), target2)
         val targets = listOf(target1, target2)
         
-        val result = findUltimateTargetForTest(waypoint, listOf(waypoint), targets)
+        val result = findUltimateTarget(waypoint, listOf(waypoint), targets)
         
         assertEquals(target2, result)
     }
@@ -101,46 +102,10 @@ class WaypointMinimapConnectionTest {
         val waypoint2 = EditorWaypoint(Position(6, 6), target)
         val targets = listOf(target)
         
-        val result1 = findUltimateTargetForTest(waypoint1, listOf(waypoint1, waypoint2), targets)
-        val result2 = findUltimateTargetForTest(waypoint2, listOf(waypoint1, waypoint2), targets)
+        val result1 = findUltimateTarget(waypoint1, listOf(waypoint1, waypoint2), targets)
+        val result2 = findUltimateTarget(waypoint2, listOf(waypoint1, waypoint2), targets)
         
         assertEquals(target, result1)
         assertEquals(target, result2)
-    }
-}
-
-/**
- * Helper function to test findUltimateTarget logic
- * This mirrors the private function in WaypointMinimap.kt
- */
-private fun findUltimateTargetForTest(
-    waypoint: EditorWaypoint,
-    allWaypoints: List<EditorWaypoint>,
-    targets: List<Position>
-): Position? {
-    val visited = mutableSetOf<Position>()
-    var current = waypoint.nextTargetPosition
-    
-    // Follow the chain until we reach a target or detect a loop
-    while (true) {
-        // Check if we reached a target
-        if (targets.contains(current)) {
-            return current
-        }
-        
-        // Check for circular dependency
-        if (visited.contains(current)) {
-            return null // Circular dependency detected
-        }
-        visited.add(current)
-        
-        // Find the next waypoint in the chain
-        val nextWaypoint = allWaypoints.find { it.position == current }
-        if (nextWaypoint == null) {
-            // No more waypoints, current position might be the target
-            return if (targets.contains(current)) current else null
-        }
-        
-        current = nextWaypoint.nextTargetPosition
     }
 }
