@@ -423,7 +423,8 @@ class GameEngine(private val state: GameState) {
                 attacker.position.value = newPosition
                 
                 // Check if reached a waypoint and update target
-                if (state.level.isWaypoint(newPosition)) {
+                // Only update if the waypoint position is the current target
+                if (state.level.isWaypoint(newPosition) && attacker.currentTarget?.value == newPosition) {
                     val waypoint = state.level.getWaypointAt(newPosition)
                     if (waypoint != null && attacker.currentTarget != null) {
                         attacker.currentTarget.value = waypoint.nextTarget
@@ -444,7 +445,8 @@ class GameEngine(private val state: GameState) {
                     attacker.position.value = alternatePos
                     
                     // Check if reached a waypoint and update target
-                    if (state.level.isWaypoint(alternatePos)) {
+                    // Only update if the waypoint position is the current target
+                    if (state.level.isWaypoint(alternatePos) && attacker.currentTarget?.value == alternatePos) {
                         val waypoint = state.level.getWaypointAt(alternatePos)
                         if (waypoint != null && attacker.currentTarget != null) {
                             attacker.currentTarget.value = waypoint.nextTarget
@@ -461,7 +463,8 @@ class GameEngine(private val state: GameState) {
             }
             
             // Check if reached a waypoint and update target
-            if (state.level.isWaypoint(attacker.position.value)) {
+            // Only update if the waypoint position is the current target
+            if (state.level.isWaypoint(attacker.position.value) && attacker.currentTarget?.value == attacker.position.value) {
                 val waypoint = state.level.getWaypointAt(attacker.position.value)
                 if (waypoint != null && attacker.currentTarget != null) {
                     // Update target to the next waypoint or final target
@@ -509,7 +512,8 @@ class GameEngine(private val state: GameState) {
             attacker.position.value = newPosition
             
             // Check if reached a waypoint and update target
-            if (state.level.isWaypoint(newPosition)) {
+            // Only update if the waypoint position is the current target
+            if (state.level.isWaypoint(newPosition) && attacker.currentTarget?.value == newPosition) {
                 val waypoint = state.level.getWaypointAt(newPosition)
                 if (waypoint != null && attacker.currentTarget != null) {
                     // Update target to the next waypoint or final target
@@ -609,7 +613,8 @@ class GameEngine(private val state: GameState) {
                     
                     // Update waypoint target immediately if reached a waypoint
                     // This ensures the next step uses the new target
-                    if (state.level.isWaypoint(newPos)) {
+                    // Only update if the waypoint position is the current target
+                    if (state.level.isWaypoint(newPos) && attacker.currentTarget?.value == newPos) {
                         val waypoint = state.level.getWaypointAt(newPos)
                         if (waypoint != null && attacker.currentTarget != null) {
                             attacker.currentTarget.value = waypoint.nextTarget
@@ -628,7 +633,8 @@ class GameEngine(private val state: GameState) {
                         currentPositions[attacker.id] = alternativePos
                         
                         // Update waypoint target if the alternative position is a waypoint
-                        if (state.level.isWaypoint(alternativePos)) {
+                        // Only update if the waypoint position is the current target
+                        if (state.level.isWaypoint(alternativePos) && attacker.currentTarget?.value == alternativePos) {
                             val waypoint = state.level.getWaypointAt(alternativePos)
                             if (waypoint != null && attacker.currentTarget != null) {
                                 attacker.currentTarget.value = waypoint.nextTarget
