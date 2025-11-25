@@ -108,7 +108,7 @@ fun WaypointsTab(
         // Available waypoint tiles info
         item {
             Text(
-                text = stringResource(Res.string.available_waypoint_tiles).replace("%d", waypointTiles.size.toString()),
+                text = stringResource(Res.string.available_waypoint_tiles, waypointTiles.size),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
