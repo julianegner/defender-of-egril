@@ -448,7 +448,7 @@ fun PlannedEnemyItem(plannedSpawn: PlannedEnemySpawn, currentTurn: Int) {
                 )
                 if (plannedSpawn.spawnTurn > currentTurn) {
                     Text(
-                        stringResource(Res.string.in_x_turns).replace("%s", (plannedSpawn.spawnTurn - currentTurn).toString()),
+                        stringResource(Res.string.in_x_turns, (plannedSpawn.spawnTurn - currentTurn).toString()),
                         style = MaterialTheme.typography.bodySmall,
                         fontSize = 9.sp,
                         color = Color.Gray
