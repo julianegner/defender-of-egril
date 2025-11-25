@@ -57,8 +57,8 @@ import defender_of_egril.composeapp.generated.resources.waypoints_description
  */
 @Composable
 fun WaypointsTab(
-    waypoints: MutableList<EditorWaypoint>,
-    onWaypointsChange: (MutableList<EditorWaypoint>) -> Unit,
+    waypoints: List<EditorWaypoint>,
+    onWaypointsChange: (List<EditorWaypoint>) -> Unit,
     map: EditorMap?,
     isValid: Boolean
 ) {
@@ -74,16 +74,13 @@ fun WaypointsTab(
     val spawnPoints = remember(map) { map?.getSpawnPoints() ?: emptyList() }
     val targets = remember(map) { map?.getTargets() ?: emptyList() }
     
-    // Create a local snapshot of waypoints that updates when waypoints parameter changes
-    val currentWaypoints = remember(waypoints) { waypoints.toList() }
-    
     // Extract existing waypoint positions from the waypoints list
-    val existingWaypointPositions = remember(currentWaypoints) {
-        currentWaypoints.map { it.position }.toSet().toList()
+    val existingWaypointPositions = remember(waypoints) {
+        waypoints.map { it.position }.toSet().toList()
     }
 
     // Perform detailed validation
-    val validationResult = remember(currentWaypoints, targets, spawnPoints) {
+    val validationResult = remember(waypoints, targets, spawnPoints) {
         if (targets.isNotEmpty()) {
             // Create a temporary EditorLevel to use validation
             val tempLevel = EditorLevel(
@@ -94,7 +91,7 @@ fun WaypointsTab(
                 startHealthPoints = 0,
                 enemySpawns = emptyList(),
                 availableTowers = emptySet(),
-                waypoints = currentWaypoints
+                waypoints = waypoints
             )
             tempLevel.validateWaypointsDetailed(targets, spawnPoints)
         } else {
@@ -237,7 +234,7 @@ fun WaypointsTab(
                                 if (hoveredPosition != null) {
                                     val pos = hoveredPosition!!
                                     val tileType = map.tiles.getOrElse("${pos.x},${pos.y}") { TileType.NO_PLAY }
-                                    val isDefinedWaypoint = currentWaypoints.any { it.position == pos }
+                                    val isDefinedWaypoint = waypoints.any { it.position == pos }
                                     val typeLabel = when {
                                         isDefinedWaypoint -> "Waypoint"
                                         tileType == TileType.SPAWN_POINT -> "Spawn"
@@ -335,9 +332,9 @@ fun WaypointsTab(
             ) {
                 Button(
                     onClick = { showRemoveAllDialog = true },
-                    enabled = currentWaypoints.isNotEmpty(),
+                    enabled = waypoints.isNotEmpty(),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = if (currentWaypoints.isNotEmpty())
+                        containerColor = if (waypoints.isNotEmpty())
                             MaterialTheme.colorScheme.error
                         else
                             MaterialTheme.colorScheme.surfaceVariant
@@ -350,7 +347,7 @@ fun WaypointsTab(
         }
 
         // View toggle button
-        if (currentWaypoints.isNotEmpty()) {
+        if (waypoints.isNotEmpty()) {
             item {
                 Button(
                     onClick = { showTreeView = !showTreeView },
@@ -374,7 +371,7 @@ fun WaypointsTab(
                     validationResult = validationResult,
                     map = map,
                     onDeleteConnection = { position ->
-                        val newWaypoints = currentWaypoints.toMutableList().apply {
+                        val newWaypoints = waypoints.toMutableList().apply {
                             removeAll { it.position == position }
                         }
                         onWaypointsChange(newWaypoints)
@@ -426,7 +423,7 @@ fun WaypointsTab(
                         text = "→",
                         modifier = Modifier.padding(horizontal = 8.dp)
                     )
-                    val waypointFromSpawn = currentWaypoints.firstOrNull { it.position == spawnPoint }
+                    val waypointFromSpawn = waypoints.firstOrNull { it.position == spawnPoint }
                     if (waypointFromSpawn != null) {
                         Text(
                             text = "(${waypointFromSpawn.nextTargetPosition.x}, ${waypointFromSpawn.nextTargetPosition.y})",
@@ -446,7 +443,7 @@ fun WaypointsTab(
             }
 
             // Show waypoints
-            items(currentWaypoints) { waypoint ->
+            items(waypoints) { waypoint ->
                 // Skip waypoints that are at spawn points (already shown above)
                 if (!spawnPoints.contains(waypoint.position)) {
                     WaypointConnectionCard(
@@ -459,7 +456,7 @@ fun WaypointsTab(
                         isUnconnected = validationResult.unconnectedWaypoints.contains(waypoint.position) ||
                                 validationResult.unconnectedWaypoints.contains(waypoint.nextTargetPosition),
                         onDelete = {
-                            val newWaypoints = currentWaypoints.toMutableList().apply { remove(waypoint) }
+                            val newWaypoints = waypoints.toMutableList().apply { remove(waypoint) }
                             onWaypointsChange(newWaypoints)
                         }
                     )
@@ -467,7 +464,7 @@ fun WaypointsTab(
             }
             
             // Show message if no waypoints at all
-            if (currentWaypoints.isEmpty()) {
+            if (waypoints.isEmpty()) {
                 item {
                     Text(
                         text = stringResource(Res.string.no_waypoints_configured),
