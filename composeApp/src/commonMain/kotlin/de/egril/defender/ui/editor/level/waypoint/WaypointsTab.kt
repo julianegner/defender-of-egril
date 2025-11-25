@@ -150,7 +150,6 @@ fun WaypointsTab(
                                 // 2. Click any path tile, waypoint, or target to create connection
                                 val isValidSource = validSources.contains(clickedPos)
                                 val isValidTarget = validTargets.contains(clickedPos)
-                                val isSpawnPoint = spawnPoints.contains(selectedSource)
                                 
                                 when {
                                     // No source selected: select this as source if valid
@@ -159,23 +158,20 @@ fun WaypointsTab(
                                     }
                                     // Source selected: create connection to target
                                     selectedSource != null && isValidTarget && selectedSource != clickedPos -> {
-                                        // Only create waypoint if source is NOT a spawn point
-                                        // Spawn points don't have waypoint entries - they just point to the first waypoint
-                                        if (!isSpawnPoint) {
-                                            val newWaypoint = EditorWaypoint(selectedSource!!, clickedPos)
-                                            // Check if waypoint already exists
-                                            val exists = waypoints.any { it.position == selectedSource }
-                                            if (!exists) {
-                                                val newWaypoints = waypoints.toMutableList().apply { add(newWaypoint) }
-                                                onWaypointsChange(newWaypoints)
-                                            } else {
-                                                // Replace existing waypoint
-                                                val newWaypoints = waypoints.toMutableList().apply {
-                                                    removeIf { it.position == selectedSource }
-                                                    add(newWaypoint)
-                                                }
-                                                onWaypointsChange(newWaypoints)
+                                        // Create waypoint from source to target
+                                        val newWaypoint = EditorWaypoint(selectedSource!!, clickedPos)
+                                        // Check if waypoint already exists at this position
+                                        val exists = waypoints.any { it.position == selectedSource }
+                                        if (!exists) {
+                                            val newWaypoints = waypoints.toMutableList().apply { add(newWaypoint) }
+                                            onWaypointsChange(newWaypoints)
+                                        } else {
+                                            // Replace existing waypoint
+                                            val newWaypoints = waypoints.toMutableList().apply {
+                                                removeIf { it.position == selectedSource }
+                                                add(newWaypoint)
                                             }
+                                            onWaypointsChange(newWaypoints)
                                         }
                                         // Set the clicked position as the new source for chaining
                                         selectedSource = clickedPos
