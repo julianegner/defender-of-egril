@@ -11,8 +11,8 @@ import de.egril.defender.utils.JsonUtils
 object SaveJsonSerializer {
     
     fun serializeWorldMapSave(worldMap: WorldMapSave): String {
-        val statusesJson = worldMap.levelStatuses.entries.joinToString(",\n    ") { (levelId, status) ->
-            "\"$levelId\": \"${status.name}\""
+        val statusesJson = worldMap.levelStatuses.entries.joinToString(",\n    ") { (editorLevelId, status) ->
+            "\"$editorLevelId\": \"${status.name}\""
         }
         
         return """{
@@ -24,7 +24,7 @@ object SaveJsonSerializer {
     
     fun deserializeWorldMapSave(json: String): WorldMapSave? {
         try {
-            val statuses = mutableMapOf<Int, LevelStatus>()
+            val statuses = mutableMapOf<String, LevelStatus>()
             val statusesSection = json.substringAfter("\"levelStatuses\": {")
                 .substringBefore("}")
                 .replace("\",", "\";")
@@ -35,9 +35,9 @@ object SaveJsonSerializer {
                 val parts = entry.split(":")
                 if (parts.size != 2) continue
                 
-                val levelId = parts[0].trim().removeSurrounding("\"").toInt()
+                val editorLevelId = parts[0].trim().removeSurrounding("\"")
                 val statusStr = parts[1].trim().removeSurrounding("\"")
-                statuses[levelId] = LevelStatus.valueOf(statusStr)
+                statuses[editorLevelId] = LevelStatus.valueOf(statusStr)
             }
             
             return WorldMapSave(statuses)
