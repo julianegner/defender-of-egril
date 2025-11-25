@@ -430,11 +430,11 @@ object MapGenerator {
     /**
      * Create "The Rush" map with:
      * - 20x20 size
-     * - 4 spawn points on the upper end (y=0-5)
-     * - 4 spawn points in the vertical center (y=9-11)
-     * - Target(s) on the lower end
+     * - 4 spawn points on the upper end (y=2)
+     * - 4 spawn points in the vertical center (y=10)
+     * - Single target on the lower end (y=18)
      * - Single buildable tiles in a regular pattern
-     * - Path connecting all spawn points to target(s)
+     * - Path connecting all spawn points to target
      */
     fun createRushMap(
         id: String = "map_the_rush",
