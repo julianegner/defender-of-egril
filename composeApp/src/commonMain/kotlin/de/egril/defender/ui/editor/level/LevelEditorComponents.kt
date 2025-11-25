@@ -206,7 +206,7 @@ fun SpawnPointSelectionDialog(
                     }
                     Column {
                         Text(
-                            text = "${attackerType.getLocalizedName()} Lv$level",
+                            text = "${attackerType.getLocalizedName()} Lvl $level",
                             style = MaterialTheme.typography.titleMedium
                         )
                         Text(
@@ -658,7 +658,7 @@ private fun EnemySpawnRow(
                 modifier = Modifier.height(28.dp),
                 contentPadding = PaddingValues(horizontal = 6.dp, vertical = 0.dp)
             ) {
-                Text("Lv", fontSize = 10.sp)
+                Text(stringResource(Res.string.level), fontSize = 10.sp)
             }
         }
         
