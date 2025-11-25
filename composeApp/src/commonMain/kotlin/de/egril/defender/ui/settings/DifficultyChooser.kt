@@ -21,7 +21,7 @@ import defender_of_egril.composeapp.generated.resources.*
 @Composable
 fun DifficultyChooser(
     modifier: Modifier = Modifier,
-    onDifficultyChanged: ((DifficultyLevel) -> Unit)? = null
+    onDifficultyChanged: (DifficultyLevel) -> Unit = {}
 ) {
     var expanded by remember { mutableStateOf(false) }
     val currentDifficulty = AppSettings.difficulty.value
@@ -73,7 +73,7 @@ fun DifficultyChooser(
                         }
                     },
                     onClick = {
-                        onDifficultyChanged?.invoke(level)
+                        onDifficultyChanged(level)
                         expanded = false
                     }
                 )
