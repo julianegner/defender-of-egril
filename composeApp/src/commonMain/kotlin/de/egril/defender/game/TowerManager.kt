@@ -4,6 +4,7 @@ import androidx.compose.runtime.mutableStateOf
 import de.egril.defender.audio.GlobalSoundManager
 import de.egril.defender.audio.SoundEvent
 import de.egril.defender.model.*
+import de.egril.defender.model.DifficultyModifiers
 
 /**
  * Manages tower/defender placement, upgrades, undo, and selling operations.

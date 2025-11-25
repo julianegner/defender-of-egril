@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import de.egril.defender.game.GameEngine
 import de.egril.defender.game.LevelData
 import de.egril.defender.model.*
+import de.egril.defender.model.DifficultyModifiers
 import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.utils.CheatCodeHandler
 import kotlinx.coroutines.flow.MutableStateFlow
