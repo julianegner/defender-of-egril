@@ -428,6 +428,8 @@
     <string name="dragon_very_greedy_message">The dragon is very greedy (greed > 5)! It will now hunt down and destroy dwarven mines, absorbing all the health a new dragon would have (500 HP per mine). Mines will become destroyed rubble. Defend them or rebuild quickly!</string>
     <string name="mine_warning_title">Mine Under Threat!</string>
     <string name="mine_warning_message">The dragon approaches! The dwarves prepare to defend their mine, but it may not be enough...</string>
+    <string name="one_hp_warning_title">Critical Warning!</string>
+    <string name="one_hp_warning_message">You have only 1 health point! Not a single enemy can reach the target, or you will lose. Defend with extreme caution!</string>
     
     <!-- Enemy Info Display -->
     <string name="greedy_label">greedy</string>

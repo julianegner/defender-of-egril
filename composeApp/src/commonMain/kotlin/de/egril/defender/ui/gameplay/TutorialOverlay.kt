@@ -172,6 +172,7 @@ private fun InfoContent(infoType: InfoType, onDismiss: () -> Unit) {
         InfoType.GREED_INFO -> GreedInfoContent(onDismiss)
         InfoType.VERY_GREEDY_INFO -> VeryGreedyInfoContent(onDismiss)
         InfoType.MINE_WARNING -> MineWarningContent(onDismiss)
+        InfoType.ONE_HP_WARNING -> OneHpWarningContent(onDismiss)
         InfoType.NONE -> { /* No content to show */ }
     }
 }
@@ -364,6 +365,56 @@ private fun MineWarningContent(onDismiss: () -> Unit) {
             
             Text(
                 text = stringResource(Res.string.mine_warning_message),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onErrorContainer
+            )
+            
+            Button(
+                onClick = onDismiss,
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.error
+                )
+            ) {
+                Text(
+                    text = stringResource(Res.string.got_it),
+                    style = MaterialTheme.typography.labelSmall
+                )
+            }
+        }
+    }
+}
+
+/**
+ * One HP warning dialog - shown when player starts with only 1 health point
+ */
+@Composable
+private fun OneHpWarningContent(onDismiss: () -> Unit) {
+    Card(
+        modifier = Modifier
+            .width(300.dp)
+            .padding(8.dp),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.errorContainer
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Text(
+                text = stringResource(Res.string.one_hp_warning_title),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.error
+            )
+            
+            Text(
+                text = stringResource(Res.string.one_hp_warning_message),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onErrorContainer
             )

@@ -152,4 +152,21 @@ class InfoStateTest {
         assertTrue(state.seenInfos.isEmpty(), "Should have no seen infos")
         assertFalse(state.shouldShowOverlay(), "Should not show overlay")
     }
+    
+    @Test
+    fun testOneHpWarning() {
+        var state = InfoState()
+        
+        // Show ONE_HP_WARNING
+        state = state.showInfo(InfoType.ONE_HP_WARNING)
+        assertEquals(InfoType.ONE_HP_WARNING, state.currentInfo, "Should show one HP warning")
+        assertTrue(state.shouldShowOverlay(), "Should show overlay")
+        assertEquals(null, state.mineWarningId, "Should have no mine warning ID for HP warning")
+        
+        // Dismiss and verify it's marked as seen
+        state = state.dismissInfo()
+        assertEquals(InfoType.NONE, state.currentInfo, "Should have no current info after dismiss")
+        assertTrue(state.hasSeen(InfoType.ONE_HP_WARNING), "Should mark one HP warning as seen")
+        assertFalse(state.shouldShowOverlay(), "Should not show overlay after dismiss")
+    }
 }
