@@ -45,7 +45,7 @@ class DragonMovementIntegrationTest {
         )
         state.attackers.add(dragon)
         
-        // Turn 1: Walk (1 tile)
+        // Turn 1: Walk (2 tiles based on new speed)
         val movements1 = engine.calculateEnemyTurnMovements()
         assertTrue(movements1.isNotEmpty(), "Turn 1: Should have movements")
         for (stepMovements in movements1) {
@@ -53,11 +53,11 @@ class DragonMovementIntegrationTest {
                 engine.applyMovement(attackerId, newPosition)
             }
         }
-        assertEquals(Position(1, 3), dragon.position.value, "Turn 1: Should walk 1 tile")
+        assertEquals(Position(2, 3), dragon.position.value, "Turn 1: Should walk 2 tiles")
         assertFalse(dragon.isFlying.value, "Turn 1: Should be walking")
         assertEquals(1, dragon.dragonTurnsSinceSpawned.value)
         
-        // Turn 2: Fly (up to 5 tiles)
+        // Turn 2: Fly (up to 10 tiles)
         val positionAfterTurn1 = dragon.position.value
         val movements2 = engine.calculateEnemyTurnMovements()
         assertTrue(movements2.isNotEmpty(), "Turn 2: Should have movements")
@@ -68,12 +68,12 @@ class DragonMovementIntegrationTest {
         }
         assertTrue(dragon.isFlying.value, "Turn 2: Should be flying")
         val distanceMoved = dragon.position.value.x - positionAfterTurn1.x
-        assertTrue(distanceMoved > 1, "Turn 2: Should fly more than 1 tile, moved $distanceMoved")
-        assertTrue(distanceMoved <= 5, "Turn 2: Should fly at most 5 tiles, moved $distanceMoved")
+        assertTrue(distanceMoved > 2, "Turn 2: Should fly more than 2 tiles, moved $distanceMoved")
+        assertTrue(distanceMoved <= 10, "Turn 2: Should fly at most 10 tiles, moved $distanceMoved")
         assertTrue(state.level.isOnPath(dragon.position.value), "Turn 2: Must end on path")
         assertEquals(2, dragon.dragonTurnsSinceSpawned.value)
         
-        // Turn 3: Walk (1 tile)
+        // Turn 3: Walk (2 tiles)
         val positionAfterTurn2 = dragon.position.value
         val movements3 = engine.calculateEnemyTurnMovements()
         assertTrue(movements3.isNotEmpty(), "Turn 3: Should have movements")
@@ -83,11 +83,11 @@ class DragonMovementIntegrationTest {
             }
         }
         assertFalse(dragon.isFlying.value, "Turn 3: Should be walking")
-        assertEquals(positionAfterTurn2.x + 1, dragon.position.value.x, "Turn 3: Should walk 1 tile")
+        assertEquals(positionAfterTurn2.x + 2, dragon.position.value.x, "Turn 3: Should walk 2 tiles")
         assertTrue(state.level.isOnPath(dragon.position.value), "Turn 3: Must be on path")
         assertEquals(3, dragon.dragonTurnsSinceSpawned.value)
         
-        // Turn 4: Fly (up to 5 tiles)
+        // Turn 4: Fly (up to 10 tiles)
         val positionAfterTurn3 = dragon.position.value
         val movements4 = engine.calculateEnemyTurnMovements()
         assertTrue(movements4.isNotEmpty(), "Turn 4: Should have movements")
@@ -98,8 +98,8 @@ class DragonMovementIntegrationTest {
         }
         assertTrue(dragon.isFlying.value, "Turn 4: Should be flying")
         val distanceMovedTurn4 = dragon.position.value.x - positionAfterTurn3.x
-        assertTrue(distanceMovedTurn4 > 1, "Turn 4: Should fly more than 1 tile, moved $distanceMovedTurn4")
-        assertTrue(distanceMovedTurn4 <= 5, "Turn 4: Should fly at most 5 tiles, moved $distanceMovedTurn4")
+        assertTrue(distanceMovedTurn4 > 2, "Turn 4: Should fly more than 2 tiles, moved $distanceMovedTurn4")
+        assertTrue(distanceMovedTurn4 <= 10, "Turn 4: Should fly at most 10 tiles, moved $distanceMovedTurn4")
         assertTrue(state.level.isOnPath(dragon.position.value), "Turn 4: Must end on path")
         assertEquals(4, dragon.dragonTurnsSinceSpawned.value)
     }
@@ -135,11 +135,11 @@ class DragonMovementIntegrationTest {
         )
         state.attackers.add(dragon)
         
-        // Spawn a goblin at position (1, 3) - where dragon will walk on turn 1
+        // Spawn a goblin at position (2, 3) - where dragon will walk on turn 1
         val goblin = Attacker(
             id = 2,
             type = AttackerType.GOBLIN,
-            position = mutableStateOf(Position(1, 3)),
+            position = mutableStateOf(Position(2, 3)),
             level = mutableStateOf(1),
             currentHealth = mutableStateOf(20)
         )
@@ -147,7 +147,7 @@ class DragonMovementIntegrationTest {
         
         val initialDragonHealth = dragon.currentHealth.value
         
-        // Turn 1: Dragon walks to (1,3) and should eat the goblin
+        // Turn 1: Dragon walks to (2,3) and should eat the goblin
         val movements = engine.calculateEnemyTurnMovements()
         for (stepMovements in movements) {
             for ((attackerId, newPosition) in stepMovements) {
@@ -155,7 +155,7 @@ class DragonMovementIntegrationTest {
             }
         }
         
-        assertEquals(Position(1, 3), dragon.position.value, "Dragon should move to goblin's position")
+        assertEquals(Position(2, 3), dragon.position.value, "Dragon should move to goblin's position")
         assertTrue(goblin.isDefeated.value, "Goblin should be eaten")
         assertEquals(initialDragonHealth + 20, dragon.currentHealth.value, "Dragon should gain goblin's HP")
     }
@@ -190,16 +190,16 @@ class DragonMovementIntegrationTest {
         )
         state.attackers.add(dragon)
         
-        // Spawn Ewhad at position (1, 3)
+        // Spawn Ewhad at position (2, 3)
         val ewhad = Attacker(
             id = 2,
             type = AttackerType.EWHAD,
-            position = mutableStateOf(Position(1, 3)),
+            position = mutableStateOf(Position(2, 3)),
             level = mutableStateOf(1)
         )
         state.attackers.add(ewhad)
         
-        // Turn 1: Dragon tries to walk to (1,3) but Ewhad blocks
+        // Turn 1: Dragon tries to walk to (2,3) but Ewhad blocks
         val movements = engine.calculateEnemyTurnMovements()
         for (stepMovements in movements) {
             for ((attackerId, newPosition) in stepMovements) {
@@ -259,9 +259,9 @@ class DragonMovementIntegrationTest {
                 engine.applyMovement(attackerId, newPosition)
             }
         }
-        assertEquals(Position(1, 3), dragon.position.value)
+        assertEquals(Position(2, 3), dragon.position.value)
         
-        // Turn 2: Fly - should be able to fly up to 5 tiles even with islands nearby
+        // Turn 2: Fly - should be able to fly up to 10 tiles even with islands nearby
         val positionBeforeFly = dragon.position.value
         val movements2 = engine.calculateEnemyTurnMovements()
         for (stepMovements in movements2) {
@@ -272,7 +272,7 @@ class DragonMovementIntegrationTest {
         
         assertTrue(dragon.isFlying.value, "Should be flying on turn 2")
         val flyDistance = dragon.position.value.x - positionBeforeFly.x
-        assertTrue(flyDistance > 1, "Should fly more than 1 tile even with obstacles nearby")
+        assertTrue(flyDistance > 2, "Should fly more than 2 tiles even with obstacles nearby")
         assertTrue(state.level.isOnPath(dragon.position.value), "Must land on path")
     }
 }
