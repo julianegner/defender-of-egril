@@ -30,79 +30,105 @@ class AndroidFileStorage : FileStorage {
             }
         }
     
+    // Use shared JVM implementation when possible, fallback for tests
+    private val jvmStorage = object : JvmFileStorage() {
+        override val baseDir: File?
+            get() = this@AndroidFileStorage.baseDir
+    }
+    
     override fun writeFile(path: String, content: String) {
-        val dir = baseDir
-        if (dir != null) {
-            val file = File(dir, path)
-            file.parentFile?.mkdirs()
-            file.writeText(content)
-        } else {
+        if (useInMemory || baseDir == null) {
             // Fallback for tests
             inMemoryFiles[path] = content
+        } else {
+            jvmStorage.writeFile(path, content)
         }
     }
     
     override fun readFile(path: String): String? {
-        val dir = baseDir
-        return if (dir != null) {
-            val file = File(dir, path)
-            if (file.exists()) {
-                file.readText()
-            } else {
-                null
-            }
-        } else {
+        return if (useInMemory || baseDir == null) {
             // Fallback for tests
             inMemoryFiles[path]
+        } else {
+            jvmStorage.readFile(path)
         }
     }
     
     override fun listFiles(directory: String): List<String> {
-        val dir = baseDir
-        return if (dir != null) {
-            val targetDir = File(dir, directory)
-            if (targetDir.exists() && targetDir.isDirectory) {
-                targetDir.listFiles()?.map { it.name } ?: emptyList()
-            } else {
-                emptyList()
-            }
-        } else {
+        return if (useInMemory || baseDir == null) {
             // Fallback for tests
             inMemoryFiles.keys
                 .filter { it.startsWith("$directory/") }
                 .map { it.removePrefix("$directory/").substringBefore("/") }
                 .distinct()
                 .filter { it.isNotBlank() && !inMemoryFiles.keys.any { key -> key.startsWith("$directory/$it/") } }
+        } else {
+            jvmStorage.listFiles(directory)
         }
     }
     
     override fun fileExists(path: String): Boolean {
-        val dir = baseDir
-        return if (dir != null) {
-            File(dir, path).exists()
-        } else {
+        return if (useInMemory || baseDir == null) {
             // Fallback for tests
             inMemoryFiles.containsKey(path)
+        } else {
+            jvmStorage.fileExists(path)
         }
     }
     
     override fun createDirectory(path: String) {
-        val dir = baseDir
-        if (dir != null) {
-            File(dir, path).mkdirs()
-        } else {
+        if (useInMemory || baseDir == null) {
             // Fallback for tests
             inMemoryDirectories.add(path)
+        } else {
+            jvmStorage.createDirectory(path)
         }
     }
     
     override fun deleteFile(path: String) {
-        val dir = baseDir
-        if (dir != null) {
-            File(dir, path).delete()
-        } else {
+        if (useInMemory || baseDir == null) {
             // Fallback for tests
             inMemoryFiles.remove(path)
+        } else {
+            jvmStorage.deleteFile(path)
+        }
+    }
+    
+    override fun renameDirectory(oldPath: String, newPath: String): Boolean {
+        return if (useInMemory || baseDir == null) {
+            // Fallback for tests - not implemented for in-memory
+            false
+        } else {
+            jvmStorage.renameDirectory(oldPath, newPath)
+        }
+    }
+    
+    override fun copyDirectory(sourcePath: String, targetPath: String): Boolean {
+        return if (useInMemory || baseDir == null) {
+            // Fallback for tests - not implemented for in-memory
+            false
+        } else {
+            jvmStorage.copyDirectory(sourcePath, targetPath)
+        }
+    }
+    
+    override fun deleteDirectory(path: String): Boolean {
+        return if (useInMemory || baseDir == null) {
+            // Fallback for tests
+            inMemoryFiles.keys.removeAll { it.startsWith("$path/") }
+            inMemoryDirectories.remove(path)
+            true
+        } else {
+            jvmStorage.deleteDirectory(path)
+        }
+    }
+    
+    override fun getAbsolutePath(path: String): String {
+        return if (useInMemory || baseDir == null) {
+            // Fallback for tests
+            path
+        } else {
+            jvmStorage.getAbsolutePath(path)
         }
     }
 }

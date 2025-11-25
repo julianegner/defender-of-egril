@@ -14,15 +14,30 @@ class EnemyMovementSystem(
 ) {
     
     /**
-     * Gets the initial target for a newly spawned attacker.
-     * Returns the first waypoint if waypoints exist, otherwise the final target.
+     * Gets the initial target for a newly spawned attacker based on preferred spawn point.
+     * Checks if the spawn point has a waypoint entry and uses the waypoint's nextTarget.
+     * If no waypoints exist, uses the first target position.
      */
-    fun getInitialTarget(): Position {
-        return if (state.level.waypoints.isNotEmpty()) {
+    fun getInitialTarget(preferredSpawnPoint: Position): Position {
+        println("=== GET INITIAL TARGET ===")
+        println("Preferred spawn point: $preferredSpawnPoint")
+        println("Total waypoints in level: ${state.level.waypoints.size}")
+        
+        // Check if the preferred spawn point has a waypoint
+        val waypointAtSpawn = state.level.getWaypointAt(preferredSpawnPoint)
+        if (waypointAtSpawn != null) {
+            println("Found waypoint at spawn point: $preferredSpawnPoint -> ${waypointAtSpawn.nextTarget}")
+            return waypointAtSpawn.nextTarget
+        }
+        
+        // Fallback: if no waypoint at spawn point, use default target
+        val initialTarget = if (state.level.waypoints.isNotEmpty()) {
             state.level.waypoints.first().position
         } else {
-            state.level.targetPosition
+            state.level.targetPositions.first()
         }
+        println("No waypoint at spawn point, using fallback target: $initialTarget")
+        return initialTarget
     }
     
     fun loadNextWave() {
@@ -46,8 +61,11 @@ class EnemyMovementSystem(
         val spawnPoints = state.level.startPositions
         
         enemiesToSpawnThisTurn.forEachIndexed { index, plannedSpawn ->
-            // Use a different spawn point for each enemy (cycle through spawn points)
-            val preferredSpawnPoint = spawnPoints[index % spawnPoints.size]
+            // Use fixed spawn point if specified, otherwise use round-robin
+            val preferredSpawnPoint = plannedSpawn.spawnPoint ?: spawnPoints[index % spawnPoints.size]
+            
+            // Get the initial target based on the preferred spawn point (before finding actual position)
+            val initialTarget = getInitialTarget(preferredSpawnPoint)
             
             // Find a free position near the preferred spawn point
             val spawnPos = findFreePositionNear(preferredSpawnPoint)
@@ -74,7 +92,7 @@ class EnemyMovementSystem(
                 type = plannedSpawn.attackerType,
                 position = mutableStateOf(spawnPos),
                 level = mutableStateOf(plannedSpawn.level),
-                currentTarget = mutableStateOf(getInitialTarget())
+                currentTarget = mutableStateOf(initialTarget)
             )
             state.attackers.add(attacker)
         }
@@ -199,7 +217,7 @@ class EnemyMovementSystem(
         println("Start position: $startPos")
         
         // Use currentTarget if set (for mine targeting), otherwise use level target
-        val target = dragon.currentTarget?.value ?: state.level.targetPosition
+        val target = dragon.currentTarget?.value ?: state.level.targetPositions.first()
         println("Target: $target")
         
         val result = mutableListOf<Position>()
@@ -322,17 +340,21 @@ class EnemyMovementSystem(
             // Check if goblin is at a spawn point
             if (!state.level.isSpawnPoint(attacker.position.value)) continue
 
-            val target = state.level.targetPosition
-            val path = pathfinding.findPath(attacker.position.value, target, attacker)
-
-            if (path.isEmpty() || path.size < 2) continue
-
             // Move goblin using their speed
             var remainingSpeed = attacker.type.speed
-            var pathIndex = 1 // Skip current position (index 0)
 
-            while (remainingSpeed > 0 && pathIndex < path.size) {
-                val newPos = path[pathIndex]
+            while (remainingSpeed > 0) {
+                // Re-calculate path with current target for each step
+                val target = attacker.currentTarget?.value ?: state.level.targetPositions.first()
+                println("Goblin ${attacker.id} at ${attacker.position.value} moving towards target: $target (remainingSpeed: $remainingSpeed)")
+                val path = pathfinding.findPath(attacker.position.value, target, attacker)
+
+                if (path.isEmpty() || path.size < 2) {
+                    // No valid path, stop movement
+                    break
+                }
+
+                val newPos = path[1] // Next position in path
 
                 // Check if new position is occupied by another alive attacker
                 val isOccupied = state.attackers.any {
@@ -341,17 +363,26 @@ class EnemyMovementSystem(
                 
                 if (!isOccupied) {
                     attacker.position.value = newPos
-                    pathIndex++
+                    
+                    // Check if reached a waypoint and update target BEFORE next move
+                    // Only update if the waypoint position is the current target
+                    if (state.level.isWaypoint(newPos) && attacker.currentTarget?.value == newPos) {
+                        val waypoint = state.level.getWaypointAt(newPos)
+                        if (waypoint != null && attacker.currentTarget != null) {
+                            attacker.currentTarget.value = waypoint.nextTarget
+                            println("Goblin ${attacker.id} reached waypoint at $newPos, next target: ${waypoint.nextTarget}")
+                        }
+                    }
+                    
+                    remainingSpeed--
+                    
+                    // Check if reached any target
+                    if (state.level.isTargetPosition(attacker.position.value)) {
+                        applyTargetDamage(attacker)
+                        break
+                    }
                 } else {
                     // Can't move further, stop trying
-                    break
-                }
-                
-                remainingSpeed--
-                
-                // Check if reached target
-                if (attacker.position.value == target) {
-                    applyTargetDamage(attacker)
                     break
                 }
             }

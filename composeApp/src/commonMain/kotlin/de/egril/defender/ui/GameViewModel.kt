@@ -38,6 +38,10 @@ class GameViewModel {
     private val _cheatDigOutcome = MutableStateFlow<DigOutcome?>(null)
     val cheatDigOutcome: StateFlow<DigOutcome?> = _cheatDigOutcome.asStateFlow()
 
+    // Track initial game state to detect unsaved changes
+    private var initialGameStateSnapshot: String? = null
+    private var lastSaveSnapshot: String? = null
+
     private var gameEngine: GameEngine? = null
     private val viewModelScope = CoroutineScope(Dispatchers.Default)
     
@@ -96,6 +100,9 @@ class GameViewModel {
             _gameState.value = newGameState
             gameEngine = GameEngine(newGameState)
             _currentScreen.value = Screen.GamePlay(levelId)
+            // Capture initial state snapshot
+            initialGameStateSnapshot = createGameStateSnapshot(newGameState)
+            lastSaveSnapshot = initialGameStateSnapshot
         }
     }
     
@@ -307,20 +314,90 @@ class GameViewModel {
         val state = _gameState.value ?: return null
         val saveId = de.egril.defender.save.SaveFileStorage.saveGameState(state, comment)
         refreshSavedGames()
+        // Update the last save snapshot
+        lastSaveSnapshot = createGameStateSnapshot(state)
         return saveId
+    }
+    
+    /**
+     * Create a snapshot of the current game state for change detection
+     */
+    private fun createGameStateSnapshot(state: GameState): String {
+        // Create a simple hash/snapshot of key game state properties
+        return buildString {
+            append("turn:${state.turnNumber.value}")
+            append("|coins:${state.coins.value}")
+            append("|health:${state.healthPoints.value}")
+            append("|phase:${state.phase.value}")
+            append("|defenders:${state.defenders.size}")
+            state.defenders.sortedBy { it.id }.forEach { defender ->
+                append("|d${defender.id}:${defender.type},${defender.position.x},${defender.position.y},${defender.level.value},${defender.buildTimeRemaining.value}")
+            }
+            append("|attackers:${state.attackers.size}")
+            state.attackers.sortedBy { it.id }.forEach { attacker ->
+                append("|a${attacker.id}:${attacker.type},${attacker.position.value.x},${attacker.position.value.y},${attacker.currentHealth.value},${attacker.isDefeated.value}")
+            }
+            append("|effects:${state.fieldEffects.size}")
+            append("|traps:${state.traps.size}")
+        }
+    }
+    
+    /**
+     * Check if there are unsaved changes
+     */
+    fun hasUnsavedChanges(): Boolean {
+        val currentState = _gameState.value ?: return false
+        val currentSnapshot = createGameStateSnapshot(currentState)
+        val referenceSnapshot = lastSaveSnapshot ?: initialGameStateSnapshot ?: return false
+        return currentSnapshot != referenceSnapshot
     }
     
     fun loadGame(saveId: String) {
         val savedGame = de.egril.defender.save.SaveFileStorage.loadGameState(saveId) ?: return
         
-        // Find the level
-        val level = _worldLevels.value.find { it.level.id == savedGame.levelId }?.level ?: return
+        // Find the level by ID
+        val level = _worldLevels.value.find { it.level.id == savedGame.levelId }?.level
         
-        // Convert saved game to game state
-        val gameState = de.egril.defender.save.SaveFileStorage.convertSavedGameToGameState(savedGame, level)
-        _gameState.value = gameState
-        gameEngine = GameEngine(gameState)
-        _currentScreen.value = Screen.GamePlay(savedGame.levelId)
+        // Verify map ID matches if both are available
+        if (level != null && savedGame.mapId != null && level.mapId != null) {
+            if (savedGame.mapId != level.mapId) {
+                // Map mismatch - the level at this numeric ID now uses a different map
+                println("WARNING: Save file has different map ID (saved: ${savedGame.mapId}, current: ${level.mapId})")
+                println("Level sequence may have changed. Attempting to find level with matching map ID...")
+                
+                // Try to find any level that uses the same map as the saved game
+                val levelWithCorrectMap = _worldLevels.value
+                    .map { it.level }
+                    .find { it.mapId == savedGame.mapId }
+                
+                if (levelWithCorrectMap != null) {
+                    println("Found level with matching map ID: ${levelWithCorrectMap.name} (ID: ${levelWithCorrectMap.id})")
+                    val gameState = de.egril.defender.save.SaveFileStorage.convertSavedGameToGameState(savedGame, levelWithCorrectMap)
+                    _gameState.value = gameState
+                    gameEngine = GameEngine(gameState)
+                    _currentScreen.value = Screen.GamePlay(levelWithCorrectMap.id)
+                    // Set snapshots when loading a saved game
+                    initialGameStateSnapshot = createGameStateSnapshot(gameState)
+                    lastSaveSnapshot = initialGameStateSnapshot
+                    return
+                } else {
+                    println("ERROR: Could not find any level with map ID ${savedGame.mapId}. Save file may be incompatible.")
+                    // TODO: Show error dialog to user
+                    return
+                }
+            }
+        }
+        
+        // No map ID mismatch or one/both map IDs are null (backward compatibility)
+        if (level != null) {
+            val gameState = de.egril.defender.save.SaveFileStorage.convertSavedGameToGameState(savedGame, level)
+            _gameState.value = gameState
+            gameEngine = GameEngine(gameState)
+            _currentScreen.value = Screen.GamePlay(savedGame.levelId)
+            // Set snapshots when loading a saved game
+            initialGameStateSnapshot = createGameStateSnapshot(gameState)
+            lastSaveSnapshot = initialGameStateSnapshot
+        }
     }
     
     fun deleteSavedGame(saveId: String) {

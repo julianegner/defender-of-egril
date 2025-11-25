@@ -291,7 +291,7 @@ class CombatSystem(private val state: GameState) {
     }
     
     fun processDefeatedAttackers() {
-        val defeated = state.attackers.filter { it.isDefeated.value && it.position.value != state.level.targetPosition }
+        val defeated = state.attackers.filter { it.isDefeated.value && !state.level.isTargetPosition(it.position.value) }
         for (attacker in defeated) {
             state.coins.value += attacker.type.reward
             // Play enemy destroyed sound

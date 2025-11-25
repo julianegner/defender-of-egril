@@ -21,6 +21,7 @@ import de.egril.defender.ui.HexagonMinimapFromEditorMap
 import de.egril.defender.ui.HexagonalMapConfig
 import de.egril.defender.ui.HexagonalMapView
 import de.egril.defender.ui.MinimapConfig
+import de.egril.defender.ui.constrainMapOffsets
 import de.egril.defender.ui.icon.PushpinIcon
 import de.egril.defender.ui.editor.SaveAsDialog
 import de.egril.defender.ui.editor.getTileColor
@@ -45,6 +46,10 @@ fun MapEditorView(
     var offsetX by remember { mutableStateOf(0f) }
     var offsetY by remember { mutableStateOf(0f) }
     var lastPaintedPos by remember { mutableStateOf<Position?>(null) }
+    
+    // Track container and content sizes for constraint calculation
+    var containerSize by remember { mutableStateOf(IntSize.Zero) }
+    var actualContentSize by remember { mutableStateOf(IntSize.Zero) }
     
     // Create updated map for minimap that reflects current tiles state
     val currentMap = remember(tiles) {
@@ -85,9 +90,6 @@ fun MapEditorView(
                     .fillMaxWidth()
                     .padding(8.dp)
             ) {
-                // Track container size for minimap viewport
-                var containerSize by remember { mutableStateOf(IntSize.Zero) }
-                var actualContentSize by remember { mutableStateOf(IntSize.Zero) }
                 HexagonalMapView(
                     gridWidth = map.width,
                     gridHeight = map.height,
@@ -150,24 +152,103 @@ fun MapEditorView(
                             style = MaterialTheme.typography.labelSmall,
                             color = Color.White
                         )
-                        if (tileType == TileType.WAYPOINT) {
-                            PushpinIcon(size = 20.dp)
-                        }
                     }
                 }
 
-                HexagonMinimapFromEditorMap(
-                    map = currentMap,
-                    modifier = Modifier.size(150.dp).align(Alignment.BottomEnd),
-                    config = MinimapConfig(
-                        showViewport = true,
-                        minimapSizeDp = 150f
+                MapControls(
+                    mapControlState = MapControlState(
+                        zoomLevel = zoomLevel,
+                        offsetX = offsetX,
+                        offsetY = offsetY
                     ),
-                    scale = zoomLevel,
-                    offsetX = offsetX,
-                    offsetY = offsetY,
-                    containerSize = containerSize
-                )
+                    onStateChange = { newState ->
+                        val newScale = newState.zoomLevel
+                        val (constrainedX, constrainedY) = constrainMapOffsets(
+                            newState.offsetX, 
+                            newState.offsetY, 
+                            newScale,
+                            containerSize,
+                            actualContentSize
+                        )
+                        zoomLevel = newScale
+                        offsetX = constrainedX
+                        offsetY = constrainedY
+                    }
+                ) {
+                    // Minimap
+                    HexagonMinimapFromEditorMap(
+                        map = currentMap,
+                        modifier = Modifier.size(150.dp),
+                        config = MinimapConfig(
+                            showViewport = true,
+                            minimapSizeDp = 150f
+                        ),
+                        scale = zoomLevel,
+                        offsetX = offsetX,
+                        offsetY = offsetY,
+                        containerSize = containerSize,
+                        contentSize = actualContentSize
+                    )
+                }
+
+                /*
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .align(Alignment.BottomEnd)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .padding(bottom = 8.dp, end = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.Bottom
+                    ) {
+                        if (de.egril.defender.ui.settings.AppSettings.showControlPad.value) {
+                            // Directional pad
+                            de.egril.defender.ui.ControlPad(
+                                onUp = {
+                                    offsetY += 30f
+                                },
+                                onDown = {
+                                    offsetY -= 30f
+                                },
+                                onLeft = {
+                                    offsetX += 30f
+                                },
+                                onRight = {
+                                    offsetX -= 30f
+                                }
+                            )
+
+                            // Zoom controls
+                            de.egril.defender.ui.ZoomControls(
+                                onZoomIn = {
+                                    zoomLevel = (zoomLevel + 0.1f).coerceIn(0.5f, 3.0f)
+                                },
+                                onZoomOut = {
+                                    zoomLevel = (zoomLevel - 0.1f).coerceIn(0.5f, 3.0f)
+                                }
+                            )
+                        }
+
+                        // Minimap
+                        HexagonMinimapFromEditorMap(
+                            map = currentMap,
+                            modifier = Modifier.size(150.dp),
+                            config = MinimapConfig(
+                                showViewport = true,
+                                minimapSizeDp = 150f
+                            ),
+                            scale = zoomLevel,
+                            offsetX = offsetX,
+                            offsetY = offsetY,
+                            containerSize = containerSize,
+                            contentSize = actualContentSize
+                        )
+                    }
+                }
+                */
             }
             
             // Action buttons

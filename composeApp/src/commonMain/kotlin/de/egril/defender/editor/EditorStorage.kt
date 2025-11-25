@@ -8,11 +8,10 @@ import de.egril.defender.model.PlannedEnemySpawn
 import de.egril.defender.model.Position
 import de.egril.defender.model.Waypoint
 import de.egril.defender.model.getHexNeighbors
-import de.egril.defender.model.hexDistanceTo
-
+import de.egril.defender.utils.runBlockingCompat
 /**
  * File-based storage for maps and levels
- * Stores data in ~/.defender-of-egril/ directory on desktop
+ * Stores data in ~/.defender-of-egril/gamedata/ directory on desktop
  */
 object EditorStorage {
     private val fileStorage = getFileStorage()
@@ -20,11 +19,11 @@ object EditorStorage {
     private val levelsCache = mutableMapOf<String, EditorLevel>()
     private var levelSequenceCache: LevelSequence? = null
     
-    private val MAPS_DIR = "editor/maps"
-    private val LEVELS_DIR = "editor/levels"
-    private val SEQUENCE_FILE = "editor/sequence.json"
-    private val VERSION_FILE = "editor/version.txt"
-    private val CURRENT_VERSION = "4" // Increment when level data format changes
+    private val MAPS_DIR = "gamedata/maps"
+    private val LEVELS_DIR = "gamedata/levels"
+    private val SEQUENCE_FILE = "gamedata/sequence.json"
+    private val VERSION_FILE = "gamedata/version.txt"
+    private val CURRENT_VERSION = "6" // Increment when level data format changes - v6: added spawn points to enemies
     
     // Initialize with converted existing levels
     init {
@@ -99,15 +98,51 @@ object EditorStorage {
         return mapsCache.values.toList()
     }
     
+    /**
+     * Helper function to ensure all enemy spawns have spawn points assigned.
+     * For enemies without spawn points, assigns them in round-robin fashion.
+     */
+    private fun ensureSpawnPoints(level: EditorLevel): EditorLevel {
+        // Get the map to find available spawn points
+        val map = getMap(level.mapId) ?: return level
+        val spawnPoints = map.getSpawnPoints()
+        
+        if (spawnPoints.isEmpty()) {
+            // No spawn points available, can't assign
+            return level
+        }
+        
+        // Check if any enemy needs a spawn point
+        val needsUpdate = level.enemySpawns.any { it.spawnPoint == null }
+        if (!needsUpdate) {
+            return level
+        }
+        
+        // Assign spawn points to enemies that don't have them
+        val updatedSpawns = level.enemySpawns.mapIndexed { index, spawn ->
+            if (spawn.spawnPoint == null) {
+                // Assign in round-robin fashion
+                spawn.copy(spawnPoint = spawnPoints[index % spawnPoints.size])
+            } else {
+                spawn
+            }
+        }
+        
+        return level.copy(enemySpawns = updatedSpawns)
+    }
+    
     fun saveLevel(level: EditorLevel) {
-        levelsCache[level.id] = level
-        val json = EditorJsonSerializer.serializeLevel(level)
-        fileStorage.writeFile("$LEVELS_DIR/${level.id}.json", json)
+        // Ensure all enemy spawns have spawn points
+        val levelWithSpawnPoints = ensureSpawnPoints(level)
+        
+        levelsCache[levelWithSpawnPoints.id] = levelWithSpawnPoints
+        val json = EditorJsonSerializer.serializeLevel(levelWithSpawnPoints)
+        fileStorage.writeFile("$LEVELS_DIR/${levelWithSpawnPoints.id}.json", json)
         
         // Update sequence if this is a new level
         val sequence = getLevelSequence()
-        if (!sequence.sequence.contains(level.id)) {
-            val newSequence = LevelSequence(sequence.sequence + level.id)
+        if (!sequence.sequence.contains(levelWithSpawnPoints.id)) {
+            val newSequence = LevelSequence(sequence.sequence + levelWithSpawnPoints.id)
             updateLevelSequence(newSequence)
         }
     }
@@ -231,6 +266,30 @@ object EditorStorage {
     }
     
     /**
+     * Move a level to a specific position in the sequence.
+     * If the level is already in the sequence, it is moved to the new position.
+     * If the level is not in the sequence, it is added at the specified position.
+     * @param levelId The ID of the level to move
+     * @param toIndex The target index (0-based) in the sequence
+     */
+    fun moveLevelToPosition(levelId: String, toIndex: Int) {
+        val currentSequence = getLevelSequence().sequence.toMutableList()
+        val fromIndex = currentSequence.indexOf(levelId)
+        
+        if (fromIndex >= 0) {
+            // Level is already in sequence, move it
+            currentSequence.removeAt(fromIndex)
+            val adjustedIndex = if (fromIndex < toIndex) toIndex - 1 else toIndex
+            currentSequence.add(adjustedIndex.coerceIn(0, currentSequence.size), levelId)
+        } else {
+            // Level not in sequence, add it at the specified position
+            currentSequence.add(toIndex.coerceIn(0, currentSequence.size), levelId)
+        }
+        
+        updateLevelSequence(LevelSequence(currentSequence))
+    }
+    
+    /**
      * Checks if a level is ready to play.
      * A level is ready if:
      * - It has at least one available tower
@@ -248,7 +307,19 @@ object EditorStorage {
         
         // Also check if the map is ready to use
         val map = getMap(level.mapId)
-        return map?.readyToUse == true
+        if (map == null || !map.readyToUse) {
+            return false
+        }
+        
+        // check if the waypoints of the level are valid
+        val targets = map.getTargets()
+        if (targets.isEmpty()) {
+            return false
+        }
+        
+        val spawnPoints = map.getSpawnPoints()
+        val waypointValidationResult = level.validateWaypointsDetailed(targetPositions = targets, spawnPoints = spawnPoints)
+        return waypointValidationResult.isValid
     }
     
     fun deleteMap(mapId: String) {
@@ -287,7 +358,8 @@ object EditorStorage {
             PlannedEnemySpawn(
                 attackerType = spawn.attackerType,
                 spawnTurn = spawn.spawnTurn,
-                level = spawn.level
+                level = spawn.level,
+                spawnPoint = spawn.spawnPoint
             )
         }.sortedBy { it.spawnTurn }
         
@@ -304,8 +376,11 @@ object EditorStorage {
         }
         println("Converted to ${waves.size} attacker waves for compatibility.")
 
-        val target = map.getTarget() ?: return null
-        println("Target position: $target")
+        // Get all target positions from the map
+        val targets = map.getTargets()
+        if (targets.isEmpty()) return null
+        println("=== LEVEL CONVERSION DEBUG ===")
+        println("Target positions from map: $targets")
         
         // Convert editor waypoints to game waypoints
         val gameWaypoints = editorLevel.waypoints.map { editorWaypoint ->
@@ -314,7 +389,10 @@ object EditorStorage {
                 nextTarget = editorWaypoint.nextTargetPosition
             )
         }
-        println("Converted ${gameWaypoints.size} waypoints")
+        println("Converted ${gameWaypoints.size} waypoints:")
+        gameWaypoints.forEach { wp ->
+            println("  Waypoint: ${wp.position} -> ${wp.nextTarget}")
+        }
         
         // Include waypoint positions in pathCells so enemies can walk on them
         val pathCellsWithWaypoints = map.getPathCells().toMutableSet()
@@ -322,14 +400,16 @@ object EditorStorage {
             pathCellsWithWaypoints.add(waypoint.position)
         }
         println("Path cells: ${map.getPathCells().size}, with waypoints: ${pathCellsWithWaypoints.size}")
+        println("Spawn points: ${map.getSpawnPoints()}")
+        println("=== END LEVEL CONVERSION DEBUG ===")
         
-        return Level(
+        val level = Level(
             id = numericId,
             name = editorLevel.title,
             gridWidth = map.width,
             gridHeight = map.height,
             startPositions = map.getSpawnPoints(),
-            targetPosition = target,
+            targetPositions = targets,
             pathCells = pathCellsWithWaypoints,
             buildIslands = map.getBuildIslands(),
             buildAreas = map.getBuildAreas(),
@@ -339,54 +419,55 @@ object EditorStorage {
             directSpawnPlan = directSpawnPlan,
             availableTowers = editorLevel.availableTowers,
             waypoints = gameWaypoints,
-            editorLevelId = editorLevel.id  // Store editor level ID for minimap lookup
+            editorLevelId = editorLevel.id,  // Store editor level ID for minimap lookup
+            mapId = editorLevel.mapId  // Store map ID for save/load verification
         )
+        
+        println("=== CREATED LEVEL ===")
+        println("Level: ${level.name} (ID: ${level.id})")
+        println("Target positions: ${level.targetPositions}")
+        println("Waypoints count: ${level.waypoints.size}")
+        println("Start positions: ${level.startPositions}")
+        println("=== END CREATED LEVEL ===")
+        
+        return level
     }
     
     /**
      * Convert existing levels to editor format
-     * Only initializes if files don't exist or are invalid
+     * Only initializes if the gamedata directory is completely empty
      */
     private fun initializeDefaultMapsAndLevels() {
-        // Check version to see if we need to regenerate levels
-        val savedVersion = fileStorage.readFile(VERSION_FILE)
-        if (savedVersion != CURRENT_VERSION) {
-            println("Level data version mismatch (saved: $savedVersion, current: $CURRENT_VERSION). Regenerating levels...")
-            // Clear all existing level data to force regeneration
-            fileStorage.writeFile(SEQUENCE_FILE, "")
-            levelSequenceCache = null
-            mapsCache.clear()
-            levelsCache.clear()
-        }
+        // First check if gamedata directory has any existing user data
+        // If it has any content, assume user has data and skip initialization
+        val hasUserData = hasExistingGamedataFiles()
         
-        // Check if already initialized with valid data
-        val sequenceJson = fileStorage.readFile(SEQUENCE_FILE)
-        
-        if (sequenceJson != null) {
-            val sequence = EditorJsonSerializer.deserializeSequence(sequenceJson)
-            
-            if (sequence != null && sequence.sequence.isNotEmpty()) {
-                // Valid sequence exists, check if levels exist
-                val firstLevelId = sequence.sequence.firstOrNull()
-                
-                if (firstLevelId != null && firstLevelId.isNotBlank()) {
-                    val fileExists = fileStorage.fileExists("$LEVELS_DIR/$firstLevelId.json")
-                    
-                    if (fileExists) {
-                        // Also verify we can actually load the first level
-                        val firstLevel = getLevel(firstLevelId)
-                        
-                        if (firstLevel != null) {
-                            return  // Already initialized with valid data
-                        }
-                    }
+        if (hasUserData) {
+            println("Gamedata directory is not empty - preserving existing user data")
+            // Try to load the sequence to populate cache
+            val sequenceJson = fileStorage.readFile(SEQUENCE_FILE)
+            if (sequenceJson != null) {
+                val sequence = EditorJsonSerializer.deserializeSequence(sequenceJson)
+                if (sequence != null && sequence.sequence.isNotEmpty()) {
+                    levelSequenceCache = sequence
                 }
             }
+            return
         }
+        
+        println("Gamedata directory is empty - initializing from repository or generating defaults")
         
         // Create directories
         fileStorage.createDirectory(MAPS_DIR)
         fileStorage.createDirectory(LEVELS_DIR)
+        
+        // Try to load from repository first
+        println("Checking for repository files...")
+        if (tryLoadRepositoryFiles()) {
+            println("Successfully loaded files from repository")
+            return
+        }
+        println("No repository files found, generating default maps and levels...")
         
         // Create default maps based on the existing level generation
         for (size in listOf(
@@ -539,7 +620,7 @@ object EditorStorage {
         tutorialSpawns.add(EditorEnemySpawn(AttackerType.ORK, 1, 8))
         
         saveLevel(EditorLevel(
-            id = "level_tutorial",
+            id = "welcome_to_defender_of_egril",
             mapId = "map_tutorial",
             title = "Welcome to Defender of Egril",
             subtitle = "Tutorial",
@@ -556,7 +637,7 @@ object EditorStorage {
         // Create levels based on existing LevelData
         // Level 1: The First Wave
         saveLevel(EditorLevel(
-            id = "level_1",
+            id = "the_first_wave",
             mapId = "map_30x8",
             title = "The First Wave",
             subtitle = "",
@@ -588,7 +669,7 @@ object EditorStorage {
         }
         
         saveLevel(EditorLevel(
-            id = "level_2",
+            id = "mixed_forces",
             mapId = "map_35x9",
             title = "Mixed Forces",
             subtitle = "",
@@ -627,7 +708,7 @@ object EditorStorage {
         }
         
         saveLevel(EditorLevel(
-            id = "level_3",
+            id = "the_ork_invasion",
             mapId = "map_40x10",
             title = "The Ork Invasion",
             subtitle = "",
@@ -663,7 +744,7 @@ object EditorStorage {
         }
         
         saveLevel(EditorLevel(
-            id = "level_4",
+            id = "dark_magic_rises",
             mapId = "map_45x11",
             title = "Dark Magic Rises",
             subtitle = "",
@@ -700,7 +781,7 @@ object EditorStorage {
         }
         
         saveLevel(EditorLevel(
-            id = "level_5",
+            id = "the_final_stand",
             mapId = "map_50x12",
             title = "The Final Stand",
             subtitle = "",
@@ -714,7 +795,7 @@ object EditorStorage {
         
         // Level 6: Ewhad's Challenge
         saveLevel(EditorLevel(
-            id = "level_6",
+            id = "ewhads_challenge",
             mapId = "map_50x12",
             title = "Ewhad's Challenge",
             subtitle = "",
@@ -745,7 +826,7 @@ object EditorStorage {
         
         // Level 7: The Spiral Challenge
         saveLevel(EditorLevel(
-            id = "level_7",
+            id = "the_spiral_challenge",
             mapId = "map_spiral",
             title = "The Spiral Challenge",
             subtitle = "Navigate the Spiral",
@@ -769,7 +850,7 @@ object EditorStorage {
         
         // Level 8: The Plains
         saveLevel(EditorLevel(
-            id = "level_8",
+            id = "the_plains",
             mapId = "map_plains",
             title = "The Plains",
             subtitle = "Open Field Battle",
@@ -837,7 +918,7 @@ object EditorStorage {
         )
         
         saveLevel(EditorLevel(
-            id = "level_9",
+            id = "the_dance",
             mapId = "map_dance",
             title = "The Dance",
             subtitle = "Follow the Rhythm",
@@ -863,10 +944,53 @@ object EditorStorage {
         
         // Set initial level sequence (tutorial first, then spiral, plains, and dance before final stand!)
         updateLevelSequence(LevelSequence(listOf(
-            "level_tutorial", "level_1", "level_2", "level_3", "level_4", "level_7", "level_8", "level_9", "level_5", "level_6"
+            "welcome_to_defender_of_egril", "the_first_wave", "mixed_forces", "the_ork_invasion", "dark_magic_rises", "the_spiral_challenge", "the_plains", "the_dance", "the_final_stand", "ewhads_challenge"
         )))
         
         // Save version file to indicate successful initialization
         fileStorage.writeFile(VERSION_FILE, CURRENT_VERSION)
+    }
+    
+    /**
+     * Try to load maps and levels from repository resources.
+     * Returns true if repository files were found and loaded successfully.
+     * 
+     * Note: Uses runBlocking because it's called from the init block which is synchronous.
+     * This is acceptable since it only runs once during app initialization.
+     */
+    private fun tryLoadRepositoryFiles(): Boolean {
+        return try {
+            // Use runBlockingCompat to make this synchronous
+            runBlockingCompat {
+                RepositoryLoader.loadAndSaveRepositoryFiles(fileStorage)
+            }
+        } catch (e: Exception) {
+            println("Could not load repository files: ${e.message}")
+            false
+        }
+    }
+    
+    /**
+     * Check if the gamedata directory contains any existing user files
+     * @return true if any user data files exist, false if directory is empty
+     */
+    private fun hasExistingGamedataFiles(): Boolean {
+        // Check if the sequence file exists (most reliable indicator)
+        if (fileStorage.fileExists(SEQUENCE_FILE)) {
+            return true
+        }
+        
+        // Check if any maps exist
+        if (fileStorage.listFiles(MAPS_DIR).isNotEmpty()) {
+            return true
+        }
+        
+        // Check if any levels exist
+        if (fileStorage.listFiles(LEVELS_DIR).isNotEmpty()) {
+            return true
+        }
+        
+        // No user data found
+        return false
     }
 }

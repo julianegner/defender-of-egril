@@ -62,7 +62,7 @@ class DragonGreedTest {
             gridWidth = 25,
             gridHeight = 8,
             startPositions = listOf(Position(0, 3)),
-            targetPosition = Position(20, 3),
+            targetPositions = listOf(Position(20, 3)),
             pathCells = pathCells,
             buildIslands = emptySet(),
             attackerWaves = emptyList(),
@@ -126,7 +126,7 @@ class DragonGreedTest {
             gridWidth = 25,
             gridHeight = 8,
             startPositions = listOf(Position(0, 3)),
-            targetPosition = Position(20, 3),
+            targetPositions = listOf(Position(20, 3)),
             pathCells = pathCells,
             buildIslands = emptySet(),
             attackerWaves = emptyList(),
@@ -177,7 +177,7 @@ class DragonGreedTest {
             gridWidth = 25,
             gridHeight = 8,
             startPositions = listOf(Position(0, 3)),
-            targetPosition = Position(20, 3),
+            targetPositions = listOf(Position(20, 3)),
             pathCells = pathCells,
             buildIslands = emptySet(),
             attackerWaves = emptyList(),
@@ -228,7 +228,7 @@ class DragonGreedTest {
             gridWidth = 25,
             gridHeight = 8,
             startPositions = listOf(Position(0, 3)),
-            targetPosition = Position(20, 3),
+            targetPositions = listOf(Position(20, 3)),
             pathCells = pathCells,
             buildIslands = emptySet(),
             buildAreas = buildAreas,
@@ -256,7 +256,7 @@ class DragonGreedTest {
             position = mutableStateOf(Position(5, 3)),
             level = mutableStateOf(30),
             currentHealth = mutableStateOf(15000),
-            currentTarget = mutableStateOf(state.level.targetPosition)
+            currentTarget = mutableStateOf(state.level.targetPositions.first())
         )
         state.attackers.add(dragon)
         assertTrue(dragon.isVeryGreedy, "Dragon should be very greedy")
@@ -282,7 +282,7 @@ class DragonGreedTest {
             gridWidth = 25,
             gridHeight = 8,
             startPositions = listOf(Position(0, 3)),
-            targetPosition = Position(20, 3),
+            targetPositions = listOf(Position(20, 3)),
             pathCells = pathCells,
             buildIslands = emptySet(),
             buildAreas = buildAreas,

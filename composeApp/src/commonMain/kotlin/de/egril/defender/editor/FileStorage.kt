@@ -10,6 +10,10 @@ interface FileStorage {
     fun fileExists(path: String): Boolean
     fun createDirectory(path: String)
     fun deleteFile(path: String)
+    fun renameDirectory(oldPath: String, newPath: String): Boolean
+    fun copyDirectory(sourcePath: String, targetPath: String): Boolean
+    fun deleteDirectory(path: String): Boolean
+    fun getAbsolutePath(path: String): String
 }
 
 expect fun getFileStorage(): FileStorage

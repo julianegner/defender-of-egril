@@ -3,6 +3,7 @@ package de.egril.defender.editor
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.DefenderType
 import de.egril.defender.model.Position
+import de.egril.defender.ui.common.LevelInfoEnemiesLevelData
 
 /**
  * Represents tile types in the map editor
@@ -13,8 +14,7 @@ enum class TileType {
     ISLAND,         // Build islands
     NO_PLAY,        // Not playable area
     SPAWN_POINT,    // Enemy spawn points
-    TARGET,         // Target position
-    WAYPOINT        // Future: waypoints for path control
+    TARGET          // Target position
 }
 
 /**
@@ -41,12 +41,15 @@ data class EditorMap(
     }
     
     fun getTarget(): Position? {
+        return getTargets().firstOrNull()
+    }
+    
+    fun getTargets(): List<Position> {
         return tiles.filter { it.value == TileType.TARGET }
             .map { 
                 val parts = it.key.split(",")
                 Position(parts[0].toInt(), parts[1].toInt())
             }
-            .firstOrNull()
     }
     
     fun getPathCells(): Set<Position> {
@@ -76,37 +79,30 @@ data class EditorMap(
             .toSet()
     }
     
-    fun getWaypoints(): List<Position> {
-        return tiles.filter { it.value == TileType.WAYPOINT }
-            .map { 
-                val parts = it.key.split(",")
-                Position(parts[0].toInt(), parts[1].toInt())
-            }
-    }
-    
     /**
      * Validates if map is ready to use:
      * - Has at least one spawn point
      * - Has at least one target
-     * - Has a continuous path from spawn to target
+     * - ALL spawn points have a continuous path at least one target
      */
     fun validateReadyToUse(): Boolean {
         val spawnPoints = getSpawnPoints()
-        val target = getTarget()
+        val targets = getTargets()
         val pathCells = getPathCells()
         
         if (spawnPoints.isEmpty()) return false
-        if (target == null) return false
+        if (targets.isEmpty()) return false
         
-        // Build set of traversable cells (spawn points + path cells + target + waypoints)
+        // Build set of traversable cells (spawn points + path cells + all targets)
         val traversableCells = pathCells.toMutableSet()
         traversableCells.addAll(spawnPoints)
-        traversableCells.add(target)
-        traversableCells.addAll(getWaypoints())  // Waypoints are also traversable
+        traversableCells.addAll(targets)
         
-        // Check if there's a path from any spawn point to target using BFS
-        return spawnPoints.any { spawn ->
-            hasPathBFS(spawn, target, traversableCells)
+        // Check if there's a path from all spawn points to any target using BFS
+        return spawnPoints.all{ spawn ->
+            targets.any{ target ->
+                hasPathBFS(spawn, target, traversableCells)
+            }
         }
     }
     
@@ -149,7 +145,8 @@ data class EditorMap(
 data class EditorEnemySpawn(
     val attackerType: AttackerType,
     val level: Int = 1,
-    val spawnTurn: Int
+    val spawnTurn: Int,
+    val spawnPoint: Position? = null  // Fixed spawn point for this enemy (null for backward compatibility)
 ) {
     val healthPoints: Int get() = attackerType.health * level
 }
@@ -161,6 +158,26 @@ data class EditorEnemySpawn(
 data class EditorWaypoint(
     val position: Position,
     val nextTargetPosition: Position
+)
+
+/**
+ * Result of waypoint validation containing detailed information
+ */
+data class WaypointValidationResult(
+    val isValid: Boolean,
+    val circularDependencies: Set<Position> = emptySet(),  // Positions involved in circular paths
+    val unconnectedWaypoints: Set<Position> = emptySet(),  // Waypoints without connections
+    val waypointChains: List<WaypointChain> = emptyList()  // All waypoint chains from spawn to target
+)
+
+/**
+ * Represents a chain of waypoints from a spawn point to the target
+ */
+data class WaypointChain(
+    val startPosition: Position,  // Spawn point or first waypoint
+    val positions: List<Position>,  // Intermediate waypoints
+    val endPosition: Position?,  // Target or null if incomplete
+    val hasCircularDependency: Boolean = false
 )
 
 /**
@@ -197,27 +214,29 @@ data class EditorLevel(
     }
     
     /**
-     * Validates that all waypoints form valid chains that eventually lead to the target.
-     * This ensures enemies following waypoints will reach the target.
-     * @param targetPosition The final target position from the map
+     * Validates that all waypoints form valid chains that eventually lead to a target.
+     * This ensures enemies following waypoints will reach one of the targets.
+     * @param targetPositions List of valid target positions from the map
      * @return true if waypoints are valid (or if there are no waypoints)
      */
-    fun validateWaypoints(targetPosition: Position): Boolean {
+    fun validateWaypoints(targetPositions: List<Position>): Boolean {
         if (waypoints.isEmpty()) return true  // No waypoints is valid
+        if (targetPositions.isEmpty()) return false  // No targets is invalid
         
         // Build a map of waypoint position to next target
         val waypointMap = waypoints.associateBy { it.position }
         val waypointPositions = waypointMap.keys
+        val targetSet = targetPositions.toSet()
         
-        // Check each waypoint can eventually reach the target
+        // Check each waypoint can eventually reach a target
         return waypoints.all { waypoint ->
             val visited = mutableSetOf<Position>()
             var current = waypoint.nextTargetPosition
             
-            // Follow the chain until we reach the target or detect a loop
-            while (current != targetPosition) {
+            // Follow the chain until we reach a target or detect a loop
+            while (current !in targetSet) {
                 if (current in visited) {
-                    // Loop detected - this waypoint will never reach target
+                    // Loop detected - this waypoint will never reach a target
                     return@all false
                 }
                 visited.add(current)
@@ -226,11 +245,11 @@ data class EditorLevel(
                 val nextWaypoint = waypointMap[current]
                 if (nextWaypoint != null) {
                     current = nextWaypoint.nextTargetPosition
-                } else if (current == targetPosition) {
-                    // Reached target
+                } else if (current in targetSet) {
+                    // Reached a target
                     break
                 } else {
-                    // Current is not a waypoint and not the target - assume it's valid (enemies will path there)
+                    // Current is not a waypoint and not a target - assume it's valid (enemies will path there)
                     // This allows waypoints to point to intermediate positions
                     break
                 }
@@ -238,6 +257,146 @@ data class EditorLevel(
             
             true
         }
+    }
+    
+    /**
+     * Performs detailed waypoint validation and returns comprehensive results.
+     * @param targetPositions List of valid target positions from the map
+     * @param spawnPoints List of spawn points from the map
+     * @return WaypointValidationResult with detailed validation information
+     */
+    fun validateWaypointsDetailed(
+        targetPositions: List<Position>,
+        spawnPoints: List<Position>
+    ): WaypointValidationResult {
+        // If there are multiple targets, waypoints are required
+        if (targetPositions.size > 1 && waypoints.isEmpty()) {
+            return WaypointValidationResult(isValid = false)
+        }
+        
+        if (waypoints.isEmpty()) {
+            return WaypointValidationResult(isValid = true)
+        }
+        
+        if (targetPositions.isEmpty()) {
+            return WaypointValidationResult(isValid = false)
+        }
+        
+        val waypointMap = waypoints.associateBy { it.position }
+        val waypointPositions = waypointMap.keys
+        val circularDeps = mutableSetOf<Position>()
+        val chains = mutableListOf<WaypointChain>()
+        val targetSet = targetPositions.toSet()
+        
+        // Find waypoints that are sources (have a next target) but not targets (no incoming)
+        val targetsSet = waypoints.map { it.nextTargetPosition }.toSet()
+        val sourcesSet = waypoints.map { it.position }.toSet()
+        
+        // Unconnected: waypoints that are either:
+        // 1. Sources without being targets (no incoming connection)
+        // 2. Targets without being sources (no outgoing connection)
+        val unconnectedPositions = mutableSetOf<Position>()
+        
+        // Find waypoints without incoming connections (except if they're spawn points)
+        sourcesSet.forEach { pos ->
+            if (pos !in targetsSet && pos !in spawnPoints) {
+                unconnectedPositions.add(pos)
+            }
+        }
+        
+        // Find waypoints without outgoing connections (except if they point to a target)
+        targetsSet.forEach { pos ->
+            if (pos !in sourcesSet && pos !in targetSet) {
+                unconnectedPositions.add(pos)
+            }
+        }
+        
+        // Build chains starting from each spawn point and waypoint source
+        val allStarts = (spawnPoints + sourcesSet).distinct()
+        
+        for (start in allStarts) {
+            val chain = mutableListOf<Position>()
+            val visited = mutableSetOf<Position>()
+            var current = start
+            var hasCircular = false
+            var reachedTarget: Position? = null
+            
+            // Follow the chain
+            while (true) {
+                val waypoint = waypointMap[current]
+                if (waypoint == null) {
+                    // Not a waypoint - check if it's a target
+                    if (current in targetSet) {
+                        reachedTarget = current
+                    }
+                    break
+                }
+                
+                if (current in visited) {
+                    // Circular dependency detected
+                    hasCircular = true
+                    circularDeps.add(current)
+                    // Add all positions in the cycle
+                    val cycleStart = current
+                    var pos = waypoint.nextTargetPosition
+                    while (pos != cycleStart && pos in waypointMap) {
+                        circularDeps.add(pos)
+                        pos = waypointMap[pos]!!.nextTargetPosition
+                    }
+                    break
+                }
+                
+                visited.add(current)
+                chain.add(current)
+                current = waypoint.nextTargetPosition
+                
+                if (current in targetSet) {
+                    reachedTarget = current
+                    break
+                }
+            }
+            
+            // Only add chains that start from spawn points or unconnected waypoints
+            if (start in spawnPoints || start in unconnectedPositions) {
+                chains.add(
+                    WaypointChain(
+                        startPosition = start,
+                        positions = chain,
+                        endPosition = reachedTarget ?: current,
+                        hasCircularDependency = hasCircular
+                    )
+                )
+            }
+        }
+        
+        val isValid = circularDeps.isEmpty() && unconnectedPositions.isEmpty()
+        
+        return WaypointValidationResult(
+            isValid = isValid,
+            circularDependencies = circularDeps,
+            unconnectedWaypoints = unconnectedPositions,
+            waypointChains = chains
+        )
+    }
+
+    fun toLevelInfoEnemiesLevelData(index: Int): LevelInfoEnemiesLevelData {
+
+        val enemyCountMap: Map<AttackerType, Int> = mutableMapOf()
+
+        enemySpawns
+            .groupingBy { it.attackerType }.eachCount()
+            .entries
+            .forEach { (attackerType, count) ->
+                (enemyCountMap as MutableMap)[attackerType] = count
+            }
+
+        return LevelInfoEnemiesLevelData(
+            id = "" + index,
+            name = this.title,
+            initialCoins = startCoins,
+            healthPoints = startHealthPoints,
+            enemyTypeCounts = enemyCountMap
+        )
     }
 }
 

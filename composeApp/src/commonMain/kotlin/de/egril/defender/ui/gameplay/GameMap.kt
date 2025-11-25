@@ -1,6 +1,7 @@
 package de.egril.defender.ui.gameplay
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -18,6 +19,8 @@ import de.egril.defender.ui.*
 import de.egril.defender.ui.icon.ExplosionIcon
 import de.egril.defender.ui.icon.HoleIcon
 import com.hyperether.resources.stringResource
+import de.egril.defender.ui.editor.map.MapControlState
+import de.egril.defender.ui.editor.map.MapControls
 import defender_of_egril.composeapp.generated.resources.*
 import de.egril.defender.ui.icon.TestTubeIcon
 import de.egril.defender.ui.icon.enemy.EnemyIcon
@@ -70,56 +73,66 @@ fun GameGrid(
     }
 
     // Calculate target circle info for each tile
-    val targetCircleMap = remember(selectedTargetPosition, selectedDefenderId, gameState.defenders.size) {
-        if (selectedTargetPosition == null || selectedDefenderId == null) {
+    // Find the selected defender and track its actions for dependency tracking
+    val selectedDefender = gameState.defenders.find { it.id == selectedDefenderId }
+    val selectedDefenderActions = selectedDefender?.actionsRemaining?.value
+    
+    val targetCircleMap = remember(selectedTargetPosition, selectedDefenderId, selectedDefenderActions, gameState.defenders.size) {
+        if (selectedTargetPosition == null || selectedDefenderId == null || selectedDefender == null) {
             emptyMap()
         } else {
-            val selectedDefender = gameState.defenders.find { it.id == selectedDefenderId }
-            val attackType = selectedDefender?.type?.attackType
+            val attackType = selectedDefender.type.attackType
             
-            val markerColor = when (attackType) {
-                AttackType.AREA -> Color(0xFFFF5722)  // Deep orange/red for fireball
-                AttackType.LASTING -> Color(0xFF4CAF50)  // Green for acid
-                AttackType.MELEE, AttackType.RANGED -> Color.DarkGray  // DarkGray for single-target
-                else -> null
-            }
-            
-            if (markerColor == null || attackType == null) {
+            // Don't show target circles if the tower has no action points left
+            if (selectedDefender.actionsRemaining.value <= 0) {
                 emptyMap()
             } else {
-                val result = mutableMapOf<Position, TargetCircleInfo>()
-                
-                // Central target tile
-                result[selectedTargetPosition] = TargetCircleInfo.CentralTarget(
-                    color = markerColor,
-                    attackType = attackType
-                )
-                
-                // For AREA and LASTING attacks, add neighbor tiles that are on the path
-                if (attackType == AttackType.AREA || attackType == AttackType.LASTING) {
-                    val neighbors = selectedTargetPosition.getHexNeighbors()
-                        .filter { neighbor ->
-                        neighbor.x >= 0 && neighbor.x < gameState.level.gridWidth &&
-                        neighbor.y >= 0 && neighbor.y < gameState.level.gridHeight &&
-                        gameState.level.isOnPath(neighbor)
-                    }
-
-                    for (neighbor in neighbors) {
-                        result[neighbor] = TargetCircleInfo.NeighborTarget(
-                            color = markerColor,
-                            attackType = attackType,
-                            centerPosition = selectedTargetPosition,
-                            thisPosition = neighbor
-                        )
-                    }
+                val markerColor = when (attackType) {
+                    AttackType.AREA -> Color(0xFFFF5722)  // Deep orange/red for fireball
+                    AttackType.LASTING -> Color(0xFF4CAF50)  // Green for acid
+                    AttackType.MELEE, AttackType.RANGED -> Color.DarkGray  // DarkGray for single-target
+                    AttackType.NONE -> null  // No target circles for special structures
                 }
-                println("Target circle map: $result")
-                result
+                
+                if (markerColor == null) {
+                    emptyMap()
+                } else {
+                    val result = mutableMapOf<Position, TargetCircleInfo>()
+                    
+                    // Central target tile
+                    result[selectedTargetPosition] = TargetCircleInfo.CentralTarget(
+                        color = markerColor,
+                        attackType = attackType
+                    )
+                    
+                    // For AREA and LASTING attacks, add neighbor tiles that are on the path
+                    if (attackType == AttackType.AREA || attackType == AttackType.LASTING) {
+                        val neighbors = selectedTargetPosition.getHexNeighbors()
+                            .filter { neighbor ->
+                            neighbor.x >= 0 && neighbor.x < gameState.level.gridWidth &&
+                            neighbor.y >= 0 && neighbor.y < gameState.level.gridHeight &&
+                            gameState.level.isOnPath(neighbor)
+                        }
+
+                        for (neighbor in neighbors) {
+                            result[neighbor] = TargetCircleInfo.NeighborTarget(
+                                color = markerColor,
+                                attackType = attackType,
+                                centerPosition = selectedTargetPosition,
+                                thisPosition = neighbor
+                            )
+                        }
+                    }
+                    println("Target circle map: $result")
+                    result
+                }
             }
         }
     }
 
-    Box(modifier = modifier.onSizeChanged { containerSize = it }) {
+    Box(modifier = modifier
+        .onSizeChanged { containerSize = it }
+    ) {
         HexagonalMapView(
             gridWidth = gameState.level.gridWidth,
             gridHeight = gameState.level.gridHeight,
@@ -158,13 +171,29 @@ fun GameGrid(
             )
         }
 
-        // Minimap - shown when zoomed in
-        if (scale > 1.1f) {
+        MapControls(
+            mapControlState = MapControlState(
+                zoomLevel = scale,
+                offsetX = offsetX,
+                offsetY = offsetY
+            ),
+            onStateChange = { newState ->
+                val newScale = newState.zoomLevel
+                val (constrainedX, constrainedY) = constrainMapOffsets(
+                    newState.offsetX, 
+                    newState.offsetY, 
+                    newScale,
+                    containerSize,
+                    contentSize
+                )
+                scale = newScale
+                offsetX = constrainedX
+                offsetY = constrainedY
+            }
+        ) {
+            // Minimap
             Box(
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(16.dp)
-                    .size(120.dp)
+                modifier = Modifier.size(120.dp)
             ) {
                 HexagonMinimap(
                     level = gameState.level,
@@ -181,6 +210,7 @@ fun GameGrid(
                     offsetX = offsetX,
                     offsetY = offsetY,
                     containerSize = containerSize,
+                    contentSize = contentSize,
                     modifier = Modifier.fillMaxSize()
                 )
             }
@@ -205,7 +235,7 @@ fun GridCell(
     val isDarkMode = de.egril.defender.ui.settings.AppSettings.isDarkMode.value
     
     val isSpawnPoint = gameState.level.isSpawnPoint(position)
-    val isTarget = position == gameState.level.targetPosition
+    val isTarget = gameState.level.isTargetPosition(position)
     val isOnPath = gameState.level.isOnPath(position)
     val isBuildIsland = gameState.level.isBuildIsland(position)
     val isBuildArea = gameState.level.isBuildArea(position)
@@ -314,92 +344,6 @@ fun GridCell(
         borderWidth = borderWidth,
         onClick = onClick
     ) {
-        // Draw target circles if this tile is triggered
-        targetCircleInfo?.let { info ->
-            Canvas(modifier = Modifier
-                .matchParentSize()
-                .zIndex(11f)) {
-                when (info) {
-                    is TargetCircleInfo.CentralTarget -> {
-                        println("Drawing central target circles at $position with color ${info.color}")
-                        // Draw 3 inner circles on the central target tile
-                        val centerX = size.width / 2
-                        val centerY = size.height / 2
-                        val center = androidx.compose.ui.geometry.Offset(centerX, centerY)
-                        
-                        // Filled inner circle
-                        drawCircle(
-                            color = info.color,
-                            radius = TargetCircleConstants.INNER_CIRCLE_1_RADIUS,
-                            center = center
-                        )
-                        
-                        // Two stroke circles
-                        drawCircle(
-                            color = info.color,
-                            radius = TargetCircleConstants.INNER_CIRCLE_2_RADIUS,
-                            center = center,
-                            style = androidx.compose.ui.graphics.drawscope.Stroke(
-                                width = TargetCircleConstants.INNER_CIRCLE_STROKE_WIDTH
-                            )
-                        )
-                        
-                        drawCircle(
-                            color = info.color,
-                            radius = TargetCircleConstants.INNER_CIRCLE_3_RADIUS,
-                            center = center,
-                            style = androidx.compose.ui.graphics.drawscope.Stroke(
-                                width = TargetCircleConstants.INNER_CIRCLE_STROKE_WIDTH
-                            )
-                        )
-                    }
-                    is TargetCircleInfo.NeighborTarget -> {
-                        // Draw outer ring segments on neighbor tiles (only for AREA and LASTING)
-                        if (info.attackType == AttackType.AREA || info.attackType == AttackType.LASTING) {
-                            println("Drawing neighbor target circles at $position with color ${info.color}, center at ${info.centerPosition}")
-                            // this is for debugging
-                            // drawCircle(
-                            //     color = info.color,
-                            //     radius = TargetCircleConstants.INNER_CIRCLE_1_RADIUS,
-                            //     center = center
-                            // )
-
-                            // Draw 3 concentric arc segments
-                            CircularSegmentDrawer.drawArcSegment(
-                                drawScope = this,
-                                color = info.color,
-                                radius = TargetCircleConstants.OUTER_CIRCLE_1_RADIUS,
-                                strokeWidth = TargetCircleConstants.OUTER_CIRCLE_STROKE_WIDTH,
-                                centerPos = info.centerPosition,
-                                neighborPos = info.thisPosition,
-                                hexSize = hexSize.value
-                            )
-                            
-                            CircularSegmentDrawer.drawArcSegment(
-                                drawScope = this,
-                                color = info.color,
-                                radius = TargetCircleConstants.OUTER_CIRCLE_2_RADIUS,
-                                strokeWidth = TargetCircleConstants.OUTER_CIRCLE_STROKE_WIDTH,
-                                centerPos = info.centerPosition,
-                                neighborPos = info.thisPosition,
-                                hexSize = hexSize.value
-                            )
-                            
-                            CircularSegmentDrawer.drawArcSegment(
-                                drawScope = this,
-                                color = info.color,
-                                radius = TargetCircleConstants.OUTER_CIRCLE_3_RADIUS,
-                                strokeWidth = TargetCircleConstants.OUTER_CIRCLE_STROKE_WIDTH,
-                                centerPos = info.centerPosition,
-                                neighborPos = info.thisPosition,
-                                hexSize = hexSize.value
-                            )
-                        }
-                    }
-                }
-            }
-        }
-        
         when {
             attacker != null -> {
                 // Use graphical icon for enemy units
@@ -472,6 +416,84 @@ fun GridCell(
             isTarget -> {
                 // Show target indicator when cell is empty
                 Text(stringResource(Res.string.target), style = MaterialTheme.typography.labelSmall, color = GamePlayColors.Success)
+            }
+        }
+        
+        // Draw target circles AFTER other content so they appear on top
+        // Inner circles on central target tile, outer ring segments on neighbor tiles
+        targetCircleInfo?.let { info ->
+            Canvas(modifier = Modifier
+                .matchParentSize()
+                .zIndex(11f)) {
+                when (info) {
+                    is TargetCircleInfo.CentralTarget -> {
+                        // Draw 3 inner circles on the central target tile
+                        val centerX = size.width / 2
+                        val centerY = size.height / 2
+                        val center = androidx.compose.ui.geometry.Offset(centerX, centerY)
+                        
+                        // Filled inner circle
+                        drawCircle(
+                            color = info.color,
+                            radius = TargetCircleConstants.INNER_CIRCLE_1_RADIUS,
+                            center = center
+                        )
+                        
+                        // Two stroke circles
+                        drawCircle(
+                            color = info.color,
+                            radius = TargetCircleConstants.INNER_CIRCLE_2_RADIUS,
+                            center = center,
+                            style = androidx.compose.ui.graphics.drawscope.Stroke(
+                                width = TargetCircleConstants.INNER_CIRCLE_STROKE_WIDTH
+                            )
+                        )
+                        
+                        drawCircle(
+                            color = info.color,
+                            radius = TargetCircleConstants.INNER_CIRCLE_3_RADIUS,
+                            center = center,
+                            style = androidx.compose.ui.graphics.drawscope.Stroke(
+                                width = TargetCircleConstants.INNER_CIRCLE_STROKE_WIDTH
+                            )
+                        )
+                    }
+                    is TargetCircleInfo.NeighborTarget -> {
+                        // Draw outer ring segments on neighbor tiles (only for AREA and LASTING)
+                        if (info.attackType == AttackType.AREA || info.attackType == AttackType.LASTING) {
+                            // Draw 3 concentric arc segments
+                            CircularSegmentDrawer.drawArcSegment(
+                                drawScope = this,
+                                color = info.color,
+                                radius = TargetCircleConstants.OUTER_CIRCLE_1_RADIUS,
+                                strokeWidth = TargetCircleConstants.OUTER_CIRCLE_STROKE_WIDTH,
+                                centerPos = info.centerPosition,
+                                neighborPos = info.thisPosition,
+                                hexSize = hexSize.value
+                            )
+                            
+                            CircularSegmentDrawer.drawArcSegment(
+                                drawScope = this,
+                                color = info.color,
+                                radius = TargetCircleConstants.OUTER_CIRCLE_2_RADIUS,
+                                strokeWidth = TargetCircleConstants.OUTER_CIRCLE_STROKE_WIDTH,
+                                centerPos = info.centerPosition,
+                                neighborPos = info.thisPosition,
+                                hexSize = hexSize.value
+                            )
+                            
+                            CircularSegmentDrawer.drawArcSegment(
+                                drawScope = this,
+                                color = info.color,
+                                radius = TargetCircleConstants.OUTER_CIRCLE_3_RADIUS,
+                                strokeWidth = TargetCircleConstants.OUTER_CIRCLE_STROKE_WIDTH,
+                                centerPos = info.centerPosition,
+                                neighborPos = info.thisPosition,
+                                hexSize = hexSize.value
+                            )
+                        }
+                    }
+                }
             }
         }
     }
