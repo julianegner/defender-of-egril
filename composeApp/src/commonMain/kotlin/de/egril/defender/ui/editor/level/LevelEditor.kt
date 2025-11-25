@@ -428,8 +428,8 @@ fun LevelEditorView(
                     onAvailableTowersChange = { availableTowersState = it }
                 )
                 3 -> WaypointsTab(
-                    waypoints = waypointsState,
-                    onWaypointsChange = { waypointsState = it },
+                    waypoints = waypointsState.toList(),
+                    onWaypointsChange = { waypointsState = it.toMutableList() },
                     map = currentMap,
                     isValid = isWaypointsValid
                 )
