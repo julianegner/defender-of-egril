@@ -151,6 +151,9 @@ class MineOperations(private val state: GameState) {
             })
         )
         
+        // Update dragon level based on initial health
+        dragon.updateDragonLevel()
+        
         // Replace mine with dragon's lair and link to dragon
         val lairDefender = Defender(
             id = state.nextDefenderId.value++,
