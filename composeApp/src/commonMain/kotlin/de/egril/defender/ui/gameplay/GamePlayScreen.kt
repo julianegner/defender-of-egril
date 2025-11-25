@@ -32,7 +32,8 @@ fun GamePlayScreen(
     onMineDig: ((Int) -> DigOutcome?)? = null,  // Add mine dig callback
     onMineBuildTrap: ((Int, Position) -> Boolean)? = null,  // Add mine build trap callback
     cheatDigOutcome: DigOutcome? = null,  // Dig outcome from cheat code
-    onClearCheatDigOutcome: (() -> Unit)? = null  // Callback to clear cheat dig outcome
+    onClearCheatDigOutcome: (() -> Unit)? = null,  // Callback to clear cheat dig outcome
+    hasUnsavedChanges: (() -> Boolean)? = null  // Callback to check for unsaved changes
 ) {
     GamePlayScreenContent(
         gameState = gameState,
@@ -50,7 +51,8 @@ fun GamePlayScreen(
         onMineDig = onMineDig,
         onMineBuildTrap = onMineBuildTrap,
         cheatDigOutcome = cheatDigOutcome,
-        onClearCheatDigOutcome = onClearCheatDigOutcome
+        onClearCheatDigOutcome = onClearCheatDigOutcome,
+        hasUnsavedChanges = hasUnsavedChanges
     )
 }
 
@@ -71,7 +73,8 @@ private fun GamePlayScreenContent(
     onMineDig: ((Int) -> DigOutcome?)? = null,
     onMineBuildTrap: ((Int, Position) -> Boolean)? = null,
     cheatDigOutcome: DigOutcome? = null,  // Dig outcome from cheat code
-    onClearCheatDigOutcome: (() -> Unit)? = null  // Callback to clear cheat dig outcome
+    onClearCheatDigOutcome: (() -> Unit)? = null,  // Callback to clear cheat dig outcome
+    hasUnsavedChanges: (() -> Boolean)? = null  // Callback to check for unsaved changes
 
 ) {
     var selectedDefenderType by remember { mutableStateOf<DefenderType?>(null) }
@@ -86,15 +89,14 @@ private fun GamePlayScreenContent(
     var currentDigOutcome by remember { mutableStateOf<DigOutcome?>(null) }
     var currentDragonName by remember { mutableStateOf<String?>(null) }  // Track dragon name for dig outcome
     var showDigOutcomeDialog by remember { mutableStateOf(false) }
-    var showDragonInfoDialog by remember { mutableStateOf(false) }  // Dragon info tutorial
-    var showGreedInfoDialog by remember { mutableStateOf(false) }  // Dragon greed tutorial (greed > 0)
-    var showVeryGreedyInfoDialog by remember { mutableStateOf(false) }  // Dragon very greedy tutorial (greed > 5)
-    var showMineWarningDialog by remember { mutableStateOf(false) }  // Mine warning dialog
-    var warningMineId by remember { mutableStateOf<Int?>(null) }  // Track which mine has warning
     var showOverlay by remember { mutableStateOf(false) }  // MutableState for overlay visibility
     var showSaveDialog by remember { mutableStateOf(false) }  // Save dialog with comment
     var saveCommentInput by remember { mutableStateOf("") }  // Comment input for save
     var showSaveConfirmation by remember { mutableStateOf(false) }  // Save confirmation
+    var showUnsavedChangesDialog by remember { mutableStateOf(false) }  // Unsaved changes dialog
+    
+    // Check if unsaved changes feature is enabled (both hasUnsavedChanges and onSaveGame must be available)
+    val unsavedChangesEnabled = hasUnsavedChanges != null && onSaveGame != null
 
     // Get platform-specific UI scale for mobile (affects layout, not just rendering)
     val uiScale = getGameplayUIScale()
@@ -124,39 +126,50 @@ private fun GamePlayScreenContent(
         }
     }
     
-    // Check if a dragon exists and show info if it's the first time
-    LaunchedEffect(gameState.attackers.size, gameState.hasSeenDragonInfo.value) {
-        val hasDragon = gameState.attackers.any { it.type.isDragon && !it.isDefeated.value }
-        if (hasDragon && !gameState.hasSeenDragonInfo.value) {
-            showDragonInfoDialog = true
+    // Check for dragon-related infos and show appropriate tutorial
+    LaunchedEffect(gameState.attackers.size, gameState.infoState.value) {
+        val infoState = gameState.infoState.value
+        
+        // Skip if already showing an info
+        if (infoState.currentInfo != InfoType.NONE) {
+            return@LaunchedEffect
         }
-    }
-    
-    // Check for dragon greed (greed > 0) and show tutorial
-    LaunchedEffect(gameState.attackers.size, gameState.hasSeenGreedInfo.value) {
-        val hasGreedyDragon = gameState.attackers.any { 
-            it.type.isDragon && !it.isDefeated.value && it.greed > 0 
-        }
-        if (hasGreedyDragon && !gameState.hasSeenGreedInfo.value) {
-            showGreedInfoDialog = true
-        }
-    }
-    
-    // Check for very greedy dragon (greed > 5) and show tutorial
-    LaunchedEffect(gameState.attackers.size, gameState.hasSeenVeryGreedyInfo.value) {
-        val hasVeryGreedyDragon = gameState.attackers.any { 
-            it.type.isDragon && !it.isDefeated.value && it.greed > 5 
-        }
-        if (hasVeryGreedyDragon && !gameState.hasSeenVeryGreedyInfo.value) {
-            showVeryGreedyInfoDialog = true
+        
+        // Check for dragons and show appropriate info
+        val dragons = gameState.attackers.filter { it.type.isDragon && !it.isDefeated.value }
+        
+        if (dragons.isNotEmpty()) {
+            // Priority: Very greedy > Greed > Dragon info
+            val veryGreedyDragon = dragons.any { it.greed > 5 }
+            val greedyDragon = dragons.any { it.greed > 0 }
+            
+            when {
+                veryGreedyDragon && !infoState.hasSeen(InfoType.VERY_GREEDY_INFO) -> {
+                    gameState.infoState.value = infoState.showInfo(InfoType.VERY_GREEDY_INFO)
+                }
+                greedyDragon && !infoState.hasSeen(InfoType.GREED_INFO) -> {
+                    gameState.infoState.value = infoState.showInfo(InfoType.GREED_INFO)
+                }
+                !infoState.hasSeen(InfoType.DRAGON_INFO) -> {
+                    gameState.infoState.value = infoState.showInfo(InfoType.DRAGON_INFO)
+                }
+            }
         }
     }
     
     // Check for mine warnings
-    LaunchedEffect(gameState.mineWarnings.size) {
+    LaunchedEffect(gameState.mineWarnings.size, gameState.infoState.value) {
+        val infoState = gameState.infoState.value
+        
+        // Skip if already showing an info
+        if (infoState.currentInfo != InfoType.NONE) {
+            return@LaunchedEffect
+        }
+        
+        // Show mine warning if there are warnings and not currently showing one
         if (gameState.mineWarnings.isNotEmpty()) {
-            warningMineId = gameState.mineWarnings.first()
-            showMineWarningDialog = true
+            val mineId = gameState.mineWarnings.first()
+            gameState.infoState.value = infoState.showInfo(InfoType.MINE_WARNING, mineId)
         }
     }
 
@@ -199,7 +212,14 @@ private fun GamePlayScreenContent(
             gameState = gameState,
             showOverlay = showOverlay,
             onShowOverlayChange = { showOverlay = it },
-            onBackToMap = onBackToMap,
+            onBackToMap = {
+                // Check for unsaved changes before navigating back
+                if (unsavedChangesEnabled && hasUnsavedChanges!!.invoke()) {
+                    showUnsavedChangesDialog = true
+                } else {
+                    onBackToMap()
+                }
+            },
             onSaveGame = if (onSaveGame != null) {{ showSaveDialog = true }} else null,
             onCheatCode = if (onCheatCode != null) {{ showCheatDialog = true }} else null
         )
@@ -333,8 +353,7 @@ private fun GamePlayScreenContent(
             }
             
             // Tutorial card (positioned in upper right corner)
-            if (gameState.tutorialState.value.shouldShowOverlay() || showDragonInfoDialog || 
-                showGreedInfoDialog || showVeryGreedyInfoDialog || showMineWarningDialog) {
+            if (gameState.tutorialState.value.shouldShowOverlay() || gameState.infoState.value.shouldShowOverlay()) {
                 // Check if we should allow skipping attack step
                 // (tower has no actions left or can't reach any enemies)
                 if (gameState.tutorialState.value.currentStep == TutorialStep.ATTACKING &&
@@ -363,7 +382,7 @@ private fun GamePlayScreenContent(
                         .align(Alignment.TopEnd)
                         .padding(8.dp)
                 ) {
-                    // Show dragon info or tutorial in the tutorial overlay
+                    // Show info or tutorial in the tutorial overlay
                     TutorialOverlay(
                         currentStep = gameState.tutorialState.value.currentStep,
                         isNextEnabled = gameState.tutorialState.value.isNextEnabled(),
@@ -374,26 +393,16 @@ private fun GamePlayScreenContent(
                         onSkip = {
                             gameState.tutorialState.value = gameState.tutorialState.value.skip()
                         },
-                        showDragonInfo = showDragonInfoDialog,
-                        onDismissDragonInfo = {
-                            showDragonInfoDialog = false
-                            gameState.hasSeenDragonInfo.value = true
-                        },
-                        showGreedInfo = showGreedInfoDialog,
-                        onDismissGreedInfo = {
-                            showGreedInfoDialog = false
-                            gameState.hasSeenGreedInfo.value = true
-                        },
-                        showVeryGreedyInfo = showVeryGreedyInfoDialog,
-                        onDismissVeryGreedyInfo = {
-                            showVeryGreedyInfoDialog = false
-                            gameState.hasSeenVeryGreedyInfo.value = true
-                        },
-                        showMineWarning = showMineWarningDialog,
-                        onDismissMineWarning = {
-                            showMineWarningDialog = false
-                            warningMineId?.let { gameState.mineWarnings.remove(it) }
-                            warningMineId = null
+                        currentInfo = gameState.infoState.value.currentInfo,
+                        onDismissInfo = {
+                            val currentInfoState = gameState.infoState.value
+                            val dismissedInfo = currentInfoState.dismissInfo()
+                            gameState.infoState.value = dismissedInfo
+                            
+                            // Remove mine warning from the list if it was a mine warning
+                            if (currentInfoState.currentInfo == InfoType.MINE_WARNING) {
+                                currentInfoState.mineWarningId?.let { gameState.mineWarnings.remove(it) }
+                            }
                         }
                     )
                 }
@@ -447,7 +456,10 @@ private fun GamePlayScreenContent(
                         }
                     },
                     onMineAction = handleMineAction,
-                    uiScale = uiScale
+                    uiScale = uiScale,
+                    onShowDragonInfo = { 
+                        gameState.infoState.value = gameState.infoState.value.showInfo(InfoType.DRAGON_INFO)
+                    }
                 )
             }
 
@@ -512,7 +524,10 @@ private fun GamePlayScreenContent(
                         }
                     },
                     onMineAction = handleMineAction,
-                    uiScale = uiScale
+                    uiScale = uiScale,
+                    onShowDragonInfo = { 
+                        gameState.infoState.value = gameState.infoState.value.showInfo(InfoType.DRAGON_INFO)
+                    }
                 )
             }
 
@@ -570,6 +585,28 @@ private fun GamePlayScreenContent(
                 showHints = true,
                 initialInput = cheatCodeInput,
                 onInputChange = { cheatCodeInput = it }
+            )
+        }
+        
+        // Unsaved changes dialog
+        if (showUnsavedChangesDialog && unsavedChangesEnabled) {
+            UnsavedChangesDialog(
+                onSaveAndExit = {
+                    // Save the game first
+                    onSaveGame!!(null)
+                    showUnsavedChangesDialog = false
+                    // Then navigate back to map
+                    onBackToMap()
+                },
+                onDiscardChanges = {
+                    showUnsavedChangesDialog = false
+                    // Navigate back without saving
+                    onBackToMap()
+                },
+                onCancel = {
+                    // Just close the dialog and stay in the game
+                    showUnsavedChangesDialog = false
+                }
             )
         }
         }

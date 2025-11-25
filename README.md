@@ -71,7 +71,7 @@ Open `iosApp/iosApp.xcodeproj` in Xcode and click Run
 ```
 Then open http://localhost:8080 in your browser
 
-📖 **For detailed gameplay instructions, see [GAMEPLAY.md](GAMEPLAY.md)**
+📖 **For detailed gameplay instructions, see [GAMEPLAY.md](docs/root/GAMEPLAY.md)**
 
 ## Building and Running
 
@@ -111,7 +111,7 @@ Then open http://localhost:8080 in your browser
 
 ### Running Android
 
-Install the APK from `composeApp/build/outputs/apk/debug/composeApp-debug.apk` on an Android device or emulator.
+Install the APK from `composeApp/build/outputs/apk/debug/de.egril.defender-debug.apk` on an Android device or emulator.
 
 ### Running iOS
 
@@ -193,3 +193,11 @@ This game is built using:
 - Kotlin 2.0.21
 - Compose Multiplatform 1.7.0
 - Kotlin Multiplatform for cross-platform support
+
+For detailed development information, see [DEVELOPMENT.md](docs/root/DEVELOPMENT.md).
+
+### Utility Scripts
+
+The `scripts/` directory contains utility scripts for the project:
+- **Dragon Names Scraper** (`scripts/scrape_dragon_names.sh`): Automated web scraper for collecting dragon names from mythopedia.com
+  - See [scripts/README.md](scripts/README.md) for usage instructions

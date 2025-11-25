@@ -74,7 +74,7 @@ class PathfindingSystem(private val state: GameState) {
         val exitCount = position.getHexNeighbors().count { neighbor ->
             neighbor.x >= 0 && neighbor.x < state.level.gridWidth &&
             neighbor.y >= 0 && neighbor.y < state.level.gridHeight &&
-            (state.level.isOnPath(neighbor) || neighbor == state.level.targetPosition) &&
+            (state.level.isOnPath(neighbor) || state.level.isTargetPosition(neighbor)) &&
             !state.level.isBuildIsland(neighbor)
         }
         
@@ -163,7 +163,7 @@ class PathfindingSystem(private val state: GameState) {
             neighbor.x >= 0 && neighbor.x < state.level.gridWidth &&
             neighbor.y >= 0 && neighbor.y < state.level.gridHeight &&
             (state.level.isOnPath(neighbor) || 
-             neighbor == state.level.targetPosition || 
+             state.level.isTargetPosition(neighbor) || 
              isGoalMineForDragon(neighbor, goal, attacker) ||
              isDestroyedMinePosition(neighbor)) &&
             !isBlocked(neighbor)
@@ -210,7 +210,7 @@ class PathfindingSystem(private val state: GameState) {
             neighbor.x >= 0 && neighbor.x < state.level.gridWidth &&
             neighbor.y >= 0 && neighbor.y < state.level.gridHeight &&
             (state.level.isOnPath(neighbor) || 
-             neighbor == state.level.targetPosition || 
+             state.level.isTargetPosition(neighbor) || 
              isGoalMineForDragon(neighbor, to, attacker) ||
              isDestroyedMinePosition(neighbor)) &&
             !isBlocked(neighbor)

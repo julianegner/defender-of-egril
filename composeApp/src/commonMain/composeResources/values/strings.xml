@@ -2,7 +2,7 @@
 <resources>
     <!-- Main Menu -->
     <string name="app_name">Defender of Egril</string>
-    <string name="app_subtitle">Defend the meadows of Egril against\nthe Hordes of Gleid Thyae under\nthe Banner of the evil Ewhad</string>
+    <string name="app_subtitle">Defend the meadows of Egril against the Hordes of Gleid Thyae under the Banner of the evil Ewhad</string>
     <string name="start_game">Start Game</string>
     <string name="rules">Rules</string>
     
@@ -24,6 +24,12 @@
     <string name="dark_mode_on">Dark Mode On</string>
     <string name="dark_mode_off">Dark Mode Off</string>
     <string name="reset_settings">Reset Settings</string>
+    <string name="restore_game_data">Restore Game Data</string>
+    <string name="restore_game_data_confirm_title">Restore Game Data?</string>
+    <string name="restore_game_data_confirm_message">This will backup your current game data and restore the original levels from the repository. Your current data will be preserved in a backup folder. Are you sure?</string>
+    <string name="restore_game_data_success_title">Game Data Restored</string>
+    <string name="restore_game_data_success_message">Game data has been restored from the repository. Your previous data was backed up to: %s</string>
+    <string name="game_data">Game Data</string>
     <string name="close">Close</string>
     
     <!-- Common Actions -->
@@ -323,6 +329,8 @@
     <string name="available_levels">Available Levels (Not in Sequence):</string>
     <string name="add_to_sequence">Add to Sequence</string>
     <string name="remove_from_sequence">Remove from Sequence</string>
+    <string name="drag_to_reorder">Drag to reorder</string>
+    <string name="drag_to_add">Drag to add</string>
     <string name="remove_level_confirmation_title">Remove Level from Sequence?</string>
     <string name="remove_level_confirmation_message">Are you sure you want to remove "%s" from the level sequence? The level will not be deleted and can be added back later.</string>
     <string name="save_map_as_new">Save Map As New</string>
@@ -365,13 +373,13 @@
     <string name="tutorial_resources_title">Resources</string>
     <string name="tutorial_resources">You have coins to build towers and health points. Weak enemies cost 1 HP, but mighty enemies (wizards, witches, mages, demons, dragons) cost HP equal to their level. Ewhad costs all your HP!</string>
     <string name="tutorial_towers_title">Available Towers</string>
-    <string name="tutorial_towers">Spike Tower: Close range, cheap\nSpear Tower: Medium range\nBow Tower: Long range\n\nChoose wisely based on your strategy!</string>
+    <string name="tutorial_towers">Spike Tower: Close range, cheap. Spear Tower: Medium range. Bow Tower: Long range. Choose wisely based on your strategy!</string>
     <string name="tutorial_build_title">Building Towers</string>
     <string name="tutorial_build">Select a tower type from below, then click on a green build area to place it. Build your defenses!</string>
     <string name="tutorial_initial_building_title">Initial Building Phase</string>
     <string name="tutorial_initial_building">In this initial phase, towers are built instantly but cannot attack yet. Click on a tower to see its range - path tiles get green borders. Later in the game, towers will take 1-2 turns to build.</string>
     <string name="tutorial_undo_title">Undo Towers</string>
-    <string name="tutorial_undo">During this initial phase, you can undo tower placement by selecting it and selling for a full refund. After the battle starts, you can only sell towers for 75% of their value.</string>
+    <string name="tutorial_undo">During this initial phase, you can undo tower placement by selecting it and selling for a full refund. After the battle starts, you can only sell towers for 75%% of their value.</string>
     <string name="tutorial_combat_title">Start the Battle</string>
     <string name="tutorial_combat">Click the Start Battle button when ready. Your goal is to defend the Target at the end of the path - don't let enemies reach it!</string>
     <string name="tutorial_enemies_title">Enemies Incoming!</string>
@@ -383,7 +391,7 @@
     <string name="tutorial_upgrade_title">Upgrade Towers</string>
     <string name="tutorial_upgrade">Select a tower and click Upgrade to increase its stats. You'll see current damage, range, and actions per turn, plus what they'll be after upgrading. Upgrades cost coins but make towers more powerful!</string>
     <string name="tutorial_sell_title">Sell Towers</string>
-    <string name="tutorial_sell">Select a tower and click Sell to get back 75% of its total investment (cost + upgrades). Use this if you need coins or want to reposition your defense.</string>
+    <string name="tutorial_sell">Select a tower and click Sell to get back 75%% of its total investment (cost + upgrades). Use this if you need coins or want to reposition your defense.</string>
     <string name="tutorial_save_game_title">Save Your Progress</string>
     <string name="tutorial_save_game">You can save your game at any time using the Save Game button. This lets you try different strategies or continue later. To load a saved game, use the Load Game button on the world map screen.</string>
     <string name="tutorial_complete_title">Tutorial Complete!</string>
@@ -398,20 +406,36 @@
     <string name="sound_disabled">Sound Disabled</string>
     <string name="sound_volume">Sound Volume</string>
 
+    <!-- Control Pad Settings -->
+    <string name="controls">Controls</string>
+    <string name="show_control_pad">Show Control Pad</string>
+    <string name="control_pad_enabled">Control Pad Enabled</string>
+    <string name="control_pad_disabled">Control Pad Disabled</string>
+
     <!-- Dragon Info -->
     <string name="dragon_info_title">Dragon Alert!</string>
-    <string name="dragon_info_movement">The dragon alternates movement:\n• Turn 1, 3, 5...: Walks 1 tile on path\n• Turn 2, 4, 6...: Flies up to 5 tiles, can cross obstacles but must land on path</string>
+    <string name="dragon_info_movement">The dragon alternates movement: Turn 1, 3, 5...: Walks 1 tile on path. Turn 2, 4, 6...: Flies up to 5 tiles, can cross obstacles but must land on path</string>
     <string name="dragon_info_eating">Dragons devour enemies they land on (except Ewhad), gaining their health points!</string>
     <string name="dragon_info_level">Dragon level increases with health: Level = HP ÷ 500 (min. 1)</string>
     <string name="got_it">Got it!</string>
     
     <!-- Dragon Greed Info -->
     <string name="dragon_greed_title">Dragon Greed!</string>
-    <string name="dragon_greed_message">The dragon has grown greedy! Greed = Dragon Level ÷ 5\n\nThe dragon will now devour units on adjacent tiles equal to its greed level each turn.</string>
+    <string name="dragon_greed_message">The dragon has grown greedy! Greed = Dragon Level ÷ 5. The dragon will now devour units on adjacent tiles equal to its greed level each turn.</string>
     <string name="dragon_very_greedy_title">Dragon Mining Raid!</string>
-    <string name="dragon_very_greedy_message">The dragon is very greedy (greed > 5)!\n\nIt will now hunt down and destroy dwarven mines, absorbing all the health a new dragon would have (500 HP per mine).\n\nMines will become destroyed rubble. Defend them or rebuild quickly!</string>
+    <string name="dragon_very_greedy_message">The dragon is very greedy (greed > 5)! It will now hunt down and destroy dwarven mines, absorbing all the health a new dragon would have (500 HP per mine). Mines will become destroyed rubble. Defend them or rebuild quickly!</string>
     <string name="mine_warning_title">Mine Under Threat!</string>
     <string name="mine_warning_message">The dragon approaches! The dwarves prepare to defend their mine, but it may not be enough...</string>
+    
+    <!-- Enemy Info Display -->
+    <string name="greedy_label">greedy</string>
+    <string name="very_greedy_label">very greedy</string>
+    <string name="greedy_desc">Eats surrounding enemy units</string>
+    <string name="very_greedy_desc">Eats surrounding enemy units and destroys mines one after another</string>
+    <string name="greed_level_label">Greed</string>
+    <string name="dragon_info_button">What does a dragon do?</string>
+    <string name="mighty_unit_warning">Mighty unit! Deals %d HP damage if it reaches the target (level × 1 HP)</string>
+    <string name="ewhad_target_warning">BOSS! If Ewhad reaches the target, the level is lost!</string>
     
     <!-- Dragon Names -->
     <string name="the_dragon">The dragon</string>
@@ -433,10 +457,66 @@
     <string name="circular_dependency_detected">Circular dependency detected! Fix waypoint connections.</string>
     <string name="waypoint_position_format">Position (%d, %d)</string>
     <string name="spawn_point_text">Spawn Point</string>
+    <string name="spawn_point">Spawn Point</string>
+    <string name="select_spawn_point">Select spawn point</string>
+    <string name="change_spawn_point">Change Spawn Point</string>
+    <string name="select_spawn_point_for_enemy">Select the spawn point for this enemy</string>
+    <string name="no_spawn_points_available">No spawn points available on this map</string>
+    <string name="no_spawn_point_set">No spawn point set</string>
+    <string name="change">Change</string>
+    <string name="select">Select</string>
     <string name="target_text">Target</string>
+    <string name="waypoint">Waypoint</string>
     <string name="select_source_position">Select source position</string>
     <string name="select_target_position">Select target position</string>
     <string name="waypoint_exists_error">A waypoint connection from this position already exists</string>
     <string name="remove_all_waypoints">Remove All</string>
     <string name="confirm_remove_all_waypoints">Are you sure you want to remove all waypoint connections?</string>
+    <string name="click_to_connect_waypoints">Click on waypoints on the map to connect them</string>
+    <string name="select_on_map">Connect Waypoints</string>
+    <string name="show_connected">Show connected</string>
+    <string name="connect">Connect</string>
+    <string name="waypoint_chains_title">Waypoint Chains</string>
+    <string name="unconnected_waypoint_warning">Unconnected waypoint</string>
+    <string name="circular_dependency_warning">Circular dependency</string>
+    <string name="waypoint_tree_view">Tree View</string>
+    <string name="waypoint_list_view">List View</string>
+    <string name="click_source_waypoint">1. Click a source (spawn or waypoint)</string>
+    <string name="click_target_waypoint">2. Click a target (waypoint or target)</string>
+    <string name="connection_mode_active">Connection mode active</string>
+    <string name="cancel_connection">Cancel</string>
+    
+    <!-- Plurals -->
+    <plurals name="enemy_count">
+        <item quantity="one">%d enemy</item>
+        <item quantity="other">%d enemies</item>
+    </plurals>
+    <plurals name="turn_count">
+        <item quantity="one">%d turn</item>
+        <item quantity="other">%d turns</item>
+    </plurals>
+    <plurals name="coin_count">
+        <item quantity="one">%d coin</item>
+        <item quantity="other">%d coins</item>
+    </plurals>
+    <plurals name="health_point_count">
+        <item quantity="one">%d health point</item>
+        <item quantity="other">%d health points</item>
+    </plurals>
+    
+    <!-- New Repository Data Dialog -->
+    <string name="new_repository_data_title">New Content Available</string>
+    <string name="new_repository_data_message">New maps and levels have been found in the repository that are not in your game data. Would you like to add them?</string>
+    <string name="new_maps_found">%d new map(s) found:</string>
+    <string name="new_levels_found">%d new level(s) found:</string>
+    <string name="and_more">and %d more...</string>
+    <string name="sequence_will_be_replaced">The level sequence will be updated.</string>
+    <string name="sequence_backup_warning">Note: If you had changed the sequence file, you will need to redo those changes. Your current sequence will be backed up to sequence-N.json.</string>
+    <string name="add_data">Add New Content</string>
+    
+    <!-- Unsaved Changes Dialog -->
+    <string name="unsaved_changes_title">Unsaved Changes</string>
+    <string name="unsaved_changes_message">You have unsaved progress in this level. What would you like to do?</string>
+    <string name="save_and_exit">Save and Exit</string>
+    <string name="discard_changes">Discard Changes</string>
 </resources>

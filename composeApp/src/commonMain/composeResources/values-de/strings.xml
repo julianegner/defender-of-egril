@@ -2,7 +2,7 @@
 <resources>
     <!-- Main Menu -->
     <string name="app_name">Verteidiger von Egril</string>
-    <string name="app_subtitle">Verteidige die Wiesen von Egril gegen\ndie Horden von Gleid Thyae unter\nder Flagge des bösen Ewhad</string>
+    <string name="app_subtitle">Verteidige die Wiesen von Egril gegen die Horden von Gleid Thyae unter der Flagge des bösen Ewhad</string>
     <string name="start_game">Spiel starten</string>
     <string name="rules">Regeln</string>
 
@@ -24,6 +24,12 @@
     <string name="dark_mode_on">Dunkler Modus an</string>
     <string name="dark_mode_off">Dunkler Modus aus</string>
     <string name="reset_settings">Einstellungen zurücksetzen</string>
+    <string name="restore_game_data">Spieldaten wiederherstellen</string>
+    <string name="restore_game_data_confirm_title">Spieldaten wiederherstellen?</string>
+    <string name="restore_game_data_confirm_message">Dies wird Ihre aktuellen Spieldaten sichern und die ursprünglichen Level aus dem Repository wiederherstellen. Ihre aktuellen Daten werden in einem Backup-Ordner gespeichert. Sind Sie sicher?</string>
+    <string name="restore_game_data_success_title">Spieldaten wiederhergestellt</string>
+    <string name="restore_game_data_success_message">Spieldaten wurden aus dem Repository wiederhergestellt. Ihre vorherigen Daten wurden gesichert in: %s</string>
+    <string name="game_data">Spieldaten</string>
     <string name="close">Schließen</string>
     
     <!-- Common Actions -->
@@ -365,13 +371,13 @@
     <string name="tutorial_resources_title">Ressourcen</string>
     <string name="tutorial_resources">Sie haben Münzen zum Bauen von Türmen und Lebenspunkte. Schwache Feinde kosten 1 LP, aber mächtige Feinde (Zauberer, Hexen, Magier, Dämonen, Drachen) kosten LP gleich ihrer Stufe. Ewhad kostet alle LP!</string>
     <string name="tutorial_towers_title">Verfügbare Türme</string>
-    <string name="tutorial_towers">Stachelturm: Nahkampf, günstig\nSpeerturm: Mittlere Reichweite\nBogenturm: Große Reichweite\n\nWählen Sie weise basierend auf Ihrer Strategie!</string>
+    <string name="tutorial_towers">Stachelturm: Nahkampf, günstig. Speerturm: Mittlere Reichweite. Bogenturm: Große Reichweite. Wählen Sie weise basierend auf Ihrer Strategie!</string>
     <string name="tutorial_build_title">Türme bauen</string>
     <string name="tutorial_build">Wählen Sie unten einen Turmtyp und klicken Sie auf einen grünen Baubereich, um ihn zu platzieren. Bauen Sie Ihre Verteidigung auf!</string>
     <string name="tutorial_initial_building_title">Anfängliche Bauphase</string>
     <string name="tutorial_initial_building">In dieser Anfangsphase werden Türme sofort gebaut, können aber noch nicht angreifen. Klicken Sie auf einen Turm, um seine Reichweite zu sehen - Pfadfelder bekommen grüne Ränder. Später im Spiel dauert der Bau von Türmen 1-2 Runden.</string>
     <string name="tutorial_undo_title">Türme rückgängig machen</string>
-    <string name="tutorial_undo">Während dieser Anfangsphase können Sie die Turmplatzierung rückgängig machen, indem Sie ihn auswählen und für eine vollständige Rückerstattung verkaufen. Nach Beginn der Schlacht können Sie Türme nur noch für 75% ihres Wertes verkaufen.</string>
+    <string name="tutorial_undo">Während dieser Anfangsphase können Sie die Turmplatzierung rückgängig machen, indem Sie ihn auswählen und für eine vollständige Rückerstattung verkaufen. Nach Beginn der Schlacht können Sie Türme nur noch für 75%% ihres Wertes verkaufen.</string>
     <string name="tutorial_combat_title">Starten Sie die Schlacht</string>
     <string name="tutorial_combat">Klicken Sie auf die Schaltfläche Schlacht starten, wenn Sie bereit sind. Ihr Ziel ist es, das Ziel am Ende des Pfades zu verteidigen - lassen Sie keine Feinde es erreichen!</string>
     <string name="tutorial_enemies_title">Feinde im Anmarsch!</string>
@@ -383,7 +389,7 @@
     <string name="tutorial_upgrade_title">Türme aufwerten</string>
     <string name="tutorial_upgrade">Wählen Sie einen Turm und klicken Sie auf Aufwerten, um seine Werte zu erhöhen. Sie sehen aktuellen Schaden, Reichweite und Aktionen pro Runde, plus wie sie nach dem Aufwerten sein werden. Aufwertungen kosten Münzen, machen Türme aber stärker!</string>
     <string name="tutorial_sell_title">Türme verkaufen</string>
-    <string name="tutorial_sell">Wählen Sie einen Turm und klicken Sie auf Verkaufen, um 75% seiner Gesamtinvestition (Kosten + Aufwertungen) zurückzubekommen. Nutzen Sie dies, wenn Sie Münzen benötigen oder Ihre Verteidigung neu positionieren möchten.</string>
+    <string name="tutorial_sell">Wählen Sie einen Turm und klicken Sie auf Verkaufen, um 75%% seiner Gesamtinvestition (Kosten + Aufwertungen) zurückzubekommen. Nutzen Sie dies, wenn Sie Münzen benötigen oder Ihre Verteidigung neu positionieren möchten.</string>
     <string name="tutorial_save_game_title">Speichern Sie Ihren Fortschritt</string>
     <string name="tutorial_save_game">Sie können Ihr Spiel jederzeit mit der Schaltfläche Spiel speichern sichern. So können Sie verschiedene Strategien ausprobieren oder später weiterspielen. Um ein gespeichertes Spiel zu laden, verwenden Sie die Schaltfläche Spiel laden auf dem Weltkarten-Bildschirm.</string>
     <string name="tutorial_complete_title">Tutorial abgeschlossen!</string>
@@ -397,19 +403,42 @@
     <string name="sound_enabled">Sound aktiviert</string>
     <string name="sound_disabled">Sound deaktiviert</string>
     <string name="sound_volume">Lautstärke</string>
+
+    <!-- Control Pad Settings -->
+    <string name="controls">Steuerung</string>
+    <string name="show_control_pad">Steuerkreuz anzeigen</string>
+    <string name="control_pad_enabled">Steuerkreuz aktiviert</string>
+    <string name="control_pad_disabled">Steuerkreuz deaktiviert</string>
     
     <!-- Dragon Names -->
     <string name="the_dragon">Der Drache</string>
     <string name="awakens">erwacht</string>
     <string name="lair_of_the_dragon">Höhle des Drachen</string>
 
+    <!-- Dragon Info -->
+    <string name="dragon_info_title">Drachen-Alarm!</string>
+    <string name="dragon_info_movement">Der Drache wechselt seine Bewegung: Runde 1, 3, 5...: Geht 1 Feld auf Pfad. Runde 2, 4, 6...: Fliegt bis zu 5 Felder, kann Hindernisse überfliegen, muss aber auf Pfad landen</string>
+    <string name="dragon_info_eating">Drachen verschlingen Gegner, auf denen sie landen (außer Ewhad), und gewinnen deren Gesundheitspunkte!</string>
+    <string name="dragon_info_level">Drachenlevel steigt mit Gesundheit: Level = LP ÷ 500 (min. 1)</string>
+    <string name="got_it">Verstanden!</string>
+
     <!-- Dragon Greed Info -->
     <string name="dragon_greed_title">Drachengier!</string>
-    <string name="dragon_greed_message">Der Drache ist gierig geworden! Gier = Drachenlevel ÷ 5\n\nDer Drache verschlingt nun pro Runde Einheiten auf benachbarten Feldern entsprechend seiner Gierstufe.</string>
+    <string name="dragon_greed_message">Der Drache ist gierig geworden! Gier = Drachenlevel ÷ 5. Der Drache verschlingt nun pro Runde Einheiten auf benachbarten Feldern entsprechend seiner Gierstufe.</string>
     <string name="dragon_very_greedy_title">Drachen-Bergwerksüberfall!</string>
-    <string name="dragon_very_greedy_message">Der Drache ist sehr gierig (Gier > 5)!\n\nEr wird nun Zwergenmine jagen und zerstören und dabei all die Gesundheit aufnehmen, die ein neuer Drache hätte (500 LP pro Mine).\n\nMinen werden zu zerstörten Trümmern. Verteidige sie oder baue schnell wieder auf!</string>
+    <string name="dragon_very_greedy_message">Der Drache ist sehr gierig (Gier > 5)! Er wird nun Zwergenminen angreifen und zerstören und dabei all die Gesundheit aufnehmen, die ein neuer Drache hätte (500 LP pro Mine + die geschürften Münzen als LP). Minen werden zu zerstörten Trümmern. Verteidige sie oder baue schnell wieder auf!</string>
     <string name="mine_warning_title">Mine bedroht!</string>
     <string name="mine_warning_message">Der Drache nähert sich! Die Zwerge bereiten sich vor, ihre Mine zu verteidigen, aber es könnte nicht genug sein...</string>
+    
+    <!-- Enemy Info Display -->
+    <string name="greedy_label">gierig</string>
+    <string name="very_greedy_label">sehr gierig</string>
+    <string name="greedy_desc">Frisst umliegende feindliche Einheiten</string>
+    <string name="very_greedy_desc">Frisst umliegende feindliche Einheiten und zerstört nacheinander Minen</string>
+    <string name="greed_level_label">Gier</string>
+    <string name="dragon_info_button">Was macht ein Drache?</string>
+    <string name="mighty_unit_warning">Mächtige Einheit! Verursacht %d LP Schaden, wenn sie das Ziel erreicht (Stufe × 1 LP)</string>
+    <string name="ewhad_target_warning">BOSS! Wenn Ewhad das Ziel erreicht, ist die Stufe verloren!</string>
 <!-- Waypoint Editor -->
     <string name="waypoints_tab">Wegpunkte</string>
     <string name="waypoints_title">Wegpunkt-Verbindungen</string>
@@ -425,10 +454,68 @@
     <string name="circular_dependency_detected">Zirkuläre Abhängigkeit erkannt! Beheben Sie die Wegpunkt-Verbindungen.</string>
     <string name="waypoint_position_format">Position (%d, %d)</string>
     <string name="spawn_point_text">Spawn-Punkt</string>
+    <string name="spawn_point">Spawn-Punkt</string>
+    <string name="select_spawn_point">Spawn-Punkt auswählen</string>
+    <string name="change_spawn_point">Spawn-Punkt ändern</string>
+    <string name="select_spawn_point_for_enemy">Wählen Sie den Spawn-Punkt für diesen Gegner</string>
+    <string name="no_spawn_points_available">Keine Spawn-Punkte auf dieser Karte verfügbar</string>
+    <string name="no_spawn_point_set">Kein Spawn-Punkt gesetzt</string>
+    <string name="change">Ändern</string>
+    <string name="select">Auswählen</string>
     <string name="target_text">Ziel</string>
+    <string name="waypoint">Wegpunkt</string>
     <string name="select_source_position">Quellposition auswählen</string>
     <string name="select_target_position">Zielposition auswählen</string>
     <string name="waypoint_exists_error">Eine Wegpunkt-Verbindung von dieser Position existiert bereits</string>
     <string name="remove_all_waypoints">Alle entfernen</string>
     <string name="confirm_remove_all_waypoints">Sind Sie sicher, dass Sie alle Wegpunkt-Verbindungen entfernen möchten?</string>
+    <string name="click_to_connect_waypoints">Klicken Sie auf Wegpunkte auf der Karte, um sie zu verbinden</string>
+    <string name="select_on_map">Wegpunkte verbinden</string>
+    <string name="show_connected">Verbundene anzeigen</string>
+    <string name="connect">Verbinden</string>
+    <string name="waypoint_chains_title">Wegpunkt-Ketten</string>
+    <string name="unconnected_waypoint_warning">Nicht verbundener Wegpunkt</string>
+    <string name="circular_dependency_warning">Zirkuläre Abhängigkeit</string>
+    <string name="waypoint_tree_view">Baumansicht</string>
+    <string name="waypoint_list_view">Listenansicht</string>
+    <string name="click_source_waypoint">1. Klicken Sie auf eine Quelle (Spawn oder Wegpunkt)</string>
+    <string name="click_target_waypoint">2. Klicken Sie auf ein Ziel (Wegpunkt oder Ziel)</string>
+    <string name="connection_mode_active">Verbindungsmodus aktiv</string>
+    <string name="cancel_connection">Abbrechen</string>
+    <string name="drag_to_reorder">Zum Neuordnen ziehen</string>
+    <string name="drag_to_add">Zum Hinzufügen ziehen</string>
+    
+    <!-- Plurals -->
+    <plurals name="enemy_count">
+        <item quantity="one">%d Feind</item>
+        <item quantity="other">%d Feinde</item>
+    </plurals>
+    <plurals name="turn_count">
+        <item quantity="one">%d Runde</item>
+        <item quantity="other">%d Runden</item>
+    </plurals>
+    <plurals name="coin_count">
+        <item quantity="one">%d Münze</item>
+        <item quantity="other">%d Münzen</item>
+    </plurals>
+    <plurals name="health_point_count">
+        <item quantity="one">%d Lebenspunkt</item>
+        <item quantity="other">%d Lebenspunkte</item>
+    </plurals>
+    
+    <!-- New Repository Data Dialog -->
+    <string name="new_repository_data_title">Neue Inhalte verfügbar</string>
+    <string name="new_repository_data_message">Neue Karten und Level wurden im Repository gefunden, die nicht in Ihren Spieldaten vorhanden sind. Möchten Sie diese hinzufügen?</string>
+    <string name="new_maps_found">%d neue Karte(n) gefunden:</string>
+    <string name="new_levels_found">%d neue(s) Level gefunden:</string>
+    <string name="and_more">und %d weitere...</string>
+    <string name="sequence_will_be_replaced">Die Level-Reihenfolge wird aktualisiert.</string>
+    <string name="sequence_backup_warning">Hinweis: Wenn Sie die Sequenzdatei geändert haben, müssen Sie diese Änderungen erneut vornehmen. Ihre aktuelle Sequenz wird unter sequence-N.json gesichert.</string>
+    <string name="add_data">Neue Inhalte hinzufügen</string>
+    
+    <!-- Unsaved Changes Dialog -->
+    <string name="unsaved_changes_title">Nicht gespeicherte Änderungen</string>
+    <string name="unsaved_changes_message">Sie haben nicht gespeicherten Fortschritt in diesem Level. Was möchten Sie tun?</string>
+    <string name="save_and_exit">Speichern und Beenden</string>
+    <string name="discard_changes">Änderungen verwerfen</string>
 </resources>

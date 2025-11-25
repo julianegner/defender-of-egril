@@ -81,7 +81,7 @@ class MinimapLevelMappingTest {
             gridWidth = 10,
             gridHeight = 5,
             startPositions = listOf(de.egril.defender.model.Position(0, 0)),
-            targetPosition = de.egril.defender.model.Position(9, 2),
+            targetPositions = listOf(de.egril.defender.model.Position(9, 2)),
             pathCells = setOf(
                 de.egril.defender.model.Position(0, 0),
                 de.egril.defender.model.Position(1, 0),

@@ -1,5 +1,8 @@
 package de.egril.defender.model
 
+import de.egril.defender.editor.EditorLevel
+import de.egril.defender.ui.common.LevelInfoEnemiesLevelData
+
 /**
  * Represents a waypoint that enemies must pass through
  */
@@ -18,7 +21,7 @@ data class Level(
         Position(0, 4),
         Position(0, 7)
     ),
-    val targetPosition: Position = Position(gridWidth - 1, gridHeight / 2),
+    val targetPositions: List<Position> = listOf(Position(gridWidth - 1, gridHeight / 2)),
     val pathCells: Set<Position>,
     val buildIslands: Set<Position>,
     val buildAreas: Set<Position> = emptySet(),  // Explicit build areas from map
@@ -28,7 +31,8 @@ data class Level(
     val directSpawnPlan: List<PlannedEnemySpawn>? = null,  // Direct spawn plan from editor
     val availableTowers: Set<DefenderType> = DefenderType.entries.toSet(),  // Towers available in this level
     val waypoints: List<Waypoint> = emptyList(),  // Waypoints for complex pathing
-    val editorLevelId: String? = null  // ID of the editor level this was created from
+    val editorLevelId: String? = null,  // ID of the editor level this was created from
+    val mapId: String? = null  // ID of the map this level uses
 ) {
     fun isOnPath(position: Position): Boolean {
         return pathCells.contains(position)
@@ -39,8 +43,8 @@ data class Level(
     }
     
     fun isBuildArea(position: Position): Boolean {
-        // Cannot build on path itself, spawn points, or target
-        if (isSpawnPoint(position) || position == targetPosition) return false
+        // Cannot build on path itself, spawn points, or targets
+        if (isSpawnPoint(position) || targetPositions.contains(position)) return false
         if (isOnPath(position)) return false
         
         // Can build on islands
@@ -48,6 +52,10 @@ data class Level(
         
         // Can build on explicitly defined build areas
         return buildAreas.contains(position)
+    }
+    
+    fun isTargetPosition(position: Position): Boolean {
+        return targetPositions.contains(position)
     }
     
     fun isSpawnPoint(position: Position): Boolean {
@@ -148,6 +156,17 @@ data class Level(
             return PathAndIslands(path, islands)
         }
     }
+
+    fun toLevelInfoEnemiesLevelData(): LevelInfoEnemiesLevelData {
+        val enemyCounts = getEnemyTypeCounts()
+        return LevelInfoEnemiesLevelData(
+            id = "" + this.id,
+            name = this.name,
+            initialCoins = this.initialCoins,
+            healthPoints = this.healthPoints,
+            enemyTypeCounts = enemyCounts
+        )
+    }
 }
 
 data class AttackerWave(
@@ -161,7 +180,8 @@ data class AttackerWave(
 data class PlannedEnemySpawn(
     val attackerType: AttackerType,
     val spawnTurn: Int,
-    val level: Int = 1
+    val level: Int = 1,
+    val spawnPoint: Position? = null  // Fixed spawn point for this enemy (null for backward compatibility)
 ) {
     val healthPoints: Int get() = attackerType.health * level
 }

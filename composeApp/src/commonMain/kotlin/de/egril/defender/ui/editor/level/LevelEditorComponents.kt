@@ -1,6 +1,7 @@
 package de.egril.defender.ui.editor.level
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -14,7 +15,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.egril.defender.editor.EditorEnemySpawn
+import de.egril.defender.editor.EditorMap
 import de.egril.defender.model.AttackerType
+import de.egril.defender.model.Position
 import de.egril.defender.ui.*
 import de.egril.defender.ui.icon.DownArrowIcon
 import de.egril.defender.ui.icon.ReloadIcon
@@ -32,19 +35,27 @@ import defender_of_egril.composeapp.generated.resources.*
 fun AddEnemyDialog(
     ewhadCount: Int = 0,
     turn: Int,
+    map: EditorMap?,
     onDismiss: () -> Unit,
-    onAdd: (AttackerType, Int, Int) -> Unit  // Added amount parameter
+    onAdd: (AttackerType, Int, Int, Position?) -> Unit  // Added spawnPoint parameter
 ) {
     var selectedType by remember { mutableStateOf(AttackerType.GOBLIN) }
     var level by remember { mutableStateOf("1") }
     var amount by remember { mutableStateOf("1") }
+    
+    // Get available spawn points from the map
+    val spawnPoints = remember(map) { map?.getSpawnPoints() ?: emptyList() }
+    var selectedSpawnPoint by remember { mutableStateOf<Position?>(spawnPoints.firstOrNull()) }
+    
+    // State for spawn point selection dialog
+    var showSpawnPointDialog by remember { mutableStateOf(false) }
     
     // Check if trying to add Ewhad when one already exists
     val canAddEwhad = selectedType != AttackerType.EWHAD || ewhadCount == 0
     
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(stringResource(Res.string.add_enemy_to_turn).replace("%d", turn.toString())) },
+        title = { Text(stringResource(Res.string.add_enemy_to_turn, turn)) },
         text = {
             Column {
                 Text(stringResource(Res.string.enemy_type), modifier = Modifier.padding(bottom = 4.dp))
@@ -89,7 +100,26 @@ fun AddEnemyDialog(
                         modifier = Modifier.weight(1f).padding(bottom = 8.dp)
                     )
                 }
-                Text(stringResource(Res.string.hp_with_level).replace("%d", (selectedType.health * (level.toIntOrNull() ?: 1)).toString()), fontSize = 12.sp)
+                
+                // Spawn point selection button (opens dialog with minimap)
+                if (spawnPoints.isNotEmpty()) {
+                    Text(
+                        text = stringResource(Res.string.spawn_point),
+                        modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
+                    )
+                    
+                    OutlinedButton(
+                        onClick = { showSpawnPointDialog = true },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = selectedSpawnPoint?.let { "Position (${it.x}, ${it.y})" } 
+                                ?: stringResource(Res.string.select_spawn_point)
+                        )
+                    }
+                }
+                
+                Text(stringResource(Res.string.hp_with_level, selectedType.health * (level.toIntOrNull() ?: 1)), fontSize = 12.sp)
                 if (!canAddEwhad) {
                     Text(
                         text = stringResource(Res.string.ewhad_warning),
@@ -103,7 +133,7 @@ fun AddEnemyDialog(
             Button(
                 onClick = {
                     val amountValue = amount.toIntOrNull() ?: 1
-                    onAdd(selectedType, level.toIntOrNull() ?: 1, amountValue)
+                    onAdd(selectedType, level.toIntOrNull() ?: 1, amountValue, selectedSpawnPoint)
                 },
                 enabled = canAddEwhad
             ) {
@@ -115,6 +145,205 @@ fun AddEnemyDialog(
                 Text(stringResource(Res.string.cancel))
             }
         }
+    )
+    
+    // Spawn point selection dialog with minimap
+    if (showSpawnPointDialog) {
+        SelectSpawnPointDialog(
+            selectedType = selectedType,
+            level = level.toIntOrNull() ?: 1,
+            map = map,
+            currentSelection = selectedSpawnPoint,
+            onDismiss = { showSpawnPointDialog = false },
+            onSelect = { point ->
+                selectedSpawnPoint = point
+                showSpawnPointDialog = false
+            }
+        )
+    }
+}
+
+/**
+ * Dialog for selecting or changing a spawn point with minimap visualization.
+ * Can be used both when adding new enemies and when changing existing enemy spawn points.
+ */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+fun SpawnPointSelectionDialog(
+    attackerType: AttackerType,
+    level: Int,
+    healthPoints: Int = attackerType.health * level,
+    map: EditorMap?,
+    currentSelection: Position?,
+    title: String,
+    confirmButtonText: String,
+    onDismiss: () -> Unit,
+    onConfirm: (Position) -> Unit
+) {
+    val spawnPoints = remember(map) { map?.getSpawnPoints() ?: emptyList() }
+    var selectedSpawnPoint by remember { mutableStateOf(currentSelection ?: spawnPoints.firstOrNull()) }
+    
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(title)
+        },
+        text = {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                // Enemy info
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(modifier = Modifier.size(32.dp)) {
+                        EnemyIconOnHexagon(
+                            attackerType = attackerType,
+                            size = 32.dp
+                        )
+                    }
+                    Column {
+                        Text(
+                            text = "${attackerType.getLocalizedName()} Lv$level",
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                        Text(
+                            text = "${stringResource(Res.string.hp_short)}: $healthPoints",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.Gray
+                        )
+                    }
+                }
+                
+                HorizontalDivider()
+                
+                // Minimap showing spawn points
+                if (map != null && spawnPoints.isNotEmpty()) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(150.dp)
+                            .background(Color(0xCC000000))
+                            .border(2.dp, Color.White)
+                            .padding(4.dp)
+                    ) {
+                        SpawnPointMinimap(
+                            map = map,
+                            selectedSpawnPoint = selectedSpawnPoint
+                        )
+                    }
+                }
+                
+                // Instructions
+                Text(
+                    text = stringResource(Res.string.select_spawn_point_for_enemy),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                
+                // Spawn point selection chips
+                if (spawnPoints.isNotEmpty()) {
+                    Text(
+                        text = stringResource(Res.string.spawn_point),
+                        style = MaterialTheme.typography.titleSmall
+                    )
+                    
+                    FlowRow(
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        spawnPoints.forEach { point ->
+                            FilterChip(
+                                modifier = Modifier.height(32.dp),
+                                selected = selectedSpawnPoint == point,
+                                onClick = { selectedSpawnPoint = point },
+                                label = {
+                                    Text(
+                                        text = "S(${point.x},${point.y})",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                },
+                                leadingIcon = if (selectedSpawnPoint == point) {
+                                    { Text("✓", fontSize = 14.sp) }
+                                } else null
+                            )
+                        }
+                    }
+                } else {
+                    Text(
+                        text = stringResource(Res.string.no_spawn_points_available),
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    selectedSpawnPoint?.let { onConfirm(it) }
+                },
+                enabled = selectedSpawnPoint != null
+            ) {
+                Text(confirmButtonText)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(Res.string.cancel))
+            }
+        }
+    )
+}
+
+/**
+ * Convenience wrapper for selecting spawn point when adding new enemies
+ */
+@Composable
+fun SelectSpawnPointDialog(
+    selectedType: AttackerType,
+    level: Int,
+    map: EditorMap?,
+    currentSelection: Position?,
+    onDismiss: () -> Unit,
+    onSelect: (Position) -> Unit
+) {
+    SpawnPointSelectionDialog(
+        attackerType = selectedType,
+        level = level,
+        map = map,
+        currentSelection = currentSelection,
+        title = stringResource(Res.string.select_spawn_point),
+        confirmButtonText = stringResource(Res.string.select),
+        onDismiss = onDismiss,
+        onConfirm = onSelect
+    )
+}
+
+/**
+ * Convenience wrapper for changing spawn point of existing enemies
+ */
+@Composable
+fun ChangeSpawnPointDialog(
+    spawn: EditorEnemySpawn,
+    map: EditorMap?,
+    onDismiss: () -> Unit,
+    onChange: (Position) -> Unit
+) {
+    SpawnPointSelectionDialog(
+        attackerType = spawn.attackerType,
+        level = spawn.level,
+        healthPoints = spawn.healthPoints,
+        map = map,
+        currentSelection = spawn.spawnPoint,
+        title = stringResource(Res.string.change_spawn_point),
+        confirmButtonText = stringResource(Res.string.change),
+        onDismiss = onDismiss,
+        onConfirm = onChange
     )
 }
 
@@ -136,7 +365,8 @@ fun SpawnTurnSection(
     onMoveTurnDown: () -> Unit,
     canMoveUp: Boolean,
     canMoveDown: Boolean,
-    ewhadCount: Int
+    ewhadCount: Int,
+    onChangeSpawnPoint: (EditorEnemySpawn) -> Unit
 ) {
     var expanded by remember { mutableStateOf(initiallyExpanded) }
     
@@ -249,7 +479,7 @@ fun SpawnTurnSection(
                         onClick = onAddEnemy,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text(stringResource(Res.string.add_enemy_button).replace("%d", turn.toString()))
+                        Text(stringResource(Res.string.add_enemy_button, turn))
                     }
                     
                     if (spawns.isEmpty()) {
@@ -262,56 +492,93 @@ fun SpawnTurnSection(
                         )
                     } else {
                         spawns.forEach { spawn ->
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .background(Color.LightGray.copy(alpha = 0.2f))
-                                    .padding(8.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Row(
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    // Enemy icon
-                                    Box(modifier = Modifier.size(24.dp)) {
-                                        EnemyIconOnHexagon(
-                                            attackerType = spawn.attackerType,
-                                            size = 24.dp
-                                        )
-                                    }
-                                    
-                                    Column {
-                                        Text(
-                                            text = "${spawn.attackerType.displayName} Lv${spawn.level}",
-                                            fontSize = 14.sp
-                                        )
-                                        Text(
-                                            text = "${stringResource(Res.string.hp_short)}: ${spawn.healthPoints}",
-                                            fontSize = 11.sp,
-                                            color = Color.Gray
-                                        )
-                                    }
-                                }
-                                
-                                Button(
-                                    onClick = { onRemoveEnemy(spawn) },
-                                    modifier = Modifier.height(36.dp),
-                                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp)
-                                ) {
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.spacedBy(4.dp)
-                                    ) {
-                                        TrashIcon(size = 12.dp)
-                                        Text(stringResource(Res.string.remove), fontSize = 11.sp)
-                                    }
-                                }
-                            }
+                            EnemySpawnRow(
+                                spawn = spawn,
+                                onRemoveEnemy = { onRemoveEnemy(spawn) },
+                                onChangeSpawnPoint = onChangeSpawnPoint
+                            )
                         }
                     }
                 }
+            }
+        }
+    }
+}
+
+/**
+ * Row displaying a single enemy spawn with its information and actions
+ */
+@Composable
+private fun EnemySpawnRow(
+    spawn: EditorEnemySpawn,
+    onRemoveEnemy: () -> Unit,
+    onChangeSpawnPoint: (EditorEnemySpawn) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color.LightGray.copy(alpha = 0.2f))
+            .padding(8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.weight(1f)
+        ) {
+            // Enemy icon
+            Box(modifier = Modifier.size(24.dp)) {
+                EnemyIconOnHexagon(
+                    attackerType = spawn.attackerType,
+                    size = 24.dp
+                )
+            }
+            
+            // Enemy info in horizontal layout
+            Text(
+                text = "${spawn.attackerType.displayName} Lv${spawn.level}",
+                fontSize = 14.sp
+            )
+            Text(
+                text = "${stringResource(Res.string.hp_short)}: ${spawn.healthPoints}",
+                fontSize = 11.sp,
+                color = Color.Gray
+            )
+            
+            // Display spawn point - always show it
+            val spawnPointText = spawn.spawnPoint?.let { spawnPoint ->
+                "${stringResource(Res.string.spawn_point)}: (${spawnPoint.x}, ${spawnPoint.y})"
+            } ?: stringResource(Res.string.no_spawn_point_set)
+            Text(
+                text = spawnPointText,
+                fontSize = 10.sp,
+                color = if (spawn.spawnPoint != null) MaterialTheme.colorScheme.primary else Color.Gray,
+                fontWeight = if (spawn.spawnPoint != null) FontWeight.SemiBold else FontWeight.Normal
+            )
+            
+            // Change spawn point button - right after spawn point info
+            Button(
+                onClick = { onChangeSpawnPoint(spawn) },
+                modifier = Modifier.height(28.dp),
+                contentPadding = PaddingValues(horizontal = 6.dp, vertical = 0.dp)
+            ) {
+                Text("📍", fontSize = 10.sp)
+            }
+        }
+        
+        // Remove button on the far right
+        Button(
+            onClick = onRemoveEnemy,
+            modifier = Modifier.height(36.dp),
+            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                TrashIcon(size = 12.dp)
+                Text(stringResource(Res.string.remove), fontSize = 11.sp)
             }
         }
     }

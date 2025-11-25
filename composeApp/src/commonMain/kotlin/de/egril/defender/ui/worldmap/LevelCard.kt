@@ -10,18 +10,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import de.egril.defender.model.AttackerType
 import de.egril.defender.model.LevelStatus
 import de.egril.defender.model.WorldLevel
-import de.egril.defender.model.getEnemyTypeCounts
 import de.egril.defender.ui.*
 import de.egril.defender.ui.icon.CheckmarkIcon
-import de.egril.defender.ui.icon.HeartIcon
 import de.egril.defender.ui.icon.LockIcon
-import de.egril.defender.ui.icon.MoneyIcon
 import de.egril.defender.ui.icon.SwordIcon
-import de.egril.defender.ui.icon.enemy.EnemyTypeIcon
 import com.hyperether.resources.stringResource
+import de.egril.defender.ui.common.LevelInfoEnemiesColumn
 import defender_of_egril.composeapp.generated.resources.*
 import defender_of_egril.composeapp.generated.resources.Res
 
@@ -48,10 +44,6 @@ fun LevelCard(
         LevelStatus.WON -> stringResource(Res.string.completed)
     }
     
-    // Get enemy counts for this level
-    val enemyCounts = worldLevel.level.getEnemyTypeCounts()
-    val enemyList = enemyCounts.entries.toList()
-    
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -63,88 +55,7 @@ fun LevelCard(
             modifier = Modifier.fillMaxSize().padding(12.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // Left column: Level info, coins, health, and enemies
-            Column(
-                modifier = Modifier.weight(2f).fillMaxHeight(),
-                verticalArrangement = Arrangement.Top
-            ) {
-                Row {
-                    // Header: level number and name
-                    Column {
-                        Text(
-                            text = "Level ${worldLevel.level.id}",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = textColor,
-                            fontSize = 18.sp
-                        )
-
-                        Text(
-                            text = worldLevel.level.name,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = textColor,
-                            textAlign = TextAlign.Start,
-                            modifier = Modifier.fillMaxWidth(),
-                            fontSize = 14.sp
-                        )
-
-                        Spacer(modifier = Modifier.height(4.dp))
-
-                        // Coins and Health display
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(12.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                MoneyIcon(size = 12.dp)
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Text(
-                                    text = "${worldLevel.level.initialCoins}",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = textColor,
-                                    fontSize = 12.sp
-                                )
-                            }
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                HeartIcon(size = 12.dp)
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Text(
-                                    text = "${worldLevel.level.healthPoints}",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = textColor,
-                                    fontSize = 12.sp
-                                )
-                            }
-                        }
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-                Row {
-                    // Enemy units display
-                    if (enemyList.isNotEmpty()) {
-                        Column(
-                            modifier = Modifier.weight(1f),
-                            verticalArrangement = Arrangement.spacedBy(4.dp)
-                        ) {
-                            enemyList.forEachIndexed { index, (attackerType, count) ->
-                                if (index % 2 == 0) {
-                                    EnemyUnitEntry(attackerType, count, textColor)
-                                }
-                            }
-                        }
-                        Column(
-                            modifier = Modifier.weight(1f),
-                            verticalArrangement = Arrangement.spacedBy(4.dp)
-                        ) {
-                            enemyList.forEachIndexed { index, (attackerType, count) ->
-                                if (index % 2 == 1) {
-                                    EnemyUnitEntry(attackerType, count, textColor)
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            LevelInfoEnemiesColumn(worldLevel.level.toLevelInfoEnemiesLevelData(), textColor)
 
             // Right column: Minimap and status
             Column(
@@ -205,29 +116,5 @@ fun LevelCard(
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun EnemyUnitEntry(attackerType: AttackerType, count: Int, textColor: Color) {
-    val locale = com.hyperether.resources.currentLanguage.value
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Start
-    ) {
-        Box(
-            modifier = Modifier.size(24.dp)
-        ) {
-            EnemyTypeIcon(attackerType = attackerType)
-        }
-
-        Spacer(modifier = Modifier.width(4.dp))
-
-        Text(
-            text = "${attackerType.getLocalizedName(locale)}: ${count}",
-            style = MaterialTheme.typography.bodySmall,
-            color = textColor,
-            fontSize = 11.sp
-        )
     }
 }
