@@ -871,6 +871,11 @@ object EditorStorage {
             }.toSet()
         ))
         
+        // Create "The Rush" map - 20x20 with 8 spawn points
+        val rushMap = MapGenerator.createRushMap()
+        val validatedRushMap = rushMap.copy(readyToUse = rushMap.validateReadyToUse())
+        saveMap(validatedRushMap)
+        
         // Level 9: The Dance
         // Create waypoints for circular dancing pattern
         // Three circles: outer (radius 18), middle (radius 10), inner (radius 6) -> center
@@ -942,9 +947,61 @@ object EditorStorage {
             waypoints = danceWaypoints
         ))
         
+        // Level 10: The Rush
+        // First 5 spawn turns: orks and ogres from upper spawn points
+        // Next 5 spawn turns: goblins from center spawn points
+        val rushSpawns = mutableListOf<EditorEnemySpawn>()
+        
+        // Upper spawn points (indices 0-3)
+        val upperSpawns = listOf(
+            Position(3, 2),
+            Position(7, 2),
+            Position(12, 2),
+            Position(16, 2)
+        )
+        
+        // Center spawn points (indices 4-7)
+        val centerSpawns = listOf(
+            Position(3, 10),
+            Position(7, 10),
+            Position(12, 10),
+            Position(16, 10)
+        )
+        
+        // First 5 turns: spawn orks and ogres from upper spawn points
+        // 4 enemies per turn (one from each upper spawn point)
+        for (turn in 1..5) {
+            upperSpawns.forEach { spawnPoint ->
+                // Alternate between ork and ogre
+                val enemyType = if (turn % 2 == 1) AttackerType.ORK else AttackerType.OGRE
+                rushSpawns.add(EditorEnemySpawn(enemyType, 1, turn, spawnPoint))
+            }
+        }
+        
+        // Next 5 turns: spawn goblins from center spawn points
+        // 4 enemies per turn (one from each center spawn point)
+        for (turn in 6..10) {
+            centerSpawns.forEach { spawnPoint ->
+                rushSpawns.add(EditorEnemySpawn(AttackerType.GOBLIN, 1, turn, spawnPoint))
+            }
+        }
+        
+        saveLevel(EditorLevel(
+            id = "the_rush",
+            mapId = "map_the_rush",
+            title = "The Rush",
+            subtitle = "Defend Against the Rush",
+            startCoins = 180,
+            startHealthPoints = 10,
+            enemySpawns = rushSpawns,
+            availableTowers = DefenderType.entries.filter { 
+                it != DefenderType.DRAGONS_LAIR 
+            }.toSet()
+        ))
+        
         // Set initial level sequence (tutorial first, then spiral, plains, and dance before final stand!)
         updateLevelSequence(LevelSequence(listOf(
-            "welcome_to_defender_of_egril", "the_first_wave", "mixed_forces", "the_ork_invasion", "dark_magic_rises", "the_spiral_challenge", "the_plains", "the_dance", "the_final_stand", "ewhads_challenge"
+            "welcome_to_defender_of_egril", "the_first_wave", "mixed_forces", "the_ork_invasion", "dark_magic_rises", "the_spiral_challenge", "the_plains", "the_dance", "the_rush", "the_final_stand", "ewhads_challenge"
         )))
         
         // Save version file to indicate successful initialization

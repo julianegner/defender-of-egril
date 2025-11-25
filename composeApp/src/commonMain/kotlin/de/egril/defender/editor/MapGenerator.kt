@@ -426,4 +426,83 @@ object MapGenerator {
         
         return path
     }
+    
+    /**
+     * Create "The Rush" map with:
+     * - 20x20 size
+     * - 4 spawn points on the upper end (y=0-5)
+     * - 4 spawn points in the vertical center (y=9-11)
+     * - Target(s) on the lower end
+     * - Single buildable tiles in a regular pattern
+     * - Path connecting all spawn points to target(s)
+     */
+    fun createRushMap(
+        id: String = "map_the_rush",
+        name: String = "The Rush",
+        size: Int = 20
+    ): EditorMap {
+        val tiles = mutableMapOf<String, TileType>()
+        
+        // Set 4 spawn points on the upper end (y around 2-3)
+        val upperSpawnPoints = listOf(
+            Position(3, 2),
+            Position(7, 2),
+            Position(12, 2),
+            Position(16, 2)
+        )
+        
+        // Set 4 spawn points in the vertical center (y around 10)
+        val centerSpawnPoints = listOf(
+            Position(3, 10),
+            Position(7, 10),
+            Position(12, 10),
+            Position(16, 10)
+        )
+        
+        // Mark spawn points
+        (upperSpawnPoints + centerSpawnPoints).forEach { spawn ->
+            tiles["${spawn.x},${spawn.y}"] = TileType.SPAWN_POINT
+        }
+        
+        // Set target on the lower end
+        val target = Position(10, 18)
+        tiles["${target.x},${target.y}"] = TileType.TARGET
+        
+        // Create paths from all spawn points to target
+        val allPaths = mutableSetOf<Position>()
+        (upperSpawnPoints + centerSpawnPoints).forEach { spawn ->
+            allPaths.addAll(createPathBetween(spawn, target, size))
+        }
+        
+        // Mark path tiles
+        allPaths.forEach { pos ->
+            val key = "${pos.x},${pos.y}"
+            if (!tiles.containsKey(key)) {
+                tiles[key] = TileType.PATH
+            }
+        }
+        
+        // Create single buildable tiles in a regular pattern
+        // Pattern: every 3rd tile in both x and y that's not already occupied
+        for (x in 0 until size) {
+            for (y in 0 until size) {
+                val key = "$x,$y"
+                if (tiles.containsKey(key)) continue
+                
+                // Regular pattern: buildable every 3 tiles in a grid pattern
+                if (x % 3 == 1 && y % 3 == 1) {
+                    tiles[key] = TileType.BUILD_AREA
+                }
+            }
+        }
+        
+        return EditorMap(
+            id = id,
+            name = name,
+            width = size,
+            height = size,
+            tiles = tiles,
+            readyToUse = false
+        )
+    }
 }
