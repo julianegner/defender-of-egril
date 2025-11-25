@@ -160,6 +160,10 @@ fun WaypointsTab(
                                     selectedSource != null && isValidTarget && selectedSource != clickedPos -> {
                                         // Create waypoint from source to target
                                         val newWaypoint = EditorWaypoint(selectedSource!!, clickedPos)
+                                        println("=== CREATING WAYPOINT ===")
+                                        println("Source: $selectedSource, Target: $clickedPos")
+                                        println("Current waypoints before: ${waypoints.map { "(${it.position.x},${it.position.y})->(${it.nextTargetPosition.x},${it.nextTargetPosition.y})" }}")
+                                        
                                         // Always create a fresh mutable list to ensure state updates trigger recomposition
                                         val currentWaypoints = waypoints.toList() // Create immutable copy first
                                         val newWaypoints = currentWaypoints.toMutableList()
@@ -167,10 +171,14 @@ fun WaypointsTab(
                                         // Check if waypoint already exists at this position and replace it
                                         val existingIndex = newWaypoints.indexOfFirst { it.position == selectedSource }
                                         if (existingIndex >= 0) {
+                                            println("Replacing existing waypoint at index $existingIndex")
                                             newWaypoints[existingIndex] = newWaypoint
                                         } else {
+                                            println("Adding new waypoint (no existing waypoint at position $selectedSource)")
                                             newWaypoints.add(newWaypoint)
                                         }
+                                        
+                                        println("New waypoints after: ${newWaypoints.map { "(${it.position.x},${it.position.y})->(${it.nextTargetPosition.x},${it.nextTargetPosition.y})" }}")
                                         
                                         onWaypointsChange(newWaypoints)
                                         // Set the clicked position as the new source for chaining
