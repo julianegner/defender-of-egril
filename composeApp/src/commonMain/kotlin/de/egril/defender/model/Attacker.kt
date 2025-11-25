@@ -16,19 +16,19 @@ enum class AttackerType(
     val isBoss: Boolean = false,
     val isDragon: Boolean = false
 ) {
-    GOBLIN("Goblin", health = 20, speed = 2, reward = 5),
-    ORK("Ork", health = 40, speed = 1, reward = 10),
+    GOBLIN("Goblin", health = 20, speed = 5, reward = 5),
+    ORK("Ork", health = 40, speed = 2, reward = 10),
     OGRE("Ogre", health = 80, speed = 1, reward = 20),
-    SKELETON("Skeleton", health = 15, speed = 2, reward = 7),
-    EVIL_WIZARD("Evil Wizard", health = 30, speed = 1, reward = 15),
-    WITCH("Witch", health = 25, speed = 2, reward = 12),
-    BLUE_DEMON("Blue Demon", health = 15, speed = 3, reward = 10, immuneToAcid = true),
+    SKELETON("Skeleton", health = 15, speed = 5, reward = 7),
+    EVIL_WIZARD("Evil Wizard", health = 30, speed = 2, reward = 15),
+    WITCH("Witch", health = 25, speed = 4, reward = 12),
+    BLUE_DEMON("Blue Demon", health = 15, speed = 6, reward = 10, immuneToAcid = true),
     RED_DEMON("Red Demon", health = 60, speed = 1, reward = 15, immuneToFireball = true),
-    EVIL_MAGE("Evil Mage", health = 40, speed = 1, reward = 20, canSummon = true),
-    RED_WITCH("Red Witch", health = 30, speed = 2, reward = 18, canDisableTowers = true),
-    GREEN_WITCH("Green Witch", health = 25, speed = 2, reward = 15, canHeal = true),
+    EVIL_MAGE("Evil Mage", health = 40, speed = 2, reward = 20, canSummon = true),
+    RED_WITCH("Red Witch", health = 30, speed = 5, reward = 18, canDisableTowers = true),
+    GREEN_WITCH("Green Witch", health = 25, speed = 5, reward = 15, canHeal = true),
     EWHAD("Ewhad", health = 200, speed = 1, reward = 100, canSummon = true, isBoss = true),
-    DRAGON("Dragon", health = 500, speed = 1, reward = 0, isDragon = true, isBoss = true)  // Speed will be overridden: 1 on turn 1, 5 on turn 2+
+    DRAGON("Dragon", health = 500, speed = 2, reward = 0, isDragon = true, isBoss = true)  // Speed will be overridden: 2 on turn 1, 10 on turn 2+
 }
 
 data class Attacker(
