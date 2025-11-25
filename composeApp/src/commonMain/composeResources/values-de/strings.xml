@@ -320,6 +320,8 @@
     <string name="turn_x">Runde %d</string>
     <string name="x_enemies">(%d Gegner)</string>
     <string name="enemy_level">Gegner-Level</string>
+    <string name="change_enemy_level">Gegner-Level ändern</string>
+    <string name="new_level">Neues Level</string>
     <string name="enemy_type">Gegnertyp:</string>
     <string name="add_enemy_to_turn">Gegner zu Runde %d hinzufügen</string>
     <string name="ewhad_warning">⚠️ Ewhad kann nur einmal pro Level erscheinen!</string>
