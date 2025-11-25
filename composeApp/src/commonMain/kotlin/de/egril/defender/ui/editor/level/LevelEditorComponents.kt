@@ -348,6 +348,89 @@ fun ChangeSpawnPointDialog(
 }
 
 /**
+ * Dialog for changing the level of an existing enemy spawn
+ */
+@Composable
+fun ChangeLevelDialog(
+    spawn: EditorEnemySpawn,
+    onDismiss: () -> Unit,
+    onChange: (Int) -> Unit
+) {
+    var newLevel by remember { mutableStateOf(spawn.level.toString()) }
+    
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(Res.string.change_enemy_level)) },
+        text = {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                // Enemy info
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(modifier = Modifier.size(32.dp)) {
+                        EnemyIconOnHexagon(
+                            attackerType = spawn.attackerType,
+                            size = 32.dp
+                        )
+                    }
+                    Column {
+                        Text(
+                            text = spawn.attackerType.getLocalizedName(),
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                        Text(
+                            text = "${stringResource(Res.string.level)}: ${spawn.level}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.Gray
+                        )
+                    }
+                }
+                
+                HorizontalDivider()
+                
+                // New level input
+                OutlinedTextField(
+                    value = newLevel,
+                    onValueChange = { if (it.all { c -> c.isDigit() } || it.isEmpty()) newLevel = it },
+                    label = { Text(stringResource(Res.string.new_level)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
+                )
+                
+                // Show new HP calculation
+                val newLevelValue = newLevel.toIntOrNull() ?: spawn.level
+                Text(
+                    text = stringResource(Res.string.hp_with_level, spawn.attackerType.health * newLevelValue),
+                    fontSize = 12.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    val levelValue = newLevel.toIntOrNull()
+                    if (levelValue != null && levelValue > 0) {
+                        onChange(levelValue)
+                    }
+                },
+                enabled = newLevel.toIntOrNull()?.let { it > 0 } == true
+            ) {
+                Text(stringResource(Res.string.change))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(Res.string.cancel))
+            }
+        }
+    )
+}
+
+/**
  * Collapsible section showing enemies spawning in a specific turn
  */
 @Composable
@@ -366,7 +449,8 @@ fun SpawnTurnSection(
     canMoveUp: Boolean,
     canMoveDown: Boolean,
     ewhadCount: Int,
-    onChangeSpawnPoint: (EditorEnemySpawn) -> Unit
+    onChangeSpawnPoint: (EditorEnemySpawn) -> Unit,
+    onChangeLevel: (EditorEnemySpawn) -> Unit
 ) {
     var expanded by remember { mutableStateOf(initiallyExpanded) }
     
@@ -495,7 +579,8 @@ fun SpawnTurnSection(
                             EnemySpawnRow(
                                 spawn = spawn,
                                 onRemoveEnemy = { onRemoveEnemy(spawn) },
-                                onChangeSpawnPoint = onChangeSpawnPoint
+                                onChangeSpawnPoint = onChangeSpawnPoint,
+                                onChangeLevel = onChangeLevel
                             )
                         }
                     }
@@ -512,7 +597,8 @@ fun SpawnTurnSection(
 private fun EnemySpawnRow(
     spawn: EditorEnemySpawn,
     onRemoveEnemy: () -> Unit,
-    onChangeSpawnPoint: (EditorEnemySpawn) -> Unit
+    onChangeSpawnPoint: (EditorEnemySpawn) -> Unit,
+    onChangeLevel: (EditorEnemySpawn) -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -564,6 +650,15 @@ private fun EnemySpawnRow(
                 contentPadding = PaddingValues(horizontal = 6.dp, vertical = 0.dp)
             ) {
                 Text("📍", fontSize = 10.sp)
+            }
+            
+            // Change level button
+            Button(
+                onClick = { onChangeLevel(spawn) },
+                modifier = Modifier.height(28.dp),
+                contentPadding = PaddingValues(horizontal = 6.dp, vertical = 0.dp)
+            ) {
+                Text("Lv", fontSize = 10.sp)
             }
         }
         

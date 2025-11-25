@@ -320,6 +320,8 @@
     <string name="turn_x">Tour %d</string>
     <string name="x_enemies">(%d ennemis)</string>
     <string name="enemy_level">Niveau d\'ennemi</string>
+    <string name="change_enemy_level">Modifier le niveau d\'ennemi</string>
+    <string name="new_level">Nouveau niveau</string>
     <string name="enemy_type">Type d\'ennemi:</string>
     <string name="add_enemy_to_turn">Ajouter un ennemi au tour %d</string>
     <string name="ewhad_warning">⚠️ Ewhad ne peut apparaître qu\'une fois par niveau!</string>

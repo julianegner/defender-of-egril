@@ -320,6 +320,8 @@
     <string name="turn_x">Turn %d</string>
     <string name="x_enemies">(%d enemies)</string>
     <string name="enemy_level">Enemy Level</string>
+    <string name="change_enemy_level">Change Enemy Level</string>
+    <string name="new_level">New Level</string>
     <string name="enemy_type">Enemy Type:</string>
     <string name="add_enemy_to_turn">Add Enemy to Turn %d</string>
     <string name="ewhad_warning">⚠️ Ewhad can only be spawned once per level!</string>
