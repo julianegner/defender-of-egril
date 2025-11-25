@@ -511,4 +511,10 @@
     <string name="sequence_will_be_replaced">The level sequence will be updated.</string>
     <string name="sequence_backup_warning">Note: If you had changed the sequence file, you will need to redo those changes. Your current sequence will be backed up to sequence-N.json.</string>
     <string name="add_data">Add New Content</string>
+    
+    <!-- Unsaved Changes Dialog -->
+    <string name="unsaved_changes_title">Unsaved Changes</string>
+    <string name="unsaved_changes_message">You have unsaved progress in this level. What would you like to do?</string>
+    <string name="save_and_exit">Save and Exit</string>
+    <string name="discard_changes">Discard Changes</string>
 </resources>

@@ -510,4 +510,10 @@
     <string name="sequence_will_be_replaced">La séquence de niveaux sera mise à jour.</string>
     <string name="sequence_backup_warning">Remarque : Si vous avez modifié le fichier de séquence, vous devrez refaire ces modifications. Votre séquence actuelle sera sauvegardée dans sequence-N.json.</string>
     <string name="add_data">Ajouter du nouveau contenu</string>
+    
+    <!-- Unsaved Changes Dialog -->
+    <string name="unsaved_changes_title">Modifications non enregistrées</string>
+    <string name="unsaved_changes_message">Vous avez des progrès non enregistrés dans ce niveau. Que souhaitez-vous faire ?</string>
+    <string name="save_and_exit">Enregistrer et Quitter</string>
+    <string name="discard_changes">Ignorer les Modifications</string>
 </resources>
