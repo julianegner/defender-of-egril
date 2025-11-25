@@ -269,6 +269,11 @@ data class EditorLevel(
         targetPositions: List<Position>,
         spawnPoints: List<Position>
     ): WaypointValidationResult {
+        // If there are multiple targets, waypoints are required
+        if (targetPositions.size > 1 && waypoints.isEmpty()) {
+            return WaypointValidationResult(isValid = false)
+        }
+        
         if (waypoints.isEmpty()) {
             return WaypointValidationResult(isValid = true)
         }
