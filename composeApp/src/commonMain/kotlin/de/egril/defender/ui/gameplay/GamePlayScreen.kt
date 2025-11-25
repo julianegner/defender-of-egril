@@ -172,6 +172,21 @@ private fun GamePlayScreenContent(
             gameState.infoState.value = infoState.showInfo(InfoType.MINE_WARNING, mineId)
         }
     }
+    
+    // Check for 1 HP warning at the start of the level
+    LaunchedEffect(gameState.level.healthPoints) {
+        val infoState = gameState.infoState.value
+        
+        // Skip if already showing an info or already seen
+        if (infoState.currentInfo != InfoType.NONE || infoState.hasSeen(InfoType.ONE_HP_WARNING)) {
+            return@LaunchedEffect
+        }
+        
+        // Show warning if level starts with only 1 HP
+        if (gameState.level.healthPoints == 1) {
+            gameState.infoState.value = infoState.showInfo(InfoType.ONE_HP_WARNING)
+        }
+    }
 
     // Mine action handler
     val handleMineAction: (Int, MineAction) -> Unit = { mineId, action ->

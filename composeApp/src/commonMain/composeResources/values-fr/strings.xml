@@ -431,6 +431,8 @@
     <string name="dragon_very_greedy_message">Le dragon est très avide (avidité > 5) ! Il va maintenant traquer et détruire les mines naines, absorbant toute la santé qu\'aurait un nouveau dragon (500 PV par mine). Les mines deviendront des décombres détruits. Défendez-les ou reconstruisez rapidement !</string>
     <string name="mine_warning_title">Mine Menacée !</string>
     <string name="mine_warning_message">Le dragon approche ! Les nains se préparent à défendre leur mine, mais cela pourrait ne pas suffire...</string>
+    <string name="one_hp_warning_title">Avertissement Critique !</string>
+    <string name="one_hp_warning_message">Vous n\'avez qu\'1 point de vie ! Pas un seul ennemi ne peut atteindre la cible, sinon vous perdrez. Défendez avec une extrême prudence !</string>
     
     <!-- Enemy Info Display -->
     <string name="greedy_label">avide</string>
