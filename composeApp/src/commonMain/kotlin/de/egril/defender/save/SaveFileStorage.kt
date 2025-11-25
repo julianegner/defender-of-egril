@@ -29,6 +29,9 @@ object SaveFileStorage {
     fun saveWorldMapStatus(worldLevels: List<WorldLevel>) {
         val statusMap = worldLevels.mapNotNull { worldLevel ->
             // Only save levels that have an editorLevelId
+            if (worldLevel.level.editorLevelId == null) {
+                println("WARNING: Skipping level ${worldLevel.level.id} (${worldLevel.level.name}) - no editorLevelId")
+            }
             worldLevel.level.editorLevelId?.let { editorLevelId ->
                 editorLevelId to worldLevel.status
             }
