@@ -175,7 +175,6 @@ class MapValidationTest {
         val pathCells = spiralMap.getPathCells().toMutableSet()
         pathCells.addAll(spawnPoints)
         pathCells.add(target)
-        pathCells.addAll(spiralMap.getWaypoints())
         
         // Check each spawn point individually to provide detailed diagnostics
         val unreachableSpawns = mutableListOf<Position>()
@@ -224,28 +223,25 @@ class MapValidationTest {
     }
     
     @Test
-    fun testMapWithWaypointsButDisconnectedSpawnIsInvalid() {
-        // Create a map where waypoints exist but one spawn point cannot reach them
+    fun testMapWithPathButDisconnectedSpawnIsInvalid() {
+        // Create a map where paths exist but one spawn point cannot reach them
         val tiles = mutableMapOf<String, TileType>()
         
         // 15x15 map with spawn points in corners and target in center
-        tiles["0,0"] = TileType.SPAWN_POINT   // Connected via waypoint
+        tiles["0,0"] = TileType.SPAWN_POINT   // Connected via path
         tiles["14,0"] = TileType.SPAWN_POINT  // NOT connected (isolated)
         tiles["7,7"] = TileType.TARGET
         
-        // Waypoint in the middle left area
-        tiles["3,7"] = TileType.WAYPOINT
-        
-        // Create path from top-left corner to waypoint to center
+        // Create path from top-left corner to center
         for (i in 0..7) {
             tiles["$i,7"] = TileType.PATH
         }
         
-        // Note: Top-right corner (14,0) has NO path to the waypoint or target
+        // Note: Top-right corner (14,0) has NO path to the target
         
         val map = EditorMap(
-            id = "test_waypoint_disconnected",
-            name = "Test Waypoint with Disconnected Spawn",
+            id = "test_path_disconnected",
+            name = "Test Path with Disconnected Spawn",
             width = 15,
             height = 15,
             tiles = tiles,
@@ -253,6 +249,6 @@ class MapValidationTest {
         )
         
         assertFalse(map.validateReadyToUse(), 
-            "Map with waypoint but disconnected spawn point should be invalid")
+            "Map with path but disconnected spawn point should be invalid")
     }
 }

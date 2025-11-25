@@ -1,12 +1,16 @@
 package de.egril.defender.ui.editor.level.waypoint
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -23,28 +27,25 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
 import de.egril.defender.editor.EditorLevel
 import de.egril.defender.editor.EditorMap
 import de.egril.defender.editor.EditorWaypoint
+import de.egril.defender.editor.TileType
 import de.egril.defender.editor.WaypointValidationResult
 import de.egril.defender.model.Position
 import de.egril.defender.ui.editor.ConfirmationDialog
-import de.egril.defender.ui.icon.MapIcon
 import de.egril.defender.ui.icon.WarningIcon
+import de.egril.defender.ui.settings.AppSettings
 import defender_of_egril.composeapp.generated.resources.Res
-import defender_of_egril.composeapp.generated.resources.add_waypoint
-import defender_of_egril.composeapp.generated.resources.available_waypoint_tiles
 import defender_of_egril.composeapp.generated.resources.circular_dependency_detected
 import defender_of_egril.composeapp.generated.resources.confirm_remove_all_waypoints
 import defender_of_egril.composeapp.generated.resources.no_waypoints_configured
 import defender_of_egril.composeapp.generated.resources.remove_all_waypoints
-import defender_of_egril.composeapp.generated.resources.select_on_map
 import defender_of_egril.composeapp.generated.resources.unconnected_waypoint_warning
 import defender_of_egril.composeapp.generated.resources.waypoint_list_view
-import defender_of_egril.composeapp.generated.resources.waypoint_source
-import defender_of_egril.composeapp.generated.resources.waypoint_target
 import defender_of_egril.composeapp.generated.resources.waypoint_tree_view
 import defender_of_egril.composeapp.generated.resources.waypoint_validation_error
 import defender_of_egril.composeapp.generated.resources.waypoint_validation_success
@@ -52,27 +53,38 @@ import defender_of_egril.composeapp.generated.resources.waypoints_description
 
 /**
  * Tab 4: Waypoints Configuration
+ * Redesigned to include map directly on the page with click-based waypoint creation
  */
 @Composable
 fun WaypointsTab(
-    waypoints: MutableList<EditorWaypoint>,
-    onWaypointsChange: (MutableList<EditorWaypoint>) -> Unit,
+    waypoints: List<EditorWaypoint>,
+    onWaypointsChange: (List<EditorWaypoint>) -> Unit,
     map: EditorMap?,
     isValid: Boolean
 ) {
-    var showAddDialog by remember { mutableStateOf(false) }
-    var showQuickAddDialog by remember { mutableStateOf(false) }
-    var preselectedSource by remember { mutableStateOf<Position?>(null) }
     var showRemoveAllDialog by remember { mutableStateOf(false) }
     var showTreeView by remember { mutableStateOf(true) }  // Default to tree view
+    var selectedSource by remember { mutableStateOf<Position?>(null) }
+    var hoveredPosition by remember { mutableStateOf<Position?>(null) }
+    
+    // Local state to track current waypoints for immediate updates within this component
+    // This ensures onClick handler sees updates immediately, not after recomposition
+    var localWaypoints by remember(waypoints) { mutableStateOf(waypoints.toList()) }
+    
+    val isDarkMode = AppSettings.isDarkMode.value
 
-    // Get waypoint tiles, spawn points, and targets from the map
-    val waypointTiles = remember(map) { map?.getWaypoints() ?: emptyList() }
+    // Get path tiles, spawn points, and targets from the map
+    val pathTiles = remember(map) { map?.getPathCells()?.toList() ?: emptyList() }
     val spawnPoints = remember(map) { map?.getSpawnPoints() ?: emptyList() }
     val targets = remember(map) { map?.getTargets() ?: emptyList() }
+    
+    // Extract existing waypoint positions from the waypoints list
+    val existingWaypointPositions = remember(localWaypoints) {
+        localWaypoints.map { it.position }.toSet().toList()
+    }
 
     // Perform detailed validation
-    val validationResult = remember(waypoints, targets, spawnPoints) {
+    val validationResult = remember(localWaypoints, targets, spawnPoints) {
         if (targets.isNotEmpty()) {
             // Create a temporary EditorLevel to use validation
             val tempLevel = EditorLevel(
@@ -83,12 +95,22 @@ fun WaypointsTab(
                 startHealthPoints = 0,
                 enemySpawns = emptyList(),
                 availableTowers = emptySet(),
-                waypoints = waypoints.toList()
+                waypoints = localWaypoints
             )
             tempLevel.validateWaypointsDetailed(targets, spawnPoints)
         } else {
             WaypointValidationResult(isValid = true)
         }
+    }
+    
+    // Valid sources: spawn points + existing waypoint positions
+    val validSources = remember(spawnPoints, existingWaypointPositions) {
+        (spawnPoints + existingWaypointPositions).distinct()
+    }
+    
+    // Valid targets: path tiles + existing waypoint positions + targets
+    val validTargets = remember(pathTiles, existingWaypointPositions, targets) {
+        (pathTiles + existingWaypointPositions + targets).distinct()
     }
 
     LazyColumn(
@@ -105,13 +127,158 @@ fun WaypointsTab(
             )
         }
 
-        // Available waypoint tiles info
-        item {
-            Text(
-                text = stringResource(Res.string.available_waypoint_tiles, waypointTiles.size),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+        // Minimap section with legend
+        if (map != null) {
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    // Minimap
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(400.dp)  // Larger map as requested
+                            .background(Color(0xCC000000))
+                            .border(2.dp, Color.White)
+                            .padding(4.dp)
+                    ) {
+                        WaypointMinimap(
+                            map = map,
+                            selectedSource = selectedSource,
+                            selectedTarget = null,  // No separate target selection in new UX
+                            existingWaypoints = localWaypoints,
+                            onTileClick = { clickedPos ->
+                                // New click-based UX: 
+                                // 1. Click a spawn point or existing waypoint to select it as source
+                                // 2. Click any path tile, waypoint, or target to create connection
+                                val isValidSource = validSources.contains(clickedPos)
+                                val isValidTarget = validTargets.contains(clickedPos)
+                                
+                                when {
+                                    // No source selected: select this as source if valid
+                                    selectedSource == null && isValidSource -> {
+                                        selectedSource = clickedPos
+                                    }
+                                    // Source selected: create connection to target
+                                    selectedSource != null && isValidTarget && selectedSource != clickedPos -> {
+                                        // Create waypoint from source to target
+                                        val newWaypoint = EditorWaypoint(selectedSource!!, clickedPos)
+                                        println("=== CREATING WAYPOINT ===")
+                                        println("Source: $selectedSource, Target: $clickedPos")
+                                        println("Current waypoints before: ${localWaypoints.map { "(${it.position.x},${it.position.y})->(${it.nextTargetPosition.x},${it.nextTargetPosition.y})" }}")
+                                        
+                                        // Create a NEW mutableList from LOCAL waypoints to accumulate changes
+                                        val newWaypoints = localWaypoints.toMutableList()
+                                        
+                                        // Check if waypoint already exists at this position and replace it
+                                        val existingIndex = newWaypoints.indexOfFirst { it.position == selectedSource }
+                                        if (existingIndex >= 0) {
+                                            println("Replacing existing waypoint at index $existingIndex")
+                                            newWaypoints[existingIndex] = newWaypoint
+                                        } else {
+                                            println("Adding new waypoint (no existing waypoint at position $selectedSource)")
+                                            newWaypoints.add(newWaypoint)
+                                        }
+                                        
+                                        println("New waypoints after: ${newWaypoints.map { "(${it.position.x},${it.position.y})->(${it.nextTargetPosition.x},${it.nextTargetPosition.y})" }}")
+                                        
+                                        // Update local state immediately so next click sees the change
+                                        localWaypoints = newWaypoints.toList()
+                                        // Also notify parent
+                                        onWaypointsChange(newWaypoints)
+                                        // Set the clicked position as the new source for chaining
+                                        // Only if it's not a target (targets are endpoints, not sources)
+                                        selectedSource = if (targets.contains(clickedPos)) null else clickedPos
+                                    }
+                                    // Clicked on source again: deselect
+                                    selectedSource != null && clickedPos == selectedSource -> {
+                                        selectedSource = null
+                                    }
+                                }
+                            },
+                            onHoverChange = { pos ->
+                                hoveredPosition = pos
+                            }
+                        )
+                    }
+                    
+                    // Legend and hover info
+                    Column(
+                        modifier = Modifier.width(130.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        // Legend title
+                        Text(
+                            text = "Legend",
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = FontWeight.Bold
+                        )
+                        
+                        // Legend items
+                        LegendItem("Spawn", if (isDarkMode) Color(0xFF8B0000) else Color(0xFFDC143C))
+                        LegendItem("Target", if (isDarkMode) Color(0xFF1E3A8A) else Color(0xFF4169E1))
+                        LegendItem("Waypoint", if (isDarkMode) Color(0xFF9A7B00) else Color(0xFFFFD700))
+                        LegendItem("Selected", Color(0xFF40E0D0))
+                        
+                        Spacer(modifier = Modifier.height(8.dp))
+                        
+                        // Hover position display
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(Color(0x44000000))
+                                .border(1.dp, MaterialTheme.colorScheme.outline)
+                                .padding(6.dp)
+                        ) {
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(2.dp)
+                            ) {
+                                Text(
+                                    text = "Hover:",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                if (hoveredPosition != null) {
+                                    val pos = hoveredPosition!!
+                                    val tileType = map.tiles.getOrElse("${pos.x},${pos.y}") { TileType.NO_PLAY }
+                                    val isDefinedWaypoint = localWaypoints.any { it.position == pos }
+                                    val typeLabel = when {
+                                        isDefinedWaypoint -> "Waypoint"
+                                        tileType == TileType.SPAWN_POINT -> "Spawn"
+                                        tileType == TileType.TARGET -> "Target"
+                                        tileType == TileType.PATH -> "Path"
+                                        else -> "Unknown"
+                                    }
+                                    Text(
+                                        text = typeLabel,
+                                        style = MaterialTheme.typography.bodySmall
+                                    )
+                                    Text(
+                                        text = "(${pos.x}, ${pos.y})",
+                                        style = MaterialTheme.typography.bodySmall
+                                    )
+                                } else {
+                                    Text(
+                                        text = "—",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+                        }
+                        
+                        Spacer(modifier = Modifier.height(8.dp))
+                        
+                        // Instructions
+                        Text(
+                            text = "Click a spawn/waypoint, then click on the map to connect",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
         }
 
         // Validation status with detailed messages
@@ -165,61 +332,30 @@ fun WaypointsTab(
             }
         }
 
-        // Action buttons row
+        // Action buttons row (only Remove All button remains)
         item {
-            Column(
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                // First row: Add and Remove
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Button(
-                        onClick = { showAddDialog = true },
-                        enabled = waypointTiles.isNotEmpty(),
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text(stringResource(Res.string.add_waypoint))
-                    }
-
-                    Button(
-                        onClick = { showRemoveAllDialog = true },
-                        enabled = waypoints.isNotEmpty(),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = if (waypoints.isNotEmpty())
-                                MaterialTheme.colorScheme.error
-                            else
-                                MaterialTheme.colorScheme.surfaceVariant
-                        ),
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text(stringResource(Res.string.remove_all_waypoints))
-                    }
-                }
-
-                // Second row: Quick Add button
                 Button(
-                    onClick = { showQuickAddDialog = true },
-                    enabled = waypointTiles.isNotEmpty(),
-                    modifier = Modifier.fillMaxWidth(),
+                    onClick = { showRemoveAllDialog = true },
+                    enabled = localWaypoints.isNotEmpty(),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.secondary
-                    )
+                        containerColor = if (localWaypoints.isNotEmpty())
+                            MaterialTheme.colorScheme.error
+                        else
+                            MaterialTheme.colorScheme.surfaceVariant
+                    ),
+                    modifier = Modifier.weight(1f)
                 ) {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        MapIcon(size = 16.dp)
-                        Text(stringResource(Res.string.select_on_map))
-                    }
+                    Text(stringResource(Res.string.remove_all_waypoints))
                 }
             }
         }
 
         // View toggle button
-        if (waypoints.isNotEmpty()) {
+        if (localWaypoints.isNotEmpty()) {
             item {
                 Button(
                     onClick = { showTreeView = !showTreeView },
@@ -235,43 +371,34 @@ fun WaypointsTab(
             }
         }
 
-        // Display waypoints in tree view or list view
-        if (waypoints.isEmpty()) {
-            item {
-                Text(
-                    text = stringResource(Res.string.no_waypoints_configured),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(vertical = 16.dp)
-                )
-            }
-        } else if (showTreeView) {
+        // Display spawn points and waypoints in tree view or list view
+        if (showTreeView) {
             // Tree view - shows hierarchical chain structure
             item {
                 WaypointTreeView(
                     validationResult = validationResult,
                     map = map,
                     onDeleteConnection = { position ->
-                        val newWaypoints = waypoints.toMutableList().apply {
+                        val newWaypoints = localWaypoints.toMutableList().apply {
                             removeAll { it.position == position }
                         }
+                        localWaypoints = newWaypoints.toList()  // Update local state
                         onWaypointsChange(newWaypoints)
                     },
-                    onConnectWaypoint = { position ->
-                        preselectedSource = position
-                        showQuickAddDialog = true
+                    onConnectWaypoint = {
+                        // No action needed - users can click on the map directly
                     }
                 )
             }
         } else {
-            // List view - original simple list
+            // List view - shows spawn points and waypoints
             item {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
-                        text = stringResource(Res.string.waypoint_source),
+                        text = "Source",
                         style = MaterialTheme.typography.titleSmall,
                         modifier = Modifier.weight(1f)
                     )
@@ -281,68 +408,83 @@ fun WaypointsTab(
                         modifier = Modifier.padding(horizontal = 8.dp)
                     )
                     Text(
-                        text = stringResource(Res.string.waypoint_target),
+                        text = "Target",
                         style = MaterialTheme.typography.titleSmall,
                         modifier = Modifier.weight(1f)
                     )
                     Spacer(modifier = Modifier.width(40.dp)) // Space for delete button
                 }
             }
-
-            items(waypoints) { waypoint ->
-                WaypointConnectionCard(
-                    waypoint = waypoint,
-                    spawnPoints = spawnPoints,
-                    waypointTiles = waypointTiles,
-                    targets = targets,
-                    isInCircular = validationResult.circularDependencies.contains(waypoint.position) ||
-                            validationResult.circularDependencies.contains(waypoint.nextTargetPosition),
-                    isUnconnected = validationResult.unconnectedWaypoints.contains(waypoint.position) ||
-                            validationResult.unconnectedWaypoints.contains(waypoint.nextTargetPosition),
-                    onDelete = {
-                        val newWaypoints = waypoints.toMutableList().apply { remove(waypoint) }
-                        onWaypointsChange(newWaypoints)
+            
+            // Show spawn points
+            items(spawnPoints) { spawnPoint ->
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Spawn (${spawnPoint.x}, ${spawnPoint.y})",
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Text(
+                        text = "→",
+                        modifier = Modifier.padding(horizontal = 8.dp)
+                    )
+                    val waypointFromSpawn = localWaypoints.firstOrNull { it.position == spawnPoint }
+                    if (waypointFromSpawn != null) {
+                        Text(
+                            text = "(${waypointFromSpawn.nextTargetPosition.x}, ${waypointFromSpawn.nextTargetPosition.y})",
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.weight(1f)
+                        )
+                    } else {
+                        Text(
+                            text = "—",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.weight(1f)
+                        )
                     }
-                )
+                    Spacer(modifier = Modifier.width(40.dp))
+                }
+            }
+
+            // Show waypoints
+            items(localWaypoints) { waypoint ->
+                // Skip waypoints that are at spawn points (already shown above)
+                if (!spawnPoints.contains(waypoint.position)) {
+                    WaypointConnectionCard(
+                        waypoint = waypoint,
+                        spawnPoints = spawnPoints,
+                        validWaypointPositions = existingWaypointPositions,
+                        targets = targets,
+                        isInCircular = validationResult.circularDependencies.contains(waypoint.position) ||
+                                validationResult.circularDependencies.contains(waypoint.nextTargetPosition),
+                        isUnconnected = validationResult.unconnectedWaypoints.contains(waypoint.position) ||
+                                validationResult.unconnectedWaypoints.contains(waypoint.nextTargetPosition),
+                        onDelete = {
+                            val newWaypoints = localWaypoints.toMutableList().apply { remove(waypoint) }
+                            localWaypoints = newWaypoints.toList()  // Update local state
+                            onWaypointsChange(newWaypoints)
+                        }
+                    )
+                }
+            }
+            
+            // Show message if no waypoints at all
+            if (localWaypoints.isEmpty()) {
+                item {
+                    Text(
+                        text = stringResource(Res.string.no_waypoints_configured),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(vertical = 8.dp)
+                    )
+                }
             }
         }
-    }
-
-    // Add waypoint dialog
-    if (showAddDialog) {
-        AddWaypointDialog(
-            waypointTiles = waypointTiles,
-            spawnPoints = spawnPoints,
-            targets = targets,
-            existingWaypoints = waypoints,
-            onDismiss = { showAddDialog = false },
-            onAdd = { source, targetPos ->
-                val newWaypoint = EditorWaypoint(source, targetPos)
-                val newWaypoints = waypoints.toMutableList().apply { add(newWaypoint) }
-                onWaypointsChange(newWaypoints)
-                showAddDialog = false
-            }
-        )
-    }
-
-    // Quick add waypoint dialog (map-based selection)
-    if (showQuickAddDialog) {
-        QuickAddWaypointDialog(
-            map = map,
-            existingWaypoints = waypoints,
-            onDismiss = {
-                showQuickAddDialog = false
-                preselectedSource = null
-            },
-            onAdd = { source, targetPos ->
-                val newWaypoint = EditorWaypoint(source, targetPos)
-                val newWaypoints = waypoints.toMutableList().apply { add(newWaypoint) }
-                onWaypointsChange(newWaypoints)
-                showQuickAddDialog = false
-                preselectedSource = null
-            },
-            preselectedSource = preselectedSource
-        )
     }
 
     // Remove all confirmation dialog
@@ -352,9 +494,35 @@ fun WaypointsTab(
             message = stringResource(Res.string.confirm_remove_all_waypoints),
             onDismiss = { showRemoveAllDialog = false },
             onConfirm = {
-                onWaypointsChange(mutableListOf())
+                localWaypoints = emptyList()  // Update local state immediately
+                onWaypointsChange(emptyList())
+                selectedSource = null  // Clear selection when removing all waypoints
                 showRemoveAllDialog = false
             }
+        )
+    }
+}
+
+/**
+ * Helper composable for legend items
+ */
+@Composable
+private fun LegendItem(label: String, color: Color) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .width(12.dp)
+                .height(12.dp)
+                .background(color)
+                .border(1.dp, Color.White)
+        )
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodySmall,
+            fontSize = MaterialTheme.typography.bodySmall.fontSize * 0.9
         )
     }
 }

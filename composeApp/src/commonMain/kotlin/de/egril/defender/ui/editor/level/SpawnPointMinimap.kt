@@ -79,7 +79,6 @@ fun SpawnPointMinimap(
                     isSelected -> Color(0xFF00FF00) // Bright green for selected spawn point
                     tileType == TileType.SPAWN_POINT -> if (isDarkMode) Color(0xFF8B0000) else Color(0xFFDC143C)
                     tileType == TileType.TARGET -> if (isDarkMode) Color(0xFF1E3A8A) else Color(0xFF4169E1)
-                    tileType == TileType.WAYPOINT -> if (isDarkMode) Color(0xFF9A7B00) else Color(0xFFFFD700)
                     tileType == TileType.PATH -> if (isDarkMode) Color(0xFF3E3528) else Color(0xFF8B4513)
                     tileType == TileType.BUILD_AREA -> if (isDarkMode) Color(0xFF2E5C1A) else Color(0xFF90EE90)
                     tileType == TileType.ISLAND -> if (isDarkMode) Color(0xFF1B4D0E) else Color(0xFF228B22)

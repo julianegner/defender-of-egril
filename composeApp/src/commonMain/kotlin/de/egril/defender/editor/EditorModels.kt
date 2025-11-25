@@ -14,8 +14,7 @@ enum class TileType {
     ISLAND,         // Build islands
     NO_PLAY,        // Not playable area
     SPAWN_POINT,    // Enemy spawn points
-    TARGET,         // Target position
-    WAYPOINT        // Future: waypoints for path control
+    TARGET          // Target position
 }
 
 /**
@@ -80,14 +79,6 @@ data class EditorMap(
             .toSet()
     }
     
-    fun getWaypoints(): List<Position> {
-        return tiles.filter { it.value == TileType.WAYPOINT }
-            .map { 
-                val parts = it.key.split(",")
-                Position(parts[0].toInt(), parts[1].toInt())
-            }
-    }
-    
     /**
      * Validates if map is ready to use:
      * - Has at least one spawn point
@@ -102,11 +93,10 @@ data class EditorMap(
         if (spawnPoints.isEmpty()) return false
         if (targets.isEmpty()) return false
         
-        // Build set of traversable cells (spawn points + path cells + all targets + waypoints)
+        // Build set of traversable cells (spawn points + path cells + all targets)
         val traversableCells = pathCells.toMutableSet()
         traversableCells.addAll(spawnPoints)
         traversableCells.addAll(targets)
-        traversableCells.addAll(getWaypoints())  // Waypoints are also traversable
         
         // Check if there's a path from all spawn points to any target using BFS
         return spawnPoints.all{ spawn ->
@@ -279,6 +269,11 @@ data class EditorLevel(
         targetPositions: List<Position>,
         spawnPoints: List<Position>
     ): WaypointValidationResult {
+        // If there are multiple targets, waypoints are required
+        if (targetPositions.size > 1 && waypoints.isEmpty()) {
+            return WaypointValidationResult(isValid = false)
+        }
+        
         if (waypoints.isEmpty()) {
             return WaypointValidationResult(isValid = true)
         }

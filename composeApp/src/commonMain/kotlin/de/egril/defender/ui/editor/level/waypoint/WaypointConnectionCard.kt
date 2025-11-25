@@ -36,7 +36,7 @@ import defender_of_egril.composeapp.generated.resources.waypoint_position_format
 fun WaypointConnectionCard(
     waypoint: EditorWaypoint,
     spawnPoints: List<Position>,
-    waypointTiles: List<Position>,
+    validWaypointPositions: List<Position>,
     targets: List<Position>,
     isInCircular: Boolean,
     isUnconnected: Boolean,
@@ -79,7 +79,7 @@ fun WaypointConnectionCard(
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.primary
                     )
-                } else if (waypointTiles.contains(waypoint.position)) {
+                } else if (validWaypointPositions.contains(waypoint.position)) {
                     Text(
                         text = stringResource(Res.string.waypoint),
                         style = MaterialTheme.typography.labelMedium,
@@ -137,7 +137,7 @@ fun WaypointConnectionCard(
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.tertiary
                     )
-                } else if (waypointTiles.contains(waypoint.nextTargetPosition)) {
+                } else if (validWaypointPositions.contains(waypoint.nextTargetPosition)) {
                     Text(
                         text = stringResource(Res.string.waypoint),
                         style = MaterialTheme.typography.labelMedium,
