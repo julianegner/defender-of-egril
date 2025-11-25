@@ -414,6 +414,19 @@
     <string name="control_pad_enabled">Control Pad Enabled</string>
     <string name="control_pad_disabled">Control Pad Disabled</string>
 
+    <!-- Difficulty Settings -->
+    <string name="difficulty">Difficulty</string>
+    <string name="difficulty_baby">Baby</string>
+    <string name="difficulty_easy">Easy</string>
+    <string name="difficulty_medium">Medium</string>
+    <string name="difficulty_hard">Hard</string>
+    <string name="difficulty_nightmare">Nightmare</string>
+    <string name="difficulty_baby_desc">Double coins and health, towers start at level 3</string>
+    <string name="difficulty_easy_desc">Double coins and health</string>
+    <string name="difficulty_medium_desc">Default difficulty</string>
+    <string name="difficulty_hard_desc">Enemies have double levels</string>
+    <string name="difficulty_nightmare_desc">Enemies spawn 3 times with increasing levels</string>
+
     <!-- Dragon Info -->
     <string name="dragon_info_title">Dragon Alert!</string>
     <string name="dragon_info_movement">The dragon alternates movement: Turn 1, 3, 5...: Walks 1 tile on path. Turn 2, 4, 6...: Flies up to 5 tiles, can cross obstacles but must land on path</string>

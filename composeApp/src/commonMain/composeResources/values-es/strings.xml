@@ -412,6 +412,19 @@
     <string name="control_pad_enabled">Panel de control activado</string>
     <string name="control_pad_disabled">Panel de control desactivado</string>
     
+    <!-- Difficulty Settings -->
+    <string name="difficulty">Dificultad</string>
+    <string name="difficulty_baby">Bebé</string>
+    <string name="difficulty_easy">Fácil</string>
+    <string name="difficulty_medium">Medio</string>
+    <string name="difficulty_hard">Difícil</string>
+    <string name="difficulty_nightmare">Pesadilla</string>
+    <string name="difficulty_baby_desc">Doble de monedas y salud, torres empiezan en nivel 3</string>
+    <string name="difficulty_easy_desc">Doble de monedas y salud</string>
+    <string name="difficulty_medium_desc">Dificultad predeterminada</string>
+    <string name="difficulty_hard_desc">Los enemigos tienen el doble de niveles</string>
+    <string name="difficulty_nightmare_desc">Los enemigos aparecen 3 veces con niveles crecientes</string>
+    
     <!-- Dragon Names -->
     <string name="the_dragon">El dragón</string>
     <string name="awakens">despierta</string>
