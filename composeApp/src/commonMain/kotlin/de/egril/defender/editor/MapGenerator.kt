@@ -443,7 +443,7 @@ object MapGenerator {
     ): EditorMap {
         val tiles = mutableMapOf<String, TileType>()
         
-        // Set 4 spawn points on the upper end (y around 2-3)
+        // Set 4 spawn points on the upper end (y=2)
         val upperSpawnPoints = listOf(
             Position(3, 2),
             Position(7, 2),
@@ -451,7 +451,7 @@ object MapGenerator {
             Position(16, 2)
         )
         
-        // Set 4 spawn points in the vertical center (y around 10)
+        // Set 4 spawn points in the vertical center (y=10)
         val centerSpawnPoints = listOf(
             Position(3, 10),
             Position(7, 10),
