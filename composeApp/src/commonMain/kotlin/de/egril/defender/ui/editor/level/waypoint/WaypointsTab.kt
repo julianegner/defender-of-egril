@@ -440,6 +440,7 @@ fun WaypointsTab(
             onDismiss = { showRemoveAllDialog = false },
             onConfirm = {
                 onWaypointsChange(mutableListOf())
+                selectedSource = null  // Clear selection when removing all waypoints
                 showRemoveAllDialog = false
             }
         )
