@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
 import de.egril.defender.editor.EditorEnemySpawn
 import de.egril.defender.editor.EditorMap
+import de.egril.defender.ui.editor.level.ChangeLevelDialog
 import de.egril.defender.ui.editor.level.ChangeSpawnPointDialog
 import de.egril.defender.ui.editor.level.SpawnTurnSection
 import defender_of_egril.composeapp.generated.resources.Res
@@ -47,6 +48,9 @@ fun EnemySpawnsTab(
     
     // Track spawn point change dialog
     var spawnToChange by remember { mutableStateOf<EditorEnemySpawn?>(null) }
+    
+    // Track level change dialog
+    var spawnToChangeLevel by remember { mutableStateOf<EditorEnemySpawn?>(null) }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -174,6 +178,9 @@ fun EnemySpawnsTab(
                     ewhadCount = ewhadCount,
                     onChangeSpawnPoint = { spawn ->
                         spawnToChange = spawn
+                    },
+                    onChangeLevel = { spawn ->
+                        spawnToChangeLevel = spawn
                     }
                 )
             }
@@ -196,6 +203,25 @@ fun EnemySpawnsTab(
                 }.toMutableList()
                 onEnemySpawnsChange(newSpawns)
                 spawnToChange = null
+            }
+        )
+    }
+    
+    // Change level dialog
+    spawnToChangeLevel?.let { spawn ->
+        ChangeLevelDialog(
+            spawn = spawn,
+            onDismiss = { spawnToChangeLevel = null },
+            onChange = { newLevel ->
+                val newSpawns = enemySpawns.map {
+                    if (it === spawn) {
+                        it.copy(level = newLevel)
+                    } else {
+                        it
+                    }
+                }.toMutableList()
+                onEnemySpawnsChange(newSpawns)
+                spawnToChangeLevel = null
             }
         )
     }
