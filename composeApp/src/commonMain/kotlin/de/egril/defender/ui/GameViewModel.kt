@@ -118,6 +118,7 @@ class GameViewModel {
             // Create GameState with difficulty-modified values
             val newGameState = GameState(
                 level = level,
+                difficulty = difficulty,
                 coins = mutableStateOf(DifficultyModifiers.applyCoinsModifier(level.initialCoins, difficulty)),
                 healthPoints = mutableStateOf(DifficultyModifiers.applyHealthPointsModifier(level.healthPoints, difficulty)),
                 spawnPlan = modifiedSpawnPlan
