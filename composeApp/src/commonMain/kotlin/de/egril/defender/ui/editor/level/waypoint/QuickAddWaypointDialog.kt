@@ -242,10 +242,12 @@ fun QuickAddWaypointDialog(
                                     if (hoveredPosition != null) {
                                         val pos = hoveredPosition!!
                                         val tileType = map.tiles.getOrElse("${pos.x},${pos.y}") { TileType.NO_PLAY }
-                                        val typeLabel = when (tileType) {
-                                            TileType.SPAWN_POINT -> "Spawn"
-                                            TileType.TARGET -> "Target"
-                                            TileType.PATH -> "Path"
+                                        val isDefinedWaypoint = existingWaypoints.any { it.position == pos }
+                                        val typeLabel = when {
+                                            isDefinedWaypoint -> "Waypoint"
+                                            tileType == TileType.SPAWN_POINT -> "Spawn"
+                                            tileType == TileType.TARGET -> "Target"
+                                            tileType == TileType.PATH -> "Path"
                                             else -> "Unknown"
                                         }
                                         Text(
