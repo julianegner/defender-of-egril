@@ -27,7 +27,12 @@ object SaveFileStorage {
      * Save world map status
      */
     fun saveWorldMapStatus(worldLevels: List<WorldLevel>) {
-        val statusMap = worldLevels.associate { it.level.id to it.status }
+        val statusMap = worldLevels.mapNotNull { worldLevel ->
+            // Only save levels that have an editorLevelId
+            worldLevel.level.editorLevelId?.let { editorLevelId ->
+                editorLevelId to worldLevel.status
+            }
+        }.toMap()
         val worldMapSave = WorldMapSave(statusMap)
         val json = SaveJsonSerializer.serializeWorldMapSave(worldMapSave)
         fileStorage.writeFile(WORLDMAP_FILE, json)
@@ -36,7 +41,7 @@ object SaveFileStorage {
     /**
      * Load world map status
      */
-    fun loadWorldMapStatus(): Map<Int, LevelStatus>? {
+    fun loadWorldMapStatus(): Map<String, LevelStatus>? {
         val json = fileStorage.readFile(WORLDMAP_FILE) ?: return null
         val worldMapSave = SaveJsonSerializer.deserializeWorldMapSave(json)
         return worldMapSave?.levelStatuses
