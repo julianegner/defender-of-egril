@@ -261,7 +261,7 @@ fun AttackerInfo(
                         ) {
                             WarningIcon(size = 14.dp)
                             Text(
-                                stringResource(Res.string.mighty_unit_warning).replace("%d", damage.toString()),
+                                stringResource(Res.string.mighty_unit_warning, damage),
                                 style = MaterialTheme.typography.bodySmall,
                                 fontWeight = FontWeight.Bold,
                                 color = GamePlayColors.ErrorDark
