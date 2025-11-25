@@ -377,7 +377,7 @@
     <string name="tutorial_initial_building_title">Fase de construcción inicial</string>
     <string name="tutorial_initial_building">En esta fase inicial, las torres se construyen instantáneamente pero aún no pueden atacar. Haz clic en una torre para ver su alcance - las casillas del camino obtienen bordes verdes. Más adelante en el juego, las torres tardarán 1-2 turnos en construirse.</string>
     <string name="tutorial_undo_title">Deshacer torres</string>
-    <string name="tutorial_undo">Durante esta fase inicial, puedes deshacer la colocación de torres seleccionándola y vendiéndola por un reembolso completo. Después de que comience la batalla, solo puedes vender torres por el 75% de su valor.</string>
+    <string name="tutorial_undo">Durante esta fase inicial, puedes deshacer la colocación de torres seleccionándola y vendiéndola por un reembolso completo. Después de que comience la batalla, solo puedes vender torres por el 75%% de su valor.</string>
     <string name="tutorial_combat_title">Iniciar la batalla</string>
     <string name="tutorial_combat">Haz clic en el botón Iniciar batalla cuando estés listo. Tu objetivo es defender el Objetivo al final del camino - ¡no dejes que los enemigos lo alcancen!</string>
     <string name="tutorial_enemies_title">¡Enemigos entrantes!</string>
@@ -389,7 +389,7 @@
     <string name="tutorial_upgrade_title">Mejorar torres</string>
     <string name="tutorial_upgrade">Selecciona una torre y haz clic en Mejorar para aumentar sus estadísticas. Verás daño, alcance y acciones actuales por turno, además de cómo serán después de mejorar. ¡Las mejoras cuestan monedas pero hacen las torres más poderosas!</string>
     <string name="tutorial_sell_title">Vender torres</string>
-    <string name="tutorial_sell">Selecciona una torre y haz clic en Vender para recuperar el 75% de su inversión total (costo + mejoras). Usa esto si necesitas monedas o quieres reposicionar tu defensa.</string>
+    <string name="tutorial_sell">Selecciona una torre y haz clic en Vender para recuperar el 75%% de su inversión total (costo + mejoras). Usa esto si necesitas monedas o quieres reposicionar tu defensa.</string>
     <string name="tutorial_save_game_title">Guarda tu progreso</string>
     <string name="tutorial_save_game">Puedes guardar tu juego en cualquier momento usando el botón Guardar Juego. Esto te permite probar diferentes estrategias o continuar más tarde. Para cargar una partida guardada, usa el botón Cargar Juego en la pantalla del mapa mundial.</string>
     <string name="tutorial_complete_title">¡Tutorial completado!</string>
@@ -437,6 +437,8 @@
     <string name="very_greedy_desc">Come unidades enemigas cercanas y destruye minas una tras otra</string>
     <string name="greed_level_label">Avaricia</string>
     <string name="dragon_info_button">¿Qué hace un dragón?</string>
+    <string name="mighty_unit_warning">¡Unidad poderosa! Inflige %d PV de daño si alcanza el objetivo (nivel × 1 PV)</string>
+    <string name="ewhad_target_warning">¡JEFE! Si Ewhad alcanza el objetivo, ¡el nivel se pierde!</string>
 <!-- Waypoint Editor -->
     <string name="waypoints_tab">Puntos de Paso</string>
     <string name="waypoints_title">Conexiones de Puntos de Paso</string>
@@ -510,4 +512,10 @@
     <string name="sequence_will_be_replaced">La secuencia de niveles se actualizará.</string>
     <string name="sequence_backup_warning">Nota: Si ha modificado el archivo de secuencia, deberá rehacer esos cambios. Su secuencia actual se respaldará en sequence-N.json.</string>
     <string name="add_data">Agregar nuevo contenido</string>
+    
+    <!-- Unsaved Changes Dialog -->
+    <string name="unsaved_changes_title">Cambios no guardados</string>
+    <string name="unsaved_changes_message">Tienes progreso no guardado en este nivel. ¿Qué te gustaría hacer?</string>
+    <string name="save_and_exit">Guardar y Salir</string>
+    <string name="discard_changes">Descartar Cambios</string>
 </resources>
