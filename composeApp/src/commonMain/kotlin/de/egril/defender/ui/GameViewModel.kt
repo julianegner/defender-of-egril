@@ -59,8 +59,14 @@ class GameViewModel {
         _worldLevels.value = levels.mapIndexed { index, level ->
             println("DEBUG: Loaded Level ${level.id} - Name: ${level.name} - Path Cells: ${level.pathCells.size} - Build Islands: ${level.buildIslands.size}")
 
-            val status = savedStatuses?.get(level.id) ?: 
+            // Look up status by editorLevelId if available, otherwise unlock first level
+            val status = if (level.editorLevelId != null) {
+                savedStatuses?.get(level.editorLevelId) ?: 
+                    if (index == 0) LevelStatus.UNLOCKED else LevelStatus.LOCKED
+            } else {
+                // Fallback for levels without editorLevelId (shouldn't happen with editor-based levels)
                 if (index == 0) LevelStatus.UNLOCKED else LevelStatus.LOCKED
+            }
             
             WorldLevel(
                 level = level,

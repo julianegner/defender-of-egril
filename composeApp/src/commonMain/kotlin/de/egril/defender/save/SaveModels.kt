@@ -7,7 +7,7 @@ import de.egril.defender.model.*
  * Stores the status of each level (locked, unlocked, or won)
  */
 data class WorldMapSave(
-    val levelStatuses: Map<Int, LevelStatus>  // levelId -> status
+    val levelStatuses: Map<String, LevelStatus>  // editorLevelId -> status
 )
 
 /**
