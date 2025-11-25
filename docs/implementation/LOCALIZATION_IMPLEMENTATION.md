@@ -106,12 +106,43 @@ Located in `build/generated/compose/resourceGenerator/kotlin/commonCustomResClas
 
 ### Usage Pattern
 ```kotlin
-// In composable
-val locale = currentLanguage.value
-Text(LocalizedStrings.get("app_name", locale))
+// In composable - simple string
+Text(stringResource(Res.string.app_name))
+
+// In composable - formatted string with placeholders
+// For strings with %s or %d placeholders, pass arguments directly:
+Text(stringResource(Res.string.in_x_turns, turnCount))
+Text(stringResource(Res.string.hp_with_level, healthPoints))
+Text(stringResource(Res.string.editing_map, mapName))
 
 // Language switching
 currentLanguage.value = AppLocale.DEFAULT
+```
+
+### String Formatting
+The plugin supports string formatting with placeholders in XML:
+
+**XML Definition:**
+```xml
+<string name="in_x_turns">in %s turns</string>
+<string name="hp_with_level">HP: %d</string>
+<string name="editing_map">Editing: %s</string>
+```
+
+**Usage in Code (CORRECT):**
+```kotlin
+// ✅ Correct: Pass values as arguments to stringResource()
+stringResource(Res.string.in_x_turns, turnCount.toString())
+stringResource(Res.string.hp_with_level, healthPoints)
+stringResource(Res.string.editing_map, mapName)
+```
+
+**INCORRECT Usage:**
+```kotlin
+// ❌ Wrong: Using .replace() doesn't work with the localization system
+stringResource(Res.string.in_x_turns).replace("%s", turnCount.toString())
+stringResource(Res.string.hp_with_level).replace("%d", healthPoints.toString())
+// This will display "???" instead of the formatted string
 ```
 
 ## Adding More Languages
