@@ -164,9 +164,8 @@ fun WaypointsTab(
                                         println("Source: $selectedSource, Target: $clickedPos")
                                         println("Current waypoints before: ${waypoints.map { "(${it.position.x},${it.position.y})->(${it.nextTargetPosition.x},${it.nextTargetPosition.y})" }}")
                                         
-                                        // Always create a fresh mutable list to ensure state updates trigger recomposition
-                                        val currentWaypoints = waypoints.toList() // Create immutable copy first
-                                        val newWaypoints = currentWaypoints.toMutableList()
+                                        // Create a NEW mutableList from current waypoints to ensure Compose detects the change
+                                        val newWaypoints = waypoints.toMutableList()
                                         
                                         // Check if waypoint already exists at this position and replace it
                                         val existingIndex = newWaypoints.indexOfFirst { it.position == selectedSource }
