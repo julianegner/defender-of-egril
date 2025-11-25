@@ -290,11 +290,15 @@ fun WaypointMinimap(
 
                 // Determine if this position is highlighted
                 val isSelected = pos == selectedSource || pos == selectedTarget
+                
+                // Check if this position is a defined waypoint
+                val isDefinedWaypoint = existingWaypoints.any { it.position == pos }
 
                 // Get color for tile type
                 val color = when {
                     isSelected && pos == selectedSource -> Color(0xFF40E0D0) // Turquoise for selected source
                     isSelected && pos == selectedTarget -> Color(0xFF00AAFF) // Cyan for selected target
+                    isDefinedWaypoint -> if (isDarkMode) Color(0xFF9A7B00) else Color(0xFFFFD700) // Yellow for waypoints
                     tileType == TileType.SPAWN_POINT -> if (isDarkMode) Color(0xFF8B0000) else Color(0xFFDC143C)
                     tileType == TileType.TARGET -> if (isDarkMode) Color(0xFF1E3A8A) else Color(0xFF4169E1)
                     tileType == TileType.PATH -> if (isDarkMode) Color(0xFF3E3528) else Color(0xFF8B4513)
