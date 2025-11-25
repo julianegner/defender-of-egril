@@ -202,10 +202,10 @@ class EnemyMovementSystem(
         val isOddTurn = dragon.dragonTurnsSinceSpawned.value % 2 == 1
         val speed = if (isOddTurn) {
             dragon.isFlying.value = false
-            1  // Walking on odd turns
+            dragon.type.speed  // Walking on odd turns (uses AttackerType.DRAGON.speed = 2)
         } else {
             dragon.isFlying.value = true
-            5  // Flying on even turns
+            10  // Flying on even turns
         }
         
         println("=== DRAGON MOVEMENT CALCULATION ===")
