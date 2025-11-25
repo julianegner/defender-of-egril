@@ -52,8 +52,8 @@ class PathfindingTest {
         // Record starting position
         val startPos = enemy.position.value
         
-        // Simulate enemy movement for a turn (goblin has speed 2)
-        // In a turn, goblin should move 2 steps closer to the target
+        // Simulate enemy movement for a turn (goblin has speed 5)
+        // In a turn, goblin should move 5 steps closer to the target
         val movements = engine.calculateEnemyTurnMovements()
         
         // Apply movements
@@ -71,11 +71,11 @@ class PathfindingTest {
             "Enemy should have moved towards target. Started at ${startPos.x}, ended at ${endPos.x}"
         )
         
-        // Verify that enemy moved the expected distance (2 steps for goblin)
+        // Verify that enemy moved the expected distance (5 steps for goblin)
         val distanceMoved = endPos.x - startPos.x
         assertTrue(
-            distanceMoved == 2,
-            "Goblin should have moved 2 steps (speed=2), but moved $distanceMoved"
+            distanceMoved == 5,
+            "Goblin should have moved 5 steps (speed=5), but moved $distanceMoved"
         )
     }
     
