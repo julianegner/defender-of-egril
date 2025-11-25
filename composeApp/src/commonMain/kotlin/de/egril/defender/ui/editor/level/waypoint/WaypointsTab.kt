@@ -160,19 +160,19 @@ fun WaypointsTab(
                                     selectedSource != null && isValidTarget && selectedSource != clickedPos -> {
                                         // Create waypoint from source to target
                                         val newWaypoint = EditorWaypoint(selectedSource!!, clickedPos)
-                                        // Check if waypoint already exists at this position
-                                        val exists = waypoints.any { it.position == selectedSource }
-                                        if (!exists) {
-                                            val newWaypoints = waypoints.toMutableList().apply { add(newWaypoint) }
-                                            onWaypointsChange(newWaypoints)
+                                        // Always create a fresh mutable list to ensure state updates trigger recomposition
+                                        val currentWaypoints = waypoints.toList() // Create immutable copy first
+                                        val newWaypoints = currentWaypoints.toMutableList()
+                                        
+                                        // Check if waypoint already exists at this position and replace it
+                                        val existingIndex = newWaypoints.indexOfFirst { it.position == selectedSource }
+                                        if (existingIndex >= 0) {
+                                            newWaypoints[existingIndex] = newWaypoint
                                         } else {
-                                            // Replace existing waypoint
-                                            val newWaypoints = waypoints.toMutableList().apply {
-                                                removeIf { it.position == selectedSource }
-                                                add(newWaypoint)
-                                            }
-                                            onWaypointsChange(newWaypoints)
+                                            newWaypoints.add(newWaypoint)
                                         }
+                                        
+                                        onWaypointsChange(newWaypoints)
                                         // Set the clicked position as the new source for chaining
                                         selectedSource = clickedPos
                                     }
