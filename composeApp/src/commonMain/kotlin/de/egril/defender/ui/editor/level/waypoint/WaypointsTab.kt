@@ -165,10 +165,10 @@ fun WaypointsTab(
                                         val newWaypoint = EditorWaypoint(selectedSource!!, clickedPos)
                                         println("=== CREATING WAYPOINT ===")
                                         println("Source: $selectedSource, Target: $clickedPos")
-                                        println("Current waypoints before: ${currentWaypoints.map { "(${it.position.x},${it.position.y})->(${it.nextTargetPosition.x},${it.nextTargetPosition.y})" }}")
+                                        println("Current waypoints before: ${waypoints.map { "(${it.position.x},${it.position.y})->(${it.nextTargetPosition.x},${it.nextTargetPosition.y})" }}")
                                         
-                                        // Create a NEW mutableList from CURRENT waypoints to ensure Compose detects the change
-                                        val newWaypoints = currentWaypoints.toMutableList()
+                                        // Create a NEW mutableList from ACTUAL waypoints parameter to ensure Compose detects the change
+                                        val newWaypoints = waypoints.toMutableList()
                                         
                                         // Check if waypoint already exists at this position and replace it
                                         val existingIndex = newWaypoints.indexOfFirst { it.position == selectedSource }
