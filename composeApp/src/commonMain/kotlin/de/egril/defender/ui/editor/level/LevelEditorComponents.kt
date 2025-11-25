@@ -55,7 +55,7 @@ fun AddEnemyDialog(
     
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(stringResource(Res.string.add_enemy_to_turn).replace("%d", turn.toString())) },
+        title = { Text(stringResource(Res.string.add_enemy_to_turn, turn)) },
         text = {
             Column {
                 Text(stringResource(Res.string.enemy_type), modifier = Modifier.padding(bottom = 4.dp))
@@ -119,7 +119,7 @@ fun AddEnemyDialog(
                     }
                 }
                 
-                Text(stringResource(Res.string.hp_with_level).replace("%d", (selectedType.health * (level.toIntOrNull() ?: 1)).toString()), fontSize = 12.sp)
+                Text(stringResource(Res.string.hp_with_level, selectedType.health * (level.toIntOrNull() ?: 1)), fontSize = 12.sp)
                 if (!canAddEwhad) {
                     Text(
                         text = stringResource(Res.string.ewhad_warning),
@@ -479,7 +479,7 @@ fun SpawnTurnSection(
                         onClick = onAddEnemy,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text(stringResource(Res.string.add_enemy_button).replace("%d", turn.toString()))
+                        Text(stringResource(Res.string.add_enemy_button, turn))
                     }
                     
                     if (spawns.isEmpty()) {
