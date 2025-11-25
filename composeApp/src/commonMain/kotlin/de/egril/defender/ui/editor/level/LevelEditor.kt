@@ -35,10 +35,6 @@ import androidx.compose.ui.graphics.Color
 import com.hyperether.resources.stringResource
 import de.egril.defender.ui.editor.level.enemies.EnemySpawnsTab
 import de.egril.defender.ui.editor.level.tower.TowersTab
-import de.egril.defender.ui.editor.level.waypoint.AddWaypointDialog
-import de.egril.defender.ui.editor.level.waypoint.QuickAddWaypointDialog
-import de.egril.defender.ui.editor.level.waypoint.WaypointConnectionCard
-import de.egril.defender.ui.editor.level.waypoint.WaypointTreeView
 import de.egril.defender.ui.editor.level.waypoint.WaypointsTab
 import defender_of_egril.composeapp.generated.resources.*
 import kotlin.random.Random
