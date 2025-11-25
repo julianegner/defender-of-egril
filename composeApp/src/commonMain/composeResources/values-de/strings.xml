@@ -429,6 +429,8 @@
     <string name="dragon_very_greedy_message">Der Drache ist sehr gierig (Gier > 5)! Er wird nun Zwergenminen angreifen und zerstören und dabei all die Gesundheit aufnehmen, die ein neuer Drache hätte (500 LP pro Mine + die geschürften Münzen als LP). Minen werden zu zerstörten Trümmern. Verteidige sie oder baue schnell wieder auf!</string>
     <string name="mine_warning_title">Mine bedroht!</string>
     <string name="mine_warning_message">Der Drache nähert sich! Die Zwerge bereiten sich vor, ihre Mine zu verteidigen, aber es könnte nicht genug sein...</string>
+    <string name="one_hp_warning_title">Kritische Warnung!</string>
+    <string name="one_hp_warning_message">Du hast nur 1 Lebenspunkt! Kein einziger Feind darf das Ziel erreichen, sonst verlierst du. Verteidige mit äußerster Vorsicht!</string>
     
     <!-- Enemy Info Display -->
     <string name="greedy_label">gierig</string>
