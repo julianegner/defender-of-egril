@@ -12,6 +12,11 @@ import de.egril.defender.model.*
 import de.egril.defender.ui.*
 import de.egril.defender.ui.icon.enemy.EnemyIcon
 import com.hyperether.resources.stringResource
+import de.egril.defender.ui.icon.InfoIcon
+import de.egril.defender.ui.icon.WarningIcon
+import de.egril.defender.ui.icon.LightningIcon
+import de.egril.defender.ui.icon.HeartIcon
+import de.egril.defender.ui.icon.LockIcon
 import defender_of_egril.composeapp.generated.resources.*
 
 /**
@@ -21,7 +26,8 @@ import defender_of_egril.composeapp.generated.resources.*
 @Composable
 fun AttackerInfo(
     attacker: Attacker,
-    isMobile: Boolean = false
+    isMobile: Boolean = false,
+    onShowDragonInfo: () -> Unit = {}
 ) {
     val locale = com.hyperether.resources.currentLanguage.value
     
@@ -31,7 +37,8 @@ fun AttackerInfo(
         attacker.level.value,
         attacker.currentHealth.value,
         attacker.position.value.x,
-        attacker.position.value.y
+        attacker.position.value.y,
+        attacker.greed
     ) {
         Card(
             modifier = Modifier
@@ -91,47 +98,191 @@ fun AttackerInfo(
                             style = MaterialTheme.typography.bodySmall
                         )
                         Text(
+                            "${stringResource(Res.string.speed_label)}: ${attacker.type.speed}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.Gray
+                        )
+                        Text(
                             "${stringResource(Res.string.position_label)}: (${attacker.position.value.x},${attacker.position.value.y})",
                             style = MaterialTheme.typography.bodySmall,
                             color = Color.Gray
                         )
                     }
                     
+                    // Dragon-specific information
+                    if (attacker.type.isDragon) {
+                        // Greed level display
+                        if (attacker.greed > 0) {
+                            val greedLabel = if (attacker.greed > 5) {
+                                stringResource(Res.string.very_greedy_label)
+                            } else {
+                                stringResource(Res.string.greedy_label)
+                            }
+                            val greedDesc = if (attacker.greed > 5) {
+                                stringResource(Res.string.very_greedy_desc)
+                            } else {
+                                stringResource(Res.string.greedy_desc)
+                            }
+                            
+                            Column(
+                                modifier = Modifier.padding(top = 4.dp)
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                ) {
+                                    Text(
+                                        "${stringResource(Res.string.greed_level_label)}: ${attacker.greed} -",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        fontWeight = FontWeight.Bold,
+                                        color = GamePlayColors.ErrorDark
+                                    )
+                                    Text(
+                                        greedLabel,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        fontWeight = FontWeight.Bold,
+                                        fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
+                                        color = GamePlayColors.ErrorDark
+                                    )
+                                }
+                                Text(
+                                    greedDesc,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = GamePlayColors.Warning
+                                )
+                            }
+                        }
+                        
+                        // Info button for dragons
+                        TextButton(
+                            onClick = onShowDragonInfo,
+                            modifier = Modifier.padding(top = 4.dp)
+                        ) {
+                            InfoIcon(size = 16.dp)
+                            Text(
+                                stringResource(Res.string.dragon_info_button),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
+                    
                     // Additional info about special abilities
                     if (attacker.type.canSummon) {
-                        Text(
-                            "⚡ ${stringResource(Res.string.can_summon)}",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = GamePlayColors.Warning
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            LightningIcon(size = 14.dp)
+                            Text(
+                                stringResource(Res.string.can_summon),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = GamePlayColors.Warning
+                            )
+                        }
                     }
                     if (attacker.type.canHeal) {
-                        Text(
-                            "💚 ${stringResource(Res.string.can_heal)}",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = GamePlayColors.Success
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            HeartIcon(size = 14.dp)
+                            Text(
+                                stringResource(Res.string.can_heal),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = GamePlayColors.Success
+                            )
+                        }
                     }
                     if (attacker.type.canDisableTowers) {
-                        Text(
-                            "🔒 ${stringResource(Res.string.can_disable_towers)}",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = GamePlayColors.ErrorDark
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            LockIcon(size = 14.dp)
+                            Text(
+                                stringResource(Res.string.can_disable_towers),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = GamePlayColors.ErrorDark
+                            )
+                        }
                     }
                     if (attacker.type.immuneToAcid) {
-                        Text(
-                            "🛡️ ${stringResource(Res.string.immune_to_acid)}",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = GamePlayColors.InfoDark
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Text(
+                                "🛡️",
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                            Text(
+                                stringResource(Res.string.immune_to_acid),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = GamePlayColors.InfoDark
+                            )
+                        }
                     }
                     if (attacker.type.immuneToFireball) {
-                        Text(
-                            "🛡️ ${stringResource(Res.string.immune_to_fireball)}",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = GamePlayColors.InfoDark
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Text(
+                                "🛡️",
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                            Text(
+                                stringResource(Res.string.immune_to_fireball),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = GamePlayColors.InfoDark
+                            )
+                        }
+                    }
+                    
+                    // Mighty unit warning - for wizards, witches, demons, dragons
+                    val isMightyUnit = when (attacker.type) {
+                        AttackerType.EVIL_WIZARD,
+                        AttackerType.WITCH,
+                        AttackerType.RED_WITCH,
+                        AttackerType.GREEN_WITCH,
+                        AttackerType.EVIL_MAGE,
+                        AttackerType.BLUE_DEMON,
+                        AttackerType.RED_DEMON,
+                        AttackerType.DRAGON -> true
+                        else -> false
+                    }
+                    
+                    if (isMightyUnit) {
+                        val damage = attacker.level.value
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            WarningIcon(size = 14.dp)
+                            Text(
+                                stringResource(Res.string.mighty_unit_warning, damage),
+                                style = MaterialTheme.typography.bodySmall,
+                                fontWeight = FontWeight.Bold,
+                                color = GamePlayColors.ErrorDark
+                            )
+                        }
+                    }
+                    
+                    // Special Ewhad warning
+                    if (attacker.type == AttackerType.EWHAD) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            WarningIcon(size = 14.dp)
+                            Text(
+                                stringResource(Res.string.ewhad_target_warning),
+                                style = MaterialTheme.typography.bodySmall,
+                                fontWeight = FontWeight.Bold,
+                                color = GamePlayColors.ErrorDark
+                            )
+                        }
                     }
                 }
             }

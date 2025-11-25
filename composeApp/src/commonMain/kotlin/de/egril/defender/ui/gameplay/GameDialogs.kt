@@ -143,3 +143,46 @@ fun SaveConfirmationDialog(
         }
     )
 }
+
+@Composable
+fun UnsavedChangesDialog(
+    onSaveAndExit: () -> Unit,
+    onDiscardChanges: () -> Unit,
+    onCancel: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onCancel,
+        title = { Text(stringResource(Res.string.unsaved_changes_title)) },
+        text = {
+            Text(
+                stringResource(Res.string.unsaved_changes_message),
+                style = MaterialTheme.typography.bodyLarge
+            )
+        },
+        confirmButton = {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Button(
+                    onClick = onCancel,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.secondary
+                    )
+                ) {
+                    Text(stringResource(Res.string.cancel))
+                }
+                Button(
+                    onClick = onDiscardChanges,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error
+                    )
+                ) {
+                    Text(stringResource(Res.string.discard_changes))
+                }
+                Button(onClick = onSaveAndExit) {
+                    Text(stringResource(Res.string.save_and_exit))
+                }
+            }
+        }
+    )
+}

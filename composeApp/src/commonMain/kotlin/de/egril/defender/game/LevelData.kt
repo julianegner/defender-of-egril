@@ -35,10 +35,10 @@ object LevelData {
                     return@mapIndexedNotNull null
                 }
                 
-                // Check if waypoints are valid (all eventually lead to target)
-                val target = map?.getTarget()
-                if (target != null && !level.validateWaypoints(target)) {
-                    println("Skipping level $levelId: waypoints do not all lead to target")
+                // Check if waypoints are valid (all eventually lead to a target)
+                val targets = map?.getTargets() ?: emptyList()
+                if (targets.isNotEmpty() && !level.validateWaypoints(targets)) {
+                    println("Skipping level $levelId: waypoints do not all lead to a target")
                     return@mapIndexedNotNull null
                 }
                 

@@ -3,16 +3,21 @@
 package de.egril.defender.ui.settings
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.hyperether.resources.stringResource
+import de.egril.defender.editor.RepositoryManager
+import de.egril.defender.ui.editor.ConfirmationDialog
 import defender_of_egril.composeapp.generated.resources.*
 import defender_of_egril.composeapp.generated.resources.Res
+import kotlinx.coroutines.launch
 
 /**
  * Settings dialog that provides access to app settings like language selection and dark mode
@@ -21,11 +26,18 @@ import defender_of_egril.composeapp.generated.resources.Res
 fun SettingsDialog(
     onDismiss: () -> Unit
 ) {
+    var showRestoreConfirmation by remember { mutableStateOf(false) }
+    var showRestoreSuccess by remember { mutableStateOf(false) }
+    var backupPath by remember { mutableStateOf("") }
+    var isRestoring by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+    
     Dialog(onDismissRequest = onDismiss) {
         Surface(
             modifier = Modifier
                 .widthIn(min = 300.dp, max = 500.dp)
-                .wrapContentHeight(),
+                .wrapContentHeight()
+                .heightIn(max = 600.dp),
             shape = RoundedCornerShape(16.dp),
             color = MaterialTheme.colorScheme.surface,
             tonalElevation = 6.dp
@@ -33,7 +45,8 @@ fun SettingsDialog(
             Column(
                 modifier = Modifier
                     .padding(24.dp)
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 // Title
@@ -129,6 +142,30 @@ fun SettingsDialog(
                 
                 HorizontalDivider()
                 
+                // Controls section
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = stringResource(Res.string.controls),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    
+                    // Control pad switch
+                    GenericSwitch(
+                        state = AppSettings.showControlPad,
+                        checkedText = stringResource(Res.string.control_pad_enabled),
+                        uncheckedText = stringResource(Res.string.control_pad_disabled),
+                        onCheckedChange = { enabled ->
+                            AppSettings.saveShowControlPad(enabled)
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+                
+                HorizontalDivider()
+                
                 // Language section
                 Column(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -145,6 +182,30 @@ fun SettingsDialog(
                             AppSettings.saveLanguage(locale)
                         }
                     )
+                }
+                
+                HorizontalDivider()
+                
+                // Game Data section
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = stringResource(Res.string.game_data),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    
+                    // Restore game data button
+                    OutlinedButton(
+                        onClick = {
+                            showRestoreConfirmation = true
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = !isRestoring
+                    ) {
+                        Text(stringResource(Res.string.restore_game_data))
+                    }
                 }
                 
                 HorizontalDivider()
@@ -173,5 +234,53 @@ fun SettingsDialog(
                 }
             }
         }
+    }
+    
+    // Restore confirmation dialog
+    if (showRestoreConfirmation) {
+        ConfirmationDialog(
+            title = stringResource(Res.string.restore_game_data_confirm_title),
+            message = stringResource(Res.string.restore_game_data_confirm_message),
+            onDismiss = { 
+                if (!isRestoring) {
+                    showRestoreConfirmation = false
+                }
+            },
+            onConfirm = {
+                showRestoreConfirmation = false
+                isRestoring = true
+                // Perform restore in a coroutine
+                scope.launch {
+                    val result = RepositoryManager.restoreFromRepository()
+                    isRestoring = false
+                    if (result != null) {
+                        backupPath = result
+                        showRestoreSuccess = true
+                    }
+                }
+            }
+        )
+    }
+    
+    // Restore success dialog
+    if (showRestoreSuccess) {
+        AlertDialog(
+            onDismissRequest = { showRestoreSuccess = false },
+            title = { Text(stringResource(Res.string.restore_game_data_success_title)) },
+            text = { 
+                Text(
+                    stringResource(Res.string.restore_game_data_success_message, backupPath)
+                )
+            },
+            confirmButton = {
+                Button(onClick = { 
+                    showRestoreSuccess = false
+                    // Close the settings dialog after restoration
+                    onDismiss()
+                }) {
+                    Text(stringResource(Res.string.ok))
+                }
+            }
+        )
     }
 }

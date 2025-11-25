@@ -142,6 +142,40 @@ class EditorStorageTest {
     }
     
     @Test
+    fun testIsLevelReadyToPlayFunction() {
+        // Note: This test can only validate the logic, not actual file I/O
+        // The function would return false for these test levels since maps don't exist in storage
+        
+        // Test that a level with proper structure would pass initial checks
+        val validLevel = EditorLevel(
+            id = "valid_test",
+            mapId = "valid_map",
+            title = "Valid Test",
+            startCoins = 100,
+            startHealthPoints = 10,
+            enemySpawns = listOf(EditorEnemySpawn(AttackerType.GOBLIN, 1, 1)),
+            availableTowers = setOf(DefenderType.SPIKE_TOWER),
+            waypoints = emptyList() // Valid for a level
+        )
+        
+        // The level itself should be ready (has towers and spawns)
+        assertTrue(validLevel.isReadyToPlay())
+        
+        // Test that a level without essential fields fails initial check
+        val invalidLevel = EditorLevel(
+            id = "invalid_test",
+            mapId = "valid_map",
+            title = "Invalid Test",
+            startCoins = 100,
+            startHealthPoints = 10,
+            enemySpawns = emptyList(), // Missing spawns
+            availableTowers = setOf(DefenderType.SPIKE_TOWER)
+        )
+        
+        assertTrue(!invalidLevel.isReadyToPlay())
+    }
+    
+    @Test
     fun testJsonSerialization() {
         // Test map serialization
         val map = EditorMap(
@@ -193,5 +227,56 @@ class EditorStorageTest {
         assertEquals("level_1", sequence.sequence[0])
         assertEquals("level_2", sequence.sequence[1])
         assertEquals("level_3", sequence.sequence[2])
+    }
+    
+    @Test
+    fun testMoveLevelToPosition() {
+        // Test moving a level forward in the sequence
+        var sequence = LevelSequence(listOf("level_1", "level_2", "level_3", "level_4"))
+        
+        // Move level_2 from index 1 to index 3
+        val fromIndex = sequence.sequence.indexOf("level_2")
+        val toIndex = 3
+        var newSeq = sequence.sequence.toMutableList()
+        newSeq.removeAt(fromIndex)
+        val adjustedIndex = if (fromIndex < toIndex) toIndex - 1 else toIndex
+        newSeq.add(adjustedIndex, "level_2")
+        sequence = LevelSequence(newSeq)
+        
+        assertEquals(4, sequence.sequence.size)
+        assertEquals("level_1", sequence.sequence[0])
+        assertEquals("level_3", sequence.sequence[1])
+        assertEquals("level_2", sequence.sequence[2])
+        assertEquals("level_4", sequence.sequence[3])
+        
+        // Test moving a level backward in the sequence
+        sequence = LevelSequence(listOf("level_1", "level_2", "level_3", "level_4"))
+        
+        // Move level_3 from index 2 to index 0
+        val fromIndex2 = sequence.sequence.indexOf("level_3")
+        val toIndex2 = 0
+        newSeq = sequence.sequence.toMutableList()
+        newSeq.removeAt(fromIndex2)
+        val adjustedIndex2 = if (fromIndex2 < toIndex2) toIndex2 - 1 else toIndex2
+        newSeq.add(adjustedIndex2, "level_3")
+        sequence = LevelSequence(newSeq)
+        
+        assertEquals(4, sequence.sequence.size)
+        assertEquals("level_3", sequence.sequence[0])
+        assertEquals("level_1", sequence.sequence[1])
+        assertEquals("level_2", sequence.sequence[2])
+        assertEquals("level_4", sequence.sequence[3])
+        
+        // Test adding a new level at specific position
+        newSeq = sequence.sequence.toMutableList()
+        newSeq.add(2, "level_new")
+        sequence = LevelSequence(newSeq)
+        
+        assertEquals(5, sequence.sequence.size)
+        assertEquals("level_3", sequence.sequence[0])
+        assertEquals("level_1", sequence.sequence[1])
+        assertEquals("level_new", sequence.sequence[2])
+        assertEquals("level_2", sequence.sequence[3])
+        assertEquals("level_4", sequence.sequence[4])
     }
 }

@@ -2,7 +2,7 @@
 <resources>
     <!-- Main Menu -->
     <string name="app_name">Défenseur d\'Egril</string>
-    <string name="app_subtitle">Défendez les prairies d\'Egril contre\nles Hordes de Gleid Thyae sous\nla Bannière du maléfique Ewhad</string>
+    <string name="app_subtitle">Défendez les prairies d\'Egril contre les Hordes de Gleid Thyae sous la Bannière du maléfique Ewhad</string>
     <string name="start_game">Commencer le jeu</string>
     <string name="rules">Règles</string>
     
@@ -24,6 +24,12 @@
     <string name="dark_mode_on">Mode Sombre Activé</string>
     <string name="dark_mode_off">Mode Sombre Désactivé</string>
     <string name="reset_settings">Réinitialiser les Paramètres</string>
+    <string name="restore_game_data">Restaurer les Données du Jeu</string>
+    <string name="restore_game_data_confirm_title">Restaurer les Données du Jeu ?</string>
+    <string name="restore_game_data_confirm_message">Cela sauvegardera vos données actuelles du jeu et restaurera les niveaux d\'origine depuis le dépôt. Vos données actuelles seront conservées dans un dossier de sauvegarde. Êtes-vous sûr ?</string>
+    <string name="restore_game_data_success_title">Données du Jeu Restaurées</string>
+    <string name="restore_game_data_success_message">Les données du jeu ont été restaurées depuis le dépôt. Vos données précédentes ont été sauvegardées dans : %s</string>
+    <string name="game_data">Données du Jeu</string>
     <string name="close">Fermer</string>
     
     <!-- Common Actions -->
@@ -323,6 +329,8 @@
     <string name="available_levels">Niveaux disponibles (Pas dans la séquence):</string>
     <string name="add_to_sequence">Ajouter à la séquence</string>
     <string name="remove_from_sequence">Retirer de la séquence</string>
+    <string name="drag_to_reorder">Glisser pour réorganiser</string>
+    <string name="drag_to_add">Glisser pour ajouter</string>
     <string name="remove_level_confirmation_title">Retirer le niveau de la séquence?</string>
     <string name="remove_level_confirmation_message">Êtes-vous sûr de vouloir retirer "%s" de la séquence de niveaux? Le niveau ne sera pas supprimé et pourra être rajouté plus tard.</string>
     <string name="save_map_as_new">Enregistrer la carte comme nouvelle</string>
@@ -365,13 +373,13 @@
     <string name="tutorial_resources_title">Ressources</string>
     <string name="tutorial_resources">Vous avez des pièces pour construire des tours et des points de vie. Les ennemis faibles coûtent 1 PV, mais les ennemis puissants (sorciers, sorcières, mages maléfiques, démons, dragons) coûtent des PV égaux à leur niveau. Ewhad coûte tous vos PV!</string>
     <string name="tutorial_towers_title">Tours disponibles</string>
-    <string name="tutorial_towers">Tour à Piques: Courte portée, bon marché\nTour de Lance: Portée moyenne\nTour d'Arc: Longue portée\n\nChoisissez judicieusement selon votre stratégie!</string>
+    <string name="tutorial_towers">Tour à Piques: Courte portée, bon marché. Tour de Lance: Portée moyenne. Tour d'Arc: Longue portée. Choisissez judicieusement selon votre stratégie!</string>
     <string name="tutorial_build_title">Construire des tours</string>
     <string name="tutorial_build">Sélectionnez un type de tour ci-dessous, puis cliquez sur une zone de construction verte pour la placer. Construisez vos défenses!</string>
     <string name="tutorial_initial_building_title">Phase de construction initiale</string>
     <string name="tutorial_initial_building">Dans cette phase initiale, les tours sont construites instantanément mais ne peuvent pas encore attaquer. Cliquez sur une tour pour voir sa portée - les tuiles du chemin obtiennent des bordures vertes. Plus tard dans le jeu, les tours prendront 1-2 tours pour se construire.</string>
     <string name="tutorial_undo_title">Annuler les tours</string>
-    <string name="tutorial_undo">Pendant cette phase initiale, vous pouvez annuler le placement d'une tour en la sélectionnant et en la vendant pour un remboursement complet. Après le début de la bataille, vous ne pouvez vendre les tours que pour 75% de leur valeur.</string>
+    <string name="tutorial_undo">Pendant cette phase initiale, vous pouvez annuler le placement d'une tour en la sélectionnant et en la vendant pour un remboursement complet. Après le début de la bataille, vous ne pouvez vendre les tours que pour 75%% de leur valeur.</string>
     <string name="tutorial_combat_title">Démarrer la bataille</string>
     <string name="tutorial_combat">Cliquez sur le bouton Démarrer la bataille lorsque vous êtes prêt. Votre objectif est de défendre la Cible à la fin du chemin - ne laissez pas les ennemis l'atteindre!</string>
     <string name="tutorial_enemies_title">Ennemis en approche!</string>
@@ -383,7 +391,7 @@
     <string name="tutorial_upgrade_title">Améliorer les tours</string>
     <string name="tutorial_upgrade">Sélectionnez une tour et cliquez sur Améliorer pour augmenter ses statistiques. Vous verrez les dégâts, la portée et les actions actuelles par tour, ainsi que ce qu'elles seront après l'amélioration. Les améliorations coûtent des pièces mais rendent les tours plus puissantes!</string>
     <string name="tutorial_sell_title">Vendre des tours</string>
-    <string name="tutorial_sell">Sélectionnez une tour et cliquez sur Vendre pour récupérer 75% de son investissement total (coût + améliorations). Utilisez ceci si vous avez besoin de pièces ou souhaitez repositionner votre défense.</string>
+    <string name="tutorial_sell">Sélectionnez une tour et cliquez sur Vendre pour récupérer 75%% de son investissement total (coût + améliorations). Utilisez ceci si vous avez besoin de pièces ou souhaitez repositionner votre défense.</string>
     <string name="tutorial_save_game_title">Sauvegardez votre progression</string>
     <string name="tutorial_save_game">Vous pouvez sauvegarder votre jeu à tout moment en utilisant le bouton Sauvegarder. Cela vous permet d'essayer différentes stratégies ou de continuer plus tard. Pour charger une partie sauvegardée, utilisez le bouton Charger sur l'écran de la carte du monde.</string>
     <string name="tutorial_complete_title">Tutoriel terminé!</string>
@@ -397,19 +405,42 @@
     <string name="sound_enabled">Son activé</string>
     <string name="sound_disabled">Son désactivé</string>
     <string name="sound_volume">Volume du son</string>
+
+    <!-- Control Pad Settings -->
+    <string name="controls">Contrôles</string>
+    <string name="show_control_pad">Afficher le pavé directionnel</string>
+    <string name="control_pad_enabled">Pavé directionnel activé</string>
+    <string name="control_pad_disabled">Pavé directionnel désactivé</string>
     
     <!-- Dragon Names -->
     <string name="the_dragon">Le dragon</string>
     <string name="awakens">se réveille</string>
     <string name="lair_of_the_dragon">Repaire du Dragon</string>
 
+    <!-- Dragon Info -->
+    <string name="dragon_info_title">Alerte Dragon !</string>
+    <string name="dragon_info_movement">Le dragon alterne ses mouvements : Tour 1, 3, 5... : Marche 1 case sur le chemin. Tour 2, 4, 6... : Vole jusqu\'à 5 cases, peut traverser les obstacles mais doit atterrir sur le chemin</string>
+    <string name="dragon_info_eating">Les dragons dévorent les ennemis sur lesquels ils atterrissent (sauf Ewhad), gagnant leurs points de vie !</string>
+    <string name="dragon_info_level">Le niveau du dragon augmente avec la santé : Niveau = PV ÷ 500 (min. 1)</string>
+    <string name="got_it">Compris !</string>
+
     <!-- Dragon Greed Info -->
     <string name="dragon_greed_title">Avidité du Dragon !</string>
-    <string name="dragon_greed_message">Le dragon est devenu avide ! Avidité = Niveau du Dragon ÷ 5\n\nLe dragon dévorera désormais des unités sur les tuiles adjacentes selon son niveau d\'avidité à chaque tour.</string>
+    <string name="dragon_greed_message">Le dragon est devenu avide ! Avidité = Niveau du Dragon ÷ 5. Le dragon dévorera désormais des unités sur les tuiles adjacentes selon son niveau d\'avidité à chaque tour.</string>
     <string name="dragon_very_greedy_title">Raid Minier du Dragon !</string>
-    <string name="dragon_very_greedy_message">Le dragon est très avide (avidité > 5) !\n\nIl va maintenant traquer et détruire les mines naines, absorbant toute la santé qu\'aurait un nouveau dragon (500 PV par mine).\n\nLes mines deviendront des décombres détruits. Défendez-les ou reconstruisez rapidement !</string>
+    <string name="dragon_very_greedy_message">Le dragon est très avide (avidité > 5) ! Il va maintenant traquer et détruire les mines naines, absorbant toute la santé qu\'aurait un nouveau dragon (500 PV par mine). Les mines deviendront des décombres détruits. Défendez-les ou reconstruisez rapidement !</string>
     <string name="mine_warning_title">Mine Menacée !</string>
     <string name="mine_warning_message">Le dragon approche ! Les nains se préparent à défendre leur mine, mais cela pourrait ne pas suffire...</string>
+    
+    <!-- Enemy Info Display -->
+    <string name="greedy_label">avide</string>
+    <string name="very_greedy_label">très avide</string>
+    <string name="greedy_desc">Mange les unités ennemies environnantes</string>
+    <string name="very_greedy_desc">Mange les unités ennemies environnantes et détruit les mines l\'une après l\'autre</string>
+    <string name="greed_level_label">Avidité</string>
+    <string name="dragon_info_button">Que fait un dragon ?</string>
+    <string name="mighty_unit_warning">Unité puissante ! Inflige %d PV de dégâts si elle atteint la cible (niveau × 1 PV)</string>
+    <string name="ewhad_target_warning">BOSS ! Si Ewhad atteint la cible, le niveau est perdu !</string>
 <!-- Waypoint Editor -->
     <string name="waypoints_tab">Points de Passage</string>
     <string name="waypoints_title">Connexions des Points de Passage</string>
@@ -425,10 +456,66 @@
     <string name="circular_dependency_detected">Dépendance circulaire détectée ! Corrigez les connexions des points de passage.</string>
     <string name="waypoint_position_format">Position (%d, %d)</string>
     <string name="spawn_point_text">Point d\'Apparition</string>
+    <string name="spawn_point">Point d\'Apparition</string>
+    <string name="select_spawn_point">Sélectionner le point d\'apparition</string>
+    <string name="change_spawn_point">Changer le Point d\'Apparition</string>
+    <string name="select_spawn_point_for_enemy">Sélectionnez le point d\'apparition pour cet ennemi</string>
+    <string name="no_spawn_points_available">Aucun point d\'apparition disponible sur cette carte</string>
+    <string name="no_spawn_point_set">Aucun point d\'apparition défini</string>
+    <string name="change">Changer</string>
+    <string name="select">Sélectionner</string>
     <string name="target_text">Cible</string>
+    <string name="waypoint">Point de Passage</string>
     <string name="select_source_position">Sélectionner la position source</string>
     <string name="select_target_position">Sélectionner la position cible</string>
     <string name="waypoint_exists_error">Une connexion de point de passage depuis cette position existe déjà</string>
     <string name="remove_all_waypoints">Tout Supprimer</string>
     <string name="confirm_remove_all_waypoints">Êtes-vous sûr de vouloir supprimer toutes les connexions de points de passage ?</string>
+    <string name="click_to_connect_waypoints">Cliquez sur les points de passage sur la carte pour les connecter</string>
+    <string name="select_on_map">Connecter Points de Passage</string>
+    <string name="show_connected">Afficher connectés</string>
+    <string name="connect">Connecter</string>
+    <string name="waypoint_chains_title">Chaînes de Points de Passage</string>
+    <string name="unconnected_waypoint_warning">Point de passage non connecté</string>
+    <string name="circular_dependency_warning">Dépendance circulaire</string>
+    <string name="waypoint_tree_view">Vue en Arbre</string>
+    <string name="waypoint_list_view">Vue en Liste</string>
+    <string name="click_source_waypoint">1. Cliquez sur une source (spawn ou point de passage)</string>
+    <string name="click_target_waypoint">2. Cliquez sur une cible (point de passage ou cible)</string>
+    <string name="connection_mode_active">Mode connexion actif</string>
+    <string name="cancel_connection">Annuler</string>
+    
+    <!-- Plurals -->
+    <plurals name="enemy_count">
+        <item quantity="one">%d ennemi</item>
+        <item quantity="other">%d ennemis</item>
+    </plurals>
+    <plurals name="turn_count">
+        <item quantity="one">%d tour</item>
+        <item quantity="other">%d tours</item>
+    </plurals>
+    <plurals name="coin_count">
+        <item quantity="one">%d pièce</item>
+        <item quantity="other">%d pièces</item>
+    </plurals>
+    <plurals name="health_point_count">
+        <item quantity="one">%d point de vie</item>
+        <item quantity="other">%d points de vie</item>
+    </plurals>
+    
+    <!-- New Repository Data Dialog -->
+    <string name="new_repository_data_title">Nouveau contenu disponible</string>
+    <string name="new_repository_data_message">De nouvelles cartes et niveaux ont été trouvés dans le référentiel qui ne sont pas dans vos données de jeu. Voulez-vous les ajouter ?</string>
+    <string name="new_maps_found">%d nouvelle(s) carte(s) trouvée(s) :</string>
+    <string name="new_levels_found">%d nouveau(x) niveau(x) trouvé(s) :</string>
+    <string name="and_more">et %d de plus...</string>
+    <string name="sequence_will_be_replaced">La séquence de niveaux sera mise à jour.</string>
+    <string name="sequence_backup_warning">Remarque : Si vous avez modifié le fichier de séquence, vous devrez refaire ces modifications. Votre séquence actuelle sera sauvegardée dans sequence-N.json.</string>
+    <string name="add_data">Ajouter du nouveau contenu</string>
+    
+    <!-- Unsaved Changes Dialog -->
+    <string name="unsaved_changes_title">Modifications non enregistrées</string>
+    <string name="unsaved_changes_message">Vous avez des progrès non enregistrés dans ce niveau. Que souhaitez-vous faire ?</string>
+    <string name="save_and_exit">Enregistrer et Quitter</string>
+    <string name="discard_changes">Ignorer les Modifications</string>
 </resources>

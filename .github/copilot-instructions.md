@@ -106,6 +106,19 @@ Defender of Egril is a turn-based tower defense game built with Kotlin Multiplat
   - `AttackerType.getLocalizedName()` - Enemy names
   - `AttackType.getLocalizedName()` - Attack type names
 
+### Icons and Emojis
+- **DO NOT use Unicode emojis/icons in Kotlin code** - They don't display correctly on WASM
+- **DO NOT include Unicode emojis/icons in string resources** - Use icon components instead
+- **Use Icon Components**: All icons are in `ui/icon/IconUtils.kt` (e.g., `WarningIcon`, `InfoIcon`, `LightningIcon`, `HeartIcon`, `LockIcon`)
+- **Display Icons**: Use composable icon functions with `Row` and proper spacing
+- **Example**: Instead of `"⚠️ Warning text"`, use:
+  ```kotlin
+  Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+      WarningIcon(size = 14.dp)
+      Text("Warning text")
+  }
+  ```
+
 ### Grid System
 - **Hexagonal Grid**: Uses offset coordinate system (even-q vertical layout)
 - **HexUtils**: Provides neighbor detection, distance calculation, and line-of-sight
@@ -126,7 +139,7 @@ Defender of Egril is a turn-based tower defense game built with Kotlin Multiplat
 - **Wizard Tower**: Area-of-effect fireball, 3 range, 2 turn build time (50 coins)
 - **Alchemy Tower**: Acid damage-over-time, 2 range (40 coins)
 - **Ballista Tower**: Long-range siege, 5 range, minimum range 3, 2 turn build time (60 coins)
-- **Dwarven Mine**: Generates coins through mining, 0 damage, special dig action (30 coins)
+- **Dwarven Mine**: Generates coins through mining, 0 damage, special dig action, 3 turn build time (100 coins)
 - **Dragon's Lair**: Spawns dragons, cannot be sold or upgraded (0 coins - special placement)
 
 ### Current Enemy Types
@@ -167,7 +180,7 @@ Defender of Egril is a turn-based tower defense game built with Kotlin Multiplat
    - Create level in Level Editor tab
    - Configure enemy spawns, starting resources, and available towers
    - Arrange in Level Sequence tab
-2. Files are saved in `~/.defender-of-egril/editor/` (Linux/Mac) or `%USERPROFILE%\.defender-of-egril\editor\` (Windows)
+2. Files are saved in `~/.defender-of-egril/gamedata/` (Linux/Mac) or `%USERPROFILE%\.defender-of-egril\gamedata\` (Windows)
 
 #### New Level (Code Method - Legacy)
 Add to `LevelData.createLevels()` with:
@@ -308,17 +321,17 @@ Add to `LevelData.createLevels()` with:
 ## Documentation
 
 - `README.md`: Overview and quick start
-- `DEVELOPMENT.md`: Detailed architecture and development guide
-- `GAMEPLAY.md`: Game mechanics and rules
-- `TESTING_GUIDE.md`: Manual testing procedures for UI
-- `RUNNING.md`: Platform-specific running instructions
-- `LEVEL_EDITOR.md`: Level editor features and usage (desktop and web/wasm only)
-- `SAVE_LOAD_IMPLEMENTATION.md`: Save/load system architecture
-- `GAMEPLAY_SCREEN_EXTRACTION.md`: UI component refactoring details
-- `LEVEL_EDITOR_REFACTORING.md`: Editor component refactoring
-- `CODE_REFACTORING_ANALYSIS.md`: Code organization and patterns
-- `WEB_WASM_GUIDE.md`: Web/WASM platform guide
-- `LOCALIZATION_IMPLEMENTATION.md`: Localization system implementation and usage
+- `docs/root/DEVELOPMENT.md`: Detailed architecture and development guide
+- `docs/root/GAMEPLAY.md`: Game mechanics and rules
+- `docs/guides/TESTING_GUIDE.md`: Manual testing procedures for UI
+- `docs/root/RUNNING.md`: Platform-specific running instructions
+- `docs/guides/LEVEL_EDITOR.md`: Level editor features and usage (desktop and web/wasm only)
+- `docs/implementation/SAVE_LOAD_IMPLEMENTATION.md`: Save/load system architecture
+- `docs/features/GAMEPLAY_SCREEN_EXTRACTION.md`: UI component refactoring details
+- `docs/features/LEVEL_EDITOR_REFACTORING.md`: Editor component refactoring
+- `docs/features/CODE_REFACTORING_ANALYSIS.md`: Code organization and patterns
+- `docs/guides/WEB_WASM_GUIDE.md`: Web/WASM platform guide
+- `docs/implementation/LOCALIZATION_IMPLEMENTATION.md`: Localization system implementation and usage
 
 ## Version Control
 
@@ -345,7 +358,7 @@ Add to `LevelData.createLevels()` with:
 - Dragon's Lair: Special structure that spawns dragons (cannot be sold or upgraded)
 - Enemy abilities: Some enemies can summon, heal, disable towers, or have damage immunities
 - Save/Load system: Automatic world map progress saving, manual in-game saves
-- Level Editor: Desktop and web/wasm only, stores data in `~/.defender-of-egril/editor/` (Linux/Mac) or `%USERPROFILE%\.defender-of-egril\editor\` (Windows)
+- Level Editor: Desktop and web/wasm only, stores data in `~/.defender-of-egril/gamedata/` (Linux/Mac) or `%USERPROFILE%\.defender-of-egril\gamedata\` (Windows)
 - Pan and Zoom: All platforms support panning (drag) and zooming (mouse wheel/pinch, 0.5x to 3x)
 - Minimap: Automatically appears when zoomed in to show current viewport position
 - Localization: Supports English (default), German, Spanish, French, and Italian. Language can be switched via Settings button on all screens. Uses `compose-multiplatform-localize` plugin for string resource management.
@@ -353,11 +366,11 @@ Add to `LevelData.createLevels()` with:
 ## Resources
 
 For more details, refer to:
-- Architecture: `DEVELOPMENT.md`
-- Game rules: `GAMEPLAY.md`
-- Testing: `TESTING_GUIDE.md`
-- Level Editor: `LEVEL_EDITOR.md`
-- Save/Load: `SAVE_LOAD_IMPLEMENTATION.md`
-- UI Refactoring: `GAMEPLAY_SCREEN_EXTRACTION.md`, `LEVEL_EDITOR_REFACTORING.md`
-- Web Platform: `WEB_WASM_GUIDE.md`
-- Localization: `LOCALIZATION_IMPLEMENTATION.md`
+- Architecture: `docs/root/DEVELOPMENT.md`
+- Game rules: `docs/root/GAMEPLAY.md`
+- Testing: `docs/guides/TESTING_GUIDE.md`
+- Level Editor: `docs/guides/LEVEL_EDITOR.md`
+- Save/Load: `docs/implementation/SAVE_LOAD_IMPLEMENTATION.md`
+- UI Refactoring: `docs/features/GAMEPLAY_SCREEN_EXTRACTION.md`, `docs/features/LEVEL_EDITOR_REFACTORING.md`
+- Web Platform: `docs/guides/WEB_WASM_GUIDE.md`
+- Localization: `docs/implementation/LOCALIZATION_IMPLEMENTATION.md`

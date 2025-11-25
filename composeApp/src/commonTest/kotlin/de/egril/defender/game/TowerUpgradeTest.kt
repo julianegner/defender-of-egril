@@ -20,7 +20,7 @@ class TowerUpgradeTest {
             gridWidth = 10,
             gridHeight = 6,
             startPositions = listOf(Position(0, 3)),
-            targetPosition = Position(9, 3),
+            targetPositions = listOf(Position(9, 3)),
             pathCells = (0..9).map { Position(it, 3) }.toSet(),
             buildIslands = setOf(Position(2, 1), Position(2, 2)),  // Create build islands
             attackerWaves = listOf(
@@ -71,7 +71,7 @@ class TowerUpgradeTest {
             gridWidth = 10,
             gridHeight = 6,
             startPositions = listOf(Position(0, 3)),
-            targetPosition = Position(9, 3),
+            targetPositions = listOf(Position(9, 3)),
             pathCells = (0..9).map { Position(it, 3) }.toSet(),
             buildIslands = setOf(Position(2, 1), Position(2, 2)),
             attackerWaves = listOf(
@@ -119,7 +119,7 @@ class TowerUpgradeTest {
             gridWidth = 10,
             gridHeight = 6,
             startPositions = listOf(Position(0, 3)),
-            targetPosition = Position(9, 3),
+            targetPositions = listOf(Position(9, 3)),
             pathCells = (0..9).map { Position(it, 3) }.toSet(),
             buildIslands = setOf(Position(2, 1), Position(2, 2)),
             attackerWaves = listOf(
@@ -165,7 +165,7 @@ class TowerUpgradeTest {
             gridWidth = 10,
             gridHeight = 6,
             startPositions = listOf(Position(0, 3)),
-            targetPosition = Position(9, 3),
+            targetPositions = listOf(Position(9, 3)),
             pathCells = (0..9).map { Position(it, 3) }.toSet(),
             buildIslands = setOf(Position(2, 1), Position(2, 2)),
             attackerWaves = listOf(
@@ -211,7 +211,7 @@ class TowerUpgradeTest {
             gridWidth = 10,
             gridHeight = 6,
             startPositions = listOf(Position(0, 3)),
-            targetPosition = Position(9, 3),
+            targetPositions = listOf(Position(9, 3)),
             pathCells = (0..9).map { Position(it, 3) }.toSet(),
             buildIslands = setOf(Position(2, 1), Position(2, 2)),
             attackerWaves = listOf(

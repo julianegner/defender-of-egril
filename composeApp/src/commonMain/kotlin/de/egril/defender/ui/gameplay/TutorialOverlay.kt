@@ -10,12 +10,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import de.egril.defender.model.TutorialStep
+import de.egril.defender.model.InfoType
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
 
 /**
  * Tutorial card that shows step-by-step instructions in the upper right corner
- * Can also show dragon info and greed dialogs
+ * Can also show single tutorial info dialogs (dragon info, greed info, etc.)
  */
 @Composable
 fun TutorialOverlay(
@@ -23,33 +24,13 @@ fun TutorialOverlay(
     isNextEnabled: Boolean,
     onNext: () -> Unit,
     onSkip: () -> Unit,
-    showDragonInfo: Boolean = false,
-    onDismissDragonInfo: (() -> Unit)? = null,
-    showGreedInfo: Boolean = false,
-    onDismissGreedInfo: (() -> Unit)? = null,
-    showVeryGreedyInfo: Boolean = false,
-    onDismissVeryGreedyInfo: (() -> Unit)? = null,
-    showMineWarning: Boolean = false,
-    onDismissMineWarning: (() -> Unit)? = null
+    currentInfo: InfoType = InfoType.NONE,
+    onDismissInfo: (() -> Unit)? = null
 ) {
-    // Priority order: Dragon info > Greed info > Very greedy info > Mine warning > Tutorial
-    if (showDragonInfo) {
-        DragonInfoContent(onDismiss = onDismissDragonInfo ?: {})
-        return
-    }
-    
-    if (showGreedInfo) {
-        GreedInfoContent(onDismiss = onDismissGreedInfo ?: {})
-        return
-    }
-    
-    if (showVeryGreedyInfo) {
-        VeryGreedyInfoContent(onDismiss = onDismissVeryGreedyInfo ?: {})
-        return
-    }
-    
-    if (showMineWarning) {
-        MineWarningContent(onDismiss = onDismissMineWarning ?: {})
+    // Priority: Single info > Tutorial
+    // Handle info system
+    if (currentInfo != InfoType.NONE) {
+        InfoContent(infoType = currentInfo, onDismiss = onDismissInfo ?: {})
         return
     }
     
@@ -179,6 +160,20 @@ private fun shouldShowSkipButton(step: TutorialStep): Boolean {
         TutorialStep.TOWER_TYPES,
         TutorialStep.BUILD_TOWER
     )
+}
+
+/**
+ * Unified info content shown for single tutorial infos
+ */
+@Composable
+private fun InfoContent(infoType: InfoType, onDismiss: () -> Unit) {
+    when (infoType) {
+        InfoType.DRAGON_INFO -> DragonInfoContent(onDismiss)
+        InfoType.GREED_INFO -> GreedInfoContent(onDismiss)
+        InfoType.VERY_GREEDY_INFO -> VeryGreedyInfoContent(onDismiss)
+        InfoType.MINE_WARNING -> MineWarningContent(onDismiss)
+        InfoType.NONE -> { /* No content to show */ }
+    }
 }
 
 /**

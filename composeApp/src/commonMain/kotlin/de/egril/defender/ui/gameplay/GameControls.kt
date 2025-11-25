@@ -68,7 +68,8 @@ fun GameControlsPanel(
     onDefenderAttackPosition: (Int, Position) -> Boolean,
     onPrimaryAction: () -> Unit,
     onMineAction: ((Int, MineAction) -> Unit)? = null,
-    uiScale: Float = 1f  // Add platform scale parameter
+    uiScale: Float = 1f,  // Add platform scale parameter
+    onShowDragonInfo: () -> Unit = {}  // Add dragon info callback
 ) {
     // Automatically fold buy panel when a defender or attacker is selected
     val compactBuyPanel = selectedDefenderId != null || selectedAttackerId != null
@@ -129,7 +130,8 @@ fun GameControlsPanel(
                         Box(modifier = Modifier.weight(1f)) {
                             AttackerInfo(
                                 attacker = attacker,
-                                isMobile = uiScale < 1f
+                                isMobile = uiScale < 1f,
+                                onShowDragonInfo = onShowDragonInfo
                             )
                         }
                         Spacer(modifier = Modifier.width(8.dp))

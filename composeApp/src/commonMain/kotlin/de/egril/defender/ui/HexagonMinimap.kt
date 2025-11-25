@@ -56,7 +56,8 @@ fun HexagonMinimap(
     scale: Float? = null,
     offsetX: Float? = null,
     offsetY: Float? = null,
-    containerSize: IntSize? = null
+    containerSize: IntSize? = null,
+    contentSize: IntSize? = null
 ): String {
     // Get map data from editor storage
     val sequence = remember { EditorStorage.getLevelSequence() }
@@ -105,7 +106,8 @@ fun HexagonMinimap(
             scale = scale,
             offsetX = offsetX,
             offsetY = offsetY,
-            containerSize = containerSize
+            containerSize = containerSize,
+            contentSize = contentSize
         )
     }
     
@@ -123,7 +125,8 @@ fun HexagonMinimapFromEditorMap(
     scale: Float? = null,
     offsetX: Float? = null,
     offsetY: Float? = null,
-    containerSize: IntSize? = null
+    containerSize: IntSize? = null,
+    contentSize: IntSize? = null
 ) {
     val dummyLevel = remember(map.id) {
         Level(
@@ -132,7 +135,7 @@ fun HexagonMinimapFromEditorMap(
             gridWidth = map.width,
             gridHeight = map.height,
             startPositions = emptyList(),
-            targetPosition = Position(0, 0),
+            targetPositions = listOf(Position(0, 0)),
             pathCells = emptySet(),
             buildIslands = emptySet(),
             attackerWaves = emptyList()
@@ -154,7 +157,8 @@ fun HexagonMinimapFromEditorMap(
             scale = scale,
             offsetX = offsetX,
             offsetY = offsetY,
-            containerSize = containerSize
+            containerSize = containerSize,
+            contentSize = contentSize
         )
     }
 }
@@ -168,7 +172,8 @@ private fun HexagonMinimapContent(
     scale: Float?,
     offsetX: Float?,
     offsetY: Float?,
-    containerSize: IntSize?
+    containerSize: IntSize?,
+    contentSize: IntSize?
 ) {
     val isDarkMode = de.egril.defender.ui.settings.AppSettings.isDarkMode.value
     
@@ -236,7 +241,6 @@ private fun HexagonMinimapContent(
                             if (isDarkMode) Color(0xFF3E3528) else Color(0xFF8B4513)
                         }
                         TileType.NO_PLAY -> if (isDarkMode) Color(0xFF2C2C2C) else Color(0xFF808080)
-                        TileType.WAYPOINT -> if (isDarkMode) Color(0xFF9A7B00) else Color(0xFFFFD700)
                     }
                     
                     // Draw hexagon
@@ -246,22 +250,29 @@ private fun HexagonMinimapContent(
             
             // Draw units if gameState is provided and config allows
             // Note: Units use the game's grid coordinate system (gameState.level.gridWidth x gridHeight)
-            // which is independent of the hexagon map tile layout. Units are rendered as overlay circles
-            // positioned relative to the scaled and centered hex map.
+            // Units must be positioned using the same hexagonal offset logic as the map tiles
             if (gameState != null) {
-                // Units are positioned relative to the scaled map area
-                val cellWidth = scaledMapWidth / level.gridWidth
-                val cellHeight = scaledMapHeight / level.gridHeight
+                // Helper function to calculate hexagon center position for a given grid position
+                fun getHexCenterPosition(position: Position): Offset {
+                    val row = position.y
+                    val col = position.x
+                    
+                    // Calculate hex center position using the same logic as map tile rendering
+                    val offsetXHex = if (row % 2 == 1) hexWidth / 2 else 0.0f
+                    val centerX = offsetXCanvas + col * hexWidth + offsetXHex + hexWidth / 2
+                    val centerY = offsetYCanvas + row * verticalSpacing + hexHeight / 2
+                    
+                    return Offset(centerX, centerY)
+                }
                 
                 // Draw defenders (towers)
                 if (config.showTowers) {
                     gameState.defenders.forEach { defender ->
-                        val x = offsetXCanvas + defender.position.x * cellWidth + cellWidth / 2
-                        val y = offsetYCanvas + defender.position.y * cellHeight + cellHeight / 2
+                        val center = getHexCenterPosition(defender.position)
                         drawCircle(
                             color = Color(0xFF2196F3),  // Blue - same as ready towers on main map
-                            radius = cellWidth.coerceAtMost(cellHeight) / 3,
-                            center = Offset(x, y)
+                            radius = hexSize / 2,
+                            center = center
                         )
                     }
                 }
@@ -269,12 +280,11 @@ private fun HexagonMinimapContent(
                 // Draw attackers (enemies)
                 if (config.showEnemies) {
                     gameState.attackers.filter { !it.isDefeated.value }.forEach { attacker ->
-                        val x = offsetXCanvas + attacker.position.value.x * cellWidth + cellWidth / 2
-                        val y = offsetYCanvas + attacker.position.value.y * cellHeight + cellHeight / 2
+                        val center = getHexCenterPosition(attacker.position.value)
                         drawCircle(
                             color = Color.Red,
-                            radius = cellWidth.coerceAtMost(cellHeight) / 4,
-                            center = Offset(x, y)
+                            radius = hexSize / 2.5f,
+                            center = center
                         )
                     }
                 }
@@ -282,44 +292,61 @@ private fun HexagonMinimapContent(
                 // Draw spawn points (if not already shown as tiles)
                 if (config.showSpawnPoints && !hasSpawnTile) {
                     level.startPositions.forEach { spawnPos ->
-                        val x = offsetXCanvas + spawnPos.x * cellWidth + cellWidth / 2
-                        val y = offsetYCanvas + spawnPos.y * cellHeight + cellHeight / 2
+                        val center = getHexCenterPosition(spawnPos)
                         drawCircle(
                             color = Color(0xFFFF9800),  // Orange
-                            radius = cellWidth.coerceAtMost(cellHeight) / 3,
-                            center = Offset(x, y)
+                            radius = hexSize / 2,
+                            center = center
                         )
                     }
                 }
                 
-                // Draw target position (if not already shown as tiles)
+                // Draw target positions (if not already shown as tiles)
                 if (config.showTarget && !hasTargetTile) {
-                    val targetX = offsetXCanvas + level.targetPosition.x * cellWidth + cellWidth / 2
-                    val targetY = offsetYCanvas + level.targetPosition.y * cellHeight + cellHeight / 2
-                    drawCircle(
-                        color = Color(0xFF4CAF50),  // Green
-                        radius = cellWidth.coerceAtMost(cellHeight) / 3,
-                        center = Offset(targetX, targetY)
-                    )
+                    level.targetPositions.forEach { targetPos ->
+                        val center = getHexCenterPosition(targetPos)
+                        drawCircle(
+                            color = Color(0xFF4CAF50),  // Green
+                            radius = hexSize / 2,
+                            center = center
+                        )
+                    }
                 }
             }
         }
         
         // Viewport indicator (shows current view) - only if all viewport params are provided
-        if (config.showViewport && scale != null && offsetX != null && offsetY != null && containerSize != null) {
-            if (containerSize.width > 0 && containerSize.height > 0) {
-                val viewportWidthRatio = 1f / scale
-                val viewportHeightRatio = 1f / scale
+        if (config.showViewport && scale != null && offsetX != null && offsetY != null && containerSize != null && contentSize != null) {
+            if (containerSize.width > 0 && containerSize.height > 0 && contentSize.width > 0 && contentSize.height > 0) {
+                // Calculate what portion of the map is actually visible
+                // scaledContentSize is the size of the map at the current zoom level
+                val scaledContentWidth = contentSize.width * scale
+                val scaledContentHeight = contentSize.height * scale
+                
+                // Calculate viewport ratio - what fraction of the map is visible
+                // When zoomed in, less of the map is visible (smaller ratio)
+                // When zoomed out, more of the map is visible (larger ratio, but clamped to 1.0)
+                val viewportWidthRatio = (containerSize.width.toFloat() / scaledContentWidth).coerceAtMost(1f)
+                val viewportHeightRatio = (containerSize.height.toFloat() / scaledContentHeight).coerceAtMost(1f)
 
-                // Calculate normalized offset (-1 to 1 range)
-                val maxOffsetX = (containerSize.width * (scale - 1) / 2).coerceAtLeast(0.01f)
-                val maxOffsetY = (containerSize.height * (scale - 1) / 2).coerceAtLeast(0.01f)
-                val normalizedOffsetX = -offsetX / maxOffsetX
-                val normalizedOffsetY = -offsetY / maxOffsetY
+                // Calculate viewport position
+                // The viewport can be panned within the bounds of (scaledContentSize - containerSize)
+                // maxOffset is how far we can pan in each direction from center
+                val maxOffsetX = ((scaledContentWidth - containerSize.width) / 2).coerceAtLeast(0.01f)
+                val maxOffsetY = ((scaledContentHeight - containerSize.height) / 2).coerceAtLeast(0.01f)
+                
+                // Normalize the current offset to 0-1 range (0 = left/top edge, 1 = right/bottom edge)
+                // offsetX is positive when panned left (showing right side), negative when panned right (showing left side)
+                // So we negate it to get the correct direction
+                val normalizedOffsetX = (-offsetX / maxOffsetX).coerceIn(-1f, 1f)
+                val normalizedOffsetY = (-offsetY / maxOffsetY).coerceIn(-1f, 1f)
 
                 // Calculate viewport position in minimap
-                val viewportX = (normalizedOffsetX * (1f - viewportWidthRatio) / 2f + (1f - viewportWidthRatio) / 2f)
-                val viewportY = (normalizedOffsetY * (1f - viewportHeightRatio) / 2f + (1f - viewportHeightRatio) / 2f)
+                // The viewport box can move within the area: (1.0 - viewportRatio)
+                // normalizedOffset ranges from -1 (left/top) to 1 (right/bottom)
+                // We map this to 0 (left/top of minimap) to (1 - viewportRatio) (right/bottom of minimap)
+                val viewportX = ((normalizedOffsetX + 1f) / 2f) * (1f - viewportWidthRatio)
+                val viewportY = ((normalizedOffsetY + 1f) / 2f) * (1f - viewportHeightRatio)
 
                 Box(
                     modifier = Modifier

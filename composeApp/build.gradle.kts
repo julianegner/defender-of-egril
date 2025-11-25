@@ -76,7 +76,6 @@ kotlin {
     
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
-        moduleName = "defenderOfEgril"
         browser {
             commonWebpackConfig {
                 outputFileName = "defenderOfEgril.js"
@@ -91,7 +90,7 @@ kotlin {
         iosSimulatorArm64()
     ).forEach { iosTarget ->
         iosTarget.binaries.framework {
-            baseName = "ComposeApp"
+            baseName = "DefenderOfEgril"
             isStatic = true
         }
     }
@@ -100,6 +99,7 @@ kotlin {
         val desktopMain by getting
         val desktopTest by getting
         val wasmJsMain by getting
+        val androidMain by getting
         
         // Add generated source directory to commonMain
         commonMain {
@@ -110,6 +110,21 @@ kotlin {
                     "generated/compose/resourceGenerator/kotlin/commonCustomResClass"
                 )
             )
+        }
+        
+        // Create jvmMain as intermediate source set shared by Android and Desktop
+        val jvmMain by creating {
+            dependsOn(commonMain.get())
+        }
+        
+        // Configure androidMain to depend on jvmMain
+        androidMain.apply {
+            dependsOn(jvmMain)
+        }
+        
+        // Configure desktopMain to depend on jvmMain
+        desktopMain.apply {
+            dependsOn(jvmMain)
         }
         
         androidMain.dependencies {
@@ -149,7 +164,7 @@ kotlin {
 }
 
 // Make all Kotlin compilation tasks depend on generateBuildConfig
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.AbstractKotlinCompile<*>> {
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask<*>> {
     dependsOn(generateBuildConfig)
 }
 
@@ -178,6 +193,14 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+    
+    // Configure output file naming
+    applicationVariants.all {
+        outputs.all {
+            (this as com.android.build.gradle.internal.api.BaseVariantOutputImpl).outputFileName =
+                "de.egril.defender-${name}.apk"
+        }
+    }
 }
 
 dependencies {
@@ -190,8 +213,24 @@ compose.desktop {
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "de.egril.defender"
             packageVersion = "1.0.0"
+            
+            macOS {
+                bundleID = "de.egril.defender"
+                packageName = "defender-of-egril"
+            }
+            
+            windows {
+                menuGroup = "Defender of Egril"
+                packageName = "DefenderOfEgril"
+                perUserInstall = true
+                dirChooser = true
+                upgradeUuid = "D5F5E5C5-B5A5-95A5-85A5-75A565A555A5"
+            }
+            
+            linux {
+                packageName = "defender-of-egril"
+            }
         }
     }
 }

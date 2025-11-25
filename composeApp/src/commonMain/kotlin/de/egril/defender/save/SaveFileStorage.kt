@@ -126,7 +126,8 @@ object SaveFileStorage {
                             remainingSpawnCounts = remainingSpawnCounts,
                             comment = savedGame.comment,
                             defenderPositions = savedGame.defenders,
-                            attackerPositions = savedGame.attackers
+                            attackerPositions = savedGame.attackers,
+                            mapId = savedGame.mapId  // Include map ID for minimap display
                         )
                     )
                 }
@@ -209,7 +210,8 @@ object SaveFileStorage {
             attackersToSpawn = gameState.attackersToSpawn.toList(),
             fieldEffects = fieldEffects,
             traps = traps,
-            comment = comment
+            comment = comment,
+            mapId = gameState.level.mapId  // Save the map ID for verification on load
         )
     }
     

@@ -1,5 +1,6 @@
 package de.egril.defender.utils
 
+import kotlinx.cinterop.ExperimentalForeignApi
 import platform.Foundation.NSDate
 import platform.Foundation.NSDateFormatter
 import platform.Foundation.NSLocale
@@ -10,8 +11,9 @@ actual fun currentTimeMillis(): Long {
     return (NSDate().timeIntervalSince1970 * 1000).toLong()
 }
 
+@OptIn(ExperimentalForeignApi::class)
 actual fun formatTimestamp(timestamp: Long): String {
-    val date = NSDate(timeIntervalSince1970 = timestamp / 1000.0)
+    val date = NSDate(timestamp / 1000.0)
     val formatter = NSDateFormatter()
     formatter.dateFormat = "MMM dd, yyyy HH:mm"
     formatter.locale = NSLocale.currentLocale
