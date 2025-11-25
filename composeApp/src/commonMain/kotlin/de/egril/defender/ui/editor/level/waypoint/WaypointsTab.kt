@@ -356,17 +356,8 @@ fun WaypointsTab(
             }
         }
 
-        // Display waypoints in tree view or list view
-        if (waypoints.isEmpty()) {
-            item {
-                Text(
-                    text = stringResource(Res.string.no_waypoints_configured),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(vertical = 16.dp)
-                )
-            }
-        } else if (showTreeView) {
+        // Display spawn points and waypoints in tree view or list view
+        if (showTreeView) {
             // Tree view - shows hierarchical chain structure
             item {
                 WaypointTreeView(
@@ -384,7 +375,7 @@ fun WaypointsTab(
                 )
             }
         } else {
-            // List view - original simple list
+            // List view - shows spawn points and waypoints
             item {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -408,22 +399,73 @@ fun WaypointsTab(
                     Spacer(modifier = Modifier.width(40.dp)) // Space for delete button
                 }
             }
-
-            items(waypoints) { waypoint ->
-                WaypointConnectionCard(
-                    waypoint = waypoint,
-                    spawnPoints = spawnPoints,
-                    validWaypointPositions = existingWaypointPositions,
-                    targets = targets,
-                    isInCircular = validationResult.circularDependencies.contains(waypoint.position) ||
-                            validationResult.circularDependencies.contains(waypoint.nextTargetPosition),
-                    isUnconnected = validationResult.unconnectedWaypoints.contains(waypoint.position) ||
-                            validationResult.unconnectedWaypoints.contains(waypoint.nextTargetPosition),
-                    onDelete = {
-                        val newWaypoints = waypoints.toMutableList().apply { remove(waypoint) }
-                        onWaypointsChange(newWaypoints)
+            
+            // Show spawn points
+            items(spawnPoints) { spawnPoint ->
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Spawn (${spawnPoint.x}, ${spawnPoint.y})",
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Text(
+                        text = "→",
+                        modifier = Modifier.padding(horizontal = 8.dp)
+                    )
+                    val waypointFromSpawn = waypoints.firstOrNull { it.position == spawnPoint }
+                    if (waypointFromSpawn != null) {
+                        Text(
+                            text = "(${waypointFromSpawn.nextTargetPosition.x}, ${waypointFromSpawn.nextTargetPosition.y})",
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.weight(1f)
+                        )
+                    } else {
+                        Text(
+                            text = "—",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.weight(1f)
+                        )
                     }
-                )
+                    Spacer(modifier = Modifier.width(40.dp))
+                }
+            }
+
+            // Show waypoints
+            items(waypoints) { waypoint ->
+                // Skip waypoints that are at spawn points (already shown above)
+                if (!spawnPoints.contains(waypoint.position)) {
+                    WaypointConnectionCard(
+                        waypoint = waypoint,
+                        spawnPoints = spawnPoints,
+                        validWaypointPositions = existingWaypointPositions,
+                        targets = targets,
+                        isInCircular = validationResult.circularDependencies.contains(waypoint.position) ||
+                                validationResult.circularDependencies.contains(waypoint.nextTargetPosition),
+                        isUnconnected = validationResult.unconnectedWaypoints.contains(waypoint.position) ||
+                                validationResult.unconnectedWaypoints.contains(waypoint.nextTargetPosition),
+                        onDelete = {
+                            val newWaypoints = waypoints.toMutableList().apply { remove(waypoint) }
+                            onWaypointsChange(newWaypoints)
+                        }
+                    )
+                }
+            }
+            
+            // Show message if no waypoints at all
+            if (waypoints.isEmpty()) {
+                item {
+                    Text(
+                        text = stringResource(Res.string.no_waypoints_configured),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(vertical = 8.dp)
+                    )
+                }
             }
         }
     }
