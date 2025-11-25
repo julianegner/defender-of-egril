@@ -30,9 +30,10 @@ composeApp/src/commonMain/kotlin/com/defenderofegril/
 Stores the status of each level (LOCKED, UNLOCKED, or WON):
 ```kotlin
 data class WorldMapSave(
-    val levelStatuses: Map<Int, LevelStatus>
+    val levelStatuses: Map<String, LevelStatus>  // editorLevelId -> status
 )
 ```
+**Note**: Uses editor level ID (String) instead of numeric position to ensure stability when levels are added/removed/reordered.
 
 #### SavedGame
 Complete game state snapshot including:
