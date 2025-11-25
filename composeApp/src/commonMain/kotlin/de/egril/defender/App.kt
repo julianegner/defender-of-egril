@@ -95,7 +95,8 @@ fun App() {
                         onMineDig = { mineId -> viewModel.performMineDig(mineId) },
                         onMineBuildTrap = { mineId, trapPos -> viewModel.performMineBuildTrap(mineId, trapPos) },
                         cheatDigOutcome = cheatDigOutcome,
-                        onClearCheatDigOutcome = { viewModel.clearCheatDigOutcome() }
+                        onClearCheatDigOutcome = { viewModel.clearCheatDigOutcome() },
+                        hasUnsavedChanges = { viewModel.hasUnsavedChanges() }
                     )
                 }
             }
