@@ -46,7 +46,7 @@ fun MapEditorHeader(
         ) {
             // Header
             Text(
-                text = stringResource(Res.string.editing_map).replace("%s", map.name.ifEmpty { map.id }),
+                text = stringResource(Res.string.editing_map, map.name.ifEmpty { map.id }),
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.padding(bottom = 8.dp)
             )

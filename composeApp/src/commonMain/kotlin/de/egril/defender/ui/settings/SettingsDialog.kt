@@ -269,8 +269,7 @@ fun SettingsDialog(
             title = { Text(stringResource(Res.string.restore_game_data_success_title)) },
             text = { 
                 Text(
-                    stringResource(Res.string.restore_game_data_success_message)
-                        .replace("%s", backupPath)
+                    stringResource(Res.string.restore_game_data_success_message, backupPath)
                 )
             },
             confirmButton = {
