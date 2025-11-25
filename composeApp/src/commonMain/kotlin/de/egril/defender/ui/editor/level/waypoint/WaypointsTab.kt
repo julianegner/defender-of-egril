@@ -188,7 +188,8 @@ fun WaypointsTab(
                                         // Also notify parent
                                         onWaypointsChange(newWaypoints)
                                         // Set the clicked position as the new source for chaining
-                                        selectedSource = clickedPos
+                                        // Only if it's not a target (targets are endpoints, not sources)
+                                        selectedSource = if (targets.contains(clickedPos)) null else clickedPos
                                     }
                                     // Clicked on source again: deselect
                                     selectedSource != null && clickedPos == selectedSource -> {
