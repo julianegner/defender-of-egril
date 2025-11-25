@@ -18,9 +18,9 @@ class SaveDataTest {
     fun testWorldMapSaveSerialization() {
         val worldMapSave = WorldMapSave(
             levelStatuses = mapOf(
-                1 to LevelStatus.WON,
-                2 to LevelStatus.UNLOCKED,
-                3 to LevelStatus.LOCKED
+                "level_001" to LevelStatus.WON,
+                "level_002" to LevelStatus.UNLOCKED,
+                "level_003" to LevelStatus.LOCKED
             )
         )
         
@@ -32,9 +32,9 @@ class SaveDataTest {
         val deserialized = SaveJsonSerializer.deserializeWorldMapSave(json)
         assertNotNull(deserialized)
         assertEquals(3, deserialized.levelStatuses.size)
-        assertEquals(LevelStatus.WON, deserialized.levelStatuses[1])
-        assertEquals(LevelStatus.UNLOCKED, deserialized.levelStatuses[2])
-        assertEquals(LevelStatus.LOCKED, deserialized.levelStatuses[3])
+        assertEquals(LevelStatus.WON, deserialized.levelStatuses["level_001"])
+        assertEquals(LevelStatus.UNLOCKED, deserialized.levelStatuses["level_002"])
+        assertEquals(LevelStatus.LOCKED, deserialized.levelStatuses["level_003"])
     }
     
     @Test
