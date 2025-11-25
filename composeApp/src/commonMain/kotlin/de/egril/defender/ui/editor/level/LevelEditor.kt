@@ -428,8 +428,8 @@ fun LevelEditorView(
                     onAvailableTowersChange = { availableTowersState = it }
                 )
                 3 -> WaypointsTab(
-                    waypoints = waypointsState,
-                    onWaypointsChange = { waypointsState = it },
+                    waypoints = waypointsState.toList(),
+                    onWaypointsChange = { waypointsState = it.toMutableList() },
                     map = currentMap,
                     isValid = isWaypointsValid
                 )
@@ -548,19 +548,18 @@ private fun areWaypointsValid(
     waypointsState: MutableList<EditorWaypoint>,
     currentMap: EditorMap?,
     level: EditorLevel
-): Boolean = if (waypointsState.isEmpty()) {
-    true  // No waypoints is valid
-} else {
+): Boolean {
     val targets = currentMap?.getTargets() ?: emptyList()
-    if (targets.isNotEmpty() && currentMap != null) {
-        val spawnPoints = currentMap.getSpawnPoints()
-        val tempLevel = level.copy(waypoints = waypointsState.toList())
-        val validationResult = tempLevel.validateWaypointsDetailed(targets, spawnPoints)
-        // Valid if there are no circular dependencies and no unconnected waypoints
-        validationResult.circularDependencies.isEmpty() && validationResult.unconnectedWaypoints.isEmpty()
-    } else {
-        false
+    if (targets.isEmpty() || currentMap == null) {
+        return false
     }
+    
+    val spawnPoints = currentMap.getSpawnPoints()
+    val tempLevel = level.copy(waypoints = waypointsState.toList())
+    val validationResult = tempLevel.validateWaypointsDetailed(targets, spawnPoints)
+    
+    // Valid if validation passes
+    return validationResult.isValid
 }
 
 /**

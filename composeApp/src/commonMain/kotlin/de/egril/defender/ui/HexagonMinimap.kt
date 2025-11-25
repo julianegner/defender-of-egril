@@ -241,7 +241,6 @@ private fun HexagonMinimapContent(
                             if (isDarkMode) Color(0xFF3E3528) else Color(0xFF8B4513)
                         }
                         TileType.NO_PLAY -> if (isDarkMode) Color(0xFF2C2C2C) else Color(0xFF808080)
-                        TileType.WAYPOINT -> if (isDarkMode) Color(0xFF9A7B00) else Color(0xFFFFD700)
                     }
                     
                     // Draw hexagon
