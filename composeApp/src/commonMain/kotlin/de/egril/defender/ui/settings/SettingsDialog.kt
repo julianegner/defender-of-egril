@@ -186,6 +186,26 @@ fun SettingsDialog(
                 
                 HorizontalDivider()
                 
+                // Difficulty section
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = stringResource(Res.string.difficulty),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    
+                    DifficultyChooser(
+                        modifier = Modifier.fillMaxWidth(),
+                        onDifficultyChanged = { level ->
+                            AppSettings.saveDifficulty(level)
+                        }
+                    )
+                }
+                
+                HorizontalDivider()
+                
                 // Game Data section
                 Column(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
