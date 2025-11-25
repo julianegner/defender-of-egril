@@ -4,6 +4,7 @@ import androidx.compose.runtime.mutableStateOf
 import de.egril.defender.audio.GlobalSoundManager
 import de.egril.defender.audio.SoundEvent
 import de.egril.defender.model.*
+import de.egril.defender.ui.settings.AppSettings
 
 /**
  * Manages tower/defender placement, upgrades, undo, and selling operations.
@@ -20,10 +21,14 @@ class TowerManager(private val state: GameState) {
         
         val buildTime = if (state.phase.value == GamePhase.INITIAL_BUILDING) 0 else type.buildTime
         
+        // Get initial tower level based on difficulty
+        val initialLevel = DifficultyModifiers.getInitialTowerLevel(AppSettings.difficulty.value)
+        
         val defender = Defender(
             id = state.nextDefenderId.value++,
             type = type,
             position = position,
+            level = mutableStateOf(initialLevel),
             buildTimeRemaining = mutableStateOf(buildTime),
             placedOnTurn = state.turnNumber.value
         )
