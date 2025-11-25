@@ -379,7 +379,7 @@
     <string name="tutorial_initial_building_title">Fase di costruzione iniziale</string>
     <string name="tutorial_initial_building">In questa fase iniziale, le torri vengono costruite istantaneamente ma non possono ancora attaccare. Fai clic su una torre per vedere il suo raggio - le caselle del percorso ottengono bordi verdi. Più avanti nel gioco, le torri impiegheranno 1-2 turni per essere costruite.</string>
     <string name="tutorial_undo_title">Annulla torri</string>
-    <string name="tutorial_undo">Durante questa fase iniziale, puoi annullare il posizionamento della torre selezionandola e vendendola per un rimborso completo. Dopo l'inizio della battaglia, puoi vendere le torri solo per il 75% del loro valore.</string>
+    <string name="tutorial_undo">Durante questa fase iniziale, puoi annullare il posizionamento della torre selezionandola e vendendola per un rimborso completo. Dopo l'inizio della battaglia, puoi vendere le torri solo per il 75%% del loro valore.</string>
     <string name="tutorial_combat_title">Inizia la battaglia</string>
     <string name="tutorial_combat">Fai clic sul pulsante Inizia battaglia quando sei pronto. Il tuo obiettivo è difendere il Bersaglio alla fine del percorso - non lasciare che i nemici lo raggiungano!</string>
     <string name="tutorial_enemies_title">Nemici in arrivo!</string>
@@ -391,7 +391,7 @@
     <string name="tutorial_upgrade_title">Potenzia torri</string>
     <string name="tutorial_upgrade">Seleziona una torre e fai clic su Potenzia per aumentare le sue statistiche. Vedrai danno, raggio e azioni attuali per turno, più come saranno dopo il potenziamento. I potenziamenti costano monete ma rendono le torri più potenti!</string>
     <string name="tutorial_sell_title">Vendi torri</string>
-    <string name="tutorial_sell">Seleziona una torre e fai clic su Vendi per ottenere il 75% del suo investimento totale (costo + potenziamenti). Usa questo se hai bisogno di monete o vuoi riposizionare la tua difesa.</string>
+    <string name="tutorial_sell">Seleziona una torre e fai clic su Vendi per ottenere il 75%% del suo investimento totale (costo + potenziamenti). Usa questo se hai bisogno di monete o vuoi riposizionare la tua difesa.</string>
     <string name="tutorial_save_game_title">Salva i tuoi progressi</string>
     <string name="tutorial_save_game">Puoi salvare il tuo gioco in qualsiasi momento usando il pulsante Salva gioco. Questo ti permette di provare diverse strategie o continuare più tardi. Per caricare un gioco salvato, usa il pulsante Carica gioco sulla schermata della mappa del mondo.</string>
     <string name="tutorial_complete_title">Tutorial completato!</string>
@@ -439,6 +439,8 @@
     <string name="very_greedy_desc">Mangia unità nemiche circostanti e distrugge miniere una dopo l\'altra</string>
     <string name="greed_level_label">Avidità</string>
     <string name="dragon_info_button">Cosa fa un drago?</string>
+    <string name="mighty_unit_warning">Unità potente! Infligge %d PS di danno se raggiunge il bersaglio (livello × 1 PS)</string>
+    <string name="ewhad_target_warning">BOSS! Se Ewhad raggiunge il bersaglio, il livello è perso!</string>
 <!-- Waypoint Editor -->
     <string name="waypoints_tab">Punti di Passaggio</string>
     <string name="waypoints_title">Connessioni dei Punti di Passaggio</string>
@@ -510,4 +512,10 @@
     <string name="sequence_will_be_replaced">La sequenza dei livelli verrà aggiornata.</string>
     <string name="sequence_backup_warning">Nota: Se hai modificato il file di sequenza, dovrai rifare quelle modifiche. La tua sequenza attuale verrà salvata in sequence-N.json.</string>
     <string name="add_data">Aggiungi nuovo contenuto</string>
+    
+    <!-- Unsaved Changes Dialog -->
+    <string name="unsaved_changes_title">Modifiche non salvate</string>
+    <string name="unsaved_changes_message">Hai progressi non salvati in questo livello. Cosa vorresti fare?</string>
+    <string name="save_and_exit">Salva ed Esci</string>
+    <string name="discard_changes">Scarta Modifiche</string>
 </resources>
