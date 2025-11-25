@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import de.egril.defender.game.GameEngine
 import de.egril.defender.game.LevelData
 import de.egril.defender.model.*
+import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.utils.CheatCodeHandler
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -103,7 +104,25 @@ class GameViewModel {
     fun startLevel(levelId: Int) {
         val worldLevel = _worldLevels.value.find { it.level.id == levelId }
         if (worldLevel != null && worldLevel.status != LevelStatus.LOCKED) {
-            val newGameState = GameState(level = worldLevel.level)
+            val difficulty = AppSettings.difficulty.value
+            val level = worldLevel.level
+            
+            // Apply difficulty modifiers to spawn plan
+            val modifiedSpawnPlan = if (level.directSpawnPlan != null) {
+                DifficultyModifiers.applySpawnPlanModifier(level.directSpawnPlan, difficulty)
+            } else {
+                val basePlan = generateSpawnPlan(level.attackerWaves)
+                DifficultyModifiers.applySpawnPlanModifier(basePlan, difficulty)
+            }
+            
+            // Create GameState with difficulty-modified values
+            val newGameState = GameState(
+                level = level,
+                coins = mutableStateOf(DifficultyModifiers.applyCoinsModifier(level.initialCoins, difficulty)),
+                healthPoints = mutableStateOf(DifficultyModifiers.applyHealthPointsModifier(level.healthPoints, difficulty)),
+                spawnPlan = modifiedSpawnPlan
+            )
+            
             _gameState.value = newGameState
             gameEngine = GameEngine(newGameState)
             _currentScreen.value = Screen.GamePlay(levelId)
