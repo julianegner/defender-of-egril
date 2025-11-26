@@ -318,12 +318,20 @@ class GameViewModel {
     fun applyWorldMapCheatCode(code: String): Boolean {
         return CheatCodeHandler.applyWorldMapCheatCode(
             code = code,
-            unlockAllLevels = { unlockAllLevels() }
+            unlockAllLevels = { unlockAllLevels() },
+            unlockLevel = { editorLevelId -> unlockLevel(editorLevelId) },
+            worldLevels = _worldLevels.value
         )
     }
     
     private fun unlockAllLevels() {
         _worldLevels.value = CheatCodeHandler.unlockAllLevels(_worldLevels.value)
+        // Save updated world map status
+        saveWorldMapStatus()
+    }
+    
+    private fun unlockLevel(editorLevelId: String) {
+        _worldLevels.value = CheatCodeHandler.unlockLevel(_worldLevels.value, editorLevelId)
         // Save updated world map status
         saveWorldMapStatus()
     }
