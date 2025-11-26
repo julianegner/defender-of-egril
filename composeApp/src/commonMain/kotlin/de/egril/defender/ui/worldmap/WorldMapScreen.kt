@@ -17,6 +17,7 @@ import de.egril.defender.model.WorldLevel
 import de.egril.defender.ui.CheatCodeDialog
 import de.egril.defender.ui.isEditorAvailable
 import de.egril.defender.ui.settings.SettingsButton
+import de.egril.defender.ui.settings.DifficultyDisplay
 import de.egril.defender.ui.NewRepositoryDataDialog
 import de.egril.defender.editor.RepositoryManager
 import com.hyperether.resources.stringResource
@@ -67,8 +68,21 @@ fun WorldMapScreen(
         Box(
             modifier = Modifier.fillMaxSize().padding(16.dp)
         ) {
-            // Settings button in top-right corner
-            SettingsButton(modifier = Modifier.align(Alignment.TopEnd))
+            // Top-right row: Difficulty and Settings button
+            Row(
+                modifier = Modifier.align(Alignment.TopEnd),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Difficulty display (clickable to open dropdown)
+                DifficultyDisplay(
+                    isClickable = true,
+                    modifier = Modifier
+                )
+                
+                // Settings button
+                SettingsButton()
+            }
             
             Column(
                 modifier = Modifier.fillMaxSize(),

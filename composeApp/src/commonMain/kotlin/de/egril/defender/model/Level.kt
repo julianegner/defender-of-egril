@@ -167,6 +167,34 @@ data class Level(
             enemyTypeCounts = enemyCounts
         )
     }
+    
+    /**
+     * Convert level to LevelInfoEnemiesLevelData with difficulty modifiers applied
+     */
+    fun toLevelInfoEnemiesLevelData(difficulty: de.egril.defender.ui.settings.DifficultyLevel): LevelInfoEnemiesLevelData {
+        val enemyCounts = getEnemyTypeCounts()
+        
+        // Apply difficulty modifiers to enemy counts (Nightmare: 3x, except Ewhad stays 1)
+        val modifiedEnemyCounts = if (difficulty == de.egril.defender.ui.settings.DifficultyLevel.NIGHTMARE) {
+            enemyCounts.mapValues { (type, count) ->
+                if (type == AttackerType.EWHAD) count else count * 3
+            }
+        } else {
+            enemyCounts
+        }
+        
+        // Apply difficulty modifiers to coins and HP
+        val modifiedCoins = DifficultyModifiers.applyCoinsModifier(this.initialCoins, difficulty)
+        val modifiedHP = DifficultyModifiers.applyHealthPointsModifier(this.healthPoints, difficulty)
+        
+        return LevelInfoEnemiesLevelData(
+            id = "" + this.id,
+            name = this.name,
+            initialCoins = modifiedCoins,
+            healthPoints = modifiedHP,
+            enemyTypeCounts = modifiedEnemyCounts
+        )
+    }
 }
 
 data class AttackerWave(

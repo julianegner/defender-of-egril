@@ -426,6 +426,7 @@
     <string name="difficulty_medium_desc">Difficulté par défaut</string>
     <string name="difficulty_hard_desc">Les ennemis ont le double de niveaux</string>
     <string name="difficulty_nightmare_desc">Les ennemis apparaissent 3 fois avec des niveaux croissants</string>
+    <string name="difficulty_info_current_level">Remarque : La modification de la difficulté n\'affecte pas le niveau actuel. Démarrez ou redémarrez un niveau pour l\'appliquer.</string>
     
     <!-- Dragon Names -->
     <string name="the_dragon">Le dragon</string>
