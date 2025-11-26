@@ -31,6 +31,7 @@ import kotlin.collections.component2
 data class LevelInfoEnemiesLevelData(
     val id: String,
     val name: String,
+    val subtitle: String = "",
     val initialCoins: Int,
     val healthPoints: Int,
     val enemyTypeCounts: Map<AttackerType, Int>
@@ -67,6 +68,18 @@ fun RowScope.LevelInfoEnemiesColumn(
                     modifier = Modifier.fillMaxWidth(),
                     fontSize = 14.sp
                 )
+
+                // Show subtitle if it's not empty
+                if (level.subtitle.isNotEmpty()) {
+                    Text(
+                        text = level.subtitle,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = textColor.copy(alpha = 0.85f),
+                        textAlign = TextAlign.Start,
+                        modifier = Modifier.fillMaxWidth(),
+                        fontSize = 12.sp
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(4.dp))
 
