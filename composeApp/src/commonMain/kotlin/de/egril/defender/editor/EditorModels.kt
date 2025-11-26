@@ -393,6 +393,7 @@ data class EditorLevel(
         return LevelInfoEnemiesLevelData(
             id = "" + index,
             name = this.title,
+            subtitle = this.subtitle,
             initialCoins = startCoins,
             healthPoints = startHealthPoints,
             enemyTypeCounts = enemyCountMap

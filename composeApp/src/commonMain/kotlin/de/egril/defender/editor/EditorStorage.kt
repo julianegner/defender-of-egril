@@ -406,6 +406,7 @@ object EditorStorage {
         val level = Level(
             id = numericId,
             name = editorLevel.title,
+            subtitle = editorLevel.subtitle,
             gridWidth = map.width,
             gridHeight = map.height,
             startPositions = map.getSpawnPoints(),
