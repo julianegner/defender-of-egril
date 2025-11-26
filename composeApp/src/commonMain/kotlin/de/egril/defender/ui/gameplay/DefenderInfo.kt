@@ -32,6 +32,7 @@ fun DefenderInfo(
     onUndoTower: (Int) -> Unit,
     onSellTower: (Int) -> Unit,
     onMineAction: ((Int, MineAction) -> Unit)? = null,
+    onWizardPlaceMagicalTrap: ((Int, Position) -> Boolean)? = null,  // For wizard tower magical traps
     compactBuyPanel: Boolean = false,
     isMobile: Boolean = false,  // Add platform parameter
     selectedTargetId: Int? = null,
@@ -282,6 +283,26 @@ fun DefenderInfo(
                                 }
                             }
 
+                            // Magical trap button for wizard tower level 10+
+                            if (isPlayerTurn &&
+                                defender.type == DefenderType.WIZARD_TOWER &&
+                                defender.level.value >= 10 &&
+                                onWizardPlaceMagicalTrap != null) {
+
+                                Spacer(modifier = Modifier.width(horizontalSpacing))
+                                Column(modifier = Modifier.weight(1.3f)) {
+                                    MagicalTrapButton(
+                                        defender = defender,
+                                        gameState = gameState,
+                                        selectedTargetPosition = selectedTargetPosition,
+                                        onWizardPlaceMagicalTrap = onWizardPlaceMagicalTrap,
+                                        modifier = Modifier
+                                            .width(240.dp)
+                                            .height(buttonHeight)
+                                    )
+                                }
+                            }
+
                             dwarvenMineActionButtonArea(
                                 defender.type,
                                 gameState,
@@ -451,6 +472,85 @@ fun DefenderActionsInfo(defender: Defender) {
                 "${defender.actionsRemaining.value}/${defender.actionsPerTurnCalculated}",
                 style = MaterialTheme.typography.titleMedium,
             )
+        }
+    }
+}
+
+/**
+ * Button for wizard tower to place magical traps (level 10+)
+ */
+@Composable
+fun MagicalTrapButton(
+    defender: Defender,
+    gameState: GameState,
+    selectedTargetPosition: Position?,
+    onWizardPlaceMagicalTrap: (Int, Position) -> Boolean,
+    modifier: Modifier = Modifier.fillMaxWidth().height(56.dp)
+) {
+    if (defender.isReady && defender.actionsRemaining.value > 0) {
+        val canPlaceTrap = defender.trapCooldownRemaining.value == 0
+        val isOnCooldown = defender.trapCooldownRemaining.value > 0
+        
+        if (selectedTargetPosition != null && canPlaceTrap) {
+            // Show button to place trap at selected position
+            val canPlaceAtPosition = gameState.level.isOnPath(selectedTargetPosition) &&
+                    !gameState.traps.any { it.position == selectedTargetPosition } &&
+                    !gameState.attackers.any { it.position.value == selectedTargetPosition && !it.isDefeated.value } &&
+                    defender.position.distanceTo(selectedTargetPosition) <= defender.range
+            
+            Button(
+                onClick = { onWizardPlaceMagicalTrap(defender.id, selectedTargetPosition) },
+                enabled = canPlaceAtPosition,
+                modifier = modifier,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = GamePlayColors.InfoDark
+                )
+            ) {
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    de.egril.defender.ui.icon.PentagramIcon(size = 24.dp)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Column {
+                        Text(
+                            stringResource(Res.string.magical_trap),
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            "at (${selectedTargetPosition.x}, ${selectedTargetPosition.y})",
+                            fontSize = 11.sp
+                        )
+                    }
+                }
+            }
+        } else if (isOnCooldown) {
+            // Show cooldown status
+            Button(
+                onClick = { },
+                enabled = false,
+                modifier = modifier
+            ) {
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    de.egril.defender.ui.icon.PentagramIcon(size = 24.dp, color = Color.Gray)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Column {
+                        Text(
+                            stringResource(Res.string.magical_trap),
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            stringResource(Res.string.magical_trap_cooldown, defender.trapCooldownRemaining.value),
+                            fontSize = 11.sp
+                        )
+                    }
+                }
+            }
         }
     }
 }
