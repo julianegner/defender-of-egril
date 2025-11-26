@@ -173,6 +173,7 @@ private fun InfoContent(infoType: InfoType, onDismiss: () -> Unit) {
         InfoType.VERY_GREEDY_INFO -> VeryGreedyInfoContent(onDismiss)
         InfoType.MINE_WARNING -> MineWarningContent(onDismiss)
         InfoType.ONE_HP_WARNING -> OneHpWarningContent(onDismiss)
+        InfoType.MAGICAL_TRAP_INFO -> MagicalTrapInfoContent(onDismiss)
         InfoType.NONE -> { /* No content to show */ }
     }
 }
@@ -424,6 +425,64 @@ private fun OneHpWarningContent(onDismiss: () -> Unit) {
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.error
+                )
+            ) {
+                Text(
+                    text = stringResource(Res.string.got_it),
+                    style = MaterialTheme.typography.labelSmall
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Magical trap info content shown when wizard tower reaches level 10
+ */
+@Composable
+private fun MagicalTrapInfoContent(onDismiss: () -> Unit) {
+    Card(
+        modifier = Modifier
+            .width(400.dp)
+            .padding(16.dp),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color(0xFF9C27B0).copy(alpha = 0.15f)  // Purple background for magical theme
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            // Title with pentagram icon
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                de.egril.defender.ui.icon.PentagramIcon(size = 32.dp)
+                Text(
+                    text = stringResource(Res.string.magical_trap_tutorial_title),
+                    style = MaterialTheme.typography.titleLarge,
+                    color = Color(0xFF9C27B0)  // Purple color for magical theme
+                )
+            }
+            
+            // Message
+            Text(
+                text = stringResource(Res.string.magical_trap_tutorial_message),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            
+            Button(
+                onClick = onDismiss,
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF9C27B0)  // Purple button
                 )
             ) {
                 Text(
