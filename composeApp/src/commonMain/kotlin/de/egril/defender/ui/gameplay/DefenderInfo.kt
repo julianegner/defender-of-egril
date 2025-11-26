@@ -486,60 +486,37 @@ fun MagicalTrapButton(
     modifier: Modifier = Modifier.fillMaxWidth().height(56.dp)
 ) {
     if (defender.isReady) {
-        val canPlaceTrap = defender.trapCooldownRemaining.value == 0 && defender.actionsRemaining.value > 0
         val isOnCooldown = defender.trapCooldownRemaining.value > 0
         
-        if (canPlaceTrap) {
-            // Button to enter magical trap placement mode - enabled when trap is ready and has actions
-            Button(
-                onClick = { onWizardAction(defender.id, WizardAction.PLACE_MAGICAL_TRAP) },
-                enabled = true,
-                modifier = modifier,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = GamePlayColors.InfoDark
-                )
+        // Button to enter magical trap placement mode - enabled when trap is ready and has actions
+        Button(
+            onClick = { onWizardAction(defender.id, WizardAction.PLACE_MAGICAL_TRAP) },
+            enabled = !isOnCooldown && defender.actionsRemaining.value > 0,
+            modifier = modifier,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = GamePlayColors.InfoDark
+            )
+        ) {
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    de.egril.defender.ui.icon.PentagramIcon(size = 24.dp)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Column {
-                        Text(
-                            stringResource(Res.string.magical_trap),
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            stringResource(Res.string.magical_trap_available),
-                            fontSize = 11.sp
-                        )
-                    }
+                de.egril.defender.ui.icon.PentagramIcon(size = 24.dp)
+                Spacer(modifier = Modifier.width(8.dp))
+                Column(modifier = Modifier.weight(3f)) {
+                    Text(
+                        stringResource(Res.string.magical_trap),
+                        fontSize = if (isOnCooldown) 14.sp else 16.sp,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
-            }
-        } else if (isOnCooldown) {
-            // Show cooldown status - always show cooldown turns remaining
-            Button(
-                onClick = { },
-                enabled = false,
-                modifier = modifier
-            ) {
-                Row(
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    de.egril.defender.ui.icon.PentagramIcon(size = 24.dp, color = Color.Gray)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Column {
+                if (isOnCooldown) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Spacer(modifier = Modifier.width(2.dp))
                         Text(
-                            stringResource(Res.string.magical_trap),
-                            fontSize = 16.sp,
+                            defender.trapCooldownRemaining.value.toString(),
+                            fontSize = 14.sp,
                             fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            stringResource(Res.string.magical_trap_cooldown, defender.trapCooldownRemaining.value),
-                            fontSize = 11.sp
                         )
                     }
                 }
