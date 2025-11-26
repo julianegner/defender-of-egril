@@ -31,6 +31,7 @@ fun GamePlayScreen(
     onCheatCode: ((String) -> Boolean)? = null,  // Add cheat code callback
     onMineDig: ((Int) -> DigOutcome?)? = null,  // Add mine dig callback
     onMineBuildTrap: ((Int, Position) -> Boolean)? = null,  // Add mine build trap callback
+    onWizardPlaceMagicalTrap: ((Int, Position) -> Boolean)? = null,  // Add wizard magical trap callback
     cheatDigOutcome: DigOutcome? = null,  // Dig outcome from cheat code
     onClearCheatDigOutcome: (() -> Unit)? = null,  // Callback to clear cheat dig outcome
     hasUnsavedChanges: (() -> Boolean)? = null  // Callback to check for unsaved changes
@@ -50,6 +51,7 @@ fun GamePlayScreen(
         onCheatCode = onCheatCode,
         onMineDig = onMineDig,
         onMineBuildTrap = onMineBuildTrap,
+        onWizardPlaceMagicalTrap = onWizardPlaceMagicalTrap,
         cheatDigOutcome = cheatDigOutcome,
         onClearCheatDigOutcome = onClearCheatDigOutcome,
         hasUnsavedChanges = hasUnsavedChanges
@@ -72,6 +74,7 @@ private fun GamePlayScreenContent(
     onCheatCode: ((String) -> Boolean)? = null,
     onMineDig: ((Int) -> DigOutcome?)? = null,
     onMineBuildTrap: ((Int, Position) -> Boolean)? = null,
+    onWizardPlaceMagicalTrap: ((Int, Position) -> Boolean)? = null,  // Add wizard magical trap callback
     cheatDigOutcome: DigOutcome? = null,  // Dig outcome from cheat code
     onClearCheatDigOutcome: (() -> Unit)? = null,  // Callback to clear cheat dig outcome
     hasUnsavedChanges: (() -> Boolean)? = null  // Callback to check for unsaved changes
@@ -471,6 +474,7 @@ private fun GamePlayScreenContent(
                         }
                     },
                     onMineAction = handleMineAction,
+                    onWizardPlaceMagicalTrap = onWizardPlaceMagicalTrap,
                     uiScale = uiScale,
                     onShowDragonInfo = { 
                         gameState.infoState.value = gameState.infoState.value.showInfo(InfoType.DRAGON_INFO)
@@ -539,6 +543,7 @@ private fun GamePlayScreenContent(
                         }
                     },
                     onMineAction = handleMineAction,
+                    onWizardPlaceMagicalTrap = onWizardPlaceMagicalTrap,
                     uiScale = uiScale,
                     onShowDragonInfo = { 
                         gameState.infoState.value = gameState.infoState.value.showInfo(InfoType.DRAGON_INFO)
