@@ -17,6 +17,28 @@ import kotlin.test.assertTrue
  */
 class CheatCodeHandlerTest {
     
+    // Helper function to create a test level with common defaults
+    private fun createTestLevel(
+        id: Int = 1,
+        name: String = "Test Level $id",
+        editorLevelId: String? = null
+    ): Level {
+        return Level(
+            id = id,
+            name = name,
+            gridWidth = 10,
+            gridHeight = 6,
+            startPositions = listOf(Position(0, 3)),
+            targetPositions = listOf(Position(9, 3)),
+            pathCells = (0..9).map { Position(it, 3) }.toSet(),
+            buildIslands = emptySet(),
+            attackerWaves = listOf(AttackerWave(listOf(AttackerType.GOBLIN))),
+            initialCoins = 100,
+            healthPoints = 10,
+            editorLevelId = editorLevelId
+        )
+    }
+    
     @Test
     fun testCashCheatCode() {
         var coinsAdded = 0
@@ -183,23 +205,9 @@ class CheatCodeHandlerTest {
     @Test
     fun testUnlockLevelByIndex() {
         // Create test levels with editor level IDs
-        val level1 = Level(
-            id = 1,
-            name = "First Level",
-            gridWidth = 10,
-            gridHeight = 6,
-            startPositions = listOf(Position(0, 3)),
-            targetPositions = listOf(Position(9, 3)),
-            pathCells = (0..9).map { Position(it, 3) }.toSet(),
-            buildIslands = emptySet(),
-            attackerWaves = listOf(AttackerWave(listOf(AttackerType.GOBLIN))),
-            initialCoins = 100,
-            healthPoints = 10,
-            editorLevelId = "first_level"
-        )
-        
-        val level2 = level1.copy(id = 2, name = "Second Level", editorLevelId = "second_level")
-        val level3 = level1.copy(id = 3, name = "Third Level", editorLevelId = "third_level")
+        val level1 = createTestLevel(id = 1, name = "First Level", editorLevelId = "first_level")
+        val level2 = createTestLevel(id = 2, name = "Second Level", editorLevelId = "second_level")
+        val level3 = createTestLevel(id = 3, name = "Third Level", editorLevelId = "third_level")
         
         val worldLevels = listOf(
             WorldLevel(level1, LevelStatus.UNLOCKED),
@@ -231,22 +239,8 @@ class CheatCodeHandlerTest {
     @Test
     fun testUnlockLevelByEditorLevelId() {
         // Create test levels with editor level IDs
-        val level1 = Level(
-            id = 1,
-            name = "Dark Magic Rises",
-            gridWidth = 10,
-            gridHeight = 6,
-            startPositions = listOf(Position(0, 3)),
-            targetPositions = listOf(Position(9, 3)),
-            pathCells = (0..9).map { Position(it, 3) }.toSet(),
-            buildIslands = emptySet(),
-            attackerWaves = listOf(AttackerWave(listOf(AttackerType.GOBLIN))),
-            initialCoins = 100,
-            healthPoints = 10,
-            editorLevelId = "dark_magic_rises"
-        )
-        
-        val level2 = level1.copy(id = 2, name = "Forest Battle", editorLevelId = "forest_battle")
+        val level1 = createTestLevel(id = 1, name = "Dark Magic Rises", editorLevelId = "dark_magic_rises")
+        val level2 = createTestLevel(id = 2, name = "Forest Battle", editorLevelId = "forest_battle")
         
         val worldLevels = listOf(
             WorldLevel(level1, LevelStatus.LOCKED),
@@ -279,20 +273,7 @@ class CheatCodeHandlerTest {
     
     @Test
     fun testUnlockLevelByInvalidIndex() {
-        val level1 = Level(
-            id = 1,
-            name = "Test Level",
-            gridWidth = 10,
-            gridHeight = 6,
-            startPositions = listOf(Position(0, 3)),
-            targetPositions = listOf(Position(9, 3)),
-            pathCells = (0..9).map { Position(it, 3) }.toSet(),
-            buildIslands = emptySet(),
-            attackerWaves = listOf(AttackerWave(listOf(AttackerType.GOBLIN))),
-            initialCoins = 100,
-            healthPoints = 10,
-            editorLevelId = "test_level"
-        )
+        val level1 = createTestLevel(editorLevelId = "test_level")
         
         val worldLevels = listOf(WorldLevel(level1, LevelStatus.LOCKED))
         
@@ -315,20 +296,7 @@ class CheatCodeHandlerTest {
     
     @Test
     fun testUnlockLevelByInvalidLevelId() {
-        val level1 = Level(
-            id = 1,
-            name = "Test Level",
-            gridWidth = 10,
-            gridHeight = 6,
-            startPositions = listOf(Position(0, 3)),
-            targetPositions = listOf(Position(9, 3)),
-            pathCells = (0..9).map { Position(it, 3) }.toSet(),
-            buildIslands = emptySet(),
-            attackerWaves = listOf(AttackerWave(listOf(AttackerType.GOBLIN))),
-            initialCoins = 100,
-            healthPoints = 10,
-            editorLevelId = "test_level"
-        )
+        val level1 = createTestLevel(editorLevelId = "test_level")
         
         val worldLevels = listOf(WorldLevel(level1, LevelStatus.LOCKED))
         
@@ -396,23 +364,9 @@ class CheatCodeHandlerTest {
     
     @Test
     fun testUnlockSpecificLevel() {
-        val level1 = Level(
-            id = 1,
-            name = "Test Level 1",
-            gridWidth = 10,
-            gridHeight = 6,
-            startPositions = listOf(Position(0, 3)),
-            targetPositions = listOf(Position(9, 3)),
-            pathCells = (0..9).map { Position(it, 3) }.toSet(),
-            buildIslands = emptySet(),
-            attackerWaves = listOf(AttackerWave(listOf(AttackerType.GOBLIN))),
-            initialCoins = 100,
-            healthPoints = 10,
-            editorLevelId = "level_1"
-        )
-        
-        val level2 = level1.copy(id = 2, name = "Test Level 2", editorLevelId = "level_2")
-        val level3 = level1.copy(id = 3, name = "Test Level 3", editorLevelId = "level_3")
+        val level1 = createTestLevel(id = 1, name = "Test Level 1", editorLevelId = "level_1")
+        val level2 = createTestLevel(id = 2, name = "Test Level 2", editorLevelId = "level_2")
+        val level3 = createTestLevel(id = 3, name = "Test Level 3", editorLevelId = "level_3")
         
         val worldLevels = listOf(
             WorldLevel(level1, LevelStatus.WON),
@@ -430,20 +384,7 @@ class CheatCodeHandlerTest {
     
     @Test
     fun testUnlockSpecificLevelThatDoesNotExist() {
-        val level1 = Level(
-            id = 1,
-            name = "Test Level 1",
-            gridWidth = 10,
-            gridHeight = 6,
-            startPositions = listOf(Position(0, 3)),
-            targetPositions = listOf(Position(9, 3)),
-            pathCells = (0..9).map { Position(it, 3) }.toSet(),
-            buildIslands = emptySet(),
-            attackerWaves = listOf(AttackerWave(listOf(AttackerType.GOBLIN))),
-            initialCoins = 100,
-            healthPoints = 10,
-            editorLevelId = "level_1"
-        )
+        val level1 = createTestLevel(editorLevelId = "level_1")
         
         val worldLevels = listOf(WorldLevel(level1, LevelStatus.LOCKED))
         
@@ -455,20 +396,7 @@ class CheatCodeHandlerTest {
     
     @Test
     fun testUnlockSpecificLevelThatIsAlreadyUnlocked() {
-        val level1 = Level(
-            id = 1,
-            name = "Test Level 1",
-            gridWidth = 10,
-            gridHeight = 6,
-            startPositions = listOf(Position(0, 3)),
-            targetPositions = listOf(Position(9, 3)),
-            pathCells = (0..9).map { Position(it, 3) }.toSet(),
-            buildIslands = emptySet(),
-            attackerWaves = listOf(AttackerWave(listOf(AttackerType.GOBLIN))),
-            initialCoins = 100,
-            healthPoints = 10,
-            editorLevelId = "level_1"
-        )
+        val level1 = createTestLevel(editorLevelId = "level_1")
         
         val worldLevels = listOf(WorldLevel(level1, LevelStatus.UNLOCKED))
         
