@@ -30,7 +30,8 @@ fun MapEditorHeader(
     onTileTypeChange: (TileType) -> Unit,
     zoomLevel: Float,
     onZoomIn: () -> Unit,
-    onZoomOut: () -> Unit
+    onZoomOut: () -> Unit,
+    onChangeAllNoPlayToPath: () -> Unit
 ) {
     Card(
         modifier = Modifier
@@ -78,6 +79,14 @@ fun MapEditorHeader(
                         onClick = { onTileTypeChange(tileType) }
                     )
                 }
+            }
+            
+            // Change All NO_PLAY to PATH button
+            Button(
+                onClick = onChangeAllNoPlayToPath,
+                modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
+            ) {
+                Text(stringResource(Res.string.change_all_no_play_to_path))
             }
 
             ZoomControls(
