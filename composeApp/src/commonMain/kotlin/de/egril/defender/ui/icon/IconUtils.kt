@@ -656,3 +656,56 @@ fun Number2Icon(
         modifier = modifier.size(size)
     )
 }
+
+/**
+ * Displays a pentagram (5-pointed star) icon using Canvas for magical traps
+ */
+@Composable
+fun PentagramIcon(
+    modifier: Modifier = Modifier.Companion,
+    size: Dp = 24.dp,
+    color: Color = Color(0xFFAA00FF)  // Purple/magenta color for magical trap
+) {
+    androidx.compose.foundation.Canvas(
+        modifier = modifier.size(size)
+    ) {
+        val canvasWidth = this.size.width
+        val canvasHeight = this.size.height
+        val centerX = canvasWidth / 2f
+        val centerY = canvasHeight / 2f
+        val radius = minOf(canvasWidth, canvasHeight) / 2f * 0.9f
+        
+        // Calculate the 5 points of the star
+        val points = mutableListOf<androidx.compose.ui.geometry.Offset>()
+        for (i in 0 until 5) {
+            val angle = Math.toRadians((i * 72 - 90).toDouble())  // Start from top, 72 degrees apart
+            val x = centerX + (radius * kotlin.math.cos(angle)).toFloat()
+            val y = centerY + (radius * kotlin.math.sin(angle)).toFloat()
+            points.add(androidx.compose.ui.geometry.Offset(x, y))
+        }
+        
+        // Draw the pentagram by connecting every second point
+        val path = androidx.compose.ui.graphics.Path().apply {
+            moveTo(points[0].x, points[0].y)
+            lineTo(points[2].x, points[2].y)
+            lineTo(points[4].x, points[4].y)
+            lineTo(points[1].x, points[1].y)
+            lineTo(points[3].x, points[3].y)
+            close()
+        }
+        
+        // Fill the pentagram
+        drawPath(
+            path = path,
+            color = color,
+            alpha = 0.3f
+        )
+        
+        // Draw the outline
+        drawPath(
+            path = path,
+            color = color,
+            style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2f)
+        )
+    }
+}
