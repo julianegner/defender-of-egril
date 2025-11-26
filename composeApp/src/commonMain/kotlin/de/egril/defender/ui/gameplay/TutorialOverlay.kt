@@ -447,7 +447,8 @@ private fun MagicalTrapInfoContent(onDismiss: () -> Unit) {
             .padding(16.dp),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color(0xFF9C27B0).copy(alpha = 0.15f)  // Purple background for magical theme
+            containerColor = MaterialTheme.colorScheme.surface
+            // containerColor = Color(0xFF9C27B0) // .copy(alpha = 0.15f)  // Purple background for magical theme
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
     ) {
