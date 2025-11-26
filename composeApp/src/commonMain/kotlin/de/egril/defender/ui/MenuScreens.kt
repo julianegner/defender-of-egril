@@ -46,12 +46,8 @@ fun MainMenuScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                Text(
-                    text = stringResource(Res.string.app_name),
-                    style = MaterialTheme.typography.displayLarge,
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.onBackground
-                )
+                // Application banner with logo and styled text
+                ApplicationBanner()
                 
                 Spacer(modifier = Modifier.height(16.dp))
                 
