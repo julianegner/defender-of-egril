@@ -417,6 +417,20 @@
     <string name="control_pad_enabled">Pad direzionale attivato</string>
     <string name="control_pad_disabled">Pad direzionale disattivato</string>
     
+    <!-- Difficulty Settings -->
+    <string name="difficulty">Difficoltà</string>
+    <string name="difficulty_baby">Bambino</string>
+    <string name="difficulty_easy">Facile</string>
+    <string name="difficulty_medium">Medio</string>
+    <string name="difficulty_hard">Difficile</string>
+    <string name="difficulty_nightmare">Incubo</string>
+    <string name="difficulty_baby_desc">Doppio di monete e salute, le torri iniziano al livello 3</string>
+    <string name="difficulty_easy_desc">Doppio di monete e salute</string>
+    <string name="difficulty_medium_desc">Difficoltà predefinita</string>
+    <string name="difficulty_hard_desc">I nemici hanno il doppio dei livelli</string>
+    <string name="difficulty_nightmare_desc">I nemici appaiono 3 volte con livelli crescenti</string>
+    <string name="difficulty_info_current_level">Nota: La modifica della difficoltà non influisce sul livello corrente. Avvia o riavvia un livello per applicarlo.</string>
+    
     <!-- Dragon Names -->
     <string name="the_dragon">Il drago</string>
     <string name="awakens">si sveglia</string>

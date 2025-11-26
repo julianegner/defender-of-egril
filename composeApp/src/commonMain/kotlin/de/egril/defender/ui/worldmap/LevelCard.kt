@@ -28,6 +28,7 @@ fun LevelCard(
     onClick: () -> Unit
 ) {
     val isDarkMode = de.egril.defender.ui.settings.AppSettings.isDarkMode.value
+    val currentDifficulty = de.egril.defender.ui.settings.AppSettings.difficulty.value
     
     val backgroundColor = when (worldLevel.status) {
         LevelStatus.LOCKED -> if (isDarkMode) Color(0xFF2C2C2C) else Color(0xFF9E9E9E)
@@ -55,7 +56,8 @@ fun LevelCard(
             modifier = Modifier.fillMaxSize().padding(12.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            LevelInfoEnemiesColumn(worldLevel.level.toLevelInfoEnemiesLevelData(), textColor)
+            // Pass difficulty to get modified values
+            LevelInfoEnemiesColumn(worldLevel.level.toLevelInfoEnemiesLevelData(currentDifficulty), textColor)
 
             // Right column: Minimap and status
             Column(
