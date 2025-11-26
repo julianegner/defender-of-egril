@@ -202,6 +202,10 @@ class GameViewModel {
         return gameEngine?.performMineBuildTrap(mineId, trapPosition) ?: false
     }
     
+    fun performWizardPlaceMagicalTrap(wizardId: Int, trapPosition: Position): Boolean {
+        return gameEngine?.performWizardPlaceMagicalTrap(wizardId, trapPosition) ?: false
+    }
+    
     fun performMineDigWithOutcome(outcome: DigOutcome): DigOutcome? {
         return gameEngine?.performMineDigWithOutcome(outcome)
     }
