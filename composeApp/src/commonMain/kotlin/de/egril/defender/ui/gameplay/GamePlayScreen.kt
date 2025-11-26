@@ -89,6 +89,7 @@ private fun GamePlayScreenContent(
     var cheatCodeInput by remember { mutableStateOf("") }
     var showMineActionDialog by remember { mutableStateOf(false) }
     var selectedMineAction by remember { mutableStateOf<MineAction?>(null) }
+    var selectedWizardAction by remember { mutableStateOf<WizardAction?>(null) }  // For wizard magical trap placement
     var currentDigOutcome by remember { mutableStateOf<DigOutcome?>(null) }
     var currentDragonName by remember { mutableStateOf<String?>(null) }  // Track dragon name for dig outcome
     var showDigOutcomeDialog by remember { mutableStateOf(false) }
@@ -215,6 +216,16 @@ private fun GamePlayScreenContent(
             }
         }
     }
+    
+    // Wizard action handler - similar to mine action, click button first then select on map
+    val handleWizardAction: (Int, WizardAction) -> Unit = { wizardId, action ->
+        when (action) {
+            WizardAction.PLACE_MAGICAL_TRAP -> {
+                selectedWizardAction = action
+                // The user will now click on the map to place the trap
+            }
+        }
+    }
 
     CompositionLocalProvider(LocalDensity provides scaledDensity) {
         Surface(
@@ -254,6 +265,7 @@ private fun GamePlayScreenContent(
                 selectedTargetId = selectedTargetId,
                 selectedTargetPosition = selectedTargetPosition,
                 selectedMineAction = selectedMineAction,
+                selectedWizardAction = selectedWizardAction,
                 onCellClick = { position ->
                     // Try to place defender if one is selected
                     selectedDefenderType?.let { type ->
@@ -315,6 +327,25 @@ private fun GamePlayScreenContent(
                                     if (onMineBuildTrap?.invoke(selectedDefender.id, position) == true) {
                                         selectedMineAction = null
                                         showMineActionDialog = false
+                                    }
+                                }
+                                return@GameGrid
+                            }
+                            
+                            // Handle magical trap placement for wizard towers (level 10+)
+                            if (selectedDefender.type == DefenderType.WIZARD_TOWER && 
+                                selectedDefender.level.value >= 10 && 
+                                selectedWizardAction == WizardAction.PLACE_MAGICAL_TRAP) {
+                                // Check if position is on the path and in range
+                                val distance = selectedDefender.position.distanceTo(position)
+                                val hasEnemy = gameState.attackers.any { it.position.value == position && !it.isDefeated.value }
+                                val hasTrap = gameState.traps.any { it.position == position }
+                                if (gameState.level.isOnPath(position) && 
+                                    distance <= selectedDefender.range && 
+                                    !hasEnemy && 
+                                    !hasTrap) {
+                                    if (onWizardPlaceMagicalTrap?.invoke(selectedDefender.id, position) == true) {
+                                        selectedWizardAction = null
                                     }
                                 }
                                 return@GameGrid
@@ -474,7 +505,7 @@ private fun GamePlayScreenContent(
                         }
                     },
                     onMineAction = handleMineAction,
-                    onWizardPlaceMagicalTrap = onWizardPlaceMagicalTrap,
+                    onWizardAction = handleWizardAction,
                     uiScale = uiScale,
                     onShowDragonInfo = { 
                         gameState.infoState.value = gameState.infoState.value.showInfo(InfoType.DRAGON_INFO)
@@ -543,7 +574,7 @@ private fun GamePlayScreenContent(
                         }
                     },
                     onMineAction = handleMineAction,
-                    onWizardPlaceMagicalTrap = onWizardPlaceMagicalTrap,
+                    onWizardAction = handleWizardAction,
                     uiScale = uiScale,
                     onShowDragonInfo = { 
                         gameState.infoState.value = gameState.infoState.value.showInfo(InfoType.DRAGON_INFO)
