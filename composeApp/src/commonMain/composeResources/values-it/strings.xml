@@ -539,4 +539,11 @@
     <string name="unsaved_changes_message">Hai progressi non salvati in questo livello. Cosa vorresti fare?</string>
     <string name="save_and_exit">Salva ed Esci</string>
     <string name="discard_changes">Scarta Modifiche</string>
+    
+    <!-- Magical Trap Feature -->
+    <string name="magical_trap">Trappola Magica</string>
+    <string name="magical_trap_cooldown">Ricarica: %d turni</string>
+    <string name="magical_trap_available">Trappola Magica Disponibile</string>
+    <string name="magical_trap_tutorial_title">Trappola Magica Sbloccata!</string>
+    <string name="magical_trap_tutorial_message">La tua torre del mago ha raggiunto il livello 10 e ora può piazzare trappole magiche! Queste trappole teletrasportano i nemici al loro punto di partenza quando vengono attivate. Dopo aver piazzato una trappola, c\'è un tempo di ricarica di 10 turni prima di poterne piazzare un\'altra.</string>
 </resources>

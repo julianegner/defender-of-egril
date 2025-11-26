@@ -539,4 +539,11 @@
     <string name="unsaved_changes_message">Sie haben nicht gespeicherten Fortschritt in diesem Level. Was möchten Sie tun?</string>
     <string name="save_and_exit">Speichern und Beenden</string>
     <string name="discard_changes">Änderungen verwerfen</string>
+    
+    <!-- Magical Trap Feature -->
+    <string name="magical_trap">Magische Falle</string>
+    <string name="magical_trap_cooldown">Abklingzeit: %d Runden</string>
+    <string name="magical_trap_available">Magische Falle verfügbar</string>
+    <string name="magical_trap_tutorial_title">Magische Falle freigeschaltet!</string>
+    <string name="magical_trap_tutorial_message">Ihr Zauberturm hat Stufe 10 erreicht und kann jetzt magische Fallen platzieren! Diese Fallen teleportieren Feinde zurück zu ihrem Startpunkt. Nach dem Platzieren einer Falle gibt es eine Abklingzeit von 10 Runden, bevor Sie eine weitere platzieren können.</string>
 </resources>
