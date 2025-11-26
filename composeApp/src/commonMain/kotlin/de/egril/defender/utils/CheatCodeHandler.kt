@@ -142,7 +142,8 @@ object CheatCodeHandler {
                     levelId.lowercase() == normalizedReference
                 }
                 
-                if (matchingLevel != null && matchingLevel.level.editorLevelId != null) {
+                if (matchingLevel != null) {
+                    // editorLevelId is guaranteed to be non-null due to the find condition
                     unlockLevel(matchingLevel.level.editorLevelId!!)
                     return true
                 }
