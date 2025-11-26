@@ -23,6 +23,7 @@ import de.egril.defender.ui.HexagonalMapView
 import de.egril.defender.ui.MinimapConfig
 import de.egril.defender.ui.constrainMapOffsets
 import de.egril.defender.ui.icon.PushpinIcon
+import de.egril.defender.ui.editor.ConfirmationDialog
 import de.egril.defender.ui.editor.SaveAsDialog
 import de.egril.defender.ui.editor.getTileColor
 import de.egril.defender.utils.screenToHexGridPosition
@@ -42,6 +43,7 @@ fun MapEditorView(
     var selectedTileType by remember { mutableStateOf(TileType.PATH) }
     var mapName by remember { mutableStateOf(map.name) }
     var showSaveAsDialog by remember { mutableStateOf(false) }
+    var showChangeAllDialog by remember { mutableStateOf(false) }
     var zoomLevel by remember { mutableStateOf(1.0f) }
     var offsetX by remember { mutableStateOf(0f) }
     var offsetY by remember { mutableStateOf(0f) }
@@ -296,7 +298,8 @@ fun MapEditorView(
             onTileTypeChange = { selectedTileType = it },
             zoomLevel = zoomLevel,
             onZoomIn = { zoomLevel = minOf(3.0f, zoomLevel + 0.1f) },
-            onZoomOut = { zoomLevel = maxOf(0.5f, zoomLevel - 0.1f) }
+            onZoomOut = { zoomLevel = maxOf(0.5f, zoomLevel - 0.1f) },
+            onChangeAllNoPlayToPath = { showChangeAllDialog = true }
         )
     }
     
@@ -323,6 +326,29 @@ fun MapEditorView(
                 val validatedMap = newMap.copy(readyToUse = newMap.validateReadyToUse())
                 onSave(validatedMap)
                 showSaveAsDialog = false
+            }
+        )
+    }
+    
+    if (showChangeAllDialog) {
+        ConfirmationDialog(
+            title = stringResource(Res.string.change_all_no_play_confirm_title),
+            message = stringResource(Res.string.change_all_no_play_confirm_message),
+            onDismiss = { showChangeAllDialog = false },
+            onConfirm = {
+                // Replace all NO_PLAY tiles with PATH tiles
+                tiles = tiles.toMutableMap().apply {
+                    // Iterate through all positions in the map
+                    for (x in 0 until map.width) {
+                        for (y in 0 until map.height) {
+                            val key = "$x,$y"
+                            if (this[key] == TileType.NO_PLAY || this[key] == null) {
+                                this[key] = TileType.PATH
+                            }
+                        }
+                    }
+                }
+                showChangeAllDialog = false
             }
         )
     }

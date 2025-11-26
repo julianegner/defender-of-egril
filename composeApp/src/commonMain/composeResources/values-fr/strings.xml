@@ -307,6 +307,9 @@
     <string name="size">Taille</string>
     <string name="select_tile_type">Sélectionner le type de tuile:</string>
     <string name="click_hexagons_to_paint">Cliquez ou faites glisser pour peindre les hexagones. Ctrl+Molette pour zoomer:</string>
+    <string name="change_all_no_play_to_path">Changer tous NO_PLAY en PATH</string>
+    <string name="change_all_no_play_confirm_title">Changer tous NO_PLAY en PATH?</string>
+    <string name="change_all_no_play_confirm_message">Cela remplacera toutes les tuiles NO_PLAY par des tuiles PATH. Êtes-vous sûr?</string>
     <string name="map_size_label">%dx%d</string>
     <string name="map_short">Carte</string>
     <string name="coins_short">Pièces</string>
