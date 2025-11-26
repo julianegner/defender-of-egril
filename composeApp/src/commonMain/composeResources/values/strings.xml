@@ -540,4 +540,11 @@
     <string name="unsaved_changes_message">You have unsaved progress in this level. What would you like to do?</string>
     <string name="save_and_exit">Save and Exit</string>
     <string name="discard_changes">Discard Changes</string>
+    
+    <!-- Magical Trap Feature -->
+    <string name="magical_trap">Magical Trap</string>
+    <string name="magical_trap_cooldown">Cooldown: %d turns</string>
+    <string name="magical_trap_available">Magical Trap Available</string>
+    <string name="magical_trap_tutorial_title">Magical Trap Unlocked!</string>
+    <string name="magical_trap_tutorial_message">Your wizard tower has reached level 10 and can now place magical traps! These traps teleport enemies back to their spawn point when triggered. After placing a trap, there is a 10-turn cooldown before you can place another one.</string>
 </resources>

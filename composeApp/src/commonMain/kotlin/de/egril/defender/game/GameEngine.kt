@@ -49,6 +49,9 @@ class GameEngine(private val state: GameState) {
     fun performMineBuildTrap(mineId: Int, trapPosition: Position): Boolean =
         mineOperations.performMineBuildTrap(mineId, trapPosition)
     
+    fun performWizardPlaceMagicalTrap(wizardId: Int, trapPosition: Position): Boolean =
+        mineOperations.performWizardPlaceMagicalTrap(wizardId, trapPosition)
+    
     fun checkAndActivateTraps() {
         mineOperations.checkAndActivateTraps { combatSystem.processDefeatedAttackers() }
     }
@@ -758,6 +761,10 @@ class GameEngine(private val state: GameState) {
                 if (defender.buildTimeRemaining.value == 0) {
                     defender.resetActions()
                 }
+            }
+            // Decrement wizard trap cooldown
+            if (defender.type == DefenderType.WIZARD_TOWER && defender.trapCooldownRemaining.value > 0) {
+                defender.trapCooldownRemaining.value--
             }
         }
     }

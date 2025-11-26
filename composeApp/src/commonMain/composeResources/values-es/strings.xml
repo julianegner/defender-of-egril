@@ -539,4 +539,11 @@
     <string name="unsaved_changes_message">Tienes progreso no guardado en este nivel. ¿Qué te gustaría hacer?</string>
     <string name="save_and_exit">Guardar y Salir</string>
     <string name="discard_changes">Descartar Cambios</string>
+    
+    <!-- Magical Trap Feature -->
+    <string name="magical_trap">Trampa Mágica</string>
+    <string name="magical_trap_cooldown">Enfriamiento: %d turnos</string>
+    <string name="magical_trap_available">Trampa Mágica Disponible</string>
+    <string name="magical_trap_tutorial_title">¡Trampa Mágica Desbloqueada!</string>
+    <string name="magical_trap_tutorial_message">¡Tu torre de mago ha alcanzado el nivel 10 y ahora puede colocar trampas mágicas! Estas trampas teletransportan a los enemigos de vuelta a su punto de aparición cuando se activan. Después de colocar una trampa, hay un tiempo de enfriamiento de 10 turnos antes de poder colocar otra.</string>
 </resources>

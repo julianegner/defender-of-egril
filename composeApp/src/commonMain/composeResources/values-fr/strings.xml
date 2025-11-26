@@ -539,4 +539,11 @@
     <string name="unsaved_changes_message">Vous avez des progrès non enregistrés dans ce niveau. Que souhaitez-vous faire ?</string>
     <string name="save_and_exit">Enregistrer et Quitter</string>
     <string name="discard_changes">Ignorer les Modifications</string>
+    
+    <!-- Magical Trap Feature -->
+    <string name="magical_trap">Piège Magique</string>
+    <string name="magical_trap_cooldown">Temps de recharge : %d tours</string>
+    <string name="magical_trap_available">Piège Magique Disponible</string>
+    <string name="magical_trap_tutorial_title">Piège Magique Débloqué !</string>
+    <string name="magical_trap_tutorial_message">Votre tour de magicien a atteint le niveau 10 et peut désormais placer des pièges magiques ! Ces pièges téléportent les ennemis à leur point d\'apparition lorsqu\'ils sont déclenchés. Après avoir placé un piège, il y a un temps de recharge de 10 tours avant de pouvoir en placer un autre.</string>
 </resources>

@@ -49,12 +49,23 @@ class TowerManager(private val state: GameState) {
         
         // Store the old actionsPerTurn before upgrade
         val oldActionsPerTurn = defender.actionsPerTurnCalculated
+        val oldLevel = defender.level.value
         
         state.coins.value -= defender.upgradeCost
         defender.level.value++
         
         // Play tower upgraded sound
         GlobalSoundManager.playSound(SoundEvent.TOWER_UPGRADED)
+        
+        // Check if wizard tower just reached level 10 for the first time
+        if (defender.type == DefenderType.WIZARD_TOWER && 
+            oldLevel < 10 && 
+            defender.level.value >= 10 &&
+            !defender.hasShownMagicalTrapTutorial.value) {
+            // Show magical trap tutorial
+            state.infoState.value = state.infoState.value.showInfo(InfoType.MAGICAL_TRAP_INFO)
+            defender.hasShownMagicalTrapTutorial.value = true
+        }
         
         // Calculate the new actionsPerTurn after upgrade
         val newActionsPerTurn = defender.actionsPerTurnCalculated
