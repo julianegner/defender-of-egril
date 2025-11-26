@@ -596,7 +596,7 @@
     "SPIKE_TOWER",
     "SPEAR_TOWER",
     "BOW_TOWER",
-    "BALLISTA"
+    "BALLISTA_TOWER"
   ],
   "waypoints": []
 }
