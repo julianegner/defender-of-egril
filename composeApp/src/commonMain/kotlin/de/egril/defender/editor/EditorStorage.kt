@@ -823,12 +823,7 @@ object EditorStorage {
         val danceMap = MapGenerator.createDanceMap()
         val validatedDanceMap = danceMap.copy(readyToUse = danceMap.validateReadyToUse())
         saveMap(validatedDanceMap)
-        
-        // Create winding path map - large 80x80 map with winding path from upper left to lower right
-        val windingPathMap = MapGenerator.createWindingPathMap()
-        val validatedWindingPathMap = windingPathMap.copy(readyToUse = windingPathMap.validateReadyToUse())
-        saveMap(validatedWindingPathMap)
-        
+
         // Level 7: The Spiral Challenge
         saveLevel(EditorLevel(
             id = "the_spiral_challenge",
@@ -947,68 +942,9 @@ object EditorStorage {
             waypoints = danceWaypoints
         ))
         
-        // Level 10: The Winding Path
-        // Enemy composition as specified:
-        // - 3 turns of skeletons level 5 (6 per turn = 18 total)
-        // - 1 wizard, 1 red witch, 1 green witch, all level 5
-        // - 3 turns of skeletons level 6 (6 per turn = 18 total)
-        // - 5 turns of goblins, 6 each turn, levels 5-9 (30 total)
-        // - 3 wizards level 10 in a single turn
-        val windingPathSpawns = mutableListOf<EditorEnemySpawn>()
-        turn = 1
-        
-        // 3 turns of skeletons level 5
-        repeat(18) { 
-            windingPathSpawns.add(EditorEnemySpawn(AttackerType.SKELETON, 5, turn))
-            if (windingPathSpawns.filter { it.spawnTurn == turn }.size >= 6) turn++
-        }
-        turn++  // Gap after first wave
-        
-        // 1 wizard, 1 red witch, 1 green witch, all level 5
-        windingPathSpawns.add(EditorEnemySpawn(AttackerType.EVIL_WIZARD, 5, turn))
-        windingPathSpawns.add(EditorEnemySpawn(AttackerType.RED_WITCH, 5, turn))
-        windingPathSpawns.add(EditorEnemySpawn(AttackerType.GREEN_WITCH, 5, turn))
-        turn++
-        turn++  // Gap after special enemies
-        
-        // 3 turns of skeletons level 6
-        repeat(18) {
-            windingPathSpawns.add(EditorEnemySpawn(AttackerType.SKELETON, 6, turn))
-            if (windingPathSpawns.filter { it.spawnTurn == turn }.size >= 6) turn++
-        }
-        turn++  // Gap after second skeleton wave
-        
-        // 5 turns of goblins, 6 each, levels 5-9
-        for (goblinTurn in 0 until 5) {
-            val goblinLevel = 5 + goblinTurn  // Levels 5, 6, 7, 8, 9
-            repeat(6) {
-                windingPathSpawns.add(EditorEnemySpawn(AttackerType.GOBLIN, goblinLevel, turn))
-            }
-            turn++
-        }
-        turn++  // Gap before final wave
-        
-        // 3 wizards level 10 in a single turn
-        repeat(3) {
-            windingPathSpawns.add(EditorEnemySpawn(AttackerType.EVIL_WIZARD, 10, turn))
-        }
-        
-        saveLevel(EditorLevel(
-            id = "the_winding_path",
-            mapId = "map_winding_path",
-            title = "The Winding Path",
-            subtitle = "A Long and Twisting Road",
-            startCoins = 250,
-            startHealthPoints = 8,
-            enemySpawns = windingPathSpawns,
-            availableTowers = DefenderType.entries.filter { 
-                it != DefenderType.DRAGONS_LAIR 
-            }.toSet()
-        ))
-        
-        // Set initial level sequence (tutorial first, then spiral, plains, and dance, then winding path before final stand!)
+        // Set initial level sequence (tutorial first, then spiral, plains, and dance before final stand!)
         updateLevelSequence(LevelSequence(listOf(
-            "welcome_to_defender_of_egril", "the_first_wave", "mixed_forces", "the_ork_invasion", "dark_magic_rises", "the_spiral_challenge", "the_plains", "the_dance", "the_winding_path", "the_final_stand", "ewhads_challenge"
+            "welcome_to_defender_of_egril", "the_first_wave", "mixed_forces", "the_ork_invasion", "dark_magic_rises", "the_spiral_challenge", "the_plains", "the_dance", "the_final_stand", "ewhads_challenge"
         )))
         
         // Save version file to indicate successful initialization
