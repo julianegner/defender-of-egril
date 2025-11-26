@@ -299,6 +299,8 @@ class MineOperations(private val state: GameState) {
         return true
     }
     
+    /**
+     * Find the spawn point for an enemy.
      * Returns the enemy's original spawn point if available, or the closest empty path tile to a spawn point.
      */
     private fun findSpawnPointForEnemy(enemy: Attacker): Position? {
