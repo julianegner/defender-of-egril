@@ -477,6 +477,7 @@ fun DefenderActionsInfo(defender: Defender) {
 /**
  * Button for wizard tower to place magical traps (level 10+)
  * Works like dwarven mine trap button - click to enter placement mode, then click on map
+ * Always shows when wizard is ready, with cooldown info when on cooldown
  */
 @Composable
 fun MagicalTrapButton(
@@ -484,12 +485,12 @@ fun MagicalTrapButton(
     onWizardAction: (Int, WizardAction) -> Unit,
     modifier: Modifier = Modifier.fillMaxWidth().height(56.dp)
 ) {
-    if (defender.isReady && defender.actionsRemaining.value > 0) {
-        val canPlaceTrap = defender.trapCooldownRemaining.value == 0
+    if (defender.isReady) {
+        val canPlaceTrap = defender.trapCooldownRemaining.value == 0 && defender.actionsRemaining.value > 0
         val isOnCooldown = defender.trapCooldownRemaining.value > 0
         
         if (canPlaceTrap) {
-            // Button to enter magical trap placement mode
+            // Button to enter magical trap placement mode - enabled when trap is ready and has actions
             Button(
                 onClick = { onWizardAction(defender.id, WizardAction.PLACE_MAGICAL_TRAP) },
                 enabled = true,
@@ -518,7 +519,7 @@ fun MagicalTrapButton(
                 }
             }
         } else if (isOnCooldown) {
-            // Show cooldown status - disabled button
+            // Show cooldown status - always show cooldown turns remaining
             Button(
                 onClick = { },
                 enabled = false,
