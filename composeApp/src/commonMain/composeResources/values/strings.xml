@@ -426,6 +426,7 @@
     <string name="difficulty_medium_desc">Default difficulty</string>
     <string name="difficulty_hard_desc">Enemies have double levels</string>
     <string name="difficulty_nightmare_desc">Enemies spawn 3 times with increasing levels</string>
+    <string name="difficulty_info_current_level">Note: Changing difficulty does not affect the current level. Start or restart a level to apply.</string>
 
     <!-- Dragon Info -->
     <string name="dragon_info_title">Dragon Alert!</string>
