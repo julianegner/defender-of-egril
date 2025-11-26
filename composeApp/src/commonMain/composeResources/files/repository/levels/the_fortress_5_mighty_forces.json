@@ -1345,7 +1345,7 @@
     "BOW_TOWER",
     "WIZARD_TOWER",
     "ALCHEMY_TOWER",
-    "BALLISTA",
+    "BALLISTA_TOWER",
     "DWARVEN_MINE"
   ],
   "waypoints": []
