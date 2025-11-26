@@ -823,7 +823,7 @@ object EditorStorage {
         val danceMap = MapGenerator.createDanceMap()
         val validatedDanceMap = danceMap.copy(readyToUse = danceMap.validateReadyToUse())
         saveMap(validatedDanceMap)
-        
+
         // Level 7: The Spiral Challenge
         saveLevel(EditorLevel(
             id = "the_spiral_challenge",
