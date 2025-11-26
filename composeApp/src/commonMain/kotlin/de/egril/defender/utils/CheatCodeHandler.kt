@@ -112,44 +112,39 @@ object CheatCodeHandler {
         
         // Handle "unlock <index>" or "unlock <level_id>" cheatcode to unlock a specific level
         if (lowercaseCode.startsWith("unlock ") && unlockLevel != null && worldLevels != null) {
-            val parts = lowercaseCode.split(" ", limit = 2).filter { it.isNotBlank() }
-            if (parts.size == 2) {
-                val levelReference = parts[1].trim()
-                
-                // Try to match by level ID (with or without "level" prefix and with underscores or spaces)
-                val normalizedReference = levelReference
-                    .removePrefix("level ")
-                    .replace(" ", "_")
-                
-                // Try to parse as a 1-based index (after removing "level" prefix)
-                val index = normalizedReference.toIntOrNull()
-                if (index != null) {
-                    // 1-based index (e.g., "unlock 5" or "unlock level 5" means the 5th level in the list)
-                    if (index >= 1 && index <= worldLevels.size) {
-                        val worldLevel = worldLevels[index - 1]
-                        val levelId = worldLevel.level.editorLevelId
-                        if (levelId != null) {
-                            unlockLevel(levelId)
-                            return true
-                        }
+            val levelReference = lowercaseCode.removePrefix("unlock ").trim()
+            
+            // Try to match by level ID (with or without "level" prefix and with underscores or spaces)
+            val normalizedReference = levelReference
+                .removePrefix("level ")
+                .replace(" ", "_")
+            
+            // Try to parse as a 1-based index (after removing "level" prefix)
+            val index = normalizedReference.toIntOrNull()
+            if (index != null) {
+                // 1-based index (e.g., "unlock 5" or "unlock level 5" means the 5th level in the list)
+                if (index >= 1 && index <= worldLevels.size) {
+                    val worldLevel = worldLevels[index - 1]
+                    worldLevel.level.editorLevelId?.let { levelId ->
+                        unlockLevel(levelId)
+                        return true
                     }
-                    return false
                 }
-                
-                // Check if any level has a matching ID
-                val matchingLevel = worldLevels.find { worldLevel ->
-                    val levelId = worldLevel.level.editorLevelId ?: return@find false
-                    levelId.lowercase() == normalizedReference
-                }
-                
-                if (matchingLevel != null) {
-                    // editorLevelId is guaranteed to be non-null due to the find condition
-                    unlockLevel(matchingLevel.level.editorLevelId!!)
-                    return true
-                }
-                
                 return false
             }
+            
+            // Check if any level has a matching ID
+            val matchingLevel = worldLevels.find { worldLevel ->
+                val levelId = worldLevel.level.editorLevelId ?: return@find false
+                levelId.lowercase() == normalizedReference
+            }
+            
+            matchingLevel?.level?.editorLevelId?.let { levelId ->
+                unlockLevel(levelId)
+                return true
+            }
+            
+            return false
         }
         
         // Legacy support: bare "unlock" still unlocks all levels
