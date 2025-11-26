@@ -32,7 +32,7 @@ fun DefenderInfo(
     onUndoTower: (Int) -> Unit,
     onSellTower: (Int) -> Unit,
     onMineAction: ((Int, MineAction) -> Unit)? = null,
-    onWizardPlaceMagicalTrap: ((Int, Position) -> Boolean)? = null,  // For wizard tower magical traps
+    onWizardAction: ((Int, WizardAction) -> Unit)? = null,  // For wizard tower magical traps - click to select action, then click map
     compactBuyPanel: Boolean = false,
     isMobile: Boolean = false,  // Add platform parameter
     selectedTargetId: Int? = null,
@@ -287,15 +287,13 @@ fun DefenderInfo(
                             if (isPlayerTurn &&
                                 defender.type == DefenderType.WIZARD_TOWER &&
                                 defender.level.value >= 10 &&
-                                onWizardPlaceMagicalTrap != null) {
+                                onWizardAction != null) {
 
                                 Spacer(modifier = Modifier.width(horizontalSpacing))
                                 Column(modifier = Modifier.weight(1.3f)) {
                                     MagicalTrapButton(
                                         defender = defender,
-                                        gameState = gameState,
-                                        selectedTargetPosition = selectedTargetPosition,
-                                        onWizardPlaceMagicalTrap = onWizardPlaceMagicalTrap,
+                                        onWizardAction = onWizardAction,
                                         modifier = Modifier
                                             .width(240.dp)
                                             .height(buttonHeight)
@@ -478,29 +476,23 @@ fun DefenderActionsInfo(defender: Defender) {
 
 /**
  * Button for wizard tower to place magical traps (level 10+)
+ * Works like dwarven mine trap button - click to enter placement mode, then click on map
  */
 @Composable
 fun MagicalTrapButton(
     defender: Defender,
-    gameState: GameState,
-    selectedTargetPosition: Position?,
-    onWizardPlaceMagicalTrap: (Int, Position) -> Boolean,
+    onWizardAction: (Int, WizardAction) -> Unit,
     modifier: Modifier = Modifier.fillMaxWidth().height(56.dp)
 ) {
     if (defender.isReady && defender.actionsRemaining.value > 0) {
         val canPlaceTrap = defender.trapCooldownRemaining.value == 0
         val isOnCooldown = defender.trapCooldownRemaining.value > 0
         
-        if (selectedTargetPosition != null && canPlaceTrap) {
-            // Show button to place trap at selected position
-            val canPlaceAtPosition = gameState.level.isOnPath(selectedTargetPosition) &&
-                    !gameState.traps.any { it.position == selectedTargetPosition } &&
-                    !gameState.attackers.any { it.position.value == selectedTargetPosition && !it.isDefeated.value } &&
-                    defender.position.distanceTo(selectedTargetPosition) <= defender.range
-            
+        if (canPlaceTrap) {
+            // Button to enter magical trap placement mode
             Button(
-                onClick = { onWizardPlaceMagicalTrap(defender.id, selectedTargetPosition) },
-                enabled = canPlaceAtPosition,
+                onClick = { onWizardAction(defender.id, WizardAction.PLACE_MAGICAL_TRAP) },
+                enabled = true,
                 modifier = modifier,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = GamePlayColors.InfoDark
@@ -519,14 +511,14 @@ fun MagicalTrapButton(
                             fontWeight = FontWeight.Bold
                         )
                         Text(
-                            "at (${selectedTargetPosition.x}, ${selectedTargetPosition.y})",
+                            stringResource(Res.string.magical_trap_available),
                             fontSize = 11.sp
                         )
                     }
                 }
             }
         } else if (isOnCooldown) {
-            // Show cooldown status
+            // Show cooldown status - disabled button
             Button(
                 onClick = { },
                 enabled = false,
