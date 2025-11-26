@@ -9,6 +9,13 @@ enum class MineAction {
 }
 
 /**
+ * Actions that can be performed by a wizard tower (level 10+)
+ */
+enum class WizardAction {
+    PLACE_MAGICAL_TRAP   // Place a magical trap that teleports enemies
+}
+
+/**
  * Possible outcomes when digging in a mine
  */
 enum class DigOutcome(val probability: Int, val coins: Int, val displayName: String) {
