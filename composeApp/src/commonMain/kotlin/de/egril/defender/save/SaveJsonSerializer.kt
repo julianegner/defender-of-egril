@@ -93,7 +93,8 @@ object SaveJsonSerializer {
             """{
       "position": {"x": ${trap.position.x}, "y": ${trap.position.y}},
       "damage": ${trap.damage},
-      "mineId": ${trap.mineId}
+      "defenderId": ${trap.defenderId},
+      "type": "${trap.type}"
     }"""
         }
         
@@ -309,8 +310,18 @@ object SaveJsonSerializer {
     private fun parseSavedTrap(json: String): SavedTrap {
         val position = parsePosition(json)
         val damage = JsonUtils.extractValue(json, "damage").toInt()
-        val mineId = JsonUtils.extractValue(json, "mineId").toInt()
-        return SavedTrap(position, damage, mineId)
+        // Support both old mineId and new defenderId for backwards compatibility
+        val defenderId = try {
+            JsonUtils.extractValue(json, "defenderId").toInt()
+        } catch (e: Exception) {
+            JsonUtils.extractValue(json, "mineId").toInt()  // Fallback to old field name
+        }
+        val type = try {
+            JsonUtils.extractValue(json, "type")
+        } catch (e: Exception) {
+            "DWARVEN"  // Default to dwarven trap for old saves
+        }
+        return SavedTrap(position, damage, defenderId, type)
     }
     
     private fun parsePosition(json: String): Position {

@@ -196,7 +196,8 @@ object SaveFileStorage {
             SavedTrap(
                 position = trap.position,
                 damage = trap.damage,
-                mineId = trap.mineId
+                defenderId = trap.defenderId,
+                type = trap.type.name
             )
         }
         
@@ -293,7 +294,8 @@ object SaveFileStorage {
             Trap(
                 position = trap.position,
                 damage = trap.damage,
-                mineId = trap.mineId
+                defenderId = trap.defenderId,
+                type = try { TrapType.valueOf(trap.type) } catch (e: Exception) { TrapType.DWARVEN }
             )
         })
         
