@@ -543,8 +543,10 @@ object MapGenerator {
         
         path.forEach { pos ->
             val neighbors = pos.getHexNeighbors()
-            // Add 1-2 neighbors to achieve 2-3 tile width
-            neighbors.filter { it.x >= 0 && it.x < width && it.y >= 0 && it.y < height }
+            // Add 1-2 neighbors to achieve 2-3 tile width, but only if not already in path
+            neighbors.filter { 
+                it.x >= 0 && it.x < width && it.y >= 0 && it.y < height && !widenedPath.contains(it)
+            }
                 .take(2)
                 .forEach { widenedPath.add(it) }
         }
