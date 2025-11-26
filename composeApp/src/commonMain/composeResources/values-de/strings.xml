@@ -424,6 +424,7 @@
     <string name="difficulty_medium_desc">Standard-Schwierigkeit</string>
     <string name="difficulty_hard_desc">Gegner haben doppelte Stufen</string>
     <string name="difficulty_nightmare_desc">Gegner erscheinen 3-mal mit steigenden Stufen</string>
+    <string name="difficulty_info_current_level">Hinweis: Das Ändern der Schwierigkeit wirkt sich nicht auf das aktuelle Level aus. Starten oder starten Sie ein Level neu, um es anzuwenden.</string>
     
     <!-- Dragon Names -->
     <string name="the_dragon">Der Drache</string>

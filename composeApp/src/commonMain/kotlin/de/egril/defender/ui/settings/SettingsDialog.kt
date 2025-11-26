@@ -202,6 +202,14 @@ fun SettingsDialog(
                             AppSettings.saveDifficulty(level)
                         }
                     )
+                    
+                    // Info text about difficulty not affecting current level
+                    Text(
+                        text = stringResource(Res.string.difficulty_info_current_level),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
                 }
                 
                 HorizontalDivider()

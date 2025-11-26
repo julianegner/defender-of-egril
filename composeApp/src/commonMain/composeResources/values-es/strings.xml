@@ -424,6 +424,7 @@
     <string name="difficulty_medium_desc">Dificultad predeterminada</string>
     <string name="difficulty_hard_desc">Los enemigos tienen el doble de niveles</string>
     <string name="difficulty_nightmare_desc">Los enemigos aparecen 3 veces con niveles crecientes</string>
+    <string name="difficulty_info_current_level">Nota: Cambiar la dificultad no afecta al nivel actual. Inicia o reinicia un nivel para aplicarlo.</string>
     
     <!-- Dragon Names -->
     <string name="the_dragon">El dragón</string>
