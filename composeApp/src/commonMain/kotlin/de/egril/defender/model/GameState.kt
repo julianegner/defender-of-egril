@@ -4,6 +4,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.mutableStateListOf
+import de.egril.defender.ui.settings.DifficultyLevel
 
 enum class GamePhase {
     INITIAL_BUILDING,  // Initial building phase - towers build instantly
@@ -42,6 +43,7 @@ data class GameState(
     val spawnPlan: List<PlannedEnemySpawn> = level.directSpawnPlan ?: generateSpawnPlan(level.attackerWaves),
     val fieldEffects: SnapshotStateList<FieldEffect> = mutableStateListOf(), // Track active field effects
     val traps: SnapshotStateList<Trap> = mutableStateListOf(),  // Track active traps
+    val difficulty: DifficultyLevel = DifficultyLevel.MEDIUM,  // Track difficulty for this game session
     val tutorialState: MutableState<TutorialState> = mutableStateOf(
         // Enable tutorial only for the tutorial level (id=1, title contains "Welcome")
         if (level.id == 1 && level.name.contains("Welcome", ignoreCase = true)) {
