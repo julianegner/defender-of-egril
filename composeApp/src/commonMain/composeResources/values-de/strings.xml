@@ -415,6 +415,20 @@
     <string name="control_pad_enabled">Steuerkreuz aktiviert</string>
     <string name="control_pad_disabled">Steuerkreuz deaktiviert</string>
     
+    <!-- Difficulty Settings -->
+    <string name="difficulty">Schwierigkeitsgrad</string>
+    <string name="difficulty_baby">Baby</string>
+    <string name="difficulty_easy">Leicht</string>
+    <string name="difficulty_medium">Mittel</string>
+    <string name="difficulty_hard">Schwer</string>
+    <string name="difficulty_nightmare">Alptraum</string>
+    <string name="difficulty_baby_desc">Doppelte Münzen und Gesundheit, Türme starten auf Stufe 3</string>
+    <string name="difficulty_easy_desc">Doppelte Münzen und Gesundheit</string>
+    <string name="difficulty_medium_desc">Standard-Schwierigkeit</string>
+    <string name="difficulty_hard_desc">Gegner haben doppelte Stufen</string>
+    <string name="difficulty_nightmare_desc">Gegner erscheinen 3-mal mit steigenden Stufen</string>
+    <string name="difficulty_info_current_level">Hinweis: Das Ändern der Schwierigkeit wirkt sich nicht auf das aktuelle Level aus. Starten oder starten Sie ein Level neu, um es anzuwenden.</string>
+    
     <!-- Dragon Names -->
     <string name="the_dragon">Der Drache</string>
     <string name="awakens">erwacht</string>

@@ -186,6 +186,34 @@ fun SettingsDialog(
                 
                 HorizontalDivider()
                 
+                // Difficulty section
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = stringResource(Res.string.difficulty),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    
+                    DifficultyChooser(
+                        modifier = Modifier.fillMaxWidth(),
+                        onDifficultyChanged = { level ->
+                            AppSettings.saveDifficulty(level)
+                        }
+                    )
+                    
+                    // Info text about difficulty not affecting current level
+                    Text(
+                        text = stringResource(Res.string.difficulty_info_current_level),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
+                
+                HorizontalDivider()
+                
                 // Game Data section
                 Column(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
