@@ -90,20 +90,71 @@ object CheatCodeHandler {
      * 
      * @param code The cheat code to apply
      * @param unlockAllLevels Callback to unlock all levels
+     * @param unlockLevel Callback to unlock a specific level by index or ID
+     * @param worldLevels Current list of world levels (needed to validate level references)
      * @return true if the cheat code was recognized and applied, false otherwise
      */
     fun applyWorldMapCheatCode(
         code: String,
-        unlockAllLevels: () -> Unit
+        unlockAllLevels: () -> Unit,
+        unlockLevel: ((String) -> Unit)? = null,
+        worldLevels: List<WorldLevel>? = null
     ): Boolean {
         val lowercaseCode = code.lowercase().trim()
         
-        // Handle "unlock" or "unlockall" cheatcode to unlock all levels
+        // Handle "unlockall" cheatcode to unlock all levels
         when (lowercaseCode) {
-            "unlock", "unlockall", "unlock all" -> {
+            "unlockall", "unlock all" -> {
                 unlockAllLevels()
                 return true
             }
+        }
+        
+        // Handle "unlock <index>" or "unlock <level_id>" cheatcode to unlock a specific level
+        if (lowercaseCode.startsWith("unlock ") && unlockLevel != null && worldLevels != null) {
+            val parts = lowercaseCode.split(" ", limit = 2).filter { it.isNotBlank() }
+            if (parts.size == 2) {
+                val levelReference = parts[1].trim()
+                
+                // Try to match by level ID (with or without "level" prefix and with underscores or spaces)
+                val normalizedReference = levelReference
+                    .removePrefix("level ")
+                    .replace(" ", "_")
+                
+                // Try to parse as a 1-based index (after removing "level" prefix)
+                val index = normalizedReference.toIntOrNull()
+                if (index != null) {
+                    // 1-based index (e.g., "unlock 5" or "unlock level 5" means the 5th level in the list)
+                    if (index >= 1 && index <= worldLevels.size) {
+                        val worldLevel = worldLevels[index - 1]
+                        val levelId = worldLevel.level.editorLevelId
+                        if (levelId != null) {
+                            unlockLevel(levelId)
+                            return true
+                        }
+                    }
+                    return false
+                }
+                
+                // Check if any level has a matching ID
+                val matchingLevel = worldLevels.find { worldLevel ->
+                    val levelId = worldLevel.level.editorLevelId ?: return@find false
+                    levelId.lowercase() == normalizedReference
+                }
+                
+                if (matchingLevel != null && matchingLevel.level.editorLevelId != null) {
+                    unlockLevel(matchingLevel.level.editorLevelId!!)
+                    return true
+                }
+                
+                return false
+            }
+        }
+        
+        // Legacy support: bare "unlock" still unlocks all levels
+        if (lowercaseCode == "unlock") {
+            unlockAllLevels()
+            return true
         }
         
         return false
@@ -120,6 +171,23 @@ object CheatCodeHandler {
             when (worldLevel.status) {
                 LevelStatus.LOCKED -> worldLevel.copy(status = LevelStatus.UNLOCKED)
                 else -> worldLevel
+            }
+        }
+    }
+    
+    /**
+     * Unlock a specific level in the world map by its editor level ID.
+     * 
+     * @param worldLevels The current list of world levels
+     * @param editorLevelId The editor level ID to unlock
+     * @return The updated list of world levels with the specified level unlocked (if found and locked)
+     */
+    fun unlockLevel(worldLevels: List<WorldLevel>, editorLevelId: String): List<WorldLevel> {
+        return worldLevels.map { worldLevel ->
+            if (worldLevel.level.editorLevelId == editorLevelId && worldLevel.status == LevelStatus.LOCKED) {
+                worldLevel.copy(status = LevelStatus.UNLOCKED)
+            } else {
+                worldLevel
             }
         }
     }
