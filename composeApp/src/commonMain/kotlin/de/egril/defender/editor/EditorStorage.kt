@@ -955,7 +955,7 @@ object EditorStorage {
         // - 5 turns of goblins, 6 each turn, levels 5-9 (30 total)
         // - 3 wizards level 10 in a single turn
         val windingPathSpawns = mutableListOf<EditorEnemySpawn>()
-        var turn = 1
+        turn = 1
         
         // 3 turns of skeletons level 5
         repeat(18) { 
