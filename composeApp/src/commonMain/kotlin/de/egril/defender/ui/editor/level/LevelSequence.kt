@@ -316,6 +316,8 @@ fun LevelTreeMap(
 /**
  * Calculate the depth of each level in the dependency graph
  * Levels with no prerequisites are at depth 0
+ * Note: This function is not thread-safe but is only called from the main/UI thread
+ * during Compose recomposition, so thread safety is not a concern.
  */
 private fun calculateLevelDepths(levels: List<EditorLevel>): Map<Int, List<EditorLevel>> {
     val levelMap = levels.associateBy { it.id }
