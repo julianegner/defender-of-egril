@@ -337,34 +337,31 @@ private fun DrawScope.drawLevelStatusIndicator(
             drawPath(path, Color.White, style = Stroke(width = 2f))
         }
         LevelStatus.LOCKED -> {
-            // Make the entire tile appear grayed out - draw a semi-transparent overlay
-            drawCircle(
-                color = Color.Black.copy(alpha = 0.4f),
-                radius = hexSize * 0.8f,
-                center = center
-            )
+            // Draw lock icon at the bottom of the tile
+            val lockSize = hexSize * 0.25f
+            val lockY = center.y + hexSize * 0.5f
             
-            // Draw lock icon in center
-            val lockSize = hexSize * 0.4f
+            // Draw lock background circle
             drawCircle(
                 color = Color(0xFF7F8C8D),
                 radius = lockSize,
-                center = center
+                center = Offset(center.x, lockY)
             )
             
-            // Draw lock shape
+            // Draw lock body (rectangle)
             drawRect(
                 color = Color.White,
-                topLeft = Offset(center.x - lockSize * 0.3f, center.y - lockSize * 0.1f),
-                size = androidx.compose.ui.geometry.Size(lockSize * 0.6f, lockSize * 0.6f)
+                topLeft = Offset(center.x - lockSize * 0.35f, lockY - lockSize * 0.1f),
+                size = androidx.compose.ui.geometry.Size(lockSize * 0.7f, lockSize * 0.55f)
             )
+            // Draw lock shackle (arc)
             drawArc(
                 color = Color.White,
                 startAngle = 180f,
                 sweepAngle = 180f,
                 useCenter = false,
-                topLeft = Offset(center.x - lockSize * 0.25f, center.y - lockSize * 0.5f),
-                size = androidx.compose.ui.geometry.Size(lockSize * 0.5f, lockSize * 0.4f),
+                topLeft = Offset(center.x - lockSize * 0.25f, lockY - lockSize * 0.55f),
+                size = androidx.compose.ui.geometry.Size(lockSize * 0.5f, lockSize * 0.45f),
                 style = Stroke(width = 2f)
             )
         }
@@ -383,8 +380,6 @@ private fun DrawScope.drawTowerSymbol(
     status: LevelStatus,
     isDarkMode: Boolean
 ) {
-    if (status == LevelStatus.LOCKED) return  // Don't draw tower on locked tiles
-    
     val towerSize = hexSize * 0.4f
     val towerColor = Color.White
     
