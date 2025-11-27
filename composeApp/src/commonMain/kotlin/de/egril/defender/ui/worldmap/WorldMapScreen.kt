@@ -40,6 +40,7 @@ fun WorldMapScreen(
     var showCheatDialog by remember { mutableStateOf(false) }
     var showNewRepoDataDialog by remember { mutableStateOf(false) }
     var newRepoData by remember { mutableStateOf<RepositoryManager.NewRepositoryData?>(null) }
+    var selectedLevelInfo by remember { mutableStateOf<WorldMapLevelInfo?>(null) }
     
     val scope = rememberCoroutineScope()
     
@@ -66,27 +67,25 @@ fun WorldMapScreen(
         color = MaterialTheme.colorScheme.background
     ) {
         Box(
-            modifier = Modifier.fillMaxSize().padding(16.dp)
+            modifier = Modifier.fillMaxSize()
         ) {
-            // Top-right row: Difficulty and Settings button
-            Row(
-                modifier = Modifier.align(Alignment.TopEnd),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // Difficulty display (clickable to open dropdown)
-                DifficultyDisplay(
-                    isClickable = true,
-                    modifier = Modifier
-                )
-                
-                // Settings button
-                SettingsButton()
-            }
+            // Hexagonal World Map as background
+            HexWorldMapView(
+                worldLevels = worldLevels,
+                onLevelClicked = { levelInfo ->
+                    selectedLevelInfo = levelInfo
+                },
+                modifier = Modifier.fillMaxSize()
+            )
             
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally
+            // Top bar with title and buttons
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+                    .align(Alignment.TopCenter),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 // Title text - clickable for cheat code access (less obvious than a button)
                 Text(
@@ -94,7 +93,6 @@ fun WorldMapScreen(
                     style = MaterialTheme.typography.titleLarge,
                     color = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier
-                        .padding(bottom = 16.dp)
                         .then(
                             if (onCheatCode != null) {
                                 Modifier.clickable { showCheatDialog = true }
@@ -103,29 +101,29 @@ fun WorldMapScreen(
                             }
                         )
                 )
-            
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                modifier = Modifier.weight(1f).fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                items(worldLevels) { worldLevel ->
-                    LevelCard(
-                        worldLevel = worldLevel,
-                        onClick = {
-                            if (worldLevel.status != LevelStatus.LOCKED) {
-                                onLevelSelected(worldLevel.level.id)
-                            }
-                        }
+                
+                // Difficulty and Settings button
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Difficulty display (clickable to open dropdown)
+                    DifficultyDisplay(
+                        isClickable = true,
+                        modifier = Modifier
                     )
+                    
+                    // Settings button
+                    SettingsButton()
                 }
             }
             
-            Spacer(modifier = Modifier.height(16.dp))
-            
+            // Bottom bar with action buttons
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+                    .align(Alignment.BottomCenter),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -155,7 +153,19 @@ fun WorldMapScreen(
                 }
             }
         }
-        }
+    }
+    
+    // Level card overlay dialog
+    if (selectedLevelInfo != null) {
+        LevelCardOverlay(
+            levelInfo = selectedLevelInfo!!,
+            worldLevels = worldLevels,
+            onPlayLevel = { levelId ->
+                onLevelSelected(levelId)
+                selectedLevelInfo = null
+            },
+            onDismiss = { selectedLevelInfo = null }
+        )
     }
     
     // Cheat code dialog
