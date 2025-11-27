@@ -8,25 +8,29 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.app_logo
+import defender_of_egril.composeapp.generated.resources.greatvibes_regular
+import org.jetbrains.compose.resources.Font
 import org.jetbrains.compose.resources.painterResource
 
 /**
  * Application banner component that displays the game title with the application logo.
  * Layout: Two rows of text on the left, logo on the right.
- * - First row: "Defender of" in flowing handwritten-style font
- * - Second row: "Egril" in larger flowing handwritten-style font
+ * - First row: "Defender of" in Great Vibes handwritten font
+ * - Second row: "Egril" in larger Great Vibes handwritten font
  * - Right side: Application logo (shield with crossed swords)
  */
 @Composable
 fun ApplicationBanner(
     modifier: Modifier = Modifier
 ) {
+    // Load the Great Vibes font
+    val greatVibesFont = FontFamily(Font(Res.font.greatvibes_regular))
+    
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
@@ -37,23 +41,21 @@ fun ApplicationBanner(
             horizontalAlignment = Alignment.End,
             verticalArrangement = Arrangement.Center
         ) {
-            // First row: "Defender of" - smaller size, handwritten style
+            // First row: "Defender of" - smaller size, Great Vibes font
             Text(
                 text = "Defender of",
                 fontSize = 32.sp,
-                fontStyle = FontStyle.Italic,
-                fontFamily = FontFamily.Cursive,
+                fontFamily = greatVibesFont,
                 fontWeight = FontWeight.Normal,
                 color = MaterialTheme.colorScheme.onBackground
             )
             
-            // Second row: "Egril" - larger size, handwritten style
+            // Second row: "Egril" - larger size, Great Vibes font
             Text(
                 text = "Egril",
                 fontSize = 56.sp,
-                fontStyle = FontStyle.Italic,
-                fontFamily = FontFamily.Cursive,
-                fontWeight = FontWeight.Bold,
+                fontFamily = greatVibesFont,
+                fontWeight = FontWeight.Normal,
                 color = MaterialTheme.colorScheme.onBackground
             )
         }
