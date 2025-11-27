@@ -3,7 +3,7 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@android:drawable/ic_menu_compass"
+        android:icon="@mipmap/ic_launcher"
         android:label="Defender of Egril"
         android:supportsRtl="true"
         android:theme="@android:style/Theme.Material.Light.NoActionBar">
