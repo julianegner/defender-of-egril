@@ -546,4 +546,20 @@
     <string name="magical_trap_available">Piège Magique Disponible</string>
     <string name="magical_trap_tutorial_title">Piège Magique Débloqué !</string>
     <string name="magical_trap_tutorial_message">Votre tour de magicien a atteint le niveau 10 et peut désormais placer des pièges magiques ! Ces pièges téléportent les ennemis à leur point d\'apparition lorsqu\'ils sont déclenchés. Après avoir placé un piège, il y a un temps de recharge de 10 tours avant de pouvoir en placer un autre.</string>
+    
+    <!-- Level Prerequisites -->
+    <string name="level_dependencies">Dépendances des Niveaux</string>
+    <string name="validation_passed">Validation Réussie</string>
+    <string name="validation_failed">Validation Échouée</string>
+    <string name="missing_prerequisites">Niveaux prérequis manquants</string>
+    <string name="circular_dependencies">Dépendances circulaires détectées</string>
+    <string name="final_stand_disconnected">Le Dernier Bastion n\'est pas connecté à un point d\'entrée</string>
+    <string name="unreachable_levels">Niveaux inaccessibles</string>
+    <string name="edit_prerequisites">Modifier les Prérequis</string>
+    <string name="select_prerequisites">Sélectionnez les niveaux qui doivent être complétés avant de débloquer ce niveau :</string>
+    <string name="required_count">Nombre Requis</string>
+    <string name="required_count_hint">Laissez vide pour exiger tous les prérequis. Entrez un nombre pour n\'en exiger qu\'un certain nombre.</string>
+    <string name="all">tous</string>
+    <string name="requires">Nécessite</string>
+    <string name="entry_point">Point d\'Entrée</string>
 </resources>

@@ -546,4 +546,20 @@
     <string name="magical_trap_available">Trampa Mágica Disponible</string>
     <string name="magical_trap_tutorial_title">¡Trampa Mágica Desbloqueada!</string>
     <string name="magical_trap_tutorial_message">¡Tu torre de mago ha alcanzado el nivel 10 y ahora puede colocar trampas mágicas! Estas trampas teletransportan a los enemigos de vuelta a su punto de aparición cuando se activan. Después de colocar una trampa, hay un tiempo de enfriamiento de 10 turnos antes de poder colocar otra.</string>
+    
+    <!-- Level Prerequisites -->
+    <string name="level_dependencies">Dependencias de Nivel</string>
+    <string name="validation_passed">Validación Exitosa</string>
+    <string name="validation_failed">Validación Fallida</string>
+    <string name="missing_prerequisites">Niveles prerrequisitos faltantes</string>
+    <string name="circular_dependencies">Dependencias circulares detectadas</string>
+    <string name="final_stand_disconnected">El Último Bastión no está conectado a ningún punto de entrada</string>
+    <string name="unreachable_levels">Niveles inalcanzables</string>
+    <string name="edit_prerequisites">Editar Prerrequisitos</string>
+    <string name="select_prerequisites">Seleccione los niveles que deben completarse antes de desbloquear este nivel:</string>
+    <string name="required_count">Cantidad Requerida</string>
+    <string name="required_count_hint">Deje vacío para requerir todos los prerrequisitos. Ingrese un número para requerir solo esa cantidad.</string>
+    <string name="all">todos</string>
+    <string name="requires">Requiere</string>
+    <string name="entry_point">Punto de Entrada</string>
 </resources>

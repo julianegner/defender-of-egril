@@ -80,6 +80,14 @@ object EditorJsonSerializer {
             """{"position": {"x": ${waypoint.position.x}, "y": ${waypoint.position.y}}, "nextTargetPosition": {"x": ${waypoint.nextTargetPosition.x}, "y": ${waypoint.nextTargetPosition.y}}}"""
         }
         
+        val prerequisitesJson = level.prerequisites.joinToString(", ") { "\"$it\"" }
+        
+        val requiredCountJson = if (level.requiredPrerequisiteCount != null) {
+            ",\n  \"requiredPrerequisiteCount\": ${level.requiredPrerequisiteCount}"
+        } else {
+            ""
+        }
+        
         return """{
   "id": "${level.id}",
   "mapId": "${level.mapId}",
@@ -93,7 +101,8 @@ object EditorJsonSerializer {
   "availableTowers": [$towersJson],
   "waypoints": [
     $waypointsJson
-  ]
+  ],
+  "prerequisites": [$prerequisitesJson]$requiredCountJson
 }"""
     }
     
@@ -220,7 +229,37 @@ object EditorJsonSerializer {
                 }
             }
             
-            return EditorLevel(id, mapId, title, subtitle, startCoins, startHealthPoints, spawns, towers, waypoints)
+            // Parse prerequisites (optional for backward compatibility)
+            val prerequisites = mutableSetOf<String>()
+            if (json.contains("\"prerequisites\"")) {
+                try {
+                    val prerequisitesSection = json.substringAfter("\"prerequisites\": [").substringBefore("]")
+                    if (prerequisitesSection.isNotBlank()) {
+                        val prereqEntries = prerequisitesSection.split(",").map { it.trim().removeSurrounding("\"") }
+                        for (entry in prereqEntries) {
+                            if (entry.isNotBlank()) {
+                                prerequisites.add(entry)
+                            }
+                        }
+                    }
+                } catch (e: Exception) {
+                    println("Error parsing prerequisites (continuing without them): ${e.message}")
+                    // Continue without prerequisites for backward compatibility
+                }
+            }
+            
+            // Parse requiredPrerequisiteCount (optional)
+            val requiredPrerequisiteCount: Int? = if (json.contains("\"requiredPrerequisiteCount\"")) {
+                try {
+                    JsonUtils.extractValue(json, "requiredPrerequisiteCount").toInt()
+                } catch (e: Exception) {
+                    null
+                }
+            } else {
+                null
+            }
+            
+            return EditorLevel(id, mapId, title, subtitle, startCoins, startHealthPoints, spawns, towers, waypoints, prerequisites, requiredPrerequisiteCount)
         } catch (e: Exception) {
             println("Error deserializing level: ${e.message}")
             return null

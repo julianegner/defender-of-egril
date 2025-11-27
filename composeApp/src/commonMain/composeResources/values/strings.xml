@@ -547,4 +547,20 @@
     <string name="magical_trap_available">Magical Trap Available</string>
     <string name="magical_trap_tutorial_title">Magical Trap Unlocked!</string>
     <string name="magical_trap_tutorial_message">Your wizard tower has reached level 10 and can now place magical traps! These traps teleport enemies back to their spawn point when triggered. After placing a trap, there is a 10-turn cooldown before you can place another one.</string>
+    
+    <!-- Level Prerequisites -->
+    <string name="level_dependencies">Level Dependencies</string>
+    <string name="validation_passed">Validation Passed</string>
+    <string name="validation_failed">Validation Failed</string>
+    <string name="missing_prerequisites">Missing prerequisite levels</string>
+    <string name="circular_dependencies">Circular dependencies detected</string>
+    <string name="final_stand_disconnected">The Final Stand is not connected to any entry point</string>
+    <string name="unreachable_levels">Unreachable levels</string>
+    <string name="edit_prerequisites">Edit Prerequisites</string>
+    <string name="select_prerequisites">Select levels that must be completed before this level is unlocked:</string>
+    <string name="required_count">Required Count</string>
+    <string name="required_count_hint">Leave empty to require all prerequisites. Enter a number to require only that many.</string>
+    <string name="all">all</string>
+    <string name="requires">Requires</string>
+    <string name="entry_point">Entry Point</string>
 </resources>

@@ -546,4 +546,20 @@
     <string name="magical_trap_available">Trappola Magica Disponibile</string>
     <string name="magical_trap_tutorial_title">Trappola Magica Sbloccata!</string>
     <string name="magical_trap_tutorial_message">La tua torre del mago ha raggiunto il livello 10 e ora può piazzare trappole magiche! Queste trappole teletrasportano i nemici al loro punto di partenza quando vengono attivate. Dopo aver piazzato una trappola, c\'è un tempo di ricarica di 10 turni prima di poterne piazzare un\'altra.</string>
+    
+    <!-- Level Prerequisites -->
+    <string name="level_dependencies">Dipendenze dei Livelli</string>
+    <string name="validation_passed">Validazione Superata</string>
+    <string name="validation_failed">Validazione Fallita</string>
+    <string name="missing_prerequisites">Livelli prerequisiti mancanti</string>
+    <string name="circular_dependencies">Dipendenze circolari rilevate</string>
+    <string name="final_stand_disconnected">L\'Ultima Resistenza non è connessa a nessun punto di ingresso</string>
+    <string name="unreachable_levels">Livelli irraggiungibili</string>
+    <string name="edit_prerequisites">Modifica Prerequisiti</string>
+    <string name="select_prerequisites">Seleziona i livelli che devono essere completati prima di sbloccare questo livello:</string>
+    <string name="required_count">Quantità Richiesta</string>
+    <string name="required_count_hint">Lascia vuoto per richiedere tutti i prerequisiti. Inserisci un numero per richiederne solo quel numero.</string>
+    <string name="all">tutti</string>
+    <string name="requires">Richiede</string>
+    <string name="entry_point">Punto di Ingresso</string>
 </resources>
