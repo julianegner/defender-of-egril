@@ -2,14 +2,12 @@ package de.egril.defender.ui.worldmap
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -20,19 +18,14 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.dp
 import de.egril.defender.model.LevelStatus
 import de.egril.defender.model.Position
 import de.egril.defender.model.WorldLevel
-import de.egril.defender.ui.icon.CheckmarkIcon
-import de.egril.defender.ui.icon.LockIcon
-import de.egril.defender.ui.icon.SwordIcon
 import de.egril.defender.ui.mouseWheelZoom
 import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.utils.isPlatformMobile
 import kotlin.math.PI
 import kotlin.math.cos
-import kotlin.math.min
 import kotlin.math.sin
 import kotlin.math.sqrt
 
@@ -58,12 +51,48 @@ fun HexWorldMapView(
     var offsetY by remember { mutableStateOf(0f) }
     var containerSize by remember { mutableStateOf(IntSize.Zero) }
     
-    // Track which level is hovered (for desktop) or tapped (for mobile)
-    var hoveredLevel by remember { mutableStateOf<WorldMapLevelInfo?>(null) }
-    
     // Use rememberUpdatedState to avoid capturing stale offset values in gesture handlers
     val currentOffsetX by rememberUpdatedState(offsetX)
     val currentOffsetY by rememberUpdatedState(offsetY)
+    val currentScale by rememberUpdatedState(scale)
+    
+    // Helper function to find level at screen position
+    fun findLevelAtPosition(screenX: Float, screenY: Float): WorldMapLevelInfo? {
+        val hexSize = 30f
+        val hexWidth = hexSize * sqrt(3.0).toFloat()
+        val hexHeight = hexSize * 2f
+        val verticalSpacing = hexHeight * 0.75f
+        
+        // Calculate map dimensions
+        val mapPixelWidth = worldMap.width * hexWidth + hexWidth / 2
+        val mapPixelHeight = worldMap.height * verticalSpacing + hexHeight / 4
+        
+        // Calculate the offset to center the map (before scale)
+        val baseCenterOffsetX = (containerSize.width - mapPixelWidth) / 2
+        val baseCenterOffsetY = (containerSize.height - mapPixelHeight) / 2
+        
+        // Transform screen coordinates to map coordinates (account for scale and pan)
+        val mapX = (screenX - containerSize.width / 2 - currentOffsetX) / currentScale + containerSize.width / 2 - baseCenterOffsetX
+        val mapY = (screenY - containerSize.height / 2 - currentOffsetY) / currentScale + containerSize.height / 2 - baseCenterOffsetY
+        
+        // Find if any level tile contains this point
+        for (levelInfo in worldMap.levels) {
+            val pos = levelInfo.position
+            val offsetXHex = if (pos.y % 2 == 1) hexWidth / 2 else 0f
+            val centerX = pos.x * hexWidth + offsetXHex + hexWidth / 2
+            val centerY = pos.y * verticalSpacing + hexHeight / 2
+            
+            // Check if click is within hexagon (approximate with circle for simplicity)
+            val dx = mapX - centerX
+            val dy = mapY - centerY
+            val distance = sqrt(dx * dx + dy * dy)
+            
+            if (distance < hexSize * 0.9f) {
+                return levelInfo
+            }
+        }
+        return null
+    }
     
     Box(
         modifier = modifier
@@ -78,6 +107,14 @@ fun HexWorldMapView(
                 onScaleChange = { scale = it.coerceIn(0.5f, 2f) },
                 onOffsetChange = { x, y -> offsetX = x; offsetY = y }
             )
+            .pointerInput(worldMap) {
+                detectTapGestures { offset ->
+                    val level = findLevelAtPosition(offset.x, offset.y)
+                    if (level != null) {
+                        onLevelClicked(level)
+                    }
+                }
+            }
             .pointerInput(Unit) {
                 var dragStartOffsetX = 0f
                 var dragStartOffsetY = 0f
@@ -174,34 +211,6 @@ fun HexWorldMapView(
                     }
                 }
             }
-        }
-        
-        // Clickable overlays for level tiles (to handle clicks properly)
-        worldMap.levels.forEach { levelInfo ->
-            val hexSize = 30f * scale
-            val hexWidth = hexSize * sqrt(3.0).toFloat()
-            val hexHeight = hexSize * 2f
-            val verticalSpacing = hexHeight * 0.75f
-            
-            val mapPixelWidth = worldMap.width * (30f * sqrt(3.0).toFloat()) + (30f * sqrt(3.0).toFloat()) / 2
-            val mapPixelHeight = worldMap.height * (30f * 2f * 0.75f) + (30f * 2f) / 4
-            val centerOffsetX = (containerSize.width - mapPixelWidth * scale) / 2 + offsetX
-            val centerOffsetY = (containerSize.height - mapPixelHeight * scale) / 2 + offsetY
-            
-            val pos = levelInfo.position
-            val offsetXHex = if (pos.y % 2 == 1) hexWidth / 2 else 0f
-            val centerX = centerOffsetX + pos.x * hexWidth + offsetXHex + hexWidth / 2
-            val centerY = centerOffsetY + pos.y * verticalSpacing + hexHeight / 2
-            
-            Box(
-                modifier = Modifier
-                    .offset(
-                        x = (centerX - hexSize / 2).toInt().dp,
-                        y = (centerY - hexSize / 2).toInt().dp
-                    )
-                    .size((hexSize).dp)
-                    .clickable { onLevelClicked(levelInfo) }
-            )
         }
     }
 }
