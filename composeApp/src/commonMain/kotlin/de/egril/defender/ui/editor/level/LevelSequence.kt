@@ -1,680 +1,402 @@
 package de.egril.defender.ui.editor.level
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.layout.positionInParent
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.IntSize
+import de.egril.defender.editor.EditorLevel
 import de.egril.defender.editor.EditorStorage
-import de.egril.defender.ui.icon.DownArrowIcon
-import de.egril.defender.ui.icon.UpArrowIcon
+import de.egril.defender.editor.PrerequisiteValidationResult
 import de.egril.defender.ui.icon.CheckmarkIcon
+import de.egril.defender.ui.icon.WarningIcon
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.*
-import de.egril.defender.ui.common.LevelInfoEnemiesColumn
-import de.egril.defender.ui.gameplay.ExpandableCard
 
 /**
- * Drag state to track which level is being dragged
+ * Data class to store level card position for drawing arrows
  */
-data class DragState(
+data class LevelCardPosition(
     val levelId: String,
-    val isFromSequence: Boolean,
-    val currentPosition: Offset = Offset.Zero
-)
-
-/**
- * Item bounds for drop target detection
- */
-data class ItemBounds(
-    val index: Int,
-    val position: Offset,
+    val center: Offset,
     val size: IntSize
 )
 
 /**
- * Main content for the Level Sequence tab
+ * Main content for the Level Dependencies tab (formerly Level Sequence)
+ * Shows a tree map visualization of levels with prerequisite connections
  */
 @Composable
 fun LevelSequenceContent() {
-    var sequence by remember { mutableStateOf(EditorStorage.getLevelSequence()) }
     var allLevels by remember { mutableStateOf(EditorStorage.getAllLevels()) }
-    var dragState by remember { mutableStateOf<DragState?>(null) }
-    var dropTargetIndex by remember { mutableStateOf<Int?>(null) }
-    var isDropTargetAvailableArea by remember { mutableStateOf(false) }
+    var validationResult by remember { mutableStateOf<PrerequisiteValidationResult?>(null) }
+    var selectedLevelId by remember { mutableStateOf<String?>(null) }
+    var showPrerequisiteEditor by remember { mutableStateOf(false) }
     
-    // Track bounds of items and available area
-    val itemBounds = remember { mutableStateMapOf<Int, ItemBounds>() }
-    var availableAreaBounds by remember { mutableStateOf<Pair<Offset, IntSize>?>(null) }
-    var sequenceAreaBounds by remember { mutableStateOf<Pair<Offset, IntSize>?>(null) }
+    // Track level card positions for drawing arrows
+    val levelPositions = remember { mutableStateMapOf<String, LevelCardPosition>() }
     
-    // Reload data when composable is first shown (fixes disappearing levels on navigation)
+    // Reload data and validate
     LaunchedEffect(Unit) {
-        sequence = EditorStorage.getLevelSequence()
         allLevels = EditorStorage.getAllLevels()
+        validationResult = EditorStorage.validateAllPrerequisites()
     }
     
-    // Get levels in sequence - show all levels from the sequence
-    val levelsInSequence = sequence.sequence.mapNotNull { levelId ->
-        val level = EditorStorage.getLevel(levelId)
-        if (level != null) {
-            levelId to level
-        } else null
-    }
-    
-    // Get all levels not in sequence
-    val availableLevels = allLevels.filter { level ->
-        !sequence.sequence.contains(level.id)
+    // Recalculate validation when levels change
+    LaunchedEffect(allLevels) {
+        validationResult = EditorStorage.validateAllPrerequisites()
     }
     
     Column(
         modifier = Modifier
-            .fillMaxWidth()
-            .fillMaxHeight()
+            .fillMaxSize()
+            .padding(8.dp)
     ) {
-        Text(
-            text = stringResource(Res.string.level_sequence),
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
-        
-        // Section: Levels in Sequence (with drag hint in title)
-        Text(
-            text = "${stringResource(Res.string.levels_in_sequence)} (${stringResource(Res.string.drag_to_reorder)})",
-            style = MaterialTheme.typography.titleSmall,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-
-        // Always show the LazyColumn (even if empty) so it can accept drops
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f, fill = false) // Take available space but don't force fill
-                .heightIn(min = 100.dp, max = 400.dp) // Min/max bounds for better layout
-                .onGloballyPositioned { coordinates ->
-                    sequenceAreaBounds = coordinates.positionInRoot() to 
-                        IntSize(coordinates.size.width, coordinates.size.height)
-                },
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            if (levelsInSequence.isEmpty()) {
-                item {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .heightIn(min = 80.dp)
-                            .padding(vertical = 16.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "No levels in sequence - drag levels here to add them",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-            } else {
-                items(levelsInSequence.size) { index ->
-                    val (levelId, level) = levelsInSequence[index]
-                    
-                    // Show drop indicator before this item
-                    if (dropTargetIndex == index && !isDropTargetAvailableArea) {
-                        DropIndicator()
-                    }
-                    
-                    LevelSequenceItem(
-                        index = index,
-                        levelId = levelId,
-                        level = level,
-                        isInSequence = true,
-                        isDragging = dragState?.levelId == levelId,
-                        canMoveUp = index > 0,
-                        canMoveDown = index < levelsInSequence.size - 1,
-                        onMoveUp = {
-                            EditorStorage.moveLevelUp(levelId)
-                            sequence = EditorStorage.getLevelSequence()
-                        },
-                        onMoveDown = {
-                            EditorStorage.moveLevelDown(levelId)
-                            sequence = EditorStorage.getLevelSequence()
-                        },
-                        onRemove = {
-                            EditorStorage.removeLevelFromSequence(levelId)
-                            sequence = EditorStorage.getLevelSequence()
-                            allLevels = EditorStorage.getAllLevels()
-                        },
-                        onDragStart = { offset ->
-                            dragState = DragState(levelId, true, offset)
-                            dropTargetIndex = null
-                            isDropTargetAvailableArea = false
-                            itemBounds.clear()
-                        },
-                        onDrag = { change, dragAmount ->
-                            dragState?.let { state ->
-                                val newPosition = state.currentPosition + Offset(dragAmount.x, dragAmount.y)
-                                dragState = state.copy(currentPosition = newPosition)
-                                
-                                // Check if over available area
-                                availableAreaBounds?.let { (position, size) ->
-                                    val isOverAvailable = newPosition.x >= position.x && 
-                                                         newPosition.x <= position.x + size.width &&
-                                                         newPosition.y >= position.y && 
-                                                         newPosition.y <= position.y + size.height
-                                    isDropTargetAvailableArea = isOverAvailable
-                                    if (isOverAvailable) {
-                                        dropTargetIndex = null
-                                    } else {
-                                        // Calculate drop position based on Y coordinate
-                                        // Find which items the drag position is between
-                                        // Exclude the item being dragged from calculations
-                                        val sortedBounds = itemBounds.values
-                                            .filter { it.index != levelsInSequence.indexOfFirst { pair -> pair.first == state.levelId } }
-                                            .sortedBy { it.index }
-                                        var targetIndex: Int? = null
-                                        
-                                        if (sortedBounds.isNotEmpty()) {
-                                            // Check if before first item (above its midpoint)
-                                            val firstItem = sortedBounds.first()
-                                            val firstMidpoint = firstItem.position.y + firstItem.size.height / 2
-                                            if (newPosition.y < firstMidpoint) {
-                                                targetIndex = 0
-                                            } else {
-                                                // Check each item to find insertion point
-                                                for (i in 0 until sortedBounds.size) {
-                                                    val currentItem = sortedBounds[i]
-                                                    val currentMidpoint = currentItem.position.y + currentItem.size.height / 2
-                                                    
-                                                    if (i == sortedBounds.size - 1) {
-                                                        // Last item - check if below its midpoint
-                                                        if (newPosition.y >= currentMidpoint) {
-                                                            targetIndex = sortedBounds.size
-                                                        } else {
-                                                            // Above the last item's midpoint, insert before it
-                                                            targetIndex = i
-                                                        }
-                                                    } else {
-                                                        val nextItem = sortedBounds[i + 1]
-                                                        val nextMidpoint = nextItem.position.y + nextItem.size.height / 2
-                                                        
-                                                        // Check if between current midpoint and next midpoint
-                                                        if (newPosition.y >= currentMidpoint && newPosition.y < nextMidpoint) {
-                                                            targetIndex = i + 1
-                                                            break
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        } else {
-                                            // No other items, insert at position 0
-                                            targetIndex = 0
-                                        }
-                                        
-                                        dropTargetIndex = targetIndex
-                                    }
-                                }
-                            }
-                            change.consume()
-                        },
-                        onDragEnd = {
-                            dragState?.let { state ->
-                                if (isDropTargetAvailableArea && state.isFromSequence) {
-                                    // Remove from sequence
-                                    EditorStorage.removeLevelFromSequence(state.levelId)
-                                } else if (dropTargetIndex != null) {
-                                    if (state.isFromSequence) {
-                                        // Moving within sequence
-                                        val currentSequence = EditorStorage.getLevelSequence().sequence.toMutableList()
-                                        val fromIndex = currentSequence.indexOf(state.levelId)
-                                        
-                                        if (fromIndex >= 0 && fromIndex != dropTargetIndex) {
-                                            currentSequence.removeAt(fromIndex)
-                                            // No adjustment needed - dropTargetIndex is already correct
-                                            // since we excluded the dragged item from calculations
-                                            val insertIndex = dropTargetIndex!!.coerceIn(0, currentSequence.size)
-                                            currentSequence.add(insertIndex, state.levelId)
-                                            EditorStorage.updateLevelSequence(de.egril.defender.editor.LevelSequence(currentSequence))
-                                        }
-                                    } else {
-                                        // Adding from available levels
-                                        EditorStorage.addLevelToSequence(state.levelId, dropTargetIndex)
-                                    }
-                                }
-                                sequence = EditorStorage.getLevelSequence()
-                                allLevels = EditorStorage.getAllLevels()
-                            }
-                            dragState = null
-                            dropTargetIndex = null
-                            isDropTargetAvailableArea = false
-                            itemBounds.clear()
-                        },
-                        onPositionChanged = { position, size ->
-                            // Track item bounds for drop target detection
-                            itemBounds[index] = ItemBounds(index, position, size)
-                        }
-                    )
-                    
-                    // Show drop indicator after last item
-                    if (index == levelsInSequence.size - 1 && dropTargetIndex == levelsInSequence.size && !isDropTargetAvailableArea) {
-                        DropIndicator()
-                    }
-                }
-            }
-        }
-        
-        Spacer(modifier = Modifier.height(24.dp))
-        
-        // Section: Available Levels (with drag hint in title)
-        Text(
-            text = "${stringResource(Res.string.available_levels)} (${stringResource(Res.string.drag_to_add)})",
-            style = MaterialTheme.typography.titleSmall,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-        
-        if (availableLevels.isEmpty()) {
-            // Show empty drop area that can receive items
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(100.dp)
-                    .background(
-                        if (isDropTargetAvailableArea) {
-                            MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
-                        } else {
-                            MaterialTheme.colorScheme.surfaceVariant
-                        }
-                    )
-                    .onGloballyPositioned { coordinates ->
-                        availableAreaBounds = coordinates.positionInRoot() to 
-                            IntSize(coordinates.size.width, coordinates.size.height)
-                    }
-            ) {
-                Text(
-                    text = "Drag levels here to remove from sequence",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.align(Alignment.Center)
-                )
-            }
-        } else {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f, fill = false) // Take remaining space but don't force fill
-                    .heightIn(max = 400.dp) // Limit max height so it doesn't push sequence off screen
-                    .background(
-                        if (isDropTargetAvailableArea) {
-                            MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
-                        } else {
-                            Color.Transparent
-                        }
-                    )
-                    .onGloballyPositioned { coordinates ->
-                        availableAreaBounds = coordinates.positionInRoot() to 
-                            IntSize(coordinates.size.width, coordinates.size.height)
-                    }
-            ) {
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(4),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentHeight(), // Don't fill full height, just wrap content
-                    contentPadding = PaddingValues(4.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(availableLevels.size) { index ->
-                        val level = availableLevels[index]
-                        
-                        AvailableLevelCard(
-                            level = level,
-                            isDragging = dragState?.levelId == level.id,
-                            onAddToSequence = {
-                                EditorStorage.addLevelToSequence(level.id)
-                                sequence = EditorStorage.getLevelSequence()
-                                allLevels = EditorStorage.getAllLevels()
-                            },
-                            onDragStart = { offset ->
-                                dragState = DragState(level.id, false, offset)
-                                dropTargetIndex = null  // Don't preset - only set if over sequence
-                                isDropTargetAvailableArea = false
-                            },
-                            onDrag = { change, dragAmount ->
-                                dragState?.let { state ->
-                                    val newPosition = state.currentPosition + Offset(dragAmount.x, dragAmount.y)
-                                    dragState = state.copy(currentPosition = newPosition)
-                                    
-                                    // Check if over sequence area
-                                    var isOverSequence = false
-                                    sequenceAreaBounds?.let { (position, size) ->
-                                        isOverSequence = newPosition.x >= position.x && 
-                                                        newPosition.x <= position.x + size.width &&
-                                                        newPosition.y >= position.y && 
-                                                        newPosition.y <= position.y + size.height
-                                    }
-                                    
-                                    if (isOverSequence) {
-                                        // Calculate drop position based on Y coordinate
-                                        val sortedBounds = itemBounds.values.sortedBy { it.index }
-                                        var targetIndex: Int? = null
-                                        
-                                        if (sortedBounds.isNotEmpty()) {
-                                            // Check if before first item (above its midpoint)
-                                            val firstItem = sortedBounds.first()
-                                            val firstMidpoint = firstItem.position.y + firstItem.size.height / 2
-                                            if (newPosition.y < firstMidpoint) {
-                                                targetIndex = 0
-                                            } else {
-                                                // Check each item to find insertion point
-                                                for (i in 0 until sortedBounds.size) {
-                                                    val currentItem = sortedBounds[i]
-                                                    val currentMidpoint = currentItem.position.y + currentItem.size.height / 2
-                                                    
-                                                    if (i == sortedBounds.size - 1) {
-                                                        // Last item - check if below its midpoint
-                                                        if (newPosition.y >= currentMidpoint) {
-                                                            targetIndex = sortedBounds.size
-                                                        } else {
-                                                            // Above the last item's midpoint
-                                                            // Insert after current item
-                                                            targetIndex = currentItem.index + 1
-                                                        }
-                                                    } else {
-                                                        val nextItem = sortedBounds[i + 1]
-                                                        val nextMidpoint = nextItem.position.y + nextItem.size.height / 2
-                                                        
-                                                        // Check if between current midpoint and next midpoint
-                                                        if (newPosition.y >= currentMidpoint && newPosition.y < nextMidpoint) {
-                                                            // Insert before next item (at next item's current index)
-                                                            targetIndex = nextItem.index
-                                                            break
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        } else {
-                                            // No items yet, insert at position 0
-                                            targetIndex = 0
-                                        }
-                                        
-                                        dropTargetIndex = targetIndex
-                                    } else {
-                                        // Not over sequence area - clear drop target
-                                        dropTargetIndex = null
-                                    }
-                                }
-                                change.consume()
-                            },
-                            onDragEnd = {
-                                dragState?.let { state ->
-                                    if (!state.isFromSequence && dropTargetIndex != null) {
-                                        // Add to sequence at specific position
-                                        EditorStorage.addLevelToSequence(state.levelId, dropTargetIndex)
-                                        sequence = EditorStorage.getLevelSequence()
-                                        allLevels = EditorStorage.getAllLevels()
-                                    }
-                                }
-                                dragState = null
-                                dropTargetIndex = null
-                                isDropTargetAvailableArea = false
-                            }
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
-/**
- * Visual indicator for drop target position
- */
-@Composable
-fun DropIndicator() {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(4.dp)
-            .background(MaterialTheme.colorScheme.primary)
-            .padding(vertical = 2.dp)
-    )
-}
-
-/**
- * Level item in the sequence list with drag support
- */
-@Composable
-fun LevelSequenceItem(
-    index: Int,
-    levelId: String,
-    level: de.egril.defender.editor.EditorLevel,
-    isInSequence: Boolean,
-    isDragging: Boolean,
-    canMoveUp: Boolean,
-    canMoveDown: Boolean,
-    onMoveUp: () -> Unit,
-    onMoveDown: () -> Unit,
-    onRemove: () -> Unit,
-    onDragStart: (Offset) -> Unit,
-    onDrag: (androidx.compose.ui.input.pointer.PointerInputChange, Offset) -> Unit,
-    onDragEnd: () -> Unit,
-    onPositionChanged: (Offset, IntSize) -> Unit
-) {
-    var itemPosition by remember { mutableStateOf(Offset.Zero) }
-    var itemSize by remember { mutableStateOf(IntSize.Zero) }
-    
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(start =  8.dp)
-            .onGloballyPositioned { coordinates ->
-                itemPosition = coordinates.positionInRoot()
-                itemSize = coordinates.size
-                onPositionChanged(itemPosition, itemSize)
-            }
-            .pointerInput(levelId) {  // Key by level ID to ensure stable drag handling
-                detectDragGestures(
-                    onDragStart = { offset ->
-                        onDragStart(itemPosition + offset)
-                    },
-                    onDrag = onDrag,
-                    onDragEnd = onDragEnd,
-                    onDragCancel = onDragEnd
-                )
-            },
-        colors = CardDefaults.cardColors(
-            containerColor = if (isDragging) {
-                MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
-            } else {
-                MaterialTheme.colorScheme.surfaceVariant
-            }
-        )
-    ) {
-        // Title row with ready indicator
+        // Title and validation status
         Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "${index + 1}. ${level.title}",
-                style = MaterialTheme.typography.titleSmall
+                text = stringResource(Res.string.level_dependencies),
+                style = MaterialTheme.typography.titleMedium
             )
-            // Add ready/not ready indicator
-            if (EditorStorage.isLevelReadyToPlay(level)) {
-                CheckmarkIcon(
-                    size = 16.dp,
-                    tint = Color.Green
-                )
-            } else {
-                Text(
-                    text = "✗",
-                    color = Color.Red,
-                    style = MaterialTheme.typography.titleSmall
-                )
+            
+            // Validation status
+            validationResult?.let { result ->
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    if (result.isValid) {
+                        CheckmarkIcon(size = 20.dp, tint = Color.Green)
+                        Text(
+                            text = stringResource(Res.string.validation_passed),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.Green
+                        )
+                    } else {
+                        WarningIcon(size = 20.dp)
+                        Text(
+                            text = stringResource(Res.string.validation_failed),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.Red
+                        )
+                    }
+                }
             }
         }
-        Row {
-            Column (modifier = Modifier.weight(1f)) {
-                ExpandableCard(
-                    title = "",
-                    defaultExpanded = false,
-                    modifier = Modifier.padding(12.dp).fillMaxWidth()
+        
+        // Validation errors (if any)
+        validationResult?.let { result ->
+            if (!result.isValid) {
+                Card(
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer)
                 ) {
-                    Row(
-                        modifier = Modifier.fillMaxSize().padding(12.dp),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        LevelInfoEnemiesColumn(
-                            level = level.toLevelInfoEnemiesLevelData(index + 1),
-                            textColor = MaterialTheme.colorScheme.onSurface
-                        )
-                        Column {
-                            // Add ready/not ready indicator
-                            if (EditorStorage.isLevelReadyToPlay(level)) {
-                                CheckmarkIcon(
-                                    size = 16.dp,
-                                    tint = Color.Green
-                                )
-                            } else {
-                                Text(
-                                    text = "✗",
-                                    color = Color.Red,
-                                    style = MaterialTheme.typography.titleSmall
-                                )
-                            }
+                    Column(modifier = Modifier.padding(8.dp)) {
+                        if (result.missingLevelIds.isNotEmpty()) {
+                            Text(
+                                text = "${stringResource(Res.string.missing_prerequisites)}: ${result.missingLevelIds.joinToString(", ")}",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onErrorContainer
+                            )
+                        }
+                        if (result.circularDependencies.isNotEmpty()) {
+                            Text(
+                                text = "${stringResource(Res.string.circular_dependencies)}: ${result.circularDependencies.joinToString(", ")}",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onErrorContainer
+                            )
+                        }
+                        if (result.disconnectedFromFinal) {
+                            Text(
+                                text = stringResource(Res.string.final_stand_disconnected),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onErrorContainer
+                            )
+                        }
+                        if (result.unreachableLevels.isNotEmpty()) {
+                            Text(
+                                text = "${stringResource(Res.string.unreachable_levels)}: ${result.unreachableLevels.joinToString(", ")}",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onErrorContainer
+                            )
                         }
                     }
                 }
-                Row {
-                    // File ID
-                    Text(
-                        text = "${stringResource(Res.string.file)}: ${level.id}",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+            }
+        }
+        
+        // Tree map visualization with scrolling
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+        ) {
+            val horizontalScrollState = rememberScrollState()
+            val verticalScrollState = rememberScrollState()
+            
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .horizontalScroll(horizontalScrollState)
+                    .verticalScroll(verticalScrollState)
+            ) {
+                LevelTreeMap(
+                    levels = allLevels,
+                    levelPositions = levelPositions,
+                    selectedLevelId = selectedLevelId,
+                    validationResult = validationResult,
+                    onLevelClick = { levelId ->
+                        selectedLevelId = levelId
+                        showPrerequisiteEditor = true
+                    }
+                )
+            }
+        }
+    }
+    
+    // Prerequisite editor dialog
+    if (showPrerequisiteEditor && selectedLevelId != null) {
+        val selectedLevel = allLevels.find { it.id == selectedLevelId }
+        if (selectedLevel != null) {
+            PrerequisiteEditorDialog(
+                level = selectedLevel,
+                allLevels = allLevels,
+                onDismiss = { showPrerequisiteEditor = false },
+                onSave = { updatedLevel ->
+                    EditorStorage.saveLevel(updatedLevel)
+                    allLevels = EditorStorage.getAllLevels()
+                    validationResult = EditorStorage.validateAllPrerequisites()
+                    showPrerequisiteEditor = false
+                }
+            )
+        }
+    }
+}
 
-                    // Ready status
-                    Text(
-                        text = if (EditorStorage.isLevelReadyToPlay(level)) stringResource(Res.string.ready_to_use) else stringResource(
-                            Res.string.not_ready
-                        ),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = if (EditorStorage.isLevelReadyToPlay(level)) Color.Green else Color.Red
+/**
+ * Tree map visualization of levels with dependency arrows
+ */
+@Composable
+fun LevelTreeMap(
+    levels: List<EditorLevel>,
+    levelPositions: MutableMap<String, LevelCardPosition>,
+    selectedLevelId: String?,
+    validationResult: PrerequisiteValidationResult?,
+    onLevelClick: (String) -> Unit
+) {
+    val density = LocalDensity.current
+    
+    // Organize levels into columns based on their depth in the dependency graph
+    val levelsByDepth = remember(levels) {
+        calculateLevelDepths(levels)
+    }
+    
+    val cardWidth = 200.dp
+    val cardHeight = 150.dp
+    val columnSpacing = 100.dp
+    val rowSpacing = 20.dp
+    
+    Box(
+        modifier = Modifier
+            .width(with(density) { ((levelsByDepth.size * (cardWidth.toPx() + columnSpacing.toPx())) + 50).toDp() })
+            .height(with(density) { 
+                val maxLevelsInColumn = levelsByDepth.values.maxOfOrNull { it.size } ?: 1
+                ((maxLevelsInColumn * (cardHeight.toPx() + rowSpacing.toPx())) + 50).toDp()
+            })
+    ) {
+        // Draw arrows between levels
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            for (level in levels) {
+                val toPosition = levelPositions[level.id] ?: continue
+                
+                for (prereqId in level.prerequisites) {
+                    val fromPosition = levelPositions[prereqId] ?: continue
+                    
+                    // Draw arrow from prerequisite to this level
+                    val startX = fromPosition.center.x + fromPosition.size.width / 2
+                    val startY = fromPosition.center.y
+                    val endX = toPosition.center.x - toPosition.size.width / 2
+                    val endY = toPosition.center.y
+                    
+                    // Determine arrow color based on validation
+                    val arrowColor = when {
+                        validationResult?.circularDependencies?.contains(level.id) == true ||
+                        validationResult?.circularDependencies?.contains(prereqId) == true -> Color.Red
+                        validationResult?.missingLevelIds?.contains(prereqId) == true -> Color.Gray
+                        else -> Color(0xFF4CAF50) // Green
+                    }
+                    
+                    // Draw curved arrow
+                    val path = Path().apply {
+                        moveTo(startX, startY)
+                        val controlX = (startX + endX) / 2
+                        cubicTo(
+                            controlX, startY,
+                            controlX, endY,
+                            endX, endY
+                        )
+                    }
+                    
+                    drawPath(
+                        path = path,
+                        color = arrowColor,
+                        style = Stroke(width = 2f)
                     )
+                    
+                    // Draw arrowhead
+                    val arrowSize = 10f
+                    val arrowPath = Path().apply {
+                        moveTo(endX, endY)
+                        lineTo(endX - arrowSize, endY - arrowSize / 2)
+                        lineTo(endX - arrowSize, endY + arrowSize / 2)
+                        close()
+                    }
+                    drawPath(path = arrowPath, color = arrowColor)
                 }
             }
-            Column (modifier = Modifier.weight(1f)) {
-                // Action buttons
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    Button(
-                        onClick = onMoveUp,
-                        enabled = canMoveUp && !isDragging
-                    ) {
-                        UpArrowIcon(size = 16.dp, tint = Color.White)
-                    }
-
-                    Button(
-                        onClick = onMoveDown,
-                        enabled = canMoveDown && !isDragging
-                    ) {
-                        DownArrowIcon(size = 16.dp, tint = Color.White)
-                    }
-
-                    Button(
-                        onClick = onRemove,
-                        enabled = !isDragging,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.error
-                        )
-                    ) {
-                        Text(stringResource(Res.string.remove_from_sequence))
-                    }
-                }
+        }
+        
+        // Draw level cards
+        for ((depth, levelsAtDepth) in levelsByDepth) {
+            levelsAtDepth.forEachIndexed { index, level ->
+                val xOffset = with(density) { (depth * (cardWidth.toPx() + columnSpacing.toPx()) + 25).toDp() }
+                val yOffset = with(density) { (index * (cardHeight.toPx() + rowSpacing.toPx()) + 25).toDp() }
+                
+                LevelTreeCard(
+                    level = level,
+                    isSelected = level.id == selectedLevelId,
+                    hasValidationError = validationResult?.circularDependencies?.contains(level.id) == true ||
+                                        validationResult?.unreachableLevels?.contains(level.id) == true,
+                    onClick = { onLevelClick(level.id) },
+                    modifier = Modifier
+                        .offset(x = xOffset, y = yOffset)
+                        .width(cardWidth)
+                        .height(cardHeight)
+                        .onGloballyPositioned { coordinates ->
+                            val position = coordinates.positionInParent()
+                            levelPositions[level.id] = LevelCardPosition(
+                                levelId = level.id,
+                                center = Offset(
+                                    position.x + coordinates.size.width / 2,
+                                    position.y + coordinates.size.height / 2
+                                ),
+                                size = coordinates.size
+                            )
+                        }
+                )
             }
         }
     }
 }
 
 /**
- * Available level card in grid layout with drag support
+ * Calculate the depth of each level in the dependency graph
+ * Levels with no prerequisites are at depth 0
+ */
+private fun calculateLevelDepths(levels: List<EditorLevel>): Map<Int, List<EditorLevel>> {
+    val levelMap = levels.associateBy { it.id }
+    val depths = mutableMapOf<String, Int>()
+    
+    // Calculate depth for each level using DFS with memoization
+    fun getDepth(levelId: String, visited: MutableSet<String>): Int {
+        if (levelId in visited) return 0 // Circular dependency, treat as depth 0
+        if (levelId in depths) return depths[levelId]!!
+        
+        val level = levelMap[levelId] ?: return 0
+        if (level.prerequisites.isEmpty()) {
+            depths[levelId] = 0
+            return 0
+        }
+        
+        visited.add(levelId)
+        val maxPrereqDepth = level.prerequisites
+            .filter { it in levelMap }
+            .maxOfOrNull { getDepth(it, visited) } ?: -1
+        visited.remove(levelId)
+        
+        val depth = maxPrereqDepth + 1
+        depths[levelId] = depth
+        return depth
+    }
+    
+    // Calculate depths for all levels
+    for (level in levels) {
+        getDepth(level.id, mutableSetOf())
+    }
+    
+    // Group levels by depth
+    return levels.groupBy { depths[it.id] ?: 0 }
+}
+
+/**
+ * Card representing a level in the tree map
  */
 @Composable
-fun AvailableLevelCard(
-    level: de.egril.defender.editor.EditorLevel,
-    isDragging: Boolean,
-    onAddToSequence: () -> Unit,
-    onDragStart: (Offset) -> Unit,
-    onDrag: (androidx.compose.ui.input.pointer.PointerInputChange, Offset) -> Unit,
-    onDragEnd: () -> Unit
+fun LevelTreeCard(
+    level: EditorLevel,
+    isSelected: Boolean,
+    hasValidationError: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    var cardPosition by remember { mutableStateOf(Offset.Zero) }
+    val isReady = EditorStorage.isLevelReadyToPlay(level)
     
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .onGloballyPositioned { coordinates ->
-                cardPosition = coordinates.positionInRoot()
-            }
-            .pointerInput(level.id) {  // Key by level ID to ensure stable drag handling
-                detectDragGestures(
-                    onDragStart = { offset ->
-                        onDragStart(cardPosition + offset)
-                    },
-                    onDrag = onDrag,
-                    onDragEnd = onDragEnd,
-                    onDragCancel = onDragEnd
-                )
-            },
+        modifier = modifier.clickable { onClick() },
         colors = CardDefaults.cardColors(
-            containerColor = if (isDragging) {
-                MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
-            } else {
-                MaterialTheme.colorScheme.tertiaryContainer
+            containerColor = when {
+                isSelected -> MaterialTheme.colorScheme.primaryContainer
+                hasValidationError -> MaterialTheme.colorScheme.errorContainer
+                else -> MaterialTheme.colorScheme.surfaceVariant
             }
+        ),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = if (isSelected) 8.dp else 2.dp
         )
     ) {
         Column(
-            modifier = Modifier.padding(8.dp).fillMaxWidth()
+            modifier = Modifier.padding(8.dp).fillMaxSize(),
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
             // Title with ready indicator
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
-                modifier = Modifier.fillMaxWidth()
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Text(
                     text = level.title,
                     style = MaterialTheme.typography.titleSmall,
-                    maxLines = 2,
+                    maxLines = 1,
                     modifier = Modifier.weight(1f)
                 )
-                // Add ready/not ready indicator
-                if (EditorStorage.isLevelReadyToPlay(level)) {
-                    CheckmarkIcon(
-                        size = 14.dp,
-                        tint = Color.Green
-                    )
+                if (isReady) {
+                    CheckmarkIcon(size = 14.dp, tint = Color.Green)
                 } else {
-                    Text(
-                        text = "✗",
-                        color = Color.Red,
-                        style = MaterialTheme.typography.bodySmall
-                    )
+                    Text("X", color = Color.Red, style = MaterialTheme.typography.bodySmall)
                 }
             }
             
@@ -688,44 +410,158 @@ fun AvailableLevelCard(
                 )
             }
             
-            // File ID (truncated for grid)
-            Text(
-                text = level.id,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1
-            )
-            
-            // Map, coins, HP (compact)
-            Text(
-                text = "${level.mapId} | ${level.startCoins}₵ | ${level.startHealthPoints}HP",
-                style = MaterialTheme.typography.bodySmall,
-                maxLines = 1
-            )
-            
-            // Enemy count
+            // Stats
             Text(
                 text = "${stringResource(Res.string.enemies)}: ${level.enemySpawns.size}",
                 style = MaterialTheme.typography.bodySmall
             )
-            
-            Spacer(modifier = Modifier.height(4.dp))
-            
-            // Button and hint
-            Button(
-                onClick = onAddToSequence,
-                enabled = !isDragging,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(stringResource(Res.string.add_to_sequence), style = MaterialTheme.typography.bodySmall)
-            }
-            
             Text(
-                text = "Drag to add",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.align(Alignment.CenterHorizontally)
+                text = "${level.startCoins} coins | ${level.startHealthPoints} HP",
+                style = MaterialTheme.typography.bodySmall
             )
+            
+            // Prerequisites info
+            if (level.prerequisites.isNotEmpty()) {
+                val reqCount = level.getEffectiveRequiredCount()
+                val prereqText = if (reqCount < level.prerequisites.size) {
+                    "${stringResource(Res.string.requires)} $reqCount/${level.prerequisites.size}"
+                } else {
+                    "${stringResource(Res.string.requires)} ${level.prerequisites.size}"
+                }
+                Text(
+                    text = prereqText,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            } else {
+                Text(
+                    text = stringResource(Res.string.entry_point),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color(0xFF4CAF50)
+                )
+            }
         }
     }
+}
+
+/**
+ * Dialog for editing level prerequisites
+ */
+@Composable
+fun PrerequisiteEditorDialog(
+    level: EditorLevel,
+    allLevels: List<EditorLevel>,
+    onDismiss: () -> Unit,
+    onSave: (EditorLevel) -> Unit
+) {
+    var selectedPrerequisites by remember { mutableStateOf(level.prerequisites) }
+    var requiredCount by remember { mutableStateOf(level.requiredPrerequisiteCount?.toString() ?: "") }
+    
+    // Available levels for prerequisites (exclude self and levels that would create a cycle)
+    val availableLevels = remember(level, allLevels) {
+        allLevels.filter { it.id != level.id }
+    }
+    
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(text = "${stringResource(Res.string.edit_prerequisites)}: ${level.title}")
+        },
+        text = {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 400.dp)
+                    .verticalScroll(rememberScrollState())
+            ) {
+                Text(
+                    text = stringResource(Res.string.select_prerequisites),
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+                
+                // Checkbox list of available levels
+                availableLevels.forEach { availableLevel ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                selectedPrerequisites = if (availableLevel.id in selectedPrerequisites) {
+                                    selectedPrerequisites - availableLevel.id
+                                } else {
+                                    selectedPrerequisites + availableLevel.id
+                                }
+                            }
+                            .padding(vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Checkbox(
+                            checked = availableLevel.id in selectedPrerequisites,
+                            onCheckedChange = { checked ->
+                                selectedPrerequisites = if (checked) {
+                                    selectedPrerequisites + availableLevel.id
+                                } else {
+                                    selectedPrerequisites - availableLevel.id
+                                }
+                            }
+                        )
+                        Column(modifier = Modifier.padding(start = 8.dp)) {
+                            Text(
+                                text = availableLevel.title,
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                            Text(
+                                text = availableLevel.id,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                }
+                
+                if (selectedPrerequisites.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    
+                    // Required count input
+                    Text(
+                        text = stringResource(Res.string.required_count_hint),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    
+                    OutlinedTextField(
+                        value = requiredCount,
+                        onValueChange = { newValue ->
+                            // Only allow digits
+                            if (newValue.isEmpty() || newValue.all { it.isDigit() }) {
+                                requiredCount = newValue
+                            }
+                        },
+                        label = { Text(stringResource(Res.string.required_count)) },
+                        placeholder = { Text("${selectedPrerequisites.size} (${stringResource(Res.string.all)})") },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    val updatedLevel = level.copy(
+                        prerequisites = selectedPrerequisites,
+                        requiredPrerequisiteCount = requiredCount.toIntOrNull()
+                    )
+                    onSave(updatedLevel)
+                }
+            ) {
+                Text(stringResource(Res.string.save))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(Res.string.cancel))
+            }
+        }
+    )
 }

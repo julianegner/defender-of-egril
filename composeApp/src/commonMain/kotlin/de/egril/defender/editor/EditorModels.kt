@@ -192,8 +192,22 @@ data class EditorLevel(
     val startHealthPoints: Int = 10,
     val enemySpawns: List<EditorEnemySpawn>,
     val availableTowers: Set<DefenderType>,  // Which towers can be built
-    val waypoints: List<EditorWaypoint> = emptyList()  // Waypoints for complex pathing
+    val waypoints: List<EditorWaypoint> = emptyList(),  // Waypoints for complex pathing
+    val prerequisites: Set<String> = emptySet(),  // Level IDs that must be won to unlock this level
+    val requiredPrerequisiteCount: Int? = null  // Number of prerequisites needed (null = all required)
 ) {
+    /**
+     * Get the effective required prerequisite count.
+     * Returns the size of prerequisites if requiredPrerequisiteCount is null or larger than prerequisites size.
+     */
+    fun getEffectiveRequiredCount(): Int {
+        return when {
+            prerequisites.isEmpty() -> 0
+            requiredPrerequisiteCount == null -> prerequisites.size
+            requiredPrerequisiteCount >= prerequisites.size -> prerequisites.size
+            else -> requiredPrerequisiteCount
+        }
+    }
     /**
      * Checks if this level is ready to play (level-specific checks only).
      * A level is ready if:
@@ -402,7 +416,19 @@ data class EditorLevel(
 }
 
 /**
+ * Result of prerequisite validation containing detailed information
+ */
+data class PrerequisiteValidationResult(
+    val isValid: Boolean,
+    val missingLevelIds: Set<String> = emptySet(),  // Level IDs that don't exist
+    val circularDependencies: Set<String> = emptySet(),  // Level IDs involved in circular dependencies
+    val unreachableLevels: Set<String> = emptySet(),  // Levels that can't be reached from entry points
+    val disconnectedFromFinal: Boolean = false  // True if "the_final_stand" is not connected to entry points
+)
+
+/**
  * Level sequence configuration
+ * @deprecated Kept for backward compatibility - use level prerequisites instead
  */
 data class LevelSequence(
     val sequence: List<String>  // List of level IDs in order

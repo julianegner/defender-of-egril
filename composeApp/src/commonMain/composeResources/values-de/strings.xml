@@ -546,4 +546,20 @@
     <string name="magical_trap_available">Magische Falle verfügbar</string>
     <string name="magical_trap_tutorial_title">Magische Falle freigeschaltet!</string>
     <string name="magical_trap_tutorial_message">Ihr Zauberturm hat Stufe 10 erreicht und kann jetzt magische Fallen platzieren! Diese Fallen teleportieren Feinde zurück zu ihrem Startpunkt. Nach dem Platzieren einer Falle gibt es eine Abklingzeit von 10 Runden, bevor Sie eine weitere platzieren können.</string>
+    
+    <!-- Level Prerequisites -->
+    <string name="level_dependencies">Level-Abhängigkeiten</string>
+    <string name="validation_passed">Validierung bestanden</string>
+    <string name="validation_failed">Validierung fehlgeschlagen</string>
+    <string name="missing_prerequisites">Fehlende Voraussetzungs-Level</string>
+    <string name="circular_dependencies">Zirkuläre Abhängigkeiten erkannt</string>
+    <string name="final_stand_disconnected">Das letzte Gefecht ist nicht mit einem Einstiegspunkt verbunden</string>
+    <string name="unreachable_levels">Unerreichbare Level</string>
+    <string name="edit_prerequisites">Voraussetzungen bearbeiten</string>
+    <string name="select_prerequisites">Wählen Sie die Level aus, die abgeschlossen werden müssen, bevor dieses Level freigeschaltet wird:</string>
+    <string name="required_count">Erforderliche Anzahl</string>
+    <string name="required_count_hint">Leer lassen, um alle Voraussetzungen zu verlangen. Geben Sie eine Zahl ein, um nur so viele zu verlangen.</string>
+    <string name="all">alle</string>
+    <string name="requires">Erfordert</string>
+    <string name="entry_point">Einstiegspunkt</string>
 </resources>
