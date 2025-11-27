@@ -30,6 +30,7 @@ actual fun currentTimeMillis(): Long {
     return jsDateNow().toLong()
 }
 
+@OptIn(kotlin.js.ExperimentalWasmJsInterop::class)
 actual fun formatTimestamp(timestamp: Long): String {
     val date = jsCreateDate(timestamp.toDouble())
     

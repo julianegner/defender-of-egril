@@ -54,6 +54,9 @@ import defender_of_egril.composeapp.generated.resources.emoji_map
 import defender_of_egril.composeapp.generated.resources.emoji_number_1
 import defender_of_egril.composeapp.generated.resources.emoji_number_2
 import org.jetbrains.compose.resources.painterResource
+import kotlin.math.PI
+import kotlin.math.cos
+import kotlin.math.sin
 import kotlin.random.Random
 
 /**
@@ -678,9 +681,9 @@ fun PentagramIcon(
         // Calculate the 5 points of the star
         val points = mutableListOf<androidx.compose.ui.geometry.Offset>()
         for (i in 0 until 5) {
-            val angle = Math.toRadians((i * 72 - 90).toDouble())  // Start from top, 72 degrees apart
-            val x = centerX + (radius * kotlin.math.cos(angle)).toFloat()
-            val y = centerY + (radius * kotlin.math.sin(angle)).toFloat()
+            val angle = (i * 72 - 90) * (PI / 180.0)  // Convert degrees to radians
+            val x = centerX + (radius * cos(angle)).toFloat()
+            val y = centerY + (radius * sin(angle)).toFloat()
             points.add(androidx.compose.ui.geometry.Offset(x, y))
         }
         
