@@ -203,13 +203,10 @@ fun HexWorldMapView(
                         // Draw status indicator
                         drawLevelStatusIndicator(center, hexSize, levelInfo.status, isDarkMode)
                         
-                        // Draw special symbol for final level
+                        // Draw special symbol for final level, or tower icon for regular levels
                         if (tile.isFinalLevel) {
                             drawFinalLevelSymbol(center, hexSize)
-                        }
-                        
-                        // Draw tower icon for regular levels
-                        if (!tile.isFinalLevel) {
+                        } else {
                             drawTowerSymbol(center, hexSize, levelInfo.status, isDarkMode)
                         }
                     }
