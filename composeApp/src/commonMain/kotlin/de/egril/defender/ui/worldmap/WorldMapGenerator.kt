@@ -144,7 +144,8 @@ object WorldMapGenerator {
                     val prereqDepths = prereqs.mapNotNull { depths[it] }.filter { it >= 0 }
                     if (prereqDepths.size == prereqs.size) {
                         // All prerequisites processed, this level is max(prereq depths) + 1
-                        depths[levelId] = prereqDepths.maxOrNull()!! + 1
+                        val maxPrereqDepth = prereqDepths.maxOrNull() ?: 0
+                        depths[levelId] = maxPrereqDepth + 1
                         changed = true
                     }
                 }

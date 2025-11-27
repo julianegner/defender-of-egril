@@ -60,12 +60,12 @@ fun HexWorldMapView(
     fun findLevelAtPosition(screenX: Float, screenY: Float): WorldMapLevelInfo? {
         val hexSize = 30f
         val hexWidth = hexSize * sqrt(3.0).toFloat()
-        val hexHeight = hexSize * 2f
-        val verticalSpacing = hexHeight * 0.75f
+        val hexHeightVal = hexHeight(hexSize)
+        val verticalSpacing = hexHeightVal * 0.75f
         
         // Calculate map dimensions
         val mapPixelWidth = worldMap.width * hexWidth + hexWidth / 2
-        val mapPixelHeight = worldMap.height * verticalSpacing + hexHeight / 4
+        val mapPixelHeight = worldMap.height * verticalSpacing + hexHeightVal / 4
         
         // Calculate the offset to center the map (before scale)
         val baseCenterOffsetX = (containerSize.width - mapPixelWidth) / 2
@@ -80,7 +80,7 @@ fun HexWorldMapView(
             val pos = levelInfo.position
             val offsetXHex = if (pos.y % 2 == 1) hexWidth / 2 else 0f
             val centerX = pos.x * hexWidth + offsetXHex + hexWidth / 2
-            val centerY = pos.y * verticalSpacing + hexHeight / 2
+            val centerY = pos.y * verticalSpacing + hexHeightVal / 2
             
             // Check if click is within hexagon (approximate with circle for simplicity)
             val dx = mapX - centerX
@@ -118,19 +118,23 @@ fun HexWorldMapView(
             .pointerInput(Unit) {
                 var dragStartOffsetX = 0f
                 var dragStartOffsetY = 0f
+                var cumulativeX = 0f
+                var cumulativeY = 0f
                 
                 detectDragGestures(
                     onDragStart = {
                         dragStartOffsetX = currentOffsetX
                         dragStartOffsetY = currentOffsetY
+                        cumulativeX = 0f
+                        cumulativeY = 0f
                     },
                     onDrag = { _, dragAmount ->
-                        val newOffsetX = dragStartOffsetX + dragAmount.x
-                        val newOffsetY = dragStartOffsetY + dragAmount.y
-                        dragStartOffsetX = newOffsetX
-                        dragStartOffsetY = newOffsetY
-                        offsetX = newOffsetX
-                        offsetY = newOffsetY
+                        // Accumulate incremental drag amounts
+                        cumulativeX += dragAmount.x
+                        cumulativeY += dragAmount.y
+                        // Apply the cumulative offset from the drag start position
+                        offsetX = dragStartOffsetX + cumulativeX
+                        offsetY = dragStartOffsetY + cumulativeY
                     }
                 )
             }
