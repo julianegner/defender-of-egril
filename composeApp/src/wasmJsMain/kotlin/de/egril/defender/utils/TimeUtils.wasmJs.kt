@@ -1,3 +1,4 @@
+@file:OptIn(kotlin.js.ExperimentalWasmJsInterop::class)
 package de.egril.defender.utils
 
 @JsFun("() => Date.now()")
@@ -30,7 +31,6 @@ actual fun currentTimeMillis(): Long {
     return jsDateNow().toLong()
 }
 
-@OptIn(kotlin.js.ExperimentalWasmJsInterop::class)
 actual fun formatTimestamp(timestamp: Long): String {
     val date = jsCreateDate(timestamp.toDouble())
     

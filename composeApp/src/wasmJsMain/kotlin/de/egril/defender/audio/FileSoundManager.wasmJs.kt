@@ -1,3 +1,4 @@
+@file:OptIn(kotlin.js.ExperimentalWasmJsInterop::class)
 package de.egril.defender.audio
 
 import defender_of_egril.composeapp.generated.resources.Res

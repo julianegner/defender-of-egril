@@ -1,4 +1,5 @@
 @file:Suppress("UnsafeCastFromDynamic")
+@file:OptIn(kotlin.js.ExperimentalWasmJsInterop::class)
 package de.egril.defender.utils
 
 import kotlinx.coroutines.DelicateCoroutinesApi

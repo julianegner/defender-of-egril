@@ -368,7 +368,7 @@ class EnemyMovementSystem(
                     // Only update if the waypoint position is the current target
                     if (state.level.isWaypoint(newPos) && attacker.currentTarget?.value == newPos) {
                         val waypoint = state.level.getWaypointAt(newPos)
-                        if (waypoint != null && attacker.currentTarget != null) {
+                        if (waypoint != null) {
                             attacker.currentTarget.value = waypoint.nextTarget
                             println("Goblin ${attacker.id} reached waypoint at $newPos, next target: ${waypoint.nextTarget}")
                         }
