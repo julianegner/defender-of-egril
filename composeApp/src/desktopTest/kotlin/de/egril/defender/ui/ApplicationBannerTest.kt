@@ -1,0 +1,55 @@
+package de.egril.defender.ui
+
+import androidx.compose.ui.test.*
+import androidx.compose.ui.test.junit4.createComposeRule
+import org.junit.Rule
+import org.junit.Test
+
+/**
+ * Simple test for the Application Banner on the Main Menu screen.
+ * This test captures a screenshot of the main menu with the new banner.
+ */
+class ApplicationBannerTest {
+    
+    @get:Rule
+    val composeTestRule = createComposeRule()
+    
+    @Test
+    fun testApplicationBannerRendersCorrectly() {
+        // Set the content
+        composeTestRule.setContent {
+            MainMenuScreen(
+                onStartGame = {},
+                onShowRules = {}
+            )
+        }
+        
+        // Wait for composition to complete
+        composeTestRule.waitForIdle()
+        
+        // Verify the banner displays "Defender of" text
+        composeTestRule.onNodeWithText("Defender of", substring = true, ignoreCase = true)
+            .assertExists()
+        
+        // Verify the banner displays "Egril" text
+        composeTestRule.onNodeWithText("Egril", substring = true, ignoreCase = true)
+            .assertExists()
+        
+        // Verify buttons still work
+        composeTestRule.onNodeWithText("Start Game", substring = true, ignoreCase = true)
+            .assertExists()
+            .assertHasClickAction()
+        
+        composeTestRule.onNodeWithText("Rules", substring = true, ignoreCase = true)
+            .assertExists()
+            .assertHasClickAction()
+        
+        // Capture screenshot
+        ScreenshotTestUtils.captureScreenshot(
+            composeTestRule,
+            "main-menu-with-banner",
+            width = 1200,
+            height = 800
+        )
+    }
+}

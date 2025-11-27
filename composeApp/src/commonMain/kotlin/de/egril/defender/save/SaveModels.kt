@@ -7,7 +7,7 @@ import de.egril.defender.model.*
  * Stores the status of each level (locked, unlocked, or won)
  */
 data class WorldMapSave(
-    val levelStatuses: Map<Int, LevelStatus>  // levelId -> status
+    val levelStatuses: Map<String, LevelStatus>  // editorLevelId -> status
 )
 
 /**
@@ -68,7 +68,8 @@ data class SavedFieldEffect(
 data class SavedTrap(
     val position: Position,
     val damage: Int,
-    val mineId: Int
+    val defenderId: Int,  // Changed from mineId to defenderId to support both mine and wizard traps
+    val type: String = "DWARVEN"  // Trap type as string for serialization
 )
 
 /**

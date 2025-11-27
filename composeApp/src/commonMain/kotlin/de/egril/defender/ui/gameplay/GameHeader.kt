@@ -16,6 +16,7 @@ import de.egril.defender.ui.icon.SaveIcon
 import de.egril.defender.ui.icon.TriangleLeftIcon
 import de.egril.defender.ui.icon.TriangleRightIcon
 import de.egril.defender.ui.settings.SettingsButton
+import de.egril.defender.ui.settings.DifficultyDisplay
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
 
@@ -61,11 +62,16 @@ fun GameHeader(
                 textAlign = TextAlign.Center
             )
 
-            // Three buttons at far right (four on mobile if save is available, plus settings)
+            // Buttons and difficulty at far right
             Row(
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                // Difficulty display (non-clickable on gameplay screen)
+                DifficultyDisplay(
+                    isClickable = false
+                )
+                
                 // Settings button (icon only to save space)
                 SettingsButton(
                     modifier = Modifier.size(GamePlayConstants.ButtonSizes.CompactHeight)

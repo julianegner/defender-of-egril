@@ -11,8 +11,8 @@ import de.egril.defender.utils.JsonUtils
 object SaveJsonSerializer {
     
     fun serializeWorldMapSave(worldMap: WorldMapSave): String {
-        val statusesJson = worldMap.levelStatuses.entries.joinToString(",\n    ") { (levelId, status) ->
-            "\"$levelId\": \"${status.name}\""
+        val statusesJson = worldMap.levelStatuses.entries.joinToString(",\n    ") { (editorLevelId, status) ->
+            "\"$editorLevelId\": \"${status.name}\""
         }
         
         return """{
@@ -24,7 +24,7 @@ object SaveJsonSerializer {
     
     fun deserializeWorldMapSave(json: String): WorldMapSave? {
         try {
-            val statuses = mutableMapOf<Int, LevelStatus>()
+            val statuses = mutableMapOf<String, LevelStatus>()
             val statusesSection = json.substringAfter("\"levelStatuses\": {")
                 .substringBefore("}")
                 .replace("\",", "\";")
@@ -35,9 +35,9 @@ object SaveJsonSerializer {
                 val parts = entry.split(":")
                 if (parts.size != 2) continue
                 
-                val levelId = parts[0].trim().removeSurrounding("\"").toInt()
+                val editorLevelId = parts[0].trim().removeSurrounding("\"")
                 val statusStr = parts[1].trim().removeSurrounding("\"")
-                statuses[levelId] = LevelStatus.valueOf(statusStr)
+                statuses[editorLevelId] = LevelStatus.valueOf(statusStr)
             }
             
             return WorldMapSave(statuses)
@@ -93,7 +93,8 @@ object SaveJsonSerializer {
             """{
       "position": {"x": ${trap.position.x}, "y": ${trap.position.y}},
       "damage": ${trap.damage},
-      "mineId": ${trap.mineId}
+      "defenderId": ${trap.defenderId},
+      "type": "${trap.type}"
     }"""
         }
         
@@ -309,8 +310,18 @@ object SaveJsonSerializer {
     private fun parseSavedTrap(json: String): SavedTrap {
         val position = parsePosition(json)
         val damage = JsonUtils.extractValue(json, "damage").toInt()
-        val mineId = JsonUtils.extractValue(json, "mineId").toInt()
-        return SavedTrap(position, damage, mineId)
+        // Support both old mineId and new defenderId for backwards compatibility
+        val defenderId = try {
+            JsonUtils.extractValue(json, "defenderId").toInt()
+        } catch (e: Exception) {
+            JsonUtils.extractValue(json, "mineId").toInt()  // Fallback to old field name
+        }
+        val type = try {
+            JsonUtils.extractValue(json, "type")
+        } catch (e: Exception) {
+            "DWARVEN"  // Default to dwarven trap for old saves
+        }
+        return SavedTrap(position, damage, defenderId, type)
     }
     
     private fun parsePosition(json: String): Position {

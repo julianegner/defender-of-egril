@@ -307,6 +307,9 @@
     <string name="size">Größe</string>
     <string name="select_tile_type">Kacheltyp wählen:</string>
     <string name="click_hexagons_to_paint">Klicken oder ziehen, um Sechsecke zu malen. Strg+Mausrad zum Zoomen:</string>
+    <string name="change_all_no_play_to_path">Alle NO_PLAY in PATH umwandeln</string>
+    <string name="change_all_no_play_confirm_title">Alle NO_PLAY in PATH umwandeln?</string>
+    <string name="change_all_no_play_confirm_message">Dies ersetzt alle NO_PLAY-Kacheln durch PATH-Kacheln. Sind Sie sicher?</string>
     <string name="map_size_label">%dx%d</string>
     <string name="map_short">Karte</string>
     <string name="coins_short">Münzen</string>
@@ -320,6 +323,8 @@
     <string name="turn_x">Runde %d</string>
     <string name="x_enemies">(%d Gegner)</string>
     <string name="enemy_level">Gegner-Level</string>
+    <string name="change_enemy_level">Gegner-Level ändern</string>
+    <string name="new_level">Neues Level</string>
     <string name="enemy_type">Gegnertyp:</string>
     <string name="add_enemy_to_turn">Gegner zu Runde %d hinzufügen</string>
     <string name="ewhad_warning">⚠️ Ewhad kann nur einmal pro Level erscheinen!</string>
@@ -410,6 +415,20 @@
     <string name="control_pad_enabled">Steuerkreuz aktiviert</string>
     <string name="control_pad_disabled">Steuerkreuz deaktiviert</string>
     
+    <!-- Difficulty Settings -->
+    <string name="difficulty">Schwierigkeitsgrad</string>
+    <string name="difficulty_baby">Baby</string>
+    <string name="difficulty_easy">Leicht</string>
+    <string name="difficulty_medium">Mittel</string>
+    <string name="difficulty_hard">Schwer</string>
+    <string name="difficulty_nightmare">Alptraum</string>
+    <string name="difficulty_baby_desc">Doppelte Münzen und Gesundheit, Türme starten auf Stufe 3</string>
+    <string name="difficulty_easy_desc">Doppelte Münzen und Gesundheit</string>
+    <string name="difficulty_medium_desc">Standard-Schwierigkeit</string>
+    <string name="difficulty_hard_desc">Gegner haben doppelte Stufen</string>
+    <string name="difficulty_nightmare_desc">Gegner erscheinen 3-mal mit steigenden Stufen</string>
+    <string name="difficulty_info_current_level">Hinweis: Das Ändern der Schwierigkeit wirkt sich nicht auf das aktuelle Level aus. Starten oder starten Sie ein Level neu, um es anzuwenden.</string>
+    
     <!-- Dragon Names -->
     <string name="the_dragon">Der Drache</string>
     <string name="awakens">erwacht</string>
@@ -429,6 +448,8 @@
     <string name="dragon_very_greedy_message">Der Drache ist sehr gierig (Gier > 5)! Er wird nun Zwergenminen angreifen und zerstören und dabei all die Gesundheit aufnehmen, die ein neuer Drache hätte (500 LP pro Mine + die geschürften Münzen als LP). Minen werden zu zerstörten Trümmern. Verteidige sie oder baue schnell wieder auf!</string>
     <string name="mine_warning_title">Mine bedroht!</string>
     <string name="mine_warning_message">Der Drache nähert sich! Die Zwerge bereiten sich vor, ihre Mine zu verteidigen, aber es könnte nicht genug sein...</string>
+    <string name="one_hp_warning_title">Kritische Warnung!</string>
+    <string name="one_hp_warning_message">Du hast nur 1 Lebenspunkt! Kein einziger Feind darf das Ziel erreichen, sonst verlierst du. Verteidige mit äußerster Vorsicht!</string>
     
     <!-- Enemy Info Display -->
     <string name="greedy_label">gierig</string>
@@ -518,4 +539,11 @@
     <string name="unsaved_changes_message">Sie haben nicht gespeicherten Fortschritt in diesem Level. Was möchten Sie tun?</string>
     <string name="save_and_exit">Speichern und Beenden</string>
     <string name="discard_changes">Änderungen verwerfen</string>
+    
+    <!-- Magical Trap Feature -->
+    <string name="magical_trap">Magische Falle</string>
+    <string name="magical_trap_cooldown">Abklingzeit: %d Runden</string>
+    <string name="magical_trap_available">Magische Falle verfügbar</string>
+    <string name="magical_trap_tutorial_title">Magische Falle freigeschaltet!</string>
+    <string name="magical_trap_tutorial_message">Ihr Zauberturm hat Stufe 10 erreicht und kann jetzt magische Fallen platzieren! Diese Fallen teleportieren Feinde zurück zu ihrem Startpunkt. Nach dem Platzieren einer Falle gibt es eine Abklingzeit von 10 Runden, bevor Sie eine weitere platzieren können.</string>
 </resources>

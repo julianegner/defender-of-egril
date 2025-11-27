@@ -307,6 +307,9 @@
     <string name="size">Dimensione</string>
     <string name="select_tile_type">Seleziona tipo di tessera:</string>
     <string name="click_hexagons_to_paint">Clicca o trascina per dipingere gli esagoni. Usa Ctrl+Rotella per zoomare:</string>
+    <string name="change_all_no_play_to_path">Cambia tutti NO_PLAY in PATH</string>
+    <string name="change_all_no_play_confirm_title">Cambiare tutti NO_PLAY in PATH?</string>
+    <string name="change_all_no_play_confirm_message">Questo sostituirà tutte le tessere NO_PLAY con tessere PATH. Sei sicuro?</string>
     <string name="map_size_label">%dx%d</string>
     <string name="map_short">Mappa</string>
     <string name="coins_short">Monete</string>
@@ -320,6 +323,8 @@
     <string name="turn_x">Turno %d</string>
     <string name="x_enemies">(%d nemici)</string>
     <string name="enemy_level">Livello nemico</string>
+    <string name="change_enemy_level">Modifica livello nemico</string>
+    <string name="new_level">Nuovo livello</string>
     <string name="enemy_type">Tipo di nemico:</string>
     <string name="add_enemy_to_turn">Aggiungi nemico al turno %d</string>
     <string name="ewhad_warning">⚠️ Ewhad può apparire solo una volta per livello!</string>
@@ -412,6 +417,20 @@
     <string name="control_pad_enabled">Pad direzionale attivato</string>
     <string name="control_pad_disabled">Pad direzionale disattivato</string>
     
+    <!-- Difficulty Settings -->
+    <string name="difficulty">Difficoltà</string>
+    <string name="difficulty_baby">Bambino</string>
+    <string name="difficulty_easy">Facile</string>
+    <string name="difficulty_medium">Medio</string>
+    <string name="difficulty_hard">Difficile</string>
+    <string name="difficulty_nightmare">Incubo</string>
+    <string name="difficulty_baby_desc">Doppio di monete e salute, le torri iniziano al livello 3</string>
+    <string name="difficulty_easy_desc">Doppio di monete e salute</string>
+    <string name="difficulty_medium_desc">Difficoltà predefinita</string>
+    <string name="difficulty_hard_desc">I nemici hanno il doppio dei livelli</string>
+    <string name="difficulty_nightmare_desc">I nemici appaiono 3 volte con livelli crescenti</string>
+    <string name="difficulty_info_current_level">Nota: La modifica della difficoltà non influisce sul livello corrente. Avvia o riavvia un livello per applicarlo.</string>
+    
     <!-- Dragon Names -->
     <string name="the_dragon">Il drago</string>
     <string name="awakens">si sveglia</string>
@@ -431,6 +450,8 @@
     <string name="dragon_very_greedy_message">Il drago è molto avido (avidità > 5)! Ora caccerà e distruggerà miniere naniche, assorbendo tutta la salute che avrebbe un nuovo drago (500 PS per miniera). Le miniere diventeranno macerie distrutte. Difendile o ricostruisci rapidamente!</string>
     <string name="mine_warning_title">Miniera Minacciata!</string>
     <string name="mine_warning_message">Il drago si avvicina! I nani si preparano a difendere la loro miniera, ma potrebbe non essere sufficiente...</string>
+    <string name="one_hp_warning_title">Avviso Critico!</string>
+    <string name="one_hp_warning_message">Hai solo 1 punto vita! Nemmeno un nemico può raggiungere l\'obiettivo, o perderai. Difendi con estrema cautela!</string>
     
     <!-- Enemy Info Display -->
     <string name="greedy_label">avido</string>
@@ -518,4 +539,11 @@
     <string name="unsaved_changes_message">Hai progressi non salvati in questo livello. Cosa vorresti fare?</string>
     <string name="save_and_exit">Salva ed Esci</string>
     <string name="discard_changes">Scarta Modifiche</string>
+    
+    <!-- Magical Trap Feature -->
+    <string name="magical_trap">Trappola Magica</string>
+    <string name="magical_trap_cooldown">Ricarica: %d turni</string>
+    <string name="magical_trap_available">Trappola Magica Disponibile</string>
+    <string name="magical_trap_tutorial_title">Trappola Magica Sbloccata!</string>
+    <string name="magical_trap_tutorial_message">La tua torre del mago ha raggiunto il livello 10 e ora può piazzare trappole magiche! Queste trappole teletrasportano i nemici al loro punto di partenza quando vengono attivate. Dopo aver piazzato una trappola, c\'è un tempo di ricarica di 10 turni prima di poterne piazzare un\'altra.</string>
 </resources>

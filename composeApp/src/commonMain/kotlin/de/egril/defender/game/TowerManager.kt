@@ -4,6 +4,7 @@ import androidx.compose.runtime.mutableStateOf
 import de.egril.defender.audio.GlobalSoundManager
 import de.egril.defender.audio.SoundEvent
 import de.egril.defender.model.*
+import de.egril.defender.model.DifficultyModifiers
 
 /**
  * Manages tower/defender placement, upgrades, undo, and selling operations.
@@ -20,10 +21,14 @@ class TowerManager(private val state: GameState) {
         
         val buildTime = if (state.phase.value == GamePhase.INITIAL_BUILDING) 0 else type.buildTime
         
+        // Get initial tower level based on difficulty
+        val initialLevel = DifficultyModifiers.getInitialTowerLevel(state.difficulty)
+        
         val defender = Defender(
             id = state.nextDefenderId.value++,
             type = type,
             position = position,
+            level = mutableStateOf(initialLevel),
             buildTimeRemaining = mutableStateOf(buildTime),
             placedOnTurn = state.turnNumber.value
         )
@@ -44,12 +49,23 @@ class TowerManager(private val state: GameState) {
         
         // Store the old actionsPerTurn before upgrade
         val oldActionsPerTurn = defender.actionsPerTurnCalculated
+        val oldLevel = defender.level.value
         
         state.coins.value -= defender.upgradeCost
         defender.level.value++
         
         // Play tower upgraded sound
         GlobalSoundManager.playSound(SoundEvent.TOWER_UPGRADED)
+        
+        // Check if wizard tower just reached level 10 for the first time
+        if (defender.type == DefenderType.WIZARD_TOWER && 
+            oldLevel < 10 && 
+            defender.level.value >= 10 &&
+            !defender.hasShownMagicalTrapTutorial.value) {
+            // Show magical trap tutorial
+            state.infoState.value = state.infoState.value.showInfo(InfoType.MAGICAL_TRAP_INFO)
+            defender.hasShownMagicalTrapTutorial.value = true
+        }
         
         // Calculate the new actionsPerTurn after upgrade
         val newActionsPerTurn = defender.actionsPerTurnCalculated
