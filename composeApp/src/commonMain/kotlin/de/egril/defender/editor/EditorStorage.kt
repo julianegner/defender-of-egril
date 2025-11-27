@@ -347,37 +347,39 @@ object EditorStorage {
         }
         
         // Check for circular dependencies using DFS
-        val visiting = mutableSetOf<String>()
+        // Use a single visited set that persists across all calls
         val visited = mutableSetOf<String>()
         
-        fun detectCycle(levelId: String): Boolean {
-            if (levelId in visiting) {
+        fun detectCycle(levelId: String, currentPath: MutableSet<String>): Boolean {
+            if (levelId in currentPath) {
                 return true  // Cycle detected
             }
             if (levelId in visited) {
-                return false  // Already processed
+                return false  // Already processed without cycle
             }
             
-            visiting.add(levelId)
+            currentPath.add(levelId)
             val level = allLevels.find { it.id == levelId }
             if (level != null) {
                 for (prereq in level.prerequisites) {
-                    if (prereq in allLevelIds && detectCycle(prereq)) {
+                    if (prereq in allLevelIds && detectCycle(prereq, currentPath)) {
                         circularDependencies.add(levelId)
                         circularDependencies.add(prereq)
+                        currentPath.remove(levelId)
                         return true
                     }
                 }
             }
-            visiting.remove(levelId)
+            currentPath.remove(levelId)
             visited.add(levelId)
             return false
         }
         
         for (level in allLevels) {
-            visiting.clear()
-            if (detectCycle(level.id)) {
-                circularDependencies.add(level.id)
+            if (level.id !in visited) {
+                if (detectCycle(level.id, mutableSetOf())) {
+                    circularDependencies.add(level.id)
+                }
             }
         }
         
