@@ -32,6 +32,7 @@ fun DefenderInfo(
     onUndoTower: (Int) -> Unit,
     onSellTower: (Int) -> Unit,
     onMineAction: ((Int, MineAction) -> Unit)? = null,
+    onWizardAction: ((Int, WizardAction) -> Unit)? = null,  // For wizard tower magical traps - click to select action, then click map
     compactBuyPanel: Boolean = false,
     isMobile: Boolean = false,  // Add platform parameter
     selectedTargetId: Int? = null,
@@ -282,6 +283,24 @@ fun DefenderInfo(
                                 }
                             }
 
+                            // Magical trap button for wizard tower level 10+
+                            if (isPlayerTurn &&
+                                defender.type == DefenderType.WIZARD_TOWER &&
+                                defender.level.value >= 10 &&
+                                onWizardAction != null) {
+
+                                Spacer(modifier = Modifier.width(horizontalSpacing))
+                                Column(modifier = Modifier.weight(1.3f)) {
+                                    MagicalTrapButton(
+                                        defender = defender,
+                                        onWizardAction = onWizardAction,
+                                        modifier = Modifier
+                                            .width(240.dp)
+                                            .height(buttonHeight)
+                                    )
+                                }
+                            }
+
                             dwarvenMineActionButtonArea(
                                 defender.type,
                                 gameState,
@@ -451,6 +470,57 @@ fun DefenderActionsInfo(defender: Defender) {
                 "${defender.actionsRemaining.value}/${defender.actionsPerTurnCalculated}",
                 style = MaterialTheme.typography.titleMedium,
             )
+        }
+    }
+}
+
+/**
+ * Button for wizard tower to place magical traps (level 10+)
+ * Works like dwarven mine trap button - click to enter placement mode, then click on map
+ * Always shows when wizard is ready, with cooldown info when on cooldown
+ */
+@Composable
+fun MagicalTrapButton(
+    defender: Defender,
+    onWizardAction: (Int, WizardAction) -> Unit,
+    modifier: Modifier = Modifier.fillMaxWidth().height(56.dp)
+) {
+    if (defender.isReady) {
+        val isOnCooldown = defender.trapCooldownRemaining.value > 0
+        
+        // Button to enter magical trap placement mode - enabled when trap is ready and has actions
+        Button(
+            onClick = { onWizardAction(defender.id, WizardAction.PLACE_MAGICAL_TRAP) },
+            enabled = !isOnCooldown && defender.actionsRemaining.value > 0,
+            modifier = modifier,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = GamePlayColors.InfoDark
+            )
+        ) {
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                de.egril.defender.ui.icon.PentagramIcon(size = 24.dp)
+                Spacer(modifier = Modifier.width(8.dp))
+                Column(modifier = Modifier.weight(3f)) {
+                    Text(
+                        stringResource(Res.string.magical_trap),
+                        fontSize = if (isOnCooldown) 14.sp else 16.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+                if (isOnCooldown) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Spacer(modifier = Modifier.width(2.dp))
+                        Text(
+                            defender.trapCooldownRemaining.value.toString(),
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+            }
         }
     }
 }

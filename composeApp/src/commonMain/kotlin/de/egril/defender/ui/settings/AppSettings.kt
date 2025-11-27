@@ -10,8 +10,23 @@ import com.russhwolf.settings.set
 import de.egril.defender.utils.isPlatformMobile
 
 /**
+ * Game difficulty levels
+ */
+enum class DifficultyLevel {
+    BABY,
+    EASY,
+    MEDIUM,
+    HARD,
+    NIGHTMARE;
+    
+    companion object {
+        val DEFAULT = MEDIUM
+    }
+}
+
+/**
  * Manages application settings using multiplatform-settings library
- * Persists dark mode preference, language selection, sound settings, and control pad visibility
+ * Persists dark mode preference, language selection, sound settings, control pad visibility, and difficulty level
  */
 object AppSettings {
     private const val KEY_DARK_MODE = "dark_mode"
@@ -19,6 +34,7 @@ object AppSettings {
     private const val KEY_SOUND_ENABLED = "sound_enabled"
     private const val KEY_SOUND_VOLUME = "sound_volume"
     private const val KEY_SHOW_CONTROL_PAD = "show_control_pad"
+    private const val KEY_DIFFICULTY = "difficulty"
     
     private val settings: Settings = Settings()
     
@@ -43,6 +59,18 @@ object AppSettings {
      */
     val showControlPad: MutableState<Boolean> = mutableStateOf(
         settings.getBoolean(KEY_SHOW_CONTROL_PAD, isPlatformMobile)
+    )
+    
+    /**
+     * Game difficulty level - automatically saved when changed
+     * Default is MEDIUM
+     */
+    val difficulty: MutableState<DifficultyLevel> = mutableStateOf(
+        try {
+            DifficultyLevel.valueOf(settings[KEY_DIFFICULTY, DifficultyLevel.DEFAULT.name])
+        } catch (e: Exception) {
+            DifficultyLevel.DEFAULT
+        }
     )
     
     /**
@@ -106,6 +134,14 @@ object AppSettings {
     }
     
     /**
+     * Save difficulty preference
+     */
+    fun saveDifficulty(level: DifficultyLevel) {
+        difficulty.value = level
+        settings[KEY_DIFFICULTY] = level.name
+    }
+    
+    /**
      * Reset all settings to defaults
      */
     fun resetToDefaults() {
@@ -121,5 +157,8 @@ object AppSettings {
         
         // Reset control pad to platform default
         saveShowControlPad(isPlatformMobile)
+        
+        // Reset difficulty to default
+        saveDifficulty(DifficultyLevel.DEFAULT)
     }
 }

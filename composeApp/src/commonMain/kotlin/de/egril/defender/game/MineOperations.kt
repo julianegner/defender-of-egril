@@ -106,7 +106,8 @@ class MineOperations(private val state: GameState) {
         val trap = Trap(
             position = trapPosition,
             damage = mine.trapDamage,
-            mineId = mineId
+            defenderId = mineId,
+            type = TrapType.DWARVEN
         )
         
         state.traps.add(trap)
@@ -216,15 +217,26 @@ class MineOperations(private val state: GameState) {
                 // Play trap trigger sound
                 GlobalSoundManager.playSound(SoundEvent.TRAP_TRIGGERED)
                 
-                // Deal damage to enemy
-                enemyAtPosition.currentHealth.value -= trap.damage
-                
-                // Check if defeated
-                if (enemyAtPosition.currentHealth.value <= 0) {
-                    enemyAtPosition.isDefeated.value = true
+                when (trap.type) {
+                    TrapType.DWARVEN -> {
+                        // Deal damage to enemy
+                        enemyAtPosition.currentHealth.value -= trap.damage
+                        
+                        // Check if defeated
+                        if (enemyAtPosition.currentHealth.value <= 0) {
+                            enemyAtPosition.isDefeated.value = true
+                        }
+                    }
+                    TrapType.MAGICAL -> {
+                        // Teleport enemy back to spawn point
+                        val spawnPoint = findSpawnPointForEnemy(enemyAtPosition)
+                        if (spawnPoint != null) {
+                            enemyAtPosition.position.value = spawnPoint
+                        }
+                    }
                 }
                 
-                // Mark trap for removal
+                // Mark trap for removal (both types are single-use)
                 trapsToRemove.add(trap)
             }
         }
@@ -234,5 +246,101 @@ class MineOperations(private val state: GameState) {
         
         // Process defeated attackers to give rewards
         processDefeated()
+    }
+    
+    /**
+     * Place a magical trap at the specified position (wizard tower level 10+)
+     */
+    fun performWizardPlaceMagicalTrap(wizardId: Int, trapPosition: Position): Boolean {
+        val wizard = state.defenders.find { it.id == wizardId && it.type == DefenderType.WIZARD_TOWER } ?: return false
+        
+        // Must be level 10 or higher
+        if (wizard.level.value < 10) return false
+        
+        // Must be ready and have actions remaining
+        if (!wizard.isReady || wizard.actionsRemaining.value <= 0) return false
+        
+        // Must not be on cooldown
+        if (wizard.trapCooldownRemaining.value > 0) return false
+        
+        // Check if position is within range
+        val distance = wizard.position.distanceTo(trapPosition)
+        if (distance > wizard.range) return false
+        
+        // Check if position is on the path
+        if (!state.level.isOnPath(trapPosition)) return false
+        
+        // Check if there's already a trap at this position
+        if (state.traps.any { it.position == trapPosition }) return false
+        
+        // Check if there's an enemy unit at this position
+        if (state.attackers.any { it.position.value == trapPosition && !it.isDefeated.value }) return false
+        
+        // Create magical trap (no damage, just teleports)
+        val trap = Trap(
+            position = trapPosition,
+            damage = 0,  // Magical traps don't deal damage
+            defenderId = wizardId,
+            type = TrapType.MAGICAL
+        )
+        
+        state.traps.add(trap)
+        
+        // Set cooldown to 10 turns
+        wizard.trapCooldownRemaining.value = 10
+        
+        // Play trap built sound
+        GlobalSoundManager.playSound(SoundEvent.MINE_TRAP_BUILT)
+        
+        // Consume action
+        wizard.actionsRemaining.value--
+        wizard.hasBeenUsed.value = true
+        
+        return true
+    }
+    
+    /**
+     * Find the spawn point for an enemy.
+     * Returns the enemy's original spawn point if available, or the closest empty path tile to a spawn point.
+     */
+    private fun findSpawnPointForEnemy(enemy: Attacker): Position? {
+        // First, try to find the enemy in the spawn plan to get its original spawn point
+        val spawnEntry = state.spawnPlan.find { 
+            it.attackerType == enemy.type && 
+            it.spawnPoint != null 
+        }
+        
+        val targetSpawnPoint = spawnEntry?.spawnPoint ?: run {
+            // If no specific spawn point in plan, use first available spawn point from level
+            if (state.level.startPositions.isNotEmpty()) {
+                state.level.startPositions.first()
+            } else {
+                return null
+            }
+        }
+        
+        // Check if spawn point is occupied
+        val isOccupied = state.attackers.any { 
+            it.position.value == targetSpawnPoint && !it.isDefeated.value && it.id != enemy.id
+        }
+        
+        if (!isOccupied) {
+            return targetSpawnPoint
+        }
+        
+        // If spawn point is full, find the closest empty path tile to the spawn point
+        val pathPositions = state.level.pathCells.sortedBy { it.distanceTo(targetSpawnPoint) }
+        
+        for (pathPos in pathPositions) {
+            val isPathOccupied = state.attackers.any {
+                it.position.value == pathPos && !it.isDefeated.value && it.id != enemy.id
+            }
+            if (!isPathOccupied) {
+                return pathPos
+            }
+        }
+        
+        // Fallback: return spawn point even if occupied (enemies will overlap)
+        return targetSpawnPoint
     }
 }

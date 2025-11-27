@@ -398,7 +398,7 @@ object MapGenerator {
         
         return widenedPath
     }
-    
+
     /**
      * Create a simple path between two positions
      */

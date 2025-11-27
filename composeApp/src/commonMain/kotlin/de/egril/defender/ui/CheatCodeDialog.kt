@@ -1,9 +1,12 @@
 package de.egril.defender.ui
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 
 /**
@@ -35,6 +38,20 @@ fun CheatCodeDialog(
         }
     }
     
+    // Function to apply the cheat code
+    val applyCheat = {
+        val success = onApplyCheatCode(cheatCodeInput)
+        if (success) {
+            onDismiss()
+            if (onInputChange == null) {
+                internalInput = ""
+            }
+            errorMessage = ""
+        } else {
+            errorMessage = "Invalid cheat code"
+        }
+    }
+    
     AlertDialog(
         onDismissRequest = {
             onDismiss()
@@ -52,7 +69,15 @@ fun CheatCodeDialog(
                     value = cheatCodeInput,
                     onValueChange = handleInputChange,
                     singleLine = true,
-                    isError = errorMessage.isNotEmpty()
+                    isError = errorMessage.isNotEmpty(),
+                    keyboardOptions = KeyboardOptions(
+                        imeAction = ImeAction.Done
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onDone = {
+                            applyCheat()
+                        }
+                    )
                 )
                 
                 if (errorMessage.isNotEmpty()) {
@@ -75,18 +100,7 @@ fun CheatCodeDialog(
         },
         confirmButton = {
             Button(
-                onClick = {
-                    val success = onApplyCheatCode(cheatCodeInput)
-                    if (success) {
-                        onDismiss()
-                        if (onInputChange == null) {
-                            internalInput = ""
-                        }
-                        errorMessage = ""
-                    } else {
-                        errorMessage = "Invalid cheat code"
-                    }
-                }
+                onClick = applyCheat
             ) {
                 Text("Apply")
             }

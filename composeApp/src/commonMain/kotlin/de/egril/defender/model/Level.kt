@@ -14,6 +14,7 @@ data class Waypoint(
 data class Level(
     val id: Int,
     val name: String,
+    val subtitle: String = "",  // Optional subtitle for the level
     val gridWidth: Int = 30,
     val gridHeight: Int = 8,
     val startPositions: List<Position> = listOf(
@@ -162,9 +163,39 @@ data class Level(
         return LevelInfoEnemiesLevelData(
             id = "" + this.id,
             name = this.name,
+            subtitle = this.subtitle,
             initialCoins = this.initialCoins,
             healthPoints = this.healthPoints,
             enemyTypeCounts = enemyCounts
+        )
+    }
+    
+    /**
+     * Convert level to LevelInfoEnemiesLevelData with difficulty modifiers applied
+     */
+    fun toLevelInfoEnemiesLevelData(difficulty: de.egril.defender.ui.settings.DifficultyLevel): LevelInfoEnemiesLevelData {
+        val enemyCounts = getEnemyTypeCounts()
+        
+        // Apply difficulty modifiers to enemy counts (Nightmare: 3x, except Ewhad stays 1)
+        val modifiedEnemyCounts = if (difficulty == de.egril.defender.ui.settings.DifficultyLevel.NIGHTMARE) {
+            enemyCounts.mapValues { (type, count) ->
+                if (type == AttackerType.EWHAD) count else count * 3
+            }
+        } else {
+            enemyCounts
+        }
+        
+        // Apply difficulty modifiers to coins and HP
+        val modifiedCoins = DifficultyModifiers.applyCoinsModifier(this.initialCoins, difficulty)
+        val modifiedHP = DifficultyModifiers.applyHealthPointsModifier(this.healthPoints, difficulty)
+        
+        return LevelInfoEnemiesLevelData(
+            id = "" + this.id,
+            name = this.name,
+            subtitle = this.subtitle,
+            initialCoins = modifiedCoins,
+            healthPoints = modifiedHP,
+            enemyTypeCounts = modifiedEnemyCounts
         )
     }
 }
