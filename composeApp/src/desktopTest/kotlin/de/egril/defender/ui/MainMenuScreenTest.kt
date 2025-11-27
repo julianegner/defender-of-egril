@@ -37,8 +37,10 @@ class MainMenuScreenTest {
         // Verify the screen contains expected elements
         // Note: We use text matching for verification since we're testing UI rendering
         
-        // Check that title is displayed (using contains since it might be in app_name string resource)
-        composeTestRule.onNodeWithText("Defender of Egril", substring = true, ignoreCase = true)
+        // Check that title is displayed (banner now shows "Defender of" and "Egril" separately)
+        composeTestRule.onNodeWithText("Defender of", substring = true, ignoreCase = true)
+            .assertExists()
+        composeTestRule.onNodeWithText("Egril", substring = true, ignoreCase = true)
             .assertExists()
         
         // Check that Start Game button exists
