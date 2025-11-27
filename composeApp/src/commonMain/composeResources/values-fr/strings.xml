@@ -74,6 +74,8 @@
     <!-- World Map -->
     <string name="world_map_title">Carte du monde - Prairies d\'Egril</string>
     <string name="back_to_world_map">Retour à la carte du monde</string>
+    <string name="play_level">Jouer au niveau</string>
+    <string name="requires_completing">Nécessite de compléter:</string>
     
     <!-- Load Game Screen -->
     <string name="no_saved_games">Aucune partie sauvegardée trouvée</string>
