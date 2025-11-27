@@ -1,8 +1,13 @@
+@file:Suppress("UnsafeCastFromDynamic")
 package de.egril.defender.utils
 
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.promise
+
+external object console {
+    fun error(message: String)
+}
 
 /**
  * WasmJS implementation - uses GlobalScope.promise as runBlocking is not available in WASM

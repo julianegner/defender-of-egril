@@ -12,7 +12,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import defender_of_egril.composeapp.generated.resources.Res
-import defender_of_egril.composeapp.generated.resources.app_logo
+import defender_of_egril.composeapp.generated.resources.black_shield
+import defender_of_egril.composeapp.generated.resources.black_shield2
 import defender_of_egril.composeapp.generated.resources.greatvibes_regular
 import org.jetbrains.compose.resources.Font
 import org.jetbrains.compose.resources.painterResource
@@ -64,7 +65,7 @@ fun ApplicationBanner(
         
         // Right side: Application logo
         Image(
-            painter = painterResource(Res.drawable.app_logo),
+            painter = painterResource(Res.drawable.black_shield),
             contentDescription = "Defender of Egril Logo",
             modifier = Modifier.size(120.dp)
         )
