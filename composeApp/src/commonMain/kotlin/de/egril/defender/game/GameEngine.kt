@@ -429,7 +429,7 @@ class GameEngine(private val state: GameState) {
                 // Only update if the waypoint position is the current target
                 if (state.level.isWaypoint(newPosition) && attacker.currentTarget?.value == newPosition) {
                     val waypoint = state.level.getWaypointAt(newPosition)
-                    if (waypoint != null && attacker.currentTarget != null) {
+                    if (waypoint != null) {
                         attacker.currentTarget.value = waypoint.nextTarget
                         println("Dragon ${attacker.id} reached waypoint at $newPosition, next target: ${waypoint.nextTarget}")
                     }
@@ -451,7 +451,7 @@ class GameEngine(private val state: GameState) {
                     // Only update if the waypoint position is the current target
                     if (state.level.isWaypoint(alternatePos) && attacker.currentTarget?.value == alternatePos) {
                         val waypoint = state.level.getWaypointAt(alternatePos)
-                        if (waypoint != null && attacker.currentTarget != null) {
+                        if (waypoint != null) {
                             attacker.currentTarget.value = waypoint.nextTarget
                             println("Dragon ${attacker.id} reached waypoint at $alternatePos, next target: ${waypoint.nextTarget}")
                         }
@@ -469,7 +469,7 @@ class GameEngine(private val state: GameState) {
             // Only update if the waypoint position is the current target
             if (state.level.isWaypoint(attacker.position.value) && attacker.currentTarget?.value == attacker.position.value) {
                 val waypoint = state.level.getWaypointAt(attacker.position.value)
-                if (waypoint != null && attacker.currentTarget != null) {
+                if (waypoint != null) {
                     // Update target to the next waypoint or final target
                     attacker.currentTarget.value = waypoint.nextTarget
                     println("Dragon ${attacker.id} reached waypoint at ${attacker.position.value}, next target: ${waypoint.nextTarget}")
@@ -518,7 +518,7 @@ class GameEngine(private val state: GameState) {
             // Only update if the waypoint position is the current target
             if (state.level.isWaypoint(newPosition) && attacker.currentTarget?.value == newPosition) {
                 val waypoint = state.level.getWaypointAt(newPosition)
-                if (waypoint != null && attacker.currentTarget != null) {
+                if (waypoint != null) {
                     // Update target to the next waypoint or final target
                     attacker.currentTarget.value = waypoint.nextTarget
                     println("Attacker ${attacker.id} reached waypoint at $newPosition, next target: ${waypoint.nextTarget}")
@@ -619,7 +619,7 @@ class GameEngine(private val state: GameState) {
                     // Only update if the waypoint position is the current target
                     if (state.level.isWaypoint(newPos) && attacker.currentTarget?.value == newPos) {
                         val waypoint = state.level.getWaypointAt(newPos)
-                        if (waypoint != null && attacker.currentTarget != null) {
+                        if (waypoint != null) {
                             attacker.currentTarget.value = waypoint.nextTarget
                             println("Attacker ${attacker.id} reached waypoint at $newPos during spawn movement, next target: ${waypoint.nextTarget}")
                         }
@@ -639,7 +639,7 @@ class GameEngine(private val state: GameState) {
                         // Only update if the waypoint position is the current target
                         if (state.level.isWaypoint(alternativePos) && attacker.currentTarget?.value == alternativePos) {
                             val waypoint = state.level.getWaypointAt(alternativePos)
-                            if (waypoint != null && attacker.currentTarget != null) {
+                            if (waypoint != null) {
                                 attacker.currentTarget.value = waypoint.nextTarget
                                 println("Attacker ${attacker.id} reached waypoint at $alternativePos during spawn movement, next target: ${waypoint.nextTarget}")
                             }
