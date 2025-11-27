@@ -58,13 +58,26 @@ class GameViewModel {
         // Load saved world map status
         val savedStatuses = de.egril.defender.save.SaveFileStorage.loadWorldMapStatus()
         
+        // Get the set of won level IDs
+        val wonLevelIds = savedStatuses?.filter { it.value == LevelStatus.WON }?.keys?.toSet() ?: emptySet()
+        
         _worldLevels.value = levels.mapIndexed { index, level ->
             println("DEBUG: Loaded Level ${level.id} - Name: ${level.name} - Path Cells: ${level.pathCells.size} - Build Islands: ${level.buildIslands.size}")
 
             // Look up status by editorLevelId if available
             val status = if (level.editorLevelId != null) {
-                savedStatuses?.get(level.editorLevelId) ?: 
-                    if (index == 0) LevelStatus.UNLOCKED else LevelStatus.LOCKED
+                // Check saved status first
+                val savedStatus = savedStatuses?.get(level.editorLevelId)
+                if (savedStatus != null) {
+                    savedStatus
+                } else {
+                    // Check if level should be unlocked based on prerequisites
+                    if (de.egril.defender.editor.EditorStorage.isLevelUnlocked(level.editorLevelId, wonLevelIds)) {
+                        LevelStatus.UNLOCKED
+                    } else {
+                        LevelStatus.LOCKED
+                    }
+                }
             } else {
                 // Fallback for legacy levels or levels created without editor (shouldn't happen in normal gameplay)
                 println("WARNING: Level ${level.id} (${level.name}) has no editorLevelId - using fallback status")
@@ -281,10 +294,23 @@ class GameViewModel {
             val currentIndex = updatedLevels.indexOfFirst { it.level.id == levelId }
             if (currentIndex >= 0) {
                 updatedLevels[currentIndex] = updatedLevels[currentIndex].copy(status = LevelStatus.WON)
-                // Unlock next level
-                if (currentIndex + 1 < updatedLevels.size && updatedLevels[currentIndex + 1].status == LevelStatus.LOCKED) {
-                    updatedLevels[currentIndex + 1] = updatedLevels[currentIndex + 1].copy(status = LevelStatus.UNLOCKED)
+                
+                // Get the set of all won level IDs (including the just-won level)
+                val wonLevelIds = updatedLevels
+                    .filter { it.status == LevelStatus.WON }
+                    .mapNotNull { it.level.editorLevelId }
+                    .toSet()
+                
+                // Unlock levels based on prerequisites
+                for (i in updatedLevels.indices) {
+                    val worldLevel = updatedLevels[i]
+                    if (worldLevel.status == LevelStatus.LOCKED && worldLevel.level.editorLevelId != null) {
+                        if (de.egril.defender.editor.EditorStorage.isLevelUnlocked(worldLevel.level.editorLevelId!!, wonLevelIds)) {
+                            updatedLevels[i] = worldLevel.copy(status = LevelStatus.UNLOCKED)
+                        }
+                    }
                 }
+                
                 _worldLevels.value = updatedLevels
                 // Save world map status
                 saveWorldMapStatus()

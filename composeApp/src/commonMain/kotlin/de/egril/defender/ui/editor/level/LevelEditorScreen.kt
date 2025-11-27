@@ -128,7 +128,7 @@ fun LevelEditorScreen(
                                 MaterialTheme.colorScheme.secondary
                         )
                     ) {
-                        Text(stringResource(Res.string.level_sequence))
+                        Text(stringResource(Res.string.level_dependencies))
                     }
                 }
             }
