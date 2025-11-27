@@ -5,6 +5,8 @@ import androidx.compose.runtime.mutableStateOf
 import de.egril.defender.game.GameEngine
 import de.egril.defender.game.LevelData
 import de.egril.defender.model.*
+import de.egril.defender.model.DifficultyModifiers
+import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.utils.CheatCodeHandler
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -59,8 +61,15 @@ class GameViewModel {
         _worldLevels.value = levels.mapIndexed { index, level ->
             println("DEBUG: Loaded Level ${level.id} - Name: ${level.name} - Path Cells: ${level.pathCells.size} - Build Islands: ${level.buildIslands.size}")
 
-            val status = savedStatuses?.get(level.id) ?: 
+            // Look up status by editorLevelId if available
+            val status = if (level.editorLevelId != null) {
+                savedStatuses?.get(level.editorLevelId) ?: 
+                    if (index == 0) LevelStatus.UNLOCKED else LevelStatus.LOCKED
+            } else {
+                // Fallback for legacy levels or levels created without editor (shouldn't happen in normal gameplay)
+                println("WARNING: Level ${level.id} (${level.name}) has no editorLevelId - using fallback status")
                 if (index == 0) LevelStatus.UNLOCKED else LevelStatus.LOCKED
+            }
             
             WorldLevel(
                 level = level,
@@ -96,7 +105,26 @@ class GameViewModel {
     fun startLevel(levelId: Int) {
         val worldLevel = _worldLevels.value.find { it.level.id == levelId }
         if (worldLevel != null && worldLevel.status != LevelStatus.LOCKED) {
-            val newGameState = GameState(level = worldLevel.level)
+            val difficulty = AppSettings.difficulty.value
+            val level = worldLevel.level
+            
+            // Apply difficulty modifiers to spawn plan
+            val modifiedSpawnPlan = if (level.directSpawnPlan != null) {
+                DifficultyModifiers.applySpawnPlanModifier(level.directSpawnPlan, difficulty)
+            } else {
+                val basePlan = generateSpawnPlan(level.attackerWaves)
+                DifficultyModifiers.applySpawnPlanModifier(basePlan, difficulty)
+            }
+            
+            // Create GameState with difficulty-modified values
+            val newGameState = GameState(
+                level = level,
+                difficulty = difficulty,
+                coins = mutableStateOf(DifficultyModifiers.applyCoinsModifier(level.initialCoins, difficulty)),
+                healthPoints = mutableStateOf(DifficultyModifiers.applyHealthPointsModifier(level.healthPoints, difficulty)),
+                spawnPlan = modifiedSpawnPlan
+            )
+            
             _gameState.value = newGameState
             gameEngine = GameEngine(newGameState)
             _currentScreen.value = Screen.GamePlay(levelId)
@@ -172,6 +200,10 @@ class GameViewModel {
     
     fun performMineBuildTrap(mineId: Int, trapPosition: Position): Boolean {
         return gameEngine?.performMineBuildTrap(mineId, trapPosition) ?: false
+    }
+    
+    fun performWizardPlaceMagicalTrap(wizardId: Int, trapPosition: Position): Boolean {
+        return gameEngine?.performWizardPlaceMagicalTrap(wizardId, trapPosition) ?: false
     }
     
     fun performMineDigWithOutcome(outcome: DigOutcome): DigOutcome? {
@@ -290,12 +322,20 @@ class GameViewModel {
     fun applyWorldMapCheatCode(code: String): Boolean {
         return CheatCodeHandler.applyWorldMapCheatCode(
             code = code,
-            unlockAllLevels = { unlockAllLevels() }
+            unlockAllLevels = { unlockAllLevels() },
+            unlockLevel = { editorLevelId -> unlockLevel(editorLevelId) },
+            worldLevels = _worldLevels.value
         )
     }
     
     private fun unlockAllLevels() {
         _worldLevels.value = CheatCodeHandler.unlockAllLevels(_worldLevels.value)
+        // Save updated world map status
+        saveWorldMapStatus()
+    }
+    
+    private fun unlockLevel(editorLevelId: String) {
+        _worldLevels.value = CheatCodeHandler.unlockLevel(_worldLevels.value, editorLevelId)
         // Save updated world map status
         saveWorldMapStatus()
     }

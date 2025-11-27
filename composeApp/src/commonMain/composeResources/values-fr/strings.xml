@@ -307,6 +307,9 @@
     <string name="size">Taille</string>
     <string name="select_tile_type">Sélectionner le type de tuile:</string>
     <string name="click_hexagons_to_paint">Cliquez ou faites glisser pour peindre les hexagones. Ctrl+Molette pour zoomer:</string>
+    <string name="change_all_no_play_to_path">Changer tous NO_PLAY en PATH</string>
+    <string name="change_all_no_play_confirm_title">Changer tous NO_PLAY en PATH?</string>
+    <string name="change_all_no_play_confirm_message">Cela remplacera toutes les tuiles NO_PLAY par des tuiles PATH. Êtes-vous sûr?</string>
     <string name="map_size_label">%dx%d</string>
     <string name="map_short">Carte</string>
     <string name="coins_short">Pièces</string>
@@ -320,6 +323,8 @@
     <string name="turn_x">Tour %d</string>
     <string name="x_enemies">(%d ennemis)</string>
     <string name="enemy_level">Niveau d\'ennemi</string>
+    <string name="change_enemy_level">Modifier le niveau d\'ennemi</string>
+    <string name="new_level">Nouveau niveau</string>
     <string name="enemy_type">Type d\'ennemi:</string>
     <string name="add_enemy_to_turn">Ajouter un ennemi au tour %d</string>
     <string name="ewhad_warning">⚠️ Ewhad ne peut apparaître qu\'une fois par niveau!</string>
@@ -412,6 +417,20 @@
     <string name="control_pad_enabled">Pavé directionnel activé</string>
     <string name="control_pad_disabled">Pavé directionnel désactivé</string>
     
+    <!-- Difficulty Settings -->
+    <string name="difficulty">Difficulté</string>
+    <string name="difficulty_baby">Bébé</string>
+    <string name="difficulty_easy">Facile</string>
+    <string name="difficulty_medium">Moyen</string>
+    <string name="difficulty_hard">Difficile</string>
+    <string name="difficulty_nightmare">Cauchemar</string>
+    <string name="difficulty_baby_desc">Double de pièces et de santé, les tours commencent au niveau 3</string>
+    <string name="difficulty_easy_desc">Double de pièces et de santé</string>
+    <string name="difficulty_medium_desc">Difficulté par défaut</string>
+    <string name="difficulty_hard_desc">Les ennemis ont le double de niveaux</string>
+    <string name="difficulty_nightmare_desc">Les ennemis apparaissent 3 fois avec des niveaux croissants</string>
+    <string name="difficulty_info_current_level">Remarque : La modification de la difficulté n\'affecte pas le niveau actuel. Démarrez ou redémarrez un niveau pour l\'appliquer.</string>
+    
     <!-- Dragon Names -->
     <string name="the_dragon">Le dragon</string>
     <string name="awakens">se réveille</string>
@@ -431,6 +450,8 @@
     <string name="dragon_very_greedy_message">Le dragon est très avide (avidité > 5) ! Il va maintenant traquer et détruire les mines naines, absorbant toute la santé qu\'aurait un nouveau dragon (500 PV par mine). Les mines deviendront des décombres détruits. Défendez-les ou reconstruisez rapidement !</string>
     <string name="mine_warning_title">Mine Menacée !</string>
     <string name="mine_warning_message">Le dragon approche ! Les nains se préparent à défendre leur mine, mais cela pourrait ne pas suffire...</string>
+    <string name="one_hp_warning_title">Avertissement Critique !</string>
+    <string name="one_hp_warning_message">Vous n\'avez qu\'1 point de vie ! Pas un seul ennemi ne peut atteindre la cible, sinon vous perdrez. Défendez avec une extrême prudence !</string>
     
     <!-- Enemy Info Display -->
     <string name="greedy_label">avide</string>
@@ -518,4 +539,11 @@
     <string name="unsaved_changes_message">Vous avez des progrès non enregistrés dans ce niveau. Que souhaitez-vous faire ?</string>
     <string name="save_and_exit">Enregistrer et Quitter</string>
     <string name="discard_changes">Ignorer les Modifications</string>
+    
+    <!-- Magical Trap Feature -->
+    <string name="magical_trap">Piège Magique</string>
+    <string name="magical_trap_cooldown">Temps de recharge : %d tours</string>
+    <string name="magical_trap_available">Piège Magique Disponible</string>
+    <string name="magical_trap_tutorial_title">Piège Magique Débloqué !</string>
+    <string name="magical_trap_tutorial_message">Votre tour de magicien a atteint le niveau 10 et peut désormais placer des pièges magiques ! Ces pièges téléportent les ennemis à leur point d\'apparition lorsqu\'ils sont déclenchés. Après avoir placé un piège, il y a un temps de recharge de 10 tours avant de pouvoir en placer un autre.</string>
 </resources>

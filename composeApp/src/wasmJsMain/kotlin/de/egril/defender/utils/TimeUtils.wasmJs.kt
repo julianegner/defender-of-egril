@@ -1,3 +1,4 @@
+@file:OptIn(kotlin.js.ExperimentalWasmJsInterop::class)
 package de.egril.defender.utils
 
 @JsFun("() => Date.now()")

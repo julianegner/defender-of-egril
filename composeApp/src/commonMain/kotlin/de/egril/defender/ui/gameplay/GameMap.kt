@@ -34,6 +34,7 @@ fun GameGrid(
     selectedTargetId: Int?,
     selectedTargetPosition: Position?,
     selectedMineAction: MineAction?,
+    selectedWizardAction: WizardAction? = null,
     onCellClick: (Position) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -165,6 +166,7 @@ fun GameGrid(
                 selectedDefenderId = selectedDefenderId,
                 selectedTargetPosition = selectedTargetPosition,
                 selectedMineAction = selectedMineAction,
+                selectedWizardAction = selectedWizardAction,
                 targetCircleInfo = targetCircleMap[position],
                 onClick = { onCellClick(position) },
                 hexSize = hexSize
@@ -228,6 +230,7 @@ fun GridCell(
     selectedDefenderId: Int?,
     selectedTargetPosition: Position?,
     selectedMineAction: MineAction?,
+    selectedWizardAction: WizardAction? = null,
     targetCircleInfo: TargetCircleInfo?,
     onClick: () -> Unit,
     hexSize: androidx.compose.ui.unit.Dp = 48.dp
@@ -305,7 +308,7 @@ fun GridCell(
     } ?: false
 
     // When placing trap, don't show green border on tiles with enemies
-    val isTrapPlacement = selectedMineAction == MineAction.BUILD_TRAP
+    val isTrapPlacement = selectedMineAction == MineAction.BUILD_TRAP || selectedWizardAction == WizardAction.PLACE_MAGICAL_TRAP
     val hasEnemy = attacker != null
     val canPlaceTrapHere = !hasEnemy || !isTrapPlacement
 
@@ -393,18 +396,27 @@ fun GridCell(
             }
 
             trap != null -> {
-                // Show trap icon with damage (no duration since traps are permanent until triggered)
+                // Show trap icon based on trap type
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    HoleIcon(size = 20.dp)
-                    Text(
-                        "-${trap.damage}",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = Color.White,
-                        fontWeight = FontWeight.Bold
-                    )
+                    when (trap.type) {
+                        TrapType.MAGICAL -> {
+                            // Magical trap - show pentagram (no damage display)
+                            de.egril.defender.ui.icon.PentagramIcon(size = 24.dp)
+                        }
+                        TrapType.DWARVEN -> {
+                            // Dwarven trap - show hole icon with damage
+                            HoleIcon(size = 20.dp)
+                            Text(
+                                "-${trap.damage}",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
                 }
             }
 

@@ -8,6 +8,8 @@ enum class InfoType {
     GREED_INFO,         // Dragon greed explanation (greed > 0)
     VERY_GREEDY_INFO,   // Dragon very greedy explanation (greed > 5)
     MINE_WARNING,       // Mine under threat from dragon
+    ONE_HP_WARNING,     // Warning when player starts with only 1 HP
+    MAGICAL_TRAP_INFO,  // Magical trap unlocked at wizard level 10
     NONE                // No info to show
 }
 
