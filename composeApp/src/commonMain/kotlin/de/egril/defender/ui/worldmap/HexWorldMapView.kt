@@ -58,7 +58,7 @@ fun HexWorldMapView(
     
     // Helper function to find level at screen position
     fun findLevelAtPosition(screenX: Float, screenY: Float): WorldMapLevelInfo? {
-        val hexSize = 30f
+        val hexSize = 60f
         val hexWidth = hexSize * sqrt(3.0).toFloat()
         val hexHeightVal = hexHeight(hexSize)
         val verticalSpacing = hexHeightVal * 0.75f
@@ -163,7 +163,7 @@ fun HexWorldMapView(
                     translationY = offsetY
                 )
         ) {
-            val hexSize = 30f
+            val hexSize = 60f
             val hexWidth = hexSize * sqrt(3.0).toFloat()
             val hexHeight = hexSize * 2f
             val verticalSpacing = hexHeight * 0.75f
@@ -310,45 +310,41 @@ private fun DrawScope.drawLevelStatusIndicator(
     status: LevelStatus,
     isDarkMode: Boolean
 ) {
-    val indicatorSize = hexSize * 0.3f
-    val indicatorOffset = hexSize * 0.5f
+    val indicatorSize = hexSize * 0.25f
+    val indicatorY = center.y + hexSize * 0.5f
     
     when (status) {
         LevelStatus.WON -> {
-            // Draw green checkmark at top-right
-            val checkX = center.x + indicatorOffset * 0.5f
-            val checkY = center.y - indicatorOffset * 0.5f
-            
+            // Draw green checkmark at bottom of tile (same position as lock)
             drawCircle(
                 color = Color(0xFF2ECC71),
-                radius = indicatorSize * 0.8f,
-                center = Offset(checkX, checkY)
+                radius = indicatorSize,
+                center = Offset(center.x, indicatorY)
             )
             
             // Draw checkmark
             val path = Path().apply {
-                moveTo(checkX - indicatorSize * 0.4f, checkY)
-                lineTo(checkX - indicatorSize * 0.1f, checkY + indicatorSize * 0.3f)
-                lineTo(checkX + indicatorSize * 0.4f, checkY - indicatorSize * 0.3f)
+                moveTo(center.x - indicatorSize * 0.4f, indicatorY)
+                lineTo(center.x - indicatorSize * 0.1f, indicatorY + indicatorSize * 0.3f)
+                lineTo(center.x + indicatorSize * 0.4f, indicatorY - indicatorSize * 0.3f)
             }
             drawPath(path, Color.White, style = Stroke(width = 2f))
         }
         LevelStatus.LOCKED -> {
             // Draw lock icon at the bottom of the tile
-            val lockSize = hexSize * 0.25f
-            val lockY = center.y + hexSize * 0.5f
+            val lockSize = indicatorSize
             
             // Draw lock background circle
             drawCircle(
                 color = Color(0xFF7F8C8D),
                 radius = lockSize,
-                center = Offset(center.x, lockY)
+                center = Offset(center.x, indicatorY)
             )
             
             // Draw lock body (rectangle)
             drawRect(
                 color = Color.White,
-                topLeft = Offset(center.x - lockSize * 0.35f, lockY - lockSize * 0.1f),
+                topLeft = Offset(center.x - lockSize * 0.35f, indicatorY - lockSize * 0.1f),
                 size = androidx.compose.ui.geometry.Size(lockSize * 0.7f, lockSize * 0.55f)
             )
             // Draw lock shackle (arc)
@@ -357,7 +353,7 @@ private fun DrawScope.drawLevelStatusIndicator(
                 startAngle = 180f,
                 sweepAngle = 180f,
                 useCenter = false,
-                topLeft = Offset(center.x - lockSize * 0.25f, lockY - lockSize * 0.55f),
+                topLeft = Offset(center.x - lockSize * 0.25f, indicatorY - lockSize * 0.55f),
                 size = androidx.compose.ui.geometry.Size(lockSize * 0.5f, lockSize * 0.45f),
                 style = Stroke(width = 2f)
             )
