@@ -13,9 +13,12 @@ import kotlin.math.min
  */
 object WorldMapGenerator {
     
-    // Map dimensions
-    private const val MAP_WIDTH = 20
-    private const val MAP_HEIGHT = 16
+    // Map dimensions - increased for larger tiles and more spacing between levels
+    private const val MAP_WIDTH = 30
+    private const val MAP_HEIGHT = 24
+    
+    // Minimum path tiles between levels
+    private const val MIN_PATH_TILES = 2
     
     // Level positions are calculated based on their depth in the prerequisite tree
     // Tutorial/entry levels at bottom, final level at top right
@@ -188,35 +191,48 @@ object WorldMapGenerator {
         
         // Calculate Y positions based on depth (depth 0 at bottom, max depth at top)
         // Reserve space at edges for landscape
-        val usableHeight = MAP_HEIGHT - 4  // Leave 2 tiles margin at top and bottom
-        val startY = MAP_HEIGHT - 3  // Start from bottom
+        // Ensure at least MIN_PATH_TILES between depth levels
+        val usableHeight = MAP_HEIGHT - 6  // Leave 3 tiles margin at top and bottom
+        val startY = MAP_HEIGHT - 4  // Start from bottom
+        val minVerticalSpacing = MIN_PATH_TILES + 1  // Minimum vertical distance between depth layers
         
         for ((depth, levelIds) in levelsByDepth.entries.sortedBy { it.key }) {
             // Calculate Y position for this depth level
-            val depthProgress = if (maxDepth > 0) depth.toFloat() / maxDepth else 0f
-            val y = (startY - (depthProgress * usableHeight)).toInt().coerceIn(2, MAP_HEIGHT - 3)
+            // Use fixed spacing to ensure minimum path tiles between levels
+            val y = if (maxDepth > 0) {
+                val depthProgress = depth.toFloat() / maxDepth
+                (startY - (depthProgress * usableHeight)).toInt().coerceIn(3, MAP_HEIGHT - 4)
+            } else {
+                startY
+            }
             
-            // Spread levels horizontally
-            val usableWidth = MAP_WIDTH - 4  // Leave margin on sides
-            val startX = 2
-            val spacing = if (levelIds.size > 1) usableWidth / (levelIds.size) else usableWidth / 2
+            // Spread levels horizontally with adequate spacing
+            val usableWidth = MAP_WIDTH - 6  // Leave margin on sides
+            val startX = 3
+            // Ensure horizontal spacing of at least MIN_PATH_TILES + 1
+            val minHorizontalSpacing = MIN_PATH_TILES + 1
+            val spacing = if (levelIds.size > 1) {
+                max(usableWidth / levelIds.size, minHorizontalSpacing)
+            } else {
+                usableWidth / 2
+            }
             
             for ((index, levelId) in levelIds.withIndex()) {
                 var x = startX + spacing * index + spacing / 2
                 
                 // Special positioning for final level (top right)
                 if (levelId == "the_final_stand") {
-                    x = MAP_WIDTH - 4
+                    x = MAP_WIDTH - 5
                 }
                 
                 // Check for tutorial level (position at bottom center-left)
                 val editorLevel = editorLevels[levelId]
                 if (editorLevel?.prerequisites?.isEmpty() == true && 
                     worldLevels.any { it.level.editorLevelId == levelId && it.level.name.contains("Tutorial", ignoreCase = true) }) {
-                    x = 4
+                    x = 5
                 }
                 
-                positions[levelId] = Position(x.coerceIn(2, MAP_WIDTH - 3), y)
+                positions[levelId] = Position(x.coerceIn(3, MAP_WIDTH - 4), y)
             }
         }
         
