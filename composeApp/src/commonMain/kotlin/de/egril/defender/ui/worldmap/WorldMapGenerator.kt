@@ -99,6 +99,9 @@ object WorldMapGenerator {
             generateCurvedPathBetweenLevels(from, to, tiles)
         }
         
+        // Add entry paths from the bottom of the map to entry levels (levels with no prerequisites)
+        addEntryPathsFromBottom(worldLevels, levelPositions, editorLevels, tiles)
+        
         // Add decorative landscape tiles
         addLandscapeTiles(tiles)
         
@@ -344,6 +347,54 @@ object WorldMapGenerator {
         }
         
         return path
+    }
+    
+    /**
+     * Add entry paths from the bottom of the map to entry levels (levels with no prerequisites)
+     * These represent the roads leading into the game world
+     */
+    private fun addEntryPathsFromBottom(
+        worldLevels: List<WorldLevel>,
+        levelPositions: Map<String, Position>,
+        editorLevels: Map<String, EditorLevel>,
+        tiles: MutableMap<Position, WorldMapTile>
+    ) {
+        // Find entry levels (levels with no prerequisites)
+        val entryLevelIds = worldLevels.filter { worldLevel ->
+            val editorLevel = editorLevels[worldLevel.level.editorLevelId]
+            editorLevel?.prerequisites?.isEmpty() == true
+        }.mapNotNull { it.level.editorLevelId }
+        
+        // For each entry level, create a path from the bottom of the map
+        for (entryLevelId in entryLevelIds) {
+            val levelPosition = levelPositions[entryLevelId] ?: continue
+            
+            // Create a starting point at the bottom of the map, roughly below the level
+            val bottomY = MAP_HEIGHT - 2
+            val startX = levelPosition.x.coerceIn(2, MAP_WIDTH - 3)
+            val startPosition = Position(startX, bottomY)
+            
+            // Generate a curved path from the bottom to the entry level
+            val path = calculateCurvedHexPath(startPosition, levelPosition)
+            
+            // Add path tiles
+            for (pos in path) {
+                // Don't overwrite level tiles
+                if (tiles[pos]?.type == WorldMapTileType.LEVEL) continue
+                tiles[pos] = WorldMapTile(
+                    position = pos,
+                    type = WorldMapTileType.PATH
+                )
+            }
+            
+            // Also add the starting position as a path tile
+            if (!tiles.containsKey(startPosition)) {
+                tiles[startPosition] = WorldMapTile(
+                    position = startPosition,
+                    type = WorldMapTileType.PATH
+                )
+            }
+        }
     }
     
     /**
