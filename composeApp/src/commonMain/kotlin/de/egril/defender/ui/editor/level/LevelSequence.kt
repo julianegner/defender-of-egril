@@ -154,9 +154,13 @@ fun LevelSequenceContent() {
             modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
         ) {
             val horizontalScrollState = rememberScrollState()
             val verticalScrollState = rememberScrollState()
+            
+            // Show scroll hint if content is scrollable
+            val showScrollHint = horizontalScrollState.maxValue > 0 || verticalScrollState.maxValue > 0
             
             Box(
                 modifier = Modifier
@@ -174,6 +178,55 @@ fun LevelSequenceContent() {
                         showPrerequisiteEditor = true
                     }
                 )
+            }
+            
+            // Scroll indicators
+            if (horizontalScrollState.maxValue > 0) {
+                // Horizontal scroll indicator
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .fillMaxWidth()
+                        .height(4.dp)
+                        .padding(horizontal = 20.dp)
+                        .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
+                ) {
+                    val scrollProgress = if (horizontalScrollState.maxValue > 0) {
+                        horizontalScrollState.value.toFloat() / horizontalScrollState.maxValue
+                    } else 0f
+                    val indicatorWidth = 0.3f // 30% of track width
+                    Box(
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .fillMaxWidth(indicatorWidth)
+                            .offset(x = ((1f - indicatorWidth) * scrollProgress * 100).dp)
+                            .background(MaterialTheme.colorScheme.primary)
+                    )
+                }
+            }
+            
+            if (verticalScrollState.maxValue > 0) {
+                // Vertical scroll indicator
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd)
+                        .fillMaxHeight()
+                        .width(4.dp)
+                        .padding(vertical = 20.dp)
+                        .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
+                ) {
+                    val scrollProgress = if (verticalScrollState.maxValue > 0) {
+                        verticalScrollState.value.toFloat() / verticalScrollState.maxValue
+                    } else 0f
+                    val indicatorHeight = 0.3f // 30% of track height
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .fillMaxHeight(indicatorHeight)
+                            .offset(y = ((1f - indicatorHeight) * scrollProgress * 100).dp)
+                            .background(MaterialTheme.colorScheme.primary)
+                    )
+                }
             }
         }
     }

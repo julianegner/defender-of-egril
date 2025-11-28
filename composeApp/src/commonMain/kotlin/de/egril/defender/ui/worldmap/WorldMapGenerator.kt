@@ -7,21 +7,22 @@ import de.egril.defender.model.Position
 import de.egril.defender.model.WorldLevel
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.math.abs
 
 /**
  * Generator for creating hexagonal world maps from level prerequisites
  */
 object WorldMapGenerator {
     
-    // Map dimensions - increased for larger tiles and more spacing between levels
-    private const val MAP_WIDTH = 40
-    private const val MAP_HEIGHT = 32
+    // Map dimensions - wider than tall for horizontal spread
+    private const val MAP_WIDTH = 50
+    private const val MAP_HEIGHT = 20
     
     // Minimum path tiles between levels
-    private const val MIN_PATH_TILES = 2
+    private const val MIN_PATH_TILES = 3
     
     // Level positions are calculated based on their depth in the prerequisite tree
-    // Tutorial/entry levels at bottom, final level at top right
+    // Tutorial/entry levels at bottom left, final level at top right
     
     /**
      * Generate a hexagonal world map from the current level sequence and statuses
@@ -93,9 +94,9 @@ object WorldMapGenerator {
             }
         }
         
-        // Generate path tiles between connected levels
+        // Generate curved path tiles between connected levels
         for ((from, to) in pathConnections) {
-            generatePathBetweenLevels(from, to, tiles)
+            generateCurvedPathBetweenLevels(from, to, tiles)
         }
         
         // Add decorative landscape tiles
@@ -168,9 +169,9 @@ object WorldMapGenerator {
     
     /**
      * Calculate positions for each level on the hex grid
-     * - Entry/tutorial levels at bottom
-     * - Final level at top right
-     * - Levels are spread horizontally based on their position in the sequence
+     * - Spread levels across the width from left to right based on depth
+     * - Stagger vertically for visual variety
+     * - Tutorial at bottom left, final level at top right
      */
     private fun calculateLevelPositions(
         worldLevels: List<WorldLevel>,
@@ -189,37 +190,54 @@ object WorldMapGenerator {
         
         val maxDepth = levelsByDepth.keys.maxOrNull() ?: 0
         
-        // Calculate Y positions based on depth (depth 0 at bottom, max depth at top)
-        // Ensure at least MIN_PATH_TILES + 1 between each depth layer
-        val startY = MAP_HEIGHT - 4  // Start from bottom
-        val verticalSpacing = MIN_PATH_TILES + 2  // Distance between depth layers (e.g., 4 tiles)
+        // Horizontal layout: spread from left to right based on depth
+        // Each depth gets a range of X positions
+        val margin = 4
+        val usableWidth = MAP_WIDTH - 2 * margin
+        val depthWidth = if (maxDepth > 0) usableWidth / (maxDepth + 1) else usableWidth
+        
+        // Vertical center line with staggered offsets
+        val centerY = MAP_HEIGHT / 2
         
         for ((depth, levelIds) in levelsByDepth.entries.sortedBy { it.key }) {
-            // Calculate Y position for this depth level using fixed spacing
-            val y = (startY - depth * verticalSpacing).coerceIn(3, MAP_HEIGHT - 4)
+            // Calculate X range for this depth (left to right progression)
+            val depthCenterX = margin + (depth * depthWidth) + depthWidth / 2
             
-            // Spread levels horizontally with adequate spacing
-            // Ensure horizontal spacing of at least MIN_PATH_TILES + 2 between levels
-            val horizontalSpacing = MIN_PATH_TILES + 3  // Distance between horizontal levels (e.g., 5 tiles)
-            val totalWidth = (levelIds.size - 1) * horizontalSpacing
-            val startX = (MAP_WIDTH - totalWidth) / 2  // Center the levels
+            // Vertical staggering pattern - alternate up/down from center
+            val verticalSpacing = MIN_PATH_TILES + 2
+            val totalHeight = (levelIds.size - 1) * verticalSpacing
+            val startY = centerY - totalHeight / 2
             
             for ((index, levelId) in levelIds.withIndex()) {
-                var x = startX + index * horizontalSpacing
+                // Stagger horizontally within the depth zone
+                val horizontalOffset = if (index % 2 == 0) -2 else 2
+                var x = depthCenterX + horizontalOffset
                 
-                // Special positioning for final level (top right)
+                // Calculate Y with zigzag pattern
+                var y = startY + index * verticalSpacing
+                
+                // Add some wave/zigzag to Y based on depth
+                val zigzagOffset = if (depth % 2 == 0) 1 else -1
+                y += zigzagOffset
+                
+                // Special positioning for final level (top right corner)
                 if (levelId == "the_final_stand") {
-                    x = MAP_WIDTH - 5
+                    x = MAP_WIDTH - margin - 2
+                    y = margin
                 }
                 
-                // Check for tutorial level (position at bottom center-left)
+                // Check for tutorial level (position at bottom left)
                 val editorLevel = editorLevels[levelId]
                 if (editorLevel?.prerequisites?.isEmpty() == true && 
                     worldLevels.any { it.level.editorLevelId == levelId && it.level.name.contains("Tutorial", ignoreCase = true) }) {
-                    x = 5
+                    x = margin + 2
+                    y = MAP_HEIGHT - margin - 2
                 }
                 
-                positions[levelId] = Position(x.coerceIn(3, MAP_WIDTH - 4), y)
+                positions[levelId] = Position(
+                    x.coerceIn(margin, MAP_WIDTH - margin - 1), 
+                    y.coerceIn(margin, MAP_HEIGHT - margin - 1)
+                )
             }
         }
         
@@ -227,15 +245,15 @@ object WorldMapGenerator {
     }
     
     /**
-     * Generate path tiles between two level positions
+     * Generate curved path tiles between two level positions
+     * Creates a more natural winding path instead of straight lines
      */
-    private fun generatePathBetweenLevels(
+    private fun generateCurvedPathBetweenLevels(
         from: Position,
         to: Position,
         tiles: MutableMap<Position, WorldMapTile>
     ) {
-        // Simple straight-line path using Bresenham-like algorithm for hexagons
-        val path = calculateHexPath(from, to)
+        val path = calculateCurvedHexPath(from, to)
         for (pos in path) {
             // Don't overwrite level tiles
             if (tiles[pos]?.type == WorldMapTileType.LEVEL) continue
@@ -247,9 +265,53 @@ object WorldMapGenerator {
     }
     
     /**
-     * Calculate a path between two hex positions
+     * Calculate a curved path between two hex positions
+     * Uses a more natural winding pattern instead of straight lines
      */
-    private fun calculateHexPath(from: Position, to: Position): List<Position> {
+    private fun calculateCurvedHexPath(from: Position, to: Position): List<Position> {
+        val path = mutableListOf<Position>()
+        
+        val dx = to.x - from.x
+        val dy = to.y - from.y
+        
+        // For longer distances, create a curved path
+        val totalDistance = abs(dx) + abs(dy)
+        
+        if (totalDistance <= 2) {
+            // Short path - just go direct
+            return calculateDirectPath(from, to)
+        }
+        
+        // Create a curved path by going through a midpoint offset from the direct line
+        // Alternate curve direction based on position for variety
+        val curveDirection = if ((from.x + from.y) % 2 == 0) 1 else -1
+        
+        // Calculate midpoint with curve offset
+        val midX = from.x + dx / 2
+        val midY = from.y + dy / 2
+        
+        // Offset the midpoint perpendicular to the path direction
+        val offsetAmount = min(3, totalDistance / 3)
+        val curveMidpoint = if (abs(dx) > abs(dy)) {
+            // Mostly horizontal - curve vertically
+            Position(midX, midY + curveDirection * offsetAmount)
+        } else {
+            // Mostly vertical - curve horizontally
+            Position(midX + curveDirection * offsetAmount, midY)
+        }
+        
+        // Create path: from -> curveMidpoint -> to
+        path.addAll(calculateDirectPath(from, curveMidpoint))
+        path.add(curveMidpoint)
+        path.addAll(calculateDirectPath(curveMidpoint, to))
+        
+        return path.filter { it != from && it != to }
+    }
+    
+    /**
+     * Calculate a direct path between two hex positions
+     */
+    private fun calculateDirectPath(from: Position, to: Position): List<Position> {
         val path = mutableListOf<Position>()
         
         var current = from
@@ -269,8 +331,8 @@ object WorldMapGenerator {
                 else -> current.y
             }
             
-            // Alternate between horizontal and vertical movement
-            current = if (kotlin.math.abs(dx) >= kotlin.math.abs(dy)) {
+            // Alternate between horizontal and vertical movement for variety
+            current = if (abs(dx) >= abs(dy)) {
                 Position(nextX, current.y)
             } else {
                 Position(current.x, nextY)
@@ -288,7 +350,7 @@ object WorldMapGenerator {
      * Add decorative landscape tiles to empty areas
      */
     private fun addLandscapeTiles(tiles: MutableMap<Position, WorldMapTile>) {
-        // Add mountains at top edges
+        // Add mountains at top edge
         for (x in 0 until MAP_WIDTH) {
             for (y in 0..1) {
                 val pos = Position(x, y)
@@ -301,12 +363,14 @@ object WorldMapGenerator {
             }
         }
         
-        // Add forest scattered around
-        val forestPositions = listOf(
-            Position(0, 4), Position(1, 5), Position(0, 8), Position(1, 9),
-            Position(MAP_WIDTH - 1, 6), Position(MAP_WIDTH - 2, 7),
-            Position(MAP_WIDTH - 1, 10), Position(MAP_WIDTH - 2, 11)
-        )
+        // Add scattered forest along the edges
+        val forestPositions = mutableListOf<Position>()
+        for (y in 3 until MAP_HEIGHT - 2 step 3) {
+            forestPositions.add(Position(0, y))
+            forestPositions.add(Position(1, y + 1))
+            forestPositions.add(Position(MAP_WIDTH - 1, y))
+            forestPositions.add(Position(MAP_WIDTH - 2, y + 1))
+        }
         for (pos in forestPositions) {
             if (!tiles.containsKey(pos) && pos.x in 0 until MAP_WIDTH && pos.y in 0 until MAP_HEIGHT) {
                 tiles[pos] = WorldMapTile(
@@ -316,13 +380,13 @@ object WorldMapGenerator {
             }
         }
         
-        // Add a river/lake at bottom edges
+        // Add a river/lake at bottom edge
         for (x in 0 until MAP_WIDTH) {
             val pos = Position(x, MAP_HEIGHT - 1)
             if (!tiles.containsKey(pos)) {
                 tiles[pos] = WorldMapTile(
                     position = pos,
-                    type = if (x % 3 == 0) WorldMapTileType.LAKE else WorldMapTileType.RIVER
+                    type = if (x % 4 == 0) WorldMapTileType.LAKE else WorldMapTileType.RIVER
                 )
             }
         }
