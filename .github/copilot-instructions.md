@@ -256,6 +256,25 @@ Add to `LevelData.createLevels()` with:
 - Constants: UPPER_SNAKE_CASE
 - Enum values: UPPER_SNAKE_CASE
 
+### Control Flow
+- **Use if-else for boolean conditions**: When checking a boolean for both true and false cases, use `if-else` instead of two separate `if` statements:
+  ```kotlin
+  // DON'T do this:
+  if (condition) {
+      doSomething()
+  }
+  if (!condition) {
+      doSomethingElse()
+  }
+  
+  // DO this instead:
+  if (condition) {
+      doSomething()
+  } else {
+      doSomethingElse()
+  }
+  ```
+
 ### File Structure
 - One class per file (unless nested/sealed classes)
 - Group related functionality
