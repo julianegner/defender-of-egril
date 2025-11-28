@@ -67,6 +67,7 @@ fun LevelInfoTab(
             )
         }
 
+
         // Map selection with mini-maps
         item {
             Column {
