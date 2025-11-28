@@ -14,8 +14,8 @@ import kotlin.math.min
 object WorldMapGenerator {
     
     // Map dimensions - increased for larger tiles and more spacing between levels
-    private const val MAP_WIDTH = 30
-    private const val MAP_HEIGHT = 24
+    private const val MAP_WIDTH = 40
+    private const val MAP_HEIGHT = 32
     
     // Minimum path tiles between levels
     private const val MIN_PATH_TILES = 2
@@ -190,35 +190,22 @@ object WorldMapGenerator {
         val maxDepth = levelsByDepth.keys.maxOrNull() ?: 0
         
         // Calculate Y positions based on depth (depth 0 at bottom, max depth at top)
-        // Reserve space at edges for landscape
-        // Ensure at least MIN_PATH_TILES between depth levels
-        val usableHeight = MAP_HEIGHT - 6  // Leave 3 tiles margin at top and bottom
+        // Ensure at least MIN_PATH_TILES + 1 between each depth layer
         val startY = MAP_HEIGHT - 4  // Start from bottom
-        val minVerticalSpacing = MIN_PATH_TILES + 1  // Minimum vertical distance between depth layers
+        val verticalSpacing = MIN_PATH_TILES + 2  // Distance between depth layers (e.g., 4 tiles)
         
         for ((depth, levelIds) in levelsByDepth.entries.sortedBy { it.key }) {
-            // Calculate Y position for this depth level
-            // Use fixed spacing to ensure minimum path tiles between levels
-            val y = if (maxDepth > 0) {
-                val depthProgress = depth.toFloat() / maxDepth
-                (startY - (depthProgress * usableHeight)).toInt().coerceIn(3, MAP_HEIGHT - 4)
-            } else {
-                startY
-            }
+            // Calculate Y position for this depth level using fixed spacing
+            val y = (startY - depth * verticalSpacing).coerceIn(3, MAP_HEIGHT - 4)
             
             // Spread levels horizontally with adequate spacing
-            val usableWidth = MAP_WIDTH - 6  // Leave margin on sides
-            val startX = 3
-            // Ensure horizontal spacing of at least MIN_PATH_TILES + 1
-            val minHorizontalSpacing = MIN_PATH_TILES + 1
-            val spacing = if (levelIds.size > 1) {
-                max(usableWidth / levelIds.size, minHorizontalSpacing)
-            } else {
-                usableWidth / 2
-            }
+            // Ensure horizontal spacing of at least MIN_PATH_TILES + 2 between levels
+            val horizontalSpacing = MIN_PATH_TILES + 3  // Distance between horizontal levels (e.g., 5 tiles)
+            val totalWidth = (levelIds.size - 1) * horizontalSpacing
+            val startX = (MAP_WIDTH - totalWidth) / 2  // Center the levels
             
             for ((index, levelId) in levelIds.withIndex()) {
-                var x = startX + spacing * index + spacing / 2
+                var x = startX + index * horizontalSpacing
                 
                 // Special positioning for final level (top right)
                 if (levelId == "the_final_stand") {
