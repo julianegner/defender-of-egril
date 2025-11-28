@@ -121,7 +121,8 @@ fun LevelCardOverlay(
                 
                 // Level info content (similar to LevelCard)
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    // we need the height because LevelInfoEnemiesColumn uses fillMaxHeight
+                    modifier = Modifier.fillMaxWidth().height(220.dp),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     // Left column: Level info with enemies
@@ -151,9 +152,8 @@ fun LevelCardOverlay(
                         )
                     }
                 }
-                
                 Spacer(modifier = Modifier.height(16.dp))
-                
+
                 // Prerequisites info (if any and level is locked)
                 if (levelInfo.status == LevelStatus.LOCKED && levelInfo.prerequisites.isNotEmpty()) {
                     Text(
