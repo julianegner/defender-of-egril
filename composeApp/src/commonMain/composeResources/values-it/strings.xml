@@ -23,6 +23,8 @@
     <string name="dark_mode">Modalità Scura</string>
     <string name="dark_mode_on">Modalità Scura Attiva</string>
     <string name="dark_mode_off">Modalità Scura Disattiva</string>
+    <string name="world_map_level_cards">Vista Schede di Livello</string>
+    <string name="world_map_image_map">Vista Mappa Immagine</string>
     <string name="reset_settings">Ripristina Impostazioni</string>
     <string name="restore_game_data">Ripristina Dati di Gioco</string>
     <string name="restore_game_data_confirm_title">Ripristinare i Dati di Gioco?</string>

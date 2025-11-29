@@ -23,6 +23,8 @@
     <string name="dark_mode">Mode Sombre</string>
     <string name="dark_mode_on">Mode Sombre Activé</string>
     <string name="dark_mode_off">Mode Sombre Désactivé</string>
+    <string name="world_map_level_cards">Vue des Cartes de Niveau</string>
+    <string name="world_map_image_map">Vue de la Carte Image</string>
     <string name="reset_settings">Réinitialiser les Paramètres</string>
     <string name="restore_game_data">Restaurer les Données du Jeu</string>
     <string name="restore_game_data_confirm_title">Restaurer les Données du Jeu ?</string>
