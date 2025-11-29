@@ -78,6 +78,17 @@ fun SettingsDialog(
                         },
                         modifier = Modifier.fillMaxWidth()
                     )
+                    
+                    // World map style switch
+                    GenericSwitch(
+                        state = AppSettings.useLevelCards,
+                        checkedText = stringResource(Res.string.world_map_level_cards),
+                        uncheckedText = stringResource(Res.string.world_map_image_map),
+                        onCheckedChange = { enabled ->
+                            AppSettings.saveUseLevelCards(enabled)
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    )
                 }
                 
                 HorizontalDivider()

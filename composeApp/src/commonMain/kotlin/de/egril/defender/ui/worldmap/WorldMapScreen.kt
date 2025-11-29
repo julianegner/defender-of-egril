@@ -18,6 +18,7 @@ import de.egril.defender.ui.CheatCodeDialog
 import de.egril.defender.ui.isEditorAvailable
 import de.egril.defender.ui.settings.SettingsButton
 import de.egril.defender.ui.settings.DifficultyDisplay
+import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.NewRepositoryDataDialog
 import de.egril.defender.editor.RepositoryManager
 import com.hyperether.resources.stringResource
@@ -41,6 +42,9 @@ fun WorldMapScreen(
     var showNewRepoDataDialog by remember { mutableStateOf(false) }
     var newRepoData by remember { mutableStateOf<RepositoryManager.NewRepositoryData?>(null) }
     var selectedLocation by remember { mutableStateOf<Pair<WorldMapLocation, List<WorldLevel>>?>(null) }
+    
+    // Watch the setting for world map style
+    val useLevelCards = AppSettings.useLevelCards.value
     
     val scope = rememberCoroutineScope()
     
@@ -69,14 +73,26 @@ fun WorldMapScreen(
         Box(
             modifier = Modifier.fillMaxSize()
         ) {
-            // Image-based World Map as background with clickable locations
-            ImageWorldMapView(
-                worldLevels = worldLevels,
-                onLocationClicked = { location, levelsAtLocation ->
-                    selectedLocation = location to levelsAtLocation
-                },
-                modifier = Modifier.fillMaxSize()
-            )
+            // Content area - switches between image map and level cards based on setting
+            if (useLevelCards) {
+                // Level cards view - grid of level cards
+                LevelCardsView(
+                    worldLevels = worldLevels,
+                    onLevelSelected = onLevelSelected,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(top = 80.dp, bottom = 80.dp)  // Leave space for top/bottom bars
+                )
+            } else {
+                // Image-based World Map as background with clickable locations
+                ImageWorldMapView(
+                    worldLevels = worldLevels,
+                    onLocationClicked = { location, levelsAtLocation ->
+                        selectedLocation = location to levelsAtLocation
+                    },
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
             
             // Top bar with title and buttons
             Row(
