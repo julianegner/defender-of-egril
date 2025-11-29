@@ -574,6 +574,6 @@
     
     <!-- World Map Position Editor -->
     <string name="world_map_positions">Mapa Mundial</string>
-    <string name="world_map_position_instructions">Seleccione un mapa de la lista, luego haga clic en el mapa mundial para establecer su posición. La posición se guarda como un porcentaje (0-100) de las dimensiones del mapa.</string>
+    <string name="world_map_position_instructions">Seleccione un mapa de la lista, luego haga clic en el mapa mundial para establecer su posición. La posición se guarda como un permil (0-1000) de las dimensiones del mapa.</string>
     <string name="no_position_set">Sin posición establecida</string>
 </resources>

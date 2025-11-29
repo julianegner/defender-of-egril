@@ -27,7 +27,7 @@ data class EditorMap(
     val height: Int,
     val tiles: Map<String, TileType>,  // "x,y" -> TileType
     val readyToUse: Boolean = false,  // True if map has valid path from spawn to target
-    val worldMapPosition: Position? = null  // Position on world map (x,y as percentage 0-100, null = auto-calculate)
+    val worldMapPosition: Position? = null  // Position on world map (x,y as permille 0-1000, null = auto-calculate)
 ) {
     fun getTileType(x: Int, y: Int): TileType {
         return tiles["$x,$y"] ?: TileType.NO_PLAY
