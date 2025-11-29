@@ -303,4 +303,172 @@ object EditorJsonSerializer {
             return null
         }
     }
+    
+    // ==================== World Map Data Serialization ====================
+    
+    fun serializeWorldMapData(data: WorldMapData): String {
+        val locationsJson = data.locations.joinToString(",\n    ") { location ->
+            val levelIdsJson = location.levelIds.joinToString(", ") { "\"$it\"" }
+            """{
+      "id": "${location.id}",
+      "name": "${location.name}",
+      "position": {"x": ${location.position.x}, "y": ${location.position.y}},
+      "levelIds": [$levelIdsJson]
+    }"""
+        }
+        
+        val pathsJson = data.paths.joinToString(",\n    ") { path ->
+            val controlPointsJson = if (path.controlPoints.isEmpty()) {
+                "[]"
+            } else {
+                "[" + path.controlPoints.joinToString(", ") { pt -> 
+                    """{"x": ${pt.x}, "y": ${pt.y}}"""
+                } + "]"
+            }
+            """{
+      "fromLocationId": "${path.fromLocationId}",
+      "toLocationId": "${path.toLocationId}",
+      "controlPoints": $controlPointsJson
+    }"""
+        }
+        
+        return """{
+  "locations": [
+    $locationsJson
+  ],
+  "paths": [
+    $pathsJson
+  ]
+}"""
+    }
+    
+    fun deserializeWorldMapData(json: String): WorldMapData? {
+        try {
+            val locations = mutableListOf<WorldMapLocationData>()
+            val paths = mutableListOf<WorldMapPathData>()
+            
+            // Parse locations
+            if (json.contains("\"locations\"")) {
+                val locationsSection = extractJsonArray(json, "locations")
+                val locationEntries = splitJsonArrayObjects(locationsSection)
+                
+                for (entry in locationEntries) {
+                    if (!entry.contains("\"id\"")) continue
+                    
+                    val id = JsonUtils.extractValue(entry, "id")
+                    val name = JsonUtils.extractValue(entry, "name")
+                    
+                    // Parse position
+                    val posSection = entry.substringAfter("\"position\": {").substringBefore("}")
+                    val posX = JsonUtils.extractNumericValue("{$posSection}", "x").toIntOrNull() ?: 0
+                    val posY = JsonUtils.extractNumericValue("{$posSection}", "y").toIntOrNull() ?: 0
+                    val position = WorldMapPoint(posX, posY)
+                    
+                    // Parse level IDs
+                    val levelIds = mutableListOf<String>()
+                    val levelIdsSection = entry.substringAfter("\"levelIds\": [").substringBefore("]")
+                    if (levelIdsSection.isNotBlank()) {
+                        val idEntries = levelIdsSection.split(",").map { it.trim().removeSurrounding("\"") }
+                        for (idEntry in idEntries) {
+                            if (idEntry.isNotBlank()) {
+                                levelIds.add(idEntry)
+                            }
+                        }
+                    }
+                    
+                    locations.add(WorldMapLocationData(id, name, position, levelIds))
+                }
+            }
+            
+            // Parse paths
+            if (json.contains("\"paths\"")) {
+                val pathsSection = extractJsonArray(json, "paths")
+                val pathEntries = splitJsonArrayObjects(pathsSection)
+                
+                for (entry in pathEntries) {
+                    if (!entry.contains("\"fromLocationId\"")) continue
+                    
+                    val fromLocationId = JsonUtils.extractValue(entry, "fromLocationId")
+                    val toLocationId = JsonUtils.extractValue(entry, "toLocationId")
+                    
+                    // Parse control points
+                    val controlPoints = mutableListOf<WorldMapPoint>()
+                    if (entry.contains("\"controlPoints\"")) {
+                        val cpSection = entry.substringAfter("\"controlPoints\": [").substringBefore("]")
+                        if (cpSection.isNotBlank() && cpSection.contains("{")) {
+                            val cpEntries = splitJsonArrayObjects(cpSection)
+                            for (cp in cpEntries) {
+                                val cpX = JsonUtils.extractNumericValue(cp, "x").toIntOrNull() ?: continue
+                                val cpY = JsonUtils.extractNumericValue(cp, "y").toIntOrNull() ?: continue
+                                controlPoints.add(WorldMapPoint(cpX, cpY))
+                            }
+                        }
+                    }
+                    
+                    paths.add(WorldMapPathData(fromLocationId, toLocationId, controlPoints))
+                }
+            }
+            
+            return WorldMapData(locations, paths)
+        } catch (e: Exception) {
+            println("Error deserializing world map data: ${e.message}")
+            return null
+        }
+    }
+    
+    /**
+     * Extract the content of a JSON array by its key name.
+     */
+    private fun extractJsonArray(json: String, key: String): String {
+        val startIndex = json.indexOf("\"$key\": [")
+        if (startIndex == -1) return ""
+        
+        val arrayStart = json.indexOf("[", startIndex)
+        if (arrayStart == -1) return ""
+        
+        var depth = 1
+        var arrayEnd = arrayStart + 1
+        while (depth > 0 && arrayEnd < json.length) {
+            when (json[arrayEnd]) {
+                '[' -> depth++
+                ']' -> depth--
+            }
+            arrayEnd++
+        }
+        
+        return json.substring(arrayStart + 1, arrayEnd - 1).trim()
+    }
+    
+    /**
+     * Split a JSON array content into individual object strings.
+     */
+    private fun splitJsonArrayObjects(arrayContent: String): List<String> {
+        val objects = mutableListOf<String>()
+        var depth = 0
+        var currentObject = ""
+        
+        for (char in arrayContent) {
+            when (char) {
+                '{' -> {
+                    depth++
+                    currentObject += char
+                }
+                '}' -> {
+                    depth--
+                    currentObject += char
+                    if (depth == 0) {
+                        objects.add(currentObject.trim())
+                        currentObject = ""
+                    }
+                }
+                else -> {
+                    if (depth > 0) {
+                        currentObject += char
+                    }
+                }
+            }
+        }
+        
+        return objects
+    }
 }
