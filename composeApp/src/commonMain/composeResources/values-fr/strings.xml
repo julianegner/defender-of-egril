@@ -571,4 +571,9 @@
     <string name="levels_at_location">%s niveau(x) à cet emplacement</string>
     <string name="requires_any_of">Nécessite de compléter %s de :</string>
     <string name="requires_all">Nécessite de compléter tous :</string>
+    
+    <!-- World Map Position Editor -->
+    <string name="world_map_positions">Carte du Monde</string>
+    <string name="world_map_position_instructions">Sélectionnez une carte dans la liste, puis cliquez sur la carte du monde pour définir sa position. La position est enregistrée en pourcentage (0-100) des dimensions de la carte.</string>
+    <string name="no_position_set">Aucune position définie</string>
 </resources>

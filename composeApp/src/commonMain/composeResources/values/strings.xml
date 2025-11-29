@@ -572,4 +572,9 @@
     <string name="levels_at_location">%s level(s) at this location</string>
     <string name="requires_any_of">Requires completing %s of:</string>
     <string name="requires_all">Requires completing all:</string>
+    
+    <!-- World Map Position Editor -->
+    <string name="world_map_positions">World Map</string>
+    <string name="world_map_position_instructions">Select a map from the list, then click on the world map to set its position. The position is saved as a percentage (0-100) of the map dimensions.</string>
+    <string name="no_position_set">No position set</string>
 </resources>
