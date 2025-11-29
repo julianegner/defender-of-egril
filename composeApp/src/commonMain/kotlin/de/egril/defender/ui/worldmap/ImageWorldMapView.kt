@@ -146,8 +146,10 @@ fun ImageWorldMapView(
                 detectTapGestures { offset ->
                     val location = findLocationAtPosition(offset.x, offset.y)
                     if (location != null) {
-                        val levelsAtLocation = worldLevels.filter { 
-                            it.level.editorLevelId in location.levelIds 
+                        // Only show levels that are ready to play (not misconfigured)
+                        val levelsAtLocation = worldLevels.filter { worldLevel ->
+                            val levelId = worldLevel.level.editorLevelId
+                            levelId in location.levelIds && (levelId == null || EditorStorage.isLevelReadyToPlay(levelId))
                         }
                         onLocationClicked(location, levelsAtLocation)
                     }
@@ -290,9 +292,14 @@ private fun BoxScope.LocationMarkersOverlay(
 ) {
     // Draw each location marker
     for (location in locations) {
-        val levelsAtLocation = worldLevels.filter { 
-            it.level.editorLevelId in location.levelIds 
+        // Only consider levels that are ready to play (not misconfigured)
+        val levelsAtLocation = worldLevels.filter { worldLevel ->
+            val levelId = worldLevel.level.editorLevelId
+            levelId in location.levelIds && (levelId == null || EditorStorage.isLevelReadyToPlay(levelId))
         }
+        
+        // Skip if no playable levels at this location
+        if (levelsAtLocation.isEmpty()) continue
         
         // Determine location status based on contained levels
         val hasWonLevel = levelsAtLocation.any { it.status == LevelStatus.WON }
