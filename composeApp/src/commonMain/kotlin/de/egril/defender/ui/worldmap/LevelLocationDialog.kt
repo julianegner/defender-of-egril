@@ -189,9 +189,6 @@ private fun LevelLocationCard(
                 for (prereqId in prerequisites) {
                     val prereqLevel = EditorStorage.getLevel(prereqId)
                     val prereqName = prereqLevel?.title ?: prereqId
-                    val prereqStatus = EditorStorage.getAllLevels()
-                        .find { it.id == prereqId }
-                        ?.let { /* Would need world map state */ }
                     
                     Text(
                         text = "• $prereqName",
