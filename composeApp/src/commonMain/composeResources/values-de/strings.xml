@@ -23,6 +23,8 @@
     <string name="dark_mode">Dunkler Modus</string>
     <string name="dark_mode_on">Dunkler Modus an</string>
     <string name="dark_mode_off">Dunkler Modus aus</string>
+    <string name="world_map_level_cards">Levelkarten-Ansicht</string>
+    <string name="world_map_image_map">Bildkarte-Ansicht</string>
     <string name="reset_settings">Einstellungen zurücksetzen</string>
     <string name="restore_game_data">Spieldaten wiederherstellen</string>
     <string name="restore_game_data_confirm_title">Spieldaten wiederherstellen?</string>
