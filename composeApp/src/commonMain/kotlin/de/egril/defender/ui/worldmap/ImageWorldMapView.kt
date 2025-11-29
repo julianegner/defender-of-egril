@@ -276,20 +276,21 @@ private fun BoxScope.LocationMarkersOverlay(
             else -> if (isDarkMode) Color(0xFF3498DB) else Color(0xFF2196F3)  // Blue default
         }
         
-        val borderColor = if (isDarkMode) Color(0xFFFFD700) else Color(0xFFD4AC0D)  // Gold
+        // Calculate marker position in pixels (pre-compute to avoid division on each frame)
+        val markerSize = 30.dp
+        val halfMarkerSize = 15  // in pixels, approximate center offset
+        val xPx = (location.x * containerSize.width).toInt() - halfMarkerSize
+        val yPx = (location.y * containerSize.height).toInt() - halfMarkerSize
         
         // Position the marker based on normalized coordinates
         Box(
             modifier = Modifier
-                .fillMaxSize()
-                .offset(
-                    x = ((location.x * containerSize.width) - 15).dp / containerSize.width.coerceAtLeast(1),
-                    y = ((location.y * containerSize.height) - 15).dp / containerSize.height.coerceAtLeast(1)
-                )
+                .offset(x = xPx.dp, y = yPx.dp)
+                .size(markerSize)
         ) {
             // Marker circle
             Surface(
-                modifier = Modifier.size(30.dp),
+                modifier = Modifier.fillMaxSize(),
                 shape = androidx.compose.foundation.shape.CircleShape,
                 color = markerColor,
                 shadowElevation = 4.dp
@@ -324,11 +325,12 @@ private fun generateWorldMapLocationsAndRoads(worldLevels: List<WorldLevel>): Pa
         it.level.mapId ?: it.level.editorLevelId ?: "unknown"
     }
     
-    // Calculate depth of each level based on prerequisites
+    // Calculate depth of each level based on prerequisites (with memoization)
     val levelDepths = mutableMapOf<String, Int>()
+    val currentPath = mutableSetOf<String>()
     for (worldLevel in worldLevels) {
         val levelId = worldLevel.level.editorLevelId ?: continue
-        levelDepths[levelId] = calculateLevelDepth(levelId, editorLevels, mutableSetOf())
+        levelDepths[levelId] = calculateLevelDepth(levelId, editorLevels, levelDepths, currentPath)
     }
     
     val maxDepth = levelDepths.values.maxOrNull() ?: 0
@@ -406,22 +408,36 @@ private fun generateWorldMapLocationsAndRoads(worldLevels: List<WorldLevel>): Pa
 }
 
 /**
- * Calculate the depth of a level in the prerequisite tree
+ * Calculate the depth of a level in the prerequisite tree using memoization.
+ * This is optimized to avoid redundant calculations and handle cycles.
  */
 private fun calculateLevelDepth(
     levelId: String, 
     editorLevels: Map<String, de.egril.defender.editor.EditorLevel>,
-    visited: MutableSet<String>
+    depthCache: MutableMap<String, Int>,
+    currentPath: MutableSet<String>
 ): Int {
-    if (levelId in visited) return 0  // Avoid infinite loops
-    visited.add(levelId)
+    // Return cached depth if available
+    if (levelId in depthCache) return depthCache[levelId]!!
     
-    val level = editorLevels[levelId] ?: return 0
-    if (level.prerequisites.isEmpty()) return 0
+    // Avoid infinite loops - if we've seen this level in the current path, treat as cycle
+    if (levelId in currentPath) return 0
+    currentPath.add(levelId)
+    
+    val level = editorLevels[levelId]
+    if (level == null || level.prerequisites.isEmpty()) {
+        depthCache[levelId] = 0
+        currentPath.remove(levelId)
+        return 0
+    }
     
     val maxPrereqDepth = level.prerequisites.maxOfOrNull { prereqId ->
-        calculateLevelDepth(prereqId, editorLevels, visited)
+        calculateLevelDepth(prereqId, editorLevels, depthCache, currentPath)
     } ?: 0
     
-    return maxPrereqDepth + 1
+    val depth = maxPrereqDepth + 1
+    depthCache[levelId] = depth
+    currentPath.remove(levelId)
+    
+    return depth
 }
