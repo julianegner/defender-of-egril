@@ -1,5 +1,6 @@
 package de.egril.defender.ui.worldmap
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -13,7 +14,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
@@ -41,6 +44,14 @@ data class WorldMapLocation(
 )
 
 /**
+ * Road connection between two locations
+ */
+data class WorldMapRoad(
+    val fromLocation: WorldMapLocation,
+    val toLocation: WorldMapLocation
+)
+
+/**
  * Image-based World Map View that displays a PNG background with location markers
  */
 @Composable
@@ -51,9 +62,9 @@ fun ImageWorldMapView(
 ) {
     val isDarkMode = AppSettings.isDarkMode.value
     
-    // Generate location data from level maps
-    val locations = remember(worldLevels) {
-        generateWorldMapLocations(worldLevels)
+    // Generate location data and road connections from level maps
+    val (locations, roads) = remember(worldLevels) {
+        generateWorldMapLocationsAndRoads(worldLevels)
     }
     
     // Pan and zoom state
@@ -188,12 +199,50 @@ fun ImageWorldMapView(
                 contentScale = ContentScale.Fit
             )
             
+            // Draw road connections between locations
+            RoadConnectionsOverlay(
+                roads = roads,
+                containerSize = containerSize,
+                isDarkMode = isDarkMode
+            )
+            
             // Location markers overlay
             LocationMarkersOverlay(
                 locations = locations,
                 worldLevels = worldLevels,
                 containerSize = containerSize,
                 isDarkMode = isDarkMode
+            )
+        }
+    }
+}
+
+/**
+ * Overlay that draws road connections between locations
+ */
+@Composable
+private fun BoxScope.RoadConnectionsOverlay(
+    roads: List<WorldMapRoad>,
+    containerSize: IntSize,
+    isDarkMode: Boolean
+) {
+    val roadColor = if (isDarkMode) Color(0xFF8B4513) else Color(0xFFA0522D)  // Brown road color
+    
+    Canvas(modifier = Modifier.fillMaxSize()) {
+        for (road in roads) {
+            val startX = road.fromLocation.x * containerSize.width
+            val startY = road.fromLocation.y * containerSize.height
+            val endX = road.toLocation.x * containerSize.width
+            val endY = road.toLocation.y * containerSize.height
+            
+            // Draw road as a dashed line
+            drawLine(
+                color = roadColor,
+                start = Offset(startX, startY),
+                end = Offset(endX, endY),
+                strokeWidth = 4f,
+                cap = StrokeCap.Round,
+                pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 5f), 0f)
             )
         }
     }
@@ -260,11 +309,12 @@ private fun BoxScope.LocationMarkersOverlay(
 }
 
 /**
- * Generate world map locations from the available levels.
+ * Generate world map locations and road connections from the available levels.
  * Groups levels by their map ID and assigns positions based on prerequisites.
+ * Creates road connections based on level prerequisite relationships.
  */
-private fun generateWorldMapLocations(worldLevels: List<WorldLevel>): List<WorldMapLocation> {
-    if (worldLevels.isEmpty()) return emptyList()
+private fun generateWorldMapLocationsAndRoads(worldLevels: List<WorldLevel>): Pair<List<WorldMapLocation>, List<WorldMapRoad>> {
+    if (worldLevels.isEmpty()) return emptyList<WorldMapLocation>() to emptyList()
     
     // Get all editor levels for prerequisite info
     val editorLevels = EditorStorage.getAllLevels().associateBy { it.id }
@@ -283,6 +333,7 @@ private fun generateWorldMapLocations(worldLevels: List<WorldLevel>): List<World
     
     val maxDepth = levelDepths.values.maxOrNull() ?: 0
     val locations = mutableListOf<WorldMapLocation>()
+    val levelIdToLocation = mutableMapOf<String, WorldMapLocation>()
     
     // Create locations for each map group
     var locationIndex = 0
@@ -307,17 +358,51 @@ private fun generateWorldMapLocations(worldLevels: List<WorldLevel>): List<World
             EditorStorage.getMap(id)?.name
         } ?: levels.firstOrNull()?.level?.name ?: "Location"
         
-        locations.add(WorldMapLocation(
+        val location = WorldMapLocation(
             x = x.coerceIn(0.1f, 0.9f),
             y = y.coerceIn(0.15f, 0.85f),
             levelIds = levels.mapNotNull { it.level.editorLevelId },
             name = mapName
-        ))
+        )
+        
+        locations.add(location)
+        
+        // Map each level ID to its location
+        for (levelId in location.levelIds) {
+            levelIdToLocation[levelId] = location
+        }
         
         locationIndex++
     }
     
-    return locations
+    // Generate road connections based on prerequisites
+    val roads = mutableListOf<WorldMapRoad>()
+    val addedRoads = mutableSetOf<Pair<WorldMapLocation, WorldMapLocation>>()
+    
+    for (level in editorLevels.values) {
+        val levelLocation = levelIdToLocation[level.id] ?: continue
+        
+        for (prereqId in level.prerequisites) {
+            val prereqLocation = levelIdToLocation[prereqId] ?: continue
+            
+            // Avoid duplicate roads (in either direction)
+            val roadPair = if (prereqLocation.x < levelLocation.x) {
+                prereqLocation to levelLocation
+            } else {
+                levelLocation to prereqLocation
+            }
+            
+            if (roadPair !in addedRoads && prereqLocation != levelLocation) {
+                addedRoads.add(roadPair)
+                roads.add(WorldMapRoad(
+                    fromLocation = prereqLocation,
+                    toLocation = levelLocation
+                ))
+            }
+        }
+    }
+    
+    return locations to roads
 }
 
 /**
