@@ -33,22 +33,30 @@ import org.jetbrains.compose.resources.painterResource
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.world_map_background
 
+import de.egril.defender.editor.WorldMapData
+import de.egril.defender.editor.WorldMapLocationData
+import de.egril.defender.editor.WorldMapPathData
+import de.egril.defender.editor.WorldMapPoint
+
 /**
- * World map location data for placing level markers on the map
+ * World map location data for placing level markers on the map.
+ * This is a view model for display purposes.
  */
 data class WorldMapLocation(
-    val x: Float,  // X position as percentage of map width (0.0 to 1.0)
-    val y: Float,  // Y position as percentage of map height (0.0 to 1.0)
+    val id: String,  // Location ID from WorldMapLocationData
+    val x: Float,  // X position as fraction of map width (0.0 to 1.0)
+    val y: Float,  // Y position as fraction of map height (0.0 to 1.0)
     val levelIds: List<String>,  // Editor level IDs at this location
     val name: String  // Display name for this location
 )
 
 /**
- * Road connection between two locations
+ * Road connection between two locations with optional curve control points
  */
 data class WorldMapRoad(
     val fromLocation: WorldMapLocation,
-    val toLocation: WorldMapLocation
+    val toLocation: WorldMapLocation,
+    val controlPoints: List<Pair<Float, Float>> = emptyList()  // Control points as (x, y) fractions
 )
 
 /**
@@ -219,6 +227,7 @@ fun ImageWorldMapView(
 
 /**
  * Overlay that draws road connections between locations
+ * Supports both straight lines and curved paths with control points
  */
 @Composable
 private fun BoxScope.RoadConnectionsOverlay(
@@ -235,15 +244,36 @@ private fun BoxScope.RoadConnectionsOverlay(
             val endX = road.toLocation.x * containerSize.width
             val endY = road.toLocation.y * containerSize.height
             
-            // Draw road as a dashed line
-            drawLine(
-                color = roadColor,
-                start = Offset(startX, startY),
-                end = Offset(endX, endY),
-                strokeWidth = 4f,
-                cap = StrokeCap.Round,
-                pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 5f), 0f)
-            )
+            if (road.controlPoints.isEmpty()) {
+                // Draw straight line
+                drawLine(
+                    color = roadColor,
+                    start = Offset(startX, startY),
+                    end = Offset(endX, endY),
+                    strokeWidth = 4f,
+                    cap = StrokeCap.Round,
+                    pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 5f), 0f)
+                )
+            } else {
+                // Draw curved path through control points
+                val allPoints = mutableListOf(Offset(startX, startY))
+                for (cp in road.controlPoints) {
+                    allPoints.add(Offset(cp.first * containerSize.width, cp.second * containerSize.height))
+                }
+                allPoints.add(Offset(endX, endY))
+                
+                // Draw line segments between points
+                for (i in 0 until allPoints.size - 1) {
+                    drawLine(
+                        color = roadColor,
+                        start = allPoints[i],
+                        end = allPoints[i + 1],
+                        strokeWidth = 4f,
+                        cap = StrokeCap.Round,
+                        pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 5f), 0f)
+                    )
+                }
+            }
         }
     }
 }
@@ -311,15 +341,132 @@ private fun BoxScope.LocationMarkersOverlay(
 
 /**
  * Generate world map locations and road connections from the available levels.
- * Groups levels by their map ID and assigns positions based on prerequisites.
- * Creates road connections based on level prerequisite relationships.
+ * First tries to use WorldMapData from the worldmap.json file, then falls back
+ * to auto-generation based on level prerequisites.
  */
 private fun generateWorldMapLocationsAndRoads(worldLevels: List<WorldLevel>): Pair<List<WorldMapLocation>, List<WorldMapRoad>> {
     if (worldLevels.isEmpty()) return emptyList<WorldMapLocation>() to emptyList()
     
     // Get all editor levels for prerequisite info
     val editorLevels = EditorStorage.getAllLevels().associateBy { it.id }
+    val allMaps = EditorStorage.getAllMaps()
     
+    // Try to use WorldMapData first
+    val worldMapData = EditorStorage.getWorldMapData()
+    
+    if (worldMapData.locations.isNotEmpty()) {
+        // Use locations from worldmap.json
+        return generateFromWorldMapData(worldMapData, worldLevels, editorLevels, allMaps)
+    }
+    
+    // Fall back to auto-generation
+    return generateAutoLocationsAndRoads(worldLevels, editorLevels, allMaps)
+}
+
+/**
+ * Generate locations and roads from the WorldMapData file.
+ * Only shows locations that have at least one ready-to-play level.
+ * Roads are always shown if they match level prerequisites.
+ */
+private fun generateFromWorldMapData(
+    worldMapData: WorldMapData,
+    worldLevels: List<WorldLevel>,
+    editorLevels: Map<String, de.egril.defender.editor.EditorLevel>,
+    allMaps: List<de.egril.defender.editor.EditorMap>
+): Pair<List<WorldMapLocation>, List<WorldMapRoad>> {
+    val locations = mutableListOf<WorldMapLocation>()
+    val locationById = mutableMapOf<String, WorldMapLocation>()
+    
+    // Convert WorldMapLocationData to WorldMapLocation
+    for (locationData in worldMapData.locations) {
+        // Check if at least one level at this location is ready to play
+        val hasPlayableLevel = locationData.levelIds.any { levelId ->
+            EditorStorage.isLevelReadyToPlay(levelId)
+        }
+        
+        // Only add location if it has at least one playable level
+        if (hasPlayableLevel) {
+            val (x, y) = locationData.position.toNormalized()
+            val location = WorldMapLocation(
+                id = locationData.id,
+                x = x.coerceIn(0.1f, 0.9f),
+                y = y.coerceIn(0.15f, 0.85f),
+                levelIds = locationData.levelIds,
+                name = locationData.name
+            )
+            locations.add(location)
+            locationById[locationData.id] = location
+        }
+    }
+    
+    // Generate roads from WorldMapData paths
+    // Roads are shown even if source/destination locations are hidden
+    val roads = mutableListOf<WorldMapRoad>()
+    
+    for (pathData in worldMapData.paths) {
+        // Check if this path matches level prerequisites
+        if (!pathData.isValidConnection(worldMapData.locations, editorLevels.values.toList())) {
+            continue
+        }
+        
+        val fromLocation = locationById[pathData.fromLocationId]
+        val toLocation = locationById[pathData.toLocationId]
+        
+        // If both locations are visible, use them directly
+        if (fromLocation != null && toLocation != null) {
+            val controlPoints = pathData.controlPoints.map { it.toNormalized() }
+            roads.add(WorldMapRoad(
+                fromLocation = fromLocation,
+                toLocation = toLocation,
+                controlPoints = controlPoints
+            ))
+        }
+        // If locations are hidden but path should still be visible, create temporary locations
+        else {
+            val fromLocationData = worldMapData.findLocation(pathData.fromLocationId)
+            val toLocationData = worldMapData.findLocation(pathData.toLocationId)
+            
+            if (fromLocationData != null && toLocationData != null) {
+                val (fromX, fromY) = fromLocationData.position.toNormalized()
+                val (toX, toY) = toLocationData.position.toNormalized()
+                
+                val tempFromLocation = fromLocation ?: WorldMapLocation(
+                    id = fromLocationData.id,
+                    x = fromX.coerceIn(0.1f, 0.9f),
+                    y = fromY.coerceIn(0.15f, 0.85f),
+                    levelIds = emptyList(),
+                    name = fromLocationData.name
+                )
+                val tempToLocation = toLocation ?: WorldMapLocation(
+                    id = toLocationData.id,
+                    x = toX.coerceIn(0.1f, 0.9f),
+                    y = toY.coerceIn(0.15f, 0.85f),
+                    levelIds = emptyList(),
+                    name = toLocationData.name
+                )
+                
+                val controlPoints = pathData.controlPoints.map { it.toNormalized() }
+                roads.add(WorldMapRoad(
+                    fromLocation = tempFromLocation,
+                    toLocation = tempToLocation,
+                    controlPoints = controlPoints
+                ))
+            }
+        }
+    }
+    
+    return locations to roads
+}
+
+/**
+ * Auto-generate locations and roads based on level prerequisites.
+ * Used when no WorldMapData file exists.
+ */
+private fun generateAutoLocationsAndRoads(
+    worldLevels: List<WorldLevel>,
+    editorLevels: Map<String, de.egril.defender.editor.EditorLevel>,
+    allMaps: List<de.egril.defender.editor.EditorMap>
+): Pair<List<WorldMapLocation>, List<WorldMapRoad>> {
     // Group levels by map ID
     val levelsByMap = worldLevels.groupBy { 
         it.level.mapId ?: it.level.editorLevelId ?: "unknown"
@@ -341,7 +488,7 @@ private fun generateWorldMapLocationsAndRoads(worldLevels: List<WorldLevel>): Pa
     var locationIndex = 0
     for ((mapId, levels) in levelsByMap) {
         // Try to get custom position from the map file
-        val editorMap = EditorStorage.getMap(mapId)
+        val editorMap = allMaps.find { it.id == mapId }
         val customPosition = editorMap?.worldMapPosition
         
         // Use custom position if available, otherwise calculate based on depth
@@ -376,6 +523,7 @@ private fun generateWorldMapLocationsAndRoads(worldLevels: List<WorldLevel>): Pa
             ?: "Location"
         
         val location = WorldMapLocation(
+            id = mapId,
             x = x.coerceIn(0.1f, 0.9f),
             y = y.coerceIn(0.15f, 0.85f),
             levelIds = levels.mapNotNull { it.level.editorLevelId },
@@ -394,7 +542,7 @@ private fun generateWorldMapLocationsAndRoads(worldLevels: List<WorldLevel>): Pa
     
     // Generate road connections based on prerequisites
     val roads = mutableListOf<WorldMapRoad>()
-    val addedRoads = mutableSetOf<Pair<WorldMapLocation, WorldMapLocation>>()
+    val addedRoads = mutableSetOf<Pair<String, String>>()
     
     for (level in editorLevels.values) {
         val levelLocation = levelIdToLocation[level.id] ?: continue
@@ -403,10 +551,10 @@ private fun generateWorldMapLocationsAndRoads(worldLevels: List<WorldLevel>): Pa
             val prereqLocation = levelIdToLocation[prereqId] ?: continue
             
             // Avoid duplicate roads (in either direction)
-            val roadPair = if (prereqLocation.x < levelLocation.x) {
-                prereqLocation to levelLocation
+            val roadPair = if (prereqLocation.id < levelLocation.id) {
+                prereqLocation.id to levelLocation.id
             } else {
-                levelLocation to prereqLocation
+                levelLocation.id to prereqLocation.id
             }
             
             if (roadPair !in addedRoads && prereqLocation != levelLocation) {

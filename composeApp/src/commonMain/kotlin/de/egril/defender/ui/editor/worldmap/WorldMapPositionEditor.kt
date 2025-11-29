@@ -26,8 +26,11 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import de.egril.defender.editor.EditorMap
 import de.egril.defender.editor.EditorStorage
+import de.egril.defender.editor.WorldMapData
+import de.egril.defender.editor.WorldMapLocationData
+import de.egril.defender.editor.WorldMapPathData
+import de.egril.defender.editor.WorldMapPoint
 import de.egril.defender.model.Position
 import de.egril.defender.ui.settings.AppSettings
 import org.jetbrains.compose.resources.painterResource
@@ -36,20 +39,25 @@ import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.*
 
 /**
- * World Map Position Editor content - allows placing maps on the world map visually
+ * World Map Position Editor content - allows placing locations on the world map visually.
+ * Uses the new WorldMapData model with locations and curved paths.
  */
 @Composable
 fun WorldMapPositionEditorContent() {
-    var allMaps by remember { mutableStateOf(EditorStorage.getAllMaps()) }
-    var selectedMapId by remember { mutableStateOf<String?>(null) }
-    var hoveredPosition by remember { mutableStateOf<Position?>(null) }
+    var worldMapData by remember { mutableStateOf(EditorStorage.getWorldMapData()) }
+    var allLevels by remember { mutableStateOf(EditorStorage.getAllLevels()) }
+    var selectedLocationId by remember { mutableStateOf<String?>(null) }
+    var hoveredPosition by remember { mutableStateOf<WorldMapPoint?>(null) }
     var containerSize by remember { mutableStateOf(IntSize.Zero) }
+    var showAddLocationDialog by remember { mutableStateOf(false) }
+    var showEditPathDialog by remember { mutableStateOf<WorldMapPathData?>(null) }
     
     val isDarkMode = AppSettings.isDarkMode.value
     
     // Reload data
     LaunchedEffect(Unit) {
-        allMaps = EditorStorage.getAllMaps()
+        worldMapData = EditorStorage.getWorldMapData()
+        allLevels = EditorStorage.getAllLevels()
     }
     
     Column(
@@ -92,24 +100,25 @@ fun WorldMapPositionEditorContent() {
                         .onSizeChanged { containerSize = it }
                 ) {
                     WorldMapCanvas(
-                        maps = allMaps,
-                        selectedMapId = selectedMapId,
+                        worldMapData = worldMapData,
+                        allLevels = allLevels,
+                        selectedLocationId = selectedLocationId,
                         hoveredPosition = hoveredPosition,
                         containerSize = containerSize,
                         isDarkMode = isDarkMode,
-                        onPositionClick = { position ->
-                            // Set position for selected map
-                            if (selectedMapId != null) {
-                                val map = allMaps.find { it.id == selectedMapId }
-                                if (map != null) {
-                                    val updatedMap = map.copy(worldMapPosition = position)
-                                    EditorStorage.saveMap(updatedMap)
-                                    allMaps = EditorStorage.getAllMaps()
+                        onPositionClick = { point ->
+                            // Update position for selected location
+                            if (selectedLocationId != null) {
+                                val location = worldMapData.locations.find { it.id == selectedLocationId }
+                                if (location != null) {
+                                    val updatedLocation = location.copy(position = point)
+                                    EditorStorage.saveWorldMapLocation(updatedLocation)
+                                    worldMapData = EditorStorage.getWorldMapData()
                                 }
                             }
                         },
-                        onHoverChange = { position ->
-                            hoveredPosition = position
+                        onHoverChange = { point ->
+                            hoveredPosition = point
                         }
                     )
                     
@@ -133,7 +142,7 @@ fun WorldMapPositionEditorContent() {
                 }
             }
             
-            // Right side: Map list
+            // Right side: Locations and Paths lists
             Card(
                 modifier = Modifier
                     .weight(1f)
@@ -142,26 +151,62 @@ fun WorldMapPositionEditorContent() {
                 Column(
                     modifier = Modifier.padding(8.dp)
                 ) {
+                    // Add Location button
+                    Button(
+                        onClick = { showAddLocationDialog = true },
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
+                    ) {
+                        Text("+ Add Location")
+                    }
+                    
                     Text(
-                        text = stringResource(Res.string.maps),
+                        text = "Locations",
                         style = MaterialTheme.typography.titleSmall,
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
                     
                     LazyColumn(
+                        modifier = Modifier.weight(1f),
                         verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
-                        items(allMaps) { map ->
-                            MapPositionListItem(
-                                map = map,
-                                isSelected = map.id == selectedMapId,
+                        items(worldMapData.locations) { location ->
+                            LocationListItem(
+                                location = location,
+                                isSelected = location.id == selectedLocationId,
                                 onClick = {
-                                    selectedMapId = if (selectedMapId == map.id) null else map.id
+                                    selectedLocationId = if (selectedLocationId == location.id) null else location.id
                                 },
-                                onClearPosition = {
-                                    val updatedMap = map.copy(worldMapPosition = null)
-                                    EditorStorage.saveMap(updatedMap)
-                                    allMaps = EditorStorage.getAllMaps()
+                                onDelete = {
+                                    EditorStorage.deleteWorldMapLocation(location.id)
+                                    worldMapData = EditorStorage.getWorldMapData()
+                                    if (selectedLocationId == location.id) {
+                                        selectedLocationId = null
+                                    }
+                                }
+                            )
+                        }
+                    }
+                    
+                    Divider(modifier = Modifier.padding(vertical = 8.dp))
+                    
+                    Text(
+                        text = "Paths (${worldMapData.paths.size})",
+                        style = MaterialTheme.typography.titleSmall,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                    
+                    LazyColumn(
+                        modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        items(worldMapData.paths) { path ->
+                            PathListItem(
+                                path = path,
+                                locations = worldMapData.locations,
+                                onClick = { showEditPathDialog = path },
+                                onDelete = {
+                                    EditorStorage.deleteWorldMapPath(path.fromLocationId, path.toLocationId)
+                                    worldMapData = EditorStorage.getWorldMapData()
                                 }
                             )
                         }
@@ -170,20 +215,48 @@ fun WorldMapPositionEditorContent() {
             }
         }
     }
+    
+    // Add Location Dialog
+    if (showAddLocationDialog) {
+        AddLocationDialog(
+            allLevels = allLevels,
+            existingLocations = worldMapData.locations,
+            onDismiss = { showAddLocationDialog = false },
+            onConfirm = { newLocation ->
+                EditorStorage.saveWorldMapLocation(newLocation)
+                worldMapData = EditorStorage.getWorldMapData()
+                showAddLocationDialog = false
+            }
+        )
+    }
+    
+    // Edit Path Dialog
+    if (showEditPathDialog != null) {
+        EditPathDialog(
+            path = showEditPathDialog!!,
+            onDismiss = { showEditPathDialog = null },
+            onConfirm = { updatedPath ->
+                EditorStorage.saveWorldMapPath(updatedPath)
+                worldMapData = EditorStorage.getWorldMapData()
+                showEditPathDialog = null
+            }
+        )
+    }
 }
 
 /**
- * Canvas showing the world map background with map positions
+ * Canvas showing the world map background with location markers and paths
  */
 @Composable
 private fun WorldMapCanvas(
-    maps: List<EditorMap>,
-    selectedMapId: String?,
-    hoveredPosition: Position?,
+    worldMapData: WorldMapData,
+    allLevels: List<de.egril.defender.editor.EditorLevel>,
+    selectedLocationId: String?,
+    hoveredPosition: WorldMapPoint?,
     containerSize: IntSize,
     isDarkMode: Boolean,
-    onPositionClick: (Position) -> Unit,
-    onHoverChange: (Position?) -> Unit
+    onPositionClick: (WorldMapPoint) -> Unit,
+    onHoverChange: (WorldMapPoint?) -> Unit
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
         // Background image
@@ -209,7 +282,7 @@ private fun WorldMapCanvas(
                                     // Calculate position as permille (0-1000) for better precision
                                     val x = ((offset.x / size.width) * 1000).toInt().coerceIn(0, 1000)
                                     val y = ((offset.y / size.height) * 1000).toInt().coerceIn(0, 1000)
-                                    onHoverChange(Position(x, y))
+                                    onHoverChange(WorldMapPoint(x, y))
                                 }
                                 PointerEventType.Exit -> {
                                     onHoverChange(null)
@@ -224,23 +297,83 @@ private fun WorldMapCanvas(
                         // Calculate position as permille (0-1000) for better precision
                         val x = ((offset.x / size.width) * 1000).toInt().coerceIn(0, 1000)
                         val y = ((offset.y / size.height) * 1000).toInt().coerceIn(0, 1000)
-                        onPositionClick(Position(x, y))
+                        onPositionClick(WorldMapPoint(x, y))
                     }
                 }
         ) {
             val markerRadius = 15f
             
-            // Draw all map positions
-            for (map in maps) {
-                val position = map.worldMapPosition ?: continue
+            // Draw paths first (so they appear behind locations)
+            val roadColor = if (isDarkMode) Color(0xFF8B4513) else Color(0xFFA0522D)
+            val locationById = worldMapData.locations.associateBy { it.id }
+            
+            for (path in worldMapData.paths) {
+                val fromLocation = locationById[path.fromLocationId] ?: continue
+                val toLocation = locationById[path.toLocationId] ?: continue
                 
-                val x = (position.x / 1000f) * size.width
-                val y = (position.y / 1000f) * size.height
+                val startX = (fromLocation.position.x / 1000f) * size.width
+                val startY = (fromLocation.position.y / 1000f) * size.height
+                val endX = (toLocation.position.x / 1000f) * size.width
+                val endY = (toLocation.position.y / 1000f) * size.height
                 
-                val isSelected = map.id == selectedMapId
+                if (path.controlPoints.isEmpty()) {
+                    // Draw straight line
+                    drawLine(
+                        color = roadColor,
+                        start = Offset(startX, startY),
+                        end = Offset(endX, endY),
+                        strokeWidth = 3f,
+                        cap = StrokeCap.Round,
+                        pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 5f), 0f)
+                    )
+                } else {
+                    // Draw curved path through control points
+                    var prevX = startX
+                    var prevY = startY
+                    
+                    for (cp in path.controlPoints) {
+                        val cpX = (cp.x / 1000f) * size.width
+                        val cpY = (cp.y / 1000f) * size.height
+                        
+                        drawLine(
+                            color = roadColor,
+                            start = Offset(prevX, prevY),
+                            end = Offset(cpX, cpY),
+                            strokeWidth = 3f,
+                            cap = StrokeCap.Round,
+                            pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 5f), 0f)
+                        )
+                        
+                        prevX = cpX
+                        prevY = cpY
+                    }
+                    
+                    // Draw final segment
+                    drawLine(
+                        color = roadColor,
+                        start = Offset(prevX, prevY),
+                        end = Offset(endX, endY),
+                        strokeWidth = 3f,
+                        cap = StrokeCap.Round,
+                        pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 5f), 0f)
+                    )
+                }
+            }
+            
+            // Draw all location markers
+            for (location in worldMapData.locations) {
+                val x = (location.position.x / 1000f) * size.width
+                val y = (location.position.y / 1000f) * size.height
+                
+                val isSelected = location.id == selectedLocationId
+                val hasPlayableLevels = location.levelIds.any { levelId ->
+                    EditorStorage.isLevelReadyToPlay(levelId)
+                }
+                
                 val markerColor = when {
                     isSelected -> Color(0xFF2196F3) // Blue for selected
-                    else -> if (isDarkMode) Color(0xFF4CAF50) else Color(0xFF2E7D32) // Green
+                    hasPlayableLevels -> if (isDarkMode) Color(0xFF4CAF50) else Color(0xFF2E7D32) // Green for playable
+                    else -> if (isDarkMode) Color(0xFF9E9E9E) else Color(0xFF757575) // Grey for not playable
                 }
                 
                 // Draw marker circle
@@ -259,40 +392,8 @@ private fun WorldMapCanvas(
                 )
             }
             
-            // Draw road connections between maps that have prerequisites
-            val allLevels = EditorStorage.getAllLevels()
-            val mapPositions = maps.filter { it.worldMapPosition != null }
-                .associateBy({ it.id }, { it.worldMapPosition!! })
-            
-            val roadColor = if (isDarkMode) Color(0xFF8B4513) else Color(0xFFA0522D)
-            
-            for (level in allLevels) {
-                val levelMapPos = mapPositions[level.mapId] ?: continue
-                
-                for (prereqId in level.prerequisites) {
-                    val prereqLevel = allLevels.find { it.id == prereqId } ?: continue
-                    val prereqMapPos = mapPositions[prereqLevel.mapId] ?: continue
-                    
-                    if (levelMapPos != prereqMapPos) {
-                        val startX = (prereqMapPos.x / 1000f) * size.width
-                        val startY = (prereqMapPos.y / 1000f) * size.height
-                        val endX = (levelMapPos.x / 1000f) * size.width
-                        val endY = (levelMapPos.y / 1000f) * size.height
-                        
-                        drawLine(
-                            color = roadColor,
-                            start = Offset(startX, startY),
-                            end = Offset(endX, endY),
-                            strokeWidth = 3f,
-                            cap = StrokeCap.Round,
-                            pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 5f), 0f)
-                        )
-                    }
-                }
-            }
-            
-            // Draw hover indicator for selected map
-            if (selectedMapId != null && hoveredPosition != null) {
+            // Draw hover indicator for selected location
+            if (selectedLocationId != null && hoveredPosition != null) {
                 val x = (hoveredPosition.x / 1000f) * size.width
                 val y = (hoveredPosition.y / 1000f) * size.height
                 
@@ -307,17 +408,15 @@ private fun WorldMapCanvas(
 }
 
 /**
- * List item for a map showing its position status
+ * List item for a location
  */
 @Composable
-private fun MapPositionListItem(
-    map: EditorMap,
+private fun LocationListItem(
+    location: WorldMapLocationData,
     isSelected: Boolean,
     onClick: () -> Unit,
-    onClearPosition: () -> Unit
+    onDelete: () -> Unit
 ) {
-    val hasPosition = map.worldMapPosition != null
-    
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -336,47 +435,269 @@ private fun MapPositionListItem(
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = map.name.ifEmpty { map.id },
+                    text = location.name,
                     style = MaterialTheme.typography.bodyMedium
                 )
                 Text(
-                    text = if (hasPosition) {
-                        "Position: ${map.worldMapPosition!!.x}, ${map.worldMapPosition!!.y}"
-                    } else {
-                        stringResource(Res.string.no_position_set)
-                    },
+                    text = "Position: ${location.position.x}, ${location.position.y} | ${location.levelIds.size} levels",
                     style = MaterialTheme.typography.bodySmall,
-                    color = if (hasPosition) 
-                        MaterialTheme.colorScheme.primary 
-                    else 
-                        MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
             
-            // Status indicator
-            Box(
-                modifier = Modifier
-                    .size(12.dp)
-                    .background(
-                        color = if (hasPosition) Color(0xFF4CAF50) else Color.Gray,
-                        shape = CircleShape
-                    )
-            )
-            
-            // Clear button (only if has position)
-            if (hasPosition) {
-                Spacer(modifier = Modifier.width(8.dp))
-                TextButton(
-                    onClick = onClearPosition,
-                    contentPadding = PaddingValues(4.dp)
-                ) {
-                    Text(
-                        text = "X",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Color.Red
-                    )
-                }
+            // Delete button
+            TextButton(
+                onClick = onDelete,
+                contentPadding = PaddingValues(4.dp)
+            ) {
+                Text(
+                    text = "X",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.Red
+                )
             }
         }
     }
+}
+
+/**
+ * List item for a path
+ */
+@Composable
+private fun PathListItem(
+    path: WorldMapPathData,
+    locations: List<WorldMapLocationData>,
+    onClick: () -> Unit,
+    onDelete: () -> Unit
+) {
+    val fromName = locations.find { it.id == path.fromLocationId }?.name ?: path.fromLocationId
+    val toName = locations.find { it.id == path.toLocationId }?.name ?: path.toLocationId
+    
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() },
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+    ) {
+        Row(
+            modifier = Modifier.padding(8.dp).fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = "$fromName → $toName",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Text(
+                    text = "${path.controlPoints.size} control points",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            
+            // Delete button
+            TextButton(
+                onClick = onDelete,
+                contentPadding = PaddingValues(4.dp)
+            ) {
+                Text(
+                    text = "X",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.Red
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Dialog for adding a new location
+ */
+@Composable
+private fun AddLocationDialog(
+    allLevels: List<de.egril.defender.editor.EditorLevel>,
+    existingLocations: List<WorldMapLocationData>,
+    onDismiss: () -> Unit,
+    onConfirm: (WorldMapLocationData) -> Unit
+) {
+    var name by remember { mutableStateOf("") }
+    var selectedLevelIds by remember { mutableStateOf(setOf<String>()) }
+    
+    // Get levels not yet assigned to any location
+    val assignedLevelIds = existingLocations.flatMap { it.levelIds }.toSet()
+    val availableLevels = allLevels.filter { it.id !in assignedLevelIds }
+    
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Add Location") },
+        text = {
+            Column {
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text("Location Name") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                Text("Select Levels:", style = MaterialTheme.typography.bodyMedium)
+                
+                LazyColumn(
+                    modifier = Modifier.height(200.dp)
+                ) {
+                    items(availableLevels) { level ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    selectedLevelIds = if (level.id in selectedLevelIds) {
+                                        selectedLevelIds - level.id
+                                    } else {
+                                        selectedLevelIds + level.id
+                                    }
+                                }
+                                .padding(8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Checkbox(
+                                checked = level.id in selectedLevelIds,
+                                onCheckedChange = {
+                                    selectedLevelIds = if (it) {
+                                        selectedLevelIds + level.id
+                                    } else {
+                                        selectedLevelIds - level.id
+                                    }
+                                }
+                            )
+                            Text(level.title.ifEmpty { level.id })
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    if (name.isNotBlank() && selectedLevelIds.isNotEmpty()) {
+                        val locationId = name.lowercase().replace(" ", "_")
+                        onConfirm(WorldMapLocationData(
+                            id = locationId,
+                            name = name,
+                            position = WorldMapPoint(500, 500), // Center by default
+                            levelIds = selectedLevelIds.toList()
+                        ))
+                    }
+                },
+                enabled = name.isNotBlank() && selectedLevelIds.isNotEmpty()
+            ) {
+                Text("Add")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
+}
+
+/**
+ * Dialog for editing path control points
+ */
+@Composable
+private fun EditPathDialog(
+    path: WorldMapPathData,
+    onDismiss: () -> Unit,
+    onConfirm: (WorldMapPathData) -> Unit
+) {
+    var controlPoints by remember { mutableStateOf(path.controlPoints.toMutableList()) }
+    var newX by remember { mutableStateOf("") }
+    var newY by remember { mutableStateOf("") }
+    
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Edit Path Control Points") },
+        text = {
+            Column {
+                Text(
+                    "Path: ${path.fromLocationId} → ${path.toLocationId}",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                Text("Control Points (0-1000):", style = MaterialTheme.typography.bodySmall)
+                
+                LazyColumn(
+                    modifier = Modifier.height(150.dp)
+                ) {
+                    items(controlPoints.size) { index ->
+                        val cp = controlPoints[index]
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(4.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text("${index + 1}: (${cp.x}, ${cp.y})")
+                            TextButton(onClick = {
+                                controlPoints = controlPoints.toMutableList().apply { removeAt(index) }
+                            }) {
+                                Text("X", color = Color.Red)
+                            }
+                        }
+                    }
+                }
+                
+                Divider(modifier = Modifier.padding(vertical = 8.dp))
+                
+                Text("Add Control Point:", style = MaterialTheme.typography.bodySmall)
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    OutlinedTextField(
+                        value = newX,
+                        onValueChange = { newX = it.filter { c -> c.isDigit() } },
+                        label = { Text("X") },
+                        modifier = Modifier.weight(1f)
+                    )
+                    OutlinedTextField(
+                        value = newY,
+                        onValueChange = { newY = it.filter { c -> c.isDigit() } },
+                        label = { Text("Y") },
+                        modifier = Modifier.weight(1f)
+                    )
+                    Button(
+                        onClick = {
+                            val x = newX.toIntOrNull()?.coerceIn(0, 1000)
+                            val y = newY.toIntOrNull()?.coerceIn(0, 1000)
+                            if (x != null && y != null) {
+                                controlPoints = controlPoints.toMutableList().apply { add(WorldMapPoint(x, y)) }
+                                newX = ""
+                                newY = ""
+                            }
+                        }
+                    ) {
+                        Text("+")
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    onConfirm(path.copy(controlPoints = controlPoints))
+                }
+            ) {
+                Text("Save")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
 }
