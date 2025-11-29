@@ -575,6 +575,6 @@
     
     <!-- World Map Position Editor -->
     <string name="world_map_positions">World Map</string>
-    <string name="world_map_position_instructions">Select a map from the list, then click on the world map to set its position. The position is saved as a percentage (0-100) of the map dimensions.</string>
+    <string name="world_map_position_instructions">Select a map from the list, then click on the world map to set its position. The position is saved as a permille (0-1000) of the map dimensions.</string>
     <string name="no_position_set">No position set</string>
 </resources>

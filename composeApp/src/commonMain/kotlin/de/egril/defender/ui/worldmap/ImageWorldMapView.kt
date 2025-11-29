@@ -346,8 +346,8 @@ private fun generateWorldMapLocationsAndRoads(worldLevels: List<WorldLevel>): Pa
         
         // Use custom position if available, otherwise calculate based on depth
         val x = if (customPosition != null) {
-            // Position x is stored as percentage (0-100), convert to 0.0-1.0
-            customPosition.x / 100f
+            // Position x is stored as permille (0-1000), convert to 0.0-1.0
+            customPosition.x / 1000f
         } else {
             // Calculate average depth for this map's levels
             val avgDepth = levels.mapNotNull { 
@@ -363,8 +363,8 @@ private fun generateWorldMapLocationsAndRoads(worldLevels: List<WorldLevel>): Pa
         }
         
         val y = if (customPosition != null) {
-            // Position y is stored as percentage (0-100), convert to 0.0-1.0
-            customPosition.y / 100f
+            // Position y is stored as permille (0-1000), convert to 0.0-1.0
+            customPosition.y / 1000f
         } else {
             // Distribute locations vertically with some variation
             0.25f + (locationIndex % 3) * 0.25f + ((locationIndex / 3) % 2) * 0.1f
