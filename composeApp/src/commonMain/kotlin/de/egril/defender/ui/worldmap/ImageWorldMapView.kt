@@ -60,6 +60,19 @@ data class WorldMapRoad(
 )
 
 /**
+ * Filter levels at a location to only include those that are ready to play.
+ */
+private fun getPlayableLevelsAtLocation(
+    worldLevels: List<WorldLevel>,
+    location: WorldMapLocation
+): List<WorldLevel> {
+    return worldLevels.filter { worldLevel ->
+        val levelId = worldLevel.level.editorLevelId
+        levelId != null && levelId in location.levelIds && EditorStorage.isLevelReadyToPlay(levelId)
+    }
+}
+
+/**
  * Image-based World Map View that displays a PNG background with location markers
  */
 @Composable
@@ -147,10 +160,7 @@ fun ImageWorldMapView(
                     val location = findLocationAtPosition(offset.x, offset.y)
                     if (location != null) {
                         // Only show levels that are ready to play (not misconfigured)
-                        val levelsAtLocation = worldLevels.filter { worldLevel ->
-                            val levelId = worldLevel.level.editorLevelId
-                            levelId in location.levelIds && (levelId == null || EditorStorage.isLevelReadyToPlay(levelId))
-                        }
+                        val levelsAtLocation = getPlayableLevelsAtLocation(worldLevels, location)
                         onLocationClicked(location, levelsAtLocation)
                     }
                 }
@@ -293,10 +303,7 @@ private fun BoxScope.LocationMarkersOverlay(
     // Draw each location marker
     for (location in locations) {
         // Only consider levels that are ready to play (not misconfigured)
-        val levelsAtLocation = worldLevels.filter { worldLevel ->
-            val levelId = worldLevel.level.editorLevelId
-            levelId in location.levelIds && (levelId == null || EditorStorage.isLevelReadyToPlay(levelId))
-        }
+        val levelsAtLocation = getPlayableLevelsAtLocation(worldLevels, location)
         
         // Skip if no playable levels at this location
         if (levelsAtLocation.isEmpty()) continue
