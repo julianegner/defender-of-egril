@@ -574,6 +574,6 @@
     
     <!-- World Map Position Editor -->
     <string name="world_map_positions">Carte du Monde</string>
-    <string name="world_map_position_instructions">Sélectionnez une carte dans la liste, puis cliquez sur la carte du monde pour définir sa position. La position est enregistrée en pourcentage (0-100) des dimensions de la carte.</string>
+    <string name="world_map_position_instructions">Sélectionnez une carte dans la liste, puis cliquez sur la carte du monde pour définir sa position. La position est enregistrée en pour mille (0-1000) des dimensions de la carte.</string>
     <string name="no_position_set">Aucune position définie</string>
 </resources>

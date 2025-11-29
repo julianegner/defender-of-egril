@@ -206,9 +206,9 @@ private fun WorldMapCanvas(
                             
                             when (event.type) {
                                 PointerEventType.Move, PointerEventType.Enter -> {
-                                    // Calculate position as percentage (0-100)
-                                    val x = ((offset.x / size.width) * 100).toInt().coerceIn(0, 100)
-                                    val y = ((offset.y / size.height) * 100).toInt().coerceIn(0, 100)
+                                    // Calculate position as permille (0-1000) for better precision
+                                    val x = ((offset.x / size.width) * 1000).toInt().coerceIn(0, 1000)
+                                    val y = ((offset.y / size.height) * 1000).toInt().coerceIn(0, 1000)
                                     onHoverChange(Position(x, y))
                                 }
                                 PointerEventType.Exit -> {
@@ -221,9 +221,9 @@ private fun WorldMapCanvas(
                 }
                 .pointerInput(Unit) {
                     detectTapGestures { offset ->
-                        // Calculate position as percentage (0-100)
-                        val x = ((offset.x / size.width) * 100).toInt().coerceIn(0, 100)
-                        val y = ((offset.y / size.height) * 100).toInt().coerceIn(0, 100)
+                        // Calculate position as permille (0-1000) for better precision
+                        val x = ((offset.x / size.width) * 1000).toInt().coerceIn(0, 1000)
+                        val y = ((offset.y / size.height) * 1000).toInt().coerceIn(0, 1000)
                         onPositionClick(Position(x, y))
                     }
                 }
@@ -234,8 +234,8 @@ private fun WorldMapCanvas(
             for (map in maps) {
                 val position = map.worldMapPosition ?: continue
                 
-                val x = (position.x / 100f) * size.width
-                val y = (position.y / 100f) * size.height
+                val x = (position.x / 1000f) * size.width
+                val y = (position.y / 1000f) * size.height
                 
                 val isSelected = map.id == selectedMapId
                 val markerColor = when {
@@ -274,10 +274,10 @@ private fun WorldMapCanvas(
                     val prereqMapPos = mapPositions[prereqLevel.mapId] ?: continue
                     
                     if (levelMapPos != prereqMapPos) {
-                        val startX = (prereqMapPos.x / 100f) * size.width
-                        val startY = (prereqMapPos.y / 100f) * size.height
-                        val endX = (levelMapPos.x / 100f) * size.width
-                        val endY = (levelMapPos.y / 100f) * size.height
+                        val startX = (prereqMapPos.x / 1000f) * size.width
+                        val startY = (prereqMapPos.y / 1000f) * size.height
+                        val endX = (levelMapPos.x / 1000f) * size.width
+                        val endY = (levelMapPos.y / 1000f) * size.height
                         
                         drawLine(
                             color = roadColor,
@@ -293,8 +293,8 @@ private fun WorldMapCanvas(
             
             // Draw hover indicator for selected map
             if (selectedMapId != null && hoveredPosition != null) {
-                val x = (hoveredPosition.x / 100f) * size.width
-                val y = (hoveredPosition.y / 100f) * size.height
+                val x = (hoveredPosition.x / 1000f) * size.width
+                val y = (hoveredPosition.y / 1000f) * size.height
                 
                 drawCircle(
                     color = Color(0x802196F3), // Semi-transparent blue
