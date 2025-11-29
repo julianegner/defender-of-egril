@@ -17,12 +17,16 @@ object EditorJsonSerializer {
             "\"$pos\": \"${type.name}\""
         }
         
+        val worldMapPositionJson = if (map.worldMapPosition != null) {
+            ",\n  \"worldMapPosition\": {\"x\": ${map.worldMapPosition.x}, \"y\": ${map.worldMapPosition.y}}"
+        } else ""
+        
         return """{
   "id": "${map.id}",
   "name": "${map.name}",
   "width": ${map.width},
   "height": ${map.height},
-  "readyToUse": ${map.readyToUse},
+  "readyToUse": ${map.readyToUse}$worldMapPositionJson,
   "tiles": {
     $tilesJson
   }
@@ -41,6 +45,19 @@ object EditorJsonSerializer {
                 false  // Default to false for backward compatibility
             }
             
+            // Parse optional world map position
+            val worldMapPosition = try {
+                val positionSection = json.substringAfter("\"worldMapPosition\":", "")
+                if (positionSection.isNotEmpty()) {
+                    val posObj = positionSection.substringAfter("{").substringBefore("}")
+                    val x = JsonUtils.extractNumericValue("{$posObj}", "x").toIntOrNull()
+                    val y = JsonUtils.extractNumericValue("{$posObj}", "y").toIntOrNull()
+                    if (x != null && y != null) Position(x, y) else null
+                } else null
+            } catch (e: Exception) {
+                null  // Optional field - null if not present
+            }
+            
             val tiles = mutableMapOf<String, TileType>()
             val tilesSection = json.substringAfter("\"tiles\": {")
                 .substringBefore("}")
@@ -57,7 +74,7 @@ object EditorJsonSerializer {
                 tiles[pos] = TileType.valueOf(typeStr)
             }
             
-            return EditorMap(id, name, width, height, tiles, readyToUse)
+            return EditorMap(id, name, width, height, tiles, readyToUse, worldMapPosition)
         } catch (e: Exception) {
             println("Error deserializing map: ${e.message}")
             return null
