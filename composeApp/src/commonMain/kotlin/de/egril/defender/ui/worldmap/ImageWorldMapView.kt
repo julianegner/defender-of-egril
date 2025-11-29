@@ -340,25 +340,40 @@ private fun generateWorldMapLocationsAndRoads(worldLevels: List<WorldLevel>): Pa
     // Create locations for each map group
     var locationIndex = 0
     for ((mapId, levels) in levelsByMap) {
-        // Calculate average depth for this map's levels
-        val avgDepth = levels.mapNotNull { 
-            levelDepths[it.level.editorLevelId] 
-        }.average().takeIf { !it.isNaN() } ?: 0.0
+        // Try to get custom position from the map file
+        val editorMap = EditorStorage.getMap(mapId)
+        val customPosition = editorMap?.worldMapPosition
         
-        // Position based on depth (left to right) and index (top to bottom)
-        val x = if (maxDepth > 0) {
-            0.15f + ((avgDepth / maxDepth.toDouble()) * 0.7).toFloat()
+        // Use custom position if available, otherwise calculate based on depth
+        val x = if (customPosition != null) {
+            // Position x is stored as percentage (0-100), convert to 0.0-1.0
+            customPosition.x / 100f
         } else {
-            0.5f
+            // Calculate average depth for this map's levels
+            val avgDepth = levels.mapNotNull { 
+                levelDepths[it.level.editorLevelId] 
+            }.average().takeIf { !it.isNaN() } ?: 0.0
+            
+            // Position based on depth (left to right)
+            if (maxDepth > 0) {
+                0.15f + ((avgDepth / maxDepth.toDouble()) * 0.7).toFloat()
+            } else {
+                0.5f
+            }
         }
         
-        // Distribute locations vertically with some variation
-        val y = 0.25f + (locationIndex % 3) * 0.25f + ((locationIndex / 3) % 2) * 0.1f
+        val y = if (customPosition != null) {
+            // Position y is stored as percentage (0-100), convert to 0.0-1.0
+            customPosition.y / 100f
+        } else {
+            // Distribute locations vertically with some variation
+            0.25f + (locationIndex % 3) * 0.25f + ((locationIndex / 3) % 2) * 0.1f
+        }
         
         // Get location name from map or first level
-        val mapName = levels.firstOrNull()?.level?.mapId?.let { id ->
-            EditorStorage.getMap(id)?.name
-        } ?: levels.firstOrNull()?.level?.name ?: "Location"
+        val mapName = editorMap?.name?.takeIf { it.isNotEmpty() } 
+            ?: levels.firstOrNull()?.level?.name 
+            ?: "Location"
         
         val location = WorldMapLocation(
             x = x.coerceIn(0.1f, 0.9f),
