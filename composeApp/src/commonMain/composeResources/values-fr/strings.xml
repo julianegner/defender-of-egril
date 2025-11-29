@@ -564,4 +564,9 @@
     <string name="all">tous</string>
     <string name="requires">Nécessite</string>
     <string name="entry_point">Point d\'Entrée</string>
+    
+    <!-- World Map Locations -->
+    <string name="levels_at_location">%s niveau(x) à cet emplacement</string>
+    <string name="requires_any_of">Nécessite de compléter %s de :</string>
+    <string name="requires_all">Nécessite de compléter tous :</string>
 </resources>

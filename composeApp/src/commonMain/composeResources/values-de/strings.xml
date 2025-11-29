@@ -564,4 +564,9 @@
     <string name="all">alle</string>
     <string name="requires">Erfordert</string>
     <string name="entry_point">Einstiegspunkt</string>
+    
+    <!-- World Map Locations -->
+    <string name="levels_at_location">%s Level an diesem Ort</string>
+    <string name="requires_any_of">Erfordert %s von:</string>
+    <string name="requires_all">Erfordert alle:</string>
 </resources>
