@@ -40,7 +40,7 @@ fun WorldMapScreen(
     var showCheatDialog by remember { mutableStateOf(false) }
     var showNewRepoDataDialog by remember { mutableStateOf(false) }
     var newRepoData by remember { mutableStateOf<RepositoryManager.NewRepositoryData?>(null) }
-    var selectedLevelInfo by remember { mutableStateOf<WorldMapLevelInfo?>(null) }
+    var selectedLocation by remember { mutableStateOf<Pair<WorldMapLocation, List<WorldLevel>>?>(null) }
     
     val scope = rememberCoroutineScope()
     
@@ -69,11 +69,11 @@ fun WorldMapScreen(
         Box(
             modifier = Modifier.fillMaxSize()
         ) {
-            // Hexagonal World Map as background
-            HexWorldMapView(
+            // Image-based World Map as background with clickable locations
+            ImageWorldMapView(
                 worldLevels = worldLevels,
-                onLevelClicked = { levelInfo ->
-                    selectedLevelInfo = levelInfo
+                onLocationClicked = { location, levelsAtLocation ->
+                    selectedLocation = location to levelsAtLocation
                 },
                 modifier = Modifier.fillMaxSize()
             )
@@ -155,16 +155,17 @@ fun WorldMapScreen(
         }
     }
     
-    // Level card overlay dialog
-    if (selectedLevelInfo != null) {
-        LevelCardOverlay(
-            levelInfo = selectedLevelInfo!!,
-            worldLevels = worldLevels,
+    // Level location dialog - shows all levels at the clicked location
+    if (selectedLocation != null) {
+        val (location, levels) = selectedLocation!!
+        LevelLocationDialog(
+            location = location,
+            levelsAtLocation = levels,
             onPlayLevel = { levelId ->
                 onLevelSelected(levelId)
-                selectedLevelInfo = null
+                selectedLocation = null
             },
-            onDismiss = { selectedLevelInfo = null }
+            onDismiss = { selectedLocation = null }
         )
     }
     
