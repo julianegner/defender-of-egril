@@ -1,11 +1,15 @@
 package de.egril.defender.ui.gameplay
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.input.key.*
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Density
@@ -226,10 +230,36 @@ private fun GamePlayScreenContent(
             }
         }
     }
+    
+    // Focus requester for keyboard event handling
+    val focusRequester = remember { FocusRequester() }
+    
+    // Request focus when the screen is first displayed
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
+    
+    // Keyboard event handler for Ctrl+S save shortcut
+    val keyboardHandler: (KeyEvent) -> Boolean = { event ->
+        if (event.type == KeyEventType.KeyDown && 
+            event.key == Key.S && 
+            event.isCtrlPressed &&
+            onSaveGame != null) {
+            // Trigger save dialog
+            showSaveDialog = true
+            true
+        } else {
+            false
+        }
+    }
 
     CompositionLocalProvider(LocalDensity provides scaledDensity) {
         Surface(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .focusRequester(focusRequester)
+                .focusable()
+                .onKeyEvent(keyboardHandler),
             color = MaterialTheme.colorScheme.background
         ) {
             Column(
