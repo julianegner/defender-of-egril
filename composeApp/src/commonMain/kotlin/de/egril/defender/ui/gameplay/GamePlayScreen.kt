@@ -240,16 +240,18 @@ private fun GamePlayScreenContent(
     }
     
     // Keyboard event handler for Ctrl+S save shortcut
-    val keyboardHandler: (KeyEvent) -> Boolean = { event ->
-        if (event.type == KeyEventType.KeyDown && 
-            event.key == Key.S && 
-            event.isCtrlPressed &&
-            onSaveGame != null) {
-            // Trigger save dialog
-            showSaveDialog = true
-            true
-        } else {
-            false
+    val keyboardHandler: (KeyEvent) -> Boolean = remember(onSaveGame) {
+        { event ->
+            if (event.type == KeyEventType.KeyDown && 
+                event.key == Key.S && 
+                event.isCtrlPressed &&
+                onSaveGame != null) {
+                // Trigger save dialog
+                showSaveDialog = true
+                true
+            } else {
+                false
+            }
         }
     }
 
