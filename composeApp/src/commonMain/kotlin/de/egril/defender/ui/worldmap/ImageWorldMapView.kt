@@ -29,6 +29,7 @@ import de.egril.defender.model.LevelStatus
 import de.egril.defender.model.WorldLevel
 import de.egril.defender.ui.mouseWheelZoom
 import de.egril.defender.ui.settings.AppSettings
+import de.egril.defender.utils.isPlatformAndroid
 import de.egril.defender.utils.isPlatformMobile
 import de.egril.defender.editor.EditorStorage
 import org.jetbrains.compose.resources.painterResource
@@ -368,7 +369,14 @@ private fun BoxScope.LocationMarkersOverlay(
         }
         
         // Calculate marker position accounting for image bounds within container
-        val markerSize = 40.dp
+        // Use smaller sizes on Android (50% of normal size)
+        val markerSize = if (isPlatformAndroid) 20.dp else 40.dp
+        val labelHorizontalPadding = if (isPlatformAndroid) 3.dp else 6.dp
+        val labelVerticalPadding = if (isPlatformAndroid) 1.dp else 2.dp
+        val labelCornerRadius = if (isPlatformAndroid) 2.dp else 4.dp
+        val spacerHeight = if (isPlatformAndroid) 2.dp else 4.dp
+        val labelElevation = if (isPlatformAndroid) 1.dp else 2.dp
+        val markerElevation = if (isPlatformAndroid) 2.dp else 4.dp
         
         // Position the marker using Box alignment offset
         Box(
@@ -389,19 +397,19 @@ private fun BoxScope.LocationMarkersOverlay(
             ) {
                 // Location name label above the marker - white text on semi-transparent dark gray
                 Surface(
-                    shape = RoundedCornerShape(4.dp),
+                    shape = RoundedCornerShape(labelCornerRadius),
                     color = Color(0xB3404040),  // Semi-transparent dark gray (70% opacity)
-                    shadowElevation = 2.dp
+                    shadowElevation = labelElevation
                 ) {
                     Text(
                         text = location.name,
-                        style = MaterialTheme.typography.labelSmall,
+                        style = if (isPlatformAndroid) MaterialTheme.typography.labelSmall.copy(fontSize = androidx.compose.ui.unit.TextUnit(6f, androidx.compose.ui.unit.TextUnitType.Sp)) else MaterialTheme.typography.labelSmall,
                         color = Color.White,
-                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                        modifier = Modifier.padding(horizontal = labelHorizontalPadding, vertical = labelVerticalPadding)
                     )
                 }
                 
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(spacerHeight))
                 
                 // Circular marker
                 Surface(
@@ -412,7 +420,7 @@ private fun BoxScope.LocationMarkersOverlay(
                         },
                     shape = androidx.compose.foundation.shape.CircleShape,
                     color = markerColor,
-                    shadowElevation = 4.dp
+                    shadowElevation = markerElevation
                 ) {
                     Box(
                         contentAlignment = Alignment.Center,
@@ -420,7 +428,7 @@ private fun BoxScope.LocationMarkersOverlay(
                     ) {
                         Text(
                             text = levelsAtLocation.size.toString(),
-                            style = MaterialTheme.typography.bodyMedium,
+                            style = if (isPlatformAndroid) MaterialTheme.typography.labelSmall else MaterialTheme.typography.bodyMedium,
                             color = Color.White
                         )
                     }
