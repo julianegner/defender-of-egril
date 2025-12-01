@@ -252,12 +252,31 @@ private fun BoxScope.RoadConnectionsOverlay(
 ) {
     val roadColor = if (isDarkMode) Color(0xFF8B4513) else Color(0xFFA0522D)  // Brown road color
     
+    // Calculate actual image bounds within container (accounting for ContentScale.Fit)
+    val imageAspectRatio = 1200f / 800f // Default world map aspect ratio
+    val containerAspectRatio = containerSize.width.toFloat() / containerSize.height.toFloat().coerceAtLeast(1f)
+    
+    val (imageWidth, imageHeight, imageOffsetX, imageOffsetY) = if (containerAspectRatio > imageAspectRatio) {
+        // Container is wider - fit to height, center horizontally
+        val h = containerSize.height.toFloat()
+        val w = h * imageAspectRatio
+        val offsetX = (containerSize.width - w) / 2f
+        listOf(w, h, offsetX, 0f)
+    } else {
+        // Container is taller - fit to width, center vertically
+        val w = containerSize.width.toFloat()
+        val h = w / imageAspectRatio
+        val offsetY = (containerSize.height - h) / 2f
+        listOf(w, h, 0f, offsetY)
+    }
+    
     Canvas(modifier = Modifier.fillMaxSize()) {
         for (road in roads) {
-            val startX = road.fromLocation.x * containerSize.width
-            val startY = road.fromLocation.y * containerSize.height
-            val endX = road.toLocation.x * containerSize.width
-            val endY = road.toLocation.y * containerSize.height
+            // Convert normalized coordinates to actual screen position within the image bounds
+            val startX = imageOffsetX + road.fromLocation.x * imageWidth
+            val startY = imageOffsetY + road.fromLocation.y * imageHeight
+            val endX = imageOffsetX + road.toLocation.x * imageWidth
+            val endY = imageOffsetY + road.toLocation.y * imageHeight
             
             if (road.controlPoints.isEmpty()) {
                 // Draw straight line
@@ -273,7 +292,7 @@ private fun BoxScope.RoadConnectionsOverlay(
                 // Draw curved path through control points
                 val allPoints = mutableListOf(Offset(startX, startY))
                 for (cp in road.controlPoints) {
-                    allPoints.add(Offset(cp.first * containerSize.width, cp.second * containerSize.height))
+                    allPoints.add(Offset(imageOffsetX + cp.first * imageWidth, imageOffsetY + cp.second * imageHeight))
                 }
                 allPoints.add(Offset(endX, endY))
                 
@@ -304,6 +323,24 @@ private fun BoxScope.LocationMarkersOverlay(
     isDarkMode: Boolean,
     onLocationClicked: (WorldMapLocation, List<WorldLevel>) -> Unit
 ) {
+    // Calculate actual image bounds within container (accounting for ContentScale.Fit)
+    val imageAspectRatio = 1200f / 800f // Default world map aspect ratio
+    val containerAspectRatio = containerSize.width.toFloat() / containerSize.height.toFloat().coerceAtLeast(1f)
+    
+    val (imageWidth, imageHeight, imageOffsetX, imageOffsetY) = if (containerAspectRatio > imageAspectRatio) {
+        // Container is wider - fit to height, center horizontally
+        val h = containerSize.height.toFloat()
+        val w = h * imageAspectRatio
+        val offsetX = (containerSize.width - w) / 2f
+        listOf(w, h, offsetX, 0f)
+    } else {
+        // Container is taller - fit to width, center vertically
+        val w = containerSize.width.toFloat()
+        val h = w / imageAspectRatio
+        val offsetY = (containerSize.height - h) / 2f
+        listOf(w, h, 0f, offsetY)
+    }
+    
     // Draw each location marker
     for (location in locations) {
         // Only consider levels that are ready to play (not misconfigured)
@@ -324,26 +361,24 @@ private fun BoxScope.LocationMarkersOverlay(
             else -> if (isDarkMode) Color(0xFF3498DB) else Color(0xFF2196F3)  // Blue default
         }
         
-        // Calculate marker position as fraction of container
+        // Calculate marker position accounting for image bounds within container
         val markerSize = 40.dp
-        val xFraction = location.x
-        val yFraction = location.y
         
         // Position the marker using Box alignment offset
         Box(
             modifier = Modifier
                 .fillMaxSize()
         ) {
-            // Use fractional positioning within the parent - marker with label
+            // Use fractional positioning within the image bounds
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                     .align { size, space, _ ->
-                        // Calculate position based on fraction of container
-                        // Offset to center the column on the location point
-                        val xOffset = (xFraction * space.width - size.width / 2).toInt()
-                        val yOffset = (yFraction * space.height - size.height / 2).toInt()
-                        androidx.compose.ui.unit.IntOffset(xOffset, yOffset)
+                        // Calculate position based on fraction of image (not container)
+                        // Account for image offset within container
+                        val xPos = imageOffsetX + (location.x * imageWidth) - size.width / 2
+                        val yPos = imageOffsetY + (location.y * imageHeight) - size.height / 2
+                        androidx.compose.ui.unit.IntOffset(xPos.toInt(), yPos.toInt())
                     }
             ) {
                 // Location name label above the marker - white text on semi-transparent dark gray
