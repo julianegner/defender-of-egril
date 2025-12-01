@@ -364,6 +364,10 @@
     <string name="yes">Yes</string>
     <string name="confirm_delete_level">Are you sure you want to delete this level?</string>
     <string name="amount">Amount</string>
+    <string name="change_turn_level">Change Turn Level</string>
+    <string name="change_all_levels_in_turn">Change All Levels in Turn %d</string>
+    <string name="mixed_levels_warning">This turn contains units with different levels (%s). Are you sure you want to change all of them to level %d?</string>
+    <string name="apply">Apply</string>
 
     <!-- Enemy ability descriptions -->
     <string name="can_summon">Can summon minions</string>

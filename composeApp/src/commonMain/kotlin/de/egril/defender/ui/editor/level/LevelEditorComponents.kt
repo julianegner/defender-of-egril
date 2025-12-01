@@ -431,6 +431,124 @@ fun ChangeLevelDialog(
 }
 
 /**
+ * Dialog for changing the level of all enemies in a spawn turn.
+ * Shows a confirmation dialog if units have different levels.
+ */
+@Composable
+fun ChangeTurnLevelDialog(
+    turn: Int,
+    spawns: List<EditorEnemySpawn>,
+    onDismiss: () -> Unit,
+    onChange: (Int) -> Unit
+) {
+    var newLevel by remember { mutableStateOf("") }
+    var showMixedLevelsConfirmation by remember { mutableStateOf(false) }
+    
+    // Get unique levels in this turn
+    val uniqueLevels = spawns.map { it.level }.distinct().sorted()
+    val hasMixedLevels = uniqueLevels.size > 1
+    
+    // Initialize with the first level if all same, otherwise leave empty
+    LaunchedEffect(spawns) {
+        if (!hasMixedLevels && spawns.isNotEmpty()) {
+            newLevel = uniqueLevels.first().toString()
+        }
+    }
+    
+    if (showMixedLevelsConfirmation) {
+        // Confirmation dialog for mixed levels
+        val levelsList = uniqueLevels.joinToString(", ")
+        val targetLevel = newLevel.toIntOrNull() ?: 1
+        
+        AlertDialog(
+            onDismissRequest = { showMixedLevelsConfirmation = false },
+            title = { Text(stringResource(Res.string.change_turn_level)) },
+            text = {
+                Text(stringResource(Res.string.mixed_levels_warning, levelsList, targetLevel))
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        onChange(targetLevel)
+                        showMixedLevelsConfirmation = false
+                    }
+                ) {
+                    Text(stringResource(Res.string.apply))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showMixedLevelsConfirmation = false }) {
+                    Text(stringResource(Res.string.cancel))
+                }
+            }
+        )
+    } else {
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            title = { Text(stringResource(Res.string.change_all_levels_in_turn, turn)) },
+            text = {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    // Show current level distribution
+                    Text(
+                        text = "${stringResource(Res.string.enemies)}: ${spawns.size}",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    
+                    if (hasMixedLevels) {
+                        Text(
+                            text = "${stringResource(Res.string.level)}: ${uniqueLevels.joinToString(", ")}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.Gray
+                        )
+                    } else if (spawns.isNotEmpty()) {
+                        Text(
+                            text = "${stringResource(Res.string.level)}: ${uniqueLevels.first()}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.Gray
+                        )
+                    }
+                    
+                    HorizontalDivider()
+                    
+                    // New level input
+                    OutlinedTextField(
+                        value = newLevel,
+                        onValueChange = { if (it.all { c -> c.isDigit() } || it.isEmpty()) newLevel = it },
+                        label = { Text(stringResource(Res.string.new_level)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true
+                    )
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        val levelValue = newLevel.toIntOrNull()
+                        if (levelValue != null && levelValue > 0) {
+                            if (hasMixedLevels) {
+                                showMixedLevelsConfirmation = true
+                            } else {
+                                onChange(levelValue)
+                            }
+                        }
+                    },
+                    enabled = newLevel.toIntOrNull()?.let { it > 0 } == true
+                ) {
+                    Text(stringResource(Res.string.apply))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = onDismiss) {
+                    Text(stringResource(Res.string.cancel))
+                }
+            }
+        )
+    }
+}
+
+/**
  * Collapsible section showing enemies spawning in a specific turn
  */
 @Composable
@@ -450,7 +568,8 @@ fun SpawnTurnSection(
     canMoveDown: Boolean,
     ewhadCount: Int,
     onChangeSpawnPoint: (EditorEnemySpawn) -> Unit,
-    onChangeLevel: (EditorEnemySpawn) -> Unit
+    onChangeLevel: (EditorEnemySpawn) -> Unit,
+    onChangeTurnLevel: () -> Unit
 ) {
     var expanded by remember { mutableStateOf(initiallyExpanded) }
     
@@ -506,6 +625,20 @@ fun SpawnTurnSection(
                         modifier = Modifier.height(32.dp)
                     ) {
                         DownArrowIcon(size = 12.dp, tint = Color.White)
+                    }
+                    // Change Turn Level button - only visible if there are units
+                    if (spawns.isNotEmpty()) {
+                        Button(
+                            onClick = onChangeTurnLevel,
+                            modifier = Modifier.height(32.dp),
+                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp)
+                        ) {
+                            Text(
+                                text = stringResource(Res.string.level),
+                                fontSize = 12.sp,
+                                modifier = Modifier.align(Alignment.CenterVertically)
+                            )
+                        }
                     }
                     Button(
                         onClick = onCopyTurn,
