@@ -3,7 +3,9 @@ package de.egril.defender.ui.worldmap
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -19,7 +21,7 @@ import defender_of_egril.composeapp.generated.resources.*
 
 /**
  * Dialog that shows all levels at a specific map location.
- * Each level is shown as a clickable card - clicking starts the level.
+ * Each level is shown as a clickable LevelCard - clicking starts the level.
  * 
  * Uses the same LevelCard component as the LevelCardsView for consistency.
  */
@@ -35,9 +37,9 @@ fun LevelLocationDialog(
     Dialog(onDismissRequest = onDismiss) {
         Card(
             modifier = Modifier
-                .fillMaxWidth()
-                .heightIn(max = 600.dp)
-                .padding(16.dp),
+                .widthIn(min = 400.dp, max = 800.dp)
+                .heightIn(max = 700.dp)
+                .padding(8.dp),
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(
                 containerColor = if (isDarkMode) Color(0xFF2C2C2C) else Color(0xFFF5F5F5)
@@ -46,7 +48,7 @@ fun LevelLocationDialog(
             Column(
                 modifier = Modifier.padding(16.dp)
             ) {
-                // Header
+                // Header with location name
                 Text(
                     text = location.name,
                     style = MaterialTheme.typography.headlineSmall,
@@ -63,16 +65,22 @@ fun LevelLocationDialog(
                 
                 Spacer(modifier = Modifier.height(16.dp))
                 
-                // Show all levels using the same LevelCard component
-                LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.weight(1f, fill = false)
+                // Show all levels using the same LevelCard component from LevelCardsView
+                // Use scrollable column for multiple levels
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier
+                        .weight(1f, fill = false)
+                        .verticalScroll(rememberScrollState())
                 ) {
-                    items(levelsAtLocation) { worldLevel ->
-                        val isPlayable = worldLevel.status != LevelStatus.LOCKED
+                    for (worldLevel in levelsAtLocation) {
                         LevelCard(
                             worldLevel = worldLevel,
-                            onClick = { if (isPlayable) onPlayLevel(worldLevel.level.id) }
+                            onClick = { 
+                                if (worldLevel.status != LevelStatus.LOCKED) {
+                                    onPlayLevel(worldLevel.level.id) 
+                                }
+                            }
                         )
                     }
                 }
