@@ -20,7 +20,7 @@ class TrapTest {
         
         // Add a trap at position (2, 3)
         val trapPosition = Position(2, 3)
-        val trap = Trap(position = trapPosition, damage = 10, mineId = 1)
+        val trap = Trap(position = trapPosition, damage = 10, defenderId = 1)
         gameState.traps.add(trap)
         
         // Create an enemy at the trap position
@@ -53,7 +53,7 @@ class TrapTest {
         
         // Add a trap with high damage
         val trapPosition = Position(2, 3)
-        val trap = Trap(position = trapPosition, damage = 100, mineId = 1)
+        val trap = Trap(position = trapPosition, damage = 100, defenderId = 1)
         gameState.traps.add(trap)
         
         // Create a weak enemy at the trap position
