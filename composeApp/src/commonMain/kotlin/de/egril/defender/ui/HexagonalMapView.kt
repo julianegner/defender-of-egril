@@ -147,22 +147,30 @@ fun HexagonalMapView(
                     newOffsetX -= config.keyboardPanSpeed
                     handled = true
                 }
-                // WASD keys
+                // WASD keys - only handle when Ctrl is not pressed (to allow Ctrl+S for save, etc.)
                 Key.W -> {
-                    newOffsetY += config.keyboardPanSpeed
-                    handled = true
+                    if (!event.isCtrlPressed) {
+                        newOffsetY += config.keyboardPanSpeed
+                        handled = true
+                    }
                 }
                 Key.S -> {
-                    newOffsetY -= config.keyboardPanSpeed
-                    handled = true
+                    if (!event.isCtrlPressed) {
+                        newOffsetY -= config.keyboardPanSpeed
+                        handled = true
+                    }
                 }
                 Key.A -> {
-                    newOffsetX += config.keyboardPanSpeed
-                    handled = true
+                    if (!event.isCtrlPressed) {
+                        newOffsetX += config.keyboardPanSpeed
+                        handled = true
+                    }
                 }
                 Key.D -> {
-                    newOffsetX -= config.keyboardPanSpeed
-                    handled = true
+                    if (!event.isCtrlPressed) {
+                        newOffsetX -= config.keyboardPanSpeed
+                        handled = true
+                    }
                 }
             }
 
