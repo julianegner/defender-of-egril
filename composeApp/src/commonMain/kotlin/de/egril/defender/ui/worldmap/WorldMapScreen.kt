@@ -18,6 +18,7 @@ import de.egril.defender.ui.CheatCodeDialog
 import de.egril.defender.ui.isEditorAvailable
 import de.egril.defender.ui.settings.SettingsButton
 import de.egril.defender.ui.settings.DifficultyDisplay
+import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.NewRepositoryDataDialog
 import de.egril.defender.editor.RepositoryManager
 import com.hyperether.resources.stringResource
@@ -40,6 +41,10 @@ fun WorldMapScreen(
     var showCheatDialog by remember { mutableStateOf(false) }
     var showNewRepoDataDialog by remember { mutableStateOf(false) }
     var newRepoData by remember { mutableStateOf<RepositoryManager.NewRepositoryData?>(null) }
+    var selectedLocation by remember { mutableStateOf<Pair<WorldMapLocation, List<WorldLevel>>?>(null) }
+    
+    // Watch the setting for world map style
+    val useLevelCards = AppSettings.useLevelCards.value
     
     val scope = rememberCoroutineScope()
     
@@ -66,27 +71,37 @@ fun WorldMapScreen(
         color = MaterialTheme.colorScheme.background
     ) {
         Box(
-            modifier = Modifier.fillMaxSize().padding(16.dp)
+            modifier = Modifier.fillMaxSize()
         ) {
-            // Top-right row: Difficulty and Settings button
-            Row(
-                modifier = Modifier.align(Alignment.TopEnd),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // Difficulty display (clickable to open dropdown)
-                DifficultyDisplay(
-                    isClickable = true,
+            // Content area - switches between image map and level cards based on setting
+            if (useLevelCards) {
+                // Level cards view - grid of level cards
+                LevelCardsView(
+                    worldLevels = worldLevels,
+                    onLevelSelected = onLevelSelected,
                     modifier = Modifier
+                        .fillMaxSize()
+                        .padding(top = 80.dp, bottom = 80.dp)  // Leave space for top/bottom bars
                 )
-                
-                // Settings button
-                SettingsButton()
+            } else {
+                // Image-based World Map as background with clickable locations
+                ImageWorldMapView(
+                    worldLevels = worldLevels,
+                    onLocationClicked = { location, levelsAtLocation ->
+                        selectedLocation = location to levelsAtLocation
+                    },
+                    modifier = Modifier.fillMaxSize()
+                )
             }
             
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally
+            // Top bar with title and buttons
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+                    .align(Alignment.TopCenter),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 // Title text - clickable for cheat code access (less obvious than a button)
                 Text(
@@ -94,7 +109,6 @@ fun WorldMapScreen(
                     style = MaterialTheme.typography.titleLarge,
                     color = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier
-                        .padding(bottom = 16.dp)
                         .then(
                             if (onCheatCode != null) {
                                 Modifier.clickable { showCheatDialog = true }
@@ -103,29 +117,29 @@ fun WorldMapScreen(
                             }
                         )
                 )
-            
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                modifier = Modifier.weight(1f).fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                items(worldLevels) { worldLevel ->
-                    LevelCard(
-                        worldLevel = worldLevel,
-                        onClick = {
-                            if (worldLevel.status != LevelStatus.LOCKED) {
-                                onLevelSelected(worldLevel.level.id)
-                            }
-                        }
+                
+                // Difficulty and Settings button
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Difficulty display (clickable to open dropdown)
+                    DifficultyDisplay(
+                        isClickable = true,
+                        modifier = Modifier
                     )
+                    
+                    // Settings button
+                    SettingsButton()
                 }
             }
             
-            Spacer(modifier = Modifier.height(16.dp))
-            
+            // Bottom bar with action buttons
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+                    .align(Alignment.BottomCenter),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -155,7 +169,20 @@ fun WorldMapScreen(
                 }
             }
         }
-        }
+    }
+    
+    // Level location dialog - shows all levels at the clicked location
+    if (selectedLocation != null) {
+        val (location, levels) = selectedLocation!!
+        LevelLocationDialog(
+            location = location,
+            levelsAtLocation = levels,
+            onPlayLevel = { levelId ->
+                onLevelSelected(levelId)
+                selectedLocation = null
+            },
+            onDismiss = { selectedLocation = null }
+        )
     }
     
     // Cheat code dialog

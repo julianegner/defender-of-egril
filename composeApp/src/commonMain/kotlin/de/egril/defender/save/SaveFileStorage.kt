@@ -14,7 +14,7 @@ object SaveFileStorage {
     private val fileStorage = getFileStorage()
     
     private const val SAVEFILES_DIR = "savefiles"
-    private const val WORLDMAP_FILE = "savefiles/worldmap.json"
+    private const val LEVEL_PROGRESS_FILE = "savefiles/level_progress.json"
     
     // Cache levels to avoid reloading on every call to getAllSavedGames()
     private var cachedLevels: List<Level>? = null
@@ -38,14 +38,14 @@ object SaveFileStorage {
         }.toMap()
         val worldMapSave = WorldMapSave(statusMap)
         val json = SaveJsonSerializer.serializeWorldMapSave(worldMapSave)
-        fileStorage.writeFile(WORLDMAP_FILE, json)
+        fileStorage.writeFile(LEVEL_PROGRESS_FILE, json)
     }
     
     /**
      * Load world map status
      */
     fun loadWorldMapStatus(): Map<String, LevelStatus>? {
-        val json = fileStorage.readFile(WORLDMAP_FILE) ?: return null
+        val json = fileStorage.readFile(LEVEL_PROGRESS_FILE) ?: return null
         val worldMapSave = SaveJsonSerializer.deserializeWorldMapSave(json)
         return worldMapSave?.levelStatuses
     }
@@ -80,7 +80,7 @@ object SaveFileStorage {
         val levels = cachedLevels ?: LevelData.createLevels().also { cachedLevels = it }
         
         for (filename in files) {
-            if (!filename.endsWith(".json") || filename == "worldmap.json") continue
+            if (!filename.endsWith(".json") || filename == "level_progress.json") continue
             
             val saveId = filename.removeSuffix(".json")
             val json = fileStorage.readFile("$SAVEFILES_DIR/$filename")

@@ -6,6 +6,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.key.*
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Density
@@ -226,10 +227,30 @@ private fun GamePlayScreenContent(
             }
         }
     }
+    
+    // Keyboard event handler for Ctrl+S save shortcut
+    // Using onPreviewKeyEvent to intercept before HexagonalMapView handles it
+    // This works in the "capture" phase and doesn't require focus on this element
+    val keyboardHandler: (KeyEvent) -> Boolean = remember(onSaveGame) {
+        { event ->
+            if (event.type == KeyEventType.KeyDown && 
+                event.key == Key.S && 
+                event.isCtrlPressed &&
+                onSaveGame != null) {
+                // Trigger save dialog
+                showSaveDialog = true
+                true
+            } else {
+                false
+            }
+        }
+    }
 
     CompositionLocalProvider(LocalDensity provides scaledDensity) {
         Surface(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .onPreviewKeyEvent(keyboardHandler),
             color = MaterialTheme.colorScheme.background
         ) {
             Column(
