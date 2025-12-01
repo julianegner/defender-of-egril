@@ -6,5 +6,6 @@ package de.egril.defender.ui.editor
 enum class EditorTab {
     MAP_EDITOR,
     LEVEL_EDITOR,
-    LEVEL_SEQUENCE
+    LEVEL_SEQUENCE,
+    WORLD_MAP_POSITIONS
 }

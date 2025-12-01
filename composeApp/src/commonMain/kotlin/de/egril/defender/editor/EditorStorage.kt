@@ -22,8 +22,11 @@ object EditorStorage {
     private val MAPS_DIR = "gamedata/maps"
     private val LEVELS_DIR = "gamedata/levels"
     private val SEQUENCE_FILE = "gamedata/sequence.json"
+    private val WORLDMAP_FILE = "gamedata/worldmap.json"
     private val VERSION_FILE = "gamedata/version.txt"
-    private val CURRENT_VERSION = "6" // Increment when level data format changes - v6: added spawn points to enemies
+    private val CURRENT_VERSION = "7" // Increment when level data format changes - v7: added world map locations file
+    
+    private var worldMapDataCache: WorldMapData? = null
     
     // Initialize with converted existing levels
     init {
@@ -287,6 +290,108 @@ object EditorStorage {
         }
         
         updateLevelSequence(LevelSequence(currentSequence))
+    }
+    
+    // ==================== World Map Data ====================
+    
+    /**
+     * Get the world map data containing locations and paths.
+     * If no world map data exists, returns an empty WorldMapData.
+     */
+    fun getWorldMapData(): WorldMapData {
+        if (worldMapDataCache != null) {
+            return worldMapDataCache!!
+        }
+        
+        // Try to load from file
+        val json = fileStorage.readFile(WORLDMAP_FILE)
+        if (json != null) {
+            val data = EditorJsonSerializer.deserializeWorldMapData(json)
+            if (data != null) {
+                worldMapDataCache = data
+                return data
+            }
+        }
+        
+        return WorldMapData()
+    }
+    
+    /**
+     * Save the world map data.
+     */
+    fun saveWorldMapData(data: WorldMapData) {
+        worldMapDataCache = data
+        val json = EditorJsonSerializer.serializeWorldMapData(data)
+        fileStorage.writeFile(WORLDMAP_FILE, json)
+    }
+    
+    /**
+     * Add or update a location in the world map data.
+     */
+    fun saveWorldMapLocation(location: WorldMapLocationData) {
+        val currentData = getWorldMapData()
+        val existingIndex = currentData.locations.indexOfFirst { it.id == location.id }
+        
+        val updatedLocations = if (existingIndex >= 0) {
+            currentData.locations.toMutableList().apply {
+                set(existingIndex, location)
+            }
+        } else {
+            currentData.locations + location
+        }
+        
+        saveWorldMapData(currentData.copy(locations = updatedLocations))
+    }
+    
+    /**
+     * Remove a location from the world map data.
+     */
+    fun deleteWorldMapLocation(locationId: String) {
+        val currentData = getWorldMapData()
+        val updatedLocations = currentData.locations.filter { it.id != locationId }
+        val updatedPaths = currentData.paths.filter { 
+            it.fromLocationId != locationId && it.toLocationId != locationId 
+        }
+        saveWorldMapData(currentData.copy(locations = updatedLocations, paths = updatedPaths))
+    }
+    
+    /**
+     * Add or update a path in the world map data.
+     */
+    fun saveWorldMapPath(path: WorldMapPathData) {
+        val currentData = getWorldMapData()
+        val existingIndex = currentData.paths.indexOfFirst { 
+            it.fromLocationId == path.fromLocationId && it.toLocationId == path.toLocationId 
+        }
+        
+        val updatedPaths = if (existingIndex >= 0) {
+            currentData.paths.toMutableList().apply {
+                set(existingIndex, path)
+            }
+        } else {
+            currentData.paths + path
+        }
+        
+        saveWorldMapData(currentData.copy(paths = updatedPaths))
+    }
+    
+    /**
+     * Remove a path from the world map data.
+     */
+    fun deleteWorldMapPath(fromLocationId: String, toLocationId: String) {
+        val currentData = getWorldMapData()
+        val updatedPaths = currentData.paths.filter { 
+            !(it.fromLocationId == fromLocationId && it.toLocationId == toLocationId)
+        }
+        saveWorldMapData(currentData.copy(paths = updatedPaths))
+    }
+    
+    /**
+     * Check if a level is ready to play by its ID.
+     */
+    fun isLevelReadyToPlay(levelId: String): Boolean {
+        val level = getLevel(levelId) ?: return false
+        return isLevelReadyToPlay(level)
     }
     
     /**
