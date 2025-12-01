@@ -14,9 +14,9 @@ fun EditorButtonCard(
     onClick: () -> Unit
 ) {
     val isDarkMode = de.egril.defender.ui.settings.AppSettings.isDarkMode.value
-    val backgroundColor = if (isDarkMode) Color(0xFF8A5A00) else Color(0xFFFF9800)  // Darker orange in dark mode
-    // Text color changes based on dark mode - darker text for better readability
-    val textColor = if (isDarkMode) Color.Black else Color.White
+    val backgroundColor = if (isDarkMode) Color(0xFFFFB74D) else Color(0xFFFF9800)  // Lighter orange in dark mode
+    // Text color - white for good contrast on orange backgrounds
+    val textColor = Color.White
     
     Button(
         onClick = onClick,
