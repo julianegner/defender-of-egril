@@ -186,3 +186,42 @@ fun UnsavedChangesDialog(
         }
     )
 }
+
+@Composable
+fun EndTurnConfirmationDialog(
+    onConfirm: () -> Unit,
+    onCancel: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onCancel,
+        title = { Text(stringResource(Res.string.end_turn_confirmation_title)) },
+        text = {
+            Text(
+                stringResource(Res.string.end_turn_confirmation_message),
+                style = MaterialTheme.typography.bodyLarge
+            )
+        },
+        confirmButton = {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Button(
+                    onClick = onCancel,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.secondary
+                    )
+                ) {
+                    Text(stringResource(Res.string.cancel))
+                }
+                Button(
+                    onClick = onConfirm,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = GamePlayColors.WarningDeep
+                    )
+                ) {
+                    Text(stringResource(Res.string.end_turn_confirm))
+                }
+            }
+        }
+    )
+}
