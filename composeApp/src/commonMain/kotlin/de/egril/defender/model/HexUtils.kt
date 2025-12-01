@@ -115,3 +115,32 @@ fun Position.getHexRowOffset(): Float {
     // For pointy-top hexagons, odd rows are shifted right by half a hex width
     return if (this.y % 2 == 1) sqrt(3.0).toFloat() / 2f else 0f
 }
+
+/**
+ * Get all hexagons within a given radius from this position.
+ * Uses hexagonal distance calculation (hexDistanceTo).
+ * @param radius The maximum distance (in hex steps) from this position
+ * @param gridWidth Maximum grid width (to filter out-of-bounds positions)
+ * @param gridHeight Maximum grid height (to filter out-of-bounds positions)
+ * @return Set of positions within the given radius (excluding this position)
+ */
+fun Position.getHexNeighborsWithinRadius(radius: Int, gridWidth: Int, gridHeight: Int): Set<Position> {
+    if (radius <= 0) return emptySet()
+    
+    val result = mutableSetOf<Position>()
+    
+    // Check all positions within a bounding box and filter by hex distance
+    for (dy in -radius..radius) {
+        for (dx in -radius - 1..radius + 1) {  // Add 1 to account for hex offset
+            val pos = Position(this.x + dx, this.y + dy)
+            if (pos != this && 
+                pos.x >= 0 && pos.x < gridWidth &&
+                pos.y >= 0 && pos.y < gridHeight &&
+                this.hexDistanceTo(pos) <= radius) {
+                result.add(pos)
+            }
+        }
+    }
+    
+    return result
+}
