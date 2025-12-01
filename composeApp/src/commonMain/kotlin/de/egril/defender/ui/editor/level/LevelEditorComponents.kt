@@ -635,8 +635,7 @@ fun SpawnTurnSection(
                         ) {
                             Text(
                                 text = stringResource(Res.string.level),
-                                fontSize = 12.sp,
-                                modifier = Modifier.align(Alignment.CenterVertically)
+                                fontSize = 12.sp
                             )
                         }
                     }
