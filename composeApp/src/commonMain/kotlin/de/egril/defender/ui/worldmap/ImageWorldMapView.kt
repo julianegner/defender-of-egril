@@ -370,17 +370,18 @@ private fun BoxScope.LocationMarkersOverlay(
         }
         
         // Calculate marker position accounting for image bounds within container
-        // Use smaller sizes on Android (50% of normal size)
-        val scaleFactor = if (isPlatformAndroid) 0.5f else 1f
+        // Use smaller sizes on Android (scaled down for better fit on mobile screens)
+        val scaleFactor = if (isPlatformAndroid) 0.35f else 1f  // 35% size on Android
+        val labelScaleFactor = if (isPlatformAndroid) 0.4f else 1f  // 40% for label font
         val markerSize = (40 * scaleFactor).dp
         val labelHorizontalPadding = (6 * scaleFactor).dp
-        val labelVerticalPadding = (2 * scaleFactor).dp
+        val labelVerticalPadding = (1 * scaleFactor).dp  // Reduced for shorter label height
         val labelCornerRadius = (4 * scaleFactor).dp
-        val spacerHeight = (4 * scaleFactor).dp
+        val spacerHeight = (2 * scaleFactor).dp  // Reduced spacer
         val labelElevation = (2 * scaleFactor).dp
         val markerElevation = (4 * scaleFactor).dp
-        val labelFontSize = (11 * scaleFactor).sp  // labelSmall is typically 11sp
-        val markerFontSize = (14 * scaleFactor).sp  // bodyMedium is typically 14sp
+        val labelFontSize = (11 * labelScaleFactor).sp  // Smaller label text
+        val markerFontSize = (14 * scaleFactor).sp
         
         // Position the marker using Box alignment offset
         Box(
