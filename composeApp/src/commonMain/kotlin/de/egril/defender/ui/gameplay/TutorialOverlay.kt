@@ -495,3 +495,61 @@ private fun MagicalTrapInfoContent(onDismiss: () -> Unit) {
         }
     }
 }
+
+/**
+ * Extended area attack info content shown when wizard/alchemy tower reaches level 20
+ */
+@Composable
+private fun ExtendedAreaInfoContent(onDismiss: () -> Unit) {
+    Card(
+        modifier = Modifier
+            .width(400.dp)
+            .padding(16.dp),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            // Title with explosion icon
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                de.egril.defender.ui.icon.ExplosionIcon(size = 32.dp)
+                Text(
+                    text = stringResource(Res.string.extended_area_tutorial_title),
+                    style = MaterialTheme.typography.titleLarge,
+                    color = Color(0xFFFF5722)  // Deep orange color for area attack theme
+                )
+            }
+            
+            // Message
+            Text(
+                text = stringResource(Res.string.extended_area_tutorial_message),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            
+            Button(
+                onClick = onDismiss,
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFFF5722)  // Deep orange button
+                )
+            ) {
+                Text(
+                    text = stringResource(Res.string.got_it),
+                    style = MaterialTheme.typography.labelSmall
+                )
+            }
+        }
+    }
+}
