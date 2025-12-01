@@ -381,7 +381,6 @@ private fun BoxScope.LocationMarkersOverlay(
         val labelElevation = (2 * scaleFactor).dp
         val markerElevation = (4 * scaleFactor).dp
         val labelFontSize = (11 * labelScaleFactor).sp  // Smaller label text
-        val markerFontSize = (14 * scaleFactor).sp
         
         // Position the marker using Box alignment offset
         Box(
@@ -433,7 +432,7 @@ private fun BoxScope.LocationMarkersOverlay(
                     ) {
                         Text(
                             text = levelsAtLocation.size.toString(),
-                            style = MaterialTheme.typography.bodyMedium.copy(fontSize = markerFontSize),
+                            style = if (isPlatformAndroid) MaterialTheme.typography.labelSmall else MaterialTheme.typography.bodyMedium,
                             color = Color.White
                         )
                     }
