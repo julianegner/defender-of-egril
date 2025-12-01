@@ -1,14 +1,11 @@
 package de.egril.defender.ui.gameplay
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.graphics.Color
@@ -231,15 +228,8 @@ private fun GamePlayScreenContent(
         }
     }
     
-    // Focus requester for keyboard event handling
-    val focusRequester = remember { FocusRequester() }
-    
-    // Request focus when the screen is first displayed
-    LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
-    }
-    
     // Keyboard event handler for Ctrl+S save shortcut
+    // Using onPreviewKeyEvent to intercept before HexagonalMapView handles it
     val keyboardHandler: (KeyEvent) -> Boolean = remember(onSaveGame) {
         { event ->
             if (event.type == KeyEventType.KeyDown && 
@@ -259,9 +249,7 @@ private fun GamePlayScreenContent(
         Surface(
             modifier = Modifier
                 .fillMaxSize()
-                .focusRequester(focusRequester)
-                .focusable()
-                .onKeyEvent(keyboardHandler),
+                .onPreviewKeyEvent(keyboardHandler),
             color = MaterialTheme.colorScheme.background
         ) {
             Column(
