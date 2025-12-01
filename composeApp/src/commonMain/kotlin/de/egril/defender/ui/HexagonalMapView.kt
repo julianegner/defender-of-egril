@@ -60,6 +60,7 @@ data class HexagonalMapConfig(
  * @param onOffsetChange Callback when pan offset changes
  * @param onActualContentSizeChange Callback when content size is measured
  * @param onBrushPaint Callback when brush painting a position (x, y in content coordinates). Only called if enableBrushMode is true.
+ * @param focusTrigger When this value changes, the map will request focus (useful for regaining keyboard navigation after button clicks)
  * @param modifier Modifier for the container
  * @param content The hexagonal grid content to display. Receives (hexWidth, hexHeight, verticalSpacing, onTilePositioned) where onTilePositioned should be called for each tile.
  */
@@ -76,6 +77,7 @@ fun HexagonalMapView(
     onOffsetChange: (Float, Float) -> Unit,
     onActualContentSizeChange: (IntSize) -> Unit = {},
     onBrushPaint: ((Position) -> Unit)? = null,
+    focusTrigger: Any? = null,
     modifier: Modifier = Modifier,
     content: @Composable (
         position: Position
@@ -189,6 +191,13 @@ fun HexagonalMapView(
 
     LaunchedEffect(Unit) {
         if (config.enableKeyboardNavigation) {
+            focusRequester.requestFocus()
+        }
+    }
+    
+    // Request focus when focusTrigger changes (e.g., after "Start Battle" button click)
+    LaunchedEffect(focusTrigger) {
+        if (config.enableKeyboardNavigation && focusTrigger != null) {
             focusRequester.requestFocus()
         }
     }
