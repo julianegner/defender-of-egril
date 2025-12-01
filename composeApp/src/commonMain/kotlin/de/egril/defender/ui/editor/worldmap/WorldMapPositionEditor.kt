@@ -258,10 +258,14 @@ private fun WorldMapCanvas(
     onPositionClick: (WorldMapPoint) -> Unit,
     onHoverChange: (WorldMapPoint?) -> Unit
 ) {
+    // Get the painter to access image dimensions
+    val mapPainter = painterResource(Res.drawable.world_map_background)
+    val imageAspectRatio = mapPainter.intrinsicSize.width / mapPainter.intrinsicSize.height
+    
     Box(modifier = Modifier.fillMaxSize()) {
         // Background image
         Image(
-            painter = painterResource(Res.drawable.world_map_background),
+            painter = mapPainter,
             contentDescription = "World Map",
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Fit
@@ -271,7 +275,7 @@ private fun WorldMapCanvas(
         Canvas(
             modifier = Modifier
                 .fillMaxSize()
-                .pointerInput(Unit) {
+                .pointerInput(imageAspectRatio) {
                     awaitPointerEventScope {
                         while (true) {
                             val event = awaitPointerEvent()
@@ -279,9 +283,23 @@ private fun WorldMapCanvas(
                             
                             when (event.type) {
                                 PointerEventType.Move, PointerEventType.Enter -> {
-                                    // Calculate position as permille (0-1000) for better precision
-                                    val x = ((offset.x / size.width) * 1000).toInt().coerceIn(0, 1000)
-                                    val y = ((offset.y / size.height) * 1000).toInt().coerceIn(0, 1000)
+                                    // Calculate actual image bounds within container (accounting for ContentScale.Fit)
+                                    val containerAspectRatio = size.width.toFloat() / size.height.toFloat()
+                                    val (imageWidth, imageHeight, imageOffsetX, imageOffsetY) = if (containerAspectRatio > imageAspectRatio) {
+                                        val h = size.height.toFloat()
+                                        val w = h * imageAspectRatio
+                                        val ox = (size.width - w) / 2f
+                                        listOf(w, h, ox, 0f)
+                                    } else {
+                                        val w = size.width.toFloat()
+                                        val h = w / imageAspectRatio
+                                        val oy = (size.height - h) / 2f
+                                        listOf(w, h, 0f, oy)
+                                    }
+                                    
+                                    // Calculate position as permille (0-1000) relative to image bounds
+                                    val x = (((offset.x - imageOffsetX) / imageWidth) * 1000).toInt().coerceIn(0, 1000)
+                                    val y = (((offset.y - imageOffsetY) / imageHeight) * 1000).toInt().coerceIn(0, 1000)
                                     onHoverChange(WorldMapPoint(x, y))
                                 }
                                 PointerEventType.Exit -> {
@@ -292,16 +310,44 @@ private fun WorldMapCanvas(
                         }
                     }
                 }
-                .pointerInput(Unit) {
+                .pointerInput(imageAspectRatio) {
                     detectTapGestures { offset ->
-                        // Calculate position as permille (0-1000) for better precision
-                        val x = ((offset.x / size.width) * 1000).toInt().coerceIn(0, 1000)
-                        val y = ((offset.y / size.height) * 1000).toInt().coerceIn(0, 1000)
+                        // Calculate actual image bounds within container (accounting for ContentScale.Fit)
+                        val containerAspectRatio = size.width.toFloat() / size.height.toFloat()
+                        val (imageWidth, imageHeight, imageOffsetX, imageOffsetY) = if (containerAspectRatio > imageAspectRatio) {
+                            val h = size.height.toFloat()
+                            val w = h * imageAspectRatio
+                            val ox = (size.width - w) / 2f
+                            listOf(w, h, ox, 0f)
+                        } else {
+                            val w = size.width.toFloat()
+                            val h = w / imageAspectRatio
+                            val oy = (size.height - h) / 2f
+                            listOf(w, h, 0f, oy)
+                        }
+                        
+                        // Calculate position as permille (0-1000) relative to image bounds
+                        val x = (((offset.x - imageOffsetX) / imageWidth) * 1000).toInt().coerceIn(0, 1000)
+                        val y = (((offset.y - imageOffsetY) / imageHeight) * 1000).toInt().coerceIn(0, 1000)
                         onPositionClick(WorldMapPoint(x, y))
                     }
                 }
         ) {
             val markerRadius = 15f
+            
+            // Calculate actual image bounds within container (accounting for ContentScale.Fit)
+            val containerAspectRatio = size.width / size.height
+            val (imageWidth, imageHeight, imageOffsetX, imageOffsetY) = if (containerAspectRatio > imageAspectRatio) {
+                val h = size.height
+                val w = h * imageAspectRatio
+                val ox = (size.width - w) / 2f
+                listOf(w, h, ox, 0f)
+            } else {
+                val w = size.width
+                val h = w / imageAspectRatio
+                val oy = (size.height - h) / 2f
+                listOf(w, h, 0f, oy)
+            }
             
             // Draw paths first (so they appear behind locations)
             val roadColor = if (isDarkMode) Color(0xFF8B4513) else Color(0xFFA0522D)
@@ -311,10 +357,10 @@ private fun WorldMapCanvas(
                 val fromLocation = locationById[path.fromLocationId] ?: continue
                 val toLocation = locationById[path.toLocationId] ?: continue
                 
-                val startX = (fromLocation.position.x / 1000f) * size.width
-                val startY = (fromLocation.position.y / 1000f) * size.height
-                val endX = (toLocation.position.x / 1000f) * size.width
-                val endY = (toLocation.position.y / 1000f) * size.height
+                val startX = imageOffsetX + (fromLocation.position.x / 1000f) * imageWidth
+                val startY = imageOffsetY + (fromLocation.position.y / 1000f) * imageHeight
+                val endX = imageOffsetX + (toLocation.position.x / 1000f) * imageWidth
+                val endY = imageOffsetY + (toLocation.position.y / 1000f) * imageHeight
                 
                 if (path.controlPoints.isEmpty()) {
                     // Draw straight line
@@ -332,8 +378,8 @@ private fun WorldMapCanvas(
                     var prevY = startY
                     
                     for (cp in path.controlPoints) {
-                        val cpX = (cp.x / 1000f) * size.width
-                        val cpY = (cp.y / 1000f) * size.height
+                        val cpX = imageOffsetX + (cp.x / 1000f) * imageWidth
+                        val cpY = imageOffsetY + (cp.y / 1000f) * imageHeight
                         
                         drawLine(
                             color = roadColor,
@@ -362,8 +408,8 @@ private fun WorldMapCanvas(
             
             // Draw all location markers
             for (location in worldMapData.locations) {
-                val x = (location.position.x / 1000f) * size.width
-                val y = (location.position.y / 1000f) * size.height
+                val x = imageOffsetX + (location.position.x / 1000f) * imageWidth
+                val y = imageOffsetY + (location.position.y / 1000f) * imageHeight
                 
                 val isSelected = location.id == selectedLocationId
                 val hasPlayableLevels = location.levelIds.any { levelId ->
@@ -394,8 +440,8 @@ private fun WorldMapCanvas(
             
             // Draw hover indicator for selected location
             if (selectedLocationId != null && hoveredPosition != null) {
-                val x = (hoveredPosition.x / 1000f) * size.width
-                val y = (hoveredPosition.y / 1000f) * size.height
+                val x = imageOffsetX + (hoveredPosition.x / 1000f) * imageWidth
+                val y = imageOffsetY + (hoveredPosition.y / 1000f) * imageHeight
                 
                 drawCircle(
                     color = Color(0x802196F3), // Semi-transparent blue
