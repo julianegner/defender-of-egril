@@ -26,7 +26,7 @@ enum class DifficultyLevel {
 
 /**
  * Manages application settings using multiplatform-settings library
- * Persists dark mode preference, language selection, sound settings, control pad visibility, and difficulty level
+ * Persists dark mode preference, language selection, sound settings, control pad visibility, difficulty level, and world map style
  */
 object AppSettings {
     private const val KEY_DARK_MODE = "dark_mode"
@@ -35,6 +35,7 @@ object AppSettings {
     private const val KEY_SOUND_VOLUME = "sound_volume"
     private const val KEY_SHOW_CONTROL_PAD = "show_control_pad"
     private const val KEY_DIFFICULTY = "difficulty"
+    private const val KEY_USE_LEVEL_CARDS = "use_level_cards"
     
     private val settings: Settings = Settings()
     
@@ -71,6 +72,14 @@ object AppSettings {
         } catch (e: Exception) {
             DifficultyLevel.DEFAULT
         }
+    )
+    
+    /**
+     * World map display style - use level cards instead of image map
+     * Default is false (use image-based map)
+     */
+    val useLevelCards: MutableState<Boolean> = mutableStateOf(
+        settings.getBoolean(KEY_USE_LEVEL_CARDS, false)
     )
     
     /**
@@ -142,6 +151,14 @@ object AppSettings {
     }
     
     /**
+     * Save world map display style preference
+     */
+    fun saveUseLevelCards(useLevelCards: Boolean) {
+        this.useLevelCards.value = useLevelCards
+        settings.putBoolean(KEY_USE_LEVEL_CARDS, useLevelCards)
+    }
+    
+    /**
      * Reset all settings to defaults
      */
     fun resetToDefaults() {
@@ -160,5 +177,8 @@ object AppSettings {
         
         // Reset difficulty to default
         saveDifficulty(DifficultyLevel.DEFAULT)
+        
+        // Reset world map style to image map
+        saveUseLevelCards(false)
     }
 }

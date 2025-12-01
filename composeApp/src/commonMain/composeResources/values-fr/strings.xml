@@ -23,6 +23,8 @@
     <string name="dark_mode">Mode Sombre</string>
     <string name="dark_mode_on">Mode Sombre Activé</string>
     <string name="dark_mode_off">Mode Sombre Désactivé</string>
+    <string name="world_map_level_cards">Vue des Cartes de Niveau</string>
+    <string name="world_map_image_map">Vue de la Carte Image</string>
     <string name="reset_settings">Réinitialiser les Paramètres</string>
     <string name="restore_game_data">Restaurer les Données du Jeu</string>
     <string name="restore_game_data_confirm_title">Restaurer les Données du Jeu ?</string>
@@ -564,4 +566,14 @@
     <string name="all">tous</string>
     <string name="requires">Nécessite</string>
     <string name="entry_point">Point d\'Entrée</string>
+    
+    <!-- World Map Locations -->
+    <string name="levels_at_location">%s niveau(x) à cet emplacement</string>
+    <string name="requires_any_of">Nécessite de compléter %s de :</string>
+    <string name="requires_all">Nécessite de compléter tous :</string>
+    
+    <!-- World Map Position Editor -->
+    <string name="world_map_positions">Carte du Monde</string>
+    <string name="world_map_position_instructions">Sélectionnez une carte dans la liste, puis cliquez sur la carte du monde pour définir sa position. La position est enregistrée en pour mille (0-1000) des dimensions de la carte.</string>
+    <string name="no_position_set">Aucune position définie</string>
 </resources>

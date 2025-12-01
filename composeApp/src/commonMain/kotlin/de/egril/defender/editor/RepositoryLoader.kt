@@ -80,6 +80,20 @@ object RepositoryLoader {
     }
     
     /**
+     * Load world map data from repository
+     */
+    suspend fun loadWorldMapData(): WorldMapData? {
+        return try {
+            val bytes = Res.readBytes("files/repository/worldmap.json")
+            val json = bytes.decodeToString()
+            EditorJsonSerializer.deserializeWorldMapData(json)
+        } catch (e: Exception) {
+            println("Could not load worldmap.json from repository: ${e.message}")
+            null
+        }
+    }
+    
+    /**
      * Parse dragon names from JSON
      */
     private fun parseDragonNames(json: String): List<String>? {
@@ -154,8 +168,16 @@ object RepositoryLoader {
             storage.writeFile("gamedata/sequence.json", sequenceJson)
             println("Saved sequence")
             
+            // Load and save world map data if it exists
+            val worldMapData = loadWorldMapData()
+            if (worldMapData != null) {
+                val worldMapJson = EditorJsonSerializer.serializeWorldMapData(worldMapData)
+                storage.writeFile("gamedata/worldmap.json", worldMapJson)
+                println("Loaded and saved worldmap.json")
+            }
+            
             // Save version file
-            storage.writeFile("gamedata/version.txt", "6")
+            storage.writeFile("gamedata/version.txt", "7")
             
             println("Repository files loaded successfully: $successCount levels, $mapCount maps")
             successCount > 0
