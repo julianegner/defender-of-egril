@@ -19,11 +19,7 @@ import defender_of_egril.composeapp.generated.resources.*
 
 /**
  * Dialog that shows all levels at a specific map location.
- * Each level is shown as a card with a button to start the level.
- * The button is only active if the level is playable (not locked).
- * 
- * For single level: Shows the level card with play button below it.
- * For multiple levels: Shows list of cards with play buttons on the right of each card.
+ * Each level is shown as a clickable card - clicking starts the level.
  * 
  * Uses the same LevelCard component as the LevelCardsView for consistency.
  */
@@ -67,57 +63,17 @@ fun LevelLocationDialog(
                 
                 Spacer(modifier = Modifier.height(16.dp))
                 
-                if (levelsAtLocation.size == 1) {
-                    // Single level: Show the standard LevelCard with play button below
-                    val worldLevel = levelsAtLocation.first()
-                    val isPlayable = worldLevel.status != LevelStatus.LOCKED
-                    
-                    // Use the same LevelCard as in LevelCardsView
-                    LevelCard(
-                        worldLevel = worldLevel,
-                        onClick = { if (isPlayable) onPlayLevel(worldLevel.level.id) }
-                    )
-                    
-                    Spacer(modifier = Modifier.height(16.dp))
-                    
-                    // Play button below the card
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        Button(
-                            onClick = { onPlayLevel(worldLevel.level.id) },
-                            enabled = isPlayable,
-                            modifier = Modifier.fillMaxWidth(0.7f),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = if (isPlayable) {
-                                    if (isDarkMode) Color(0xFF2E7D32) else Color(0xFF4CAF50)
-                                } else {
-                                    Color.Gray
-                                },
-                                contentColor = Color.White,
-                                disabledContainerColor = Color.Gray.copy(alpha = 0.5f),
-                                disabledContentColor = Color.White.copy(alpha = 0.5f)
-                            )
-                        ) {
-                            Text(
-                                text = stringResource(Res.string.play_level),
-                                style = MaterialTheme.typography.titleMedium
-                            )
-                        }
-                    }
-                } else {
-                    // Multiple levels: Show list with play buttons on right
-                    LazyColumn(
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier.weight(1f, fill = false)
-                    ) {
-                        items(levelsAtLocation) { worldLevel ->
-                            LevelCardWithPlayButton(
-                                worldLevel = worldLevel,
-                                onPlayLevel = onPlayLevel
-                            )
-                        }
+                // Show all levels using the same LevelCard component
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.weight(1f, fill = false)
+                ) {
+                    items(levelsAtLocation) { worldLevel ->
+                        val isPlayable = worldLevel.status != LevelStatus.LOCKED
+                        LevelCard(
+                            worldLevel = worldLevel,
+                            onClick = { if (isPlayable) onPlayLevel(worldLevel.level.id) }
+                        )
                     }
                 }
                 
