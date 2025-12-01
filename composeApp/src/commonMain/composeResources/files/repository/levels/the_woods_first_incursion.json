@@ -105,5 +105,6 @@
     {"position": {"x": 33, "y": 12}, "nextTargetPosition": {"x": 35, "y": 12}},
     {"position": {"x": 35, "y": 12}, "nextTargetPosition": {"x": 36, "y": 10}},
     {"position": {"x": 36, "y": 10}, "nextTargetPosition": {"x": 39, "y": 10}}
-  ]
+  ],
+  "prerequisites": ["the_rush"]
 }

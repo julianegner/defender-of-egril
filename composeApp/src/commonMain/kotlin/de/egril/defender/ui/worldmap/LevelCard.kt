@@ -2,6 +2,7 @@ package de.egril.defender.ui.worldmap
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -16,6 +17,7 @@ import de.egril.defender.ui.*
 import de.egril.defender.ui.icon.CheckmarkIcon
 import de.egril.defender.ui.icon.LockIcon
 import de.egril.defender.ui.icon.SwordIcon
+import de.egril.defender.editor.EditorStorage
 import com.hyperether.resources.stringResource
 import de.egril.defender.ui.common.LevelInfoEnemiesColumn
 import defender_of_egril.composeapp.generated.resources.*
@@ -45,10 +47,15 @@ fun LevelCard(
         LevelStatus.WON -> stringResource(Res.string.completed)
     }
     
+    // Get prerequisite info for locked levels
+    val editorLevel = worldLevel.level.editorLevelId?.let { EditorStorage.getLevel(it) }
+    val prerequisites = editorLevel?.prerequisites ?: emptySet()
+    val requiredCount = editorLevel?.getEffectiveRequiredCount() ?: 0
+    
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(200.dp)
+            .height(if (worldLevel.status == LevelStatus.LOCKED && prerequisites.isNotEmpty()) 240.dp else 200.dp)
             .clickable(enabled = worldLevel.status != LevelStatus.LOCKED, onClick = onClick),
         colors = CardDefaults.cardColors(containerColor = backgroundColor)
     ) {
@@ -65,7 +72,6 @@ fun LevelCard(
                     .weight(2f)
                     .fillMaxHeight(),
                 verticalArrangement = Arrangement.SpaceBetween,
-                // horizontalAlignment = Alignment.End
             ) {
                 // Minimap preview
                 Box(
@@ -94,6 +100,49 @@ fun LevelCard(
                         fontSize = 12.sp,
                         modifier = Modifier.absoluteOffset(x = 0.dp, y = (-20).dp)
                     )
+                }
+                
+                // Prerequisites info (show when locked)
+                if (worldLevel.status == LevelStatus.LOCKED && prerequisites.isNotEmpty()) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        val prereqText = if (requiredCount < prerequisites.size) {
+                            stringResource(Res.string.requires_any_of, requiredCount.toString())
+                        } else {
+                            stringResource(Res.string.requires_all)
+                        }
+                        
+                        Text(
+                            text = prereqText,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = textColor.copy(alpha = 0.7f),
+                            fontSize = 11.sp
+                        )
+                        
+                        // List prerequisite level names (up to 3)
+                        for (prereqId in prerequisites.take(3)) {
+                            val prereqLevel = EditorStorage.getLevel(prereqId)
+                            val prereqName = prereqLevel?.title ?: prereqId
+                            
+                            Text(
+                                text = "• $prereqName",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = textColor.copy(alpha = 0.7f),
+                                fontSize = 10.sp,
+                                modifier = Modifier.padding(start = 4.dp)
+                            )
+                        }
+                        if (prerequisites.size > 3) {
+                            Text(
+                                text = "• ...",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = textColor.copy(alpha = 0.7f),
+                                fontSize = 10.sp,
+                                modifier = Modifier.padding(start = 4.dp)
+                            )
+                        }
+                    }
                 }
                 
                 // Status at the bottom
