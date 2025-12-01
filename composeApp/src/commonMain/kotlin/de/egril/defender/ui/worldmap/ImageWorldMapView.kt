@@ -8,6 +8,7 @@ import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -333,32 +334,55 @@ private fun BoxScope.LocationMarkersOverlay(
             modifier = Modifier
                 .fillMaxSize()
         ) {
-            // Use fractional positioning within the parent
-            Surface(
+            // Use fractional positioning within the parent - marker with label
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
-                    .size(markerSize)
                     .align { size, space, _ ->
                         // Calculate position based on fraction of container
+                        // Offset to center the column on the location point
                         val xOffset = (xFraction * space.width - size.width / 2).toInt()
                         val yOffset = (yFraction * space.height - size.height / 2).toInt()
                         androidx.compose.ui.unit.IntOffset(xOffset, yOffset)
                     }
-                    .clickable {
-                        onLocationClicked(location, levelsAtLocation)
-                    },
-                shape = androidx.compose.foundation.shape.CircleShape,
-                color = markerColor,
-                shadowElevation = 4.dp
             ) {
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier.fillMaxSize()
+                // Location name label above the marker
+                Surface(
+                    shape = RoundedCornerShape(4.dp),
+                    color = if (isDarkMode) Color(0xCC000000) else Color(0xCCFFFFFF),
+                    shadowElevation = 2.dp
                 ) {
                     Text(
-                        text = levelsAtLocation.size.toString(),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color.White
+                        text = location.name,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = if (isDarkMode) Color.White else Color.Black,
+                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                     )
+                }
+                
+                Spacer(modifier = Modifier.height(4.dp))
+                
+                // Circular marker
+                Surface(
+                    modifier = Modifier
+                        .size(markerSize)
+                        .clickable {
+                            onLocationClicked(location, levelsAtLocation)
+                        },
+                    shape = androidx.compose.foundation.shape.CircleShape,
+                    color = markerColor,
+                    shadowElevation = 4.dp
+                ) {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        Text(
+                            text = levelsAtLocation.size.toString(),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.White
+                        )
+                    }
                 }
             }
         }
