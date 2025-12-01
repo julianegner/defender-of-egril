@@ -368,6 +368,10 @@
     <string name="yes">Yes</string>
     <string name="confirm_delete_level">Are you sure you want to delete this level?</string>
     <string name="amount">Amount</string>
+    <string name="change_turn_level">Change Turn Level</string>
+    <string name="change_all_levels_in_turn">Change All Levels in Turn %d</string>
+    <string name="mixed_levels_warning">This turn contains units with different levels (%s). Are you sure you want to change all of them to level %d?</string>
+    <string name="apply">Apply</string>
 
     <!-- Enemy ability descriptions -->
     <string name="can_summon">Can summon minions</string>
@@ -577,4 +581,7 @@
     <string name="world_map_positions">World Map</string>
     <string name="world_map_position_instructions">Select a map from the list, then click on the world map to set its position. The position is saved as a permille (0-1000) of the map dimensions.</string>
     <string name="no_position_set">No position set</string>
+    <!-- Extended Area Attack Feature -->
+    <string name="extended_area_tutorial_title">Extended Area Attack!</string>
+    <string name="extended_area_tutorial_message">Your tower has reached level 20 and now has an extended area attack! Fireball and acid attacks now affect enemies within 2 tiles of the target instead of just 1 tile. This makes your area attacks much more powerful against groups of enemies!</string>
 </resources>

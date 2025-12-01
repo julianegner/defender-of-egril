@@ -368,6 +368,10 @@
     <string name="yes">Sì</string>
     <string name="confirm_delete_level">Sei sicuro di voler eliminare questo livello?</string>
     <string name="amount">Quantità</string>
+    <string name="change_turn_level">Modifica livello del turno</string>
+    <string name="change_all_levels_in_turn">Modifica tutti i livelli nel turno %d</string>
+    <string name="mixed_levels_warning">Questo turno contiene unità con livelli diversi (%s). Sei sicuro di voler cambiare tutti al livello %d?</string>
+    <string name="apply">Applica</string>
 
     <!-- Enemy ability descriptions -->
     <string name="can_summon">Può evocare servitori</string>
@@ -576,4 +580,7 @@
     <string name="world_map_positions">Mappa del Mondo</string>
     <string name="world_map_position_instructions">Seleziona una mappa dalla lista, poi clicca sulla mappa del mondo per impostare la sua posizione. La posizione viene salvata come permille (0-1000) delle dimensioni della mappa.</string>
     <string name="no_position_set">Nessuna posizione impostata</string>
+    <!-- Extended Area Attack Feature -->
+    <string name="extended_area_tutorial_title">Attacco ad Area Estesa!</string>
+    <string name="extended_area_tutorial_message">La tua torre ha raggiunto il livello 20 e ora ha un attacco ad area estesa! Gli attacchi con palla di fuoco e acido ora colpiscono i nemici entro 2 caselle dal bersaglio invece di 1 sola. Questo rende i tuoi attacchi ad area molto più potenti contro gruppi di nemici!</string>
 </resources>

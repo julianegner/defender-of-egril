@@ -366,6 +366,10 @@
     <string name="yes">Ja</string>
     <string name="confirm_delete_level">Sind Sie sicher, dass Sie dieses Level löschen möchten?</string>
     <string name="amount">Anzahl</string>
+    <string name="change_turn_level">Runden-Level ändern</string>
+    <string name="change_all_levels_in_turn">Alle Level in Runde %d ändern</string>
+    <string name="mixed_levels_warning">Diese Runde enthält Einheiten mit unterschiedlichen Leveln (%s). Sind Sie sicher, dass Sie alle auf Level %d ändern möchten?</string>
+    <string name="apply">Anwenden</string>
 
     <!-- Enemy ability descriptions -->
     <string name="can_summon">Kann Diener beschwören</string>
@@ -576,4 +580,7 @@
     <string name="world_map_positions">Weltkarte</string>
     <string name="world_map_position_instructions">Wählen Sie eine Karte aus der Liste, dann klicken Sie auf die Weltkarte, um ihre Position festzulegen. Die Position wird als Promille (0-1000) der Kartenabmessungen gespeichert.</string>
     <string name="no_position_set">Keine Position festgelegt</string>
+    <!-- Extended Area Attack Feature -->
+    <string name="extended_area_tutorial_title">Erweiterter Flächenangriff!</string>
+    <string name="extended_area_tutorial_message">Dein Turm hat Stufe 20 erreicht und hat jetzt einen erweiterten Flächenangriff! Feuerball- und Säureangriffe treffen jetzt Feinde im Umkreis von 2 Feldern statt nur 1 Feld. Das macht deine Flächenangriffe gegen Gegnergruppen viel stärker!</string>
 </resources>

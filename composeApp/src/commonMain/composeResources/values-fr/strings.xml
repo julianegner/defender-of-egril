@@ -368,6 +368,10 @@
     <string name="yes">Oui</string>
     <string name="confirm_delete_level">Êtes-vous sûr de vouloir supprimer ce niveau?</string>
     <string name="amount">Quantité</string>
+    <string name="change_turn_level">Modifier le niveau du tour</string>
+    <string name="change_all_levels_in_turn">Modifier tous les niveaux du tour %d</string>
+    <string name="mixed_levels_warning">Ce tour contient des unités avec différents niveaux (%s). Êtes-vous sûr de vouloir tous les changer au niveau %d?</string>
+    <string name="apply">Appliquer</string>
 
     <!-- Enemy ability descriptions -->
     <string name="can_summon">Peut invoquer des serviteurs</string>
@@ -576,4 +580,7 @@
     <string name="world_map_positions">Carte du Monde</string>
     <string name="world_map_position_instructions">Sélectionnez une carte dans la liste, puis cliquez sur la carte du monde pour définir sa position. La position est enregistrée en pour mille (0-1000) des dimensions de la carte.</string>
     <string name="no_position_set">Aucune position définie</string>
+    <!-- Extended Area Attack Feature -->
+    <string name="extended_area_tutorial_title">Attaque de Zone Étendue !</string>
+    <string name="extended_area_tutorial_message">Votre tour a atteint le niveau 20 et possède maintenant une attaque de zone étendue ! Les attaques de boule de feu et d\'acide affectent désormais les ennemis dans un rayon de 2 cases au lieu d\'une seule. Cela rend vos attaques de zone beaucoup plus puissantes contre les groupes d\'ennemis !</string>
 </resources>
