@@ -174,6 +174,7 @@ private fun InfoContent(infoType: InfoType, onDismiss: () -> Unit) {
         InfoType.MINE_WARNING -> MineWarningContent(onDismiss)
         InfoType.ONE_HP_WARNING -> OneHpWarningContent(onDismiss)
         InfoType.MAGICAL_TRAP_INFO -> MagicalTrapInfoContent(onDismiss)
+        InfoType.EXTENDED_AREA_INFO -> ExtendedAreaInfoContent(onDismiss)
         InfoType.NONE -> { /* No content to show */ }
     }
 }
