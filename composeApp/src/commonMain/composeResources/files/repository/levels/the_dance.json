@@ -116,5 +116,6 @@
     {"position": {"x": 24, "y": 26}, "nextTargetPosition": {"x": 25, "y": 20}},
     {"position": {"x": 25, "y": 20}, "nextTargetPosition": {"x": 22, "y": 15}},
     {"position": {"x": 22, "y": 15}, "nextTargetPosition": {"x": 18, "y": 15}}
-  ]
+  ],
+  "prerequisites": ["the_spiral_challenge"]
 }

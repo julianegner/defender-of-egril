@@ -23,6 +23,8 @@
     <string name="dark_mode">Modo Oscuro</string>
     <string name="dark_mode_on">Modo Oscuro Activado</string>
     <string name="dark_mode_off">Modo Oscuro Desactivado</string>
+    <string name="world_map_level_cards">Vista de Tarjetas de Nivel</string>
+    <string name="world_map_image_map">Vista de Mapa de Imagen</string>
     <string name="reset_settings">Restablecer Configuración</string>
     <string name="restore_game_data">Restaurar Datos del Juego</string>
     <string name="restore_game_data_confirm_title">¿Restaurar Datos del Juego?</string>
@@ -74,6 +76,8 @@
     <!-- World Map -->
     <string name="world_map_title">Mapa del mundo - Prados de Egril</string>
     <string name="back_to_world_map">Volver al mapa del mundo</string>
+    <string name="play_level">Jugar nivel</string>
+    <string name="requires_completing">Requiere completar:</string>
     
     <!-- Load Game Screen -->
     <string name="no_saved_games">No se encontraron partidas guardadas</string>
@@ -551,6 +555,31 @@
     <string name="magical_trap_tutorial_title">¡Trampa Mágica Desbloqueada!</string>
     <string name="magical_trap_tutorial_message">¡Tu torre de mago ha alcanzado el nivel 10 y ahora puede colocar trampas mágicas! Estas trampas teletransportan a los enemigos de vuelta a su punto de aparición cuando se activan. Después de colocar una trampa, hay un tiempo de enfriamiento de 10 turnos antes de poder colocar otra.</string>
     
+    <!-- Level Prerequisites -->
+    <string name="level_dependencies">Dependencias de Nivel</string>
+    <string name="validation_passed">Validación Exitosa</string>
+    <string name="validation_failed">Validación Fallida</string>
+    <string name="missing_prerequisites">Niveles prerrequisitos faltantes</string>
+    <string name="circular_dependencies">Dependencias circulares detectadas</string>
+    <string name="final_stand_disconnected">El Último Bastión no está conectado a ningún punto de entrada</string>
+    <string name="unreachable_levels">Niveles inalcanzables</string>
+    <string name="edit_prerequisites">Editar Prerrequisitos</string>
+    <string name="select_prerequisites">Seleccione los niveles que deben completarse antes de desbloquear este nivel:</string>
+    <string name="required_count">Cantidad Requerida</string>
+    <string name="required_count_hint">Deje vacío para requerir todos los prerrequisitos. Ingrese un número para requerir solo esa cantidad.</string>
+    <string name="all">todos</string>
+    <string name="requires">Requiere</string>
+    <string name="entry_point">Punto de Entrada</string>
+    
+    <!-- World Map Locations -->
+    <string name="levels_at_location">%s nivel(es) en esta ubicación</string>
+    <string name="requires_any_of">Requiere completar %s de:</string>
+    <string name="requires_all">Requiere completar todos:</string>
+    
+    <!-- World Map Position Editor -->
+    <string name="world_map_positions">Mapa Mundial</string>
+    <string name="world_map_position_instructions">Seleccione un mapa de la lista, luego haga clic en el mapa mundial para establecer su posición. La posición se guarda como un permil (0-1000) de las dimensiones del mapa.</string>
+    <string name="no_position_set">Sin posición establecida</string>
     <!-- Extended Area Attack Feature -->
     <string name="extended_area_tutorial_title">¡Ataque de Área Extendido!</string>
     <string name="extended_area_tutorial_message">¡Tu torre ha alcanzado el nivel 20 y ahora tiene un ataque de área extendido! Los ataques de bola de fuego y ácido ahora afectan a enemigos dentro de 2 casillas del objetivo en lugar de solo 1. ¡Esto hace que tus ataques de área sean mucho más poderosos contra grupos de enemigos!</string>

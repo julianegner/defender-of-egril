@@ -73,7 +73,7 @@
     {"attackerType": "WITCH", "level": 1, "spawnTurn": 18, "spawnPoint": {"x": 0, "y": 10}}
   ],
   "availableTowers": ["SPIKE_TOWER", "SPEAR_TOWER", "BOW_TOWER", "WIZARD_TOWER", "ALCHEMY_TOWER", "BALLISTA_TOWER", "DWARVEN_MINE"],
-"waypoints": [
+  "waypoints": [
     {"position": {"x": 39, "y": 9}, "nextTargetPosition": {"x": 36, "y": 9}},
     {"position": {"x": 36, "y": 9}, "nextTargetPosition": {"x": 35, "y": 7}},
     {"position": {"x": 35, "y": 7}, "nextTargetPosition": {"x": 30, "y": 7}},
@@ -120,5 +120,6 @@
     {"position": {"x": 33, "y": 12}, "nextTargetPosition": {"x": 35, "y": 12}},
     {"position": {"x": 35, "y": 12}, "nextTargetPosition": {"x": 36, "y": 10}},
     {"position": {"x": 36, "y": 10}, "nextTargetPosition": {"x": 39, "y": 10}}
-  ]
+  ],
+  "prerequisites": ["the_woods_first_incursion"]
 }
