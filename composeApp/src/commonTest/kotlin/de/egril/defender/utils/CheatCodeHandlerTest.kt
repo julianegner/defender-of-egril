@@ -45,6 +45,7 @@ class CheatCodeHandlerTest {
         val (success, digOutcome) = CheatCodeHandler.applyCheatCode(
             code = "cash",
             addCoins = { amount -> coinsAdded = amount },
+            setCoins = { },
             performMineDigWithOutcome = { null },
             spawnEnemy = { _, _ -> }
         )
@@ -60,6 +61,7 @@ class CheatCodeHandlerTest {
         val (success, digOutcome) = CheatCodeHandler.applyCheatCode(
             code = "mmmoney",
             addCoins = { amount -> coinsAdded = amount },
+            setCoins = { },
             performMineDigWithOutcome = { null },
             spawnEnemy = { _, _ -> }
         )
@@ -70,11 +72,28 @@ class CheatCodeHandlerTest {
     }
     
     @Test
+    fun testEmptypocketCheatCode() {
+        var coinsSet = -1
+        val (success, digOutcome) = CheatCodeHandler.applyCheatCode(
+            code = "emptypocket",
+            addCoins = { },
+            setCoins = { amount -> coinsSet = amount },
+            performMineDigWithOutcome = { null },
+            spawnEnemy = { _, _ -> }
+        )
+        
+        assertTrue(success, "Emptypocket cheat code should be recognized")
+        assertEquals(0, coinsSet, "Emptypocket cheat should set coins to 0")
+        assertEquals(null, digOutcome, "Emptypocket cheat should not return dig outcome")
+    }
+    
+    @Test
     fun testCheatCodeCaseInsensitive() {
         var coinsAdded = 0
         val (success1, _) = CheatCodeHandler.applyCheatCode(
             code = "CASH",
             addCoins = { amount -> coinsAdded = amount },
+            setCoins = { },
             performMineDigWithOutcome = { null },
             spawnEnemy = { _, _ -> }
         )
@@ -86,6 +105,7 @@ class CheatCodeHandlerTest {
         val (success2, _) = CheatCodeHandler.applyCheatCode(
             code = "CaSh",
             addCoins = { amount -> coinsAdded = amount },
+            setCoins = { },
             performMineDigWithOutcome = { null },
             spawnEnemy = { _, _ -> }
         )
@@ -114,6 +134,7 @@ class CheatCodeHandlerTest {
             val (success, digOutcome) = CheatCodeHandler.applyCheatCode(
                 code = code,
                 addCoins = { },
+                setCoins = { },
                 performMineDigWithOutcome = { outcome -> 
                     requestedOutcome = outcome
                     outcome // Return the same outcome
@@ -149,6 +170,7 @@ class CheatCodeHandlerTest {
             val (success, _) = CheatCodeHandler.applyCheatCode(
                 code = code,
                 addCoins = { },
+                setCoins = { },
                 performMineDigWithOutcome = { null },
                 spawnEnemy = { type, level -> 
                     spawnedType = type
@@ -167,6 +189,7 @@ class CheatCodeHandlerTest {
         val (success, _) = CheatCodeHandler.applyCheatCode(
             code = "invalid",
             addCoins = { },
+            setCoins = { },
             performMineDigWithOutcome = { null },
             spawnEnemy = { _, _ -> }
         )
@@ -179,6 +202,7 @@ class CheatCodeHandlerTest {
         val (success, _) = CheatCodeHandler.applyCheatCode(
             code = "spawn invalid",
             addCoins = { },
+            setCoins = { },
             performMineDigWithOutcome = { null },
             spawnEnemy = { _, _ -> }
         )
@@ -412,6 +436,7 @@ class CheatCodeHandlerTest {
         val (success, _) = CheatCodeHandler.applyCheatCode(
             code = "  cash  ",
             addCoins = { amount -> coinsAdded = amount },
+            setCoins = { },
             performMineDigWithOutcome = { null },
             spawnEnemy = { _, _ -> }
         )
@@ -425,6 +450,7 @@ class CheatCodeHandlerTest {
         val (success, digOutcome) = CheatCodeHandler.applyCheatCode(
             code = "dig gold",
             addCoins = { },
+            setCoins = { },
             performMineDigWithOutcome = { null }, // Simulate failure
             spawnEnemy = { _, _ -> }
         )
