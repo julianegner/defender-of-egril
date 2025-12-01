@@ -202,6 +202,10 @@ fun ImageWorldMapView(
                 }
             )
     ) {
+        // Get the painter to access image dimensions
+        val mapPainter = painterResource(Res.drawable.world_map_background)
+        val imageAspectRatio = mapPainter.intrinsicSize.width / mapPainter.intrinsicSize.height
+        
         // Draw the map image and overlay locations
         Box(
             modifier = Modifier
@@ -215,7 +219,7 @@ fun ImageWorldMapView(
         ) {
             // Background map image
             Image(
-                painter = painterResource(Res.drawable.world_map_background),
+                painter = mapPainter,
                 contentDescription = "World Map",
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Fit
@@ -225,7 +229,8 @@ fun ImageWorldMapView(
             RoadConnectionsOverlay(
                 roads = roads,
                 containerSize = containerSize,
-                isDarkMode = isDarkMode
+                isDarkMode = isDarkMode,
+                imageAspectRatio = imageAspectRatio
             )
             
             // Location markers overlay - clickable markers
@@ -234,7 +239,8 @@ fun ImageWorldMapView(
                 worldLevels = worldLevels,
                 containerSize = containerSize,
                 isDarkMode = isDarkMode,
-                onLocationClicked = onLocationClicked
+                onLocationClicked = onLocationClicked,
+                imageAspectRatio = imageAspectRatio
             )
         }
     }
@@ -248,12 +254,12 @@ fun ImageWorldMapView(
 private fun BoxScope.RoadConnectionsOverlay(
     roads: List<WorldMapRoad>,
     containerSize: IntSize,
-    isDarkMode: Boolean
+    isDarkMode: Boolean,
+    imageAspectRatio: Float
 ) {
     val roadColor = if (isDarkMode) Color(0xFF8B4513) else Color(0xFFA0522D)  // Brown road color
     
     // Calculate actual image bounds within container (accounting for ContentScale.Fit)
-    val imageAspectRatio = 1200f / 800f // Default world map aspect ratio
     val containerAspectRatio = containerSize.width.toFloat() / containerSize.height.toFloat().coerceAtLeast(1f)
     
     val (imageWidth, imageHeight, imageOffsetX, imageOffsetY) = if (containerAspectRatio > imageAspectRatio) {
@@ -321,10 +327,10 @@ private fun BoxScope.LocationMarkersOverlay(
     worldLevels: List<WorldLevel>,
     containerSize: IntSize,
     isDarkMode: Boolean,
-    onLocationClicked: (WorldMapLocation, List<WorldLevel>) -> Unit
+    onLocationClicked: (WorldMapLocation, List<WorldLevel>) -> Unit,
+    imageAspectRatio: Float
 ) {
     // Calculate actual image bounds within container (accounting for ContentScale.Fit)
-    val imageAspectRatio = 1200f / 800f // Default world map aspect ratio
     val containerAspectRatio = containerSize.width.toFloat() / containerSize.height.toFloat().coerceAtLeast(1f)
     
     val (imageWidth, imageHeight, imageOffsetX, imageOffsetY) = if (containerAspectRatio > imageAspectRatio) {
