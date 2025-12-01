@@ -23,6 +23,8 @@
     <string name="dark_mode">Modalità Scura</string>
     <string name="dark_mode_on">Modalità Scura Attiva</string>
     <string name="dark_mode_off">Modalità Scura Disattiva</string>
+    <string name="world_map_level_cards">Vista Schede di Livello</string>
+    <string name="world_map_image_map">Vista Mappa Immagine</string>
     <string name="reset_settings">Ripristina Impostazioni</string>
     <string name="restore_game_data">Ripristina Dati di Gioco</string>
     <string name="restore_game_data_confirm_title">Ripristinare i Dati di Gioco?</string>
@@ -564,4 +566,14 @@
     <string name="all">tutti</string>
     <string name="requires">Richiede</string>
     <string name="entry_point">Punto di Ingresso</string>
+    
+    <!-- World Map Locations -->
+    <string name="levels_at_location">%s livello/i in questa posizione</string>
+    <string name="requires_any_of">Richiede di completare %s di:</string>
+    <string name="requires_all">Richiede di completare tutti:</string>
+    
+    <!-- World Map Position Editor -->
+    <string name="world_map_positions">Mappa del Mondo</string>
+    <string name="world_map_position_instructions">Seleziona una mappa dalla lista, poi clicca sulla mappa del mondo per impostare la sua posizione. La posizione viene salvata come permille (0-1000) delle dimensioni della mappa.</string>
+    <string name="no_position_set">Nessuna posizione impostata</string>
 </resources>
