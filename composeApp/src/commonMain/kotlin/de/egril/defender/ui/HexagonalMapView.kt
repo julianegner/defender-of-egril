@@ -128,6 +128,8 @@ fun HexagonalMapView(
             var handled = false
             var newOffsetX = offsetX
             var newOffsetY = offsetY
+            // Don't handle WASD when Ctrl is pressed (allows Ctrl+S for save, etc.)
+            val isCtrlPressed = event.isCtrlPressed
 
             when (event.key) {
                 // Arrow keys
@@ -147,27 +149,27 @@ fun HexagonalMapView(
                     newOffsetX -= config.keyboardPanSpeed
                     handled = true
                 }
-                // WASD keys - only handle when Ctrl is not pressed (to allow Ctrl+S for save, etc.)
+                // WASD keys - only handle when Ctrl is not pressed
                 Key.W -> {
-                    if (!event.isCtrlPressed) {
+                    if (!isCtrlPressed) {
                         newOffsetY += config.keyboardPanSpeed
                         handled = true
                     }
                 }
                 Key.S -> {
-                    if (!event.isCtrlPressed) {
+                    if (!isCtrlPressed) {
                         newOffsetY -= config.keyboardPanSpeed
                         handled = true
                     }
                 }
                 Key.A -> {
-                    if (!event.isCtrlPressed) {
+                    if (!isCtrlPressed) {
                         newOffsetX += config.keyboardPanSpeed
                         handled = true
                     }
                 }
                 Key.D -> {
-                    if (!event.isCtrlPressed) {
+                    if (!isCtrlPressed) {
                         newOffsetX -= config.keyboardPanSpeed
                         handled = true
                     }
