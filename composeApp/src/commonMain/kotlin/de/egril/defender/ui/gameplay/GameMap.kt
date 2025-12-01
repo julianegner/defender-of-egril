@@ -153,6 +153,7 @@ fun GameGrid(
             onActualContentSizeChange = { newContentSize ->
                 contentSize = newContentSize
             },
+            focusTrigger = gameState.phase.value,  // Request focus when game phase changes (e.g., after "Start Battle")
             modifier = Modifier.fillMaxSize()
         ) { position ->
             GridCell(
