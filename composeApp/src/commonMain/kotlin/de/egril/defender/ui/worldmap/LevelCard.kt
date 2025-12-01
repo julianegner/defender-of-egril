@@ -33,13 +33,13 @@ fun LevelCard(
     val currentDifficulty = de.egril.defender.ui.settings.AppSettings.difficulty.value
     
     val backgroundColor = when (worldLevel.status) {
-        LevelStatus.LOCKED -> if (isDarkMode) Color(0xFF2C2C2C) else Color(0xFF9E9E9E)
-        LevelStatus.UNLOCKED -> if (isDarkMode) Color(0xFF0D47A1) else Color(0xFF2196F3)
-        LevelStatus.WON -> if (isDarkMode) Color(0xFF1B5E20) else Color(0xFF4CAF50)
+        LevelStatus.LOCKED -> if (isDarkMode) Color(0xFFBDBDBD) else Color(0xFF9E9E9E)
+        LevelStatus.UNLOCKED -> if (isDarkMode) Color(0xFF64B5F6) else Color(0xFF2196F3)
+        LevelStatus.WON -> if (isDarkMode) Color(0xFF81C784) else Color(0xFF4CAF50)
     }
     
-    // Text color changes based on dark mode - darker text for better readability
-    val textColor = if (isDarkMode) Color.Black else Color.White
+    // Text color - white for good contrast on colored backgrounds
+    val textColor = Color.White
     
     val statusText = when (worldLevel.status) {
         LevelStatus.LOCKED -> stringResource(Res.string.locked)
