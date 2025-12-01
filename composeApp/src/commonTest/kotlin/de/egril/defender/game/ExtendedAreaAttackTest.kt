@@ -194,9 +194,9 @@ class ExtendedAreaAttackTest {
         assertTrue(engine.defenderAttackPosition(wizard.id, Position(5, 3)), "Attack should succeed")
         
         // All three enemies should be damaged since radius is 2
-        assertTrue(enemy1.currentHealth.value < enemy1.type.baseHealth, "Enemy at center should be damaged")
-        assertTrue(enemy2.currentHealth.value < enemy2.type.baseHealth, "Enemy at distance 1 should be damaged")
-        assertTrue(enemy3.currentHealth.value < enemy3.type.baseHealth, "Enemy at distance 2 should be damaged")
+        assertTrue(enemy1.currentHealth.value < enemy1.type.health, "Enemy at center should be damaged")
+        assertTrue(enemy2.currentHealth.value < enemy2.type.health, "Enemy at distance 1 should be damaged")
+        assertTrue(enemy3.currentHealth.value < enemy3.type.health, "Enemy at distance 2 should be damaged")
     }
     
     @Test
