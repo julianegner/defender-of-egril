@@ -501,11 +501,26 @@ fun GridCell(
                     is TargetCircleInfo.NeighborTarget -> {
                         // Draw outer ring segments on neighbor tiles (only for AREA and LASTING)
                         if (info.attackType == AttackType.AREA || info.attackType == AttackType.LASTING) {
+                            // Use different radii based on distance from center
+                            // Distance 2 (extended area for level 20+) uses larger radii
+                            val radius1 = if (info.distanceFromCenter >= 2) 
+                                TargetCircleConstants.EXTENDED_OUTER_CIRCLE_1_RADIUS 
+                            else 
+                                TargetCircleConstants.OUTER_CIRCLE_1_RADIUS
+                            val radius2 = if (info.distanceFromCenter >= 2) 
+                                TargetCircleConstants.EXTENDED_OUTER_CIRCLE_2_RADIUS 
+                            else 
+                                TargetCircleConstants.OUTER_CIRCLE_2_RADIUS
+                            val radius3 = if (info.distanceFromCenter >= 2) 
+                                TargetCircleConstants.EXTENDED_OUTER_CIRCLE_3_RADIUS 
+                            else 
+                                TargetCircleConstants.OUTER_CIRCLE_3_RADIUS
+                            
                             // Draw 3 concentric arc segments
                             CircularSegmentDrawer.drawArcSegment(
                                 drawScope = this,
                                 color = info.color,
-                                radius = TargetCircleConstants.OUTER_CIRCLE_1_RADIUS,
+                                radius = radius1,
                                 strokeWidth = TargetCircleConstants.OUTER_CIRCLE_STROKE_WIDTH,
                                 centerPos = info.centerPosition,
                                 neighborPos = info.thisPosition,
@@ -515,7 +530,7 @@ fun GridCell(
                             CircularSegmentDrawer.drawArcSegment(
                                 drawScope = this,
                                 color = info.color,
-                                radius = TargetCircleConstants.OUTER_CIRCLE_2_RADIUS,
+                                radius = radius2,
                                 strokeWidth = TargetCircleConstants.OUTER_CIRCLE_STROKE_WIDTH,
                                 centerPos = info.centerPosition,
                                 neighborPos = info.thisPosition,
@@ -525,7 +540,7 @@ fun GridCell(
                             CircularSegmentDrawer.drawArcSegment(
                                 drawScope = this,
                                 color = info.color,
-                                radius = TargetCircleConstants.OUTER_CIRCLE_3_RADIUS,
+                                radius = radius3,
                                 strokeWidth = TargetCircleConstants.OUTER_CIRCLE_STROKE_WIDTH,
                                 centerPos = info.centerPosition,
                                 neighborPos = info.thisPosition,
