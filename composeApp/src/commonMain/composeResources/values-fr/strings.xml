@@ -364,6 +364,10 @@
     <string name="yes">Oui</string>
     <string name="confirm_delete_level">Êtes-vous sûr de vouloir supprimer ce niveau?</string>
     <string name="amount">Quantité</string>
+    <string name="change_turn_level">Modifier le niveau du tour</string>
+    <string name="change_all_levels_in_turn">Modifier tous les niveaux du tour %d</string>
+    <string name="mixed_levels_warning">Ce tour contient des unités avec différents niveaux (%s). Êtes-vous sûr de vouloir tous les changer au niveau %d?</string>
+    <string name="apply">Appliquer</string>
 
     <!-- Enemy ability descriptions -->
     <string name="can_summon">Peut invoquer des serviteurs</string>

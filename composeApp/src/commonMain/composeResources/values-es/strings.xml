@@ -362,6 +362,10 @@
     <string name="yes">Sí</string>
     <string name="confirm_delete_level">¿Estás seguro de que quieres eliminar este nivel?</string>
     <string name="amount">Cantidad</string>
+    <string name="change_turn_level">Cambiar nivel del turno</string>
+    <string name="change_all_levels_in_turn">Cambiar todos los niveles en el turno %d</string>
+    <string name="mixed_levels_warning">Este turno contiene unidades con diferentes niveles (%s). ¿Estás seguro de que quieres cambiarlos todos al nivel %d?</string>
+    <string name="apply">Aplicar</string>
 
     <!-- Enemy ability descriptions -->
     <string name="can_summon">Puede invocar secuaces</string>
