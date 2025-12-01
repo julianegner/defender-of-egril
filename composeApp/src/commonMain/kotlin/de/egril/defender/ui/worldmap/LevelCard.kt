@@ -2,6 +2,7 @@ package de.egril.defender.ui.worldmap
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -16,6 +17,7 @@ import de.egril.defender.ui.*
 import de.egril.defender.ui.icon.CheckmarkIcon
 import de.egril.defender.ui.icon.LockIcon
 import de.egril.defender.ui.icon.SwordIcon
+import de.egril.defender.editor.EditorStorage
 import com.hyperether.resources.stringResource
 import de.egril.defender.ui.common.LevelInfoEnemiesColumn
 import defender_of_egril.composeapp.generated.resources.*
@@ -45,10 +47,15 @@ fun LevelCard(
         LevelStatus.WON -> stringResource(Res.string.completed)
     }
     
+    // Get prerequisite info for locked levels
+    val editorLevel = worldLevel.level.editorLevelId?.let { EditorStorage.getLevel(it) }
+    val prerequisites = editorLevel?.prerequisites ?: emptySet()
+    val requiredCount = editorLevel?.getEffectiveRequiredCount() ?: 0
+    
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(200.dp)
+            .height(if (worldLevel.status == LevelStatus.LOCKED && prerequisites.isNotEmpty()) 240.dp else 200.dp)
             .clickable(enabled = worldLevel.status != LevelStatus.LOCKED, onClick = onClick),
         colors = CardDefaults.cardColors(containerColor = backgroundColor)
     ) {
@@ -65,7 +72,6 @@ fun LevelCard(
                     .weight(2f)
                     .fillMaxHeight(),
                 verticalArrangement = Arrangement.SpaceBetween,
-                // horizontalAlignment = Alignment.End
             ) {
                 // Minimap preview
                 Box(
@@ -96,6 +102,49 @@ fun LevelCard(
                     )
                 }
                 
+                // Prerequisites info (show when locked)
+                if (worldLevel.status == LevelStatus.LOCKED && prerequisites.isNotEmpty()) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        val prereqText = if (requiredCount < prerequisites.size) {
+                            stringResource(Res.string.requires_any_of, requiredCount.toString())
+                        } else {
+                            stringResource(Res.string.requires_all)
+                        }
+                        
+                        Text(
+                            text = prereqText,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = textColor.copy(alpha = 0.7f),
+                            fontSize = 11.sp
+                        )
+                        
+                        // List prerequisite level names (up to 3)
+                        for (prereqId in prerequisites.take(3)) {
+                            val prereqLevel = EditorStorage.getLevel(prereqId)
+                            val prereqName = prereqLevel?.title ?: prereqId
+                            
+                            Text(
+                                text = "• $prereqName",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = textColor.copy(alpha = 0.7f),
+                                fontSize = 10.sp,
+                                modifier = Modifier.padding(start = 4.dp)
+                            )
+                        }
+                        if (prerequisites.size > 3) {
+                            Text(
+                                text = "• ...",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = textColor.copy(alpha = 0.7f),
+                                fontSize = 10.sp,
+                                modifier = Modifier.padding(start = 4.dp)
+                            )
+                        }
+                    }
+                }
+                
                 // Status at the bottom
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -116,6 +165,116 @@ fun LevelCard(
                         fontSize = 13.sp
                     )
                 }
+            }
+        }
+    }
+}
+
+/**
+ * Level card variant with a play button for use in dialogs/overlays.
+ * Shows level info and a play button on the right side.
+ */
+@Composable
+fun LevelCardWithPlayButton(
+    worldLevel: WorldLevel,
+    onPlayLevel: (Int) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val isDarkMode = de.egril.defender.ui.settings.AppSettings.isDarkMode.value
+    val currentDifficulty = de.egril.defender.ui.settings.AppSettings.difficulty.value
+    val isPlayable = worldLevel.status != LevelStatus.LOCKED
+    
+    val backgroundColor = when (worldLevel.status) {
+        LevelStatus.LOCKED -> if (isDarkMode) Color(0xFF3C3C3C) else Color(0xFFE0E0E0)
+        LevelStatus.UNLOCKED -> if (isDarkMode) Color(0xFF0D47A1) else Color(0xFF2196F3)
+        LevelStatus.WON -> if (isDarkMode) Color(0xFF1B5E20) else Color(0xFF4CAF50)
+    }
+    
+    val textColor = if (isDarkMode || worldLevel.status != LevelStatus.LOCKED) Color.White else Color.Black
+    
+    // Get prerequisite info for locked levels
+    val editorLevel = worldLevel.level.editorLevelId?.let { EditorStorage.getLevel(it) }
+    val prerequisites = editorLevel?.prerequisites ?: emptySet()
+    val requiredCount = editorLevel?.getEffectiveRequiredCount() ?: 0
+    
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = backgroundColor)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Left side: Level info
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                // Level name and subtitle
+                Text(
+                    text = worldLevel.level.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = textColor
+                )
+                
+                if (worldLevel.level.subtitle.isNotBlank()) {
+                    Text(
+                        text = worldLevel.level.subtitle,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = textColor.copy(alpha = 0.8f)
+                    )
+                }
+                
+                // Prerequisites info (show when locked)
+                if (worldLevel.status == LevelStatus.LOCKED && prerequisites.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    
+                    val prereqText = if (requiredCount < prerequisites.size) {
+                        stringResource(Res.string.requires_any_of, requiredCount.toString())
+                    } else {
+                        stringResource(Res.string.requires_all)
+                    }
+                    
+                    Text(
+                        text = prereqText,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = textColor.copy(alpha = 0.7f)
+                    )
+                    
+                    // List prerequisite level names
+                    for (prereqId in prerequisites) {
+                        val prereqLevel = EditorStorage.getLevel(prereqId)
+                        val prereqName = prereqLevel?.title ?: prereqId
+                        
+                        Text(
+                            text = "• $prereqName",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = textColor.copy(alpha = 0.7f),
+                            modifier = Modifier.padding(start = 8.dp)
+                        )
+                    }
+                }
+            }
+            
+            // Right side: Play button
+            Button(
+                onClick = { onPlayLevel(worldLevel.level.id) },
+                enabled = isPlayable,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (isPlayable) {
+                        if (isDarkMode) Color(0xFF2E7D32) else Color(0xFF4CAF50)
+                    } else {
+                        Color.Gray
+                    },
+                    contentColor = Color.White,
+                    disabledContainerColor = Color.Gray.copy(alpha = 0.5f),
+                    disabledContentColor = Color.White.copy(alpha = 0.5f)
+                )
+            ) {
+                Text(stringResource(Res.string.play_level))
             }
         }
     }
