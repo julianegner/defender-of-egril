@@ -82,5 +82,6 @@
   "availableTowers": ["SPIKE_TOWER", "SPEAR_TOWER", "BOW_TOWER", "WIZARD_TOWER", "ALCHEMY_TOWER", "BALLISTA_TOWER", "DWARVEN_MINE"],
   "waypoints": [
     
-  ]
+  ],
+  "prerequisites": ["the_cross"]
 }

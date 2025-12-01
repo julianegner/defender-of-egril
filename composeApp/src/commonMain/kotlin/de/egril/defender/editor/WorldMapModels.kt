@@ -1,0 +1,137 @@
+package de.egril.defender.editor
+
+import de.egril.defender.model.Position
+
+/**
+ * A point on the world map used for curved paths.
+ * Coordinates are in permille (0-1000) of the world map dimensions.
+ */
+data class WorldMapPoint(
+    val x: Int,
+    val y: Int
+) {
+    /**
+     * Convert to normalized coordinates (0.0-1.0)
+     */
+    fun toNormalized(): Pair<Float, Float> = (x / 1000f) to (y / 1000f)
+    
+    companion object {
+        /**
+         * Create from normalized coordinates (0.0-1.0)
+         */
+        fun fromNormalized(x: Float, y: Float): WorldMapPoint {
+            return WorldMapPoint(
+                (x * 1000).toInt().coerceIn(0, 1000),
+                (y * 1000).toInt().coerceIn(0, 1000)
+            )
+        }
+        
+        /**
+         * Create from Position
+         */
+        fun fromPosition(position: Position): WorldMapPoint {
+            return WorldMapPoint(position.x, position.y)
+        }
+    }
+    
+    /**
+     * Convert to Position
+     */
+    fun toPosition(): Position = Position(x, y)
+}
+
+/**
+ * A location on the world map that can contain multiple levels.
+ * The location is only visible if at least one of its levels is ready to play.
+ */
+data class WorldMapLocationData(
+    val id: String,                      // Unique identifier for this location
+    val name: String,                    // Display name shown on the map
+    val position: WorldMapPoint,         // Position on the world map
+    val levelIds: List<String>           // List of level IDs at this location
+)
+
+/**
+ * A path between two locations on the world map.
+ * The path can be a straight line (empty controlPoints) or a curve (with control points).
+ * Paths remain visible even when source/destination locations are hidden.
+ */
+data class WorldMapPathData(
+    val fromLocationId: String,          // Source location ID
+    val toLocationId: String,            // Destination location ID
+    val controlPoints: List<WorldMapPoint> = emptyList()  // Optional control points for curved paths
+) {
+    /**
+     * Check if this path represents a valid connection based on level prerequisites.
+     * A path is valid if any level at the destination has a prerequisite at the source.
+     */
+    fun isValidConnection(
+        locations: List<WorldMapLocationData>,
+        levels: List<EditorLevel>
+    ): Boolean {
+        val fromLocation = locations.find { it.id == fromLocationId } ?: return false
+        val toLocation = locations.find { it.id == toLocationId } ?: return false
+        
+        // Check if any level at destination has a prerequisite at source
+        val sourceLevelIds = fromLocation.levelIds.toSet()
+        return toLocation.levelIds.any { destLevelId ->
+            val destLevel = levels.find { it.id == destLevelId }
+            destLevel?.prerequisites?.any { it in sourceLevelIds } == true
+        }
+    }
+}
+
+/**
+ * Complete world map data containing all locations and paths.
+ * This is stored in a separate JSON file for easy editing.
+ */
+data class WorldMapData(
+    val locations: List<WorldMapLocationData> = emptyList(),
+    val paths: List<WorldMapPathData> = emptyList()
+) {
+    /**
+     * Get all locations that have at least one playable level.
+     */
+    fun getVisibleLocations(
+        levels: List<EditorLevel>,
+        maps: List<EditorMap>,
+        storage: EditorStorage
+    ): List<WorldMapLocationData> {
+        return locations.filter { location ->
+            location.levelIds.any { levelId ->
+                storage.isLevelReadyToPlay(levelId)
+            }
+        }
+    }
+    
+    /**
+     * Get all paths that connect locations based on level prerequisites.
+     * Paths are visible even if source/destination locations are hidden.
+     */
+    fun getValidPaths(levels: List<EditorLevel>): List<WorldMapPathData> {
+        return paths.filter { path ->
+            path.isValidConnection(locations, levels)
+        }
+    }
+    
+    /**
+     * Find a location by its ID.
+     */
+    fun findLocation(id: String): WorldMapLocationData? {
+        return locations.find { it.id == id }
+    }
+    
+    /**
+     * Find the location containing a specific level.
+     */
+    fun findLocationByLevelId(levelId: String): WorldMapLocationData? {
+        return locations.find { levelId in it.levelIds }
+    }
+    
+    /**
+     * Get all paths connected to a location (either as source or destination).
+     */
+    fun getPathsForLocation(locationId: String): List<WorldMapPathData> {
+        return paths.filter { it.fromLocationId == locationId || it.toLocationId == locationId }
+    }
+}

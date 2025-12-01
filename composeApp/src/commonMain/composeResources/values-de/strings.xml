@@ -23,6 +23,8 @@
     <string name="dark_mode">Dunkler Modus</string>
     <string name="dark_mode_on">Dunkler Modus an</string>
     <string name="dark_mode_off">Dunkler Modus aus</string>
+    <string name="world_map_level_cards">Levelkarten-Ansicht</string>
+    <string name="world_map_image_map">Bildkarte-Ansicht</string>
     <string name="reset_settings">Einstellungen zurücksetzen</string>
     <string name="restore_game_data">Spieldaten wiederherstellen</string>
     <string name="restore_game_data_confirm_title">Spieldaten wiederherstellen?</string>
@@ -74,6 +76,8 @@
     <!-- World Map -->
     <string name="world_map_title">Weltkarte - Wiesen von Egril</string>
     <string name="back_to_world_map">Zurück zur Weltkarte</string>
+    <string name="play_level">Level spielen</string>
+    <string name="requires_completing">Erfordert Abschluss von:</string>
     
     <!-- Load Game Screen -->
     <string name="no_saved_games">Keine gespeicherten Spiele gefunden</string>
@@ -562,4 +566,14 @@
     <string name="all">alle</string>
     <string name="requires">Erfordert</string>
     <string name="entry_point">Einstiegspunkt</string>
+    
+    <!-- World Map Locations -->
+    <string name="levels_at_location">%s Level an diesem Ort</string>
+    <string name="requires_any_of">Erfordert %s von:</string>
+    <string name="requires_all">Erfordert alle:</string>
+    
+    <!-- World Map Position Editor -->
+    <string name="world_map_positions">Weltkarte</string>
+    <string name="world_map_position_instructions">Wählen Sie eine Karte aus der Liste, dann klicken Sie auf die Weltkarte, um ihre Position festzulegen. Die Position wird als Promille (0-1000) der Kartenabmessungen gespeichert.</string>
+    <string name="no_position_set">Keine Position festgelegt</string>
 </resources>
