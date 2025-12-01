@@ -346,16 +346,16 @@ private fun BoxScope.LocationMarkersOverlay(
                         androidx.compose.ui.unit.IntOffset(xOffset, yOffset)
                     }
             ) {
-                // Location name label above the marker
+                // Location name label above the marker - white text on semi-transparent dark gray
                 Surface(
                     shape = RoundedCornerShape(4.dp),
-                    color = if (isDarkMode) Color(0xCC000000) else Color(0xCCFFFFFF),
+                    color = Color(0xB3404040),  // Semi-transparent dark gray (70% opacity)
                     shadowElevation = 2.dp
                 ) {
                     Text(
                         text = location.name,
                         style = MaterialTheme.typography.labelSmall,
-                        color = if (isDarkMode) Color.White else Color.Black,
+                        color = Color.White,
                         modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                     )
                 }
