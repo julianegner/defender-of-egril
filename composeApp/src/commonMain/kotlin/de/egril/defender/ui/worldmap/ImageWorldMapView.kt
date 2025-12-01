@@ -25,6 +25,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import de.egril.defender.model.LevelStatus
 import de.egril.defender.model.WorldLevel
 import de.egril.defender.ui.mouseWheelZoom
@@ -370,13 +371,16 @@ private fun BoxScope.LocationMarkersOverlay(
         
         // Calculate marker position accounting for image bounds within container
         // Use smaller sizes on Android (50% of normal size)
-        val markerSize = if (isPlatformAndroid) 20.dp else 40.dp
-        val labelHorizontalPadding = if (isPlatformAndroid) 3.dp else 6.dp
-        val labelVerticalPadding = if (isPlatformAndroid) 1.dp else 2.dp
-        val labelCornerRadius = if (isPlatformAndroid) 2.dp else 4.dp
-        val spacerHeight = if (isPlatformAndroid) 2.dp else 4.dp
-        val labelElevation = if (isPlatformAndroid) 1.dp else 2.dp
-        val markerElevation = if (isPlatformAndroid) 2.dp else 4.dp
+        val scaleFactor = if (isPlatformAndroid) 0.5f else 1f
+        val markerSize = (40 * scaleFactor).dp
+        val labelHorizontalPadding = (6 * scaleFactor).dp
+        val labelVerticalPadding = (2 * scaleFactor).dp
+        val labelCornerRadius = (4 * scaleFactor).dp
+        val spacerHeight = (4 * scaleFactor).dp
+        val labelElevation = (2 * scaleFactor).dp
+        val markerElevation = (4 * scaleFactor).dp
+        val labelFontSize = (11 * scaleFactor).sp  // labelSmall is typically 11sp
+        val markerFontSize = (14 * scaleFactor).sp  // bodyMedium is typically 14sp
         
         // Position the marker using Box alignment offset
         Box(
@@ -403,7 +407,7 @@ private fun BoxScope.LocationMarkersOverlay(
                 ) {
                     Text(
                         text = location.name,
-                        style = if (isPlatformAndroid) MaterialTheme.typography.labelSmall.copy(fontSize = androidx.compose.ui.unit.TextUnit(6f, androidx.compose.ui.unit.TextUnitType.Sp)) else MaterialTheme.typography.labelSmall,
+                        style = MaterialTheme.typography.labelSmall.copy(fontSize = labelFontSize),
                         color = Color.White,
                         modifier = Modifier.padding(horizontal = labelHorizontalPadding, vertical = labelVerticalPadding)
                     )
@@ -428,7 +432,7 @@ private fun BoxScope.LocationMarkersOverlay(
                     ) {
                         Text(
                             text = levelsAtLocation.size.toString(),
-                            style = if (isPlatformAndroid) MaterialTheme.typography.labelSmall else MaterialTheme.typography.bodyMedium,
+                            style = MaterialTheme.typography.bodyMedium.copy(fontSize = markerFontSize),
                             color = Color.White
                         )
                     }
