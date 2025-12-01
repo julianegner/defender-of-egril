@@ -23,6 +23,8 @@
     <string name="dark_mode">Mode Sombre</string>
     <string name="dark_mode_on">Mode Sombre Activé</string>
     <string name="dark_mode_off">Mode Sombre Désactivé</string>
+    <string name="world_map_level_cards">Vue des Cartes de Niveau</string>
+    <string name="world_map_image_map">Vue de la Carte Image</string>
     <string name="reset_settings">Réinitialiser les Paramètres</string>
     <string name="restore_game_data">Restaurer les Données du Jeu</string>
     <string name="restore_game_data_confirm_title">Restaurer les Données du Jeu ?</string>
@@ -74,6 +76,8 @@
     <!-- World Map -->
     <string name="world_map_title">Carte du monde - Prairies d\'Egril</string>
     <string name="back_to_world_map">Retour à la carte du monde</string>
+    <string name="play_level">Jouer au niveau</string>
+    <string name="requires_completing">Nécessite de compléter:</string>
     
     <!-- Load Game Screen -->
     <string name="no_saved_games">Aucune partie sauvegardée trouvée</string>
@@ -364,6 +368,10 @@
     <string name="yes">Oui</string>
     <string name="confirm_delete_level">Êtes-vous sûr de vouloir supprimer ce niveau?</string>
     <string name="amount">Quantité</string>
+    <string name="change_turn_level">Modifier le niveau du tour</string>
+    <string name="change_all_levels_in_turn">Modifier tous les niveaux du tour %d</string>
+    <string name="mixed_levels_warning">Ce tour contient des unités avec différents niveaux (%s). Êtes-vous sûr de vouloir tous les changer au niveau %d?</string>
+    <string name="apply">Appliquer</string>
 
     <!-- Enemy ability descriptions -->
     <string name="can_summon">Peut invoquer des serviteurs</string>
@@ -546,4 +554,33 @@
     <string name="magical_trap_available">Piège Magique Disponible</string>
     <string name="magical_trap_tutorial_title">Piège Magique Débloqué !</string>
     <string name="magical_trap_tutorial_message">Votre tour de magicien a atteint le niveau 10 et peut désormais placer des pièges magiques ! Ces pièges téléportent les ennemis à leur point d\'apparition lorsqu\'ils sont déclenchés. Après avoir placé un piège, il y a un temps de recharge de 10 tours avant de pouvoir en placer un autre.</string>
+    
+    <!-- Level Prerequisites -->
+    <string name="level_dependencies">Dépendances des Niveaux</string>
+    <string name="validation_passed">Validation Réussie</string>
+    <string name="validation_failed">Validation Échouée</string>
+    <string name="missing_prerequisites">Niveaux prérequis manquants</string>
+    <string name="circular_dependencies">Dépendances circulaires détectées</string>
+    <string name="final_stand_disconnected">Le Dernier Bastion n\'est pas connecté à un point d\'entrée</string>
+    <string name="unreachable_levels">Niveaux inaccessibles</string>
+    <string name="edit_prerequisites">Modifier les Prérequis</string>
+    <string name="select_prerequisites">Sélectionnez les niveaux qui doivent être complétés avant de débloquer ce niveau :</string>
+    <string name="required_count">Nombre Requis</string>
+    <string name="required_count_hint">Laissez vide pour exiger tous les prérequis. Entrez un nombre pour n\'en exiger qu\'un certain nombre.</string>
+    <string name="all">tous</string>
+    <string name="requires">Nécessite</string>
+    <string name="entry_point">Point d\'Entrée</string>
+    
+    <!-- World Map Locations -->
+    <string name="levels_at_location">%s niveau(x) à cet emplacement</string>
+    <string name="requires_any_of">Nécessite de compléter %s de :</string>
+    <string name="requires_all">Nécessite de compléter tous :</string>
+    
+    <!-- World Map Position Editor -->
+    <string name="world_map_positions">Carte du Monde</string>
+    <string name="world_map_position_instructions">Sélectionnez une carte dans la liste, puis cliquez sur la carte du monde pour définir sa position. La position est enregistrée en pour mille (0-1000) des dimensions de la carte.</string>
+    <string name="no_position_set">Aucune position définie</string>
+    <!-- Extended Area Attack Feature -->
+    <string name="extended_area_tutorial_title">Attaque de Zone Étendue !</string>
+    <string name="extended_area_tutorial_message">Votre tour a atteint le niveau 20 et possède maintenant une attaque de zone étendue ! Les attaques de boule de feu et d\'acide affectent désormais les ennemis dans un rayon de 2 cases au lieu d\'une seule. Cela rend vos attaques de zone beaucoup plus puissantes contre les groupes d\'ennemis !</string>
 </resources>

@@ -51,7 +51,8 @@ data class Defender(
     val dragonName: String? = null,  // Dragon's name (for dragon's lair only)
     // Wizard tower trap-specific properties
     val trapCooldownRemaining: MutableState<Int> = mutableStateOf(0),  // Turns until wizard can place another magical trap (level 10+)
-    val hasShownMagicalTrapTutorial: MutableState<Boolean> = mutableStateOf(false)  // Track if tutorial was shown for this wizard
+    val hasShownMagicalTrapTutorial: MutableState<Boolean> = mutableStateOf(false),  // Track if tutorial was shown for this wizard
+    val hasShownExtendedAreaTutorial: MutableState<Boolean> = mutableStateOf(false)  // Track if extended area tutorial was shown (level 20+)
 ) {
     val damage: Int get() = type.baseDamage + (level.value - 1) * 5
     val range: Int get() {
@@ -120,6 +121,21 @@ data class Defender(
         } else {
             0
         }
+    }
+    
+    // Calculate the area effect radius for AREA and LASTING attacks
+    // Base radius is 1 tile (immediate neighbors), at level 20+ it becomes 2 tiles
+    val areaEffectRadius: Int get() {
+        return if (type.attackType == AttackType.AREA || type.attackType == AttackType.LASTING) {
+            if (level.value >= 20) 2 else 1
+        } else {
+            0
+        }
+    }
+    
+    // Check if the tower has extended area effect (level 20+)
+    val hasExtendedAreaEffect: Boolean get() {
+        return (type.attackType == AttackType.AREA || type.attackType == AttackType.LASTING) && level.value >= 20
     }
     
     fun canAttack(attacker: Attacker): Boolean {
