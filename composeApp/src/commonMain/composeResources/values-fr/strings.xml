@@ -550,4 +550,8 @@
     <string name="magical_trap_available">Piège Magique Disponible</string>
     <string name="magical_trap_tutorial_title">Piège Magique Débloqué !</string>
     <string name="magical_trap_tutorial_message">Votre tour de magicien a atteint le niveau 10 et peut désormais placer des pièges magiques ! Ces pièges téléportent les ennemis à leur point d\'apparition lorsqu\'ils sont déclenchés. Après avoir placé un piège, il y a un temps de recharge de 10 tours avant de pouvoir en placer un autre.</string>
+    
+    <!-- Extended Area Attack Feature -->
+    <string name="extended_area_tutorial_title">Attaque de Zone Étendue !</string>
+    <string name="extended_area_tutorial_message">Votre tour a atteint le niveau 20 et possède maintenant une attaque de zone étendue ! Les attaques de boule de feu et d\'acide affectent désormais les ennemis dans un rayon de 2 cases au lieu d\'une seule. Cela rend vos attaques de zone beaucoup plus puissantes contre les groupes d\'ennemis !</string>
 </resources>

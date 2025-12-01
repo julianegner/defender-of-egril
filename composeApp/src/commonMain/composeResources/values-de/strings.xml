@@ -550,4 +550,8 @@
     <string name="magical_trap_available">Magische Falle verfügbar</string>
     <string name="magical_trap_tutorial_title">Magische Falle freigeschaltet!</string>
     <string name="magical_trap_tutorial_message">Ihr Zauberturm hat Stufe 10 erreicht und kann jetzt magische Fallen platzieren! Diese Fallen teleportieren Feinde zurück zu ihrem Startpunkt. Nach dem Platzieren einer Falle gibt es eine Abklingzeit von 10 Runden, bevor Sie eine weitere platzieren können.</string>
+    
+    <!-- Extended Area Attack Feature -->
+    <string name="extended_area_tutorial_title">Erweiterter Flächenangriff!</string>
+    <string name="extended_area_tutorial_message">Dein Turm hat Stufe 20 erreicht und hat jetzt einen erweiterten Flächenangriff! Feuerball- und Säureangriffe treffen jetzt Feinde im Umkreis von 2 Feldern statt nur 1 Feld. Das macht deine Flächenangriffe gegen Gegnergruppen viel stärker!</string>
 </resources>
