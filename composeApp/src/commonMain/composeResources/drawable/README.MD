@@ -6,4 +6,5 @@ https://android.googlesource.com/platform/frameworks/base/+/refs/heads/main/core
 ic_menu_compass.png is from:
 https://android.googlesource.com/platform/frameworks/base/+/refs/heads/main/core/res/res/drawable-xhdpi/ic_menu_compass.png
 
-
+world_map_background.png was created using
+https://www.redblobgames.com/maps/mapgen4/
