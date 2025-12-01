@@ -99,29 +99,56 @@ fun GameGrid(
                     emptyMap()
                 } else {
                     val result = mutableMapOf<Position, TargetCircleInfo>()
+                    val areaRadius = selectedDefender.areaEffectRadius
+                    val isExtendedArea = areaRadius >= 2
                     
                     // Central target tile
                     result[selectedTargetPosition] = TargetCircleInfo.CentralTarget(
                         color = markerColor,
-                        attackType = attackType
+                        attackType = attackType,
+                        isExtendedArea = isExtendedArea
                     )
                     
                     // For AREA and LASTING attacks, add neighbor tiles that are on the path
                     if (attackType == AttackType.AREA || attackType == AttackType.LASTING) {
-                        val neighbors = selectedTargetPosition.getHexNeighbors()
-                            .filter { neighbor ->
-                            neighbor.x >= 0 && neighbor.x < gameState.level.gridWidth &&
-                            neighbor.y >= 0 && neighbor.y < gameState.level.gridHeight &&
-                            gameState.level.isOnPath(neighbor)
-                        }
+                        if (areaRadius == 1) {
+                            // Standard radius 1 - use getHexNeighbors
+                            val neighbors = selectedTargetPosition.getHexNeighbors()
+                                .filter { neighbor ->
+                                    neighbor.x >= 0 && neighbor.x < gameState.level.gridWidth &&
+                                    neighbor.y >= 0 && neighbor.y < gameState.level.gridHeight &&
+                                    gameState.level.isOnPath(neighbor)
+                                }
 
-                        for (neighbor in neighbors) {
-                            result[neighbor] = TargetCircleInfo.NeighborTarget(
-                                color = markerColor,
-                                attackType = attackType,
-                                centerPosition = selectedTargetPosition,
-                                thisPosition = neighbor
-                            )
+                            for (neighbor in neighbors) {
+                                result[neighbor] = TargetCircleInfo.NeighborTarget(
+                                    color = markerColor,
+                                    attackType = attackType,
+                                    centerPosition = selectedTargetPosition,
+                                    thisPosition = neighbor,
+                                    distanceFromCenter = 1,
+                                    isExtendedArea = false
+                                )
+                            }
+                        } else {
+                            // Extended radius 2 (level 20+) - use getHexNeighborsWithinRadius
+                            val allNeighbors = selectedTargetPosition.getHexNeighborsWithinRadius(
+                                areaRadius,
+                                gameState.level.gridWidth,
+                                gameState.level.gridHeight
+                            ).filter { gameState.level.isOnPath(it) }
+                            
+                            for (neighbor in allNeighbors) {
+                                val distance = selectedTargetPosition.hexDistanceTo(neighbor)
+                                result[neighbor] = TargetCircleInfo.NeighborTarget(
+                                    color = markerColor,
+                                    attackType = attackType,
+                                    centerPosition = selectedTargetPosition,
+                                    thisPosition = neighbor,
+                                    distanceFromCenter = distance,
+                                    isExtendedArea = true
+                                )
+                            }
                         }
                     }
                     println("Target circle map: $result")
@@ -474,11 +501,26 @@ fun GridCell(
                     is TargetCircleInfo.NeighborTarget -> {
                         // Draw outer ring segments on neighbor tiles (only for AREA and LASTING)
                         if (info.attackType == AttackType.AREA || info.attackType == AttackType.LASTING) {
+                            // Use different radii based on distance from center
+                            // Distance 2 (extended area for level 20+) uses larger radii
+                            val radius1 = if (info.distanceFromCenter >= 2) 
+                                TargetCircleConstants.EXTENDED_OUTER_CIRCLE_1_RADIUS 
+                            else 
+                                TargetCircleConstants.OUTER_CIRCLE_1_RADIUS
+                            val radius2 = if (info.distanceFromCenter >= 2) 
+                                TargetCircleConstants.EXTENDED_OUTER_CIRCLE_2_RADIUS 
+                            else 
+                                TargetCircleConstants.OUTER_CIRCLE_2_RADIUS
+                            val radius3 = if (info.distanceFromCenter >= 2) 
+                                TargetCircleConstants.EXTENDED_OUTER_CIRCLE_3_RADIUS 
+                            else 
+                                TargetCircleConstants.OUTER_CIRCLE_3_RADIUS
+                            
                             // Draw 3 concentric arc segments
                             CircularSegmentDrawer.drawArcSegment(
                                 drawScope = this,
                                 color = info.color,
-                                radius = TargetCircleConstants.OUTER_CIRCLE_1_RADIUS,
+                                radius = radius1,
                                 strokeWidth = TargetCircleConstants.OUTER_CIRCLE_STROKE_WIDTH,
                                 centerPos = info.centerPosition,
                                 neighborPos = info.thisPosition,
@@ -488,7 +530,7 @@ fun GridCell(
                             CircularSegmentDrawer.drawArcSegment(
                                 drawScope = this,
                                 color = info.color,
-                                radius = TargetCircleConstants.OUTER_CIRCLE_2_RADIUS,
+                                radius = radius2,
                                 strokeWidth = TargetCircleConstants.OUTER_CIRCLE_STROKE_WIDTH,
                                 centerPos = info.centerPosition,
                                 neighborPos = info.thisPosition,
@@ -498,7 +540,7 @@ fun GridCell(
                             CircularSegmentDrawer.drawArcSegment(
                                 drawScope = this,
                                 color = info.color,
-                                radius = TargetCircleConstants.OUTER_CIRCLE_3_RADIUS,
+                                radius = radius3,
                                 strokeWidth = TargetCircleConstants.OUTER_CIRCLE_STROKE_WIDTH,
                                 centerPos = info.centerPosition,
                                 neighborPos = info.thisPosition,

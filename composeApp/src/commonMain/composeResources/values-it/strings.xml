@@ -550,4 +550,8 @@
     <string name="magical_trap_available">Trappola Magica Disponibile</string>
     <string name="magical_trap_tutorial_title">Trappola Magica Sbloccata!</string>
     <string name="magical_trap_tutorial_message">La tua torre del mago ha raggiunto il livello 10 e ora può piazzare trappole magiche! Queste trappole teletrasportano i nemici al loro punto di partenza quando vengono attivate. Dopo aver piazzato una trappola, c\'è un tempo di ricarica di 10 turni prima di poterne piazzare un\'altra.</string>
+    
+    <!-- Extended Area Attack Feature -->
+    <string name="extended_area_tutorial_title">Attacco ad Area Estesa!</string>
+    <string name="extended_area_tutorial_message">La tua torre ha raggiunto il livello 20 e ora ha un attacco ad area estesa! Gli attacchi con palla di fuoco e acido ora colpiscono i nemici entro 2 caselle dal bersaglio invece di 1 sola. Questo rende i tuoi attacchi ad area molto più potenti contro gruppi di nemici!</string>
 </resources>
