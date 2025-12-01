@@ -67,6 +67,16 @@ class TowerManager(private val state: GameState) {
             defender.hasShownMagicalTrapTutorial.value = true
         }
         
+        // Check if wizard or alchemy tower just reached level 20 for the first time (extended area attack)
+        if ((defender.type == DefenderType.WIZARD_TOWER || defender.type == DefenderType.ALCHEMY_TOWER) && 
+            oldLevel < 20 && 
+            defender.level.value >= 20 &&
+            !defender.hasShownExtendedAreaTutorial.value) {
+            // Show extended area attack tutorial
+            state.infoState.value = state.infoState.value.showInfo(InfoType.EXTENDED_AREA_INFO)
+            defender.hasShownExtendedAreaTutorial.value = true
+        }
+        
         // Calculate the new actionsPerTurn after upgrade
         val newActionsPerTurn = defender.actionsPerTurnCalculated
         

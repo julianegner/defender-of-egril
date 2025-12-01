@@ -99,29 +99,56 @@ fun GameGrid(
                     emptyMap()
                 } else {
                     val result = mutableMapOf<Position, TargetCircleInfo>()
+                    val areaRadius = selectedDefender.areaEffectRadius
+                    val isExtendedArea = areaRadius >= 2
                     
                     // Central target tile
                     result[selectedTargetPosition] = TargetCircleInfo.CentralTarget(
                         color = markerColor,
-                        attackType = attackType
+                        attackType = attackType,
+                        isExtendedArea = isExtendedArea
                     )
                     
                     // For AREA and LASTING attacks, add neighbor tiles that are on the path
                     if (attackType == AttackType.AREA || attackType == AttackType.LASTING) {
-                        val neighbors = selectedTargetPosition.getHexNeighbors()
-                            .filter { neighbor ->
-                            neighbor.x >= 0 && neighbor.x < gameState.level.gridWidth &&
-                            neighbor.y >= 0 && neighbor.y < gameState.level.gridHeight &&
-                            gameState.level.isOnPath(neighbor)
-                        }
+                        if (areaRadius == 1) {
+                            // Standard radius 1 - use getHexNeighbors
+                            val neighbors = selectedTargetPosition.getHexNeighbors()
+                                .filter { neighbor ->
+                                    neighbor.x >= 0 && neighbor.x < gameState.level.gridWidth &&
+                                    neighbor.y >= 0 && neighbor.y < gameState.level.gridHeight &&
+                                    gameState.level.isOnPath(neighbor)
+                                }
 
-                        for (neighbor in neighbors) {
-                            result[neighbor] = TargetCircleInfo.NeighborTarget(
-                                color = markerColor,
-                                attackType = attackType,
-                                centerPosition = selectedTargetPosition,
-                                thisPosition = neighbor
-                            )
+                            for (neighbor in neighbors) {
+                                result[neighbor] = TargetCircleInfo.NeighborTarget(
+                                    color = markerColor,
+                                    attackType = attackType,
+                                    centerPosition = selectedTargetPosition,
+                                    thisPosition = neighbor,
+                                    distanceFromCenter = 1,
+                                    isExtendedArea = false
+                                )
+                            }
+                        } else {
+                            // Extended radius 2 (level 20+) - use getHexNeighborsWithinRadius
+                            val allNeighbors = selectedTargetPosition.getHexNeighborsWithinRadius(
+                                areaRadius,
+                                gameState.level.gridWidth,
+                                gameState.level.gridHeight
+                            ).filter { gameState.level.isOnPath(it) }
+                            
+                            for (neighbor in allNeighbors) {
+                                val distance = selectedTargetPosition.hexDistanceTo(neighbor)
+                                result[neighbor] = TargetCircleInfo.NeighborTarget(
+                                    color = markerColor,
+                                    attackType = attackType,
+                                    centerPosition = selectedTargetPosition,
+                                    thisPosition = neighbor,
+                                    distanceFromCenter = distance,
+                                    isExtendedArea = true
+                                )
+                            }
                         }
                     }
                     println("Target circle map: $result")
