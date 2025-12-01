@@ -241,6 +241,12 @@ private fun GamePlayScreenContent(
         focusRequester.requestFocus()
     }
     
+    // Re-request focus when game phase changes (e.g., after clicking "Start Battle" button)
+    // This ensures keyboard shortcuts continue to work after button clicks
+    LaunchedEffect(gameState.phase.value) {
+        focusRequester.requestFocus()
+    }
+    
     // Keyboard event handler for Ctrl+S save shortcut
     // Using onPreviewKeyEvent to intercept before HexagonalMapView handles it
     val keyboardHandler: (KeyEvent) -> Boolean = remember(onSaveGame) {
