@@ -16,6 +16,7 @@ object CheatCodeHandler {
      * 
      * @param code The cheat code to apply
      * @param addCoins Callback to add coins to the game
+     * @param setCoins Callback to set coins to a specific value
      * @param performMineDigWithOutcome Callback to perform mine dig with a specific outcome
      * @param spawnEnemy Callback to spawn an enemy
      * @return Pair of (success: Boolean, digOutcome: DigOutcome?). Success is true if the cheat code 
@@ -24,6 +25,7 @@ object CheatCodeHandler {
     fun applyCheatCode(
         code: String,
         addCoins: (Int) -> Unit,
+        setCoins: (Int) -> Unit,
         performMineDigWithOutcome: (DigOutcome) -> DigOutcome?,
         spawnEnemy: (AttackerType, Int) -> Unit
     ): Pair<Boolean, DigOutcome?> {
@@ -47,6 +49,10 @@ object CheatCodeHandler {
             }
             "mmmoney" -> {
                 addCoins(1000000)
+                return Pair(true, null)
+            }
+            "emptypocket" -> {
+                setCoins(0)
                 return Pair(true, null)
             }
             // Dig outcome cheat codes
