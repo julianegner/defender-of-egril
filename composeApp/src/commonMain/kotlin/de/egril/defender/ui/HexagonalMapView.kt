@@ -17,6 +17,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.key.*
+import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onSizeChanged
@@ -200,6 +201,17 @@ fun HexagonalMapView(
                     Modifier
                         .focusRequester(focusRequester)
                         .focusable()
+                        // Request focus on any pointer event to regain focus after button clicks
+                        .pointerInput(Unit) {
+                            awaitPointerEventScope {
+                                while (true) {
+                                    val event = awaitPointerEvent(PointerEventPass.Initial)
+                                    if (event.changes.any { it.pressed }) {
+                                        focusRequester.requestFocus()
+                                    }
+                                }
+                            }
+                        }
                         .onKeyEvent(keyboardHandler)
                 } else {
                     Modifier
