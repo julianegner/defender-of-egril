@@ -125,15 +125,27 @@ class CombatSystem(private val state: GameState) {
     }
     
     private fun areaAttack(defender: Defender, targetPosition: Position) {
-        // Calculate affected positions - target and all neighbors that are on the path
+        // Calculate affected positions - target and neighbors within area effect radius
+        // At level 20+, radius increases from 1 to 2 tiles
         val affectedPositions = mutableSetOf(targetPosition)
-        affectedPositions.addAll(
-            targetPosition.getHexNeighbors().filter { neighbor ->
-                neighbor.x >= 0 && neighbor.x < state.level.gridWidth &&
-                neighbor.y >= 0 && neighbor.y < state.level.gridHeight &&
-                state.level.isOnPath(neighbor)
-            }
-        )
+        val radius = defender.areaEffectRadius
+        
+        if (radius == 1) {
+            // Use standard hex neighbors for radius 1
+            affectedPositions.addAll(
+                targetPosition.getHexNeighbors().filter { neighbor ->
+                    neighbor.x >= 0 && neighbor.x < state.level.gridWidth &&
+                    neighbor.y >= 0 && neighbor.y < state.level.gridHeight &&
+                    state.level.isOnPath(neighbor)
+                }
+            )
+        } else {
+            // Use extended radius for level 20+
+            affectedPositions.addAll(
+                targetPosition.getHexNeighborsWithinRadius(radius, state.level.gridWidth, state.level.gridHeight)
+                    .filter { state.level.isOnPath(it) }
+            )
+        }
 
         // Only include target position if it's on the path
         if (!state.level.isOnPath(targetPosition)) {
@@ -180,15 +192,27 @@ class CombatSystem(private val state: GameState) {
     }
     
     private fun lastingAttack(defender: Defender, targetPosition: Position) {
-        // Calculate affected positions - target and all neighbors that are on the path
+        // Calculate affected positions - target and neighbors within area effect radius
+        // At level 20+, radius increases from 1 to 2 tiles
         val affectedPositions = mutableSetOf(targetPosition)
-        affectedPositions.addAll(
-            targetPosition.getHexNeighbors().filter { neighbor ->
-                neighbor.x >= 0 && neighbor.x < state.level.gridWidth &&
-                neighbor.y >= 0 && neighbor.y < state.level.gridHeight &&
-                state.level.isOnPath(neighbor)
-            }
-        )
+        val radius = defender.areaEffectRadius
+        
+        if (radius == 1) {
+            // Use standard hex neighbors for radius 1
+            affectedPositions.addAll(
+                targetPosition.getHexNeighbors().filter { neighbor ->
+                    neighbor.x >= 0 && neighbor.x < state.level.gridWidth &&
+                    neighbor.y >= 0 && neighbor.y < state.level.gridHeight &&
+                    state.level.isOnPath(neighbor)
+                }
+            )
+        } else {
+            // Use extended radius for level 20+
+            affectedPositions.addAll(
+                targetPosition.getHexNeighborsWithinRadius(radius, state.level.gridWidth, state.level.gridHeight)
+                    .filter { state.level.isOnPath(it) }
+            )
+        }
 
         // Only include target position if it's on the path
         if (!state.level.isOnPath(targetPosition)) {
