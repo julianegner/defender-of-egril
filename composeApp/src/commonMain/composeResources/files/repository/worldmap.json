@@ -1,0 +1,79 @@
+{
+  "locations": [
+    {
+      "id": "tutorial",
+      "name": "Tutorial",
+      "position": {"x": 82, "y": 873},
+      "levelIds": ["welcome_to_defender_of_egril"]
+    },
+    {
+      "id": "the_beginning",
+      "name": "The Beginning",
+      "position": {"x": 167, "y": 589},
+      "levelIds": ["the_first_wave", "mixed_forces", "the_ork_invasion", "dark_magic_rises"]
+    },
+    {
+      "id": "the_plains",
+      "name": "The Plains",
+      "position": {"x": 264, "y": 587},
+      "levelIds": ["the_plains"]
+    },
+    {
+      "id": "the_spiral",
+      "name": "The Spiral",
+      "position": {"x": 358, "y": 496},
+      "levelIds": ["the_spiral_challenge"]
+    },
+    {
+      "id": "the_dance",
+      "name": "The Dance",
+      "position": {"x": 319, "y": 296},
+      "levelIds": ["the_dance"]
+    },
+    {
+      "id": "the_village",
+      "name": "The Village",
+      "position": {"x": 328, "y": 354},
+      "levelIds": ["the_rush"]
+    },
+    {
+      "id": "the_woods",
+      "name": "The Woods",
+      "position": {"x": 352, "y": 410},
+      "levelIds": ["the_woods_first_incursion", "the_woods_full_assault"]
+    },
+    {
+      "id": "the_fast",
+      "name": "The Fast",
+      "position": {"x": 476, "y": 457},
+      "levelIds": ["the_fast_and_furious"]
+    },
+    {
+      "id": "the_cross",
+      "name": "The Cross",
+      "position": {"x": 580, "y": 517},
+      "levelIds": ["the_cross"]
+    },
+    {
+      "id": "the_winding_path",
+      "name": "The Winding Path",
+      "position": {"x": 660, "y": 527},
+      "levelIds": ["the_winding_path"]
+    },
+    {
+      "id": "the_fortress",
+      "name": "The Fortress",
+      "position": {"x": 640, "y": 339},
+      "levelIds": ["the_fortress_1_first_attacks", "the_fortress_2_orks_marching", "the_fortress_3_necromancer", "the_fortress_4_magic_assault", "the_fortress_5_mighty_forces", "the_final_stand"]
+    },
+    {
+      "id": "ewhads_challege",
+      "name": "Ewhads Challege",
+      "position": {"x": 797, "y": 870},
+      "levelIds": ["ewhads_challenge"]
+    }
+  ],
+  "paths": [
+    
+  ]
+}

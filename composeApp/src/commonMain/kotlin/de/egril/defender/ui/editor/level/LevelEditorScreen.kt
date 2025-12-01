@@ -14,12 +14,13 @@ import androidx.compose.ui.zIndex
 import de.egril.defender.ui.icon.LeftArrowIcon
 import de.egril.defender.ui.editor.EditorTab
 import de.egril.defender.ui.editor.map.MapEditorContent
+import de.egril.defender.ui.editor.worldmap.WorldMapPositionEditorContent
 import de.egril.defender.ui.settings.SettingsButton
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
 
 /**
- * Main screen for level editing with tabs for Map Editor, Level Editor, and Level Sequence
+ * Main screen for level editing with tabs for Map Editor, Level Editor, Level Sequence, and World Map Positions
  */
 @Composable
 fun LevelEditorScreen(
@@ -46,6 +47,7 @@ fun LevelEditorScreen(
                 EditorTab.MAP_EDITOR -> MapEditorContent()
                 EditorTab.LEVEL_EDITOR -> LevelEditorContent()
                 EditorTab.LEVEL_SEQUENCE -> LevelSequenceContent()
+                EditorTab.WORLD_MAP_POSITIONS -> WorldMapPositionEditorContent()
             }
         }
         
@@ -129,6 +131,18 @@ fun LevelEditorScreen(
                         )
                     ) {
                         Text(stringResource(Res.string.level_dependencies))
+                    }
+                    
+                    Button(
+                        onClick = { currentTab = EditorTab.WORLD_MAP_POSITIONS },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (currentTab == EditorTab.WORLD_MAP_POSITIONS)
+                                MaterialTheme.colorScheme.primary 
+                            else 
+                                MaterialTheme.colorScheme.secondary
+                        )
+                    ) {
+                        Text(stringResource(Res.string.world_map_positions))
                     }
                 }
             }
