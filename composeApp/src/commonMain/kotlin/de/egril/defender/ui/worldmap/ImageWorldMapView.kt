@@ -3,6 +3,7 @@ package de.egril.defender.ui.worldmap
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
@@ -226,12 +227,13 @@ fun ImageWorldMapView(
                 isDarkMode = isDarkMode
             )
             
-            // Location markers overlay
+            // Location markers overlay - clickable markers
             LocationMarkersOverlay(
                 locations = locations,
                 worldLevels = worldLevels,
                 containerSize = containerSize,
-                isDarkMode = isDarkMode
+                isDarkMode = isDarkMode,
+                onLocationClicked = onLocationClicked
             )
         }
     }
@@ -298,7 +300,8 @@ private fun BoxScope.LocationMarkersOverlay(
     locations: List<WorldMapLocation>,
     worldLevels: List<WorldLevel>,
     containerSize: IntSize,
-    isDarkMode: Boolean
+    isDarkMode: Boolean,
+    onLocationClicked: (WorldMapLocation, List<WorldLevel>) -> Unit
 ) {
     // Draw each location marker
     for (location in locations) {
@@ -320,31 +323,40 @@ private fun BoxScope.LocationMarkersOverlay(
             else -> if (isDarkMode) Color(0xFF3498DB) else Color(0xFF2196F3)  // Blue default
         }
         
-        // Calculate marker position in pixels (pre-compute to avoid division on each frame)
-        val markerSize = 30.dp
-        val halfMarkerSize = 15  // in pixels, approximate center offset
-        val xPx = (location.x * containerSize.width).toInt() - halfMarkerSize
-        val yPx = (location.y * containerSize.height).toInt() - halfMarkerSize
+        // Calculate marker position as fraction of container
+        val markerSize = 40.dp
+        val xFraction = location.x
+        val yFraction = location.y
         
-        // Position the marker based on normalized coordinates
+        // Position the marker using Box alignment offset
         Box(
             modifier = Modifier
-                .offset(x = xPx.dp, y = yPx.dp)
-                .size(markerSize)
+                .fillMaxSize()
         ) {
-            // Marker circle
+            // Use fractional positioning within the parent
             Surface(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .size(markerSize)
+                    .align { size, space, _ ->
+                        // Calculate position based on fraction of container
+                        val xOffset = (xFraction * space.width - size.width / 2).toInt()
+                        val yOffset = (yFraction * space.height - size.height / 2).toInt()
+                        androidx.compose.ui.unit.IntOffset(xOffset, yOffset)
+                    }
+                    .clickable {
+                        onLocationClicked(location, levelsAtLocation)
+                    },
                 shape = androidx.compose.foundation.shape.CircleShape,
                 color = markerColor,
                 shadowElevation = 4.dp
             ) {
                 Box(
-                    contentAlignment = Alignment.Center
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.fillMaxSize()
                 ) {
                     Text(
                         text = levelsAtLocation.size.toString(),
-                        style = MaterialTheme.typography.bodySmall,
+                        style = MaterialTheme.typography.bodyMedium,
                         color = Color.White
                     )
                 }

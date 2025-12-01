@@ -22,6 +22,9 @@ import defender_of_egril.composeapp.generated.resources.*
  * Dialog that shows all levels at a specific map location.
  * Each level is shown as a card with a button to start the level.
  * The button is only active if the level is playable (not locked).
+ * 
+ * For single level: Shows the level card with play button below it.
+ * For multiple levels: Shows list of cards with play buttons on the right of each card.
  */
 @Composable
 fun LevelLocationDialog(
@@ -31,7 +34,6 @@ fun LevelLocationDialog(
     onDismiss: () -> Unit
 ) {
     val isDarkMode = AppSettings.isDarkMode.value
-    val currentDifficulty = AppSettings.difficulty.value
     
     Dialog(onDismissRequest = onDismiss) {
         Card(
@@ -54,26 +56,36 @@ fun LevelLocationDialog(
                     color = if (isDarkMode) Color.White else Color.Black
                 )
                 
-                Text(
-                    text = stringResource(Res.string.levels_at_location, levelsAtLocation.size.toString()),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = if (isDarkMode) Color.LightGray else Color.DarkGray
-                )
+                if (levelsAtLocation.size > 1) {
+                    Text(
+                        text = stringResource(Res.string.levels_at_location, levelsAtLocation.size.toString()),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = if (isDarkMode) Color.LightGray else Color.DarkGray
+                    )
+                }
                 
                 Spacer(modifier = Modifier.height(16.dp))
                 
-                // Level cards list
-                LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.weight(1f, fill = false)
-                ) {
-                    items(levelsAtLocation) { worldLevel ->
-                        LevelLocationCard(
-                            worldLevel = worldLevel,
-                            isDarkMode = isDarkMode,
-                            currentDifficulty = currentDifficulty,
-                            onPlayLevel = onPlayLevel
-                        )
+                if (levelsAtLocation.size == 1) {
+                    // Single level: Show card with play button below
+                    val worldLevel = levelsAtLocation.first()
+                    SingleLevelContent(
+                        worldLevel = worldLevel,
+                        onPlayLevel = onPlayLevel,
+                        isDarkMode = isDarkMode
+                    )
+                } else {
+                    // Multiple levels: Show list with play buttons on right
+                    LazyColumn(
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.weight(1f, fill = false)
+                    ) {
+                        items(levelsAtLocation) { worldLevel ->
+                            LevelCardWithPlayButton(
+                                worldLevel = worldLevel,
+                                onPlayLevel = onPlayLevel
+                            )
+                        }
                     }
                 }
                 
@@ -94,15 +106,14 @@ fun LevelLocationDialog(
 }
 
 /**
- * A card showing a single level within the location dialog.
- * Shows level name, status, prerequisites, and a play button.
+ * Content for a single level at a location.
+ * Shows the level card with play button below it.
  */
 @Composable
-private fun LevelLocationCard(
+private fun SingleLevelContent(
     worldLevel: WorldLevel,
-    isDarkMode: Boolean,
-    currentDifficulty: de.egril.defender.ui.settings.DifficultyLevel,
-    onPlayLevel: (Int) -> Unit
+    onPlayLevel: (Int) -> Unit,
+    isDarkMode: Boolean
 ) {
     val isPlayable = worldLevel.status != LevelStatus.LOCKED
     
@@ -119,15 +130,16 @@ private fun LevelLocationCard(
     val prerequisites = editorLevel?.prerequisites ?: emptySet()
     val requiredCount = editorLevel?.getEffectiveRequiredCount() ?: 0
     
+    // Level card
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(8.dp),
+        shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = cardBackgroundColor)
     ) {
         Column(
-            modifier = Modifier.padding(12.dp)
+            modifier = Modifier.padding(16.dp)
         ) {
-            // Level name and status
+            // Level name and status badge
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -136,14 +148,14 @@ private fun LevelLocationCard(
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = worldLevel.level.name,
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.titleLarge,
                         color = textColor
                     )
                     
                     if (worldLevel.level.subtitle.isNotBlank()) {
                         Text(
                             text = worldLevel.level.subtitle,
-                            style = MaterialTheme.typography.bodySmall,
+                            style = MaterialTheme.typography.bodyMedium,
                             color = textColor.copy(alpha = 0.8f)
                         )
                     }
@@ -162,16 +174,16 @@ private fun LevelLocationCard(
                 ) {
                     Text(
                         text = statusText,
-                        style = MaterialTheme.typography.labelSmall,
+                        style = MaterialTheme.typography.labelMedium,
                         color = textColor,
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
                     )
                 }
             }
             
             // Prerequisites info (show when locked)
             if (worldLevel.status == LevelStatus.LOCKED && prerequisites.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(12.dp))
                 
                 val prereqText = if (requiredCount < prerequisites.size) {
                     stringResource(Res.string.requires_any_of, requiredCount.toString())
@@ -181,7 +193,7 @@ private fun LevelLocationCard(
                 
                 Text(
                     text = prereqText,
-                    style = MaterialTheme.typography.labelSmall,
+                    style = MaterialTheme.typography.labelMedium,
                     color = textColor.copy(alpha = 0.7f)
                 )
                 
@@ -192,37 +204,41 @@ private fun LevelLocationCard(
                     
                     Text(
                         text = "• $prereqName",
-                        style = MaterialTheme.typography.bodySmall,
+                        style = MaterialTheme.typography.bodyMedium,
                         color = textColor.copy(alpha = 0.7f),
-                        modifier = Modifier.padding(start = 8.dp)
+                        modifier = Modifier.padding(start = 8.dp, top = 2.dp)
                     )
                 }
             }
-            
-            Spacer(modifier = Modifier.height(8.dp))
-            
-            // Play button
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
-            ) {
-                Button(
-                    onClick = { onPlayLevel(worldLevel.level.id) },
-                    enabled = isPlayable,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = if (isPlayable) {
-                            if (isDarkMode) Color(0xFF2E7D32) else Color(0xFF4CAF50)
-                        } else {
-                            Color.Gray
-                        },
-                        contentColor = Color.White,
-                        disabledContainerColor = Color.Gray.copy(alpha = 0.5f),
-                        disabledContentColor = Color.White.copy(alpha = 0.5f)
-                    )
-                ) {
-                    Text(stringResource(Res.string.play_level))
-                }
-            }
+        }
+    }
+    
+    Spacer(modifier = Modifier.height(16.dp))
+    
+    // Play button below the card
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center
+    ) {
+        Button(
+            onClick = { onPlayLevel(worldLevel.level.id) },
+            enabled = isPlayable,
+            modifier = Modifier.fillMaxWidth(0.7f),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = if (isPlayable) {
+                    if (isDarkMode) Color(0xFF2E7D32) else Color(0xFF4CAF50)
+                } else {
+                    Color.Gray
+                },
+                contentColor = Color.White,
+                disabledContainerColor = Color.Gray.copy(alpha = 0.5f),
+                disabledContentColor = Color.White.copy(alpha = 0.5f)
+            )
+        ) {
+            Text(
+                text = stringResource(Res.string.play_level),
+                style = MaterialTheme.typography.titleMedium
+            )
         }
     }
 }
