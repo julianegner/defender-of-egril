@@ -39,7 +39,7 @@ fun LevelCard(
     }
     
     // Text color changes based on dark mode - darker text for better readability
-    val textColor = if (isDarkMode) Color.Black else Color.White
+    val textColor = if (isDarkMode) Color(0xFFAAAAAA) else Color.White
     
     val statusText = when (worldLevel.status) {
         LevelStatus.LOCKED -> stringResource(Res.string.locked)
