@@ -23,6 +23,8 @@
     <string name="dark_mode">Modalità Scura</string>
     <string name="dark_mode_on">Modalità Scura Attiva</string>
     <string name="dark_mode_off">Modalità Scura Disattiva</string>
+    <string name="world_map_level_cards">Vista Schede di Livello</string>
+    <string name="world_map_image_map">Vista Mappa Immagine</string>
     <string name="reset_settings">Ripristina Impostazioni</string>
     <string name="restore_game_data">Ripristina Dati di Gioco</string>
     <string name="restore_game_data_confirm_title">Ripristinare i Dati di Gioco?</string>
@@ -74,6 +76,8 @@
     <!-- World Map -->
     <string name="world_map_title">Mappa del mondo - Prati di Egril</string>
     <string name="back_to_world_map">Torna alla mappa del mondo</string>
+    <string name="play_level">Gioca livello</string>
+    <string name="requires_completing">Richiede il completamento di:</string>
     
     <!-- Load Game Screen -->
     <string name="no_saved_games">Nessuna partita salvata trovata</string>
@@ -364,6 +368,10 @@
     <string name="yes">Sì</string>
     <string name="confirm_delete_level">Sei sicuro di voler eliminare questo livello?</string>
     <string name="amount">Quantità</string>
+    <string name="change_turn_level">Modifica livello del turno</string>
+    <string name="change_all_levels_in_turn">Modifica tutti i livelli nel turno %d</string>
+    <string name="mixed_levels_warning">Questo turno contiene unità con livelli diversi (%s). Sei sicuro di voler cambiare tutti al livello %d?</string>
+    <string name="apply">Applica</string>
 
     <!-- Enemy ability descriptions -->
     <string name="can_summon">Può evocare servitori</string>
@@ -546,4 +554,33 @@
     <string name="magical_trap_available">Trappola Magica Disponibile</string>
     <string name="magical_trap_tutorial_title">Trappola Magica Sbloccata!</string>
     <string name="magical_trap_tutorial_message">La tua torre del mago ha raggiunto il livello 10 e ora può piazzare trappole magiche! Queste trappole teletrasportano i nemici al loro punto di partenza quando vengono attivate. Dopo aver piazzato una trappola, c\'è un tempo di ricarica di 10 turni prima di poterne piazzare un\'altra.</string>
+    
+    <!-- Level Prerequisites -->
+    <string name="level_dependencies">Dipendenze dei Livelli</string>
+    <string name="validation_passed">Validazione Superata</string>
+    <string name="validation_failed">Validazione Fallita</string>
+    <string name="missing_prerequisites">Livelli prerequisiti mancanti</string>
+    <string name="circular_dependencies">Dipendenze circolari rilevate</string>
+    <string name="final_stand_disconnected">L\'Ultima Resistenza non è connessa a nessun punto di ingresso</string>
+    <string name="unreachable_levels">Livelli irraggiungibili</string>
+    <string name="edit_prerequisites">Modifica Prerequisiti</string>
+    <string name="select_prerequisites">Seleziona i livelli che devono essere completati prima di sbloccare questo livello:</string>
+    <string name="required_count">Quantità Richiesta</string>
+    <string name="required_count_hint">Lascia vuoto per richiedere tutti i prerequisiti. Inserisci un numero per richiederne solo quel numero.</string>
+    <string name="all">tutti</string>
+    <string name="requires">Richiede</string>
+    <string name="entry_point">Punto di Ingresso</string>
+    
+    <!-- World Map Locations -->
+    <string name="levels_at_location">%s livello/i in questa posizione</string>
+    <string name="requires_any_of">Richiede di completare %s di:</string>
+    <string name="requires_all">Richiede di completare tutti:</string>
+    
+    <!-- World Map Position Editor -->
+    <string name="world_map_positions">Mappa del Mondo</string>
+    <string name="world_map_position_instructions">Seleziona una mappa dalla lista, poi clicca sulla mappa del mondo per impostare la sua posizione. La posizione viene salvata come permille (0-1000) delle dimensioni della mappa.</string>
+    <string name="no_position_set">Nessuna posizione impostata</string>
+    <!-- Extended Area Attack Feature -->
+    <string name="extended_area_tutorial_title">Attacco ad Area Estesa!</string>
+    <string name="extended_area_tutorial_message">La tua torre ha raggiunto il livello 20 e ora ha un attacco ad area estesa! Gli attacchi con palla di fuoco e acido ora colpiscono i nemici entro 2 caselle dal bersaglio invece di 1 sola. Questo rende i tuoi attacchi ad area molto più potenti contro gruppi di nemici!</string>
 </resources>
