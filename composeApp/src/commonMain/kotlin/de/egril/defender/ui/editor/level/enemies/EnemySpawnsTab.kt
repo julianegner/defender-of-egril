@@ -23,6 +23,7 @@ import de.egril.defender.editor.EditorEnemySpawn
 import de.egril.defender.editor.EditorMap
 import de.egril.defender.ui.editor.level.ChangeLevelDialog
 import de.egril.defender.ui.editor.level.ChangeSpawnPointDialog
+import de.egril.defender.ui.editor.level.ChangeTurnLevelDialog
 import de.egril.defender.ui.editor.level.SpawnTurnSection
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.add_turn
@@ -51,6 +52,9 @@ fun EnemySpawnsTab(
     
     // Track level change dialog
     var spawnToChangeLevel by remember { mutableStateOf<EditorEnemySpawn?>(null) }
+    
+    // Track turn level change dialog
+    var turnToChangeLevel by remember { mutableStateOf<Int?>(null) }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -181,6 +185,9 @@ fun EnemySpawnsTab(
                     },
                     onChangeLevel = { spawn ->
                         spawnToChangeLevel = spawn
+                    },
+                    onChangeTurnLevel = {
+                        turnToChangeLevel = turn
                     }
                 )
             }
@@ -222,6 +229,27 @@ fun EnemySpawnsTab(
                 }.toMutableList()
                 onEnemySpawnsChange(newSpawns)
                 spawnToChangeLevel = null
+            }
+        )
+    }
+    
+    // Change turn level dialog
+    turnToChangeLevel?.let { turn ->
+        val spawnsInTurn = enemySpawns.filter { it.spawnTurn == turn }
+        ChangeTurnLevelDialog(
+            turn = turn,
+            spawns = spawnsInTurn,
+            onDismiss = { turnToChangeLevel = null },
+            onChange = { newLevel ->
+                val newSpawns = enemySpawns.map {
+                    if (it.spawnTurn == turn) {
+                        it.copy(level = newLevel)
+                    } else {
+                        it
+                    }
+                }.toMutableList()
+                onEnemySpawnsChange(newSpawns)
+                turnToChangeLevel = null
             }
         )
     }
