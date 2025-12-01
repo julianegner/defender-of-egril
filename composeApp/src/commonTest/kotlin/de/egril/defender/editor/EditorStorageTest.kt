@@ -279,4 +279,97 @@ class EditorStorageTest {
         assertEquals("level_2", sequence.sequence[3])
         assertEquals("level_4", sequence.sequence[4])
     }
+    
+    @Test
+    fun testLevelPrerequisitesBasic() {
+        // Level with no prerequisites
+        val entryLevel = EditorLevel(
+            id = "entry_level",
+            mapId = "test_map",
+            title = "Entry Level",
+            startCoins = 100,
+            enemySpawns = listOf(EditorEnemySpawn(AttackerType.GOBLIN, 1, 1)),
+            availableTowers = setOf(DefenderType.SPIKE_TOWER),
+            prerequisites = emptySet()
+        )
+        assertEquals(0, entryLevel.getEffectiveRequiredCount())
+        
+        // Level with prerequisites - all required (default)
+        val level2 = EditorLevel(
+            id = "level_2",
+            mapId = "test_map",
+            title = "Level 2",
+            startCoins = 100,
+            enemySpawns = listOf(EditorEnemySpawn(AttackerType.GOBLIN, 1, 1)),
+            availableTowers = setOf(DefenderType.SPIKE_TOWER),
+            prerequisites = setOf("entry_level", "another_level"),
+            requiredPrerequisiteCount = null  // All required
+        )
+        assertEquals(2, level2.getEffectiveRequiredCount())
+        
+        // Level with partial prerequisites required
+        val level3 = EditorLevel(
+            id = "level_3",
+            mapId = "test_map",
+            title = "Level 3",
+            startCoins = 100,
+            enemySpawns = listOf(EditorEnemySpawn(AttackerType.GOBLIN, 1, 1)),
+            availableTowers = setOf(DefenderType.SPIKE_TOWER),
+            prerequisites = setOf("level_a", "level_b", "level_c"),
+            requiredPrerequisiteCount = 2  // Only 2 of 3 required
+        )
+        assertEquals(2, level3.getEffectiveRequiredCount())
+    }
+    
+    @Test
+    fun testLevelPrerequisitesSerialization() {
+        val level = EditorLevel(
+            id = "test_prereq_level",
+            mapId = "test_map",
+            title = "Test Prerequisites",
+            startCoins = 100,
+            startHealthPoints = 10,
+            enemySpawns = listOf(EditorEnemySpawn(AttackerType.GOBLIN, 1, 1)),
+            availableTowers = setOf(DefenderType.SPIKE_TOWER),
+            prerequisites = setOf("prereq_a", "prereq_b"),
+            requiredPrerequisiteCount = 1
+        )
+        
+        val json = EditorJsonSerializer.serializeLevel(level)
+        assertNotNull(json)
+        assertTrue(json.contains("\"prerequisites\""))
+        assertTrue(json.contains("prereq_a"))
+        assertTrue(json.contains("prereq_b"))
+        assertTrue(json.contains("\"requiredPrerequisiteCount\": 1"))
+        
+        val deserialized = EditorJsonSerializer.deserializeLevel(json)
+        assertNotNull(deserialized)
+        assertEquals("test_prereq_level", deserialized.id)
+        assertEquals(2, deserialized.prerequisites.size)
+        assertTrue(deserialized.prerequisites.contains("prereq_a"))
+        assertTrue(deserialized.prerequisites.contains("prereq_b"))
+        assertEquals(1, deserialized.requiredPrerequisiteCount)
+    }
+    
+    @Test
+    fun testEffectiveRequiredCountEdgeCases() {
+        // requiredPrerequisiteCount larger than prerequisites size
+        val level = EditorLevel(
+            id = "test",
+            mapId = "map",
+            title = "Test",
+            startCoins = 100,
+            enemySpawns = listOf(EditorEnemySpawn(AttackerType.GOBLIN, 1, 1)),
+            availableTowers = setOf(DefenderType.SPIKE_TOWER),
+            prerequisites = setOf("a", "b"),
+            requiredPrerequisiteCount = 5  // Larger than 2
+        )
+        // Should cap at size of prerequisites
+        assertEquals(2, level.getEffectiveRequiredCount())
+        
+        // requiredPrerequisiteCount of 0
+        val level0 = level.copy(requiredPrerequisiteCount = 0)
+        assertEquals(0, level0.getEffectiveRequiredCount())
+    }
 }
+

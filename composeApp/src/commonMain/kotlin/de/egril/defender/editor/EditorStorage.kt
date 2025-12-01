@@ -22,8 +22,11 @@ object EditorStorage {
     private val MAPS_DIR = "gamedata/maps"
     private val LEVELS_DIR = "gamedata/levels"
     private val SEQUENCE_FILE = "gamedata/sequence.json"
+    private val WORLDMAP_FILE = "gamedata/worldmap.json"
     private val VERSION_FILE = "gamedata/version.txt"
-    private val CURRENT_VERSION = "6" // Increment when level data format changes - v6: added spawn points to enemies
+    private val CURRENT_VERSION = "7" // Increment when level data format changes - v7: added world map locations file
+    
+    private var worldMapDataCache: WorldMapData? = null
     
     // Initialize with converted existing levels
     init {
@@ -289,6 +292,108 @@ object EditorStorage {
         updateLevelSequence(LevelSequence(currentSequence))
     }
     
+    // ==================== World Map Data ====================
+    
+    /**
+     * Get the world map data containing locations and paths.
+     * If no world map data exists, returns an empty WorldMapData.
+     */
+    fun getWorldMapData(): WorldMapData {
+        if (worldMapDataCache != null) {
+            return worldMapDataCache!!
+        }
+        
+        // Try to load from file
+        val json = fileStorage.readFile(WORLDMAP_FILE)
+        if (json != null) {
+            val data = EditorJsonSerializer.deserializeWorldMapData(json)
+            if (data != null) {
+                worldMapDataCache = data
+                return data
+            }
+        }
+        
+        return WorldMapData()
+    }
+    
+    /**
+     * Save the world map data.
+     */
+    fun saveWorldMapData(data: WorldMapData) {
+        worldMapDataCache = data
+        val json = EditorJsonSerializer.serializeWorldMapData(data)
+        fileStorage.writeFile(WORLDMAP_FILE, json)
+    }
+    
+    /**
+     * Add or update a location in the world map data.
+     */
+    fun saveWorldMapLocation(location: WorldMapLocationData) {
+        val currentData = getWorldMapData()
+        val existingIndex = currentData.locations.indexOfFirst { it.id == location.id }
+        
+        val updatedLocations = if (existingIndex >= 0) {
+            currentData.locations.toMutableList().apply {
+                set(existingIndex, location)
+            }
+        } else {
+            currentData.locations + location
+        }
+        
+        saveWorldMapData(currentData.copy(locations = updatedLocations))
+    }
+    
+    /**
+     * Remove a location from the world map data.
+     */
+    fun deleteWorldMapLocation(locationId: String) {
+        val currentData = getWorldMapData()
+        val updatedLocations = currentData.locations.filter { it.id != locationId }
+        val updatedPaths = currentData.paths.filter { 
+            it.fromLocationId != locationId && it.toLocationId != locationId 
+        }
+        saveWorldMapData(currentData.copy(locations = updatedLocations, paths = updatedPaths))
+    }
+    
+    /**
+     * Add or update a path in the world map data.
+     */
+    fun saveWorldMapPath(path: WorldMapPathData) {
+        val currentData = getWorldMapData()
+        val existingIndex = currentData.paths.indexOfFirst { 
+            it.fromLocationId == path.fromLocationId && it.toLocationId == path.toLocationId 
+        }
+        
+        val updatedPaths = if (existingIndex >= 0) {
+            currentData.paths.toMutableList().apply {
+                set(existingIndex, path)
+            }
+        } else {
+            currentData.paths + path
+        }
+        
+        saveWorldMapData(currentData.copy(paths = updatedPaths))
+    }
+    
+    /**
+     * Remove a path from the world map data.
+     */
+    fun deleteWorldMapPath(fromLocationId: String, toLocationId: String) {
+        val currentData = getWorldMapData()
+        val updatedPaths = currentData.paths.filter { 
+            !(it.fromLocationId == fromLocationId && it.toLocationId == toLocationId)
+        }
+        saveWorldMapData(currentData.copy(paths = updatedPaths))
+    }
+    
+    /**
+     * Check if a level is ready to play by its ID.
+     */
+    fun isLevelReadyToPlay(levelId: String): Boolean {
+        val level = getLevel(levelId) ?: return false
+        return isLevelReadyToPlay(level)
+    }
+    
     /**
      * Checks if a level is ready to play.
      * A level is ready if:
@@ -320,6 +425,183 @@ object EditorStorage {
         val spawnPoints = map.getSpawnPoints()
         val waypointValidationResult = level.validateWaypointsDetailed(targetPositions = targets, spawnPoints = spawnPoints)
         return waypointValidationResult.isValid
+    }
+    
+    /**
+     * Validates the prerequisites configuration for all levels.
+     * Checks for:
+     * - Non-existent prerequisite level IDs
+     * - Circular dependencies
+     * - Path connectivity to "the_final_stand" level
+     * @return PrerequisiteValidationResult with detailed validation information
+     */
+    fun validateAllPrerequisites(): PrerequisiteValidationResult {
+        val allLevels = getAllLevels()
+        val allLevelIds = allLevels.map { it.id }.toSet()
+        
+        val missingLevelIds = mutableSetOf<String>()
+        val circularDependencies = mutableSetOf<String>()
+        
+        // Check for missing level IDs in prerequisites
+        for (level in allLevels) {
+            for (prereq in level.prerequisites) {
+                if (prereq !in allLevelIds) {
+                    missingLevelIds.add(prereq)
+                }
+            }
+        }
+        
+        // Check for circular dependencies using DFS
+        // Use a single visited set that persists across all calls
+        val visited = mutableSetOf<String>()
+        
+        fun detectCycle(levelId: String, currentPath: MutableSet<String>): Boolean {
+            if (levelId in currentPath) {
+                return true  // Cycle detected
+            }
+            if (levelId in visited) {
+                return false  // Already processed without cycle
+            }
+            
+            currentPath.add(levelId)
+            val level = allLevels.find { it.id == levelId }
+            if (level != null) {
+                for (prereq in level.prerequisites) {
+                    if (prereq in allLevelIds && detectCycle(prereq, currentPath)) {
+                        circularDependencies.add(levelId)
+                        circularDependencies.add(prereq)
+                        currentPath.remove(levelId)
+                        return true
+                    }
+                }
+            }
+            currentPath.remove(levelId)
+            visited.add(levelId)
+            return false
+        }
+        
+        for (level in allLevels) {
+            if (level.id !in visited) {
+                if (detectCycle(level.id, mutableSetOf())) {
+                    circularDependencies.add(level.id)
+                }
+            }
+        }
+        
+        // Find entry points (levels with no prerequisites)
+        val entryPoints = allLevels.filter { it.prerequisites.isEmpty() }.map { it.id }.toSet()
+        
+        // Find "the_final_stand" level
+        val finalStandId = "the_final_stand"
+        val hasFinalStand = finalStandId in allLevelIds
+        
+        // Check if final stand is reachable from entry points (traverse in reverse)
+        var disconnectedFromFinal = false
+        if (hasFinalStand && entryPoints.isNotEmpty()) {
+            // Build a reverse graph: which levels depend on this level
+            val dependents = mutableMapOf<String, MutableSet<String>>()
+            for (level in allLevels) {
+                for (prereq in level.prerequisites) {
+                    dependents.getOrPut(prereq) { mutableSetOf() }.add(level.id)
+                }
+            }
+            
+            // BFS from entry points to see if we can reach final stand
+            val reachable = mutableSetOf<String>()
+            val queue = ArrayDeque(entryPoints)
+            
+            while (queue.isNotEmpty()) {
+                val current = queue.removeFirst()
+                if (current in reachable) continue
+                reachable.add(current)
+                
+                // Add all levels that depend on this level
+                dependents[current]?.forEach { dependent ->
+                    if (dependent !in reachable) {
+                        queue.add(dependent)
+                    }
+                }
+            }
+            
+            disconnectedFromFinal = finalStandId !in reachable
+        } else if (hasFinalStand && entryPoints.isEmpty()) {
+            // No entry points but have final stand - disconnected
+            disconnectedFromFinal = true
+        }
+        
+        // Find unreachable levels (levels that can't be reached from any entry point)
+        val unreachableLevels = mutableSetOf<String>()
+        if (entryPoints.isNotEmpty()) {
+            val reachable = mutableSetOf<String>()
+            val queue = ArrayDeque(entryPoints)
+            
+            // Build forward graph
+            val dependents = mutableMapOf<String, MutableSet<String>>()
+            for (level in allLevels) {
+                for (prereq in level.prerequisites) {
+                    dependents.getOrPut(prereq) { mutableSetOf() }.add(level.id)
+                }
+            }
+            
+            while (queue.isNotEmpty()) {
+                val current = queue.removeFirst()
+                if (current in reachable) continue
+                reachable.add(current)
+                
+                dependents[current]?.forEach { dependent ->
+                    if (dependent !in reachable) {
+                        queue.add(dependent)
+                    }
+                }
+            }
+            
+            unreachableLevels.addAll(allLevelIds - reachable)
+        }
+        
+        val isValid = missingLevelIds.isEmpty() && 
+                      circularDependencies.isEmpty() && 
+                      !disconnectedFromFinal
+        
+        return PrerequisiteValidationResult(
+            isValid = isValid,
+            missingLevelIds = missingLevelIds,
+            circularDependencies = circularDependencies,
+            unreachableLevels = unreachableLevels,
+            disconnectedFromFinal = disconnectedFromFinal
+        )
+    }
+    
+    /**
+     * Check if a specific level is unlocked based on prerequisites and won levels.
+     * @param levelId The level to check
+     * @param wonLevelIds Set of level IDs that have been won
+     * @return true if the level is unlocked
+     */
+    fun isLevelUnlocked(levelId: String, wonLevelIds: Set<String>): Boolean {
+        val level = getLevel(levelId) ?: return false
+        
+        // No prerequisites means level is always unlocked
+        if (level.prerequisites.isEmpty()) {
+            return true
+        }
+        
+        // Count how many prerequisites are fulfilled
+        val fulfilledCount = level.prerequisites.count { it in wonLevelIds }
+        val requiredCount = level.getEffectiveRequiredCount()
+        
+        return fulfilledCount >= requiredCount
+    }
+    
+    /**
+     * Get all levels that are currently unlocked based on won levels.
+     * @param wonLevelIds Set of level IDs that have been won
+     * @return List of unlocked level IDs
+     */
+    fun getUnlockedLevelIds(wonLevelIds: Set<String>): Set<String> {
+        return getAllLevels()
+            .filter { isLevelUnlocked(it.id, wonLevelIds) }
+            .map { it.id }
+            .toSet()
     }
     
     fun deleteMap(mapId: String) {
