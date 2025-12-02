@@ -225,6 +225,7 @@
     <string name="initial_building_phase">Phase de construction initiale - Placez des tours (pas de temps de construction)</string>
     <string name="add_comment">Ajoutez un commentaire optionnel pour identifier cette sauvegarde:</string>
     <string name="game_saved">Jeu sauvegardé</string>
+    <string name="game_saved_successfully">Votre jeu a été sauvegardé avec succès !</string>
     <string name="on_map">Sur la carte</string>
     <string name="planned_spawns">Apparitions prévues</string>
     <string name="position_label">Position</string>
