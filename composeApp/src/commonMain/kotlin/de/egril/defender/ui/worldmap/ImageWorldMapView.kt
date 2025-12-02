@@ -375,7 +375,7 @@ private fun BoxScope.LocationMarkersOverlay(
         val labelScaleFactor = if (isPlatformAndroid) 0.4f else 1f  // 40% for label font
         val markerSize = (40 * scaleFactor).dp
         val labelHorizontalPadding = (6 * scaleFactor).dp
-        val labelVerticalPadding = (1 * scaleFactor).dp  // Reduced for shorter label height
+        val labelVerticalPadding = (2 * labelScaleFactor).dp  // Scale with font for proper text fit
         val labelCornerRadius = (4 * scaleFactor).dp
         val spacerHeight = (2 * scaleFactor).dp  // Reduced spacer
         val labelElevation = (2 * scaleFactor).dp
