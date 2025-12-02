@@ -774,6 +774,10 @@ class GameEngine(private val state: GameState) {
         state.coins.value += amount
     }
     
+    fun setCoins(amount: Int) {
+        state.coins.value = amount
+    }
+    
     fun spawnEnemy(type: AttackerType, level: Int = 1) {
         // Find a free spawn position
         val spawnPos = enemyMovement.findFreeSpawnPosition() ?: return
