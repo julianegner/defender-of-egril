@@ -330,6 +330,7 @@ class GameViewModel {
         val (success, digOutcome) = CheatCodeHandler.applyCheatCode(
             code = code,
             addCoins = { amount -> gameEngine?.addCoins(amount) },
+            setCoins = { amount -> gameEngine?.setCoins(amount) },
             performMineDigWithOutcome = { outcome -> performMineDigWithOutcome(outcome) },
             spawnEnemy = { attackerType, level -> gameEngine?.spawnEnemy(attackerType, level) }
         )

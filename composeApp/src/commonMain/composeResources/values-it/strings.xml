@@ -548,6 +548,11 @@
     <string name="save_and_exit">Salva ed Esci</string>
     <string name="discard_changes">Scarta Modifiche</string>
     
+    <!-- End Turn Confirmation Dialog -->
+    <string name="end_turn_confirmation_title">Terminare il turno?</string>
+    <string name="end_turn_confirmation_message">Alcune torri hanno punti azione inutilizzati. Sei sicuro di voler terminare il turno?</string>
+    <string name="end_turn_confirm">Termina turno</string>
+    
     <!-- Magical Trap Feature -->
     <string name="magical_trap">Trappola Magica</string>
     <string name="magical_trap_cooldown">Ricarica: %d turni</string>
