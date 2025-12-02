@@ -132,13 +132,13 @@ fun SaveConfirmationDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Game Saved") },
+        title = { Text(stringResource(Res.string.game_saved)) },
         text = {
-            Text("Your game has been saved successfully!", style = MaterialTheme.typography.bodyLarge)
+            Text(stringResource(Res.string.game_saved_successfully), style = MaterialTheme.typography.bodyLarge)
         },
         confirmButton = {
             Button(onClick = onDismiss) {
-                Text("OK")
+                Text(stringResource(Res.string.ok))
             }
         }
     )
