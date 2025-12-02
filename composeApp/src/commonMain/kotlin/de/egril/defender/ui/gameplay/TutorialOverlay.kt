@@ -1,13 +1,15 @@
 package de.egril.defender.ui.gameplay
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import de.egril.defender.model.TutorialStep
 import de.egril.defender.model.InfoType
@@ -41,6 +43,7 @@ fun TutorialOverlay(
     Card(
         modifier = Modifier
             .width(300.dp)
+            .heightIn(max = 400.dp)
             .padding(8.dp),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
@@ -62,14 +65,21 @@ fun TutorialOverlay(
                 color = MaterialTheme.colorScheme.primary
             )
             
-            // Content
-            Text(
-                text = getTutorialContent(currentStep),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface
-            )
+            // Scrollable content area
+            Column(
+                modifier = Modifier
+                    .weight(1f, fill = false)
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    text = getTutorialContent(currentStep),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
             
-            // Buttons
+            // Buttons (always visible at the bottom)
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -180,17 +190,37 @@ private fun InfoContent(infoType: InfoType, onDismiss: () -> Unit) {
 }
 
 /**
- * Dragon info content shown in the tutorial overlay
+ * Reusable scrollable info card for tutorial/info dialogs.
+ * Makes content scrollable to ensure buttons are visible on small screens.
+ * 
+ * @param title Optional title composable (displayed above the scrollable content)
+ * @param containerColor Background color for the card
+ * @param onDismiss Callback when the dismiss button is clicked
+ * @param buttonText Text for the dismiss button
+ * @param buttonColor Color for the dismiss button (defaults to primary)
+ * @param width Card width (default 300.dp)
+ * @param maxHeight Maximum height for the card (default 400.dp for scrollability)
+ * @param content Scrollable content composable
  */
 @Composable
-private fun DragonInfoContent(onDismiss: () -> Unit) {
+fun ScrollableInfoCard(
+    title: @Composable (() -> Unit)? = null,
+    containerColor: Color = MaterialTheme.colorScheme.surface,
+    onDismiss: () -> Unit,
+    buttonText: String = stringResource(Res.string.got_it),
+    buttonColor: Color = MaterialTheme.colorScheme.primary,
+    width: Dp = 300.dp,
+    maxHeight: Dp = 400.dp,
+    content: @Composable ColumnScope.() -> Unit
+) {
     Card(
         modifier = Modifier
-            .width(300.dp)
+            .width(width)
+            .heightIn(max = maxHeight)
             .padding(8.dp),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
+            containerColor = containerColor
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
     ) {
@@ -201,45 +231,67 @@ private fun DragonInfoContent(onDismiss: () -> Unit) {
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // Title
+            // Title (if provided)
+            if (title != null) {
+                title()
+            }
+            
+            // Scrollable content area
+            Column(
+                modifier = Modifier
+                    .weight(1f, fill = false)
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                content = content
+            )
+            
+            // Dismiss button (always visible at the bottom)
+            Button(
+                onClick = onDismiss,
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = buttonColor
+                )
+            ) {
+                Text(
+                    text = buttonText,
+                    style = MaterialTheme.typography.labelSmall
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Dragon info content shown in the tutorial overlay
+ */
+@Composable
+private fun DragonInfoContent(onDismiss: () -> Unit) {
+    ScrollableInfoCard(
+        title = {
             Text(
                 text = stringResource(Res.string.dragon_info_title),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary
             )
-            
-            // Content
-            Column(
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Text(
-                    text = stringResource(Res.string.dragon_info_movement),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Text(
-                    text = stringResource(Res.string.dragon_info_eating),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Text(
-                    text = stringResource(Res.string.dragon_info_level),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            }
-            
-            // Got it button
-            Button(
-                onClick = onDismiss,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(
-                    text = stringResource(Res.string.got_it),
-                    style = MaterialTheme.typography.labelSmall
-                )
-            }
-        }
+        },
+        onDismiss = onDismiss
+    ) {
+        Text(
+            text = stringResource(Res.string.dragon_info_movement),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Text(
+            text = stringResource(Res.string.dragon_info_eating),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Text(
+            text = stringResource(Res.string.dragon_info_level),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurface
+        )
     }
 }
 
@@ -248,45 +300,21 @@ private fun DragonInfoContent(onDismiss: () -> Unit) {
  */
 @Composable
 private fun GreedInfoContent(onDismiss: () -> Unit) {
-    Card(
-        modifier = Modifier
-            .width(300.dp)
-            .padding(8.dp),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth(),
-            horizontalAlignment = Alignment.Start,
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
+    ScrollableInfoCard(
+        title = {
             Text(
                 text = stringResource(Res.string.dragon_greed_title),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary
             )
-            
-            Text(
-                text = stringResource(Res.string.dragon_greed_message),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            
-            Button(
-                onClick = onDismiss,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(
-                    text = stringResource(Res.string.got_it),
-                    style = MaterialTheme.typography.labelSmall
-                )
-            }
-        }
+        },
+        onDismiss = onDismiss
+    ) {
+        Text(
+            text = stringResource(Res.string.dragon_greed_message),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurface
+        )
     }
 }
 
@@ -295,45 +323,21 @@ private fun GreedInfoContent(onDismiss: () -> Unit) {
  */
 @Composable
 private fun VeryGreedyInfoContent(onDismiss: () -> Unit) {
-    Card(
-        modifier = Modifier
-            .width(300.dp)
-            .padding(8.dp),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth(),
-            horizontalAlignment = Alignment.Start,
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
+    ScrollableInfoCard(
+        title = {
             Text(
                 text = stringResource(Res.string.dragon_very_greedy_title),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary
             )
-            
-            Text(
-                text = stringResource(Res.string.dragon_very_greedy_message),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            
-            Button(
-                onClick = onDismiss,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(
-                    text = stringResource(Res.string.got_it),
-                    style = MaterialTheme.typography.labelSmall
-                )
-            }
-        }
+        },
+        onDismiss = onDismiss
+    ) {
+        Text(
+            text = stringResource(Res.string.dragon_very_greedy_message),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurface
+        )
     }
 }
 
@@ -342,48 +346,23 @@ private fun VeryGreedyInfoContent(onDismiss: () -> Unit) {
  */
 @Composable
 private fun MineWarningContent(onDismiss: () -> Unit) {
-    Card(
-        modifier = Modifier
-            .width(300.dp)
-            .padding(8.dp),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.errorContainer
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth(),
-            horizontalAlignment = Alignment.Start,
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
+    ScrollableInfoCard(
+        title = {
             Text(
                 text = stringResource(Res.string.mine_warning_title),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.error
             )
-            
-            Text(
-                text = stringResource(Res.string.mine_warning_message),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onErrorContainer
-            )
-            
-            Button(
-                onClick = onDismiss,
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.error
-                )
-            ) {
-                Text(
-                    text = stringResource(Res.string.got_it),
-                    style = MaterialTheme.typography.labelSmall
-                )
-            }
-        }
+        },
+        containerColor = MaterialTheme.colorScheme.errorContainer,
+        buttonColor = MaterialTheme.colorScheme.error,
+        onDismiss = onDismiss
+    ) {
+        Text(
+            text = stringResource(Res.string.mine_warning_message),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onErrorContainer
+        )
     }
 }
 
@@ -392,48 +371,23 @@ private fun MineWarningContent(onDismiss: () -> Unit) {
  */
 @Composable
 private fun OneHpWarningContent(onDismiss: () -> Unit) {
-    Card(
-        modifier = Modifier
-            .width(300.dp)
-            .padding(8.dp),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.errorContainer
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth(),
-            horizontalAlignment = Alignment.Start,
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
+    ScrollableInfoCard(
+        title = {
             Text(
                 text = stringResource(Res.string.one_hp_warning_title),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.error
             )
-            
-            Text(
-                text = stringResource(Res.string.one_hp_warning_message),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onErrorContainer
-            )
-            
-            Button(
-                onClick = onDismiss,
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.error
-                )
-            ) {
-                Text(
-                    text = stringResource(Res.string.got_it),
-                    style = MaterialTheme.typography.labelSmall
-                )
-            }
-        }
+        },
+        containerColor = MaterialTheme.colorScheme.errorContainer,
+        buttonColor = MaterialTheme.colorScheme.error,
+        onDismiss = onDismiss
+    ) {
+        Text(
+            text = stringResource(Res.string.one_hp_warning_message),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onErrorContainer
+        )
     }
 }
 
@@ -442,25 +396,8 @@ private fun OneHpWarningContent(onDismiss: () -> Unit) {
  */
 @Composable
 private fun MagicalTrapInfoContent(onDismiss: () -> Unit) {
-    Card(
-        modifier = Modifier
-            .width(400.dp)
-            .padding(16.dp),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-            // containerColor = Color(0xFF9C27B0) // .copy(alpha = 0.15f)  // Purple background for magical theme
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth(),
-            horizontalAlignment = Alignment.Start,
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            // Title with pentagram icon
+    ScrollableInfoCard(
+        title = {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -472,27 +409,16 @@ private fun MagicalTrapInfoContent(onDismiss: () -> Unit) {
                     color = Color(0xFF9C27B0)  // Purple color for magical theme
                 )
             }
-            
-            // Message
-            Text(
-                text = stringResource(Res.string.magical_trap_tutorial_message),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            
-            Button(
-                onClick = onDismiss,
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF9C27B0)  // Purple button
-                )
-            ) {
-                Text(
-                    text = stringResource(Res.string.got_it),
-                    style = MaterialTheme.typography.labelSmall
-                )
-            }
-        }
+        },
+        buttonColor = Color(0xFF9C27B0),  // Purple button
+        width = 400.dp,
+        onDismiss = onDismiss
+    ) {
+        Text(
+            text = stringResource(Res.string.magical_trap_tutorial_message),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface
+        )
     }
 }
 
@@ -501,24 +427,8 @@ private fun MagicalTrapInfoContent(onDismiss: () -> Unit) {
  */
 @Composable
 private fun ExtendedAreaInfoContent(onDismiss: () -> Unit) {
-    Card(
-        modifier = Modifier
-            .width(400.dp)
-            .padding(16.dp),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth(),
-            horizontalAlignment = Alignment.Start,
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            // Title with explosion icon
+    ScrollableInfoCard(
+        title = {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -530,26 +440,15 @@ private fun ExtendedAreaInfoContent(onDismiss: () -> Unit) {
                     color = Color(0xFFFF5722)  // Deep orange color for area attack theme
                 )
             }
-            
-            // Message
-            Text(
-                text = stringResource(Res.string.extended_area_tutorial_message),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            
-            Button(
-                onClick = onDismiss,
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFFF5722)  // Deep orange button
-                )
-            ) {
-                Text(
-                    text = stringResource(Res.string.got_it),
-                    style = MaterialTheme.typography.labelSmall
-                )
-            }
-        }
+        },
+        buttonColor = Color(0xFFFF5722),  // Deep orange button
+        width = 400.dp,
+        onDismiss = onDismiss
+    ) {
+        Text(
+            text = stringResource(Res.string.extended_area_tutorial_message),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface
+        )
     }
 }
