@@ -21,6 +21,13 @@ object EditorJsonSerializer {
             ",\n  \"worldMapPosition\": {\"x\": ${map.worldMapPosition.x}, \"y\": ${map.worldMapPosition.y}}"
         } else ""
         
+        val riverTilesJson = if (map.riverTiles.isNotEmpty()) {
+            val riverData = map.riverTiles.entries.joinToString(",\n    ") { (pos, river) ->
+                "\"$pos\": {\"flowDirection\": \"${river.flowDirection.name}\", \"flowSpeed\": ${river.flowSpeed}}"
+            }
+            ",\n  \"riverTiles\": {\n    $riverData\n  }"
+        } else ""
+        
         return """{
   "id": "${map.id}",
   "name": "${map.name}",
@@ -29,7 +36,7 @@ object EditorJsonSerializer {
   "readyToUse": ${map.readyToUse}$worldMapPositionJson,
   "tiles": {
     $tilesJson
-  }
+  }$riverTilesJson
 }"""
     }
     
@@ -74,7 +81,39 @@ object EditorJsonSerializer {
                 tiles[pos] = TileType.valueOf(typeStr)
             }
             
-            return EditorMap(id, name, width, height, tiles, readyToUse, worldMapPosition)
+            // Parse optional river tiles
+            val riverTiles = mutableMapOf<String, de.egril.defender.model.RiverTile>()
+            try {
+                if (json.contains("\"riverTiles\"")) {
+                    val riverSection = json.substringAfter("\"riverTiles\": {")
+                        .substringBefore("}")
+                        .replace("},","}|")  // Temporary delimiter
+                    val riverEntries = riverSection.split("|").map { it.trim() }
+                    
+                    for (entry in riverEntries) {
+                        if (entry.isBlank()) continue
+                        val posMatch = Regex("\"([0-9]+,[0-9]+)\"").find(entry) ?: continue
+                        val pos = posMatch.groupValues[1]
+                        
+                        val flowDirectionMatch = Regex("\"flowDirection\":\\s*\"([A-Z_]+)\"").find(entry)
+                        val flowSpeedMatch = Regex("\"flowSpeed\":\\s*([12])").find(entry)
+                        
+                        if (flowDirectionMatch != null && flowSpeedMatch != null) {
+                            val flowDirection = de.egril.defender.model.RiverFlow.valueOf(flowDirectionMatch.groupValues[1])
+                            val flowSpeed = flowSpeedMatch.groupValues[1].toInt()
+                            
+                            val parts = pos.split(",")
+                            val position = Position(parts[0].toInt(), parts[1].toInt())
+                            riverTiles[pos] = de.egril.defender.model.RiverTile(position, flowDirection, flowSpeed)
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                println("Error deserializing river tiles: ${e.message}")
+                // River tiles are optional, continue without them
+            }
+            
+            return EditorMap(id, name, width, height, tiles, readyToUse, worldMapPosition, riverTiles)
         } catch (e: Exception) {
             println("Error deserializing map: ${e.message}")
             return null
