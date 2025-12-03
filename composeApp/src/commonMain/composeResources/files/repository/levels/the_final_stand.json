@@ -3,8 +3,8 @@
   "mapId": "map_the_fortress",
   "title": "The Final Stand",
   "subtitle": "",
-  "startCoins": 200,
-  "startHealthPoints": 6,
+  "startCoins": 1000,
+  "startHealthPoints": 100,
   "enemySpawns": [
     {"attackerType": "SKELETON", "level": 1, "spawnTurn": 1, "spawnPoint": {"x": 0, "y": 7}},
     {"attackerType": "SKELETON", "level": 1, "spawnTurn": 1, "spawnPoint": {"x": 0, "y": 15}},
