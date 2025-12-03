@@ -344,7 +344,7 @@ private fun GamePlayScreenContent(
                             // Handle trap building for mines
                             if (selectedDefender.type == DefenderType.DWARVEN_MINE && selectedMineAction == MineAction.BUILD_TRAP) {
                                 // Check if position is on the path and in range
-                                val distance = selectedDefender.position.distanceTo(position)
+                                val distance = selectedDefender.position.value.distanceTo(position)
                                 if (gameState.level.isOnPath(position) && distance <= selectedDefender.range) {
                                     if (onMineBuildTrap?.invoke(selectedDefender.id, position) == true) {
                                         selectedMineAction = null
@@ -359,7 +359,7 @@ private fun GamePlayScreenContent(
                                 selectedDefender.level.value >= 10 && 
                                 selectedWizardAction == WizardAction.PLACE_MAGICAL_TRAP) {
                                 // Check if position is on the path and in range
-                                val distance = selectedDefender.position.distanceTo(position)
+                                val distance = selectedDefender.position.value.distanceTo(position)
                                 val hasEnemy = gameState.attackers.any { it.position.value == position && !it.isDefeated.value }
                                 val hasTrap = gameState.traps.any { it.position == position }
                                 if (gameState.level.isOnPath(position) && 
@@ -378,7 +378,7 @@ private fun GamePlayScreenContent(
                                 selectedDefender.type.attackType == AttackType.LASTING
                             ) {
                                 // Check if position is on the path and in range
-                                val distance = selectedDefender.position.distanceTo(position)
+                                val distance = selectedDefender.position.value.distanceTo(position)
                                 if (gameState.level.isOnPath(position) &&
                                     distance >= selectedDefender.type.minRange &&
                                     distance <= selectedDefender.range
@@ -438,7 +438,7 @@ private fun GamePlayScreenContent(
                     val canReachEnemies = selectedDefender?.let { defender ->
                         gameState.attackers.any { attacker ->
                             !attacker.isDefeated.value &&
-                            defender.position.distanceTo(attacker.position.value) <= defender.range
+                            defender.position.value.distanceTo(attacker.position.value) <= defender.range
                         }
                     } ?: false
                     

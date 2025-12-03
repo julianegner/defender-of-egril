@@ -19,6 +19,7 @@ class GameEngine(private val state: GameState) {
     private val enemyAbilities = EnemyAbilitySystem(state)
     private val mineOperations = MineOperations(state)
     private val bridgeSystem = BridgeSystem(state)
+    private val raftSystem = RaftSystem(state)
     
     // Tower Management - delegated to TowerManager
     fun placeDefender(type: DefenderType, position: Position): Boolean =
@@ -97,13 +98,13 @@ class GameEngine(private val state: GameState) {
     private fun findNearestMine(from: Position): Pair<Defender, Int>? {
         val mines = state.defenders.filter { 
             it.type == DefenderType.DWARVEN_MINE && 
-            !state.destroyedMinePositions.contains(it.position)
+            !state.destroyedMinePositions.contains(it.position.value)
         }
         
         if (mines.isEmpty()) return null
         
         return mines.map { mine -> 
-            Pair(mine, from.distanceTo(mine.position))
+            Pair(mine, from.distanceTo(mine.position.value))
         }.minByOrNull { it.second }
     }
     
@@ -142,9 +143,9 @@ class GameEngine(private val state: GameState) {
             val (mine, _) = nearestMine
             if (dragon.targetMineId.value != mine.id) {
                 dragon.targetMineId.value = mine.id
-                dragon.currentTarget?.value = mine.position
+                dragon.currentTarget?.value = mine.position.value
                 dragon.mineWarningShown.value = false
-                println("Dragon ${dragon.id} (greed ${dragon.greed}) now targeting mine ${mine.id} at ${mine.position}")
+                println("Dragon ${dragon.id} (greed ${dragon.greed}) now targeting mine ${mine.id} at ${mine.position.value}")
             }
         } else {
             // No mines left, go back to closest target
@@ -178,7 +179,7 @@ class GameEngine(private val state: GameState) {
         val nextTurnSpeed = if (isNextTurnOdd) 1 else 5  // Walking or flying
         
         val currentPos = dragon.position.value
-        val minePos = targetMine.position
+        val minePos = targetMine.position.value
         val distance = currentPos.distanceTo(minePos)
         
         // Check if dragon can reach mine with next turn's movement
@@ -205,11 +206,11 @@ class GameEngine(private val state: GameState) {
         if (targetMine == null) return
         
         // Check if dragon reached the mine position (now dragons can move to mine tiles)
-        val isAtMine = dragon.position.value == targetMine.position
+        val isAtMine = dragon.position.value == targetMine.position.value
         
         if (isAtMine && dragon.mineWarningShown.value) {
             // Destroy the mine - dragon has reached it and warning was already shown
-            println("Dragon ${dragon.id} destroys mine ${targetMine.id} at ${targetMine.position}")
+            println("Dragon ${dragon.id} destroys mine ${targetMine.id} at ${targetMine.position.value}")
             
             // Add health (same as new dragon base health: 500)
             val healthGain = AttackerType.DRAGON.health
@@ -217,7 +218,7 @@ class GameEngine(private val state: GameState) {
             dragon.updateDragonLevel()
             
             // Mark position as destroyed
-            state.destroyedMinePositions.add(targetMine.position)
+            state.destroyedMinePositions.add(targetMine.position.value)
             
             // Remove the mine
             state.defenders.remove(targetMine)
@@ -737,6 +738,9 @@ class GameEngine(private val state: GameState) {
         
         // Process bridge building and bridge turn updates
         bridgeSystem.processBridges()
+        
+        // Process raft movements on rivers
+        raftSystem.processRaftMovements()
 
         // Remove defeated attackers and give rewards
         combatSystem.processDefeatedAttackers()

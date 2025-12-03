@@ -60,7 +60,7 @@ class CombatSystem(private val state: GameState) {
         val defender = state.defenders.find { it.id == defenderId } ?: return false
 
         // Check if defender can reach the target position
-        val distance = defender.position.distanceTo(targetPosition)
+        val distance = defender.position.value.distanceTo(targetPosition)
         if (distance < defender.type.minRange || distance > defender.range) return false
         if (!defender.isReady || defender.actionsRemaining.value <= 0) return false
         

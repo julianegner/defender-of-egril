@@ -160,7 +160,7 @@ object SaveFileStorage {
             SavedDefender(
                 id = defender.id,
                 type = defender.type,
-                position = defender.position,
+                position = defender.position.value,
                 level = defender.level.value,
                 buildTimeRemaining = defender.buildTimeRemaining.value,
                 placedOnTurn = defender.placedOnTurn,
@@ -246,7 +246,7 @@ object SaveFileStorage {
             val defender = Defender(
                 id = savedDefender.id,
                 type = savedDefender.type,
-                position = savedDefender.position,
+                position = mutableStateOf(savedDefender.position),
                 placedOnTurn = savedDefender.placedOnTurn,
                 dragonName = savedDefender.dragonName
             )

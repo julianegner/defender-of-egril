@@ -286,10 +286,10 @@ fun GridCell(
     val cellIsInRange = selectedDefenderId?.let { defenderId ->
         val selectedDefender = gameState.defenders.find { it.id == defenderId }
         selectedDefender?.let { sel ->
-            if (sel.position == position) {
+            if (sel.position.value == position) {
                 false  // Don't highlight the defender's own cell
             } else {
-                val distance = sel.position.distanceTo(position)
+                val distance = sel.position.value.distanceTo(position)
                 distance >= sel.type.minRange && distance <= sel.range
             }
         } ?: false
