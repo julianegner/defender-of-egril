@@ -38,7 +38,6 @@ fun EnemyIcon(
             when (attacker.type) {
                 AttackerType.GOBLIN -> drawGoblinSymbol(centerX, centerY, iconSize * 0.7f)
                 AttackerType.ORK -> drawOrkSymbol(centerX, centerY, iconSize * 0.7f)
-                AttackerType.TROLL -> drawTrollSymbol(centerX, centerY, iconSize * 0.75f)
                 AttackerType.OGRE -> drawOgreSymbol(centerX, centerY, iconSize * 0.75f)
                 AttackerType.SKELETON -> drawSkeletonSymbol(centerX, centerY, iconSize * 0.7f)
                 AttackerType.EVIL_WIZARD -> drawEvilWizardSymbol(centerX, centerY, iconSize * 0.7f)
@@ -102,7 +101,6 @@ fun EnemyTypeIcon(
             when (attackerType) {
                 AttackerType.GOBLIN -> drawGoblinSymbol(centerX, centerY, iconSize * 0.7f)
                 AttackerType.ORK -> drawOrkSymbol(centerX, centerY, iconSize * 0.7f)
-                AttackerType.TROLL -> drawTrollSymbol(centerX, centerY, iconSize * 0.75f)
                 AttackerType.OGRE -> drawOgreSymbol(centerX, centerY, iconSize * 0.75f)
                 AttackerType.SKELETON -> drawSkeletonSymbol(centerX, centerY, iconSize * 0.7f)
                 AttackerType.EVIL_WIZARD -> drawEvilWizardSymbol(centerX, centerY, iconSize * 0.7f)

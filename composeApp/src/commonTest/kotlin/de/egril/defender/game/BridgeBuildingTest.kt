@@ -84,10 +84,10 @@ class BridgeBuildingTest {
     }
     
     /**
-     * Test that a Troll can build a stone bridge over 1-2 river tiles
+     * Test that an Ogre can build a stone bridge over 1-2 river tiles
      */
     @Test
-    fun testTrollBuildsStonebridge() {
+    fun testOgreBuildsStonebridge() {
         // Create a map with 2 adjacent river tiles
         val tiles = mutableMapOf<String, TileType>()
         tiles["0,0"] = TileType.SPAWN_POINT
@@ -98,8 +98,8 @@ class BridgeBuildingTest {
         tiles["5,0"] = TileType.TARGET
         
         val map = EditorMap(
-            id = "test-troll-bridge",
-            name = "Test Troll Bridge",
+            id = "test-ogre-bridge",
+            name = "Test Ogre Bridge",
             width = 6,
             height = 1,
             tiles = tiles
@@ -121,33 +121,33 @@ class BridgeBuildingTest {
         val state = GameState(level = level)
         val bridgeSystem = BridgeSystem(state)
         
-        // Create a troll adjacent to the river
-        val troll = Attacker(
+        // Create an ogre adjacent to the river
+        val ogre = Attacker(
             id = 1,
-            type = AttackerType.TROLL,
+            type = AttackerType.OGRE,
             position = mutableStateOf(Position(1, 0)),
-            currentHealth = mutableStateOf(60)
+            currentHealth = mutableStateOf(80)
         )
-        state.attackers.add(troll)
+        state.attackers.add(ogre)
         
-        // Check that troll can build bridge
-        val bridgeablePositions = bridgeSystem.canBuildBridge(troll)
-        assertTrue(bridgeablePositions.isNotEmpty(), "Troll should be able to build bridge")
-        assertTrue(bridgeablePositions.size in 1..2, "Troll should bridge 1-2 tiles")
+        // Check that ogre can build bridge
+        val bridgeablePositions = bridgeSystem.canBuildBridge(ogre)
+        assertTrue(bridgeablePositions.isNotEmpty(), "Ogre should be able to build bridge")
+        assertTrue(bridgeablePositions.size in 1..2, "Ogre should bridge 1-2 tiles")
         
         // Build the bridge
-        val success = bridgeSystem.buildBridge(troll, bridgeablePositions)
+        val success = bridgeSystem.buildBridge(ogre, bridgeablePositions)
         assertTrue(success, "Bridge building should succeed")
         
         // Verify bridge was created
         assertEquals(1, state.bridges.size, "Should have 1 bridge")
         val bridge = state.bridges[0]
         assertEquals(BridgeType.STONE, bridge.type, "Bridge should be stone")
-        assertEquals(60, bridge.currentHealth.value, "Bridge should have troll's HP")
+        assertEquals(80, bridge.currentHealth.value, "Bridge should have ogre's HP")
         
-        // Verify troll was destroyed
-        assertTrue(troll.isDefeated.value, "Troll should be defeated")
-        assertTrue(troll.isBuildingBridge.value, "Troll should be marked as building bridge")
+        // Verify ogre was destroyed
+        assertTrue(ogre.isDefeated.value, "Ogre should be defeated")
+        assertTrue(ogre.isBuildingBridge.value, "Ogre should be marked as building bridge")
     }
     
     /**

@@ -183,7 +183,6 @@
     <!-- Attacker/Enemy names -->
     <string name="goblin_name">Goblin</string>
     <string name="ork_name">Orco</string>
-    <string name="troll_name">Trol</string>
     <string name="ogre_name">Ogro</string>
     <string name="skeleton_name">Esqueleto</string>
     <string name="evil_wizard_name">Mago malvado</string>
