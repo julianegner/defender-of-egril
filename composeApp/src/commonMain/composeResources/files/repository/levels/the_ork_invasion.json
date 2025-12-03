@@ -3,8 +3,8 @@
   "mapId": "map_straight",
   "title": "The Ork Invasion",
   "subtitle": "",
-  "startCoins": 150,
-  "startHealthPoints": 8,
+  "startCoins": 300,
+  "startHealthPoints": 10,
   "enemySpawns": [
     {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 1, "spawnPoint": {"x": 0, "y": 1}},
     {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 1, "spawnPoint": {"x": 0, "y": 4}},
@@ -122,7 +122,7 @@
     {"attackerType": "OGRE", "level": 1, "spawnTurn": 20, "spawnPoint": {"x": 0, "y": 7}},
     {"attackerType": "OGRE", "level": 1, "spawnTurn": 21, "spawnPoint": {"x": 0, "y": 1}}
   ],
-  "availableTowers": ["SPIKE_TOWER", "SPEAR_TOWER", "BOW_TOWER", "WIZARD_TOWER", "ALCHEMY_TOWER", "BALLISTA_TOWER", "DWARVEN_MINE"],
+  "availableTowers": ["SPIKE_TOWER", "SPEAR_TOWER", "BOW_TOWER"],
   "waypoints": [
     
   ],
