@@ -644,9 +644,9 @@ fun BridgeVisualization(bridge: Bridge) {
                 BridgeType.WOODEN, BridgeType.STONE -> {
                     // Show remaining health
                     Text(
-                        text = "${bridge.currentHealth.value} HP",
+                        text = "${bridge.currentHealth.value}",
                         style = MaterialTheme.typography.labelSmall,
-                        fontSize = 10.sp,
+                        fontSize = 13.sp,
                         color = Color.White,
                         fontWeight = FontWeight.Bold
                     )
@@ -656,12 +656,13 @@ fun BridgeVisualization(bridge: Bridge) {
                     Text(
                         text = "${bridge.turnsRemaining.value}T",
                         style = MaterialTheme.typography.labelSmall,
-                        fontSize = 12.sp,
+                        fontSize = 13.sp,
                         color = Color(0xFFFFFF00),  // Yellow
                         fontWeight = FontWeight.Bold
                     )
                 }
             }
+            Spacer(modifier = Modifier.height(10.dp))
         }
     }
 }
