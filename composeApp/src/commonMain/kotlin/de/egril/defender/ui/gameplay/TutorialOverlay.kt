@@ -185,6 +185,7 @@ private fun InfoContent(infoType: InfoType, onDismiss: () -> Unit) {
         InfoType.ONE_HP_WARNING -> OneHpWarningContent(onDismiss)
         InfoType.MAGICAL_TRAP_INFO -> MagicalTrapInfoContent(onDismiss)
         InfoType.EXTENDED_AREA_INFO -> ExtendedAreaInfoContent(onDismiss)
+        InfoType.RIVER_INFO -> RiverInfoContent(onDismiss)
         InfoType.NONE -> { /* No content to show */ }
     }
 }
@@ -448,6 +449,46 @@ private fun ExtendedAreaInfoContent(onDismiss: () -> Unit) {
         Text(
             text = stringResource(Res.string.extended_area_tutorial_message),
             style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+    }
+}
+
+/**
+ * River mechanics info content shown when a level with rivers is started for the first time
+ */
+@Composable
+private fun RiverInfoContent(onDismiss: () -> Unit) {
+    ScrollableInfoCard(
+        title = {
+            Text(
+                text = stringResource(Res.string.river_info_title),
+                style = MaterialTheme.typography.titleMedium,
+                color = Color(0xFF2196F3)  // Blue color for water/river theme
+            )
+        },
+        buttonColor = Color(0xFF2196F3),  // Blue button
+        width = 400.dp,
+        onDismiss = onDismiss
+    ) {
+        Text(
+            text = stringResource(Res.string.river_info_placement),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Text(
+            text = stringResource(Res.string.river_info_movement),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Text(
+            text = stringResource(Res.string.river_info_destruction),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Text(
+            text = stringResource(Res.string.river_info_bridges),
+            style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurface
         )
     }
