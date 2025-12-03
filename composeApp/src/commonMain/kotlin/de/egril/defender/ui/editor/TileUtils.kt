@@ -124,11 +124,19 @@ fun RiverFlowIndicator(
                 }
             }
             RiverFlow.WEST -> {
-                // West: 180° (left) - use left arrow
+                // West: 180° - rotate right arrow
                 Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                    LeftArrowIcon(size = size, tint = arrowTint)
+                    RightArrowIcon(
+                        modifier = Modifier.graphicsLayer { rotationZ = 180f },
+                        size = size,
+                        tint = arrowTint
+                    )
                     if (flowSpeed == 2) {
-                        LeftArrowIcon(size = size, tint = arrowTint)
+                        RightArrowIcon(
+                            modifier = Modifier.graphicsLayer { rotationZ = 180f },
+                            size = size,
+                            tint = arrowTint
+                        )
                     }
                 }
             }
