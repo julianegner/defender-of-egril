@@ -40,34 +40,6 @@ class TowerManager(private val state: GameState) {
             defender.resetActions()
         }
         
-        // Show first-time tower info for advanced towers
-        val infoState = state.infoState.value
-        when (type) {
-            DefenderType.WIZARD_TOWER -> {
-                if (!infoState.hasSeen(InfoType.WIZARD_FIRST_USE)) {
-                    state.infoState.value = infoState.showInfo(InfoType.WIZARD_FIRST_USE)
-                }
-            }
-            DefenderType.ALCHEMY_TOWER -> {
-                if (!infoState.hasSeen(InfoType.ALCHEMY_FIRST_USE)) {
-                    state.infoState.value = infoState.showInfo(InfoType.ALCHEMY_FIRST_USE)
-                }
-            }
-            DefenderType.BALLISTA_TOWER -> {
-                if (!infoState.hasSeen(InfoType.BALLISTA_FIRST_USE)) {
-                    state.infoState.value = infoState.showInfo(InfoType.BALLISTA_FIRST_USE)
-                }
-            }
-            DefenderType.DWARVEN_MINE -> {
-                if (!infoState.hasSeen(InfoType.MINE_FIRST_USE)) {
-                    state.infoState.value = infoState.showInfo(InfoType.MINE_FIRST_USE)
-                }
-            }
-            else -> {
-                // No info message for basic towers (Spike, Spear, Bow, Dragon's Lair)
-            }
-        }
-        
         return true
     }
     

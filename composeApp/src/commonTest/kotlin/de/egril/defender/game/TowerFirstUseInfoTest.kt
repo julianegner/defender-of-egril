@@ -7,73 +7,70 @@ import kotlin.test.assertTrue
 import kotlin.test.assertFalse
 
 /**
- * Integration test for tower first-use info messages
+ * Integration test for tower placement - verifies that tower placement
+ * does NOT trigger info messages (info messages are now shown when tower
+ * becomes available, not when placed)
  */
 class TowerFirstUseInfoTest {
     
     @Test
-    fun testWizardFirstUseInfo() {
+    fun testWizardPlacementNoInfo() {
         val gameState = createTestGameState()
         val towerManager = TowerManager(gameState)
         
         // Initially no info should be shown
         assertEquals(InfoType.NONE, gameState.infoState.value.currentInfo, "No info initially")
         
-        // Place a wizard tower for the first time
+        // Place a wizard tower
         val placed = towerManager.placeDefender(DefenderType.WIZARD_TOWER, Position(0, 1))
         assertTrue(placed, "Should place wizard tower")
         
-        // Verify wizard first use info is shown
-        assertEquals(InfoType.WIZARD_FIRST_USE, gameState.infoState.value.currentInfo, "Should show wizard first use info")
-        assertTrue(gameState.infoState.value.shouldShowOverlay(), "Should show overlay")
+        // Verify NO info is shown (info is shown when tower becomes available, not when placed)
+        assertEquals(InfoType.NONE, gameState.infoState.value.currentInfo, "Should not show info when placing tower")
         
-        // Dismiss the info
-        gameState.infoState.value = gameState.infoState.value.dismissInfo()
-        
-        // Place another wizard tower - should not show info again
+        // Place another wizard tower - should still not show info
         val placedSecond = towerManager.placeDefender(DefenderType.WIZARD_TOWER, Position(1, 1))
         assertTrue(placedSecond, "Should place second wizard tower")
-        assertEquals(InfoType.NONE, gameState.infoState.value.currentInfo, "Should not show info again")
-        assertTrue(gameState.infoState.value.hasSeen(InfoType.WIZARD_FIRST_USE), "Should have seen wizard info")
+        assertEquals(InfoType.NONE, gameState.infoState.value.currentInfo, "Should not show info when placing tower")
     }
     
     @Test
-    fun testAlchemyFirstUseInfo() {
+    fun testAlchemyPlacementNoInfo() {
         val gameState = createTestGameState()
         val towerManager = TowerManager(gameState)
         
-        // Place an alchemy tower for the first time
+        // Place an alchemy tower
         val placed = towerManager.placeDefender(DefenderType.ALCHEMY_TOWER, Position(0, 1))
         assertTrue(placed, "Should place alchemy tower")
         
-        // Verify alchemy first use info is shown
-        assertEquals(InfoType.ALCHEMY_FIRST_USE, gameState.infoState.value.currentInfo, "Should show alchemy first use info")
+        // Verify NO info is shown
+        assertEquals(InfoType.NONE, gameState.infoState.value.currentInfo, "Should not show info when placing tower")
     }
     
     @Test
-    fun testBallistaFirstUseInfo() {
+    fun testBallistaPlacementNoInfo() {
         val gameState = createTestGameState()
         val towerManager = TowerManager(gameState)
         
-        // Place a ballista tower for the first time
+        // Place a ballista tower
         val placed = towerManager.placeDefender(DefenderType.BALLISTA_TOWER, Position(0, 1))
         assertTrue(placed, "Should place ballista tower")
         
-        // Verify ballista first use info is shown
-        assertEquals(InfoType.BALLISTA_FIRST_USE, gameState.infoState.value.currentInfo, "Should show ballista first use info")
+        // Verify NO info is shown
+        assertEquals(InfoType.NONE, gameState.infoState.value.currentInfo, "Should not show info when placing tower")
     }
     
     @Test
-    fun testMineFirstUseInfo() {
+    fun testMinePlacementNoInfo() {
         val gameState = createTestGameState()
         val towerManager = TowerManager(gameState)
         
-        // Place a dwarven mine for the first time
+        // Place a dwarven mine
         val placed = towerManager.placeDefender(DefenderType.DWARVEN_MINE, Position(0, 1))
         assertTrue(placed, "Should place dwarven mine")
         
-        // Verify mine first use info is shown
-        assertEquals(InfoType.MINE_FIRST_USE, gameState.infoState.value.currentInfo, "Should show mine first use info")
+        // Verify NO info is shown
+        assertEquals(InfoType.NONE, gameState.infoState.value.currentInfo, "Should not show info when placing tower")
     }
     
     @Test
@@ -96,27 +93,19 @@ class TowerFirstUseInfoTest {
     }
     
     @Test
-    fun testMultipleTowerFirstUseInfos() {
+    fun testMultipleTowerPlacementsNoInfo() {
         val gameState = createTestGameState()
         val towerManager = TowerManager(gameState)
         
-        // Place wizard, dismiss, then place alchemy
+        // Place multiple advanced towers - none should trigger info
         towerManager.placeDefender(DefenderType.WIZARD_TOWER, Position(0, 1))
-        assertEquals(InfoType.WIZARD_FIRST_USE, gameState.infoState.value.currentInfo, "Should show wizard info")
-        gameState.infoState.value = gameState.infoState.value.dismissInfo()
+        assertEquals(InfoType.NONE, gameState.infoState.value.currentInfo, "Should not show wizard info")
         
         towerManager.placeDefender(DefenderType.ALCHEMY_TOWER, Position(1, 1))
-        assertEquals(InfoType.ALCHEMY_FIRST_USE, gameState.infoState.value.currentInfo, "Should show alchemy info")
-        gameState.infoState.value = gameState.infoState.value.dismissInfo()
+        assertEquals(InfoType.NONE, gameState.infoState.value.currentInfo, "Should not show alchemy info")
         
         towerManager.placeDefender(DefenderType.BALLISTA_TOWER, Position(2, 1))
-        assertEquals(InfoType.BALLISTA_FIRST_USE, gameState.infoState.value.currentInfo, "Should show ballista info")
-        gameState.infoState.value = gameState.infoState.value.dismissInfo()
-        
-        // Verify all were seen
-        assertTrue(gameState.infoState.value.hasSeen(InfoType.WIZARD_FIRST_USE), "Should have seen wizard")
-        assertTrue(gameState.infoState.value.hasSeen(InfoType.ALCHEMY_FIRST_USE), "Should have seen alchemy")
-        assertTrue(gameState.infoState.value.hasSeen(InfoType.BALLISTA_FIRST_USE), "Should have seen ballista")
+        assertEquals(InfoType.NONE, gameState.infoState.value.currentInfo, "Should not show ballista info")
     }
     
     private fun createTestGameState(): GameState {
