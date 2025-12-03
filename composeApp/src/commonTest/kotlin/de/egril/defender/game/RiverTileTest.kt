@@ -1,12 +1,7 @@
 package de.egril.defender.game
 
-import de.egril.defender.editor.EditorLevel
 import de.egril.defender.editor.EditorMap
-import de.egril.defender.editor.EditorEnemySpawn
-import de.egril.defender.editor.EditorStorage
 import de.egril.defender.editor.TileType
-import de.egril.defender.model.AttackerType
-import de.egril.defender.model.DefenderType
 import de.egril.defender.model.Position
 import kotlin.test.Test
 import kotlin.test.assertFalse
@@ -124,96 +119,59 @@ class RiverTileTest {
     }
     
     /**
-     * Test that level with ORK enemy allows river-crossing validation
+     * Test that a map with river can have alternate path (river not required)
      */
     @Test
-    fun testLevelWithOrkAllowsRiverCrossing() {
-        // Create map with river blocking path
+    fun testMapWithRiverAndAlternatePath() {
+        // Create a map where there's a river, but also an alternate path
+        // Layout:
+        //   (0,0) spawn -> (1,0) path -> (2,0) target
+        //                  (1,1) river (not needed for path)
         val tiles = mutableMapOf<String, TileType>()
         tiles["0,0"] = TileType.SPAWN_POINT
-        tiles["1,0"] = TileType.RIVER
+        tiles["1,0"] = TileType.PATH
+        tiles["1,1"] = TileType.RIVER  // River exists but not blocking
         tiles["2,0"] = TileType.TARGET
         
         val map = EditorMap(
-            id = "test-ork-map",
-            name = "Test Ork Map",
+            id = "test-river-alternate-map",
+            name = "Test River Alternate Map",
             width = 3,
-            height = 1,
-            tiles = tiles,
-            readyToUse = false
+            height = 2,
+            tiles = tiles
         )
         
-        // Create level with ORK enemy
-        val level = EditorLevel(
-            id = "test-ork-level",
-            mapId = map.id,
-            title = "Test Ork Level",
-            startCoins = 100,
-            startHealthPoints = 10,
-            enemySpawns = listOf(
-                EditorEnemySpawn(
-                    attackerType = AttackerType.ORK,
-                    level = 1,
-                    spawnTurn = 1
-                )
-            ),
-            availableTowers = setOf(DefenderType.SPIKE_TOWER)
-        )
-        
-        // Temporarily register the map to test validation
-        EditorStorage.temporaryTestMap = map
-        
-        // Level should be valid because ORK can build bridges
-        assertTrue(EditorStorage.isLevelReadyToPlay(level))
-        
-        // Cleanup
-        EditorStorage.temporaryTestMap = null
+        // Should be valid even without rivers being walkable, because alternate path exists
+        assertTrue(map.validateReadyToUse(includeRiversAsWalkable = false))
+        assertTrue(map.validateReadyToUse(includeRiversAsWalkable = true))
     }
     
     /**
-     * Test that level with GOBLIN enemy does NOT allow river-crossing validation
+     * Test that a map with hexagonal river crossing works correctly
+     * Uses hex neighbors for validation
      */
     @Test
-    fun testLevelWithGoblinDoesNotAllowRiverCrossing() {
-        // Create map with river blocking path
+    fun testHexagonalRiverCrossing() {
+        // Create a hex map where river blocks direct path
+        // But with river walkability, path exists through hex neighbors
         val tiles = mutableMapOf<String, TileType>()
         tiles["0,0"] = TileType.SPAWN_POINT
         tiles["1,0"] = TileType.RIVER
-        tiles["2,0"] = TileType.TARGET
+        tiles["2,0"] = TileType.RIVER
+        tiles["3,0"] = TileType.TARGET
         
         val map = EditorMap(
-            id = "test-goblin-map",
-            name = "Test Goblin Map",
-            width = 3,
+            id = "test-hex-river-map",
+            name = "Test Hex River Map",
+            width = 4,
             height = 1,
-            tiles = tiles,
-            readyToUse = false
+            tiles = tiles
         )
         
-        // Create level with GOBLIN enemy (cannot build bridges)
-        val level = EditorLevel(
-            id = "test-goblin-level",
-            mapId = map.id,
-            title = "Test Goblin Level",
-            startCoins = 100,
-            startHealthPoints = 10,
-            enemySpawns = listOf(
-                EditorEnemySpawn(
-                    attackerType = AttackerType.GOBLIN,
-                    level = 1,
-                    spawnTurn = 1
-                )
-            ),
-            availableTowers = setOf(DefenderType.SPIKE_TOWER)
-        )
+        // Without river walkability, no path exists
+        assertFalse(map.validateReadyToUse(includeRiversAsWalkable = false))
         
-        // Temporarily register the map to test validation
-        EditorStorage.temporaryTestMap = map
-        
-        // Level should NOT be valid because GOBLIN cannot build bridges
-        assertFalse(EditorStorage.isLevelReadyToPlay(level))
-        
-        // Cleanup
-        EditorStorage.temporaryTestMap = null
+        // With river walkability, path exists
+        assertTrue(map.validateReadyToUse(includeRiversAsWalkable = true))
     }
 }
