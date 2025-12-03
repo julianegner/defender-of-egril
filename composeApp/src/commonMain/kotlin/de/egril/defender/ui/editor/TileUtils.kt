@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import de.egril.defender.editor.TileType
@@ -53,6 +54,7 @@ fun getTileColor(tileType: TileType): Color {
 
 /**
  * Displays flow indicators for river tiles based on flow direction and speed
+ * For hexagonal grids, arrows point to the middle of each of the 6 hex sides
  */
 @Composable
 fun RiverFlowIndicator(
@@ -74,23 +76,8 @@ fun RiverFlowIndicator(
                 // Maelstrom - display whirlpool symbol (using hole icon as approximation)
                 HoleIcon(size = size)
             }
-            RiverFlow.NORTH_EAST -> {
-                // Display arrow(s) pointing NE (diagonal up-right)
-                if (flowSpeed == 2) {
-                    Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                        UpArrowIcon(size = size)
-                        RightArrowIcon(size = size)
-                        UpArrowIcon(size = size)
-                        RightArrowIcon(size = size)
-                    }
-                } else {
-                    Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                        UpArrowIcon(size = size)
-                        RightArrowIcon(size = size)
-                    }
-                }
-            }
             RiverFlow.EAST -> {
+                // East: 0° (right) - use right arrow
                 Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
                     RightArrowIcon(size = size)
                     if (flowSpeed == 2) {
@@ -99,36 +86,37 @@ fun RiverFlowIndicator(
                 }
             }
             RiverFlow.SOUTH_EAST -> {
-                if (flowSpeed == 2) {
-                    Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                        DownArrowIcon(size = size)
-                        RightArrowIcon(size = size)
-                        DownArrowIcon(size = size)
-                        RightArrowIcon(size = size)
-                    }
-                } else {
-                    Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                        DownArrowIcon(size = size)
-                        RightArrowIcon(size = size)
+                // SouthEast: 60° - rotate right arrow clockwise
+                Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                    RightArrowIcon(
+                        modifier = Modifier.graphicsLayer { rotationZ = 60f },
+                        size = size
+                    )
+                    if (flowSpeed == 2) {
+                        RightArrowIcon(
+                            modifier = Modifier.graphicsLayer { rotationZ = 60f },
+                            size = size
+                        )
                     }
                 }
             }
             RiverFlow.SOUTH_WEST -> {
-                if (flowSpeed == 2) {
-                    Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                        DownArrowIcon(size = size)
-                        LeftArrowIcon(size = size)
-                        DownArrowIcon(size = size)
-                        LeftArrowIcon(size = size)
-                    }
-                } else {
-                    Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                        DownArrowIcon(size = size)
-                        LeftArrowIcon(size = size)
+                // SouthWest: 120° - rotate right arrow clockwise
+                Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                    RightArrowIcon(
+                        modifier = Modifier.graphicsLayer { rotationZ = 120f },
+                        size = size
+                    )
+                    if (flowSpeed == 2) {
+                        RightArrowIcon(
+                            modifier = Modifier.graphicsLayer { rotationZ = 120f },
+                            size = size
+                        )
                     }
                 }
             }
             RiverFlow.WEST -> {
+                // West: 180° (left) - use left arrow
                 Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
                     LeftArrowIcon(size = size)
                     if (flowSpeed == 2) {
@@ -137,17 +125,32 @@ fun RiverFlowIndicator(
                 }
             }
             RiverFlow.NORTH_WEST -> {
-                if (flowSpeed == 2) {
-                    Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                        UpArrowIcon(size = size)
-                        LeftArrowIcon(size = size)
-                        UpArrowIcon(size = size)
-                        LeftArrowIcon(size = size)
+                // NorthWest: 240° - rotate right arrow clockwise (or -120° counterclockwise)
+                Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                    RightArrowIcon(
+                        modifier = Modifier.graphicsLayer { rotationZ = 240f },
+                        size = size
+                    )
+                    if (flowSpeed == 2) {
+                        RightArrowIcon(
+                            modifier = Modifier.graphicsLayer { rotationZ = 240f },
+                            size = size
+                        )
                     }
-                } else {
-                    Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                        UpArrowIcon(size = size)
-                        LeftArrowIcon(size = size)
+                }
+            }
+            RiverFlow.NORTH_EAST -> {
+                // NorthEast: 300° (or -60°) - rotate right arrow counterclockwise
+                Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                    RightArrowIcon(
+                        modifier = Modifier.graphicsLayer { rotationZ = -60f },
+                        size = size
+                    )
+                    if (flowSpeed == 2) {
+                        RightArrowIcon(
+                            modifier = Modifier.graphicsLayer { rotationZ = -60f },
+                            size = size
+                        )
                     }
                 }
             }
