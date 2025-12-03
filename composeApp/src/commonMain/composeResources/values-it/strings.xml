@@ -225,6 +225,7 @@
     <string name="initial_building_phase">Fase di costruzione iniziale - Posiziona torri (nessun tempo di costruzione)</string>
     <string name="add_comment">Aggiungi un commento opzionale per identificare questo salvataggio:</string>
     <string name="game_saved">Gioco salvato</string>
+    <string name="game_saved_successfully">Il tuo gioco è stato salvato con successo!</string>
     <string name="on_map">Sulla mappa</string>
     <string name="planned_spawns">Apparizioni pianificate</string>
     <string name="position_label">Posizione</string>
@@ -547,6 +548,11 @@
     <string name="unsaved_changes_message">Hai progressi non salvati in questo livello. Cosa vorresti fare?</string>
     <string name="save_and_exit">Salva ed Esci</string>
     <string name="discard_changes">Scarta Modifiche</string>
+    
+    <!-- End Turn Confirmation Dialog -->
+    <string name="end_turn_confirmation_title">Terminare il turno?</string>
+    <string name="end_turn_confirmation_message">Alcune torri hanno punti azione inutilizzati. Sei sicuro di voler terminare il turno?</string>
+    <string name="end_turn_confirm">Termina turno</string>
     
     <!-- Magical Trap Feature -->
     <string name="magical_trap">Trappola Magica</string>

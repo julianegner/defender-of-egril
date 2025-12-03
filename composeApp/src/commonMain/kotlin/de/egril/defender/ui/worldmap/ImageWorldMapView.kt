@@ -25,10 +25,12 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import de.egril.defender.model.LevelStatus
 import de.egril.defender.model.WorldLevel
 import de.egril.defender.ui.mouseWheelZoom
 import de.egril.defender.ui.settings.AppSettings
+import de.egril.defender.utils.isPlatformAndroid
 import de.egril.defender.utils.isPlatformMobile
 import de.egril.defender.editor.EditorStorage
 import org.jetbrains.compose.resources.painterResource
@@ -368,7 +370,17 @@ private fun BoxScope.LocationMarkersOverlay(
         }
         
         // Calculate marker position accounting for image bounds within container
-        val markerSize = 40.dp
+        // Use smaller sizes on Android (scaled down for better fit on mobile screens)
+        val scaleFactor = if (isPlatformAndroid) 0.35f else 1f  // 35% size on Android
+        val labelScaleFactor = if (isPlatformAndroid) 0.4f else 1f  // 40% for label font
+        val markerSize = (40 * scaleFactor).dp
+        val labelHorizontalPadding = (6 * scaleFactor).dp
+        val labelVerticalPadding = (2 * labelScaleFactor).dp  // Scale with font for proper text fit
+        val labelCornerRadius = (4 * scaleFactor).dp
+        val spacerHeight = (2 * scaleFactor).dp  // Reduced spacer
+        val labelElevation = (2 * scaleFactor).dp
+        val markerElevation = (4 * scaleFactor).dp
+        val labelFontSize = (11 * labelScaleFactor).sp  // Smaller label text
         
         // Position the marker using Box alignment offset
         Box(
@@ -389,19 +401,19 @@ private fun BoxScope.LocationMarkersOverlay(
             ) {
                 // Location name label above the marker - white text on semi-transparent dark gray
                 Surface(
-                    shape = RoundedCornerShape(4.dp),
+                    shape = RoundedCornerShape(labelCornerRadius),
                     color = Color(0xB3404040),  // Semi-transparent dark gray (70% opacity)
-                    shadowElevation = 2.dp
+                    shadowElevation = labelElevation
                 ) {
                     Text(
                         text = location.name,
-                        style = MaterialTheme.typography.labelSmall,
+                        style = MaterialTheme.typography.labelSmall.copy(fontSize = labelFontSize),
                         color = Color.White,
-                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                        modifier = Modifier.padding(horizontal = labelHorizontalPadding, vertical = labelVerticalPadding)
                     )
                 }
                 
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(spacerHeight))
                 
                 // Circular marker
                 Surface(
@@ -412,7 +424,7 @@ private fun BoxScope.LocationMarkersOverlay(
                         },
                     shape = androidx.compose.foundation.shape.CircleShape,
                     color = markerColor,
-                    shadowElevation = 4.dp
+                    shadowElevation = markerElevation
                 ) {
                     Box(
                         contentAlignment = Alignment.Center,
@@ -420,7 +432,7 @@ private fun BoxScope.LocationMarkersOverlay(
                     ) {
                         Text(
                             text = levelsAtLocation.size.toString(),
-                            style = MaterialTheme.typography.bodyMedium,
+                            style = if (isPlatformAndroid) MaterialTheme.typography.labelSmall else MaterialTheme.typography.bodyMedium,
                             color = Color.White
                         )
                     }
