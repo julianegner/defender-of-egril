@@ -270,6 +270,7 @@ fun GridCell(
     val isOnPath = gameState.level.isOnPath(position)
     val isBuildIsland = gameState.level.isBuildIsland(position)
     val isBuildArea = gameState.level.isBuildArea(position)
+    val isRiverTile = gameState.level.isRiverTile(position)
     val defender = gameState.defenders.find { it.position == position }
     val attacker = gameState.attackers.find { it.position.value == position && !it.isDefeated.value }
 
@@ -298,6 +299,7 @@ fun GridCell(
         isBuildIsland -> GamePlayColors.BuildIsland  // Light green for build islands
         isBuildArea -> GamePlayColors.BuildStrip  // Medium green for strips adjacent to path
         isOnPath -> GamePlayColors.Path  // Cream/beige for enemy path
+        isRiverTile -> GamePlayColors.River  // Blue for river tiles
         else -> GamePlayColors.NonPlayable  // Light gray for off-path areas (non-playable)
     }
 

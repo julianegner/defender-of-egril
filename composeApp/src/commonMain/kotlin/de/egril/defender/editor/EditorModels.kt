@@ -100,8 +100,10 @@ data class EditorMap(
      * - Has at least one spawn point
      * - Has at least one target
      * - ALL spawn points have a continuous path at least one target
+     * 
+     * @param includeRiversAsWalkable If true, river cells are considered walkable for validation
      */
-    fun validateReadyToUse(): Boolean {
+    fun validateReadyToUse(includeRiversAsWalkable: Boolean = true): Boolean {
         val spawnPoints = getSpawnPoints()
         val targets = getTargets()
         val pathCells = getPathCells()
@@ -110,10 +112,14 @@ data class EditorMap(
         if (spawnPoints.isEmpty()) return false
         if (targets.isEmpty()) return false
         
-        // Build set of traversable cells (spawn points + path cells + river cells + all targets)
-        // River cells are traversable because enemies can build bridges
+        // Build set of traversable cells (spawn points + path cells + all targets)
         val traversableCells = pathCells.toMutableSet()
-        traversableCells.addAll(riverCells)
+        
+        // Add river cells only if requested (for levels with bridge-building enemies)
+        if (includeRiversAsWalkable) {
+            traversableCells.addAll(riverCells)
+        }
+        
         traversableCells.addAll(spawnPoints)
         traversableCells.addAll(targets)
         

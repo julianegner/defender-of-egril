@@ -64,9 +64,11 @@ object GamePlayColors {
     
     // Special effect colors (light mode)
     private val TrapLight = Color(0xFF8B4513)         // Brown - dwarven mine traps
+    private val RiverLight = Color(0xFF4A90E2)        // Blue - river tiles
     
     // Special effect colors (dark mode - slightly softer)
     private val TrapDarkMode = Color(0xFF9E6A3F)      // Softer brown - dwarven mine traps
+    private val RiverDarkMode = Color(0xFF2E5C8A)     // Darker blue - river tiles
     
     // Public properties that adapt to dark mode
     val Success: Color
@@ -125,4 +127,7 @@ object GamePlayColors {
     
     val Trap: Color
         @Composable get() = if (AppSettings.isDarkMode.value) TrapDarkMode else TrapLight
+    
+    val River: Color
+        @Composable get() = if (AppSettings.isDarkMode.value) RiverDarkMode else RiverLight
 }
