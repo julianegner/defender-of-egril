@@ -76,10 +76,16 @@ fun RiverFlowIndicator(
             }
             RiverFlow.NORTH_EAST -> {
                 // Display arrow(s) pointing NE (diagonal up-right)
-                Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                    UpArrowIcon(size = size)
-                    RightArrowIcon(size = size)
-                    if (flowSpeed == 2) {
+                if (flowSpeed == 2) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                        UpArrowIcon(size = size)
+                        RightArrowIcon(size = size)
+                        UpArrowIcon(size = size)
+                        RightArrowIcon(size = size)
+                    }
+                } else {
+                    Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                        UpArrowIcon(size = size)
                         RightArrowIcon(size = size)
                     }
                 }
@@ -93,19 +99,31 @@ fun RiverFlowIndicator(
                 }
             }
             RiverFlow.SOUTH_EAST -> {
-                Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                    DownArrowIcon(size = size)
-                    RightArrowIcon(size = size)
-                    if (flowSpeed == 2) {
+                if (flowSpeed == 2) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                        DownArrowIcon(size = size)
+                        RightArrowIcon(size = size)
+                        DownArrowIcon(size = size)
+                        RightArrowIcon(size = size)
+                    }
+                } else {
+                    Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                        DownArrowIcon(size = size)
                         RightArrowIcon(size = size)
                     }
                 }
             }
             RiverFlow.SOUTH_WEST -> {
-                Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                    DownArrowIcon(size = size)
-                    LeftArrowIcon(size = size)
-                    if (flowSpeed == 2) {
+                if (flowSpeed == 2) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                        DownArrowIcon(size = size)
+                        LeftArrowIcon(size = size)
+                        DownArrowIcon(size = size)
+                        LeftArrowIcon(size = size)
+                    }
+                } else {
+                    Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                        DownArrowIcon(size = size)
                         LeftArrowIcon(size = size)
                     }
                 }
@@ -119,10 +137,16 @@ fun RiverFlowIndicator(
                 }
             }
             RiverFlow.NORTH_WEST -> {
-                Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                    UpArrowIcon(size = size)
-                    LeftArrowIcon(size = size)
-                    if (flowSpeed == 2) {
+                if (flowSpeed == 2) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                        UpArrowIcon(size = size)
+                        LeftArrowIcon(size = size)
+                        UpArrowIcon(size = size)
+                        LeftArrowIcon(size = size)
+                    }
+                } else {
+                    Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                        UpArrowIcon(size = size)
                         LeftArrowIcon(size = size)
                     }
                 }
