@@ -18,6 +18,7 @@ class GameEngine(private val state: GameState) {
     private val enemyMovement = EnemyMovementSystem(state, pathfinding)
     private val enemyAbilities = EnemyAbilitySystem(state)
     private val mineOperations = MineOperations(state)
+    private val bridgeSystem = BridgeSystem(state)
     
     // Tower Management - delegated to TowerManager
     fun placeDefender(type: DefenderType, position: Position): Boolean =
@@ -733,6 +734,9 @@ class GameEngine(private val state: GameState) {
 
         // Process special enemy abilities
         enemyAbilities.processEnemyAbilities()
+        
+        // Process bridge building and bridge turn updates
+        bridgeSystem.processBridges()
 
         // Remove defeated attackers and give rewards
         combatSystem.processDefeatedAttackers()

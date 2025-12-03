@@ -165,7 +165,8 @@ class PathfindingSystem(private val state: GameState) {
             (state.level.isOnPath(neighbor) || 
              state.level.isTargetPosition(neighbor) || 
              isGoalMineForDragon(neighbor, goal, attacker) ||
-             isDestroyedMinePosition(neighbor)) &&
+             isDestroyedMinePosition(neighbor) ||
+             state.isBridgeAt(neighbor)) &&  // Bridges are walkable for enemies
             !isBlocked(neighbor)
         }
     }
@@ -212,7 +213,8 @@ class PathfindingSystem(private val state: GameState) {
             (state.level.isOnPath(neighbor) || 
              state.level.isTargetPosition(neighbor) || 
              isGoalMineForDragon(neighbor, to, attacker) ||
-             isDestroyedMinePosition(neighbor)) &&
+             isDestroyedMinePosition(neighbor) ||
+             state.isBridgeAt(neighbor)) &&  // Bridges are walkable for enemies
             !isBlocked(neighbor)
         }
         

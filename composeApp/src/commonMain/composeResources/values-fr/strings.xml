@@ -183,6 +183,7 @@
     <!-- Attacker/Enemy names -->
     <string name="goblin_name">Gobelin</string>
     <string name="ork_name">Orc</string>
+    <string name="troll_name">Troll</string>
     <string name="ogre_name">Ogre</string>
     <string name="skeleton_name">Squelette</string>
     <string name="evil_wizard_name">Sorcier maléfique</string>

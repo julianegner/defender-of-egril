@@ -43,6 +43,7 @@ data class GameState(
     val spawnPlan: List<PlannedEnemySpawn> = level.directSpawnPlan ?: generateSpawnPlan(level.attackerWaves),
     val fieldEffects: SnapshotStateList<FieldEffect> = mutableStateListOf(), // Track active field effects
     val traps: SnapshotStateList<Trap> = mutableStateListOf(),  // Track active traps
+    val bridges: SnapshotStateList<Bridge> = mutableStateListOf(),  // Track active bridges
     val difficulty: DifficultyLevel = DifficultyLevel.MEDIUM,  // Track difficulty for this game session
     val tutorialState: MutableState<TutorialState> = mutableStateOf(
         // Enable tutorial only for the tutorial level (id=1, title contains "Welcome")
@@ -85,6 +86,25 @@ data class GameState(
     }
 
     fun getActiveEnemyCount(): Int {
-        return this.attackers.count { !it.isDefeated.value }
+        // Count only non-defeated enemies that are NOT building bridges
+        return this.attackers.count { !it.isDefeated.value && !it.isBuildingBridge.value }
+    }
+    
+    /**
+     * Check if a position is covered by any active bridge
+     */
+    fun isBridgeAt(position: Position): Boolean {
+        return bridges.any { bridge ->
+            bridge.isActive && bridge.coversPosition(position)
+        }
+    }
+    
+    /**
+     * Get the bridge at a position, if any
+     */
+    fun getBridgeAt(position: Position): Bridge? {
+        return bridges.find { bridge ->
+            bridge.isActive && bridge.coversPosition(position)
+        }
     }
 }
