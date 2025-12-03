@@ -33,7 +33,8 @@ data class Level(
     val availableTowers: Set<DefenderType> = DefenderType.entries.toSet(),  // Towers available in this level
     val waypoints: List<Waypoint> = emptyList(),  // Waypoints for complex pathing
     val editorLevelId: String? = null,  // ID of the editor level this was created from
-    val mapId: String? = null  // ID of the map this level uses
+    val mapId: String? = null,  // ID of the map this level uses
+    val riverTiles: Set<Position> = emptySet()  // River tile positions (not walkable in gameplay, but considered for validation)
 ) {
     fun isOnPath(position: Position): Boolean {
         return pathCells.contains(position)
@@ -69,6 +70,10 @@ data class Level(
     
     fun getWaypointAt(position: Position): Waypoint? {
         return waypoints.firstOrNull { it.position == position }
+    }
+    
+    fun isRiverTile(position: Position): Boolean {
+        return riverTiles.contains(position)
     }
     
     companion object {
