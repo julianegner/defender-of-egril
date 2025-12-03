@@ -20,8 +20,98 @@ class BridgeSystem(private val state: GameState) {
     private var nextBridgeId = 1
     
     /**
+     * Check if an attacker should build a bridge based on strategic considerations.
+     * - For Wizards (Evil Wizard/Ewhad): Always build if possible
+     * - For others (Ork/Ogre): Only build if blocked OR creates shortcut of 10+ tiles
+     */
+    fun shouldAutoBuildBridge(attacker: Attacker): Boolean {
+        if (!attacker.type.canBuildBridge) return false
+        if (attacker.isDefeated.value || attacker.isBuildingBridge.value) return false
+        
+        // For Evil Wizard/Ewhad, must have level 2+
+        if ((attacker.type == AttackerType.EVIL_WIZARD || attacker.type == AttackerType.EWHAD) && 
+            attacker.level.value < 2) {
+            return false
+        }
+        
+        // Wizards always build bridges when at a river
+        if (attacker.type == AttackerType.EVIL_WIZARD || attacker.type == AttackerType.EWHAD) {
+            return canBuildBridge(attacker).isNotEmpty()
+        }
+        
+        // For Orks and Ogres, check if bridge is strategically beneficial
+        val bridgeablePositions = canBuildBridge(attacker)
+        if (bridgeablePositions.isEmpty()) return false
+        
+        return isBridgeStrategic(attacker, bridgeablePositions)
+    }
+    
+    /**
+     * Determine if building a bridge is strategic for Orks/Ogres.
+     * Bridge is strategic if:
+     * 1. No path exists to target without the bridge (blocked), OR
+     * 2. Bridge creates a shortcut of at least 10 tiles
+     */
+    private fun isBridgeStrategic(attacker: Attacker, bridgePositions: List<Position>): Boolean {
+        val pathfinding = de.egril.defender.game.PathfindingSystem(state)
+        val currentPos = attacker.position.value
+        val target = attacker.currentTarget?.value ?: state.level.targetPositions.first()
+        
+        // Calculate current path length without bridge
+        val pathWithoutBridge = pathfinding.findPath(currentPos, target, attacker)
+        
+        // If no path exists or path is very short (just 1-2 steps), we're blocked
+        if (pathWithoutBridge.size <= 2) {
+            return true  // Blocked - need bridge
+        }
+        
+        // Temporarily add bridge to check new path length
+        val tempBridge = Bridge(
+            id = -1,  // Temporary ID
+            type = if (attacker.type == AttackerType.OGRE) BridgeType.STONE else BridgeType.WOODEN,
+            positions = bridgePositions,
+            currentHealth = mutableStateOf(attacker.currentHealth.value),
+            createdByAttackerId = attacker.id,
+            createdOnTurn = state.turnNumber.value
+        )
+        state.bridges.add(tempBridge)
+        
+        // Calculate path with bridge
+        val pathWithBridge = pathfinding.findPath(currentPos, target, attacker)
+        
+        // Remove temporary bridge
+        state.bridges.remove(tempBridge)
+        
+        // Check if bridge creates a shortcut of at least 10 tiles
+        val pathLengthWithout = pathWithoutBridge.size - 1  // -1 because path includes start position
+        val pathLengthWith = pathWithBridge.size - 1
+        val shortcut = pathLengthWithout - pathLengthWith
+        
+        return shortcut >= 10
+    }
+    
+    /**
+     * For wizards at multiple rivers, select which river to bridge based on proximity to target.
+     */
+    private fun selectBestRiverForWizard(attacker: Attacker, adjacentRivers: List<Position>): List<Position> {
+        if (adjacentRivers.size <= 1) {
+            return adjacentRivers.take(1)
+        }
+        
+        val target = attacker.currentTarget?.value ?: state.level.targetPositions.first()
+        
+        // Select the river position closest to the target
+        val bestRiver = adjacentRivers.minByOrNull { riverPos ->
+            riverPos.distanceTo(target)
+        }
+        
+        return listOfNotNull(bestRiver)
+    }
+    
+    /**
      * Check if an attacker can build a bridge.
      * Returns the positions that can be bridged, or empty list if cannot build.
+     * For wizards, selects best river if multiple are adjacent.
      */
     fun canBuildBridge(attacker: Attacker): List<Position> {
         if (!attacker.type.canBuildBridge) return emptyList()
@@ -41,6 +131,11 @@ class BridgeSystem(private val state: GameState) {
         }
         
         if (adjacentRivers.isEmpty()) return emptyList()
+        
+        // For Wizards, select best river if multiple adjacent
+        if (attacker.type == AttackerType.EVIL_WIZARD || attacker.type == AttackerType.EWHAD) {
+            return selectBestRiverForWizard(attacker, adjacentRivers)
+        }
         
         // For Ogres (stone bridge), check for 1-2 river tile spans
         if (attacker.type == AttackerType.OGRE) {
@@ -230,25 +325,6 @@ class BridgeSystem(private val state: GameState) {
             bridge.currentHealth.value = maxOf(0, bridge.currentHealth.value - damage)
             println("Bridge at $position took $damage damage, remaining HP: ${bridge.currentHealth.value}")
         }
-    }
-    
-    /**
-     * Check if an attacker should automatically build a bridge.
-     * This is called during enemy movement when a bridge-building unit
-     * is adjacent to a river that blocks its path to the target.
-     */
-    fun shouldAutoBuildBridge(attacker: Attacker): Boolean {
-        if (!attacker.type.canBuildBridge) return false
-        if (attacker.isDefeated.value || attacker.isBuildingBridge.value) return false
-        
-        // For Evil Wizard/Ewhad, must have level 2+
-        if ((attacker.type == AttackerType.EVIL_WIZARD || attacker.type == AttackerType.EWHAD) && 
-            attacker.level.value < 2) {
-            return false
-        }
-        
-        val bridgeablePositions = canBuildBridge(attacker)
-        return bridgeablePositions.isNotEmpty()
     }
     
     /**
