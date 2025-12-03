@@ -1,10 +1,5 @@
 package de.egril.defender.game
 
-import de.egril.defender.editor.EditorLevel
-import de.egril.defender.editor.EditorMap
-import de.egril.defender.editor.EditorEnemySpawn
-import de.egril.defender.editor.EditorStorage
-import de.egril.defender.editor.TileType
 import de.egril.defender.model.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -125,38 +120,26 @@ class TowerFirstUseInfoTest {
     }
     
     private fun createTestGameState(): GameState {
-        // Create a simple test map with build areas
-        val tiles = mutableMapOf<String, TileType>()
-        tiles["0,0"] = TileType.SPAWN_POINT
-        tiles["1,0"] = TileType.PATH
-        tiles["2,0"] = TileType.PATH
-        tiles["3,0"] = TileType.TARGET
-        tiles["0,1"] = TileType.BUILD_AREA
-        tiles["1,1"] = TileType.BUILD_AREA
-        tiles["2,1"] = TileType.BUILD_AREA
-        tiles["3,1"] = TileType.BUILD_AREA
-        
-        val map = EditorMap(
-            id = "test_map_tower_info",
-            name = "Test Map",
-            width = 10,
-            height = 5,
-            tiles = tiles,
-            readyToUse = true
-        )
-        
-        EditorStorage.saveMap(map)
-        
-        val editorLevel = EditorLevel(
-            id = "test_level_tower_info",
-            mapId = "test_map_tower_info",
-            title = "Test Level",
-            subtitle = "Tower Info Test",
-            startCoins = 1000,  // Enough for all towers
-            startHealthPoints = 10,
-            enemySpawns = listOf(
-                EditorEnemySpawn(AttackerType.GOBLIN, 1, 1)
+        // Create a simple level with build areas
+        val level = Level(
+            id = 1,
+            name = "Test Level",
+            gridWidth = 10,
+            gridHeight = 6,
+            startPositions = listOf(Position(0, 3)),
+            targetPositions = listOf(Position(9, 3)),
+            pathCells = (0..9).map { Position(it, 3) }.toSet(),
+            buildIslands = setOf(
+                Position(0, 1),
+                Position(1, 1),
+                Position(2, 1),
+                Position(3, 1)
             ),
+            attackerWaves = listOf(
+                AttackerWave(listOf(AttackerType.GOBLIN))
+            ),
+            initialCoins = 1000,  // Enough for all towers
+            healthPoints = 10,
             availableTowers = setOf(
                 DefenderType.SPIKE_TOWER,
                 DefenderType.SPEAR_TOWER,
@@ -168,7 +151,6 @@ class TowerFirstUseInfoTest {
             )
         )
         
-        val level = LevelData.convertToGameLevel(editorLevel)
         return GameState(level = level)
     }
 }
