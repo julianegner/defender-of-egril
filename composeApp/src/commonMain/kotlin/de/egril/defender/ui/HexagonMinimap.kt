@@ -241,6 +241,7 @@ private fun HexagonMinimapContent(
                             if (isDarkMode) Color(0xFF3E3528) else Color(0xFF8B4513)
                         }
                         TileType.NO_PLAY -> if (isDarkMode) Color(0xFF2C2C2C) else Color(0xFF808080)
+                        TileType.RIVER -> if (isDarkMode) Color(0xFF1E3A5F) else Color(0xFF4682B4)  // Steel blue for water
                     }
                     
                     // Draw hexagon
