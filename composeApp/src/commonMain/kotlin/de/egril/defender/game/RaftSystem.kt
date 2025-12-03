@@ -85,19 +85,15 @@ class RaftSystem(private val state: GameState) {
     
     /**
      * Calculate the next position for a raft based on river flow.
-     * Returns null if the raft cannot move or would be destroyed.
+     * Returns null if the raft is blocked by a bridge.
+     * Does not check for out-of-bounds (that's handled in moveRaft).
      */
     private fun calculateNextPosition(raft: Raft): Position? {
         val currentPos = raft.currentPosition.value
         val riverTile = state.level.getRiverTile(currentPos) ?: return null
         
-        // Check for maelstrom - raft will be destroyed
-        if (riverTile.flowDirection == RiverFlow.MAELSTROM) {
-            return null  // Will be destroyed
-        }
-        
         // No flow means no movement
-        if (riverTile.flowDirection == RiverFlow.NONE) {
+        if (riverTile.flowDirection == RiverFlow.NONE || riverTile.flowDirection == RiverFlow.MAELSTROM) {
             return null
         }
         
@@ -105,11 +101,6 @@ class RaftSystem(private val state: GameState) {
         var nextPos = currentPos
         for (step in 1..riverTile.flowSpeed) {
             val nextStep = getNextPositionInDirection(nextPos, riverTile.flowDirection)
-            
-            // Check if next position is out of bounds
-            if (!isPositionInBounds(nextStep)) {
-                return null  // Will be destroyed
-            }
             
             // Check if there's a bridge blocking the way
             if (state.isBridgeAt(nextStep)) {
@@ -147,18 +138,25 @@ class RaftSystem(private val state: GameState) {
             return
         }
         
-        val nextPos = calculateNextPosition(raft)
-        
-        if (nextPos == null) {
-            // Raft is blocked or would be destroyed
-            return
-        }
-        
-        // Check if out of bounds
-        if (!isPositionInBounds(nextPos)) {
-            println("Raft ${raft.id} moved out of bounds at $nextPos")
-            destroyRaftAndTower(raft, defender)
-            return
+        // Calculate where the raft would move
+        var nextPos = currentPos
+        for (step in 1..riverTile.flowSpeed) {
+            val nextStep = getNextPositionInDirection(nextPos, riverTile.flowDirection)
+            
+            // Check if next position is out of bounds
+            if (!isPositionInBounds(nextStep)) {
+                println("Raft ${raft.id} moved out of bounds at $nextStep")
+                destroyRaftAndTower(raft, defender)
+                return
+            }
+            
+            // Check if there's a bridge blocking the way
+            if (state.isBridgeAt(nextStep)) {
+                // Blocked by bridge, cannot move
+                return
+            }
+            
+            nextPos = nextStep
         }
         
         // Check if another raft is at the destination
