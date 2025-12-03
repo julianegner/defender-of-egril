@@ -169,4 +169,40 @@ class InfoStateTest {
         assertTrue(state.hasSeen(InfoType.ONE_HP_WARNING), "Should mark one HP warning as seen")
         assertFalse(state.shouldShowOverlay(), "Should not show overlay after dismiss")
     }
+    
+    @Test
+    fun testTowerFirstUseInfos() {
+        var state = InfoState()
+        
+        // Test Wizard first use
+        state = state.showInfo(InfoType.WIZARD_FIRST_USE)
+        assertEquals(InfoType.WIZARD_FIRST_USE, state.currentInfo, "Should show wizard first use")
+        assertTrue(state.shouldShowOverlay(), "Should show overlay")
+        state = state.dismissInfo()
+        assertTrue(state.hasSeen(InfoType.WIZARD_FIRST_USE), "Should mark wizard first use as seen")
+        
+        // Test Alchemy first use
+        state = state.showInfo(InfoType.ALCHEMY_FIRST_USE)
+        assertEquals(InfoType.ALCHEMY_FIRST_USE, state.currentInfo, "Should show alchemy first use")
+        assertTrue(state.shouldShowOverlay(), "Should show overlay")
+        state = state.dismissInfo()
+        assertTrue(state.hasSeen(InfoType.ALCHEMY_FIRST_USE), "Should mark alchemy first use as seen")
+        
+        // Test Ballista first use
+        state = state.showInfo(InfoType.BALLISTA_FIRST_USE)
+        assertEquals(InfoType.BALLISTA_FIRST_USE, state.currentInfo, "Should show ballista first use")
+        assertTrue(state.shouldShowOverlay(), "Should show overlay")
+        state = state.dismissInfo()
+        assertTrue(state.hasSeen(InfoType.BALLISTA_FIRST_USE), "Should mark ballista first use as seen")
+        
+        // Test Mine first use
+        state = state.showInfo(InfoType.MINE_FIRST_USE)
+        assertEquals(InfoType.MINE_FIRST_USE, state.currentInfo, "Should show mine first use")
+        assertTrue(state.shouldShowOverlay(), "Should show overlay")
+        state = state.dismissInfo()
+        assertTrue(state.hasSeen(InfoType.MINE_FIRST_USE), "Should mark mine first use as seen")
+        
+        // Verify all were marked as seen
+        assertEquals(4, state.seenInfos.size, "Should have 4 seen infos")
+    }
 }
