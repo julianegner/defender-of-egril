@@ -8,7 +8,7 @@ import de.egril.defender.model.*
  * 
  * Bridge building rules:
  * - Ork → Wooden bridge (1 river tile, HP = ork HP)
- * - Troll → Stone bridge (1-2 river tiles, HP = troll HP)
+ * - Ogre → Stone bridge (1-2 river tiles, HP = ogre HP)
  * - Evil Wizard/Ewhad → Magical bridge (1 river tile, no HP, 3 turns duration, costs 1 level, must have level 2+)
  * 
  * Bridge-building units are destroyed (or lose level) when creating bridge.
@@ -42,8 +42,8 @@ class BridgeSystem(private val state: GameState) {
         
         if (adjacentRivers.isEmpty()) return emptyList()
         
-        // For Trolls (stone bridge), check for 1-2 river tile spans
-        if (attacker.type == AttackerType.TROLL) {
+        // For Ogres (stone bridge), check for 1-2 river tile spans
+        if (attacker.type == AttackerType.OGRE) {
             // Check 1-tile spans
             val oneTileSpans = adjacentRivers
             
@@ -72,7 +72,7 @@ class BridgeSystem(private val state: GameState) {
     }
     
     /**
-     * Check if three positions are roughly in the same direction (for troll 2-tile bridges)
+     * Check if three positions are roughly in the same direction (for ogre 2-tile bridges)
      */
     private fun isRoughlyInSameDirection(start: Position, mid: Position, end: Position): Boolean {
         // Check if the angle from start→mid and mid→end is relatively straight
@@ -118,8 +118,8 @@ class BridgeSystem(private val state: GameState) {
                 return true
             }
             
-            AttackerType.TROLL -> {
-                // Stone bridge: 1-2 tiles, HP = troll HP
+            AttackerType.OGRE -> {
+                // Stone bridge: 1-2 tiles, HP = ogre HP
                 if (positions.size !in 1..2) return false
                 
                 val bridge = Bridge(
@@ -132,10 +132,10 @@ class BridgeSystem(private val state: GameState) {
                 )
                 state.bridges.add(bridge)
                 
-                // Destroy the troll
+                // Destroy the ogre
                 attacker.isBuildingBridge.value = true
                 attacker.isDefeated.value = true
-                println("Troll ${attacker.id} built stone bridge at $positions with ${bridge.currentHealth.value} HP")
+                println("Ogre ${attacker.id} built stone bridge at $positions with ${bridge.currentHealth.value} HP")
                 return true
             }
             

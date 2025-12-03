@@ -19,8 +19,7 @@ enum class AttackerType(
 ) {
     GOBLIN("Goblin", health = 20, speed = 5, reward = 5),
     ORK("Ork", health = 40, speed = 2, reward = 10, canBuildBridge = true),
-    TROLL("Troll", health = 60, speed = 1, reward = 15, canBuildBridge = true),
-    OGRE("Ogre", health = 80, speed = 1, reward = 20),
+    OGRE("Ogre", health = 80, speed = 1, reward = 20, canBuildBridge = true),
     SKELETON("Skeleton", health = 15, speed = 5, reward = 7),
     EVIL_WIZARD("Evil Wizard", health = 30, speed = 2, reward = 15, canBuildBridge = true),
     WITCH("Witch", health = 25, speed = 4, reward = 12),

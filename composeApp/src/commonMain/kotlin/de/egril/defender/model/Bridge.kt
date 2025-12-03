@@ -11,7 +11,7 @@ enum class BridgeType(
     val maxSpan: Int  // Maximum number of river tiles this bridge can span
 ) {
     WOODEN("Wooden Bridge", maxSpan = 1),    // Built by Orks
-    STONE("Stone Bridge", maxSpan = 2),       // Built by Trolls
+    STONE("Stone Bridge", maxSpan = 2),       // Built by Ogres
     MAGICAL("Magical Bridge", maxSpan = 1)    // Built by Evil Wizards and Ewhad (temporary)
 }
 
@@ -20,7 +20,7 @@ enum class BridgeType(
  * 
  * Bridges are built over river tiles and allow enemies to cross.
  * - Wooden bridges (Ork): Span 1 river tile, have HP equal to the Ork's HP
- * - Stone bridges (Troll): Span 1-2 river tiles, have HP equal to the Troll's HP
+ * - Stone bridges (Ogre): Span 1-2 river tiles, have HP equal to the Ogre's HP
  * - Magical bridges (Evil Wizard/Ewhad): Span 1 river tile, no HP, last 3 turns
  * 
  * Bridges do not count towards the enemy count for winning.
