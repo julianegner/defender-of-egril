@@ -225,6 +225,7 @@
     <string name="initial_building_phase">Initial Building Phase - Place towers (no build time)</string>
     <string name="add_comment">Add an optional comment to help identify this save:</string>
     <string name="game_saved">Game Saved</string>
+    <string name="game_saved_successfully">Your game has been saved successfully!</string>
     <string name="on_map">On Map</string>
     <string name="planned_spawns">Planned Spawns</string>
     <string name="building_label">Building</string>
