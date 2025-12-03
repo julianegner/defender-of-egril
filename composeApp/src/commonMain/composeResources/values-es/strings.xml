@@ -225,6 +225,7 @@
     <string name="initial_building_phase">Fase de construcción inicial - Coloca torres (sin tiempo de construcción)</string>
     <string name="add_comment">Añade un comentario opcional para identificar esta partida guardada:</string>
     <string name="game_saved">Juego guardado</string>
+    <string name="game_saved_successfully">¡Tu juego ha sido guardado exitosamente!</string>
     <string name="on_map">En el mapa</string>
     <string name="planned_spawns">Apariciones planificadas</string>
     <string name="position_label">Posición</string>
@@ -547,6 +548,11 @@
     <string name="unsaved_changes_message">Tienes progreso no guardado en este nivel. ¿Qué te gustaría hacer?</string>
     <string name="save_and_exit">Guardar y Salir</string>
     <string name="discard_changes">Descartar Cambios</string>
+    
+    <!-- End Turn Confirmation Dialog -->
+    <string name="end_turn_confirmation_title">¿Terminar turno?</string>
+    <string name="end_turn_confirmation_message">Tienes torres con puntos de acción sin usar. ¿Estás seguro de que quieres terminar tu turno?</string>
+    <string name="end_turn_confirm">Terminar turno</string>
     
     <!-- Magical Trap Feature -->
     <string name="magical_trap">Trampa Mágica</string>

@@ -99,6 +99,7 @@ private fun GamePlayScreenContent(
     var saveCommentInput by remember { mutableStateOf("") }  // Comment input for save
     var showSaveConfirmation by remember { mutableStateOf(false) }  // Save confirmation
     var showUnsavedChangesDialog by remember { mutableStateOf(false) }  // Unsaved changes dialog
+    var showEndTurnConfirmation by remember { mutableStateOf(false) }  // End turn confirmation dialog
     
     // Check if unsaved changes feature is enabled (both hasUnsavedChanges and onSaveGame must be available)
     val unsavedChangesEnabled = hasUnsavedChanges != null && onSaveGame != null
@@ -587,11 +588,22 @@ private fun GamePlayScreenContent(
                         }
                     },
                     onPrimaryAction = {
-                        onEndPlayerTurn()
-                        // Track tutorial progress
-                        if (gameState.tutorialState.value.isActive && 
-                            !gameState.tutorialState.value.hasStartedFirstTurn) {
-                            gameState.tutorialState.value = gameState.tutorialState.value.markTurnStarted()
+                        // Check if any defenders have actions remaining
+                        val hasActionsRemaining = gameState.defenders.any { defender ->
+                            defender.isReady && defender.actionsRemaining.value > 0
+                        }
+                        
+                        if (hasActionsRemaining) {
+                            // Show confirmation dialog
+                            showEndTurnConfirmation = true
+                        } else {
+                            // End turn directly
+                            onEndPlayerTurn()
+                            // Track tutorial progress
+                            if (gameState.tutorialState.value.isActive && 
+                                !gameState.tutorialState.value.hasStartedFirstTurn) {
+                                gameState.tutorialState.value = gameState.tutorialState.value.markTurnStarted()
+                            }
                         }
                     },
                     onMineAction = handleMineAction,
@@ -678,6 +690,24 @@ private fun GamePlayScreenContent(
                 onCancel = {
                     // Just close the dialog and stay in the game
                     showUnsavedChangesDialog = false
+                }
+            )
+        }
+        
+        // End turn confirmation dialog
+        if (showEndTurnConfirmation) {
+            EndTurnConfirmationDialog(
+                onConfirm = {
+                    showEndTurnConfirmation = false
+                    onEndPlayerTurn()
+                    // Track tutorial progress
+                    if (gameState.tutorialState.value.isActive && 
+                        !gameState.tutorialState.value.hasStartedFirstTurn) {
+                        gameState.tutorialState.value = gameState.tutorialState.value.markTurnStarted()
+                    }
+                },
+                onCancel = {
+                    showEndTurnConfirmation = false
                 }
             )
         }
