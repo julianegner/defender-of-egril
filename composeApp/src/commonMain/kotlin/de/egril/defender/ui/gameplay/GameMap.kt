@@ -600,11 +600,11 @@ fun BridgeVisualization(bridge: Bridge) {
                 BridgeType.MAGICAL -> Color(0xFFFF00FF) // Magenta/purple for magical
             }
             
-            // Draw half arc (bridge shape)
+            // Draw half arc (bridge shape) - opening at bottom
             drawArc(
                 color = bridgeColor,
-                startAngle = 0f,
-                sweepAngle = 180f,
+                startAngle = 180f,  // Start from bottom-left
+                sweepAngle = 180f,  // Draw top half
                 useCenter = false,
                 topLeft = androidx.compose.ui.geometry.Offset(
                     centerX - arcWidth / 2,
@@ -614,13 +614,13 @@ fun BridgeVisualization(bridge: Bridge) {
                 style = androidx.compose.ui.graphics.drawscope.Stroke(width = 6f)
             )
             
-            // For magical bridges, add sparkle effect
+            // For magical bridges, add sparkle effect above the arc
             if (bridge.type == BridgeType.MAGICAL) {
-                // Draw sparkles around the arc
+                // Draw sparkles around the arc (top side)
                 val sparklePositions = listOf(
-                    androidx.compose.ui.geometry.Offset(centerX - arcWidth / 3, centerY - arcHeight / 3),
-                    androidx.compose.ui.geometry.Offset(centerX, centerY - arcHeight / 2 - 5),
-                    androidx.compose.ui.geometry.Offset(centerX + arcWidth / 3, centerY - arcHeight / 3)
+                    androidx.compose.ui.geometry.Offset(centerX - arcWidth / 3, centerY - arcHeight / 2 + 5),
+                    androidx.compose.ui.geometry.Offset(centerX, centerY - arcHeight / 2),
+                    androidx.compose.ui.geometry.Offset(centerX + arcWidth / 3, centerY - arcHeight / 2 + 5)
                 )
                 sparklePositions.forEach { pos ->
                     drawCircle(
@@ -632,11 +632,13 @@ fun BridgeVisualization(bridge: Bridge) {
             }
         }
         
-        // Display health or turn count
+        // Display health or turn count below the arc
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-            modifier = Modifier.padding(top = 8.dp)
+            verticalArrangement = Arrangement.Bottom,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(bottom = 4.dp)
         ) {
             when (bridge.type) {
                 BridgeType.WOODEN, BridgeType.STONE -> {
