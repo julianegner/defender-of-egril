@@ -34,7 +34,7 @@ data class Level(
     val waypoints: List<Waypoint> = emptyList(),  // Waypoints for complex pathing
     val editorLevelId: String? = null,  // ID of the editor level this was created from
     val mapId: String? = null,  // ID of the map this level uses
-    val riverTiles: Set<Position> = emptySet()  // River tile positions (not walkable in gameplay, but considered for validation)
+    val riverTiles: Set<Position> = emptySet()  // River tile positions (not walkable in gameplay, but treated as walkable during map validation for levels with ORK, EVIL_WIZARD, or EWHAD enemies)
 ) {
     fun isOnPath(position: Position): Boolean {
         return pathCells.contains(position)

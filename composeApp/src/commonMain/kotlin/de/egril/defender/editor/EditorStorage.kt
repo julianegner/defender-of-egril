@@ -19,9 +19,6 @@ object EditorStorage {
     private val levelsCache = mutableMapOf<String, EditorLevel>()
     private var levelSequenceCache: LevelSequence? = null
     
-    // For testing purposes only - allows tests to inject temporary maps
-    var temporaryTestMap: EditorMap? = null
-    
     private val MAPS_DIR = "gamedata/maps"
     private val LEVELS_DIR = "gamedata/levels"
     private val SEQUENCE_FILE = "gamedata/sequence.json"
@@ -68,11 +65,6 @@ object EditorStorage {
     
     fun getMap(id: String): EditorMap? {
         println("EditorStorage: Retrieving map with ID: $id")
-        
-        // Check if there's a temporary test map first (for testing purposes)
-        if (temporaryTestMap?.id == id) {
-            return temporaryTestMap
-        }
         
         // Check cache first
         if (mapsCache.containsKey(id)) {
