@@ -55,14 +55,18 @@ fun getTileColor(tileType: TileType): Color {
 /**
  * Displays flow indicators for river tiles based on flow direction and speed
  * For hexagonal grids, arrows point to the middle of each of the 6 hex sides
+ * Arrows are white/light gray for visibility on blue river tiles
  */
 @Composable
 fun RiverFlowIndicator(
     flowDirection: RiverFlow,
     flowSpeed: Int,
     modifier: Modifier = Modifier,
-    size: Dp = 14.dp
+    size: Dp = 28.dp
 ) {
+    // Use white/light gray color for arrows to stand out on blue river background
+    val arrowTint = Color.White
+    
     Box(
         modifier = modifier,
         contentAlignment = Alignment.Center
@@ -79,9 +83,9 @@ fun RiverFlowIndicator(
             RiverFlow.EAST -> {
                 // East: 0° (right) - use right arrow
                 Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                    RightArrowIcon(size = size)
+                    RightArrowIcon(size = size, tint = arrowTint)
                     if (flowSpeed == 2) {
-                        RightArrowIcon(size = size)
+                        RightArrowIcon(size = size, tint = arrowTint)
                     }
                 }
             }
@@ -90,12 +94,14 @@ fun RiverFlowIndicator(
                 Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
                     RightArrowIcon(
                         modifier = Modifier.graphicsLayer { rotationZ = 60f },
-                        size = size
+                        size = size,
+                        tint = arrowTint
                     )
                     if (flowSpeed == 2) {
                         RightArrowIcon(
                             modifier = Modifier.graphicsLayer { rotationZ = 60f },
-                            size = size
+                            size = size,
+                            tint = arrowTint
                         )
                     }
                 }
@@ -105,12 +111,14 @@ fun RiverFlowIndicator(
                 Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
                     RightArrowIcon(
                         modifier = Modifier.graphicsLayer { rotationZ = 120f },
-                        size = size
+                        size = size,
+                        tint = arrowTint
                     )
                     if (flowSpeed == 2) {
                         RightArrowIcon(
                             modifier = Modifier.graphicsLayer { rotationZ = 120f },
-                            size = size
+                            size = size,
+                            tint = arrowTint
                         )
                     }
                 }
@@ -118,9 +126,9 @@ fun RiverFlowIndicator(
             RiverFlow.WEST -> {
                 // West: 180° (left) - use left arrow
                 Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                    LeftArrowIcon(size = size)
+                    LeftArrowIcon(size = size, tint = arrowTint)
                     if (flowSpeed == 2) {
-                        LeftArrowIcon(size = size)
+                        LeftArrowIcon(size = size, tint = arrowTint)
                     }
                 }
             }
@@ -129,12 +137,14 @@ fun RiverFlowIndicator(
                 Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
                     RightArrowIcon(
                         modifier = Modifier.graphicsLayer { rotationZ = 240f },
-                        size = size
+                        size = size,
+                        tint = arrowTint
                     )
                     if (flowSpeed == 2) {
                         RightArrowIcon(
                             modifier = Modifier.graphicsLayer { rotationZ = 240f },
-                            size = size
+                            size = size,
+                            tint = arrowTint
                         )
                     }
                 }
@@ -144,12 +154,14 @@ fun RiverFlowIndicator(
                 Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
                     RightArrowIcon(
                         modifier = Modifier.graphicsLayer { rotationZ = -60f },
-                        size = size
+                        size = size,
+                        tint = arrowTint
                     )
                     if (flowSpeed == 2) {
                         RightArrowIcon(
                             modifier = Modifier.graphicsLayer { rotationZ = -60f },
-                            size = size
+                            size = size,
+                            tint = arrowTint
                         )
                     }
                 }

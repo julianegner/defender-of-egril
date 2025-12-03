@@ -203,7 +203,7 @@ fun MapEditorView(
                                 RiverFlowIndicator(
                                     flowDirection = riverTile.flowDirection,
                                     flowSpeed = riverTile.flowSpeed,
-                                    size = 10.dp
+                                    size = 20.dp
                                 )
                             }
                         }
