@@ -96,6 +96,16 @@ data class EditorMap(
     }
     
     /**
+     * Get all river tiles as a map keyed by Position
+     */
+    fun getRiverTilesMap(): Map<Position, de.egril.defender.model.RiverTile> {
+        return riverTiles.mapKeys { (key, _) ->
+            val parts = key.split(",")
+            Position(parts[0].toInt(), parts[1].toInt())
+        }
+    }
+    
+    /**
      * Validates if map is ready to use:
      * - Has at least one spawn point
      * - Has at least one target
