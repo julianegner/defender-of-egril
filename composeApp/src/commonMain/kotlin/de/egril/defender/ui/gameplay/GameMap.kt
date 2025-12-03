@@ -24,6 +24,7 @@ import de.egril.defender.ui.editor.map.MapControls
 import defender_of_egril.composeapp.generated.resources.*
 import de.egril.defender.ui.icon.TestTubeIcon
 import de.egril.defender.ui.icon.enemy.EnemyIcon
+import de.egril.defender.ui.editor.RiverFlowIndicator
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -458,6 +459,18 @@ fun GridCell(
             isTarget -> {
                 // Show target indicator when cell is empty
                 Text(stringResource(Res.string.target), style = MaterialTheme.typography.labelSmall, color = GamePlayColors.Success)
+            }
+            
+            isRiverTile -> {
+                // Show river flow direction arrows
+                val riverTile = gameState.level.getRiverTile(position)
+                if (riverTile != null) {
+                    RiverFlowIndicator(
+                        flowDirection = riverTile.flowDirection,
+                        flowSpeed = riverTile.flowSpeed,
+                        size = 28.dp
+                    )
+                }
             }
         }
         
