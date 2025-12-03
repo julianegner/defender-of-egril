@@ -160,7 +160,7 @@ class EnemyAbilitySystem(private val state: GameState) {
         
         // Find closest tower
         val nearestTower = eligibleTowers.minByOrNull { tower ->
-            tower.position.distanceTo(witch.position.value)
+            tower.position.value.distanceTo(witch.position.value)
         }
         
         if (nearestTower != null) {
@@ -195,7 +195,7 @@ class EnemyAbilitySystem(private val state: GameState) {
         if (eligibleTowers.isEmpty()) return null
         
         return eligibleTowers.minByOrNull { tower ->
-            tower.position.distanceTo(witch.position.value)
+            tower.position.value.distanceTo(witch.position.value)
         }
     }
     

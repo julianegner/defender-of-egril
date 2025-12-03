@@ -269,7 +269,7 @@ private fun HexagonMinimapContent(
                 // Draw defenders (towers)
                 if (config.showTowers) {
                     gameState.defenders.forEach { defender ->
-                        val center = getHexCenterPosition(defender.position)
+                        val center = getHexCenterPosition(defender.position.value)
                         drawCircle(
                             color = Color(0xFF2196F3),  // Blue - same as ready towers on main map
                             radius = hexSize / 2,

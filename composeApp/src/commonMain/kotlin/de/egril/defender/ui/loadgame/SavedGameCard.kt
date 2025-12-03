@@ -39,7 +39,7 @@ fun SavedGameCard(
                 Defender(
                     id = saved.id,
                     type = saved.type,
-                    position = saved.position,
+                    position = mutableStateOf(saved.position),
                     level = mutableStateOf(saved.level),
                     buildTimeRemaining = mutableStateOf(saved.buildTimeRemaining),
                     actionsRemaining = mutableStateOf(0),
