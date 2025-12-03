@@ -142,4 +142,65 @@ class RiverTileTest {
         assertEquals(RiverFlow.NORTH_EAST, riverTile.flowDirection)
         assertEquals(2, riverTile.flowSpeed)
     }
+    
+    @Test
+    fun testMultipleRiverTilesSerialization() {
+        // Test serialization and deserialization with multiple river tiles
+        val tiles = mutableMapOf<String, TileType>()
+        tiles["0,0"] = TileType.SPAWN_POINT
+        tiles["9,9"] = TileType.TARGET
+        tiles["2,2"] = TileType.RIVER
+        tiles["3,3"] = TileType.RIVER
+        tiles["4,4"] = TileType.RIVER
+        
+        val riverTiles = mutableMapOf<String, RiverTile>()
+        riverTiles["2,2"] = RiverTile(
+            position = Position(2, 2),
+            flowDirection = RiverFlow.EAST,
+            flowSpeed = 2
+        )
+        riverTiles["3,3"] = RiverTile(
+            position = Position(3, 3),
+            flowDirection = RiverFlow.NORTH_EAST,
+            flowSpeed = 1
+        )
+        riverTiles["4,4"] = RiverTile(
+            position = Position(4, 4),
+            flowDirection = RiverFlow.SOUTH_WEST,
+            flowSpeed = 2
+        )
+        
+        val map = EditorMap(
+            id = "test_multiple_rivers",
+            name = "Test Multiple Rivers",
+            width = 10,
+            height = 10,
+            tiles = tiles,
+            riverTiles = riverTiles
+        )
+        
+        // Serialize
+        val json = EditorJsonSerializer.serializeMap(map)
+        
+        // Deserialize
+        val deserializedMap = EditorJsonSerializer.deserializeMap(json)
+        
+        assertNotNull(deserializedMap)
+        assertEquals(3, deserializedMap.riverTiles.size, "Should deserialize all 3 river tiles")
+        
+        val river1 = deserializedMap.getRiverTile(2, 2)
+        assertNotNull(river1)
+        assertEquals(RiverFlow.EAST, river1.flowDirection)
+        assertEquals(2, river1.flowSpeed)
+        
+        val river2 = deserializedMap.getRiverTile(3, 3)
+        assertNotNull(river2)
+        assertEquals(RiverFlow.NORTH_EAST, river2.flowDirection)
+        assertEquals(1, river2.flowSpeed)
+        
+        val river3 = deserializedMap.getRiverTile(4, 4)
+        assertNotNull(river3)
+        assertEquals(RiverFlow.SOUTH_WEST, river3.flowDirection)
+        assertEquals(2, river3.flowSpeed)
+    }
 }
