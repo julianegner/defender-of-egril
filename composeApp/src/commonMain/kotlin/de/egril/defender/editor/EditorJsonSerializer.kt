@@ -85,26 +85,44 @@ object EditorJsonSerializer {
             val riverTiles = mutableMapOf<String, de.egril.defender.model.RiverTile>()
             try {
                 if (json.contains("\"riverTiles\"")) {
-                    val riverSection = json.substringAfter("\"riverTiles\": {")
-                        .substringBefore("}")
-                        .replace("},","}|")  // Temporary delimiter
-                    val riverEntries = riverSection.split("|").map { it.trim() }
-                    
-                    for (entry in riverEntries) {
-                        if (entry.isBlank()) continue
-                        val posMatch = Regex("\"([0-9]+,[0-9]+)\"").find(entry) ?: continue
-                        val pos = posMatch.groupValues[1]
+                    // Find the riverTiles section by counting braces to find the matching closing brace
+                    val startMarker = "\"riverTiles\": {"
+                    val startIdx = json.indexOf(startMarker)
+                    if (startIdx != -1) {
+                        val contentStart = startIdx + startMarker.length
+                        var braceCount = 1
+                        var endIdx = contentStart
                         
-                        val flowDirectionMatch = Regex("\"flowDirection\":\\s*\"([A-Z_]+)\"").find(entry)
-                        val flowSpeedMatch = Regex("\"flowSpeed\":\\s*([12])").find(entry)
+                        // Find matching closing brace
+                        while (endIdx < json.length && braceCount > 0) {
+                            when (json[endIdx]) {
+                                '{' -> braceCount++
+                                '}' -> braceCount--
+                            }
+                            endIdx++
+                        }
                         
-                        if (flowDirectionMatch != null && flowSpeedMatch != null) {
-                            val flowDirection = de.egril.defender.model.RiverFlow.valueOf(flowDirectionMatch.groupValues[1])
-                            val flowSpeed = flowSpeedMatch.groupValues[1].toInt()
+                        if (braceCount == 0) {
+                            val riverSection = json.substring(contentStart, endIdx - 1)
+                            val riverEntries = riverSection.split("},").map { it.trim() }
                             
-                            val parts = pos.split(",")
-                            val position = Position(parts[0].toInt(), parts[1].toInt())
-                            riverTiles[pos] = de.egril.defender.model.RiverTile(position, flowDirection, flowSpeed)
+                            for (entry in riverEntries) {
+                                if (entry.isBlank()) continue
+                                val posMatch = Regex("\"([0-9]+,[0-9]+)\"").find(entry) ?: continue
+                                val pos = posMatch.groupValues[1]
+                                
+                                val flowDirectionMatch = Regex("\"flowDirection\":\\s*\"([A-Z_]+)\"").find(entry)
+                                val flowSpeedMatch = Regex("\"flowSpeed\":\\s*([12])").find(entry)
+                                
+                                if (flowDirectionMatch != null && flowSpeedMatch != null) {
+                                    val flowDirection = de.egril.defender.model.RiverFlow.valueOf(flowDirectionMatch.groupValues[1])
+                                    val flowSpeed = flowSpeedMatch.groupValues[1].toInt()
+                                    
+                                    val parts = pos.split(",")
+                                    val position = Position(parts[0].toInt(), parts[1].toInt())
+                                    riverTiles[pos] = de.egril.defender.model.RiverTile(position, flowDirection, flowSpeed)
+                                }
+                            }
                         }
                     }
                 }
