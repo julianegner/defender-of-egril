@@ -193,6 +193,21 @@ private fun GamePlayScreenContent(
             gameState.infoState.value = infoState.showInfo(InfoType.ONE_HP_WARNING)
         }
     }
+    
+    // Check for river tiles and show river mechanics info (first time only)
+    LaunchedEffect(gameState.level.id) {
+        val infoState = gameState.infoState.value
+        
+        // Skip if already showing an info or already seen river info
+        if (infoState.currentInfo != InfoType.NONE || infoState.hasSeen(InfoType.RIVER_INFO)) {
+            return@LaunchedEffect
+        }
+        
+        // Show info if level has river tiles
+        if (gameState.level.riverTiles.isNotEmpty()) {
+            gameState.infoState.value = infoState.showInfo(InfoType.RIVER_INFO)
+        }
+    }
 
     // Mine action handler
     val handleMineAction: (Int, MineAction) -> Unit = { mineId, action ->

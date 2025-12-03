@@ -590,4 +590,11 @@
     <!-- Extended Area Attack Feature -->
     <string name="extended_area_tutorial_title">Extended Area Attack!</string>
     <string name="extended_area_tutorial_message">Your tower has reached level 20 and now has an extended area attack! Fireball and acid attacks now affect enemies within 2 tiles of the target instead of just 1 tile. This makes your area attacks much more powerful against groups of enemies!</string>
+    
+    <!-- River Mechanics Info -->
+    <string name="river_info_title">River Mechanics</string>
+    <string name="river_info_placement">You can place towers on river tiles! When you do, they will be placed on rafts.</string>
+    <string name="river_info_movement">Rafts move automatically with the river flow at the end of each turn. The flow speed determines how many tiles they move (1 or 2 tiles).</string>
+    <string name="river_info_destruction">Rafts are destroyed if they reach a maelstrom (whirlpool) or move out of the map boundaries. The tower on the raft is also destroyed.</string>
+    <string name="river_info_bridges">Bridges block raft movement. Rafts cannot pass through bridges spanning the river. Multiple rafts on the same river move in order - downstream rafts move first.</string>
 </resources>
