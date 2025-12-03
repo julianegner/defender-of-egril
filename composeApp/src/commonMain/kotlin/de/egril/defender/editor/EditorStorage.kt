@@ -722,7 +722,7 @@ object EditorStorage {
             waypoints = gameWaypoints,
             editorLevelId = editorLevel.id,  // Store editor level ID for minimap lookup
             mapId = editorLevel.mapId,  // Store map ID for save/load verification
-            riverTiles = map.getRiverCells()  // Add river tiles from map
+            riverTiles = map.getRiverTilesMap()  // Add river tiles with flow direction and speed
         )
         
         println("=== CREATED LEVEL ===")
