@@ -28,6 +28,10 @@ fun MapEditorHeader(
     onMapNameChange: (String) -> Unit,
     selectedTileType: TileType,
     onTileTypeChange: (TileType) -> Unit,
+    selectedRiverFlow: de.egril.defender.model.RiverFlow,
+    onRiverFlowChange: (de.egril.defender.model.RiverFlow) -> Unit,
+    selectedRiverSpeed: Int,
+    onRiverSpeedChange: (Int) -> Unit,
     zoomLevel: Float,
     onZoomIn: () -> Unit,
     onZoomOut: () -> Unit,
@@ -78,6 +82,85 @@ fun MapEditorHeader(
                         selected = selectedTileType == tileType,
                         onClick = { onTileTypeChange(tileType) }
                     )
+                }
+            }
+            
+            // River properties (shown when RIVER tile is selected)
+            if (selectedTileType == TileType.RIVER) {
+                Card(
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                    )
+                ) {
+                    Column(modifier = Modifier.padding(8.dp)) {
+                        Text(
+                            text = "River Properties",
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.padding(bottom = 4.dp)
+                        )
+                        
+                        // Flow direction selector
+                        Text(
+                            text = "Flow Direction:",
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.padding(bottom = 2.dp)
+                        )
+                        LazyRow(
+                            modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp),
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            items(de.egril.defender.model.RiverFlow.entries) { flow ->
+                                Button(
+                                    onClick = { onRiverFlowChange(flow) },
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = if (selectedRiverFlow == flow) 
+                                            MaterialTheme.colorScheme.primary 
+                                        else 
+                                            MaterialTheme.colorScheme.secondary
+                                    ),
+                                    modifier = Modifier.height(32.dp)
+                                ) {
+                                    Text(flow.name.replace("_", " "), fontSize = 10.sp)
+                                }
+                            }
+                        }
+                        
+                        // Flow speed selector
+                        Text(
+                            text = "Flow Speed:",
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.padding(bottom = 2.dp)
+                        )
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Button(
+                                onClick = { onRiverSpeedChange(1) },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = if (selectedRiverSpeed == 1) 
+                                        MaterialTheme.colorScheme.primary 
+                                    else 
+                                        MaterialTheme.colorScheme.secondary
+                                ),
+                                modifier = Modifier.height(32.dp)
+                            ) {
+                                Text("1 (Slow)", fontSize = 10.sp)
+                            }
+                            Button(
+                                onClick = { onRiverSpeedChange(2) },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = if (selectedRiverSpeed == 2) 
+                                        MaterialTheme.colorScheme.primary 
+                                    else 
+                                        MaterialTheme.colorScheme.secondary
+                                ),
+                                modifier = Modifier.height(32.dp)
+                            ) {
+                                Text("2 (Fast)", fontSize = 10.sp)
+                            }
+                        }
+                    }
                 }
             }
             
