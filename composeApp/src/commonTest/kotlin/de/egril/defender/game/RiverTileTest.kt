@@ -3,6 +3,7 @@ package de.egril.defender.game
 import de.egril.defender.editor.EditorLevel
 import de.egril.defender.editor.EditorMap
 import de.egril.defender.editor.EditorEnemySpawn
+import de.egril.defender.editor.EditorStorage
 import de.egril.defender.editor.TileType
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.DefenderType
@@ -120,5 +121,99 @@ class RiverTileTest {
         assertFalse(riverCells.contains(Position(0, 0)))
         assertTrue(riverCells.contains(Position(1, 0)))
         assertFalse(riverCells.contains(Position(2, 0)))
+    }
+    
+    /**
+     * Test that level with ORK enemy allows river-crossing validation
+     */
+    @Test
+    fun testLevelWithOrkAllowsRiverCrossing() {
+        // Create map with river blocking path
+        val tiles = mutableMapOf<String, TileType>()
+        tiles["0,0"] = TileType.SPAWN_POINT
+        tiles["1,0"] = TileType.RIVER
+        tiles["2,0"] = TileType.TARGET
+        
+        val map = EditorMap(
+            id = "test-ork-map",
+            name = "Test Ork Map",
+            width = 3,
+            height = 1,
+            tiles = tiles,
+            readyToUse = false
+        )
+        
+        // Create level with ORK enemy
+        val level = EditorLevel(
+            id = "test-ork-level",
+            mapId = map.id,
+            title = "Test Ork Level",
+            startCoins = 100,
+            startHealthPoints = 10,
+            enemySpawns = listOf(
+                EditorEnemySpawn(
+                    attackerType = AttackerType.ORK,
+                    level = 1,
+                    spawnTurn = 1
+                )
+            ),
+            availableTowers = setOf(DefenderType.SPIKE_TOWER)
+        )
+        
+        // Temporarily register the map to test validation
+        EditorStorage.temporaryTestMap = map
+        
+        // Level should be valid because ORK can build bridges
+        assertTrue(EditorStorage.isLevelReadyToPlay(level))
+        
+        // Cleanup
+        EditorStorage.temporaryTestMap = null
+    }
+    
+    /**
+     * Test that level with GOBLIN enemy does NOT allow river-crossing validation
+     */
+    @Test
+    fun testLevelWithGoblinDoesNotAllowRiverCrossing() {
+        // Create map with river blocking path
+        val tiles = mutableMapOf<String, TileType>()
+        tiles["0,0"] = TileType.SPAWN_POINT
+        tiles["1,0"] = TileType.RIVER
+        tiles["2,0"] = TileType.TARGET
+        
+        val map = EditorMap(
+            id = "test-goblin-map",
+            name = "Test Goblin Map",
+            width = 3,
+            height = 1,
+            tiles = tiles,
+            readyToUse = false
+        )
+        
+        // Create level with GOBLIN enemy (cannot build bridges)
+        val level = EditorLevel(
+            id = "test-goblin-level",
+            mapId = map.id,
+            title = "Test Goblin Level",
+            startCoins = 100,
+            startHealthPoints = 10,
+            enemySpawns = listOf(
+                EditorEnemySpawn(
+                    attackerType = AttackerType.GOBLIN,
+                    level = 1,
+                    spawnTurn = 1
+                )
+            ),
+            availableTowers = setOf(DefenderType.SPIKE_TOWER)
+        )
+        
+        // Temporarily register the map to test validation
+        EditorStorage.temporaryTestMap = map
+        
+        // Level should NOT be valid because GOBLIN cannot build bridges
+        assertFalse(EditorStorage.isLevelReadyToPlay(level))
+        
+        // Cleanup
+        EditorStorage.temporaryTestMap = null
     }
 }
