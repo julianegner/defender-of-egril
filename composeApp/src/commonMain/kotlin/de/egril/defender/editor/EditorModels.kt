@@ -14,7 +14,8 @@ enum class TileType {
     ISLAND,         // Build islands
     NO_PLAY,        // Not playable area
     SPAWN_POINT,    // Enemy spawn points
-    TARGET          // Target position
+    TARGET,         // Target position
+    RIVER           // River tile (movable with bridges)
 }
 
 /**
@@ -27,7 +28,8 @@ data class EditorMap(
     val height: Int,
     val tiles: Map<String, TileType>,  // "x,y" -> TileType
     val readyToUse: Boolean = false,  // True if map has valid path from spawn to target
-    val worldMapPosition: Position? = null  // Position on world map (x,y as permille 0-1000, null = auto-calculate)
+    val worldMapPosition: Position? = null,  // Position on world map (x,y as permille 0-1000, null = auto-calculate)
+    val riverTiles: Map<String, de.egril.defender.model.RiverTile> = emptyMap()  // "x,y" -> RiverTile (for tiles with TileType.RIVER)
 ) {
     fun getTileType(x: Int, y: Int): TileType {
         return tiles["$x,$y"] ?: TileType.NO_PLAY
@@ -80,6 +82,19 @@ data class EditorMap(
             .toSet()
     }
     
+    fun getRiverCells(): Set<Position> {
+        return tiles.filter { it.value == TileType.RIVER }
+            .map { 
+                val parts = it.key.split(",")
+                Position(parts[0].toInt(), parts[1].toInt())
+            }
+            .toSet()
+    }
+    
+    fun getRiverTile(x: Int, y: Int): de.egril.defender.model.RiverTile? {
+        return riverTiles["$x,$y"]
+    }
+    
     /**
      * Validates if map is ready to use:
      * - Has at least one spawn point
@@ -90,12 +105,15 @@ data class EditorMap(
         val spawnPoints = getSpawnPoints()
         val targets = getTargets()
         val pathCells = getPathCells()
+        val riverCells = getRiverCells()
         
         if (spawnPoints.isEmpty()) return false
         if (targets.isEmpty()) return false
         
-        // Build set of traversable cells (spawn points + path cells + all targets)
+        // Build set of traversable cells (spawn points + path cells + river cells + all targets)
+        // River cells are traversable because enemies can build bridges
         val traversableCells = pathCells.toMutableSet()
+        traversableCells.addAll(riverCells)
         traversableCells.addAll(spawnPoints)
         traversableCells.addAll(targets)
         
