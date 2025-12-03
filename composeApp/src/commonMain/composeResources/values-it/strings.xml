@@ -225,6 +225,7 @@
     <string name="initial_building_phase">Fase di costruzione iniziale - Posiziona torri (nessun tempo di costruzione)</string>
     <string name="add_comment">Aggiungi un commento opzionale per identificare questo salvataggio:</string>
     <string name="game_saved">Gioco salvato</string>
+    <string name="game_saved_successfully">Il tuo gioco è stato salvato con successo!</string>
     <string name="on_map">Sulla mappa</string>
     <string name="planned_spawns">Apparizioni pianificate</string>
     <string name="position_label">Posizione</string>
