@@ -318,8 +318,10 @@ class CombatSystem(private val state: GameState) {
         val defeated = state.attackers.filter { it.isDefeated.value && !state.level.isTargetPosition(it.position.value) }
         for (attacker in defeated) {
             state.coins.value += attacker.type.reward
-            // Play enemy destroyed sound
-            GlobalSoundManager.playSound(SoundEvent.ENEMY_DESTROYED)
+            // Play enemy destroyed sound only if not building a bridge
+            if (!attacker.isBuildingBridge.value) {
+                GlobalSoundManager.playSound(SoundEvent.ENEMY_DESTROYED)
+            }
         }
         state.attackers.removeAll { it.isDefeated.value }
     }

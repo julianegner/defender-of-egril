@@ -13,6 +13,7 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import de.egril.defender.model.*
 import de.egril.defender.ui.*
@@ -462,14 +463,21 @@ fun GridCell(
             }
             
             isRiverTile -> {
-                // Show river flow direction arrows
-                val riverTile = gameState.level.getRiverTile(position)
-                if (riverTile != null) {
-                    RiverFlowIndicator(
-                        flowDirection = riverTile.flowDirection,
-                        flowSpeed = riverTile.flowSpeed,
-                        size = 28.dp
-                    )
+                // Check if there's a bridge at this position
+                val bridge = gameState.getBridgeAt(position)
+                if (bridge != null) {
+                    // Show bridge over river
+                    BridgeVisualization(bridge = bridge)
+                } else {
+                    // Show river flow direction arrows
+                    val riverTile = gameState.level.getRiverTile(position)
+                    if (riverTile != null) {
+                        RiverFlowIndicator(
+                            flowDirection = riverTile.flowDirection,
+                            flowSpeed = riverTile.flowSpeed,
+                            size = 28.dp
+                        )
+                    }
                 }
             }
         }
@@ -565,6 +573,96 @@ fun GridCell(
                     }
                 }
             }
+        }
+    }
+}
+
+/**
+ * Visualize a bridge over a river tile
+ */
+@Composable
+fun BridgeVisualization(bridge: Bridge) {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        // Draw bridge arc
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            val centerX = size.width / 2
+            val centerY = size.height / 2
+            val arcWidth = size.width * 0.8f
+            val arcHeight = size.height * 0.4f
+            
+            // Bridge color based on type
+            val bridgeColor = when (bridge.type) {
+                BridgeType.WOODEN -> Color(0xFF8B4513)  // Brown
+                BridgeType.STONE -> Color(0xFF808080)   // Gray
+                BridgeType.MAGICAL -> Color(0xFFFF00FF) // Magenta/purple for magical
+            }
+            
+            // Draw half arc (bridge shape) - opening at bottom
+            drawArc(
+                color = bridgeColor,
+                startAngle = 180f,  // Start from bottom-left
+                sweepAngle = 180f,  // Draw top half
+                useCenter = false,
+                topLeft = androidx.compose.ui.geometry.Offset(
+                    centerX - arcWidth / 2,
+                    centerY - arcHeight / 2
+                ),
+                size = androidx.compose.ui.geometry.Size(arcWidth, arcHeight),
+                style = androidx.compose.ui.graphics.drawscope.Stroke(width = 6f)
+            )
+            
+            // For magical bridges, add sparkle effect above the arc
+            if (bridge.type == BridgeType.MAGICAL) {
+                // Draw sparkles around the arc (top side)
+                val sparklePositions = listOf(
+                    androidx.compose.ui.geometry.Offset(centerX - arcWidth / 3, centerY - arcHeight / 2 + 5),
+                    androidx.compose.ui.geometry.Offset(centerX, centerY - arcHeight / 2),
+                    androidx.compose.ui.geometry.Offset(centerX + arcWidth / 3, centerY - arcHeight / 2 + 5)
+                )
+                sparklePositions.forEach { pos ->
+                    drawCircle(
+                        color = Color.White,
+                        radius = 2f,
+                        center = pos
+                    )
+                }
+            }
+        }
+        
+        // Display health or turn count below the arc
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Bottom,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(bottom = 4.dp)
+        ) {
+            when (bridge.type) {
+                BridgeType.WOODEN, BridgeType.STONE -> {
+                    // Show remaining health
+                    Text(
+                        text = "${bridge.currentHealth.value}",
+                        style = MaterialTheme.typography.labelSmall,
+                        fontSize = 13.sp,
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+                BridgeType.MAGICAL -> {
+                    // Show remaining turns
+                    Text(
+                        text = "${bridge.turnsRemaining.value}T",
+                        style = MaterialTheme.typography.labelSmall,
+                        fontSize = 13.sp,
+                        color = Color(0xFFFFFF00),  // Yellow
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(10.dp))
         }
     }
 }
