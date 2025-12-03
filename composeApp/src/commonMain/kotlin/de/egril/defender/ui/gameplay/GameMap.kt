@@ -24,6 +24,7 @@ import de.egril.defender.ui.editor.map.MapControls
 import defender_of_egril.composeapp.generated.resources.*
 import de.egril.defender.ui.icon.TestTubeIcon
 import de.egril.defender.ui.icon.enemy.EnemyIcon
+import de.egril.defender.ui.editor.RiverFlowIndicator
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -270,6 +271,7 @@ fun GridCell(
     val isOnPath = gameState.level.isOnPath(position)
     val isBuildIsland = gameState.level.isBuildIsland(position)
     val isBuildArea = gameState.level.isBuildArea(position)
+    val isRiverTile = gameState.level.isRiverTile(position)
     val defender = gameState.defenders.find { it.position == position }
     val attacker = gameState.attackers.find { it.position.value == position && !it.isDefeated.value }
 
@@ -298,6 +300,7 @@ fun GridCell(
         isBuildIsland -> GamePlayColors.BuildIsland  // Light green for build islands
         isBuildArea -> GamePlayColors.BuildStrip  // Medium green for strips adjacent to path
         isOnPath -> GamePlayColors.Path  // Cream/beige for enemy path
+        isRiverTile -> GamePlayColors.River  // Blue for river tiles
         else -> GamePlayColors.NonPlayable  // Light gray for off-path areas (non-playable)
     }
 
@@ -456,6 +459,18 @@ fun GridCell(
             isTarget -> {
                 // Show target indicator when cell is empty
                 Text(stringResource(Res.string.target), style = MaterialTheme.typography.labelSmall, color = GamePlayColors.Success)
+            }
+            
+            isRiverTile -> {
+                // Show river flow direction arrows
+                val riverTile = gameState.level.getRiverTile(position)
+                if (riverTile != null) {
+                    RiverFlowIndicator(
+                        flowDirection = riverTile.flowDirection,
+                        flowSpeed = riverTile.flowSpeed,
+                        size = 28.dp
+                    )
+                }
             }
         }
         
