@@ -12,6 +12,7 @@ enum class InfoType {
     MAGICAL_TRAP_INFO,  // Magical trap unlocked at wizard level 10
     EXTENDED_AREA_INFO, // Extended area attack unlocked at level 20 (wizard/alchemy)
     RIVER_INFO,         // River, bridge, and raft mechanics explanation
+    MINE_ON_RIVER_WARNING, // Warning when trying to place mine on river
     NONE                // No info to show
 }
 

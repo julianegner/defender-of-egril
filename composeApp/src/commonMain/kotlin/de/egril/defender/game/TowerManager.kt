@@ -21,7 +21,11 @@ class TowerManager(private val state: GameState) {
         val isRiverPlacement = state.level.isRiverTile(position)
         
         // Cannot place Dwarven Mines on rafts (river tiles)
-        if (type == DefenderType.DWARVEN_MINE && isRiverPlacement) return false
+        if (type == DefenderType.DWARVEN_MINE && isRiverPlacement) {
+            // Show info message
+            state.infoState.value = state.infoState.value.showInfo(InfoType.MINE_ON_RIVER_WARNING)
+            return false
+        }
         
         // Can place in build areas OR on river tiles (for rafts, except mines)
         if (!state.level.isBuildArea(position) && !isRiverPlacement) return false

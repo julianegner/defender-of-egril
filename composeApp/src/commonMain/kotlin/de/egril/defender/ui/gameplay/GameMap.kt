@@ -104,57 +104,72 @@ fun GameGrid(
                     val areaRadius = selectedDefender.areaEffectRadius
                     val isExtendedArea = areaRadius >= 2
                     
-                    // Central target tile
-                    result[selectedTargetPosition] = TargetCircleInfo.CentralTarget(
-                        color = markerColor,
-                        attackType = attackType,
-                        isExtendedArea = isExtendedArea
-                    )
+                    // Check if target position has a magical bridge (which cannot be targeted by non-area attacks)
+                    val hasMagicalBridge = gameState.isBridgeAt(selectedTargetPosition) &&
+                        gameState.getBridgeAt(selectedTargetPosition)?.type == BridgeType.MAGICAL
                     
-                    // For AREA and LASTING attacks, add neighbor tiles that are on the path
-                    if (attackType == AttackType.AREA || attackType == AttackType.LASTING) {
-                        if (areaRadius == 1) {
-                            // Standard radius 1 - use getHexNeighbors
-                            val neighbors = selectedTargetPosition.getHexNeighbors()
-                                .filter { neighbor ->
-                                    neighbor.x >= 0 && neighbor.x < gameState.level.gridWidth &&
-                                    neighbor.y >= 0 && neighbor.y < gameState.level.gridHeight &&
-                                    gameState.level.isOnPath(neighbor)
-                                }
+                    // Don't show target circles for non-area attacks on magical bridges
+                    if (hasMagicalBridge && attackType != AttackType.AREA && attackType != AttackType.LASTING) {
+                        emptyMap()
+                    } else {
+                        // Central target tile
+                        result[selectedTargetPosition] = TargetCircleInfo.CentralTarget(
+                            color = markerColor,
+                            attackType = attackType,
+                            isExtendedArea = isExtendedArea
+                        )
+                        
+                        // For AREA and LASTING attacks, add neighbor tiles that are on the path, or have bridges/enemies
+                        if (attackType == AttackType.AREA || attackType == AttackType.LASTING) {
+                            if (areaRadius == 1) {
+                                // Standard radius 1 - use getHexNeighbors
+                                val neighbors = selectedTargetPosition.getHexNeighbors()
+                                    .filter { neighbor ->
+                                        neighbor.x >= 0 && neighbor.x < gameState.level.gridWidth &&
+                                        neighbor.y >= 0 && neighbor.y < gameState.level.gridHeight &&
+                                        (gameState.level.isOnPath(neighbor) || 
+                                         gameState.isBridgeAt(neighbor) || 
+                                         gameState.attackers.any { it.position.value == neighbor && !it.isDefeated.value })
+                                    }
 
-                            for (neighbor in neighbors) {
-                                result[neighbor] = TargetCircleInfo.NeighborTarget(
-                                    color = markerColor,
-                                    attackType = attackType,
-                                    centerPosition = selectedTargetPosition,
-                                    thisPosition = neighbor,
-                                    distanceFromCenter = 1,
-                                    isExtendedArea = false
-                                )
-                            }
-                        } else {
-                            // Extended radius 2 (level 20+) - use getHexNeighborsWithinRadius
-                            val allNeighbors = selectedTargetPosition.getHexNeighborsWithinRadius(
-                                areaRadius,
-                                gameState.level.gridWidth,
-                                gameState.level.gridHeight
-                            ).filter { gameState.level.isOnPath(it) }
-                            
-                            for (neighbor in allNeighbors) {
-                                val distance = selectedTargetPosition.hexDistanceTo(neighbor)
-                                result[neighbor] = TargetCircleInfo.NeighborTarget(
-                                    color = markerColor,
-                                    attackType = attackType,
-                                    centerPosition = selectedTargetPosition,
-                                    thisPosition = neighbor,
-                                    distanceFromCenter = distance,
-                                    isExtendedArea = true
-                                )
+                                for (neighbor in neighbors) {
+                                    result[neighbor] = TargetCircleInfo.NeighborTarget(
+                                        color = markerColor,
+                                        attackType = attackType,
+                                        centerPosition = selectedTargetPosition,
+                                        thisPosition = neighbor,
+                                        distanceFromCenter = 1,
+                                        isExtendedArea = false
+                                    )
+                                }
+                            } else {
+                                // Extended radius 2 (level 20+) - use getHexNeighborsWithinRadius
+                                val allNeighbors = selectedTargetPosition.getHexNeighborsWithinRadius(
+                                    areaRadius,
+                                    gameState.level.gridWidth,
+                                    gameState.level.gridHeight
+                                ).filter { neighbor ->
+                                    gameState.level.isOnPath(neighbor) || 
+                                    gameState.isBridgeAt(neighbor) || 
+                                    gameState.attackers.any { it.position.value == neighbor && !it.isDefeated.value }
+                                }
+                                
+                                for (neighbor in allNeighbors) {
+                                    val distance = selectedTargetPosition.hexDistanceTo(neighbor)
+                                    result[neighbor] = TargetCircleInfo.NeighborTarget(
+                                        color = markerColor,
+                                        attackType = attackType,
+                                        centerPosition = selectedTargetPosition,
+                                        thisPosition = neighbor,
+                                        distanceFromCenter = distance,
+                                        isExtendedArea = true
+                                    )
+                                }
                             }
                         }
+                        println("Target circle map: $result")
+                        result
                     }
-                    println("Target circle map: $result")
-                    result
                 }
             }
         }
