@@ -104,57 +104,77 @@ fun GameGrid(
                     val areaRadius = selectedDefender.areaEffectRadius
                     val isExtendedArea = areaRadius >= 2
                     
-                    // Central target tile
-                    result[selectedTargetPosition] = TargetCircleInfo.CentralTarget(
-                        color = markerColor,
-                        attackType = attackType,
-                        isExtendedArea = isExtendedArea
-                    )
+                    // Check if target position has a magical bridge (which cannot be targeted by non-area attacks)
+                    val hasMagicalBridge = gameState.isBridgeAt(selectedTargetPosition) &&
+                        gameState.getBridgeAt(selectedTargetPosition)?.type == BridgeType.MAGICAL
                     
-                    // For AREA and LASTING attacks, add neighbor tiles that are on the path
-                    if (attackType == AttackType.AREA || attackType == AttackType.LASTING) {
-                        if (areaRadius == 1) {
-                            // Standard radius 1 - use getHexNeighbors
-                            val neighbors = selectedTargetPosition.getHexNeighbors()
-                                .filter { neighbor ->
-                                    neighbor.x >= 0 && neighbor.x < gameState.level.gridWidth &&
-                                    neighbor.y >= 0 && neighbor.y < gameState.level.gridHeight &&
-                                    gameState.level.isOnPath(neighbor)
-                                }
+                    // Check if there's an enemy at the target position
+                    val hasEnemy = gameState.attackers.any { 
+                        it.position.value == selectedTargetPosition && !it.isDefeated.value 
+                    }
+                    
+                    // Don't show target circles for non-area attacks on magical bridges UNLESS there's an enemy
+                    if (hasMagicalBridge && !hasEnemy && attackType != AttackType.AREA && attackType != AttackType.LASTING) {
+                        emptyMap()
+                    } else {
+                        // Central target tile
+                        result[selectedTargetPosition] = TargetCircleInfo.CentralTarget(
+                            color = markerColor,
+                            attackType = attackType,
+                            isExtendedArea = isExtendedArea
+                        )
+                        
+                        // For AREA and LASTING attacks, add neighbor tiles that are on the path, or have bridges/enemies
+                        if (attackType == AttackType.AREA || attackType == AttackType.LASTING) {
+                            if (areaRadius == 1) {
+                                // Standard radius 1 - use getHexNeighbors
+                                val neighbors = selectedTargetPosition.getHexNeighbors()
+                                    .filter { neighbor ->
+                                        neighbor.x >= 0 && neighbor.x < gameState.level.gridWidth &&
+                                        neighbor.y >= 0 && neighbor.y < gameState.level.gridHeight &&
+                                        (gameState.level.isOnPath(neighbor) || 
+                                         gameState.isBridgeAt(neighbor) || 
+                                         gameState.attackers.any { it.position.value == neighbor && !it.isDefeated.value })
+                                    }
 
-                            for (neighbor in neighbors) {
-                                result[neighbor] = TargetCircleInfo.NeighborTarget(
-                                    color = markerColor,
-                                    attackType = attackType,
-                                    centerPosition = selectedTargetPosition,
-                                    thisPosition = neighbor,
-                                    distanceFromCenter = 1,
-                                    isExtendedArea = false
-                                )
-                            }
-                        } else {
-                            // Extended radius 2 (level 20+) - use getHexNeighborsWithinRadius
-                            val allNeighbors = selectedTargetPosition.getHexNeighborsWithinRadius(
-                                areaRadius,
-                                gameState.level.gridWidth,
-                                gameState.level.gridHeight
-                            ).filter { gameState.level.isOnPath(it) }
-                            
-                            for (neighbor in allNeighbors) {
-                                val distance = selectedTargetPosition.hexDistanceTo(neighbor)
-                                result[neighbor] = TargetCircleInfo.NeighborTarget(
-                                    color = markerColor,
-                                    attackType = attackType,
-                                    centerPosition = selectedTargetPosition,
-                                    thisPosition = neighbor,
-                                    distanceFromCenter = distance,
-                                    isExtendedArea = true
-                                )
+                                for (neighbor in neighbors) {
+                                    result[neighbor] = TargetCircleInfo.NeighborTarget(
+                                        color = markerColor,
+                                        attackType = attackType,
+                                        centerPosition = selectedTargetPosition,
+                                        thisPosition = neighbor,
+                                        distanceFromCenter = 1,
+                                        isExtendedArea = false
+                                    )
+                                }
+                            } else {
+                                // Extended radius 2 (level 20+) - use getHexNeighborsWithinRadius
+                                val allNeighbors = selectedTargetPosition.getHexNeighborsWithinRadius(
+                                    areaRadius,
+                                    gameState.level.gridWidth,
+                                    gameState.level.gridHeight
+                                ).filter { neighbor ->
+                                    gameState.level.isOnPath(neighbor) || 
+                                    gameState.isBridgeAt(neighbor) || 
+                                    gameState.attackers.any { it.position.value == neighbor && !it.isDefeated.value }
+                                }
+                                
+                                for (neighbor in allNeighbors) {
+                                    val distance = selectedTargetPosition.hexDistanceTo(neighbor)
+                                    result[neighbor] = TargetCircleInfo.NeighborTarget(
+                                        color = markerColor,
+                                        attackType = attackType,
+                                        centerPosition = selectedTargetPosition,
+                                        thisPosition = neighbor,
+                                        distanceFromCenter = distance,
+                                        isExtendedArea = true
+                                    )
+                                }
                             }
                         }
+                        println("Target circle map: $result")
+                        result
                     }
-                    println("Target circle map: $result")
-                    result
                 }
             }
         }
@@ -190,7 +210,7 @@ fun GameGrid(
                 gameState = gameState,
                 isSelected = selectedDefenderType != null,
                 isDefenderSelected = selectedDefenderId?.let { selId ->
-                    gameState.defenders.find { it.position == position }?.id == selId
+                    gameState.defenders.find { it.position.value == position }?.id == selId
                 } ?: false,
                 isTargetSelected = gameState.attackers.find { it.position.value == position }?.id == selectedTargetId,
                 selectedDefenderId = selectedDefenderId,
@@ -273,7 +293,7 @@ fun GridCell(
     val isBuildIsland = gameState.level.isBuildIsland(position)
     val isBuildArea = gameState.level.isBuildArea(position)
     val isRiverTile = gameState.level.isRiverTile(position)
-    val defender = gameState.defenders.find { it.position == position }
+    val defender = gameState.defenders.find { it.position.value == position }
     val attacker = gameState.attackers.find { it.position.value == position && !it.isDefeated.value }
 
     // Check for field effects at this position
@@ -286,10 +306,10 @@ fun GridCell(
     val cellIsInRange = selectedDefenderId?.let { defenderId ->
         val selectedDefender = gameState.defenders.find { it.id == defenderId }
         selectedDefender?.let { sel ->
-            if (sel.position == position) {
+            if (sel.position.value == position) {
                 false  // Don't highlight the defender's own cell
             } else {
-                val distance = sel.position.distanceTo(position)
+                val distance = sel.position.value.distanceTo(position)
                 distance >= sel.type.minRange && distance <= sel.range
             }
         } ?: false
@@ -309,8 +329,13 @@ fun GridCell(
     // Override with red background for enemy units and colored background for defenders
     // During INITIAL_BUILDING phase, don't apply any selection tints
     // Field effects also modify the background color
+    // Special case: Keep river background visible for defenders on rafts
     val backgroundColor = when {
         attacker != null -> if (isDarkMode) GamePlayColors.ErrorDark else GamePlayColors.Error  // Darker red background for enemies in dark mode
+        defender != null && isRiverTile -> {
+            // Keep river blue background visible for defenders on rafts
+            GamePlayColors.River
+        }
         defender != null -> {
             when {
                 !defender.isReady -> GamePlayColors.Building  // Gray for building
@@ -333,7 +358,7 @@ fun GridCell(
     }
 
     // Border color - use borders to indicate entities instead of background
-    // For range visualization, show green border on path tiles in range (only if tower has actions)
+    // For range visualization, show green border on path tiles OR river tiles in range (only if tower has actions)
     val showRange = selectedDefenderId?.let { defenderId ->
         val selectedDefender = gameState.defenders.find { it.id == defenderId }
         selectedDefender?.isReady == true && selectedDefender.actionsRemaining.value > 0
@@ -344,8 +369,21 @@ fun GridCell(
     val hasEnemy = attacker != null
     val canPlaceTrapHere = !hasEnemy || !isTrapPlacement
 
+    // Check if defender has area attack capability
+    val hasAreaAttack = selectedDefenderId?.let { defenderId ->
+        val selectedDefender = gameState.defenders.find { it.id == defenderId }
+        selectedDefender?.type?.attackType == AttackType.AREA || selectedDefender?.type?.attackType == AttackType.LASTING
+    } ?: false
+
+    // River tiles are valid targets for area attacks
+    val isValidTargetTile = if (hasAreaAttack) {
+        isOnPath || isRiverTile
+    } else {
+        isOnPath
+    }
+
     val borderColor = when {
-        cellIsInRange && isOnPath && showRange && canPlaceTrapHere -> GamePlayColors.Success  // Green border for tiles in range (exclude enemy tiles during trap placement)
+        cellIsInRange && isValidTargetTile && showRange && canPlaceTrapHere -> GamePlayColors.Success  // Green border for tiles in range (path or river for area attacks)
         isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> GamePlayColors.Yellow  // Yellow border for selected defender (not during initial building)
         isSpawnPoint -> GamePlayColors.WarningDark  // Darker orange border for spawn in dark mode
         isTarget -> GamePlayColors.Success  // Green border for target (adapts to dark mode automatically)
@@ -365,7 +403,7 @@ fun GridCell(
     // Thicker borders for important elements
     val borderWidth = when {
         isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> 5.dp  // Extra thick border for selected defender (not during initial building)
-        cellIsInRange && isOnPath && showRange && canPlaceTrapHere -> 4.dp  // Thick border for cells in range (exclude enemy tiles during trap placement)
+        cellIsInRange && isValidTargetTile && showRange && canPlaceTrapHere -> 4.dp  // Thick border for cells in range (path or river for area attacks)
         isSpawnPoint || isTarget -> 3.dp
         attacker != null || defender != null -> 3.dp
         fieldEffect != null -> 3.dp  // Thick border for field effects
@@ -390,8 +428,8 @@ fun GridCell(
 
             defender != null -> {
                 // Use graphical icon for towers
-                // Key by id, level and actionsRemaining to force recomposition when these change
-                key(defender.id, defender.level, defender.actionsRemaining.value, defender.buildTimeRemaining.value) {
+                // Key by id, position, level and actionsRemaining to force recomposition when these change
+                key(defender.id, defender.position.value.x, defender.position.value.y, defender.level.value, defender.actionsRemaining.value, defender.buildTimeRemaining.value) {
                     TowerIcon(defender = defender, gameState = gameState)
                 }
             }

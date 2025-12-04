@@ -185,8 +185,12 @@ class BridgeSystem(private val state: GameState) {
         if (positions.isEmpty()) return false
         if (!attacker.type.canBuildBridge) return false
         
-        // Validate all positions are rivers and not already bridged
-        if (!positions.all { state.level.isRiverTile(it) && !state.isBridgeAt(it) }) {
+        // Validate all positions are rivers, not already bridged, and no rafts present
+        if (!positions.all { 
+            state.level.isRiverTile(it) && 
+            !state.isBridgeAt(it) &&
+            !state.isRaftAt(it)  // Cannot build bridge where a raft is
+        }) {
             return false
         }
         
@@ -256,8 +260,17 @@ class BridgeSystem(private val state: GameState) {
                 val newMaxHealth = attacker.type.health * attacker.level.value
                 attacker.currentHealth.value = minOf(attacker.currentHealth.value, newMaxHealth)
                 
-                attacker.isBuildingBridge.value = true  // Mark as building (but not defeated)
-                println("${attacker.type} ${attacker.id} built magical bridge at ${positions[0]}, level ${attacker.level.value + 1} → ${attacker.level.value}")
+                attacker.isBuildingBridge.value = true  // Mark as building (but NOT defeated - can still move)
+                
+                // Try to move onto the bridge if the wizard is adjacent to it
+                val bridgePos = positions[0]
+                if (attacker.position.value.getHexNeighbors().contains(bridgePos)) {
+                    // Move wizard onto the bridge
+                    attacker.position.value = bridgePos
+                    println("${attacker.type} ${attacker.id} built magical bridge at ${bridgePos} and moved onto it, level ${attacker.level.value + 1} → ${attacker.level.value}")
+                } else {
+                    println("${attacker.type} ${attacker.id} built magical bridge at ${bridgePos}, level ${attacker.level.value + 1} → ${attacker.level.value}")
+                }
                 return true
             }
             
@@ -318,12 +331,25 @@ class BridgeSystem(private val state: GameState) {
     /**
      * Damage a bridge at a specific position.
      * Used when towers attack bridge positions.
+     * All tiles of the bridge share the same health.
      */
     fun damageBridge(position: Position, damage: Int) {
         val bridge = state.getBridgeAt(position)
-        if (bridge != null && bridge.type != BridgeType.MAGICAL) {
-            bridge.currentHealth.value = maxOf(0, bridge.currentHealth.value - damage)
-            println("Bridge at $position took $damage damage, remaining HP: ${bridge.currentHealth.value}")
+        if (bridge != null) {
+            val destroyed = bridge.takeDamage(damage)
+            println("Bridge ${bridge.id} at $position took $damage damage, remaining HP: ${bridge.currentHealth.value}")
+            
+            if (destroyed) {
+                println("Bridge ${bridge.id} destroyed!")
+                // Destroy any units on the bridge
+                val unitsOnBridge = state.attackers.filter { attacker ->
+                    bridge.coversPosition(attacker.position.value) && !attacker.isDefeated.value
+                }
+                for (unit in unitsOnBridge) {
+                    unit.isDefeated.value = true
+                    println("Unit ${unit.id} on bridge ${bridge.id} was destroyed!")
+                }
+            }
         }
     }
     

@@ -244,7 +244,7 @@ class DragonGreedTest {
         val mine = Defender(
             id = 1,
             type = DefenderType.DWARVEN_MINE,
-            position = Position(10, 2),
+            position = mutableStateOf(Position(10, 2)),
             level = mutableStateOf(1)
         )
         state.defenders.add(mine)
@@ -266,7 +266,7 @@ class DragonGreedTest {
         
         // Dragon should now target the mine
         assertEquals(mine.id, dragon.targetMineId.value, "Dragon should target the mine")
-        assertEquals(mine.position, dragon.currentTarget?.value, "Dragon's current target should be mine position")
+        assertEquals(mine.position.value, dragon.currentTarget?.value, "Dragon's current target should be mine position")
     }
     
     // TODO: Fix this test - mine destruction logic needs debugging
@@ -298,7 +298,7 @@ class DragonGreedTest {
         val mine = Defender(
             id = 1,
             type = DefenderType.DWARVEN_MINE,
-            position = Position(6, 4),  // Build area adjacent to path
+            position = mutableStateOf(Position(6, 4)),  // Build area adjacent to path
             level = mutableStateOf(1)
         )
         state.defenders.add(mine)
@@ -310,7 +310,7 @@ class DragonGreedTest {
             position = mutableStateOf(Position(4, 3)),  // On path, 2 tiles away
             level = mutableStateOf(30),
             currentHealth = mutableStateOf(15000),
-            currentTarget = mutableStateOf(mine.position),
+            currentTarget = mutableStateOf(mine.position.value),
             targetMineId = mutableStateOf(mine.id)
         )
         state.attackers.add(dragon)
@@ -335,7 +335,7 @@ class DragonGreedTest {
         
         // Mine should be destroyed and dragon should gain 500 HP
         assertFalse(state.defenders.contains(mine), "Mine should be removed from defenders list")
-        assertTrue(state.destroyedMinePositions.contains(mine.position), "Mine position should be marked as destroyed")
+        assertTrue(state.destroyedMinePositions.contains(mine.position.value), "Mine position should be marked as destroyed")
         assertEquals(healthBeforeDestruction + 500, dragon.currentHealth.value, "Dragon should gain 500 HP (base dragon health) from destroying mine")
         assertFalse(state.mineWarnings.contains(mine.id), "Mine warning should be removed after destruction")
     }
