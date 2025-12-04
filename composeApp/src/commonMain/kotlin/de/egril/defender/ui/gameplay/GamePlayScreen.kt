@@ -388,13 +388,16 @@ private fun GamePlayScreenContent(
                                 return@GameGrid
                             }
 
-                            // For AREA/LASTING (fireball and acid) attacks, allow targeting path tiles
+                            // For AREA/LASTING (fireball and acid) attacks, allow targeting path tiles OR river tiles
                             if (selectedDefender.type.attackType == AttackType.AREA ||
                                 selectedDefender.type.attackType == AttackType.LASTING
                             ) {
-                                // Check if position is on the path and in range
+                                // Check if position is on the path or river and in range
                                 val distance = selectedDefender.position.value.distanceTo(position)
-                                if (gameState.level.isOnPath(position) &&
+                                val isOnPath = gameState.level.isOnPath(position)
+                                val isOnRiver = gameState.level.getRiverTile(position) != null
+                                
+                                if ((isOnPath || isOnRiver) &&
                                     distance >= selectedDefender.type.minRange &&
                                     distance <= selectedDefender.range
                                 ) {
@@ -406,17 +409,20 @@ private fun GamePlayScreenContent(
                                 }
                             } else {
                                 // For single-target attacks, allow targeting enemies or bridges
+                                val distance = selectedDefender.position.value.distanceTo(position)
                                 val attackerForTargeting =
                                     gameState.attackers.find { it.position.value == position && !it.isDefeated.value }
                                 val bridgeAtPosition = gameState.getBridgeAt(position)
                                 
-                                if (attackerForTargeting != null) {
-                                    selectedTargetId = attackerForTargeting.id
-                                    selectedTargetPosition = position // to be able to show the 3 circles to highlight the target
-                                } else if (bridgeAtPosition != null && bridgeAtPosition.isActive) {
-                                    // Allow targeting bridge tiles
-                                    selectedTargetId = null  // Bridges don't have attacker IDs
-                                    selectedTargetPosition = position
+                                if (distance >= selectedDefender.type.minRange && distance <= selectedDefender.range) {
+                                    if (attackerForTargeting != null) {
+                                        selectedTargetId = attackerForTargeting.id
+                                        selectedTargetPosition = position // to be able to show the 3 circles to highlight the target
+                                    } else if (bridgeAtPosition != null && bridgeAtPosition.isActive) {
+                                        // Allow targeting bridge tiles
+                                        selectedTargetId = null  // Bridges don't have attacker IDs
+                                        selectedTargetPosition = position
+                                    }
                                 }
                             }
                         }
