@@ -42,7 +42,6 @@ class TowerIconDarkModeTest {
         }
         
         composeTestRule.waitForIdle()
-        Thread.sleep(500) // Give time for rendering
         
         ScreenshotTestUtils.captureScreenshot(
             composeTestRule,
@@ -64,7 +63,6 @@ class TowerIconDarkModeTest {
         }
         
         composeTestRule.waitForIdle()
-        Thread.sleep(500) // Give time for rendering
         
         ScreenshotTestUtils.captureScreenshot(
             composeTestRule,
