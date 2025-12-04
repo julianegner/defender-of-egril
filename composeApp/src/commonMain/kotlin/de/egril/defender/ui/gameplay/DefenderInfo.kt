@@ -98,10 +98,9 @@ fun DefenderInfo(
                                 stringResource(Res.string.empty_dragons_lair)
                             }
                         } else if (defender.raftId.value != null) {
-                            // If defender is on a raft, show "Type Raft" instead of "Type Tower"
-                            val towerWord = stringResource(Res.string.tower)
-                            val raftWord = stringResource(Res.string.raft)
-                            defender.type.displayName.replace(towerWord, raftWord)
+                            // If defender is on a raft, show localized "Type Raft"
+                            // Use localized tower name + localized "Raft" word
+                            "${defender.type.getLocalizedName(locale)}-${stringResource(Res.string.raft)}"
                         } else {
                             defender.type.displayName
                         }
