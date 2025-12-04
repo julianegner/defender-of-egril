@@ -105,7 +105,10 @@ fun LevelEditorContent() {
                         onCopy = {
                             // Copy the level with a new ID and " - Copy" suffix
                             val copyTitle = "${level.title} - Copy"
-                            val sanitizedTitle = copyTitle.trim().lowercase().replace(" ", "_").replace(Regex("[^a-z0-9_]"), "")
+                            val sanitizedTitle = copyTitle.trim().lowercase()
+                                .replace(" ", "_")
+                                .replace(Regex("[^a-z0-9_]"), "")
+                                .replace(Regex("_+"), "_")  // Collapse consecutive underscores
                             val newId = "${sanitizedTitle}_${Random.nextInt(1000, 9999)}"
                             val copiedLevel = level.copy(
                                 id = newId,
@@ -145,7 +148,10 @@ fun LevelEditorContent() {
             onDismiss = { showCreateDialog = false },
             onCreate = { title ->
                 // Generate ID from title with underscores (lowercase, no "level_" prefix)
-                val sanitizedTitle = title.trim().lowercase().replace(" ", "_").replace(Regex("[^a-z0-9_]"), "")
+                val sanitizedTitle = title.trim().lowercase()
+                    .replace(" ", "_")
+                    .replace(Regex("[^a-z0-9_]"), "")
+                    .replace(Regex("_+"), "_")  // Collapse consecutive underscores
                 val newId = if (sanitizedTitle.isNotEmpty()) {
                     sanitizedTitle
                 } else {
