@@ -70,11 +70,13 @@ class CombatSystem(
         // Mark defender as used
         defender.hasBeenUsed.value = true
 
-        // For AOE and DOT attacks, target position must be on the path
+        // For AOE and DOT attacks, target position must be on the path OR a river tile
         if (defender.type.attackType == AttackType.AREA || defender.type.attackType == AttackType.LASTING) {
-            if (!state.level.isOnPath(targetPosition)) return false
+            val isOnPath = state.level.isOnPath(targetPosition)
+            val isOnRiver = state.level.getRiverTile(targetPosition) != null
+            if (!isOnPath && !isOnRiver) return false
         } else {
-            // For single-target attacks, there must be an enemy or bridge at the position
+            // For single-target attacks, prioritize enemy over bridge at the same position
             val target = state.attackers.find { it.position.value == targetPosition && !it.isDefeated.value }
             val bridge = state.getBridgeAt(targetPosition)
             if (target == null && (bridge == null || !bridge.isActive)) return false
@@ -100,20 +102,31 @@ class CombatSystem(
         // Perform attack based on type
         when (defender.type.attackType) {
             AttackType.MELEE, AttackType.RANGED -> {
-                // Single target attack - can target enemy or bridge
+                // Single target attack - prioritize enemy over bridge
                 val target = state.attackers.find { it.position.value == targetPosition && !it.isDefeated.value }
-                val bridge = state.getBridgeAt(targetPosition)
                 
                 if (target != null) {
+                    // Attack enemy (takes priority)
                     singleTargetAttack(defender, target)
-                } else if (bridge != null && bridge.isActive) {
-                    // Attack the bridge with the same damage as attacking an enemy
-                    bridgeSystem.damageBridge(targetPosition, defender.damage)
                 } else {
-                    return false
+                    // No enemy, attack bridge if present
+                    val bridge = state.getBridgeAt(targetPosition)
+                    if (bridge != null && bridge.isActive) {
+                        bridgeSystem.damageBridge(targetPosition, defender.damage)
+                    } else {
+                        return false
+                    }
                 }
             }
-            AttackType.AREA -> areaAttack(defender, targetPosition)
+            AttackType.AREA -> {
+                // Area attack affects both enemies AND bridges in range
+                areaAttack(defender, targetPosition)
+                // Also damage bridge at target position if present
+                val bridge = state.getBridgeAt(targetPosition)
+                if (bridge != null && bridge.isActive) {
+                    bridgeSystem.damageBridge(targetPosition, defender.damage)
+                }
+            }
             AttackType.LASTING -> lastingAttack(defender, targetPosition)
             AttackType.NONE -> return false  // Mines and special structures can't attack
         }
