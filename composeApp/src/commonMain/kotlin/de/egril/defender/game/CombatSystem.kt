@@ -7,7 +7,10 @@ import de.egril.defender.model.*
 /**
  * Handles combat mechanics including single-target, area, and lasting attacks.
  */
-class CombatSystem(private val state: GameState) {
+class CombatSystem(
+    private val state: GameState,
+    private val bridgeSystem: BridgeSystem
+) {
     
     companion object {
         // LASTING damage is applied at half the initial damage per turn
@@ -71,9 +74,10 @@ class CombatSystem(private val state: GameState) {
         if (defender.type.attackType == AttackType.AREA || defender.type.attackType == AttackType.LASTING) {
             if (!state.level.isOnPath(targetPosition)) return false
         } else {
-            // For single-target attacks, there must be an enemy at the position
+            // For single-target attacks, there must be an enemy or bridge at the position
             val target = state.attackers.find { it.position.value == targetPosition && !it.isDefeated.value }
-            if (target == null) return false
+            val bridge = state.getBridgeAt(targetPosition)
+            if (target == null && (bridge == null || !bridge.isActive)) return false
         }
 
         // Play attack sound based on attack type
@@ -96,10 +100,15 @@ class CombatSystem(private val state: GameState) {
         // Perform attack based on type
         when (defender.type.attackType) {
             AttackType.MELEE, AttackType.RANGED -> {
-                // Single target attack requires an enemy
+                // Single target attack - can target enemy or bridge
                 val target = state.attackers.find { it.position.value == targetPosition && !it.isDefeated.value }
+                val bridge = state.getBridgeAt(targetPosition)
+                
                 if (target != null) {
                     singleTargetAttack(defender, target)
+                } else if (bridge != null && bridge.isActive) {
+                    // Attack the bridge with the same damage as attacking an enemy
+                    bridgeSystem.damageBridge(targetPosition, defender.damage)
                 } else {
                     return false
                 }
