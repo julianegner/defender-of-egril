@@ -178,7 +178,8 @@ fun TowerIcon(
  * Draw the base tower structure (trapezoid)
  */
 private fun DrawScope.drawTowerBase(centerX: Float, centerY: Float, size: Float) {
-    // Use white for tower base in both light and dark mode for visibility
+    // Fixed: Use white color for tower bases in both modes to ensure visibility on dark backgrounds
+    // (was Color(0xFF0A2647) in dark mode which was barely visible)
     val baseColor = Color.White
     
     val path = Path().apply {
