@@ -62,4 +62,21 @@ data class Bridge(
         }
         return false
     }
+    
+    /**
+     * Take damage and return true if bridge is destroyed
+     */
+    fun takeDamage(damage: Int): Boolean {
+        if (type == BridgeType.MAGICAL) {
+            // Magical bridges can't be damaged
+            return false
+        }
+        
+        currentHealth.value = maxOf(0, currentHealth.value - damage)
+        if (currentHealth.value <= 0) {
+            isDestroyed.value = true
+            return true
+        }
+        return false
+    }
 }

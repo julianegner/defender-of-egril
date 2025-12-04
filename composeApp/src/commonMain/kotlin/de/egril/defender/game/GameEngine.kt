@@ -14,11 +14,11 @@ class GameEngine(private val state: GameState) {
     // Specialized subsystems
     private val towerManager = TowerManager(state)
     private val pathfinding = PathfindingSystem(state)
-    private val combatSystem = CombatSystem(state)
+    private val bridgeSystem = BridgeSystem(state)
+    private val combatSystem = CombatSystem(state, bridgeSystem)
     private val enemyMovement = EnemyMovementSystem(state, pathfinding)
     private val enemyAbilities = EnemyAbilitySystem(state)
     private val mineOperations = MineOperations(state)
-    private val bridgeSystem = BridgeSystem(state)
     private val raftSystem = RaftSystem(state)
     
     // Tower Management - delegated to TowerManager
