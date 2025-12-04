@@ -543,6 +543,10 @@ class GameEngine(private val state: GameState) {
         
         state.turnNumber.value++
         state.phase.value = GamePhase.ENEMY_TURN
+        
+        // Process raft movements on rivers at the start of enemy turn
+        // This happens immediately when player presses "Next Turn"
+        raftSystem.processRaftMovements()
     }
     
     /**
@@ -738,9 +742,6 @@ class GameEngine(private val state: GameState) {
         
         // Process bridge building and bridge turn updates
         bridgeSystem.processBridges()
-        
-        // Process raft movements on rivers
-        raftSystem.processRaftMovements()
 
         // Remove defeated attackers and give rewards
         combatSystem.processDefeatedAttackers()
