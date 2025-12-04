@@ -130,7 +130,11 @@ class IdGenerationTest {
             .replace(Regex("_+"), "_")  // Collapse consecutive underscores
         val newId = "${sanitizedTitle}_1234" // simulated random number
         
-        // "The First Wave - Copy" -> "the_first_wave_-_copy" -> "the_first_wave__copy" -> "the_first_wave_copy"
+        // Transform: "The First Wave - Copy"
+        //   -> lowercase: "the first wave - copy"
+        //   -> spaces to underscores: "the_first_wave_-_copy"
+        //   -> remove non-alphanumeric: "the_first_wave__copy"
+        //   -> collapse underscores: "the_first_wave_copy"
         assertEquals("the_first_wave_copy_1234", newId)
     }
 }
