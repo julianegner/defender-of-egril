@@ -60,6 +60,7 @@
     
     <!-- Towers -->
     <string name="tower">Torre</string>
+    <string name="raft">Balsa</string>
     <string name="damage">Daño</string>
     <string name="range">Alcance</string>
     <string name="actions">Acciones</string>
@@ -596,4 +597,8 @@
     <string name="river_info_movement">Las balsas se mueven automáticamente con el flujo del río al final de cada turno. La velocidad del flujo determina cuántas casillas se mueven (1 o 2 casillas).</string>
     <string name="river_info_destruction">Las balsas se destruyen si alcanzan un remolino o se mueven fuera de los límites del mapa. La torre en la balsa también se destruye.</string>
     <string name="river_info_bridges">Los puentes bloquean el movimiento de las balsas. Las balsas no pueden pasar a través de puentes que cruzan el río. Múltiples balsas en el mismo río se mueven en orden - las que están río abajo se mueven primero.</string>
+    
+    <!-- Mine on River Warning -->
+    <string name="mine_on_river_warning_title">No se puede colocar mina en el río</string>
+    <string name="mine_on_river_warning_message">Las minas enanas no se pueden colocar en casillas de río. Las minas requieren tierra firme y no se pueden construir en balsas. Por favor selecciona un área de construcción en tierra.</string>
 </resources>
