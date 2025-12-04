@@ -146,14 +146,12 @@ class TowerManager(private val state: GameState) {
                state.attackers.any { it.position.value == position }
     }
     
-    private var nextRaftId = 1
-    
     /**
      * Create a raft for a defender placed on a river tile.
      * Returns the raft ID.
      */
     private fun createRaft(defender: Defender): Int {
-        val raftId = nextRaftId++
+        val raftId = state.nextRaftId.value++
         val raft = Raft(
             id = raftId,
             defenderId = defender.id,
