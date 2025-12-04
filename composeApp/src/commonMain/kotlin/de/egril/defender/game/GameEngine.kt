@@ -343,6 +343,23 @@ class GameEngine(private val state: GameState) {
                 // Check if this attacker has more moves left
                 if (stepIndex >= attacker.type.speed) continue
                 
+                // Check if unit should build a bridge BEFORE calculating path
+                // This allows units adjacent to rivers to build bridges before moving sideways
+                if (attacker.type.canBuildBridge && !attacker.isBuildingBridge.value) {
+                    val bridgeablePositions = bridgeSystem.canBuildBridge(attacker)
+                    if (bridgeablePositions.isNotEmpty() && bridgeSystem.shouldAutoBuildBridge(attacker)) {
+                        val bridgeBuilt = bridgeSystem.autoBuildBridge(attacker)
+                        if (bridgeBuilt) {
+                            println("Unit ${attacker.id} (${attacker.type}) built bridge at $currentPos during movement at turn ${state.turnNumber.value}")
+                            if (attacker.isDefeated.value) {
+                                // Unit sacrificed itself for the bridge, cannot move
+                                continue
+                            }
+                            // Bridge is built, now calculate path with the bridge
+                        }
+                    }
+                }
+                
                 // Use the attacker's current target if set, otherwise use level target
                 val target = attacker.currentTarget?.value ?: state.level.targetPositions.first()
                 if (stepIndex == 0) {
@@ -350,15 +367,21 @@ class GameEngine(private val state: GameState) {
                 }
                 var path = pathfinding.findPath(currentPos, target, attacker)
                 
-                // Try to build bridge if path is blocked
-                val updatedPath = tryBuildBridgeAndRecalculatePath(attacker, currentPos, target, path)
-                if (updatedPath == null) {
-                    // Unit was defeated by bridge building
-                    continue
+                // If still no path after bridge attempt, try one more time
+                if (path.size < 2 && attacker.type.canBuildBridge && !attacker.isBuildingBridge.value) {
+                    if (bridgeSystem.shouldAutoBuildBridge(attacker)) {
+                        val bridgeBuilt = bridgeSystem.autoBuildBridge(attacker)
+                        if (bridgeBuilt) {
+                            println("Unit ${attacker.id} (${attacker.type}) built bridge (fallback) during movement at turn ${state.turnNumber.value}")
+                            if (attacker.isDefeated.value) {
+                                continue
+                            }
+                            path = pathfinding.findPath(currentPos, target, attacker)
+                        }
+                    }
                 }
-                path = updatedPath
                 
-                if (path.size < 2) continue  // No movement possible even after bridge attempt
+                if (path.size < 2) continue  // No movement possible even after bridge attempts
                 
                 val newPos = path[1]  // Next position in path
                 
@@ -594,20 +617,43 @@ class GameEngine(private val state: GameState) {
                 // Check if this attacker has more moves left
                 if (stepIndex >= attacker.type.speed) continue
                 
+                // Check if unit should build a bridge BEFORE calculating path
+                // This allows units adjacent to rivers to build bridges before moving sideways
+                if (attacker.type.canBuildBridge && !attacker.isBuildingBridge.value) {
+                    val bridgeablePositions = bridgeSystem.canBuildBridge(attacker)
+                    if (bridgeablePositions.isNotEmpty() && bridgeSystem.shouldAutoBuildBridge(attacker)) {
+                        val bridgeBuilt = bridgeSystem.autoBuildBridge(attacker)
+                        if (bridgeBuilt) {
+                            println("Newly spawned unit ${attacker.id} (${attacker.type}) built bridge at $currentPos during movement at turn ${state.turnNumber.value}")
+                            if (attacker.isDefeated.value) {
+                                // Unit sacrificed itself for the bridge, cannot move
+                                continue
+                            }
+                            // Bridge is built, now calculate path with the bridge
+                        }
+                    }
+                }
+                
                 // Use the attacker's current target if set, otherwise use level target
                 val target = attacker.currentTarget?.value ?: state.level.targetPositions.first()
                 println("Newly spawned attacker ${attacker.id} at $currentPos pathing to target: $target (currentTarget: ${attacker.currentTarget?.value})")
                 var path = pathfinding.findPath(currentPos, target, attacker)
                 
-                // Try to build bridge if path is blocked
-                val updatedPath = tryBuildBridgeAndRecalculatePath(attacker, currentPos, target, path)
-                if (updatedPath == null) {
-                    // Unit was defeated by bridge building
-                    continue
+                // If still no path after bridge attempt, try one more time
+                if (path.size < 2 && attacker.type.canBuildBridge && !attacker.isBuildingBridge.value) {
+                    if (bridgeSystem.shouldAutoBuildBridge(attacker)) {
+                        val bridgeBuilt = bridgeSystem.autoBuildBridge(attacker)
+                        if (bridgeBuilt) {
+                            println("Newly spawned unit ${attacker.id} (${attacker.type}) built bridge (fallback) during movement at turn ${state.turnNumber.value}")
+                            if (attacker.isDefeated.value) {
+                                continue
+                            }
+                            path = pathfinding.findPath(currentPos, target, attacker)
+                        }
+                    }
                 }
-                path = updatedPath
                 
-                if (path.size < 2) continue  // No movement possible even after bridge attempt
+                if (path.size < 2) continue  // No movement possible even after bridge attempts
                 
                 val newPos = path[1]  // Next position in path
                 
@@ -787,37 +833,6 @@ class GameEngine(private val state: GameState) {
                 defender.trapCooldownRemaining.value--
             }
         }
-    }
-    
-    /**
-     * Attempt to build a bridge if the attacker can and should build one.
-     * Returns the updated path if a bridge was built and the unit can continue,
-     * null if the unit was defeated by bridge building, or the original path if no bridge was built.
-     */
-    private fun tryBuildBridgeAndRecalculatePath(
-        attacker: Attacker,
-        currentPos: Position,
-        target: Position,
-        originalPath: List<Position>
-    ): List<Position>? {
-        // If no path exists and unit can build bridges, try building one
-        if (originalPath.size < 2 && attacker.type.canBuildBridge && !attacker.isBuildingBridge.value) {
-            if (bridgeSystem.shouldAutoBuildBridge(attacker)) {
-                val bridgeBuilt = bridgeSystem.autoBuildBridge(attacker)
-                if (bridgeBuilt) {
-                    println("Unit ${attacker.id} (${attacker.type}) built bridge during movement at turn ${state.turnNumber.value}")
-                    // Bridge building destroys the unit (for Ork/Ogre) or reduces level (for wizards)
-                    // Wizards can continue, but Orks/Ogres are defeated
-                    if (attacker.isDefeated.value) {
-                        // Unit sacrificed itself for the bridge, cannot move
-                        return null
-                    }
-                    // Recalculate path now that bridge exists
-                    return pathfinding.findPath(currentPos, target, attacker)
-                }
-            }
-        }
-        return originalPath
     }
     
     // Cheat code support for testing
