@@ -8,6 +8,7 @@ import de.egril.defender.ui.gameplay.GamePlayScreen
 import de.egril.defender.ui.loadgame.LoadGameScreen
 import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.worldmap.WorldMapScreen
+import de.egril.defender.utils.WindowCloseHandler
 
 @Composable
 fun App() {
@@ -34,6 +35,14 @@ fun App() {
         val gameState by viewModel.gameState.collectAsState()
         val savedGames by viewModel.savedGames.collectAsState()
         val cheatDigOutcome by viewModel.cheatDigOutcome.collectAsState()
+        
+        // Register unsaved changes checker for window close handling
+        LaunchedEffect(currentScreen) {
+            WindowCloseHandler.unsavedChangesChecker.value = when (currentScreen) {
+                is Screen.GamePlay -> ({ viewModel.hasUnsavedChanges() })
+                else -> null
+            }
+        }
         
         when (val screen = currentScreen) {
             is Screen.MainMenu -> {
