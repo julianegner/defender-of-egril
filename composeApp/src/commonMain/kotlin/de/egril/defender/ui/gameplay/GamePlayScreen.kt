@@ -321,7 +321,7 @@ private fun GamePlayScreenContent(
                     val previousSelectedAttackerId = selectedAttackerId
                     
                     // Check if there's a defender at this position
-                    val defender = gameState.defenders.find { it.position == position }
+                    val defender = gameState.defenders.find { it.position.value == position }
                     if (defender != null) {
                         if (previousSelectedDefenderId == defender.id) {
                             // Deselect if clicking the same defender
