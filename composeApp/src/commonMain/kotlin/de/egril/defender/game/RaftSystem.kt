@@ -216,37 +216,41 @@ class RaftSystem(private val state: GameState) {
     
     /**
      * Get the next position in a given hexagonal direction.
+     * Uses odd-row offset coordinates (same as HexUtils).
      */
     private fun getNextPositionInDirection(pos: Position, direction: RiverFlow): Position {
+        // Check if row is even or odd (not column!)
+        val isOddRow = pos.y % 2 == 1
+        
         return when (direction) {
+            RiverFlow.EAST -> Position(pos.x + 1, pos.y)
             RiverFlow.NORTH_EAST -> {
-                if (pos.x % 2 == 0) {
+                if (isOddRow) {
                     Position(pos.x + 1, pos.y - 1)
                 } else {
-                    Position(pos.x + 1, pos.y)
+                    Position(pos.x, pos.y - 1)
                 }
             }
-            RiverFlow.EAST -> Position(pos.x + 1, pos.y)
-            RiverFlow.SOUTH_EAST -> {
-                if (pos.x % 2 == 0) {
-                    Position(pos.x + 1, pos.y)
+            RiverFlow.NORTH_WEST -> {
+                if (isOddRow) {
+                    Position(pos.x, pos.y - 1)
                 } else {
-                    Position(pos.x + 1, pos.y + 1)
+                    Position(pos.x - 1, pos.y - 1)
                 }
             }
+            RiverFlow.WEST -> Position(pos.x - 1, pos.y)
             RiverFlow.SOUTH_WEST -> {
-                if (pos.x % 2 == 0) {
-                    Position(pos.x - 1, pos.y)
+                if (isOddRow) {
+                    Position(pos.x, pos.y + 1)
                 } else {
                     Position(pos.x - 1, pos.y + 1)
                 }
             }
-            RiverFlow.WEST -> Position(pos.x - 1, pos.y)
-            RiverFlow.NORTH_WEST -> {
-                if (pos.x % 2 == 0) {
-                    Position(pos.x - 1, pos.y - 1)
+            RiverFlow.SOUTH_EAST -> {
+                if (isOddRow) {
+                    Position(pos.x + 1, pos.y + 1)
                 } else {
-                    Position(pos.x - 1, pos.y)
+                    Position(pos.x, pos.y + 1)
                 }
             }
             RiverFlow.NONE, RiverFlow.MAELSTROM -> pos
