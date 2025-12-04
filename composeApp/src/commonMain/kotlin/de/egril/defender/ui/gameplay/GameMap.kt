@@ -338,7 +338,7 @@ fun GridCell(
     }
 
     // Border color - use borders to indicate entities instead of background
-    // For range visualization, show green border on path tiles in range (only if tower has actions)
+    // For range visualization, show green border on path tiles OR river tiles in range (only if tower has actions)
     val showRange = selectedDefenderId?.let { defenderId ->
         val selectedDefender = gameState.defenders.find { it.id == defenderId }
         selectedDefender?.isReady == true && selectedDefender.actionsRemaining.value > 0
@@ -349,8 +349,21 @@ fun GridCell(
     val hasEnemy = attacker != null
     val canPlaceTrapHere = !hasEnemy || !isTrapPlacement
 
+    // Check if defender has area attack capability
+    val hasAreaAttack = selectedDefenderId?.let { defenderId ->
+        val selectedDefender = gameState.defenders.find { it.id == defenderId }
+        selectedDefender?.type?.attackType == AttackType.AREA || selectedDefender?.type?.attackType == AttackType.LASTING
+    } ?: false
+
+    // River tiles are valid targets for area attacks
+    val isValidTargetTile = if (hasAreaAttack) {
+        isOnPath || isRiverTile
+    } else {
+        isOnPath
+    }
+
     val borderColor = when {
-        cellIsInRange && isOnPath && showRange && canPlaceTrapHere -> GamePlayColors.Success  // Green border for tiles in range (exclude enemy tiles during trap placement)
+        cellIsInRange && isValidTargetTile && showRange && canPlaceTrapHere -> GamePlayColors.Success  // Green border for tiles in range (path or river for area attacks)
         isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> GamePlayColors.Yellow  // Yellow border for selected defender (not during initial building)
         isSpawnPoint -> GamePlayColors.WarningDark  // Darker orange border for spawn in dark mode
         isTarget -> GamePlayColors.Success  // Green border for target (adapts to dark mode automatically)
@@ -370,7 +383,7 @@ fun GridCell(
     // Thicker borders for important elements
     val borderWidth = when {
         isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> 5.dp  // Extra thick border for selected defender (not during initial building)
-        cellIsInRange && isOnPath && showRange && canPlaceTrapHere -> 4.dp  // Thick border for cells in range (exclude enemy tiles during trap placement)
+        cellIsInRange && isValidTargetTile && showRange && canPlaceTrapHere -> 4.dp  // Thick border for cells in range (path or river for area attacks)
         isSpawnPoint || isTarget -> 3.dp
         attacker != null || defender != null -> 3.dp
         fieldEffect != null -> 3.dp  // Thick border for field effects
