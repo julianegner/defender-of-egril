@@ -234,15 +234,15 @@ private fun DrawScope.drawRaftBase(centerX: Float, centerY: Float, size: Float) 
         val bottom = centerY + size * 0.25f  // Bottom of raft
         val top = bottom - height  // Top of raft (higher up)
         
-        // Draw the raft shape: \__/
-        // Start at top left
-        moveTo(centerX - width * 0.35f, top)
-        // Left side slant down to bottom left
-        lineTo(centerX - width / 2, bottom)
-        // Flat bottom
-        lineTo(centerX + width / 2, bottom)
-        // Right side slant up to top right
+        // Draw the raft shape: \___/ (opening upward)
+        // Start at bottom left
+        moveTo(centerX - width / 2, bottom)
+        // Left side slant up to top left
+        lineTo(centerX - width * 0.35f, top)
+        // Flat top
         lineTo(centerX + width * 0.35f, top)
+        // Right side slant down to bottom right
+        lineTo(centerX + width / 2, bottom)
         // Close the path back to start
         close()
     }
