@@ -85,63 +85,84 @@ class RaftSystem(private val state: GameState) {
     
     /**
      * Calculate the next position for a raft based on river flow.
-     * Returns null if the raft is blocked by a bridge.
-     * Does not check for out-of-bounds (that's handled in moveRaft).
+     * Moves tile-by-tile, checking each tile's flow direction.
+     * Returns null if the raft is blocked or cannot move.
      */
     private fun calculateNextPosition(raft: Raft): Position? {
-        val currentPos = raft.currentPosition.value
-        val riverTile = state.level.getRiverTile(currentPos) ?: return null
+        val startPos = raft.currentPosition.value
+        val startRiverTile = state.level.getRiverTile(startPos) ?: return null
         
         // No flow means no movement
-        if (riverTile.flowDirection == RiverFlow.NONE || riverTile.flowDirection == RiverFlow.MAELSTROM) {
+        if (startRiverTile.flowDirection == RiverFlow.NONE || startRiverTile.flowDirection == RiverFlow.MAELSTROM) {
             return null
         }
         
-        // Calculate movement based on flow direction and speed
-        var nextPos = currentPos
-        for (step in 1..riverTile.flowSpeed) {
-            val nextStep = getNextPositionInDirection(nextPos, riverTile.flowDirection)
+        // Move tile-by-tile based on flow speed
+        var currentPos = startPos
+        for (step in 1..startRiverTile.flowSpeed) {
+            // Get the river tile at current position
+            val riverTile = state.level.getRiverTile(currentPos) ?: return currentPos
+            
+            // Get the next position based on THIS tile's flow direction
+            val nextStep = getNextPositionInDirection(currentPos, riverTile.flowDirection)
             
             // Check if there's a bridge blocking the way
             if (state.isBridgeAt(nextStep)) {
-                return null  // Cannot move past bridge
+                return currentPos  // Return current position if blocked
             }
             
-            nextPos = nextStep
+            // Check if the next position is a river tile
+            val nextRiverTile = state.level.getRiverTile(nextStep)
+            if (nextRiverTile == null) {
+                return currentPos  // Can't move to non-river tile
+            }
+            
+            currentPos = nextStep
         }
         
-        return nextPos
+        return if (currentPos != startPos) currentPos else null
     }
     
     /**
      * Move a raft to its next position based on river flow.
+     * Moves tile-by-tile, checking direction at each step.
+     * Only moves on river tiles.
      */
     private fun moveRaft(raft: Raft, defender: Defender) {
-        val currentPos = raft.currentPosition.value
-        val riverTile = state.level.getRiverTile(currentPos)
+        val startPos = raft.currentPosition.value
+        val startRiverTile = state.level.getRiverTile(startPos)
         
-        if (riverTile == null) {
+        if (startRiverTile == null) {
             // Not on a river tile anymore, destroy the raft
             destroyRaft(raft)
             return
         }
         
-        // Check for maelstrom
-        if (riverTile.flowDirection == RiverFlow.MAELSTROM) {
-            println("Raft ${raft.id} destroyed by maelstrom at $currentPos")
+        // Check for maelstrom at current position
+        if (startRiverTile.flowDirection == RiverFlow.MAELSTROM) {
+            println("Raft ${raft.id} destroyed by maelstrom at $startPos")
             destroyRaftAndTower(raft, defender)
             return
         }
         
         // No flow means no movement
-        if (riverTile.flowDirection == RiverFlow.NONE) {
+        if (startRiverTile.flowDirection == RiverFlow.NONE) {
             return
         }
         
-        // Calculate where the raft would move
-        var nextPos = currentPos
-        for (step in 1..riverTile.flowSpeed) {
-            val nextStep = getNextPositionInDirection(nextPos, riverTile.flowDirection)
+        // Move tile-by-tile based on flow speed
+        var currentPos = startPos
+        for (step in 1..startRiverTile.flowSpeed) {
+            // Get the river tile at current position
+            val riverTile = state.level.getRiverTile(currentPos)
+            if (riverTile == null) {
+                // Not on a river tile, can't continue movement
+                println("Raft ${raft.id} reached non-river tile at $currentPos")
+                break
+            }
+            
+            // Get the next position based on THIS tile's flow direction
+            val nextStep = getNextPositionInDirection(currentPos, riverTile.flowDirection)
             
             // Check if next position is out of bounds
             if (!isPositionInBounds(nextStep)) {
@@ -152,23 +173,43 @@ class RaftSystem(private val state: GameState) {
             
             // Check if there's a bridge blocking the way
             if (state.isBridgeAt(nextStep)) {
-                // Blocked by bridge, cannot move
-                return
+                // Blocked by bridge, cannot move further
+                println("Raft ${raft.id} blocked by bridge at $nextStep")
+                break
             }
             
-            nextPos = nextStep
+            // Check if the next position is a river tile
+            val nextRiverTile = state.level.getRiverTile(nextStep)
+            if (nextRiverTile == null) {
+                // Next position is not a river tile, can't move there
+                println("Raft ${raft.id} cannot move to non-river tile at $nextStep")
+                break
+            }
+            
+            // Check if another raft is at the destination
+            if (state.isRaftAt(nextStep)) {
+                // Blocked by another raft, cannot move further
+                println("Raft ${raft.id} blocked by another raft at $nextStep")
+                break
+            }
+            
+            // Move to next position
+            currentPos = nextStep
+            
+            // Check if we reached a maelstrom
+            if (nextRiverTile.flowDirection == RiverFlow.MAELSTROM) {
+                println("Raft ${raft.id} destroyed by maelstrom at $currentPos")
+                destroyRaftAndTower(raft, defender)
+                return
+            }
         }
         
-        // Check if another raft is at the destination
-        if (state.isRaftAt(nextPos) && nextPos != currentPos) {
-            // Blocked by another raft, cannot move
-            return
+        // Update raft and defender positions if they moved
+        if (currentPos != startPos) {
+            println("Moving raft ${raft.id} from $startPos to $currentPos")
+            raft.currentPosition.value = currentPos
+            defender.position.value = currentPos
         }
-        
-        // Move the raft and tower
-        println("Moving raft ${raft.id} from $currentPos to $nextPos (flow: ${riverTile.flowDirection}, speed: ${riverTile.flowSpeed})")
-        raft.currentPosition.value = nextPos
-        defender.position.value = nextPos
     }
     
     /**
