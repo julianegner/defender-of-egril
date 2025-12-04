@@ -17,7 +17,10 @@ class IdGenerationTest {
     fun testMapIdGeneration_lowercase() {
         // Simulate the ID generation logic from MapEditorContent.kt
         val name = "My Custom Map"
-        val sanitizedName = name.trim().lowercase().replace(" ", "_").replace(Regex("[^a-z0-9_]"), "")
+        val sanitizedName = name.trim().lowercase()
+            .replace(" ", "_")
+            .replace(Regex("[^a-z0-9_]"), "")
+            .replace(Regex("_+"), "_")  // Collapse consecutive underscores
         val newId = "map_$sanitizedName"
         
         assertEquals("map_my_custom_map", newId)
@@ -26,17 +29,23 @@ class IdGenerationTest {
     @Test
     fun testMapIdGeneration_withSpecialCharacters() {
         val name = "Test Map! @#$% 123"
-        val sanitizedName = name.trim().lowercase().replace(" ", "_").replace(Regex("[^a-z0-9_]"), "")
+        val sanitizedName = name.trim().lowercase()
+            .replace(" ", "_")
+            .replace(Regex("[^a-z0-9_]"), "")
+            .replace(Regex("_+"), "_")  // Collapse consecutive underscores
         val newId = "map_$sanitizedName"
         
-        // Special characters are removed, spaces become underscores, resulting in consecutive underscores
-        assertEquals("map_test_map__123", newId)
+        // Special characters are removed, consecutive underscores collapsed
+        assertEquals("map_test_map_123", newId)
     }
     
     @Test
     fun testMapIdGeneration_withUppercase() {
         val name = "UPPERCASE MAP"
-        val sanitizedName = name.trim().lowercase().replace(" ", "_").replace(Regex("[^a-z0-9_]"), "")
+        val sanitizedName = name.trim().lowercase()
+            .replace(" ", "_")
+            .replace(Regex("[^a-z0-9_]"), "")
+            .replace(Regex("_+"), "_")  // Collapse consecutive underscores
         val newId = "map_$sanitizedName"
         
         assertEquals("map_uppercase_map", newId)
@@ -45,7 +54,10 @@ class IdGenerationTest {
     @Test
     fun testMapIdGeneration_emptyName() {
         val name = ""
-        val sanitizedName = name.trim().lowercase().replace(" ", "_").replace(Regex("[^a-z0-9_]"), "")
+        val sanitizedName = name.trim().lowercase()
+            .replace(" ", "_")
+            .replace(Regex("[^a-z0-9_]"), "")
+            .replace(Regex("_+"), "_")  // Collapse consecutive underscores
         val newId = if (sanitizedName.isNotEmpty()) {
             "map_$sanitizedName"
         } else {
@@ -59,7 +71,10 @@ class IdGenerationTest {
     fun testLevelIdGeneration_noPrefix() {
         // Simulate the ID generation logic from LevelEditor.kt
         val title = "My New Level"
-        val sanitizedTitle = title.trim().lowercase().replace(" ", "_").replace(Regex("[^a-z0-9_]"), "")
+        val sanitizedTitle = title.trim().lowercase()
+            .replace(" ", "_")
+            .replace(Regex("[^a-z0-9_]"), "")
+            .replace(Regex("_+"), "_")  // Collapse consecutive underscores
         val newId = sanitizedTitle
         
         assertEquals("my_new_level", newId)
@@ -68,7 +83,10 @@ class IdGenerationTest {
     @Test
     fun testLevelIdGeneration_lowercase() {
         val title = "BOSS BATTLE"
-        val sanitizedTitle = title.trim().lowercase().replace(" ", "_").replace(Regex("[^a-z0-9_]"), "")
+        val sanitizedTitle = title.trim().lowercase()
+            .replace(" ", "_")
+            .replace(Regex("[^a-z0-9_]"), "")
+            .replace(Regex("_+"), "_")  // Collapse consecutive underscores
         val newId = sanitizedTitle
         
         assertEquals("boss_battle", newId)
@@ -77,7 +95,10 @@ class IdGenerationTest {
     @Test
     fun testLevelIdGeneration_withSpecialCharacters() {
         val title = "Level 1: The Beginning!"
-        val sanitizedTitle = title.trim().lowercase().replace(" ", "_").replace(Regex("[^a-z0-9_]"), "")
+        val sanitizedTitle = title.trim().lowercase()
+            .replace(" ", "_")
+            .replace(Regex("[^a-z0-9_]"), "")
+            .replace(Regex("_+"), "_")  // Collapse consecutive underscores
         val newId = sanitizedTitle
         
         assertEquals("level_1_the_beginning", newId)
@@ -86,7 +107,10 @@ class IdGenerationTest {
     @Test
     fun testLevelIdGeneration_emptyTitle() {
         val title = ""
-        val sanitizedTitle = title.trim().lowercase().replace(" ", "_").replace(Regex("[^a-z0-9_]"), "")
+        val sanitizedTitle = title.trim().lowercase()
+            .replace(" ", "_")
+            .replace(Regex("[^a-z0-9_]"), "")
+            .replace(Regex("_+"), "_")  // Collapse consecutive underscores
         val newId = if (sanitizedTitle.isNotEmpty()) {
             sanitizedTitle
         } else {
@@ -100,10 +124,13 @@ class IdGenerationTest {
     fun testLevelCopyIdGeneration() {
         val originalTitle = "The First Wave"
         val copyTitle = "$originalTitle - Copy"
-        val sanitizedTitle = copyTitle.trim().lowercase().replace(" ", "_").replace(Regex("[^a-z0-9_]"), "")
+        val sanitizedTitle = copyTitle.trim().lowercase()
+            .replace(" ", "_")
+            .replace(Regex("[^a-z0-9_]"), "")
+            .replace(Regex("_+"), "_")  // Collapse consecutive underscores
         val newId = "${sanitizedTitle}_1234" // simulated random number
         
-        // "The First Wave - Copy" -> "the_first_wave_-_copy" -> "the_first_wave__copy" (dash removed)
-        assertEquals("the_first_wave__copy_1234", newId)
+        // "The First Wave - Copy" -> "the_first_wave_-_copy" -> "the_first_wave__copy" -> "the_first_wave_copy"
+        assertEquals("the_first_wave_copy_1234", newId)
     }
 }
