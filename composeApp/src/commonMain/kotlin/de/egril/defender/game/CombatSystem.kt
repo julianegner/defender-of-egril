@@ -244,8 +244,8 @@ class CombatSystem(
             )
         }
 
-        // Only include target position if it's on the path
-        if (!state.level.isOnPath(targetPosition)) {
+        // Remove target position only if it's neither on path nor on a bridge
+        if (!state.level.isOnPath(targetPosition) && !state.isBridgeAt(targetPosition)) {
             affectedPositions.remove(targetPosition)
         }
         
