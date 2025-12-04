@@ -91,8 +91,8 @@ fun MapEditorContent() {
         CreateMapDialog(
             onDismiss = { showCreateDialog = false },
             onCreate = { name, width, height ->
-                // Generate ID from name with underscores
-                val sanitizedName = name.trim().replace(" ", "_").replace(Regex("[^a-zA-Z0-9_]"), "")
+                // Generate ID from name with underscores (lowercase)
+                val sanitizedName = name.trim().lowercase().replace(" ", "_").replace(Regex("[^a-z0-9_]"), "")
                 val newId = if (sanitizedName.isNotEmpty()) {
                     "map_$sanitizedName"
                 } else {
