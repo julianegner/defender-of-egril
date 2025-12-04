@@ -190,7 +190,7 @@ fun GameGrid(
                 gameState = gameState,
                 isSelected = selectedDefenderType != null,
                 isDefenderSelected = selectedDefenderId?.let { selId ->
-                    gameState.defenders.find { it.position == position }?.id == selId
+                    gameState.defenders.find { it.position.value == position }?.id == selId
                 } ?: false,
                 isTargetSelected = gameState.attackers.find { it.position.value == position }?.id == selectedTargetId,
                 selectedDefenderId = selectedDefenderId,
@@ -273,7 +273,7 @@ fun GridCell(
     val isBuildIsland = gameState.level.isBuildIsland(position)
     val isBuildArea = gameState.level.isBuildArea(position)
     val isRiverTile = gameState.level.isRiverTile(position)
-    val defender = gameState.defenders.find { it.position == position }
+    val defender = gameState.defenders.find { it.position.value == position }
     val attacker = gameState.attackers.find { it.position.value == position && !it.isDefeated.value }
 
     // Check for field effects at this position
@@ -309,8 +309,13 @@ fun GridCell(
     // Override with red background for enemy units and colored background for defenders
     // During INITIAL_BUILDING phase, don't apply any selection tints
     // Field effects also modify the background color
+    // Special case: Keep river background visible for defenders on rafts
     val backgroundColor = when {
         attacker != null -> if (isDarkMode) GamePlayColors.ErrorDark else GamePlayColors.Error  // Darker red background for enemies in dark mode
+        defender != null && isRiverTile -> {
+            // Keep river blue background visible for defenders on rafts
+            GamePlayColors.River
+        }
         defender != null -> {
             when {
                 !defender.isReady -> GamePlayColors.Building  // Gray for building
