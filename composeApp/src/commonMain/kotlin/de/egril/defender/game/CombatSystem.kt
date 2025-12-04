@@ -257,19 +257,13 @@ class CombatSystem(
         for (target in targets) {
             // Check immunity to acid (Blue Demons)
             if (target.canBeDamagedByAcid()) {
-                // Check if enemy is standing on a magical bridge (immune to acid)
-                val isOnMagicalBridge = state.isBridgeAt(target.position.value) &&
-                    state.getBridgeAt(target.position.value)?.type == BridgeType.MAGICAL
-                
-                if (!isOnMagicalBridge) {
-                    // Initial damage is same as DOT tick damage (not full damage)
-                    target.currentHealth.value -= defender.damage / LASTING_DAMAGE_DIVISOR
-                    // Mark for additional rounds of DOT based on tower level
-                    defender.dotRoundsRemaining[target.id] = defender.dotDuration
+                // Initial damage is same as DOT tick damage (not full damage)
+                target.currentHealth.value -= defender.damage / LASTING_DAMAGE_DIVISOR
+                // Mark for additional rounds of DOT based on tower level
+                defender.dotRoundsRemaining[target.id] = defender.dotDuration
 
-                    if (target.currentHealth.value <= 0) {
-                        target.isDefeated.value = true
-                    }
+                if (target.currentHealth.value <= 0) {
+                    target.isDefeated.value = true
                 }
             }
         }
@@ -341,15 +335,9 @@ class CombatSystem(
             for (attacker in enemiesInAcid) {
                 // Check immunity to acid (Blue Demons)
                 if (attacker.canBeDamagedByAcid()) {
-                    // Check if enemy is standing on a magical bridge (immune to acid on magical bridges)
-                    val isOnMagicalBridge = state.isBridgeAt(attacker.position.value) &&
-                        state.getBridgeAt(attacker.position.value)?.type == BridgeType.MAGICAL
-                    
-                    if (!isOnMagicalBridge) {
-                        attacker.currentHealth.value -= effect.damage
-                        if (attacker.currentHealth.value <= 0) {
-                            attacker.isDefeated.value = true
-                        }
+                    attacker.currentHealth.value -= effect.damage
+                    if (attacker.currentHealth.value <= 0) {
+                        attacker.isDefeated.value = true
                     }
                 }
             }
