@@ -348,9 +348,27 @@ class GameEngine(private val state: GameState) {
                 if (stepIndex == 0) {
                     println("Enemy turn: Attacker ${attacker.id} (${attacker.type}) at $currentPos pathing to target: $target")
                 }
-                val path = pathfinding.findPath(currentPos, target, attacker)
+                var path = pathfinding.findPath(currentPos, target, attacker)
                 
-                if (path.size < 2) continue  // No movement possible
+                // If no path exists and unit can build bridges, try building one
+                if (path.size < 2 && attacker.type.canBuildBridge && !attacker.isBuildingBridge.value) {
+                    if (bridgeSystem.shouldAutoBuildBridge(attacker)) {
+                        val bridgeBuilt = bridgeSystem.autoBuildBridge(attacker)
+                        if (bridgeBuilt) {
+                            println("Unit ${attacker.id} (${attacker.type}) built bridge during movement at turn ${state.turnNumber.value}")
+                            // Bridge building destroys the unit (for Ork/Ogre) or reduces level (for wizards)
+                            // Wizards can continue, but Orks/Ogres are defeated
+                            if (attacker.isDefeated.value) {
+                                // Unit sacrificed itself for the bridge, cannot move
+                                continue
+                            }
+                            // Recalculate path now that bridge exists
+                            path = pathfinding.findPath(currentPos, target, attacker)
+                        }
+                    }
+                }
+                
+                if (path.size < 2) continue  // No movement possible even after bridge attempt
                 
                 val newPos = path[1]  // Next position in path
                 
@@ -589,9 +607,27 @@ class GameEngine(private val state: GameState) {
                 // Use the attacker's current target if set, otherwise use level target
                 val target = attacker.currentTarget?.value ?: state.level.targetPositions.first()
                 println("Newly spawned attacker ${attacker.id} at $currentPos pathing to target: $target (currentTarget: ${attacker.currentTarget?.value})")
-                val path = pathfinding.findPath(currentPos, target, attacker)
+                var path = pathfinding.findPath(currentPos, target, attacker)
                 
-                if (path.size < 2) continue  // No movement possible
+                // If no path exists and unit can build bridges, try building one
+                if (path.size < 2 && attacker.type.canBuildBridge && !attacker.isBuildingBridge.value) {
+                    if (bridgeSystem.shouldAutoBuildBridge(attacker)) {
+                        val bridgeBuilt = bridgeSystem.autoBuildBridge(attacker)
+                        if (bridgeBuilt) {
+                            println("Newly spawned unit ${attacker.id} (${attacker.type}) built bridge during movement at turn ${state.turnNumber.value}")
+                            // Bridge building destroys the unit (for Ork/Ogre) or reduces level (for wizards)
+                            // Wizards can continue, but Orks/Ogres are defeated
+                            if (attacker.isDefeated.value) {
+                                // Unit sacrificed itself for the bridge, cannot move
+                                continue
+                            }
+                            // Recalculate path now that bridge exists
+                            path = pathfinding.findPath(currentPos, target, attacker)
+                        }
+                    }
+                }
+                
+                if (path.size < 2) continue  // No movement possible even after bridge attempt
                 
                 val newPos = path[1]  // Next position in path
                 
