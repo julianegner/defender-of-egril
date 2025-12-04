@@ -90,8 +90,12 @@ fun TowerIcon(
             val centerY = size.height / 2
             val iconSize = minOf(size.width, size.height)
             
-            // Draw tower base (trapezoid shape) - except for dragon's lair and dwarven mine
-            if (defender.type != DefenderType.DRAGONS_LAIR && defender.type != DefenderType.DWARVEN_MINE) {
+            // Draw raft base OR tower base (not both)
+            if (defender.raftId.value != null) {
+                // If on a raft, draw only the raft base
+                drawRaftBase(centerX, centerY, iconSize * 0.9f)
+            } else if (defender.type != DefenderType.DRAGONS_LAIR && defender.type != DefenderType.DWARVEN_MINE) {
+                // If not on a raft, draw tower base (trapezoid shape) - except for dragon's lair and dwarven mine
                 drawTowerBase(centerX, centerY, iconSize * 0.8f)
             }
             
@@ -215,6 +219,38 @@ private fun DrawScope.drawTowerBase(centerX: Float, centerY: Float, size: Float)
             style = Stroke(width = 1.5f)
         )
     }
+}
+
+/**
+ * Draw a raft base in the shape \__/ beneath towers on rafts
+ */
+private fun DrawScope.drawRaftBase(centerX: Float, centerY: Float, size: Float) {
+    // Brown color for wooden raft
+    val raftColor = Color(0xFF8B7355)  // Brown/tan color for wood
+    
+    val path = Path().apply {
+        val width = size * 0.7f
+        val height = size * 0.3f
+        val bottom = centerY + size * 0.25f  // Bottom of raft
+        val top = bottom - height  // Top of raft (higher up)
+        
+        // Draw the raft shape: \___/ (opening upward)
+        // Start at top left
+        moveTo(centerX - width / 2, top)
+        // Left side slant down to bottom left
+        lineTo(centerX - width * 0.35f, bottom)
+        // Flat bottom
+        lineTo(centerX + width * 0.35f, bottom)
+        // Right side slant up to top right
+        lineTo(centerX + width / 2, top)
+        // Close the path back to start
+        close()
+    }
+    
+    // Fill the raft with brown color
+    drawPath(path, raftColor)
+    // Draw outline for definition
+    drawPath(path, Color(0xFF5D4E37), style = Stroke(width = 2f))  // Darker brown for outline
 }
 
 
