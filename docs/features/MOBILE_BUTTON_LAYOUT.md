@@ -35,9 +35,21 @@ if (isPlatformMobile) {
     }
 } else {
     // Desktop: Vertical column with fixed width buttons
-    Button(onClick = onStartGame, modifier = Modifier.width(200.dp).height(60.dp))
+    Button(
+        onClick = onStartGame,
+        modifier = Modifier.width(200.dp).height(60.dp)
+    ) {
+        Text(stringResource(Res.string.start_game), ...)
+    }
+    
     Spacer(modifier = Modifier.height(16.dp))
-    Button(onClick = onShowRules, modifier = Modifier.width(200.dp).height(60.dp))
+    
+    Button(
+        onClick = onShowRules,
+        modifier = Modifier.width(200.dp).height(60.dp)
+    ) {
+        Text(stringResource(Res.string.rules), ...)
+    }
 }
 ```
 
