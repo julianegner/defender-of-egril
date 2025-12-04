@@ -158,19 +158,19 @@ class CombatSystem(
                 targetPosition.getHexNeighbors().filter { neighbor ->
                     neighbor.x >= 0 && neighbor.x < state.level.gridWidth &&
                     neighbor.y >= 0 && neighbor.y < state.level.gridHeight &&
-                    state.level.isOnPath(neighbor)
+                    (state.level.isOnPath(neighbor) || state.isBridgeAt(neighbor))
                 }
             )
         } else {
             // Use extended radius for level 20+
             affectedPositions.addAll(
                 targetPosition.getHexNeighborsWithinRadius(radius, state.level.gridWidth, state.level.gridHeight)
-                    .filter { state.level.isOnPath(it) }
+                    .filter { state.level.isOnPath(it) || state.isBridgeAt(it) }
             )
         }
 
-        // Only include target position if it's on the path
-        if (!state.level.isOnPath(targetPosition)) {
+        // Only include target position if it's on the path or a bridge
+        if (!state.level.isOnPath(targetPosition) && !state.isBridgeAt(targetPosition)) {
             affectedPositions.remove(targetPosition)
         }
 
@@ -197,6 +197,14 @@ class CombatSystem(
         // Remove acid effects from affected positions (fire burns away the acid)
         state.fieldEffects.removeAll {
             it.type == FieldEffectType.ACID && it.position in affectedPositions
+        }
+        
+        // Damage all bridges in affected positions
+        affectedPositions.forEach { pos ->
+            val bridge = state.getBridgeAt(pos)
+            if (bridge != null && bridge.isActive) {
+                bridgeSystem.damageBridge(pos, defender.damage)
+            }
         }
 
         // Add new fireball effects (visual only, last for 1 turn to show affected area)
