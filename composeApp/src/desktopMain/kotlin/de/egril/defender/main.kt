@@ -1,13 +1,24 @@
 package de.egril.defender
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.toComposeImageBitmap
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.application
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import com.hyperether.resources.stringResource
+import defender_of_egril.composeapp.generated.resources.*
+import de.egril.defender.utils.WindowCloseHandler
 import org.jetbrains.skia.Image
 
 fun main() = application {
@@ -21,12 +32,66 @@ fun main() = application {
         }
     }
     
+    // State to control whether to show unsaved changes dialog
+    var showUnsavedChangesDialog by remember { mutableStateOf(false) }
+    var pendingClose by remember { mutableStateOf(false) }
+    
     Window(
-        onCloseRequest = ::exitApplication,
+        onCloseRequest = {
+            // Check for unsaved changes before closing
+            if (WindowCloseHandler.hasUnsavedChanges()) {
+                showUnsavedChangesDialog = true
+            } else {
+                exitApplication()
+            }
+        },
         title = "Defender of Egril",
         state = WindowState(placement = WindowPlacement.Maximized),
         icon = iconPainter,
     ) {
         App()
+        
+        // Show unsaved changes dialog when trying to close window
+        if (showUnsavedChangesDialog) {
+            AlertDialog(
+                onDismissRequest = { 
+                    showUnsavedChangesDialog = false 
+                },
+                title = { Text(stringResource(Res.string.unsaved_changes_title)) },
+                text = {
+                    Text(
+                        stringResource(Res.string.unsaved_changes_message),
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                },
+                confirmButton = {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Button(
+                            onClick = {
+                                showUnsavedChangesDialog = false
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.secondary
+                            )
+                        ) {
+                            Text(stringResource(Res.string.cancel))
+                        }
+                        Button(
+                            onClick = {
+                                showUnsavedChangesDialog = false
+                                exitApplication()
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.error
+                            )
+                        ) {
+                            Text(stringResource(Res.string.discard_changes))
+                        }
+                    }
+                }
+            )
+        }
     }
 }
