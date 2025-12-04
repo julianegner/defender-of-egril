@@ -60,6 +60,7 @@
     
     <!-- Towers -->
     <string name="tower">Torre</string>
+    <string name="raft">Zattera</string>
     <string name="damage">Danno</string>
     <string name="range">Portata</string>
     <string name="actions">Azioni</string>
@@ -596,4 +597,8 @@
     <string name="river_info_movement">Le zattere si muovono automaticamente con il flusso del fiume alla fine di ogni turno. La velocità del flusso determina quante caselle si muovono (1 o 2 caselle).</string>
     <string name="river_info_destruction">Le zattere vengono distrutte se raggiungono un vortice o si muovono fuori dai confini della mappa. Anche la torre sulla zattera viene distrutta.</string>
     <string name="river_info_bridges">I ponti bloccano il movimento delle zattere. Le zattere non possono passare attraverso ponti che attraversano il fiume. Più zattere sullo stesso fiume si muovono in ordine - quelle a valle si muovono per prime.</string>
+    
+    <!-- Mine on River Warning -->
+    <string name="mine_on_river_warning_title">Impossibile posizionare la miniera sul fiume</string>
+    <string name="mine_on_river_warning_message">Le miniere naniche non possono essere posizionate sulle caselle del fiume. Le miniere richiedono terreno solido e non possono essere costruite sulle zattere. Si prega di selezionare un\'area di costruzione sulla terraferma.</string>
 </resources>

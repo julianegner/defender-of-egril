@@ -99,7 +99,9 @@ fun DefenderInfo(
                             }
                         } else if (defender.raftId.value != null) {
                             // If defender is on a raft, show "Type Raft" instead of "Type Tower"
-                            defender.type.displayName.replace("Tower", "Raft")
+                            val towerWord = stringResource(Res.string.tower)
+                            val raftWord = stringResource(Res.string.raft)
+                            defender.type.displayName.replace(towerWord, raftWord)
                         } else {
                             defender.type.displayName
                         }
