@@ -185,8 +185,12 @@ class BridgeSystem(private val state: GameState) {
         if (positions.isEmpty()) return false
         if (!attacker.type.canBuildBridge) return false
         
-        // Validate all positions are rivers and not already bridged
-        if (!positions.all { state.level.isRiverTile(it) && !state.isBridgeAt(it) }) {
+        // Validate all positions are rivers, not already bridged, and no rafts present
+        if (!positions.all { 
+            state.level.isRiverTile(it) && 
+            !state.isBridgeAt(it) &&
+            !state.isRaftAt(it)  // Cannot build bridge where a raft is
+        }) {
             return false
         }
         

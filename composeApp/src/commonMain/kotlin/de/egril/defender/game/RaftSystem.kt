@@ -25,11 +25,13 @@ class RaftSystem(private val state: GameState) {
      */
     fun processRaftMovements() {
         val raftsToMove = state.rafts.filter { it.isActive }
+        println("RaftSystem: Processing ${raftsToMove.size} active rafts")
         if (raftsToMove.isEmpty()) return
         
         // Build a dependency graph to determine movement order
         // Rafts that block others should be moved first
         val movementOrder = determineMovementOrder(raftsToMove)
+        println("RaftSystem: Movement order determined for ${movementOrder.size} rafts")
         
         for (raft in movementOrder) {
             if (!raft.isActive) continue

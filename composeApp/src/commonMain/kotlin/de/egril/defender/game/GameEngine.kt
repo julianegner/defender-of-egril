@@ -570,14 +570,21 @@ class GameEngine(private val state: GameState) {
      * Spawning happens after movements to ensure spawn points are clear.
      */
     fun startEnemyTurn() {
-        if (state.phase.value != GamePhase.PLAYER_TURN) return
+        println("GameEngine.startEnemyTurn: phase=${state.phase.value}")
+        if (state.phase.value != GamePhase.PLAYER_TURN) {
+            println("GameEngine.startEnemyTurn: Not in PLAYER_TURN phase, returning")
+            return
+        }
         
         state.turnNumber.value++
         state.phase.value = GamePhase.ENEMY_TURN
+        println("GameEngine.startEnemyTurn: Changed phase to ENEMY_TURN, turn=${state.turnNumber.value}")
         
         // Process raft movements on rivers at the start of enemy turn
         // This happens immediately when player presses "Next Turn"
+        println("GameEngine.startEnemyTurn: About to call raftSystem.processRaftMovements()")
         raftSystem.processRaftMovements()
+        println("GameEngine.startEnemyTurn: Completed raft movement processing")
     }
     
     /**
