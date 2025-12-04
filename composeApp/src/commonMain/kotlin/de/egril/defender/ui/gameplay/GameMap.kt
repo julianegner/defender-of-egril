@@ -108,8 +108,13 @@ fun GameGrid(
                     val hasMagicalBridge = gameState.isBridgeAt(selectedTargetPosition) &&
                         gameState.getBridgeAt(selectedTargetPosition)?.type == BridgeType.MAGICAL
                     
-                    // Don't show target circles for non-area attacks on magical bridges
-                    if (hasMagicalBridge && attackType != AttackType.AREA && attackType != AttackType.LASTING) {
+                    // Check if there's an enemy at the target position
+                    val hasEnemy = gameState.attackers.any { 
+                        it.position.value == selectedTargetPosition && !it.isDefeated.value 
+                    }
+                    
+                    // Don't show target circles for non-area attacks on magical bridges UNLESS there's an enemy
+                    if (hasMagicalBridge && !hasEnemy && attackType != AttackType.AREA && attackType != AttackType.LASTING) {
                         emptyMap()
                     } else {
                         // Central target tile

@@ -60,6 +60,7 @@
     
     <!-- Towers -->
     <string name="tower">Tower</string>
+    <string name="raft">Raft</string>
     <string name="damage">Damage</string>
     <string name="range">Range</string>
     <string name="actions">Actions</string>
