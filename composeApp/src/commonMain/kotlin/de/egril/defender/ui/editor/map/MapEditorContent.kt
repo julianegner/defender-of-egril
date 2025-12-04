@@ -14,6 +14,7 @@ import de.egril.defender.editor.EditorStorage
 import de.egril.defender.ui.editor.CreateMapDialog
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
+import kotlin.random.Random
 
 /**
  * Main content for the Map Editor tab
@@ -99,7 +100,7 @@ fun MapEditorContent() {
                 val newId = if (sanitizedName.isNotEmpty()) {
                     "map_$sanitizedName"
                 } else {
-                    "map_custom_${kotlin.random.Random.nextInt(10000, 99999)}"
+                    "map_custom_${Random.nextInt(10000, 99999)}"
                 }
                 val newMap = EditorMap(
                     id = newId,
