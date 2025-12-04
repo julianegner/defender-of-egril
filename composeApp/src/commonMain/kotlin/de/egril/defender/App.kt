@@ -40,12 +40,12 @@ fun App() {
         LaunchedEffect(currentScreen) {
             when (currentScreen) {
                 is Screen.GamePlay -> {
-                    WindowCloseHandler.unsavedChangesChecker.value = { viewModel.hasUnsavedChanges() }
-                    WindowCloseHandler.saveGameCallback.value = { viewModel.saveCurrentGame() }
+                    WindowCloseHandler.setUnsavedChangesChecker { viewModel.hasUnsavedChanges() }
+                    WindowCloseHandler.setSaveGameCallback { viewModel.saveCurrentGame() }
                 }
                 else -> {
-                    WindowCloseHandler.unsavedChangesChecker.value = null
-                    WindowCloseHandler.saveGameCallback.value = null
+                    WindowCloseHandler.setUnsavedChangesChecker(null)
+                    WindowCloseHandler.setSaveGameCallback(null)
                 }
             }
         }
