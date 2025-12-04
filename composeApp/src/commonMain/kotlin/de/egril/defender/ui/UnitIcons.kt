@@ -222,7 +222,7 @@ private fun DrawScope.drawTowerBase(centerX: Float, centerY: Float, size: Float)
 }
 
 /**
- * Draw a raft base in the shape \___/ beneath towers on rafts
+ * Draw a raft base in the shape \__/ beneath towers on rafts
  */
 private fun DrawScope.drawRaftBase(centerX: Float, centerY: Float, size: Float) {
     // Brown color for wooden raft
@@ -231,10 +231,10 @@ private fun DrawScope.drawRaftBase(centerX: Float, centerY: Float, size: Float) 
     val path = Path().apply {
         val width = size * 0.7f
         val height = size * 0.3f
-        val top = centerY + size * 0.1f  // Top of raft (higher up)
-        val bottom = top + height  // Bottom of raft
+        val bottom = centerY + size * 0.25f  // Bottom of raft
+        val top = bottom - height  // Top of raft (higher up)
         
-        // Draw the raft shape: \___/
+        // Draw the raft shape: \__/
         // Start at top left
         moveTo(centerX - width * 0.35f, top)
         // Left side slant down to bottom left
@@ -243,7 +243,7 @@ private fun DrawScope.drawRaftBase(centerX: Float, centerY: Float, size: Float) 
         lineTo(centerX + width / 2, bottom)
         // Right side slant up to top right
         lineTo(centerX + width * 0.35f, top)
-        // Flat top back to start
+        // Close the path back to start
         close()
     }
     
