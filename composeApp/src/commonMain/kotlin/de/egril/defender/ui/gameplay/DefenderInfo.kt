@@ -99,7 +99,8 @@ fun DefenderInfo(
                             }
                         } else if (defender.raftId.value != null) {
                             // If defender is on a raft, show localized "Type Raft" with space separator
-                            "${defender.type.getLocalizedName(locale)} ${stringResource(Res.string.raft)}"
+                            // Use getLocalizedShortName() to get just the type (e.g., "Bow" instead of "Bow Tower")
+                            "${defender.type.getLocalizedShortName(locale)} ${stringResource(Res.string.raft)}"
                         } else {
                             // Regular tower - use localized name
                             defender.type.getLocalizedName(locale)
