@@ -395,8 +395,8 @@ fun GridCell(
 
             defender != null -> {
                 // Use graphical icon for towers
-                // Key by id, level and actionsRemaining to force recomposition when these change
-                key(defender.id, defender.level, defender.actionsRemaining.value, defender.buildTimeRemaining.value) {
+                // Key by id, position, level and actionsRemaining to force recomposition when these change
+                key(defender.id, defender.position.value.x, defender.position.value.y, defender.level.value, defender.actionsRemaining.value, defender.buildTimeRemaining.value) {
                     TowerIcon(defender = defender, gameState = gameState)
                 }
             }
