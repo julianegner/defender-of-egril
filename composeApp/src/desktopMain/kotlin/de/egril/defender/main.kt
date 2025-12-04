@@ -34,7 +34,6 @@ fun main() = application {
     
     // State to control whether to show unsaved changes dialog
     var showUnsavedChangesDialog by remember { mutableStateOf(false) }
-    var pendingClose by remember { mutableStateOf(false) }
     
     Window(
         onCloseRequest = {
