@@ -97,6 +97,9 @@ fun DefenderInfo(
                             } else {
                                 stringResource(Res.string.empty_dragons_lair)
                             }
+                        } else if (defender.raftId.value != null) {
+                            // If defender is on a raft, show "Type Raft" instead of "Type Tower"
+                            defender.type.displayName.replace("Tower", "Raft")
                         } else {
                             defender.type.displayName
                         }
