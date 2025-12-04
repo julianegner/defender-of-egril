@@ -262,12 +262,11 @@ class BridgeSystem(private val state: GameState) {
                 
                 attacker.isBuildingBridge.value = true  // Mark as building (but NOT defeated - can still move)
                 
-                // Try to move onto the bridge if the wizard has movement points remaining
+                // Try to move onto the bridge if the wizard is adjacent to it
                 val bridgePos = positions[0]
-                if (attacker.movesRemaining.value > 0 && attacker.position.value.getHexNeighbors().contains(bridgePos)) {
+                if (attacker.position.value.getHexNeighbors().contains(bridgePos)) {
                     // Move wizard onto the bridge
                     attacker.position.value = bridgePos
-                    attacker.movesRemaining.value--
                     println("${attacker.type} ${attacker.id} built magical bridge at ${bridgePos} and moved onto it, level ${attacker.level.value + 1} → ${attacker.level.value}")
                 } else {
                     println("${attacker.type} ${attacker.id} built magical bridge at ${bridgePos}, level ${attacker.level.value + 1} → ${attacker.level.value}")
