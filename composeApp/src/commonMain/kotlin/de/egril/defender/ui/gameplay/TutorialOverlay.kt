@@ -186,6 +186,7 @@ private fun InfoContent(infoType: InfoType, onDismiss: () -> Unit) {
         InfoType.MAGICAL_TRAP_INFO -> MagicalTrapInfoContent(onDismiss)
         InfoType.EXTENDED_AREA_INFO -> ExtendedAreaInfoContent(onDismiss)
         InfoType.RIVER_INFO -> RiverInfoContent(onDismiss)
+        InfoType.MINE_ON_RIVER_WARNING -> MineOnRiverWarningContent(onDismiss)
         InfoType.NONE -> { /* No content to show */ }
     }
 }
@@ -489,6 +490,28 @@ private fun RiverInfoContent(onDismiss: () -> Unit) {
         Text(
             text = stringResource(Res.string.river_info_bridges),
             style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+    }
+}
+
+@Composable
+private fun MineOnRiverWarningContent(onDismiss: () -> Unit) {
+    ScrollableInfoCard(
+        title = {
+            Text(
+                text = stringResource(Res.string.mine_on_river_warning_title),
+                style = MaterialTheme.typography.titleMedium,
+                color = Color(0xFFFF9800)  // Orange color for warning
+            )
+        },
+        buttonColor = Color(0xFFFF9800),  // Orange button
+        width = 350.dp,
+        onDismiss = onDismiss
+    ) {
+        Text(
+            text = stringResource(Res.string.mine_on_river_warning_message),
+            style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurface
         )
     }
