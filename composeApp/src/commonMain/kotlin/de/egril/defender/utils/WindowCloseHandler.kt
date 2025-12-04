@@ -15,10 +15,23 @@ object WindowCloseHandler {
     val unsavedChangesChecker: MutableState<(() -> Boolean)?> = mutableStateOf(null)
     
     /**
+     * Mutable state to hold the save game callback.
+     * This allows platform-specific code to trigger a save before exiting.
+     */
+    val saveGameCallback: MutableState<(() -> Unit)?> = mutableStateOf(null)
+    
+    /**
      * Check if there are unsaved changes.
      * Returns true if there are unsaved changes, false otherwise.
      */
     fun hasUnsavedChanges(): Boolean {
         return unsavedChangesChecker.value?.invoke() ?: false
+    }
+    
+    /**
+     * Save the game (if save callback is available).
+     */
+    fun saveGame() {
+        saveGameCallback.value?.invoke()
     }
 }

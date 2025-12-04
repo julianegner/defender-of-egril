@@ -89,6 +89,15 @@ fun main() = application {
                         ) {
                             Text(stringResource(Res.string.discard_changes))
                         }
+                        Button(
+                            onClick = {
+                                WindowCloseHandler.saveGame()
+                                showUnsavedChangesDialog = false
+                                exitApplication()
+                            }
+                        ) {
+                            Text(stringResource(Res.string.save_and_exit))
+                        }
                     }
                 }
             )
