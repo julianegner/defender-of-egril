@@ -405,12 +405,18 @@ private fun GamePlayScreenContent(
                                     selectedTargetId = enemyAtPosition?.id
                                 }
                             } else {
-                                // For single-target attacks, only allow targeting enemies
+                                // For single-target attacks, allow targeting enemies or bridges
                                 val attackerForTargeting =
                                     gameState.attackers.find { it.position.value == position && !it.isDefeated.value }
+                                val bridgeAtPosition = gameState.getBridgeAt(position)
+                                
                                 if (attackerForTargeting != null) {
                                     selectedTargetId = attackerForTargeting.id
                                     selectedTargetPosition = position // to be able to show the 3 circles to highlight the target
+                                } else if (bridgeAtPosition != null && bridgeAtPosition.isActive) {
+                                    // Allow targeting bridge tiles
+                                    selectedTargetId = null  // Bridges don't have attacker IDs
+                                    selectedTargetPosition = position
                                 }
                             }
                         }

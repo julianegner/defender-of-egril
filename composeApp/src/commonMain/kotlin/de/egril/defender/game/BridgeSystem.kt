@@ -318,12 +318,25 @@ class BridgeSystem(private val state: GameState) {
     /**
      * Damage a bridge at a specific position.
      * Used when towers attack bridge positions.
+     * All tiles of the bridge share the same health.
      */
     fun damageBridge(position: Position, damage: Int) {
         val bridge = state.getBridgeAt(position)
-        if (bridge != null && bridge.type != BridgeType.MAGICAL) {
-            bridge.currentHealth.value = maxOf(0, bridge.currentHealth.value - damage)
-            println("Bridge at $position took $damage damage, remaining HP: ${bridge.currentHealth.value}")
+        if (bridge != null) {
+            val destroyed = bridge.takeDamage(damage)
+            println("Bridge ${bridge.id} at $position took $damage damage, remaining HP: ${bridge.currentHealth.value}")
+            
+            if (destroyed) {
+                println("Bridge ${bridge.id} destroyed!")
+                // Destroy any units on the bridge
+                val unitsOnBridge = state.attackers.filter { attacker ->
+                    bridge.coversPosition(attacker.position.value) && !attacker.isDefeated.value
+                }
+                for (unit in unitsOnBridge) {
+                    unit.isDefeated.value = true
+                    println("Unit ${unit.id} on bridge ${bridge.id} was destroyed!")
+                }
+            }
         }
     }
     
