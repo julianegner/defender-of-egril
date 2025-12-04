@@ -60,6 +60,7 @@
     
     <!-- Towers -->
     <string name="tower">Tour</string>
+    <string name="raft">Radeau</string>
     <string name="damage">Dégâts</string>
     <string name="range">Portée</string>
     <string name="actions">Actions</string>
@@ -589,4 +590,15 @@
     <!-- Extended Area Attack Feature -->
     <string name="extended_area_tutorial_title">Attaque de Zone Étendue !</string>
     <string name="extended_area_tutorial_message">Votre tour a atteint le niveau 20 et possède maintenant une attaque de zone étendue ! Les attaques de boule de feu et d\'acide affectent désormais les ennemis dans un rayon de 2 cases au lieu d\'une seule. Cela rend vos attaques de zone beaucoup plus puissantes contre les groupes d\'ennemis !</string>
+    
+    <!-- River Mechanics Info -->
+    <string name="river_info_title">Mécaniques des Rivières</string>
+    <string name="river_info_placement">Vous pouvez placer des tours sur les cases de rivière ! Lorsque vous le faites, elles seront placées sur des radeaux.</string>
+    <string name="river_info_movement">Les radeaux se déplacent automatiquement avec le courant de la rivière à la fin de chaque tour. La vitesse du courant détermine combien de cases ils se déplacent (1 ou 2 cases).</string>
+    <string name="river_info_destruction">Les radeaux sont détruits s\'ils atteignent un maelström (tourbillon) ou sortent des limites de la carte. La tour sur le radeau est également détruite.</string>
+    <string name="river_info_bridges">Les ponts bloquent le mouvement des radeaux. Les radeaux ne peuvent pas passer à travers les ponts qui enjambent la rivière. Plusieurs radeaux sur la même rivière se déplacent dans l\'ordre - les radeaux en aval bougent en premier.</string>
+    
+    <!-- Mine on River Warning -->
+    <string name="mine_on_river_warning_title">Impossible de placer une mine sur la rivière</string>
+    <string name="mine_on_river_warning_message">Les mines naines ne peuvent pas être placées sur les cases de rivière. Les mines nécessitent un sol solide et ne peuvent pas être construites sur des radeaux. Veuillez sélectionner une zone de construction sur la terre ferme.</string>
 </resources>

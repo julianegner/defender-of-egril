@@ -115,7 +115,7 @@ class PathfindingSystem(private val state: GameState) {
         for (defender in state.defenders) {
             if (!defender.isReady) continue
             
-            val distance = defender.position.distanceTo(position)
+            val distance = defender.position.value.distanceTo(position)
             
             // Check if position is in tower range
             if (distance >= defender.type.minRange && distance <= defender.range) {

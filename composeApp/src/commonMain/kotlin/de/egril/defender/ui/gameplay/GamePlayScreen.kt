@@ -193,6 +193,21 @@ private fun GamePlayScreenContent(
             gameState.infoState.value = infoState.showInfo(InfoType.ONE_HP_WARNING)
         }
     }
+    
+    // Check for river tiles and show river mechanics info (first time only)
+    LaunchedEffect(gameState.level.id) {
+        val infoState = gameState.infoState.value
+        
+        // Skip if already showing an info or already seen river info
+        if (infoState.currentInfo != InfoType.NONE || infoState.hasSeen(InfoType.RIVER_INFO)) {
+            return@LaunchedEffect
+        }
+        
+        // Show info if level has river tiles
+        if (gameState.level.riverTiles.isNotEmpty()) {
+            gameState.infoState.value = infoState.showInfo(InfoType.RIVER_INFO)
+        }
+    }
 
     // Mine action handler
     val handleMineAction: (Int, MineAction) -> Unit = { mineId, action ->
@@ -306,7 +321,7 @@ private fun GamePlayScreenContent(
                     val previousSelectedAttackerId = selectedAttackerId
                     
                     // Check if there's a defender at this position
-                    val defender = gameState.defenders.find { it.position == position }
+                    val defender = gameState.defenders.find { it.position.value == position }
                     if (defender != null) {
                         if (previousSelectedDefenderId == defender.id) {
                             // Deselect if clicking the same defender
@@ -344,7 +359,7 @@ private fun GamePlayScreenContent(
                             // Handle trap building for mines
                             if (selectedDefender.type == DefenderType.DWARVEN_MINE && selectedMineAction == MineAction.BUILD_TRAP) {
                                 // Check if position is on the path and in range
-                                val distance = selectedDefender.position.distanceTo(position)
+                                val distance = selectedDefender.position.value.distanceTo(position)
                                 if (gameState.level.isOnPath(position) && distance <= selectedDefender.range) {
                                     if (onMineBuildTrap?.invoke(selectedDefender.id, position) == true) {
                                         selectedMineAction = null
@@ -359,7 +374,7 @@ private fun GamePlayScreenContent(
                                 selectedDefender.level.value >= 10 && 
                                 selectedWizardAction == WizardAction.PLACE_MAGICAL_TRAP) {
                                 // Check if position is on the path and in range
-                                val distance = selectedDefender.position.distanceTo(position)
+                                val distance = selectedDefender.position.value.distanceTo(position)
                                 val hasEnemy = gameState.attackers.any { it.position.value == position && !it.isDefeated.value }
                                 val hasTrap = gameState.traps.any { it.position == position }
                                 if (gameState.level.isOnPath(position) && 
@@ -373,13 +388,16 @@ private fun GamePlayScreenContent(
                                 return@GameGrid
                             }
 
-                            // For AREA/LASTING (fireball and acid) attacks, allow targeting path tiles
+                            // For AREA/LASTING (fireball and acid) attacks, allow targeting path tiles OR river tiles
                             if (selectedDefender.type.attackType == AttackType.AREA ||
                                 selectedDefender.type.attackType == AttackType.LASTING
                             ) {
-                                // Check if position is on the path and in range
-                                val distance = selectedDefender.position.distanceTo(position)
-                                if (gameState.level.isOnPath(position) &&
+                                // Check if position is on the path or river and in range
+                                val distance = selectedDefender.position.value.distanceTo(position)
+                                val isOnPath = gameState.level.isOnPath(position)
+                                val isOnRiver = gameState.level.getRiverTile(position) != null
+                                
+                                if ((isOnPath || isOnRiver) &&
                                     distance >= selectedDefender.type.minRange &&
                                     distance <= selectedDefender.range
                                 ) {
@@ -390,12 +408,21 @@ private fun GamePlayScreenContent(
                                     selectedTargetId = enemyAtPosition?.id
                                 }
                             } else {
-                                // For single-target attacks, only allow targeting enemies
+                                // For single-target attacks, allow targeting enemies or bridges
+                                val distance = selectedDefender.position.value.distanceTo(position)
                                 val attackerForTargeting =
                                     gameState.attackers.find { it.position.value == position && !it.isDefeated.value }
-                                if (attackerForTargeting != null) {
-                                    selectedTargetId = attackerForTargeting.id
-                                    selectedTargetPosition = position // to be able to show the 3 circles to highlight the target
+                                val bridgeAtPosition = gameState.getBridgeAt(position)
+                                
+                                if (distance >= selectedDefender.type.minRange && distance <= selectedDefender.range) {
+                                    if (attackerForTargeting != null) {
+                                        selectedTargetId = attackerForTargeting.id
+                                        selectedTargetPosition = position // to be able to show the 3 circles to highlight the target
+                                    } else if (bridgeAtPosition != null && bridgeAtPosition.isActive) {
+                                        // Allow targeting bridge tiles
+                                        selectedTargetId = null  // Bridges don't have attacker IDs
+                                        selectedTargetPosition = position
+                                    }
                                 }
                             }
                         }
@@ -438,7 +465,7 @@ private fun GamePlayScreenContent(
                     val canReachEnemies = selectedDefender?.let { defender ->
                         gameState.attackers.any { attacker ->
                             !attacker.isDefeated.value &&
-                            defender.position.distanceTo(attacker.position.value) <= defender.range
+                            defender.position.value.distanceTo(attacker.position.value) <= defender.range
                         }
                     } ?: false
                     
