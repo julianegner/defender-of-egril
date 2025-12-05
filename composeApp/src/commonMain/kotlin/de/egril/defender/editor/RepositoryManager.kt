@@ -304,11 +304,22 @@ object RepositoryManager {
             // Replace worldmap file with repository version
             if (newData.hasNewWorldMap) {
                 // Use cached worldmap data if available, otherwise load it
-                val worldMapData = newData.worldMapData ?: RepositoryLoader.loadWorldMapData()
+                val worldMapData = newData.worldMapData
                 if (worldMapData != null) {
                     val worldMapJson = EditorJsonSerializer.serializeWorldMapData(worldMapData)
                     fileStorage.writeFile("$GAMEDATA_DIR/worldmap.json", worldMapJson)
                     println("Updated worldmap file")
+                } else {
+                    // This should not happen - if hasNewWorldMap is true, worldMapData should be cached
+                    println("Warning: worldmap data not cached, attempting to load from repository")
+                    val loadedWorldMapData = RepositoryLoader.loadWorldMapData()
+                    if (loadedWorldMapData != null) {
+                        val worldMapJson = EditorJsonSerializer.serializeWorldMapData(loadedWorldMapData)
+                        fileStorage.writeFile("$GAMEDATA_DIR/worldmap.json", worldMapJson)
+                        println("Updated worldmap file (loaded from repository)")
+                    } else {
+                        println("Error: Could not load worldmap from repository")
+                    }
                 }
             }
             
