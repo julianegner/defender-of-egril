@@ -178,9 +178,9 @@ fun TowerIcon(
  * Draw the base tower structure (trapezoid)
  */
 private fun DrawScope.drawTowerBase(centerX: Float, centerY: Float, size: Float) {
-    // Get dark mode state from AppSettings
-    val isDarkMode = de.egril.defender.ui.settings.AppSettings.isDarkMode.value
-    val baseColor = if (isDarkMode) Color(0xFF0A2647) else Color.White  // Match game tower colors in dark mode
+    // Fixed: Use white color for tower bases in both modes to ensure visibility on dark backgrounds
+    // (was Color(0xFF0A2647) in dark mode which was barely visible)
+    val baseColor = Color.White
     
     val path = Path().apply {
         val topWidth = size * 0.4f
