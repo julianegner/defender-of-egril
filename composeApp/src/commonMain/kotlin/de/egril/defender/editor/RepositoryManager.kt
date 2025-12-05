@@ -101,7 +101,8 @@ object RepositoryManager {
         val newMaps: List<String>,
         val newLevels: List<String>,
         val hasNewSequence: Boolean,
-        val hasNewWorldMap: Boolean
+        val hasNewWorldMap: Boolean,
+        val worldMapData: WorldMapData? = null  // Cache the loaded worldmap data to avoid redundant loading
     )
     
     /**
@@ -137,7 +138,8 @@ object RepositoryManager {
                     newMaps = mapIds.toList(),
                     newLevels = levelIds,
                     hasNewSequence = true,
-                    hasNewWorldMap = true
+                    hasNewWorldMap = true,
+                    worldMapData = null  // Not loaded when gamedata doesn't exist
                 )
             }
             
@@ -204,7 +206,8 @@ object RepositoryManager {
                 newMaps = newMaps.toList(),
                 newLevels = newLevels,
                 hasNewSequence = hasNewSequence,
-                hasNewWorldMap = hasNewWorldMap
+                hasNewWorldMap = hasNewWorldMap,
+                worldMapData = repoWorldMapData  // Cache the loaded worldmap data
             )
         } catch (e: Exception) {
             println("Error detecting new repository files: ${e.message}")
@@ -300,7 +303,8 @@ object RepositoryManager {
             
             // Replace worldmap file with repository version
             if (newData.hasNewWorldMap) {
-                val worldMapData = RepositoryLoader.loadWorldMapData()
+                // Use cached worldmap data if available, otherwise load it
+                val worldMapData = newData.worldMapData ?: RepositoryLoader.loadWorldMapData()
                 if (worldMapData != null) {
                     val worldMapJson = EditorJsonSerializer.serializeWorldMapData(worldMapData)
                     fileStorage.writeFile("$GAMEDATA_DIR/worldmap.json", worldMapJson)
