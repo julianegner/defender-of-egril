@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.egril.defender.BuildConfig
 import de.egril.defender.ui.settings.SettingsButton
+import de.egril.defender.utils.isPlatformMobile
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
 import defender_of_egril.composeapp.generated.resources.Res
@@ -60,20 +61,41 @@ fun MainMenuScreen(
                 
                 Spacer(modifier = Modifier.height(48.dp))
                 
-                Button(
-                    onClick = onStartGame,
-                    modifier = Modifier.width(200.dp).height(60.dp)
-                ) {
-                    Text(stringResource(Res.string.start_game), style = MaterialTheme.typography.titleMedium)
-                }
-                
-                Spacer(modifier = Modifier.height(16.dp))
-                
-                Button(
-                    onClick = onShowRules,
-                    modifier = Modifier.width(200.dp).height(60.dp)
-                ) {
-                    Text(stringResource(Res.string.rules), style = MaterialTheme.typography.titleMedium)
+                // On mobile, buttons are in a row; on desktop, in a column
+                if (isPlatformMobile) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        Button(
+                            onClick = onStartGame,
+                            modifier = Modifier.weight(1f).height(60.dp)
+                        ) {
+                            Text(stringResource(Res.string.start_game), style = MaterialTheme.typography.titleMedium)
+                        }
+                        
+                        Button(
+                            onClick = onShowRules,
+                            modifier = Modifier.weight(1f).height(60.dp)
+                        ) {
+                            Text(stringResource(Res.string.rules), style = MaterialTheme.typography.titleMedium)
+                        }
+                    }
+                } else {
+                    Button(
+                        onClick = onStartGame,
+                        modifier = Modifier.width(200.dp).height(60.dp)
+                    ) {
+                        Text(stringResource(Res.string.start_game), style = MaterialTheme.typography.titleMedium)
+                    }
+                    
+                    Spacer(modifier = Modifier.height(16.dp))
+                    
+                    Button(
+                        onClick = onShowRules,
+                        modifier = Modifier.width(200.dp).height(60.dp)
+                    ) {
+                        Text(stringResource(Res.string.rules), style = MaterialTheme.typography.titleMedium)
+                    }
                 }
             }
             
