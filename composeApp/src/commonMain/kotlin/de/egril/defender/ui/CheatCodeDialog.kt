@@ -6,6 +6,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 
@@ -23,6 +25,7 @@ fun CheatCodeDialog(
 ) {
     var internalInput by remember { mutableStateOf(initialInput) }
     var errorMessage by remember { mutableStateOf("") }
+    val focusRequester = remember { FocusRequester() }
     
     // Use external state if callback provided, otherwise use internal state
     val cheatCodeInput = if (onInputChange != null) initialInput else internalInput
@@ -52,6 +55,11 @@ fun CheatCodeDialog(
         }
     }
     
+    // Request focus on the input field when dialog opens
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
+    
     AlertDialog(
         onDismissRequest = {
             onDismiss()
@@ -77,7 +85,8 @@ fun CheatCodeDialog(
                         onDone = {
                             applyCheat()
                         }
-                    )
+                    ),
+                    modifier = Modifier.focusRequester(focusRequester)
                 )
                 
                 if (errorMessage.isNotEmpty()) {
