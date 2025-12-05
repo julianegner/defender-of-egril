@@ -77,6 +77,12 @@
       "name": "The Creek",
       "position": {"x": 438, "y": 820},
       "levelIds": ["the_creek"]
+    },
+    {
+      "id": "the_island",
+      "name": "The Island",
+      "position": {"x": 721, "y": 884},
+      "levelIds": ["the_island"]
     }
   ],
   "paths": [
