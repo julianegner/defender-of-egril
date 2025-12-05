@@ -41,6 +41,25 @@ All editor data is stored in JSON format on your local filesystem:
 - Maps define the grid layout, spawn points, paths, and build areas
 - Each map is saved as a separate JSON file in the `maps/` directory
 
+#### Collapsible Header
+
+The Map Editor header can be collapsed to provide more screen space for editing the map:
+
+- **Expanded State** (default): Shows full controls including:
+  - Map name input field
+  - Complete tile type selection (PATH, BUILD_AREA, ISLAND, NO_PLAY, SPAWN_POINT, TARGET, RIVER)
+  - River properties (flow direction and speed)
+  - "Change All NO_PLAY to PATH" button
+  - Zoom controls
+  - Collapse button (▲ icon)
+
+- **Collapsed State**: Shows compact controls on the left side:
+  - Tile type dropdown with all tile types (including RIVER)
+  - Expand button (▼ icon)
+  - River properties dialog (opens when RIVER is selected)
+
+To toggle between states, click the collapse/expand button in the header.
+
 ### Level Editor Tab
 
 - View existing levels
