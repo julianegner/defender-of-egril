@@ -6,6 +6,10 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -35,7 +39,59 @@ fun MapEditorHeader(
     zoomLevel: Float,
     onZoomIn: () -> Unit,
     onZoomOut: () -> Unit,
-    onChangeAllNoPlayToPath: () -> Unit
+    onChangeAllNoPlayToPath: () -> Unit,
+    isExpanded: Boolean,
+    onToggleExpanded: () -> Unit
+) {
+    if (isExpanded) {
+        ExpandedMapEditorHeader(
+            map = map,
+            mapName = mapName,
+            onMapNameChange = onMapNameChange,
+            selectedTileType = selectedTileType,
+            onTileTypeChange = onTileTypeChange,
+            selectedRiverFlow = selectedRiverFlow,
+            onRiverFlowChange = onRiverFlowChange,
+            selectedRiverSpeed = selectedRiverSpeed,
+            onRiverSpeedChange = onRiverSpeedChange,
+            zoomLevel = zoomLevel,
+            onZoomIn = onZoomIn,
+            onZoomOut = onZoomOut,
+            onChangeAllNoPlayToPath = onChangeAllNoPlayToPath,
+            onCollapse = onToggleExpanded
+        )
+    } else {
+        CollapsedMapEditorHeader(
+            selectedTileType = selectedTileType,
+            onTileTypeChange = onTileTypeChange,
+            selectedRiverFlow = selectedRiverFlow,
+            onRiverFlowChange = onRiverFlowChange,
+            selectedRiverSpeed = selectedRiverSpeed,
+            onRiverSpeedChange = onRiverSpeedChange,
+            onExpand = onToggleExpanded
+        )
+    }
+}
+
+/**
+ * Expanded version of the map editor header (original full header)
+ */
+@Composable
+private fun ExpandedMapEditorHeader(
+    map: EditorMap,
+    mapName: String,
+    onMapNameChange: (String) -> Unit,
+    selectedTileType: TileType,
+    onTileTypeChange: (TileType) -> Unit,
+    selectedRiverFlow: de.egril.defender.model.RiverFlow,
+    onRiverFlowChange: (de.egril.defender.model.RiverFlow) -> Unit,
+    selectedRiverSpeed: Int,
+    onRiverSpeedChange: (Int) -> Unit,
+    zoomLevel: Float,
+    onZoomIn: () -> Unit,
+    onZoomOut: () -> Unit,
+    onChangeAllNoPlayToPath: () -> Unit,
+    onCollapse: () -> Unit
 ) {
     Card(
         modifier = Modifier
@@ -49,12 +105,30 @@ fun MapEditorHeader(
                 .background(MaterialTheme.colorScheme.surface)
                 .padding(12.dp)
         ) {
-            // Header
-            Text(
-                text = stringResource(Res.string.editing_map, map.name.ifEmpty { map.id }),
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
+            // Header with collapse button
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(Res.string.editing_map, map.name.ifEmpty { map.id }),
+                    style = MaterialTheme.typography.titleMedium
+                )
+                
+                Button(
+                    onClick = onCollapse,
+                    modifier = Modifier.height(32.dp)
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        de.egril.defender.ui.icon.TriangleUpIcon(size = 12.dp)
+                        Text("Collapse", fontSize = 12.sp)
+                    }
+                }
+            }
             
             // Map name input
             OutlinedTextField(
@@ -179,6 +253,144 @@ fun MapEditorHeader(
                 onZoomOut = onZoomOut
             )
         }
+    }
+}
+
+/**
+ * Collapsed version of the map editor header - small card on the left side
+ */
+@Composable
+private fun CollapsedMapEditorHeader(
+    selectedTileType: TileType,
+    onTileTypeChange: (TileType) -> Unit,
+    selectedRiverFlow: de.egril.defender.model.RiverFlow,
+    onRiverFlowChange: (de.egril.defender.model.RiverFlow) -> Unit,
+    selectedRiverSpeed: Int,
+    onRiverSpeedChange: (Int) -> Unit,
+    onExpand: () -> Unit
+) {
+    var showRiverPropertiesDialog by remember { mutableStateOf(false) }
+    
+    Card(
+        modifier = Modifier
+            .width(280.dp)
+            .padding(8.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .background(MaterialTheme.colorScheme.surface)
+                .padding(8.dp)
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Tile type dropdown
+            var expanded by remember { mutableStateOf(false) }
+            Box(modifier = Modifier.weight(1f)) {
+                Button(
+                    onClick = { expanded = true },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(selectedTileType.name, fontSize = 12.sp)
+                }
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+                    TileType.entries.forEach { tileType ->
+                        DropdownMenuItem(
+                            text = { Text(tileType.name) },
+                            onClick = {
+                                onTileTypeChange(tileType)
+                                expanded = false
+                                // Show river properties dialog if RIVER is selected
+                                if (tileType == TileType.RIVER) {
+                                    showRiverPropertiesDialog = true
+                                }
+                            }
+                        )
+                    }
+                }
+            }
+            
+            // Expand button
+            Button(
+                onClick = onExpand,
+                modifier = Modifier.height(32.dp).width(48.dp)
+            ) {
+                de.egril.defender.ui.icon.TriangleDownIcon(size = 12.dp)
+            }
+        }
+    }
+    
+    // River properties dialog
+    if (showRiverPropertiesDialog) {
+        AlertDialog(
+            onDismissRequest = { showRiverPropertiesDialog = false },
+            title = { Text("River Properties") },
+            text = {
+                Column {
+                    Text("Flow Direction:", style = MaterialTheme.typography.bodyMedium)
+                    LazyRow(
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        items(de.egril.defender.model.RiverFlow.entries) { flow ->
+                            Button(
+                                onClick = { onRiverFlowChange(flow) },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = if (selectedRiverFlow == flow) 
+                                        MaterialTheme.colorScheme.primary 
+                                    else 
+                                        MaterialTheme.colorScheme.secondary
+                                ),
+                                modifier = Modifier.height(32.dp)
+                            ) {
+                                Text(flow.name.replace("_", " "), fontSize = 10.sp)
+                            }
+                        }
+                    }
+                    
+                    Spacer(modifier = Modifier.height(8.dp))
+                    
+                    Text("Flow Speed:", style = MaterialTheme.typography.bodyMedium)
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Button(
+                            onClick = { onRiverSpeedChange(1) },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = if (selectedRiverSpeed == 1) 
+                                    MaterialTheme.colorScheme.primary 
+                                else 
+                                    MaterialTheme.colorScheme.secondary
+                            ),
+                            modifier = Modifier.height(32.dp)
+                        ) {
+                            Text("1 (Slow)", fontSize = 10.sp)
+                        }
+                        Button(
+                            onClick = { onRiverSpeedChange(2) },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = if (selectedRiverSpeed == 2) 
+                                    MaterialTheme.colorScheme.primary 
+                                else 
+                                    MaterialTheme.colorScheme.secondary
+                            ),
+                            modifier = Modifier.height(32.dp)
+                        ) {
+                            Text("2 (Fast)", fontSize = 10.sp)
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                Button(onClick = { showRiverPropertiesDialog = false }) {
+                    Text("OK")
+                }
+            }
+        )
     }
 }
 
