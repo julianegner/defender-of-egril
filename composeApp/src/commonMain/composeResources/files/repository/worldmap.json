@@ -71,6 +71,12 @@
       "name": "Ewhads Challege",
       "position": {"x": 797, "y": 870},
       "levelIds": ["ewhads_challenge"]
+    },
+    {
+      "id": "the_creek",
+      "name": "The Creek",
+      "position": {"x": 438, "y": 820},
+      "levelIds": ["the_creek"]
     }
   ],
   "paths": [
