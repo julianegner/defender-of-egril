@@ -505,7 +505,7 @@ class GamePlayScreenTest {
         val trap = de.egril.defender.model.Trap(
             position = de.egril.defender.model.Position(7, 4),
             damage = 10,
-            mineId = 1
+            defenderId = 1
         )
         gameState.traps.add(trap)
         

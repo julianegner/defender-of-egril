@@ -193,16 +193,44 @@ private fun GamePlayScreenContent(
             gameState.infoState.value = infoState.showInfo(InfoType.ONE_HP_WARNING)
         }
     }
-    
+
+    // Check for first-time tower availability and show info dialogs
+    LaunchedEffect(gameState.level.availableTowers, gameState.infoState.value) {
+        val infoState = gameState.infoState.value
+
+        // Skip if already showing an info
+        if (infoState.currentInfo != InfoType.NONE) {
+            return@LaunchedEffect
+        }
+
+        // Check each advanced tower type and show info if available but not seen
+        val availableTowers = gameState.level.availableTowers
+
+        when {
+            availableTowers.contains(DefenderType.WIZARD_TOWER) && !infoState.hasSeen(InfoType.WIZARD_FIRST_USE) -> {
+                gameState.infoState.value = infoState.showInfo(InfoType.WIZARD_FIRST_USE)
+            }
+            availableTowers.contains(DefenderType.ALCHEMY_TOWER) && !infoState.hasSeen(InfoType.ALCHEMY_FIRST_USE) -> {
+                gameState.infoState.value = infoState.showInfo(InfoType.ALCHEMY_FIRST_USE)
+            }
+            availableTowers.contains(DefenderType.BALLISTA_TOWER) && !infoState.hasSeen(InfoType.BALLISTA_FIRST_USE) -> {
+                gameState.infoState.value = infoState.showInfo(InfoType.BALLISTA_FIRST_USE)
+            }
+            availableTowers.contains(DefenderType.DWARVEN_MINE) && !infoState.hasSeen(InfoType.MINE_FIRST_USE) -> {
+                gameState.infoState.value = infoState.showInfo(InfoType.MINE_FIRST_USE)
+            }
+        }
+    }
+
     // Check for river tiles and show river mechanics info (first time only)
     LaunchedEffect(gameState.level.id) {
         val infoState = gameState.infoState.value
-        
+
         // Skip if already showing an info or already seen river info
         if (infoState.currentInfo != InfoType.NONE || infoState.hasSeen(InfoType.RIVER_INFO)) {
             return@LaunchedEffect
         }
-        
+
         // Show info if level has river tiles
         if (gameState.level.riverTiles.isNotEmpty()) {
             gameState.infoState.value = infoState.showInfo(InfoType.RIVER_INFO)
@@ -396,7 +424,7 @@ private fun GamePlayScreenContent(
                                 val distance = selectedDefender.position.value.distanceTo(position)
                                 val isOnPath = gameState.level.isOnPath(position)
                                 val isOnRiver = gameState.level.getRiverTile(position) != null
-                                
+
                                 if ((isOnPath || isOnRiver) &&
                                     distance >= selectedDefender.type.minRange &&
                                     distance <= selectedDefender.range
@@ -413,7 +441,7 @@ private fun GamePlayScreenContent(
                                 val attackerForTargeting =
                                     gameState.attackers.find { it.position.value == position && !it.isDefeated.value }
                                 val bridgeAtPosition = gameState.getBridgeAt(position)
-                                
+
                                 if (distance >= selectedDefender.type.minRange && distance <= selectedDefender.range) {
                                     if (attackerForTargeting != null) {
                                         selectedTargetId = attackerForTargeting.id

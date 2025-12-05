@@ -185,6 +185,10 @@ private fun InfoContent(infoType: InfoType, onDismiss: () -> Unit) {
         InfoType.ONE_HP_WARNING -> OneHpWarningContent(onDismiss)
         InfoType.MAGICAL_TRAP_INFO -> MagicalTrapInfoContent(onDismiss)
         InfoType.EXTENDED_AREA_INFO -> ExtendedAreaInfoContent(onDismiss)
+        InfoType.WIZARD_FIRST_USE -> WizardFirstUseContent(onDismiss)
+        InfoType.ALCHEMY_FIRST_USE -> AlchemyFirstUseContent(onDismiss)
+        InfoType.BALLISTA_FIRST_USE -> BallistaFirstUseContent(onDismiss)
+        InfoType.MINE_FIRST_USE -> MineFirstUseContent(onDismiss)
         InfoType.RIVER_INFO -> RiverInfoContent(onDismiss)
         InfoType.MINE_ON_RIVER_WARNING -> MineOnRiverWarningContent(onDismiss)
         InfoType.NONE -> { /* No content to show */ }
@@ -449,6 +453,130 @@ private fun ExtendedAreaInfoContent(onDismiss: () -> Unit) {
     ) {
         Text(
             text = stringResource(Res.string.extended_area_tutorial_message),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+    }
+}
+
+/**
+ * Wizard tower first use info content
+ */
+@Composable
+private fun WizardFirstUseContent(onDismiss: () -> Unit) {
+    ScrollableInfoCard(
+        title = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                de.egril.defender.ui.icon.ExplosionIcon(size = 32.dp)
+                Text(
+                    text = stringResource(Res.string.wizard_first_use_title),
+                    style = MaterialTheme.typography.titleLarge,
+                    color = Color(0xFF9C27B0)  // Purple color for wizard theme
+                )
+            }
+        },
+        buttonColor = Color(0xFF9C27B0),  // Purple button
+        width = 400.dp,
+        onDismiss = onDismiss
+    ) {
+        Text(
+            text = stringResource(Res.string.wizard_first_use_message),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+    }
+}
+
+/**
+ * Alchemy tower first use info content
+ */
+@Composable
+private fun AlchemyFirstUseContent(onDismiss: () -> Unit) {
+    ScrollableInfoCard(
+        title = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                de.egril.defender.ui.icon.TestTubeIcon(size = 32.dp)
+                Text(
+                    text = stringResource(Res.string.alchemy_first_use_title),
+                    style = MaterialTheme.typography.titleLarge,
+                    color = Color(0xFF4CAF50)  // Green color for alchemy theme
+                )
+            }
+        },
+        buttonColor = Color(0xFF4CAF50),  // Green button
+        width = 400.dp,
+        onDismiss = onDismiss
+    ) {
+        Text(
+            text = stringResource(Res.string.alchemy_first_use_message),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+    }
+}
+
+/**
+ * Ballista tower first use info content
+ */
+@Composable
+private fun BallistaFirstUseContent(onDismiss: () -> Unit) {
+    ScrollableInfoCard(
+        title = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                de.egril.defender.ui.icon.TargetIcon(size = 32.dp)
+                Text(
+                    text = stringResource(Res.string.ballista_first_use_title),
+                    style = MaterialTheme.typography.titleLarge,
+                    color = Color(0xFF795548)  // Brown color for ballista theme
+                )
+            }
+        },
+        buttonColor = Color(0xFF795548),  // Brown button
+        width = 400.dp,
+        onDismiss = onDismiss
+    ) {
+        Text(
+            text = stringResource(Res.string.ballista_first_use_message),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+    }
+}
+
+/**
+ * Dwarven mine first use info content
+ */
+@Composable
+private fun MineFirstUseContent(onDismiss: () -> Unit) {
+    ScrollableInfoCard(
+        title = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                de.egril.defender.ui.icon.MoneyIcon(size = 32.dp)
+                Text(
+                    text = stringResource(Res.string.mine_first_use_title),
+                    style = MaterialTheme.typography.titleLarge,
+                    color = Color(0xFFFFD700)  // Gold color for mine theme
+                )
+            }
+        },
+        buttonColor = Color(0xFFFFD700),  // Gold button
+        width = 400.dp,
+        onDismiss = onDismiss
+    ) {
+        Text(
+            text = stringResource(Res.string.mine_first_use_message),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurface
         )
