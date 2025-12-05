@@ -105,8 +105,11 @@ fun LevelEditorContent() {
                         onCopy = {
                             // Copy the level with a new ID and " - Copy" suffix
                             val copyTitle = "${level.title} - Copy"
-                            val sanitizedTitle = copyTitle.trim().replace(" ", "_").replace(Regex("[^a-zA-Z0-9_]"), "")
-                            val newId = "level_${sanitizedTitle}_${Random.nextInt(1000, 9999)}"
+                            val sanitizedTitle = copyTitle.trim().lowercase()
+                                .replace(" ", "_")
+                                .replace(Regex("[^a-z0-9_]"), "")
+                                .replace(Regex("_+"), "_")  // Collapse consecutive underscores
+                            val newId = "${sanitizedTitle}_${Random.nextInt(1000, 9999)}"
                             val copiedLevel = level.copy(
                                 id = newId,
                                 title = copyTitle
@@ -144,12 +147,15 @@ fun LevelEditorContent() {
         CreateLevelDialog(
             onDismiss = { showCreateDialog = false },
             onCreate = { title ->
-                // Generate ID from title with underscores
-                val sanitizedTitle = title.trim().replace(" ", "_").replace(Regex("[^a-zA-Z0-9_]"), "")
+                // Generate ID from title with underscores (lowercase, no "level_" prefix)
+                val sanitizedTitle = title.trim().lowercase()
+                    .replace(" ", "_")
+                    .replace(Regex("[^a-z0-9_]"), "")
+                    .replace(Regex("_+"), "_")  // Collapse consecutive underscores
                 val newId = if (sanitizedTitle.isNotEmpty()) {
-                    "level_$sanitizedTitle"
+                    sanitizedTitle
                 } else {
-                    "level_custom_${Random.nextInt(10000, 99999)}"
+                    "custom_${Random.nextInt(10000, 99999)}"
                 }
                 // Get first ready-to-use map
                 val firstReadyMap = EditorStorage.getAllMaps().filter { it.readyToUse }.firstOrNull()
