@@ -33,6 +33,9 @@
     <string name="restore_game_data_success_message">Spieldaten wurden aus dem Repository wiederhergestellt. Ihre vorherigen Daten wurden gesichert in: %s</string>
     <string name="game_data">Spieldaten</string>
     <string name="close">Schließen</string>
+    <string name="settings_hint_title">Einstellungen verfügbar</string>
+    <string name="settings_hint_message">Klicken Sie auf das Einstellungssymbol, um Ihre Erfahrung anzupassen. Verfügbare Einstellungen umfassen:</string>
+    <string name="settings_hint_dismiss">Verstanden!</string>
     
     <!-- Common Actions -->
     <string name="back">Zurück</string>
