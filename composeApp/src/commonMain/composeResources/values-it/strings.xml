@@ -33,6 +33,9 @@
     <string name="restore_game_data_success_message">I dati di gioco sono stati ripristinati dal repository. I dati precedenti sono stati salvati in: %s</string>
     <string name="game_data">Dati di Gioco</string>
     <string name="close">Chiudi</string>
+    <string name="settings_hint_title">Impostazioni Disponibili</string>
+    <string name="settings_hint_message">Clicca sull\'icona delle impostazioni per personalizzare la tua esperienza. Le impostazioni disponibili includono:</string>
+    <string name="settings_hint_dismiss">Capito!</string>
     
     <!-- Common Actions -->
     <string name="back">Indietro</string>

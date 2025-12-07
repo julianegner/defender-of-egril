@@ -33,6 +33,9 @@
     <string name="restore_game_data_success_message">Los datos del juego se han restaurado desde el repositorio. Sus datos anteriores se respaldaron en: %s</string>
     <string name="game_data">Datos del Juego</string>
     <string name="close">Cerrar</string>
+    <string name="settings_hint_title">Configuración Disponible</string>
+    <string name="settings_hint_message">Haga clic en el icono de configuración para personalizar su experiencia. La configuración disponible incluye:</string>
+    <string name="settings_hint_dismiss">¡Entendido!</string>
     
     <!-- Common Actions -->
     <string name="back">Atrás</string>

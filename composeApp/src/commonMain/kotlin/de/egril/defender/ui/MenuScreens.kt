@@ -6,6 +6,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -13,7 +14,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.egril.defender.BuildConfig
+import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.settings.SettingsButton
+import de.egril.defender.ui.settings.SettingsHintBox
 import de.egril.defender.utils.isPlatformMobile
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
@@ -28,6 +31,9 @@ fun MainMenuScreen(
     onStartGame: () -> Unit,
     onShowRules: () -> Unit
 ) {
+    // Track if settings hint should be shown
+    val showSettingsHint by AppSettings.settingsHintShown
+    
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
@@ -41,6 +47,19 @@ fun MainMenuScreen(
                     .align(Alignment.TopEnd)
                     .padding(8.dp)
             )
+            
+            // Settings hint box - positioned below and to the left of settings button
+            // Only show if hint hasn't been shown yet
+            if (!showSettingsHint) {
+                SettingsHintBox(
+                    onDismiss = {
+                        AppSettings.markSettingsHintShown()
+                    },
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(top = 60.dp, end = 8.dp)  // Position below settings button
+                )
+            }
             
             Column(
                 modifier = Modifier.fillMaxSize(),
