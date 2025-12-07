@@ -36,6 +36,7 @@ object AppSettings {
     private const val KEY_SHOW_CONTROL_PAD = "show_control_pad"
     private const val KEY_DIFFICULTY = "difficulty"
     private const val KEY_USE_LEVEL_CARDS = "use_level_cards"
+    private const val KEY_SETTINGS_HINT_SHOWN = "settings_hint_shown"
     
     private val settings: Settings = Settings()
     
@@ -80,6 +81,14 @@ object AppSettings {
      */
     val useLevelCards: MutableState<Boolean> = mutableStateOf(
         settings.getBoolean(KEY_USE_LEVEL_CARDS, false)
+    )
+    
+    /**
+     * Settings hint shown state - track if first-time settings hint has been shown
+     * Default is false (hint should be shown on first run)
+     */
+    val settingsHintShown: MutableState<Boolean> = mutableStateOf(
+        settings.getBoolean(KEY_SETTINGS_HINT_SHOWN, false)
     )
     
     /**
@@ -159,6 +168,14 @@ object AppSettings {
     }
     
     /**
+     * Mark settings hint as shown
+     */
+    fun markSettingsHintShown() {
+        settingsHintShown.value = true
+        settings.putBoolean(KEY_SETTINGS_HINT_SHOWN, true)
+    }
+    
+    /**
      * Reset all settings to defaults
      */
     fun resetToDefaults() {
@@ -180,5 +197,8 @@ object AppSettings {
         
         // Reset world map style to image map
         saveUseLevelCards(false)
+        
+        // Note: Don't reset settings hint shown state when resetting settings
+        // as user has already seen it once
     }
 }
