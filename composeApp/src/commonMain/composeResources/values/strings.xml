@@ -33,6 +33,9 @@
     <string name="restore_game_data_success_message">Game data has been restored from the repository. Your previous data was backed up to: %s</string>
     <string name="game_data">Game Data</string>
     <string name="close">Close</string>
+    <string name="settings_hint_title">Settings Available</string>
+    <string name="settings_hint_message">Click the settings icon to customize your experience. Available settings include:</string>
+    <string name="settings_hint_dismiss">Got it!</string>
     
     <!-- Common Actions -->
     <string name="back">Back</string>
