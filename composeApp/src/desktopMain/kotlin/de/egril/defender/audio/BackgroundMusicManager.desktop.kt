@@ -58,9 +58,11 @@ class DesktopBackgroundMusicManager : BackgroundMusicManager {
                         return@launch
                     }
                     
-                    // Calculate effective volume (master * music * track-specific)
-                    // Apply additional 0.3 multiplier to make music quieter relative to effects
-                    val effectiveVolume = (AppSettings.soundVolume.value * this@DesktopBackgroundMusicManager.volume * volume * 0.3f).coerceIn(0f, 1f)
+                    // Calculate effective volume (master * music * 0.3 multiplier)
+                    // Note: Ignore the 'volume' parameter and use settings instead for consistency
+                    val effectiveVolume = (AppSettings.soundVolume.value * this@DesktopBackgroundMusicManager.volume * 0.3f).coerceIn(0f, 1f)
+                    
+                    println("Starting background music: ${music.name}, effectiveVolume=$effectiveVolume (master=${AppSettings.soundVolume.value}, music=${this@DesktopBackgroundMusicManager.volume})")
                     
                     // Create and start music player
                     val player = Mp3MusicPlayer(bytes, effectiveVolume, loop, this@DesktopBackgroundMusicManager)
@@ -101,6 +103,7 @@ class DesktopBackgroundMusicManager : BackgroundMusicManager {
         // Update volume of currently playing music
         // Apply additional 0.3 multiplier to make music quieter relative to effects
         val effectiveVolume = (AppSettings.soundVolume.value * this.volume * 0.3f).coerceIn(0f, 1f)
+        println("Background music setVolume called: volume=$volume, effectiveVolume=$effectiveVolume")
         musicPlayer?.setVolume(effectiveVolume)
     }
     
@@ -264,14 +267,26 @@ private class Mp3MusicPlayer(
             try {
                 if (line.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
                     val gainControl = line.getControl(FloatControl.Type.MASTER_GAIN) as FloatControl
-                    val range = gainControl.maximum - gainControl.minimum
-                    val gain = gainControl.minimum + range * currentVolume
-                    gainControl.value = gain.coerceIn(gainControl.minimum, gainControl.maximum)
+                    
+                    // Convert linear volume (0.0 to 1.0) to decibels
+                    // Use logarithmic scale: gain_db = 20 * log10(volume)
+                    // But clamp to the control's min/max range
+                    val gain = if (currentVolume > 0f) {
+                        val db = (20.0 * kotlin.math.ln(currentVolume.toDouble()) / kotlin.math.ln(10.0)).toFloat()
+                        db.coerceIn(gainControl.minimum, gainControl.maximum)
+                    } else {
+                        gainControl.minimum // Mute
+                    }
+                    
+                    gainControl.value = gain
+                    println("Background music volume updated: linear=$currentVolume, gain_db=$gain")
+                } else {
+                    println("MASTER_GAIN control not supported for background music")
                 }
             } catch (e: Exception) {
-                // Volume control failed, but playback continues
+                println("Failed to update background music volume: ${e.message}")
             }
-        }
+        } ?: println("SourceDataLine not available for volume control")
     }
 }
 
