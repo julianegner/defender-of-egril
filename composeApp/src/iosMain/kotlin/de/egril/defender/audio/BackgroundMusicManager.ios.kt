@@ -61,8 +61,11 @@ class IOSBackgroundMusicManager : BackgroundMusicManager {
                 // Set number of loops (-1 for infinite loop)
                 player.numberOfLoops = if (loop) -1 else 0
                 
-                // Set volume (master * music * track-specific)
-                val effectiveVolume = (AppSettings.soundVolume.value * this.volume * volume).coerceIn(0f, 1f)
+                // Get track-specific relative volume
+                val trackVolume = BackgroundMusicSettings.getRelativeVolume(music)
+                
+                // Set volume (master * music * track * 0.3 multiplier)
+                val effectiveVolume = (AppSettings.soundVolume.value * this.volume * trackVolume * 0.3f).coerceIn(0f, 1f)
                 player.volume = effectiveVolume
                 
                 // Prepare and play
@@ -111,7 +114,9 @@ class IOSBackgroundMusicManager : BackgroundMusicManager {
         
         // Update volume of currently playing music
         audioPlayer?.let { player ->
-            val effectiveVolume = (AppSettings.soundVolume.value * this.volume).coerceIn(0f, 1f)
+            val music = currentMusic
+            val trackVolume = if (music != null) BackgroundMusicSettings.getRelativeVolume(music) else 1.0f
+            val effectiveVolume = (AppSettings.soundVolume.value * this.volume * trackVolume * 0.3f).coerceIn(0f, 1f)
             player.volume = effectiveVolume
         }
     }
