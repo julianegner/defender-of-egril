@@ -277,7 +277,7 @@ private fun CollapsedMapEditorHeader(
     Card(
         modifier = Modifier
             .width(280.dp)
-            .padding(8.dp),
+            .padding(top = 8.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Row(
