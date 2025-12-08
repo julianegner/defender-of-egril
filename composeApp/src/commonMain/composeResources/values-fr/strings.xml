@@ -33,6 +33,9 @@
     <string name="restore_game_data_success_message">Les données du jeu ont été restaurées depuis le dépôt. Vos données précédentes ont été sauvegardées dans : %s</string>
     <string name="game_data">Données du Jeu</string>
     <string name="close">Fermer</string>
+    <string name="settings_hint_title">Paramètres Disponibles</string>
+    <string name="settings_hint_message">Cliquez sur l\'icône des paramètres pour personnaliser votre expérience. Les paramètres disponibles incluent :</string>
+    <string name="settings_hint_dismiss">Compris !</string>
     
     <!-- Common Actions -->
     <string name="back">Retour</string>
