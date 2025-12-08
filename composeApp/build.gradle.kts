@@ -150,6 +150,7 @@ kotlin {
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
+            implementation(libs.jlayer)
         }
         desktopTest.dependencies {
             implementation(compose.desktop.uiTestJUnit4)
