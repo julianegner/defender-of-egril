@@ -16,6 +16,7 @@ fun App() {
     LaunchedEffect(Unit) {
         AppSettings.initialize()
         de.egril.defender.audio.GlobalSoundManager.initialize()
+        de.egril.defender.audio.GlobalBackgroundMusicManager.initialize()
     }
     
     // Observe dark mode state

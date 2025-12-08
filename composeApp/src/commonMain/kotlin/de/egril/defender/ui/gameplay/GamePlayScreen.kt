@@ -132,6 +132,36 @@ private fun GamePlayScreenContent(
         }
     }
     
+    // Background music management based on health points
+    LaunchedEffect(gameState.healthPoints.value) {
+        val currentMusic = de.egril.defender.audio.GlobalBackgroundMusicManager.getInstance()?.getCurrentMusic()
+        
+        if (gameState.healthPoints.value < 5) {
+            // Switch to low health music if not already playing
+            if (currentMusic != de.egril.defender.audio.BackgroundMusic.GAMEPLAY_LOW_HEALTH) {
+                de.egril.defender.audio.GlobalBackgroundMusicManager.playMusic(
+                    de.egril.defender.audio.BackgroundMusic.GAMEPLAY_LOW_HEALTH,
+                    loop = true
+                )
+            }
+        } else {
+            // Play normal gameplay music if not already playing
+            if (currentMusic != de.egril.defender.audio.BackgroundMusic.GAMEPLAY_NORMAL) {
+                de.egril.defender.audio.GlobalBackgroundMusicManager.playMusic(
+                    de.egril.defender.audio.BackgroundMusic.GAMEPLAY_NORMAL,
+                    loop = true
+                )
+            }
+        }
+    }
+    
+    // Stop background music when leaving gameplay
+    DisposableEffect(Unit) {
+        onDispose {
+            de.egril.defender.audio.GlobalBackgroundMusicManager.stopMusic()
+        }
+    }
+    
     // Check for dragon-related infos and show appropriate tutorial
     LaunchedEffect(gameState.attackers.size, gameState.infoState.value) {
         val infoState = gameState.infoState.value

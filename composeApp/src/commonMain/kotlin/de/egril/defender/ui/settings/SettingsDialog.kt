@@ -103,18 +103,21 @@ fun SettingsDialog(
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     
-                    // Sound enabled/disabled switch
+                    // Overall sound enabled/disabled switch
                     GenericSwitch(
                         state = AppSettings.isSoundEnabled,
                         checkedText = stringResource(Res.string.sound_enabled),
                         uncheckedText = stringResource(Res.string.sound_disabled),
                         onCheckedChange = { enabled ->
                             AppSettings.saveSoundEnabled(enabled)
+                            // Update background music and sound managers
+                            de.egril.defender.audio.GlobalSoundManager.getInstance()?.setEnabled(enabled && AppSettings.isEffectsEnabled.value)
+                            de.egril.defender.audio.GlobalBackgroundMusicManager.setEnabled(enabled && AppSettings.isMusicEnabled.value)
                         },
                         modifier = Modifier.fillMaxWidth()
                     )
                     
-                    // Volume slider (only shown when sound is enabled)
+                    // Master volume slider (only shown when sound is enabled)
                     if (AppSettings.isSoundEnabled.value) {
                         Column(
                             modifier = Modifier.fillMaxWidth(),
@@ -146,6 +149,118 @@ fun SettingsDialog(
                                     text = "🔊",
                                     style = MaterialTheme.typography.bodyLarge
                                 )
+                            }
+                        }
+                        
+                        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                        
+                        // Effect sounds sub-section
+                        Text(
+                            text = stringResource(Res.string.effect_sounds),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        
+                        GenericSwitch(
+                            state = AppSettings.isEffectsEnabled,
+                            checkedText = stringResource(Res.string.effects_enabled),
+                            uncheckedText = stringResource(Res.string.effects_disabled),
+                            onCheckedChange = { enabled ->
+                                AppSettings.saveEffectsEnabled(enabled)
+                                de.egril.defender.audio.GlobalSoundManager.getInstance()?.setEnabled(enabled && AppSettings.isSoundEnabled.value)
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        
+                        if (AppSettings.isEffectsEnabled.value) {
+                            Column(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                Text(
+                                    text = stringResource(Res.string.effects_volume),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = "🔈",
+                                        style = MaterialTheme.typography.bodyLarge
+                                    )
+                                    Slider(
+                                        value = AppSettings.effectsVolume.value,
+                                        onValueChange = { volume ->
+                                            AppSettings.saveEffectsVolume(volume)
+                                            de.egril.defender.audio.GlobalSoundManager.getInstance()?.setVolume(volume)
+                                        },
+                                        modifier = Modifier.weight(1f),
+                                        valueRange = 0f..1f
+                                    )
+                                    Text(
+                                        text = "🔊",
+                                        style = MaterialTheme.typography.bodyLarge
+                                    )
+                                }
+                            }
+                        }
+                        
+                        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                        
+                        // Background music sub-section
+                        Text(
+                            text = stringResource(Res.string.background_music),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        
+                        GenericSwitch(
+                            state = AppSettings.isMusicEnabled,
+                            checkedText = stringResource(Res.string.music_enabled),
+                            uncheckedText = stringResource(Res.string.music_disabled),
+                            onCheckedChange = { enabled ->
+                                AppSettings.saveMusicEnabled(enabled)
+                                de.egril.defender.audio.GlobalBackgroundMusicManager.setEnabled(enabled && AppSettings.isSoundEnabled.value)
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        
+                        if (AppSettings.isMusicEnabled.value) {
+                            Column(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                Text(
+                                    text = stringResource(Res.string.music_volume),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = "🔈",
+                                        style = MaterialTheme.typography.bodyLarge
+                                    )
+                                    Slider(
+                                        value = AppSettings.musicVolume.value,
+                                        onValueChange = { volume ->
+                                            AppSettings.saveMusicVolume(volume)
+                                            de.egril.defender.audio.GlobalBackgroundMusicManager.setVolume(volume)
+                                        },
+                                        modifier = Modifier.weight(1f),
+                                        valueRange = 0f..1f
+                                    )
+                                    Text(
+                                        text = "🔊",
+                                        style = MaterialTheme.typography.bodyLarge
+                                    )
+                                }
                             }
                         }
                     }
