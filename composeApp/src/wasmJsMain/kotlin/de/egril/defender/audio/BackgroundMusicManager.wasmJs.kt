@@ -63,8 +63,11 @@ class WasmBackgroundMusicManager : BackgroundMusicManager {
                 // Set loop mode
                 setMusicAudioLoop(audio, loop)
                 
-                // Set volume (master * music * track-specific) - convert to Double for JS
-                val effectiveVolume = (AppSettings.soundVolume.value.toDouble() * this.volume.toDouble() * volume.toDouble()).coerceIn(0.0, 1.0)
+                // Get track-specific relative volume
+                val trackVolume = BackgroundMusicSettings.getRelativeVolume(music)
+                
+                // Set volume (master * music * track * 0.3 multiplier) - convert to Double for JS
+                val effectiveVolume = (AppSettings.soundVolume.value.toDouble() * this.volume.toDouble() * trackVolume.toDouble() * 0.3).coerceIn(0.0, 1.0)
                 setMusicAudioVolume(audio, effectiveVolume)
                 
                 // Play audio
@@ -122,7 +125,9 @@ class WasmBackgroundMusicManager : BackgroundMusicManager {
         // Update volume of currently playing music - convert to Double for JS
         audioElement?.let { audio ->
             try {
-                val effectiveVolume = (AppSettings.soundVolume.value.toDouble() * this.volume.toDouble()).coerceIn(0.0, 1.0)
+                val music = currentMusic
+                val trackVolume = if (music != null) BackgroundMusicSettings.getRelativeVolume(music) else 1.0f
+                val effectiveVolume = (AppSettings.soundVolume.value.toDouble() * this.volume.toDouble() * trackVolume.toDouble() * 0.3).coerceIn(0.0, 1.0)
                 setMusicAudioVolume(audio, effectiveVolume)
             } catch (e: Exception) {
                 // Ignore
