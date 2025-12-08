@@ -313,6 +313,7 @@
     <string name="size">Tamaño</string>
     <string name="select_tile_type">Seleccionar tipo de baldosa:</string>
     <string name="click_hexagons_to_paint">Haz clic o arrastra para pintar hexágonos. Usa Ctrl+Rueda para zoom:</string>
+    <string name="collapse">Contraer</string>
     <string name="change_all_no_play_to_path">Cambiar todos NO_PLAY a PATH</string>
     <string name="change_all_no_play_confirm_title">¿Cambiar todos NO_PLAY a PATH?</string>
     <string name="change_all_no_play_confirm_message">Esto reemplazará todas las baldosas NO_PLAY con baldosas PATH. ¿Está seguro?</string>
