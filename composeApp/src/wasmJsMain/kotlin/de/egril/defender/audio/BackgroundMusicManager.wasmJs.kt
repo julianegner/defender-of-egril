@@ -1,19 +1,39 @@
+@file:OptIn(kotlin.js.ExperimentalWasmJsInterop::class)
 package de.egril.defender.audio
 
 import de.egril.defender.ui.settings.AppSettings
-import kotlinx.browser.document
-import org.w3c.dom.Audio
-import org.w3c.dom.events.Event
+import kotlinx.coroutines.*
+
+/**
+ * External JS functions for Audio API with background music support
+ */
+@JsFun("(src) => new Audio(src)")
+external fun createMusicAudio(src: String): JsAny
+
+@JsFun("(audio, loop) => audio.loop = loop")
+external fun setMusicAudioLoop(audio: JsAny, loop: Boolean)
+
+@JsFun("(audio, volume) => audio.volume = volume")
+external fun setMusicAudioVolume(audio: JsAny, volume: Double)
+
+@JsFun("(audio) => audio.play()")
+external fun playMusicAudio(audio: JsAny)
+
+@JsFun("(audio) => audio.pause()")
+external fun pauseMusicAudio(audio: JsAny)
+
+@JsFun("(audio, time) => audio.currentTime = time")
+external fun setMusicAudioCurrentTime(audio: JsAny, time: Double)
 
 /**
  * WASM/JS implementation of background music manager
- * Uses HTML5 Audio API for music playback
+ * Uses HTML5 Audio API for music playback with external JS functions
  */
 class WasmBackgroundMusicManager : BackgroundMusicManager {
     private var enabled = true
     private var volume = 1.0f
     private var currentMusic: BackgroundMusic? = null
-    private var audioElement: Audio? = null
+    private var audioElement: JsAny? = null
     private var playing = false
     
     override fun initialize() {
@@ -37,34 +57,19 @@ class WasmBackgroundMusicManager : BackgroundMusicManager {
                     BackgroundMusic.GAMEPLAY_LOW_HEALTH -> "2017-06-16_-_The_Dark_Castle_-_David_Fesliyan.mp3"
                 }
                 
-                val audio = Audio("files/sounds/background/$fileName")
+                val audio = createMusicAudio("files/sounds/background/$fileName")
                 audioElement = audio
                 
                 // Set loop mode
-                audio.loop = loop
+                setMusicAudioLoop(audio, loop)
                 
-                // Set volume (master * music * track-specific)
-                val effectiveVolume = (AppSettings.soundVolume.value * this.volume * volume).coerceIn(0.0, 1.0)
-                audio.volume = effectiveVolume
-                
-                // Set event listeners
-                audio.onplay = { _: Event ->
-                    playing = true
-                }
-                
-                audio.onended = { _: Event ->
-                    if (!loop) {
-                        playing = false
-                    }
-                }
-                
-                audio.onerror = { _: Event ->
-                    println("Error loading background music: $fileName")
-                    playing = false
-                }
+                // Set volume (master * music * track-specific) - convert to Double for JS
+                val effectiveVolume = (AppSettings.soundVolume.value.toDouble() * this.volume.toDouble() * volume.toDouble()).coerceIn(0.0, 1.0)
+                setMusicAudioVolume(audio, effectiveVolume)
                 
                 // Play audio
-                audio.play()
+                playMusicAudio(audio)
+                playing = true
             } catch (e: Exception) {
                 println("Could not play background music: ${music.name} - ${e.message}")
                 e.printStackTrace()
@@ -74,8 +79,12 @@ class WasmBackgroundMusicManager : BackgroundMusicManager {
     
     override fun stopMusic() {
         audioElement?.let { audio ->
-            audio.pause()
-            audio.currentTime = 0.0
+            try {
+                pauseMusicAudio(audio)
+                setMusicAudioCurrentTime(audio, 0.0)
+            } catch (e: Exception) {
+                // Ignore
+            }
             audioElement = null
         }
         playing = false
@@ -84,16 +93,24 @@ class WasmBackgroundMusicManager : BackgroundMusicManager {
     
     override fun pauseMusic() {
         audioElement?.let { audio ->
-            audio.pause()
-            playing = false
+            try {
+                pauseMusicAudio(audio)
+                playing = false
+            } catch (e: Exception) {
+                // Ignore
+            }
         }
     }
     
     override fun resumeMusic() {
         audioElement?.let { audio ->
             if (enabled && AppSettings.isSoundEnabled.value && AppSettings.isMusicEnabled.value) {
-                audio.play()
-                playing = true
+                try {
+                    playMusicAudio(audio)
+                    playing = true
+                } catch (e: Exception) {
+                    // Ignore
+                }
             }
         }
     }
@@ -102,10 +119,14 @@ class WasmBackgroundMusicManager : BackgroundMusicManager {
         this.volume = volume.coerceIn(0f, 1f)
         AppSettings.saveMusicVolume(this.volume)
         
-        // Update volume of currently playing music
+        // Update volume of currently playing music - convert to Double for JS
         audioElement?.let { audio ->
-            val effectiveVolume = (AppSettings.soundVolume.value * this.volume).coerceIn(0.0, 1.0)
-            audio.volume = effectiveVolume
+            try {
+                val effectiveVolume = (AppSettings.soundVolume.value.toDouble() * this.volume.toDouble()).coerceIn(0.0, 1.0)
+                setMusicAudioVolume(audio, effectiveVolume)
+            } catch (e: Exception) {
+                // Ignore
+            }
         }
     }
     
