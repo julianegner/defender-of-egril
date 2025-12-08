@@ -386,22 +386,55 @@ private fun CollapsedMapEditorHeader(
             text = {
                 Column {
                     Text("Flow Direction:", style = MaterialTheme.typography.bodyMedium)
-                    LazyRow(
+                    
+                    // Display flow directions in 2 rows (4 items per row)
+                    val flows = de.egril.defender.model.RiverFlow.entries
+                    val firstRowFlows = flows.take(4)
+                    val secondRowFlows = flows.drop(4)
+                    
+                    Column(
                         modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
-                        items(de.egril.defender.model.RiverFlow.entries) { flow ->
-                            Button(
-                                onClick = { onRiverFlowChange(flow) },
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = if (selectedRiverFlow == flow) 
-                                        MaterialTheme.colorScheme.primary 
-                                    else 
-                                        MaterialTheme.colorScheme.secondary
-                                ),
-                                modifier = Modifier.height(32.dp)
-                            ) {
-                                Text(flow.name.replace("_", " "), fontSize = 10.sp)
+                        // First row
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            firstRowFlows.forEach { flow ->
+                                Button(
+                                    onClick = { onRiverFlowChange(flow) },
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = if (selectedRiverFlow == flow) 
+                                            MaterialTheme.colorScheme.primary 
+                                        else 
+                                            MaterialTheme.colorScheme.secondary
+                                    ),
+                                    modifier = Modifier.height(32.dp).weight(1f)
+                                ) {
+                                    Text(flow.name.replace("_", " "), fontSize = 10.sp)
+                                }
+                            }
+                        }
+                        
+                        // Second row
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            secondRowFlows.forEach { flow ->
+                                Button(
+                                    onClick = { onRiverFlowChange(flow) },
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = if (selectedRiverFlow == flow) 
+                                            MaterialTheme.colorScheme.primary 
+                                        else 
+                                            MaterialTheme.colorScheme.secondary
+                                    ),
+                                    modifier = Modifier.height(32.dp).weight(1f)
+                                ) {
+                                    Text(flow.name.replace("_", " "), fontSize = 10.sp)
+                                }
                             }
                         }
                     }
