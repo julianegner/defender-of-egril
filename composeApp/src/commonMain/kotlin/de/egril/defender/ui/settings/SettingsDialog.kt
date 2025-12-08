@@ -141,6 +141,9 @@ fun SettingsDialog(
                                     value = AppSettings.soundVolume.value,
                                     onValueChange = { volume ->
                                         AppSettings.saveSoundVolume(volume)
+                                        // Update background music volume based on new master volume
+                                        val musicVol = AppSettings.musicVolume.value
+                                        de.egril.defender.audio.GlobalBackgroundMusicManager.setVolume(musicVol)
                                     },
                                     modifier = Modifier.weight(1f),
                                     valueRange = 0f..1f
