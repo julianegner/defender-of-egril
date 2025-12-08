@@ -4,12 +4,9 @@ import de.egril.defender.ui.settings.AppSettings
 import defender_of_egril.composeapp.generated.resources.Res
 import javazoom.jl.decoder.JavaLayerException
 import javazoom.jl.player.advanced.AdvancedPlayer
-import javazoom.jl.player.advanced.PlaybackEvent
-import javazoom.jl.player.advanced.PlaybackListener
 import kotlinx.coroutines.*
 import java.io.BufferedInputStream
 import java.io.ByteArrayInputStream
-import javax.sound.sampled.*
 
 /**
  * Desktop implementation of background music manager
@@ -22,6 +19,10 @@ class DesktopBackgroundMusicManager : BackgroundMusicManager {
     internal var musicPlayer: MusicPlayer? = null
     private var playing = false
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+    
+    // Store current music data for volume changes and re-enabling
+    private var currentMusicBytes: ByteArray? = null
+    private var currentLoop: Boolean = false
     
     override fun initialize() {
         enabled = AppSettings.isMusicEnabled.value
@@ -39,6 +40,7 @@ class DesktopBackgroundMusicManager : BackgroundMusicManager {
         if (currentMusic != music) {
             stopMusic()
             currentMusic = music
+            currentLoop = loop
             
             scope.launch {
                 try {
@@ -58,17 +60,8 @@ class DesktopBackgroundMusicManager : BackgroundMusicManager {
                         return@launch
                     }
                     
-                    // Calculate effective volume (master * music * 0.3 multiplier)
-                    // Note: Ignore the 'volume' parameter and use settings instead for consistency
-                    val effectiveVolume = (AppSettings.soundVolume.value * this@DesktopBackgroundMusicManager.volume * 0.3f).coerceIn(0f, 1f)
-                    
-                    println("Starting background music: ${music.name}, effectiveVolume=$effectiveVolume (master=${AppSettings.soundVolume.value}, music=${this@DesktopBackgroundMusicManager.volume})")
-                    
-                    // Create and start music player
-                    val player = Mp3MusicPlayer(bytes, effectiveVolume, loop, this@DesktopBackgroundMusicManager)
-                    musicPlayer = player
-                    player.start()
-                    playing = true
+                    currentMusicBytes = bytes
+                    startPlayback()
                 } catch (e: Exception) {
                     println("Could not play background music: ${music.name} - ${e.message}")
                     e.printStackTrace()
@@ -77,11 +70,34 @@ class DesktopBackgroundMusicManager : BackgroundMusicManager {
         }
     }
     
+    private fun startPlayback() {
+        val bytes = currentMusicBytes ?: return
+        val music = currentMusic ?: return
+        
+        // Stop any existing playback
+        musicPlayer?.stop()
+        
+        // Get track-specific relative volume
+        val trackVolume = BackgroundMusicSettings.getRelativeVolume(music)
+        
+        // Calculate effective volume (master * music * track * 0.3 multiplier)
+        val effectiveVolume = (AppSettings.soundVolume.value * this.volume * trackVolume * 0.3f).coerceIn(0f, 1f)
+        
+        println("Starting background music: ${music.name}, effectiveVolume=$effectiveVolume (master=${AppSettings.soundVolume.value}, music=${this.volume}, track=$trackVolume)")
+        
+        // Create and start music player
+        val player = Mp3MusicPlayer(bytes, effectiveVolume, currentLoop, this)
+        musicPlayer = player
+        player.start()
+        playing = true
+    }
+    
     override fun stopMusic() {
         musicPlayer?.stop()
         musicPlayer = null
         playing = false
         currentMusic = null
+        currentMusicBytes = null
     }
     
     override fun pauseMusic() {
@@ -100,11 +116,12 @@ class DesktopBackgroundMusicManager : BackgroundMusicManager {
         this.volume = volume.coerceIn(0f, 1f)
         AppSettings.saveMusicVolume(this.volume)
         
-        // Update volume of currently playing music
-        // Apply additional 0.3 multiplier to make music quieter relative to effects
-        val effectiveVolume = (AppSettings.soundVolume.value * this.volume * 0.3f).coerceIn(0f, 1f)
-        println("Background music setVolume called: volume=$volume, effectiveVolume=$effectiveVolume")
-        musicPlayer?.setVolume(effectiveVolume)
+        println("Background music setVolume called: volume=$volume")
+        
+        // Restart playback with new volume if music is currently playing
+        if (playing && currentMusicBytes != null) {
+            startPlayback()
+        }
     }
     
     override fun setEnabled(enabled: Boolean) {
@@ -113,8 +130,9 @@ class DesktopBackgroundMusicManager : BackgroundMusicManager {
         
         if (!enabled || !AppSettings.isSoundEnabled.value) {
             stopMusic()
-        } else {
-            resumeMusic()
+        } else if (currentMusicBytes != null && currentMusic != null) {
+            // Restart playback when re-enabled
+            startPlayback()
         }
     }
     
@@ -157,7 +175,6 @@ private class Mp3MusicPlayer(
     private var playbackThread: Thread? = null
     @Volatile private var shouldStop = false
     @Volatile private var isPaused = false
-    private var sourceDataLine: SourceDataLine? = null
     @Volatile private var currentVolume: Float = volume
     
     override fun start() {
@@ -174,34 +191,7 @@ private class Mp3MusicPlayer(
                     val inputStream = BufferedInputStream(ByteArrayInputStream(audioData))
                     player = AdvancedPlayer(inputStream)
                     
-                    // Set up playback listener to handle volume control via SourceDataLine
-                    player?.setPlayBackListener(object : PlaybackListener() {
-                        override fun playbackStarted(evt: PlaybackEvent?) {
-                            super.playbackStarted(evt)
-                            // Get the SourceDataLine from the player's audio device
-                            try {
-                                val device = player?.javaClass?.getDeclaredField("audio")?.apply {
-                                    isAccessible = true
-                                }?.get(player)
-                                
-                                val line = device?.javaClass?.getDeclaredField("source")?.apply {
-                                    isAccessible = true
-                                }?.get(device) as? SourceDataLine
-                                
-                                sourceDataLine = line
-                                
-                                // Flush any initial buffer to reduce startup noise
-                                line?.flush()
-                                
-                                // Set initial volume
-                                updateVolume()
-                            } catch (e: Exception) {
-                                // If we can't access the line, volume control won't work but playback will
-                                println("Could not access SourceDataLine for volume control: ${e.message}")
-                            }
-                        }
-                    })
-                    
+                    // Play the audio
                     player?.play()
                     
                     // Check again before looping
@@ -218,9 +208,6 @@ private class Mp3MusicPlayer(
             } catch (e: Exception) {
                 println("Unexpected error in MP3 playback: ${e.message}")
                 e.printStackTrace()
-            } finally {
-                sourceDataLine?.close()
-                sourceDataLine = null
             }
         }.apply {
             isDaemon = true
@@ -238,8 +225,6 @@ private class Mp3MusicPlayer(
         } catch (e: InterruptedException) {
             // Ignore
         }
-        sourceDataLine?.close()
-        sourceDataLine = null
     }
     
     override fun pause() {
@@ -258,35 +243,9 @@ private class Mp3MusicPlayer(
     }
     
     override fun setVolume(volume: Float) {
+        // Volume changes are handled by restarting playback in the manager
+        // This method is kept for interface compatibility
         this.currentVolume = volume.coerceIn(0f, 1f)
-        updateVolume()
-    }
-    
-    private fun updateVolume() {
-        sourceDataLine?.let { line ->
-            try {
-                if (line.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
-                    val gainControl = line.getControl(FloatControl.Type.MASTER_GAIN) as FloatControl
-                    
-                    // Convert linear volume (0.0 to 1.0) to decibels
-                    // Use logarithmic scale: gain_db = 20 * log10(volume)
-                    // But clamp to the control's min/max range
-                    val gain = if (currentVolume > 0f) {
-                        val db = (20.0 * kotlin.math.ln(currentVolume.toDouble()) / kotlin.math.ln(10.0)).toFloat()
-                        db.coerceIn(gainControl.minimum, gainControl.maximum)
-                    } else {
-                        gainControl.minimum // Mute
-                    }
-                    
-                    gainControl.value = gain
-                    println("Background music volume updated: linear=$currentVolume, gain_db=$gain")
-                } else {
-                    println("MASTER_GAIN control not supported for background music")
-                }
-            } catch (e: Exception) {
-                println("Failed to update background music volume: ${e.message}")
-            }
-        } ?: println("SourceDataLine not available for volume control")
     }
 }
 
