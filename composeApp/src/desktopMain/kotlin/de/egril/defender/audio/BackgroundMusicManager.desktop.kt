@@ -2,15 +2,17 @@ package de.egril.defender.audio
 
 import de.egril.defender.ui.settings.AppSettings
 import defender_of_egril.composeapp.generated.resources.Res
-import javazoom.jl.decoder.JavaLayerException
-import javazoom.jl.player.advanced.AdvancedPlayer
+import javazoom.jl.decoder.Bitstream
+import javazoom.jl.decoder.Decoder
+import javazoom.jl.decoder.Header
+import javazoom.jl.decoder.SampleBuffer
 import kotlinx.coroutines.*
-import java.io.BufferedInputStream
 import java.io.ByteArrayInputStream
+import javax.sound.sampled.*
 
 /**
  * Desktop implementation of background music manager
- * Uses JLayer for MP3 playback and javax.sound.sampled for WAV
+ * Uses JLayer for MP3 decoding and javax.sound.sampled for playback with volume control
  */
 class DesktopBackgroundMusicManager : BackgroundMusicManager {
     internal var enabled = true
@@ -118,10 +120,8 @@ class DesktopBackgroundMusicManager : BackgroundMusicManager {
         
         println("Background music setVolume called: volume=$volume")
         
-        // Restart playback with new volume if music is currently playing
-        if (playing && currentMusicBytes != null) {
-            startPlayback()
-        }
+        // Update volume of currently playing music directly
+        musicPlayer?.setVolume(this.volume)
     }
     
     override fun setEnabled(enabled: Boolean) {
@@ -151,7 +151,14 @@ class DesktopBackgroundMusicManager : BackgroundMusicManager {
 }
 
 /**
- * Interface for music player implementations
+ * Desktop platform implementation to create background music manager
+ */
+actual fun createBackgroundMusicManager(): BackgroundMusicManager {
+    return DesktopBackgroundMusicManager()
+}
+
+/**
+ * Music player interface
  */
 internal interface MusicPlayer {
     fun start()
@@ -162,96 +169,184 @@ internal interface MusicPlayer {
 }
 
 /**
- * MP3 music player using JLayer
+ * MP3 music player using JLayer for decoding and Clip for playback with proper volume control
  */
 private class Mp3MusicPlayer(
-    private val audioData: ByteArray,
+    private val mp3Data: ByteArray,
     private var volume: Float,
     private val loop: Boolean,
     private val manager: DesktopBackgroundMusicManager
 ) : MusicPlayer {
     
-    private var player: AdvancedPlayer? = null
+    private var clip: Clip? = null
     private var playbackThread: Thread? = null
     @Volatile private var shouldStop = false
     @Volatile private var isPaused = false
-    @Volatile private var currentVolume: Float = volume
     
     override fun start() {
         shouldStop = false
         isPaused = false
+        
         playbackThread = Thread {
             try {
-                do {
-                    // Check if we should stop or if music is disabled
-                    if (shouldStop || !manager.enabled || !AppSettings.isSoundEnabled.value || !AppSettings.isMusicEnabled.value) {
+                // Decode MP3 to PCM
+                val pcmData = decodeMp3ToPcm(mp3Data)
+                
+                if (shouldStop) return@Thread
+                
+                // Get audio format from decoded data
+                val format = pcmData.format
+                
+                // Create and open clip
+                val audioClip = AudioSystem.getClip()
+                clip = audioClip
+                
+                audioClip.open(format, pcmData.data, 0, pcmData.data.size)
+                
+                // Set volume
+                updateVolume(audioClip, volume)
+                
+                // Set looping
+                if (loop) {
+                    audioClip.loop(Clip.LOOP_CONTINUOUSLY)
+                } else {
+                    audioClip.start()
+                }
+                
+                // Keep thread alive while playing
+                while (!shouldStop && manager.enabled && AppSettings.isSoundEnabled.value && AppSettings.isMusicEnabled.value) {
+                    if (audioClip.isRunning) {
+                        Thread.sleep(100)
+                    } else if (!loop) {
                         break
                     }
-                    
-                    val inputStream = BufferedInputStream(ByteArrayInputStream(audioData))
-                    player = AdvancedPlayer(inputStream)
-                    
-                    // Play the audio
-                    player?.play()
-                    
-                    // Check again before looping
-                    if (loop && !shouldStop && manager.enabled && AppSettings.isSoundEnabled.value && AppSettings.isMusicEnabled.value) {
-                        Thread.sleep(100)
-                    }
-                } while (loop && !shouldStop && manager.enabled && AppSettings.isSoundEnabled.value && AppSettings.isMusicEnabled.value)
-            } catch (e: JavaLayerException) {
-                if (!shouldStop) {
-                    println("Error playing MP3: ${e.message}")
                 }
-            } catch (e: InterruptedException) {
-                // Thread interrupted, stop playback
+                
             } catch (e: Exception) {
-                println("Unexpected error in MP3 playback: ${e.message}")
-                e.printStackTrace()
+                if (!shouldStop) {
+                    println("Error in MP3 playback: ${e.message}")
+                    e.printStackTrace()
+                }
+            } finally {
+                clip?.stop()
+                clip?.close()
             }
         }.apply {
             isDaemon = true
-            name = "MP3-Playback-Thread"
+            name = "MP3-Music-Playback"
             start()
+        }
+    }
+    
+    private data class PcmData(val data: ByteArray, val format: AudioFormat)
+    
+    private fun decodeMp3ToPcm(mp3Bytes: ByteArray): PcmData {
+        val bitstream = Bitstream(ByteArrayInputStream(mp3Bytes))
+        val decoder = Decoder()
+        val pcmBuffer = mutableListOf<Short>()
+        var audioFormat: AudioFormat? = null
+        
+        try {
+            var header: Header? = bitstream.readFrame()
+            
+            while (header != null && !shouldStop) {
+                val sampleBuffer = decoder.decodeFrame(header, bitstream) as SampleBuffer
+                
+                // Create audio format from first frame
+                if (audioFormat == null) {
+                    audioFormat = AudioFormat(
+                        sampleBuffer.sampleFrequency.toFloat(),
+                        16, // 16-bit
+                        sampleBuffer.channelCount,
+                        true, // signed
+                        false // little-endian
+                    )
+                }
+                
+                // Add samples to buffer
+                val buffer = sampleBuffer.buffer
+                val length = sampleBuffer.bufferLength
+                for (i in 0 until length) {
+                    pcmBuffer.add(buffer[i])
+                }
+                
+                bitstream.closeFrame()
+                header = bitstream.readFrame()
+            }
+        } finally {
+            bitstream.close()
+        }
+        
+        if (audioFormat == null) {
+            throw IllegalStateException("Could not decode MP3 - no frames found")
+        }
+        
+        // Convert shorts to bytes
+        val byteArray = ByteArray(pcmBuffer.size * 2)
+        for (i in pcmBuffer.indices) {
+            val sample = pcmBuffer[i]
+            byteArray[i * 2] = (sample.toInt() and 0xFF).toByte()
+            byteArray[i * 2 + 1] = ((sample.toInt() shr 8) and 0xFF).toByte()
+        }
+        
+        return PcmData(byteArray, audioFormat)
+    }
+    
+    private fun updateVolume(audioClip: Clip, vol: Float) {
+        try {
+            // Calculate effective volume including track-specific volume
+            val music = manager.getCurrentMusic()
+            val trackVolume = if (music != null) BackgroundMusicSettings.getRelativeVolume(music) else 1.0f
+            val effectiveVolume = (AppSettings.soundVolume.value * vol * trackVolume * 0.3f).coerceIn(0f, 1f)
+            
+            if (audioClip.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
+                val gainControl = audioClip.getControl(FloatControl.Type.MASTER_GAIN) as FloatControl
+                
+                // Convert linear volume to decibels
+                // Minimum volume should mute, not just reduce
+                val gain = if (effectiveVolume <= 0.001f) {
+                    gainControl.minimum
+                } else {
+                    val db = (20.0 * kotlin.math.ln(effectiveVolume.toDouble()) / kotlin.math.ln(10.0)).toFloat()
+                    db.coerceIn(gainControl.minimum, gainControl.maximum)
+                }
+                
+                gainControl.value = gain
+                println("Set music gain to $gain dB (effectiveVolume=$effectiveVolume, vol=$vol, track=$trackVolume, min=${gainControl.minimum}, max=${gainControl.maximum})")
+            } else {
+                println("MASTER_GAIN control not supported for music")
+            }
+        } catch (e: Exception) {
+            println("Failed to set music volume: ${e.message}")
         }
     }
     
     override fun stop() {
         shouldStop = true
-        player?.close()
+        clip?.stop()
+        clip?.close()
         playbackThread?.interrupt()
         try {
-            playbackThread?.join(500) // Wait up to 500ms for thread to finish
+            playbackThread?.join(500)
         } catch (e: InterruptedException) {
             // Ignore
         }
     }
     
     override fun pause() {
+        clip?.stop()
         isPaused = true
-        shouldStop = true
-        player?.close()
     }
     
     override fun resume() {
         if (isPaused && manager.enabled && AppSettings.isSoundEnabled.value && AppSettings.isMusicEnabled.value) {
+            clip?.start()
             isPaused = false
-            // For simplicity, restart playback
-            // A more sophisticated implementation would track position
-            start()
         }
     }
     
     override fun setVolume(volume: Float) {
-        // Volume changes are handled by restarting playback in the manager
-        // This method is kept for interface compatibility
-        this.currentVolume = volume.coerceIn(0f, 1f)
+        this.volume = volume.coerceIn(0f, 1f)
+        clip?.let { updateVolume(it, this.volume) }
     }
-}
-
-/**
- * Desktop platform implementation to create background music manager
- */
-actual fun createBackgroundMusicManager(): BackgroundMusicManager {
-    return DesktopBackgroundMusicManager()
 }
