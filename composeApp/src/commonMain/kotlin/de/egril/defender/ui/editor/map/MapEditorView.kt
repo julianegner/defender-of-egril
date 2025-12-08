@@ -53,6 +53,7 @@ fun MapEditorView(
     var offsetX by remember { mutableStateOf(0f) }
     var offsetY by remember { mutableStateOf(0f) }
     var lastPaintedPos by remember { mutableStateOf<Position?>(null) }
+    var isHeaderExpanded by remember { mutableStateOf(true) }
     
     // Track container and content sizes for constraint calculation
     var containerSize by remember { mutableStateOf(IntSize.Zero) }
@@ -65,6 +66,9 @@ fun MapEditorView(
     
     // Hexagon dimensions - using same constants as game (40.dp)
     val hexSize = 40.dp
+    
+    // Calculate header height based on expanded/collapsed state
+    val headerHeight = if (isHeaderExpanded) 280.dp else 56.dp
 
     // Brush paint callback - called when user drags in brush mode
     val onBrushPaint: (position: Position) -> Unit = { position ->
@@ -104,8 +108,8 @@ fun MapEditorView(
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-            // Spacer to account for header height
-            Spacer(modifier = Modifier.height(280.dp))
+            // Spacer to account for header height (dynamic based on expanded/collapsed state)
+            Spacer(modifier = Modifier.height(headerHeight))
 
             val hexSizePx = with(LocalDensity.current) { hexSize.toPx() }
             Box(
@@ -357,7 +361,9 @@ fun MapEditorView(
             zoomLevel = zoomLevel,
             onZoomIn = { zoomLevel = minOf(3.0f, zoomLevel + 0.1f) },
             onZoomOut = { zoomLevel = maxOf(0.5f, zoomLevel - 0.1f) },
-            onChangeAllNoPlayToPath = { showChangeAllDialog = true }
+            onChangeAllNoPlayToPath = { showChangeAllDialog = true },
+            isExpanded = isHeaderExpanded,
+            onToggleExpanded = { isHeaderExpanded = !isHeaderExpanded }
         )
     }
     
