@@ -313,6 +313,7 @@
     <string name="size">Größe</string>
     <string name="select_tile_type">Kacheltyp wählen:</string>
     <string name="click_hexagons_to_paint">Klicken oder ziehen, um Sechsecke zu malen. Strg+Mausrad zum Zoomen:</string>
+    <string name="collapse">Einklappen</string>
     <string name="change_all_no_play_to_path">Alle NO_PLAY in PATH umwandeln</string>
     <string name="change_all_no_play_confirm_title">Alle NO_PLAY in PATH umwandeln?</string>
     <string name="change_all_no_play_confirm_message">Dies ersetzt alle NO_PLAY-Kacheln durch PATH-Kacheln. Sind Sie sicher?</string>

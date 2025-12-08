@@ -19,6 +19,8 @@ import de.egril.defender.editor.EditorMap
 import de.egril.defender.editor.TileType
 import de.egril.defender.ui.icon.MagnifyingGlassIcon
 import de.egril.defender.ui.editor.TileTypeButton
+import de.egril.defender.ui.editor.getTileColor
+import de.egril.defender.ui.editor.RiverFlowIndicator
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
 
@@ -125,7 +127,7 @@ private fun ExpandedMapEditorHeader(
                         horizontalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         de.egril.defender.ui.icon.TriangleUpIcon(size = 12.dp)
-                        Text("Collapse", fontSize = 12.sp)
+                        Text(stringResource(Res.string.collapse), fontSize = 12.sp)
                     }
                 }
             }
@@ -270,6 +272,7 @@ private fun CollapsedMapEditorHeader(
     onExpand: () -> Unit
 ) {
     var showRiverPropertiesDialog by remember { mutableStateOf(false) }
+    var expanded by remember { mutableStateOf(false) }
     
     Card(
         modifier = Modifier
@@ -285,22 +288,73 @@ private fun CollapsedMapEditorHeader(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Tile type dropdown
-            var expanded by remember { mutableStateOf(false) }
+            // Tile type dropdown - styled to look like a dropdown
             Box(modifier = Modifier.weight(1f)) {
-                Button(
+                OutlinedButton(
                     onClick = { expanded = true },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        containerColor = getTileColor(selectedTileType).copy(alpha = 0.3f)
+                    )
                 ) {
-                    Text(selectedTileType.name, fontSize = 12.sp)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            // Color indicator box
+                            Box(
+                                modifier = Modifier
+                                    .size(16.dp)
+                                    .background(getTileColor(selectedTileType), shape = MaterialTheme.shapes.small)
+                            )
+                            // Tile type name
+                            Text(
+                                text = selectedTileType.name,
+                                fontSize = 11.sp,
+                                modifier = Modifier.weight(1f, fill = false)
+                            )
+                            // River flow indicator if it's a river tile
+                            if (selectedTileType == TileType.RIVER) {
+                                RiverFlowIndicator(
+                                    flowDirection = selectedRiverFlow,
+                                    flowSpeed = selectedRiverSpeed,
+                                    size = 14.dp
+                                )
+                            }
+                        }
+                        // Dropdown triangle
+                        de.egril.defender.ui.icon.TriangleDownIcon(size = 10.dp)
+                    }
                 }
+                
+                // Dropdown menu
                 DropdownMenu(
                     expanded = expanded,
                     onDismissRequest = { expanded = false }
                 ) {
                     TileType.entries.forEach { tileType ->
                         DropdownMenuItem(
-                            text = { Text(tileType.name) },
+                            text = {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    // Color indicator box
+                                    Box(
+                                        modifier = Modifier
+                                            .size(16.dp)
+                                            .background(getTileColor(tileType), shape = MaterialTheme.shapes.small)
+                                    )
+                                    // Tile type name
+                                    Text(tileType.name)
+                                }
+                            },
                             onClick = {
                                 onTileTypeChange(tileType)
                                 expanded = false
@@ -314,12 +368,12 @@ private fun CollapsedMapEditorHeader(
                 }
             }
             
-            // Expand button
-            Button(
+            // Expand button - just icon, no text
+            IconButton(
                 onClick = onExpand,
-                modifier = Modifier.height(32.dp).width(48.dp)
+                modifier = Modifier.size(32.dp)
             ) {
-                de.egril.defender.ui.icon.TriangleDownIcon(size = 12.dp)
+                de.egril.defender.ui.icon.LeftArrowIcon(size = 16.dp)
             }
         }
     }
