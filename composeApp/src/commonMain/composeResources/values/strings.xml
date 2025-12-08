@@ -422,6 +422,14 @@
     <string name="sound_enabled">Sound Enabled</string>
     <string name="sound_disabled">Sound Disabled</string>
     <string name="sound_volume">Sound Volume</string>
+    <string name="effect_sounds">Effect Sounds</string>
+    <string name="effects_enabled">Effects Enabled</string>
+    <string name="effects_disabled">Effects Disabled</string>
+    <string name="effects_volume">Effects Volume</string>
+    <string name="background_music">Background Music</string>
+    <string name="music_enabled">Music Enabled</string>
+    <string name="music_disabled">Music Disabled</string>
+    <string name="music_volume">Music Volume</string>
 
     <!-- Control Pad Settings -->
     <string name="controls">Controls</string>

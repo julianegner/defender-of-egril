@@ -422,6 +422,14 @@
     <string name="sound_enabled">Son activé</string>
     <string name="sound_disabled">Son désactivé</string>
     <string name="sound_volume">Volume du son</string>
+    <string name="effect_sounds">Effets sonores</string>
+    <string name="effects_enabled">Effets activés</string>
+    <string name="effects_disabled">Effets désactivés</string>
+    <string name="effects_volume">Volume des effets</string>
+    <string name="background_music">Musique de fond</string>
+    <string name="music_enabled">Musique activée</string>
+    <string name="music_disabled">Musique désactivée</string>
+    <string name="music_volume">Volume de la musique</string>
 
     <!-- Control Pad Settings -->
     <string name="controls">Contrôles</string>
