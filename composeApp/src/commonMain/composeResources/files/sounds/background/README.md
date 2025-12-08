@@ -31,59 +31,41 @@ Background music can be controlled through the game's Settings dialog:
 
 By default, background music is set to 50% volume (quieter than sound effects at 70%).
 
-## Audio Format Requirements
+# sound files and licenses
+## sounds from fesliyanstudios.com
 
-**Recommended Settings:**
-- **Format**: MP3 or WAV
-- **Sample Rate**: 44100 Hz
-- **Bit Depth**: 16-bit (for WAV)
-- **Channels**: Stereo
-- **Duration**: 2-5 minutes (for looping music)
-- **File Size**: Keep under 10 MB for reasonable loading times
+### Fantasy Ambience
+2021-02-23_-_Fantasy_Ambience_-_David_Fesliyan.mp3
+https://www.fesliyanstudios.com/royalty-free-music/download/fantasy-ambience/1702
 
-## Platform Support
+License Text from fesliyanstudios.com:
+Fantasy Ambience loop which can be used for video game menus and more. This piece of music is not subject to our regular policy. This loop is 100% copyright free and does not require any attribution. The only restriction is that it cannot be re-sold as audio and must be used in the context of a project such as a video game, film, etc...
 
-Background music is supported on all platforms:
-- **Desktop**: Uses javax.sound.sampled API
-- **Android**: Uses MediaPlayer API
-- **iOS**: Uses AVAudioPlayer
-- **Web/WASM**: Uses HTML5 Audio API
 
-## Music Attribution
+### The Dark Castle
+2017-06-16_-_The_Dark_Castle_-_David_Fesliyan.mp3
 
-When adding music files, please ensure proper attribution and licensing:
-- Include license information in this README
-- Ensure the license allows use in this open-source project
-- Provide attribution as required by the license
+license:
+https://www.fesliyanstudios.com/policy
 
-## Finding Free Music
+from fesliyanstudios.com:
+Can I use the music in my video game?
 
-### Free Music Resources
-1. **Pixabay Music** - https://pixabay.com/music/
-2. **Incompetech** - https://incompetech.com/music/royalty-free/music.html
-3. **Free Music Archive** - https://freemusicarchive.org/
-4. **OpenGameArt.org** - https://opengameart.org/
+Video game use is permitted. However, please note, if gaming videos containing our music are uploaded to youtube, the system may notify the uploader of a monetization restriction until they click the 'dispute button', and choose 'fair use' gameplay footage. 
 
-### Music Mentioned in Issue
-The files mentioned in the issue should be placed here:
-- `atmosphere-mystic-fantasy-orchestral-music-335263.mp3` (from Pixabay or similar)
-- `2021-02-23_-_Fantasy_Ambience_-_David_Fesliyan.mp3` (from David Fesliyan)
-- `2017-06-16_-_The_Dark_Castle_-_David_Fesliyan.mp3` (from David Fesliyan)
 
-## Testing
+## sounds from pixabay.com
 
-After adding music files:
-1. Run the game
-2. Navigate to Settings → Sound section
-3. Ensure "Overall Sound" and "Background Music" are enabled
-4. Go to the World Map - music should play automatically
-5. Start a level - gameplay music should play
-6. Adjust volume sliders to verify volume control works
-7. Toggle music on/off to verify enable/disable works
+### fantasy orchestral music
+atmosphere-mystic-fantasy-orchestral-music-335263.mp3
+https://pixabay.com/music/mystery-atmosphere-mystic-fantasy-orchestral-music-335263/
 
-## Fallback Behavior
+license:
+https://pixabay.com/service/license-summary/
 
-If music files are not found:
-- The game will print a warning to the console
-- No music will play, but the game will continue normally
-- Sound effects will still work independently
+Subject to the Prohibited Uses (see below), the Content License allows users to:
+✓	Use Content for free
+✓	Use Content without having to attribute the author (although giving credit is always appreciated by our community!)
+✓	Modify or adapt Content into new works
+
+
