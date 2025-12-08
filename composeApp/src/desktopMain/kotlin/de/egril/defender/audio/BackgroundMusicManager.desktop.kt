@@ -16,10 +16,10 @@ import javax.sound.sampled.*
  * Uses JLayer for MP3 playback and javax.sound.sampled for WAV
  */
 class DesktopBackgroundMusicManager : BackgroundMusicManager {
-    private var enabled = true
+    internal var enabled = true
     private var volume = 1.0f
     private var currentMusic: BackgroundMusic? = null
-    private var musicPlayer: MusicPlayer? = null
+    internal var musicPlayer: MusicPlayer? = null
     private var playing = false
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     
@@ -29,7 +29,11 @@ class DesktopBackgroundMusicManager : BackgroundMusicManager {
     }
     
     override fun playMusic(music: BackgroundMusic, loop: Boolean, volume: Float) {
-        if (!enabled || !AppSettings.isSoundEnabled.value || !AppSettings.isMusicEnabled.value) return
+        // Check if music should be playing
+        if (!enabled || !AppSettings.isSoundEnabled.value || !AppSettings.isMusicEnabled.value) {
+            stopMusic()
+            return
+        }
         
         // Stop current music if different from requested
         if (currentMusic != music) {
@@ -55,10 +59,11 @@ class DesktopBackgroundMusicManager : BackgroundMusicManager {
                     }
                     
                     // Calculate effective volume (master * music * track-specific)
-                    val effectiveVolume = (AppSettings.soundVolume.value * this@DesktopBackgroundMusicManager.volume * volume).coerceIn(0f, 1f)
+                    // Apply additional 0.3 multiplier to make music quieter relative to effects
+                    val effectiveVolume = (AppSettings.soundVolume.value * this@DesktopBackgroundMusicManager.volume * volume * 0.3f).coerceIn(0f, 1f)
                     
                     // Create and start music player
-                    val player = Mp3MusicPlayer(bytes, effectiveVolume, loop)
+                    val player = Mp3MusicPlayer(bytes, effectiveVolume, loop, this@DesktopBackgroundMusicManager)
                     musicPlayer = player
                     player.start()
                     playing = true
@@ -94,7 +99,8 @@ class DesktopBackgroundMusicManager : BackgroundMusicManager {
         AppSettings.saveMusicVolume(this.volume)
         
         // Update volume of currently playing music
-        val effectiveVolume = (AppSettings.soundVolume.value * this.volume).coerceIn(0f, 1f)
+        // Apply additional 0.3 multiplier to make music quieter relative to effects
+        val effectiveVolume = (AppSettings.soundVolume.value * this.volume * 0.3f).coerceIn(0f, 1f)
         musicPlayer?.setVolume(effectiveVolume)
     }
     
@@ -102,8 +108,8 @@ class DesktopBackgroundMusicManager : BackgroundMusicManager {
         this.enabled = enabled
         AppSettings.saveMusicEnabled(enabled)
         
-        if (!enabled) {
-            pauseMusic()
+        if (!enabled || !AppSettings.isSoundEnabled.value) {
+            stopMusic()
         } else {
             resumeMusic()
         }
@@ -126,7 +132,7 @@ class DesktopBackgroundMusicManager : BackgroundMusicManager {
 /**
  * Interface for music player implementations
  */
-private interface MusicPlayer {
+internal interface MusicPlayer {
     fun start()
     fun stop()
     fun pause()
@@ -140,7 +146,8 @@ private interface MusicPlayer {
 private class Mp3MusicPlayer(
     private val audioData: ByteArray,
     private var volume: Float,
-    private val loop: Boolean
+    private val loop: Boolean,
+    private val manager: DesktopBackgroundMusicManager
 ) : MusicPlayer {
     
     private var player: AdvancedPlayer? = null
@@ -148,6 +155,7 @@ private class Mp3MusicPlayer(
     @Volatile private var shouldStop = false
     @Volatile private var isPaused = false
     private var sourceDataLine: SourceDataLine? = null
+    @Volatile private var currentVolume: Float = volume
     
     override fun start() {
         shouldStop = false
@@ -155,7 +163,10 @@ private class Mp3MusicPlayer(
         playbackThread = Thread {
             try {
                 do {
-                    if (shouldStop) break
+                    // Check if we should stop or if music is disabled
+                    if (shouldStop || !manager.enabled || !AppSettings.isSoundEnabled.value || !AppSettings.isMusicEnabled.value) {
+                        break
+                    }
                     
                     val inputStream = BufferedInputStream(ByteArrayInputStream(audioData))
                     player = AdvancedPlayer(inputStream)
@@ -175,6 +186,11 @@ private class Mp3MusicPlayer(
                                 }?.get(device) as? SourceDataLine
                                 
                                 sourceDataLine = line
+                                
+                                // Flush any initial buffer to reduce startup noise
+                                line?.flush()
+                                
+                                // Set initial volume
                                 updateVolume()
                             } catch (e: Exception) {
                                 // If we can't access the line, volume control won't work but playback will
@@ -185,11 +201,11 @@ private class Mp3MusicPlayer(
                     
                     player?.play()
                     
-                    // Wait a bit before looping to avoid tight loop
-                    if (loop && !shouldStop) {
+                    // Check again before looping
+                    if (loop && !shouldStop && manager.enabled && AppSettings.isSoundEnabled.value && AppSettings.isMusicEnabled.value) {
                         Thread.sleep(100)
                     }
-                } while (loop && !shouldStop)
+                } while (loop && !shouldStop && manager.enabled && AppSettings.isSoundEnabled.value && AppSettings.isMusicEnabled.value)
             } catch (e: JavaLayerException) {
                 if (!shouldStop) {
                     println("Error playing MP3: ${e.message}")
@@ -199,6 +215,9 @@ private class Mp3MusicPlayer(
             } catch (e: Exception) {
                 println("Unexpected error in MP3 playback: ${e.message}")
                 e.printStackTrace()
+            } finally {
+                sourceDataLine?.close()
+                sourceDataLine = null
             }
         }.apply {
             isDaemon = true
@@ -211,17 +230,23 @@ private class Mp3MusicPlayer(
         shouldStop = true
         player?.close()
         playbackThread?.interrupt()
+        try {
+            playbackThread?.join(500) // Wait up to 500ms for thread to finish
+        } catch (e: InterruptedException) {
+            // Ignore
+        }
         sourceDataLine?.close()
         sourceDataLine = null
     }
     
     override fun pause() {
         isPaused = true
+        shouldStop = true
         player?.close()
     }
     
     override fun resume() {
-        if (isPaused) {
+        if (isPaused && manager.enabled && AppSettings.isSoundEnabled.value && AppSettings.isMusicEnabled.value) {
             isPaused = false
             // For simplicity, restart playback
             // A more sophisticated implementation would track position
@@ -230,7 +255,7 @@ private class Mp3MusicPlayer(
     }
     
     override fun setVolume(volume: Float) {
-        this.volume = volume.coerceIn(0f, 1f)
+        this.currentVolume = volume.coerceIn(0f, 1f)
         updateVolume()
     }
     
@@ -240,7 +265,7 @@ private class Mp3MusicPlayer(
                 if (line.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
                     val gainControl = line.getControl(FloatControl.Type.MASTER_GAIN) as FloatControl
                     val range = gainControl.maximum - gainControl.minimum
-                    val gain = gainControl.minimum + range * volume
+                    val gain = gainControl.minimum + range * currentVolume
                     gainControl.value = gain.coerceIn(gainControl.minimum, gainControl.maximum)
                 }
             } catch (e: Exception) {
