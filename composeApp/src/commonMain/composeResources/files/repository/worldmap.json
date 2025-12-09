@@ -83,6 +83,24 @@
       "name": "The Island",
       "position": {"x": 721, "y": 884},
       "levelIds": ["the_island"]
+    },
+    {
+      "id": "the_river",
+      "name": "The River",
+      "position": {"x": 320, "y": 547},
+      "levelIds": ["the_river"]
+    },
+    {
+      "id": "creek_valley",
+      "name": "Creek Valley",
+      "position": {"x": 422, "y": 530},
+      "levelIds": ["creek_valley"]
+    },
+    {
+      "id": "the_maelstrom",
+      "name": "The Maelstrom",
+      "position": {"x": 500, "y": 500},
+      "levelIds": ["maelstrom"]
     }
   ],
   "paths": [
