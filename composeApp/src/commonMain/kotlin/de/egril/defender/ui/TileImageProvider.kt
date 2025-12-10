@@ -9,23 +9,32 @@ import de.egril.defender.ui.settings.AppSettings
 import defender_of_egril.composeapp.generated.resources.Res
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.skia.Image
-import kotlin.random.Random
 
 /**
  * Provides tile background images based on tile type.
- * Loads random images from tile type folders when available,
+ * Loads images from tile type folders when available,
  * falls back to null if folder is empty or tile images are disabled.
+ * 
+ * Performance optimizations:
+ * - Uses single image per tile type (no randomization) for faster loading
+ * - Caches loaded ImageBitmaps to avoid repeated decoding
+ * - Uses lazy discovery with early exit on first found image
  */
 object TileImageProvider {
-    // Cache of available images per tile type to avoid repeated file system checks
-    private val imageCache = mutableMapOf<TileType, List<String>>()
+    // Cache of discovered filenames per tile type
+    private val filenameCache = mutableMapOf<TileType, String?>()
+    
+    // Cache of loaded ImageBitmaps to avoid repeated decoding
+    private val imageBitmapCache = mutableMapOf<String, ImageBitmap>()
     
     /**
-     * Attempts to load a random tile image for the given tile type.
+     * Attempts to load a tile image for the given tile type.
      * Returns null if:
      * - Tile images are disabled in settings
      * - No images are available for this tile type
      * - Loading fails
+     * 
+     * Uses a single image per tile type for optimal performance.
      */
     @Composable
     fun getTileImage(tileType: TileType): ImageBitmap? {
@@ -41,30 +50,34 @@ object TileImageProvider {
     }
     
     /**
-     * Loads a random tile image for the given type from files/tiles/{TileType}/
+     * Loads the tile image for the given type from files/tiles/{TileType}/
      * Returns null if no images are found or loading fails
      * 
-     * This function discovers available images by trying common filename patterns.
-     * When new images are added to the tile type folders, they will be automatically
-     * discovered if they follow common naming conventions.
+     * Uses the first discovered image for consistency and performance.
      */
     private fun loadTileImageForType(tileType: TileType): ImageBitmap? {
-        // Get or discover available images for this tile type
-        val availableImages = imageCache.getOrPut(tileType) {
-            discoverImagesForTileType(tileType)
+        // Get or discover the image filename for this tile type
+        val filename = filenameCache.getOrPut(tileType) {
+            discoverFirstImageForTileType(tileType)
         }
         
-        if (availableImages.isEmpty()) {
+        if (filename == null) {
             return null
         }
         
-        // Randomly select an image
-        val selectedImage = availableImages.random()
+        val folderName = tileType.name.lowercase()
+        val cacheKey = "files/tiles/$folderName/$filename"
         
+        // Check if we already have this image loaded
+        imageBitmapCache[cacheKey]?.let { return it }
+        
+        // Load and cache the image
         return try {
             runBlocking {
-                val bytes = Res.readBytes("files/tiles/${tileType.name.lowercase()}/$selectedImage")
-                Image.makeFromEncoded(bytes).toComposeImageBitmap()
+                val bytes = Res.readBytes(cacheKey)
+                val bitmap = Image.makeFromEncoded(bytes).toComposeImageBitmap()
+                imageBitmapCache[cacheKey] = bitmap
+                bitmap
             }
         } catch (e: Exception) {
             // Failed to load, return null
@@ -73,45 +86,46 @@ object TileImageProvider {
     }
     
     /**
-     * Discovers available images in a tile type folder by trying common filename patterns.
+     * Discovers the first available image in a tile type folder.
+     * Returns early on first match for performance.
      * This allows images to be added without code changes.
      */
-    private fun discoverImagesForTileType(tileType: TileType): List<String> {
-        val discovered = mutableListOf<String>()
+    private fun discoverFirstImageForTileType(tileType: TileType): String? {
         val folderName = tileType.name.lowercase()
         
-        // Try common naming patterns
+        // Try common naming patterns in order of likelihood
         val patterns = listOf(
-            // Pattern: name1.png, name2.png, etc.
-            listOf("grass", "dirt", "stone", "ground", "tile", "floor", "earth", "sand", "rock", "path", 
-                   "mountains", "mountain", "hills", "hill", "forest", "trees", "water", "snow"),
-            // Pattern: image1.png, image2.png, etc.
-            listOf("image", "bg", "background", "tex", "texture"),
-            // Pattern: 1.png, 2.png, etc.
-            listOf("")
+            // Most common patterns first
+            "grass", "mountains", "mountain", "dirt", "stone", "ground", 
+            "hills", "hill", "path", "tile", "floor", "earth", "sand", 
+            "rock", "forest", "trees", "water", "snow",
+            // Generic patterns
+            "image", "bg", "background", "tex", "texture",
+            // Numbered without prefix
+            ""
         )
         
-        // Try each pattern with numbers 1-20
-        for (pattern in patterns.flatten()) {
-            for (i in 1..20) {
+        // Try each pattern with numbers 1-10 (reduced from 20 for faster discovery)
+        for (pattern in patterns) {
+            for (i in 1..10) {
                 val filename = if (pattern.isEmpty()) "$i.png" else "$pattern$i.png"
                 if (tryLoadImage(folderName, filename)) {
-                    discovered.add(filename)
+                    return filename // Return immediately on first match
                 }
             }
         }
         
         // Also try pattern without numbers for single files
-        for (pattern in patterns.flatten()) {
+        for (pattern in patterns) {
             if (pattern.isNotEmpty()) {
                 val filename = "$pattern.png"
                 if (tryLoadImage(folderName, filename)) {
-                    discovered.add(filename)
+                    return filename
                 }
             }
         }
         
-        return discovered.distinct()
+        return null
     }
     
     /**
@@ -129,9 +143,10 @@ object TileImageProvider {
     }
     
     /**
-     * Clears the image cache. Call this if images are added/removed at runtime.
+     * Clears all caches. Call this if images are added/removed at runtime.
      */
     fun clearCache() {
-        imageCache.clear()
+        filenameCache.clear()
+        imageBitmapCache.clear()
     }
 }
