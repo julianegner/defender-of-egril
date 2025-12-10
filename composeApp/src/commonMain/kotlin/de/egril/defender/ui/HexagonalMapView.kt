@@ -344,6 +344,7 @@ fun BaseGridCell(
     borderWidth: androidx.compose.ui.unit.Dp,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    backgroundImage: androidx.compose.ui.graphics.ImageBitmap? = null,
     content: @Composable BoxScope.() -> Unit = { }
 ) {
     val sqrt3 = sqrt(3.0).toFloat()
@@ -361,6 +362,15 @@ fun BaseGridCell(
             .then(modifier),
         contentAlignment = Alignment.Center
     ) {
+        // Draw background image if provided, otherwise the background color will show
+        backgroundImage?.let { image ->
+            androidx.compose.foundation.Image(
+                bitmap = image,
+                contentDescription = null,
+                modifier = Modifier.matchParentSize(),
+                contentScale = androidx.compose.ui.layout.ContentScale.Crop
+            )
+        }
         content()
     }
 }

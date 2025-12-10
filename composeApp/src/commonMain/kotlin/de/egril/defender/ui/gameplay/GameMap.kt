@@ -272,6 +272,19 @@ fun GridCell(
     val isBuildArea = gameState.level.isBuildArea(position)
     val defender = gameState.defenders.find { it.position == position }
     val attacker = gameState.attackers.find { it.position.value == position && !it.isDefeated.value }
+    
+    // Determine the tile type for background image loading
+    val tileType = when {
+        isSpawnPoint -> de.egril.defender.editor.TileType.SPAWN_POINT
+        isTarget -> de.egril.defender.editor.TileType.TARGET
+        isOnPath -> de.egril.defender.editor.TileType.PATH
+        isBuildIsland -> de.egril.defender.editor.TileType.ISLAND
+        isBuildArea -> de.egril.defender.editor.TileType.BUILD_AREA
+        else -> de.egril.defender.editor.TileType.NO_PLAY
+    }
+    
+    // Get tile background image (will be null if images are disabled or not available)
+    val tileImage = TileImageProvider.getTileImage(tileType)
 
     // Check for field effects at this position
     val fieldEffect = gameState.fieldEffects.find { it.position == position }
@@ -373,6 +386,7 @@ fun GridCell(
         backgroundColor = backgroundColor,
         borderColor = borderColor,
         borderWidth = borderWidth,
+        backgroundImage = tileImage,
         onClick = onClick
     ) {
         when {
