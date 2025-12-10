@@ -3,8 +3,13 @@ package de.egril.defender.ui
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.toComposeImageBitmap
 import de.egril.defender.editor.TileType
 import de.egril.defender.ui.settings.AppSettings
+import defender_of_egril.composeapp.generated.resources.Res
+import kotlinx.coroutines.runBlocking
+import org.jetbrains.skia.Image
+import kotlin.random.Random
 
 /**
  * Provides tile background images based on tile type.
@@ -12,6 +17,8 @@ import de.egril.defender.ui.settings.AppSettings
  * falls back to null if folder is empty or tile images are disabled.
  */
 object TileImageProvider {
+    // Cache of available images per tile type to avoid repeated file system checks
+    private val imageCache = mutableMapOf<TileType, List<String>>()
     
     /**
      * Attempts to load a random tile image for the given tile type.
@@ -28,9 +35,6 @@ object TileImageProvider {
             return null
         }
         
-        // For now, return null since we don't have any images yet
-        // When images are added to files/tiles/{TileType}/ folders,
-        // this will load them randomly using platform-specific image loading
         return remember(tileType) {
             loadTileImageForType(tileType)
         }
@@ -40,19 +44,94 @@ object TileImageProvider {
      * Loads a random tile image for the given type from files/tiles/{TileType}/
      * Returns null if no images are found or loading fails
      * 
-     * Implementation note: This would require platform-specific code to:
-     * 1. List available files in the directory
-     * 2. Select a random file
-     * 3. Load it as an ImageBitmap
-     * 
-     * For now, returns null until images are added to the tile directories.
+     * This function discovers available images by trying common filename patterns.
+     * When new images are added to the tile type folders, they will be automatically
+     * discovered if they follow common naming conventions.
      */
     private fun loadTileImageForType(tileType: TileType): ImageBitmap? {
-        return null
+        // Get or discover available images for this tile type
+        val availableImages = imageCache.getOrPut(tileType) {
+            discoverImagesForTileType(tileType)
+        }
         
-        // Future implementation when images are added:
-        // - Use Res.readBytes("files/tiles/${tileType.name}/image.png")
-        // - Convert bytes to ImageBitmap using platform-specific code
-        // - Cache loaded images for performance
+        if (availableImages.isEmpty()) {
+            return null
+        }
+        
+        // Randomly select an image
+        val selectedImage = availableImages.random()
+        
+        return try {
+            runBlocking {
+                val bytes = Res.readBytes("files/tiles/${tileType.name.lowercase()}/$selectedImage")
+                Image.makeFromEncoded(bytes).toComposeImageBitmap()
+            }
+        } catch (e: Exception) {
+            // Failed to load, return null
+            null
+        }
+    }
+    
+    /**
+     * Discovers available images in a tile type folder by trying common filename patterns.
+     * This allows images to be added without code changes.
+     */
+    private fun discoverImagesForTileType(tileType: TileType): List<String> {
+        val discovered = mutableListOf<String>()
+        val folderName = tileType.name.lowercase()
+        
+        // Try common naming patterns
+        val patterns = listOf(
+            // Pattern: name1.png, name2.png, etc.
+            listOf("grass", "dirt", "stone", "ground", "tile", "floor", "earth", "sand", "rock", "path", 
+                   "mountains", "mountain", "hills", "hill", "forest", "trees", "water", "snow"),
+            // Pattern: image1.png, image2.png, etc.
+            listOf("image", "bg", "background", "tex", "texture"),
+            // Pattern: 1.png, 2.png, etc.
+            listOf("")
+        )
+        
+        // Try each pattern with numbers 1-20
+        for (pattern in patterns.flatten()) {
+            for (i in 1..20) {
+                val filename = if (pattern.isEmpty()) "$i.png" else "$pattern$i.png"
+                if (tryLoadImage(folderName, filename)) {
+                    discovered.add(filename)
+                }
+            }
+        }
+        
+        // Also try pattern without numbers for single files
+        for (pattern in patterns.flatten()) {
+            if (pattern.isNotEmpty()) {
+                val filename = "$pattern.png"
+                if (tryLoadImage(folderName, filename)) {
+                    discovered.add(filename)
+                }
+            }
+        }
+        
+        return discovered.distinct()
+    }
+    
+    /**
+     * Tries to load an image to check if it exists
+     */
+    private fun tryLoadImage(folder: String, filename: String): Boolean {
+        return try {
+            runBlocking {
+                Res.readBytes("files/tiles/$folder/$filename")
+            }
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
+    
+    /**
+     * Clears the image cache. Call this if images are added/removed at runtime.
+     */
+    fun clearCache() {
+        imageCache.clear()
     }
 }
