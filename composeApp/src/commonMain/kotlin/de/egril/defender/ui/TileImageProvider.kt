@@ -12,29 +12,22 @@ import org.jetbrains.skia.Image
 
 /**
  * Provides tile background images based on tile type.
- * Loads images from tile type folders when available,
- * falls back to null if folder is empty or tile images are disabled.
+ * Loads images from files/tiles/ folder when available,
+ * falls back to null if tile images are disabled or file not found.
  * 
- * Performance optimizations:
- * - Uses single image per tile type (no randomization) for faster loading
- * - Caches loaded ImageBitmaps to avoid repeated decoding
- * - Uses lazy discovery with early exit on first found image
+ * Uses a simple naming convention: files/tiles/{tiletype}.png
+ * where {tiletype} is the lowercase name of the TileType enum value.
  */
 object TileImageProvider {
-    // Cache of discovered filenames per tile type
-    private val filenameCache = mutableMapOf<TileType, String?>()
-    
     // Cache of loaded ImageBitmaps to avoid repeated decoding
-    private val imageBitmapCache = mutableMapOf<String, ImageBitmap>()
+    private val imageBitmapCache = mutableMapOf<TileType, ImageBitmap?>()
     
     /**
      * Attempts to load a tile image for the given tile type.
      * Returns null if:
      * - Tile images are disabled in settings
-     * - No images are available for this tile type
+     * - No image is available for this tile type
      * - Loading fails
-     * 
-     * Uses a single image per tile type for optimal performance.
      */
     @Composable
     fun getTileImage(tileType: TileType): ImageBitmap? {
@@ -50,103 +43,37 @@ object TileImageProvider {
     }
     
     /**
-     * Loads the tile image for the given type from files/tiles/{TileType}/
-     * Returns null if no images are found or loading fails
-     * 
-     * Uses the first discovered image for consistency and performance.
+     * Loads the tile image for the given type from files/tiles/{tiletype}.png
+     * Returns null if no image is found or loading fails
      */
     private fun loadTileImageForType(tileType: TileType): ImageBitmap? {
-        // Get or discover the image filename for this tile type
-        val filename = filenameCache.getOrPut(tileType) {
-            discoverFirstImageForTileType(tileType)
+        // Check cache first
+        if (imageBitmapCache.containsKey(tileType)) {
+            return imageBitmapCache[tileType]
         }
         
-        if (filename == null) {
-            return null
-        }
+        val filename = "${tileType.name.lowercase()}.png"
+        val path = "files/tiles/$filename"
         
-        val folderName = tileType.name.lowercase()
-        val cacheKey = "files/tiles/$folderName/$filename"
-        
-        // Check if we already have this image loaded
-        imageBitmapCache[cacheKey]?.let { return it }
-        
-        // Load and cache the image
-        return try {
+        // Try to load and cache the image
+        val bitmap = try {
             runBlocking {
-                val bytes = Res.readBytes(cacheKey)
-                val bitmap = Image.makeFromEncoded(bytes).toComposeImageBitmap()
-                imageBitmapCache[cacheKey] = bitmap
-                bitmap
+                val bytes = Res.readBytes(path)
+                Image.makeFromEncoded(bytes).toComposeImageBitmap()
             }
         } catch (e: Exception) {
-            // Failed to load, return null
+            // Failed to load, cache null to avoid repeated attempts
             null
         }
+        
+        imageBitmapCache[tileType] = bitmap
+        return bitmap
     }
     
     /**
-     * Discovers the first available image in a tile type folder.
-     * Returns early on first match for performance.
-     * This allows images to be added without code changes.
-     */
-    private fun discoverFirstImageForTileType(tileType: TileType): String? {
-        val folderName = tileType.name.lowercase()
-        
-        // Try common naming patterns in order of likelihood
-        val patterns = listOf(
-            // Most common patterns first
-            "grass", "mountains", "mountain", "dirt", "stone", "ground", 
-            "hills", "hill", "path", "tile", "floor", "earth", "sand", 
-            "rock", "forest", "trees", "water", "snow",
-            // Generic patterns
-            "image", "bg", "background", "tex", "texture",
-            // Numbered without prefix
-            ""
-        )
-        
-        // Try each pattern with numbers 1-10 (reduced from 20 for faster discovery)
-        for (pattern in patterns) {
-            for (i in 1..10) {
-                val filename = if (pattern.isEmpty()) "$i.png" else "$pattern$i.png"
-                if (tryLoadImage(folderName, filename)) {
-                    return filename // Return immediately on first match
-                }
-            }
-        }
-        
-        // Also try pattern without numbers for single files
-        for (pattern in patterns) {
-            if (pattern.isNotEmpty()) {
-                val filename = "$pattern.png"
-                if (tryLoadImage(folderName, filename)) {
-                    return filename
-                }
-            }
-        }
-        
-        return null
-    }
-    
-    /**
-     * Tries to load an image to check if it exists
-     */
-    private fun tryLoadImage(folder: String, filename: String): Boolean {
-        return try {
-            runBlocking {
-                Res.readBytes("files/tiles/$folder/$filename")
-            }
-            true
-        } catch (e: Exception) {
-            false
-        }
-    }
-    
-    /**
-     * Clears all caches. Call this if images are added/removed at runtime.
+     * Clears the image cache. Call this if images are added/removed at runtime.
      */
     fun clearCache() {
-        filenameCache.clear()
         imageBitmapCache.clear()
     }
 }
