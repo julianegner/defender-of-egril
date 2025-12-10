@@ -189,6 +189,8 @@ private fun InfoContent(infoType: InfoType, onDismiss: () -> Unit) {
         InfoType.ALCHEMY_FIRST_USE -> AlchemyFirstUseContent(onDismiss)
         InfoType.BALLISTA_FIRST_USE -> BallistaFirstUseContent(onDismiss)
         InfoType.MINE_FIRST_USE -> MineFirstUseContent(onDismiss)
+        InfoType.RIVER_INFO -> RiverInfoContent(onDismiss)
+        InfoType.MINE_ON_RIVER_WARNING -> MineOnRiverWarningContent(onDismiss)
         InfoType.NONE -> { /* No content to show */ }
     }
 }
@@ -575,6 +577,68 @@ private fun MineFirstUseContent(onDismiss: () -> Unit) {
     ) {
         Text(
             text = stringResource(Res.string.mine_first_use_message),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+    }
+}
+
+/**
+ * River mechanics info content shown when a level with rivers is started for the first time
+ */
+@Composable
+private fun RiverInfoContent(onDismiss: () -> Unit) {
+    ScrollableInfoCard(
+        title = {
+            Text(
+                text = stringResource(Res.string.river_info_title),
+                style = MaterialTheme.typography.titleMedium,
+                color = Color(0xFF2196F3)  // Blue color for water/river theme
+            )
+        },
+        buttonColor = Color(0xFF2196F3),  // Blue button
+        width = 400.dp,
+        onDismiss = onDismiss
+    ) {
+        Text(
+            text = stringResource(Res.string.river_info_placement),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Text(
+            text = stringResource(Res.string.river_info_movement),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Text(
+            text = stringResource(Res.string.river_info_destruction),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Text(
+            text = stringResource(Res.string.river_info_bridges),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+    }
+}
+
+@Composable
+private fun MineOnRiverWarningContent(onDismiss: () -> Unit) {
+    ScrollableInfoCard(
+        title = {
+            Text(
+                text = stringResource(Res.string.mine_on_river_warning_title),
+                style = MaterialTheme.typography.titleMedium,
+                color = Color(0xFFFF9800)  // Orange color for warning
+            )
+        },
+        buttonColor = Color(0xFFFF9800),  // Orange button
+        width = 350.dp,
+        onDismiss = onDismiss
+    ) {
+        Text(
+            text = stringResource(Res.string.mine_on_river_warning_message),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurface
         )

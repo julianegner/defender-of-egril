@@ -810,3 +810,179 @@ private fun EnemySpawnRow(
         }
     }
 }
+
+/**
+ * Dialog for bulk changing spawn points of all enemies
+ */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+fun ChangeAllSpawnPointsDialog(
+    enemySpawns: List<EditorEnemySpawn>,
+    map: EditorMap?,
+    onDismiss: () -> Unit,
+    onApply: (Map<Position, Position>) -> Unit
+) {
+    val mapSpawnPoints = remember(map) { map?.getSpawnPoints() ?: emptyList() }
+    
+    // Get all unique spawn points currently used by enemies
+    val usedSpawnPoints = remember(enemySpawns) {
+        enemySpawns.mapNotNull { it.spawnPoint }.distinct()
+    }
+    
+    // Create a mutable state map for spawn point remapping
+    val remappings = remember {
+        mutableStateMapOf<Position, Position>().apply {
+            // Initialize each used position to first available spawn point or itself
+            usedSpawnPoints.forEach { pos ->
+                put(pos, mapSpawnPoints.firstOrNull() ?: pos)
+            }
+        }
+    }
+    
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(Res.string.change_all_spawn_points_title)) },
+        text = {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                // Minimap at the top (non-scrolling)
+                if (map != null) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(150.dp)
+                            .background(Color(0xCC000000))
+                            .border(2.dp, Color.White)
+                            .padding(4.dp)
+                    ) {
+                        SpawnPointMinimap(
+                            map = map,
+                            selectedSpawnPoint = null
+                        )
+                    }
+                    
+                    HorizontalDivider()
+                }
+                
+                // Description
+                Text(
+                    text = stringResource(Res.string.change_all_spawn_points_description),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                
+                HorizontalDivider()
+                
+                // Count of affected enemies
+                val affectedCount = enemySpawns.count { spawn ->
+                    spawn.spawnPoint?.let { remappings[it] != it } ?: false
+                }
+                Text(
+                    text = stringResource(Res.string.enemies_affected_count, affectedCount),
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight = FontWeight.Bold
+                )
+                
+                HorizontalDivider()
+                
+                // Remapping table (scrollable)
+                LazyColumn(
+                    modifier = Modifier.fillMaxWidth().height(250.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(usedSpawnPoints) { fromPos ->
+                        Card(
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Column(
+                                modifier = Modifier.padding(12.dp),
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                // From position
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = stringResource(Res.string.from_spawn_point),
+                                        style = MaterialTheme.typography.labelMedium,
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                    Text(
+                                        text = "(${fromPos.x}, ${fromPos.y})",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                                
+                                // Count of enemies at this position
+                                val count = enemySpawns.count { it.spawnPoint == fromPos }
+                                Text(
+                                    text = stringResource(Res.string.enemies_affected_count, count),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = Color.Gray
+                                )
+                                
+                                // Arrow
+                                Text(
+                                    text = "↓",
+                                    style = MaterialTheme.typography.headlineSmall,
+                                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                                )
+                                
+                                // To position selector
+                                Column {
+                                    Text(
+                                        text = stringResource(Res.string.to_spawn_point),
+                                        style = MaterialTheme.typography.labelMedium
+                                    )
+                                    
+                                    FlowRow(
+                                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                                        modifier = Modifier.fillMaxWidth().padding(top = 4.dp)
+                                    ) {
+                                        mapSpawnPoints.forEach { toPos ->
+                                            FilterChip(
+                                                modifier = Modifier.height(32.dp),
+                                                selected = remappings[fromPos] == toPos,
+                                                onClick = { remappings[fromPos] = toPos },
+                                                label = {
+                                                    Text(
+                                                        text = "(${toPos.x},${toPos.y})",
+                                                        style = MaterialTheme.typography.bodySmall,
+                                                        fontWeight = if (remappings[fromPos] == toPos) FontWeight.Bold else FontWeight.Normal
+                                                    )
+                                                },
+                                                leadingIcon = if (remappings[fromPos] == toPos) {
+                                                    { Text("✓", fontSize = 14.sp) }
+                                                } else null
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    onApply(remappings.toMap())
+                },
+                enabled = mapSpawnPoints.isNotEmpty()
+            ) {
+                Text(stringResource(Res.string.apply_changes))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(Res.string.cancel))
+            }
+        }
+    )
+}
