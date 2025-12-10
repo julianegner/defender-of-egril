@@ -15,6 +15,8 @@ enum class InfoType {
     ALCHEMY_FIRST_USE,  // First time placing an alchemy tower
     BALLISTA_FIRST_USE, // First time placing a ballista tower
     MINE_FIRST_USE,     // First time placing a dwarven mine
+    RIVER_INFO,         // River, bridge, and raft mechanics explanation
+    MINE_ON_RIVER_WARNING, // Warning when trying to place mine on river
     NONE                // No info to show
 }
 

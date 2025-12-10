@@ -5,9 +5,11 @@ import de.egril.defender.model.*
 import kotlin.math.min
 
 /**
- * Handles special enemy abilities like summoning demons, healing, and disabling towers.
+ * Handles special enemy abilities like summoning demons, healing, disabling towers, and building bridges.
  */
 class EnemyAbilitySystem(private val state: GameState) {
+    
+    private val bridgeSystem = BridgeSystem(state)
     
     fun processEnemyAbilities() {
         // Create a snapshot of attackers to avoid ConcurrentModificationException
@@ -73,7 +75,15 @@ class EnemyAbilitySystem(private val state: GameState) {
                     // Disable nearby tower (instead of moving to target)
                     disableNearestTower(attacker)
                 }
-                else -> {}
+                else -> {
+                    // Check if this unit should build a bridge
+                    // Units build bridges when adjacent to rivers blocking their path
+                    if (attacker.type.canBuildBridge && !attacker.isBuildingBridge.value) {
+                        if (bridgeSystem.shouldAutoBuildBridge(attacker)) {
+                            bridgeSystem.autoBuildBridge(attacker)
+                        }
+                    }
+                }
             }
         }
     }
@@ -150,7 +160,7 @@ class EnemyAbilitySystem(private val state: GameState) {
         
         // Find closest tower
         val nearestTower = eligibleTowers.minByOrNull { tower ->
-            tower.position.distanceTo(witch.position.value)
+            tower.position.value.distanceTo(witch.position.value)
         }
         
         if (nearestTower != null) {
@@ -185,7 +195,7 @@ class EnemyAbilitySystem(private val state: GameState) {
         if (eligibleTowers.isEmpty()) return null
         
         return eligibleTowers.minByOrNull { tower ->
-            tower.position.distanceTo(witch.position.value)
+            tower.position.value.distanceTo(witch.position.value)
         }
     }
     
