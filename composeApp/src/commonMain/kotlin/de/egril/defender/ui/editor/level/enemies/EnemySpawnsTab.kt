@@ -1,13 +1,17 @@
 package de.egril.defender.ui.editor.level.enemies
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -17,18 +21,26 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.hyperether.resources.stringResource
 import de.egril.defender.editor.EditorEnemySpawn
 import de.egril.defender.editor.EditorMap
+import de.egril.defender.model.Position
+import de.egril.defender.ui.editor.level.ChangeAllSpawnPointsDialog
 import de.egril.defender.ui.editor.level.ChangeLevelDialog
 import de.egril.defender.ui.editor.level.ChangeSpawnPointDialog
 import de.egril.defender.ui.editor.level.ChangeTurnLevelDialog
 import de.egril.defender.ui.editor.level.SpawnTurnSection
+import de.egril.defender.ui.icon.WarningIcon
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.add_turn
+import defender_of_egril.composeapp.generated.resources.change_all_spawn_points
 import defender_of_egril.composeapp.generated.resources.enemies
 import defender_of_egril.composeapp.generated.resources.remove_all_turns
+import defender_of_egril.composeapp.generated.resources.spawn_point_warning
 
 /**
  * Tab 2: Enemy Spawns
@@ -55,6 +67,17 @@ fun EnemySpawnsTab(
     
     // Track turn level change dialog
     var turnToChangeLevel by remember { mutableStateOf<Int?>(null) }
+    
+    // Track bulk spawn point change dialog
+    var showChangeAllSpawnPointsDialog by remember { mutableStateOf(false) }
+    
+    // Check if any enemies are spawned outside valid spawn points
+    val mapSpawnPoints = remember(map) { map?.getSpawnPoints()?.toSet() ?: emptySet() }
+    val hasEnemiesOutsideSpawnPoints = remember(enemySpawns, mapSpawnPoints) {
+        enemySpawns.any { spawn ->
+            spawn.spawnPoint != null && spawn.spawnPoint !in mapSpawnPoints
+        }
+    }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -98,6 +121,45 @@ fun EnemySpawnsTab(
                         )
                     ) {
                         Text(stringResource(Res.string.remove_all_turns))
+                    }
+                }
+            }
+        }
+        
+        // Warning card and button if enemies are outside spawn points
+        if (hasEnemiesOutsideSpawnPoints) {
+            item {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.errorContainer
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier.padding(12.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            WarningIcon(size = 20.dp, tint = MaterialTheme.colorScheme.error)
+                            Text(
+                                text = stringResource(Res.string.spawn_point_warning),
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.error
+                            )
+                        }
+                        Button(
+                            onClick = { showChangeAllSpawnPointsDialog = true },
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.error
+                            )
+                        ) {
+                            Text(stringResource(Res.string.change_all_spawn_points))
+                        }
                     }
                 }
             }
@@ -253,4 +315,92 @@ fun EnemySpawnsTab(
             }
         )
     }
+    
+    // Change all spawn points dialog
+    if (showChangeAllSpawnPointsDialog) {
+        ChangeAllSpawnPointsDialog(
+            enemySpawns = enemySpawns,
+            map = map,
+            onDismiss = { showChangeAllSpawnPointsDialog = false },
+            onApply = { remappings ->
+                // Apply remappings in correct order to avoid conflicts
+                // We need to handle cases where a "from" position is also a "to" position
+                val orderedRemappings = computeRemappingOrder(remappings)
+                
+                // Apply remappings
+                val newSpawns = enemySpawns.map { spawn ->
+                    spawn.spawnPoint?.let { spawnPoint ->
+                        val newPoint = orderedRemappings[spawnPoint]
+                        if (newPoint != null && newPoint != spawnPoint) {
+                            spawn.copy(spawnPoint = newPoint)
+                        } else {
+                            spawn
+                        }
+                    } ?: spawn
+                }.toMutableList()
+                
+                onEnemySpawnsChange(newSpawns)
+                showChangeAllSpawnPointsDialog = false
+            }
+        )
+    }
+}
+
+/**
+ * Computes the order in which remappings should be applied to avoid conflicts.
+ * 
+ * Example: If we have (7,15) -> (10,20) and (22,0) -> (7,15), we need to apply
+ * (7,15) -> (10,20) first, otherwise all positions would end up at (10,20).
+ * 
+ * The algorithm uses topological sorting to determine the correct order.
+ */
+private fun computeRemappingOrder(remappings: Map<Position, Position>): Map<Position, Position> {
+    // Filter out identity mappings (no change)
+    val filteredMappings = remappings.filter { (from, to) -> from != to }
+    
+    if (filteredMappings.isEmpty()) {
+        return emptyMap()
+    }
+    
+    // Build dependency graph: if A -> B and C -> A, then A must be processed before C
+    // (we need to move A away from its position before C can take it)
+    val fromPositions = filteredMappings.keys.toSet()
+    val toPositions = filteredMappings.values.toSet()
+    
+    // Find positions that are both source and target (these create dependencies)
+    val conflictPositions = fromPositions.intersect(toPositions)
+    
+    if (conflictPositions.isEmpty()) {
+        // No conflicts, can apply in any order
+        return filteredMappings
+    }
+    
+    // Topological sort: process nodes that are not targets first
+    val result = mutableMapOf<Position, Position>()
+    val processed = mutableSetOf<Position>()
+    val remaining = filteredMappings.toMutableMap()
+    
+    // Keep processing until all mappings are handled
+    while (remaining.isNotEmpty()) {
+        // Find mappings where the "from" position is not a "to" position in remaining mappings
+        val safeToProcess = remaining.filter { (from, _) ->
+            from !in remaining.values || from in processed
+        }
+        
+        if (safeToProcess.isEmpty()) {
+            // Circular dependency detected - this shouldn't happen in our use case
+            // but handle it by processing remaining mappings in arbitrary order
+            result.putAll(remaining)
+            break
+        }
+        
+        // Add safe mappings to result
+        result.putAll(safeToProcess)
+        safeToProcess.keys.forEach { 
+            processed.add(it)
+            remaining.remove(it)
+        }
+    }
+    
+    return result
 }
