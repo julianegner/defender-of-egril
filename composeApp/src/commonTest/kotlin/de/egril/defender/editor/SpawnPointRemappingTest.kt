@@ -130,7 +130,7 @@ class SpawnPointRemappingTest {
             Position(22, 0) to Position(7, 15)
         )
         
-        val ordered = computeRemappingOrderForTest(remappings)
+        val ordered = SpawnPointUtils.computeRemappingOrder(remappings)
         
         // The mapping should include both entries
         assertEquals(2, ordered.size, "Should have 2 mappings")
@@ -156,7 +156,7 @@ class SpawnPointRemappingTest {
         spawns: List<EditorEnemySpawn>,
         remappings: Map<Position, Position>
     ): List<EditorEnemySpawn> {
-        val orderedRemappings = computeRemappingOrderForTest(remappings)
+        val orderedRemappings = SpawnPointUtils.computeRemappingOrder(remappings)
         
         return spawns.map { spawn ->
             spawn.spawnPoint?.let { spawnPoint ->
@@ -168,57 +168,5 @@ class SpawnPointRemappingTest {
                 }
             } ?: spawn
         }
-    }
-    
-    // Copy of the actual implementation for testing
-    private fun computeRemappingOrderForTest(remappings: Map<Position, Position>): Map<Position, Position> {
-        // Filter out identity mappings (no change)
-        val filteredMappings = remappings.filter { (from, to) -> from != to }
-        
-        if (filteredMappings.isEmpty()) {
-            return emptyMap()
-        }
-        
-        // Build dependency graph: if A -> B and C -> A, then A must be processed before C
-        // (we need to move A away from its position before C can take it)
-        val fromPositions = filteredMappings.keys.toSet()
-        val toPositions = filteredMappings.values.toSet()
-        
-        // Find positions that are both source and target (these create dependencies)
-        val conflictPositions = fromPositions.intersect(toPositions)
-        
-        if (conflictPositions.isEmpty()) {
-            // No conflicts, can apply in any order
-            return filteredMappings
-        }
-        
-        // Topological sort: process nodes that are not targets first
-        val result = mutableMapOf<Position, Position>()
-        val processed = mutableSetOf<Position>()
-        val remaining = filteredMappings.toMutableMap()
-        
-        // Keep processing until all mappings are handled
-        while (remaining.isNotEmpty()) {
-            // Find mappings where the "from" position is not a "to" position in remaining mappings
-            val safeToProcess = remaining.filter { (from, _) ->
-                from !in remaining.values || from in processed
-            }
-            
-            if (safeToProcess.isEmpty()) {
-                // Circular dependency detected - this shouldn't happen in our use case
-                // but handle it by processing remaining mappings in arbitrary order
-                result.putAll(remaining)
-                break
-            }
-            
-            // Add safe mappings to result
-            result.putAll(safeToProcess)
-            safeToProcess.keys.forEach { 
-                processed.add(it)
-                remaining.remove(it)
-            }
-        }
-        
-        return result
     }
 }
