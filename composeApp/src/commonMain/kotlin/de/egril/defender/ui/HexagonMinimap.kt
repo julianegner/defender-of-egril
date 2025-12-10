@@ -241,6 +241,7 @@ private fun HexagonMinimapContent(
                             if (isDarkMode) Color(0xFF3E3528) else Color(0xFF8B4513)
                         }
                         TileType.NO_PLAY -> if (isDarkMode) Color(0xFF2C2C2C) else Color(0xFF808080)
+                        TileType.RIVER -> if (isDarkMode) Color(0xFF1E3A5F) else Color(0xFF4682B4)  // Steel blue for water
                     }
                     
                     // Draw hexagon
@@ -265,16 +266,26 @@ private fun HexagonMinimapContent(
                     return Offset(centerX, centerY)
                 }
                 
-                // Draw defenders (towers)
+                // Draw defenders (towers) - including those on rafts
                 if (config.showTowers) {
                     gameState.defenders.forEach { defender ->
-                        val center = getHexCenterPosition(defender.position)
+                        val center = getHexCenterPosition(defender.position.value)
                         drawCircle(
                             color = Color(0xFF2196F3),  // Blue - same as ready towers on main map
                             radius = hexSize / 2,
                             center = center
                         )
                     }
+                }
+                
+                // Draw rafts specifically (to ensure they're visible even if towers config is off)
+                gameState.rafts.filter { it.isActive }.forEach { raft ->
+                    val center = getHexCenterPosition(raft.currentPosition.value)
+                    drawCircle(
+                        color = Color(0xFF2196F3),  // Blue - same color as towers
+                        radius = hexSize / 2,
+                        center = center
+                    )
                 }
                 
                 // Draw attackers (enemies)
