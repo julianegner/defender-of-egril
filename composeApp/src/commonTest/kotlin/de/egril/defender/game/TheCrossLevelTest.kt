@@ -63,12 +63,10 @@ class TheCrossLevelTest {
         println("=== PATHFINDING TEST ===")
         
         // Test pathfinding from each spawn point to its corresponding target
-        val spawnToTargetPairs = listOf(
-            Position(20, 0) to Position(20, 36),
-            Position(20, 77) to Position(20, 42),
-            Position(39, 39) to Position(21, 39),
-            Position(0, 39) to Position(18, 39)
-        )
+        // Build pairs from the level's waypoints (spawn points with their targets)
+        val spawnToTargetPairs = gameLevel.waypoints.map { waypoint ->
+            waypoint.position to waypoint.nextTarget
+        }
         
         for ((spawn, target) in spawnToTargetPairs) {
             println("Testing path from $spawn to $target")
