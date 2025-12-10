@@ -37,6 +37,8 @@ object AppSettings {
     private const val KEY_DIFFICULTY = "difficulty"
     private const val KEY_USE_LEVEL_CARDS = "use_level_cards"
     private const val KEY_SETTINGS_HINT_SHOWN = "settings_hint_shown"
+    private const val KEY_USE_ENHANCED_DIG_IMAGES = "use_enhanced_dig_images"
+    private const val KEY_USE_TILE_IMAGES = "use_tile_images"
     
     private val settings: Settings = Settings()
     
@@ -89,6 +91,22 @@ object AppSettings {
      */
     val settingsHintShown: MutableState<Boolean> = mutableStateOf(
         settings.getBoolean(KEY_SETTINGS_HINT_SHOWN, false)
+    )
+    
+    /**
+     * Use enhanced dig outcome images - show enhanced versions instead of simple
+     * Default is true (enhanced images ON)
+     */
+    val useEnhancedDigImages: MutableState<Boolean> = mutableStateOf(
+        settings.getBoolean(KEY_USE_ENHANCED_DIG_IMAGES, true)
+    )
+    
+    /**
+     * Use tile background images - show tile images instead of solid colors
+     * Default is true (tile images ON)
+     */
+    val useTileImages: MutableState<Boolean> = mutableStateOf(
+        settings.getBoolean(KEY_USE_TILE_IMAGES, true)
     )
     
     /**
@@ -176,6 +194,22 @@ object AppSettings {
     }
     
     /**
+     * Save enhanced dig outcome images preference
+     */
+    fun saveUseEnhancedDigImages(useEnhanced: Boolean) {
+        useEnhancedDigImages.value = useEnhanced
+        settings.putBoolean(KEY_USE_ENHANCED_DIG_IMAGES, useEnhanced)
+    }
+    
+    /**
+     * Save tile background images preference
+     */
+    fun saveUseTileImages(useTiles: Boolean) {
+        useTileImages.value = useTiles
+        settings.putBoolean(KEY_USE_TILE_IMAGES, useTiles)
+    }
+    
+    /**
      * Reset all settings to defaults
      */
     fun resetToDefaults() {
@@ -197,6 +231,12 @@ object AppSettings {
         
         // Reset world map style to image map
         saveUseLevelCards(false)
+        
+        // Reset enhanced dig images to ON
+        saveUseEnhancedDigImages(true)
+        
+        // Reset tile images to ON
+        saveUseTileImages(true)
         
         // Note: Don't reset settings hint shown state when resetting settings
         // as user has already seen it once

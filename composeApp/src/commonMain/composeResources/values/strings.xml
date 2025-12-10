@@ -25,6 +25,12 @@
     <string name="dark_mode_off">Dark Mode Off</string>
     <string name="world_map_level_cards">Level Cards View</string>
     <string name="world_map_image_map">Image Map View</string>
+    <string name="enhanced_dig_images">Enhanced Dig Images</string>
+    <string name="enhanced_dig_images_on">Enhanced Images On</string>
+    <string name="enhanced_dig_images_off">Simple Images</string>
+    <string name="tile_background_images">Tile Background Images</string>
+    <string name="tile_background_images_on">Tile Images On</string>
+    <string name="tile_background_images_off">Color Backgrounds</string>
     <string name="reset_settings">Reset Settings</string>
     <string name="restore_game_data">Restore Game Data</string>
     <string name="restore_game_data_confirm_title">Restore Game Data?</string>
