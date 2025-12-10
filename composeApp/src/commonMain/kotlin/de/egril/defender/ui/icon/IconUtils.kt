@@ -9,26 +9,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import de.egril.defender.model.DigOutcome
-import de.egril.defender.ui.settings.AppSettings
 import defender_of_egril.composeapp.generated.resources.Res
-import defender_of_egril.composeapp.generated.resources.dig_outcome_brass
-import defender_of_egril.composeapp.generated.resources.dig_outcome_brass_enhanced
-import defender_of_egril.composeapp.generated.resources.dig_outcome_diamond
-import defender_of_egril.composeapp.generated.resources.dig_outcome_diamond_enhanced
-import defender_of_egril.composeapp.generated.resources.dig_outcome_dragon
-import defender_of_egril.composeapp.generated.resources.dig_outcome_dragon_enhanced
-import defender_of_egril.composeapp.generated.resources.dig_outcome_gem_blue
-import defender_of_egril.composeapp.generated.resources.dig_outcome_gem_blue_enhanced
-import defender_of_egril.composeapp.generated.resources.dig_outcome_gem_green
-import defender_of_egril.composeapp.generated.resources.dig_outcome_gem_green_enhanced
-import defender_of_egril.composeapp.generated.resources.dig_outcome_gem_red
-import defender_of_egril.composeapp.generated.resources.dig_outcome_gem_red_enhanced
-import defender_of_egril.composeapp.generated.resources.dig_outcome_gold
-import defender_of_egril.composeapp.generated.resources.dig_outcome_gold_enhanced
-import defender_of_egril.composeapp.generated.resources.dig_outcome_rubble
-import defender_of_egril.composeapp.generated.resources.dig_outcome_rubble_enhanced
-import defender_of_egril.composeapp.generated.resources.dig_outcome_silver
-import defender_of_egril.composeapp.generated.resources.dig_outcome_silver_enhanced
 import defender_of_egril.composeapp.generated.resources.emoji_checkmark
 import defender_of_egril.composeapp.generated.resources.emoji_door
 import defender_of_egril.composeapp.generated.resources.emoji_down_arrow
@@ -542,6 +523,9 @@ fun SaveIcon(
  * on each composition. This is intentional per requirements to add visual variety.
  * The color may change on recomposition but this is acceptable as it doesn't affect
  * game state - only the visual representation.
+ * 
+ * Images are loaded from files/dig_outcome/simple/ or files/dig_outcome/enhanced/
+ * based on the enhanced dig images setting.
  */
 @Composable
 fun DigOutcomeIcon(
@@ -549,31 +533,15 @@ fun DigOutcomeIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 64.dp
 ) {
-    val useEnhanced = AppSettings.useEnhancedDigImages.value
+    val image = DigOutcomeImageProvider.getDigOutcomeImage(outcome)
     
-    val resource = when (outcome) {
-        DigOutcome.NOTHING -> if (useEnhanced) Res.drawable.dig_outcome_rubble_enhanced else Res.drawable.dig_outcome_rubble
-        DigOutcome.BRASS -> if (useEnhanced) Res.drawable.dig_outcome_brass_enhanced else Res.drawable.dig_outcome_brass
-        DigOutcome.SILVER -> if (useEnhanced) Res.drawable.dig_outcome_silver_enhanced else Res.drawable.dig_outcome_silver
-        DigOutcome.GOLD -> if (useEnhanced) Res.drawable.dig_outcome_gold_enhanced else Res.drawable.dig_outcome_gold
-        DigOutcome.GEMS -> {
-            // Randomly select gem color (red, green, or blue) as per requirements
-            // This adds visual variety and doesn't affect game state
-            when (Random.Default.nextInt(3)) {
-                0 -> if (useEnhanced) Res.drawable.dig_outcome_gem_red_enhanced else Res.drawable.dig_outcome_gem_red
-                1 -> if (useEnhanced) Res.drawable.dig_outcome_gem_green_enhanced else Res.drawable.dig_outcome_gem_green
-                else -> if (useEnhanced) Res.drawable.dig_outcome_gem_blue_enhanced else Res.drawable.dig_outcome_gem_blue
-            }
-        }
-        DigOutcome.DIAMOND -> if (useEnhanced) Res.drawable.dig_outcome_diamond_enhanced else Res.drawable.dig_outcome_diamond
-        DigOutcome.DRAGON -> if (useEnhanced) Res.drawable.dig_outcome_dragon_enhanced else Res.drawable.dig_outcome_dragon
+    image?.let {
+        Image(
+            bitmap = it,
+            contentDescription = outcome.displayName,
+            modifier = modifier.size(size)
+        )
     }
-
-    Image(
-        painter = painterResource(resource),
-        contentDescription = outcome.displayName,
-        modifier = modifier.size(size)
-    )
 }
 
 /**
