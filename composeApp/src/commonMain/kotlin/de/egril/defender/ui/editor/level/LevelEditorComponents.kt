@@ -847,6 +847,25 @@ fun ChangeAllSpawnPointsDialog(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
+                // Minimap at the top (non-scrolling)
+                if (map != null) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(150.dp)
+                            .background(Color(0xCC000000))
+                            .border(2.dp, Color.White)
+                            .padding(4.dp)
+                    ) {
+                        SpawnPointMinimap(
+                            map = map,
+                            selectedSpawnPoint = null
+                        )
+                    }
+                    
+                    HorizontalDivider()
+                }
+                
                 // Description
                 Text(
                     text = stringResource(Res.string.change_all_spawn_points_description),
@@ -867,9 +886,9 @@ fun ChangeAllSpawnPointsDialog(
                 
                 HorizontalDivider()
                 
-                // Remapping table
+                // Remapping table (scrollable)
                 LazyColumn(
-                    modifier = Modifier.fillMaxWidth().height(300.dp),
+                    modifier = Modifier.fillMaxWidth().height(250.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(usedSpawnPoints) { fromPos ->
