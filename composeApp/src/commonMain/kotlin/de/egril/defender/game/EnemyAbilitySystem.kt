@@ -120,7 +120,8 @@ class EnemyAbilitySystem(private val state: GameState) {
         
         // Inherit the summoner's current target so demons follow the same waypoint chain
         val inheritedTarget = summoner.currentTarget?.value ?: if (state.level.waypoints.isNotEmpty()) {
-            state.level.waypoints.first().position
+            // Use the first waypoint's next target, not the waypoint position itself
+            state.level.waypoints.first().nextTarget
         } else {
             state.level.targetPositions.first()
         }
