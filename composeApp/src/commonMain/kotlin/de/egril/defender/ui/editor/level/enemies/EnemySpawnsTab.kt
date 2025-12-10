@@ -143,7 +143,7 @@ fun EnemySpawnsTab(
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            WarningIcon(size = 20.dp, tint = MaterialTheme.colorScheme.error)
+                            WarningIcon(size = 20.dp)
                             Text(
                                 text = stringResource(Res.string.spawn_point_warning),
                                 style = MaterialTheme.typography.bodyMedium,
