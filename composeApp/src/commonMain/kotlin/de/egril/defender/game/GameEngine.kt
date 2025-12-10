@@ -129,7 +129,8 @@ class GameEngine(private val state: GameState) {
                 dragon.targetMineId.value = null
                 // Target closest target position instead of first
                 dragon.currentTarget?.value = if (state.level.waypoints.isNotEmpty()) {
-                    state.level.waypoints.first().position
+                    // Use the first waypoint's next target, not the waypoint position itself
+                    state.level.waypoints.first().nextTarget
                 } else {
                     findClosestTargetPosition(dragon.position.value)
                 }
@@ -153,7 +154,8 @@ class GameEngine(private val state: GameState) {
                 dragon.targetMineId.value = null
                 // Target closest target position instead of first
                 dragon.currentTarget?.value = if (state.level.waypoints.isNotEmpty()) {
-                    state.level.waypoints.first().position
+                    // Use the first waypoint's next target, not the waypoint position itself
+                    state.level.waypoints.first().nextTarget
                 } else {
                     findClosestTargetPosition(dragon.position.value)
                 }
