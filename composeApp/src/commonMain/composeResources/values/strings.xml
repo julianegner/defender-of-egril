@@ -500,6 +500,14 @@
     <string name="no_spawn_point_set">No spawn point set</string>
     <string name="change">Change</string>
     <string name="select">Select</string>
+    <string name="change_all_spawn_points">Change All Spawn Points</string>
+    <string name="change_all_spawn_points_title">Remap Enemy Spawn Points</string>
+    <string name="change_all_spawn_points_description">Some enemies are spawned at positions that are not spawn points on the current map. Use this dialog to remap them to valid spawn points.</string>
+    <string name="from_spawn_point">From Position</string>
+    <string name="to_spawn_point">To Spawn Point</string>
+    <string name="enemies_affected_count">%d enemies affected</string>
+    <string name="apply_changes">Apply Changes</string>
+    <string name="spawn_point_warning">⚠ Some enemies are spawned outside valid spawn points</string>
     <string name="target_text">Target</string>
     <string name="waypoint">Waypoint</string>
     <string name="select_source_position">Select source position</string>
