@@ -146,7 +146,8 @@ class MineOperations(private val state: GameState) {
             spawnedFromLairId = null,  // Will be set after lair is created
             dragonName = dragonName,
             currentTarget = mutableStateOf(if (state.level.waypoints.isNotEmpty()) {
-                state.level.waypoints.first().position
+                // Use the first waypoint's next target, not the waypoint position itself
+                state.level.waypoints.first().nextTarget
             } else {
                 closestTarget
             })
