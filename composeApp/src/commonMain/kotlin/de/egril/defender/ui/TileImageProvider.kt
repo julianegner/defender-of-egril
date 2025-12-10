@@ -3,13 +3,8 @@ package de.egril.defender.ui
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.toComposeImageBitmap
 import de.egril.defender.editor.TileType
 import de.egril.defender.ui.settings.AppSettings
-import defender_of_egril.composeapp.generated.resources.Res
-import kotlinx.coroutines.runBlocking
-import org.jetbrains.skia.Image
-import kotlin.random.Random
 
 /**
  * Provides tile background images based on tile type.
@@ -35,7 +30,7 @@ object TileImageProvider {
         
         // For now, return null since we don't have any images yet
         // When images are added to files/tiles/{TileType}/ folders,
-        // this will load them randomly
+        // this will load them randomly using platform-specific image loading
         return remember(tileType) {
             loadTileImageForType(tileType)
         }
@@ -44,39 +39,20 @@ object TileImageProvider {
     /**
      * Loads a random tile image for the given type from files/tiles/{TileType}/
      * Returns null if no images are found or loading fails
+     * 
+     * Implementation note: This would require platform-specific code to:
+     * 1. List available files in the directory
+     * 2. Select a random file
+     * 3. Load it as an ImageBitmap
+     * 
+     * For now, returns null until images are added to the tile directories.
      */
     private fun loadTileImageForType(tileType: TileType): ImageBitmap? {
-        return try {
-            // Get list of available images for this tile type
-            // Note: In practice, we would need to enumerate files in the directory
-            // For now, we return null since the folders are empty
-            // This can be extended when images are added
-            
-            // Example implementation when images are added:
-            // val tileFolderPath = "files/tiles/${tileType.name}"
-            // val imageFiles = listAvailableImagesInFolder(tileFolderPath)
-            // if (imageFiles.isEmpty()) return null
-            // val randomImage = imageFiles.random()
-            // loadImageBitmap("$tileFolderPath/$randomImage")
-            
-            null
-        } catch (e: Exception) {
-            // Failed to load tile image, return null to use color fallback
-            null
-        }
-    }
-    
-    /**
-     * Loads an image from resources and converts it to ImageBitmap
-     */
-    private fun loadImageBitmap(path: String): ImageBitmap? {
-        return try {
-            runBlocking {
-                val bytes = Res.readBytes(path)
-                Image.makeFromEncoded(bytes).toComposeImageBitmap()
-            }
-        } catch (e: Exception) {
-            null
-        }
+        return null
+        
+        // Future implementation when images are added:
+        // - Use Res.readBytes("files/tiles/${tileType.name}/image.png")
+        // - Convert bytes to ImageBitmap using platform-specific code
+        // - Cache loaded images for performance
     }
 }
