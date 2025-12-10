@@ -9,16 +9,26 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import de.egril.defender.model.DigOutcome
+import de.egril.defender.ui.settings.AppSettings
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.dig_outcome_brass
+import defender_of_egril.composeapp.generated.resources.dig_outcome_brass_enhanced
 import defender_of_egril.composeapp.generated.resources.dig_outcome_diamond
+import defender_of_egril.composeapp.generated.resources.dig_outcome_diamond_enhanced
 import defender_of_egril.composeapp.generated.resources.dig_outcome_dragon
+import defender_of_egril.composeapp.generated.resources.dig_outcome_dragon_enhanced
 import defender_of_egril.composeapp.generated.resources.dig_outcome_gem_blue
+import defender_of_egril.composeapp.generated.resources.dig_outcome_gem_blue_enhanced
 import defender_of_egril.composeapp.generated.resources.dig_outcome_gem_green
+import defender_of_egril.composeapp.generated.resources.dig_outcome_gem_green_enhanced
 import defender_of_egril.composeapp.generated.resources.dig_outcome_gem_red
+import defender_of_egril.composeapp.generated.resources.dig_outcome_gem_red_enhanced
 import defender_of_egril.composeapp.generated.resources.dig_outcome_gold
+import defender_of_egril.composeapp.generated.resources.dig_outcome_gold_enhanced
 import defender_of_egril.composeapp.generated.resources.dig_outcome_rubble
+import defender_of_egril.composeapp.generated.resources.dig_outcome_rubble_enhanced
 import defender_of_egril.composeapp.generated.resources.dig_outcome_silver
+import defender_of_egril.composeapp.generated.resources.dig_outcome_silver_enhanced
 import defender_of_egril.composeapp.generated.resources.emoji_checkmark
 import defender_of_egril.composeapp.generated.resources.emoji_door
 import defender_of_egril.composeapp.generated.resources.emoji_down_arrow
@@ -539,22 +549,24 @@ fun DigOutcomeIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 64.dp
 ) {
+    val useEnhanced = AppSettings.useEnhancedDigImages.value
+    
     val resource = when (outcome) {
-        DigOutcome.NOTHING -> Res.drawable.dig_outcome_rubble
-        DigOutcome.BRASS -> Res.drawable.dig_outcome_brass
-        DigOutcome.SILVER -> Res.drawable.dig_outcome_silver
-        DigOutcome.GOLD -> Res.drawable.dig_outcome_gold
+        DigOutcome.NOTHING -> if (useEnhanced) Res.drawable.dig_outcome_rubble_enhanced else Res.drawable.dig_outcome_rubble
+        DigOutcome.BRASS -> if (useEnhanced) Res.drawable.dig_outcome_brass_enhanced else Res.drawable.dig_outcome_brass
+        DigOutcome.SILVER -> if (useEnhanced) Res.drawable.dig_outcome_silver_enhanced else Res.drawable.dig_outcome_silver
+        DigOutcome.GOLD -> if (useEnhanced) Res.drawable.dig_outcome_gold_enhanced else Res.drawable.dig_outcome_gold
         DigOutcome.GEMS -> {
             // Randomly select gem color (red, green, or blue) as per requirements
             // This adds visual variety and doesn't affect game state
             when (Random.Default.nextInt(3)) {
-                0 -> Res.drawable.dig_outcome_gem_red
-                1 -> Res.drawable.dig_outcome_gem_green
-                else -> Res.drawable.dig_outcome_gem_blue
+                0 -> if (useEnhanced) Res.drawable.dig_outcome_gem_red_enhanced else Res.drawable.dig_outcome_gem_red
+                1 -> if (useEnhanced) Res.drawable.dig_outcome_gem_green_enhanced else Res.drawable.dig_outcome_gem_green
+                else -> if (useEnhanced) Res.drawable.dig_outcome_gem_blue_enhanced else Res.drawable.dig_outcome_gem_blue
             }
         }
-        DigOutcome.DIAMOND -> Res.drawable.dig_outcome_diamond
-        DigOutcome.DRAGON -> Res.drawable.dig_outcome_dragon
+        DigOutcome.DIAMOND -> if (useEnhanced) Res.drawable.dig_outcome_diamond_enhanced else Res.drawable.dig_outcome_diamond
+        DigOutcome.DRAGON -> if (useEnhanced) Res.drawable.dig_outcome_dragon_enhanced else Res.drawable.dig_outcome_dragon
     }
 
     Image(
