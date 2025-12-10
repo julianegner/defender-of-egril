@@ -499,6 +499,14 @@
     <string name="no_spawn_point_set">Aucun point d\'apparition défini</string>
     <string name="change">Changer</string>
     <string name="select">Sélectionner</string>
+    <string name="change_all_spawn_points">Changer Tous les Points d\'Apparition</string>
+    <string name="change_all_spawn_points_title">Réassigner les Points d\'Apparition des Ennemis</string>
+    <string name="change_all_spawn_points_description">Certains ennemis apparaissent à des positions qui ne sont pas des points d\'apparition sur la carte actuelle. Utilisez cette boîte de dialogue pour les réassigner à des points d\'apparition valides.</string>
+    <string name="from_spawn_point">Depuis la Position</string>
+    <string name="to_spawn_point">Vers le Point d\'Apparition</string>
+    <string name="enemies_affected_count">%d ennemis affectés</string>
+    <string name="apply_changes">Appliquer les Modifications</string>
+    <string name="spawn_point_warning">⚠ Certains ennemis apparaissent en dehors des points d\'apparition valides</string>
     <string name="target_text">Cible</string>
     <string name="waypoint">Point de Passage</string>
     <string name="select_source_position">Sélectionner la position source</string>

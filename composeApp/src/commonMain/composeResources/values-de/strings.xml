@@ -497,6 +497,14 @@
     <string name="no_spawn_point_set">Kein Spawn-Punkt gesetzt</string>
     <string name="change">Ändern</string>
     <string name="select">Auswählen</string>
+    <string name="change_all_spawn_points">Alle Spawn-Punkte ändern</string>
+    <string name="change_all_spawn_points_title">Gegner-Spawn-Punkte neu zuordnen</string>
+    <string name="change_all_spawn_points_description">Einige Gegner werden an Positionen gespawnt, die keine Spawn-Punkte auf der aktuellen Karte sind. Verwenden Sie diesen Dialog, um sie gültigen Spawn-Punkten zuzuordnen.</string>
+    <string name="from_spawn_point">Von Position</string>
+    <string name="to_spawn_point">Zu Spawn-Punkt</string>
+    <string name="enemies_affected_count">%d Gegner betroffen</string>
+    <string name="apply_changes">Änderungen anwenden</string>
+    <string name="spawn_point_warning">⚠ Einige Gegner werden außerhalb gültiger Spawn-Punkte gespawnt</string>
     <string name="target_text">Ziel</string>
     <string name="waypoint">Wegpunkt</string>
     <string name="select_source_position">Quellposition auswählen</string>
