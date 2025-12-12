@@ -283,8 +283,8 @@ fun GridCell(
         else -> de.egril.defender.editor.TileType.NO_PLAY
     }
     
-    // Get tile background image (will be null if images are disabled or not available)
-    val tileImage = TileImageProvider.getTileImage(tileType)
+    // Get tile background painter (will be null if images are disabled or not available)
+    val tilePainter = TileImageProvider.getTilePainter(tileType)
 
     // Check for field effects at this position
     val fieldEffect = gameState.fieldEffects.find { it.position == position }
@@ -386,7 +386,7 @@ fun GridCell(
         backgroundColor = backgroundColor,
         borderColor = borderColor,
         borderWidth = borderWidth,
-        backgroundImage = tileImage,
+        backgroundPainter = tilePainter,
         onClick = onClick
     ) {
         when {
