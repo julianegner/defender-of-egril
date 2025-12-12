@@ -284,7 +284,13 @@ fun GridCell(
     }
     
     // Get tile background painter (will be null if images are disabled or not available)
-    val tilePainter = TileImageProvider.getTilePainter(tileType)
+    // For ready towers on build areas or islands, don't show tile background to make towers more visible
+    val shouldShowTileImage = !(defender != null && defender.isReady && (isBuildArea || isBuildIsland))
+    val tilePainter = if (shouldShowTileImage) {
+        TileImageProvider.getTilePainter(tileType)
+    } else {
+        null
+    }
 
     // Check for field effects at this position
     val fieldEffect = gameState.fieldEffects.find { it.position == position }
