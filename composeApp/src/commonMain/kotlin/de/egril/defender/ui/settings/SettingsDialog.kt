@@ -90,17 +90,6 @@ fun SettingsDialog(
                         modifier = Modifier.fillMaxWidth()
                     )
                     
-                    // Enhanced dig outcome images switch
-                    GenericSwitch(
-                        state = AppSettings.useEnhancedDigImages,
-                        checkedText = stringResource(Res.string.enhanced_dig_images_on),
-                        uncheckedText = stringResource(Res.string.enhanced_dig_images_off),
-                        onCheckedChange = { enabled ->
-                            AppSettings.saveUseEnhancedDigImages(enabled)
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    
                     // Tile background images switch
                     GenericSwitch(
                         state = AppSettings.useTileImages,

@@ -10,6 +10,15 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import de.egril.defender.model.DigOutcome
 import defender_of_egril.composeapp.generated.resources.Res
+import defender_of_egril.composeapp.generated.resources.dig_outcome_brass
+import defender_of_egril.composeapp.generated.resources.dig_outcome_diamond
+import defender_of_egril.composeapp.generated.resources.dig_outcome_dragon
+import defender_of_egril.composeapp.generated.resources.dig_outcome_gem_blue
+import defender_of_egril.composeapp.generated.resources.dig_outcome_gem_green
+import defender_of_egril.composeapp.generated.resources.dig_outcome_gem_red
+import defender_of_egril.composeapp.generated.resources.dig_outcome_gold
+import defender_of_egril.composeapp.generated.resources.dig_outcome_rubble
+import defender_of_egril.composeapp.generated.resources.dig_outcome_silver
 import defender_of_egril.composeapp.generated.resources.emoji_checkmark
 import defender_of_egril.composeapp.generated.resources.emoji_door
 import defender_of_egril.composeapp.generated.resources.emoji_down_arrow
@@ -523,9 +532,6 @@ fun SaveIcon(
  * on each composition. This is intentional per requirements to add visual variety.
  * The color may change on recomposition but this is acceptable as it doesn't affect
  * game state - only the visual representation.
- * 
- * Images are loaded from files/dig_outcome/simple/ or files/dig_outcome/enhanced/
- * based on the enhanced dig images setting.
  */
 @Composable
 fun DigOutcomeIcon(
@@ -533,15 +539,29 @@ fun DigOutcomeIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 64.dp
 ) {
-    val image = DigOutcomeImageProvider.getDigOutcomeImage(outcome)
-    
-    image?.let {
-        Image(
-            bitmap = it,
-            contentDescription = outcome.displayName,
-            modifier = modifier.size(size)
-        )
+    val resource = when (outcome) {
+        DigOutcome.NOTHING -> Res.drawable.dig_outcome_rubble
+        DigOutcome.BRASS -> Res.drawable.dig_outcome_brass
+        DigOutcome.SILVER -> Res.drawable.dig_outcome_silver
+        DigOutcome.GOLD -> Res.drawable.dig_outcome_gold
+        DigOutcome.GEMS -> {
+            // Randomly select gem color (red, green, or blue) as per requirements
+            // This adds visual variety and doesn't affect game state
+            when (Random.Default.nextInt(3)) {
+                0 -> Res.drawable.dig_outcome_gem_red
+                1 -> Res.drawable.dig_outcome_gem_green
+                else -> Res.drawable.dig_outcome_gem_blue
+            }
+        }
+        DigOutcome.DIAMOND -> Res.drawable.dig_outcome_diamond
+        DigOutcome.DRAGON -> Res.drawable.dig_outcome_dragon
     }
+
+    Image(
+        painter = painterResource(resource),
+        contentDescription = outcome.displayName,
+        modifier = modifier.size(size)
+    )
 }
 
 /**
