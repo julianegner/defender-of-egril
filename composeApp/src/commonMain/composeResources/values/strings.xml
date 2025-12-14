@@ -69,6 +69,7 @@
     
     <!-- Towers -->
     <string name="tower">Tower</string>
+    <string name="raft">Raft</string>
     <string name="damage">Damage</string>
     <string name="range">Range</string>
     <string name="actions">Actions</string>
@@ -321,6 +322,7 @@
     <string name="size">Size</string>
     <string name="select_tile_type">Select Tile Type:</string>
     <string name="click_hexagons_to_paint">Click or drag to paint hexagons. Use Ctrl+Scroll to zoom:</string>
+    <string name="collapse">Collapse</string>
     <string name="change_all_no_play_to_path">Change All NO_PLAY to PATH</string>
     <string name="change_all_no_play_confirm_title">Change All NO_PLAY to PATH?</string>
     <string name="change_all_no_play_confirm_message">This will replace all NO_PLAY tiles with PATH tiles. Are you sure?</string>
@@ -504,6 +506,14 @@
     <string name="no_spawn_point_set">No spawn point set</string>
     <string name="change">Change</string>
     <string name="select">Select</string>
+    <string name="change_all_spawn_points">Change All Spawn Points</string>
+    <string name="change_all_spawn_points_title">Remap Enemy Spawn Points</string>
+    <string name="change_all_spawn_points_description">Some enemies are spawned at positions that are not spawn points on the current map. Use this dialog to remap them to valid spawn points.</string>
+    <string name="from_spawn_point">From Position</string>
+    <string name="to_spawn_point">To Spawn Point</string>
+    <string name="enemies_affected_count">%d enemies affected</string>
+    <string name="apply_changes">Apply Changes</string>
+    <string name="spawn_point_warning">⚠ Some enemies are spawned outside valid spawn points</string>
     <string name="target_text">Target</string>
     <string name="waypoint">Waypoint</string>
     <string name="select_source_position">Select source position</string>
@@ -599,17 +609,28 @@
     <!-- Extended Area Attack Feature -->
     <string name="extended_area_tutorial_title">Extended Area Attack!</string>
     <string name="extended_area_tutorial_message">Your tower has reached level 20 and now has an extended area attack! Fireball and acid attacks now affect enemies within 2 tiles of the target instead of just 1 tile. This makes your area attacks much more powerful against groups of enemies!</string>
-    
+
     <!-- First Time Tower Usage Info -->
     <string name="wizard_first_use_title">Wizard Tower</string>
     <string name="wizard_first_use_message">The Wizard Tower is a powerful area-of-effect tower that launches fireballs at enemies! Each fireball damages the target and all enemies in adjacent tiles. It has a longer build time (2 turns) but can devastate groups of enemies. At level 10, wizards can place magical traps that teleport enemies back to spawn. At level 20, the fireball radius increases to 2 tiles!</string>
-    
+
     <string name="alchemy_first_use_title">Alchemy Tower</string>
     <string name="alchemy_first_use_message">The Alchemy Tower throws acid that deals damage over time! Unlike other towers, acid damage persists for multiple rounds (base 2 turns, increases with level). The acid affects the target and adjacent enemies in a small area. While the damage per turn is lower, the total damage over time can be very effective. At level 20, the acid area increases to 2 tiles!</string>
-    
+
     <string name="ballista_first_use_title">Ballista Tower</string>
     <string name="ballista_first_use_message">The Ballista is a long-range siege weapon with exceptional range (5 tiles) and high damage! However, it has a minimum range of 3 tiles and cannot attack nearby enemies. It requires 2 turns to build. Use it to target enemies from a distance before they get too close, or position it behind other towers for maximum effectiveness.</string>
-    
+
     <string name="mine_first_use_title">Dwarven Mine</string>
     <string name="mine_first_use_message">The Dwarven Mine is a special structure that generates coins through mining operations! Unlike combat towers, mines use the "dig" action to find valuable resources (rubble, brass, silver, gold, gems, or diamonds). Mines can also build traps that damage enemies. At higher levels, mines can dig more times per turn and reach further. Warning: Dragons are greedy and will destroy mines to claim the treasure!</string>
+
+    <!-- River Mechanics Info -->
+    <string name="river_info_title">River Mechanics</string>
+    <string name="river_info_placement">You can place towers on river tiles! When you do, they will be placed on rafts.</string>
+    <string name="river_info_movement">Rafts move automatically with the river flow at the end of each turn. The flow speed determines how many tiles they move (1 or 2 tiles).</string>
+    <string name="river_info_destruction">Rafts are destroyed if they reach a maelstrom (whirlpool) or move out of the map boundaries. The tower on the raft is also destroyed.</string>
+    <string name="river_info_bridges">Bridges block raft movement. Rafts cannot pass through bridges spanning the river. Multiple rafts on the same river move in order - downstream rafts move first.</string>
+
+    <!-- Mine on River Warning -->
+    <string name="mine_on_river_warning_title">Cannot Place Mine on River</string>
+    <string name="mine_on_river_warning_message">Dwarven mines cannot be placed on river tiles. Mines require solid ground and cannot be built on rafts. Please select a build area on land instead.</string>
 </resources>

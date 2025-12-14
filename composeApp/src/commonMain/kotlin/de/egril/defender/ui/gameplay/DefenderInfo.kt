@@ -97,8 +97,13 @@ fun DefenderInfo(
                             } else {
                                 stringResource(Res.string.empty_dragons_lair)
                             }
+                        } else if (defender.raftId.value != null) {
+                            // If defender is on a raft, show localized "Type Raft" with space separator
+                            // Use getLocalizedShortName() to get just the type (e.g., "Bow" instead of "Bow Tower")
+                            "${defender.type.getLocalizedShortName(locale)} ${stringResource(Res.string.raft)}"
                         } else {
-                            defender.type.displayName
+                            // Regular tower - use localized name
+                            defender.type.getLocalizedName(locale)
                         }
                         Text(
                             displayName,

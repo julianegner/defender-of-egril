@@ -32,7 +32,8 @@ class EnemyMovementSystem(
         
         // Fallback: if no waypoint at spawn point, use default target
         val initialTarget = if (state.level.waypoints.isNotEmpty()) {
-            state.level.waypoints.first().position
+            // Use the first waypoint's next target, not the waypoint position itself
+            state.level.waypoints.first().nextTarget
         } else {
             state.level.targetPositions.first()
         }

@@ -398,7 +398,7 @@ class GameViewModel {
             append("|phase:${state.phase.value}")
             append("|defenders:${state.defenders.size}")
             state.defenders.sortedBy { it.id }.forEach { defender ->
-                append("|d${defender.id}:${defender.type},${defender.position.x},${defender.position.y},${defender.level.value},${defender.buildTimeRemaining.value}")
+                append("|d${defender.id}:${defender.type},${defender.position.value.x},${defender.position.value.y},${defender.level.value},${defender.buildTimeRemaining.value}")
             }
             append("|attackers:${state.attackers.size}")
             state.attackers.sortedBy { it.id }.forEach { attacker ->
