@@ -741,4 +741,117 @@ class GamePlayScreenTest {
             println("Note: Could not capture settings panel screenshot: ${e.message}")
         }
     }
+    
+    @Test
+    fun testGamePlayScreenWithRaftOnRiver() {
+        // Create a level with river tiles and a tower on a raft
+        val riverTiles = mapOf(
+            de.egril.defender.model.Position(10, 3) to de.egril.defender.model.RiverTile(
+                position = de.egril.defender.model.Position(10, 3),
+                flowDirection = de.egril.defender.model.RiverFlow.EAST,
+                flowSpeed = 1
+            ),
+            de.egril.defender.model.Position(11, 3) to de.egril.defender.model.RiverTile(
+                position = de.egril.defender.model.Position(11, 3),
+                flowDirection = de.egril.defender.model.RiverFlow.EAST,
+                flowSpeed = 1
+            ),
+            de.egril.defender.model.Position(12, 3) to de.egril.defender.model.RiverTile(
+                position = de.egril.defender.model.Position(12, 3),
+                flowDirection = de.egril.defender.model.RiverFlow.EAST,
+                flowSpeed = 1
+            )
+        )
+        
+        val level = de.egril.defender.model.Level(
+            id = 999,
+            name = "River Test Level",
+            gridWidth = 30,
+            gridHeight = 8,
+            pathCells = setOf(
+                de.egril.defender.model.Position(5, 4),
+                de.egril.defender.model.Position(6, 4),
+                de.egril.defender.model.Position(7, 4)
+            ),
+            buildIslands = emptySet(),
+            buildAreas = setOf(
+                de.egril.defender.model.Position(8, 3),
+                de.egril.defender.model.Position(9, 3),
+                de.egril.defender.model.Position(10, 3), // River tile that's also buildable
+                de.egril.defender.model.Position(11, 3),
+                de.egril.defender.model.Position(12, 3)
+            ),
+            attackerWaves = emptyList(),
+            initialCoins = 100,
+            healthPoints = 10,
+            riverTiles = riverTiles
+        )
+        
+        val gameState = GameState(level)
+        
+        // Set game to player turn phase
+        gameState.phase.value = GamePhase.PLAYER_TURN
+        gameState.turnNumber.value = 1
+        
+        // Add a Bow Tower on the river (creating a raft)
+        val towerOnRaft = de.egril.defender.model.Defender(
+            id = 1,
+            type = de.egril.defender.model.DefenderType.BOW_TOWER,
+            position = androidx.compose.runtime.mutableStateOf(de.egril.defender.model.Position(10, 3)),
+            level = androidx.compose.runtime.mutableStateOf(1),
+            buildTimeRemaining = androidx.compose.runtime.mutableStateOf(0),
+            actionsRemaining = androidx.compose.runtime.mutableStateOf(1),
+            placedOnTurn = 1,
+            raftId = androidx.compose.runtime.mutableStateOf(1) // Indicate this tower is on a raft
+        )
+        gameState.defenders.add(towerOnRaft)
+        
+        // Create the raft that the tower is on
+        val raft = de.egril.defender.model.Raft(
+            id = 1,
+            defenderId = 1,
+            currentPosition = androidx.compose.runtime.mutableStateOf(de.egril.defender.model.Position(10, 3))
+        )
+        gameState.rafts.add(raft)
+        
+        // Add a regular tower on land for comparison
+        val regularTower = de.egril.defender.model.Defender(
+            id = 2,
+            type = de.egril.defender.model.DefenderType.SPIKE_TOWER,
+            position = androidx.compose.runtime.mutableStateOf(de.egril.defender.model.Position(8, 3)),
+            level = androidx.compose.runtime.mutableStateOf(1),
+            buildTimeRemaining = androidx.compose.runtime.mutableStateOf(0),
+            actionsRemaining = androidx.compose.runtime.mutableStateOf(1),
+            placedOnTurn = 1
+        )
+        gameState.defenders.add(regularTower)
+        
+        composeTestRule.setContent {
+            GamePlayScreen(
+                gameState = gameState,
+                onPlaceDefender = { _, _ -> true },
+                onUpgradeDefender = { true },
+                onUndoTower = { true },
+                onSellTower = { true },
+                onStartFirstPlayerTurn = {},
+                onDefenderAttack = { _, _ -> true },
+                onDefenderAttackPosition = { _, _ -> true },
+                onEndPlayerTurn = {},
+                onBackToMap = {}
+            )
+        }
+        
+        composeTestRule.waitForIdle()
+        
+        // Verify the screen renders
+        composeTestRule.onRoot().assertExists()
+        
+        // Capture screenshot showing raft on river with tower
+        ScreenshotTestUtils.captureScreenshot(
+            composeTestRule,
+            "gameplay-screen-raft-on-river",
+            width = 1400,
+            height = 900
+        )
+    }
 }

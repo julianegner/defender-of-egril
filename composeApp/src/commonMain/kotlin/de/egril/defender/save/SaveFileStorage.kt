@@ -160,12 +160,13 @@ object SaveFileStorage {
             SavedDefender(
                 id = defender.id,
                 type = defender.type,
-                position = defender.position,
+                position = defender.position.value,
                 level = defender.level.value,
                 buildTimeRemaining = defender.buildTimeRemaining.value,
                 placedOnTurn = defender.placedOnTurn,
                 actionsRemaining = defender.actionsRemaining.value,
-                dragonName = defender.dragonName
+                dragonName = defender.dragonName,
+                raftId = defender.raftId.value
             )
         }
         
@@ -201,6 +202,14 @@ object SaveFileStorage {
             )
         }
         
+        val rafts = gameState.rafts.map { raft ->
+            SavedRaft(
+                id = raft.id,
+                defenderId = raft.defenderId,
+                position = raft.currentPosition.value
+            )
+        }
+        
         return SavedGame(
             id = saveId,
             timestamp = currentTimeMillis(),
@@ -220,7 +229,9 @@ object SaveFileStorage {
             fieldEffects = fieldEffects,
             traps = traps,
             comment = comment,
-            mapId = gameState.level.mapId  // Save the map ID for verification on load
+            mapId = gameState.level.mapId,  // Save the map ID for verification on load
+            rafts = rafts,
+            nextRaftId = gameState.nextRaftId.value
         )
     }
     
@@ -239,6 +250,18 @@ object SaveFileStorage {
         gameState.currentWaveIndex.value = savedGame.currentWaveIndex
         gameState.spawnCounter.value = savedGame.spawnCounter
         gameState.turnNumber.value = savedGame.turnNumber
+        gameState.nextRaftId.value = savedGame.nextRaftId
+        
+        // Restore rafts first
+        gameState.rafts.clear()
+        for (savedRaft in savedGame.rafts) {
+            val raft = Raft(
+                id = savedRaft.id,
+                defenderId = savedRaft.defenderId,
+                currentPosition = mutableStateOf(savedRaft.position)
+            )
+            gameState.rafts.add(raft)
+        }
         
         // Restore defenders
         gameState.defenders.clear()
@@ -246,13 +269,14 @@ object SaveFileStorage {
             val defender = Defender(
                 id = savedDefender.id,
                 type = savedDefender.type,
-                position = savedDefender.position,
+                position = mutableStateOf(savedDefender.position),
                 placedOnTurn = savedDefender.placedOnTurn,
                 dragonName = savedDefender.dragonName
             )
             defender.level.value = savedDefender.level
             defender.buildTimeRemaining.value = savedDefender.buildTimeRemaining
             defender.actionsRemaining.value = savedDefender.actionsRemaining
+            defender.raftId.value = savedDefender.raftId  // Restore raft linkage
             gameState.defenders.add(defender)
         }
         

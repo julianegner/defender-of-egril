@@ -32,7 +32,9 @@ data class SavedGame(
     val fieldEffects: List<SavedFieldEffect>,
     val traps: List<SavedTrap>,
     val comment: String? = null,  // Optional player comment
-    val mapId: String? = null  // Map identifier (for ensuring correct map is loaded)
+    val mapId: String? = null,  // Map identifier (for ensuring correct map is loaded)
+    val rafts: List<SavedRaft> = emptyList(),  // Rafts on river tiles
+    val nextRaftId: Int = 1  // Next raft ID to use
 )
 
 data class SavedDefender(
@@ -43,7 +45,8 @@ data class SavedDefender(
     val buildTimeRemaining: Int,
     val placedOnTurn: Int,
     val actionsRemaining: Int = 0,  // Default to 0 for backward compatibility with old saves
-    val dragonName: String? = null  // Dragon's name (for dragon's lair only)
+    val dragonName: String? = null,  // Dragon's name (for dragon's lair only)
+    val raftId: Int? = null  // ID of the raft this tower is on (null if not on raft)
 )
 
 data class SavedAttacker(
@@ -70,6 +73,12 @@ data class SavedTrap(
     val damage: Int,
     val defenderId: Int,  // Changed from mineId to defenderId to support both mine and wizard traps
     val type: String = "DWARVEN"  // Trap type as string for serialization
+)
+
+data class SavedRaft(
+    val id: Int,
+    val defenderId: Int,  // The tower on this raft
+    val position: Position
 )
 
 /**
