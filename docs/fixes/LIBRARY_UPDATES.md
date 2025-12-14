@@ -5,12 +5,12 @@ This document summarizes the library updates performed on the Defender of Egril 
 ## Updated Libraries
 
 ### Build Tools
-| Library | Previous Version | New Version | Status |
-|---------|-----------------|-------------|--------|
-| Gradle | 8.9 | 9.2.1 | ✅ Updated |
-| Kotlin | 2.1.0 | 2.2.21 | ✅ Updated |
-| Android Gradle Plugin | 8.6.0 | 8.13.1 | ✅ Updated |
-| Compose Plugin | 1.9.0 | 1.9.3 | ✅ Updated |
+| Library | Previous Version | New Version | Status                                                              |
+|---------|-----------------|-------------|---------------------------------------------------------------------|
+| Gradle | 8.9 | 9.2.1       | ✅ Updated                                                           |
+| Kotlin | 2.1.0 | 2.2.21      | ✅ Updated                                                           |
+| Android Gradle Plugin | 8.6.0 | 8.12.0      | Downgraded because intelliJ supports no newer version at the moment |
+| Compose Plugin | 1.9.0 | 1.9.3       | ✅ Updated                                                           |
 
 ### Kotlin Libraries
 | Library | Previous Version | New Version | Status |
