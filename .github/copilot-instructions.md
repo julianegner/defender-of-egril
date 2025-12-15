@@ -23,7 +23,10 @@ Defender of Egril is a turn-based tower defense game built with Kotlin Multiplat
     - `utils/`: Utilities (CheatCodeHandler, TimeUtils)
   - `composeResources/`: Multiplatform resources
     - `drawable/`: Image assets (icons, sprites)
-    - `values/strings.xml`: Default English string resources (~318 strings)
+      - Emoji icons: Files with `emoji_*.png` prefix for UI icons
+      - Dig outcome icons: Simple versions `dig_outcome_*.png` and enhanced versions `dig_outcome_*_enhanced.png`
+    - `files/tiles/`: Tile background images (organized by TileType: PATH, BUILD_AREA, ISLAND, NO_PLAY, SPAWN_POINT, TARGET)
+    - `values/strings.xml`: Default English string resources (~326 strings)
     - `values-de/strings.xml`: German translations
     - `values-es/strings.xml`: Spanish translations
     - `values-fr/strings.xml`: French translations
@@ -99,7 +102,12 @@ Defender of Egril is a turn-based tower defense game built with Kotlin Multiplat
 - **Usage in Composables**: Use `stringResource(Res.string.key_name)` for UI strings
 - **Dynamic Localization**: For runtime string access, use `LocalizedStrings.get("key_name", locale)`
 - **Language Switching**: Change `currentLanguage.value` to switch languages (triggers recomposition)
-- **Settings UI**: All screens have a settings button that opens `SettingsDialog` with language selection
+- **Settings UI**: All screens have a settings button that opens `SettingsDialog` with:
+  - Language selection
+  - Dark mode toggle
+  - Enhanced dig outcome images toggle (default: ON) - switches between `dig_outcome_*.png` and `dig_outcome_*_enhanced.png`
+  - Tile background images toggle (default: ON) - enables loading random tile images from `files/tiles/{TileType}/`
+  - Sound settings, difficulty, and other preferences
 - **Type Localization**: `LocalizationUtils.kt` provides extension functions for:
   - `DefenderType.getLocalizedName()` - Tower names
   - `DefenderType.getLocalizedShortName()` - Compact tower names
@@ -123,6 +131,11 @@ Defender of Egril is a turn-based tower defense game built with Kotlin Multiplat
 - **Hexagonal Grid**: Uses offset coordinate system (even-q vertical layout)
 - **HexUtils**: Provides neighbor detection, distance calculation, and line-of-sight
 - **Tile Types**: PATH, BUILD_AREA, ISLAND (2x2), NO_PLAY, SPAWN_POINT, TARGET, WAYPOINT
+- **Tile Rendering**: 
+  - Color-based backgrounds (always available as fallback)
+  - Optional image backgrounds: Random images loaded from `files/tiles/{TileType}/` subdirectories
+  - `TileImageProvider.kt` handles image loading and caching
+  - Settings toggle to switch between images and colors (default: images enabled)
 - **Pathfinding**: Custom hexagonal pathfinding with blocked tile detection
 
 ### Attack Types

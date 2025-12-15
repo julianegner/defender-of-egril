@@ -25,6 +25,12 @@
     <string name="dark_mode_off">Mode Sombre Désactivé</string>
     <string name="world_map_level_cards">Vue des Cartes de Niveau</string>
     <string name="world_map_image_map">Vue de la Carte Image</string>
+    <string name="enhanced_dig_images">Images de Fouille Améliorées</string>
+    <string name="enhanced_dig_images_on">Images Améliorées Activées</string>
+    <string name="enhanced_dig_images_off">Images Simples</string>
+    <string name="tile_background_images">Images de Fond de Tuile</string>
+    <string name="tile_background_images_on">Images de Tuile Activées</string>
+    <string name="tile_background_images_off">Fonds de Couleur</string>
     <string name="reset_settings">Réinitialiser les Paramètres</string>
     <string name="restore_game_data">Restaurer les Données du Jeu</string>
     <string name="restore_game_data_confirm_title">Restaurer les Données du Jeu ?</string>
@@ -246,6 +252,7 @@
     <string name="build_island">Île de construction</string>
     <string name="build_strip">Bande de construction</string>
     <string name="enemy_path">Chemin ennemi</string>
+    <string name="river">Rivière</string>
     <string name="non_playable">Non jouable</string>
     <string name="enemy_unit">Unité ennemie</string>
     <string name="map_label">Carte</string>

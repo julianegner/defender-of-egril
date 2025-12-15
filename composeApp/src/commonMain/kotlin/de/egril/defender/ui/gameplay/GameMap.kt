@@ -295,6 +295,29 @@ fun GridCell(
     val isRiverTile = gameState.level.isRiverTile(position)
     val defender = gameState.defenders.find { it.position.value == position }
     val attacker = gameState.attackers.find { it.position.value == position && !it.isDefeated.value }
+    
+    // Determine the tile type for background image loading
+    val riverTile = gameState.level.getRiverTile(position)
+    val isMaelstrom = riverTile?.flowDirection == RiverFlow.MAELSTROM
+    
+    val tileType = when {
+        isSpawnPoint -> de.egril.defender.editor.TileType.SPAWN_POINT
+        isTarget -> de.egril.defender.editor.TileType.TARGET
+        isRiverTile -> de.egril.defender.editor.TileType.RIVER
+        isOnPath -> de.egril.defender.editor.TileType.PATH
+        isBuildIsland -> de.egril.defender.editor.TileType.ISLAND
+        isBuildArea -> de.egril.defender.editor.TileType.BUILD_AREA
+        else -> de.egril.defender.editor.TileType.NO_PLAY
+    }
+    
+    // Get tile background painter (will be null if images are disabled or not available)
+    // For ready towers on build areas or islands, don't show tile background to make towers more visible
+    val shouldShowTileImage = !(defender != null && defender.isReady && (isBuildArea || isBuildIsland))
+    val tilePainter = if (shouldShowTileImage) {
+        TileImageProvider.getTilePainter(tileType, isMaelstrom = isMaelstrom)
+    } else {
+        null
+    }
 
     // Check for field effects at this position
     val fieldEffect = gameState.fieldEffects.find { it.position == position }
@@ -415,6 +438,7 @@ fun GridCell(
         backgroundColor = backgroundColor,
         borderColor = borderColor,
         borderWidth = borderWidth,
+        backgroundPainter = tilePainter,
         onClick = onClick
     ) {
         when {
@@ -510,11 +534,18 @@ fun GridCell(
                     // Show river flow direction arrows
                     val riverTile = gameState.level.getRiverTile(position)
                     if (riverTile != null) {
-                        RiverFlowIndicator(
-                            flowDirection = riverTile.flowDirection,
-                            flowSpeed = riverTile.flowSpeed,
-                            size = 28.dp
-                        )
+                        // Don't show trap icon on maelstrom when tile images are enabled
+                        // (the tile_river_maelstrom.png image already shows the maelstrom visually)
+                        val useTileImages = de.egril.defender.ui.settings.AppSettings.useTileImages.value
+                        val isMaelstromWithTileImage = riverTile.flowDirection == RiverFlow.MAELSTROM && useTileImages
+                        
+                        if (!isMaelstromWithTileImage) {
+                            RiverFlowIndicator(
+                                flowDirection = riverTile.flowDirection,
+                                flowSpeed = riverTile.flowSpeed,
+                                size = 28.dp
+                            )
+                        }
                     }
                 }
             }
