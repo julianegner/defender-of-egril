@@ -385,7 +385,8 @@ object EditorJsonSerializer {
             """{
       "fromLocationId": "${path.fromLocationId}",
       "toLocationId": "${path.toLocationId}",
-      "controlPoints": $controlPointsJson
+      "controlPoints": $controlPointsJson,
+      "type": "${path.type.name}"
     }"""
         }
         
@@ -462,7 +463,19 @@ object EditorJsonSerializer {
                         }
                     }
                     
-                    paths.add(WorldMapPathData(fromLocationId, toLocationId, controlPoints))
+                    // Parse connection type (default to ROAD for backward compatibility)
+                    val type = try {
+                        if (entry.contains("\"type\"")) {
+                            val typeStr = JsonUtils.extractValue(entry, "type")
+                            ConnectionType.valueOf(typeStr)
+                        } else {
+                            ConnectionType.ROAD
+                        }
+                    } catch (e: Exception) {
+                        ConnectionType.ROAD
+                    }
+                    
+                    paths.add(WorldMapPathData(fromLocationId, toLocationId, controlPoints, type))
                 }
             }
             
