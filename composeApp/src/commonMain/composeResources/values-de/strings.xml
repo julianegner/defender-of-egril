@@ -252,6 +252,7 @@
     <string name="build_island">Bauinsel</string>
     <string name="build_strip">Baustreifen</string>
     <string name="enemy_path">Feindpfad</string>
+    <string name="river">Fluss</string>
     <string name="non_playable">Nicht spielbar</string>
     <string name="enemy_unit">Feindeinheit</string>
     <string name="map_label">Karte</string>

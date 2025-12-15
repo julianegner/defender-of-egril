@@ -252,6 +252,7 @@
     <string name="build_island">Île de construction</string>
     <string name="build_strip">Bande de construction</string>
     <string name="enemy_path">Chemin ennemi</string>
+    <string name="river">Rivière</string>
     <string name="non_playable">Non jouable</string>
     <string name="enemy_unit">Unité ennemie</string>
     <string name="map_label">Carte</string>
