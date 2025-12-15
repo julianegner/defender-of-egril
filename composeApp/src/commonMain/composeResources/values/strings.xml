@@ -252,6 +252,7 @@
     <string name="build_island">Build Island</string>
     <string name="build_strip">Build Strip</string>
     <string name="enemy_path">Enemy Path</string>
+    <string name="river">River</string>
     <string name="non_playable">Non-Playable</string>
     <string name="enemy_unit">Enemy Unit</string>
     <string name="map_label">Map</string>

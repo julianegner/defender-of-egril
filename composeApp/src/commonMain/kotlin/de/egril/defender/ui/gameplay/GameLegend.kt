@@ -78,6 +78,15 @@ fun GameLegend(modifier: Modifier = Modifier) {
                     }
                     item {
                         LegendItemHex(
+                            color = GamePlayColors.River,
+                            label = "",
+                            description = stringResource(Res.string.river),
+                            border = borderColor,
+                            tileType = de.egril.defender.editor.TileType.RIVER
+                        )
+                    }
+                    item {
+                        LegendItemHex(
                             color = GamePlayColors.NonPlayable,
                             label = "",
                             description = stringResource(Res.string.non_playable),

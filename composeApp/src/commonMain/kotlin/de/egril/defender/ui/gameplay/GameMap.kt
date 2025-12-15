@@ -297,9 +297,13 @@ fun GridCell(
     val attacker = gameState.attackers.find { it.position.value == position && !it.isDefeated.value }
     
     // Determine the tile type for background image loading
+    val riverTile = gameState.level.getRiverTile(position)
+    val isMaelstrom = riverTile?.flowDirection == RiverFlow.MAELSTROM
+    
     val tileType = when {
         isSpawnPoint -> de.egril.defender.editor.TileType.SPAWN_POINT
         isTarget -> de.egril.defender.editor.TileType.TARGET
+        isRiverTile -> de.egril.defender.editor.TileType.RIVER
         isOnPath -> de.egril.defender.editor.TileType.PATH
         isBuildIsland -> de.egril.defender.editor.TileType.ISLAND
         isBuildArea -> de.egril.defender.editor.TileType.BUILD_AREA
@@ -310,7 +314,7 @@ fun GridCell(
     // For ready towers on build areas or islands, don't show tile background to make towers more visible
     val shouldShowTileImage = !(defender != null && defender.isReady && (isBuildArea || isBuildIsland))
     val tilePainter = if (shouldShowTileImage) {
-        TileImageProvider.getTilePainter(tileType)
+        TileImageProvider.getTilePainter(tileType, isMaelstrom = isMaelstrom)
     } else {
         null
     }
