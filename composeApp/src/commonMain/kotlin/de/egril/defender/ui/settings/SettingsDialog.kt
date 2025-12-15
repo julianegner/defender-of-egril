@@ -80,10 +80,10 @@ fun SettingsDialog(
                     )
                     
                     // World map style switch
-                    GenericSwitch(
+                    DualLabelSwitch(
                         state = AppSettings.useLevelCards,
-                        checkedText = stringResource(Res.string.world_map_level_cards),
-                        uncheckedText = stringResource(Res.string.world_map_image_map),
+                        leftText = stringResource(Res.string.world_map_image_map),
+                        rightText = stringResource(Res.string.world_map_level_cards),
                         onCheckedChange = { enabled ->
                             AppSettings.saveUseLevelCards(enabled)
                         },
@@ -91,10 +91,10 @@ fun SettingsDialog(
                     )
                     
                     // Tile background images switch
-                    GenericSwitch(
+                    DualLabelSwitch(
                         state = AppSettings.useTileImages,
-                        checkedText = stringResource(Res.string.tile_background_images_on),
-                        uncheckedText = stringResource(Res.string.tile_background_images_off),
+                        leftText = stringResource(Res.string.tile_background_images_off),
+                        rightText = stringResource(Res.string.tile_background_images_on),
                         onCheckedChange = { enabled ->
                             AppSettings.saveUseTileImages(enabled)
                         },
