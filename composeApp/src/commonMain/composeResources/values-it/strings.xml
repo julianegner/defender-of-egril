@@ -25,6 +25,12 @@
     <string name="dark_mode_off">Modalità Scura Disattiva</string>
     <string name="world_map_level_cards">Vista Schede di Livello</string>
     <string name="world_map_image_map">Vista Mappa Immagine</string>
+    <string name="enhanced_dig_images">Immagini di Scavo Migliorate</string>
+    <string name="enhanced_dig_images_on">Immagini Migliorate Attive</string>
+    <string name="enhanced_dig_images_off">Immagini Semplici</string>
+    <string name="tile_background_images">Immagini di Sfondo delle Tessere</string>
+    <string name="tile_background_images_on">Immagini delle Tessere Attive</string>
+    <string name="tile_background_images_off">Sfondi a Colori</string>
     <string name="reset_settings">Ripristina Impostazioni</string>
     <string name="restore_game_data">Ripristina Dati di Gioco</string>
     <string name="restore_game_data_confirm_title">Ripristinare i Dati di Gioco?</string>
@@ -246,6 +252,7 @@
     <string name="build_island">Isola di costruzione</string>
     <string name="build_strip">Striscia di costruzione</string>
     <string name="enemy_path">Percorso nemico</string>
+    <string name="river">Fiume</string>
     <string name="non_playable">Non giocabile</string>
     <string name="enemy_unit">Unità nemica</string>
     <string name="map_label">Mappa</string>

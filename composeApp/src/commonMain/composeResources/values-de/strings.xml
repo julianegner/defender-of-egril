@@ -25,6 +25,12 @@
     <string name="dark_mode_off">Dunkler Modus aus</string>
     <string name="world_map_level_cards">Levelkarten-Ansicht</string>
     <string name="world_map_image_map">Bildkarte-Ansicht</string>
+    <string name="enhanced_dig_images">Verbesserte Grabungsbilder</string>
+    <string name="enhanced_dig_images_on">Verbesserte Bilder An</string>
+    <string name="enhanced_dig_images_off">Einfache Bilder</string>
+    <string name="tile_background_images">Kachel-Hintergrundbilder</string>
+    <string name="tile_background_images_on">Kachelbilder An</string>
+    <string name="tile_background_images_off">Farbhintergründe</string>
     <string name="reset_settings">Einstellungen zurücksetzen</string>
     <string name="restore_game_data">Spieldaten wiederherstellen</string>
     <string name="restore_game_data_confirm_title">Spieldaten wiederherstellen?</string>
@@ -246,6 +252,7 @@
     <string name="build_island">Bauinsel</string>
     <string name="build_strip">Baustreifen</string>
     <string name="enemy_path">Feindpfad</string>
+    <string name="river">Fluss</string>
     <string name="non_playable">Nicht spielbar</string>
     <string name="enemy_unit">Feindeinheit</string>
     <string name="map_label">Karte</string>

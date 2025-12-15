@@ -25,6 +25,12 @@
     <string name="dark_mode_off">Modo Oscuro Desactivado</string>
     <string name="world_map_level_cards">Vista de Tarjetas de Nivel</string>
     <string name="world_map_image_map">Vista de Mapa de Imagen</string>
+    <string name="enhanced_dig_images">Imágenes de Excavación Mejoradas</string>
+    <string name="enhanced_dig_images_on">Imágenes Mejoradas Activadas</string>
+    <string name="enhanced_dig_images_off">Imágenes Simples</string>
+    <string name="tile_background_images">Imágenes de Fondo de Casilla</string>
+    <string name="tile_background_images_on">Imágenes de Casilla Activadas</string>
+    <string name="tile_background_images_off">Fondos de Color</string>
     <string name="reset_settings">Restablecer Configuración</string>
     <string name="restore_game_data">Restaurar Datos del Juego</string>
     <string name="restore_game_data_confirm_title">¿Restaurar Datos del Juego?</string>
@@ -246,6 +252,7 @@
     <string name="build_island">Isla de construcción</string>
     <string name="build_strip">Franja de construcción</string>
     <string name="enemy_path">Camino enemigo</string>
+    <string name="river">Río</string>
     <string name="non_playable">No jugable</string>
     <string name="enemy_unit">Unidad enemiga</string>
     <string name="map_label">Mapa</string>
