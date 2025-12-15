@@ -670,31 +670,6 @@ private fun PathListItem(
         }
     }
 }
-                Text(
-                    text = "$fromName → $toName",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-                Text(
-                    text = "${path.controlPoints.size} control points",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-            
-            // Delete button
-            TextButton(
-                onClick = onDelete,
-                contentPadding = PaddingValues(4.dp)
-            ) {
-                Text(
-                    text = "X",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color.Red
-                )
-            }
-        }
-    }
-}
 
 /**
  * Dialog for adding a new location
