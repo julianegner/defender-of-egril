@@ -534,11 +534,18 @@ fun GridCell(
                     // Show river flow direction arrows
                     val riverTile = gameState.level.getRiverTile(position)
                     if (riverTile != null) {
-                        RiverFlowIndicator(
-                            flowDirection = riverTile.flowDirection,
-                            flowSpeed = riverTile.flowSpeed,
-                            size = 28.dp
-                        )
+                        // Don't show trap icon on maelstrom when tile images are enabled
+                        // (the tile_river_maelstrom.png image already shows the maelstrom visually)
+                        val useTileImages = de.egril.defender.ui.settings.AppSettings.useTileImages.value
+                        val isMaelstromWithTileImage = riverTile.flowDirection == RiverFlow.MAELSTROM && useTileImages
+                        
+                        if (!isMaelstromWithTileImage) {
+                            RiverFlowIndicator(
+                                flowDirection = riverTile.flowDirection,
+                                flowSpeed = riverTile.flowSpeed,
+                                size = 28.dp
+                            )
+                        }
                     }
                 }
             }
