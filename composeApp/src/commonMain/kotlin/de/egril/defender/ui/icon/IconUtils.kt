@@ -557,10 +557,13 @@ fun DigOutcomeIcon(
         DigOutcome.DRAGON -> Res.drawable.dragon_destroying_mine
     }
 
+    // Dragon image is displayed at double size (2x in both dimensions)
+    val displaySize = if (outcome == DigOutcome.DRAGON) size * 2 else size
+
     Image(
         painter = painterResource(resource),
         contentDescription = outcome.displayName,
-        modifier = modifier.size(size)
+        modifier = modifier.size(displaySize)
     )
 }
 
