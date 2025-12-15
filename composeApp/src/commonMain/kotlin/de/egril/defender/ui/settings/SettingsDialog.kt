@@ -89,6 +89,17 @@ fun SettingsDialog(
                         },
                         modifier = Modifier.fillMaxWidth()
                     )
+                    
+                    // Tile background images switch
+                    GenericSwitch(
+                        state = AppSettings.useTileImages,
+                        checkedText = stringResource(Res.string.tile_background_images_on),
+                        uncheckedText = stringResource(Res.string.tile_background_images_off),
+                        onCheckedChange = { enabled ->
+                            AppSettings.saveUseTileImages(enabled)
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    )
                 }
                 
                 HorizontalDivider()
