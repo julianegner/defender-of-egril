@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -26,6 +27,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import de.egril.defender.editor.ConnectionType
 import de.egril.defender.editor.EditorStorage
 import de.egril.defender.editor.WorldMapData
 import de.egril.defender.editor.WorldMapLocationData
@@ -51,6 +53,8 @@ fun WorldMapPositionEditorContent() {
     var containerSize by remember { mutableStateOf(IntSize.Zero) }
     var showAddLocationDialog by remember { mutableStateOf(false) }
     var showEditPathDialog by remember { mutableStateOf<WorldMapPathData?>(null) }
+    var showAddConnectionDialog by remember { mutableStateOf(false) }
+    var connectionCreationState by remember { mutableStateOf<Pair<String, String?>?>(null) } // (fromLocationId, toLocationId?)
     
     val isDarkMode = AppSettings.isDarkMode.value
     
@@ -172,6 +176,8 @@ fun WorldMapPositionEditorContent() {
                         items(worldMapData.locations) { location ->
                             LocationListItem(
                                 location = location,
+                                worldMapData = worldMapData,
+                                allLevels = allLevels,
                                 isSelected = location.id == selectedLocationId,
                                 onClick = {
                                     selectedLocationId = if (selectedLocationId == location.id) null else location.id
@@ -189,20 +195,32 @@ fun WorldMapPositionEditorContent() {
                     
                     Divider(modifier = Modifier.padding(vertical = 8.dp))
                     
-                    Text(
-                        text = "Paths (${worldMapData.paths.size})",
-                        style = MaterialTheme.typography.titleSmall,
-                        modifier = Modifier.padding(bottom = 8.dp)
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Connections (${worldMapData.paths.size})",
+                            style = MaterialTheme.typography.titleSmall
+                        )
+                        Button(
+                            onClick = { showAddConnectionDialog = true },
+                            modifier = Modifier.padding(start = 8.dp)
+                        ) {
+                            Text("+")
+                        }
+                    }
                     
                     LazyColumn(
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier.weight(1f).padding(top = 8.dp),
                         verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         items(worldMapData.paths) { path ->
                             PathListItem(
                                 path = path,
                                 locations = worldMapData.locations,
+                                allLevels = allLevels,
                                 onClick = { showEditPathDialog = path },
                                 onDelete = {
                                     EditorStorage.deleteWorldMapPath(path.fromLocationId, path.toLocationId)
@@ -239,6 +257,19 @@ fun WorldMapPositionEditorContent() {
                 EditorStorage.saveWorldMapPath(updatedPath)
                 worldMapData = EditorStorage.getWorldMapData()
                 showEditPathDialog = null
+            }
+        )
+    }
+    
+    // Add Connection Dialog
+    if (showAddConnectionDialog) {
+        AddConnectionDialog(
+            locations = worldMapData.locations,
+            onDismiss = { showAddConnectionDialog = false },
+            onConfirm = { newPath ->
+                EditorStorage.saveWorldMapPath(newPath)
+                worldMapData = EditorStorage.getWorldMapData()
+                showAddConnectionDialog = false
             }
         )
     }
@@ -350,12 +381,34 @@ private fun WorldMapCanvas(
             }
             
             // Draw paths first (so they appear behind locations)
-            val roadColor = if (isDarkMode) Color(0xFF8B4513) else Color(0xFFA0522D)
             val locationById = worldMapData.locations.associateBy { it.id }
             
             for (path in worldMapData.paths) {
                 val fromLocation = locationById[path.fromLocationId] ?: continue
                 val toLocation = locationById[path.toLocationId] ?: continue
+                
+                // Check if path is valid
+                val isValid = path.isValidConnection(worldMapData.locations, allLevels)
+                
+                // Determine color and dash pattern based on connection type and validity
+                val (lineColor, dashPattern) = when (path.type) {
+                    ConnectionType.ROAD -> {
+                        val color = if (isValid) {
+                            if (isDarkMode) Color(0xFFD2691E) else Color(0xFFA0522D)
+                        } else {
+                            Color(0xFFFFA500) // Orange for invalid
+                        }
+                        color to null
+                    }
+                    ConnectionType.SEA_ROUTE -> {
+                        val color = if (isValid) {
+                            if (isDarkMode) Color(0xFF1E90FF) else Color(0xFF00008B)
+                        } else {
+                            Color(0xFFFFA500) // Orange for invalid
+                        }
+                        color to PathEffect.dashPathEffect(floatArrayOf(15f, 10f), 0f)
+                    }
+                }
                 
                 val startX = imageOffsetX + (fromLocation.position.x / 1000f) * imageWidth
                 val startY = imageOffsetY + (fromLocation.position.y / 1000f) * imageHeight
@@ -365,12 +418,12 @@ private fun WorldMapCanvas(
                 if (path.controlPoints.isEmpty()) {
                     // Draw straight line
                     drawLine(
-                        color = roadColor,
+                        color = lineColor,
                         start = Offset(startX, startY),
                         end = Offset(endX, endY),
                         strokeWidth = 3f,
                         cap = StrokeCap.Round,
-                        pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 5f), 0f)
+                        pathEffect = dashPattern
                     )
                 } else {
                     // Draw curved path through control points
@@ -382,12 +435,12 @@ private fun WorldMapCanvas(
                         val cpY = imageOffsetY + (cp.y / 1000f) * imageHeight
                         
                         drawLine(
-                            color = roadColor,
+                            color = lineColor,
                             start = Offset(prevX, prevY),
                             end = Offset(cpX, cpY),
                             strokeWidth = 3f,
                             cap = StrokeCap.Round,
-                            pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 5f), 0f)
+                            pathEffect = dashPattern
                         )
                         
                         prevX = cpX
@@ -396,12 +449,12 @@ private fun WorldMapCanvas(
                     
                     // Draw final segment
                     drawLine(
-                        color = roadColor,
+                        color = lineColor,
                         start = Offset(prevX, prevY),
                         end = Offset(endX, endY),
                         strokeWidth = 3f,
                         cap = StrokeCap.Round,
-                        pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 5f), 0f)
+                        pathEffect = dashPattern
                     )
                 }
             }
@@ -459,10 +512,15 @@ private fun WorldMapCanvas(
 @Composable
 private fun LocationListItem(
     location: WorldMapLocationData,
+    worldMapData: WorldMapData,
+    allLevels: List<de.egril.defender.editor.EditorLevel>,
     isSelected: Boolean,
     onClick: () -> Unit,
     onDelete: () -> Unit
 ) {
+    // Check if location has unfulfilled prerequisites
+    val hasUnfulfilledPrereqs = worldMapData.hasLocationWithUnfulfilledPrerequisites(location.id, allLevels)
+    
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -480,10 +538,23 @@ private fun LocationListItem(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = location.name,
-                    style = MaterialTheme.typography.bodyMedium
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    // Warning icon if location has unfulfilled prerequisites
+                    if (hasUnfulfilledPrereqs) {
+                        Text(
+                            text = "⚠",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color(0xFFFFA500) // Orange
+                        )
+                    }
+                    Text(
+                        text = location.name,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
                 Text(
                     text = "Position: ${location.position.x}, ${location.position.y} | ${location.levelIds.size} levels",
                     style = MaterialTheme.typography.bodySmall,
@@ -513,11 +584,25 @@ private fun LocationListItem(
 private fun PathListItem(
     path: WorldMapPathData,
     locations: List<WorldMapLocationData>,
+    allLevels: List<de.egril.defender.editor.EditorLevel>,
     onClick: () -> Unit,
     onDelete: () -> Unit
 ) {
     val fromName = locations.find { it.id == path.fromLocationId }?.name ?: path.fromLocationId
     val toName = locations.find { it.id == path.toLocationId }?.name ?: path.toLocationId
+    
+    // Check if connection is valid based on level prerequisites
+    val isValid = path.isValidConnection(locations, allLevels)
+    
+    // Determine connection type display
+    val connectionTypeText = when (path.type) {
+        ConnectionType.ROAD -> "Road"
+        ConnectionType.SEA_ROUTE -> "Sea"
+    }
+    val connectionTypeColor = when (path.type) {
+        ConnectionType.ROAD -> Color(0xFFA0522D) // Brown
+        ConnectionType.SEA_ROUTE -> Color(0xFF00008B) // Dark blue
+    }
     
     Card(
         modifier = Modifier
@@ -531,6 +616,60 @@ private fun PathListItem(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(modifier = Modifier.weight(1f)) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    // Warning icon if connection is invalid
+                    if (!isValid) {
+                        Text(
+                            text = "⚠",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color(0xFFFFA500) // Orange
+                        )
+                    }
+                    Text(
+                        text = "$fromName → $toName",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "${path.controlPoints.size} waypoints",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Surface(
+                        shape = RoundedCornerShape(4.dp),
+                        color = connectionTypeColor.copy(alpha = 0.2f)
+                    ) {
+                        Text(
+                            text = connectionTypeText,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = connectionTypeColor,
+                            modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp)
+                        )
+                    }
+                }
+            }
+            
+            // Delete button
+            TextButton(
+                onClick = onDelete,
+                contentPadding = PaddingValues(4.dp)
+            ) {
+                Text(
+                    text = "X",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.Red
+                )
+            }
+        }
+    }
+}
                 Text(
                     text = "$fromName → $toName",
                     style = MaterialTheme.typography.bodyMedium
@@ -659,22 +798,57 @@ private fun EditPathDialog(
     onConfirm: (WorldMapPathData) -> Unit
 ) {
     var controlPoints by remember { mutableStateOf(path.controlPoints.toMutableList()) }
+    var connectionType by remember { mutableStateOf(path.type) }
     var newX by remember { mutableStateOf("") }
     var newY by remember { mutableStateOf("") }
     
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Edit Path Control Points") },
+        title = { Text("Edit Connection") },
         text = {
             Column {
                 Text(
-                    "Path: ${path.fromLocationId} → ${path.toLocationId}",
+                    "Connection: ${path.fromLocationId} → ${path.toLocationId}",
                     style = MaterialTheme.typography.bodyMedium
                 )
                 
                 Spacer(modifier = Modifier.height(16.dp))
                 
-                Text("Control Points (0-1000):", style = MaterialTheme.typography.bodySmall)
+                // Connection type selector
+                Text("Connection Type:", style = MaterialTheme.typography.bodySmall)
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Button(
+                        onClick = { connectionType = ConnectionType.ROAD },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (connectionType == ConnectionType.ROAD) 
+                                MaterialTheme.colorScheme.primary 
+                            else 
+                                MaterialTheme.colorScheme.surfaceVariant
+                        ),
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("Road")
+                    }
+                    Button(
+                        onClick = { connectionType = ConnectionType.SEA_ROUTE },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (connectionType == ConnectionType.SEA_ROUTE) 
+                                MaterialTheme.colorScheme.primary 
+                            else 
+                                MaterialTheme.colorScheme.surfaceVariant
+                        ),
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("Sea")
+                    }
+                }
+                
+                Divider(modifier = Modifier.padding(vertical = 8.dp))
+                
+                Text("Waypoints (0-1000):", style = MaterialTheme.typography.bodySmall)
                 
                 LazyColumn(
                     modifier = Modifier.height(150.dp)
@@ -698,7 +872,7 @@ private fun EditPathDialog(
                 
                 Divider(modifier = Modifier.padding(vertical = 8.dp))
                 
-                Text("Add Control Point:", style = MaterialTheme.typography.bodySmall)
+                Text("Add Waypoint:", style = MaterialTheme.typography.bodySmall)
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically
@@ -734,7 +908,7 @@ private fun EditPathDialog(
         confirmButton = {
             Button(
                 onClick = {
-                    onConfirm(path.copy(controlPoints = controlPoints))
+                    onConfirm(path.copy(controlPoints = controlPoints, type = connectionType))
                 }
             ) {
                 Text("Save")
@@ -747,3 +921,142 @@ private fun EditPathDialog(
         }
     )
 }
+
+/**
+ * Dialog for adding a new connection between two locations
+ */
+@Composable
+private fun AddConnectionDialog(
+    locations: List<WorldMapLocationData>,
+    onDismiss: () -> Unit,
+    onConfirm: (WorldMapPathData) -> Unit
+) {
+    var fromLocationId by remember { mutableStateOf<String?>(null) }
+    var toLocationId by remember { mutableStateOf<String?>(null) }
+    var connectionType by remember { mutableStateOf(ConnectionType.ROAD) }
+    
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Add Connection") },
+        text = {
+            Column {
+                Text("Select two locations to connect:", style = MaterialTheme.typography.bodyMedium)
+                
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                // From location selector
+                Text("From:", style = MaterialTheme.typography.bodySmall)
+                LazyColumn(
+                    modifier = Modifier.height(120.dp).padding(bottom = 8.dp)
+                ) {
+                    items(locations) { location ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { fromLocationId = location.id }
+                                .padding(8.dp)
+                                .background(
+                                    if (fromLocationId == location.id) 
+                                        MaterialTheme.colorScheme.primaryContainer 
+                                    else 
+                                        Color.Transparent
+                                ),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(
+                                selected = fromLocationId == location.id,
+                                onClick = { fromLocationId = location.id }
+                            )
+                            Text(location.name)
+                        }
+                    }
+                }
+                
+                // To location selector
+                Text("To:", style = MaterialTheme.typography.bodySmall)
+                LazyColumn(
+                    modifier = Modifier.height(120.dp).padding(bottom = 8.dp)
+                ) {
+                    items(locations) { location ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { toLocationId = location.id }
+                                .padding(8.dp)
+                                .background(
+                                    if (toLocationId == location.id) 
+                                        MaterialTheme.colorScheme.primaryContainer 
+                                    else 
+                                        Color.Transparent
+                                ),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(
+                                selected = toLocationId == location.id,
+                                onClick = { toLocationId = location.id }
+                            )
+                            Text(location.name)
+                        }
+                    }
+                }
+                
+                Divider(modifier = Modifier.padding(vertical = 8.dp))
+                
+                // Connection type selector
+                Text("Connection Type:", style = MaterialTheme.typography.bodySmall)
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Button(
+                        onClick = { connectionType = ConnectionType.ROAD },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (connectionType == ConnectionType.ROAD) 
+                                MaterialTheme.colorScheme.primary 
+                            else 
+                                MaterialTheme.colorScheme.surfaceVariant
+                        ),
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("Road")
+                    }
+                    Button(
+                        onClick = { connectionType = ConnectionType.SEA_ROUTE },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (connectionType == ConnectionType.SEA_ROUTE) 
+                                MaterialTheme.colorScheme.primary 
+                            else 
+                                MaterialTheme.colorScheme.surfaceVariant
+                        ),
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("Sea")
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    if (fromLocationId != null && toLocationId != null && fromLocationId != toLocationId) {
+                        onConfirm(WorldMapPathData(
+                            fromLocationId = fromLocationId!!,
+                            toLocationId = toLocationId!!,
+                            controlPoints = emptyList(),
+                            type = connectionType
+                        ))
+                    }
+                },
+                enabled = fromLocationId != null && toLocationId != null && fromLocationId != toLocationId
+            ) {
+                Text("Add")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
+}
+

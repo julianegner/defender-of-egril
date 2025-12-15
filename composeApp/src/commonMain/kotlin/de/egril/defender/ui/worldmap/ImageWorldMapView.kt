@@ -60,7 +60,8 @@ data class WorldMapLocation(
 data class WorldMapRoad(
     val fromLocation: WorldMapLocation,
     val toLocation: WorldMapLocation,
-    val controlPoints: List<Pair<Float, Float>> = emptyList()  // Control points as (x, y) fractions
+    val controlPoints: List<Pair<Float, Float>> = emptyList(),  // Control points as (x, y) fractions
+    val type: de.egril.defender.editor.ConnectionType = de.egril.defender.editor.ConnectionType.ROAD  // Connection type
 )
 
 /**
@@ -251,6 +252,7 @@ fun ImageWorldMapView(
 /**
  * Overlay that draws road connections between locations
  * Supports both straight lines and curved paths with control points
+ * Roads are rendered as light brown curved lines, sea routes as dark blue dashed lines
  */
 @Composable
 private fun BoxScope.RoadConnectionsOverlay(
@@ -259,8 +261,6 @@ private fun BoxScope.RoadConnectionsOverlay(
     isDarkMode: Boolean,
     imageAspectRatio: Float
 ) {
-    val roadColor = if (isDarkMode) Color(0xFF8B4513) else Color(0xFFA0522D)  // Brown road color
-    
     // Calculate actual image bounds within container (accounting for ContentScale.Fit)
     val containerAspectRatio = containerSize.width.toFloat() / containerSize.height.toFloat().coerceAtLeast(1f)
     
@@ -280,6 +280,20 @@ private fun BoxScope.RoadConnectionsOverlay(
     
     Canvas(modifier = Modifier.fillMaxSize()) {
         for (road in roads) {
+            // Determine color and dash pattern based on connection type
+            val (lineColor, dashPattern) = when (road.type) {
+                de.egril.defender.editor.ConnectionType.ROAD -> {
+                    // Light brown for roads, solid line
+                    val color = if (isDarkMode) Color(0xFFD2691E) else Color(0xFFA0522D)
+                    color to null
+                }
+                de.egril.defender.editor.ConnectionType.SEA_ROUTE -> {
+                    // Dark blue for sea routes, dashed line
+                    val color = if (isDarkMode) Color(0xFF1E90FF) else Color(0xFF00008B)
+                    color to PathEffect.dashPathEffect(floatArrayOf(15f, 10f), 0f)
+                }
+            }
+            
             // Convert normalized coordinates to actual screen position within the image bounds
             val startX = imageOffsetX + road.fromLocation.x * imageWidth
             val startY = imageOffsetY + road.fromLocation.y * imageHeight
@@ -289,30 +303,53 @@ private fun BoxScope.RoadConnectionsOverlay(
             if (road.controlPoints.isEmpty()) {
                 // Draw straight line
                 drawLine(
-                    color = roadColor,
+                    color = lineColor,
                     start = Offset(startX, startY),
                     end = Offset(endX, endY),
                     strokeWidth = 4f,
                     cap = StrokeCap.Round,
-                    pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 5f), 0f)
+                    pathEffect = dashPattern
                 )
             } else {
-                // Draw curved path through control points
+                // Draw curved path through control points using Catmull-Rom spline
                 val allPoints = mutableListOf(Offset(startX, startY))
                 for (cp in road.controlPoints) {
                     allPoints.add(Offset(imageOffsetX + cp.first * imageWidth, imageOffsetY + cp.second * imageHeight))
                 }
                 allPoints.add(Offset(endX, endY))
                 
-                // Draw line segments between points
-                for (i in 0 until allPoints.size - 1) {
-                    drawLine(
-                        color = roadColor,
-                        start = allPoints[i],
-                        end = allPoints[i + 1],
-                        strokeWidth = 4f,
-                        cap = StrokeCap.Round,
-                        pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 5f), 0f)
+                // Draw smooth curve through points
+                if (allPoints.size >= 2) {
+                    val path = androidx.compose.ui.graphics.Path()
+                    path.moveTo(allPoints[0].x, allPoints[0].y)
+                    
+                    // Use quadratic bezier curves between consecutive points for smoothness
+                    for (i in 0 until allPoints.size - 1) {
+                        val current = allPoints[i]
+                        val next = allPoints[i + 1]
+                        
+                        // Calculate control point at midpoint
+                        val controlX = (current.x + next.x) / 2
+                        val controlY = (current.y + next.y) / 2
+                        
+                        // For smoother curves, use the actual control points when available
+                        if (i < allPoints.size - 2) {
+                            // Not the last segment, use quadratic bezier
+                            path.quadraticBezierTo(current.x, current.y, controlX, controlY)
+                        } else {
+                            // Last segment, draw to end point
+                            path.quadraticBezierTo(current.x, current.y, next.x, next.y)
+                        }
+                    }
+                    
+                    drawPath(
+                        path = path,
+                        color = lineColor,
+                        style = androidx.compose.ui.graphics.drawscope.Stroke(
+                            width = 4f,
+                            cap = StrokeCap.Round,
+                            pathEffect = dashPattern
+                        )
                     )
                 }
             }
@@ -521,7 +558,8 @@ private fun generateFromWorldMapData(
             roads.add(WorldMapRoad(
                 fromLocation = fromLocation,
                 toLocation = toLocation,
-                controlPoints = controlPoints
+                controlPoints = controlPoints,
+                type = pathData.type
             ))
         }
         // If locations are hidden but path should still be visible, create temporary locations
@@ -552,7 +590,8 @@ private fun generateFromWorldMapData(
                 roads.add(WorldMapRoad(
                     fromLocation = tempFromLocation,
                     toLocation = tempToLocation,
-                    controlPoints = controlPoints
+                    controlPoints = controlPoints,
+                    type = pathData.type
                 ))
             }
         }
