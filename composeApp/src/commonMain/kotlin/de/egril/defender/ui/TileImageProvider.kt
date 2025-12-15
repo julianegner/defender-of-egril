@@ -9,6 +9,8 @@ import defender_of_egril.composeapp.generated.resources.tile_build_area
 import defender_of_egril.composeapp.generated.resources.tile_island
 import defender_of_egril.composeapp.generated.resources.tile_no_play
 import defender_of_egril.composeapp.generated.resources.tile_path
+import defender_of_egril.composeapp.generated.resources.tile_river
+import defender_of_egril.composeapp.generated.resources.tile_river_maelstrom
 import org.jetbrains.compose.resources.painterResource
 
 /**
@@ -22,9 +24,11 @@ object TileImageProvider {
      * Returns null if:
      * - Tile images are disabled in settings
      * - No image is available for this tile type
+     * 
+     * For RIVER tiles, pass isMaelstrom=true to get the maelstrom variant.
      */
     @Composable
-    fun getTilePainter(tileType: TileType): Painter? {
+    fun getTilePainter(tileType: TileType, isMaelstrom: Boolean = false): Painter? {
         val useTileImages = AppSettings.useTileImages.value
         
         if (!useTileImages) {
@@ -36,6 +40,11 @@ object TileImageProvider {
             TileType.BUILD_AREA -> painterResource(Res.drawable.tile_build_area)
             TileType.ISLAND -> painterResource(Res.drawable.tile_island)
             TileType.NO_PLAY -> painterResource(Res.drawable.tile_no_play)
+            TileType.RIVER -> if (isMaelstrom) {
+                painterResource(Res.drawable.tile_river_maelstrom)
+            } else {
+                painterResource(Res.drawable.tile_river)
+            }
             TileType.SPAWN_POINT -> null  // No tile image yet
             TileType.TARGET -> null  // No tile image yet
         }

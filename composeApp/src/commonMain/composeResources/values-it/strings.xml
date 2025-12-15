@@ -252,6 +252,7 @@
     <string name="build_island">Isola di costruzione</string>
     <string name="build_strip">Striscia di costruzione</string>
     <string name="enemy_path">Percorso nemico</string>
+    <string name="river">Fiume</string>
     <string name="non_playable">Non giocabile</string>
     <string name="enemy_unit">Unità nemica</string>
     <string name="map_label">Mappa</string>
