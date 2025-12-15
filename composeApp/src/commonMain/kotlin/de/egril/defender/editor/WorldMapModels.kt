@@ -41,6 +41,14 @@ data class WorldMapPoint(
 }
 
 /**
+ * Type of connection between locations on the world map
+ */
+enum class ConnectionType {
+    ROAD,       // Land route - displayed as light brown curved line
+    SEA_ROUTE   // Sea route - displayed as dark blue dashed curved line
+}
+
+/**
  * A location on the world map that can contain multiple levels.
  * The location is only visible if at least one of its levels is ready to play.
  */
@@ -59,7 +67,8 @@ data class WorldMapLocationData(
 data class WorldMapPathData(
     val fromLocationId: String,          // Source location ID
     val toLocationId: String,            // Destination location ID
-    val controlPoints: List<WorldMapPoint> = emptyList()  // Optional control points for curved paths
+    val controlPoints: List<WorldMapPoint> = emptyList(),  // Optional control points for curved paths
+    val type: ConnectionType = ConnectionType.ROAD  // Type of connection (ROAD or SEA_ROUTE)
 ) {
     /**
      * Check if this path represents a valid connection based on level prerequisites.
@@ -133,5 +142,21 @@ data class WorldMapData(
      */
     fun getPathsForLocation(locationId: String): List<WorldMapPathData> {
         return paths.filter { it.fromLocationId == locationId || it.toLocationId == locationId }
+    }
+    
+    /**
+     * Check if a location has any level whose prerequisites are not fulfilled by other levels at that location.
+     * This indicates a potential configuration issue in the editor.
+     */
+    fun hasLocationWithUnfulfilledPrerequisites(locationId: String, levels: List<EditorLevel>): Boolean {
+        val location = findLocation(locationId) ?: return false
+        val levelIdsAtLocation = location.levelIds.toSet()
+        
+        // Check if any level at this location has prerequisites not in the same location
+        return location.levelIds.any { levelId ->
+            val level = levels.find { it.id == levelId }
+            val prerequisites = level?.prerequisites ?: emptyList()
+            prerequisites.isNotEmpty() && !prerequisites.all { it in levelIdsAtLocation }
+        }
     }
 }
