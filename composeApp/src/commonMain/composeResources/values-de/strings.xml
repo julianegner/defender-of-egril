@@ -215,6 +215,7 @@
     <string name="attack_area_button">FLÄCHEN-ANGRIFF</string>
     <string name="undo">Rückgängig</string>
     <string name="sell_tower_title">Turm verkaufen?</string>
+    <string name="sell_tower_message">Möchten Sie den %s wirklich für %s %s verkaufen?</string>
     <string name="dig">Graben</string>
     <string name="trap">Falle</string>
     <string name="mining_probabilities">Grab-Wahrscheinlichkeiten</string>

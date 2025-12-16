@@ -215,6 +215,7 @@
     <string name="attack_area_button">ATTACCO AD AREA</string>
     <string name="undo">Annulla</string>
     <string name="sell_tower_title">Vendere la torre?</string>
+    <string name="sell_tower_message">Vuoi davvero vendere %s per %s %s?</string>
     <string name="dig">Scava</string>
     <string name="trap">Trappola</string>
     <string name="mining_probabilities">Probabilità di scavo</string>

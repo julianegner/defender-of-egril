@@ -279,7 +279,7 @@ fun UndoOrSellButton(
                 text = {
                     val towerName = defender.type.getLocalizedName(locale)
                     val coinsLabel = stringResource(Res.string.coins_label)
-                    Text("Do you really want to sell the $towerName for $sellAmount $coinsLabel?")
+                    Text(stringResource(Res.string.sell_tower_message, towerName, sellAmount.toString(), coinsLabel))
                 },
                 confirmButton = {
                     Button(
