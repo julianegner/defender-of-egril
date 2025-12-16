@@ -541,14 +541,10 @@ private fun generateFromWorldMapData(
     
     // Generate roads from WorldMapData paths
     // Roads are shown even if source/destination locations are hidden
+    // All connections are shown on the world map, regardless of validation status
     val roads = mutableListOf<WorldMapRoad>()
     
     for (pathData in worldMapData.paths) {
-        // Check if this path matches level prerequisites
-        if (!pathData.isValidConnection(worldMapData.locations, editorLevels.values.toList())) {
-            continue
-        }
-        
         val fromLocation = locationById[pathData.fromLocationId]
         val toLocation = locationById[pathData.toLocationId]
         
