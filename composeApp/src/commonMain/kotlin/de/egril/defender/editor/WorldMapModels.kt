@@ -63,13 +63,35 @@ data class WorldMapLocationData(
  * A path between two locations on the world map.
  * The path can be a straight line (empty controlPoints) or a curve (with control points).
  * Paths remain visible even when source/destination locations are hidden.
+ * 
+ * For mixed-type paths (partly road, partly sea), use segmentTypes to specify the type for each segment.
+ * A segment is the portion between consecutive points:
+ * - Segment 0: fromLocation to first waypoint (or toLocation if no waypoints)
+ * - Segment 1: first waypoint to second waypoint
+ * - Segment N: last waypoint to toLocation
  */
 data class WorldMapPathData(
     val fromLocationId: String,          // Source location ID
     val toLocationId: String,            // Destination location ID
     val controlPoints: List<WorldMapPoint> = emptyList(),  // Optional control points for curved paths
-    val type: ConnectionType = ConnectionType.ROAD  // Type of connection (ROAD or SEA_ROUTE)
+    val type: ConnectionType = ConnectionType.ROAD,  // Default type for entire path (used when segmentTypes is empty)
+    val segmentTypes: List<ConnectionType> = emptyList()  // Optional per-segment types for mixed paths
 ) {
+    /**
+     * Get the connection type for a specific segment index.
+     * If segmentTypes is empty or too short, returns the default type.
+     */
+    fun getSegmentType(segmentIndex: Int): ConnectionType {
+        return segmentTypes.getOrNull(segmentIndex) ?: type
+    }
+    
+    /**
+     * Get the number of segments in this path.
+     * A path with N waypoints has N+1 segments.
+     */
+    fun getSegmentCount(): Int {
+        return controlPoints.size + 1
+    }
     /**
      * Check if this path represents a valid connection based on level prerequisites.
      * A path is valid if any level at the destination has a prerequisite at the source.
