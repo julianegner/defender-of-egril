@@ -153,6 +153,69 @@ object SaveFileStorage {
     }
     
     /**
+     * Get the JSON content of a saved game for export
+     */
+    fun getSaveGameJson(saveId: String): String? {
+        return fileStorage.readFile("$SAVEFILES_DIR/$saveId.json")
+    }
+    
+    /**
+     * Get all saved games as a map of filename to JSON content
+     */
+    fun getAllSaveGamesJson(): Map<String, String> {
+        val files = fileStorage.listFiles(SAVEFILES_DIR)
+        val result = mutableMapOf<String, String>()
+        
+        files.forEach { filename ->
+            if (filename.endsWith(".json") && filename != "level_progress.json") {
+                val content = fileStorage.readFile("$SAVEFILES_DIR/$filename")
+                if (content != null) {
+                    result[filename] = content
+                }
+            }
+        }
+        
+        return result
+    }
+    
+    /**
+     * Import a save game from JSON content
+     * @return true if import was successful
+     */
+    fun importSaveGame(filename: String, jsonContent: String, overwrite: Boolean = false): Boolean {
+        return try {
+            // Validate JSON by trying to deserialize
+            val savedGame = SaveJsonSerializer.deserializeSavedGame(jsonContent)
+            if (savedGame == null) {
+                println("Invalid save game JSON: $filename")
+                return false
+            }
+            
+            // Check if file already exists
+            val targetPath = "$SAVEFILES_DIR/$filename"
+            if (fileStorage.fileExists(targetPath) && !overwrite) {
+                println("Save game already exists: $filename")
+                return false
+            }
+            
+            // Write the file
+            fileStorage.writeFile(targetPath, jsonContent)
+            true
+        } catch (e: Exception) {
+            println("Error importing save game $filename: ${e.message}")
+            e.printStackTrace()
+            false
+        }
+    }
+    
+    /**
+     * Check if a save game with the given filename exists
+     */
+    fun saveGameExists(filename: String): Boolean {
+        return fileStorage.fileExists("$SAVEFILES_DIR/$filename")
+    }
+    
+    /**
      * Convert GameState to SavedGame
      */
     private fun convertGameStateToSavedGame(gameState: GameState, saveId: String, comment: String? = null): SavedGame {

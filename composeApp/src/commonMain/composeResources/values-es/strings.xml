@@ -65,6 +65,21 @@
     <string name="load_game">Cargar partida</string>
     <string name="add_optional_comment">Añade un comentario opcional para identificar esta partida guardada:</string>
     <string name="save_comment_placeholder">ej. 'Antes de la oleada final', 'Buena posición'...</string>
+    <string name="download_savefile">Descargar</string>
+    <string name="download_all_savefiles">Descargar todo</string>
+    <string name="upload_savefiles">Subir</string>
+    <string name="download_savefile_tooltip">Descargar esta partida guardada</string>
+    <string name="download_all_tooltip">Descargar todas las partidas guardadas como archivo ZIP</string>
+    <string name="upload_tooltip">Subir partidas guardadas (JSON o ZIP)</string>
+    <string name="file_override_title">El archivo ya existe</string>
+    <string name="file_override_message">Ya existe una partida guardada llamada "%s". ¿Qué te gustaría hacer?</string>
+    <string name="skip_file">Saltar</string>
+    <string name="override_file">Sobrescribir</string>
+    <string name="override_all">Sobrescribir todo</string>
+    <string name="files_imported">Archivos importados</string>
+    <string name="files_imported_message">Se han importado correctamente %d archivo(s) de guardado.</string>
+    <string name="import_error">Error de importación</string>
+    <string name="import_error_message">No se pudieron importar algunos archivos. Por favor, verifica el formato del archivo.</string>
     <string name="in_x_turns">en %s turnos</string>
     
     <!-- Towers -->
