@@ -215,6 +215,7 @@
     <string name="attack_area_button">ATAQUE DE ÁREA</string>
     <string name="undo">Deshacer</string>
     <string name="sell_tower_title">¿Vender torre?</string>
+    <string name="sell_tower_message">¿Realmente quieres vender %s por %s %s?</string>
     <string name="dig">Excavar</string>
     <string name="trap">Trampa</string>
     <string name="mining_probabilities">Probabilidades de minería</string>
