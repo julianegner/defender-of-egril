@@ -21,8 +21,8 @@
     <string name="language">Idioma</string>
     <string name="appearance">Apariencia</string>
     <string name="dark_mode">Modo Oscuro</string>
-    <string name="dark_mode_on">Modo Oscuro Activado</string>
-    <string name="dark_mode_off">Modo Oscuro Desactivado</string>
+    <string name="dark_mode_on">Modo Oscuro</string>
+    <string name="dark_mode_off">Modo Claro</string>
     <string name="world_map_level_cards">Vista de Tarjetas de Nivel</string>
     <string name="world_map_image_map">Vista de Mapa de Imagen</string>
     <string name="enhanced_dig_images">Imágenes de Excavación Mejoradas</string>
@@ -65,6 +65,21 @@
     <string name="load_game">Cargar partida</string>
     <string name="add_optional_comment">Añade un comentario opcional para identificar esta partida guardada:</string>
     <string name="save_comment_placeholder">ej. 'Antes de la oleada final', 'Buena posición'...</string>
+    <string name="download_savefile">Descargar</string>
+    <string name="download_all_savefiles">Descargar todo</string>
+    <string name="upload_savefiles">Subir</string>
+    <string name="download_savefile_tooltip">Descargar esta partida guardada</string>
+    <string name="download_all_tooltip">Descargar todas las partidas guardadas como archivo ZIP</string>
+    <string name="upload_tooltip">Subir partidas guardadas (JSON o ZIP)</string>
+    <string name="file_override_title">El archivo ya existe</string>
+    <string name="file_override_message">Ya existe una partida guardada llamada "%s". ¿Qué te gustaría hacer?</string>
+    <string name="skip_file">Saltar</string>
+    <string name="override_file">Sobrescribir</string>
+    <string name="override_all">Sobrescribir todo</string>
+    <string name="files_imported">Archivos importados</string>
+    <string name="files_imported_message">Se han importado correctamente %d archivo(s) de guardado.</string>
+    <string name="import_error">Error de importación</string>
+    <string name="import_error_message">No se pudieron importar algunos archivos. Por favor, verifica el formato del archivo.</string>
     <string name="in_x_turns">en %s turnos</string>
     
     <!-- Towers -->
@@ -215,6 +230,7 @@
     <string name="attack_area_button">ATAQUE DE ÁREA</string>
     <string name="undo">Deshacer</string>
     <string name="sell_tower_title">¿Vender torre?</string>
+    <string name="sell_tower_message">¿Realmente quieres vender %s por %s %s?</string>
     <string name="dig">Excavar</string>
     <string name="trap">Trampa</string>
     <string name="mining_probabilities">Probabilidades de minería</string>
@@ -426,15 +442,15 @@
 
     <!-- Sound Settings -->
     <string name="sound">Sonido</string>
-    <string name="sound_enabled">Sonido activado</string>
-    <string name="sound_disabled">Sonido desactivado</string>
+    <string name="sound_enabled">Sonido</string>
+    <string name="sound_disabled">Silenciado</string>
     <string name="sound_volume">Volumen del sonido</string>
 
     <!-- Control Pad Settings -->
     <string name="controls">Controles</string>
     <string name="show_control_pad">Mostrar panel de control</string>
-    <string name="control_pad_enabled">Panel de control activado</string>
-    <string name="control_pad_disabled">Panel de control desactivado</string>
+    <string name="control_pad_enabled">Panel de Control</string>
+    <string name="control_pad_disabled">Sin Panel de Control</string>
     
     <!-- Difficulty Settings -->
     <string name="difficulty">Dificultad</string>

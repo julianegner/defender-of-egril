@@ -21,8 +21,8 @@
     <string name="language">Language</string>
     <string name="appearance">Appearance</string>
     <string name="dark_mode">Dark Mode</string>
-    <string name="dark_mode_on">Dark Mode On</string>
-    <string name="dark_mode_off">Dark Mode Off</string>
+    <string name="dark_mode_on">Dark Mode</string>
+    <string name="dark_mode_off">Light Mode</string>
     <string name="world_map_level_cards">Level Cards View</string>
     <string name="world_map_image_map">Image Map View</string>
     <string name="enhanced_dig_images">Enhanced Dig Images</string>
@@ -65,6 +65,21 @@
     <string name="load_game">Load Game</string>
     <string name="add_optional_comment">Add an optional comment to help identify this save:</string>
     <string name="save_comment_placeholder">e.g., 'Before final wave', 'Good position'...</string>
+    <string name="download_savefile">Download</string>
+    <string name="download_all_savefiles">Download All</string>
+    <string name="upload_savefiles">Upload</string>
+    <string name="download_savefile_tooltip">Download this save file</string>
+    <string name="download_all_tooltip">Download all save files as a ZIP archive</string>
+    <string name="upload_tooltip">Upload save files (JSON or ZIP)</string>
+    <string name="file_override_title">File Already Exists</string>
+    <string name="file_override_message">A save file named "%s" already exists. What would you like to do?</string>
+    <string name="skip_file">Skip</string>
+    <string name="override_file">Override</string>
+    <string name="override_all">Override All</string>
+    <string name="files_imported">Files Imported</string>
+    <string name="files_imported_message">Successfully imported %d save file(s).</string>
+    <string name="import_error">Import Error</string>
+    <string name="import_error_message">Failed to import some files. Please check the file format.</string>
     <string name="in_x_turns">in %s turns</string>
     
     <!-- Towers -->
@@ -215,6 +230,7 @@
     <string name="attack_area_button">ATTACK AREA</string>
     <string name="undo">Undo</string>
     <string name="sell_tower_title">Sell Tower?</string>
+    <string name="sell_tower_message">Do you really want to sell the %s for %s %s?</string>
     <string name="dig">Dig</string>
     <string name="trap">Trap</string>
     <string name="mining_probabilities">Mining Probabilities</string>
@@ -428,15 +444,15 @@
 
     <!-- Sound Settings -->
     <string name="sound">Sound</string>
-    <string name="sound_enabled">Sound Enabled</string>
-    <string name="sound_disabled">Sound Disabled</string>
+    <string name="sound_enabled">Sound</string>
+    <string name="sound_disabled">Muted</string>
     <string name="sound_volume">Sound Volume</string>
 
     <!-- Control Pad Settings -->
     <string name="controls">Controls</string>
     <string name="show_control_pad">Show Control Pad</string>
-    <string name="control_pad_enabled">Control Pad Enabled</string>
-    <string name="control_pad_disabled">Control Pad Disabled</string>
+    <string name="control_pad_enabled">Control Pad</string>
+    <string name="control_pad_disabled">No Control Pad</string>
 
     <!-- Difficulty Settings -->
     <string name="difficulty">Difficulty</string>

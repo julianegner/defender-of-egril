@@ -21,8 +21,8 @@
     <string name="language">Lingua</string>
     <string name="appearance">Aspetto</string>
     <string name="dark_mode">Modalità Scura</string>
-    <string name="dark_mode_on">Modalità Scura Attiva</string>
-    <string name="dark_mode_off">Modalità Scura Disattiva</string>
+    <string name="dark_mode_on">Modalità Scura</string>
+    <string name="dark_mode_off">Modalità Chiara</string>
     <string name="world_map_level_cards">Vista Schede di Livello</string>
     <string name="world_map_image_map">Vista Mappa Immagine</string>
     <string name="enhanced_dig_images">Immagini di Scavo Migliorate</string>
@@ -65,6 +65,21 @@
     <string name="load_game">Carica partita</string>
     <string name="add_optional_comment">Aggiungi un commento opzionale per identificare questo salvataggio:</string>
     <string name="save_comment_placeholder">es. 'Prima dell\'ultima ondata', 'Buona posizione'...</string>
+    <string name="download_savefile">Scarica</string>
+    <string name="download_all_savefiles">Scarica tutto</string>
+    <string name="upload_savefiles">Carica</string>
+    <string name="download_savefile_tooltip">Scarica questo salvataggio</string>
+    <string name="download_all_tooltip">Scarica tutti i salvataggi come archivio ZIP</string>
+    <string name="upload_tooltip">Carica salvataggi (JSON o ZIP)</string>
+    <string name="file_override_title">Il file esiste già</string>
+    <string name="file_override_message">Un salvataggio chiamato "%s" esiste già. Cosa vuoi fare?</string>
+    <string name="skip_file">Salta</string>
+    <string name="override_file">Sovrascrivi</string>
+    <string name="override_all">Sovrascrivi tutto</string>
+    <string name="files_imported">File importati</string>
+    <string name="files_imported_message">%d file di salvataggio importati con successo.</string>
+    <string name="import_error">Errore di importazione</string>
+    <string name="import_error_message">Impossibile importare alcuni file. Verificare il formato del file.</string>
     <string name="in_x_turns">tra %s turni</string>
     
     <!-- Towers -->
@@ -215,6 +230,7 @@
     <string name="attack_area_button">ATTACCO AD AREA</string>
     <string name="undo">Annulla</string>
     <string name="sell_tower_title">Vendere la torre?</string>
+    <string name="sell_tower_message">Vuoi davvero vendere %s per %s %s?</string>
     <string name="dig">Scava</string>
     <string name="trap">Trappola</string>
     <string name="mining_probabilities">Probabilità di scavo</string>
@@ -428,15 +444,15 @@
 
     <!-- Sound Settings -->
     <string name="sound">Audio</string>
-    <string name="sound_enabled">Audio attivato</string>
-    <string name="sound_disabled">Audio disattivato</string>
+    <string name="sound_enabled">Audio</string>
+    <string name="sound_disabled">Silenziato</string>
     <string name="sound_volume">Volume audio</string>
 
     <!-- Control Pad Settings -->
     <string name="controls">Controlli</string>
     <string name="show_control_pad">Mostra pad direzionale</string>
-    <string name="control_pad_enabled">Pad direzionale attivato</string>
-    <string name="control_pad_disabled">Pad direzionale disattivato</string>
+    <string name="control_pad_enabled">Pad Direzionale</string>
+    <string name="control_pad_disabled">Senza Pad Direzionale</string>
     
     <!-- Difficulty Settings -->
     <string name="difficulty">Difficoltà</string>

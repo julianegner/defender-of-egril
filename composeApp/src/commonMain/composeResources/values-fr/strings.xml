@@ -21,8 +21,8 @@
     <string name="language">Langue</string>
     <string name="appearance">Apparence</string>
     <string name="dark_mode">Mode Sombre</string>
-    <string name="dark_mode_on">Mode Sombre Activé</string>
-    <string name="dark_mode_off">Mode Sombre Désactivé</string>
+    <string name="dark_mode_on">Mode Sombre</string>
+    <string name="dark_mode_off">Mode Clair</string>
     <string name="world_map_level_cards">Vue des Cartes de Niveau</string>
     <string name="world_map_image_map">Vue de la Carte Image</string>
     <string name="enhanced_dig_images">Images de Fouille Améliorées</string>
@@ -65,6 +65,21 @@
     <string name="load_game">Charger la partie</string>
     <string name="add_optional_comment">Ajoutez un commentaire optionnel pour identifier cette sauvegarde:</string>
     <string name="save_comment_placeholder">par ex., 'Avant la vague finale', 'Bonne position'...</string>
+    <string name="download_savefile">Télécharger</string>
+    <string name="download_all_savefiles">Tout télécharger</string>
+    <string name="upload_savefiles">Téléverser</string>
+    <string name="download_savefile_tooltip">Télécharger cette sauvegarde</string>
+    <string name="download_all_tooltip">Télécharger toutes les sauvegardes sous forme d'archive ZIP</string>
+    <string name="upload_tooltip">Téléverser des sauvegardes (JSON ou ZIP)</string>
+    <string name="file_override_title">Le fichier existe déjà</string>
+    <string name="file_override_message">Une sauvegarde nommée "%s" existe déjà. Que voulez-vous faire?</string>
+    <string name="skip_file">Ignorer</string>
+    <string name="override_file">Écraser</string>
+    <string name="override_all">Tout écraser</string>
+    <string name="files_imported">Fichiers importés</string>
+    <string name="files_imported_message">%d fichier(s) de sauvegarde importé(s) avec succès.</string>
+    <string name="import_error">Erreur d'importation</string>
+    <string name="import_error_message">Impossible d'importer certains fichiers. Veuillez vérifier le format du fichier.</string>
     <string name="in_x_turns">dans %s tours</string>
     
     <!-- Towers -->
@@ -215,6 +230,7 @@
     <string name="attack_area_button">ATTAQUE DE ZONE</string>
     <string name="undo">Annuler</string>
     <string name="sell_tower_title">Vendre la tour?</string>
+    <string name="sell_tower_message">Voulez-vous vraiment vendre %s pour %s %s?</string>
     <string name="dig">Creuser</string>
     <string name="trap">Piège</string>
     <string name="mining_probabilities">Probabilités de minage</string>
@@ -428,15 +444,15 @@
 
     <!-- Sound Settings -->
     <string name="sound">Son</string>
-    <string name="sound_enabled">Son activé</string>
-    <string name="sound_disabled">Son désactivé</string>
+    <string name="sound_enabled">Son</string>
+    <string name="sound_disabled">Muet</string>
     <string name="sound_volume">Volume du son</string>
 
     <!-- Control Pad Settings -->
     <string name="controls">Contrôles</string>
     <string name="show_control_pad">Afficher le pavé directionnel</string>
-    <string name="control_pad_enabled">Pavé directionnel activé</string>
-    <string name="control_pad_disabled">Pavé directionnel désactivé</string>
+    <string name="control_pad_enabled">Pavé Directionnel</string>
+    <string name="control_pad_disabled">Sans Pavé Directionnel</string>
     
     <!-- Difficulty Settings -->
     <string name="difficulty">Difficulté</string>
