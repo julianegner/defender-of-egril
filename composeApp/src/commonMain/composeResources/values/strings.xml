@@ -215,6 +215,7 @@
     <string name="attack_area_button">ATTACK AREA</string>
     <string name="undo">Undo</string>
     <string name="sell_tower_title">Sell Tower?</string>
+    <string name="sell_tower_message">Do you really want to sell the %s for %s %s?</string>
     <string name="dig">Dig</string>
     <string name="trap">Trap</string>
     <string name="mining_probabilities">Mining Probabilities</string>
