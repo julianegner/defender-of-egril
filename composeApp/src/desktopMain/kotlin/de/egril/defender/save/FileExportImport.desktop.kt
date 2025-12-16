@@ -15,11 +15,25 @@ import javax.swing.filechooser.FileNameExtensionFilter
  */
 class DesktopFileExportImport : FileExportImport {
     
+    private fun getDownloadsDirectory(): File {
+        // Get user's Downloads directory
+        val userHome = System.getProperty("user.home")
+        val downloadsDir = File(userHome, "Downloads")
+        
+        // Fall back to user home if Downloads doesn't exist
+        return if (downloadsDir.exists() && downloadsDir.isDirectory) {
+            downloadsDir
+        } else {
+            File(userHome)
+        }
+    }
+    
     override suspend fun exportFile(filename: String, content: String): Boolean = withContext(Dispatchers.IO) {
         try {
-            val fileChooser = JFileChooser().apply {
+            val downloadsDir = getDownloadsDirectory()
+            val fileChooser = JFileChooser(downloadsDir).apply {
                 dialogTitle = "Save File"
-                selectedFile = File(filename)
+                selectedFile = File(downloadsDir, filename)
                 fileFilter = FileNameExtensionFilter("JSON Files (*.json)", "json")
             }
             
@@ -46,9 +60,10 @@ class DesktopFileExportImport : FileExportImport {
     
     override suspend fun exportZip(zipFilename: String, files: Map<String, String>): Boolean = withContext(Dispatchers.IO) {
         try {
-            val fileChooser = JFileChooser().apply {
+            val downloadsDir = getDownloadsDirectory()
+            val fileChooser = JFileChooser(downloadsDir).apply {
                 dialogTitle = "Save ZIP Archive"
-                selectedFile = File(zipFilename)
+                selectedFile = File(downloadsDir, zipFilename)
                 fileFilter = FileNameExtensionFilter("ZIP Files (*.zip)", "zip")
             }
             
@@ -84,7 +99,8 @@ class DesktopFileExportImport : FileExportImport {
     
     override suspend fun importFiles(): List<ImportedFile>? = withContext(Dispatchers.IO) {
         try {
-            val fileChooser = JFileChooser().apply {
+            val downloadsDir = getDownloadsDirectory()
+            val fileChooser = JFileChooser(downloadsDir).apply {
                 dialogTitle = "Select Save Files"
                 isMultiSelectionEnabled = true
                 fileFilter = FileNameExtensionFilter("Save Files (*.json, *.zip)", "json", "zip")
