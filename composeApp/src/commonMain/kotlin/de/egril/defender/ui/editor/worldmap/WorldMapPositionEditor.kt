@@ -7,6 +7,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -55,6 +56,11 @@ fun WorldMapPositionEditorContent() {
     var showEditPathDialog by remember { mutableStateOf<WorldMapPathData?>(null) }
     var showAddConnectionDialog by remember { mutableStateOf(false) }
     var connectionCreationState by remember { mutableStateOf<Pair<String, String?>?>(null) } // (fromLocationId, toLocationId?)
+    
+    // Waypoint interaction state
+    var selectedPathForEdit by remember { mutableStateOf<WorldMapPathData?>(null) }
+    var draggingWaypointIndex by remember { mutableStateOf<Int?>(null) }
+    var hoveredPathId by remember { mutableStateOf<Pair<String, String>?>(null) }
     
     val isDarkMode = AppSettings.isDarkMode.value
     
@@ -110,6 +116,9 @@ fun WorldMapPositionEditorContent() {
                         hoveredPosition = hoveredPosition,
                         containerSize = containerSize,
                         isDarkMode = isDarkMode,
+                        selectedPathForEdit = selectedPathForEdit,
+                        draggingWaypointIndex = draggingWaypointIndex,
+                        hoveredPathId = hoveredPathId,
                         onPositionClick = { point ->
                             // Update position for selected location
                             if (selectedLocationId != null) {
@@ -120,6 +129,32 @@ fun WorldMapPositionEditorContent() {
                                     worldMapData = EditorStorage.getWorldMapData()
                                 }
                             }
+                        },
+                        onPathClick = { path ->
+                            // Save the path with the new waypoint
+                            EditorStorage.saveWorldMapPath(path)
+                            worldMapData = EditorStorage.getWorldMapData()
+                            selectedPathForEdit = path
+                        },
+                        onWaypointDragStart = { pathData, waypointIndex ->
+                            selectedPathForEdit = pathData
+                            draggingWaypointIndex = waypointIndex
+                        },
+                        onWaypointDrag = { pathData, waypointIndex, newPosition ->
+                            if (selectedPathForEdit == pathData) {
+                                val updatedControlPoints = pathData.controlPoints.toMutableList()
+                                updatedControlPoints[waypointIndex] = newPosition
+                                val updatedPath = pathData.copy(controlPoints = updatedControlPoints)
+                                EditorStorage.saveWorldMapPath(updatedPath)
+                                worldMapData = EditorStorage.getWorldMapData()
+                                selectedPathForEdit = updatedPath
+                            }
+                        },
+                        onWaypointDragEnd = {
+                            draggingWaypointIndex = null
+                        },
+                        onPathHover = { pathId ->
+                            hoveredPathId = pathId
                         },
                         onHoverChange = { point ->
                             hoveredPosition = point
@@ -276,7 +311,8 @@ fun WorldMapPositionEditorContent() {
 }
 
 /**
- * Canvas showing the world map background with location markers and paths
+ * Canvas showing the world map background with location markers and paths.
+ * Supports interactive waypoint editing by clicking on connection lines.
  */
 @Composable
 private fun WorldMapCanvas(
@@ -286,7 +322,15 @@ private fun WorldMapCanvas(
     hoveredPosition: WorldMapPoint?,
     containerSize: IntSize,
     isDarkMode: Boolean,
+    selectedPathForEdit: WorldMapPathData?,
+    draggingWaypointIndex: Int?,
+    hoveredPathId: Pair<String, String>?,
     onPositionClick: (WorldMapPoint) -> Unit,
+    onPathClick: (WorldMapPathData) -> Unit,
+    onWaypointDragStart: (WorldMapPathData, Int) -> Unit,
+    onWaypointDrag: (WorldMapPathData, Int, WorldMapPoint) -> Unit,
+    onWaypointDragEnd: () -> Unit,
+    onPathHover: (Pair<String, String>?) -> Unit,
     onHoverChange: (WorldMapPoint?) -> Unit
 ) {
     // Get the painter to access image dimensions
@@ -341,7 +385,72 @@ private fun WorldMapCanvas(
                         }
                     }
                 }
-                .pointerInput(imageAspectRatio) {
+                .pointerInput(imageAspectRatio, worldMapData) {
+                    detectDragGestures(
+                        onDragStart = { offset ->
+                            // Calculate actual image bounds
+                            val containerAspectRatio = size.width.toFloat() / size.height.toFloat()
+                            val (imageWidth, imageHeight, imageOffsetX, imageOffsetY) = if (containerAspectRatio > imageAspectRatio) {
+                                val h = size.height.toFloat()
+                                val w = h * imageAspectRatio
+                                val ox = (size.width - w) / 2f
+                                listOf(w, h, ox, 0f)
+                            } else {
+                                val w = size.width.toFloat()
+                                val h = w / imageAspectRatio
+                                val oy = (size.height - h) / 2f
+                                listOf(w, h, 0f, oy)
+                            }
+                            
+                            // Check if drag started on a waypoint
+                            val waypointRadius = 20f
+                            for (path in worldMapData.paths) {
+                                for ((index, waypoint) in path.controlPoints.withIndex()) {
+                                    val wpScreenX = imageOffsetX + (waypoint.x / 1000f) * imageWidth
+                                    val wpScreenY = imageOffsetY + (waypoint.y / 1000f) * imageHeight
+                                    val dist = kotlin.math.sqrt(
+                                        (offset.x - wpScreenX) * (offset.x - wpScreenX) +
+                                        (offset.y - wpScreenY) * (offset.y - wpScreenY)
+                                    )
+                                    if (dist < waypointRadius) {
+                                        onWaypointDragStart(path, index)
+                                        return@detectDragGestures
+                                    }
+                                }
+                            }
+                        },
+                        onDrag = { change, _ ->
+                            change.consume()
+                            if (selectedPathForEdit != null && draggingWaypointIndex != null) {
+                                // Calculate new waypoint position
+                                val offset = change.position
+                                val containerAspectRatio = size.width.toFloat() / size.height.toFloat()
+                                val (imageWidth, imageHeight, imageOffsetX, imageOffsetY) = if (containerAspectRatio > imageAspectRatio) {
+                                    val h = size.height.toFloat()
+                                    val w = h * imageAspectRatio
+                                    val ox = (size.width - w) / 2f
+                                    listOf(w, h, ox, 0f)
+                                } else {
+                                    val w = size.width.toFloat()
+                                    val h = w / imageAspectRatio
+                                    val oy = (size.height - h) / 2f
+                                    listOf(w, h, 0f, oy)
+                                }
+                                
+                                val x = (((offset.x - imageOffsetX) / imageWidth) * 1000).toInt().coerceIn(0, 1000)
+                                val y = (((offset.y - imageOffsetY) / imageHeight) * 1000).toInt().coerceIn(0, 1000)
+                                onWaypointDrag(selectedPathForEdit, draggingWaypointIndex, WorldMapPoint(x, y))
+                            }
+                        },
+                        onDragEnd = {
+                            onWaypointDragEnd()
+                        },
+                        onDragCancel = {
+                            onWaypointDragEnd()
+                        }
+                    )
+                }
+                .pointerInput(imageAspectRatio, worldMapData) {
                     detectTapGestures { offset ->
                         // Calculate actual image bounds within container (accounting for ContentScale.Fit)
                         val containerAspectRatio = size.width.toFloat() / size.height.toFloat()
@@ -360,7 +469,73 @@ private fun WorldMapCanvas(
                         // Calculate position as permille (0-1000) relative to image bounds
                         val x = (((offset.x - imageOffsetX) / imageWidth) * 1000).toInt().coerceIn(0, 1000)
                         val y = (((offset.y - imageOffsetY) / imageHeight) * 1000).toInt().coerceIn(0, 1000)
-                        onPositionClick(WorldMapPoint(x, y))
+                        val clickPoint = WorldMapPoint(x, y)
+                        
+                        // Check if click is near any waypoint (for existing waypoints)
+                        val waypointRadius = 20f // pixels
+                        var foundWaypoint = false
+                        for (path in worldMapData.paths) {
+                            for ((index, waypoint) in path.controlPoints.withIndex()) {
+                                val wpScreenX = imageOffsetX + (waypoint.x / 1000f) * imageWidth
+                                val wpScreenY = imageOffsetY + (waypoint.y / 1000f) * imageHeight
+                                val dist = kotlin.math.sqrt(
+                                    (offset.x - wpScreenX) * (offset.x - wpScreenX) +
+                                    (offset.y - wpScreenY) * (offset.y - wpScreenY)
+                                )
+                                if (dist < waypointRadius) {
+                                    foundWaypoint = true
+                                    break
+                                }
+                            }
+                            if (foundWaypoint) break
+                        }
+                        
+                        // Check if click is near any connection line
+                        if (!foundWaypoint) {
+                            val lineClickThreshold = 15f // pixels
+                            for (path in worldMapData.paths) {
+                                val fromLoc = worldMapData.locations.find { it.id == path.fromLocationId }
+                                val toLoc = worldMapData.locations.find { it.id == path.toLocationId }
+                                if (fromLoc != null && toLoc != null) {
+                                    // Build list of line segments
+                                    val points = mutableListOf<Pair<Float, Float>>()
+                                    points.add(
+                                        (imageOffsetX + (fromLoc.position.x / 1000f) * imageWidth) to
+                                        (imageOffsetY + (fromLoc.position.y / 1000f) * imageHeight)
+                                    )
+                                    for (cp in path.controlPoints) {
+                                        points.add(
+                                            (imageOffsetX + (cp.x / 1000f) * imageWidth) to
+                                            (imageOffsetY + (cp.y / 1000f) * imageHeight)
+                                        )
+                                    }
+                                    points.add(
+                                        (imageOffsetX + (toLoc.position.x / 1000f) * imageWidth) to
+                                        (imageOffsetY + (toLoc.position.y / 1000f) * imageHeight)
+                                    )
+                                    
+                                    // Check distance to each segment
+                                    for (i in 0 until points.size - 1) {
+                                        val (x1, y1) = points[i]
+                                        val (x2, y2) = points[i + 1]
+                                        val dist = distanceToLineSegment(offset.x, offset.y, x1, y1, x2, y2)
+                                        if (dist < lineClickThreshold) {
+                                            // Add waypoint at click position and save
+                                            val updatedControlPoints = path.controlPoints.toMutableList()
+                                            // Insert at the appropriate position (after segment i-1)
+                                            val insertIndex = if (i == 0) 0 else i
+                                            updatedControlPoints.add(insertIndex, clickPoint)
+                                            val updatedPath = path.copy(controlPoints = updatedControlPoints)
+                                            onPathClick(updatedPath)
+                                            return@detectTapGestures
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        
+                        // If no path was clicked, handle as location position click
+                        onPositionClick(clickPoint)
                     }
                 }
         ) {
@@ -501,6 +676,33 @@ private fun WorldMapCanvas(
                     radius = markerRadius * 1.5f,
                     center = Offset(x, y)
                 )
+            }
+            
+            // Draw waypoint handles for all connections
+            val waypointRadius = 8f
+            for (path in worldMapData.paths) {
+                for ((index, waypoint) in path.controlPoints.withIndex()) {
+                    val wpX = imageOffsetX + (waypoint.x / 1000f) * imageWidth
+                    val wpY = imageOffsetY + (waypoint.y / 1000f) * imageHeight
+                    
+                    // Determine if this waypoint is being dragged
+                    val isDragging = selectedPathForEdit == path && draggingWaypointIndex == index
+                    
+                    // Draw waypoint handle
+                    drawCircle(
+                        color = if (isDragging) Color(0xFFFF9800) else Color(0xFF2196F3), // Orange when dragging, blue otherwise
+                        radius = if (isDragging) waypointRadius * 1.5f else waypointRadius,
+                        center = Offset(wpX, wpY)
+                    )
+                    
+                    // Draw white border
+                    drawCircle(
+                        color = Color.White,
+                        radius = if (isDragging) waypointRadius * 1.5f else waypointRadius,
+                        center = Offset(wpX, wpY),
+                        style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2f)
+                    )
+                }
             }
         }
     }
@@ -1033,5 +1235,30 @@ private fun AddConnectionDialog(
             }
         }
     )
+}
+
+/**
+ * Calculate the perpendicular distance from a point to a line segment.
+ */
+private fun distanceToLineSegment(px: Float, py: Float, x1: Float, y1: Float, x2: Float, y2: Float): Float {
+    val dx = x2 - x1
+    val dy = y2 - y1
+    val lengthSquared = dx * dx + dy * dy
+    
+    if (lengthSquared == 0f) {
+        // Line segment is actually a point
+        return kotlin.math.sqrt((px - x1) * (px - x1) + (py - y1) * (py - y1))
+    }
+    
+    // Calculate projection of point onto line segment (clamped to segment)
+    val t = ((px - x1) * dx + (py - y1) * dy) / lengthSquared
+    val tClamped = t.coerceIn(0f, 1f)
+    
+    // Calculate closest point on segment
+    val closestX = x1 + tClamped * dx
+    val closestY = y1 + tClamped * dy
+    
+    // Return distance to closest point
+    return kotlin.math.sqrt((px - closestX) * (px - closestX) + (py - closestY) * (py - closestY))
 }
 
