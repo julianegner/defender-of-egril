@@ -61,8 +61,8 @@ fun WorldMapPositionEditorContent() {
     var connectionCreationMode by remember { mutableStateOf(false) }
     var connectionFromLocation by remember { mutableStateOf<String?>(null) }
     
-    // Waypoint interaction state
-    var selectedPathForEdit by remember { mutableStateOf<WorldMapPathData?>(null) }
+    // Waypoint interaction state - store path IDs instead of path object for reliable updates
+    var selectedPathIds by remember { mutableStateOf<Pair<String, String>?>(null) } // (fromLocationId, toLocationId)
     var draggingWaypointIndex by remember { mutableStateOf<Int?>(null) }
     var hoveredPathId by remember { mutableStateOf<Pair<String, String>?>(null) }
     
@@ -120,7 +120,7 @@ fun WorldMapPositionEditorContent() {
                         hoveredPosition = hoveredPosition,
                         containerSize = containerSize,
                         isDarkMode = isDarkMode,
-                        selectedPathForEdit = selectedPathForEdit,
+                        selectedPathIds = selectedPathIds,
                         draggingWaypointIndex = draggingWaypointIndex,
                         hoveredPathId = hoveredPathId,
                         connectionCreationMode = connectionCreationMode,
@@ -168,22 +168,27 @@ fun WorldMapPositionEditorContent() {
                                 }
                             }
                         },
-                        onPathClick = { path ->
-                            // Save the path with the new waypoint
-                            EditorStorage.saveWorldMapPath(path)
-                            worldMapData = EditorStorage.getWorldMapData()
-                            selectedPathForEdit = path
+                        onPathClick = { path, addWaypoint ->
+                            if (addWaypoint) {
+                                // Save the path with the new waypoint
+                                EditorStorage.saveWorldMapPath(path)
+                                worldMapData = EditorStorage.getWorldMapData()
+                                selectedPathIds = path.fromLocationId to path.toLocationId
+                            } else {
+                                // Select the connection and open edit dialog
+                                showEditPathDialog = path
+                            }
                         },
-                        onWaypointDragStart = { pathData, waypointIndex ->
-                            selectedPathForEdit = pathData
+                        onWaypointDragStart = { fromId, toId, waypointIndex ->
+                            selectedPathIds = fromId to toId
                             draggingWaypointIndex = waypointIndex
                         },
-                        onWaypointDrag = { pathData, waypointIndex, newPosition ->
-                            if (selectedPathForEdit != null && draggingWaypointIndex == waypointIndex) {
+                        onWaypointDrag = { fromId, toId, waypointIndex, newPosition ->
+                            if (selectedPathIds == (fromId to toId) && draggingWaypointIndex == waypointIndex) {
                                 // Find the path in worldMapData and update it
                                 val pathIndex = worldMapData.paths.indexOfFirst { 
-                                    it.fromLocationId == pathData.fromLocationId && 
-                                    it.toLocationId == pathData.toLocationId 
+                                    it.fromLocationId == fromId && 
+                                    it.toLocationId == toId 
                                 }
                                 if (pathIndex >= 0) {
                                     val currentPath = worldMapData.paths[pathIndex]
@@ -196,18 +201,23 @@ fun WorldMapPositionEditorContent() {
                                         val updatedPaths = worldMapData.paths.toMutableList()
                                         updatedPaths[pathIndex] = updatedPath
                                         worldMapData = worldMapData.copy(paths = updatedPaths)
-                                        selectedPathForEdit = updatedPath
                                     }
                                 }
                             }
                         },
                         onWaypointDragEnd = {
                             // Save the final state when drag ends
-                            if (selectedPathForEdit != null) {
-                                EditorStorage.saveWorldMapPath(selectedPathForEdit!!)
+                            if (selectedPathIds != null) {
+                                val path = worldMapData.paths.find { 
+                                    it.fromLocationId == selectedPathIds!!.first && 
+                                    it.toLocationId == selectedPathIds!!.second 
+                                }
+                                if (path != null) {
+                                    EditorStorage.saveWorldMapPath(path)
+                                }
                             }
                             draggingWaypointIndex = null
-                            selectedPathForEdit = null
+                            selectedPathIds = null
                         },
                         onPathHover = { pathId ->
                             hoveredPathId = pathId
@@ -498,16 +508,16 @@ private fun WorldMapCanvas(
     hoveredPosition: WorldMapPoint?,
     containerSize: IntSize,
     isDarkMode: Boolean,
-    selectedPathForEdit: WorldMapPathData?,
+    selectedPathIds: Pair<String, String>?,
     draggingWaypointIndex: Int?,
     hoveredPathId: Pair<String, String>?,
     connectionCreationMode: Boolean,
     connectionFromLocation: String?,
     onLocationClick: (String) -> Unit,
     onPositionClick: (WorldMapPoint) -> Unit,
-    onPathClick: (WorldMapPathData) -> Unit,
-    onWaypointDragStart: (WorldMapPathData, Int) -> Unit,
-    onWaypointDrag: (WorldMapPathData, Int, WorldMapPoint) -> Unit,
+    onPathClick: (WorldMapPathData, Boolean) -> Unit, // path, addWaypoint
+    onWaypointDragStart: (String, String, Int) -> Unit,
+    onWaypointDrag: (String, String, Int, WorldMapPoint) -> Unit,
     onWaypointDragEnd: () -> Unit,
     onPathHover: (Pair<String, String>?) -> Unit,
     onHoverChange: (WorldMapPoint?) -> Unit
@@ -564,7 +574,7 @@ private fun WorldMapCanvas(
                         }
                     }
                 }
-                .pointerInput(imageAspectRatio, worldMapData) {
+                .pointerInput(imageAspectRatio, worldMapData, selectedPathIds, draggingWaypointIndex) {
                     detectDragGestures(
                         onDragStart = { offset ->
                             // Calculate actual image bounds
@@ -592,7 +602,7 @@ private fun WorldMapCanvas(
                                         (offset.y - wpScreenY) * (offset.y - wpScreenY)
                                     )
                                     if (dist < waypointRadius) {
-                                        onWaypointDragStart(path, index)
+                                        onWaypointDragStart(path.fromLocationId, path.toLocationId, index)
                                         return@detectDragGestures
                                     }
                                 }
@@ -600,7 +610,7 @@ private fun WorldMapCanvas(
                         },
                         onDrag = { change, _ ->
                             change.consume()
-                            if (selectedPathForEdit != null && draggingWaypointIndex != null) {
+                            if (selectedPathIds != null && draggingWaypointIndex != null) {
                                 // Calculate new waypoint position
                                 val offset = change.position
                                 val containerAspectRatio = size.width.toFloat() / size.height.toFloat()
@@ -618,7 +628,7 @@ private fun WorldMapCanvas(
                                 
                                 val x = (((offset.x - imageOffsetX) / imageWidth) * 1000).toInt().coerceIn(0, 1000)
                                 val y = (((offset.y - imageOffsetY) / imageHeight) * 1000).toInt().coerceIn(0, 1000)
-                                onWaypointDrag(selectedPathForEdit, draggingWaypointIndex, WorldMapPoint(x, y))
+                                onWaypointDrag(selectedPathIds.first, selectedPathIds.second, draggingWaypointIndex, WorldMapPoint(x, y))
                             }
                         },
                         onDragEnd = {
@@ -687,6 +697,8 @@ private fun WorldMapCanvas(
                         // Check if click is near any connection line
                         if (!foundWaypoint) {
                             val lineClickThreshold = 15f // pixels
+                            val waypointAddThreshold = 30f // If within this distance from segment midpoint, add waypoint
+                            
                             for (path in worldMapData.paths) {
                                 val fromLoc = worldMapData.locations.find { it.id == path.fromLocationId }
                                 val toLoc = worldMapData.locations.find { it.id == path.toLocationId }
@@ -709,20 +721,45 @@ private fun WorldMapCanvas(
                                     )
                                     
                                     // Check distance to each segment
+                                    var clickedOnLine = false
+                                    var shouldAddWaypoint = false
+                                    var waypointInsertIndex = 0
+                                    
                                     for (i in 0 until points.size - 1) {
                                         val (x1, y1) = points[i]
                                         val (x2, y2) = points[i + 1]
                                         val dist = distanceToLineSegment(offset.x, offset.y, x1, y1, x2, y2)
                                         if (dist < lineClickThreshold) {
-                                            // Add waypoint at click position and save
-                                            val updatedControlPoints = path.controlPoints.toMutableList()
-                                            // Insert at the appropriate position (after segment i-1)
-                                            val insertIndex = if (i == 0) 0 else i
-                                            updatedControlPoints.add(insertIndex, clickPoint)
-                                            val updatedPath = path.copy(controlPoints = updatedControlPoints)
-                                            onPathClick(updatedPath)
-                                            return@detectTapGestures
+                                            clickedOnLine = true
+                                            
+                                            // Check if click is near midpoint of this segment
+                                            val midX = (x1 + x2) / 2f
+                                            val midY = (y1 + y2) / 2f
+                                            val distFromMid = kotlin.math.sqrt(
+                                                (offset.x - midX) * (offset.x - midX) +
+                                                (offset.y - midY) * (offset.y - midY)
+                                            )
+                                            
+                                            if (distFromMid < waypointAddThreshold) {
+                                                shouldAddWaypoint = true
+                                                waypointInsertIndex = if (i == 0) 0 else i
+                                            }
+                                            break
                                         }
+                                    }
+                                    
+                                    if (clickedOnLine) {
+                                        if (shouldAddWaypoint) {
+                                            // Add waypoint at click position
+                                            val updatedControlPoints = path.controlPoints.toMutableList()
+                                            updatedControlPoints.add(waypointInsertIndex, clickPoint)
+                                            val updatedPath = path.copy(controlPoints = updatedControlPoints)
+                                            onPathClick(updatedPath, true)
+                                        } else {
+                                            // Just select the connection
+                                            onPathClick(path, false)
+                                        }
+                                        return@detectTapGestures
                                     }
                                 }
                             }
@@ -889,9 +926,9 @@ private fun WorldMapCanvas(
                     
                     // Determine if this waypoint is being dragged
                     // Compare by path IDs instead of object reference
-                    val isDragging = selectedPathForEdit != null &&
-                                    selectedPathForEdit!!.fromLocationId == path.fromLocationId &&
-                                    selectedPathForEdit!!.toLocationId == path.toLocationId &&
+                    val isDragging = selectedPathIds != null &&
+                                    selectedPathIds.first == path.fromLocationId &&
+                                    selectedPathIds.second == path.toLocationId &&
                                     draggingWaypointIndex == index
                     
                     // Draw waypoint handle
