@@ -21,8 +21,8 @@
     <string name="language">Language</string>
     <string name="appearance">Appearance</string>
     <string name="dark_mode">Dark Mode</string>
-    <string name="dark_mode_on">Dark Mode On</string>
-    <string name="dark_mode_off">Dark Mode Off</string>
+    <string name="dark_mode_on">Dark Mode</string>
+    <string name="dark_mode_off">Light Mode</string>
     <string name="world_map_level_cards">Level Cards View</string>
     <string name="world_map_image_map">Image Map View</string>
     <string name="enhanced_dig_images">Enhanced Dig Images</string>
@@ -444,15 +444,15 @@
 
     <!-- Sound Settings -->
     <string name="sound">Sound</string>
-    <string name="sound_enabled">Sound Enabled</string>
-    <string name="sound_disabled">Sound Disabled</string>
+    <string name="sound_enabled">Sound</string>
+    <string name="sound_disabled">Muted</string>
     <string name="sound_volume">Sound Volume</string>
 
     <!-- Control Pad Settings -->
     <string name="controls">Controls</string>
     <string name="show_control_pad">Show Control Pad</string>
-    <string name="control_pad_enabled">Control Pad Enabled</string>
-    <string name="control_pad_disabled">Control Pad Disabled</string>
+    <string name="control_pad_enabled">Control Pad</string>
+    <string name="control_pad_disabled">No Control Pad</string>
 
     <!-- Difficulty Settings -->
     <string name="difficulty">Difficulty</string>
