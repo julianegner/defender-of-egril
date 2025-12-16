@@ -1292,6 +1292,11 @@ object EditorStorage {
             return true
         }
         
+        // Check if world map file exists (user may have edited it)
+        if (fileStorage.fileExists(WORLDMAP_FILE)) {
+            return true
+        }
+        
         // No user data found
         return false
     }
