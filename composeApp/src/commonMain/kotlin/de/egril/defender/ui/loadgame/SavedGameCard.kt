@@ -15,7 +15,8 @@ import de.egril.defender.utils.formatTimestamp
 fun SavedGameCard(
     saveGame: SaveGameMetadata,
     onLoad: () -> Unit,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    onDownload: () -> Unit = {}
 ) {
     val dateStr = formatTimestamp(saveGame.timestamp)
     
@@ -100,7 +101,8 @@ fun SavedGameCard(
                 saveGame = saveGame,
                 level = level,
                 minimapGameState = minimapGameState,
-                onDelete = onDelete
+                onDelete = onDelete,
+                onDownload = onDownload
             )
         }
     }
