@@ -141,17 +141,35 @@ fun WorldMapPositionEditorContent() {
                             draggingWaypointIndex = waypointIndex
                         },
                         onWaypointDrag = { pathData, waypointIndex, newPosition ->
-                            if (selectedPathForEdit == pathData) {
-                                val updatedControlPoints = pathData.controlPoints.toMutableList()
-                                updatedControlPoints[waypointIndex] = newPosition
-                                val updatedPath = pathData.copy(controlPoints = updatedControlPoints)
-                                EditorStorage.saveWorldMapPath(updatedPath)
-                                worldMapData = EditorStorage.getWorldMapData()
-                                selectedPathForEdit = updatedPath
+                            if (selectedPathForEdit != null && draggingWaypointIndex == waypointIndex) {
+                                // Find the path in worldMapData and update it
+                                val pathIndex = worldMapData.paths.indexOfFirst { 
+                                    it.fromLocationId == pathData.fromLocationId && 
+                                    it.toLocationId == pathData.toLocationId 
+                                }
+                                if (pathIndex >= 0) {
+                                    val currentPath = worldMapData.paths[pathIndex]
+                                    val updatedControlPoints = currentPath.controlPoints.toMutableList()
+                                    if (waypointIndex < updatedControlPoints.size) {
+                                        updatedControlPoints[waypointIndex] = newPosition
+                                        val updatedPath = currentPath.copy(controlPoints = updatedControlPoints)
+                                        
+                                        // Update worldMapData with the new path
+                                        val updatedPaths = worldMapData.paths.toMutableList()
+                                        updatedPaths[pathIndex] = updatedPath
+                                        worldMapData = worldMapData.copy(paths = updatedPaths)
+                                        selectedPathForEdit = updatedPath
+                                    }
+                                }
                             }
                         },
                         onWaypointDragEnd = {
+                            // Save the final state when drag ends
+                            if (selectedPathForEdit != null) {
+                                EditorStorage.saveWorldMapPath(selectedPathForEdit!!)
+                            }
                             draggingWaypointIndex = null
+                            selectedPathForEdit = null
                         },
                         onPathHover = { pathId ->
                             hoveredPathId = pathId
@@ -686,7 +704,11 @@ private fun WorldMapCanvas(
                     val wpY = imageOffsetY + (waypoint.y / 1000f) * imageHeight
                     
                     // Determine if this waypoint is being dragged
-                    val isDragging = selectedPathForEdit == path && draggingWaypointIndex == index
+                    // Compare by path IDs instead of object reference
+                    val isDragging = selectedPathForEdit != null &&
+                                    selectedPathForEdit!!.fromLocationId == path.fromLocationId &&
+                                    selectedPathForEdit!!.toLocationId == path.toLocationId &&
+                                    draggingWaypointIndex == index
                     
                     // Draw waypoint handle
                     drawCircle(
