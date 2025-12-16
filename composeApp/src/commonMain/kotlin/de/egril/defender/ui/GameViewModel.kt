@@ -472,6 +472,66 @@ class GameViewModel {
         refreshSavedGames()
     }
     
+    // Download/Upload functionality
+    
+    fun downloadSaveGame(saveId: String) {
+        viewModelScope.launch {
+            val jsonContent = de.egril.defender.save.SaveFileStorage.getSaveGameJson(saveId)
+            if (jsonContent != null) {
+                val fileExportImport = de.egril.defender.save.getFileExportImport()
+                fileExportImport.exportFile("$saveId.json", jsonContent)
+            }
+        }
+    }
+    
+    fun downloadAllSaveGames() {
+        viewModelScope.launch {
+            val allSaves = de.egril.defender.save.SaveFileStorage.getAllSaveGamesJson()
+            if (allSaves.isNotEmpty()) {
+                val timestamp = de.egril.defender.utils.formatTimestampISO(de.egril.defender.utils.currentTimeMillis())
+                val zipFilename = "defender-of-egril-saves-$timestamp.zip"
+                val fileExportImport = de.egril.defender.save.getFileExportImport()
+                fileExportImport.exportZip(zipFilename, allSaves)
+            }
+        }
+    }
+    
+    /**
+     * Upload save files and handle override conflicts
+     * Returns a state flow with import results: (success count, conflicts)
+     */
+    suspend fun uploadSaveGames(): Pair<Int, List<String>> {
+        val fileExportImport = de.egril.defender.save.getFileExportImport()
+        val importedFiles = fileExportImport.importFiles() ?: return Pair(0, emptyList())
+        
+        var successCount = 0
+        val conflicts = mutableListOf<String>()
+        
+        importedFiles.forEach { file ->
+            if (de.egril.defender.save.SaveFileStorage.saveGameExists(file.filename)) {
+                conflicts.add(file.filename)
+            } else {
+                if (de.egril.defender.save.SaveFileStorage.importSaveGame(file.filename, file.content, overwrite = false)) {
+                    successCount++
+                }
+            }
+        }
+        
+        refreshSavedGames()
+        return Pair(successCount, conflicts)
+    }
+    
+    /**
+     * Import a specific file with override option
+     */
+    suspend fun importSaveGameWithOverride(filename: String, content: String, overwrite: Boolean): Boolean {
+        val success = de.egril.defender.save.SaveFileStorage.importSaveGame(filename, content, overwrite)
+        if (success) {
+            refreshSavedGames()
+        }
+        return success
+    }
+    
     private fun refreshSavedGames() {
         _savedGames.value = de.egril.defender.save.SaveFileStorage.getAllSavedGames()
     }
