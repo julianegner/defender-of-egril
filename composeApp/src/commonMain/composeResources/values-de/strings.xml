@@ -21,8 +21,8 @@
     <string name="language">Sprache</string>
     <string name="appearance">Erscheinungsbild</string>
     <string name="dark_mode">Dunkler Modus</string>
-    <string name="dark_mode_on">Dunkler Modus an</string>
-    <string name="dark_mode_off">Dunkler Modus aus</string>
+    <string name="dark_mode_on">Dunkler Modus</string>
+    <string name="dark_mode_off">Heller Modus</string>
     <string name="world_map_level_cards">Levelkarten-Ansicht</string>
     <string name="world_map_image_map">Bildkarte-Ansicht</string>
     <string name="enhanced_dig_images">Verbesserte Grabungsbilder</string>
@@ -65,6 +65,21 @@
     <string name="load_game">Spiel laden</string>
     <string name="add_optional_comment">Füge einen optionalen Kommentar hinzu, um diesen Spielstand zu identifizieren:</string>
     <string name="save_comment_placeholder">z.B. 'Vor der letzten Welle', 'Gute Position'...</string>
+    <string name="download_savefile">Herunterladen</string>
+    <string name="download_all_savefiles">Alle herunterladen</string>
+    <string name="upload_savefiles">Hochladen</string>
+    <string name="download_savefile_tooltip">Diesen Spielstand herunterladen</string>
+    <string name="download_all_tooltip">Alle Spielstände als ZIP-Archiv herunterladen</string>
+    <string name="upload_tooltip">Spielstände hochladen (JSON oder ZIP)</string>
+    <string name="file_override_title">Datei existiert bereits</string>
+    <string name="file_override_message">Ein Spielstand namens "%s" existiert bereits. Was möchten Sie tun?</string>
+    <string name="skip_file">Überspringen</string>
+    <string name="override_file">Überschreiben</string>
+    <string name="override_all">Alle überschreiben</string>
+    <string name="files_imported">Dateien importiert</string>
+    <string name="files_imported_message">Erfolgreich %d Spielstand/-stände importiert.</string>
+    <string name="import_error">Import-Fehler</string>
+    <string name="import_error_message">Einige Dateien konnten nicht importiert werden. Bitte überprüfen Sie das Dateiformat.</string>
     <string name="in_x_turns">in %s Runden</string>
     
     <!-- Towers -->
@@ -215,6 +230,7 @@
     <string name="attack_area_button">FLÄCHEN-ANGRIFF</string>
     <string name="undo">Rückgängig</string>
     <string name="sell_tower_title">Turm verkaufen?</string>
+    <string name="sell_tower_message">Möchten Sie den %s wirklich für %s %s verkaufen?</string>
     <string name="dig">Graben</string>
     <string name="trap">Falle</string>
     <string name="mining_probabilities">Grab-Wahrscheinlichkeiten</string>
@@ -426,15 +442,15 @@
 
     <!-- Sound Settings -->
     <string name="sound">Sound</string>
-    <string name="sound_enabled">Sound aktiviert</string>
-    <string name="sound_disabled">Sound deaktiviert</string>
+    <string name="sound_enabled">Sound</string>
+    <string name="sound_disabled">Stumm</string>
     <string name="sound_volume">Lautstärke</string>
 
     <!-- Control Pad Settings -->
     <string name="controls">Steuerung</string>
     <string name="show_control_pad">Steuerkreuz anzeigen</string>
-    <string name="control_pad_enabled">Steuerkreuz aktiviert</string>
-    <string name="control_pad_disabled">Steuerkreuz deaktiviert</string>
+    <string name="control_pad_enabled">Steuerkreuz</string>
+    <string name="control_pad_disabled">Kein Steuerkreuz</string>
     
     <!-- Difficulty Settings -->
     <string name="difficulty">Schwierigkeitsgrad</string>
