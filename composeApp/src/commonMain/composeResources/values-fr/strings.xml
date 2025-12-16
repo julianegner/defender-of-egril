@@ -65,6 +65,21 @@
     <string name="load_game">Charger la partie</string>
     <string name="add_optional_comment">Ajoutez un commentaire optionnel pour identifier cette sauvegarde:</string>
     <string name="save_comment_placeholder">par ex., 'Avant la vague finale', 'Bonne position'...</string>
+    <string name="download_savefile">Télécharger</string>
+    <string name="download_all_savefiles">Tout télécharger</string>
+    <string name="upload_savefiles">Téléverser</string>
+    <string name="download_savefile_tooltip">Télécharger cette sauvegarde</string>
+    <string name="download_all_tooltip">Télécharger toutes les sauvegardes sous forme d'archive ZIP</string>
+    <string name="upload_tooltip">Téléverser des sauvegardes (JSON ou ZIP)</string>
+    <string name="file_override_title">Le fichier existe déjà</string>
+    <string name="file_override_message">Une sauvegarde nommée "%s" existe déjà. Que voulez-vous faire?</string>
+    <string name="skip_file">Ignorer</string>
+    <string name="override_file">Écraser</string>
+    <string name="override_all">Tout écraser</string>
+    <string name="files_imported">Fichiers importés</string>
+    <string name="files_imported_message">%d fichier(s) de sauvegarde importé(s) avec succès.</string>
+    <string name="import_error">Erreur d'importation</string>
+    <string name="import_error_message">Impossible d'importer certains fichiers. Veuillez vérifier le format du fichier.</string>
     <string name="in_x_turns">dans %s tours</string>
     
     <!-- Towers -->
