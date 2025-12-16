@@ -61,6 +61,9 @@ fun WorldMapPositionEditorContent() {
     var connectionCreationMode by remember { mutableStateOf(false) }
     var connectionFromLocation by remember { mutableStateOf<String?>(null) }
     
+    // Waypoint edit mode: when active, allows adding/dragging waypoints. Otherwise, clicking selects connections
+    var waypointEditMode by remember { mutableStateOf(true) } // Default to waypoint edit mode
+    
     // Waypoint interaction state - store path IDs instead of path object for reliable updates
     var selectedPathIds by remember { mutableStateOf<Pair<String, String>?>(null) } // (fromLocationId, toLocationId)
     var draggingWaypointIndex by remember { mutableStateOf<Int?>(null) }
@@ -125,6 +128,7 @@ fun WorldMapPositionEditorContent() {
                         hoveredPathId = hoveredPathId,
                         connectionCreationMode = connectionCreationMode,
                         connectionFromLocation = connectionFromLocation,
+                        waypointEditMode = waypointEditMode,
                         onLocationClick = { locationId ->
                             // Handle location click based on mode
                             if (connectionCreationMode) {
@@ -322,6 +326,27 @@ fun WorldMapPositionEditorContent() {
                         Text(if (connectionCreationMode) "Cancel Connection Mode" else "Create Connection (Click Mode)")
                     }
                     
+                    // Waypoint edit mode toggle button
+                    Button(
+                        onClick = { 
+                            waypointEditMode = !waypointEditMode
+                            // Clear any active waypoint drag state when switching modes
+                            if (!waypointEditMode) {
+                                selectedPathIds = null
+                                draggingWaypointIndex = null
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (waypointEditMode) 
+                                MaterialTheme.colorScheme.tertiary 
+                            else 
+                                MaterialTheme.colorScheme.primary
+                        ),
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
+                    ) {
+                        Text(if (waypointEditMode) "Waypoint Edit Mode: ON" else "Waypoint Edit Mode: OFF")
+                    }
+                    
                     // Auto-connect based on dependencies button
                     Button(
                         onClick = {
@@ -513,6 +538,7 @@ private fun WorldMapCanvas(
     hoveredPathId: Pair<String, String>?,
     connectionCreationMode: Boolean,
     connectionFromLocation: String?,
+    waypointEditMode: Boolean,
     onLocationClick: (String) -> Unit,
     onPositionClick: (WorldMapPoint) -> Unit,
     onPathClick: (WorldMapPathData, Boolean) -> Unit, // path, addWaypoint
@@ -574,9 +600,12 @@ private fun WorldMapCanvas(
                         }
                     }
                 }
-                .pointerInput(imageAspectRatio, worldMapData, selectedPathIds, draggingWaypointIndex) {
+                .pointerInput(imageAspectRatio, selectedPathIds, draggingWaypointIndex, waypointEditMode) {
                     detectDragGestures(
                         onDragStart = { offset ->
+                            // Only allow waypoint dragging in waypoint edit mode
+                            if (!waypointEditMode) return@detectDragGestures
+                            
                             // Calculate actual image bounds
                             val containerAspectRatio = size.width.toFloat() / size.height.toFloat()
                             val (imageWidth, imageHeight, imageOffsetX, imageOffsetY) = if (containerAspectRatio > imageAspectRatio) {
@@ -749,14 +778,14 @@ private fun WorldMapCanvas(
                                     }
                                     
                                     if (clickedOnLine) {
-                                        if (shouldAddWaypoint) {
-                                            // Add waypoint at click position
+                                        if (waypointEditMode && shouldAddWaypoint) {
+                                            // Add waypoint at click position (only in waypoint edit mode)
                                             val updatedControlPoints = path.controlPoints.toMutableList()
                                             updatedControlPoints.add(waypointInsertIndex, clickPoint)
                                             val updatedPath = path.copy(controlPoints = updatedControlPoints)
                                             onPathClick(updatedPath, true)
                                         } else {
-                                            // Just select the connection
+                                            // Select the connection (always available, but prioritized when not in waypoint edit mode)
                                             onPathClick(path, false)
                                         }
                                         return@detectTapGestures
@@ -917,34 +946,36 @@ private fun WorldMapCanvas(
                 )
             }
             
-            // Draw waypoint handles for all connections
-            val waypointRadius = 8f
-            for (path in worldMapData.paths) {
-                for ((index, waypoint) in path.controlPoints.withIndex()) {
-                    val wpX = imageOffsetX + (waypoint.x / 1000f) * imageWidth
-                    val wpY = imageOffsetY + (waypoint.y / 1000f) * imageHeight
-                    
-                    // Determine if this waypoint is being dragged
-                    // Compare by path IDs instead of object reference
-                    val isDragging = selectedPathIds != null &&
-                                    selectedPathIds.first == path.fromLocationId &&
-                                    selectedPathIds.second == path.toLocationId &&
-                                    draggingWaypointIndex == index
-                    
-                    // Draw waypoint handle
-                    drawCircle(
-                        color = if (isDragging) Color(0xFFFF9800) else Color(0xFF2196F3), // Orange when dragging, blue otherwise
-                        radius = if (isDragging) waypointRadius * 1.5f else waypointRadius,
-                        center = Offset(wpX, wpY)
-                    )
-                    
-                    // Draw white border
-                    drawCircle(
-                        color = Color.White,
-                        radius = if (isDragging) waypointRadius * 1.5f else waypointRadius,
-                        center = Offset(wpX, wpY),
-                        style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2f)
-                    )
+            // Draw waypoint handles for all connections (only in waypoint edit mode)
+            if (waypointEditMode) {
+                val waypointRadius = 8f
+                for (path in worldMapData.paths) {
+                    for ((index, waypoint) in path.controlPoints.withIndex()) {
+                        val wpX = imageOffsetX + (waypoint.x / 1000f) * imageWidth
+                        val wpY = imageOffsetY + (waypoint.y / 1000f) * imageHeight
+                        
+                        // Determine if this waypoint is being dragged
+                        // Compare by path IDs instead of object reference
+                        val isDragging = selectedPathIds != null &&
+                                        selectedPathIds.first == path.fromLocationId &&
+                                        selectedPathIds.second == path.toLocationId &&
+                                        draggingWaypointIndex == index
+                        
+                        // Draw waypoint handle
+                        drawCircle(
+                            color = if (isDragging) Color(0xFFFF9800) else Color(0xFF2196F3), // Orange when dragging, blue otherwise
+                            radius = if (isDragging) waypointRadius * 1.5f else waypointRadius,
+                            center = Offset(wpX, wpY)
+                        )
+                        
+                        // Draw white border
+                        drawCircle(
+                            color = Color.White,
+                            radius = if (isDragging) waypointRadius * 1.5f else waypointRadius,
+                            center = Offset(wpX, wpY),
+                            style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2f)
+                        )
+                    }
                 }
             }
         }
