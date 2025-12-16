@@ -726,7 +726,6 @@ private fun WorldMapCanvas(
                         // Check if click is near any connection line
                         if (!foundWaypoint) {
                             val lineClickThreshold = 15f // pixels
-                            val waypointAddThreshold = 30f // If within this distance from segment midpoint, add waypoint
                             
                             for (path in worldMapData.paths) {
                                 val fromLoc = worldMapData.locations.find { it.id == path.fromLocationId }
@@ -751,7 +750,6 @@ private fun WorldMapCanvas(
                                     
                                     // Check distance to each segment
                                     var clickedOnLine = false
-                                    var shouldAddWaypoint = false
                                     var waypointInsertIndex = 0
                                     
                                     for (i in 0 until points.size - 1) {
@@ -760,32 +758,21 @@ private fun WorldMapCanvas(
                                         val dist = distanceToLineSegment(offset.x, offset.y, x1, y1, x2, y2)
                                         if (dist < lineClickThreshold) {
                                             clickedOnLine = true
-                                            
-                                            // Check if click is near midpoint of this segment
-                                            val midX = (x1 + x2) / 2f
-                                            val midY = (y1 + y2) / 2f
-                                            val distFromMid = kotlin.math.sqrt(
-                                                (offset.x - midX) * (offset.x - midX) +
-                                                (offset.y - midY) * (offset.y - midY)
-                                            )
-                                            
-                                            if (distFromMid < waypointAddThreshold) {
-                                                shouldAddWaypoint = true
-                                                waypointInsertIndex = if (i == 0) 0 else i
-                                            }
+                                            // In waypoint edit mode, we want to insert waypoint at the correct position in the segment
+                                            waypointInsertIndex = if (i == 0) 0 else i
                                             break
                                         }
                                     }
                                     
                                     if (clickedOnLine) {
-                                        if (waypointEditMode && shouldAddWaypoint) {
-                                            // Add waypoint at click position (only in waypoint edit mode)
+                                        if (waypointEditMode) {
+                                            // In waypoint edit mode: add waypoint at click position
                                             val updatedControlPoints = path.controlPoints.toMutableList()
                                             updatedControlPoints.add(waypointInsertIndex, clickPoint)
                                             val updatedPath = path.copy(controlPoints = updatedControlPoints)
                                             onPathClick(updatedPath, true)
                                         } else {
-                                            // Select the connection (always available, but prioritized when not in waypoint edit mode)
+                                            // Not in waypoint edit mode: select the connection
                                             onPathClick(path, false)
                                         }
                                         return@detectTapGestures
