@@ -649,4 +649,34 @@
     <!-- Mine on River Warning -->
     <string name="mine_on_river_warning_title">No se puede colocar mina en el río</string>
     <string name="mine_on_river_warning_message">Las minas enanas no se pueden colocar en casillas de río. Las minas requieren tierra firme y no se pueden construir en balsas. Por favor selecciona un área de construcción en tierra.</string>
+
+    <!-- Mining Outcome Table Headers -->
+    <string name="dig_outcome_name">Nombre</string>
+    <string name="dig_outcome_chance">Probabilidad (%)</string>
+    <string name="dig_outcome_reward">Recompensa</string>
+
+    <!-- Delete Confirmation Dialog -->
+    <string name="delete_save_game">Eliminar partida guardada</string>
+    <string name="delete_save_game_confirm">¿Estás seguro de que deseas eliminar esta partida guardada?</string>
+
+    <!-- Editor - Speed Labels -->
+    <string name="speed_slow">1 (Lento)</string>
+    <string name="speed_fast">2 (Rápido)</string>
+
+    <!-- Editor - River Properties -->
+    <string name="river_properties">Propiedades del río</string>
+    <string name="flow_direction">Dirección del flujo:</string>
+    <string name="flow_speed">Velocidad del flujo:</string>
+
+    <!-- Editor - World Map Position Editor -->
+    <string name="add_location">+ Añadir ubicación</string>
+    <string name="add_location_dialog_title">Añadir ubicación</string>
+    <string name="location_name">Nombre de ubicación</string>
+    <string name="select_levels">Seleccionar niveles:</string>
+    <string name="add">Añadir</string>
+    <string name="edit_path_control_points">Editar puntos de control de ruta</string>
+    <string name="control_points_label">Puntos de control (0-1000):</string>
+    <string name="add_control_point">Añadir punto de control:</string>
+    <string name="y_coordinate">Y</string>
+    <string name="locations">Ubicaciones</string>
 </resources>
