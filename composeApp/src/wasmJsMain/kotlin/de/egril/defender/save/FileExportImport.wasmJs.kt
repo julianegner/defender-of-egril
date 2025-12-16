@@ -1,11 +1,11 @@
+@file:OptIn(kotlin.js.ExperimentalWasmJsInterop::class)
+
 package de.egril.defender.save
 
 import kotlinx.browser.document
 import kotlinx.browser.window
 import kotlinx.coroutines.await
 import kotlinx.coroutines.suspendCancellableCoroutine
-import org.khronos.webgl.ArrayBuffer
-import org.khronos.webgl.Uint8Array
 import org.w3c.dom.HTMLAnchorElement
 import org.w3c.dom.HTMLInputElement
 import org.w3c.dom.url.URL
@@ -14,7 +14,10 @@ import org.w3c.files.BlobPropertyBag
 import org.w3c.files.File
 import org.w3c.files.FileReader
 import kotlin.coroutines.resume
-import kotlin.js.Promise
+
+// External JS functions for Blob creation
+@JsFun("(content, type) => new Blob([content], {type: type})")
+external fun createBlob(content: String, type: String): Blob
 
 /**
  * Web/WASM implementation of FileExportImport using browser File API
@@ -24,7 +27,7 @@ class WasmJsFileExportImport : FileExportImport {
     override suspend fun exportFile(filename: String, content: String): Boolean {
         return try {
             // Create a blob from the content
-            val blob = Blob(arrayOf(content), BlobPropertyBag(type = "application/json"))
+            val blob = createBlob(content, "application/json")
             
             // Create a download link
             val url = URL.createObjectURL(blob)
@@ -43,7 +46,7 @@ class WasmJsFileExportImport : FileExportImport {
             
             true
         } catch (e: Exception) {
-            console.error("Error exporting file: ${e.message}")
+            println("Error exporting file: ${e.message}")
             false
         }
     }
@@ -64,7 +67,7 @@ class WasmJsFileExportImport : FileExportImport {
                 }
             }
             
-            val blob = Blob(arrayOf(zipContent), BlobPropertyBag(type = "application/zip"))
+            val blob = createBlob(zipContent, "application/zip")
             val url = URL.createObjectURL(blob)
             val link = document.createElement("a") as HTMLAnchorElement
             link.href = url
@@ -79,7 +82,7 @@ class WasmJsFileExportImport : FileExportImport {
             
             true
         } catch (e: Exception) {
-            console.error("Error exporting ZIP: ${e.message}")
+            println("Error exporting ZIP: ${e.message}")
             false
         }
     }
@@ -147,7 +150,7 @@ class WasmJsFileExportImport : FileExportImport {
             input.click()
             
         } catch (e: Exception) {
-            console.error("Error importing files: ${e.message}")
+            println("Error importing files: ${e.message}")
             continuation.resume(null)
         }
     }
