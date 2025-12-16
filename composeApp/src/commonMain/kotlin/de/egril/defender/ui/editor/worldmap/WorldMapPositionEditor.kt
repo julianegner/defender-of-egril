@@ -55,7 +55,11 @@ fun WorldMapPositionEditorContent() {
     var showAddLocationDialog by remember { mutableStateOf(false) }
     var showEditPathDialog by remember { mutableStateOf<WorldMapPathData?>(null) }
     var showAddConnectionDialog by remember { mutableStateOf(false) }
-    var connectionCreationState by remember { mutableStateOf<Pair<String, String?>?>(null) } // (fromLocationId, toLocationId?)
+    var showEditLocationDialog by remember { mutableStateOf<WorldMapLocationData?>(null) }
+    
+    // Connection creation mode: when active, clicking locations will create a connection
+    var connectionCreationMode by remember { mutableStateOf(false) }
+    var connectionFromLocation by remember { mutableStateOf<String?>(null) }
     
     // Waypoint interaction state
     var selectedPathForEdit by remember { mutableStateOf<WorldMapPathData?>(null) }
@@ -119,6 +123,40 @@ fun WorldMapPositionEditorContent() {
                         selectedPathForEdit = selectedPathForEdit,
                         draggingWaypointIndex = draggingWaypointIndex,
                         hoveredPathId = hoveredPathId,
+                        connectionCreationMode = connectionCreationMode,
+                        connectionFromLocation = connectionFromLocation,
+                        onLocationClick = { locationId ->
+                            // Handle location click based on mode
+                            if (connectionCreationMode) {
+                                // Connection creation mode
+                                if (connectionFromLocation == null) {
+                                    // First location selected
+                                    connectionFromLocation = locationId
+                                } else if (connectionFromLocation != locationId) {
+                                    // Second location selected - create connection
+                                    val newPath = WorldMapPathData(
+                                        fromLocationId = connectionFromLocation!!,
+                                        toLocationId = locationId,
+                                        controlPoints = emptyList(),
+                                        type = ConnectionType.ROAD
+                                    )
+                                    EditorStorage.saveWorldMapPath(newPath)
+                                    worldMapData = EditorStorage.getWorldMapData()
+                                    // Reset connection mode
+                                    connectionCreationMode = false
+                                    connectionFromLocation = null
+                                } else {
+                                    // Same location clicked - cancel
+                                    connectionFromLocation = null
+                                }
+                            } else {
+                                // Edit mode - open edit dialog for location
+                                val location = worldMapData.locations.find { it.id == locationId }
+                                if (location != null) {
+                                    showEditLocationDialog = location
+                                }
+                            }
+                        },
                         onPositionClick = { point ->
                             // Update position for selected location
                             if (selectedLocationId != null) {
@@ -196,6 +234,45 @@ fun WorldMapPositionEditorContent() {
                             )
                         }
                     }
+                    
+                    // Connection mode indicator
+                    if (connectionCreationMode) {
+                        Card(
+                            modifier = Modifier
+                                .align(Alignment.TopStart)
+                                .padding(8.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.9f)
+                            )
+                        ) {
+                            Column(modifier = Modifier.padding(8.dp)) {
+                                Text(
+                                    text = "Connection Mode Active",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSecondary
+                                )
+                                if (connectionFromLocation != null) {
+                                    val fromLoc = worldMapData.locations.find { it.id == connectionFromLocation }
+                                    Text(
+                                        text = "From: ${fromLoc?.name ?: connectionFromLocation}",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSecondary
+                                    )
+                                    Text(
+                                        text = "Click destination location",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSecondary
+                                    )
+                                } else {
+                                    Text(
+                                        text = "Click source location",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSecondary
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
             }
             
@@ -216,6 +293,69 @@ fun WorldMapPositionEditorContent() {
                         Text("+ Add Location")
                     }
                     
+                    // Connection creation mode button
+                    Button(
+                        onClick = { 
+                            connectionCreationMode = !connectionCreationMode
+                            if (!connectionCreationMode) {
+                                connectionFromLocation = null
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (connectionCreationMode) 
+                                MaterialTheme.colorScheme.secondary 
+                            else 
+                                MaterialTheme.colorScheme.primary
+                        ),
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
+                    ) {
+                        Text(if (connectionCreationMode) "Cancel Connection Mode" else "Create Connection (Click Mode)")
+                    }
+                    
+                    // Auto-connect based on dependencies button
+                    Button(
+                        onClick = {
+                            // Auto-create connections based on level dependencies
+                            val newPaths = mutableListOf<WorldMapPathData>()
+                            for (toLocation in worldMapData.locations) {
+                                for (toLevelId in toLocation.levelIds) {
+                                    val toLevel = allLevels.find { it.id == toLevelId }
+                                    if (toLevel != null && toLevel.prerequisites.isNotEmpty()) {
+                                        // Find which location has any of the prerequisite levels
+                                        for (fromLocation in worldMapData.locations) {
+                                            if (fromLocation.id != toLocation.id) {
+                                                val hasPrereq = fromLocation.levelIds.any { it in toLevel.prerequisites }
+                                                if (hasPrereq) {
+                                                    // Check if connection already exists
+                                                    val exists = worldMapData.paths.any {
+                                                        it.fromLocationId == fromLocation.id && it.toLocationId == toLocation.id
+                                                    }
+                                                    if (!exists) {
+                                                        newPaths.add(WorldMapPathData(
+                                                            fromLocationId = fromLocation.id,
+                                                            toLocationId = toLocation.id,
+                                                            controlPoints = emptyList(),
+                                                            type = ConnectionType.ROAD
+                                                        ))
+                                                    }
+                                                    break
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            // Save all new paths
+                            for (path in newPaths) {
+                                EditorStorage.saveWorldMapPath(path)
+                            }
+                            worldMapData = EditorStorage.getWorldMapData()
+                        },
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
+                    ) {
+                        Text("Auto-Connect by Dependencies")
+                    }
+                    
                     Text(
                         text = "Locations",
                         style = MaterialTheme.typography.titleSmall,
@@ -234,6 +374,9 @@ fun WorldMapPositionEditorContent() {
                                 isSelected = location.id == selectedLocationId,
                                 onClick = {
                                     selectedLocationId = if (selectedLocationId == location.id) null else location.id
+                                },
+                                onEdit = {
+                                    showEditLocationDialog = location
                                 },
                                 onDelete = {
                                     EditorStorage.deleteWorldMapLocation(location.id)
@@ -326,6 +469,21 @@ fun WorldMapPositionEditorContent() {
             }
         )
     }
+    
+    // Edit Location Dialog
+    if (showEditLocationDialog != null) {
+        EditLocationDialog(
+            location = showEditLocationDialog!!,
+            allLevels = allLevels,
+            existingLocations = worldMapData.locations,
+            onDismiss = { showEditLocationDialog = null },
+            onConfirm = { updatedLocation ->
+                EditorStorage.saveWorldMapLocation(updatedLocation)
+                worldMapData = EditorStorage.getWorldMapData()
+                showEditLocationDialog = null
+            }
+        )
+    }
 }
 
 /**
@@ -343,6 +501,9 @@ private fun WorldMapCanvas(
     selectedPathForEdit: WorldMapPathData?,
     draggingWaypointIndex: Int?,
     hoveredPathId: Pair<String, String>?,
+    connectionCreationMode: Boolean,
+    connectionFromLocation: String?,
+    onLocationClick: (String) -> Unit,
     onPositionClick: (WorldMapPoint) -> Unit,
     onPathClick: (WorldMapPathData) -> Unit,
     onWaypointDragStart: (WorldMapPathData, Int) -> Unit,
@@ -488,6 +649,21 @@ private fun WorldMapCanvas(
                         val x = (((offset.x - imageOffsetX) / imageWidth) * 1000).toInt().coerceIn(0, 1000)
                         val y = (((offset.y - imageOffsetY) / imageHeight) * 1000).toInt().coerceIn(0, 1000)
                         val clickPoint = WorldMapPoint(x, y)
+                        
+                        // Check if click is on a location marker (highest priority)
+                        val locationRadius = 20f // pixels
+                        for (location in worldMapData.locations) {
+                            val locScreenX = imageOffsetX + (location.position.x / 1000f) * imageWidth
+                            val locScreenY = imageOffsetY + (location.position.y / 1000f) * imageHeight
+                            val dist = kotlin.math.sqrt(
+                                (offset.x - locScreenX) * (offset.x - locScreenX) +
+                                (offset.y - locScreenY) * (offset.y - locScreenY)
+                            )
+                            if (dist < locationRadius) {
+                                onLocationClick(location.id)
+                                return@detectTapGestures
+                            }
+                        }
                         
                         // Check if click is near any waypoint (for existing waypoints)
                         val waypointRadius = 20f // pixels
@@ -658,27 +834,35 @@ private fun WorldMapCanvas(
                 val y = imageOffsetY + (location.position.y / 1000f) * imageHeight
                 
                 val isSelected = location.id == selectedLocationId
+                val isConnectionFrom = connectionCreationMode && connectionFromLocation == location.id
                 val hasPlayableLevels = location.levelIds.any { levelId ->
                     EditorStorage.isLevelReadyToPlay(levelId)
                 }
                 
                 val markerColor = when {
+                    isConnectionFrom -> Color(0xFFFF9800) // Orange for connection source
                     isSelected -> Color(0xFF2196F3) // Blue for selected
                     hasPlayableLevels -> if (isDarkMode) Color(0xFF4CAF50) else Color(0xFF2E7D32) // Green for playable
                     else -> if (isDarkMode) Color(0xFF9E9E9E) else Color(0xFF757575) // Grey for not playable
                 }
                 
+                val radius = when {
+                    isConnectionFrom -> markerRadius * 1.5f
+                    isSelected -> markerRadius * 1.3f
+                    else -> markerRadius
+                }
+                
                 // Draw marker circle
                 drawCircle(
                     color = markerColor,
-                    radius = if (isSelected) markerRadius * 1.3f else markerRadius,
+                    radius = radius,
                     center = Offset(x, y)
                 )
                 
                 // Draw border
                 drawCircle(
                     color = if (isDarkMode) Color.White else Color.Black,
-                    radius = if (isSelected) markerRadius * 1.3f else markerRadius,
+                    radius = radius,
                     center = Offset(x, y),
                     style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2f)
                 )
@@ -740,6 +924,7 @@ private fun LocationListItem(
     allLevels: List<de.egril.defender.editor.EditorLevel>,
     isSelected: Boolean,
     onClick: () -> Unit,
+    onEdit: () -> Unit,
     onDelete: () -> Unit
 ) {
     // Check if location has unfulfilled prerequisites
@@ -786,16 +971,30 @@ private fun LocationListItem(
                 )
             }
             
-            // Delete button
-            TextButton(
-                onClick = onDelete,
-                contentPadding = PaddingValues(4.dp)
-            ) {
-                Text(
-                    text = "X",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color.Red
-                )
+            Row {
+                // Edit button
+                TextButton(
+                    onClick = onEdit,
+                    contentPadding = PaddingValues(4.dp)
+                ) {
+                    Text(
+                        text = "✎",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+                
+                // Delete button
+                TextButton(
+                    onClick = onDelete,
+                    contentPadding = PaddingValues(4.dp)
+                ) {
+                    Text(
+                        text = "X",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.Red
+                    )
+                }
             }
         }
     }
@@ -977,6 +1176,99 @@ private fun AddLocationDialog(
                 enabled = name.isNotBlank() && selectedLevelIds.isNotEmpty()
             ) {
                 Text("Add")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
+}
+
+/**
+ * Dialog for editing an existing location
+ */
+@Composable
+private fun EditLocationDialog(
+    location: WorldMapLocationData,
+    allLevels: List<de.egril.defender.editor.EditorLevel>,
+    existingLocations: List<WorldMapLocationData>,
+    onDismiss: () -> Unit,
+    onConfirm: (WorldMapLocationData) -> Unit
+) {
+    var name by remember { mutableStateOf(location.name) }
+    var selectedLevelIds by remember { mutableStateOf(location.levelIds.toSet()) }
+    
+    // Get levels not yet assigned to other locations (excluding current location)
+    val assignedLevelIds = existingLocations
+        .filter { it.id != location.id }
+        .flatMap { it.levelIds }
+        .toSet()
+    val availableLevels = allLevels.filter { it.id !in assignedLevelIds || it.id in location.levelIds }
+    
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Edit Location") },
+        text = {
+            Column {
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text("Location Name") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                Text("Select Levels:", style = MaterialTheme.typography.bodyMedium)
+                
+                LazyColumn(
+                    modifier = Modifier.height(200.dp)
+                ) {
+                    items(availableLevels) { level ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    selectedLevelIds = if (level.id in selectedLevelIds) {
+                                        selectedLevelIds - level.id
+                                    } else {
+                                        selectedLevelIds + level.id
+                                    }
+                                }
+                                .padding(8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Checkbox(
+                                checked = level.id in selectedLevelIds,
+                                onCheckedChange = {
+                                    selectedLevelIds = if (it) {
+                                        selectedLevelIds + level.id
+                                    } else {
+                                        selectedLevelIds - level.id
+                                    }
+                                }
+                            )
+                            Text(level.title.ifEmpty { level.id })
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    if (name.isNotBlank() && selectedLevelIds.isNotEmpty()) {
+                        onConfirm(location.copy(
+                            name = name,
+                            levelIds = selectedLevelIds.toList()
+                        ))
+                    }
+                },
+                enabled = name.isNotBlank() && selectedLevelIds.isNotEmpty()
+            ) {
+                Text("Save")
             }
         },
         dismissButton = {
