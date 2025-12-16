@@ -29,13 +29,15 @@ fun DualLabelSwitch(
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.Center
     ) {
         Text(
             text = leftText,
             style = MaterialTheme.typography.bodyLarge,
             color = if (!state.value) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(end = 12.dp)
+            modifier = Modifier
+                .weight(1f)
+                .padding(end = 12.dp)
         )
         Switch(
             checked = state.value,
@@ -54,7 +56,9 @@ fun DualLabelSwitch(
             text = rightText,
             style = MaterialTheme.typography.bodyLarge,
             color = if (state.value) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(start = 12.dp)
+            modifier = Modifier
+                .weight(1f)
+                .padding(start = 12.dp)
         )
     }
 }
