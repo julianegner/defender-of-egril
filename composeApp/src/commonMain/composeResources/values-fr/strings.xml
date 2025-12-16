@@ -215,6 +215,7 @@
     <string name="attack_area_button">ATTAQUE DE ZONE</string>
     <string name="undo">Annuler</string>
     <string name="sell_tower_title">Vendre la tour?</string>
+    <string name="sell_tower_message">Voulez-vous vraiment vendre %s pour %s %s?</string>
     <string name="dig">Creuser</string>
     <string name="trap">Piège</string>
     <string name="mining_probabilities">Probabilités de minage</string>
