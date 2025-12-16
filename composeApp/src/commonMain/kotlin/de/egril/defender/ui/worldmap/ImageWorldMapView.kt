@@ -61,8 +61,16 @@ data class WorldMapRoad(
     val fromLocation: WorldMapLocation,
     val toLocation: WorldMapLocation,
     val controlPoints: List<Pair<Float, Float>> = emptyList(),  // Control points as (x, y) fractions
-    val type: de.egril.defender.editor.ConnectionType = de.egril.defender.editor.ConnectionType.ROAD  // Connection type
-)
+    val type: de.egril.defender.editor.ConnectionType = de.egril.defender.editor.ConnectionType.ROAD,  // Default connection type
+    val segmentTypes: List<de.egril.defender.editor.ConnectionType> = emptyList()  // Per-segment types for mixed paths
+) {
+    /**
+     * Get the connection type for a specific segment index.
+     */
+    fun getSegmentType(segmentIndex: Int): de.egril.defender.editor.ConnectionType {
+        return segmentTypes.getOrNull(segmentIndex) ?: type
+    }
+}
 
 /**
  * Filter levels at a location to only include those that are ready to play.
@@ -280,17 +288,19 @@ private fun BoxScope.RoadConnectionsOverlay(
     
     Canvas(modifier = Modifier.fillMaxSize()) {
         for (road in roads) {
-            // Determine color and dash pattern based on connection type
-            val (lineColor, dashPattern) = when (road.type) {
-                de.egril.defender.editor.ConnectionType.ROAD -> {
-                    // Light brown for roads, solid line
-                    val color = if (isDarkMode) Color(0xFFD2691E) else Color(0xFFA0522D)
-                    color to null
-                }
-                de.egril.defender.editor.ConnectionType.SEA_ROUTE -> {
-                    // Dark blue for sea routes, dashed line
-                    val color = if (isDarkMode) Color(0xFF1E90FF) else Color(0xFF00008B)
-                    color to PathEffect.dashPathEffect(floatArrayOf(15f, 10f), 0f)
+            // Helper function to get color and dash pattern for a connection type
+            fun getStyleForType(type: de.egril.defender.editor.ConnectionType): Pair<Color, PathEffect?> {
+                return when (type) {
+                    de.egril.defender.editor.ConnectionType.ROAD -> {
+                        // Light brown for roads, solid line
+                        val color = if (isDarkMode) Color(0xFFD2691E) else Color(0xFFA0522D)
+                        color to null
+                    }
+                    de.egril.defender.editor.ConnectionType.SEA_ROUTE -> {
+                        // Dark blue for sea routes, dashed line
+                        val color = if (isDarkMode) Color(0xFF1E90FF) else Color(0xFF00008B)
+                        color to PathEffect.dashPathEffect(floatArrayOf(15f, 10f), 0f)
+                    }
                 }
             }
             
@@ -301,7 +311,8 @@ private fun BoxScope.RoadConnectionsOverlay(
             val endY = imageOffsetY + road.toLocation.y * imageHeight
             
             if (road.controlPoints.isEmpty()) {
-                // Draw straight line
+                // Draw straight line with single segment type
+                val (lineColor, dashPattern) = getStyleForType(road.getSegmentType(0))
                 drawLine(
                     color = lineColor,
                     start = Offset(startX, startY),
@@ -311,36 +322,28 @@ private fun BoxScope.RoadConnectionsOverlay(
                     pathEffect = dashPattern
                 )
             } else {
-                // Draw curved path through control points using Catmull-Rom spline
+                // Build list of all points (start, waypoints, end)
                 val allPoints = mutableListOf(Offset(startX, startY))
                 for (cp in road.controlPoints) {
                     allPoints.add(Offset(imageOffsetX + cp.first * imageWidth, imageOffsetY + cp.second * imageHeight))
                 }
                 allPoints.add(Offset(endX, endY))
                 
-                // Draw smooth curve through points
-                if (allPoints.size >= 2) {
-                    val path = androidx.compose.ui.graphics.Path()
-                    path.moveTo(allPoints[0].x, allPoints[0].y)
+                // Draw each segment with its own type
+                for (segmentIndex in 0 until allPoints.size - 1) {
+                    val current = allPoints[segmentIndex]
+                    val next = allPoints[segmentIndex + 1]
+                    val (lineColor, dashPattern) = getStyleForType(road.getSegmentType(segmentIndex))
                     
-                    // Use quadratic bezier curves between consecutive points for smoothness
-                    for (i in 0 until allPoints.size - 1) {
-                        val current = allPoints[i]
-                        val next = allPoints[i + 1]
-                        
-                        // Calculate control point at midpoint
-                        val controlX = (current.x + next.x) / 2
-                        val controlY = (current.y + next.y) / 2
-                        
-                        // For smoother curves, use the actual control points when available
-                        if (i < allPoints.size - 2) {
-                            // Not the last segment, use quadratic bezier
-                            path.quadraticBezierTo(current.x, current.y, controlX, controlY)
-                        } else {
-                            // Last segment, draw to end point
-                            path.quadraticBezierTo(current.x, current.y, next.x, next.y)
-                        }
-                    }
+                    // Draw smooth curve for this segment using quadratic bezier
+                    val path = androidx.compose.ui.graphics.Path()
+                    path.moveTo(current.x, current.y)
+                    
+                    // Calculate control point at midpoint for smooth curve
+                    val controlX = (current.x + next.x) / 2
+                    val controlY = (current.y + next.y) / 2
+                    path.quadraticBezierTo(current.x, current.y, controlX, controlY)
+                    path.lineTo(next.x, next.y)
                     
                     drawPath(
                         path = path,
@@ -555,7 +558,8 @@ private fun generateFromWorldMapData(
                 fromLocation = fromLocation,
                 toLocation = toLocation,
                 controlPoints = controlPoints,
-                type = pathData.type
+                type = pathData.type,
+                segmentTypes = pathData.segmentTypes
             ))
         }
         // If locations are hidden but path should still be visible, create temporary locations
@@ -587,7 +591,8 @@ private fun generateFromWorldMapData(
                     fromLocation = tempFromLocation,
                     toLocation = tempToLocation,
                     controlPoints = controlPoints,
-                    type = pathData.type
+                    type = pathData.type,
+                    segmentTypes = pathData.segmentTypes
                 ))
             }
         }

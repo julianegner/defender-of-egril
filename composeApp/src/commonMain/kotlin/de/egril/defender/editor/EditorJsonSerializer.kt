@@ -382,11 +382,18 @@ object EditorJsonSerializer {
                     """{"x": ${pt.x}, "y": ${pt.y}}"""
                 } + "]"
             }
+            val segmentTypesJson = if (path.segmentTypes.isEmpty()) {
+                ""
+            } else {
+                val typesArray = "[" + path.segmentTypes.joinToString(", ") { "\"${it.name}\"" } + "]"
+                """,
+      "segmentTypes": $typesArray"""
+            }
             """{
       "fromLocationId": "${path.fromLocationId}",
       "toLocationId": "${path.toLocationId}",
       "controlPoints": $controlPointsJson,
-      "type": "${path.type.name}"
+      "type": "${path.type.name}"$segmentTypesJson
     }"""
         }
         
@@ -475,7 +482,25 @@ object EditorJsonSerializer {
                         ConnectionType.ROAD
                     }
                     
-                    paths.add(WorldMapPathData(fromLocationId, toLocationId, controlPoints, type))
+                    // Parse segment types (optional for backward compatibility)
+                    val segmentTypes = mutableListOf<ConnectionType>()
+                    if (entry.contains("\"segmentTypes\"")) {
+                        try {
+                            val typesSection = entry.substringAfter("\"segmentTypes\": [").substringBefore("]")
+                            if (typesSection.isNotBlank()) {
+                                val typeEntries = typesSection.split(",").map { it.trim().removeSurrounding("\"") }
+                                for (typeEntry in typeEntries) {
+                                    if (typeEntry.isNotBlank()) {
+                                        segmentTypes.add(ConnectionType.valueOf(typeEntry))
+                                    }
+                                }
+                            }
+                        } catch (e: Exception) {
+                            // If parsing fails, use empty list (will fall back to default type)
+                        }
+                    }
+                    
+                    paths.add(WorldMapPathData(fromLocationId, toLocationId, controlPoints, type, segmentTypes))
                 }
             }
             
