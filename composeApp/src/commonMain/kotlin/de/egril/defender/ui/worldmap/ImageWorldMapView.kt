@@ -297,8 +297,8 @@ private fun BoxScope.RoadConnectionsOverlay(
                         color to null
                     }
                     de.egril.defender.editor.ConnectionType.SEA_ROUTE -> {
-                        // Dark blue for sea routes, dashed line
-                        val color = if (isDarkMode) Color(0xFF1E90FF) else Color(0xFF00008B)
+                        // Lighter cyan/aqua for sea routes for better visibility against dark blue ocean
+                        val color = if (isDarkMode) Color(0xFF00E5FF) else Color(0xFF00CED1)
                         color to PathEffect.dashPathEffect(floatArrayOf(15f, 10f), 0f)
                     }
                 }

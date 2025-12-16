@@ -817,22 +817,26 @@ private fun WorldMapCanvas(
                 val isValid = path.isValidConnection(worldMapData.locations, allLevels)
                 
                 // Determine color and dash pattern based on connection type and validity
-                val (lineColor, dashPattern) = when (path.type) {
-                    ConnectionType.ROAD -> {
-                        val color = if (isValid) {
-                            if (isDarkMode) Color(0xFFD2691E) else Color(0xFFA0522D)
-                        } else {
-                            Color(0xFFFFA500) // Orange for invalid
+                // Helper function to get color and dash pattern for a segment type
+                fun getSegmentStyle(segmentType: ConnectionType): Pair<Color, PathEffect?> {
+                    return when (segmentType) {
+                        ConnectionType.ROAD -> {
+                            val color = if (isValid) {
+                                if (isDarkMode) Color(0xFFD2691E) else Color(0xFFA0522D)
+                            } else {
+                                Color(0xFFFFA500) // Orange for invalid
+                            }
+                            color to null
                         }
-                        color to null
-                    }
-                    ConnectionType.SEA_ROUTE -> {
-                        val color = if (isValid) {
-                            if (isDarkMode) Color(0xFF1E90FF) else Color(0xFF00008B)
-                        } else {
-                            Color(0xFFFFA500) // Orange for invalid
+                        ConnectionType.SEA_ROUTE -> {
+                            val color = if (isValid) {
+                                // Lighter cyan/aqua for better visibility against dark blue ocean
+                                if (isDarkMode) Color(0xFF00E5FF) else Color(0xFF00CED1)
+                            } else {
+                                Color(0xFFFFA500) // Orange for invalid
+                            }
+                            color to PathEffect.dashPathEffect(floatArrayOf(15f, 10f), 0f)
                         }
-                        color to PathEffect.dashPathEffect(floatArrayOf(15f, 10f), 0f)
                     }
                 }
                 
@@ -842,7 +846,9 @@ private fun WorldMapCanvas(
                 val endY = imageOffsetY + (toLocation.position.y / 1000f) * imageHeight
                 
                 if (path.controlPoints.isEmpty()) {
-                    // Draw straight line
+                    // Draw straight line with segment type
+                    val segmentType = path.getSegmentType(0)
+                    val (lineColor, dashPattern) = getSegmentStyle(segmentType)
                     drawLine(
                         color = lineColor,
                         start = Offset(startX, startY),
@@ -852,13 +858,18 @@ private fun WorldMapCanvas(
                         pathEffect = dashPattern
                     )
                 } else {
-                    // Draw curved path through control points
+                    // Draw curved path through control points with per-segment types
                     var prevX = startX
                     var prevY = startY
+                    var segmentIndex = 0
                     
                     for (cp in path.controlPoints) {
                         val cpX = imageOffsetX + (cp.x / 1000f) * imageWidth
                         val cpY = imageOffsetY + (cp.y / 1000f) * imageHeight
+                        
+                        // Get style for this segment
+                        val segmentType = path.getSegmentType(segmentIndex)
+                        val (lineColor, dashPattern) = getSegmentStyle(segmentType)
                         
                         drawLine(
                             color = lineColor,
@@ -871,9 +882,12 @@ private fun WorldMapCanvas(
                         
                         prevX = cpX
                         prevY = cpY
+                        segmentIndex++
                     }
                     
                     // Draw final segment
+                    val segmentType = path.getSegmentType(segmentIndex)
+                    val (lineColor, dashPattern) = getSegmentStyle(segmentType)
                     drawLine(
                         color = lineColor,
                         start = Offset(prevX, prevY),
@@ -1083,7 +1097,7 @@ private fun PathListItem(
     }
     val connectionTypeColor = when (path.type) {
         ConnectionType.ROAD -> Color(0xFFA0522D) // Brown
-        ConnectionType.SEA_ROUTE -> Color(0xFF00008B) // Dark blue
+        ConnectionType.SEA_ROUTE -> Color(0xFF00CED1) // Lighter cyan/aqua for visibility
     }
     
     Card(
