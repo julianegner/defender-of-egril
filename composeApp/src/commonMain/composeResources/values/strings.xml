@@ -65,6 +65,21 @@
     <string name="load_game">Load Game</string>
     <string name="add_optional_comment">Add an optional comment to help identify this save:</string>
     <string name="save_comment_placeholder">e.g., 'Before final wave', 'Good position'...</string>
+    <string name="download_savefile">Download</string>
+    <string name="download_all_savefiles">Download All</string>
+    <string name="upload_savefiles">Upload</string>
+    <string name="download_savefile_tooltip">Download this save file</string>
+    <string name="download_all_tooltip">Download all save files as a ZIP archive</string>
+    <string name="upload_tooltip">Upload save files (JSON or ZIP)</string>
+    <string name="file_override_title">File Already Exists</string>
+    <string name="file_override_message">A save file named "%s" already exists. What would you like to do?</string>
+    <string name="skip_file">Skip</string>
+    <string name="override_file">Override</string>
+    <string name="override_all">Override All</string>
+    <string name="files_imported">Files Imported</string>
+    <string name="files_imported_message">Successfully imported %d save file(s).</string>
+    <string name="import_error">Import Error</string>
+    <string name="import_error_message">Failed to import some files. Please check the file format.</string>
     <string name="in_x_turns">in %s turns</string>
     
     <!-- Towers -->
