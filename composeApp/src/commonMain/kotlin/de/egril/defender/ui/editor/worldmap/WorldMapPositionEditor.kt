@@ -12,8 +12,10 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -28,6 +30,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import de.egril.defender.editor.ConnectionType
 import de.egril.defender.editor.EditorStorage
 import de.egril.defender.editor.WorldMapData
@@ -173,12 +176,13 @@ fun WorldMapPositionEditorContent() {
                             }
                         },
                         onPathClick = { path, addWaypoint ->
-                            if (addWaypoint) {
+                            // Double-check current waypoint edit mode to prevent stale closure issues
+                            if (addWaypoint && waypointEditMode) {
                                 // Save the path with the new waypoint
                                 EditorStorage.saveWorldMapPath(path)
                                 worldMapData = EditorStorage.getWorldMapData()
                                 selectedPathIds = path.fromLocationId to path.toLocationId
-                            } else {
+                            } else if (!addWaypoint || !waypointEditMode) {
                                 // Select the connection and open edit dialog
                                 showEditPathDialog = path
                             }
@@ -1345,14 +1349,34 @@ private fun EditPathDialog(
 ) {
     var controlPoints by remember { mutableStateOf(path.controlPoints.toMutableList()) }
     var connectionType by remember { mutableStateOf(path.type) }
+    var segmentTypes by remember { 
+        mutableStateOf(
+            if (path.segmentTypes.isEmpty()) {
+                // Initialize with default type for all segments
+                List(path.getSegmentCount()) { connectionType }
+            } else {
+                path.segmentTypes.toMutableList()
+            }
+        )
+    }
     var newX by remember { mutableStateOf("") }
     var newY by remember { mutableStateOf("") }
+    
+    // Update segment types when controlPoints change
+    LaunchedEffect(controlPoints.size) {
+        val newSegmentCount = controlPoints.size + 1
+        if (segmentTypes.size != newSegmentCount) {
+            segmentTypes = List(newSegmentCount) { index ->
+                segmentTypes.getOrElse(index) { connectionType }
+            }
+        }
+    }
     
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Edit Connection") },
         text = {
-            Column {
+            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                 Text(
                     "Connection: ${path.fromLocationId} → ${path.toLocationId}",
                     style = MaterialTheme.typography.bodyMedium
@@ -1360,14 +1384,18 @@ private fun EditPathDialog(
                 
                 Spacer(modifier = Modifier.height(16.dp))
                 
-                // Connection type selector
-                Text("Connection Type:", style = MaterialTheme.typography.bodySmall)
+                // Default connection type selector
+                Text("Default Connection Type:", style = MaterialTheme.typography.bodySmall)
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Button(
-                        onClick = { connectionType = ConnectionType.ROAD },
+                        onClick = { 
+                            connectionType = ConnectionType.ROAD 
+                            // Update all segments to new default
+                            segmentTypes = List(segmentTypes.size) { ConnectionType.ROAD }
+                        },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = if (connectionType == ConnectionType.ROAD) 
                                 MaterialTheme.colorScheme.primary 
@@ -1376,10 +1404,14 @@ private fun EditPathDialog(
                         ),
                         modifier = Modifier.weight(1f)
                     ) {
-                        Text("Road")
+                        Text("All Road")
                     }
                     Button(
-                        onClick = { connectionType = ConnectionType.SEA_ROUTE },
+                        onClick = { 
+                            connectionType = ConnectionType.SEA_ROUTE
+                            // Update all segments to new default
+                            segmentTypes = List(segmentTypes.size) { ConnectionType.SEA_ROUTE }
+                        },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = if (connectionType == ConnectionType.SEA_ROUTE) 
                                 MaterialTheme.colorScheme.primary 
@@ -1388,7 +1420,73 @@ private fun EditPathDialog(
                         ),
                         modifier = Modifier.weight(1f)
                     ) {
-                        Text("Sea")
+                        Text("All Sea")
+                    }
+                }
+                
+                Divider(modifier = Modifier.padding(vertical = 8.dp))
+                
+                // Segment types editor
+                Text("Segment Types (${segmentTypes.size} segments):", style = MaterialTheme.typography.bodySmall)
+                Text(
+                    "Edit individual segment types for mixed road/sea connections",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontSize = 12.sp
+                )
+                
+                Column(modifier = Modifier.padding(vertical = 8.dp)) {
+                    segmentTypes.forEachIndexed { index, type ->
+                        val fromPoint = if (index == 0) path.fromLocationId else "waypoint $index"
+                        val toPoint = if (index == segmentTypes.size - 1) path.toLocationId else "waypoint ${index + 1}"
+                        
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                "Seg ${index + 1}: $fromPoint → $toPoint",
+                                style = MaterialTheme.typography.bodySmall,
+                                modifier = Modifier.weight(1f)
+                            )
+                            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                Button(
+                                    onClick = { 
+                                        segmentTypes = segmentTypes.toMutableList().apply { 
+                                            set(index, ConnectionType.ROAD) 
+                                        }
+                                    },
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = if (type == ConnectionType.ROAD) 
+                                            MaterialTheme.colorScheme.primary 
+                                        else 
+                                            MaterialTheme.colorScheme.surfaceVariant
+                                    ),
+                                    modifier = Modifier.size(60.dp, 32.dp),
+                                    contentPadding = PaddingValues(4.dp)
+                                ) {
+                                    Text("Road", fontSize = 10.sp)
+                                }
+                                Button(
+                                    onClick = { 
+                                        segmentTypes = segmentTypes.toMutableList().apply { 
+                                            set(index, ConnectionType.SEA_ROUTE) 
+                                        }
+                                    },
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = if (type == ConnectionType.SEA_ROUTE) 
+                                            MaterialTheme.colorScheme.primary 
+                                        else 
+                                            MaterialTheme.colorScheme.surfaceVariant
+                                    ),
+                                    modifier = Modifier.size(60.dp, 32.dp),
+                                    contentPadding = PaddingValues(4.dp)
+                                ) {
+                                    Text("Sea", fontSize = 10.sp)
+                                }
+                            }
+                        }
                     }
                 }
                 
@@ -1397,7 +1495,7 @@ private fun EditPathDialog(
                 Text("Waypoints (0-1000):", style = MaterialTheme.typography.bodySmall)
                 
                 LazyColumn(
-                    modifier = Modifier.height(150.dp)
+                    modifier = Modifier.height(120.dp)
                 ) {
                     items(controlPoints.size) { index ->
                         val cp = controlPoints[index]
@@ -1454,7 +1552,11 @@ private fun EditPathDialog(
         confirmButton = {
             Button(
                 onClick = {
-                    onConfirm(path.copy(controlPoints = controlPoints, type = connectionType))
+                    onConfirm(path.copy(
+                        controlPoints = controlPoints, 
+                        type = connectionType,
+                        segmentTypes = segmentTypes
+                    ))
                 }
             ) {
                 Text("Save")
