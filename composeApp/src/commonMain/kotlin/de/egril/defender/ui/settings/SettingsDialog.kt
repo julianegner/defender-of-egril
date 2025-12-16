@@ -82,8 +82,8 @@ fun SettingsDialog(
                     // World map style switch
                     DualLabelSwitch(
                         state = AppSettings.useLevelCards,
-                        leftText = stringResource(Res.string.world_map_image_map),
-                        rightText = stringResource(Res.string.world_map_level_cards),
+                        leftText = stringResource(Res.string.world_map_level_cards),
+                        rightText = stringResource(Res.string.world_map_image_map),
                         onCheckedChange = { enabled ->
                             AppSettings.saveUseLevelCards(enabled)
                         },

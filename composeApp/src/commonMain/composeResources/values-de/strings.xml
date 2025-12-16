@@ -21,8 +21,8 @@
     <string name="language">Sprache</string>
     <string name="appearance">Erscheinungsbild</string>
     <string name="dark_mode">Dunkler Modus</string>
-    <string name="dark_mode_on">Dunkler Modus an</string>
-    <string name="dark_mode_off">Dunkler Modus aus</string>
+    <string name="dark_mode_on">Dunkler Modus</string>
+    <string name="dark_mode_off">Heller Modus</string>
     <string name="world_map_level_cards">Levelkarten-Ansicht</string>
     <string name="world_map_image_map">Bildkarte-Ansicht</string>
     <string name="enhanced_dig_images">Verbesserte Grabungsbilder</string>
@@ -426,15 +426,15 @@
 
     <!-- Sound Settings -->
     <string name="sound">Sound</string>
-    <string name="sound_enabled">Sound aktiviert</string>
-    <string name="sound_disabled">Sound deaktiviert</string>
+    <string name="sound_enabled">Sound</string>
+    <string name="sound_disabled">Stumm</string>
     <string name="sound_volume">Lautstärke</string>
 
     <!-- Control Pad Settings -->
     <string name="controls">Steuerung</string>
     <string name="show_control_pad">Steuerkreuz anzeigen</string>
-    <string name="control_pad_enabled">Steuerkreuz aktiviert</string>
-    <string name="control_pad_disabled">Steuerkreuz deaktiviert</string>
+    <string name="control_pad_enabled">Steuerkreuz</string>
+    <string name="control_pad_disabled">Kein Steuerkreuz</string>
     
     <!-- Difficulty Settings -->
     <string name="difficulty">Schwierigkeitsgrad</string>
