@@ -673,7 +673,6 @@
     <string name="add_location_dialog_title">Aggiungi posizione</string>
     <string name="location_name">Nome posizione</string>
     <string name="select_levels">Seleziona livelli:</string>
-    <string name="add">Aggiungi</string>
     <string name="edit_path_control_points">Modifica punti di controllo percorso</string>
     <string name="control_points_label">Punti di controllo (0-1000):</string>
     <string name="add_control_point">Aggiungi punto di controllo:</string>

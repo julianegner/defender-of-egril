@@ -674,7 +674,6 @@
     <string name="add_location_dialog_title">Add Location</string>
     <string name="location_name">Location Name</string>
     <string name="select_levels">Select Levels:</string>
-    <string name="add">Add</string>
     <string name="edit_path_control_points">Edit Path Control Points</string>
     <string name="control_points_label">Control Points (0-1000):</string>
     <string name="add_control_point">Add Control Point:</string>
