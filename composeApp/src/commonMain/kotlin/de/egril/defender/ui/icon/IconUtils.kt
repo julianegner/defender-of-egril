@@ -715,3 +715,39 @@ fun PentagramIcon(
         )
     }
 }
+
+/**
+ * Displays a download icon (down arrow) using Image for cross-platform compatibility
+ * Source: Noto Emoji down arrow
+ */
+@Composable
+fun DownloadIcon(
+    modifier: Modifier = Modifier.Companion,
+    size: Dp = 16.dp,
+    tint: Color? = null
+) {
+    Image(
+        painter = painterResource(Res.drawable.emoji_down_arrow),
+        contentDescription = "Download",
+        modifier = modifier.size(size),
+        colorFilter = tint?.let { ColorFilter.Companion.tint(it) }
+    )
+}
+
+/**
+ * Displays an upload icon (up arrow) using Image for cross-platform compatibility
+ * Source: Noto Emoji up arrow
+ */
+@Composable
+fun UploadIcon(
+    modifier: Modifier = Modifier.Companion,
+    size: Dp = 16.dp,
+    tint: Color? = null
+) {
+    Image(
+        painter = painterResource(Res.drawable.emoji_up_arrow),
+        contentDescription = "Upload",
+        modifier = modifier.size(size),
+        colorFilter = tint?.let { ColorFilter.Companion.tint(it) }
+    )
+}

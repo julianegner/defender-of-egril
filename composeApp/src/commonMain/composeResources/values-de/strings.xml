@@ -65,6 +65,21 @@
     <string name="load_game">Spiel laden</string>
     <string name="add_optional_comment">Füge einen optionalen Kommentar hinzu, um diesen Spielstand zu identifizieren:</string>
     <string name="save_comment_placeholder">z.B. 'Vor der letzten Welle', 'Gute Position'...</string>
+    <string name="download_savefile">Herunterladen</string>
+    <string name="download_all_savefiles">Alle herunterladen</string>
+    <string name="upload_savefiles">Hochladen</string>
+    <string name="download_savefile_tooltip">Diesen Spielstand herunterladen</string>
+    <string name="download_all_tooltip">Alle Spielstände als ZIP-Archiv herunterladen</string>
+    <string name="upload_tooltip">Spielstände hochladen (JSON oder ZIP)</string>
+    <string name="file_override_title">Datei existiert bereits</string>
+    <string name="file_override_message">Ein Spielstand namens "%s" existiert bereits. Was möchten Sie tun?</string>
+    <string name="skip_file">Überspringen</string>
+    <string name="override_file">Überschreiben</string>
+    <string name="override_all">Alle überschreiben</string>
+    <string name="files_imported">Dateien importiert</string>
+    <string name="files_imported_message">Erfolgreich %d Spielstand/-stände importiert.</string>
+    <string name="import_error">Import-Fehler</string>
+    <string name="import_error_message">Einige Dateien konnten nicht importiert werden. Bitte überprüfen Sie das Dateiformat.</string>
     <string name="in_x_turns">in %s Runden</string>
     
     <!-- Towers -->
