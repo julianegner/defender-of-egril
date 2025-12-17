@@ -12,13 +12,13 @@ import de.egril.defender.model.DigOutcome
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.dig_outcome_brass
 import defender_of_egril.composeapp.generated.resources.dig_outcome_diamond
-import defender_of_egril.composeapp.generated.resources.dig_outcome_dragon
 import defender_of_egril.composeapp.generated.resources.dig_outcome_gem_blue
 import defender_of_egril.composeapp.generated.resources.dig_outcome_gem_green
 import defender_of_egril.composeapp.generated.resources.dig_outcome_gem_red
 import defender_of_egril.composeapp.generated.resources.dig_outcome_gold
 import defender_of_egril.composeapp.generated.resources.dig_outcome_rubble
 import defender_of_egril.composeapp.generated.resources.dig_outcome_silver
+import defender_of_egril.composeapp.generated.resources.dragon_destroying_mine
 import defender_of_egril.composeapp.generated.resources.emoji_checkmark
 import defender_of_egril.composeapp.generated.resources.emoji_door
 import defender_of_egril.composeapp.generated.resources.emoji_down_arrow
@@ -554,13 +554,16 @@ fun DigOutcomeIcon(
             }
         }
         DigOutcome.DIAMOND -> Res.drawable.dig_outcome_diamond
-        DigOutcome.DRAGON -> Res.drawable.dig_outcome_dragon
+        DigOutcome.DRAGON -> Res.drawable.dragon_destroying_mine
     }
+
+    // Dragon image is displayed at double size (2x in both dimensions)
+    val displaySize = if (outcome == DigOutcome.DRAGON) size * 2 else size
 
     Image(
         painter = painterResource(resource),
         contentDescription = outcome.displayName,
-        modifier = modifier.size(size)
+        modifier = modifier.size(displaySize)
     )
 }
 
@@ -711,4 +714,40 @@ fun PentagramIcon(
             style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2f)
         )
     }
+}
+
+/**
+ * Displays a download icon (down arrow) using Image for cross-platform compatibility
+ * Source: Noto Emoji down arrow
+ */
+@Composable
+fun DownloadIcon(
+    modifier: Modifier = Modifier.Companion,
+    size: Dp = 16.dp,
+    tint: Color? = null
+) {
+    Image(
+        painter = painterResource(Res.drawable.emoji_down_arrow),
+        contentDescription = "Download",
+        modifier = modifier.size(size),
+        colorFilter = tint?.let { ColorFilter.Companion.tint(it) }
+    )
+}
+
+/**
+ * Displays an upload icon (up arrow) using Image for cross-platform compatibility
+ * Source: Noto Emoji up arrow
+ */
+@Composable
+fun UploadIcon(
+    modifier: Modifier = Modifier.Companion,
+    size: Dp = 16.dp,
+    tint: Color? = null
+) {
+    Image(
+        painter = painterResource(Res.drawable.emoji_up_arrow),
+        contentDescription = "Upload",
+        modifier = modifier.size(size),
+        colorFilter = tint?.let { ColorFilter.Companion.tint(it) }
+    )
 }

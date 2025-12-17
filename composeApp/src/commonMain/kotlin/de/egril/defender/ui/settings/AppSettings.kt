@@ -36,6 +36,8 @@ object AppSettings {
     private const val KEY_SHOW_CONTROL_PAD = "show_control_pad"
     private const val KEY_DIFFICULTY = "difficulty"
     private const val KEY_USE_LEVEL_CARDS = "use_level_cards"
+    private const val KEY_SETTINGS_HINT_SHOWN = "settings_hint_shown"
+    private const val KEY_USE_TILE_IMAGES = "use_tile_images"
     
     private val settings: Settings = Settings()
     
@@ -80,6 +82,22 @@ object AppSettings {
      */
     val useLevelCards: MutableState<Boolean> = mutableStateOf(
         settings.getBoolean(KEY_USE_LEVEL_CARDS, false)
+    )
+    
+    /**
+     * Settings hint shown state - track if first-time settings hint has been shown
+     * Default is false (hint should be shown on first run)
+     */
+    val settingsHintShown: MutableState<Boolean> = mutableStateOf(
+        settings.getBoolean(KEY_SETTINGS_HINT_SHOWN, false)
+    )
+    
+    /**
+     * Use tile background images - show tile images instead of solid colors
+     * Default is true (tile images ON)
+     */
+    val useTileImages: MutableState<Boolean> = mutableStateOf(
+        settings.getBoolean(KEY_USE_TILE_IMAGES, true)
     )
     
     /**
@@ -159,6 +177,22 @@ object AppSettings {
     }
     
     /**
+     * Mark settings hint as shown
+     */
+    fun markSettingsHintShown() {
+        settingsHintShown.value = true
+        settings.putBoolean(KEY_SETTINGS_HINT_SHOWN, true)
+    }
+    
+    /**
+     * Save tile background images preference
+     */
+    fun saveUseTileImages(useTiles: Boolean) {
+        useTileImages.value = useTiles
+        settings.putBoolean(KEY_USE_TILE_IMAGES, useTiles)
+    }
+    
+    /**
      * Reset all settings to defaults
      */
     fun resetToDefaults() {
@@ -180,5 +214,11 @@ object AppSettings {
         
         // Reset world map style to image map
         saveUseLevelCards(false)
+        
+        // Reset tile images to ON
+        saveUseTileImages(true)
+        
+        // Note: Don't reset settings hint shown state when resetting settings
+        // as user has already seen it once
     }
 }
