@@ -673,10 +673,8 @@
     <string name="add_location_dialog_title">Ajouter un lieu</string>
     <string name="location_name">Nom du lieu</string>
     <string name="select_levels">Sélectionner les niveaux :</string>
-    <string name="edit_path_control_points">Modifier les points de contrôle du chemin</string>
     <string name="edit_connection">Modifier la connexion</string>
     <string name="default_connection_type">Type de connexion par défaut :</string>
-    <string name="control_points_label">Points de contrôle (0-1000) :</string>
     <string name="add_control_point">Ajouter un point de contrôle :</string>
     <string name="y_coordinate">Y</string>
     <string name="locations">Lieux</string>
