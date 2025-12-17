@@ -1388,9 +1388,7 @@ private fun EditPathDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        // todo translate
-        title = { Text("Edit Connection") },
-        // title = { Text(stringResource(Res.string.edit_path_control_points)) },
+        title = { Text(stringResource(Res.string.edit_connection)) },
         text = {
             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                 Text(
@@ -1401,9 +1399,7 @@ private fun EditPathDialog(
                 Spacer(modifier = Modifier.height(16.dp))
                 
                 // Default connection type selector
-                // todo translate
-                Text("Default Connection Type:", style = MaterialTheme.typography.bodySmall)
-                // Text(stringResource(Res.string.control_points_label), style = MaterialTheme.typography.bodySmall)
+                Text(stringResource(Res.string.default_connection_type), style = MaterialTheme.typography.bodySmall)
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -1534,9 +1530,7 @@ private fun EditPathDialog(
                 
                 Divider(modifier = Modifier.padding(vertical = 8.dp))
 
-                // todo translate
-                Text("Add Waypoint:", style = MaterialTheme.typography.bodySmall)
-                // Text(stringResource(Res.string.add_control_point), style = MaterialTheme.typography.bodySmall)
+                Text(stringResource(Res.string.add_control_point), style = MaterialTheme.typography.bodySmall)
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically
