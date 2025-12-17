@@ -382,10 +382,18 @@ object EditorJsonSerializer {
                     """{"x": ${pt.x}, "y": ${pt.y}}"""
                 } + "]"
             }
+            val segmentTypesJson = if (path.segmentTypes.isEmpty()) {
+                ""
+            } else {
+                val typesArray = "[" + path.segmentTypes.joinToString(", ") { "\"${it.name}\"" } + "]"
+                """,
+      "segmentTypes": $typesArray"""
+            }
             """{
       "fromLocationId": "${path.fromLocationId}",
       "toLocationId": "${path.toLocationId}",
-      "controlPoints": $controlPointsJson
+      "controlPoints": $controlPointsJson,
+      "type": "${path.type.name}"$segmentTypesJson
     }"""
         }
         
@@ -462,7 +470,37 @@ object EditorJsonSerializer {
                         }
                     }
                     
-                    paths.add(WorldMapPathData(fromLocationId, toLocationId, controlPoints))
+                    // Parse connection type (default to ROAD for backward compatibility)
+                    val type = try {
+                        if (entry.contains("\"type\"")) {
+                            val typeStr = JsonUtils.extractValue(entry, "type")
+                            ConnectionType.valueOf(typeStr)
+                        } else {
+                            ConnectionType.ROAD
+                        }
+                    } catch (e: Exception) {
+                        ConnectionType.ROAD
+                    }
+                    
+                    // Parse segment types (optional for backward compatibility)
+                    val segmentTypes = mutableListOf<ConnectionType>()
+                    if (entry.contains("\"segmentTypes\"")) {
+                        try {
+                            val typesSection = entry.substringAfter("\"segmentTypes\": [").substringBefore("]")
+                            if (typesSection.isNotBlank()) {
+                                val typeEntries = typesSection.split(",").map { it.trim().removeSurrounding("\"") }
+                                for (typeEntry in typeEntries) {
+                                    if (typeEntry.isNotBlank()) {
+                                        segmentTypes.add(ConnectionType.valueOf(typeEntry))
+                                    }
+                                }
+                            }
+                        } catch (e: Exception) {
+                            // If parsing fails, use empty list (will fall back to default type)
+                        }
+                    }
+                    
+                    paths.add(WorldMapPathData(fromLocationId, toLocationId, controlPoints, type, segmentTypes))
                 }
             }
             

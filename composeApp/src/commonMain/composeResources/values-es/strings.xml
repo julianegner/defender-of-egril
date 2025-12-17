@@ -673,9 +673,22 @@
     <string name="add_location_dialog_title">Añadir ubicación</string>
     <string name="location_name">Nombre de ubicación</string>
     <string name="select_levels">Seleccionar niveles:</string>
-    <string name="edit_path_control_points">Editar puntos de control de ruta</string>
-    <string name="control_points_label">Puntos de control (0-1000):</string>
+    <string name="edit_connection">Editar conexión</string>
+    <string name="default_connection_type">Tipo de conexión predeterminado:</string>
     <string name="add_control_point">Añadir punto de control:</string>
     <string name="y_coordinate">Y</string>
     <string name="locations">Ubicaciones</string>
+    <string name="auto_connect_by_dependencies">Conectar automáticamente por dependencias</string>
+    <string name="edit_location">Editar ubicación</string>
+    <string name="all_road">Todo carretera</string>
+    <string name="all_sea">Todo mar</string>
+    <string name="segment_types">Tipos de segmentos (%d segmentos):</string>
+    <string name="road">Carretera</string>
+    <string name="sea">Mar</string>
+    <string name="waypoints_range">Puntos de ruta (0-1000):</string>
+    <string name="add_connection">Añadir conexión</string>
+    <string name="select_two_locations">Seleccione dos ubicaciones para conectar:</string>
+    <string name="from">Desde:</string>
+    <string name="to">Hasta:</string>
+    <string name="connection_type">Tipo de conexión:</string>
 </resources>

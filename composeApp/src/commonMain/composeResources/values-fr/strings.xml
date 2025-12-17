@@ -673,9 +673,22 @@
     <string name="add_location_dialog_title">Ajouter un lieu</string>
     <string name="location_name">Nom du lieu</string>
     <string name="select_levels">Sélectionner les niveaux :</string>
-    <string name="edit_path_control_points">Modifier les points de contrôle du chemin</string>
-    <string name="control_points_label">Points de contrôle (0-1000) :</string>
+    <string name="edit_connection">Modifier la connexion</string>
+    <string name="default_connection_type">Type de connexion par défaut :</string>
     <string name="add_control_point">Ajouter un point de contrôle :</string>
     <string name="y_coordinate">Y</string>
     <string name="locations">Lieux</string>
+    <string name="auto_connect_by_dependencies">Connecter automatiquement par dépendances</string>
+    <string name="edit_location">Modifier le lieu</string>
+    <string name="all_road">Tout route</string>
+    <string name="all_sea">Tout mer</string>
+    <string name="segment_types">Types de segments (%d segments) :</string>
+    <string name="road">Route</string>
+    <string name="sea">Mer</string>
+    <string name="waypoints_range">Points de passage (0-1000) :</string>
+    <string name="add_connection">Ajouter une connexion</string>
+    <string name="select_two_locations">Sélectionnez deux lieux à connecter :</string>
+    <string name="from">De :</string>
+    <string name="to">Vers :</string>
+    <string name="connection_type">Type de connexion :</string>
 </resources>
