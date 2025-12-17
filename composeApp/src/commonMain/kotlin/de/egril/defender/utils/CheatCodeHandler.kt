@@ -273,11 +273,11 @@ object CheatCodeHandler {
     
     /**
      * Lock a specific level in the world map by its editor level ID.
-     * The level can only be locked if it does NOT have prerequisites (entry level).
+     * The level can only be locked if it HAS prerequisites (not an entry level).
      * 
      * @param worldLevels The current list of world levels
      * @param editorLevelId The editor level ID to lock
-     * @return The updated list of world levels with the specified level locked (if found and has no prerequisites)
+     * @return The updated list of world levels with the specified level locked (if found and has prerequisites)
      */
     fun lockLevel(worldLevels: List<WorldLevel>, editorLevelId: String): List<WorldLevel> {
         // Get the editor level to check prerequisites
@@ -290,8 +290,8 @@ object CheatCodeHandler {
         val hasPrerequisites = editorLevel?.prerequisites?.isNotEmpty() == true
         
         return worldLevels.map { worldLevel ->
-            // Lock if matches editorLevelId and does NOT have prerequisites
-            if (worldLevel.level.editorLevelId == editorLevelId && !hasPrerequisites) {
+            // Lock if matches editorLevelId and HAS prerequisites
+            if (worldLevel.level.editorLevelId == editorLevelId && hasPrerequisites) {
                 worldLevel.copy(status = LevelStatus.LOCKED)
             } else {
                 worldLevel
