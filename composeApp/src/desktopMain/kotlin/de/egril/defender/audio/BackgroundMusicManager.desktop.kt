@@ -203,8 +203,17 @@ private class Mp3MusicPlayer(
                 
                 audioClip.open(format, pcmData.data, 0, pcmData.data.size)
                 
-                // Set volume
+                // Ensure we start from the beginning
+                audioClip.setFramePosition(0)
+                
+                // Flush any existing data in the line
+                audioClip.flush()
+                
+                // Set volume before starting playback
                 updateVolume(audioClip, volume)
+                
+                // Small delay to ensure audio system is ready
+                Thread.sleep(50)
                 
                 // Set looping
                 if (loop) {
