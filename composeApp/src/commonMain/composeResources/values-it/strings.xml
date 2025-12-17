@@ -674,6 +674,8 @@
     <string name="location_name">Nome posizione</string>
     <string name="select_levels">Seleziona livelli:</string>
     <string name="edit_path_control_points">Modifica punti di controllo percorso</string>
+    <string name="edit_connection">Modifica connessione</string>
+    <string name="default_connection_type">Tipo di connessione predefinito:</string>
     <string name="control_points_label">Punti di controllo (0-1000):</string>
     <string name="add_control_point">Aggiungi punto di controllo:</string>
     <string name="y_coordinate">Y</string>
