@@ -221,7 +221,7 @@ private fun ExpandedMapEditorHeader(
                                 ),
                                 modifier = Modifier.height(32.dp)
                             ) {
-                                Text("1 (Slow)", fontSize = 10.sp)
+                                Text(stringResource(Res.string.speed_slow), fontSize = 10.sp)
                             }
                             Button(
                                 onClick = { onRiverSpeedChange(2) },
@@ -233,7 +233,7 @@ private fun ExpandedMapEditorHeader(
                                 ),
                                 modifier = Modifier.height(32.dp)
                             ) {
-                                Text("2 (Fast)", fontSize = 10.sp)
+                                Text(stringResource(Res.string.speed_fast), fontSize = 10.sp)
                             }
                         }
                     }
@@ -382,10 +382,10 @@ private fun CollapsedMapEditorHeader(
     if (showRiverPropertiesDialog) {
         AlertDialog(
             onDismissRequest = { showRiverPropertiesDialog = false },
-            title = { Text("River Properties") },
+            title = { Text(stringResource(Res.string.river_properties)) },
             text = {
                 Column {
-                    Text("Flow Direction:", style = MaterialTheme.typography.bodyMedium)
+                    Text(stringResource(Res.string.flow_direction), style = MaterialTheme.typography.bodyMedium)
                     
                     // Display flow directions in 2 rows (4 items per row)
                     val flows = de.egril.defender.model.RiverFlow.entries
@@ -441,7 +441,7 @@ private fun CollapsedMapEditorHeader(
                     
                     Spacer(modifier = Modifier.height(8.dp))
                     
-                    Text("Flow Speed:", style = MaterialTheme.typography.bodyMedium)
+                    Text(stringResource(Res.string.flow_speed), style = MaterialTheme.typography.bodyMedium)
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
@@ -455,7 +455,7 @@ private fun CollapsedMapEditorHeader(
                             ),
                             modifier = Modifier.height(32.dp)
                         ) {
-                            Text("1 (Slow)", fontSize = 10.sp)
+                            Text(stringResource(Res.string.speed_slow), fontSize = 10.sp)
                         }
                         Button(
                             onClick = { onRiverSpeedChange(2) },
@@ -467,14 +467,14 @@ private fun CollapsedMapEditorHeader(
                             ),
                             modifier = Modifier.height(32.dp)
                         ) {
-                            Text("2 (Fast)", fontSize = 10.sp)
+                            Text(stringResource(Res.string.speed_fast), fontSize = 10.sp)
                         }
                     }
                 }
             },
             confirmButton = {
                 Button(onClick = { showRiverPropertiesDialog = false }) {
-                    Text("OK")
+                    Text(stringResource(Res.string.ok))
                 }
             }
         )
