@@ -649,4 +649,33 @@
     <!-- Mine on River Warning -->
     <string name="mine_on_river_warning_title">Impossible de placer une mine sur la rivière</string>
     <string name="mine_on_river_warning_message">Les mines naines ne peuvent pas être placées sur les cases de rivière. Les mines nécessitent un sol solide et ne peuvent pas être construites sur des radeaux. Veuillez sélectionner une zone de construction sur la terre ferme.</string>
+
+    <!-- Mining Outcome Table Headers -->
+    <string name="dig_outcome_name">Nom</string>
+    <string name="dig_outcome_chance">Chance (%)</string>
+    <string name="dig_outcome_reward">Récompense</string>
+
+    <!-- Delete Confirmation Dialog -->
+    <string name="delete_save_game">Supprimer la sauvegarde</string>
+    <string name="delete_save_game_confirm">Êtes-vous sûr de vouloir supprimer cette sauvegarde ?</string>
+
+    <!-- Editor - Speed Labels -->
+    <string name="speed_slow">1 (Lent)</string>
+    <string name="speed_fast">2 (Rapide)</string>
+
+    <!-- Editor - River Properties -->
+    <string name="river_properties">Propriétés de la rivière</string>
+    <string name="flow_direction">Direction du courant :</string>
+    <string name="flow_speed">Vitesse du courant :</string>
+
+    <!-- Editor - World Map Position Editor -->
+    <string name="add_location">+ Ajouter un lieu</string>
+    <string name="add_location_dialog_title">Ajouter un lieu</string>
+    <string name="location_name">Nom du lieu</string>
+    <string name="select_levels">Sélectionner les niveaux :</string>
+    <string name="edit_path_control_points">Modifier les points de contrôle du chemin</string>
+    <string name="control_points_label">Points de contrôle (0-1000) :</string>
+    <string name="add_control_point">Ajouter un point de contrôle :</string>
+    <string name="y_coordinate">Y</string>
+    <string name="locations">Lieux</string>
 </resources>

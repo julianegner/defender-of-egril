@@ -2,6 +2,8 @@ package de.egril.defender.ui.loadgame
 
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import com.hyperether.resources.stringResource
+import defender_of_egril.composeapp.generated.resources.*
 
 @Composable
 fun DeleteConfirmationDialog(
@@ -12,8 +14,8 @@ fun DeleteConfirmationDialog(
     saveIdToDelete?.let { saveId ->
         AlertDialog(
             onDismissRequest = onDismiss,
-            title = { Text("Delete Save Game") },
-            text = { Text("Are you sure you want to delete this saved game?") },
+            title = { Text(stringResource(Res.string.delete_save_game)) },
+            text = { Text(stringResource(Res.string.delete_save_game_confirm)) },
             confirmButton = {
                 Button(
                     onClick = { onConfirmDelete(saveId) },
@@ -21,12 +23,12 @@ fun DeleteConfirmationDialog(
                         containerColor = MaterialTheme.colorScheme.error
                     )
                 ) {
-                    Text("Delete")
+                    Text(stringResource(Res.string.delete))
                 }
             },
             dismissButton = {
                 Button(onClick = onDismiss) {
-                    Text("Cancel")
+                    Text(stringResource(Res.string.cancel))
                 }
             }
         )

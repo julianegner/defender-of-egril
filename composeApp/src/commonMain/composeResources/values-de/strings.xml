@@ -649,4 +649,33 @@
     <!-- Mine on River Warning -->
     <string name="mine_on_river_warning_title">Kann Mine nicht auf Fluss platzieren</string>
     <string name="mine_on_river_warning_message">Zwergenminen können nicht auf Flussfeldern platziert werden. Minen benötigen festen Boden und können nicht auf Flößen gebaut werden. Bitte wählen Sie stattdessen einen Baubereich auf festem Land.</string>
+
+    <!-- Mining Outcome Table Headers -->
+    <string name="dig_outcome_name">Name</string>
+    <string name="dig_outcome_chance">Chance (%)</string>
+    <string name="dig_outcome_reward">Belohnung</string>
+
+    <!-- Delete Confirmation Dialog -->
+    <string name="delete_save_game">Spielstand löschen</string>
+    <string name="delete_save_game_confirm">Sind Sie sicher, dass Sie diesen Spielstand löschen möchten?</string>
+
+    <!-- Editor - Speed Labels -->
+    <string name="speed_slow">1 (Langsam)</string>
+    <string name="speed_fast">2 (Schnell)</string>
+
+    <!-- Editor - River Properties -->
+    <string name="river_properties">Flusseigenschaften</string>
+    <string name="flow_direction">Fließrichtung:</string>
+    <string name="flow_speed">Fließgeschwindigkeit:</string>
+
+    <!-- Editor - World Map Position Editor -->
+    <string name="add_location">+ Ort hinzufügen</string>
+    <string name="add_location_dialog_title">Ort hinzufügen</string>
+    <string name="location_name">Ortsname</string>
+    <string name="select_levels">Level auswählen:</string>
+    <string name="edit_path_control_points">Pfadkontrollpunkte bearbeiten</string>
+    <string name="control_points_label">Kontrollpunkte (0-1000):</string>
+    <string name="add_control_point">Kontrollpunkt hinzufügen:</string>
+    <string name="y_coordinate">Y</string>
+    <string name="locations">Orte</string>
 </resources>

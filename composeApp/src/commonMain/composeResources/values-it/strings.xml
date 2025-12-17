@@ -649,4 +649,33 @@
     <!-- Mine on River Warning -->
     <string name="mine_on_river_warning_title">Impossibile posizionare la miniera sul fiume</string>
     <string name="mine_on_river_warning_message">Le miniere naniche non possono essere posizionate sulle caselle del fiume. Le miniere richiedono terreno solido e non possono essere costruite sulle zattere. Si prega di selezionare un\'area di costruzione sulla terraferma.</string>
+
+    <!-- Mining Outcome Table Headers -->
+    <string name="dig_outcome_name">Nome</string>
+    <string name="dig_outcome_chance">Probabilità (%)</string>
+    <string name="dig_outcome_reward">Ricompensa</string>
+
+    <!-- Delete Confirmation Dialog -->
+    <string name="delete_save_game">Elimina salvataggio</string>
+    <string name="delete_save_game_confirm">Sei sicuro di voler eliminare questo salvataggio?</string>
+
+    <!-- Editor - Speed Labels -->
+    <string name="speed_slow">1 (Lento)</string>
+    <string name="speed_fast">2 (Veloce)</string>
+
+    <!-- Editor - River Properties -->
+    <string name="river_properties">Proprietà del fiume</string>
+    <string name="flow_direction">Direzione del flusso:</string>
+    <string name="flow_speed">Velocità del flusso:</string>
+
+    <!-- Editor - World Map Position Editor -->
+    <string name="add_location">+ Aggiungi posizione</string>
+    <string name="add_location_dialog_title">Aggiungi posizione</string>
+    <string name="location_name">Nome posizione</string>
+    <string name="select_levels">Seleziona livelli:</string>
+    <string name="edit_path_control_points">Modifica punti di controllo percorso</string>
+    <string name="control_points_label">Punti di controllo (0-1000):</string>
+    <string name="add_control_point">Aggiungi punto di controllo:</string>
+    <string name="y_coordinate">Y</string>
+    <string name="locations">Posizioni</string>
 </resources>

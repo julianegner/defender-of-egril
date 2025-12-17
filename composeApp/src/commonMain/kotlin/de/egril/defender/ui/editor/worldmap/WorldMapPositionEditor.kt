@@ -59,19 +59,19 @@ fun WorldMapPositionEditorContent() {
     var showEditPathDialog by remember { mutableStateOf<WorldMapPathData?>(null) }
     var showAddConnectionDialog by remember { mutableStateOf(false) }
     var showEditLocationDialog by remember { mutableStateOf<WorldMapLocationData?>(null) }
-    
+
     // Connection creation mode: when active, clicking locations will create a connection
     var connectionCreationMode by remember { mutableStateOf(false) }
     var connectionFromLocation by remember { mutableStateOf<String?>(null) }
-    
+
     // Waypoint edit mode: when active, allows adding/dragging waypoints. Otherwise, clicking selects connections
     var waypointEditMode by remember { mutableStateOf(true) } // Default to waypoint edit mode
-    
+
     // Waypoint interaction state - store path IDs instead of path object for reliable updates
     var selectedPathIds by remember { mutableStateOf<Pair<String, String>?>(null) } // (fromLocationId, toLocationId)
     var draggingWaypointIndex by remember { mutableStateOf<Int?>(null) }
     var hoveredPathId by remember { mutableStateOf<Pair<String, String>?>(null) }
-    
+
     val isDarkMode = AppSettings.isDarkMode.value
     
     // Reload data
@@ -194,9 +194,9 @@ fun WorldMapPositionEditorContent() {
                         onWaypointDrag = { fromId, toId, waypointIndex, newPosition ->
                             if (selectedPathIds == (fromId to toId) && draggingWaypointIndex == waypointIndex) {
                                 // Find the path in worldMapData and update it
-                                val pathIndex = worldMapData.paths.indexOfFirst { 
-                                    it.fromLocationId == fromId && 
-                                    it.toLocationId == toId 
+                                val pathIndex = worldMapData.paths.indexOfFirst {
+                                    it.fromLocationId == fromId &&
+                                    it.toLocationId == toId
                                 }
                                 if (pathIndex >= 0) {
                                     val currentPath = worldMapData.paths[pathIndex]
@@ -204,7 +204,7 @@ fun WorldMapPositionEditorContent() {
                                     if (waypointIndex < updatedControlPoints.size) {
                                         updatedControlPoints[waypointIndex] = newPosition
                                         val updatedPath = currentPath.copy(controlPoints = updatedControlPoints)
-                                        
+
                                         // Update worldMapData with the new path
                                         val updatedPaths = worldMapData.paths.toMutableList()
                                         updatedPaths[pathIndex] = updatedPath
@@ -216,9 +216,9 @@ fun WorldMapPositionEditorContent() {
                         onWaypointDragEnd = {
                             // Save the final state when drag ends
                             if (selectedPathIds != null) {
-                                val path = worldMapData.paths.find { 
-                                    it.fromLocationId == selectedPathIds!!.first && 
-                                    it.toLocationId == selectedPathIds!!.second 
+                                val path = worldMapData.paths.find {
+                                    it.fromLocationId == selectedPathIds!!.first &&
+                                    it.toLocationId == selectedPathIds!!.second
                                 }
                                 if (path != null) {
                                     EditorStorage.saveWorldMapPath(path)
@@ -252,7 +252,7 @@ fun WorldMapPositionEditorContent() {
                             )
                         }
                     }
-                    
+
                     // Connection mode indicator
                     if (connectionCreationMode) {
                         Card(
@@ -308,31 +308,31 @@ fun WorldMapPositionEditorContent() {
                         onClick = { showAddLocationDialog = true },
                         modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
                     ) {
-                        Text("+ Add Location")
+                        Text(stringResource(Res.string.add_location))
                     }
                     
                     // Connection creation mode button
                     Button(
-                        onClick = { 
+                        onClick = {
                             connectionCreationMode = !connectionCreationMode
                             if (!connectionCreationMode) {
                                 connectionFromLocation = null
                             }
                         },
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = if (connectionCreationMode) 
-                                MaterialTheme.colorScheme.secondary 
-                            else 
+                            containerColor = if (connectionCreationMode)
+                                MaterialTheme.colorScheme.secondary
+                            else
                                 MaterialTheme.colorScheme.primary
                         ),
                         modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
                     ) {
                         Text(if (connectionCreationMode) "Cancel Connection Mode" else "Create Connection (Click Mode)")
                     }
-                    
+
                     // Waypoint edit mode toggle button
                     Button(
-                        onClick = { 
+                        onClick = {
                             waypointEditMode = !waypointEditMode
                             // Clear any active waypoint drag state when switching modes
                             if (!waypointEditMode) {
@@ -341,16 +341,16 @@ fun WorldMapPositionEditorContent() {
                             }
                         },
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = if (waypointEditMode) 
-                                MaterialTheme.colorScheme.tertiary 
-                            else 
+                            containerColor = if (waypointEditMode)
+                                MaterialTheme.colorScheme.tertiary
+                            else
                                 MaterialTheme.colorScheme.primary
                         ),
                         modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
                     ) {
                         Text(if (waypointEditMode) "Waypoint Edit Mode: ON" else "Waypoint Edit Mode: OFF")
                     }
-                    
+
                     // Auto-connect based on dependencies button
                     Button(
                         onClick = {
@@ -394,9 +394,9 @@ fun WorldMapPositionEditorContent() {
                     ) {
                         Text("Auto-Connect by Dependencies")
                     }
-                    
+
                     Text(
-                        text = "Locations",
+                        text = stringResource(Res.string.locations),
                         style = MaterialTheme.typography.titleSmall,
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
@@ -495,7 +495,7 @@ fun WorldMapPositionEditorContent() {
             }
         )
     }
-    
+
     // Add Connection Dialog
     if (showAddConnectionDialog) {
         AddConnectionDialog(
@@ -508,7 +508,7 @@ fun WorldMapPositionEditorContent() {
             }
         )
     }
-    
+
     // Edit Location Dialog
     if (showEditLocationDialog != null) {
         EditLocationDialog(
@@ -609,7 +609,7 @@ private fun WorldMapCanvas(
                         onDragStart = { offset ->
                             // Only allow waypoint dragging in waypoint edit mode
                             if (!waypointEditMode) return@detectDragGestures
-                            
+
                             // Calculate actual image bounds
                             val containerAspectRatio = size.width.toFloat() / size.height.toFloat()
                             val (imageWidth, imageHeight, imageOffsetX, imageOffsetY) = if (containerAspectRatio > imageAspectRatio) {
@@ -623,7 +623,7 @@ private fun WorldMapCanvas(
                                 val oy = (size.height - h) / 2f
                                 listOf(w, h, 0f, oy)
                             }
-                            
+
                             // Check if drag started on a waypoint
                             val waypointRadius = 20f
                             for (path in worldMapData.paths) {
@@ -658,7 +658,7 @@ private fun WorldMapCanvas(
                                     val oy = (size.height - h) / 2f
                                     listOf(w, h, 0f, oy)
                                 }
-                                
+
                                 val x = (((offset.x - imageOffsetX) / imageWidth) * 1000).toInt().coerceIn(0, 1000)
                                 val y = (((offset.y - imageOffsetY) / imageHeight) * 1000).toInt().coerceIn(0, 1000)
                                 onWaypointDrag(selectedPathIds.first, selectedPathIds.second, draggingWaypointIndex, WorldMapPoint(x, y))
@@ -692,7 +692,7 @@ private fun WorldMapCanvas(
                         val x = (((offset.x - imageOffsetX) / imageWidth) * 1000).toInt().coerceIn(0, 1000)
                         val y = (((offset.y - imageOffsetY) / imageHeight) * 1000).toInt().coerceIn(0, 1000)
                         val clickPoint = WorldMapPoint(x, y)
-                        
+
                         // Check if click is on a location marker (highest priority)
                         val locationRadius = 20f // pixels
                         for (location in worldMapData.locations) {
@@ -707,7 +707,7 @@ private fun WorldMapCanvas(
                                 return@detectTapGestures
                             }
                         }
-                        
+
                         // Check if click is near any waypoint (for existing waypoints)
                         val waypointRadius = 20f // pixels
                         var foundWaypoint = false
@@ -726,11 +726,11 @@ private fun WorldMapCanvas(
                             }
                             if (foundWaypoint) break
                         }
-                        
+
                         // Check if click is near any connection line
                         if (!foundWaypoint) {
                             val lineClickThreshold = 15f // pixels
-                            
+
                             for (path in worldMapData.paths) {
                                 val fromLoc = worldMapData.locations.find { it.id == path.fromLocationId }
                                 val toLoc = worldMapData.locations.find { it.id == path.toLocationId }
@@ -751,11 +751,11 @@ private fun WorldMapCanvas(
                                         (imageOffsetX + (toLoc.position.x / 1000f) * imageWidth) to
                                         (imageOffsetY + (toLoc.position.y / 1000f) * imageHeight)
                                     )
-                                    
+
                                     // Check distance to each segment
                                     var clickedOnLine = false
                                     var waypointInsertIndex = 0
-                                    
+
                                     for (i in 0 until points.size - 1) {
                                         val (x1, y1) = points[i]
                                         val (x2, y2) = points[i + 1]
@@ -767,7 +767,7 @@ private fun WorldMapCanvas(
                                             break
                                         }
                                     }
-                                    
+
                                     if (clickedOnLine) {
                                         if (waypointEditMode) {
                                             // In waypoint edit mode: add waypoint at click position
@@ -784,7 +784,7 @@ private fun WorldMapCanvas(
                                 }
                             }
                         }
-                        
+
                         // If no path was clicked, handle as location position click
                         onPositionClick(clickPoint)
                     }
@@ -815,7 +815,7 @@ private fun WorldMapCanvas(
                 
                 // Check if path is valid
                 val isValid = path.isValidConnection(worldMapData.locations, allLevels)
-                
+
                 // Determine color and dash pattern based on connection type and validity
                 // Helper function to get color and dash pattern for a segment type
                 fun getSegmentStyle(segmentType: ConnectionType): Pair<Color, PathEffect?> {
@@ -839,7 +839,7 @@ private fun WorldMapCanvas(
                         }
                     }
                 }
-                
+
                 val startX = imageOffsetX + (fromLocation.position.x / 1000f) * imageWidth
                 val startY = imageOffsetY + (fromLocation.position.y / 1000f) * imageHeight
                 val endX = imageOffsetX + (toLocation.position.x / 1000f) * imageWidth
@@ -862,7 +862,7 @@ private fun WorldMapCanvas(
                     var prevX = startX
                     var prevY = startY
                     var segmentIndex = 0
-                    
+
                     for (cp in path.controlPoints) {
                         val cpX = imageOffsetX + (cp.x / 1000f) * imageWidth
                         val cpY = imageOffsetY + (cp.y / 1000f) * imageHeight
@@ -870,7 +870,7 @@ private fun WorldMapCanvas(
                         // Get style for this segment
                         val segmentType = path.getSegmentType(segmentIndex)
                         val (lineColor, dashPattern) = getSegmentStyle(segmentType)
-                        
+
                         drawLine(
                             color = lineColor,
                             start = Offset(prevX, prevY),
@@ -922,7 +922,7 @@ private fun WorldMapCanvas(
                     isSelected -> markerRadius * 1.3f
                     else -> markerRadius
                 }
-                
+
                 // Draw marker circle
                 drawCircle(
                     color = markerColor,
@@ -950,7 +950,7 @@ private fun WorldMapCanvas(
                     center = Offset(x, y)
                 )
             }
-            
+
             // Draw waypoint handles for all connections (only in waypoint edit mode)
             if (waypointEditMode) {
                 val waypointRadius = 8f
@@ -958,21 +958,21 @@ private fun WorldMapCanvas(
                     for ((index, waypoint) in path.controlPoints.withIndex()) {
                         val wpX = imageOffsetX + (waypoint.x / 1000f) * imageWidth
                         val wpY = imageOffsetY + (waypoint.y / 1000f) * imageHeight
-                        
+
                         // Determine if this waypoint is being dragged
                         // Compare by path IDs instead of object reference
                         val isDragging = selectedPathIds != null &&
                                         selectedPathIds.first == path.fromLocationId &&
                                         selectedPathIds.second == path.toLocationId &&
                                         draggingWaypointIndex == index
-                        
+
                         // Draw waypoint handle
                         drawCircle(
                             color = if (isDragging) Color(0xFFFF9800) else Color(0xFF2196F3), // Orange when dragging, blue otherwise
                             radius = if (isDragging) waypointRadius * 1.5f else waypointRadius,
                             center = Offset(wpX, wpY)
                         )
-                        
+
                         // Draw white border
                         drawCircle(
                             color = Color.White,
@@ -1002,7 +1002,7 @@ private fun LocationListItem(
 ) {
     // Check if location has unfulfilled prerequisites
     val hasUnfulfilledPrereqs = worldMapData.hasLocationWithUnfulfilledPrerequisites(location.id, allLevels)
-    
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -1056,7 +1056,7 @@ private fun LocationListItem(
                         color = MaterialTheme.colorScheme.primary
                     )
                 }
-                
+
                 // Delete button
                 TextButton(
                     onClick = onDelete,
@@ -1089,7 +1089,7 @@ private fun PathListItem(
     
     // Check if connection is valid based on level prerequisites
     val isValid = path.isValidConnection(locations, allLevels)
-    
+
     // Determine connection type display
     val connectionTypeText = when (path.type) {
         ConnectionType.ROAD -> "Road"
@@ -1099,7 +1099,7 @@ private fun PathListItem(
         ConnectionType.ROAD -> Color(0xFFA0522D) // Brown
         ConnectionType.SEA_ROUTE -> Color(0xFF00CED1) // Lighter cyan/aqua for visibility
     }
-    
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -1186,19 +1186,19 @@ private fun AddLocationDialog(
     
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Add Location") },
+        title = { Text(stringResource(Res.string.add_location_dialog_title)) },
         text = {
             Column {
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("Location Name") },
+                    label = { Text(stringResource(Res.string.location_name)) },
                     modifier = Modifier.fillMaxWidth()
                 )
                 
                 Spacer(modifier = Modifier.height(16.dp))
                 
-                Text("Select Levels:", style = MaterialTheme.typography.bodyMedium)
+                Text(stringResource(Res.string.select_levels), style = MaterialTheme.typography.bodyMedium)
                 
                 LazyColumn(
                     modifier = Modifier.height(200.dp)
@@ -1248,12 +1248,12 @@ private fun AddLocationDialog(
                 },
                 enabled = name.isNotBlank() && selectedLevelIds.isNotEmpty()
             ) {
-                Text("Add")
+                Text(stringResource(Res.string.add))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(Res.string.cancel))
             }
         }
     )
@@ -1272,14 +1272,14 @@ private fun EditLocationDialog(
 ) {
     var name by remember { mutableStateOf(location.name) }
     var selectedLevelIds by remember { mutableStateOf(location.levelIds.toSet()) }
-    
+
     // Get levels not yet assigned to other locations (excluding current location)
     val assignedLevelIds = existingLocations
         .filter { it.id != location.id }
         .flatMap { it.levelIds }
         .toSet()
     val availableLevels = allLevels.filter { it.id !in assignedLevelIds || it.id in location.levelIds }
-    
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Edit Location") },
@@ -1291,11 +1291,11 @@ private fun EditLocationDialog(
                     label = { Text("Location Name") },
                     modifier = Modifier.fillMaxWidth()
                 )
-                
+
                 Spacer(modifier = Modifier.height(16.dp))
-                
+
                 Text("Select Levels:", style = MaterialTheme.typography.bodyMedium)
-                
+
                 LazyColumn(
                     modifier = Modifier.height(200.dp)
                 ) {
@@ -1363,7 +1363,7 @@ private fun EditPathDialog(
 ) {
     var controlPoints by remember { mutableStateOf(path.controlPoints.toMutableList()) }
     var connectionType by remember { mutableStateOf(path.type) }
-    var segmentTypes by remember { 
+    var segmentTypes by remember {
         mutableStateOf(
             if (path.segmentTypes.isEmpty()) {
                 // Initialize with default type for all segments
@@ -1385,10 +1385,12 @@ private fun EditPathDialog(
             }
         }
     }
-    
+
     AlertDialog(
         onDismissRequest = onDismiss,
+        // todo translate
         title = { Text("Edit Connection") },
+        // title = { Text(stringResource(Res.string.edit_path_control_points)) },
         text = {
             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                 Text(
@@ -1399,21 +1401,23 @@ private fun EditPathDialog(
                 Spacer(modifier = Modifier.height(16.dp))
                 
                 // Default connection type selector
+                // todo translate
                 Text("Default Connection Type:", style = MaterialTheme.typography.bodySmall)
+                // Text(stringResource(Res.string.control_points_label), style = MaterialTheme.typography.bodySmall)
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Button(
-                        onClick = { 
-                            connectionType = ConnectionType.ROAD 
+                        onClick = {
+                            connectionType = ConnectionType.ROAD
                             // Update all segments to new default
                             segmentTypes = List(segmentTypes.size) { ConnectionType.ROAD }
                         },
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = if (connectionType == ConnectionType.ROAD) 
-                                MaterialTheme.colorScheme.primary 
-                            else 
+                            containerColor = if (connectionType == ConnectionType.ROAD)
+                                MaterialTheme.colorScheme.primary
+                            else
                                 MaterialTheme.colorScheme.surfaceVariant
                         ),
                         modifier = Modifier.weight(1f)
@@ -1421,15 +1425,15 @@ private fun EditPathDialog(
                         Text("All Road")
                     }
                     Button(
-                        onClick = { 
+                        onClick = {
                             connectionType = ConnectionType.SEA_ROUTE
                             // Update all segments to new default
                             segmentTypes = List(segmentTypes.size) { ConnectionType.SEA_ROUTE }
                         },
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = if (connectionType == ConnectionType.SEA_ROUTE) 
-                                MaterialTheme.colorScheme.primary 
-                            else 
+                            containerColor = if (connectionType == ConnectionType.SEA_ROUTE)
+                                MaterialTheme.colorScheme.primary
+                            else
                                 MaterialTheme.colorScheme.surfaceVariant
                         ),
                         modifier = Modifier.weight(1f)
@@ -1437,9 +1441,9 @@ private fun EditPathDialog(
                         Text("All Sea")
                     }
                 }
-                
+
                 Divider(modifier = Modifier.padding(vertical = 8.dp))
-                
+
                 // Segment types editor
                 Text("Segment Types (${segmentTypes.size} segments):", style = MaterialTheme.typography.bodySmall)
                 Text(
@@ -1448,12 +1452,12 @@ private fun EditPathDialog(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 12.sp
                 )
-                
+
                 Column(modifier = Modifier.padding(vertical = 8.dp)) {
                     segmentTypes.forEachIndexed { index, type ->
                         val fromPoint = if (index == 0) path.fromLocationId else "waypoint $index"
                         val toPoint = if (index == segmentTypes.size - 1) path.toLocationId else "waypoint ${index + 1}"
-                        
+
                         Row(
                             modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
@@ -1466,15 +1470,15 @@ private fun EditPathDialog(
                             )
                             Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                                 Button(
-                                    onClick = { 
-                                        segmentTypes = segmentTypes.toMutableList().apply { 
-                                            set(index, ConnectionType.ROAD) 
+                                    onClick = {
+                                        segmentTypes = segmentTypes.toMutableList().apply {
+                                            set(index, ConnectionType.ROAD)
                                         }
                                     },
                                     colors = ButtonDefaults.buttonColors(
-                                        containerColor = if (type == ConnectionType.ROAD) 
-                                            MaterialTheme.colorScheme.primary 
-                                        else 
+                                        containerColor = if (type == ConnectionType.ROAD)
+                                            MaterialTheme.colorScheme.primary
+                                        else
                                             MaterialTheme.colorScheme.surfaceVariant
                                     ),
                                     modifier = Modifier.size(60.dp, 32.dp),
@@ -1483,15 +1487,15 @@ private fun EditPathDialog(
                                     Text("Road", fontSize = 10.sp)
                                 }
                                 Button(
-                                    onClick = { 
-                                        segmentTypes = segmentTypes.toMutableList().apply { 
-                                            set(index, ConnectionType.SEA_ROUTE) 
+                                    onClick = {
+                                        segmentTypes = segmentTypes.toMutableList().apply {
+                                            set(index, ConnectionType.SEA_ROUTE)
                                         }
                                     },
                                     colors = ButtonDefaults.buttonColors(
-                                        containerColor = if (type == ConnectionType.SEA_ROUTE) 
-                                            MaterialTheme.colorScheme.primary 
-                                        else 
+                                        containerColor = if (type == ConnectionType.SEA_ROUTE)
+                                            MaterialTheme.colorScheme.primary
+                                        else
                                             MaterialTheme.colorScheme.surfaceVariant
                                     ),
                                     modifier = Modifier.size(60.dp, 32.dp),
@@ -1503,9 +1507,9 @@ private fun EditPathDialog(
                         }
                     }
                 }
-                
+
                 Divider(modifier = Modifier.padding(vertical = 8.dp))
-                
+
                 Text("Waypoints (0-1000):", style = MaterialTheme.typography.bodySmall)
                 
                 LazyColumn(
@@ -1529,8 +1533,10 @@ private fun EditPathDialog(
                 }
                 
                 Divider(modifier = Modifier.padding(vertical = 8.dp))
-                
+
+                // todo translate
                 Text("Add Waypoint:", style = MaterialTheme.typography.bodySmall)
+                // Text(stringResource(Res.string.add_control_point), style = MaterialTheme.typography.bodySmall)
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically
@@ -1544,7 +1550,7 @@ private fun EditPathDialog(
                     OutlinedTextField(
                         value = newY,
                         onValueChange = { newY = it.filter { c -> c.isDigit() } },
-                        label = { Text("Y") },
+                        label = { Text(stringResource(Res.string.y_coordinate)) },
                         modifier = Modifier.weight(1f)
                     )
                     Button(
@@ -1567,18 +1573,18 @@ private fun EditPathDialog(
             Button(
                 onClick = {
                     onConfirm(path.copy(
-                        controlPoints = controlPoints, 
+                        controlPoints = controlPoints,
                         type = connectionType,
                         segmentTypes = segmentTypes
                     ))
                 }
             ) {
-                Text("Save")
+                Text(stringResource(Res.string.save))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(Res.string.cancel))
             }
         }
     )
@@ -1596,16 +1602,16 @@ private fun AddConnectionDialog(
     var fromLocationId by remember { mutableStateOf<String?>(null) }
     var toLocationId by remember { mutableStateOf<String?>(null) }
     var connectionType by remember { mutableStateOf(ConnectionType.ROAD) }
-    
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Add Connection") },
         text = {
             Column {
                 Text("Select two locations to connect:", style = MaterialTheme.typography.bodyMedium)
-                
+
                 Spacer(modifier = Modifier.height(16.dp))
-                
+
                 // From location selector
                 Text("From:", style = MaterialTheme.typography.bodySmall)
                 LazyColumn(
@@ -1618,9 +1624,9 @@ private fun AddConnectionDialog(
                                 .clickable { fromLocationId = location.id }
                                 .padding(8.dp)
                                 .background(
-                                    if (fromLocationId == location.id) 
-                                        MaterialTheme.colorScheme.primaryContainer 
-                                    else 
+                                    if (fromLocationId == location.id)
+                                        MaterialTheme.colorScheme.primaryContainer
+                                    else
                                         Color.Transparent
                                 ),
                             verticalAlignment = Alignment.CenterVertically
@@ -1633,7 +1639,7 @@ private fun AddConnectionDialog(
                         }
                     }
                 }
-                
+
                 // To location selector
                 Text("To:", style = MaterialTheme.typography.bodySmall)
                 LazyColumn(
@@ -1646,9 +1652,9 @@ private fun AddConnectionDialog(
                                 .clickable { toLocationId = location.id }
                                 .padding(8.dp)
                                 .background(
-                                    if (toLocationId == location.id) 
-                                        MaterialTheme.colorScheme.primaryContainer 
-                                    else 
+                                    if (toLocationId == location.id)
+                                        MaterialTheme.colorScheme.primaryContainer
+                                    else
                                         Color.Transparent
                                 ),
                             verticalAlignment = Alignment.CenterVertically
@@ -1661,9 +1667,9 @@ private fun AddConnectionDialog(
                         }
                     }
                 }
-                
+
                 Divider(modifier = Modifier.padding(vertical = 8.dp))
-                
+
                 // Connection type selector
                 Text("Connection Type:", style = MaterialTheme.typography.bodySmall)
                 Row(
@@ -1673,9 +1679,9 @@ private fun AddConnectionDialog(
                     Button(
                         onClick = { connectionType = ConnectionType.ROAD },
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = if (connectionType == ConnectionType.ROAD) 
-                                MaterialTheme.colorScheme.primary 
-                            else 
+                            containerColor = if (connectionType == ConnectionType.ROAD)
+                                MaterialTheme.colorScheme.primary
+                            else
                                 MaterialTheme.colorScheme.surfaceVariant
                         ),
                         modifier = Modifier.weight(1f)
@@ -1685,9 +1691,9 @@ private fun AddConnectionDialog(
                     Button(
                         onClick = { connectionType = ConnectionType.SEA_ROUTE },
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = if (connectionType == ConnectionType.SEA_ROUTE) 
-                                MaterialTheme.colorScheme.primary 
-                            else 
+                            containerColor = if (connectionType == ConnectionType.SEA_ROUTE)
+                                MaterialTheme.colorScheme.primary
+                            else
                                 MaterialTheme.colorScheme.surfaceVariant
                         ),
                         modifier = Modifier.weight(1f)
@@ -1729,20 +1735,20 @@ private fun distanceToLineSegment(px: Float, py: Float, x1: Float, y1: Float, x2
     val dx = x2 - x1
     val dy = y2 - y1
     val lengthSquared = dx * dx + dy * dy
-    
+
     if (lengthSquared == 0f) {
         // Line segment is actually a point
         return kotlin.math.sqrt((px - x1) * (px - x1) + (py - y1) * (py - y1))
     }
-    
+
     // Calculate projection of point onto line segment (clamped to segment)
     val t = ((px - x1) * dx + (py - y1) * dy) / lengthSquared
     val tClamped = t.coerceIn(0f, 1f)
-    
+
     // Calculate closest point on segment
     val closestX = x1 + tClamped * dx
     val closestY = y1 + tClamped * dy
-    
+
     // Return distance to closest point
     return kotlin.math.sqrt((px - closestX) * (px - closestX) + (py - closestY) * (py - closestY))
 }
