@@ -351,6 +351,8 @@ class GameViewModel {
             code = code,
             unlockAllLevels = { unlockAllLevels() },
             unlockLevel = { editorLevelId -> unlockLevel(editorLevelId) },
+            lockAllLevels = { lockAllLevels() },
+            lockLevel = { editorLevelId -> lockLevel(editorLevelId) },
             worldLevels = _worldLevels.value
         )
     }
@@ -363,6 +365,18 @@ class GameViewModel {
     
     private fun unlockLevel(editorLevelId: String) {
         _worldLevels.value = CheatCodeHandler.unlockLevel(_worldLevels.value, editorLevelId)
+        // Save updated world map status
+        saveWorldMapStatus()
+    }
+    
+    private fun lockAllLevels() {
+        _worldLevels.value = CheatCodeHandler.lockAllLevels(_worldLevels.value)
+        // Save updated world map status
+        saveWorldMapStatus()
+    }
+    
+    private fun lockLevel(editorLevelId: String) {
+        _worldLevels.value = CheatCodeHandler.lockLevel(_worldLevels.value, editorLevelId)
         // Save updated world map status
         saveWorldMapStatus()
     }
