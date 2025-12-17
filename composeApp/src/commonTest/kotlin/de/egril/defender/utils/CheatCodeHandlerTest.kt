@@ -611,18 +611,18 @@ class CheatCodeHandlerTest {
     }
     
     @Test
-    fun testLockLevelOnlyLocksEntryLevel() {
-        // Create entry level (no prerequisites)
+    fun testLockLevelOnlyLocksLevelWithPrerequisites() {
+        // Create entry level (no prerequisites) - should NOT be locked
         val entryLevel = createTestLevel(id = 1, name = "Entry Level", editorLevelId = "entry_level")
         
         val worldLevels = listOf(
             WorldLevel(entryLevel, LevelStatus.UNLOCKED)
         )
         
-        // Lock specific entry level
+        // Try to lock entry level - should NOT lock because it has no prerequisites
         val lockedLevels = CheatCodeHandler.lockLevel(worldLevels, "entry_level")
         
-        // Entry level should be locked
-        assertEquals(LevelStatus.LOCKED, lockedLevels[0].status, "Entry level should be locked")
+        // Entry level should remain unlocked
+        assertEquals(LevelStatus.UNLOCKED, lockedLevels[0].status, "Entry level should NOT be locked (no prerequisites)")
     }
 }
