@@ -26,6 +26,7 @@ class AndroidFileExportImport : FileExportImport {
          * Initialize the file export/import with the main activity
          * Must be called from MainActivity.onCreate()
          */
+        @Synchronized
         fun initialize(activity: ComponentActivity) {
             if (instance == null) {
                 instance = AndroidFileExportImport()
@@ -179,8 +180,9 @@ class AndroidFileExportImport : FileExportImport {
                                         while (entry != null) {
                                             if (!entry.isDirectory && entry.name.endsWith(".json", ignoreCase = true)) {
                                                 val content = zis.bufferedReader().use { it.readText() }
-                                                // Use only the filename without path
+                                                // Use only the filename without path, with fallback for empty names
                                                 val entryFilename = entry.name.substringAfterLast('/')
+                                                    .takeIf { it.isNotEmpty() } ?: "unknown.json"
                                                 results.add(ImportedFile(entryFilename, content))
                                             }
                                             entry = zis.nextEntry
