@@ -240,11 +240,11 @@ object CheatCodeHandler {
     }
     
     /**
-     * Lock all levels in the world map that do NOT have prerequisites.
-     * Only levels without prerequisites (entry points) are locked.
+     * Lock all levels in the world map that HAVE prerequisites.
+     * Only levels with prerequisites can be locked.
      * 
      * @param worldLevels The current list of world levels
-     * @return The updated list of world levels with levels that have no prerequisites changed to LOCKED
+     * @return The updated list of world levels with levels that have prerequisites changed to LOCKED
      */
     fun lockAllLevels(worldLevels: List<WorldLevel>): List<WorldLevel> {
         // Get all editor level IDs and their prerequisites
@@ -262,8 +262,8 @@ object CheatCodeHandler {
                 false
             }
             
-            // Lock levels that do NOT have prerequisites (entry points)
-            if (!hasPrerequisites) {
+            // Lock levels that HAVE prerequisites
+            if (hasPrerequisites) {
                 worldLevel.copy(status = LevelStatus.LOCKED)
             } else {
                 worldLevel
