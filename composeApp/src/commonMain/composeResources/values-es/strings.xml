@@ -99,7 +99,8 @@
     <string name="completed">Completado</string>
     
     <!-- World Map -->
-    <string name="world_map_title">Mapa del mundo - Prados de Egril</string>
+    <string name="world_map_title">Mapa del mundo</string>
+    <string name="world_map_subtitle">Prados de Egril</string>
     <string name="back_to_world_map">Volver al mapa del mundo</string>
     <string name="play_level">Jugar nivel</string>
     <string name="requires_completing">Requiere completar:</string>
