@@ -192,10 +192,6 @@ The feature requires UI interaction and cannot be fully tested in CI:
    - Implement UIDocumentPickerViewController integration
    - Handle file permissions properly
 
-2. **iOS**:
-   - Implement UIDocumentPickerViewController integration
-   - Handle file permissions properly
-
 3. **All Platforms**:
    - Add progress indicator for large file operations
    - Support drag-and-drop file upload (Web/Desktop)
