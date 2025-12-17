@@ -15,25 +15,25 @@
     {
       "id": "the_plains",
       "name": "The Plains",
-      "position": {"x": 264, "y": 587},
+      "position": {"x": 258, "y": 572},
       "levelIds": ["the_plains"]
     },
     {
       "id": "the_spiral",
       "name": "The Spiral",
-      "position": {"x": 358, "y": 496},
+      "position": {"x": 344, "y": 484},
       "levelIds": ["the_spiral_challenge"]
     },
     {
       "id": "the_dance",
       "name": "The Dance",
-      "position": {"x": 319, "y": 296},
+      "position": {"x": 251, "y": 337},
       "levelIds": ["the_dance"]
     },
     {
       "id": "the_village",
       "name": "The Village",
-      "position": {"x": 328, "y": 354},
+      "position": {"x": 309, "y": 306},
       "levelIds": ["the_rush"]
     },
     {
@@ -71,9 +71,135 @@
       "name": "Ewhads Challege",
       "position": {"x": 797, "y": 870},
       "levelIds": ["ewhads_challenge"]
+    },
+    {
+      "id": "the_creek",
+      "name": "The Creek",
+      "position": {"x": 438, "y": 820},
+      "levelIds": ["the_creek"]
+    },
+    {
+      "id": "the_island",
+      "name": "The Island",
+      "position": {"x": 721, "y": 884},
+      "levelIds": ["the_island"]
+    },
+    {
+      "id": "the_river",
+      "name": "The River",
+      "position": {"x": 320, "y": 547},
+      "levelIds": ["the_river"]
+    },
+    {
+      "id": "creek_valley",
+      "name": "Creek Valley",
+      "position": {"x": 422, "y": 530},
+      "levelIds": ["creek_valley"]
+    },
+    {
+      "id": "the_maelstrom",
+      "name": "The Maelstrom",
+      "position": {"x": 500, "y": 500},
+      "levelIds": ["maelstrom"]
     }
   ],
   "paths": [
-    
+    {
+      "fromLocationId": "the_beginning",
+      "toLocationId": "the_plains",
+      "controlPoints": [{"x": 224, "y": 592}],
+      "type": "ROAD"
+    },
+    {
+      "fromLocationId": "the_plains",
+      "toLocationId": "the_spiral",
+      "controlPoints": [{"x": 302, "y": 538}],
+      "type": "ROAD"
+    },
+    {
+      "fromLocationId": "the_spiral",
+      "toLocationId": "the_dance",
+      "controlPoints": [{"x": 303, "y": 470}, {"x": 290, "y": 441}, {"x": 287, "y": 384}],
+      "type": "ROAD"
+    },
+    {
+      "fromLocationId": "the_dance",
+      "toLocationId": "the_village",
+      "controlPoints": [{"x": 277, "y": 314}],
+      "type": "ROAD"
+    },
+    {
+      "fromLocationId": "the_village",
+      "toLocationId": "the_woods",
+      "controlPoints": [{"x": 315, "y": 375}],
+      "type": "ROAD"
+    },
+    {
+      "fromLocationId": "the_woods",
+      "toLocationId": "the_fast",
+      "controlPoints": [{"x": 398, "y": 390}, {"x": 421, "y": 439}, {"x": 459, "y": 440}],
+      "type": "ROAD"
+    },
+    {
+      "fromLocationId": "the_fast",
+      "toLocationId": "the_cross",
+      "controlPoints": [{"x": 533, "y": 514}],
+      "type": "ROAD"
+    },
+    {
+      "fromLocationId": "the_cross",
+      "toLocationId": "the_winding_path",
+      "controlPoints": [],
+      "type": "ROAD"
+    },
+    {
+      "fromLocationId": "the_winding_path",
+      "toLocationId": "the_fortress",
+      "controlPoints": [{"x": 668, "y": 488}, {"x": 629, "y": 406}],
+      "type": "ROAD"
+    },
+    {
+      "fromLocationId": "the_beginning",
+      "toLocationId": "the_creek",
+      "controlPoints": [{"x": 210, "y": 615}, {"x": 218, "y": 640}, {"x": 294, "y": 708}, {"x": 306, "y": 727}, {"x": 323, "y": 791}, {"x": 388, "y": 805}, {"x": 413, "y": 821}],
+      "type": "ROAD"
+    },
+    {
+      "fromLocationId": "the_creek",
+      "toLocationId": "the_island",
+      "controlPoints": [{"x": 414, "y": 857}, {"x": 423, "y": 879}, {"x": 487, "y": 916}, {"x": 671, "y": 924}],
+      "type": "SEA_ROUTE"
+    },
+    {
+      "fromLocationId": "creek_valley",
+      "toLocationId": "the_river",
+      "controlPoints": [{"x": 387, "y": 564}, {"x": 341, "y": 575}],
+      "type": "ROAD"
+    },
+    {
+      "fromLocationId": "the_island",
+      "toLocationId": "creek_valley",
+      "controlPoints": [{"x": 701, "y": 771}, {"x": 630, "y": 746}, {"x": 589, "y": 727}, {"x": 567, "y": 715}, {"x": 519, "y": 694}, {"x": 499, "y": 628}, {"x": 469, "y": 599}, {"x": 458, "y": 574}],
+      "type": "ROAD",
+      "segmentTypes": ["SEA_ROUTE", "SEA_ROUTE", "SEA_ROUTE", "ROAD", "ROAD", "ROAD", "ROAD", "ROAD", "ROAD"]
+    },
+    {
+      "fromLocationId": "the_river",
+      "toLocationId": "the_maelstrom",
+      "controlPoints": [{"x": 390, "y": 500}, {"x": 441, "y": 493}],
+      "type": "ROAD"
+    },
+    {
+      "fromLocationId": "tutorial",
+      "toLocationId": "the_beginning",
+      "controlPoints": [{"x": 80, "y": 798}],
+      "type": "SEA_ROUTE"
+    },
+    {
+      "fromLocationId": "the_maelstrom",
+      "toLocationId": "the_fortress",
+      "controlPoints": [{"x": 506, "y": 432}, {"x": 533, "y": 408}, {"x": 585, "y": 402}, {"x": 629, "y": 406}],
+      "type": "ROAD"
+    }
   ]
 }

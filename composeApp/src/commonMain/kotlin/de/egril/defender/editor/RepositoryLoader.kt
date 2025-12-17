@@ -168,12 +168,18 @@ object RepositoryLoader {
             storage.writeFile("gamedata/sequence.json", sequenceJson)
             println("Saved sequence")
             
-            // Load and save world map data if it exists
-            val worldMapData = loadWorldMapData()
-            if (worldMapData != null) {
-                val worldMapJson = EditorJsonSerializer.serializeWorldMapData(worldMapData)
-                storage.writeFile("gamedata/worldmap.json", worldMapJson)
-                println("Loaded and saved worldmap.json")
+            // Load and save world map data if it exists in repository AND doesn't already exist in user's gamedata
+            if (!storage.fileExists("gamedata/worldmap.json")) {
+                val worldMapData = loadWorldMapData()
+                if (worldMapData != null) {
+                    val worldMapJson = EditorJsonSerializer.serializeWorldMapData(worldMapData)
+                    storage.writeFile("gamedata/worldmap.json", worldMapJson)
+                    println("Loaded and saved worldmap.json")
+                } else {
+                    println("No worldmap.json in repository, skipping")
+                }
+            } else {
+                println("worldmap.json already exists in user's gamedata, preserving it")
             }
             
             // Save version file

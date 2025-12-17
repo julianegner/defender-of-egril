@@ -105,8 +105,11 @@ fun LevelEditorContent() {
                         onCopy = {
                             // Copy the level with a new ID and " - Copy" suffix
                             val copyTitle = "${level.title} - Copy"
-                            val sanitizedTitle = copyTitle.trim().replace(" ", "_").replace(Regex("[^a-zA-Z0-9_]"), "")
-                            val newId = "level_${sanitizedTitle}_${Random.nextInt(1000, 9999)}"
+                            val sanitizedTitle = copyTitle.trim().lowercase()
+                                .replace(" ", "_")
+                                .replace(Regex("[^a-z0-9_]"), "")
+                                .replace(Regex("_+"), "_")  // Collapse consecutive underscores
+                            val newId = "${sanitizedTitle}_${Random.nextInt(1000, 9999)}"
                             val copiedLevel = level.copy(
                                 id = newId,
                                 title = copyTitle
@@ -144,12 +147,15 @@ fun LevelEditorContent() {
         CreateLevelDialog(
             onDismiss = { showCreateDialog = false },
             onCreate = { title ->
-                // Generate ID from title with underscores
-                val sanitizedTitle = title.trim().replace(" ", "_").replace(Regex("[^a-zA-Z0-9_]"), "")
+                // Generate ID from title with underscores (lowercase, no "level_" prefix)
+                val sanitizedTitle = title.trim().lowercase()
+                    .replace(" ", "_")
+                    .replace(Regex("[^a-z0-9_]"), "")
+                    .replace(Regex("_+"), "_")  // Collapse consecutive underscores
                 val newId = if (sanitizedTitle.isNotEmpty()) {
-                    "level_$sanitizedTitle"
+                    sanitizedTitle
                 } else {
-                    "level_custom_${Random.nextInt(10000, 99999)}"
+                    "custom_${Random.nextInt(10000, 99999)}"
                 }
                 // Get first ready-to-use map
                 val firstReadyMap = EditorStorage.getAllMaps().filter { it.readyToUse }.firstOrNull()
@@ -182,6 +188,15 @@ private fun LevelCard(
     onCopy: () -> Unit,
     onDelete: () -> Unit
 ) {
+    // Check if any enemies are spawned outside valid spawn points
+    val map = remember(level.mapId) { EditorStorage.getMap(level.mapId) }
+    val hasEnemiesOutsideSpawnPoints = remember(level.enemySpawns, map) {
+        val mapSpawnPoints = map?.getSpawnPoints()?.toSet() ?: emptySet()
+        level.enemySpawns.any { spawn ->
+            spawn.spawnPoint != null && spawn.spawnPoint !in mapSpawnPoints
+        }
+    }
+    
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
@@ -220,6 +235,10 @@ private fun LevelCard(
                             color = Color.Red,
                             style = MaterialTheme.typography.titleSmall
                         )
+                    }
+                    // Add warning badge if enemies are outside spawn points
+                    if (hasEnemiesOutsideSpawnPoints) {
+                        WarningBadge()
                     }
                 }
                 if (level.subtitle.isNotEmpty()) {
@@ -307,6 +326,14 @@ fun LevelEditorView(
     // Check if Ewhad is already in spawn list
     val ewhadCount = enemySpawns.count { it.attackerType == AttackerType.EWHAD }
     
+    // Check if any enemies are spawned outside valid spawn points
+    val mapSpawnPoints = remember(currentMap) { currentMap?.getSpawnPoints()?.toSet() ?: emptySet() }
+    val hasEnemiesOutsideSpawnPoints = remember(enemySpawns, mapSpawnPoints) {
+        enemySpawns.any { spawn ->
+            spawn.spawnPoint != null && spawn.spawnPoint !in mapSpawnPoints
+        }
+    }
+    
     // Check readiness for each tab
     val coinsInt = startCoins.toIntOrNull() ?: 0
     val hpInt = startHP.toIntOrNull() ?: 0
@@ -354,6 +381,8 @@ fun LevelEditorView(
                         Text(stringResource(Res.string.enemy_spawns_tab))
                         if (!isEnemySpawnsReady) {
                             RedDotBadge()
+                        } else if (hasEnemiesOutsideSpawnPoints) {
+                            WarningBadge()
                         }
                     }
                 }
@@ -568,5 +597,18 @@ private fun RedDotBadge() {
             .size(8.dp)
             .clip(CircleShape)
             .background(Color.Red)
+    )
+}
+
+/**
+ * Warning badge to indicate issues that don't prevent playability
+ */
+@Composable
+private fun WarningBadge() {
+    Box(
+        modifier = Modifier
+            .size(12.dp)
+            .clip(CircleShape)
+            .background(Color(0xFFFFA500)) // Orange color
     )
 }

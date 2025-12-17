@@ -3,7 +3,7 @@
   "mapId": "map_straight",
   "title": "Dark Magic Rises",
   "subtitle": "",
-  "startCoins": 180,
+  "startCoins": 200,
   "startHealthPoints": 8,
   "enemySpawns": [
     {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 1, "spawnPoint": {"x": 0, "y": 1}},
@@ -112,7 +112,7 @@
     {"attackerType": "WITCH", "level": 1, "spawnTurn": 20, "spawnPoint": {"x": 0, "y": 4}},
     {"attackerType": "WITCH", "level": 1, "spawnTurn": 20, "spawnPoint": {"x": 0, "y": 7}}
   ],
-  "availableTowers": ["SPIKE_TOWER", "SPEAR_TOWER", "BOW_TOWER", "WIZARD_TOWER", "ALCHEMY_TOWER", "BALLISTA_TOWER", "DWARVEN_MINE"],
+  "availableTowers": ["SPIKE_TOWER", "SPEAR_TOWER", "BOW_TOWER"],
   "waypoints": [
     
   ],

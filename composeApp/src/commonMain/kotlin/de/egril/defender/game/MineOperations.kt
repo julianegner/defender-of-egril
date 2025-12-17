@@ -90,7 +90,7 @@ class MineOperations(private val state: GameState) {
         if (!mine.isReady || mine.actionsRemaining.value <= 0) return false
         
         // Check if position is within range
-        val distance = mine.position.distanceTo(trapPosition)
+        val distance = mine.position.value.distanceTo(trapPosition)
         if (distance > mine.range) return false
         
         // Check if position is on the path
@@ -134,7 +134,7 @@ class MineOperations(private val state: GameState) {
         
         // Find the closest target position from the mine
         val closestTarget = state.level.targetPositions.minByOrNull { 
-            it.distanceTo(mine.position) 
+            it.distanceTo(mine.position.value) 
         } ?: state.level.targetPositions.first()
         
         val dragon = Attacker(
@@ -146,7 +146,8 @@ class MineOperations(private val state: GameState) {
             spawnedFromLairId = null,  // Will be set after lair is created
             dragonName = dragonName,
             currentTarget = mutableStateOf(if (state.level.waypoints.isNotEmpty()) {
-                state.level.waypoints.first().position
+                // Use the first waypoint's next target, not the waypoint position itself
+                state.level.waypoints.first().nextTarget
             } else {
                 closestTarget
             })
@@ -159,7 +160,7 @@ class MineOperations(private val state: GameState) {
         val lairDefender = Defender(
             id = state.nextDefenderId.value++,
             type = DefenderType.DRAGONS_LAIR,
-            position = mine.position,
+            position = mutableStateOf(mine.position.value),
             buildTimeRemaining = mutableStateOf(0),
             dragonId = mutableStateOf(dragon.id),
             dragonName = dragonName
@@ -172,7 +173,7 @@ class MineOperations(private val state: GameState) {
         
         // Find closest position on path to mine
         val pathPositions = state.level.pathCells
-        val closestPathPos = pathPositions.minByOrNull { it.distanceTo(mine.position) } ?: return
+        val closestPathPos = pathPositions.minByOrNull { it.distanceTo(mine.position.value) } ?: return
         
         // Check if there's a unit at that position
         val unitAtPosition = state.attackers.find { 
@@ -184,7 +185,7 @@ class MineOperations(private val state: GameState) {
             val adjacentPathPositions = pathPositions.filter { 
                 it.distanceTo(closestPathPos) == 1 
             }
-            adjacentPathPositions.minByOrNull { it.distanceTo(mine.position) } ?: closestPathPos
+            adjacentPathPositions.minByOrNull { it.distanceTo(mine.position.value) } ?: closestPathPos
         } else {
             // Remove the unit if it's not Ewhad - dragon eats it!
             if (unitAtPosition != null) {
@@ -264,7 +265,7 @@ class MineOperations(private val state: GameState) {
         if (wizard.trapCooldownRemaining.value > 0) return false
         
         // Check if position is within range
-        val distance = wizard.position.distanceTo(trapPosition)
+        val distance = wizard.position.value.distanceTo(trapPosition)
         if (distance > wizard.range) return false
         
         // Check if position is on the path
