@@ -99,7 +99,8 @@
     <string name="completed">Terminé</string>
     
     <!-- World Map -->
-    <string name="world_map_title">Carte du monde - Prairies d\'Egril</string>
+    <string name="world_map_title">Carte du monde</string>
+    <string name="world_map_subtitle">Prairies d\'Egril</string>
     <string name="back_to_world_map">Retour à la carte du monde</string>
     <string name="play_level">Jouer au niveau</string>
     <string name="requires_completing">Nécessite de compléter:</string>
