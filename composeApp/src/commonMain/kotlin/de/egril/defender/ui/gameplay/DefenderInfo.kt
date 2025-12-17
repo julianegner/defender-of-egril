@@ -435,9 +435,9 @@ fun MiningOutcomeGrid() {
     Column {
         // Header row
         Row {
-            Text("Name", Modifier.weight(1f), fontWeight = FontWeight.Bold)
-            Text("Chance (%)", Modifier.weight(1f), fontWeight = FontWeight.Bold)
-            Text("Reward", Modifier.weight(1f), fontWeight = FontWeight.Bold)
+            Text(stringResource(Res.string.dig_outcome_name), Modifier.weight(1f), fontWeight = FontWeight.Bold)
+            Text(stringResource(Res.string.dig_outcome_chance), Modifier.weight(1f), fontWeight = FontWeight.Bold)
+            Text(stringResource(Res.string.dig_outcome_reward), Modifier.weight(1f), fontWeight = FontWeight.Bold)
         }
         Spacer(Modifier.height(4.dp))
         // Data rows
