@@ -8,6 +8,7 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import de.egril.defender.audio.initializeAndroidAudio
+import de.egril.defender.save.AndroidFileExportImport
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -15,6 +16,9 @@ class MainActivity : ComponentActivity() {
         
         // Initialize context provider for file storage
         AndroidContextProvider.initialize(this)
+        
+        // Initialize file export/import for save files
+        AndroidFileExportImport.initialize(this)
         
         // Initialize Android audio system for sound playback
         initializeAndroidAudio(this)
