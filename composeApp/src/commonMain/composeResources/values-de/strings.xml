@@ -673,9 +673,22 @@
     <string name="add_location_dialog_title">Ort hinzufügen</string>
     <string name="location_name">Ortsname</string>
     <string name="select_levels">Level auswählen:</string>
-    <string name="edit_path_control_points">Pfadkontrollpunkte bearbeiten</string>
-    <string name="control_points_label">Kontrollpunkte (0-1000):</string>
+    <string name="edit_connection">Verbindung bearbeiten</string>
+    <string name="default_connection_type">Standard-Verbindungstyp:</string>
     <string name="add_control_point">Kontrollpunkt hinzufügen:</string>
     <string name="y_coordinate">Y</string>
     <string name="locations">Orte</string>
+    <string name="auto_connect_by_dependencies">Automatisch nach Abhängigkeiten verbinden</string>
+    <string name="edit_location">Ort bearbeiten</string>
+    <string name="all_road">Alle Straße</string>
+    <string name="all_sea">Alle See</string>
+    <string name="segment_types">Segmenttypen (%d Segmente):</string>
+    <string name="road">Straße</string>
+    <string name="sea">See</string>
+    <string name="waypoints_range">Wegpunkte (0-1000):</string>
+    <string name="add_connection">Verbindung hinzufügen</string>
+    <string name="select_two_locations">Wählen Sie zwei zu verbindende Orte:</string>
+    <string name="from">Von:</string>
+    <string name="to">Nach:</string>
+    <string name="connection_type">Verbindungstyp:</string>
 </resources>
