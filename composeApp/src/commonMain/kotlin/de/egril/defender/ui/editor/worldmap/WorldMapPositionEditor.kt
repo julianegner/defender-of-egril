@@ -156,11 +156,11 @@ fun WorldMapPositionEditorContent() {
                         onClick = { showAddLocationDialog = true },
                         modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
                     ) {
-                        Text("+ Add Location")
+                        Text(stringResource(Res.string.add_location))
                     }
                     
                     Text(
-                        text = "Locations",
+                        text = stringResource(Res.string.locations),
                         style = MaterialTheme.typography.titleSmall,
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
@@ -576,19 +576,19 @@ private fun AddLocationDialog(
     
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Add Location") },
+        title = { Text(stringResource(Res.string.add_location_dialog_title)) },
         text = {
             Column {
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("Location Name") },
+                    label = { Text(stringResource(Res.string.location_name)) },
                     modifier = Modifier.fillMaxWidth()
                 )
                 
                 Spacer(modifier = Modifier.height(16.dp))
                 
-                Text("Select Levels:", style = MaterialTheme.typography.bodyMedium)
+                Text(stringResource(Res.string.select_levels), style = MaterialTheme.typography.bodyMedium)
                 
                 LazyColumn(
                     modifier = Modifier.height(200.dp)
@@ -638,12 +638,12 @@ private fun AddLocationDialog(
                 },
                 enabled = name.isNotBlank() && selectedLevelIds.isNotEmpty()
             ) {
-                Text("Add")
+                Text(stringResource(Res.string.add))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(Res.string.cancel))
             }
         }
     )
@@ -664,7 +664,7 @@ private fun EditPathDialog(
     
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Edit Path Control Points") },
+        title = { Text(stringResource(Res.string.edit_path_control_points)) },
         text = {
             Column {
                 Text(
@@ -674,7 +674,7 @@ private fun EditPathDialog(
                 
                 Spacer(modifier = Modifier.height(16.dp))
                 
-                Text("Control Points (0-1000):", style = MaterialTheme.typography.bodySmall)
+                Text(stringResource(Res.string.control_points_label), style = MaterialTheme.typography.bodySmall)
                 
                 LazyColumn(
                     modifier = Modifier.height(150.dp)
@@ -698,7 +698,7 @@ private fun EditPathDialog(
                 
                 Divider(modifier = Modifier.padding(vertical = 8.dp))
                 
-                Text("Add Control Point:", style = MaterialTheme.typography.bodySmall)
+                Text(stringResource(Res.string.add_control_point), style = MaterialTheme.typography.bodySmall)
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically
@@ -712,7 +712,7 @@ private fun EditPathDialog(
                     OutlinedTextField(
                         value = newY,
                         onValueChange = { newY = it.filter { c -> c.isDigit() } },
-                        label = { Text("Y") },
+                        label = { Text(stringResource(Res.string.y_coordinate)) },
                         modifier = Modifier.weight(1f)
                     )
                     Button(
@@ -737,12 +737,12 @@ private fun EditPathDialog(
                     onConfirm(path.copy(controlPoints = controlPoints))
                 }
             ) {
-                Text("Save")
+                Text(stringResource(Res.string.save))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(Res.string.cancel))
             }
         }
     )
