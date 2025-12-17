@@ -392,7 +392,7 @@ fun WorldMapPositionEditorContent() {
                         },
                         modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
                     ) {
-                        Text("Auto-Connect by Dependencies")
+                        Text(stringResource(Res.string.auto_connect_by_dependencies))
                     }
 
                     Text(
@@ -1282,19 +1282,19 @@ private fun EditLocationDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Edit Location") },
+        title = { Text(stringResource(Res.string.edit_location)) },
         text = {
             Column {
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("Location Name") },
+                    label = { Text(stringResource(Res.string.location_name)) },
                     modifier = Modifier.fillMaxWidth()
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Text("Select Levels:", style = MaterialTheme.typography.bodyMedium)
+                Text(stringResource(Res.string.select_levels), style = MaterialTheme.typography.bodyMedium)
 
                 LazyColumn(
                     modifier = Modifier.height(200.dp)
@@ -1341,12 +1341,12 @@ private fun EditLocationDialog(
                 },
                 enabled = name.isNotBlank() && selectedLevelIds.isNotEmpty()
             ) {
-                Text("Save")
+                Text(stringResource(Res.string.save))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(Res.string.cancel))
             }
         }
     )
@@ -1418,7 +1418,7 @@ private fun EditPathDialog(
                         ),
                         modifier = Modifier.weight(1f)
                     ) {
-                        Text("All Road")
+                        Text(stringResource(Res.string.all_road))
                     }
                     Button(
                         onClick = {
@@ -1434,14 +1434,14 @@ private fun EditPathDialog(
                         ),
                         modifier = Modifier.weight(1f)
                     ) {
-                        Text("All Sea")
+                        Text(stringResource(Res.string.all_sea))
                     }
                 }
 
                 Divider(modifier = Modifier.padding(vertical = 8.dp))
 
                 // Segment types editor
-                Text("Segment Types (${segmentTypes.size} segments):", style = MaterialTheme.typography.bodySmall)
+                Text(stringResource(Res.string.segment_types, segmentTypes.size), style = MaterialTheme.typography.bodySmall)
                 Text(
                     "Edit individual segment types for mixed road/sea connections",
                     style = MaterialTheme.typography.bodySmall,
@@ -1480,7 +1480,7 @@ private fun EditPathDialog(
                                     modifier = Modifier.size(60.dp, 32.dp),
                                     contentPadding = PaddingValues(4.dp)
                                 ) {
-                                    Text("Road", fontSize = 10.sp)
+                                    Text(stringResource(Res.string.road), fontSize = 10.sp)
                                 }
                                 Button(
                                     onClick = {
@@ -1497,7 +1497,7 @@ private fun EditPathDialog(
                                     modifier = Modifier.size(60.dp, 32.dp),
                                     contentPadding = PaddingValues(4.dp)
                                 ) {
-                                    Text("Sea", fontSize = 10.sp)
+                                    Text(stringResource(Res.string.sea), fontSize = 10.sp)
                                 }
                             }
                         }
@@ -1506,7 +1506,7 @@ private fun EditPathDialog(
 
                 Divider(modifier = Modifier.padding(vertical = 8.dp))
 
-                Text("Waypoints (0-1000):", style = MaterialTheme.typography.bodySmall)
+                Text(stringResource(Res.string.waypoints_range), style = MaterialTheme.typography.bodySmall)
                 
                 LazyColumn(
                     modifier = Modifier.height(120.dp)
@@ -1599,15 +1599,15 @@ private fun AddConnectionDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Add Connection") },
+        title = { Text(stringResource(Res.string.add_connection)) },
         text = {
             Column {
-                Text("Select two locations to connect:", style = MaterialTheme.typography.bodyMedium)
+                Text(stringResource(Res.string.select_two_locations), style = MaterialTheme.typography.bodyMedium)
 
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // From location selector
-                Text("From:", style = MaterialTheme.typography.bodySmall)
+                Text(stringResource(Res.string.from), style = MaterialTheme.typography.bodySmall)
                 LazyColumn(
                     modifier = Modifier.height(120.dp).padding(bottom = 8.dp)
                 ) {
@@ -1635,7 +1635,7 @@ private fun AddConnectionDialog(
                 }
 
                 // To location selector
-                Text("To:", style = MaterialTheme.typography.bodySmall)
+                Text(stringResource(Res.string.to), style = MaterialTheme.typography.bodySmall)
                 LazyColumn(
                     modifier = Modifier.height(120.dp).padding(bottom = 8.dp)
                 ) {
@@ -1665,7 +1665,7 @@ private fun AddConnectionDialog(
                 Divider(modifier = Modifier.padding(vertical = 8.dp))
 
                 // Connection type selector
-                Text("Connection Type:", style = MaterialTheme.typography.bodySmall)
+                Text(stringResource(Res.string.connection_type), style = MaterialTheme.typography.bodySmall)
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -1680,7 +1680,7 @@ private fun AddConnectionDialog(
                         ),
                         modifier = Modifier.weight(1f)
                     ) {
-                        Text("Road")
+                        Text(stringResource(Res.string.road))
                     }
                     Button(
                         onClick = { connectionType = ConnectionType.SEA_ROUTE },
@@ -1692,7 +1692,7 @@ private fun AddConnectionDialog(
                         ),
                         modifier = Modifier.weight(1f)
                     ) {
-                        Text("Sea")
+                        Text(stringResource(Res.string.sea))
                     }
                 }
             }
@@ -1711,12 +1711,12 @@ private fun AddConnectionDialog(
                 },
                 enabled = fromLocationId != null && toLocationId != null && fromLocationId != toLocationId
             ) {
-                Text("Add")
+                Text(stringResource(Res.string.add))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(Res.string.cancel))
             }
         }
     )
