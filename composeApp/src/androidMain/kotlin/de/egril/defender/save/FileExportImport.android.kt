@@ -147,7 +147,8 @@ class AndroidFileExportImport : FileExportImport {
             // Launch the open document intent with multiple selection
             val uris = suspendCancellableCoroutine { continuation ->
                 openDocumentContinuation = continuation
-                openDocumentLauncher?.launch(arrayOf("application/json", "application/zip", "application/octet-stream"))
+                // Accept JSON and ZIP files specifically, plus generic binary for compatibility
+                openDocumentLauncher?.launch(arrayOf("application/json", "application/zip", "*/*"))
             }
             
             if (uris.isEmpty()) {
@@ -161,9 +162,18 @@ class AndroidFileExportImport : FileExportImport {
                 uris.forEach { uri ->
                     try {
                         val filename = getFileName(context, uri) ?: "unknown"
+                        val mimeType = context.contentResolver.getType(uri)
+                        
+                        // Check both filename extension and MIME type for robust file type detection
+                        val isJsonFile = filename.endsWith(".json", ignoreCase = true) || 
+                                        mimeType == "application/json" || 
+                                        mimeType == "text/json"
+                        val isZipFile = filename.endsWith(".zip", ignoreCase = true) || 
+                                       mimeType == "application/zip" || 
+                                       mimeType == "application/x-zip-compressed"
                         
                         when {
-                            filename.endsWith(".json", ignoreCase = true) -> {
+                            isJsonFile -> {
                                 // Read JSON file directly
                                 val content = context.contentResolver.openInputStream(uri)?.use { inputStream ->
                                     inputStream.bufferedReader().use { it.readText() }
@@ -172,7 +182,7 @@ class AndroidFileExportImport : FileExportImport {
                                     results.add(ImportedFile(filename, content))
                                 }
                             }
-                            filename.endsWith(".zip", ignoreCase = true) -> {
+                            isZipFile -> {
                                 // Extract JSON files from ZIP
                                 context.contentResolver.openInputStream(uri)?.use { inputStream ->
                                     ZipInputStream(inputStream).use { zis ->
@@ -180,8 +190,11 @@ class AndroidFileExportImport : FileExportImport {
                                         while (entry != null) {
                                             if (!entry.isDirectory && entry.name.endsWith(".json", ignoreCase = true)) {
                                                 val content = zis.bufferedReader().use { it.readText() }
-                                                // Use only the filename without path, with fallback for empty names
-                                                val entryFilename = entry.name.substringAfterLast('/')
+                                                // Use only the filename without path (handle both / and \ separators)
+                                                // with fallback for empty names
+                                                val entryFilename = entry.name
+                                                    .replace('\\', '/')
+                                                    .substringAfterLast('/')
                                                     .takeIf { it.isNotEmpty() } ?: "unknown.json"
                                                 results.add(ImportedFile(entryFilename, content))
                                             }
@@ -189,6 +202,9 @@ class AndroidFileExportImport : FileExportImport {
                                         }
                                     }
                                 }
+                            }
+                            else -> {
+                                println("Skipping file $filename with unsupported type: $mimeType")
                             }
                         }
                     } catch (e: Exception) {
