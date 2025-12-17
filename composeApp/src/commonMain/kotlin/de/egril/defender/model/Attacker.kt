@@ -14,20 +14,21 @@ enum class AttackerType(
     val canDisableTowers: Boolean = false,
     val canHeal: Boolean = false,
     val isBoss: Boolean = false,
-    val isDragon: Boolean = false
+    val isDragon: Boolean = false,
+    val canBuildBridge: Boolean = false  // Can build bridges (Ork, Troll, Evil Wizard, Ewhad)
 ) {
     GOBLIN("Goblin", health = 20, speed = 5, reward = 5),
-    ORK("Ork", health = 40, speed = 2, reward = 10),
-    OGRE("Ogre", health = 80, speed = 1, reward = 20),
+    ORK("Ork", health = 40, speed = 2, reward = 10, canBuildBridge = true),
+    OGRE("Ogre", health = 80, speed = 1, reward = 20, canBuildBridge = true),
     SKELETON("Skeleton", health = 15, speed = 5, reward = 7),
-    EVIL_WIZARD("Evil Wizard", health = 30, speed = 2, reward = 15),
+    EVIL_WIZARD("Evil Wizard", health = 30, speed = 2, reward = 15, canBuildBridge = true),
     WITCH("Witch", health = 25, speed = 4, reward = 12),
     BLUE_DEMON("Blue Demon", health = 15, speed = 6, reward = 10, immuneToAcid = true),
     RED_DEMON("Red Demon", health = 60, speed = 1, reward = 15, immuneToFireball = true),
     EVIL_MAGE("Evil Mage", health = 40, speed = 2, reward = 20, canSummon = true),
     RED_WITCH("Red Witch", health = 30, speed = 5, reward = 18, canDisableTowers = true),
     GREEN_WITCH("Green Witch", health = 25, speed = 5, reward = 15, canHeal = true),
-    EWHAD("Ewhad", health = 200, speed = 1, reward = 100, canSummon = true, isBoss = true),
+    EWHAD("Ewhad", health = 200, speed = 1, reward = 100, canSummon = true, isBoss = true, canBuildBridge = true),
     DRAGON("Dragon", health = 500, speed = 2, reward = 0, isDragon = true, isBoss = true)  // Speed will be overridden: 2 on turn 1, 10 on turn 2+
 }
 
@@ -47,7 +48,8 @@ data class Attacker(
     val dragonName: String? = null,  // Dragon's name (for dragons only)
     val currentTarget: MutableState<Position>? = null,  // Current target position (waypoint or final target). Null means use level target.
     val targetMineId: MutableState<Int?> = mutableStateOf(null),  // ID of mine being targeted (for greedy dragons)
-    val mineWarningShown: MutableState<Boolean> = mutableStateOf(false)  // Track if mine warning has been shown for current target
+    val mineWarningShown: MutableState<Boolean> = mutableStateOf(false),  // Track if mine warning has been shown for current target
+    val isBuildingBridge: MutableState<Boolean> = mutableStateOf(false)  // Track if this unit is currently building a bridge (sacrifice units)
 ) {
     val maxHealth: Int get() = type.health * level.value
     

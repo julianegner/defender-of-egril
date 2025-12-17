@@ -8,6 +8,7 @@ import de.egril.defender.ui.gameplay.GamePlayScreen
 import de.egril.defender.ui.loadgame.LoadGameScreen
 import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.worldmap.WorldMapScreen
+import de.egril.defender.utils.WindowCloseHandler
 
 @Composable
 fun App() {
@@ -34,6 +35,20 @@ fun App() {
         val gameState by viewModel.gameState.collectAsState()
         val savedGames by viewModel.savedGames.collectAsState()
         val cheatDigOutcome by viewModel.cheatDigOutcome.collectAsState()
+        
+        // Register unsaved changes checker for window close handling
+        LaunchedEffect(currentScreen) {
+            when (currentScreen) {
+                is Screen.GamePlay -> {
+                    WindowCloseHandler.setUnsavedChangesChecker { viewModel.hasUnsavedChanges() }
+                    WindowCloseHandler.setSaveGameCallback { viewModel.saveCurrentGame() }
+                }
+                else -> {
+                    WindowCloseHandler.setUnsavedChangesChecker(null)
+                    WindowCloseHandler.setSaveGameCallback(null)
+                }
+            }
+        }
         
         when (val screen = currentScreen) {
             is Screen.MainMenu -> {
@@ -73,6 +88,12 @@ fun App() {
                     savedGames = savedGames,
                     onLoadGame = { saveId -> viewModel.loadGame(saveId) },
                     onDeleteGame = { saveId -> viewModel.deleteSavedGame(saveId) },
+                    onDownloadGame = { saveId -> viewModel.downloadSaveGame(saveId) },
+                    onDownloadAll = { viewModel.downloadAllSaveGames() },
+                    onUpload = {
+                        // Trigger refresh of saved games list after upload
+                        viewModel.navigateToLoadGame()
+                    },
                     onBack = { viewModel.navigateToWorldMap() }
                 )
             }

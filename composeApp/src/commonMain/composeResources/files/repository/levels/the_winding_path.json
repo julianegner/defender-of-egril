@@ -83,5 +83,5 @@
   "waypoints": [
     
   ],
-  "prerequisites": ["the_cross"]
+  "prerequisites": ["maelstrom", "the_cross"]
 }

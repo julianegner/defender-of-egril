@@ -97,8 +97,13 @@ fun DefenderInfo(
                             } else {
                                 stringResource(Res.string.empty_dragons_lair)
                             }
+                        } else if (defender.raftId.value != null) {
+                            // If defender is on a raft, show localized "Type Raft" with space separator
+                            // Use getLocalizedShortName() to get just the type (e.g., "Bow" instead of "Bow Tower")
+                            "${defender.type.getLocalizedShortName(locale)} ${stringResource(Res.string.raft)}"
                         } else {
-                            defender.type.displayName
+                            // Regular tower - use localized name
+                            defender.type.getLocalizedName(locale)
                         }
                         Text(
                             displayName,
@@ -430,9 +435,9 @@ fun MiningOutcomeGrid() {
     Column {
         // Header row
         Row {
-            Text("Name", Modifier.weight(1f), fontWeight = FontWeight.Bold)
-            Text("Chance (%)", Modifier.weight(1f), fontWeight = FontWeight.Bold)
-            Text("Reward", Modifier.weight(1f), fontWeight = FontWeight.Bold)
+            Text(stringResource(Res.string.dig_outcome_name), Modifier.weight(1f), fontWeight = FontWeight.Bold)
+            Text(stringResource(Res.string.dig_outcome_chance), Modifier.weight(1f), fontWeight = FontWeight.Bold)
+            Text(stringResource(Res.string.dig_outcome_reward), Modifier.weight(1f), fontWeight = FontWeight.Bold)
         }
         Spacer(Modifier.height(4.dp))
         // Data rows

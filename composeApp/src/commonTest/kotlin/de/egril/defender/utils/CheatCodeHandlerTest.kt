@@ -458,4 +458,171 @@ class CheatCodeHandlerTest {
         assertFalse(success, "Dig cheat should fail when performMineDigWithOutcome returns null")
         assertEquals(null, digOutcome, "No dig outcome should be returned when mine dig fails")
     }
+    
+    @Test
+    fun testLockAllCheatCode() {
+        val testCases = listOf("lockall", "lock all")
+        
+        for (code in testCases) {
+            var lockCalled = false
+            val success = CheatCodeHandler.applyWorldMapCheatCode(
+                code = code,
+                unlockAllLevels = { },
+                lockAllLevels = { lockCalled = true }
+            )
+            
+            assertTrue(success, "Cheat code '$code' should be recognized")
+            assertTrue(lockCalled, "Cheat code '$code' should call lockAllLevels")
+        }
+    }
+    
+    @Test
+    fun testLockLevelByIndex() {
+        // Create test levels with editor level IDs
+        val level1 = createTestLevel(id = 1, name = "First Level", editorLevelId = "first_level")
+        val level2 = createTestLevel(id = 2, name = "Second Level", editorLevelId = "second_level")
+        val level3 = createTestLevel(id = 3, name = "Third Level", editorLevelId = "third_level")
+        
+        val worldLevels = listOf(
+            WorldLevel(level1, LevelStatus.UNLOCKED),
+            WorldLevel(level2, LevelStatus.UNLOCKED),
+            WorldLevel(level3, LevelStatus.UNLOCKED)
+        )
+        
+        // Test locking by 1-based index
+        val testCases = listOf(
+            Pair("lock 2", "second_level"),
+            Pair("lock 3", "third_level"),
+            Pair("lock level 2", "second_level")
+        )
+        
+        for ((code, expectedLevelId) in testCases) {
+            var lockedLevelId: String? = null
+            val success = CheatCodeHandler.applyWorldMapCheatCode(
+                code = code,
+                unlockAllLevels = { },
+                lockLevel = { levelId -> lockedLevelId = levelId },
+                worldLevels = worldLevels
+            )
+            
+            assertTrue(success, "Cheat code '$code' should be recognized")
+            assertEquals(expectedLevelId, lockedLevelId, "Cheat code '$code' should lock level $expectedLevelId")
+        }
+    }
+    
+    @Test
+    fun testLockLevelByEditorLevelId() {
+        // Create test levels with editor level IDs
+        val level1 = createTestLevel(id = 1, name = "Dark Magic Rises", editorLevelId = "dark_magic_rises")
+        val level2 = createTestLevel(id = 2, name = "Forest Battle", editorLevelId = "forest_battle")
+        
+        val worldLevels = listOf(
+            WorldLevel(level1, LevelStatus.UNLOCKED),
+            WorldLevel(level2, LevelStatus.UNLOCKED)
+        )
+        
+        // Test locking by editor level ID (with various formats)
+        val testCases = listOf(
+            Pair("lock dark_magic_rises", "dark_magic_rises"),
+            Pair("lock dark magic rises", "dark_magic_rises"),
+            Pair("lock level dark_magic_rises", "dark_magic_rises"),
+            Pair("lock level dark magic rises", "dark_magic_rises"),
+            Pair("lock forest_battle", "forest_battle"),
+            Pair("lock forest battle", "forest_battle")
+        )
+        
+        for ((code, expectedLevelId) in testCases) {
+            var lockedLevelId: String? = null
+            val success = CheatCodeHandler.applyWorldMapCheatCode(
+                code = code,
+                unlockAllLevels = { },
+                lockLevel = { levelId -> lockedLevelId = levelId },
+                worldLevels = worldLevels
+            )
+            
+            assertTrue(success, "Cheat code '$code' should be recognized")
+            assertEquals(expectedLevelId, lockedLevelId, "Cheat code '$code' should lock level $expectedLevelId")
+        }
+    }
+    
+    @Test
+    fun testLockLevelByInvalidIndex() {
+        val level1 = createTestLevel(editorLevelId = "test_level")
+        
+        val worldLevels = listOf(WorldLevel(level1, LevelStatus.UNLOCKED))
+        
+        // Test invalid indices
+        val testCases = listOf("lock 0", "lock 5", "lock -1", "lock 999")
+        
+        for (code in testCases) {
+            var lockCalled = false
+            val success = CheatCodeHandler.applyWorldMapCheatCode(
+                code = code,
+                unlockAllLevels = { },
+                lockLevel = { lockCalled = true },
+                worldLevels = worldLevels
+            )
+            
+            assertFalse(success, "Cheat code '$code' with invalid index should not be recognized")
+            assertFalse(lockCalled, "Cheat code '$code' should not call lockLevel")
+        }
+    }
+    
+    @Test
+    fun testLockLevelByInvalidLevelId() {
+        val level1 = createTestLevel(editorLevelId = "test_level")
+        
+        val worldLevels = listOf(WorldLevel(level1, LevelStatus.UNLOCKED))
+        
+        // Test invalid level IDs
+        val testCases = listOf("lock nonexistent_level", "lock invalid level")
+        
+        for (code in testCases) {
+            var lockCalled = false
+            val success = CheatCodeHandler.applyWorldMapCheatCode(
+                code = code,
+                unlockAllLevels = { },
+                lockLevel = { lockCalled = true },
+                worldLevels = worldLevels
+            )
+            
+            assertFalse(success, "Cheat code '$code' with invalid level ID should not be recognized")
+            assertFalse(lockCalled, "Cheat code '$code' should not call lockLevel")
+        }
+    }
+    
+    @Test
+    fun testLockAllLevelsLocksOnlyLevelsWithPrerequisites() {
+        // Create test levels - entry levels (no prerequisites) should NOT be locked
+        val entryLevel1 = createTestLevel(id = 1, name = "Entry 1", editorLevelId = "entry_1")
+        val entryLevel2 = createTestLevel(id = 2, name = "Entry 2", editorLevelId = "entry_2")
+        
+        val worldLevels = listOf(
+            WorldLevel(entryLevel1, LevelStatus.UNLOCKED),
+            WorldLevel(entryLevel2, LevelStatus.WON)
+        )
+        
+        // Lock all - should NOT lock levels without prerequisites
+        val lockedLevels = CheatCodeHandler.lockAllLevels(worldLevels)
+        
+        // Both entry levels should remain unchanged (not locked)
+        assertEquals(LevelStatus.UNLOCKED, lockedLevels[0].status, "Entry level 1 should NOT be locked (no prerequisites)")
+        assertEquals(LevelStatus.WON, lockedLevels[1].status, "Entry level 2 (WON) should NOT be locked (no prerequisites)")
+    }
+    
+    @Test
+    fun testLockLevelOnlyLocksLevelWithPrerequisites() {
+        // Create entry level (no prerequisites) - should NOT be locked
+        val entryLevel = createTestLevel(id = 1, name = "Entry Level", editorLevelId = "entry_level")
+        
+        val worldLevels = listOf(
+            WorldLevel(entryLevel, LevelStatus.UNLOCKED)
+        )
+        
+        // Try to lock entry level - should NOT lock because it has no prerequisites
+        val lockedLevels = CheatCodeHandler.lockLevel(worldLevels, "entry_level")
+        
+        // Entry level should remain unlocked
+        assertEquals(LevelStatus.UNLOCKED, lockedLevels[0].status, "Entry level should NOT be locked (no prerequisites)")
+    }
 }

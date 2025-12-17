@@ -65,6 +65,7 @@ object EditorStorage {
     
     fun getMap(id: String): EditorMap? {
         println("EditorStorage: Retrieving map with ID: $id")
+        
         // Check cache first
         if (mapsCache.containsKey(id)) {
             return mapsCache[id]
@@ -402,6 +403,11 @@ object EditorStorage {
      * - Start coins are greater than zero
      * - Start health points are greater than zero
      * - Its associated map is ready to use (has valid path from spawn to target)
+     * 
+     * For levels with ORK, EVIL_WIZARD, or EWHAD enemies, river tiles are considered
+     * walkable during validation (they can build bridges). For other levels, rivers
+     * must not be required for a valid path.
+     * 
      * @param level The level to check
      * @return true if the level is ready to play, false otherwise
      */
@@ -412,7 +418,19 @@ object EditorStorage {
         
         // Also check if the map is ready to use
         val map = getMap(level.mapId)
-        if (map == null || !map.readyToUse) {
+        if (map == null) {
+            return false
+        }
+        
+        // Check if level has enemies that can build bridges (ORK, EVIL_WIZARD, or EWHAD)
+        val hasBridgeBuildingEnemies = level.enemySpawns.any { spawn ->
+            spawn.attackerType == AttackerType.ORK || 
+            spawn.attackerType == AttackerType.EVIL_WIZARD || 
+            spawn.attackerType == AttackerType.EWHAD
+        }
+        
+        // Validate map with river consideration based on enemy types
+        if (!map.validateReadyToUse(includeRiversAsWalkable = hasBridgeBuildingEnemies)) {
             return false
         }
         
@@ -703,7 +721,8 @@ object EditorStorage {
             availableTowers = editorLevel.availableTowers,
             waypoints = gameWaypoints,
             editorLevelId = editorLevel.id,  // Store editor level ID for minimap lookup
-            mapId = editorLevel.mapId  // Store map ID for save/load verification
+            mapId = editorLevel.mapId,  // Store map ID for save/load verification
+            riverTiles = map.getRiverTilesMap()  // Add river tiles with flow direction and speed
         )
         
         println("=== CREATED LEVEL ===")
@@ -1270,6 +1289,11 @@ object EditorStorage {
         
         // Check if any levels exist
         if (fileStorage.listFiles(LEVELS_DIR).isNotEmpty()) {
+            return true
+        }
+        
+        // Check if world map file exists (user may have edited it)
+        if (fileStorage.fileExists(WORLDMAP_FILE)) {
             return true
         }
         

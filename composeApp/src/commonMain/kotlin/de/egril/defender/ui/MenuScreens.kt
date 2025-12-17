@@ -6,6 +6,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -13,7 +14,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.egril.defender.BuildConfig
+import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.settings.SettingsButton
+import de.egril.defender.ui.settings.SettingsHintBox
+import de.egril.defender.utils.isPlatformMobile
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
 import defender_of_egril.composeapp.generated.resources.Res
@@ -27,6 +31,9 @@ fun MainMenuScreen(
     onStartGame: () -> Unit,
     onShowRules: () -> Unit
 ) {
+    // Track if settings hint should be shown
+    val showSettingsHint by AppSettings.settingsHintShown
+    
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
@@ -40,6 +47,19 @@ fun MainMenuScreen(
                     .align(Alignment.TopEnd)
                     .padding(8.dp)
             )
+            
+            // Settings hint box - positioned below and to the left of settings button
+            // Only show if hint hasn't been shown yet
+            if (!showSettingsHint) {
+                SettingsHintBox(
+                    onDismiss = {
+                        AppSettings.markSettingsHintShown()
+                    },
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(top = 60.dp, end = 8.dp)  // Position below settings button
+                )
+            }
             
             Column(
                 modifier = Modifier.fillMaxSize(),
@@ -60,20 +80,41 @@ fun MainMenuScreen(
                 
                 Spacer(modifier = Modifier.height(48.dp))
                 
-                Button(
-                    onClick = onStartGame,
-                    modifier = Modifier.width(200.dp).height(60.dp)
-                ) {
-                    Text(stringResource(Res.string.start_game), style = MaterialTheme.typography.titleMedium)
-                }
-                
-                Spacer(modifier = Modifier.height(16.dp))
-                
-                Button(
-                    onClick = onShowRules,
-                    modifier = Modifier.width(200.dp).height(60.dp)
-                ) {
-                    Text(stringResource(Res.string.rules), style = MaterialTheme.typography.titleMedium)
+                // On mobile, buttons are in a row; on desktop, in a column
+                if (isPlatformMobile) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        Button(
+                            onClick = onStartGame,
+                            modifier = Modifier.weight(1f).height(60.dp)
+                        ) {
+                            Text(stringResource(Res.string.start_game), style = MaterialTheme.typography.titleMedium)
+                        }
+                        
+                        Button(
+                            onClick = onShowRules,
+                            modifier = Modifier.weight(1f).height(60.dp)
+                        ) {
+                            Text(stringResource(Res.string.rules), style = MaterialTheme.typography.titleMedium)
+                        }
+                    }
+                } else {
+                    Button(
+                        onClick = onStartGame,
+                        modifier = Modifier.width(200.dp).height(60.dp)
+                    ) {
+                        Text(stringResource(Res.string.start_game), style = MaterialTheme.typography.titleMedium)
+                    }
+                    
+                    Spacer(modifier = Modifier.height(16.dp))
+                    
+                    Button(
+                        onClick = onShowRules,
+                        modifier = Modifier.width(200.dp).height(60.dp)
+                    ) {
+                        Text(stringResource(Res.string.rules), style = MaterialTheme.typography.titleMedium)
+                    }
                 }
             }
             
