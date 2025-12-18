@@ -21,10 +21,12 @@ import de.egril.defender.ui.settings.DifficultyDisplay
 import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.NewRepositoryDataDialog
 import de.egril.defender.editor.RepositoryManager
+import de.egril.defender.utils.isPlatformMobile
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
 import defender_of_egril.composeapp.generated.resources.Res
 import kotlinx.coroutines.launch
+import androidx.compose.ui.text.font.FontStyle
 
 @Composable
 fun WorldMapScreen(
@@ -47,6 +49,21 @@ fun WorldMapScreen(
     val useLevelCards = AppSettings.useLevelCards.value
     
     val scope = rememberCoroutineScope()
+    
+    // Start background music when entering world map
+    LaunchedEffect(Unit) {
+        de.egril.defender.audio.GlobalBackgroundMusicManager.playMusic(
+            de.egril.defender.audio.BackgroundMusic.WORLD_MAP,
+            loop = true
+        )
+    }
+    
+    // Stop background music when leaving world map
+    DisposableEffect(Unit) {
+        onDispose {
+            de.egril.defender.audio.GlobalBackgroundMusicManager.stopMusic()
+        }
+    }
     
     // Check for new repository data on first load (if enabled)
     LaunchedEffect(checkForNewRepositoryData) {
@@ -103,11 +120,8 @@ fun WorldMapScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Title text - clickable for cheat code access (less obvious than a button)
-                Text(
-                    text = stringResource(Res.string.world_map_title),
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.onBackground,
+                // Title and subtitle - clickable for cheat code access (less obvious than a button)
+                Column(
                     modifier = Modifier
                         .then(
                             if (onCheatCode != null) {
@@ -116,7 +130,20 @@ fun WorldMapScreen(
                                 Modifier
                             }
                         )
-                )
+                ) {
+                    Text(
+                        text = stringResource(Res.string.world_map_title),
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                    Text(
+                        text = stringResource(Res.string.world_map_subtitle),
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontStyle = FontStyle.Italic
+                        ),
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                }
                 
                 // Difficulty and Settings button
                 Row(
@@ -143,25 +170,55 @@ fun WorldMapScreen(
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Centered buttons group
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    Button(onClick = onLoadGame) {
-                        Text(stringResource(Res.string.load_game))
+                // Centered buttons group - Column on mobile, Row on desktop
+                if (isPlatformMobile) {
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Button(
+                            onClick = onLoadGame,
+                            modifier = Modifier.widthIn(min = 200.dp)
+                        ) {
+                            Text(stringResource(Res.string.load_game))
+                        }
+                        
+                        Button(
+                            onClick = onShowRules,
+                            modifier = Modifier.widthIn(min = 200.dp)
+                        ) {
+                            Text(stringResource(Res.string.rules))
+                        }
+                        
+                        Button(
+                            onClick = onBackToMenu,
+                            modifier = Modifier.widthIn(min = 200.dp)
+                        ) {
+                            Text(stringResource(Res.string.back))
+                        }
                     }
-                    
-                    Button(onClick = onShowRules) {
-                        Text(stringResource(Res.string.rules))
-                    }
-                    
-                    Button(onClick = onBackToMenu) {
-                        Text(stringResource(Res.string.back))
+                } else {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        Button(onClick = onLoadGame) {
+                            Text(stringResource(Res.string.load_game))
+                        }
+                        
+                        Button(onClick = onShowRules) {
+                            Text(stringResource(Res.string.rules))
+                        }
+                        
+                        Button(onClick = onBackToMenu) {
+                            Text(stringResource(Res.string.back))
+                        }
                     }
                 }
                 
-                // Spacer to push editor button to the right
-                Spacer(modifier = Modifier.weight(1f))
+                // Spacer to push editor button to the right (only on desktop/wasm)
+                if (!isPlatformMobile && isEditorAvailable()) {
+                    Spacer(modifier = Modifier.weight(1f))
+                }
                 
                 // Editor Button at the right end (only on desktop/wasm)
                 if (isEditorAvailable()) {

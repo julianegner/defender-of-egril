@@ -99,7 +99,8 @@
     <string name="completed">Completato</string>
     
     <!-- World Map -->
-    <string name="world_map_title">Mappa del mondo - Prati di Egril</string>
+    <string name="world_map_title">Mappa del mondo</string>
+    <string name="world_map_subtitle">Prati di Egril</string>
     <string name="back_to_world_map">Torna alla mappa del mondo</string>
     <string name="play_level">Gioca livello</string>
     <string name="requires_completing">Richiede il completamento di:</string>
@@ -447,6 +448,24 @@
     <string name="sound_enabled">Audio</string>
     <string name="sound_disabled">Silenziato</string>
     <string name="sound_volume">Volume audio</string>
+    <string name="effect_sounds">Effetti sonori</string>
+    <string name="effects_enabled">Effetti attivati</string>
+    <string name="effects_disabled">Effetti disattivati</string>
+    <string name="effects_volume">Volume effetti</string>
+    <string name="background_music">Musica di sottofondo</string>
+    <string name="music_enabled">Musica attivata</string>
+    <string name="music_disabled">Musica disattivata</string>
+    <string name="music_volume">Volume musica</string>
+    <string name="worldmap_music">Musica della mappa del mondo</string>
+    <string name="worldmap_music_enabled">Musica della mappa del mondo attivata</string>
+    <string name="worldmap_music_disabled">Musica della mappa del mondo disattivata</string>
+    <string name="worldmap_music_volume">Volume musica della mappa del mondo</string>
+    <string name="gameplay_music">Musica di gioco</string>
+    <string name="gameplay_music_enabled">Musica di gioco attivata</string>
+    <string name="gameplay_music_disabled">Musica di gioco disattivata</string>
+    <string name="gameplay_music_volume">Volume musica di gioco</string>
+    <string name="show_detailed_sound_settings">Mostra impostazioni sonore dettagliate</string>
+    <string name="hide_detailed_sound_settings">Nascondi impostazioni sonore dettagliate</string>
 
     <!-- Control Pad Settings -->
     <string name="controls">Controlli</string>
