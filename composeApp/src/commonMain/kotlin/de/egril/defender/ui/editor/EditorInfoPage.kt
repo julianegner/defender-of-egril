@@ -164,14 +164,25 @@ private fun FeaturesList(features: String) {
         )
     ) {
         Column(modifier = Modifier.padding(12.dp)) {
-            // Split features by newline and display each as a bullet point
-            features.split("\n").forEach { feature ->
-                if (feature.isNotBlank()) {
+            // Split features by dash separator (since the string has dashes instead of bullet points)
+            // The features string should contain items separated by " - " (space-dash-space)
+            val featureItems = features.split(" - ").filter { it.isNotBlank() }
+            
+            featureItems.forEach { feature ->
+                Row(
+                    modifier = Modifier.padding(bottom = 4.dp),
+                    verticalAlignment = Alignment.Top
+                ) {
                     Text(
-                        text = feature,
+                        text = "•  ",
+                        style = MaterialTheme.typography.bodyMedium,
+                        lineHeight = 20.sp
+                    )
+                    Text(
+                        text = feature.trim(),
                         style = MaterialTheme.typography.bodyMedium,
                         lineHeight = 20.sp,
-                        modifier = Modifier.padding(bottom = 4.dp)
+                        modifier = Modifier.weight(1f)
                     )
                 }
             }
