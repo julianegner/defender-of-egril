@@ -101,6 +101,20 @@ kotlin {
         val wasmJsMain by getting
         val androidMain by getting
         
+        // Create iosMain source set for iOS targets
+        val iosMain by creating {
+            dependsOn(commonMain.get())
+        }
+        
+        // Connect each iOS target's main compilation to iosMain
+        val iosX64Main by getting
+        val iosArm64Main by getting
+        val iosSimulatorArm64Main by getting
+        
+        iosX64Main.dependsOn(iosMain)
+        iosArm64Main.dependsOn(iosMain)
+        iosSimulatorArm64Main.dependsOn(iosMain)
+        
         // Add generated source directory to commonMain
         commonMain {
             kotlin.srcDir(buildConfigOutputDir)
