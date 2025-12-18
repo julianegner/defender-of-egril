@@ -7,7 +7,10 @@ import de.egril.defender.model.*
 /**
  * Handles combat mechanics including single-target, area, and lasting attacks.
  */
-class CombatSystem(private val state: GameState) {
+class CombatSystem(
+    private val state: GameState,
+    private val bridgeSystem: BridgeSystem
+) {
     
     companion object {
         // LASTING damage is applied at half the initial damage per turn
@@ -60,20 +63,23 @@ class CombatSystem(private val state: GameState) {
         val defender = state.defenders.find { it.id == defenderId } ?: return false
 
         // Check if defender can reach the target position
-        val distance = defender.position.distanceTo(targetPosition)
+        val distance = defender.position.value.distanceTo(targetPosition)
         if (distance < defender.type.minRange || distance > defender.range) return false
         if (!defender.isReady || defender.actionsRemaining.value <= 0) return false
         
         // Mark defender as used
         defender.hasBeenUsed.value = true
 
-        // For AOE and DOT attacks, target position must be on the path
+        // For AOE and DOT attacks, target position must be on the path OR a river tile
         if (defender.type.attackType == AttackType.AREA || defender.type.attackType == AttackType.LASTING) {
-            if (!state.level.isOnPath(targetPosition)) return false
+            val isOnPath = state.level.isOnPath(targetPosition)
+            val isOnRiver = state.level.getRiverTile(targetPosition) != null
+            if (!isOnPath && !isOnRiver) return false
         } else {
-            // For single-target attacks, there must be an enemy at the position
+            // For single-target attacks, prioritize enemy over bridge at the same position
             val target = state.attackers.find { it.position.value == targetPosition && !it.isDefeated.value }
-            if (target == null) return false
+            val bridge = state.getBridgeAt(targetPosition)
+            if (target == null && (bridge == null || !bridge.isActive)) return false
         }
 
         // Play attack sound based on attack type
@@ -96,15 +102,31 @@ class CombatSystem(private val state: GameState) {
         // Perform attack based on type
         when (defender.type.attackType) {
             AttackType.MELEE, AttackType.RANGED -> {
-                // Single target attack requires an enemy
+                // Single target attack - prioritize enemy over bridge
                 val target = state.attackers.find { it.position.value == targetPosition && !it.isDefeated.value }
+                
                 if (target != null) {
+                    // Attack enemy (takes priority)
                     singleTargetAttack(defender, target)
                 } else {
-                    return false
+                    // No enemy, attack bridge if present
+                    val bridge = state.getBridgeAt(targetPosition)
+                    if (bridge != null && bridge.isActive) {
+                        bridgeSystem.damageBridge(targetPosition, defender.damage)
+                    } else {
+                        return false
+                    }
                 }
             }
-            AttackType.AREA -> areaAttack(defender, targetPosition)
+            AttackType.AREA -> {
+                // Area attack affects both enemies AND bridges in range
+                areaAttack(defender, targetPosition)
+                // Also damage bridge at target position if present
+                val bridge = state.getBridgeAt(targetPosition)
+                if (bridge != null && bridge.isActive) {
+                    bridgeSystem.damageBridge(targetPosition, defender.damage)
+                }
+            }
             AttackType.LASTING -> lastingAttack(defender, targetPosition)
             AttackType.NONE -> return false  // Mines and special structures can't attack
         }
@@ -136,19 +158,19 @@ class CombatSystem(private val state: GameState) {
                 targetPosition.getHexNeighbors().filter { neighbor ->
                     neighbor.x >= 0 && neighbor.x < state.level.gridWidth &&
                     neighbor.y >= 0 && neighbor.y < state.level.gridHeight &&
-                    state.level.isOnPath(neighbor)
+                    (state.level.isOnPath(neighbor) || state.isBridgeAt(neighbor))
                 }
             )
         } else {
             // Use extended radius for level 20+
             affectedPositions.addAll(
                 targetPosition.getHexNeighborsWithinRadius(radius, state.level.gridWidth, state.level.gridHeight)
-                    .filter { state.level.isOnPath(it) }
+                    .filter { state.level.isOnPath(it) || state.isBridgeAt(it) }
             )
         }
 
-        // Only include target position if it's on the path
-        if (!state.level.isOnPath(targetPosition)) {
+        // Only include target position if it's on the path or a bridge
+        if (!state.level.isOnPath(targetPosition) && !state.isBridgeAt(targetPosition)) {
             affectedPositions.remove(targetPosition)
         }
 
@@ -175,6 +197,14 @@ class CombatSystem(private val state: GameState) {
         // Remove acid effects from affected positions (fire burns away the acid)
         state.fieldEffects.removeAll {
             it.type == FieldEffectType.ACID && it.position in affectedPositions
+        }
+        
+        // Damage all bridges in affected positions
+        affectedPositions.forEach { pos ->
+            val bridge = state.getBridgeAt(pos)
+            if (bridge != null && bridge.isActive) {
+                bridgeSystem.damageBridge(pos, defender.damage)
+            }
         }
 
         // Add new fireball effects (visual only, last for 1 turn to show affected area)
@@ -214,8 +244,8 @@ class CombatSystem(private val state: GameState) {
             )
         }
 
-        // Only include target position if it's on the path
-        if (!state.level.isOnPath(targetPosition)) {
+        // Remove target position only if it's neither on path nor on a bridge
+        if (!state.level.isOnPath(targetPosition) && !state.isBridgeAt(targetPosition)) {
             affectedPositions.remove(targetPosition)
         }
         
@@ -232,7 +262,7 @@ class CombatSystem(private val state: GameState) {
                 // Mark for additional rounds of DOT based on tower level
                 defender.dotRoundsRemaining[target.id] = defender.dotDuration
 
-                if (target.currentHealth.value  <= 0) {
+                if (target.currentHealth.value <= 0) {
                     target.isDefeated.value = true
                 }
             }
@@ -318,8 +348,10 @@ class CombatSystem(private val state: GameState) {
         val defeated = state.attackers.filter { it.isDefeated.value && !state.level.isTargetPosition(it.position.value) }
         for (attacker in defeated) {
             state.coins.value += attacker.type.reward
-            // Play enemy destroyed sound
-            GlobalSoundManager.playSound(SoundEvent.ENEMY_DESTROYED)
+            // Play enemy destroyed sound only if not building a bridge
+            if (!attacker.isBuildingBridge.value) {
+                GlobalSoundManager.playSound(SoundEvent.ENEMY_DESTROYED)
+            }
         }
         state.attackers.removeAll { it.isDefeated.value }
     }

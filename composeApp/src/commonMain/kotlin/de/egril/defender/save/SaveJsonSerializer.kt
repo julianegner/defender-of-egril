@@ -50,6 +50,7 @@ object SaveJsonSerializer {
     fun serializeSavedGame(savedGame: SavedGame): String {
         val defendersJson = savedGame.defenders.joinToString(",\n    ") { defender ->
             val dragonNameStr = if (defender.dragonName != null) "\"${defender.dragonName}\"" else "null"
+            val raftIdStr = defender.raftId?.toString() ?: "null"
             """{
       "id": ${defender.id},
       "type": "${defender.type.name}",
@@ -58,7 +59,8 @@ object SaveJsonSerializer {
       "buildTimeRemaining": ${defender.buildTimeRemaining},
       "placedOnTurn": ${defender.placedOnTurn},
       "actionsRemaining": ${defender.actionsRemaining},
-      "dragonName": $dragonNameStr
+      "dragonName": $dragonNameStr,
+      "raftId": $raftIdStr
     }"""
         }
         
@@ -95,6 +97,14 @@ object SaveJsonSerializer {
       "damage": ${trap.damage},
       "defenderId": ${trap.defenderId},
       "type": "${trap.type}"
+    }"""
+        }
+        
+        val raftsJson = savedGame.rafts.joinToString(",\n    ") { raft ->
+            """{
+      "id": ${raft.id},
+      "defenderId": ${raft.defenderId},
+      "position": {"x": ${raft.position.x}, "y": ${raft.position.y}}
     }"""
         }
         
@@ -138,6 +148,10 @@ object SaveJsonSerializer {
   "traps": [
     $trapsJson
   ],
+  "rafts": [
+    $raftsJson
+  ],
+  "nextRaftId": ${savedGame.nextRaftId},
   "comment": $commentJson,
   "mapId": $mapIdJson
 }"""
@@ -202,12 +216,37 @@ object SaveJsonSerializer {
             
             // Parse traps
             val traps = mutableListOf<SavedTrap>()
-            val trapsSection = json.substringAfter("\"traps\": [").substringBeforeLast("]")
+            val trapsSection = try {
+                json.substringAfter("\"traps\": [").substringBefore("],")
+            } catch (e: Exception) {
+                ""  // Handle old saves without rafts field
+            }
             if (trapsSection.isNotBlank()) {
                 val trapEntries = JsonUtils.splitJsonArray(trapsSection)
                 for (entry in trapEntries) {
                     traps.add(parseSavedTrap(entry))
                 }
+            }
+            
+            // Parse rafts (optional field for backward compatibility with old saves)
+            val rafts = mutableListOf<SavedRaft>()
+            val raftsSection = try {
+                json.substringAfter("\"rafts\": [").substringBefore("],")
+            } catch (e: Exception) {
+                ""  // Old saves don't have rafts
+            }
+            if (raftsSection.isNotBlank()) {
+                val raftEntries = JsonUtils.splitJsonArray(raftsSection)
+                for (entry in raftEntries) {
+                    rafts.add(parseSavedRaft(entry))
+                }
+            }
+            
+            // Parse nextRaftId (optional field for backward compatibility)
+            val nextRaftId = try {
+                JsonUtils.extractValue(json, "nextRaftId").toInt()
+            } catch (e: Exception) {
+                1  // Default to 1 for old saves
             }
             
             // Parse comment (optional field, may not exist in older saves)
@@ -244,7 +283,9 @@ object SaveJsonSerializer {
                 fieldEffects = fieldEffects,
                 traps = traps,
                 comment = comment,
-                mapId = mapId
+                mapId = mapId,
+                rafts = rafts,
+                nextRaftId = nextRaftId
             )
         } catch (e: Exception) {
             println("Error deserializing saved game: ${e.message}")
@@ -274,7 +315,22 @@ object SaveJsonSerializer {
             null
         }
         
-        return SavedDefender(id, type, position, level, buildTimeRemaining, placedOnTurn, actionsRemaining, dragonName)
+        // Backward compatibility: default to null if field doesn't exist in old saves
+        val raftId = try {
+            val value = JsonUtils.extractValue(json, "raftId")
+            if (value == "null") null else value.toIntOrNull()
+        } catch (e: Exception) {
+            null
+        }
+        
+        return SavedDefender(id, type, position, level, buildTimeRemaining, placedOnTurn, actionsRemaining, dragonName, raftId)
+    }
+    
+    private fun parseSavedRaft(json: String): SavedRaft {
+        val id = JsonUtils.extractValue(json, "id").toInt()
+        val defenderId = JsonUtils.extractValue(json, "defenderId").toInt()
+        val position = parsePosition(json)
+        return SavedRaft(id, defenderId, position)
     }
     
     private fun parseSavedAttacker(json: String): SavedAttacker {

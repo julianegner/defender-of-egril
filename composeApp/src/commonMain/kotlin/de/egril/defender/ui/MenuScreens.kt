@@ -48,19 +48,6 @@ fun MainMenuScreen(
                     .padding(8.dp)
             )
             
-            // Settings hint box - positioned below and to the left of settings button
-            // Only show if hint hasn't been shown yet
-            if (!showSettingsHint) {
-                SettingsHintBox(
-                    onDismiss = {
-                        AppSettings.markSettingsHintShown()
-                    },
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(top = 60.dp, end = 8.dp)  // Position below settings button
-                )
-            }
-            
             Column(
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -128,6 +115,20 @@ fun MainMenuScreen(
                     .align(Alignment.BottomStart)
                     .padding(bottom = 8.dp)
             )
+            
+            // Settings hint box - positioned below and to the left of settings button
+            // Only show if hint hasn't been shown yet
+            // MUST be drawn last to appear on top of other elements
+            if (!showSettingsHint) {
+                SettingsHintBox(
+                    onDismiss = {
+                        AppSettings.markSettingsHintShown()
+                    },
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(top = 60.dp, end = 8.dp)  // Position below settings button
+                )
+            }
         }
     }
 }

@@ -88,6 +88,12 @@ fun App() {
                     savedGames = savedGames,
                     onLoadGame = { saveId -> viewModel.loadGame(saveId) },
                     onDeleteGame = { saveId -> viewModel.deleteSavedGame(saveId) },
+                    onDownloadGame = { saveId -> viewModel.downloadSaveGame(saveId) },
+                    onDownloadAll = { viewModel.downloadAllSaveGames() },
+                    onUpload = {
+                        // Trigger refresh of saved games list after upload
+                        viewModel.navigateToLoadGame()
+                    },
                     onBack = { viewModel.navigateToWorldMap() }
                 )
             }
