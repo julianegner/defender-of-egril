@@ -99,7 +99,8 @@
     <string name="completed">Completed</string>
     
     <!-- World Map -->
-    <string name="world_map_title">World Map - Meadows of Egril</string>
+    <string name="world_map_title">World Map</string>
+    <string name="world_map_subtitle">Meadows of Egril</string>
     <string name="back_to_world_map">Back to World Map</string>
     <string name="play_level">Play Level</string>
     <string name="requires_completing">Requires completing:</string>
@@ -447,6 +448,24 @@
     <string name="sound_enabled">Sound</string>
     <string name="sound_disabled">Muted</string>
     <string name="sound_volume">Sound Volume</string>
+    <string name="effect_sounds">Effect Sounds</string>
+    <string name="effects_enabled">Effects Enabled</string>
+    <string name="effects_disabled">Effects Disabled</string>
+    <string name="effects_volume">Effects Volume</string>
+    <string name="background_music">Background Music</string>
+    <string name="music_enabled">Music Enabled</string>
+    <string name="music_disabled">Music Disabled</string>
+    <string name="music_volume">Music Volume</string>
+    <string name="worldmap_music">World Map Music</string>
+    <string name="worldmap_music_enabled">World Map Music Enabled</string>
+    <string name="worldmap_music_disabled">World Map Music Disabled</string>
+    <string name="worldmap_music_volume">World Map Music Volume</string>
+    <string name="gameplay_music">Gameplay Music</string>
+    <string name="gameplay_music_enabled">Gameplay Music Enabled</string>
+    <string name="gameplay_music_disabled">Gameplay Music Disabled</string>
+    <string name="gameplay_music_volume">Gameplay Music Volume</string>
+    <string name="show_detailed_sound_settings">Show Detailed Sound Settings</string>
+    <string name="hide_detailed_sound_settings">Hide Detailed Sound Settings</string>
 
     <!-- Control Pad Settings -->
     <string name="controls">Controls</string>
