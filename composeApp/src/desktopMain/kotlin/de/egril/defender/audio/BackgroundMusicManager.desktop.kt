@@ -33,7 +33,12 @@ class DesktopBackgroundMusicManager : BackgroundMusicManager {
     
     override fun playMusic(music: BackgroundMusic, loop: Boolean, volume: Float) {
         // Check if music should be playing
-        if (!enabled || !AppSettings.isSoundEnabled.value || !AppSettings.isMusicEnabled.value) {
+        val categoryEnabled = when (music) {
+            BackgroundMusic.WORLD_MAP -> AppSettings.isWorldMapMusicEnabled.value
+            BackgroundMusic.GAMEPLAY_NORMAL, BackgroundMusic.GAMEPLAY_LOW_HEALTH -> AppSettings.isGameplayMusicEnabled.value
+        }
+        
+        if (!enabled || !AppSettings.isSoundEnabled.value || !AppSettings.isMusicEnabled.value || !categoryEnabled) {
             stopMusic()
             return
         }
@@ -233,6 +238,18 @@ private class Mp3MusicPlayer(
                 
                 // Keep thread alive while playing
                 while (!shouldStop && manager.enabled && AppSettings.isSoundEnabled.value && AppSettings.isMusicEnabled.value) {
+                    // Check category-specific enabled state
+                    val music = manager.getCurrentMusic()
+                    val categoryEnabled = when (music) {
+                        BackgroundMusic.WORLD_MAP -> AppSettings.isWorldMapMusicEnabled.value
+                        BackgroundMusic.GAMEPLAY_NORMAL, BackgroundMusic.GAMEPLAY_LOW_HEALTH -> AppSettings.isGameplayMusicEnabled.value
+                        null -> false
+                    }
+                    
+                    if (!categoryEnabled) {
+                        break
+                    }
+                    
                     if (audioClip.isRunning) {
                         Thread.sleep(100)
                     } else if (!loop) {
@@ -315,9 +332,16 @@ private class Mp3MusicPlayer(
             // Calculate effective volume including track-specific volume
             val music = manager.getCurrentMusic()
             val trackVolume = if (music != null) BackgroundMusicSettings.getRelativeVolume(music) else 1.0f
-            // Always read from AppSettings to get current value
-            val currentMusicVolume = AppSettings.musicVolume.value
-            val effectiveVolume = (AppSettings.soundVolume.value * currentMusicVolume * trackVolume * 0.3f).coerceIn(0f, 1f)
+            val baseMultiplier = if (music != null) BackgroundMusicSettings.getBaseMultiplier(music) else 0.3f
+            
+            // Get category-specific volume
+            val categoryVolume = when (music) {
+                BackgroundMusic.WORLD_MAP -> AppSettings.worldMapMusicVolume.value
+                BackgroundMusic.GAMEPLAY_NORMAL, BackgroundMusic.GAMEPLAY_LOW_HEALTH -> AppSettings.gameplayMusicVolume.value
+                null -> 1.0f
+            }
+            
+            val effectiveVolume = (AppSettings.soundVolume.value * categoryVolume * trackVolume * baseMultiplier).coerceIn(0f, 1f)
             
             if (audioClip.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
                 val gainControl = audioClip.getControl(FloatControl.Type.MASTER_GAIN) as FloatControl
@@ -332,7 +356,7 @@ private class Mp3MusicPlayer(
                 }
                 
                 gainControl.value = gain
-                println("Set music gain to $gain dB (effectiveVolume=$effectiveVolume, currentMusicVolume=$currentMusicVolume, track=$trackVolume, min=${gainControl.minimum}, max=${gainControl.maximum})")
+                println("Set music gain to $gain dB (effectiveVolume=$effectiveVolume, category=$categoryVolume, track=$trackVolume, base=$baseMultiplier, min=${gainControl.minimum}, max=${gainControl.maximum})")
             } else {
                 println("MASTER_GAIN control not supported for music")
             }
