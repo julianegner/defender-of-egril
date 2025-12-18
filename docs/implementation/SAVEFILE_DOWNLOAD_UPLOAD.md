@@ -50,8 +50,19 @@ interface FileExportImport {
 - Status: ✅ **Fully implemented**
 
 **iOS** (`FileExportImport.ios.kt`)
-- Stub implementation ready for UIDocumentPickerViewController integration
-- Status: ⏳ **Stub implementation**
+- Uses UIActivityViewController for file exports (native iOS share sheet)
+- Uses UIDocumentPickerViewController for file imports
+- Export strategy:
+  - Single files: UIActivityViewController shares temporary file
+  - Multiple files (ZIP): Creates simple concatenated format with markers
+- Import strategy:
+  - UIDocumentPickerViewController with multi-selection support
+  - Accepts JSON and ZIP-like files
+  - Parses simple concatenated format (compatible with export)
+- Limitations:
+  - ZIP format uses simple text concatenation (not true ZIP) to avoid additional dependencies
+  - True ZIP extraction would require Apple Compression framework integration
+- Status: ✅ **Implemented with UIKit interop**
 
 ### SaveFileStorage Extensions
 
@@ -168,8 +179,7 @@ Added `formatTimestampISO()` function for ZIP filenames:
 - ✅ Desktop/JVM: Compiles successfully
 - ✅ Web/WASM: Compiles successfully
 - ✅ Android: Fully implemented with Storage Access Framework
-- ⏳ iOS: Not tested (stub implementation)
-- ⏳ iOS: Not tested (stub implementation)
+- ✅ iOS: Implemented with UIKit (UIActivityViewController + UIDocumentPickerViewController)
 
 ### Manual Testing Required
 The feature requires UI interaction and cannot be fully tested in CI:
@@ -189,8 +199,8 @@ The feature requires UI interaction and cannot be fully tested in CI:
    - Enable ZIP parsing on upload
 
 2. **iOS**:
-   - Implement UIDocumentPickerViewController integration
-   - Handle file permissions properly
+   - Integrate Apple Compression framework for true ZIP support
+   - Consider native file sharing improvements
 
 3. **All Platforms**:
    - Add progress indicator for large file operations
@@ -209,7 +219,7 @@ The feature requires UI interaction and cannot be fully tested in CI:
 
 1. Web/WASM "Download All" creates text file instead of ZIP (limitation of browser environment without ZIP library)
 2. Web/WASM cannot parse uploaded ZIP files (same limitation)
-3. iOS requires platform-specific integration (UIDocumentPickerViewController)
+3. iOS uses simple concatenated format instead of true ZIP (limitation without Apple Compression framework integration)
 
 ## Files Changed
 
@@ -238,10 +248,10 @@ The feature requires UI interaction and cannot be fully tested in CI:
 
 ## Conclusion
 
-The savefile download/upload feature is fully implemented for Desktop and Android with complete ZIP support. Web/WASM has basic functionality with limitations (no ZIP library). iOS has stub implementation ready for platform-specific integration. The feature provides a consistent user experience across platforms with proper localization and error handling.
+The savefile download/upload feature is fully implemented for Desktop, Android, and iOS with appropriate platform-specific implementations. Web/WASM has basic functionality with limitations (no ZIP library). The feature provides a consistent user experience across platforms with proper localization and error handling.
 
 ### Platform Summary
-- ✅ **Desktop/JVM**: Full functionality with JFileChooser
-- ✅ **Android**: Full functionality with Storage Access Framework (SAF)
+- ✅ **Desktop/JVM**: Full functionality with JFileChooser and ZIP support
+- ✅ **Android**: Full functionality with Storage Access Framework (SAF) and ZIP support
+- ✅ **iOS**: Full functionality with UIActivityViewController/UIDocumentPickerViewController (simple concatenated format instead of ZIP)
 - ✅ **Web/WASM**: Basic functionality (JSON only, no ZIP support)
-- ⏳ **iOS**: Stub implementation (needs UIDocumentPickerViewController)
