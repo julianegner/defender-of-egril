@@ -446,6 +446,24 @@
     <string name="sound_enabled">Sonido</string>
     <string name="sound_disabled">Silenciado</string>
     <string name="sound_volume">Volumen del sonido</string>
+    <string name="effect_sounds">Efectos de sonido</string>
+    <string name="effects_enabled">Efectos activados</string>
+    <string name="effects_disabled">Efectos desactivados</string>
+    <string name="effects_volume">Volumen de efectos</string>
+    <string name="background_music">Música de fondo</string>
+    <string name="music_enabled">Música activada</string>
+    <string name="music_disabled">Música desactivada</string>
+    <string name="music_volume">Volumen de música</string>
+    <string name="worldmap_music">Música del mapa mundial</string>
+    <string name="worldmap_music_enabled">Música del mapa mundial activada</string>
+    <string name="worldmap_music_disabled">Música del mapa mundial desactivada</string>
+    <string name="worldmap_music_volume">Volumen de música del mapa mundial</string>
+    <string name="gameplay_music">Música del juego</string>
+    <string name="gameplay_music_enabled">Música del juego activada</string>
+    <string name="gameplay_music_disabled">Música del juego desactivada</string>
+    <string name="gameplay_music_volume">Volumen de música del juego</string>
+    <string name="show_detailed_sound_settings">Mostrar configuración de sonido detallada</string>
+    <string name="hide_detailed_sound_settings">Ocultar configuración de sonido detallada</string>
 
     <!-- Control Pad Settings -->
     <string name="controls">Controles</string>
