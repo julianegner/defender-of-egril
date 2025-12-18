@@ -100,7 +100,8 @@ class WasmBackgroundMusicManager : BackgroundMusicManager {
             audioElement = null
         }
         playing = false
-        currentMusic = null
+        // Don't clear currentMusic to allow re-enabling
+        // currentMusic = null
     }
     
     override fun pauseMusic() {
@@ -148,10 +149,16 @@ class WasmBackgroundMusicManager : BackgroundMusicManager {
         this.enabled = enabled
         AppSettings.saveMusicEnabled(enabled)
         
-        if (!enabled) {
+        if (!enabled || !AppSettings.isSoundEnabled.value) {
             pauseMusic()
-        } else {
-            resumeMusic()
+        } else if (currentMusic != null) {
+            // Try to resume existing music, or restart if needed
+            if (audioElement != null) {
+                resumeMusic()
+            } else {
+                // Restart playback if audioElement was released
+                playMusic(currentMusic!!, loop = true)
+            }
         }
     }
     
