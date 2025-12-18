@@ -32,6 +32,8 @@ Updated `WasmJsFileStorage.fileExists()` to check both:
 **Setup**: 
 1. Clear localStorage
 2. Manually add one map file: `localStorage.setItem("defender-of-egril:gamedata/maps/test.json", "{}")`
+
+**Steps**:
 1. Navigate to World Map screen
 2. **Expected**: "Add New Content" dialog should NOT show all files as new, only missing ones
 3. **Verification**: `fileExists("gamedata")` returns true due to the existing map file
@@ -41,6 +43,8 @@ Updated `WasmJsFileStorage.fileExists()` to check both:
 1. Clear localStorage
 2. Create a file: `localStorage.setItem("defender-of-egril:game", "content")`
 3. Create directory content: `localStorage.setItem("defender-of-egril:gamedata/test.json", "{}")`
+
+**Verification**:
 1. Call `fileExists("game")` → should return true (file exists)
 2. Call `fileExists("gamedata")` → should return true (directory exists)
 3. Call `fileExists("gamedataother")` → should return false (doesn't exist)
