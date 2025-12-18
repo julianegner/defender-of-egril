@@ -167,14 +167,14 @@ fun WorldMapScreen(
                     .fillMaxWidth()
                     .padding(16.dp)
                     .align(Alignment.BottomCenter),
-                horizontalArrangement = Arrangement.Center,
+                horizontalArrangement = if (isPlatformMobile) Arrangement.Start else Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Centered buttons group - Column on mobile, Row on desktop
+                // Left-aligned buttons group on mobile, centered on desktop - Column on mobile, Row on desktop
                 if (isPlatformMobile) {
                     Column(
                         verticalArrangement = Arrangement.spacedBy(8.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                        horizontalAlignment = Alignment.Start
                     ) {
                         Button(
                             onClick = onLoadGame,
