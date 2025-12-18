@@ -50,6 +50,21 @@ fun WorldMapScreen(
     
     val scope = rememberCoroutineScope()
     
+    // Start background music when entering world map
+    LaunchedEffect(Unit) {
+        de.egril.defender.audio.GlobalBackgroundMusicManager.playMusic(
+            de.egril.defender.audio.BackgroundMusic.WORLD_MAP,
+            loop = true
+        )
+    }
+    
+    // Stop background music when leaving world map
+    DisposableEffect(Unit) {
+        onDispose {
+            de.egril.defender.audio.GlobalBackgroundMusicManager.stopMusic()
+        }
+    }
+    
     // Check for new repository data on first load (if enabled)
     LaunchedEffect(checkForNewRepositoryData) {
         if (checkForNewRepositoryData) {

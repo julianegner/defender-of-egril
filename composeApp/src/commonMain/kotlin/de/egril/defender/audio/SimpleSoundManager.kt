@@ -13,15 +13,15 @@ class SimpleSoundManager : SoundManager {
     
     override fun initialize() {
         // Load sound enabled state from settings
-        enabled = AppSettings.isSoundEnabled.value
-        volume = AppSettings.soundVolume.value
+        enabled = AppSettings.isSoundEnabled.value && AppSettings.isEffectsEnabled.value
+        volume = AppSettings.effectsVolume.value
     }
     
     override fun playSound(event: SoundEvent, volume: Float) {
-        if (!enabled || this.volume <= 0f) return
+        if (!enabled || this.volume <= 0f || !AppSettings.isSoundEnabled.value || !AppSettings.isEffectsEnabled.value) return
         
-        // Calculate effective volume
-        val effectiveVolume = (this.volume * volume).coerceIn(0f, 1f)
+        // Calculate effective volume (master * effects * event-specific)
+        val effectiveVolume = (AppSettings.soundVolume.value * this.volume * volume).coerceIn(0f, 1f)
         
         // Map events to tone characteristics (frequency, duration)
         val (frequency, duration) = when (event) {
@@ -66,12 +66,12 @@ class SimpleSoundManager : SoundManager {
     
     override fun setVolume(volume: Float) {
         this.volume = volume.coerceIn(0f, 1f)
-        AppSettings.saveSoundVolume(this.volume)
+        AppSettings.saveEffectsVolume(this.volume)
     }
     
     override fun setEnabled(enabled: Boolean) {
         this.enabled = enabled
-        AppSettings.saveSoundEnabled(enabled)
+        AppSettings.saveEffectsEnabled(enabled)
     }
     
     override fun isEnabled(): Boolean = enabled

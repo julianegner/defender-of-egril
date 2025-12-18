@@ -1,9 +1,38 @@
-# Sound Files for Background Music for Defender of Egril
+# Background Music for Defender of Egril
 
-This directory contains audio files for background music
+This directory contains background music files for the game.
 
+## Required Music Files
+
+The following MP3 files should be placed in this directory:
+
+### World Map Music
+- **File**: `atmosphere-mystic-fantasy-orchestral-music-335263.mp3`
+- **Usage**: Plays in a loop on the world map screen
+- **Description**: Mystic fantasy orchestral music
+
+### Gameplay Music (Normal)
+- **File**: `2021-02-23_-_Fantasy_Ambience_-_David_Fesliyan.mp3`
+- **Usage**: Plays in a loop during normal gameplay
+- **Description**: Fantasy ambience background music
+
+### Gameplay Music (Low Health)
+- **File**: `2017-06-16_-_The_Dark_Castle_-_David_Fesliyan.mp3`
+- **Usage**: Plays when health points drop below 5
+- **Description**: Dark castle music for tense moments
+
+## Audio Settings
+
+Background music can be controlled through the game's Settings dialog:
+
+1. **Overall Sound**: Master on/off switch and volume (affects both effects and music)
+2. **Effect Sounds**: Separate on/off switch and volume for game sound effects
+3. **Background Music**: Separate on/off switch and volume for background music
+
+By default, background music is set to 50% volume (quieter than sound effects at 70%).
+
+# sound files and licenses
 ## sounds from fesliyanstudios.com
-
 
 ### Fantasy Ambience
 2021-02-23_-_Fantasy_Ambience_-_David_Fesliyan.mp3
