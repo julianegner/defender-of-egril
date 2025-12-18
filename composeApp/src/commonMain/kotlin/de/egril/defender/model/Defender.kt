@@ -35,7 +35,7 @@ enum class AttackType(val displayName: String ) {
 data class Defender(
     val id: Int,
     val type: DefenderType,
-    val position: Position,
+    val position: MutableState<Position>,  // Changed to MutableState to support raft movement
     val level: MutableState<Int> = mutableStateOf(1),
     var dotRoundsRemaining: MutableMap<Int, Int> = mutableMapOf(), // attackerId -> rounds
     val buildTimeRemaining: MutableState<Int> = mutableStateOf(0),  // 0 = ready to use
@@ -52,7 +52,9 @@ data class Defender(
     // Wizard tower trap-specific properties
     val trapCooldownRemaining: MutableState<Int> = mutableStateOf(0),  // Turns until wizard can place another magical trap (level 10+)
     val hasShownMagicalTrapTutorial: MutableState<Boolean> = mutableStateOf(false),  // Track if tutorial was shown for this wizard
-    val hasShownExtendedAreaTutorial: MutableState<Boolean> = mutableStateOf(false)  // Track if extended area tutorial was shown (level 20+)
+    val hasShownExtendedAreaTutorial: MutableState<Boolean> = mutableStateOf(false),  // Track if extended area tutorial was shown (level 20+)
+    // Raft-specific properties
+    val raftId: MutableState<Int?> = mutableStateOf(null)  // ID of the raft this tower is on (null if not on raft)
 ) {
     val damage: Int get() = type.baseDamage + (level.value - 1) * 5
     val range: Int get() {
@@ -140,7 +142,7 @@ data class Defender(
     
     fun canAttack(attacker: Attacker): Boolean {
         if (!isReady || actionsRemaining.value <= 0 || isDisabled.value) return false
-        val distance = position.distanceTo(attacker.position.value)
+        val distance = position.value.distanceTo(attacker.position.value)
         // Check both minimum and maximum range
         return distance >= type.minRange && distance <= range
     }

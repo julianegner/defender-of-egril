@@ -113,7 +113,7 @@ class NewEnemiesTest {
         val tower = Defender(
             id = 1,
             type = DefenderType.SPIKE_TOWER,
-            position = Position(0, 0),
+            position = mutableStateOf(Position(0, 0)),
             level = mutableStateOf(5),
             buildTimeRemaining = mutableStateOf(0)
         )

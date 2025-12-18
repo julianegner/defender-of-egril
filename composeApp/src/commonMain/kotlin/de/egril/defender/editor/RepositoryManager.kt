@@ -100,7 +100,9 @@ object RepositoryManager {
     data class NewRepositoryData(
         val newMaps: List<String>,
         val newLevels: List<String>,
-        val hasNewSequence: Boolean
+        val hasNewSequence: Boolean,
+        val hasNewWorldMap: Boolean,
+        val worldMapData: WorldMapData? = null  // Cache the loaded worldmap data to avoid redundant loading
     )
     
     /**
@@ -135,7 +137,9 @@ object RepositoryManager {
                 return NewRepositoryData(
                     newMaps = mapIds.toList(),
                     newLevels = levelIds,
-                    hasNewSequence = true
+                    hasNewSequence = true,
+                    hasNewWorldMap = true,
+                    worldMapData = null  // Not loaded when gamedata doesn't exist
                 )
             }
             
@@ -181,17 +185,29 @@ object RepositoryManager {
             val hasNewSequence = currentSequence == null || 
                 currentSequence.sequence != repoSequence.sequence
             
+            // Check if worldmap is different
+            val currentWorldMapJson = fileStorage.readFile("$GAMEDATA_DIR/worldmap.json")
+            val repoWorldMapData = RepositoryLoader.loadWorldMapData()
+            val hasNewWorldMap = if (repoWorldMapData != null) {
+                val currentWorldMapData = currentWorldMapJson?.let { EditorJsonSerializer.deserializeWorldMapData(it) }
+                currentWorldMapData == null || currentWorldMapData != repoWorldMapData
+            } else {
+                false
+            }
+            
             // Return null if no new files found
-            if (newMaps.isEmpty() && newLevels.isEmpty() && !hasNewSequence) {
+            if (newMaps.isEmpty() && newLevels.isEmpty() && !hasNewSequence && !hasNewWorldMap) {
                 println("No new repository files detected")
                 return null
             }
             
-            println("Detected new repository files: ${newMaps.size} maps, ${newLevels.size} levels, sequence changed: $hasNewSequence")
+            println("Detected new repository files: ${newMaps.size} maps, ${newLevels.size} levels, sequence changed: $hasNewSequence, worldmap changed: $hasNewWorldMap")
             return NewRepositoryData(
                 newMaps = newMaps.toList(),
                 newLevels = newLevels,
-                hasNewSequence = hasNewSequence
+                hasNewSequence = hasNewSequence,
+                hasNewWorldMap = hasNewWorldMap,
+                worldMapData = repoWorldMapData  // Cache the loaded worldmap data
             )
         } catch (e: Exception) {
             println("Error detecting new repository files: ${e.message}")
@@ -204,8 +220,10 @@ object RepositoryManager {
      * Sync new files from repository to gamedata.
      * This will:
      * 1. Backup current sequence file to sequence-N.json (if it exists)
-     * 2. Add new map and level files from repository
-     * 3. Replace sequence file with repository version
+     * 2. Backup current worldmap file to worldmap-N.json (if it exists)
+     * 3. Add new map and level files from repository
+     * 4. Replace sequence file with repository version
+     * 5. Replace worldmap file with repository version
      * 
      * @return true if sync was successful
      */
@@ -238,6 +256,21 @@ object RepositoryManager {
                 }
             }
             
+            // Backup worldmap file if it exists and there's a new worldmap
+            if (newData.hasNewWorldMap && fileStorage.fileExists("$GAMEDATA_DIR/worldmap.json")) {
+                val worldmapBackupName = findNextWorldmapBackupName()
+                if (worldmapBackupName != null) {
+                    val worldmapContent = fileStorage.readFile("$GAMEDATA_DIR/worldmap.json")
+                    if (worldmapContent != null) {
+                        fileStorage.writeFile("$GAMEDATA_DIR/$worldmapBackupName", worldmapContent)
+                        println("Backed up worldmap to $worldmapBackupName")
+                    }
+                } else {
+                    println("Warning: Could not backup worldmap file - maximum backups reached")
+                    // Continue anyway, but log the warning
+                }
+            }
+            
             // Load and save new maps
             for (mapId in newData.newMaps) {
                 val map = RepositoryLoader.loadMap(mapId)
@@ -265,6 +298,28 @@ object RepositoryManager {
                     val sequenceJson = EditorJsonSerializer.serializeSequence(sequence)
                     fileStorage.writeFile("$GAMEDATA_DIR/sequence.json", sequenceJson)
                     println("Updated sequence file")
+                }
+            }
+            
+            // Replace worldmap file with repository version
+            if (newData.hasNewWorldMap) {
+                // Use cached worldmap data if available, otherwise load it
+                val worldMapData = newData.worldMapData
+                if (worldMapData != null) {
+                    val worldMapJson = EditorJsonSerializer.serializeWorldMapData(worldMapData)
+                    fileStorage.writeFile("$GAMEDATA_DIR/worldmap.json", worldMapJson)
+                    println("Updated worldmap file")
+                } else {
+                    // This should not happen - if hasNewWorldMap is true, worldMapData should be cached
+                    println("Warning: worldmap data not cached, attempting to load from repository")
+                    val loadedWorldMapData = RepositoryLoader.loadWorldMapData()
+                    if (loadedWorldMapData != null) {
+                        val worldMapJson = EditorJsonSerializer.serializeWorldMapData(loadedWorldMapData)
+                        fileStorage.writeFile("$GAMEDATA_DIR/worldmap.json", worldMapJson)
+                        println("Updated worldmap file (loaded from repository)")
+                    } else {
+                        println("Error: Could not load worldmap from repository")
+                    }
                 }
             }
             
@@ -300,6 +355,24 @@ object RepositoryManager {
             "sequence-$counter.json"
         } else {
             println("Warning: Maximum number of sequence backups ($maxBackups) reached")
+            null
+        }
+    }
+    
+    /**
+     * Find the next available worldmap backup name (worldmap-1.json, worldmap-2.json, etc.)
+     * @return The backup filename, or null if maximum backups reached
+     */
+    private fun findNextWorldmapBackupName(): String? {
+        var counter = 1
+        val maxBackups = 999  // Safety limit to prevent infinite loop
+        while (counter <= maxBackups && fileStorage.fileExists("$GAMEDATA_DIR/worldmap-$counter.json")) {
+            counter++
+        }
+        return if (counter <= maxBackups) {
+            "worldmap-$counter.json"
+        } else {
+            println("Warning: Maximum number of worldmap backups ($maxBackups) reached")
             null
         }
     }

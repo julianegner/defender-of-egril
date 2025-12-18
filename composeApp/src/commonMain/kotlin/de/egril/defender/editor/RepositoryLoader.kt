@@ -168,12 +168,14 @@ object RepositoryLoader {
             storage.writeFile("gamedata/sequence.json", sequenceJson)
             println("Saved sequence")
             
-            // Load and save world map data if it exists
+            // Load and save world map data from repository
             val worldMapData = loadWorldMapData()
             if (worldMapData != null) {
                 val worldMapJson = EditorJsonSerializer.serializeWorldMapData(worldMapData)
                 storage.writeFile("gamedata/worldmap.json", worldMapJson)
-                println("Loaded and saved worldmap.json")
+                println("Loaded and saved worldmap.json from repository")
+            } else {
+                println("No worldmap.json in repository, skipping")
             }
             
             // Save version file

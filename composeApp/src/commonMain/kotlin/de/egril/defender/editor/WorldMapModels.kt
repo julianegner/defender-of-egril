@@ -41,6 +41,14 @@ data class WorldMapPoint(
 }
 
 /**
+ * Type of connection between locations on the world map
+ */
+enum class ConnectionType {
+    ROAD,       // Land route - displayed as light brown curved line
+    SEA_ROUTE   // Sea route - displayed as dark blue dashed curved line
+}
+
+/**
  * A location on the world map that can contain multiple levels.
  * The location is only visible if at least one of its levels is ready to play.
  */
@@ -55,12 +63,35 @@ data class WorldMapLocationData(
  * A path between two locations on the world map.
  * The path can be a straight line (empty controlPoints) or a curve (with control points).
  * Paths remain visible even when source/destination locations are hidden.
+ * 
+ * For mixed-type paths (partly road, partly sea), use segmentTypes to specify the type for each segment.
+ * A segment is the portion between consecutive points:
+ * - Segment 0: fromLocation to first waypoint (or toLocation if no waypoints)
+ * - Segment 1: first waypoint to second waypoint
+ * - Segment N: last waypoint to toLocation
  */
 data class WorldMapPathData(
     val fromLocationId: String,          // Source location ID
     val toLocationId: String,            // Destination location ID
-    val controlPoints: List<WorldMapPoint> = emptyList()  // Optional control points for curved paths
+    val controlPoints: List<WorldMapPoint> = emptyList(),  // Optional control points for curved paths
+    val type: ConnectionType = ConnectionType.ROAD,  // Default type for entire path (used when segmentTypes is empty)
+    val segmentTypes: List<ConnectionType> = emptyList()  // Optional per-segment types for mixed paths
 ) {
+    /**
+     * Get the connection type for a specific segment index.
+     * If segmentTypes is empty or too short, returns the default type.
+     */
+    fun getSegmentType(segmentIndex: Int): ConnectionType {
+        return segmentTypes.getOrNull(segmentIndex) ?: type
+    }
+    
+    /**
+     * Get the number of segments in this path.
+     * A path with N waypoints has N+1 segments.
+     */
+    fun getSegmentCount(): Int {
+        return controlPoints.size + 1
+    }
     /**
      * Check if this path represents a valid connection based on level prerequisites.
      * A path is valid if any level at the destination has a prerequisite at the source.
@@ -133,5 +164,21 @@ data class WorldMapData(
      */
     fun getPathsForLocation(locationId: String): List<WorldMapPathData> {
         return paths.filter { it.fromLocationId == locationId || it.toLocationId == locationId }
+    }
+    
+    /**
+     * Check if a location has any level whose prerequisites are not fulfilled by other levels at that location.
+     * This indicates a potential configuration issue in the editor.
+     */
+    fun hasLocationWithUnfulfilledPrerequisites(locationId: String, levels: List<EditorLevel>): Boolean {
+        val location = findLocation(locationId) ?: return false
+        val levelIdsAtLocation = location.levelIds.toSet()
+        
+        // Check if any level at this location has prerequisites not in the same location
+        return location.levelIds.any { levelId ->
+            val level = levels.find { it.id == levelId }
+            val prerequisites = level?.prerequisites ?: emptyList()
+            prerequisites.isNotEmpty() && !prerequisites.all { it in levelIdsAtLocation }
+        }
     }
 }

@@ -80,4 +80,23 @@ class RepositoryLoaderTest {
         // Don't fail the test if resources aren't available
         // The functionality will work in the actual app
     }
+    
+    @Test
+    fun testLoadWorldMapDataFromRepository() = runBlocking {
+        // This test verifies that the worldmap data can be loaded from repository
+        // Note: May not work in Android unit tests
+        val worldMapData = RepositoryLoader.loadWorldMapData()
+        
+        // If worldMapData is null, it means resources aren't available in this test environment (acceptable)
+        if (worldMapData != null) {
+            assertTrue(worldMapData.locations.isNotEmpty(), "WorldMapData should have locations")
+            // Check for some known locations from the repository worldmap.json
+            val locationIds = worldMapData.locations.map { it.id }
+            assertTrue(locationIds.contains("tutorial"), "WorldMapData should contain tutorial location")
+            assertTrue(locationIds.contains("the_beginning"), "WorldMapData should contain the_beginning location")
+            println("Repository loader test passed: worldmap data loaded successfully with ${worldMapData.locations.size} locations")
+        } else {
+            println("Repository loader test skipped: worldmap resources not available in test environment")
+        }
+    }
 }
