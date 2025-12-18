@@ -692,4 +692,33 @@
     <string name="from">Desde:</string>
     <string name="to">Hasta:</string>
     <string name="connection_type">Tipo de conexión:</string>
+    
+    <!-- Editor Info Page -->
+    <string name="info">Info</string>
+    <string name="editor_info_title">Guía del Editor de Niveles</string>
+    <string name="editor_info_intro">¡Bienvenido al Editor de Niveles! Esta herramienta te permite crear mapas personalizados, niveles y secuencias de niveles para Defender of Egril.</string>
+    <string name="editor_info_workflow_title">Primeros Pasos</string>
+    <string name="editor_info_workflow_text">Para agregar nuevos niveles al juego: Primero, selecciona o crea un mapa en el Editor de Mapas. Luego, crea un nivel usando ese mapa en el Editor de Niveles. Finalmente, vincula el nivel en el Mapa Mundial para hacerlo visible y jugable en el juego.</string>
+    <string name="editor_info_copy_hint">Puedes copiar mapas y niveles existentes y adaptarlos para crear contenido nuevo rápidamente. Esta es una excelente manera de aprender e iterar sobre tus diseños.</string>
+    <string name="editor_info_restore_hint">El botón Restaurar Datos del Juego en Configuración restaura los datos del juego desde el propio repositorio del juego (almacenado localmente, no en línea). Cuando uses esta función, tu versión anterior con cualquier cambio de usuario se guardará con un nuevo nombre en la misma carpeta, por lo que tu trabajo se conserva.</string>
+    <string name="editor_info_file_location_title">Ubicación de Almacenamiento de Archivos</string>
+    <string name="editor_info_file_location_text">Todos los datos del editor se almacenan en formato JSON en tu sistema de archivos local:</string>
+    <string name="editor_info_file_location_linux_mac">Linux/Mac: ~/.defender-of-egril/gamedata/</string>
+    <string name="editor_info_file_location_windows">Windows: %%USERPROFILE%%\\.defender-of-egril\\gamedata\\</string>
+    <string name="editor_info_directory_structure_title">Estructura de Directorios</string>
+    <string name="editor_info_directory_structure_text">maps/ - Contiene todas las definiciones de mapas - levels/ - Contiene todas las definiciones de niveles - sequence.json - Define el orden de niveles - worldmap.json - Define las posiciones del mapa mundial</string>
+    <string name="editor_info_map_editor_title">Editor de Mapas</string>
+    <string name="editor_info_map_editor_text">El Editor de Mapas te permite crear el diseño de cuadrícula para tus niveles. Los mapas definen la cuadrícula hexagonal, puntos de generación, caminos y áreas de construcción donde se pueden colocar torres.</string>
+    <string name="editor_info_map_editor_features">Seleccionar y colocar tipos de casillas (PATH, BUILD_AREA, ISLAND, NO_PLAY, SPAWN_POINT, TARGET, RIVER) - Pintar casillas haciendo clic o arrastrando - Configurar propiedades de río (dirección y velocidad de flujo) - Hacer zoom con Ctrl+Rueda o botones de zoom - Contraer el encabezado para más espacio de edición - Cambiar todas las casillas NO_PLAY a PATH de una vez</string>
+    <string name="editor_info_level_editor_title">Editor de Niveles</string>
+    <string name="editor_info_level_editor_text">El Editor de Niveles te permite crear niveles de juego utilizando mapas existentes. Cada nivel hace referencia a un mapa y define los enemigos, recursos y torres disponibles.</string>
+    <string name="editor_info_level_editor_features">Seleccionar un mapa para tu nivel - Establecer monedas iniciales y puntos de salud - Configurar apariciones de enemigos por turno - Elegir qué tipos de torres están disponibles - Agregar puntos de generación y puntos de ruta - Configurar restricciones de torres y reglas especiales</string>
+    <string name="editor_info_level_sequence_title">Secuencia de Niveles</string>
+    <string name="editor_info_level_sequence_text">La pestaña de Secuencia de Niveles te permite organizar los niveles en el orden en que aparecen en el juego. Esto define la progresión y la curva de dificultad.</string>
+    <string name="editor_info_level_sequence_features">Arrastrar y soltar niveles para reordenar - Usar los botones ↑ y ↓ para mover niveles - Agregar niveles a la secuencia - Eliminar niveles de la secuencia - Establecer dependencias de niveles</string>
+    <string name="editor_info_world_map_title">Posiciones del Mapa Mundial</string>
+    <string name="editor_info_world_map_text">La pestaña de Posiciones del Mapa Mundial te permite definir dónde aparecen los niveles en el mapa mundial y cómo están conectados.</string>
+    <string name="editor_info_world_map_features">Establecer coordenadas X/Y para cada nivel - Crear conexiones entre niveles (camino o mar) - Conectar automáticamente niveles según dependencias - Configurar estilos visuales de conexión - Definir puntos de ruta para caminos de conexión</string>
+    <string name="editor_info_tips_title">Consejos</string>
+    <string name="editor_info_tips_text">Guarda frecuentemente para evitar perder trabajo - Prueba tus niveles en el juego para asegurarte de que estén balanceados - Usa los niveles existentes como plantillas - Los mapas pueden reutilizarse en múltiples niveles - La secuencia determina qué niveles son jugables</string>
 </resources>
