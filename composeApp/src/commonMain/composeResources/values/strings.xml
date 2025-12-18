@@ -99,7 +99,8 @@
     <string name="completed">Completed</string>
     
     <!-- World Map -->
-    <string name="world_map_title">World Map - Meadows of Egril</string>
+    <string name="world_map_title">World Map</string>
+    <string name="world_map_subtitle">Meadows of Egril</string>
     <string name="back_to_world_map">Back to World Map</string>
     <string name="play_level">Play Level</string>
     <string name="requires_completing">Requires completing:</string>

@@ -99,7 +99,8 @@
     <string name="completed">Abgeschlossen</string>
     
     <!-- World Map -->
-    <string name="world_map_title">Weltkarte - Wiesen von Egril</string>
+    <string name="world_map_title">Weltkarte</string>
+    <string name="world_map_subtitle">Wiesen von Egril</string>
     <string name="back_to_world_map">Zurück zur Weltkarte</string>
     <string name="play_level">Level spielen</string>
     <string name="requires_completing">Erfordert Abschluss von:</string>
