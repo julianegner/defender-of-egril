@@ -199,9 +199,20 @@ fun SettingsDialog(
                         uncheckedText = stringResource(Res.string.sound),
                         onCheckedChange = { enabled ->
                             AppSettings.saveSoundEnabled(enabled)
-                            // Update background music and sound managers
+                            // Only control playback, don't change child toggle states
+                            // Sound effects are controlled by both master AND effects toggle
                             de.egril.defender.audio.GlobalSoundManager.getInstance()?.setEnabled(enabled && AppSettings.isEffectsEnabled.value)
-                            de.egril.defender.audio.GlobalBackgroundMusicManager.setEnabled(enabled && AppSettings.isMusicEnabled.value)
+                            // Background music controlled by master AND music toggle
+                            // Category-specific logic handled in BackgroundMusicManager.playMusic()
+                            if (enabled && AppSettings.isMusicEnabled.value) {
+                                // Restart current music if it was playing before
+                                val currentMusic = de.egril.defender.audio.GlobalBackgroundMusicManager.getCurrentMusic()
+                                if (currentMusic != null) {
+                                    de.egril.defender.audio.GlobalBackgroundMusicManager.playMusic(currentMusic, loop = true)
+                                }
+                            } else {
+                                de.egril.defender.audio.GlobalBackgroundMusicManager.stopMusic()
+                            }
                         },
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -332,7 +343,16 @@ fun SettingsDialog(
                                     uncheckedText = stringResource(Res.string.music_disabled),
                                     onCheckedChange = { enabled ->
                                         AppSettings.saveMusicEnabled(enabled)
-                                        de.egril.defender.audio.GlobalBackgroundMusicManager.setEnabled(enabled && AppSettings.isSoundEnabled.value)
+                                        // Only control playback, don't change child toggle states
+                                        if (enabled && AppSettings.isSoundEnabled.value) {
+                                            // Restart current music if it was playing before
+                                            val currentMusic = de.egril.defender.audio.GlobalBackgroundMusicManager.getCurrentMusic()
+                                            if (currentMusic != null) {
+                                                de.egril.defender.audio.GlobalBackgroundMusicManager.playMusic(currentMusic, loop = true)
+                                            }
+                                        } else {
+                                            de.egril.defender.audio.GlobalBackgroundMusicManager.stopMusic()
+                                        }
                                     },
                                     modifier = Modifier.fillMaxWidth()
                                 )
@@ -355,10 +375,10 @@ fun SettingsDialog(
                                             uncheckedText = stringResource(Res.string.worldmap_music_disabled),
                                             onCheckedChange = { enabled ->
                                                 AppSettings.saveWorldMapMusicEnabled(enabled)
-                                                // Restart world map music if currently playing
-                                                val currentMusic = de.egril.defender.audio.GlobalBackgroundMusicManager.getInstance()?.getCurrentMusic()
+                                                // Always restart world map music if we're on the world map screen
+                                                val currentMusic = de.egril.defender.audio.GlobalBackgroundMusicManager.getCurrentMusic()
                                                 if (currentMusic == de.egril.defender.audio.BackgroundMusic.WORLD_MAP) {
-                                                    if (enabled) {
+                                                    if (enabled && AppSettings.isSoundEnabled.value && AppSettings.isMusicEnabled.value) {
                                                         de.egril.defender.audio.GlobalBackgroundMusicManager.playMusic(
                                                             de.egril.defender.audio.BackgroundMusic.WORLD_MAP,
                                                             loop = true
@@ -391,7 +411,7 @@ fun SettingsDialog(
                                                     onValueChange = { volume ->
                                                         AppSettings.saveWorldMapMusicVolume(volume)
                                                         // Update volume if world map music is playing
-                                                        val currentMusic = de.egril.defender.audio.GlobalBackgroundMusicManager.getInstance()?.getCurrentMusic()
+                                                        val currentMusic = de.egril.defender.audio.GlobalBackgroundMusicManager.getCurrentMusic()
                                                         if (currentMusic == de.egril.defender.audio.BackgroundMusic.WORLD_MAP) {
                                                             de.egril.defender.audio.GlobalBackgroundMusicManager.playMusic(
                                                                 de.egril.defender.audio.BackgroundMusic.WORLD_MAP,
@@ -429,11 +449,11 @@ fun SettingsDialog(
                                             uncheckedText = stringResource(Res.string.gameplay_music_disabled),
                                             onCheckedChange = { enabled ->
                                                 AppSettings.saveGameplayMusicEnabled(enabled)
-                                                // Restart gameplay music if currently playing
-                                                val currentMusic = de.egril.defender.audio.GlobalBackgroundMusicManager.getInstance()?.getCurrentMusic()
+                                                // Always restart gameplay music if we're in a level
+                                                val currentMusic = de.egril.defender.audio.GlobalBackgroundMusicManager.getCurrentMusic()
                                                 if (currentMusic == de.egril.defender.audio.BackgroundMusic.GAMEPLAY_NORMAL || 
                                                     currentMusic == de.egril.defender.audio.BackgroundMusic.GAMEPLAY_LOW_HEALTH) {
-                                                    if (enabled) {
+                                                    if (enabled && AppSettings.isSoundEnabled.value && AppSettings.isMusicEnabled.value) {
                                                         de.egril.defender.audio.GlobalBackgroundMusicManager.playMusic(
                                                             currentMusic,
                                                             loop = true
@@ -466,7 +486,7 @@ fun SettingsDialog(
                                                     onValueChange = { volume ->
                                                         AppSettings.saveGameplayMusicVolume(volume)
                                                         // Update volume if gameplay music is playing
-                                                        val currentMusic = de.egril.defender.audio.GlobalBackgroundMusicManager.getInstance()?.getCurrentMusic()
+                                                        val currentMusic = de.egril.defender.audio.GlobalBackgroundMusicManager.getCurrentMusic()
                                                         if (currentMusic == de.egril.defender.audio.BackgroundMusic.GAMEPLAY_NORMAL || 
                                                             currentMusic == de.egril.defender.audio.BackgroundMusic.GAMEPLAY_LOW_HEALTH) {
                                                             de.egril.defender.audio.GlobalBackgroundMusicManager.playMusic(
