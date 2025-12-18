@@ -306,7 +306,9 @@ private class Mp3MusicPlayer(
             // Calculate effective volume including track-specific volume
             val music = manager.getCurrentMusic()
             val trackVolume = if (music != null) BackgroundMusicSettings.getRelativeVolume(music) else 1.0f
-            val effectiveVolume = (AppSettings.soundVolume.value * vol * trackVolume * 0.3f).coerceIn(0f, 1f)
+            // Always read from AppSettings to get current value
+            val currentMusicVolume = AppSettings.musicVolume.value
+            val effectiveVolume = (AppSettings.soundVolume.value * currentMusicVolume * trackVolume * 0.3f).coerceIn(0f, 1f)
             
             if (audioClip.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
                 val gainControl = audioClip.getControl(FloatControl.Type.MASTER_GAIN) as FloatControl
@@ -321,7 +323,7 @@ private class Mp3MusicPlayer(
                 }
                 
                 gainControl.value = gain
-                println("Set music gain to $gain dB (effectiveVolume=$effectiveVolume, vol=$vol, track=$trackVolume, min=${gainControl.minimum}, max=${gainControl.maximum})")
+                println("Set music gain to $gain dB (effectiveVolume=$effectiveVolume, currentMusicVolume=$currentMusicVolume, track=$trackVolume, min=${gainControl.minimum}, max=${gainControl.maximum})")
             } else {
                 println("MASTER_GAIN control not supported for music")
             }
