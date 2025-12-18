@@ -9,6 +9,8 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import org.w3c.dom.HTMLAnchorElement
 import org.w3c.dom.HTMLInputElement
 import org.w3c.dom.url.URL
+import org.khronos.webgl.ArrayBuffer
+import org.khronos.webgl.Uint8Array
 import org.w3c.files.Blob
 import org.w3c.files.BlobPropertyBag
 import org.w3c.files.File
@@ -112,33 +114,96 @@ class WasmJsFileExportImport : FileExportImport {
                     for (i in 0 until total) {
                         val file = files.item(i)
                         if (file != null) {
-                            val reader = FileReader()
-                            reader.onload = {
-                                val content = reader.result as String
-                                val filename = file.name
-                                
-                                if (filename.endsWith(".json", ignoreCase = true)) {
-                                    importedFiles.add(ImportedFile(filename, content))
+                            val filename = file.name
+                            
+                            when {
+                                filename.endsWith(".json", ignoreCase = true) -> {
+                                    // Read JSON file as text
+                                    val reader = FileReader()
+                                    reader.onload = {
+                                        try {
+                                            val content = reader.result as String
+                                            importedFiles.add(ImportedFile(filename, content))
+                                        } catch (e: Exception) {
+                                            println("Error reading JSON file $filename: ${e.message}")
+                                        }
+                                        processed++
+                                        if (processed == total) {
+                                            document.body?.removeChild(input)
+                                            continuation.resume(importedFiles)
+                                        }
+                                    }
+                                    reader.onerror = {
+                                        println("Error reading file $filename")
+                                        processed++
+                                        if (processed == total) {
+                                            document.body?.removeChild(input)
+                                            continuation.resume(importedFiles)
+                                        }
+                                    }
+                                    reader.readAsText(file)
                                 }
-                                // For ZIP files, we'd need to parse them
-                                // For now, we skip ZIP handling in browser
-                                
-                                processed++
-                                if (processed == total) {
-                                    document.body?.removeChild(input)
-                                    continuation.resume(importedFiles)
+                                filename.endsWith(".zip", ignoreCase = true) -> {
+                                    // Read ZIP file as binary
+                                    val reader = FileReader()
+                                    reader.onload = {
+                                        try {
+                                            val arrayBuffer = reader.result as ArrayBuffer
+                                            val uint8Array = Uint8Array(arrayBuffer)
+                                            val byteArray = uint8Array.toByteArray()
+                                            
+                                            // Parse ZIP file
+                                            val zipReader = ZipReader(byteArray)
+                                            val entries = zipReader.extractAll()
+                                            
+                                            // Add all JSON files from the ZIP
+                                            entries.forEach { entry ->
+                                                if (entry.filename.endsWith(".json", ignoreCase = true)) {
+                                                    val content = entry.content.decodeToString()
+                                                    // Use only the filename without path
+                                                    val entryFilename = entry.filename
+                                                        .replace('\\', '/')
+                                                        .substringAfterLast('/')
+                                                        .takeIf { it.isNotEmpty() } ?: "unknown.json"
+                                                    importedFiles.add(ImportedFile(entryFilename, content))
+                                                }
+                                            }
+                                        } catch (e: Exception) {
+                                            println("Error parsing ZIP file $filename: ${e.message}")
+                                            e.printStackTrace()
+                                        }
+                                        processed++
+                                        if (processed == total) {
+                                            document.body?.removeChild(input)
+                                            continuation.resume(importedFiles)
+                                        }
+                                    }
+                                    reader.onerror = {
+                                        println("Error reading ZIP file $filename")
+                                        processed++
+                                        if (processed == total) {
+                                            document.body?.removeChild(input)
+                                            continuation.resume(importedFiles)
+                                        }
+                                    }
+                                    reader.readAsArrayBuffer(file)
+                                }
+                                else -> {
+                                    // Unsupported file type
+                                    println("Skipping unsupported file: $filename")
+                                    processed++
+                                    if (processed == total) {
+                                        document.body?.removeChild(input)
+                                        continuation.resume(importedFiles)
+                                    }
                                 }
                             }
-                            reader.onerror = {
-                                processed++
-                                if (processed == total) {
-                                    document.body?.removeChild(input)
-                                    continuation.resume(importedFiles)
-                                }
-                            }
-                            reader.readAsText(file)
                         } else {
                             processed++
+                            if (processed == total) {
+                                document.body?.removeChild(input)
+                                continuation.resume(importedFiles)
+                            }
                         }
                     }
                 } else {
