@@ -3,11 +3,14 @@ package de.egril.defender.audio
 import android.content.Context
 import android.media.MediaPlayer
 import de.egril.defender.ui.settings.AppSettings
+import defender_of_egril.composeapp.generated.resources.Res
 import kotlinx.coroutines.*
+import java.io.File
+import java.io.FileOutputStream
 
 /**
  * Android implementation of background music manager
- * Uses MediaPlayer for music playback
+ * Uses MediaPlayer for music playback with files loaded from compose multiplatform resources
  */
 class AndroidBackgroundMusicManager(private val context: Context) : BackgroundMusicManager {
     private var enabled = true
@@ -15,6 +18,10 @@ class AndroidBackgroundMusicManager(private val context: Context) : BackgroundMu
     private var currentMusic: BackgroundMusic? = null
     private var mediaPlayer: MediaPlayer? = null
     private var playing = false
+    private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
+    
+    // Cache for temporary music files
+    private val musicFileCache = mutableMapOf<BackgroundMusic, File>()
     
     override fun initialize() {
         enabled = AppSettings.isMusicEnabled.value
@@ -38,67 +45,86 @@ class AndroidBackgroundMusicManager(private val context: Context) : BackgroundMu
             stopMusic()
             currentMusic = music
             
-            try {
-                // Map music enum to resource ID (placeholder - need actual resources)
-                val resourceId = when (music) {
-                    BackgroundMusic.WORLD_MAP -> {
-                        // Will need to add to res/raw or use compose resources
-                        getResourceId("atmosphere_mystic_fantasy_orchestral_music_335263")
-                    }
-                    BackgroundMusic.GAMEPLAY_NORMAL -> {
-                        getResourceId("fantasy_ambience_david_fesliyan")
-                    }
-                    BackgroundMusic.GAMEPLAY_LOW_HEALTH -> {
-                        getResourceId("the_dark_castle_david_fesliyan")
-                    }
-                }
-                
-                if (resourceId == 0) {
-                    println("Background music resource not found for: ${music.name}")
-                    return
-                }
-                
-                mediaPlayer = MediaPlayer.create(context, resourceId)
-                mediaPlayer?.let { player ->
-                    player.isLooping = loop
-                    
-                    // Get track-specific relative volume
-                    val trackVolume = BackgroundMusicSettings.getRelativeVolume(music)
-                    
-                    // Get base multiplier for this music type
-                    val baseMultiplier = BackgroundMusicSettings.getBaseMultiplier(music)
-                    
-                    // Get the category-specific volume setting
-                    val categoryVolume = when (music) {
-                        BackgroundMusic.WORLD_MAP -> AppSettings.worldMapMusicVolume.value
-                        BackgroundMusic.GAMEPLAY_NORMAL, BackgroundMusic.GAMEPLAY_LOW_HEALTH -> AppSettings.gameplayMusicVolume.value
+            // Load and play music asynchronously
+            scope.launch {
+                try {
+                    // Map music enum to file name
+                    val fileName = when (music) {
+                        BackgroundMusic.WORLD_MAP -> "background/atmosphere-mystic-fantasy-orchestral-music-335263.mp3"
+                        BackgroundMusic.GAMEPLAY_NORMAL -> "background/2021-02-23_-_Fantasy_Ambience_-_David_Fesliyan.mp3"
+                        BackgroundMusic.GAMEPLAY_LOW_HEALTH -> "background/2017-06-16_-_The_Dark_Castle_-_David_Fesliyan.mp3"
                     }
                     
-                    // Set volume (master * category * track * baseMultiplier)
-                    val effectiveVolume = (AppSettings.soundVolume.value * categoryVolume * trackVolume * baseMultiplier).coerceIn(0f, 1f)
-                    player.setVolume(effectiveVolume, effectiveVolume)
-                    
-                    player.start()
-                    playing = true
-                    
-                    player.setOnCompletionListener {
-                        if (!loop) {
-                            playing = false
+                    // Get or create cached file
+                    val musicFile = musicFileCache.getOrPut(music) {
+                        try {
+                            // Load from compose resources using Res.readBytes
+                            val resourcePath = "files/sounds/$fileName"
+                            val bytes = Res.readBytes(resourcePath)
+                            
+                            // Create cache file for MediaPlayer
+                            val cacheFileName = fileName.replace("/", "_")
+                            val cacheFile = File(context.cacheDir, "music_$cacheFileName")
+                            FileOutputStream(cacheFile).use { it.write(bytes) }
+                            
+                            cacheFile
+                        } catch (e: Exception) {
+                            println("Could not load music file: $fileName - ${e.message}")
+                            e.printStackTrace()
+                            throw e
                         }
                     }
+                    
+                    if (!musicFile.exists()) {
+                        println("Background music file not found: ${musicFile.absolutePath}")
+                        return@launch
+                    }
+                    
+                    // Create MediaPlayer from file
+                    withContext(Dispatchers.Main) {
+                        try {
+                            val player = MediaPlayer()
+                            mediaPlayer = player
+                            
+                            player.setDataSource(musicFile.absolutePath)
+                            player.prepare()
+                            
+                            player.isLooping = loop
+                            
+                            // Get track-specific relative volume
+                            val trackVolume = BackgroundMusicSettings.getRelativeVolume(music)
+                            
+                            // Get base multiplier for this music type
+                            val baseMultiplier = BackgroundMusicSettings.getBaseMultiplier(music)
+                            
+                            // Get the category-specific volume setting
+                            val categoryVolume = when (music) {
+                                BackgroundMusic.WORLD_MAP -> AppSettings.worldMapMusicVolume.value
+                                BackgroundMusic.GAMEPLAY_NORMAL, BackgroundMusic.GAMEPLAY_LOW_HEALTH -> AppSettings.gameplayMusicVolume.value
+                            }
+                            
+                            // Set volume (master * category * track * baseMultiplier)
+                            val effectiveVolume = (AppSettings.soundVolume.value * categoryVolume * trackVolume * baseMultiplier).coerceIn(0f, 1f)
+                            player.setVolume(effectiveVolume, effectiveVolume)
+                            
+                            player.start()
+                            playing = true
+                            
+                            player.setOnCompletionListener {
+                                if (!loop) {
+                                    playing = false
+                                }
+                            }
+                        } catch (e: Exception) {
+                            println("Could not create MediaPlayer: ${e.message}")
+                            e.printStackTrace()
+                        }
+                    }
+                } catch (e: Exception) {
+                    println("Could not play background music: ${music.name} - ${e.message}")
+                    e.printStackTrace()
                 }
-            } catch (e: Exception) {
-                println("Could not play background music: ${music.name} - ${e.message}")
-                e.printStackTrace()
             }
-        }
-    }
-    
-    private fun getResourceId(resourceName: String): Int {
-        return try {
-            context.resources.getIdentifier(resourceName, "raw", context.packageName)
-        } catch (e: Exception) {
-            0
         }
     }
     
@@ -173,6 +199,19 @@ class AndroidBackgroundMusicManager(private val context: Context) : BackgroundMu
     
     override fun release() {
         stopMusic()
+        scope.cancel()
+        
+        // Clean up cached music files
+        musicFileCache.values.forEach { file ->
+            try {
+                if (file.exists()) {
+                    file.delete()
+                }
+            } catch (e: Exception) {
+                // Ignore cleanup errors
+            }
+        }
+        musicFileCache.clear()
     }
 }
 
