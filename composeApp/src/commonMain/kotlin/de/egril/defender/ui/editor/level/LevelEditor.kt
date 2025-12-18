@@ -188,6 +188,15 @@ private fun LevelCard(
     onCopy: () -> Unit,
     onDelete: () -> Unit
 ) {
+    // Check if any enemies are spawned outside valid spawn points
+    val map = remember(level.mapId) { EditorStorage.getMap(level.mapId) }
+    val hasEnemiesOutsideSpawnPoints = remember(level.enemySpawns, map) {
+        val mapSpawnPoints = map?.getSpawnPoints()?.toSet() ?: emptySet()
+        level.enemySpawns.any { spawn ->
+            spawn.spawnPoint != null && spawn.spawnPoint !in mapSpawnPoints
+        }
+    }
+    
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
@@ -226,6 +235,10 @@ private fun LevelCard(
                             color = Color.Red,
                             style = MaterialTheme.typography.titleSmall
                         )
+                    }
+                    // Add warning badge if enemies are outside spawn points
+                    if (hasEnemiesOutsideSpawnPoints) {
+                        WarningBadge()
                     }
                 }
                 if (level.subtitle.isNotEmpty()) {
@@ -313,6 +326,14 @@ fun LevelEditorView(
     // Check if Ewhad is already in spawn list
     val ewhadCount = enemySpawns.count { it.attackerType == AttackerType.EWHAD }
     
+    // Check if any enemies are spawned outside valid spawn points
+    val mapSpawnPoints = remember(currentMap) { currentMap?.getSpawnPoints()?.toSet() ?: emptySet() }
+    val hasEnemiesOutsideSpawnPoints = remember(enemySpawns, mapSpawnPoints) {
+        enemySpawns.any { spawn ->
+            spawn.spawnPoint != null && spawn.spawnPoint !in mapSpawnPoints
+        }
+    }
+    
     // Check readiness for each tab
     val coinsInt = startCoins.toIntOrNull() ?: 0
     val hpInt = startHP.toIntOrNull() ?: 0
@@ -360,6 +381,8 @@ fun LevelEditorView(
                         Text(stringResource(Res.string.enemy_spawns_tab))
                         if (!isEnemySpawnsReady) {
                             RedDotBadge()
+                        } else if (hasEnemiesOutsideSpawnPoints) {
+                            WarningBadge()
                         }
                     }
                 }
@@ -574,5 +597,18 @@ private fun RedDotBadge() {
             .size(8.dp)
             .clip(CircleShape)
             .background(Color.Red)
+    )
+}
+
+/**
+ * Warning badge to indicate issues that don't prevent playability
+ */
+@Composable
+private fun WarningBadge() {
+    Box(
+        modifier = Modifier
+            .size(12.dp)
+            .clip(CircleShape)
+            .background(Color(0xFFFFA500)) // Orange color
     )
 }

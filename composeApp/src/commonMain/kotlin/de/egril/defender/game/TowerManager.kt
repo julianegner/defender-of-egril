@@ -16,8 +16,19 @@ class TowerManager(private val state: GameState) {
         if (isPositionOccupied(position)) return false
         // Cannot place on spawn points or any target
         if (state.level.isSpawnPoint(position) || state.level.isTargetPosition(position)) return false
-        // Can place in build areas (which now includes path cells)
-        if (!state.level.isBuildArea(position)) return false
+        
+        // Check if position is on a river tile (for raft placement)
+        val isRiverPlacement = state.level.isRiverTile(position)
+        
+        // Cannot place Dwarven Mines on rafts (river tiles)
+        if (type == DefenderType.DWARVEN_MINE && isRiverPlacement) {
+            // Show info message
+            state.infoState.value = state.infoState.value.showInfo(InfoType.MINE_ON_RIVER_WARNING)
+            return false
+        }
+        
+        // Can place in build areas OR on river tiles (for rafts, except mines)
+        if (!state.level.isBuildArea(position) && !isRiverPlacement) return false
         
         val buildTime = if (state.phase.value == GamePhase.INITIAL_BUILDING) 0 else type.buildTime
         
@@ -27,13 +38,19 @@ class TowerManager(private val state: GameState) {
         val defender = Defender(
             id = state.nextDefenderId.value++,
             type = type,
-            position = position,
+            position = mutableStateOf(position),
             level = mutableStateOf(initialLevel),
             buildTimeRemaining = mutableStateOf(buildTime),
             placedOnTurn = state.turnNumber.value
         )
         state.defenders.add(defender)
         state.coins.value -= type.baseCost
+        
+        // Create a raft if placed on river tile
+        if (isRiverPlacement) {
+            val raftId = createRaft(defender)
+            defender.raftId.value = raftId
+        }
         
         // Reset actions if tower is ready
         if (defender.isReady) {
@@ -125,7 +142,23 @@ class TowerManager(private val state: GameState) {
     }
     
     private fun isPositionOccupied(position: Position): Boolean {
-        return state.defenders.any { it.position == position } ||
+        return state.defenders.any { it.position.value == position } ||
                state.attackers.any { it.position.value == position }
+    }
+    
+    /**
+     * Create a raft for a defender placed on a river tile.
+     * Returns the raft ID.
+     */
+    private fun createRaft(defender: Defender): Int {
+        val raftId = state.nextRaftId.value++
+        val raft = Raft(
+            id = raftId,
+            defenderId = defender.id,
+            currentPosition = mutableStateOf(defender.position.value)
+        )
+        state.rafts.add(raft)
+        println("Created raft $raftId for tower ${defender.type} at ${defender.position.value}")
+        return raftId
     }
 }

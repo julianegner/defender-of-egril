@@ -126,6 +126,41 @@ fun AttackButton(
                     }
                 }
             }
+        } else if (selectedTargetPosition != null && 
+                   (defender.type.attackType == AttackType.MELEE || defender.type.attackType == AttackType.RANGED)) {
+            // For single-target towers, allow attacking bridges when no enemy is present
+            val bridge = gameState.getBridgeAt(selectedTargetPosition)
+            if (bridge != null && bridge.isActive) {
+                val distance = defender.position.value.distanceTo(selectedTargetPosition)
+                if (distance >= defender.type.minRange && distance <= defender.range) {
+                    Button(
+                        onClick = { onDefenderAttackPosition(defender.id, selectedTargetPosition) },
+                        modifier = modifier,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = GamePlayColors.ErrorDark
+                        )
+                    ) {
+                        Row(
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            SwordIcon(size = 24.dp)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Column {
+                                Text(
+                                    stringResource(Res.string.attack_button),
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    "Bridge (${bridge.currentHealth.value}/${bridge.maxHealth} ${stringResource(Res.string.hp_label)})",
+                                    fontSize = 11.sp
+                                )
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
@@ -244,7 +279,7 @@ fun UndoOrSellButton(
                 text = {
                     val towerName = defender.type.getLocalizedName(locale)
                     val coinsLabel = stringResource(Res.string.coins_label)
-                    Text("Do you really want to sell the $towerName for $sellAmount $coinsLabel?")
+                    Text(stringResource(Res.string.sell_tower_message, towerName, sellAmount.toString(), coinsLabel))
                 },
                 confirmButton = {
                     Button(

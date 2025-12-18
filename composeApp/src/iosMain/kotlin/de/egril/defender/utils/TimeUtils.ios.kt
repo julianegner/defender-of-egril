@@ -19,3 +19,12 @@ actual fun formatTimestamp(timestamp: Long): String {
     formatter.locale = NSLocale.currentLocale
     return formatter.stringFromDate(date)
 }
+
+@OptIn(ExperimentalForeignApi::class)
+actual fun formatTimestampISO(timestamp: Long): String {
+    val date = NSDate(timestamp / 1000.0)
+    val formatter = NSDateFormatter()
+    formatter.dateFormat = "yyyy-MM-dd_HH-mm-ss"
+    formatter.locale = NSLocale.currentLocale
+    return formatter.stringFromDate(date)
+}

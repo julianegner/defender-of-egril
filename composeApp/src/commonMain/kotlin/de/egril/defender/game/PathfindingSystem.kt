@@ -115,7 +115,7 @@ class PathfindingSystem(private val state: GameState) {
         for (defender in state.defenders) {
             if (!defender.isReady) continue
             
-            val distance = defender.position.distanceTo(position)
+            val distance = defender.position.value.distanceTo(position)
             
             // Check if position is in tower range
             if (distance >= defender.type.minRange && distance <= defender.range) {
@@ -165,7 +165,8 @@ class PathfindingSystem(private val state: GameState) {
             (state.level.isOnPath(neighbor) || 
              state.level.isTargetPosition(neighbor) || 
              isGoalMineForDragon(neighbor, goal, attacker) ||
-             isDestroyedMinePosition(neighbor)) &&
+             isDestroyedMinePosition(neighbor) ||
+             state.isBridgeAt(neighbor)) &&  // Bridges are walkable for enemies
             !isBlocked(neighbor)
         }
     }
@@ -212,7 +213,8 @@ class PathfindingSystem(private val state: GameState) {
             (state.level.isOnPath(neighbor) || 
              state.level.isTargetPosition(neighbor) || 
              isGoalMineForDragon(neighbor, to, attacker) ||
-             isDestroyedMinePosition(neighbor)) &&
+             isDestroyedMinePosition(neighbor) ||
+             state.isBridgeAt(neighbor)) &&  // Bridges are walkable for enemies
             !isBlocked(neighbor)
         }
         

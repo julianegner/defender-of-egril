@@ -13,6 +13,7 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import de.egril.defender.model.*
 import de.egril.defender.ui.*
@@ -24,6 +25,7 @@ import de.egril.defender.ui.editor.map.MapControls
 import defender_of_egril.composeapp.generated.resources.*
 import de.egril.defender.ui.icon.TestTubeIcon
 import de.egril.defender.ui.icon.enemy.EnemyIcon
+import de.egril.defender.ui.editor.RiverFlowIndicator
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -102,57 +104,77 @@ fun GameGrid(
                     val areaRadius = selectedDefender.areaEffectRadius
                     val isExtendedArea = areaRadius >= 2
                     
-                    // Central target tile
-                    result[selectedTargetPosition] = TargetCircleInfo.CentralTarget(
-                        color = markerColor,
-                        attackType = attackType,
-                        isExtendedArea = isExtendedArea
-                    )
+                    // Check if target position has a magical bridge (which cannot be targeted by non-area attacks)
+                    val hasMagicalBridge = gameState.isBridgeAt(selectedTargetPosition) &&
+                        gameState.getBridgeAt(selectedTargetPosition)?.type == BridgeType.MAGICAL
                     
-                    // For AREA and LASTING attacks, add neighbor tiles that are on the path
-                    if (attackType == AttackType.AREA || attackType == AttackType.LASTING) {
-                        if (areaRadius == 1) {
-                            // Standard radius 1 - use getHexNeighbors
-                            val neighbors = selectedTargetPosition.getHexNeighbors()
-                                .filter { neighbor ->
-                                    neighbor.x >= 0 && neighbor.x < gameState.level.gridWidth &&
-                                    neighbor.y >= 0 && neighbor.y < gameState.level.gridHeight &&
-                                    gameState.level.isOnPath(neighbor)
-                                }
+                    // Check if there's an enemy at the target position
+                    val hasEnemy = gameState.attackers.any { 
+                        it.position.value == selectedTargetPosition && !it.isDefeated.value 
+                    }
+                    
+                    // Don't show target circles for non-area attacks on magical bridges UNLESS there's an enemy
+                    if (hasMagicalBridge && !hasEnemy && attackType != AttackType.AREA && attackType != AttackType.LASTING) {
+                        emptyMap()
+                    } else {
+                        // Central target tile
+                        result[selectedTargetPosition] = TargetCircleInfo.CentralTarget(
+                            color = markerColor,
+                            attackType = attackType,
+                            isExtendedArea = isExtendedArea
+                        )
+                        
+                        // For AREA and LASTING attacks, add neighbor tiles that are on the path, or have bridges/enemies
+                        if (attackType == AttackType.AREA || attackType == AttackType.LASTING) {
+                            if (areaRadius == 1) {
+                                // Standard radius 1 - use getHexNeighbors
+                                val neighbors = selectedTargetPosition.getHexNeighbors()
+                                    .filter { neighbor ->
+                                        neighbor.x >= 0 && neighbor.x < gameState.level.gridWidth &&
+                                        neighbor.y >= 0 && neighbor.y < gameState.level.gridHeight &&
+                                        (gameState.level.isOnPath(neighbor) || 
+                                         gameState.isBridgeAt(neighbor) || 
+                                         gameState.attackers.any { it.position.value == neighbor && !it.isDefeated.value })
+                                    }
 
-                            for (neighbor in neighbors) {
-                                result[neighbor] = TargetCircleInfo.NeighborTarget(
-                                    color = markerColor,
-                                    attackType = attackType,
-                                    centerPosition = selectedTargetPosition,
-                                    thisPosition = neighbor,
-                                    distanceFromCenter = 1,
-                                    isExtendedArea = false
-                                )
-                            }
-                        } else {
-                            // Extended radius 2 (level 20+) - use getHexNeighborsWithinRadius
-                            val allNeighbors = selectedTargetPosition.getHexNeighborsWithinRadius(
-                                areaRadius,
-                                gameState.level.gridWidth,
-                                gameState.level.gridHeight
-                            ).filter { gameState.level.isOnPath(it) }
-                            
-                            for (neighbor in allNeighbors) {
-                                val distance = selectedTargetPosition.hexDistanceTo(neighbor)
-                                result[neighbor] = TargetCircleInfo.NeighborTarget(
-                                    color = markerColor,
-                                    attackType = attackType,
-                                    centerPosition = selectedTargetPosition,
-                                    thisPosition = neighbor,
-                                    distanceFromCenter = distance,
-                                    isExtendedArea = true
-                                )
+                                for (neighbor in neighbors) {
+                                    result[neighbor] = TargetCircleInfo.NeighborTarget(
+                                        color = markerColor,
+                                        attackType = attackType,
+                                        centerPosition = selectedTargetPosition,
+                                        thisPosition = neighbor,
+                                        distanceFromCenter = 1,
+                                        isExtendedArea = false
+                                    )
+                                }
+                            } else {
+                                // Extended radius 2 (level 20+) - use getHexNeighborsWithinRadius
+                                val allNeighbors = selectedTargetPosition.getHexNeighborsWithinRadius(
+                                    areaRadius,
+                                    gameState.level.gridWidth,
+                                    gameState.level.gridHeight
+                                ).filter { neighbor ->
+                                    gameState.level.isOnPath(neighbor) || 
+                                    gameState.isBridgeAt(neighbor) || 
+                                    gameState.attackers.any { it.position.value == neighbor && !it.isDefeated.value }
+                                }
+                                
+                                for (neighbor in allNeighbors) {
+                                    val distance = selectedTargetPosition.hexDistanceTo(neighbor)
+                                    result[neighbor] = TargetCircleInfo.NeighborTarget(
+                                        color = markerColor,
+                                        attackType = attackType,
+                                        centerPosition = selectedTargetPosition,
+                                        thisPosition = neighbor,
+                                        distanceFromCenter = distance,
+                                        isExtendedArea = true
+                                    )
+                                }
                             }
                         }
+                        println("Target circle map: $result")
+                        result
                     }
-                    println("Target circle map: $result")
-                    result
                 }
             }
         }
@@ -188,7 +210,7 @@ fun GameGrid(
                 gameState = gameState,
                 isSelected = selectedDefenderType != null,
                 isDefenderSelected = selectedDefenderId?.let { selId ->
-                    gameState.defenders.find { it.position == position }?.id == selId
+                    gameState.defenders.find { it.position.value == position }?.id == selId
                 } ?: false,
                 isTargetSelected = gameState.attackers.find { it.position.value == position }?.id == selectedTargetId,
                 selectedDefenderId = selectedDefenderId,
@@ -270,8 +292,32 @@ fun GridCell(
     val isOnPath = gameState.level.isOnPath(position)
     val isBuildIsland = gameState.level.isBuildIsland(position)
     val isBuildArea = gameState.level.isBuildArea(position)
-    val defender = gameState.defenders.find { it.position == position }
+    val isRiverTile = gameState.level.isRiverTile(position)
+    val defender = gameState.defenders.find { it.position.value == position }
     val attacker = gameState.attackers.find { it.position.value == position && !it.isDefeated.value }
+    
+    // Determine the tile type for background image loading
+    val riverTile = gameState.level.getRiverTile(position)
+    val isMaelstrom = riverTile?.flowDirection == RiverFlow.MAELSTROM
+    
+    val tileType = when {
+        isSpawnPoint -> de.egril.defender.editor.TileType.SPAWN_POINT
+        isTarget -> de.egril.defender.editor.TileType.TARGET
+        isRiverTile -> de.egril.defender.editor.TileType.RIVER
+        isOnPath -> de.egril.defender.editor.TileType.PATH
+        isBuildIsland -> de.egril.defender.editor.TileType.ISLAND
+        isBuildArea -> de.egril.defender.editor.TileType.BUILD_AREA
+        else -> de.egril.defender.editor.TileType.NO_PLAY
+    }
+    
+    // Get tile background painter (will be null if images are disabled or not available)
+    // For ready towers on build areas or islands, don't show tile background to make towers more visible
+    val shouldShowTileImage = !(defender != null && defender.isReady && (isBuildArea || isBuildIsland))
+    val tilePainter = if (shouldShowTileImage) {
+        TileImageProvider.getTilePainter(tileType, isMaelstrom = isMaelstrom)
+    } else {
+        null
+    }
 
     // Check for field effects at this position
     val fieldEffect = gameState.fieldEffects.find { it.position == position }
@@ -283,10 +329,10 @@ fun GridCell(
     val cellIsInRange = selectedDefenderId?.let { defenderId ->
         val selectedDefender = gameState.defenders.find { it.id == defenderId }
         selectedDefender?.let { sel ->
-            if (sel.position == position) {
+            if (sel.position.value == position) {
                 false  // Don't highlight the defender's own cell
             } else {
-                val distance = sel.position.distanceTo(position)
+                val distance = sel.position.value.distanceTo(position)
                 distance >= sel.type.minRange && distance <= sel.range
             }
         } ?: false
@@ -298,6 +344,7 @@ fun GridCell(
         isBuildIsland -> GamePlayColors.BuildIsland  // Light green for build islands
         isBuildArea -> GamePlayColors.BuildStrip  // Medium green for strips adjacent to path
         isOnPath -> GamePlayColors.Path  // Cream/beige for enemy path
+        isRiverTile -> GamePlayColors.River  // Blue for river tiles
         else -> GamePlayColors.NonPlayable  // Light gray for off-path areas (non-playable)
     }
 
@@ -305,8 +352,13 @@ fun GridCell(
     // Override with red background for enemy units and colored background for defenders
     // During INITIAL_BUILDING phase, don't apply any selection tints
     // Field effects also modify the background color
+    // Special case: Keep river background visible for defenders on rafts
     val backgroundColor = when {
         attacker != null -> if (isDarkMode) GamePlayColors.ErrorDark else GamePlayColors.Error  // Darker red background for enemies in dark mode
+        defender != null && isRiverTile -> {
+            // Keep river blue background visible for defenders on rafts
+            GamePlayColors.River
+        }
         defender != null -> {
             when {
                 !defender.isReady -> GamePlayColors.Building  // Gray for building
@@ -329,7 +381,7 @@ fun GridCell(
     }
 
     // Border color - use borders to indicate entities instead of background
-    // For range visualization, show green border on path tiles in range (only if tower has actions)
+    // For range visualization, show green border on path tiles OR river tiles in range (only if tower has actions)
     val showRange = selectedDefenderId?.let { defenderId ->
         val selectedDefender = gameState.defenders.find { it.id == defenderId }
         selectedDefender?.isReady == true && selectedDefender.actionsRemaining.value > 0
@@ -340,8 +392,21 @@ fun GridCell(
     val hasEnemy = attacker != null
     val canPlaceTrapHere = !hasEnemy || !isTrapPlacement
 
+    // Check if defender has area attack capability
+    val hasAreaAttack = selectedDefenderId?.let { defenderId ->
+        val selectedDefender = gameState.defenders.find { it.id == defenderId }
+        selectedDefender?.type?.attackType == AttackType.AREA || selectedDefender?.type?.attackType == AttackType.LASTING
+    } ?: false
+
+    // River tiles are valid targets for area attacks
+    val isValidTargetTile = if (hasAreaAttack) {
+        isOnPath || isRiverTile
+    } else {
+        isOnPath
+    }
+
     val borderColor = when {
-        cellIsInRange && isOnPath && showRange && canPlaceTrapHere -> GamePlayColors.Success  // Green border for tiles in range (exclude enemy tiles during trap placement)
+        cellIsInRange && isValidTargetTile && showRange && canPlaceTrapHere -> GamePlayColors.Success  // Green border for tiles in range (path or river for area attacks)
         isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> GamePlayColors.Yellow  // Yellow border for selected defender (not during initial building)
         isSpawnPoint -> GamePlayColors.WarningDark  // Darker orange border for spawn in dark mode
         isTarget -> GamePlayColors.Success  // Green border for target (adapts to dark mode automatically)
@@ -361,7 +426,7 @@ fun GridCell(
     // Thicker borders for important elements
     val borderWidth = when {
         isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> 5.dp  // Extra thick border for selected defender (not during initial building)
-        cellIsInRange && isOnPath && showRange && canPlaceTrapHere -> 4.dp  // Thick border for cells in range (exclude enemy tiles during trap placement)
+        cellIsInRange && isValidTargetTile && showRange && canPlaceTrapHere -> 4.dp  // Thick border for cells in range (path or river for area attacks)
         isSpawnPoint || isTarget -> 3.dp
         attacker != null || defender != null -> 3.dp
         fieldEffect != null -> 3.dp  // Thick border for field effects
@@ -373,6 +438,7 @@ fun GridCell(
         backgroundColor = backgroundColor,
         borderColor = borderColor,
         borderWidth = borderWidth,
+        backgroundPainter = tilePainter,
         onClick = onClick
     ) {
         when {
@@ -386,8 +452,8 @@ fun GridCell(
 
             defender != null -> {
                 // Use graphical icon for towers
-                // Key by id, level and actionsRemaining to force recomposition when these change
-                key(defender.id, defender.level, defender.actionsRemaining.value, defender.buildTimeRemaining.value) {
+                // Key by id, position, level and actionsRemaining to force recomposition when these change
+                key(defender.id, defender.position.value.x, defender.position.value.y, defender.level.value, defender.actionsRemaining.value, defender.buildTimeRemaining.value) {
                     TowerIcon(defender = defender, gameState = gameState)
                 }
             }
@@ -456,6 +522,32 @@ fun GridCell(
             isTarget -> {
                 // Show target indicator when cell is empty
                 Text(stringResource(Res.string.target), style = MaterialTheme.typography.labelSmall, color = GamePlayColors.Success)
+            }
+            
+            isRiverTile -> {
+                // Check if there's a bridge at this position
+                val bridge = gameState.getBridgeAt(position)
+                if (bridge != null) {
+                    // Show bridge over river
+                    BridgeVisualization(bridge = bridge)
+                } else {
+                    // Show river flow direction arrows
+                    val riverTile = gameState.level.getRiverTile(position)
+                    if (riverTile != null) {
+                        // Don't show trap icon on maelstrom when tile images are enabled
+                        // (the tile_river_maelstrom.png image already shows the maelstrom visually)
+                        val useTileImages = de.egril.defender.ui.settings.AppSettings.useTileImages.value
+                        val isMaelstromWithTileImage = riverTile.flowDirection == RiverFlow.MAELSTROM && useTileImages
+                        
+                        if (!isMaelstromWithTileImage) {
+                            RiverFlowIndicator(
+                                flowDirection = riverTile.flowDirection,
+                                flowSpeed = riverTile.flowSpeed,
+                                size = 28.dp
+                            )
+                        }
+                    }
+                }
             }
         }
         
@@ -550,6 +642,96 @@ fun GridCell(
                     }
                 }
             }
+        }
+    }
+}
+
+/**
+ * Visualize a bridge over a river tile
+ */
+@Composable
+fun BridgeVisualization(bridge: Bridge) {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        // Draw bridge arc
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            val centerX = size.width / 2
+            val centerY = size.height / 2
+            val arcWidth = size.width * 0.8f
+            val arcHeight = size.height * 0.4f
+            
+            // Bridge color based on type
+            val bridgeColor = when (bridge.type) {
+                BridgeType.WOODEN -> Color(0xFF8B4513)  // Brown
+                BridgeType.STONE -> Color(0xFF808080)   // Gray
+                BridgeType.MAGICAL -> Color(0xFFFF00FF) // Magenta/purple for magical
+            }
+            
+            // Draw half arc (bridge shape) - opening at bottom
+            drawArc(
+                color = bridgeColor,
+                startAngle = 180f,  // Start from bottom-left
+                sweepAngle = 180f,  // Draw top half
+                useCenter = false,
+                topLeft = androidx.compose.ui.geometry.Offset(
+                    centerX - arcWidth / 2,
+                    centerY - arcHeight / 2
+                ),
+                size = androidx.compose.ui.geometry.Size(arcWidth, arcHeight),
+                style = androidx.compose.ui.graphics.drawscope.Stroke(width = 6f)
+            )
+            
+            // For magical bridges, add sparkle effect above the arc
+            if (bridge.type == BridgeType.MAGICAL) {
+                // Draw sparkles around the arc (top side)
+                val sparklePositions = listOf(
+                    androidx.compose.ui.geometry.Offset(centerX - arcWidth / 3, centerY - arcHeight / 2 + 5),
+                    androidx.compose.ui.geometry.Offset(centerX, centerY - arcHeight / 2),
+                    androidx.compose.ui.geometry.Offset(centerX + arcWidth / 3, centerY - arcHeight / 2 + 5)
+                )
+                sparklePositions.forEach { pos ->
+                    drawCircle(
+                        color = Color.White,
+                        radius = 2f,
+                        center = pos
+                    )
+                }
+            }
+        }
+        
+        // Display health or turn count below the arc
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Bottom,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(bottom = 4.dp)
+        ) {
+            when (bridge.type) {
+                BridgeType.WOODEN, BridgeType.STONE -> {
+                    // Show remaining health
+                    Text(
+                        text = "${bridge.currentHealth.value}",
+                        style = MaterialTheme.typography.labelSmall,
+                        fontSize = 13.sp,
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+                BridgeType.MAGICAL -> {
+                    // Show remaining turns
+                    Text(
+                        text = "${bridge.turnsRemaining.value}T",
+                        style = MaterialTheme.typography.labelSmall,
+                        fontSize = 13.sp,
+                        color = Color(0xFFFFFF00),  // Yellow
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(10.dp))
         }
     }
 }

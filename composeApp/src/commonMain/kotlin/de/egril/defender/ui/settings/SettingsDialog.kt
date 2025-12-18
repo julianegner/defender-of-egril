@@ -71,21 +71,36 @@ fun SettingsDialog(
                     // Dark mode switch
                     GenericSwitch(
                         state = AppSettings.isDarkMode,
-                        checkedText = stringResource(Res.string.dark_mode_on),
-                        uncheckedText = stringResource(Res.string.dark_mode_off),
+                        checkedText = stringResource(Res.string.dark_mode),
+                        uncheckedText = stringResource(Res.string.dark_mode),
                         onCheckedChange = { enabled ->
                             AppSettings.saveDarkMode(enabled)
                         },
                         modifier = Modifier.fillMaxWidth()
                     )
                     
-                    // World map style switch
-                    GenericSwitch(
-                        state = AppSettings.useLevelCards,
-                        checkedText = stringResource(Res.string.world_map_level_cards),
-                        uncheckedText = stringResource(Res.string.world_map_image_map),
+                    // World map style switch (inverted logic: false = Image Map View, true = Level Cards View)
+                    val invertedUseLevelCards = remember { mutableStateOf(!AppSettings.useLevelCards.value) }
+                    LaunchedEffect(AppSettings.useLevelCards.value) {
+                        invertedUseLevelCards.value = !AppSettings.useLevelCards.value
+                    }
+                    DualLabelSwitch(
+                        state = invertedUseLevelCards,
+                        leftText = stringResource(Res.string.world_map_level_cards),
+                        rightText = stringResource(Res.string.world_map_image_map),
                         onCheckedChange = { enabled ->
-                            AppSettings.saveUseLevelCards(enabled)
+                            AppSettings.saveUseLevelCards(!enabled)
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    
+                    // Tile background images switch
+                    DualLabelSwitch(
+                        state = AppSettings.useTileImages,
+                        leftText = stringResource(Res.string.tile_background_images_off),
+                        rightText = stringResource(Res.string.tile_background_images_on),
+                        onCheckedChange = { enabled ->
+                            AppSettings.saveUseTileImages(enabled)
                         },
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -106,8 +121,8 @@ fun SettingsDialog(
                     // Sound enabled/disabled switch
                     GenericSwitch(
                         state = AppSettings.isSoundEnabled,
-                        checkedText = stringResource(Res.string.sound_enabled),
-                        uncheckedText = stringResource(Res.string.sound_disabled),
+                        checkedText = stringResource(Res.string.sound),
+                        uncheckedText = stringResource(Res.string.sound),
                         onCheckedChange = { enabled ->
                             AppSettings.saveSoundEnabled(enabled)
                         },
@@ -166,8 +181,8 @@ fun SettingsDialog(
                     // Control pad switch
                     GenericSwitch(
                         state = AppSettings.showControlPad,
-                        checkedText = stringResource(Res.string.control_pad_enabled),
-                        uncheckedText = stringResource(Res.string.control_pad_disabled),
+                        checkedText = stringResource(Res.string.controls),
+                        uncheckedText = stringResource(Res.string.controls),
                         onCheckedChange = { enabled ->
                             AppSettings.saveShowControlPad(enabled)
                         },
