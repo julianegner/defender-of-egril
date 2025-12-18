@@ -40,7 +40,7 @@
     <string name="game_data">Dati di Gioco</string>
     <string name="close">Chiudi</string>
     <string name="settings_hint_title">Impostazioni Disponibili</string>
-    <string name="settings_hint_message">Clicca sull\'icona delle impostazioni per personalizzare la tua esperienza. Le impostazioni disponibili includono:</string>
+    <string name="settings_hint_message">Clicca sull'icona delle impostazioni per personalizzare la tua esperienza. Le impostazioni disponibili includono:</string>
     <string name="settings_hint_dismiss">Capito!</string>
     
     <!-- Common Actions -->
@@ -64,7 +64,7 @@
     <string name="save_game">Salva partita</string>
     <string name="load_game">Carica partita</string>
     <string name="add_optional_comment">Aggiungi un commento opzionale per identificare questo salvataggio:</string>
-    <string name="save_comment_placeholder">es. 'Prima dell\'ultima ondata', 'Buona posizione'...</string>
+    <string name="save_comment_placeholder">es. 'Prima dell'ultima ondata', 'Buona posizione'...</string>
     <string name="download_savefile">Scarica</string>
     <string name="download_all_savefiles">Scarica tutto</string>
     <string name="upload_savefiles">Carica</string>
@@ -112,7 +112,7 @@
     <string name="how_to_play">Come giocare</string>
     <string name="game_overview">Panoramica del gioco</string>
     <string name="game_overview_text">Difensore di Egril è un gioco tower defense a turni. Difendi i prati di Egril contro ondate di nemici sotto la bandiera malvagia di Ewhad.</string>
-    <string name="at_start_of_level">All\'inizio di ogni livello:</string>
+    <string name="at_start_of_level">All'inizio di ogni livello:</string>
     <string name="place_towers_instantly">Posiziona le torri istantaneamente (nessun tempo di costruzione)</string>
     <string name="use_coins_strategically">Usa le tue monete iniziali strategicamente</string>
     <string name="towers_ready_to_attack">Le torri sono pronte ad attaccare immediatamente</string>
@@ -134,7 +134,7 @@
     <string name="tower_types">Tipi di torri</string>
     <string name="spike_tower">Torre a spuntoni (Pike): Difesa corpo a corpo, opzione più economica</string>
     <string name="spear_tower">Torre con lancia: Attacchi perforanti a medio raggio</string>
-    <string name="bow_tower">Torre con arco: Tiro con l\'arco a lungo raggio</string>
+    <string name="bow_tower">Torre con arco: Tiro con l'arco a lungo raggio</string>
     <string name="wizard_tower">Torre del mago: Palla di fuoco ad area d\'effetto</string>
     <string name="alchemy_tower">Torre alchemica: Danno da acido nel tempo</string>
     <string name="ballista_tower">Torre con balista: Assedio a lungo raggio, portata minima</string>
@@ -147,7 +147,7 @@
     <string name="skeleton">Scheletro: Non-morto veloce</string>
     <string name="evil_wizard">Mago malvagio: Attaccante magico</string>
     <string name="witch">Strega: Magia oscura</string>
-    <string name="blue_demon">Demone blu: Veloce, immune all\'acido</string>
+    <string name="blue_demon">Demone blu: Veloce, immune all'acido</string>
     <string name="red_demon">Demone rosso: Resistente, immune alla palla di fuoco</string>
     <string name="evil_mage">Mago oscuro: Può evocare servitori</string>
     <string name="red_witch">Strega rossa: Può disabilitare le torri</string>
@@ -167,8 +167,8 @@
     <string name="dot_effects_applied">Gli effetti di danno nel tempo sono applicati</string>
     <string name="attack_types">Tipi di attacco</string>
     <string name="melee_ranged_desc">Corpo a corpo/A distanza: Bersaglio singolo</string>
-    <string name="fireball_desc">Palla di fuoco (Area): Danneggia tutti i nemici entro 1 cella dall\'impatto</string>
-    <string name="acid_desc">Acido: Danno continuo per 3 turni entro 1 cella dall\'impatto</string>
+    <string name="fireball_desc">Palla di fuoco (Area): Danneggia tutti i nemici entro 1 cella dall'impatto</string>
+    <string name="acid_desc">Acido: Danno continuo per 3 turni entro 1 cella dall'impatto</string>
     <string name="victory_defeat">Vittoria &amp; Sconfitta</string>
     <string name="victory_detail">Vittoria: Sconfiggi tutti i nemici in tutte le ondate con almeno 1 punto salute rimanente</string>
     <string name="defeat_detail">Sconfitta: I nemici deboli (goblin, orchi, ogre, scheletri) costano 1 punto salute quando raggiungono il bersaglio. I nemici potenti (maghi, streghe, maghi malvagi, demoni, draghi) costano punti salute pari al loro livello. Ewhad costa tutti i tuoi punti salute. A 0 punti salute, perdi.</string>
@@ -244,7 +244,7 @@
     <string name="found_diamond">Hai trovato un diamante!</string>
     <string name="dragon_awakens">UN DRAGO SI RISVEGLIA!</string>
     <string name="mine_destroyed">La miniera è distrutta!</string>
-    <string name="dragons_lair_desc">La tana del drago... un promemoria delle conseguenze dell\'avidità.</string>
+    <string name="dragons_lair_desc">La tana del drago... un promemoria delle conseguenze dell'avidità.</string>
     <string name="empty_dragons_lair">Tana del drago vuota</string>
     <string name="end_turn_button">Termina turno</string>
     <string name="enemy_turn_title">Turno nemico</string>
@@ -333,7 +333,7 @@
     <string name="select_level_to_edit">Seleziona un livello da modificare:</string>
     <string name="editing_map">Modifica: %s</string>
     <string name="editing_level">Modifica livello: %s</string>
-    <string name="ready_to_use">Pronto all\'uso</string>
+    <string name="ready_to_use">Pronto all'uso</string>
     <string name="not_ready">Non pronto</string>
     <string name="ready">Pronto</string>
     <string name="file">File</string>
@@ -407,7 +407,7 @@
     <string name="can_summon">Può evocare servitori</string>
     <string name="can_heal">Può curare altri nemici</string>
     <string name="can_disable_towers">Può disabilitare le torri</string>
-    <string name="immune_to_acid">Immune all\'acido</string>
+    <string name="immune_to_acid">Immune all'acido</string>
     <string name="immune_to_fireball">Immune alla palla di fuoco</string>
 
     <!-- Tutorial -->
@@ -507,13 +507,13 @@
     <string name="mine_warning_title">Miniera Minacciata!</string>
     <string name="mine_warning_message">Il drago si avvicina! I nani si preparano a difendere la loro miniera, ma potrebbe non essere sufficiente...</string>
     <string name="one_hp_warning_title">Avviso Critico!</string>
-    <string name="one_hp_warning_message">Hai solo 1 punto vita! Nemmeno un nemico può raggiungere l\'obiettivo, o perderai. Difendi con estrema cautela!</string>
+    <string name="one_hp_warning_message">Hai solo 1 punto vita! Nemmeno un nemico può raggiungere l'obiettivo, o perderai. Difendi con estrema cautela!</string>
     
     <!-- Enemy Info Display -->
     <string name="greedy_label">avido</string>
     <string name="very_greedy_label">molto avido</string>
     <string name="greedy_desc">Mangia unità nemiche circostanti</string>
-    <string name="very_greedy_desc">Mangia unità nemiche circostanti e distrugge miniere una dopo l\'altra</string>
+    <string name="very_greedy_desc">Mangia unità nemiche circostanti e distrugge miniere una dopo l'altra</string>
     <string name="greed_level_label">Avidità</string>
     <string name="dragon_info_button">Cosa fa un drago?</string>
     <string name="mighty_unit_warning">Unità potente! Infligge %d PS di danno se raggiunge il bersaglio (livello × 1 PS)</string>
@@ -649,14 +649,14 @@
     <string name="wizard_first_use_title">Torre del Mago</string>
     <string name="wizard_first_use_message">La Torre del Mago è una potente torre ad area d\'effetto che lancia palle di fuoco sui nemici! Ogni palla di fuoco danneggia il bersaglio e tutti i nemici nelle caselle adiacenti. Ha un tempo di costruzione più lungo (2 turni) ma può devastare gruppi di nemici. Al livello 10, i maghi possono piazzare trappole magiche che teletrasportano i nemici al punto di spawn. Al livello 20, il raggio della palla di fuoco aumenta a 2 caselle!</string>
 
-    <string name="alchemy_first_use_title">Torre dell\'Alchimia</string>
-    <string name="alchemy_first_use_message">La Torre dell\'Alchimia lancia acido che infligge danni nel tempo! A differenza di altre torri, il danno da acido persiste per più turni (base 2 turni, aumenta con il livello). L\'acido colpisce il bersaglio e i nemici adiacenti in una piccola area. Sebbene il danno per turno sia inferiore, il danno totale nel tempo può essere molto efficace. Al livello 20, l\'area dell\'acido aumenta a 2 caselle!</string>
+    <string name="alchemy_first_use_title">Torre dell'Alchimia</string>
+    <string name="alchemy_first_use_message">La Torre dell'Alchimia lancia acido che infligge danni nel tempo! A differenza di altre torri, il danno da acido persiste per più turni (base 2 turni, aumenta con il livello). L\'acido colpisce il bersaglio e i nemici adiacenti in una piccola area. Sebbene il danno per turno sia inferiore, il danno totale nel tempo può essere molto efficace. Al livello 20, l'area dell'acido aumenta a 2 caselle!</string>
 
     <string name="ballista_first_use_title">Torre Balista</string>
     <string name="ballista_first_use_message">La Balista è un\'arma d\'assedio a lungo raggio con una portata eccezionale (5 caselle) e danni elevati! Tuttavia, ha una portata minima di 3 caselle e non può attaccare nemici vicini. Richiede 2 turni per essere costruita. Usala per colpire i nemici a distanza prima che si avvicinino troppo, o posizionala dietro altre torri per massima efficacia.</string>
 
     <string name="mine_first_use_title">Miniera Nanica</string>
-    <string name="mine_first_use_message">La Miniera Nanica è una struttura speciale che genera monete attraverso operazioni minerarie! A differenza delle torri da combattimento, le miniere usano l\'azione "scava" per trovare risorse preziose (macerie, ottone, argento, oro, gemme o diamanti). Le miniere possono anche costruire trappole che danneggiano i nemici. A livelli più alti, le miniere possono scavare più volte per turno e raggiungere più lontano. Attenzione: I draghi sono avidi e distruggeranno le miniere per reclamare il tesoro!</string>
+    <string name="mine_first_use_message">La Miniera Nanica è una struttura speciale che genera monete attraverso operazioni minerarie! A differenza delle torri da combattimento, le miniere usano l'azione "scava" per trovare risorse preziose (macerie, ottone, argento, oro, gemme o diamanti). Le miniere possono anche costruire trappole che danneggiano i nemici. A livelli più alti, le miniere possono scavare più volte per turno e raggiungere più lontano. Attenzione: I draghi sono avidi e distruggeranno le miniere per reclamare il tesoro!</string>
 
     <!-- River Mechanics Info -->
     <string name="river_info_title">Meccaniche del Fiume</string>
@@ -710,4 +710,33 @@
     <string name="from">Da:</string>
     <string name="to">A:</string>
     <string name="connection_type">Tipo di connessione:</string>
+    
+    <!-- Editor Info Page -->
+    <string name="info">Info</string>
+    <string name="editor_info_title">Guida dell'Editor di Livelli</string>
+    <string name="editor_info_intro">Benvenuto nell'Editor di Livelli! Questo strumento ti consente di creare mappe personalizzate, livelli e sequenze di livelli per Defender of Egril.</string>
+    <string name="editor_info_workflow_title">Per Iniziare</string>
+    <string name="editor_info_workflow_text">Per aggiungere nuovi livelli al gioco: Prima, seleziona o crea una mappa nell'Editor di Mappe. Poi, crea un livello usando quella mappa nell'Editor di Livelli. Infine, collega il livello sulla Mappa del Mondo per renderlo visibile e giocabile nel gioco.</string>
+    <string name="editor_info_copy_hint">Puoi copiare mappe e livelli esistenti e adattarli per creare rapidamente nuovi contenuti. Questo è un ottimo modo per imparare e iterare sui tuoi design.</string>
+    <string name="editor_info_restore_hint">Il pulsante Ripristina Dati di Gioco nelle Impostazioni ripristina i dati di gioco dal proprio repository del gioco (memorizzato localmente, non online). Quando usi questa funzione, la tua versione precedente con eventuali modifiche utente verrà salvata con un nuovo nome nella stessa cartella, quindi il tuo lavoro è preservato.</string>
+    <string name="editor_info_file_location_title">Posizione di Archiviazione dei File</string>
+    <string name="editor_info_file_location_text">Tutti i dati dell'editor sono memorizzati in formato JSON sul tuo file system locale:</string>
+    <string name="editor_info_file_location_linux_mac">Linux/Mac: ~/.defender-of-egril/gamedata/</string>
+    <string name="editor_info_file_location_windows">Windows: %%USERPROFILE%%\\.defender-of-egril\\gamedata\\</string>
+    <string name="editor_info_directory_structure_title">Struttura delle Directory</string>
+    <string name="editor_info_directory_structure_text">maps/ - Contiene tutte le definizioni delle mappe - levels/ - Contiene tutte le definizioni dei livelli - sequence.json - Definisce l'ordine dei livelli - worldmap.json - Definisce le posizioni della mappa del mondo</string>
+    <string name="editor_info_map_editor_title">Editor di Mappe</string>
+    <string name="editor_info_map_editor_text">L'Editor di Mappe ti consente di creare il layout della griglia per i tuoi livelli. Le mappe definiscono la griglia esagonale, i punti di spawn, i percorsi e le aree di costruzione dove possono essere posizionate le torri.</string>
+    <string name="editor_info_map_editor_features">Selezionare e posizionare tipi di tessere (PATH, BUILD_AREA, ISLAND, NO_PLAY, SPAWN_POINT, TARGET, RIVER) - Dipingere tessere facendo clic o trascinando - Configurare le proprietà del fiume (direzione e velocità del flusso) - Zoomare con Ctrl+Rotella o pulsanti zoom - Ridurre l'intestazione per più spazio di modifica - Cambiare tutte le tessere NO_PLAY in PATH in una volta</string>
+    <string name="editor_info_level_editor_title">Editor di Livelli</string>
+    <string name="editor_info_level_editor_text">L'Editor di Livelli ti consente di creare livelli di gioco utilizzando mappe esistenti. Ogni livello fa riferimento a una mappa e definisce i nemici, le risorse e le torri disponibili.</string>
+    <string name="editor_info_level_editor_features">Selezionare una mappa per il tuo livello - Impostare monete iniziali e punti vita - Configurare gli spawn dei nemici per turno - Scegliere quali tipi di torri sono disponibili - Aggiungere punti di spawn e waypoint - Configurare restrizioni delle torri e regole speciali</string>
+    <string name="editor_info_level_sequence_title">Sequenza di Livelli</string>
+    <string name="editor_info_level_sequence_text">La scheda Sequenza di Livelli ti consente di organizzare i livelli nell'ordine in cui appaiono nel gioco. Questo definisce la progressione e la curva di difficoltà.</string>
+    <string name="editor_info_level_sequence_features">Trascinare e rilasciare i livelli per riordinarli - Usare i pulsanti ↑ e ↓ per spostare i livelli - Aggiungere livelli alla sequenza - Rimuovere livelli dalla sequenza - Impostare dipendenze dei livelli</string>
+    <string name="editor_info_world_map_title">Posizioni Mappa del Mondo</string>
+    <string name="editor_info_world_map_text">La scheda Posizioni Mappa del Mondo ti consente di definire dove appaiono i livelli sulla mappa del mondo e come sono connessi.</string>
+    <string name="editor_info_world_map_features">Impostare coordinate X/Y per ogni livello - Creare connessioni tra livelli (strada o mare) - Connettere automaticamente i livelli in base alle dipendenze - Configurare stili visivi delle connessioni - Definire waypoint per i percorsi di connessione</string>
+    <string name="editor_info_tips_title">Suggerimenti</string>
+    <string name="editor_info_tips_text">Salva frequentemente per evitare di perdere il lavoro - Testa i tuoi livelli nel gioco per assicurarti che siano bilanciati - Usa i livelli esistenti come modelli - Le mappe possono essere riutilizzate su più livelli - La sequenza determina quali livelli sono giocabili</string>
 </resources>
