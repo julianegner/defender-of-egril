@@ -43,8 +43,8 @@ class DesktopBackgroundMusicManager : BackgroundMusicManager {
             return
         }
         
-        // Stop current music if different from requested
-        if (currentMusic != music) {
+        // Stop current music if different from requested, or if not playing
+        if (currentMusic != music || !playing) {
             stopMusic()
             currentMusic = music
             currentLoop = loop

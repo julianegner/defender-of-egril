@@ -42,10 +42,19 @@ class WasmBackgroundMusicManager : BackgroundMusicManager {
     }
     
     override fun playMusic(music: BackgroundMusic, loop: Boolean, volume: Float) {
-        if (!enabled || !AppSettings.isSoundEnabled.value || !AppSettings.isMusicEnabled.value) return
+        // Check if music should be playing
+        val categoryEnabled = when (music) {
+            BackgroundMusic.WORLD_MAP -> AppSettings.isWorldMapMusicEnabled.value
+            BackgroundMusic.GAMEPLAY_NORMAL, BackgroundMusic.GAMEPLAY_LOW_HEALTH -> AppSettings.isGameplayMusicEnabled.value
+        }
         
-        // Stop current music if different from requested
-        if (currentMusic != music) {
+        if (!enabled || !AppSettings.isSoundEnabled.value || !AppSettings.isMusicEnabled.value || !categoryEnabled) {
+            stopMusic()
+            return
+        }
+        
+        // Stop current music if different from requested, or if not playing
+        if (currentMusic != music || !playing) {
             stopMusic()
             currentMusic = music
             
