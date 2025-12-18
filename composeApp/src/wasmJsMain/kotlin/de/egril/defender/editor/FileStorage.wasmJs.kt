@@ -44,11 +44,16 @@ class WasmJsFileStorage : FileStorage {
         }
         
         // Check if it exists as a virtual directory (any keys start with path + "/")
+        // Note: This iterates through all localStorage keys, which is O(n) where n is the
+        // total number of keys. This is acceptable for the game's use case because:
+        // 1. Game data is limited (typically < 100 files)
+        // 2. This check is infrequent (once per session at most)
+        // 3. Early termination on first match
         val dirPrefix = PREFIX + path + "/"
         for (i in 0 until localStorage.length) {
             val key = localStorage.key(i)
             if (key != null && key.startsWith(dirPrefix)) {
-                return true
+                return true  // Early termination on first match
             }
         }
         
