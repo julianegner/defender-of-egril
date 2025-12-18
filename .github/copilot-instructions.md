@@ -23,7 +23,10 @@ Defender of Egril is a turn-based tower defense game built with Kotlin Multiplat
     - `utils/`: Utilities (CheatCodeHandler, TimeUtils)
   - `composeResources/`: Multiplatform resources
     - `drawable/`: Image assets (icons, sprites)
-    - `values/strings.xml`: Default English string resources (~318 strings)
+      - Emoji icons: Files with `emoji_*.png` prefix for UI icons
+      - Dig outcome icons: Simple versions `dig_outcome_*.png` and enhanced versions `dig_outcome_*_enhanced.png`
+    - `files/tiles/`: Tile background images (organized by TileType: PATH, BUILD_AREA, ISLAND, NO_PLAY, SPAWN_POINT, TARGET)
+    - `values/strings.xml`: Default English string resources (~326 strings)
     - `values-de/strings.xml`: German translations
     - `values-es/strings.xml`: Spanish translations
     - `values-fr/strings.xml`: French translations
@@ -99,12 +102,22 @@ Defender of Egril is a turn-based tower defense game built with Kotlin Multiplat
 - **Usage in Composables**: Use `stringResource(Res.string.key_name)` for UI strings
 - **Dynamic Localization**: For runtime string access, use `LocalizedStrings.get("key_name", locale)`
 - **Language Switching**: Change `currentLanguage.value` to switch languages (triggers recomposition)
-- **Settings UI**: All screens have a settings button that opens `SettingsDialog` with language selection
+- **Settings UI**: All screens have a settings button that opens `SettingsDialog` with:
+  - Language selection
+  - Dark mode toggle
+  - Enhanced dig outcome images toggle (default: ON) - switches between `dig_outcome_*.png` and `dig_outcome_*_enhanced.png`
+  - Tile background images toggle (default: ON) - enables loading random tile images from `files/tiles/{TileType}/`
+  - Sound settings, difficulty, and other preferences
 - **Type Localization**: `LocalizationUtils.kt` provides extension functions for:
   - `DefenderType.getLocalizedName()` - Tower names
   - `DefenderType.getLocalizedShortName()` - Compact tower names
   - `AttackerType.getLocalizedName()` - Enemy names
   - `AttackType.getLocalizedName()` - Attack type names
+- **Translation Requirements**:
+  - ALL user-facing strings MUST use `stringResource(Res.string.key_name)` - no hardcoded strings
+  - Exceptions: Cheat codes (not translated), single-character symbols (•, ✓, etc.), variable interpolations
+  - New strings MUST be added to ALL language files (values/, values-de/, values-es/, values-fr/, values-it/)
+  - Run `TranslationCoverageTest` to verify complete translation coverage
 
 ### Icons and Emojis
 - **DO NOT use Unicode emojis/icons in Kotlin code** - They don't display correctly on WASM
@@ -123,6 +136,11 @@ Defender of Egril is a turn-based tower defense game built with Kotlin Multiplat
 - **Hexagonal Grid**: Uses offset coordinate system (even-q vertical layout)
 - **HexUtils**: Provides neighbor detection, distance calculation, and line-of-sight
 - **Tile Types**: PATH, BUILD_AREA, ISLAND (2x2), NO_PLAY, SPAWN_POINT, TARGET, WAYPOINT
+- **Tile Rendering**: 
+  - Color-based backgrounds (always available as fallback)
+  - Optional image backgrounds: Random images loaded from `files/tiles/{TileType}/` subdirectories
+  - `TileImageProvider.kt` handles image loading and caching
+  - Settings toggle to switch between images and colors (default: images enabled)
 - **Pathfinding**: Custom hexagonal pathfinding with blocked tile detection
 
 ### Attack Types
@@ -207,6 +225,17 @@ Add to `LevelData.createLevels()` with:
 4. Plugin automatically generates `AppLocale.{LANG}` enum value
 5. Update `LanguageChooser.kt`'s `getCountryCode()` function if language code differs from country code
 6. Test language switching via Settings dialog
+7. All ~550+ strings must be translated for complete localization
+8. Run `TranslationCoverageTest` to verify all keys are present
+
+#### Adding New UI Strings
+1. **Add to English first**: Add new string to `values/strings.xml`
+2. **Translate to all languages**: Add identical key to values-de/, values-es/, values-fr/, values-it/
+3. **Use in code**: Use `stringResource(Res.string.your_key)` in Composables
+4. **Test**: Run `TranslationCoverageTest` to verify all language files are synchronized
+5. **Never hardcode**: Do not use hardcoded strings like `Text("Hello")` - always use stringResource
+5. Update `LanguageChooser.kt`'s `getCountryCode()` function if language code differs from country code
+6. Test language switching via Settings dialog
 7. All ~318 strings must be translated for complete localization
 
 ## Build and Test Commands
@@ -246,7 +275,17 @@ Add to `LevelData.createLevels()` with:
 
 # Run common tests only
 ./gradlew :composeApp:cleanTestDebugUnitTest :composeApp:testDebugUnitTest
+
+# Run translation coverage test specifically
+./gradlew :composeApp:testDebugUnitTest --tests "de.egril.defender.ui.TranslationCoverageTest"
 ```
+
+### Translation Testing
+- **TranslationCoverageTest**: Automated test that verifies all user-facing strings are properly translated
+  - Scans all UI code for hardcoded strings (except cheat codes and symbols)
+  - Verifies all language files have identical keys
+  - Runs as part of the standard test suite
+  - **MUST pass** before merging any UI changes
 
 ## Code Style
 
@@ -319,7 +358,7 @@ Add to `LevelData.createLevels()` with:
 7. **Level Editor**: Desktop and web/wasm only - not available on mobile platforms
 8. **File storage paths**: Use FileStorage interface for platform-specific paths
 9. **Large file refactoring**: Keep UI component files under 500 lines; extract into modular structure (see `ui/gameplay/` pattern)
-10. **Localization strings**: Always use `stringResource(Res.string.key_name)` in composables instead of hardcoded strings. For runtime string access outside composables, use `LocalizedStrings.get("key_name", locale)`. All new strings must be added to all language files (values/, values-de/, values-es/, values-fr/, values-it/)
+10. **Hardcoded strings**: NEVER use hardcoded strings in UI (e.g., `Text("Hello")`). Always use `stringResource(Res.string.key_name)`. Add new strings to ALL language files (values/, values-de/, values-es/, values-fr/, values-it/). Run `TranslationCoverageTest` to verify.
 
 ## Dependencies
 

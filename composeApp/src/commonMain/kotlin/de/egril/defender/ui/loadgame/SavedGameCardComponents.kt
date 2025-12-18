@@ -110,7 +110,8 @@ fun SavedGameCardUnitsAndMinimap(
     saveGame: SaveGameMetadata,
     level: Level?,
     minimapGameState: GameState?,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    onDownload: () -> Unit = {}
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -144,7 +145,8 @@ fun SavedGameCardUnitsAndMinimap(
             MinimapAndDeleteButton(
                 level = level,
                 minimapGameState = minimapGameState,
-                onDelete = onDelete
+                onDelete = onDelete,
+                onDownload = onDownload
             )
         }
     }
@@ -224,7 +226,8 @@ fun EnemiesList(
 fun MinimapAndDeleteButton(
     level: Level?,
     minimapGameState: GameState?,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    onDownload: () -> Unit = {}
 ) {
     // Minimap
     if (level != null) {
@@ -259,19 +262,41 @@ fun MinimapAndDeleteButton(
     
     Spacer(modifier = Modifier.height(8.dp))
     
-    // Delete button with text
+    // Action buttons row (Download and Delete)
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.End,
-        modifier = Modifier.clickable { onDelete() }
+        horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.End),
+        modifier = Modifier.fillMaxWidth()
     ) {
-        Text(
-            text = stringResource(Res.string.delete_savegame),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.error
-        )
-        Spacer(modifier = Modifier.width(4.dp))
-        TrashIcon(size = 20.dp)
+        // Download button
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.End,
+            modifier = Modifier.clickable { onDownload() }
+        ) {
+            Text(
+                text = stringResource(Res.string.download_savefile),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Spacer(modifier = Modifier.width(4.dp))
+            de.egril.defender.ui.icon.DownloadIcon(size = 20.dp)
+        }
+        
+        // Delete button with text
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.End,
+            modifier = Modifier.clickable { onDelete() }
+        ) {
+            Text(
+                text = stringResource(Res.string.delete_savegame),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.error
+            )
+            Spacer(modifier = Modifier.width(4.dp))
+            TrashIcon(size = 20.dp)
+        }
     }
 }
 
