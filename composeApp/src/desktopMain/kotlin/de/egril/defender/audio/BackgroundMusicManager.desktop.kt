@@ -112,8 +112,9 @@ class DesktopBackgroundMusicManager : BackgroundMusicManager {
         musicPlayer?.stop()
         musicPlayer = null
         playing = false
-        currentMusic = null
-        currentMusicBytes = null
+        // Don't clear currentMusic and currentMusicBytes to allow re-enabling
+        // currentMusic = null
+        // currentMusicBytes = null
     }
     
     override fun pauseMusic() {

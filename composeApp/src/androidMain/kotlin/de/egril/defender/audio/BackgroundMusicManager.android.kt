@@ -102,7 +102,8 @@ class AndroidBackgroundMusicManager(private val context: Context) : BackgroundMu
             mediaPlayer = null
         }
         playing = false
-        currentMusic = null
+        // Don't clear currentMusic to allow re-enabling
+        // currentMusic = null
     }
     
     override fun pauseMusic() {
@@ -140,10 +141,16 @@ class AndroidBackgroundMusicManager(private val context: Context) : BackgroundMu
         this.enabled = enabled
         AppSettings.saveMusicEnabled(enabled)
         
-        if (!enabled) {
+        if (!enabled || !AppSettings.isSoundEnabled.value) {
             pauseMusic()
-        } else {
-            resumeMusic()
+        } else if (currentMusic != null) {
+            // Try to resume existing music, or restart if needed
+            if (mediaPlayer != null) {
+                resumeMusic()
+            } else {
+                // Restart playback if mediaPlayer was released
+                playMusic(currentMusic!!, loop = true)
+            }
         }
     }
     
