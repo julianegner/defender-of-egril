@@ -28,6 +28,10 @@ import defender_of_egril.composeapp.generated.resources.Res
 import kotlinx.coroutines.launch
 import androidx.compose.ui.text.font.FontStyle
 
+// Button sizing constants for world map bottom bar
+private val BUTTON_WIDTH_MOBILE_IMAGE_MAP = 133.dp  // ~33% smaller than default for compact mobile layout
+private val BUTTON_WIDTH_DEFAULT = 200.dp  // Standard button width for desktop and mobile level cards view
+
 @Composable
 fun WorldMapScreen(
     worldLevels: List<WorldLevel>,
@@ -179,8 +183,8 @@ fun WorldMapScreen(
                 horizontalArrangement = buttonArrangement,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Button width: smaller on mobile in image map view (200 -> ~133), normal in cards view
-                val buttonMinWidth = if (isMobileImageMap) 133.dp else 200.dp
+                // Button width: smaller on mobile in image map view, standard otherwise
+                val buttonMinWidth = if (isMobileImageMap) BUTTON_WIDTH_MOBILE_IMAGE_MAP else BUTTON_WIDTH_DEFAULT
                 
                 // Button layout varies by platform and view mode:
                 // - Mobile + Image Map: Column layout, left-aligned, smaller buttons
