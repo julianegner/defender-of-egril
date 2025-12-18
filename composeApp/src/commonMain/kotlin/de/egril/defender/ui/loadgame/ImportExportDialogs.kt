@@ -29,7 +29,7 @@ fun FileOverrideDialog(
             },
             text = {
                 Text(
-                    text = stringResource(Res.string.file_override_message).replace("%s", filename)
+                    text = stringResource(Res.string.file_override_message, filename)
                 )
             },
             confirmButton = {
@@ -72,7 +72,7 @@ fun ImportSuccessDialog(
             },
             text = {
                 Text(
-                    text = stringResource(Res.string.files_imported_message).replace("%d", filesImported.toString())
+                    text = stringResource(Res.string.files_imported_message, filesImported)
                 )
             },
             confirmButton = {
