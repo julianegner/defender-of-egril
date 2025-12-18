@@ -15,6 +15,8 @@ import androidx.compose.ui.window.Dialog
 import com.hyperether.resources.stringResource
 import de.egril.defender.editor.RepositoryManager
 import de.egril.defender.ui.editor.ConfirmationDialog
+import de.egril.defender.ui.icon.SpeakerHighIcon
+import de.egril.defender.ui.icon.SpeakerLowIcon
 import defender_of_egril.composeapp.generated.resources.*
 import defender_of_egril.composeapp.generated.resources.Res
 import kotlinx.coroutines.launch
@@ -233,10 +235,7 @@ fun SettingsDialog(
                                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text(
-                                    text = "🔈",
-                                    style = MaterialTheme.typography.bodyLarge
-                                )
+                                SpeakerLowIcon(size = 20.dp)
                                 Slider(
                                     value = AppSettings.soundVolume.value,
                                     onValueChange = { volume ->
@@ -245,10 +244,7 @@ fun SettingsDialog(
                                     modifier = Modifier.weight(1f),
                                     valueRange = 0f..1f
                                 )
-                                Text(
-                                    text = "🔊",
-                                    style = MaterialTheme.typography.bodyLarge
-                                )
+                                SpeakerHighIcon(size = 20.dp)
                             }
                         }
                         
@@ -307,10 +303,7 @@ fun SettingsDialog(
                                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                                             verticalAlignment = Alignment.CenterVertically
                                         ) {
-                                            Text(
-                                                text = "🔈",
-                                                style = MaterialTheme.typography.bodyLarge
-                                            )
+                                            SpeakerLowIcon(size = 20.dp)
                                             Slider(
                                                 value = AppSettings.effectsVolume.value,
                                                 onValueChange = { volume ->
@@ -320,10 +313,7 @@ fun SettingsDialog(
                                                 modifier = Modifier.weight(1f),
                                                 valueRange = 0f..1f
                                             )
-                                            Text(
-                                                text = "🔊",
-                                                style = MaterialTheme.typography.bodyLarge
-                                            )
+                                            SpeakerHighIcon(size = 20.dp)
                                         }
                                     }
                                 }
@@ -402,10 +392,7 @@ fun SettingsDialog(
                                                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                                                 verticalAlignment = Alignment.CenterVertically
                                             ) {
-                                                Text(
-                                                    text = "🔈",
-                                                    style = MaterialTheme.typography.bodyLarge
-                                                )
+                                                SpeakerLowIcon(size = 20.dp)
                                                 Slider(
                                                     value = AppSettings.worldMapMusicVolume.value,
                                                     onValueChange = { volume ->
@@ -422,10 +409,7 @@ fun SettingsDialog(
                                                     modifier = Modifier.weight(1f),
                                                     valueRange = 0f..1f
                                                 )
-                                                Text(
-                                                    text = "🔊",
-                                                    style = MaterialTheme.typography.bodyLarge
-                                                )
+                                                SpeakerHighIcon(size = 20.dp)
                                             }
                                         }
                                     }
@@ -477,10 +461,7 @@ fun SettingsDialog(
                                                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                                                 verticalAlignment = Alignment.CenterVertically
                                             ) {
-                                                Text(
-                                                    text = "🔈",
-                                                    style = MaterialTheme.typography.bodyLarge
-                                                )
+                                                SpeakerLowIcon(size = 20.dp)
                                                 Slider(
                                                     value = AppSettings.gameplayMusicVolume.value,
                                                     onValueChange = { volume ->
@@ -498,10 +479,7 @@ fun SettingsDialog(
                                                     modifier = Modifier.weight(1f),
                                                     valueRange = 0f..1f
                                                 )
-                                                Text(
-                                                    text = "🔊",
-                                                    style = MaterialTheme.typography.bodyLarge
-                                                )
+                                                SpeakerHighIcon(size = 20.dp)
                                             }
                                         }
                                     }

@@ -53,6 +53,8 @@ import defender_of_egril.composeapp.generated.resources.emoji_red_circle
 import defender_of_egril.composeapp.generated.resources.emoji_map
 import defender_of_egril.composeapp.generated.resources.emoji_number_1
 import defender_of_egril.composeapp.generated.resources.emoji_number_2
+import defender_of_egril.composeapp.generated.resources.emoji_speaker_low
+import defender_of_egril.composeapp.generated.resources.emoji_speaker_high
 import org.jetbrains.compose.resources.painterResource
 import kotlin.math.PI
 import kotlin.math.cos
@@ -749,5 +751,37 @@ fun UploadIcon(
         contentDescription = "Upload",
         modifier = modifier.size(size),
         colorFilter = tint?.let { ColorFilter.Companion.tint(it) }
+    )
+}
+
+/**
+ * Displays a low volume speaker icon using Image for cross-platform compatibility
+ * Source: Custom icon (U+1F508 speaker low volume)
+ */
+@Composable
+fun SpeakerLowIcon(
+    modifier: Modifier = Modifier.Companion,
+    size: Dp = 16.dp
+) {
+    Image(
+        painter = painterResource(Res.drawable.emoji_speaker_low),
+        contentDescription = "Speaker Low",
+        modifier = modifier.size(size)
+    )
+}
+
+/**
+ * Displays a high volume speaker icon using Image for cross-platform compatibility
+ * Source: Custom icon (U+1F50A speaker high volume)
+ */
+@Composable
+fun SpeakerHighIcon(
+    modifier: Modifier = Modifier.Companion,
+    size: Dp = 16.dp
+) {
+    Image(
+        painter = painterResource(Res.drawable.emoji_speaker_high),
+        contentDescription = "Speaker High",
+        modifier = modifier.size(size)
     )
 }
