@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Main Menu -->
-    <string name="app_name">Défenseur d\'Egril</string>
-    <string name="app_subtitle">Défendez les prairies d\'Egril contre les Hordes de Gleid Thyae sous la Bannière du maléfique Ewhad</string>
+    <string name="app_name">Défenseur d'Egril</string>
+    <string name="app_subtitle">Défendez les prairies d'Egril contre les Hordes de Gleid Thyae sous la Bannière du maléfique Ewhad</string>
     <string name="start_game">Commencer le jeu</string>
     <string name="rules">Règles</string>
     
@@ -34,13 +34,13 @@
     <string name="reset_settings">Réinitialiser les Paramètres</string>
     <string name="restore_game_data">Restaurer les Données du Jeu</string>
     <string name="restore_game_data_confirm_title">Restaurer les Données du Jeu ?</string>
-    <string name="restore_game_data_confirm_message">Cela sauvegardera vos données actuelles du jeu et restaurera les niveaux d\'origine depuis le dépôt. Vos données actuelles seront conservées dans un dossier de sauvegarde. Êtes-vous sûr ?</string>
+    <string name="restore_game_data_confirm_message">Cela sauvegardera vos données actuelles du jeu et restaurera les niveaux d'origine depuis le dépôt. Vos données actuelles seront conservées dans un dossier de sauvegarde. Êtes-vous sûr ?</string>
     <string name="restore_game_data_success_title">Données du Jeu Restaurées</string>
     <string name="restore_game_data_success_message">Les données du jeu ont été restaurées depuis le dépôt. Vos données précédentes ont été sauvegardées dans : %s</string>
     <string name="game_data">Données du Jeu</string>
     <string name="close">Fermer</string>
     <string name="settings_hint_title">Paramètres Disponibles</string>
-    <string name="settings_hint_message">Cliquez sur l\'icône des paramètres pour personnaliser votre expérience. Les paramètres disponibles incluent :</string>
+    <string name="settings_hint_message">Cliquez sur l'icône des paramètres pour personnaliser votre expérience. Les paramètres disponibles incluent :</string>
     <string name="settings_hint_dismiss">Compris !</string>
     
     <!-- Common Actions -->
@@ -111,7 +111,7 @@
     <!-- Rules Screen -->
     <string name="how_to_play">Comment jouer</string>
     <string name="game_overview">Aperçu du jeu</string>
-    <string name="game_overview_text">Défenseur d\'Egril est un jeu de tower defense au tour par tour. Défendez les prairies d\'Egril contre des vagues d\'ennemis sous la bannière maléfique d\'Ewhad.</string>
+    <string name="game_overview_text">Défenseur d'Egril est un jeu de tower defense au tour par tour. Défendez les prairies d'Egril contre des vagues d'ennemis sous la bannière maléfique d'Ewhad.</string>
     <string name="at_start_of_level">Au début de chaque niveau :</string>
     <string name="place_towers_instantly">Placez les tours instantanément (pas de temps de construction)</string>
     <string name="use_coins_strategically">Utilisez vos pièces de départ stratégiquement</string>
@@ -129,29 +129,29 @@
     <string name="enemies_attack">Les ennemis qui atteignent la fin vous coûtent 1 point de santé</string>
     <string name="new_enemies">De nouveaux ennemis peuvent apparaître</string>
     <string name="winning_losing">Gagner et perdre</string>
-    <string name="win_condition">Victoire : Éliminez tous les ennemis avant qu\'ils ne percent vos défenses</string>
+    <string name="win_condition">Victoire : Éliminez tous les ennemis avant qu'ils ne percent vos défenses</string>
     <string name="lose_condition">Défaite : Votre santé atteint 0</string>
     <string name="tower_types">Types de tours</string>
     <string name="spike_tower">Tour à piques (Pike) : Défense au corps-à-corps, option la moins chère</string>
     <string name="spear_tower">Tour à lances : Attaques perforantes à moyenne portée</string>
-    <string name="bow_tower">Tour d\'archerie : Tir à l\'arc à longue portée</string>
+    <string name="bow_tower">Tour d'archerie : Tir à l'arc à longue portée</string>
     <string name="wizard_tower">Tour du sorcier : Boule de feu à effet de zone</string>
-    <string name="alchemy_tower">Tour d\'alchimie : Dégâts d\'acide sur la durée</string>
+    <string name="alchemy_tower">Tour d'alchimie : Dégâts d'acide sur la durée</string>
     <string name="ballista_tower">Tour de baliste : Siège à longue portée, portée minimale</string>
     <string name="dwarven_mine">Mine naine : Génère des pièces</string>
     <string name="dragons_lair">Repaire du dragon : Fait apparaître des dragons</string>
-    <string name="enemy_types">Types d\'ennemis</string>
+    <string name="enemy_types">Types d'ennemis</string>
     <string name="goblin">Gobelin : Rapide et faible</string>
     <string name="ork">Orc : Lent mais résistant</string>
     <string name="ogre">Ogre : Très résistant</string>
     <string name="skeleton">Squelette : Mort-vivant rapide</string>
     <string name="evil_wizard">Sorcier maléfique : Attaquant magique</string>
     <string name="witch">Sorcière : Magie noire</string>
-    <string name="blue_demon">Démon bleu : Rapide, immunisé contre l\'acide</string>
+    <string name="blue_demon">Démon bleu : Rapide, immunisé contre l'acide</string>
     <string name="red_demon">Démon rouge : Résistant, immunisé contre la boule de feu</string>
     <string name="evil_mage">Mage maléfique : Peut invoquer des serviteurs</string>
     <string name="red_witch">Sorcière rouge : Peut désactiver les tours</string>
-    <string name="green_witch">Sorcière verte : Peut soigner d\'autres ennemis</string>
+    <string name="green_witch">Sorcière verte : Peut soigner d'autres ennemis</string>
     <string name="ewhad">Ewhad : Boss avec invocation</string>
     <string name="dragon">Dragon : Boss puissant</string>
     <string name="strategic_tips">Conseils stratégiques</string>
@@ -159,16 +159,16 @@
     <string name="save_coins">Économisez 20-30 pièces pour le milieu de partie</string>
     <string name="focus_fire">Concentrez le tir sur les ennemis résistants (Ogres, Orcs)</string>
     <string name="wizard_for_aoe">Tours de sorcier pour des dégâts de zone massifs</string>
-    <string name="upgrade_vs_build">Améliorez les tours de haut niveau plutôt que d\'en construire de nouvelles</string>
+    <string name="upgrade_vs_build">Améliorez les tours de haut niveau plutôt que d'en construire de nouvelles</string>
     
     <!-- Additional RulesScreen strings -->
-    <string name="attack_enemies_desc">Attaquer les ennemis - cliquez sur la tour avec des actions, puis sur l\'ennemi à portée</string>
+    <string name="attack_enemies_desc">Attaquer les ennemis - cliquez sur la tour avec des actions, puis sur l'ennemi à portée</string>
     <string name="build_timers_advance">Les minuteries de construction avancent (compte à rebours)</string>
     <string name="dot_effects_applied">Les effets de dégâts sur la durée sont appliqués</string>
-    <string name="attack_types">Types d\'attaques</string>
+    <string name="attack_types">Types d'attaques</string>
     <string name="melee_ranged_desc">Corps-à-corps/À distance: Cible unique</string>
-    <string name="fireball_desc">Boule de feu (Zone): Endommage tous les ennemis dans un rayon de 1 case de l\'impact</string>
-    <string name="acid_desc">Acide: Dégâts continus pendant 3 tours dans un rayon de 1 case de l\'impact</string>
+    <string name="fireball_desc">Boule de feu (Zone): Endommage tous les ennemis dans un rayon de 1 case de l'impact</string>
+    <string name="acid_desc">Acide: Dégâts continus pendant 3 tours dans un rayon de 1 case de l'impact</string>
     <string name="victory_defeat">Victoire &amp; Défaite</string>
     <string name="victory_detail">Victoire: Vaincre tous les ennemis dans toutes les vagues avec au moins 1 point de santé restant</string>
     <string name="defeat_detail">Défaite: Les ennemis faibles (gobelins, orcs, ogres, squelettes) coûtent 1 point de santé en atteignant la cible. Les ennemis puissants (sorciers, sorcières, mages maléfiques, démons, dragons) coûtent des points de santé égaux à leur niveau. Ewhad coûte tous vos points de santé. À 0 point de santé, vous perdez.</string>
@@ -192,9 +192,9 @@
     <!-- Defender/Tower names -->
     <string name="spike_tower_name">Tour à piques</string>
     <string name="spear_tower_name">Tour à lances</string>
-    <string name="bow_tower_name">Tour d\'archerie</string>
+    <string name="bow_tower_name">Tour d'archerie</string>
     <string name="wizard_tower_name">Tour du sorcier</string>
-    <string name="alchemy_tower_name">Tour d\'alchimie</string>
+    <string name="alchemy_tower_name">Tour d'alchimie</string>
     <string name="ballista_tower_name">Tour de baliste</string>
     <string name="dwarven_mine_name">Mine</string>
     <string name="dragons_lair_name">Repaire du dragon</string>
@@ -273,7 +273,7 @@
     <string name="non_playable">Non jouable</string>
     <string name="enemy_unit">Unité ennemie</string>
     <string name="map_label">Carte</string>
-    <string name="not_enough_actions">pas assez d\'actions</string>
+    <string name="not_enough_actions">pas assez d'actions</string>
     <string name="name_label">Nom</string>
     <string name="reward">Récompense</string>
 
@@ -281,7 +281,7 @@
     <string name="units_label">Unités</string>
     <string name="tower_ready">Tour (Prête)</string>
     <string name="tower_building">Tour (En construction)</string>
-    <string name="tower_no_actions">Tour (Pas d\'actions)</string>
+    <string name="tower_no_actions">Tour (Pas d'actions)</string>
     <string name="legend_info_ballista">Baliste: Portée min. 3</string>
     <string name="legend_info_tower_icons">Icônes montrent type de tour/ennemi</string>
     <string name="legend_info_tower_actions">Niveau et actions affichés sur tours</string>
@@ -356,14 +356,14 @@
     <string name="add">Ajouter</string>
     <string name="turn_x">Tour %d</string>
     <string name="x_enemies">(%d ennemis)</string>
-    <string name="enemy_level">Niveau d\'ennemi</string>
-    <string name="change_enemy_level">Modifier le niveau d\'ennemi</string>
+    <string name="enemy_level">Niveau d'ennemi</string>
+    <string name="change_enemy_level">Modifier le niveau d'ennemi</string>
     <string name="new_level">Nouveau niveau</string>
-    <string name="enemy_type">Type d\'ennemi:</string>
+    <string name="enemy_type">Type d'ennemi:</string>
     <string name="add_enemy_to_turn">Ajouter un ennemi au tour %d</string>
-    <string name="ewhad_warning">⚠️ Ewhad ne peut apparaître qu\'une fois par niveau!</string>
+    <string name="ewhad_warning">⚠️ Ewhad ne peut apparaître qu'une fois par niveau!</string>
     <string name="level_lv">Niv%d</string>
-    <string name="arrange_level_order">Organiser l\'ordre des niveaux:</string>
+    <string name="arrange_level_order">Organiser l'ordre des niveaux:</string>
     <string name="levels_in_sequence">Niveaux dans la séquence:</string>
     <string name="available_levels">Niveaux disponibles (Pas dans la séquence):</string>
     <string name="add_to_sequence">Ajouter à la séquence</string>
@@ -386,14 +386,14 @@
     <string name="add_all_towers">Tout ajouter</string>
     <string name="remove_all_towers">Tout supprimer</string>
     <string name="level_info_tab">Info du niveau</string>
-    <string name="enemy_spawns_tab">Apparitions d\'ennemis</string>
+    <string name="enemy_spawns_tab">Apparitions d'ennemis</string>
     <string name="towers_tab">Tours</string>
     <string name="delete_turn">Supprimer le tour</string>
     <string name="cannot_delete_turn">Impossible de supprimer ce tour tant que des tours ultérieurs existent</string>
     <string name="no_enemies_in_turn">Aucun ennemi n\'apparaît dans ce tour</string>
     <string name="clear_turn">Effacer le tour</string>
     <string name="remove_all_turns">Supprimer tous les tours</string>
-    <string name="confirm_remove_all_turns">Êtes-vous sûr de vouloir supprimer tous les tours d\'apparition?</string>
+    <string name="confirm_remove_all_turns">Êtes-vous sûr de vouloir supprimer tous les tours d'apparition?</string>
     <string name="copy_level">Copier le niveau</string>
     <string name="yes">Oui</string>
     <string name="confirm_delete_level">Êtes-vous sûr de vouloir supprimer ce niveau?</string>
@@ -405,9 +405,9 @@
 
     <!-- Enemy ability descriptions -->
     <string name="can_summon">Peut invoquer des serviteurs</string>
-    <string name="can_heal">Peut soigner d\'autres ennemis</string>
+    <string name="can_heal">Peut soigner d'autres ennemis</string>
     <string name="can_disable_towers">Peut désactiver les tours</string>
-    <string name="immune_to_acid">Immunisé contre l\'acide</string>
+    <string name="immune_to_acid">Immunisé contre l'acide</string>
     <string name="immune_to_fireball">Immunisé contre la boule de feu</string>
 
     <!-- Tutorial -->
@@ -467,7 +467,7 @@
     <string name="difficulty_medium_desc">Difficulté par défaut</string>
     <string name="difficulty_hard_desc">Les ennemis ont le double de niveaux</string>
     <string name="difficulty_nightmare_desc">Les ennemis apparaissent 3 fois avec des niveaux croissants</string>
-    <string name="difficulty_info_current_level">Remarque : La modification de la difficulté n\'affecte pas le niveau actuel. Démarrez ou redémarrez un niveau pour l\'appliquer.</string>
+    <string name="difficulty_info_current_level">Remarque : La modification de la difficulté n\'affecte pas le niveau actuel. Démarrez ou redémarrez un niveau pour l'appliquer.</string>
     
     <!-- Dragon Names -->
     <string name="the_dragon">Le dragon</string>
@@ -476,26 +476,26 @@
 
     <!-- Dragon Info -->
     <string name="dragon_info_title">Alerte Dragon !</string>
-    <string name="dragon_info_movement">Le dragon alterne ses mouvements : Tour 1, 3, 5... : Marche 1 case sur le chemin. Tour 2, 4, 6... : Vole jusqu\'à 5 cases, peut traverser les obstacles mais doit atterrir sur le chemin</string>
+    <string name="dragon_info_movement">Le dragon alterne ses mouvements : Tour 1, 3, 5... : Marche 1 case sur le chemin. Tour 2, 4, 6... : Vole jusqu'à 5 cases, peut traverser les obstacles mais doit atterrir sur le chemin</string>
     <string name="dragon_info_eating">Les dragons dévorent les ennemis sur lesquels ils atterrissent (sauf Ewhad), gagnant leurs points de vie !</string>
     <string name="dragon_info_level">Le niveau du dragon augmente avec la santé : Niveau = PV ÷ 500 (min. 1)</string>
     <string name="got_it">Compris !</string>
 
     <!-- Dragon Greed Info -->
     <string name="dragon_greed_title">Avidité du Dragon !</string>
-    <string name="dragon_greed_message">Le dragon est devenu avide ! Avidité = Niveau du Dragon ÷ 5. Le dragon dévorera désormais des unités sur les tuiles adjacentes selon son niveau d\'avidité à chaque tour.</string>
+    <string name="dragon_greed_message">Le dragon est devenu avide ! Avidité = Niveau du Dragon ÷ 5. Le dragon dévorera désormais des unités sur les tuiles adjacentes selon son niveau d'avidité à chaque tour.</string>
     <string name="dragon_very_greedy_title">Raid Minier du Dragon !</string>
-    <string name="dragon_very_greedy_message">Le dragon est très avide (avidité > 5) ! Il va maintenant traquer et détruire les mines naines, absorbant toute la santé qu\'aurait un nouveau dragon (500 PV par mine). Les mines deviendront des décombres détruits. Défendez-les ou reconstruisez rapidement !</string>
+    <string name="dragon_very_greedy_message">Le dragon est très avide (avidité > 5) ! Il va maintenant traquer et détruire les mines naines, absorbant toute la santé qu'aurait un nouveau dragon (500 PV par mine). Les mines deviendront des décombres détruits. Défendez-les ou reconstruisez rapidement !</string>
     <string name="mine_warning_title">Mine Menacée !</string>
     <string name="mine_warning_message">Le dragon approche ! Les nains se préparent à défendre leur mine, mais cela pourrait ne pas suffire...</string>
     <string name="one_hp_warning_title">Avertissement Critique !</string>
-    <string name="one_hp_warning_message">Vous n\'avez qu\'1 point de vie ! Pas un seul ennemi ne peut atteindre la cible, sinon vous perdrez. Défendez avec une extrême prudence !</string>
+    <string name="one_hp_warning_message">Vous n\'avez qu'1 point de vie ! Pas un seul ennemi ne peut atteindre la cible, sinon vous perdrez. Défendez avec une extrême prudence !</string>
     
     <!-- Enemy Info Display -->
     <string name="greedy_label">avide</string>
     <string name="very_greedy_label">très avide</string>
     <string name="greedy_desc">Mange les unités ennemies environnantes</string>
-    <string name="very_greedy_desc">Mange les unités ennemies environnantes et détruit les mines l\'une après l\'autre</string>
+    <string name="very_greedy_desc">Mange les unités ennemies environnantes et détruit les mines l'une après l'autre</string>
     <string name="greed_level_label">Avidité</string>
     <string name="dragon_info_button">Que fait un dragon ?</string>
     <string name="mighty_unit_warning">Unité puissante ! Inflige %d PV de dégâts si elle atteint la cible (niveau × 1 PV)</string>
@@ -514,23 +514,23 @@
     <string name="waypoint_validation_error">✗ La configuration des points de passage contient des erreurs</string>
     <string name="circular_dependency_detected">Dépendance circulaire détectée ! Corrigez les connexions des points de passage.</string>
     <string name="waypoint_position_format">Position (%d, %d)</string>
-    <string name="spawn_point_text">Point d\'Apparition</string>
-    <string name="spawn_point">Point d\'Apparition</string>
-    <string name="select_spawn_point">Sélectionner le point d\'apparition</string>
-    <string name="change_spawn_point">Changer le Point d\'Apparition</string>
-    <string name="select_spawn_point_for_enemy">Sélectionnez le point d\'apparition pour cet ennemi</string>
-    <string name="no_spawn_points_available">Aucun point d\'apparition disponible sur cette carte</string>
-    <string name="no_spawn_point_set">Aucun point d\'apparition défini</string>
+    <string name="spawn_point_text">Point d'Apparition</string>
+    <string name="spawn_point">Point d'Apparition</string>
+    <string name="select_spawn_point">Sélectionner le point d'apparition</string>
+    <string name="change_spawn_point">Changer le Point d'Apparition</string>
+    <string name="select_spawn_point_for_enemy">Sélectionnez le point d'apparition pour cet ennemi</string>
+    <string name="no_spawn_points_available">Aucun point d'apparition disponible sur cette carte</string>
+    <string name="no_spawn_point_set">Aucun point d'apparition défini</string>
     <string name="change">Changer</string>
     <string name="select">Sélectionner</string>
-    <string name="change_all_spawn_points">Changer Tous les Points d\'Apparition</string>
-    <string name="change_all_spawn_points_title">Réassigner les Points d\'Apparition des Ennemis</string>
-    <string name="change_all_spawn_points_description">Certains ennemis apparaissent à des positions qui ne sont pas des points d\'apparition sur la carte actuelle. Utilisez cette boîte de dialogue pour les réassigner à des points d\'apparition valides.</string>
+    <string name="change_all_spawn_points">Changer Tous les Points d'Apparition</string>
+    <string name="change_all_spawn_points_title">Réassigner les Points d'Apparition des Ennemis</string>
+    <string name="change_all_spawn_points_description">Certains ennemis apparaissent à des positions qui ne sont pas des points d'apparition sur la carte actuelle. Utilisez cette boîte de dialogue pour les réassigner à des points d'apparition valides.</string>
     <string name="from_spawn_point">Depuis la Position</string>
-    <string name="to_spawn_point">Vers le Point d\'Apparition</string>
+    <string name="to_spawn_point">Vers le Point d'Apparition</string>
     <string name="enemies_affected_count">%d ennemis affectés</string>
     <string name="apply_changes">Appliquer les Modifications</string>
-    <string name="spawn_point_warning">⚠ Certains ennemis apparaissent en dehors des points d\'apparition valides</string>
+    <string name="spawn_point_warning">⚠ Certains ennemis apparaissent en dehors des points d'apparition valides</string>
     <string name="target_text">Cible</string>
     <string name="waypoint">Point de Passage</string>
     <string name="select_source_position">Sélectionner la position source</string>
@@ -588,7 +588,7 @@
     
     <!-- End Turn Confirmation Dialog -->
     <string name="end_turn_confirmation_title">Terminer le tour ?</string>
-    <string name="end_turn_confirmation_message">Certaines de vos tours ont des points d\'action inutilisés. Êtes-vous sûr de vouloir terminer votre tour ?</string>
+    <string name="end_turn_confirmation_message">Certaines de vos tours ont des points d'action inutilisés. Êtes-vous sûr de vouloir terminer votre tour ?</string>
     <string name="end_turn_confirm">Terminer le tour</string>
     
     <!-- Magical Trap Feature -->
@@ -596,7 +596,7 @@
     <string name="magical_trap_cooldown">Temps de recharge : %d tours</string>
     <string name="magical_trap_available">Piège Magique Disponible</string>
     <string name="magical_trap_tutorial_title">Piège Magique Débloqué !</string>
-    <string name="magical_trap_tutorial_message">Votre tour de magicien a atteint le niveau 10 et peut désormais placer des pièges magiques ! Ces pièges téléportent les ennemis à leur point d\'apparition lorsqu\'ils sont déclenchés. Après avoir placé un piège, il y a un temps de recharge de 10 tours avant de pouvoir en placer un autre.</string>
+    <string name="magical_trap_tutorial_message">Votre tour de magicien a atteint le niveau 10 et peut désormais placer des pièges magiques ! Ces pièges téléportent les ennemis à leur point d'apparition lorsqu'ils sont déclenchés. Après avoir placé un piège, il y a un temps de recharge de 10 tours avant de pouvoir en placer un autre.</string>
     
     <!-- Level Prerequisites -->
     <string name="level_dependencies">Dépendances des Niveaux</string>
@@ -604,15 +604,15 @@
     <string name="validation_failed">Validation Échouée</string>
     <string name="missing_prerequisites">Niveaux prérequis manquants</string>
     <string name="circular_dependencies">Dépendances circulaires détectées</string>
-    <string name="final_stand_disconnected">Le Dernier Bastion n\'est pas connecté à un point d\'entrée</string>
+    <string name="final_stand_disconnected">Le Dernier Bastion n\'est pas connecté à un point d'entrée</string>
     <string name="unreachable_levels">Niveaux inaccessibles</string>
     <string name="edit_prerequisites">Modifier les Prérequis</string>
     <string name="select_prerequisites">Sélectionnez les niveaux qui doivent être complétés avant de débloquer ce niveau :</string>
     <string name="required_count">Nombre Requis</string>
-    <string name="required_count_hint">Laissez vide pour exiger tous les prérequis. Entrez un nombre pour n\'en exiger qu\'un certain nombre.</string>
+    <string name="required_count_hint">Laissez vide pour exiger tous les prérequis. Entrez un nombre pour n\'en exiger qu'un certain nombre.</string>
     <string name="all">tous</string>
     <string name="requires">Nécessite</string>
-    <string name="entry_point">Point d\'Entrée</string>
+    <string name="entry_point">Point d'Entrée</string>
     
     <!-- World Map Locations -->
     <string name="levels_at_location">%s niveau(x) à cet emplacement</string>
@@ -625,27 +625,27 @@
     <string name="no_position_set">Aucune position définie</string>
     <!-- Extended Area Attack Feature -->
     <string name="extended_area_tutorial_title">Attaque de Zone Étendue !</string>
-    <string name="extended_area_tutorial_message">Votre tour a atteint le niveau 20 et possède maintenant une attaque de zone étendue ! Les attaques de boule de feu et d\'acide affectent désormais les ennemis dans un rayon de 2 cases au lieu d\'une seule. Cela rend vos attaques de zone beaucoup plus puissantes contre les groupes d\'ennemis !</string>
+    <string name="extended_area_tutorial_message">Votre tour a atteint le niveau 20 et possède maintenant une attaque de zone étendue ! Les attaques de boule de feu et d'acide affectent désormais les ennemis dans un rayon de 2 cases au lieu d'une seule. Cela rend vos attaques de zone beaucoup plus puissantes contre les groupes d'ennemis !</string>
 
     <!-- First Time Tower Usage Info -->
     <string name="wizard_first_use_title">Tour de Magicien</string>
-    <string name="wizard_first_use_message">La Tour de Magicien est une puissante tour à zone d\'effet qui lance des boules de feu sur les ennemis ! Chaque boule de feu endommage la cible et tous les ennemis dans les cases adjacentes. Elle a un temps de construction plus long (2 tours) mais peut dévaster des groupes d\'ennemis. Au niveau 10, les magiciens peuvent placer des pièges magiques qui téléportent les ennemis au point d\'apparition. Au niveau 20, le rayon de la boule de feu augmente à 2 cases !</string>
+    <string name="wizard_first_use_message">La Tour de Magicien est une puissante tour à zone d'effet qui lance des boules de feu sur les ennemis ! Chaque boule de feu endommage la cible et tous les ennemis dans les cases adjacentes. Elle a un temps de construction plus long (2 tours) mais peut dévaster des groupes d'ennemis. Au niveau 10, les magiciens peuvent placer des pièges magiques qui téléportent les ennemis au point d'apparition. Au niveau 20, le rayon de la boule de feu augmente à 2 cases !</string>
 
-    <string name="alchemy_first_use_title">Tour d\'Alchimie</string>
-    <string name="alchemy_first_use_message">La Tour d\'Alchimie lance de l\'acide qui inflige des dégâts dans le temps ! Contrairement aux autres tours, les dégâts d\'acide persistent pendant plusieurs tours (base 2 tours, augmente avec le niveau). L\'acide affecte la cible et les ennemis adjacents dans une petite zone. Bien que les dégâts par tour soient plus faibles, les dégâts totaux dans le temps peuvent être très efficaces. Au niveau 20, la zone d\'acide augmente à 2 cases !</string>
+    <string name="alchemy_first_use_title">Tour d'Alchimie</string>
+    <string name="alchemy_first_use_message">La Tour d'Alchimie lance de l'acide qui inflige des dégâts dans le temps ! Contrairement aux autres tours, les dégâts d'acide persistent pendant plusieurs tours (base 2 tours, augmente avec le niveau). L\'acide affecte la cible et les ennemis adjacents dans une petite zone. Bien que les dégâts par tour soient plus faibles, les dégâts totaux dans le temps peuvent être très efficaces. Au niveau 20, la zone d'acide augmente à 2 cases !</string>
 
     <string name="ballista_first_use_title">Tour Baliste</string>
-    <string name="ballista_first_use_message">La Baliste est une arme de siège à longue portée avec une portée exceptionnelle (5 cases) et des dégâts élevés ! Cependant, elle a une portée minimale de 3 cases et ne peut pas attaquer les ennemis proches. Elle nécessite 2 tours pour être construite. Utilisez-la pour cibler les ennemis à distance avant qu\'ils ne se rapprochent trop, ou positionnez-la derrière d\'autres tours pour une efficacité maximale.</string>
+    <string name="ballista_first_use_message">La Baliste est une arme de siège à longue portée avec une portée exceptionnelle (5 cases) et des dégâts élevés ! Cependant, elle a une portée minimale de 3 cases et ne peut pas attaquer les ennemis proches. Elle nécessite 2 tours pour être construite. Utilisez-la pour cibler les ennemis à distance avant qu'ils ne se rapprochent trop, ou positionnez-la derrière d'autres tours pour une efficacité maximale.</string>
 
     <string name="mine_first_use_title">Mine Naine</string>
-    <string name="mine_first_use_message">La Mine Naine est une structure spéciale qui génère des pièces grâce aux opérations minières ! Contrairement aux tours de combat, les mines utilisent l\'action "creuser" pour trouver des ressources précieuses (gravats, laiton, argent, or, gemmes ou diamants). Les mines peuvent également construire des pièges qui endommagent les ennemis. À des niveaux plus élevés, les mines peuvent creuser plus de fois par tour et avoir une portée plus grande. Attention : Les dragons sont avides et détruiront les mines pour s\'emparer du trésor !</string>
+    <string name="mine_first_use_message">La Mine Naine est une structure spéciale qui génère des pièces grâce aux opérations minières ! Contrairement aux tours de combat, les mines utilisent l'action "creuser" pour trouver des ressources précieuses (gravats, laiton, argent, or, gemmes ou diamants). Les mines peuvent également construire des pièges qui endommagent les ennemis. À des niveaux plus élevés, les mines peuvent creuser plus de fois par tour et avoir une portée plus grande. Attention : Les dragons sont avides et détruiront les mines pour s\'emparer du trésor !</string>
 
     <!-- River Mechanics Info -->
     <string name="river_info_title">Mécaniques des Rivières</string>
     <string name="river_info_placement">Vous pouvez placer des tours sur les cases de rivière ! Lorsque vous le faites, elles seront placées sur des radeaux.</string>
     <string name="river_info_movement">Les radeaux se déplacent automatiquement avec le courant de la rivière à la fin de chaque tour. La vitesse du courant détermine combien de cases ils se déplacent (1 ou 2 cases).</string>
     <string name="river_info_destruction">Les radeaux sont détruits s\'ils atteignent un maelström (tourbillon) ou sortent des limites de la carte. La tour sur le radeau est également détruite.</string>
-    <string name="river_info_bridges">Les ponts bloquent le mouvement des radeaux. Les radeaux ne peuvent pas passer à travers les ponts qui enjambent la rivière. Plusieurs radeaux sur la même rivière se déplacent dans l\'ordre - les radeaux en aval bougent en premier.</string>
+    <string name="river_info_bridges">Les ponts bloquent le mouvement des radeaux. Les radeaux ne peuvent pas passer à travers les ponts qui enjambent la rivière. Plusieurs radeaux sur la même rivière se déplacent dans l'ordre - les radeaux en aval bougent en premier.</string>
 
     <!-- Mine on River Warning -->
     <string name="mine_on_river_warning_title">Impossible de placer une mine sur la rivière</string>
@@ -692,4 +692,33 @@
     <string name="from">De :</string>
     <string name="to">Vers :</string>
     <string name="connection_type">Type de connexion :</string>
+    
+    <!-- Editor Info Page -->
+    <string name="info">Info</string>
+    <string name="editor_info_title">Guide de l'Éditeur de Niveaux</string>
+    <string name="editor_info_intro">Bienvenue dans l'Éditeur de Niveaux ! Cet outil vous permet de créer des cartes personnalisées, des niveaux et des séquences de niveaux pour Defender of Egril.</string>
+    <string name="editor_info_workflow_title">Pour Commencer</string>
+    <string name="editor_info_workflow_text">Pour ajouter de nouveaux niveaux au jeu : Tout d'abord, sélectionnez ou créez une carte dans l'Éditeur de Cartes. Ensuite, créez un niveau en utilisant cette carte dans l'Éditeur de Niveaux. Enfin, liez le niveau sur la Carte du Monde pour le rendre visible et jouable dans le jeu.</string>
+    <string name="editor_info_copy_hint">Vous pouvez copier des cartes et des niveaux existants et les adapter pour créer rapidement du nouveau contenu. C'est un excellent moyen d'apprendre et d'itérer sur vos conceptions.</string>
+    <string name="editor_info_restore_hint">Le bouton Restaurer les Données du Jeu dans Paramètres restaure les données du jeu à partir du propre référentiel du jeu (stocké localement, pas en ligne). Lorsque vous utilisez cette fonction, votre version précédente avec tous les changements utilisateur sera sauvegardée sous un nouveau nom dans le même dossier, donc votre travail est préservé.</string>
+    <string name="editor_info_file_location_title">Emplacement de Stockage des Fichiers</string>
+    <string name="editor_info_file_location_text">Toutes les données de l'éditeur sont stockées au format JSON sur votre système de fichiers local :</string>
+    <string name="editor_info_file_location_linux_mac">Linux/Mac : ~/.defender-of-egril/gamedata/</string>
+    <string name="editor_info_file_location_windows">Windows : %%USERPROFILE%%\\.defender-of-egril\\gamedata\\</string>
+    <string name="editor_info_directory_structure_title">Structure des Répertoires</string>
+    <string name="editor_info_directory_structure_text">maps/ - Contient toutes les définitions de cartes - levels/ - Contient toutes les définitions de niveaux - sequence.json - Définit l'ordre des niveaux - worldmap.json - Définit les positions de la carte du monde</string>
+    <string name="editor_info_map_editor_title">Éditeur de Cartes</string>
+    <string name="editor_info_map_editor_text">L'Éditeur de Cartes vous permet de créer la disposition de grille pour vos niveaux. Les cartes définissent la grille hexagonale, les points d'apparition, les chemins et les zones de construction où les tours peuvent être placées.</string>
+    <string name="editor_info_map_editor_features">Sélectionner et placer des types de tuiles (PATH, BUILD_AREA, ISLAND, NO_PLAY, SPAWN_POINT, TARGET, RIVER) - Peindre des tuiles en cliquant ou en faisant glisser - Configurer les propriétés de la rivière (direction et vitesse du flux) - Zoomer avec Ctrl+Molette ou boutons de zoom - Réduire l'en-tête pour plus d'espace d'édition - Changer toutes les tuiles NO_PLAY en PATH en une seule fois</string>
+    <string name="editor_info_level_editor_title">Éditeur de Niveaux</string>
+    <string name="editor_info_level_editor_text">L'Éditeur de Niveaux vous permet de créer des niveaux de jeu en utilisant des cartes existantes. Chaque niveau fait référence à une carte et définit les ennemis, les ressources et les tours disponibles.</string>
+    <string name="editor_info_level_editor_features">Sélectionner une carte pour votre niveau - Définir les pièces de départ et les points de vie - Configurer les apparitions d'ennemis par tour - Choisir quels types de tours sont disponibles - Ajouter des points d'apparition et des points de cheminement - Configurer les restrictions de tours et les règles spéciales</string>
+    <string name="editor_info_level_sequence_title">Séquence de Niveaux</string>
+    <string name="editor_info_level_sequence_text">L'onglet Séquence de Niveaux vous permet d'organiser les niveaux dans l'ordre où ils apparaissent dans le jeu. Cela définit la progression et la courbe de difficulté.</string>
+    <string name="editor_info_level_sequence_features">Glisser-déposer les niveaux pour les réorganiser - Utiliser les boutons ↑ et ↓ pour déplacer les niveaux - Ajouter des niveaux à la séquence - Supprimer des niveaux de la séquence - Définir les dépendances des niveaux</string>
+    <string name="editor_info_world_map_title">Positions de la Carte du Monde</string>
+    <string name="editor_info_world_map_text">L'onglet Positions de la Carte du Monde vous permet de définir où les niveaux apparaissent sur la carte du monde et comment ils sont connectés.</string>
+    <string name="editor_info_world_map_features">Définir les coordonnées X/Y pour chaque niveau - Créer des connexions entre les niveaux (route ou mer) - Connecter automatiquement les niveaux en fonction des dépendances - Configurer les styles visuels de connexion - Définir des points de cheminement pour les chemins de connexion</string>
+    <string name="editor_info_tips_title">Conseils</string>
+    <string name="editor_info_tips_text">Sauvegardez fréquemment pour éviter de perdre du travail - Testez vos niveaux dans le jeu pour vous assurer qu'ils sont équilibrés - Utilisez les niveaux existants comme modèles - Les cartes peuvent être réutilisées sur plusieurs niveaux - La séquence détermine quels niveaux sont jouables</string>
 </resources>
