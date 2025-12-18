@@ -58,6 +58,54 @@ fun SettingsDialog(
                 
                 HorizontalDivider()
                 
+                // Language section
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = stringResource(Res.string.language),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    
+                    LanguageChooser(
+                        modifier = Modifier.fillMaxWidth(),
+                        onLanguageChanged = { locale ->
+                            AppSettings.saveLanguage(locale)
+                        }
+                    )
+                }
+                
+                HorizontalDivider()
+                
+                // Difficulty section
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = stringResource(Res.string.difficulty),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    
+                    DifficultyChooser(
+                        modifier = Modifier.fillMaxWidth(),
+                        onDifficultyChanged = { level ->
+                            AppSettings.saveDifficulty(level)
+                        }
+                    )
+                    
+                    // Info text about difficulty not affecting current level
+                    Text(
+                        text = stringResource(Res.string.difficulty_info_current_level),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
+                
+                HorizontalDivider()
+                
                 // Appearance section
                 Column(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -101,6 +149,30 @@ fun SettingsDialog(
                         rightText = stringResource(Res.string.tile_background_images_on),
                         onCheckedChange = { enabled ->
                             AppSettings.saveUseTileImages(enabled)
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+                
+                HorizontalDivider()
+                
+                // Controls section
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = stringResource(Res.string.controls),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    
+                    // Control pad switch
+                    GenericSwitch(
+                        state = AppSettings.showControlPad,
+                        checkedText = stringResource(Res.string.controls),
+                        uncheckedText = stringResource(Res.string.controls),
+                        onCheckedChange = { enabled ->
+                            AppSettings.saveShowControlPad(enabled)
                         },
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -283,6 +355,18 @@ fun SettingsDialog(
                                             uncheckedText = stringResource(Res.string.worldmap_music_disabled),
                                             onCheckedChange = { enabled ->
                                                 AppSettings.saveWorldMapMusicEnabled(enabled)
+                                                // Restart world map music if currently playing
+                                                val currentMusic = de.egril.defender.audio.GlobalBackgroundMusicManager.getInstance()?.getCurrentMusic()
+                                                if (currentMusic == de.egril.defender.audio.BackgroundMusic.WORLD_MAP) {
+                                                    if (enabled) {
+                                                        de.egril.defender.audio.GlobalBackgroundMusicManager.playMusic(
+                                                            de.egril.defender.audio.BackgroundMusic.WORLD_MAP,
+                                                            loop = true
+                                                        )
+                                                    } else {
+                                                        de.egril.defender.audio.GlobalBackgroundMusicManager.stopMusic()
+                                                    }
+                                                }
                                             },
                                             modifier = Modifier.fillMaxWidth()
                                         )
@@ -306,6 +390,14 @@ fun SettingsDialog(
                                                     value = AppSettings.worldMapMusicVolume.value,
                                                     onValueChange = { volume ->
                                                         AppSettings.saveWorldMapMusicVolume(volume)
+                                                        // Update volume if world map music is playing
+                                                        val currentMusic = de.egril.defender.audio.GlobalBackgroundMusicManager.getInstance()?.getCurrentMusic()
+                                                        if (currentMusic == de.egril.defender.audio.BackgroundMusic.WORLD_MAP) {
+                                                            de.egril.defender.audio.GlobalBackgroundMusicManager.playMusic(
+                                                                de.egril.defender.audio.BackgroundMusic.WORLD_MAP,
+                                                                loop = true
+                                                            )
+                                                        }
                                                     },
                                                     modifier = Modifier.weight(1f),
                                                     valueRange = 0f..1f
@@ -337,6 +429,19 @@ fun SettingsDialog(
                                             uncheckedText = stringResource(Res.string.gameplay_music_disabled),
                                             onCheckedChange = { enabled ->
                                                 AppSettings.saveGameplayMusicEnabled(enabled)
+                                                // Restart gameplay music if currently playing
+                                                val currentMusic = de.egril.defender.audio.GlobalBackgroundMusicManager.getInstance()?.getCurrentMusic()
+                                                if (currentMusic == de.egril.defender.audio.BackgroundMusic.GAMEPLAY_NORMAL || 
+                                                    currentMusic == de.egril.defender.audio.BackgroundMusic.GAMEPLAY_LOW_HEALTH) {
+                                                    if (enabled) {
+                                                        de.egril.defender.audio.GlobalBackgroundMusicManager.playMusic(
+                                                            currentMusic,
+                                                            loop = true
+                                                        )
+                                                    } else {
+                                                        de.egril.defender.audio.GlobalBackgroundMusicManager.stopMusic()
+                                                    }
+                                                }
                                             },
                                             modifier = Modifier.fillMaxWidth()
                                         )
@@ -360,6 +465,15 @@ fun SettingsDialog(
                                                     value = AppSettings.gameplayMusicVolume.value,
                                                     onValueChange = { volume ->
                                                         AppSettings.saveGameplayMusicVolume(volume)
+                                                        // Update volume if gameplay music is playing
+                                                        val currentMusic = de.egril.defender.audio.GlobalBackgroundMusicManager.getInstance()?.getCurrentMusic()
+                                                        if (currentMusic == de.egril.defender.audio.BackgroundMusic.GAMEPLAY_NORMAL || 
+                                                            currentMusic == de.egril.defender.audio.BackgroundMusic.GAMEPLAY_LOW_HEALTH) {
+                                                            de.egril.defender.audio.GlobalBackgroundMusicManager.playMusic(
+                                                                currentMusic,
+                                                                loop = true
+                                                            )
+                                                        }
                                                     },
                                                     modifier = Modifier.weight(1f),
                                                     valueRange = 0f..1f
@@ -375,78 +489,6 @@ fun SettingsDialog(
                             }
                         }
                     }
-                }
-                
-                HorizontalDivider()
-                
-                // Controls section
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Text(
-                        text = stringResource(Res.string.controls),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    
-                    // Control pad switch
-                    GenericSwitch(
-                        state = AppSettings.showControlPad,
-                        checkedText = stringResource(Res.string.controls),
-                        uncheckedText = stringResource(Res.string.controls),
-                        onCheckedChange = { enabled ->
-                            AppSettings.saveShowControlPad(enabled)
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
-                
-                HorizontalDivider()
-                
-                // Language section
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Text(
-                        text = stringResource(Res.string.language),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    
-                    LanguageChooser(
-                        modifier = Modifier.fillMaxWidth(),
-                        onLanguageChanged = { locale ->
-                            AppSettings.saveLanguage(locale)
-                        }
-                    )
-                }
-                
-                HorizontalDivider()
-                
-                // Difficulty section
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Text(
-                        text = stringResource(Res.string.difficulty),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    
-                    DifficultyChooser(
-                        modifier = Modifier.fillMaxWidth(),
-                        onDifficultyChanged = { level ->
-                            AppSettings.saveDifficulty(level)
-                        }
-                    )
-                    
-                    // Info text about difficulty not affecting current level
-                    Text(
-                        text = stringResource(Res.string.difficulty_info_current_level),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(top = 4.dp)
-                    )
                 }
                 
                 HorizontalDivider()
