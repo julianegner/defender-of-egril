@@ -691,4 +691,29 @@
     <string name="from">Von:</string>
     <string name="to">Nach:</string>
     <string name="connection_type">Verbindungstyp:</string>
+    
+    <!-- Editor Info Page -->
+    <string name="info">Info</string>
+    <string name="editor_info_title">Level-Editor-Anleitung</string>
+    <string name="editor_info_intro">Willkommen im Level-Editor! Dieses Tool ermöglicht es Ihnen, benutzerdefinierte Karten, Level und Level-Sequenzen für Defender of Egril zu erstellen.</string>
+    <string name="editor_info_file_location_title">Dateispeicherort</string>
+    <string name="editor_info_file_location_text">Alle Editor-Daten werden im JSON-Format auf Ihrem lokalen Dateisystem gespeichert:</string>
+    <string name="editor_info_file_location_linux_mac">Linux/Mac: ~/.defender-of-egril/gamedata/</string>
+    <string name="editor_info_file_location_windows">Windows: %%USERPROFILE%%\\.defender-of-egril\\gamedata\\</string>
+    <string name="editor_info_directory_structure_title">Verzeichnisstruktur</string>
+    <string name="editor_info_directory_structure_text">maps/ - Enthält alle Kartendefinitionen\nlevels/ - Enthält alle Level-Definitionen\nsequence.json - Definiert die Level-Reihenfolge\nworldmap.json - Definiert Weltkartenspositionen</string>
+    <string name="editor_info_map_editor_title">Karten-Editor</string>
+    <string name="editor_info_map_editor_text">Der Karten-Editor ermöglicht es Ihnen, das Gitterlayout für Ihre Level zu erstellen. Karten definieren das hexagonale Gitter, Spawnpunkte, Pfade und Baubereiche, in denen Türme platziert werden können.</string>
+    <string name="editor_info_map_editor_features">• Kacheltypen auswählen und platzieren (PATH, BUILD_AREA, ISLAND, NO_PLAY, SPAWN_POINT, TARGET, RIVER)\n• Kacheln durch Klicken oder Ziehen malen\n• Flusseigenschaften konfigurieren (Fließrichtung und Geschwindigkeit)\n• Mit Strg+Scrollen oder Zoom-Tasten zoomen\n• Kopfzeile einklappen für mehr Bearbeitungsplatz\n• Alle NO_PLAY-Kacheln auf einmal in PATH ändern</string>
+    <string name="editor_info_level_editor_title">Level-Editor</string>
+    <string name="editor_info_level_editor_text">Der Level-Editor ermöglicht es Ihnen, Spiellevel mit vorhandenen Karten zu erstellen. Jedes Level verweist auf eine Karte und definiert die Feinde, Ressourcen und verfügbaren Türme.</string>
+    <string name="editor_info_level_editor_features">• Wählen Sie eine Karte für Ihr Level\n• Startmünzen und Gesundheitspunkte festlegen\n• Feindspawns nach Runde konfigurieren\n• Auswählen, welche Turmtypen verfügbar sind\n• Spawnpunkte und Wegpunkte hinzufügen\n• Turmbeschränkungen und Sonderregeln konfigurieren</string>
+    <string name="editor_info_level_sequence_title">Level-Sequenz</string>
+    <string name="editor_info_level_sequence_text">Die Level-Sequenz-Registerkarte ermöglicht es Ihnen, Level in der Reihenfolge anzuordnen, in der sie im Spiel erscheinen. Dies definiert den Fortschritt und die Schwierigkeitskurve.</string>
+    <string name="editor_info_level_sequence_features">• Level per Drag-and-Drop neu anordnen\n• ↑- und ↓-Tasten verwenden, um Level zu verschieben\n• Level zur Sequenz hinzufügen\n• Level aus der Sequenz entfernen\n• Level-Abhängigkeiten festlegen</string>
+    <string name="editor_info_world_map_title">Weltkartenpositionen</string>
+    <string name="editor_info_world_map_text">Die Registerkarte Weltkartenpositionen ermöglicht es Ihnen, zu definieren, wo Level auf der Weltkarte erscheinen und wie sie verbunden sind.</string>
+    <string name="editor_info_world_map_features">• X/Y-Koordinaten für jedes Level festlegen\n• Verbindungen zwischen Leveln erstellen (Straße oder Meer)\n• Level automatisch basierend auf Abhängigkeiten verbinden\n• Visuelle Stile für Verbindungen konfigurieren\n• Wegpunkte für Verbindungspfade definieren</string>
+    <string name="editor_info_tips_title">Tipps</string>
+    <string name="editor_info_tips_text">• Speichern Sie häufig, um Arbeitsverlust zu vermeiden\n• Testen Sie Ihre Level im Spiel, um sicherzustellen, dass sie ausgewogen sind\n• Verwenden Sie vorhandene Level als Vorlagen\n• Karten können über mehrere Level hinweg wiederverwendet werden\n• Die Sequenz bestimmt, welche Level spielbar sind</string>
 </resources>

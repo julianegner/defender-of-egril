@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import de.egril.defender.ui.icon.LeftArrowIcon
 import de.egril.defender.ui.editor.EditorTab
+import de.egril.defender.ui.editor.EditorInfoPage
 import de.egril.defender.ui.editor.map.MapEditorContent
 import de.egril.defender.ui.editor.worldmap.WorldMapPositionEditorContent
 import de.egril.defender.ui.settings.SettingsButton
@@ -48,6 +49,7 @@ fun LevelEditorScreen(
                 EditorTab.LEVEL_EDITOR -> LevelEditorContent()
                 EditorTab.LEVEL_SEQUENCE -> LevelSequenceContent()
                 EditorTab.WORLD_MAP_POSITIONS -> WorldMapPositionEditorContent()
+                EditorTab.INFO -> EditorInfoPage()
             }
         }
         
@@ -81,6 +83,18 @@ fun LevelEditorScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         SettingsButton()
+                        
+                        Button(
+                            onClick = { currentTab = EditorTab.INFO },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = if (currentTab == EditorTab.INFO)
+                                    MaterialTheme.colorScheme.primary 
+                                else 
+                                    MaterialTheme.colorScheme.secondary
+                            )
+                        ) {
+                            Text(stringResource(Res.string.info))
+                        }
                         
                         Button(onClick = onBack) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
