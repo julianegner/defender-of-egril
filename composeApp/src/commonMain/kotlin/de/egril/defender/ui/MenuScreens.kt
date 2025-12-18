@@ -51,8 +51,13 @@ fun MainMenuScreen(
             Column(
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+                verticalArrangement = if (isPlatformMobile) Arrangement.Top else Arrangement.Center
             ) {
+                // Add top spacer for mobile to center content with room for version at bottom
+                if (isPlatformMobile) {
+                    Spacer(modifier = Modifier.weight(1f))
+                }
+                
                 // Application banner with logo and styled text
                 ApplicationBanner()
                 
@@ -102,6 +107,11 @@ fun MainMenuScreen(
                     ) {
                         Text(stringResource(Res.string.rules), style = MaterialTheme.typography.titleMedium)
                     }
+                }
+                
+                // Add bottom spacer for mobile to push content up and leave room for version
+                if (isPlatformMobile) {
+                    Spacer(modifier = Modifier.weight(1.3f))
                 }
             }
             
