@@ -56,8 +56,17 @@ class AndroidBackgroundMusicManager(private val context: Context) : BackgroundMu
                     // Get track-specific relative volume
                     val trackVolume = BackgroundMusicSettings.getRelativeVolume(music)
                     
-                    // Set volume (master * music * track * 0.3 multiplier)
-                    val effectiveVolume = (AppSettings.soundVolume.value * this.volume * trackVolume * 0.3f).coerceIn(0f, 1f)
+                    // Get base multiplier for this music type
+                    val baseMultiplier = BackgroundMusicSettings.getBaseMultiplier(music)
+                    
+                    // Get the category-specific volume setting
+                    val categoryVolume = when (music) {
+                        BackgroundMusic.WORLD_MAP -> AppSettings.worldMapMusicVolume.value
+                        BackgroundMusic.GAMEPLAY_NORMAL, BackgroundMusic.GAMEPLAY_LOW_HEALTH -> AppSettings.gameplayMusicVolume.value
+                    }
+                    
+                    // Set volume (master * category * track * baseMultiplier)
+                    val effectiveVolume = (AppSettings.soundVolume.value * categoryVolume * trackVolume * baseMultiplier).coerceIn(0f, 1f)
                     player.setVolume(effectiveVolume, effectiveVolume)
                     
                     player.start()

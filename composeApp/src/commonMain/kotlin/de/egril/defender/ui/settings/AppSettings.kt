@@ -37,6 +37,10 @@ object AppSettings {
     private const val KEY_EFFECTS_VOLUME = "effects_volume"
     private const val KEY_MUSIC_ENABLED = "music_enabled"
     private const val KEY_MUSIC_VOLUME = "music_volume"
+    private const val KEY_WORLDMAP_MUSIC_ENABLED = "worldmap_music_enabled"
+    private const val KEY_WORLDMAP_MUSIC_VOLUME = "worldmap_music_volume"
+    private const val KEY_GAMEPLAY_MUSIC_ENABLED = "gameplay_music_enabled"
+    private const val KEY_GAMEPLAY_MUSIC_VOLUME = "gameplay_music_volume"
     private const val KEY_SHOW_CONTROL_PAD = "show_control_pad"
     private const val KEY_DIFFICULTY = "difficulty"
     private const val KEY_USE_LEVEL_CARDS = "use_level_cards"
@@ -80,6 +84,28 @@ object AppSettings {
      * Default is 0.5 (quieter than effects)
      */
     val musicVolume: MutableState<Float> = mutableStateOf(settings.getFloat(KEY_MUSIC_VOLUME, 0.5f))
+    
+    /**
+     * World map music enabled state - automatically saved when changed
+     */
+    val isWorldMapMusicEnabled: MutableState<Boolean> = mutableStateOf(settings.getBoolean(KEY_WORLDMAP_MUSIC_ENABLED, true))
+    
+    /**
+     * World map music volume level (0.0 to 1.0) - automatically saved when changed
+     * Default is 0.7 (louder than gameplay music)
+     */
+    val worldMapMusicVolume: MutableState<Float> = mutableStateOf(settings.getFloat(KEY_WORLDMAP_MUSIC_VOLUME, 0.7f))
+    
+    /**
+     * Gameplay music enabled state - automatically saved when changed
+     */
+    val isGameplayMusicEnabled: MutableState<Boolean> = mutableStateOf(settings.getBoolean(KEY_GAMEPLAY_MUSIC_ENABLED, true))
+    
+    /**
+     * Gameplay music volume level (0.0 to 1.0) - automatically saved when changed
+     * Default is 0.5 (quieter than world map music)
+     */
+    val gameplayMusicVolume: MutableState<Float> = mutableStateOf(settings.getFloat(KEY_GAMEPLAY_MUSIC_VOLUME, 0.5f))
     
     /**
      * Control pad visibility state - automatically saved when changed
@@ -212,6 +238,40 @@ object AppSettings {
     }
     
     /**
+     * Save world map music enabled preference
+     */
+    fun saveWorldMapMusicEnabled(enabled: Boolean) {
+        isWorldMapMusicEnabled.value = enabled
+        settings.putBoolean(KEY_WORLDMAP_MUSIC_ENABLED, enabled)
+    }
+    
+    /**
+     * Save world map music volume preference
+     */
+    fun saveWorldMapMusicVolume(volume: Float) {
+        val clampedVolume = volume.coerceIn(0f, 1f)
+        worldMapMusicVolume.value = clampedVolume
+        settings.putFloat(KEY_WORLDMAP_MUSIC_VOLUME, clampedVolume)
+    }
+    
+    /**
+     * Save gameplay music enabled preference
+     */
+    fun saveGameplayMusicEnabled(enabled: Boolean) {
+        isGameplayMusicEnabled.value = enabled
+        settings.putBoolean(KEY_GAMEPLAY_MUSIC_ENABLED, enabled)
+    }
+    
+    /**
+     * Save gameplay music volume preference
+     */
+    fun saveGameplayMusicVolume(volume: Float) {
+        val clampedVolume = volume.coerceIn(0f, 1f)
+        gameplayMusicVolume.value = clampedVolume
+        settings.putFloat(KEY_GAMEPLAY_MUSIC_VOLUME, clampedVolume)
+    }
+    
+    /**
      * Save control pad visibility preference
      */
     fun saveShowControlPad(show: Boolean) {
@@ -268,6 +328,10 @@ object AppSettings {
         saveEffectsVolume(0.7f)
         saveMusicEnabled(true)
         saveMusicVolume(0.5f)
+        saveWorldMapMusicEnabled(true)
+        saveWorldMapMusicVolume(0.7f)
+        saveGameplayMusicEnabled(true)
+        saveGameplayMusicVolume(0.5f)
         
         // Reset control pad to platform default
         saveShowControlPad(isPlatformMobile)
