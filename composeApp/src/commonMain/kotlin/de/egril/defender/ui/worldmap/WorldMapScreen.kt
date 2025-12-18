@@ -162,78 +162,93 @@ fun WorldMapScreen(
             }
             
             // Bottom bar with action buttons
+            // Determine button arrangement based on platform and view mode
+            val isMobileImageMap = isPlatformMobile && !useLevelCards
+            val isMobileLevelCards = isPlatformMobile && useLevelCards
+            val buttonArrangement = when {
+                isMobileLevelCards -> Arrangement.Center
+                isMobileImageMap -> Arrangement.Start
+                else -> Arrangement.Center  // Desktop
+            }
+            
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)
                     .align(Alignment.BottomCenter),
-                horizontalArrangement = if (isPlatformMobile && useLevelCards) Arrangement.Center else if (isPlatformMobile) Arrangement.Start else Arrangement.Center,
+                horizontalArrangement = buttonArrangement,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 // Button width: smaller on mobile in image map view (200 -> ~133), normal in cards view
-                val buttonMinWidth = if (isPlatformMobile && !useLevelCards) 133.dp else 200.dp
+                val buttonMinWidth = if (isMobileImageMap) 133.dp else 200.dp
                 
-                // Left-aligned buttons group on mobile in image map, centered in cards view, centered on desktop
-                // Column on mobile in image map, Row on mobile in cards view and desktop
-                if (isPlatformMobile && !useLevelCards) {
-                    // Mobile + Image Map View: Column layout, left-aligned, smaller buttons
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                        horizontalAlignment = Alignment.Start
-                    ) {
-                        Button(
-                            onClick = onLoadGame,
-                            modifier = Modifier.widthIn(min = buttonMinWidth)
+                // Button layout varies by platform and view mode:
+                // - Mobile + Image Map: Column layout, left-aligned, smaller buttons
+                // - Mobile + Level Cards: Row layout, centered, normal buttons
+                // - Desktop: Row layout, centered
+                when {
+                    isMobileImageMap -> {
+                        // Mobile + Image Map View: Column layout, left-aligned, smaller buttons
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                            horizontalAlignment = Alignment.Start
                         ) {
-                            Text(stringResource(Res.string.load_game))
-                        }
-                        
-                        Button(
-                            onClick = onShowRules,
-                            modifier = Modifier.widthIn(min = buttonMinWidth)
-                        ) {
-                            Text(stringResource(Res.string.rules))
-                        }
-                        
-                        Button(
-                            onClick = onBackToMenu,
-                            modifier = Modifier.widthIn(min = buttonMinWidth)
-                        ) {
-                            Text(stringResource(Res.string.back))
+                            Button(
+                                onClick = onLoadGame,
+                                modifier = Modifier.widthIn(min = buttonMinWidth)
+                            ) {
+                                Text(stringResource(Res.string.load_game))
+                            }
+                            
+                            Button(
+                                onClick = onShowRules,
+                                modifier = Modifier.widthIn(min = buttonMinWidth)
+                            ) {
+                                Text(stringResource(Res.string.rules))
+                            }
+                            
+                            Button(
+                                onClick = onBackToMenu,
+                                modifier = Modifier.widthIn(min = buttonMinWidth)
+                            ) {
+                                Text(stringResource(Res.string.back))
+                            }
                         }
                     }
-                } else if (isPlatformMobile && useLevelCards) {
-                    // Mobile + Level Cards View: Row layout, centered, normal buttons
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        Button(onClick = onLoadGame) {
-                            Text(stringResource(Res.string.load_game))
-                        }
-                        
-                        Button(onClick = onShowRules) {
-                            Text(stringResource(Res.string.rules))
-                        }
-                        
-                        Button(onClick = onBackToMenu) {
-                            Text(stringResource(Res.string.back))
+                    isMobileLevelCards -> {
+                        // Mobile + Level Cards View: Row layout, centered, normal buttons
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            Button(onClick = onLoadGame) {
+                                Text(stringResource(Res.string.load_game))
+                            }
+                            
+                            Button(onClick = onShowRules) {
+                                Text(stringResource(Res.string.rules))
+                            }
+                            
+                            Button(onClick = onBackToMenu) {
+                                Text(stringResource(Res.string.back))
+                            }
                         }
                     }
-                } else {
-                    // Desktop: Row layout, centered
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        Button(onClick = onLoadGame) {
-                            Text(stringResource(Res.string.load_game))
-                        }
-                        
-                        Button(onClick = onShowRules) {
-                            Text(stringResource(Res.string.rules))
-                        }
-                        
-                        Button(onClick = onBackToMenu) {
-                            Text(stringResource(Res.string.back))
+                    else -> {
+                        // Desktop: Row layout, centered
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            Button(onClick = onLoadGame) {
+                                Text(stringResource(Res.string.load_game))
+                            }
+                            
+                            Button(onClick = onShowRules) {
+                                Text(stringResource(Res.string.rules))
+                            }
+                            
+                            Button(onClick = onBackToMenu) {
+                                Text(stringResource(Res.string.back))
+                            }
                         }
                     }
                 }
