@@ -42,6 +42,46 @@ fun EditorInfoPage() {
         
         Spacer(modifier = Modifier.height(24.dp))
         
+        // Getting Started / Workflow
+        InfoSection(
+            title = stringResource(Res.string.editor_info_workflow_title),
+            content = stringResource(Res.string.editor_info_workflow_text)
+        )
+        
+        Spacer(modifier = Modifier.height(16.dp))
+        
+        // Copy hint
+        Card(
+            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant
+            )
+        ) {
+            Text(
+                text = stringResource(Res.string.editor_info_copy_hint),
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.padding(12.dp)
+            )
+        }
+        
+        Spacer(modifier = Modifier.height(16.dp))
+        
+        // Restore hint
+        Card(
+            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant
+            )
+        ) {
+            Text(
+                text = stringResource(Res.string.editor_info_restore_hint),
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.padding(12.dp)
+            )
+        }
+        
+        Spacer(modifier = Modifier.height(24.dp))
+        
         // File Location
         InfoSection(
             title = stringResource(Res.string.editor_info_file_location_title),
@@ -73,8 +113,10 @@ fun EditorInfoPage() {
         // Directory Structure
         InfoSection(
             title = stringResource(Res.string.editor_info_directory_structure_title),
-            content = stringResource(Res.string.editor_info_directory_structure_text)
+            content = null
         )
+        
+        FeaturesList(stringResource(Res.string.editor_info_directory_structure_text))
         
         Spacer(modifier = Modifier.height(24.dp))
         
@@ -121,8 +163,10 @@ fun EditorInfoPage() {
         // Tips
         InfoSection(
             title = stringResource(Res.string.editor_info_tips_title),
-            content = stringResource(Res.string.editor_info_tips_text)
+            content = null
         )
+        
+        FeaturesList(stringResource(Res.string.editor_info_tips_text))
         
         Spacer(modifier = Modifier.height(32.dp))
     }
@@ -134,7 +178,7 @@ fun EditorInfoPage() {
 @Composable
 private fun InfoSection(
     title: String?,
-    content: String
+    content: String?
 ) {
     Column {
         if (title != null) {
@@ -145,11 +189,13 @@ private fun InfoSection(
             )
         }
         
-        Text(
-            text = content,
-            style = MaterialTheme.typography.bodyLarge,
-            lineHeight = 24.sp
-        )
+        if (content != null) {
+            Text(
+                text = content,
+                style = MaterialTheme.typography.bodyLarge,
+                lineHeight = 24.sp
+            )
+        }
     }
 }
 
