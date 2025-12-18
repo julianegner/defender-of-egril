@@ -38,7 +38,21 @@ class WasmJsFileStorage : FileStorage {
     }
     
     override fun fileExists(path: String): Boolean {
-        return localStorage.getItem(PREFIX + path) != null
+        // Check if it exists as a file
+        if (localStorage.getItem(PREFIX + path) != null) {
+            return true
+        }
+        
+        // Check if it exists as a virtual directory (any keys start with path + "/")
+        val dirPrefix = PREFIX + path + "/"
+        for (i in 0 until localStorage.length) {
+            val key = localStorage.key(i)
+            if (key != null && key.startsWith(dirPrefix)) {
+                return true
+            }
+        }
+        
+        return false
     }
     
     override fun createDirectory(path: String) {
