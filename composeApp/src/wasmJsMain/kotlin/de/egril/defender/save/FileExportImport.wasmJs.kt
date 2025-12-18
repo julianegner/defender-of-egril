@@ -122,10 +122,16 @@ class WasmJsFileExportImport : FileExportImport {
                                     val reader = FileReader()
                                     reader.onload = {
                                         try {
-                                            val content = reader.result as String
-                                            importedFiles.add(ImportedFile(filename, content))
+                                            // FileReader.result is Any? in Kotlin/Wasm, use toString()
+                                            val content = reader.result?.toString() ?: ""
+                                            if (content.isNotEmpty()) {
+                                                importedFiles.add(ImportedFile(filename, content))
+                                            } else {
+                                                println("Empty content for JSON file $filename")
+                                            }
                                         } catch (e: Exception) {
                                             println("Error reading JSON file $filename: ${e.message}")
+                                            e.printStackTrace()
                                         }
                                         processed++
                                         if (processed == total) {
@@ -148,25 +154,32 @@ class WasmJsFileExportImport : FileExportImport {
                                     val reader = FileReader()
                                     reader.onload = {
                                         try {
-                                            val arrayBuffer = reader.result as ArrayBuffer
-                                            val uint8Array = Uint8Array(arrayBuffer)
-                                            val byteArray = uint8Array.toByteArray()
-                                            
-                                            // Parse ZIP file
-                                            val zipReader = ZipReader(byteArray)
-                                            val entries = zipReader.extractAll()
-                                            
-                                            // Add all JSON files from the ZIP
-                                            entries.forEach { entry ->
-                                                if (entry.filename.endsWith(".json", ignoreCase = true)) {
-                                                    val content = entry.content.decodeToString()
-                                                    // Use only the filename without path
-                                                    val entryFilename = entry.filename
-                                                        .replace('\\', '/')
-                                                        .substringAfterLast('/')
-                                                        .takeIf { it.isNotEmpty() } ?: "unknown.json"
-                                                    importedFiles.add(ImportedFile(entryFilename, content))
+                                            // FileReader.result is Any? in Kotlin/Wasm, need to cast carefully
+                                            val result = reader.result
+                                            if (result != null) {
+                                                @Suppress("UNCHECKED_CAST_TO_EXTERNAL_INTERFACE")
+                                                val arrayBuffer = result as ArrayBuffer
+                                                val uint8Array = Uint8Array(arrayBuffer)
+                                                val byteArray = uint8Array.toByteArray()
+                                                
+                                                // Parse ZIP file
+                                                val zipReader = ZipReader(byteArray)
+                                                val entries = zipReader.extractAll()
+                                                
+                                                // Add all JSON files from the ZIP
+                                                entries.forEach { entry ->
+                                                    if (entry.filename.endsWith(".json", ignoreCase = true)) {
+                                                        val content = entry.content.decodeToString()
+                                                        // Use only the filename without path
+                                                        val entryFilename = entry.filename
+                                                            .replace('\\', '/')
+                                                            .substringAfterLast('/')
+                                                            .takeIf { it.isNotEmpty() } ?: "unknown.json"
+                                                        importedFiles.add(ImportedFile(entryFilename, content))
+                                                    }
                                                 }
+                                            } else {
+                                                println("No result from FileReader for ZIP file $filename")
                                             }
                                         } catch (e: Exception) {
                                             println("Error parsing ZIP file $filename: ${e.message}")
