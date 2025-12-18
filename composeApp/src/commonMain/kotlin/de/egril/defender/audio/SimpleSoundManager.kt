@@ -66,12 +66,10 @@ class SimpleSoundManager : SoundManager {
     
     override fun setVolume(volume: Float) {
         this.volume = volume.coerceIn(0f, 1f)
-        AppSettings.saveEffectsVolume(this.volume)
     }
     
     override fun setEnabled(enabled: Boolean) {
         this.enabled = enabled
-        AppSettings.saveEffectsEnabled(enabled)
     }
     
     override fun isEnabled(): Boolean = enabled
