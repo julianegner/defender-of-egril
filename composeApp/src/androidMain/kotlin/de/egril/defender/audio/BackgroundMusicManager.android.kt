@@ -47,37 +47,26 @@ class AndroidBackgroundMusicManager(private val context: Context) : BackgroundMu
             
             // Load and play music asynchronously
             scope.launch {
+                // Map music enum to file name
+                val fileName = when (music) {
+                    BackgroundMusic.WORLD_MAP -> "background/atmosphere-mystic-fantasy-orchestral-music-335263.mp3"
+                    BackgroundMusic.GAMEPLAY_NORMAL -> "background/2021-02-23_-_Fantasy_Ambience_-_David_Fesliyan.mp3"
+                    BackgroundMusic.GAMEPLAY_LOW_HEALTH -> "background/2017-06-16_-_The_Dark_Castle_-_David_Fesliyan.mp3"
+                }
+                
                 try {
-                    // Map music enum to file name
-                    val fileName = when (music) {
-                        BackgroundMusic.WORLD_MAP -> "background/atmosphere-mystic-fantasy-orchestral-music-335263.mp3"
-                        BackgroundMusic.GAMEPLAY_NORMAL -> "background/2021-02-23_-_Fantasy_Ambience_-_David_Fesliyan.mp3"
-                        BackgroundMusic.GAMEPLAY_LOW_HEALTH -> "background/2017-06-16_-_The_Dark_Castle_-_David_Fesliyan.mp3"
-                    }
-                    
                     // Get or create cached file
                     val musicFile = musicFileCache.getOrPut(music) {
-                        try {
-                            // Load from compose resources using Res.readBytes
-                            val resourcePath = "files/sounds/$fileName"
-                            val bytes = Res.readBytes(resourcePath)
-                            
-                            // Create cache file for MediaPlayer
-                            val cacheFileName = fileName.replace("/", "_")
-                            val cacheFile = File(context.cacheDir, "music_$cacheFileName")
-                            FileOutputStream(cacheFile).use { it.write(bytes) }
-                            
-                            cacheFile
-                        } catch (e: Exception) {
-                            println("Could not load music file: $fileName - ${e.message}")
-                            e.printStackTrace()
-                            throw e
-                        }
-                    }
-                    
-                    if (!musicFile.exists()) {
-                        println("Background music file not found: ${musicFile.absolutePath}")
-                        return@launch
+                        // Load from compose resources using Res.readBytes
+                        val resourcePath = "files/sounds/$fileName"
+                        val bytes = Res.readBytes(resourcePath)
+                        
+                        // Create cache file for MediaPlayer
+                        val cacheFileName = fileName.replace("/", "_")
+                        val cacheFile = File(context.cacheDir, "music_$cacheFileName")
+                        FileOutputStream(cacheFile).use { it.write(bytes) }
+                        
+                        cacheFile
                     }
                     
                     // Create MediaPlayer from file
@@ -121,7 +110,9 @@ class AndroidBackgroundMusicManager(private val context: Context) : BackgroundMu
                         }
                     }
                 } catch (e: Exception) {
-                    println("Could not play background music: ${music.name} - ${e.message}")
+                    println("Could not play background music: ${music.name}")
+                    println("Expected file in compose resources: files/sounds/$fileName")
+                    println("Error: ${e.message}")
                     e.printStackTrace()
                 }
             }
