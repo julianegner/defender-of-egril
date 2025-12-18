@@ -53,36 +53,42 @@ class WasmJsFileExportImport : FileExportImport {
     
     override suspend fun exportZip(zipFilename: String, files: Map<String, String>): Boolean {
         return try {
-            // For web, we use JSZip library via external declaration
-            // Since we don't have JSZip, we'll create a simple implementation
-            // that saves files individually or implement a minimal ZIP creator
+            // Create a ZIP file using our custom ZipWriter
+            val zipWriter = ZipWriter()
             
-            // For now, create a simple text file with all saves concatenated
-            // This is a fallback - ideally we'd use JSZip library
-            val zipContent = buildString {
-                files.forEach { (filename, content) ->
-                    appendLine("=== FILE: $filename ===")
-                    appendLine(content)
-                    appendLine()
-                }
+            // Add all files to the ZIP
+            files.forEach { (filename, content) ->
+                zipWriter.addFile(filename, content)
             }
             
-            val blob = createBlob(zipContent, "application/zip")
+            // Build the ZIP file as a byte array
+            val zipBytes = zipWriter.build()
+            
+            // Convert to Uint8Array for JavaScript interop
+            val uint8Array = zipBytes.toUint8Array()
+            
+            // Create a blob from the byte array
+            val blob = createBlobFromBytes(uint8Array)
+            
+            // Create a download link
             val url = URL.createObjectURL(blob)
             val link = document.createElement("a") as HTMLAnchorElement
             link.href = url
             link.download = zipFilename
             link.style.display = "none"
             
+            // Trigger download
             document.body?.appendChild(link)
             link.click()
             document.body?.removeChild(link)
             
+            // Clean up
             URL.revokeObjectURL(url)
             
             true
         } catch (e: Exception) {
             println("Error exporting ZIP: ${e.message}")
+            e.printStackTrace()
             false
         }
     }
