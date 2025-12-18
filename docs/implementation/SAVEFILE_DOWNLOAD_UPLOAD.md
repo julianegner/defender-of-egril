@@ -41,9 +41,13 @@ interface FileExportImport {
 - Status: ✅ **Implemented and compiles**
 
 **Android** (`FileExportImport.android.kt`)
-- Stub implementation ready for Storage Access Framework integration
-- Requires Activity context for file picker
-- Status: ⏳ **Stub implementation**
+- Uses Storage Access Framework (SAF) for file operations
+- `ActivityResultContracts.CreateDocument` for export with file picker dialog
+- `ActivityResultContracts.OpenMultipleDocuments` for import with multiple selection
+- Full ZIP support with `ZipOutputStream` and `ZipInputStream`
+- Singleton pattern ensures Activity Result Launchers registered once during Activity creation
+- Initialized in `MainActivity.onCreate()` before UI composition
+- Status: ✅ **Fully implemented**
 
 **iOS** (`FileExportImport.ios.kt`)
 - Stub implementation ready for UIDocumentPickerViewController integration
@@ -163,7 +167,8 @@ Added `formatTimestampISO()` function for ZIP filenames:
 ### Compilation
 - ✅ Desktop/JVM: Compiles successfully
 - ✅ Web/WASM: Compiles successfully
-- ⏳ Android: Not tested (stub implementation)
+- ✅ Android: Fully implemented with Storage Access Framework
+- ⏳ iOS: Not tested (stub implementation)
 - ⏳ iOS: Not tested (stub implementation)
 
 ### Manual Testing Required
@@ -183,15 +188,11 @@ The feature requires UI interaction and cannot be fully tested in CI:
    - Add JSZip library for proper ZIP support
    - Enable ZIP parsing on upload
 
-2. **Android**:
-   - Implement Storage Access Framework integration
-   - Add proper Activity context handling
-
-3. **iOS**:
+2. **iOS**:
    - Implement UIDocumentPickerViewController integration
    - Handle file permissions properly
 
-4. **All Platforms**:
+3. **All Platforms**:
    - Add progress indicator for large file operations
    - Support drag-and-drop file upload (Web/Desktop)
    - Add file validation before import
@@ -208,7 +209,7 @@ The feature requires UI interaction and cannot be fully tested in CI:
 
 1. Web/WASM "Download All" creates text file instead of ZIP (limitation of browser environment without ZIP library)
 2. Web/WASM cannot parse uploaded ZIP files (same limitation)
-3. Android/iOS require platform-specific integration (Activity/UIViewController)
+3. iOS requires platform-specific integration (UIDocumentPickerViewController)
 
 ## Files Changed
 
@@ -221,6 +222,7 @@ The feature requires UI interaction and cannot be fully tested in CI:
 - `composeApp/src/commonMain/kotlin/de/egril/defender/ui/loadgame/ImportExportDialogs.kt`
 
 ### Modified Files
+- `composeApp/src/androidMain/kotlin/de/egril/defender/MainActivity.kt` (Android initialization)
 - `composeApp/src/commonMain/kotlin/de/egril/defender/save/SaveFileStorage.kt`
 - `composeApp/src/commonMain/kotlin/de/egril/defender/ui/GameViewModel.kt`
 - `composeApp/src/commonMain/kotlin/de/egril/defender/App.kt`
@@ -236,4 +238,10 @@ The feature requires UI interaction and cannot be fully tested in CI:
 
 ## Conclusion
 
-The savefile download/upload feature is fully implemented for Desktop with complete ZIP support. Web/WASM has basic functionality with limitations. Android and iOS have stub implementations ready for platform-specific integration. The feature provides a consistent user experience across platforms with proper localization and error handling.
+The savefile download/upload feature is fully implemented for Desktop and Android with complete ZIP support. Web/WASM has basic functionality with limitations (no ZIP library). iOS has stub implementation ready for platform-specific integration. The feature provides a consistent user experience across platforms with proper localization and error handling.
+
+### Platform Summary
+- ✅ **Desktop/JVM**: Full functionality with JFileChooser
+- ✅ **Android**: Full functionality with Storage Access Framework (SAF)
+- ✅ **Web/WASM**: Basic functionality (JSON only, no ZIP support)
+- ⏳ **iOS**: Stub implementation (needs UIDocumentPickerViewController)
