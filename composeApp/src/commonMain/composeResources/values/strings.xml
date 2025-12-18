@@ -693,4 +693,33 @@
     <string name="from">From:</string>
     <string name="to">To:</string>
     <string name="connection_type">Connection Type:</string>
+    
+    <!-- Editor Info Page -->
+    <string name="info">Info</string>
+    <string name="editor_info_title">Level Editor Guide</string>
+    <string name="editor_info_intro">Welcome to the Level Editor! This tool allows you to create custom maps, levels, and level sequences for Defender of Egril.</string>
+    <string name="editor_info_workflow_title">Getting Started</string>
+    <string name="editor_info_workflow_text">To add new levels to the game: First, select or create a map in the Map Editor. Then, create a level using that map in the Level Editor. Finally, bind the level on the World Map to make it visible and playable in the game.</string>
+    <string name="editor_info_copy_hint">You can copy existing maps and levels and adapt them to create new content quickly. This is a great way to learn and iterate on your designs.</string>
+    <string name="editor_info_restore_hint">The Restore Game Data button in Settings restores the game data from the game\'s own repository (stored locally, not online). When you use this function, your previous version with any user changes will be saved under a new name in the same folder, so your work is preserved.</string>
+    <string name="editor_info_file_location_title">File Storage Location</string>
+    <string name="editor_info_file_location_text">All editor data is stored in JSON format on your local filesystem:</string>
+    <string name="editor_info_file_location_linux_mac">Linux/Mac: ~/.defender-of-egril/gamedata/</string>
+    <string name="editor_info_file_location_windows">Windows: %%USERPROFILE%%\\.defender-of-egril\\gamedata\\</string>
+    <string name="editor_info_directory_structure_title">Directory Structure</string>
+    <string name="editor_info_directory_structure_text">maps/ - Contains all map definitions - levels/ - Contains all level definitions - sequence.json - Defines level order - worldmap.json - Defines world map positions</string>
+    <string name="editor_info_map_editor_title">Map Editor</string>
+    <string name="editor_info_map_editor_text">The Map Editor lets you create the grid layout for your levels. Maps define the hexagonal grid, spawn points, paths, and build areas where towers can be placed.</string>
+    <string name="editor_info_map_editor_features">Select and place tile types (PATH, BUILD_AREA, ISLAND, NO_PLAY, SPAWN_POINT, TARGET, RIVER) - Paint tiles by clicking or dragging - Configure river properties (flow direction and speed) - Zoom in/out with Ctrl+Scroll or zoom buttons - Collapse the header for more editing space - Change all NO_PLAY tiles to PATH at once</string>
+    <string name="editor_info_level_editor_title">Level Editor</string>
+    <string name="editor_info_level_editor_text">The Level Editor lets you create gameplay levels using existing maps. Each level references a map and defines the enemies, resources, and available towers.</string>
+    <string name="editor_info_level_editor_features">Select a map for your level - Set starting coins and health points - Configure enemy spawns by turn - Choose which tower types are available - Add spawn points and waypoints - Configure tower restrictions and special rules</string>
+    <string name="editor_info_level_sequence_title">Level Sequence</string>
+    <string name="editor_info_level_sequence_text">The Level Sequence tab lets you arrange levels in the order they appear in the game. This defines the progression and difficulty curve.</string>
+    <string name="editor_info_level_sequence_features">Drag and drop levels to reorder - Use ↑ and ↓ buttons to move levels - Add levels to the sequence - Remove levels from the sequence - Set level dependencies</string>
+    <string name="editor_info_world_map_title">World Map Positions</string>
+    <string name="editor_info_world_map_text">The World Map Positions tab lets you define where levels appear on the world map and how they are connected.</string>
+    <string name="editor_info_world_map_features">Set X/Y coordinates for each level - Create connections between levels (road or sea) - Auto-connect levels based on dependencies - Configure connection visual styles - Define waypoints for connection paths</string>
+    <string name="editor_info_tips_title">Tips</string>
+    <string name="editor_info_tips_text">Save frequently to avoid losing work - Test your levels in the game to ensure they are balanced - Use the existing levels as templates - Maps can be reused across multiple levels - The sequence determines which levels are playable</string>
 </resources>
