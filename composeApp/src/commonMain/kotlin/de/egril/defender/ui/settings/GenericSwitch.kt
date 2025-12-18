@@ -31,9 +31,8 @@ fun GenericSwitch(
         Switch(
             checked = state.value,
             onCheckedChange = { newValue ->
-                // Update state immediately for responsive UI
-                state.value = newValue
-                // Then call the callback for side effects
+                // Only call the callback - it will update the state through proper channels
+                // Don't modify state.value directly to avoid conflicts with other toggles
                 onCheckedChange(newValue)
             },
             colors = SwitchDefaults.colors(
