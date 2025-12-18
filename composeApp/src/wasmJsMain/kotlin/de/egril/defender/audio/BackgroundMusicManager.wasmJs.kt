@@ -66,8 +66,17 @@ class WasmBackgroundMusicManager : BackgroundMusicManager {
                 // Get track-specific relative volume
                 val trackVolume = BackgroundMusicSettings.getRelativeVolume(music)
                 
-                // Set volume (master * music * track * 0.3 multiplier) - convert to Double for JS
-                val effectiveVolume = (AppSettings.soundVolume.value.toDouble() * this.volume.toDouble() * trackVolume.toDouble() * 0.3).coerceIn(0.0, 1.0)
+                // Get base multiplier for this music type
+                val baseMultiplier = BackgroundMusicSettings.getBaseMultiplier(music)
+                
+                // Get the category-specific volume setting
+                val categoryVolume = when (music) {
+                    BackgroundMusic.WORLD_MAP -> AppSettings.worldMapMusicVolume.value
+                    BackgroundMusic.GAMEPLAY_NORMAL, BackgroundMusic.GAMEPLAY_LOW_HEALTH -> AppSettings.gameplayMusicVolume.value
+                }
+                
+                // Set volume (master * category * track * baseMultiplier) - convert to Double for JS
+                val effectiveVolume = (AppSettings.soundVolume.value.toDouble() * categoryVolume.toDouble() * trackVolume.toDouble() * baseMultiplier.toDouble()).coerceIn(0.0, 1.0)
                 setMusicAudioVolume(audio, effectiveVolume)
                 
                 // Play audio

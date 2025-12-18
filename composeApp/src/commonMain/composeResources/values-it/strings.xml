@@ -456,6 +456,16 @@
     <string name="music_enabled">Musica attivata</string>
     <string name="music_disabled">Musica disattivata</string>
     <string name="music_volume">Volume musica</string>
+    <string name="worldmap_music">Musica della mappa del mondo</string>
+    <string name="worldmap_music_enabled">Musica della mappa del mondo attivata</string>
+    <string name="worldmap_music_disabled">Musica della mappa del mondo disattivata</string>
+    <string name="worldmap_music_volume">Volume musica della mappa del mondo</string>
+    <string name="gameplay_music">Musica di gioco</string>
+    <string name="gameplay_music_enabled">Musica di gioco attivata</string>
+    <string name="gameplay_music_disabled">Musica di gioco disattivata</string>
+    <string name="gameplay_music_volume">Volume musica di gioco</string>
+    <string name="show_detailed_sound_settings">Mostra impostazioni sonore dettagliate</string>
+    <string name="hide_detailed_sound_settings">Nascondi impostazioni sonore dettagliate</string>
 
     <!-- Control Pad Settings -->
     <string name="controls">Controlli</string>

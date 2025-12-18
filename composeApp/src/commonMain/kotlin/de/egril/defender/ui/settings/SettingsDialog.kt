@@ -109,6 +109,8 @@ fun SettingsDialog(
                 HorizontalDivider()
                 
                 // Sound section
+                var showDetailedSoundSettings by remember { mutableStateOf(false) }
+                
                 Column(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
@@ -156,9 +158,6 @@ fun SettingsDialog(
                                     value = AppSettings.soundVolume.value,
                                     onValueChange = { volume ->
                                         AppSettings.saveSoundVolume(volume)
-                                        // Update background music volume based on new master volume
-                                        val musicVol = AppSettings.musicVolume.value
-                                        de.egril.defender.audio.GlobalBackgroundMusicManager.setVolume(musicVol)
                                     },
                                     modifier = Modifier.weight(1f),
                                     valueRange = 0f..1f
@@ -170,114 +169,208 @@ fun SettingsDialog(
                             }
                         }
                         
-                        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-                        
-                        // Effect sounds sub-section
-                        Text(
-                            text = stringResource(Res.string.effect_sounds),
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        
-                        GenericSwitch(
-                            state = AppSettings.isEffectsEnabled,
-                            checkedText = stringResource(Res.string.effects_enabled),
-                            uncheckedText = stringResource(Res.string.effects_disabled),
-                            onCheckedChange = { enabled ->
-                                AppSettings.saveEffectsEnabled(enabled)
-                                de.egril.defender.audio.GlobalSoundManager.getInstance()?.setEnabled(enabled && AppSettings.isSoundEnabled.value)
-                            },
+                        // Button to show/hide detailed sound settings
+                        Button(
+                            onClick = { showDetailedSoundSettings = !showDetailedSoundSettings },
                             modifier = Modifier.fillMaxWidth()
-                        )
-                        
-                        if (AppSettings.isEffectsEnabled.value) {
-                            Column(
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalArrangement = Arrangement.spacedBy(4.dp)
-                            ) {
-                                Text(
-                                    text = stringResource(Res.string.effects_volume),
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(
-                                        text = "🔈",
-                                        style = MaterialTheme.typography.bodyLarge
-                                    )
-                                    Slider(
-                                        value = AppSettings.effectsVolume.value,
-                                        onValueChange = { volume ->
-                                            AppSettings.saveEffectsVolume(volume)
-                                            de.egril.defender.audio.GlobalSoundManager.getInstance()?.setVolume(volume)
-                                        },
-                                        modifier = Modifier.weight(1f),
-                                        valueRange = 0f..1f
-                                    )
-                                    Text(
-                                        text = "🔊",
-                                        style = MaterialTheme.typography.bodyLarge
-                                    )
+                        ) {
+                            Text(
+                                text = if (showDetailedSoundSettings) {
+                                    stringResource(Res.string.hide_detailed_sound_settings)
+                                } else {
+                                    stringResource(Res.string.show_detailed_sound_settings)
                                 }
-                            }
+                            )
                         }
                         
-                        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-                        
-                        // Background music sub-section
-                        Text(
-                            text = stringResource(Res.string.background_music),
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        
-                        GenericSwitch(
-                            state = AppSettings.isMusicEnabled,
-                            checkedText = stringResource(Res.string.music_enabled),
-                            uncheckedText = stringResource(Res.string.music_disabled),
-                            onCheckedChange = { enabled ->
-                                AppSettings.saveMusicEnabled(enabled)
-                                de.egril.defender.audio.GlobalBackgroundMusicManager.setEnabled(enabled && AppSettings.isSoundEnabled.value)
-                            },
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        
-                        if (AppSettings.isMusicEnabled.value) {
+                        // Detailed sound settings (collapsible)
+                        if (showDetailedSoundSettings) {
                             Column(
                                 modifier = Modifier.fillMaxWidth(),
-                                verticalArrangement = Arrangement.spacedBy(4.dp)
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
+                                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                                
+                                // Effect sounds sub-section
                                 Text(
-                                    text = stringResource(Res.string.music_volume),
-                                    style = MaterialTheme.typography.bodyMedium,
+                                    text = stringResource(Res.string.effect_sounds),
+                                    style = MaterialTheme.typography.bodyLarge,
                                     color = MaterialTheme.colorScheme.onSurface
                                 )
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(
-                                        text = "🔈",
-                                        style = MaterialTheme.typography.bodyLarge
-                                    )
-                                    Slider(
-                                        value = AppSettings.musicVolume.value,
-                                        onValueChange = { volume ->
-                                            AppSettings.saveMusicVolume(volume)
-                                            de.egril.defender.audio.GlobalBackgroundMusicManager.setVolume(volume)
-                                        },
-                                        modifier = Modifier.weight(1f),
-                                        valueRange = 0f..1f
-                                    )
-                                    Text(
-                                        text = "🔊",
-                                        style = MaterialTheme.typography.bodyLarge
-                                    )
+                                
+                                GenericSwitch(
+                                    state = AppSettings.isEffectsEnabled,
+                                    checkedText = stringResource(Res.string.effects_enabled),
+                                    uncheckedText = stringResource(Res.string.effects_disabled),
+                                    onCheckedChange = { enabled ->
+                                        AppSettings.saveEffectsEnabled(enabled)
+                                        de.egril.defender.audio.GlobalSoundManager.getInstance()?.setEnabled(enabled && AppSettings.isSoundEnabled.value)
+                                    },
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                                
+                                if (AppSettings.isEffectsEnabled.value) {
+                                    Column(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                                    ) {
+                                        Text(
+                                            text = stringResource(Res.string.effects_volume),
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Text(
+                                                text = "🔈",
+                                                style = MaterialTheme.typography.bodyLarge
+                                            )
+                                            Slider(
+                                                value = AppSettings.effectsVolume.value,
+                                                onValueChange = { volume ->
+                                                    AppSettings.saveEffectsVolume(volume)
+                                                    de.egril.defender.audio.GlobalSoundManager.getInstance()?.setVolume(volume)
+                                                },
+                                                modifier = Modifier.weight(1f),
+                                                valueRange = 0f..1f
+                                            )
+                                            Text(
+                                                text = "🔊",
+                                                style = MaterialTheme.typography.bodyLarge
+                                            )
+                                        }
+                                    }
+                                }
+                                
+                                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                                
+                                // Background music sub-section
+                                Text(
+                                    text = stringResource(Res.string.background_music),
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                
+                                GenericSwitch(
+                                    state = AppSettings.isMusicEnabled,
+                                    checkedText = stringResource(Res.string.music_enabled),
+                                    uncheckedText = stringResource(Res.string.music_disabled),
+                                    onCheckedChange = { enabled ->
+                                        AppSettings.saveMusicEnabled(enabled)
+                                        de.egril.defender.audio.GlobalBackgroundMusicManager.setEnabled(enabled && AppSettings.isSoundEnabled.value)
+                                    },
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                                
+                                if (AppSettings.isMusicEnabled.value) {
+                                    // World Map Music
+                                    Column(
+                                        modifier = Modifier.fillMaxWidth().padding(start = 16.dp),
+                                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                                    ) {
+                                        Text(
+                                            text = stringResource(Res.string.worldmap_music),
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
+                                        
+                                        GenericSwitch(
+                                            state = AppSettings.isWorldMapMusicEnabled,
+                                            checkedText = stringResource(Res.string.worldmap_music_enabled),
+                                            uncheckedText = stringResource(Res.string.worldmap_music_disabled),
+                                            onCheckedChange = { enabled ->
+                                                AppSettings.saveWorldMapMusicEnabled(enabled)
+                                            },
+                                            modifier = Modifier.fillMaxWidth()
+                                        )
+                                        
+                                        if (AppSettings.isWorldMapMusicEnabled.value) {
+                                            Text(
+                                                text = stringResource(Res.string.worldmap_music_volume),
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = MaterialTheme.colorScheme.onSurface
+                                            )
+                                            Row(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                                verticalAlignment = Alignment.CenterVertically
+                                            ) {
+                                                Text(
+                                                    text = "🔈",
+                                                    style = MaterialTheme.typography.bodyLarge
+                                                )
+                                                Slider(
+                                                    value = AppSettings.worldMapMusicVolume.value,
+                                                    onValueChange = { volume ->
+                                                        AppSettings.saveWorldMapMusicVolume(volume)
+                                                    },
+                                                    modifier = Modifier.weight(1f),
+                                                    valueRange = 0f..1f
+                                                )
+                                                Text(
+                                                    text = "🔊",
+                                                    style = MaterialTheme.typography.bodyLarge
+                                                )
+                                            }
+                                        }
+                                    }
+                                    
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    
+                                    // Gameplay Music
+                                    Column(
+                                        modifier = Modifier.fillMaxWidth().padding(start = 16.dp),
+                                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                                    ) {
+                                        Text(
+                                            text = stringResource(Res.string.gameplay_music),
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
+                                        
+                                        GenericSwitch(
+                                            state = AppSettings.isGameplayMusicEnabled,
+                                            checkedText = stringResource(Res.string.gameplay_music_enabled),
+                                            uncheckedText = stringResource(Res.string.gameplay_music_disabled),
+                                            onCheckedChange = { enabled ->
+                                                AppSettings.saveGameplayMusicEnabled(enabled)
+                                            },
+                                            modifier = Modifier.fillMaxWidth()
+                                        )
+                                        
+                                        if (AppSettings.isGameplayMusicEnabled.value) {
+                                            Text(
+                                                text = stringResource(Res.string.gameplay_music_volume),
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = MaterialTheme.colorScheme.onSurface
+                                            )
+                                            Row(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                                verticalAlignment = Alignment.CenterVertically
+                                            ) {
+                                                Text(
+                                                    text = "🔈",
+                                                    style = MaterialTheme.typography.bodyLarge
+                                                )
+                                                Slider(
+                                                    value = AppSettings.gameplayMusicVolume.value,
+                                                    onValueChange = { volume ->
+                                                        AppSettings.saveGameplayMusicVolume(volume)
+                                                    },
+                                                    modifier = Modifier.weight(1f),
+                                                    valueRange = 0f..1f
+                                                )
+                                                Text(
+                                                    text = "🔊",
+                                                    style = MaterialTheme.typography.bodyLarge
+                                                )
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }

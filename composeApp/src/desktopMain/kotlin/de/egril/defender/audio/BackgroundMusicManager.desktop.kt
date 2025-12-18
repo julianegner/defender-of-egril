@@ -82,10 +82,19 @@ class DesktopBackgroundMusicManager : BackgroundMusicManager {
         // Get track-specific relative volume
         val trackVolume = BackgroundMusicSettings.getRelativeVolume(music)
         
-        // Calculate effective volume (master * music * track * 0.3 multiplier)
-        val effectiveVolume = (AppSettings.soundVolume.value * this.volume * trackVolume * 0.3f).coerceIn(0f, 1f)
+        // Get base multiplier for this music type
+        val baseMultiplier = BackgroundMusicSettings.getBaseMultiplier(music)
         
-        println("Starting background music: ${music.name}, effectiveVolume=$effectiveVolume (master=${AppSettings.soundVolume.value}, music=${this.volume}, track=$trackVolume)")
+        // Get the category-specific volume setting
+        val categoryVolume = when (music) {
+            BackgroundMusic.WORLD_MAP -> AppSettings.worldMapMusicVolume.value
+            BackgroundMusic.GAMEPLAY_NORMAL, BackgroundMusic.GAMEPLAY_LOW_HEALTH -> AppSettings.gameplayMusicVolume.value
+        }
+        
+        // Calculate effective volume (master * category * track * baseMultiplier)
+        val effectiveVolume = (AppSettings.soundVolume.value * categoryVolume * trackVolume * baseMultiplier).coerceIn(0f, 1f)
+        
+        println("Starting background music: ${music.name}, effectiveVolume=$effectiveVolume (master=${AppSettings.soundVolume.value}, category=$categoryVolume, track=$trackVolume, base=$baseMultiplier)")
         
         // Create and start music player
         val player = Mp3MusicPlayer(bytes, effectiveVolume, currentLoop, this)
