@@ -21,10 +21,16 @@
     <string name="language">Sprache</string>
     <string name="appearance">Erscheinungsbild</string>
     <string name="dark_mode">Dunkler Modus</string>
-    <string name="dark_mode_on">Dunkler Modus an</string>
-    <string name="dark_mode_off">Dunkler Modus aus</string>
+    <string name="dark_mode_on">Dunkler Modus</string>
+    <string name="dark_mode_off">Heller Modus</string>
     <string name="world_map_level_cards">Levelkarten-Ansicht</string>
     <string name="world_map_image_map">Bildkarte-Ansicht</string>
+    <string name="enhanced_dig_images">Verbesserte Grabungsbilder</string>
+    <string name="enhanced_dig_images_on">Verbesserte Bilder An</string>
+    <string name="enhanced_dig_images_off">Einfache Bilder</string>
+    <string name="tile_background_images">Kachel-Hintergrundbilder</string>
+    <string name="tile_background_images_on">Kachelbilder An</string>
+    <string name="tile_background_images_off">Farbhintergründe</string>
     <string name="reset_settings">Einstellungen zurücksetzen</string>
     <string name="restore_game_data">Spieldaten wiederherstellen</string>
     <string name="restore_game_data_confirm_title">Spieldaten wiederherstellen?</string>
@@ -59,10 +65,26 @@
     <string name="load_game">Spiel laden</string>
     <string name="add_optional_comment">Füge einen optionalen Kommentar hinzu, um diesen Spielstand zu identifizieren:</string>
     <string name="save_comment_placeholder">z.B. 'Vor der letzten Welle', 'Gute Position'...</string>
+    <string name="download_savefile">Herunterladen</string>
+    <string name="download_all_savefiles">Alle herunterladen</string>
+    <string name="upload_savefiles">Hochladen</string>
+    <string name="download_savefile_tooltip">Diesen Spielstand herunterladen</string>
+    <string name="download_all_tooltip">Alle Spielstände als ZIP-Archiv herunterladen</string>
+    <string name="upload_tooltip">Spielstände hochladen (JSON oder ZIP)</string>
+    <string name="file_override_title">Datei existiert bereits</string>
+    <string name="file_override_message">Ein Spielstand namens "%s" existiert bereits. Was möchten Sie tun?</string>
+    <string name="skip_file">Überspringen</string>
+    <string name="override_file">Überschreiben</string>
+    <string name="override_all">Alle überschreiben</string>
+    <string name="files_imported">Dateien importiert</string>
+    <string name="files_imported_message">Erfolgreich %d Spielstand/-stände importiert.</string>
+    <string name="import_error">Import-Fehler</string>
+    <string name="import_error_message">Einige Dateien konnten nicht importiert werden. Bitte überprüfen Sie das Dateiformat.</string>
     <string name="in_x_turns">in %s Runden</string>
     
     <!-- Towers -->
     <string name="tower">Turm</string>
+    <string name="raft">Floß</string>
     <string name="damage">Schaden</string>
     <string name="range">Reichweite</string>
     <string name="actions">Aktionen</string>
@@ -77,7 +99,8 @@
     <string name="completed">Abgeschlossen</string>
     
     <!-- World Map -->
-    <string name="world_map_title">Weltkarte - Wiesen von Egril</string>
+    <string name="world_map_title">Weltkarte</string>
+    <string name="world_map_subtitle">Wiesen von Egril</string>
     <string name="back_to_world_map">Zurück zur Weltkarte</string>
     <string name="play_level">Level spielen</string>
     <string name="requires_completing">Erfordert Abschluss von:</string>
@@ -208,6 +231,7 @@
     <string name="attack_area_button">FLÄCHEN-ANGRIFF</string>
     <string name="undo">Rückgängig</string>
     <string name="sell_tower_title">Turm verkaufen?</string>
+    <string name="sell_tower_message">Möchten Sie den %s wirklich für %s %s verkaufen?</string>
     <string name="dig">Graben</string>
     <string name="trap">Falle</string>
     <string name="mining_probabilities">Grab-Wahrscheinlichkeiten</string>
@@ -245,6 +269,7 @@
     <string name="build_island">Bauinsel</string>
     <string name="build_strip">Baustreifen</string>
     <string name="enemy_path">Feindpfad</string>
+    <string name="river">Fluss</string>
     <string name="non_playable">Nicht spielbar</string>
     <string name="enemy_unit">Feindeinheit</string>
     <string name="map_label">Karte</string>
@@ -315,6 +340,7 @@
     <string name="size">Größe</string>
     <string name="select_tile_type">Kacheltyp wählen:</string>
     <string name="click_hexagons_to_paint">Klicken oder ziehen, um Sechsecke zu malen. Strg+Mausrad zum Zoomen:</string>
+    <string name="collapse">Einklappen</string>
     <string name="change_all_no_play_to_path">Alle NO_PLAY in PATH umwandeln</string>
     <string name="change_all_no_play_confirm_title">Alle NO_PLAY in PATH umwandeln?</string>
     <string name="change_all_no_play_confirm_message">Dies ersetzt alle NO_PLAY-Kacheln durch PATH-Kacheln. Sind Sie sicher?</string>
@@ -417,8 +443,8 @@
 
     <!-- Sound Settings -->
     <string name="sound">Sound</string>
-    <string name="sound_enabled">Sound aktiviert</string>
-    <string name="sound_disabled">Sound deaktiviert</string>
+    <string name="sound_enabled">Sound</string>
+    <string name="sound_disabled">Stumm</string>
     <string name="sound_volume">Lautstärke</string>
     <string name="effect_sounds">Soundeffekte</string>
     <string name="effects_enabled">Effekte aktiviert</string>
@@ -432,8 +458,8 @@
     <!-- Control Pad Settings -->
     <string name="controls">Steuerung</string>
     <string name="show_control_pad">Steuerkreuz anzeigen</string>
-    <string name="control_pad_enabled">Steuerkreuz aktiviert</string>
-    <string name="control_pad_disabled">Steuerkreuz deaktiviert</string>
+    <string name="control_pad_enabled">Steuerkreuz</string>
+    <string name="control_pad_disabled">Kein Steuerkreuz</string>
     
     <!-- Difficulty Settings -->
     <string name="difficulty">Schwierigkeitsgrad</string>
@@ -503,6 +529,14 @@
     <string name="no_spawn_point_set">Kein Spawn-Punkt gesetzt</string>
     <string name="change">Ändern</string>
     <string name="select">Auswählen</string>
+    <string name="change_all_spawn_points">Alle Spawn-Punkte ändern</string>
+    <string name="change_all_spawn_points_title">Gegner-Spawn-Punkte neu zuordnen</string>
+    <string name="change_all_spawn_points_description">Einige Gegner werden an Positionen gespawnt, die keine Spawn-Punkte auf der aktuellen Karte sind. Verwenden Sie diesen Dialog, um sie gültigen Spawn-Punkten zuzuordnen.</string>
+    <string name="from_spawn_point">Von Position</string>
+    <string name="to_spawn_point">Zu Spawn-Punkt</string>
+    <string name="enemies_affected_count">%d Gegner betroffen</string>
+    <string name="apply_changes">Änderungen anwenden</string>
+    <string name="spawn_point_warning">⚠ Einige Gegner werden außerhalb gültiger Spawn-Punkte gespawnt</string>
     <string name="target_text">Ziel</string>
     <string name="waypoint">Wegpunkt</string>
     <string name="select_source_position">Quellposition auswählen</string>
@@ -600,17 +634,70 @@
     <!-- Extended Area Attack Feature -->
     <string name="extended_area_tutorial_title">Erweiterter Flächenangriff!</string>
     <string name="extended_area_tutorial_message">Dein Turm hat Stufe 20 erreicht und hat jetzt einen erweiterten Flächenangriff! Feuerball- und Säureangriffe treffen jetzt Feinde im Umkreis von 2 Feldern statt nur 1 Feld. Das macht deine Flächenangriffe gegen Gegnergruppen viel stärker!</string>
-    
+
     <!-- First Time Tower Usage Info -->
     <string name="wizard_first_use_title">Zauberturm</string>
     <string name="wizard_first_use_message">Der Zauberturm ist ein mächtiger Flächenangriffsturm, der Feuerbälle auf Feinde schleudert! Jeder Feuerball schadet dem Ziel und allen Feinden in angrenzenden Feldern. Er hat eine längere Bauzeit (2 Runden), kann aber Gegnergruppen vernichten. Ab Stufe 10 können Zauberer magische Fallen platzieren, die Feinde zum Spawnpunkt zurückteleportieren. Ab Stufe 20 erhöht sich der Feuerballradius auf 2 Felder!</string>
-    
+
     <string name="alchemy_first_use_title">Alchemieturm</string>
     <string name="alchemy_first_use_message">Der Alchemieturm wirft Säure, die Schaden über Zeit verursacht! Anders als andere Türme hält der Säureschaden mehrere Runden an (Basis 2 Runden, erhöht sich mit der Stufe). Die Säure trifft das Ziel und angrenzende Feinde in einem kleinen Bereich. Obwohl der Schaden pro Runde niedriger ist, kann der Gesamtschaden über Zeit sehr effektiv sein. Ab Stufe 20 erhöht sich der Säurebereich auf 2 Felder!</string>
-    
+
     <string name="ballista_first_use_title">Ballistaturm</string>
     <string name="ballista_first_use_message">Die Ballista ist eine Belagerungswaffe mit außergewöhnlicher Reichweite (5 Felder) und hohem Schaden! Sie hat jedoch eine Mindestreichweite von 3 Feldern und kann nahe Feinde nicht angreifen. Sie benötigt 2 Runden zum Bau. Nutze sie, um Feinde aus der Ferne anzugreifen, bevor sie zu nah kommen, oder positioniere sie hinter anderen Türmen für maximale Effektivität.</string>
-    
+
     <string name="mine_first_use_title">Zwergenmine</string>
     <string name="mine_first_use_message">Die Zwergenmine ist eine Spezialstruktur, die durch Bergbau Münzen generiert! Anders als Kampftürme nutzen Minen die "Graben"-Aktion, um wertvolle Ressourcen zu finden (Schutt, Messing, Silber, Gold, Edelsteine oder Diamanten). Minen können auch Fallen bauen, die Feinden schaden. Auf höheren Stufen können Minen öfter pro Runde graben und weiter reichen. Warnung: Drachen sind gierig und werden Minen zerstören, um den Schatz zu beanspruchen!</string>
+
+    <!-- River Mechanics Info -->
+    <string name="river_info_title">Flussmechanik</string>
+    <string name="river_info_placement">Du kannst Türme auf Flussfeldern platzieren! Wenn du das tust, werden sie auf Flößen platziert.</string>
+    <string name="river_info_movement">Flöße bewegen sich automatisch mit der Flussströmung am Ende jeder Runde. Die Fließgeschwindigkeit bestimmt, wie viele Felder sie sich bewegen (1 oder 2 Felder).</string>
+    <string name="river_info_destruction">Flöße werden zerstört, wenn sie einen Strudel erreichen oder aus den Kartengrenzen hinausbewegt werden. Der Turm auf dem Floß wird ebenfalls zerstört.</string>
+    <string name="river_info_bridges">Brücken blockieren die Bewegung von Flößen. Flöße können nicht durch Brücken hindurch, die über den Fluss gespannt sind. Mehrere Flöße auf demselben Fluss bewegen sich nacheinander - flussabwärts zuerst.</string>
+
+    <!-- Mine on River Warning -->
+    <string name="mine_on_river_warning_title">Kann Mine nicht auf Fluss platzieren</string>
+    <string name="mine_on_river_warning_message">Zwergenminen können nicht auf Flussfeldern platziert werden. Minen benötigen festen Boden und können nicht auf Flößen gebaut werden. Bitte wählen Sie stattdessen einen Baubereich auf festem Land.</string>
+
+    <!-- Mining Outcome Table Headers -->
+    <string name="dig_outcome_name">Name</string>
+    <string name="dig_outcome_chance">Chance (%)</string>
+    <string name="dig_outcome_reward">Belohnung</string>
+
+    <!-- Delete Confirmation Dialog -->
+    <string name="delete_save_game">Spielstand löschen</string>
+    <string name="delete_save_game_confirm">Sind Sie sicher, dass Sie diesen Spielstand löschen möchten?</string>
+
+    <!-- Editor - Speed Labels -->
+    <string name="speed_slow">1 (Langsam)</string>
+    <string name="speed_fast">2 (Schnell)</string>
+
+    <!-- Editor - River Properties -->
+    <string name="river_properties">Flusseigenschaften</string>
+    <string name="flow_direction">Fließrichtung:</string>
+    <string name="flow_speed">Fließgeschwindigkeit:</string>
+
+    <!-- Editor - World Map Position Editor -->
+    <string name="add_location">+ Ort hinzufügen</string>
+    <string name="add_location_dialog_title">Ort hinzufügen</string>
+    <string name="location_name">Ortsname</string>
+    <string name="select_levels">Level auswählen:</string>
+    <string name="edit_connection">Verbindung bearbeiten</string>
+    <string name="default_connection_type">Standard-Verbindungstyp:</string>
+    <string name="add_control_point">Kontrollpunkt hinzufügen:</string>
+    <string name="y_coordinate">Y</string>
+    <string name="locations">Orte</string>
+    <string name="auto_connect_by_dependencies">Automatisch nach Abhängigkeiten verbinden</string>
+    <string name="edit_location">Ort bearbeiten</string>
+    <string name="all_road">Alle Straße</string>
+    <string name="all_sea">Alle See</string>
+    <string name="segment_types">Segmenttypen (%d Segmente):</string>
+    <string name="road">Straße</string>
+    <string name="sea">See</string>
+    <string name="waypoints_range">Wegpunkte (0-1000):</string>
+    <string name="add_connection">Verbindung hinzufügen</string>
+    <string name="select_two_locations">Wählen Sie zwei zu verbindende Orte:</string>
+    <string name="from">Von:</string>
+    <string name="to">Nach:</string>
+    <string name="connection_type">Verbindungstyp:</string>
 </resources>

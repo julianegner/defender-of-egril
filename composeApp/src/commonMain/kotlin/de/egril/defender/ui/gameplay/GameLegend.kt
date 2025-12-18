@@ -54,7 +54,8 @@ fun GameLegend(modifier: Modifier = Modifier) {
                             color = GamePlayColors.BuildIsland,
                             label = "",
                             description = stringResource(Res.string.build_island),
-                            border = borderColor
+                            border = borderColor,
+                            tileType = de.egril.defender.editor.TileType.ISLAND
                         )
                     }
                     item {
@@ -62,7 +63,8 @@ fun GameLegend(modifier: Modifier = Modifier) {
                             color = GamePlayColors.BuildStrip,
                             label = "",
                             description = stringResource(Res.string.build_strip),
-                            border = borderColor
+                            border = borderColor,
+                            tileType = de.egril.defender.editor.TileType.BUILD_AREA
                         )
                     }
                     item {
@@ -70,7 +72,17 @@ fun GameLegend(modifier: Modifier = Modifier) {
                             color = GamePlayColors.Path,
                             label = "", // ⬡
                             description = stringResource(Res.string.enemy_path),
-                            border = borderColor
+                            border = borderColor,
+                            tileType = de.egril.defender.editor.TileType.PATH
+                        )
+                    }
+                    item {
+                        LegendItemHex(
+                            color = GamePlayColors.River,
+                            label = "",
+                            description = stringResource(Res.string.river),
+                            border = borderColor,
+                            tileType = de.egril.defender.editor.TileType.RIVER
                         )
                     }
                     item {
@@ -78,7 +90,8 @@ fun GameLegend(modifier: Modifier = Modifier) {
                             color = GamePlayColors.NonPlayable,
                             label = "",
                             description = stringResource(Res.string.non_playable),
-                            border = borderColor
+                            border = borderColor,
+                            tileType = de.egril.defender.editor.TileType.NO_PLAY
                         )
                     }
 
@@ -194,9 +207,13 @@ fun LegendItemHex(
     label: String,
     description: String,
     border: Color = Color.Gray,
-    borderWidth: androidx.compose.ui.unit.Dp = 1.dp
+    borderWidth: androidx.compose.ui.unit.Dp = 1.dp,
+    tileType: de.egril.defender.editor.TileType? = null
 ) {
     Row(verticalAlignment = Alignment.CenterVertically) {
+        // Get tile painter if tile type is provided
+        val tilePainter = tileType?.let { TileImageProvider.getTilePainter(it) }
+        
         Box(
             modifier = Modifier
                 .size(32.dp, 28.dp)
@@ -205,12 +222,22 @@ fun LegendItemHex(
                 .border(borderWidth, border, HexagonShape()),
             contentAlignment = Alignment.Center
         ) {
-            Text(
-                label,
-                style = MaterialTheme.typography.labelMedium,
-                fontSize = 5.sp,
-                color = border
-            )
+            // Show tile image if available, otherwise show label
+            tilePainter?.let { painter ->
+                androidx.compose.foundation.Image(
+                    painter = painter,
+                    contentDescription = null,
+                    modifier = Modifier.matchParentSize(),
+                    contentScale = androidx.compose.ui.layout.ContentScale.Crop
+                )
+            } ?: run {
+                Text(
+                    label,
+                    style = MaterialTheme.typography.labelMedium,
+                    fontSize = 5.sp,
+                    color = border
+                )
+            }
         }
         Spacer(modifier = Modifier.width(8.dp))
         Text(description, style = MaterialTheme.typography.bodySmall)

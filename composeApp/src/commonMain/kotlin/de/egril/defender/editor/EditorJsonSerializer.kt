@@ -21,6 +21,13 @@ object EditorJsonSerializer {
             ",\n  \"worldMapPosition\": {\"x\": ${map.worldMapPosition.x}, \"y\": ${map.worldMapPosition.y}}"
         } else ""
         
+        val riverTilesJson = if (map.riverTiles.isNotEmpty()) {
+            val riverData = map.riverTiles.entries.joinToString(",\n    ") { (pos, river) ->
+                "\"$pos\": {\"flowDirection\": \"${river.flowDirection.name}\", \"flowSpeed\": ${river.flowSpeed}}"
+            }
+            ",\n  \"riverTiles\": {\n    $riverData\n  }"
+        } else ""
+        
         return """{
   "id": "${map.id}",
   "name": "${map.name}",
@@ -29,7 +36,7 @@ object EditorJsonSerializer {
   "readyToUse": ${map.readyToUse}$worldMapPositionJson,
   "tiles": {
     $tilesJson
-  }
+  }$riverTilesJson
 }"""
     }
     
@@ -74,7 +81,57 @@ object EditorJsonSerializer {
                 tiles[pos] = TileType.valueOf(typeStr)
             }
             
-            return EditorMap(id, name, width, height, tiles, readyToUse, worldMapPosition)
+            // Parse optional river tiles
+            val riverTiles = mutableMapOf<String, de.egril.defender.model.RiverTile>()
+            try {
+                if (json.contains("\"riverTiles\"")) {
+                    // Find the riverTiles section by counting braces to find the matching closing brace
+                    val startMarker = "\"riverTiles\": {"
+                    val startIdx = json.indexOf(startMarker)
+                    if (startIdx != -1) {
+                        val contentStart = startIdx + startMarker.length
+                        var braceCount = 1
+                        var endIdx = contentStart
+                        
+                        // Find matching closing brace
+                        while (endIdx < json.length && braceCount > 0) {
+                            when (json[endIdx]) {
+                                '{' -> braceCount++
+                                '}' -> braceCount--
+                            }
+                            endIdx++
+                        }
+                        
+                        if (braceCount == 0) {
+                            val riverSection = json.substring(contentStart, endIdx - 1)
+                            val riverEntries = riverSection.split("},").map { it.trim() }
+                            
+                            for (entry in riverEntries) {
+                                if (entry.isBlank()) continue
+                                val posMatch = Regex("\"([0-9]+,[0-9]+)\"").find(entry) ?: continue
+                                val pos = posMatch.groupValues[1]
+                                
+                                val flowDirectionMatch = Regex("\"flowDirection\":\\s*\"([A-Z_]+)\"").find(entry)
+                                val flowSpeedMatch = Regex("\"flowSpeed\":\\s*([12])").find(entry)
+                                
+                                if (flowDirectionMatch != null && flowSpeedMatch != null) {
+                                    val flowDirection = de.egril.defender.model.RiverFlow.valueOf(flowDirectionMatch.groupValues[1])
+                                    val flowSpeed = flowSpeedMatch.groupValues[1].toInt()
+                                    
+                                    val parts = pos.split(",")
+                                    val position = Position(parts[0].toInt(), parts[1].toInt())
+                                    riverTiles[pos] = de.egril.defender.model.RiverTile(position, flowDirection, flowSpeed)
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                println("Error deserializing river tiles: ${e.message}")
+                // River tiles are optional, continue without them
+            }
+            
+            return EditorMap(id, name, width, height, tiles, readyToUse, worldMapPosition, riverTiles)
         } catch (e: Exception) {
             println("Error deserializing map: ${e.message}")
             return null
@@ -325,10 +382,18 @@ object EditorJsonSerializer {
                     """{"x": ${pt.x}, "y": ${pt.y}}"""
                 } + "]"
             }
+            val segmentTypesJson = if (path.segmentTypes.isEmpty()) {
+                ""
+            } else {
+                val typesArray = "[" + path.segmentTypes.joinToString(", ") { "\"${it.name}\"" } + "]"
+                """,
+      "segmentTypes": $typesArray"""
+            }
             """{
       "fromLocationId": "${path.fromLocationId}",
       "toLocationId": "${path.toLocationId}",
-      "controlPoints": $controlPointsJson
+      "controlPoints": $controlPointsJson,
+      "type": "${path.type.name}"$segmentTypesJson
     }"""
         }
         
@@ -405,7 +470,37 @@ object EditorJsonSerializer {
                         }
                     }
                     
-                    paths.add(WorldMapPathData(fromLocationId, toLocationId, controlPoints))
+                    // Parse connection type (default to ROAD for backward compatibility)
+                    val type = try {
+                        if (entry.contains("\"type\"")) {
+                            val typeStr = JsonUtils.extractValue(entry, "type")
+                            ConnectionType.valueOf(typeStr)
+                        } else {
+                            ConnectionType.ROAD
+                        }
+                    } catch (e: Exception) {
+                        ConnectionType.ROAD
+                    }
+                    
+                    // Parse segment types (optional for backward compatibility)
+                    val segmentTypes = mutableListOf<ConnectionType>()
+                    if (entry.contains("\"segmentTypes\"")) {
+                        try {
+                            val typesSection = entry.substringAfter("\"segmentTypes\": [").substringBefore("]")
+                            if (typesSection.isNotBlank()) {
+                                val typeEntries = typesSection.split(",").map { it.trim().removeSurrounding("\"") }
+                                for (typeEntry in typeEntries) {
+                                    if (typeEntry.isNotBlank()) {
+                                        segmentTypes.add(ConnectionType.valueOf(typeEntry))
+                                    }
+                                }
+                            }
+                        } catch (e: Exception) {
+                            // If parsing fails, use empty list (will fall back to default type)
+                        }
+                    }
+                    
+                    paths.add(WorldMapPathData(fromLocationId, toLocationId, controlPoints, type, segmentTypes))
                 }
             }
             

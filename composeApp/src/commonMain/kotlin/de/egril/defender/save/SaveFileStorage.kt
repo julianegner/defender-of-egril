@@ -153,6 +153,69 @@ object SaveFileStorage {
     }
     
     /**
+     * Get the JSON content of a saved game for export
+     */
+    fun getSaveGameJson(saveId: String): String? {
+        return fileStorage.readFile("$SAVEFILES_DIR/$saveId.json")
+    }
+    
+    /**
+     * Get all saved games as a map of filename to JSON content
+     */
+    fun getAllSaveGamesJson(): Map<String, String> {
+        val files = fileStorage.listFiles(SAVEFILES_DIR)
+        val result = mutableMapOf<String, String>()
+        
+        files.forEach { filename ->
+            if (filename.endsWith(".json") && filename != "level_progress.json") {
+                val content = fileStorage.readFile("$SAVEFILES_DIR/$filename")
+                if (content != null) {
+                    result[filename] = content
+                }
+            }
+        }
+        
+        return result
+    }
+    
+    /**
+     * Import a save game from JSON content
+     * @return true if import was successful
+     */
+    fun importSaveGame(filename: String, jsonContent: String, overwrite: Boolean = false): Boolean {
+        return try {
+            // Validate JSON by trying to deserialize
+            val savedGame = SaveJsonSerializer.deserializeSavedGame(jsonContent)
+            if (savedGame == null) {
+                println("Invalid save game JSON: $filename")
+                return false
+            }
+            
+            // Check if file already exists
+            val targetPath = "$SAVEFILES_DIR/$filename"
+            if (fileStorage.fileExists(targetPath) && !overwrite) {
+                println("Save game already exists: $filename")
+                return false
+            }
+            
+            // Write the file
+            fileStorage.writeFile(targetPath, jsonContent)
+            true
+        } catch (e: Exception) {
+            println("Error importing save game $filename: ${e.message}")
+            e.printStackTrace()
+            false
+        }
+    }
+    
+    /**
+     * Check if a save game with the given filename exists
+     */
+    fun saveGameExists(filename: String): Boolean {
+        return fileStorage.fileExists("$SAVEFILES_DIR/$filename")
+    }
+    
+    /**
      * Convert GameState to SavedGame
      */
     private fun convertGameStateToSavedGame(gameState: GameState, saveId: String, comment: String? = null): SavedGame {
@@ -160,12 +223,13 @@ object SaveFileStorage {
             SavedDefender(
                 id = defender.id,
                 type = defender.type,
-                position = defender.position,
+                position = defender.position.value,
                 level = defender.level.value,
                 buildTimeRemaining = defender.buildTimeRemaining.value,
                 placedOnTurn = defender.placedOnTurn,
                 actionsRemaining = defender.actionsRemaining.value,
-                dragonName = defender.dragonName
+                dragonName = defender.dragonName,
+                raftId = defender.raftId.value
             )
         }
         
@@ -201,6 +265,14 @@ object SaveFileStorage {
             )
         }
         
+        val rafts = gameState.rafts.map { raft ->
+            SavedRaft(
+                id = raft.id,
+                defenderId = raft.defenderId,
+                position = raft.currentPosition.value
+            )
+        }
+        
         return SavedGame(
             id = saveId,
             timestamp = currentTimeMillis(),
@@ -220,7 +292,9 @@ object SaveFileStorage {
             fieldEffects = fieldEffects,
             traps = traps,
             comment = comment,
-            mapId = gameState.level.mapId  // Save the map ID for verification on load
+            mapId = gameState.level.mapId,  // Save the map ID for verification on load
+            rafts = rafts,
+            nextRaftId = gameState.nextRaftId.value
         )
     }
     
@@ -239,6 +313,18 @@ object SaveFileStorage {
         gameState.currentWaveIndex.value = savedGame.currentWaveIndex
         gameState.spawnCounter.value = savedGame.spawnCounter
         gameState.turnNumber.value = savedGame.turnNumber
+        gameState.nextRaftId.value = savedGame.nextRaftId
+        
+        // Restore rafts first
+        gameState.rafts.clear()
+        for (savedRaft in savedGame.rafts) {
+            val raft = Raft(
+                id = savedRaft.id,
+                defenderId = savedRaft.defenderId,
+                currentPosition = mutableStateOf(savedRaft.position)
+            )
+            gameState.rafts.add(raft)
+        }
         
         // Restore defenders
         gameState.defenders.clear()
@@ -246,13 +332,14 @@ object SaveFileStorage {
             val defender = Defender(
                 id = savedDefender.id,
                 type = savedDefender.type,
-                position = savedDefender.position,
+                position = mutableStateOf(savedDefender.position),
                 placedOnTurn = savedDefender.placedOnTurn,
                 dragonName = savedDefender.dragonName
             )
             defender.level.value = savedDefender.level
             defender.buildTimeRemaining.value = savedDefender.buildTimeRemaining
             defender.actionsRemaining.value = savedDefender.actionsRemaining
+            defender.raftId.value = savedDefender.raftId  // Restore raft linkage
             gameState.defenders.add(defender)
         }
         

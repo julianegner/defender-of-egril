@@ -21,10 +21,16 @@
     <string name="language">Language</string>
     <string name="appearance">Appearance</string>
     <string name="dark_mode">Dark Mode</string>
-    <string name="dark_mode_on">Dark Mode On</string>
-    <string name="dark_mode_off">Dark Mode Off</string>
+    <string name="dark_mode_on">Dark Mode</string>
+    <string name="dark_mode_off">Light Mode</string>
     <string name="world_map_level_cards">Level Cards View</string>
     <string name="world_map_image_map">Image Map View</string>
+    <string name="enhanced_dig_images">Enhanced Dig Images</string>
+    <string name="enhanced_dig_images_on">Enhanced Images On</string>
+    <string name="enhanced_dig_images_off">Simple Images</string>
+    <string name="tile_background_images">Tile Background Images</string>
+    <string name="tile_background_images_on">Tile Images On</string>
+    <string name="tile_background_images_off">Color Backgrounds</string>
     <string name="reset_settings">Reset Settings</string>
     <string name="restore_game_data">Restore Game Data</string>
     <string name="restore_game_data_confirm_title">Restore Game Data?</string>
@@ -59,10 +65,26 @@
     <string name="load_game">Load Game</string>
     <string name="add_optional_comment">Add an optional comment to help identify this save:</string>
     <string name="save_comment_placeholder">e.g., 'Before final wave', 'Good position'...</string>
+    <string name="download_savefile">Download</string>
+    <string name="download_all_savefiles">Download All</string>
+    <string name="upload_savefiles">Upload</string>
+    <string name="download_savefile_tooltip">Download this save file</string>
+    <string name="download_all_tooltip">Download all save files as a ZIP archive</string>
+    <string name="upload_tooltip">Upload save files (JSON or ZIP)</string>
+    <string name="file_override_title">File Already Exists</string>
+    <string name="file_override_message">A save file named "%s" already exists. What would you like to do?</string>
+    <string name="skip_file">Skip</string>
+    <string name="override_file">Override</string>
+    <string name="override_all">Override All</string>
+    <string name="files_imported">Files Imported</string>
+    <string name="files_imported_message">Successfully imported %d save file(s).</string>
+    <string name="import_error">Import Error</string>
+    <string name="import_error_message">Failed to import some files. Please check the file format.</string>
     <string name="in_x_turns">in %s turns</string>
     
     <!-- Towers -->
     <string name="tower">Tower</string>
+    <string name="raft">Raft</string>
     <string name="damage">Damage</string>
     <string name="range">Range</string>
     <string name="actions">Actions</string>
@@ -77,7 +99,8 @@
     <string name="completed">Completed</string>
     
     <!-- World Map -->
-    <string name="world_map_title">World Map - Meadows of Egril</string>
+    <string name="world_map_title">World Map</string>
+    <string name="world_map_subtitle">Meadows of Egril</string>
     <string name="back_to_world_map">Back to World Map</string>
     <string name="play_level">Play Level</string>
     <string name="requires_completing">Requires completing:</string>
@@ -208,6 +231,7 @@
     <string name="attack_area_button">ATTACK AREA</string>
     <string name="undo">Undo</string>
     <string name="sell_tower_title">Sell Tower?</string>
+    <string name="sell_tower_message">Do you really want to sell the %s for %s %s?</string>
     <string name="dig">Dig</string>
     <string name="trap">Trap</string>
     <string name="mining_probabilities">Mining Probabilities</string>
@@ -245,6 +269,7 @@
     <string name="build_island">Build Island</string>
     <string name="build_strip">Build Strip</string>
     <string name="enemy_path">Enemy Path</string>
+    <string name="river">River</string>
     <string name="non_playable">Non-Playable</string>
     <string name="enemy_unit">Enemy Unit</string>
     <string name="map_label">Map</string>
@@ -315,6 +340,7 @@
     <string name="size">Size</string>
     <string name="select_tile_type">Select Tile Type:</string>
     <string name="click_hexagons_to_paint">Click or drag to paint hexagons. Use Ctrl+Scroll to zoom:</string>
+    <string name="collapse">Collapse</string>
     <string name="change_all_no_play_to_path">Change All NO_PLAY to PATH</string>
     <string name="change_all_no_play_confirm_title">Change All NO_PLAY to PATH?</string>
     <string name="change_all_no_play_confirm_message">This will replace all NO_PLAY tiles with PATH tiles. Are you sure?</string>
@@ -419,8 +445,8 @@
 
     <!-- Sound Settings -->
     <string name="sound">Sound</string>
-    <string name="sound_enabled">Sound Enabled</string>
-    <string name="sound_disabled">Sound Disabled</string>
+    <string name="sound_enabled">Sound</string>
+    <string name="sound_disabled">Muted</string>
     <string name="sound_volume">Sound Volume</string>
     <string name="effect_sounds">Effect Sounds</string>
     <string name="effects_enabled">Effects Enabled</string>
@@ -434,8 +460,8 @@
     <!-- Control Pad Settings -->
     <string name="controls">Controls</string>
     <string name="show_control_pad">Show Control Pad</string>
-    <string name="control_pad_enabled">Control Pad Enabled</string>
-    <string name="control_pad_disabled">Control Pad Disabled</string>
+    <string name="control_pad_enabled">Control Pad</string>
+    <string name="control_pad_disabled">No Control Pad</string>
 
     <!-- Difficulty Settings -->
     <string name="difficulty">Difficulty</string>
@@ -506,6 +532,14 @@
     <string name="no_spawn_point_set">No spawn point set</string>
     <string name="change">Change</string>
     <string name="select">Select</string>
+    <string name="change_all_spawn_points">Change All Spawn Points</string>
+    <string name="change_all_spawn_points_title">Remap Enemy Spawn Points</string>
+    <string name="change_all_spawn_points_description">Some enemies are spawned at positions that are not spawn points on the current map. Use this dialog to remap them to valid spawn points.</string>
+    <string name="from_spawn_point">From Position</string>
+    <string name="to_spawn_point">To Spawn Point</string>
+    <string name="enemies_affected_count">%d enemies affected</string>
+    <string name="apply_changes">Apply Changes</string>
+    <string name="spawn_point_warning">⚠ Some enemies are spawned outside valid spawn points</string>
     <string name="target_text">Target</string>
     <string name="waypoint">Waypoint</string>
     <string name="select_source_position">Select source position</string>
@@ -601,17 +635,70 @@
     <!-- Extended Area Attack Feature -->
     <string name="extended_area_tutorial_title">Extended Area Attack!</string>
     <string name="extended_area_tutorial_message">Your tower has reached level 20 and now has an extended area attack! Fireball and acid attacks now affect enemies within 2 tiles of the target instead of just 1 tile. This makes your area attacks much more powerful against groups of enemies!</string>
-    
+
     <!-- First Time Tower Usage Info -->
     <string name="wizard_first_use_title">Wizard Tower</string>
     <string name="wizard_first_use_message">The Wizard Tower is a powerful area-of-effect tower that launches fireballs at enemies! Each fireball damages the target and all enemies in adjacent tiles. It has a longer build time (2 turns) but can devastate groups of enemies. At level 10, wizards can place magical traps that teleport enemies back to spawn. At level 20, the fireball radius increases to 2 tiles!</string>
-    
+
     <string name="alchemy_first_use_title">Alchemy Tower</string>
     <string name="alchemy_first_use_message">The Alchemy Tower throws acid that deals damage over time! Unlike other towers, acid damage persists for multiple rounds (base 2 turns, increases with level). The acid affects the target and adjacent enemies in a small area. While the damage per turn is lower, the total damage over time can be very effective. At level 20, the acid area increases to 2 tiles!</string>
-    
+
     <string name="ballista_first_use_title">Ballista Tower</string>
     <string name="ballista_first_use_message">The Ballista is a long-range siege weapon with exceptional range (5 tiles) and high damage! However, it has a minimum range of 3 tiles and cannot attack nearby enemies. It requires 2 turns to build. Use it to target enemies from a distance before they get too close, or position it behind other towers for maximum effectiveness.</string>
-    
+
     <string name="mine_first_use_title">Dwarven Mine</string>
     <string name="mine_first_use_message">The Dwarven Mine is a special structure that generates coins through mining operations! Unlike combat towers, mines use the "dig" action to find valuable resources (rubble, brass, silver, gold, gems, or diamonds). Mines can also build traps that damage enemies. At higher levels, mines can dig more times per turn and reach further. Warning: Dragons are greedy and will destroy mines to claim the treasure!</string>
+
+    <!-- River Mechanics Info -->
+    <string name="river_info_title">River Mechanics</string>
+    <string name="river_info_placement">You can place towers on river tiles! When you do, they will be placed on rafts.</string>
+    <string name="river_info_movement">Rafts move automatically with the river flow at the end of each turn. The flow speed determines how many tiles they move (1 or 2 tiles).</string>
+    <string name="river_info_destruction">Rafts are destroyed if they reach a maelstrom (whirlpool) or move out of the map boundaries. The tower on the raft is also destroyed.</string>
+    <string name="river_info_bridges">Bridges block raft movement. Rafts cannot pass through bridges spanning the river. Multiple rafts on the same river move in order - downstream rafts move first.</string>
+
+    <!-- Mine on River Warning -->
+    <string name="mine_on_river_warning_title">Cannot Place Mine on River</string>
+    <string name="mine_on_river_warning_message">Dwarven mines cannot be placed on river tiles. Mines require solid ground and cannot be built on rafts. Please select a build area on land instead.</string>
+
+    <!-- Mining Outcome Table Headers -->
+    <string name="dig_outcome_name">Name</string>
+    <string name="dig_outcome_chance">Chance (%)</string>
+    <string name="dig_outcome_reward">Reward</string>
+
+    <!-- Delete Confirmation Dialog -->
+    <string name="delete_save_game">Delete Save Game</string>
+    <string name="delete_save_game_confirm">Are you sure you want to delete this saved game?</string>
+
+    <!-- Editor - Speed Labels -->
+    <string name="speed_slow">1 (Slow)</string>
+    <string name="speed_fast">2 (Fast)</string>
+
+    <!-- Editor - River Properties -->
+    <string name="river_properties">River Properties</string>
+    <string name="flow_direction">Flow Direction:</string>
+    <string name="flow_speed">Flow Speed:</string>
+
+    <!-- Editor - World Map Position Editor -->
+    <string name="add_location">+ Add Location</string>
+    <string name="add_location_dialog_title">Add Location</string>
+    <string name="location_name">Location Name</string>
+    <string name="select_levels">Select Levels:</string>
+    <string name="edit_connection">Edit Connection</string>
+    <string name="default_connection_type">Default Connection Type:</string>
+    <string name="add_control_point">Add Control Point:</string>
+    <string name="y_coordinate">Y</string>
+    <string name="locations">Locations</string>
+    <string name="auto_connect_by_dependencies">Auto-Connect by Dependencies</string>
+    <string name="edit_location">Edit Location</string>
+    <string name="all_road">All Road</string>
+    <string name="all_sea">All Sea</string>
+    <string name="segment_types">Segment Types (%d segments):</string>
+    <string name="road">Road</string>
+    <string name="sea">Sea</string>
+    <string name="waypoints_range">Waypoints (0-1000):</string>
+    <string name="add_connection">Add Connection</string>
+    <string name="select_two_locations">Select two locations to connect:</string>
+    <string name="from">From:</string>
+    <string name="to">To:</string>
+    <string name="connection_type">Connection Type:</string>
 </resources>

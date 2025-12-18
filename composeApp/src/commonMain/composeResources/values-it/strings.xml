@@ -21,10 +21,16 @@
     <string name="language">Lingua</string>
     <string name="appearance">Aspetto</string>
     <string name="dark_mode">Modalità Scura</string>
-    <string name="dark_mode_on">Modalità Scura Attiva</string>
-    <string name="dark_mode_off">Modalità Scura Disattiva</string>
+    <string name="dark_mode_on">Modalità Scura</string>
+    <string name="dark_mode_off">Modalità Chiara</string>
     <string name="world_map_level_cards">Vista Schede di Livello</string>
     <string name="world_map_image_map">Vista Mappa Immagine</string>
+    <string name="enhanced_dig_images">Immagini di Scavo Migliorate</string>
+    <string name="enhanced_dig_images_on">Immagini Migliorate Attive</string>
+    <string name="enhanced_dig_images_off">Immagini Semplici</string>
+    <string name="tile_background_images">Immagini di Sfondo delle Tessere</string>
+    <string name="tile_background_images_on">Immagini delle Tessere Attive</string>
+    <string name="tile_background_images_off">Sfondi a Colori</string>
     <string name="reset_settings">Ripristina Impostazioni</string>
     <string name="restore_game_data">Ripristina Dati di Gioco</string>
     <string name="restore_game_data_confirm_title">Ripristinare i Dati di Gioco?</string>
@@ -59,10 +65,26 @@
     <string name="load_game">Carica partita</string>
     <string name="add_optional_comment">Aggiungi un commento opzionale per identificare questo salvataggio:</string>
     <string name="save_comment_placeholder">es. 'Prima dell\'ultima ondata', 'Buona posizione'...</string>
+    <string name="download_savefile">Scarica</string>
+    <string name="download_all_savefiles">Scarica tutto</string>
+    <string name="upload_savefiles">Carica</string>
+    <string name="download_savefile_tooltip">Scarica questo salvataggio</string>
+    <string name="download_all_tooltip">Scarica tutti i salvataggi come archivio ZIP</string>
+    <string name="upload_tooltip">Carica salvataggi (JSON o ZIP)</string>
+    <string name="file_override_title">Il file esiste già</string>
+    <string name="file_override_message">Un salvataggio chiamato "%s" esiste già. Cosa vuoi fare?</string>
+    <string name="skip_file">Salta</string>
+    <string name="override_file">Sovrascrivi</string>
+    <string name="override_all">Sovrascrivi tutto</string>
+    <string name="files_imported">File importati</string>
+    <string name="files_imported_message">%d file di salvataggio importati con successo.</string>
+    <string name="import_error">Errore di importazione</string>
+    <string name="import_error_message">Impossibile importare alcuni file. Verificare il formato del file.</string>
     <string name="in_x_turns">tra %s turni</string>
     
     <!-- Towers -->
     <string name="tower">Torre</string>
+    <string name="raft">Zattera</string>
     <string name="damage">Danno</string>
     <string name="range">Portata</string>
     <string name="actions">Azioni</string>
@@ -77,7 +99,8 @@
     <string name="completed">Completato</string>
     
     <!-- World Map -->
-    <string name="world_map_title">Mappa del mondo - Prati di Egril</string>
+    <string name="world_map_title">Mappa del mondo</string>
+    <string name="world_map_subtitle">Prati di Egril</string>
     <string name="back_to_world_map">Torna alla mappa del mondo</string>
     <string name="play_level">Gioca livello</string>
     <string name="requires_completing">Richiede il completamento di:</string>
@@ -208,6 +231,7 @@
     <string name="attack_area_button">ATTACCO AD AREA</string>
     <string name="undo">Annulla</string>
     <string name="sell_tower_title">Vendere la torre?</string>
+    <string name="sell_tower_message">Vuoi davvero vendere %s per %s %s?</string>
     <string name="dig">Scava</string>
     <string name="trap">Trappola</string>
     <string name="mining_probabilities">Probabilità di scavo</string>
@@ -245,6 +269,7 @@
     <string name="build_island">Isola di costruzione</string>
     <string name="build_strip">Striscia di costruzione</string>
     <string name="enemy_path">Percorso nemico</string>
+    <string name="river">Fiume</string>
     <string name="non_playable">Non giocabile</string>
     <string name="enemy_unit">Unità nemica</string>
     <string name="map_label">Mappa</string>
@@ -315,6 +340,7 @@
     <string name="size">Dimensione</string>
     <string name="select_tile_type">Seleziona tipo di tessera:</string>
     <string name="click_hexagons_to_paint">Clicca o trascina per dipingere gli esagoni. Usa Ctrl+Rotella per zoomare:</string>
+    <string name="collapse">Comprimi</string>
     <string name="change_all_no_play_to_path">Cambia tutti NO_PLAY in PATH</string>
     <string name="change_all_no_play_confirm_title">Cambiare tutti NO_PLAY in PATH?</string>
     <string name="change_all_no_play_confirm_message">Questo sostituirà tutte le tessere NO_PLAY con tessere PATH. Sei sicuro?</string>
@@ -419,8 +445,8 @@
 
     <!-- Sound Settings -->
     <string name="sound">Audio</string>
-    <string name="sound_enabled">Audio attivato</string>
-    <string name="sound_disabled">Audio disattivato</string>
+    <string name="sound_enabled">Audio</string>
+    <string name="sound_disabled">Silenziato</string>
     <string name="sound_volume">Volume audio</string>
     <string name="effect_sounds">Effetti sonori</string>
     <string name="effects_enabled">Effetti attivati</string>
@@ -434,8 +460,8 @@
     <!-- Control Pad Settings -->
     <string name="controls">Controlli</string>
     <string name="show_control_pad">Mostra pad direzionale</string>
-    <string name="control_pad_enabled">Pad direzionale attivato</string>
-    <string name="control_pad_disabled">Pad direzionale disattivato</string>
+    <string name="control_pad_enabled">Pad Direzionale</string>
+    <string name="control_pad_disabled">Senza Pad Direzionale</string>
     
     <!-- Difficulty Settings -->
     <string name="difficulty">Difficoltà</string>
@@ -505,6 +531,14 @@
     <string name="no_spawn_point_set">Nessun punto di spawn impostato</string>
     <string name="change">Cambia</string>
     <string name="select">Seleziona</string>
+    <string name="change_all_spawn_points">Cambia Tutti i Punti di Spawn</string>
+    <string name="change_all_spawn_points_title">Riassegna i Punti di Spawn dei Nemici</string>
+    <string name="change_all_spawn_points_description">Alcuni nemici appaiono in posizioni che non sono punti di spawn sulla mappa corrente. Usa questa finestra per riassegnarli a punti di spawn validi.</string>
+    <string name="from_spawn_point">Dalla Posizione</string>
+    <string name="to_spawn_point">Al Punto di Spawn</string>
+    <string name="enemies_affected_count">%d nemici interessati</string>
+    <string name="apply_changes">Applica Modifiche</string>
+    <string name="spawn_point_warning">⚠ Alcuni nemici appaiono al di fuori dei punti di spawn validi</string>
     <string name="target_text">Obiettivo</string>
     <string name="waypoint">Punto di Passaggio</string>
     <string name="select_source_position">Seleziona posizione sorgente</string>
@@ -600,17 +634,70 @@
     <!-- Extended Area Attack Feature -->
     <string name="extended_area_tutorial_title">Attacco ad Area Estesa!</string>
     <string name="extended_area_tutorial_message">La tua torre ha raggiunto il livello 20 e ora ha un attacco ad area estesa! Gli attacchi con palla di fuoco e acido ora colpiscono i nemici entro 2 caselle dal bersaglio invece di 1 sola. Questo rende i tuoi attacchi ad area molto più potenti contro gruppi di nemici!</string>
-    
+
     <!-- First Time Tower Usage Info -->
     <string name="wizard_first_use_title">Torre del Mago</string>
     <string name="wizard_first_use_message">La Torre del Mago è una potente torre ad area d\'effetto che lancia palle di fuoco sui nemici! Ogni palla di fuoco danneggia il bersaglio e tutti i nemici nelle caselle adiacenti. Ha un tempo di costruzione più lungo (2 turni) ma può devastare gruppi di nemici. Al livello 10, i maghi possono piazzare trappole magiche che teletrasportano i nemici al punto di spawn. Al livello 20, il raggio della palla di fuoco aumenta a 2 caselle!</string>
-    
+
     <string name="alchemy_first_use_title">Torre dell\'Alchimia</string>
     <string name="alchemy_first_use_message">La Torre dell\'Alchimia lancia acido che infligge danni nel tempo! A differenza di altre torri, il danno da acido persiste per più turni (base 2 turni, aumenta con il livello). L\'acido colpisce il bersaglio e i nemici adiacenti in una piccola area. Sebbene il danno per turno sia inferiore, il danno totale nel tempo può essere molto efficace. Al livello 20, l\'area dell\'acido aumenta a 2 caselle!</string>
-    
+
     <string name="ballista_first_use_title">Torre Balista</string>
     <string name="ballista_first_use_message">La Balista è un\'arma d\'assedio a lungo raggio con una portata eccezionale (5 caselle) e danni elevati! Tuttavia, ha una portata minima di 3 caselle e non può attaccare nemici vicini. Richiede 2 turni per essere costruita. Usala per colpire i nemici a distanza prima che si avvicinino troppo, o posizionala dietro altre torri per massima efficacia.</string>
-    
+
     <string name="mine_first_use_title">Miniera Nanica</string>
     <string name="mine_first_use_message">La Miniera Nanica è una struttura speciale che genera monete attraverso operazioni minerarie! A differenza delle torri da combattimento, le miniere usano l\'azione "scava" per trovare risorse preziose (macerie, ottone, argento, oro, gemme o diamanti). Le miniere possono anche costruire trappole che danneggiano i nemici. A livelli più alti, le miniere possono scavare più volte per turno e raggiungere più lontano. Attenzione: I draghi sono avidi e distruggeranno le miniere per reclamare il tesoro!</string>
+
+    <!-- River Mechanics Info -->
+    <string name="river_info_title">Meccaniche del Fiume</string>
+    <string name="river_info_placement">Puoi posizionare torri sulle caselle del fiume! Quando lo fai, verranno posizionate su zattere.</string>
+    <string name="river_info_movement">Le zattere si muovono automaticamente con il flusso del fiume alla fine di ogni turno. La velocità del flusso determina quante caselle si muovono (1 o 2 caselle).</string>
+    <string name="river_info_destruction">Le zattere vengono distrutte se raggiungono un vortice o si muovono fuori dai confini della mappa. Anche la torre sulla zattera viene distrutta.</string>
+    <string name="river_info_bridges">I ponti bloccano il movimento delle zattere. Le zattere non possono passare attraverso ponti che attraversano il fiume. Più zattere sullo stesso fiume si muovono in ordine - quelle a valle si muovono per prime.</string>
+
+    <!-- Mine on River Warning -->
+    <string name="mine_on_river_warning_title">Impossibile posizionare la miniera sul fiume</string>
+    <string name="mine_on_river_warning_message">Le miniere naniche non possono essere posizionate sulle caselle del fiume. Le miniere richiedono terreno solido e non possono essere costruite sulle zattere. Si prega di selezionare un\'area di costruzione sulla terraferma.</string>
+
+    <!-- Mining Outcome Table Headers -->
+    <string name="dig_outcome_name">Nome</string>
+    <string name="dig_outcome_chance">Probabilità (%)</string>
+    <string name="dig_outcome_reward">Ricompensa</string>
+
+    <!-- Delete Confirmation Dialog -->
+    <string name="delete_save_game">Elimina salvataggio</string>
+    <string name="delete_save_game_confirm">Sei sicuro di voler eliminare questo salvataggio?</string>
+
+    <!-- Editor - Speed Labels -->
+    <string name="speed_slow">1 (Lento)</string>
+    <string name="speed_fast">2 (Veloce)</string>
+
+    <!-- Editor - River Properties -->
+    <string name="river_properties">Proprietà del fiume</string>
+    <string name="flow_direction">Direzione del flusso:</string>
+    <string name="flow_speed">Velocità del flusso:</string>
+
+    <!-- Editor - World Map Position Editor -->
+    <string name="add_location">+ Aggiungi posizione</string>
+    <string name="add_location_dialog_title">Aggiungi posizione</string>
+    <string name="location_name">Nome posizione</string>
+    <string name="select_levels">Seleziona livelli:</string>
+    <string name="edit_connection">Modifica connessione</string>
+    <string name="default_connection_type">Tipo di connessione predefinito:</string>
+    <string name="add_control_point">Aggiungi punto di controllo:</string>
+    <string name="y_coordinate">Y</string>
+    <string name="locations">Posizioni</string>
+    <string name="auto_connect_by_dependencies">Connetti automaticamente per dipendenze</string>
+    <string name="edit_location">Modifica posizione</string>
+    <string name="all_road">Tutta strada</string>
+    <string name="all_sea">Tutto mare</string>
+    <string name="segment_types">Tipi di segmenti (%d segmenti):</string>
+    <string name="road">Strada</string>
+    <string name="sea">Mare</string>
+    <string name="waypoints_range">Punti di passaggio (0-1000):</string>
+    <string name="add_connection">Aggiungi connessione</string>
+    <string name="select_two_locations">Seleziona due posizioni da connettere:</string>
+    <string name="from">Da:</string>
+    <string name="to">A:</string>
+    <string name="connection_type">Tipo di connessione:</string>
 </resources>
