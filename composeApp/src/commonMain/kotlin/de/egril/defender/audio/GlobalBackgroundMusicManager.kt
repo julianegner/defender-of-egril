@@ -66,6 +66,13 @@ object GlobalBackgroundMusicManager {
     fun getInstance(): BackgroundMusicManager? = musicManager
     
     /**
+     * Get the currently playing or loaded music track
+     */
+    fun getCurrentMusic(): BackgroundMusic? {
+        return musicManager?.getCurrentMusic()
+    }
+    
+    /**
      * Release music resources
      */
     fun release() {
