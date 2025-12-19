@@ -18,6 +18,7 @@ Defender of Egril now supports running in web browsers via Kotlin/Wasm compilati
 - Uses browser `localStorage` API for persistence
 - Save games are stored with prefix `defender-of-egril:`
 - Compatible with the common `FileStorage` interface
+- **Virtual Directories**: Since localStorage has no directory concept, directories are virtual. The `fileExists()` method checks both for file keys and directory prefixes (any key starting with `path + "/"`).
 
 #### 3. Time Utilities
 - **File**: `composeApp/src/wasmJsMain/kotlin/com/defenderofegril/utils/TimeUtils.wasmJs.kt`
