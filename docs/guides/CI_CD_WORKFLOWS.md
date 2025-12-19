@@ -21,7 +21,7 @@ The project uses GitHub Actions for continuous integration and deployment. The w
 - `run_tests_android`: Run Android unit tests on Ubuntu
 
 **Configuration:**
-- JDK: 11 (Temurin distribution)
+- JDK: 24 (Temurin distribution)
 - Gradle: Uses project wrapper (9.2.1)
 - Test command: `:composeApp:desktopTest` (JVM) or `:composeApp:testDebugUnitTest` (Android)
 
@@ -48,7 +48,7 @@ The project uses GitHub Actions for continuous integration and deployment. The w
 - Windows: `defender-of-egril-*.exe`
 
 **Configuration:**
-- JDK: 11 (Temurin distribution)
+- JDK: 24 (Temurin distribution)
 - Gradle: Uses project wrapper (9.2.1)
 - Builds only run on version tags or manual dispatch
 
@@ -62,7 +62,7 @@ The project uses GitHub Actions for continuous integration and deployment. The w
 - `build-and-deploy`: Build WASM bundle and deploy to GitHub Pages
 
 **Configuration:**
-- JDK: 11 (Temurin distribution)
+- JDK: 24 (Temurin distribution)
 - Gradle: Uses project wrapper (9.2.1)
 - Build command: `:composeApp:wasmJsBrowserDistribution`
 - Deployment: Uses GitHub Pages with proper permissions
@@ -82,7 +82,7 @@ The project uses GitHub Actions for continuous integration and deployment. The w
 - `build_apk_release`: Build signed release APK with ProGuard
 
 **Configuration:**
-- JDK: 11 (Temurin distribution)
+- JDK: 24 (Temurin distribution)
 - Gradle: Uses project wrapper (9.2.1)
 - Build command: `:composeApp:packageReleaseApk`
 
@@ -138,7 +138,7 @@ For debugging Android ProGuard issues:
 
 The workflows have been adapted from the coshanu project with the following changes:
 
-1. **JDK Version**: Changed from JDK 24 to JDK 11 (project requirement)
+1. **JDK Version**: Using JDK 24 (same as reference, project requires JDK 11 or higher)
 2. **Project Names**: Updated from "coshanu" to "defender-of-egril-fork" / "defenderOfEgril"
 3. **Paths**: Updated to match project structure
 4. **Gradle Version**: Uses wrapper (9.2.1) instead of hardcoded version
