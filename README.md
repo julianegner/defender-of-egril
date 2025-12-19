@@ -196,6 +196,16 @@ This game is built using:
 
 For detailed development information, see [DEVELOPMENT.md](docs/root/DEVELOPMENT.md).
 
+### CI/CD
+
+The project uses GitHub Actions for continuous integration and deployment:
+- **Tests**: Automated testing on Linux, Windows, macOS, and Android
+- **Builds**: Multi-platform builds (WASM, JVM, macOS, Linux, Windows)
+- **Releases**: Automated releases on version tags
+- **Deployment**: GitHub Pages deployment for WASM version
+
+See [CI/CD Workflows Guide](docs/guides/CI_CD_WORKFLOWS.md) for details.
+
 ### Utility Scripts
 
 The `scripts/` directory contains utility scripts for the project:
