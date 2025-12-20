@@ -29,8 +29,8 @@ import org.jetbrains.compose.resources.painterResource
  * Reachable with the "sticker" cheat code.
  * 
  * Layout:
- * - Left side: Game map section and enemy/tower groups
- * - Right side: Title and logo from ApplicationBanner
+ * - ApplicationBanner with game symbols, title and logo
+ * - Additional text below banner
  */
 @Composable
 fun StickerScreen(
@@ -72,74 +72,14 @@ fun StickerScreen(
                 horizontalArrangement = Arrangement.spacedBy(32.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Left side: Map and unit groups
+                // Left side: Banner and text
                 Column(
                     modifier = Modifier.weight(1f),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(24.dp)
                 ) {
-                    /*
-                    Image(
-                        painter = painterResource(Res.drawable.example_map_cutout),
-                        contentDescription = "Game Map",
-                        modifier = Modifier.size(300.dp)
-                    )
-                     */
-
-                    Row {
-                        Box(
-                            modifier = Modifier
-                                .height(80.dp)
-                                .width(80.dp)
-                        ) {
-                            Canvas(modifier = Modifier.fillMaxSize()) {
-                                val centerX = size.width / 2
-                                val centerY = (size.height / 2) + 20f
-                                val iconSize = minOf(size.width, size.height)
-
-                                drawGoblinSymbol(centerX.plus(20), centerY.minus(20), iconSize * 0.7f)
-                                drawOrkSymbol(centerX, centerY.minus(10), iconSize * 0.7f)
-                                drawEvilWizardSymbol(centerX.minus(20), centerY, iconSize * 0.7f)
-
-
-                                drawTower(DefenderType.BOW_TOWER, centerX.plus(80), centerY.minus(20), iconSize)
-                                
-                                // Draw black background with same trapezoid shape as wizard tower to prevent bow tower from showing through
-                                val wizardCenterX = centerX.plus(100)
-                                val wizardCenterY = centerY
-                                val wizardBaseSize = iconSize * 0.8f
-                                val topWidth = wizardBaseSize * 0.4f
-                                val bottomWidth = wizardBaseSize * 0.6f
-                                val towerHeight = wizardBaseSize * 0.6f
-                                val top = wizardCenterY - towerHeight / 2
-                                val bottom = wizardCenterY + towerHeight / 2
-                                
-                                val blackTrapezoid = Path().apply {
-                                    moveTo(wizardCenterX - bottomWidth / 2, bottom)
-                                    lineTo(wizardCenterX + bottomWidth / 2, bottom)
-                                    lineTo(wizardCenterX + topWidth / 2, top)
-                                    lineTo(wizardCenterX - topWidth / 2, top)
-                                    close()
-                                }
-                                drawPath(blackTrapezoid, Color.Black)
-                                
-                                // Draw battlements in black
-                                val battlement = wizardBaseSize * 0.08f
-                                for (i in 0..2) {
-                                    val x = wizardCenterX - topWidth / 2 + (topWidth / 3) * i
-                                    drawRect(
-                                        color = Color.Black,
-                                        topLeft = Offset(x, top - battlement),
-                                        size = androidx.compose.ui.geometry.Size(battlement, battlement)
-                                    )
-                                }
-                                
-                                drawTower(DefenderType.WIZARD_TOWER, centerX.plus(100), centerY, iconSize)
-                            }
-                        }
-                        Spacer(Modifier.width(80.dp))
-                        ApplicationBanner()
-                    }
+                    ApplicationBanner()
+                    
                     Row {
                         Text(stringResource(Res.string.game_sticker_tagline),
                             style = MaterialTheme.typography.bodyMedium,
