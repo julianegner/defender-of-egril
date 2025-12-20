@@ -414,7 +414,7 @@
     <string name="tutorial_welcome_title">Welcome to Defender of Egril!</string>
     <string name="tutorial_welcome">This is a tower defense game. Your goal is to stop enemies from reaching the target by building defensive towers.</string>
     <string name="tutorial_resources_title">Resources</string>
-    <string name="tutorial_resources">You have coins to build towers and health points. Weak enemies cost 1 HP, but mighty enemies (wizards, witches, mages, demons, dragons) cost HP equal to their level. Ewhad costs all your HP!</string>
+    <string name="tutorial_resources">You have coins to build towers and health points. When you defeat enemies, you earn coins equal to their base reward multiplied by their level. Weak enemies cost 1 HP, but mighty enemies (wizards, witches, mages, demons, dragons) cost HP equal to their level. Ewhad costs all your HP!</string>
     <string name="tutorial_towers_title">Available Towers</string>
     <string name="tutorial_towers">Spike Tower: Close range, cheap. Spear Tower: Medium range. Bow Tower: Long range. Choose wisely based on your strategy!</string>
     <string name="tutorial_build_title">Building Towers</string>

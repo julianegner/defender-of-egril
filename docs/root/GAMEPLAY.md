@@ -153,14 +153,16 @@ The Spike Tower has unique upgrade characteristics:
 
 ## Enemy Types
 
-| Enemy | HP | Speed | Reward |
+| Enemy | HP | Speed | Base Reward |
 |-------|----|----|--------|
-| **Goblin** | 20 | 2 | 5 coins |
-| **Skeleton** | 15 | 2 | 7 coins |
-| **Ork** | 40 | 1 | 10 coins |
-| **Witch** | 25 | 2 | 12 coins |
-| **Evil Wizard** | 30 | 1 | 15 coins |
-| **Ogre** | 80 | 1 | 20 coins |
+| **Goblin** | 20 | 2 | 5 coins × level |
+| **Skeleton** | 15 | 2 | 7 coins × level |
+| **Ork** | 40 | 1 | 10 coins × level |
+| **Witch** | 25 | 2 | 12 coins × level |
+| **Evil Wizard** | 30 | 1 | 15 coins × level |
+| **Ogre** | 80 | 1 | 20 coins × level |
+
+**Note:** Enemy rewards are multiplied by their level. For example, a level 3 Goblin gives 15 coins (5 × 3), and a level 2 Ork gives 20 coins (10 × 2).
 
 ---
 
@@ -231,7 +233,7 @@ The Spike Tower has unique upgrade characteristics:
 3. **You Attack with Existing Towers**
    - Select tower with ⚡1
    - Click enemy to attack
-   - Enemy defeated → +5 coins
+   - Enemy defeated → coins based on enemy type and level (e.g., level 1 Goblin = 5 coins, level 2 Goblin = 10 coins)
 
 4. **You Build Another Tower**
    - Use coins from defeated enemy
