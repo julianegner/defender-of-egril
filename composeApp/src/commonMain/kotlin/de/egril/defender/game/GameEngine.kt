@@ -649,7 +649,19 @@ class GameEngine(private val state: GameState) {
                 }
                 
                 // Use the attacker's current target if set, otherwise use level target
-                val target = attacker.currentTarget?.value ?: state.level.targetPositions.first()
+                // Special case: Green Witch moves towards damaged enemies (especially Ewhad)
+                val target = if (attacker.type == AttackerType.GREEN_WITCH) {
+                    val healingTarget = enemyAbilities.findHealingTarget(attacker)
+                    if (healingTarget != null) {
+                        // Move towards the healing target
+                        healingTarget.position.value
+                    } else {
+                        // No damaged enemies, move towards normal target
+                        attacker.currentTarget?.value ?: state.level.targetPositions.first()
+                    }
+                } else {
+                    attacker.currentTarget?.value ?: state.level.targetPositions.first()
+                }
                 println("Newly spawned attacker ${attacker.id} at $currentPos pathing to target: $target (currentTarget: ${attacker.currentTarget?.value})")
                 var path = pathfinding.findPath(currentPos, target, attacker)
                 
