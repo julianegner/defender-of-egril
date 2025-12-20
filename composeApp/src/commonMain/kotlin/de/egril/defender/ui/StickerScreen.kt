@@ -115,9 +115,10 @@ fun StickerScreen(
                                 drawTower(DefenderType.BOW_TOWER, centerX.plus(80), centerY.minus(20), iconSize)
                                 
                                 // Draw black background circle behind wizard tower to prevent bow tower from showing through
+                                // Radius covers the tower base (iconSize * 0.8f) and symbol (iconSize * 0.4f with outer radius 0.5f)
                                 drawCircle(
                                     color = Color.Black,
-                                    radius = iconSize * 0.5f,
+                                    radius = iconSize * 0.45f,
                                     center = Offset(centerX.plus(100), centerY)
                                 )
                                 drawTower(DefenderType.WIZARD_TOWER, centerX.plus(100), centerY, iconSize)
