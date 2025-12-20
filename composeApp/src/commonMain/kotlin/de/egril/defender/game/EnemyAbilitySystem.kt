@@ -67,7 +67,18 @@ class EnemyAbilitySystem(private val state: GameState) {
                         }
                         if (adjacentEnemy != null) {
                             val healAmount = min(attacker.level.value, adjacentEnemy.maxHealth - adjacentEnemy.currentHealth.value)
-                            adjacentEnemy.currentHealth.value += healAmount
+                            if (healAmount > 0) {
+                                adjacentEnemy.currentHealth.value += healAmount
+                                // Add visual healing effect
+                                state.healingEffects.add(
+                                    HealingEffect(
+                                        position = adjacent,
+                                        type = HealingEffectType.GREEN_WITCH,
+                                        healAmount = healAmount,
+                                        turnNumber = state.turnNumber.value
+                                    )
+                                )
+                            }
                         }
                     }
                 }

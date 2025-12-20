@@ -296,6 +296,9 @@ fun GridCell(
     val defender = gameState.defenders.find { it.position.value == position }
     val attacker = gameState.attackers.find { it.position.value == position && !it.isDefeated.value }
     
+    // Check for healing effects at this position
+    val healingEffect = gameState.healingEffects.find { it.position == position }
+    
     // Determine the tile type for background image loading
     val riverTile = gameState.level.getRiverTile(position)
     val isMaelstrom = riverTile?.flowDirection == RiverFlow.MAELSTROM
@@ -446,7 +449,35 @@ fun GridCell(
                 // Use graphical icon for enemy units
                 // Key by id, position, level, and currentHealth to force recomposition when any changes
                 key(attacker.id, attacker.position.value.x, attacker.position.value.y, attacker.level, attacker.currentHealth.value) {
-                    EnemyIcon(attacker = attacker)
+                    Box(contentAlignment = Alignment.Center) {
+                        EnemyIcon(attacker = attacker)
+                        // Show healing effect overlay if present
+                        if (healingEffect != null) {
+                            // Green healing rings around the enemy
+                            Canvas(modifier = Modifier.matchParentSize()) {
+                                val center = androidx.compose.ui.geometry.Offset(size.width / 2, size.height / 2)
+                                val maxRadius = size.minDimension / 2
+                                // Draw 3 concentric green rings
+                                for (i in 1..3) {
+                                    val radius = maxRadius * (0.5f + i * 0.15f)
+                                    drawCircle(
+                                        color = androidx.compose.ui.graphics.Color(0xFF4CAF50), // Green
+                                        radius = radius,
+                                        center = center,
+                                        style = androidx.compose.ui.graphics.drawscope.Stroke(width = 3f)
+                                    )
+                                }
+                            }
+                            // Show heal amount as text overlay
+                            Text(
+                                "+${healingEffect.healAmount}",
+                                style = MaterialTheme.typography.labelMedium,
+                                color = androidx.compose.ui.graphics.Color(0xFF4CAF50), // Green
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.align(Alignment.TopCenter)
+                            )
+                        }
+                    }
                 }
             }
 
