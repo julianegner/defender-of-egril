@@ -739,4 +739,6 @@
     <string name="editor_info_world_map_features">Impostare coordinate X/Y per ogni livello - Creare connessioni tra livelli (strada o mare) - Connettere automaticamente i livelli in base alle dipendenze - Configurare stili visivi delle connessioni - Definire waypoint per i percorsi di connessione</string>
     <string name="editor_info_tips_title">Suggerimenti</string>
     <string name="editor_info_tips_text">Salva frequentemente per evitare di perdere il lavoro - Testa i tuoi livelli nel gioco per assicurarti che siano bilanciati - Usa i livelli esistenti come modelli - Le mappe possono essere riutilizzate su più livelli - La sequenza determina quali livelli sono giocabili</string>
+
+    <string name="game_sticker_tagline">Open Source Turn Based Fantasy Tower Defense Game</string>
 </resources>

@@ -230,15 +230,17 @@ object SaveJsonSerializer {
             
             // Parse rafts (optional field for backward compatibility with old saves)
             val rafts = mutableListOf<SavedRaft>()
-            val raftsSection = try {
-                json.substringAfter("\"rafts\": [").substringBefore("],")
-            } catch (e: Exception) {
-                ""  // Old saves don't have rafts
-            }
-            if (raftsSection.isNotBlank()) {
-                val raftEntries = JsonUtils.splitJsonArray(raftsSection)
-                for (entry in raftEntries) {
-                    rafts.add(parseSavedRaft(entry))
+            if (json.contains("\"rafts\":")) {
+                val raftsSection = try {
+                    json.substringAfter("\"rafts\": [").substringBefore("],")
+                } catch (e: Exception) {
+                    ""  // Old saves don't have rafts
+                }
+                if (raftsSection.isNotBlank()) {
+                    val raftEntries = JsonUtils.splitJsonArray(raftsSection)
+                    for (entry in raftEntries) {
+                        rafts.add(parseSavedRaft(entry))
+                    }
                 }
             }
             
