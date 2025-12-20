@@ -22,6 +22,7 @@ sealed class Screen {
     object Rules : Screen()
     object LevelEditor : Screen()
     object LoadGame : Screen()
+    object Sticker : Screen()
     data class GamePlay(val levelId: Int) : Screen()
     data class LevelComplete(val levelId: Int, val won: Boolean, val isLastLevel: Boolean) : Screen()
 }
@@ -113,6 +114,10 @@ class GameViewModel {
     
     fun navigateToLevelEditor() {
         _currentScreen.value = Screen.LevelEditor
+    }
+    
+    fun navigateToSticker() {
+        _currentScreen.value = Screen.Sticker
     }
     
     fun startLevel(levelId: Int) {
@@ -347,6 +352,12 @@ class GameViewModel {
     }
     
     fun applyWorldMapCheatCode(code: String): Boolean {
+        // Check for "sticker" cheat code first (navigation cheat)
+        if (code.lowercase().trim() == "sticker") {
+            navigateToSticker()
+            return true
+        }
+        
         return CheatCodeHandler.applyWorldMapCheatCode(
             code = code,
             unlockAllLevels = { unlockAllLevels() },
