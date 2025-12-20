@@ -225,4 +225,34 @@ class EnemyAbilitySystem(private val state: GameState) {
         // Return the first adjacent path position, or tower position if none found
         return adjacentPathPositions.firstOrNull() ?: towerPosition
     }
+    
+    /**
+     * Find the nearest damaged enemy for Green Witch to move towards and heal.
+     * Prioritizes Ewhad if he exists and has damaged health.
+     */
+    fun findHealingTarget(witch: Attacker): Attacker? {
+        // First check if Ewhad exists and is damaged
+        val ewhad = state.attackers.find {
+            it.type == AttackerType.EWHAD &&
+            !it.isDefeated.value &&
+            it.currentHealth.value < it.maxHealth
+        }
+        
+        if (ewhad != null) {
+            return ewhad  // Always prioritize healing Ewhad
+        }
+        
+        // Otherwise, find nearest damaged enemy
+        val damagedEnemies = state.attackers.filter {
+            !it.isDefeated.value &&
+            it.id != witch.id &&
+            it.currentHealth.value < it.maxHealth
+        }
+        
+        if (damagedEnemies.isEmpty()) return null
+        
+        return damagedEnemies.minByOrNull { enemy ->
+            witch.position.value.distanceTo(enemy.position.value)
+        }
+    }
 }

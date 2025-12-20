@@ -66,11 +66,11 @@
     {"attackerType": "OGRE", "level": 1, "spawnTurn": 16, "spawnPoint": {"x": 39, "y": 9}},
     {"attackerType": "OGRE", "level": 1, "spawnTurn": 17, "spawnPoint": {"x": 0, "y": 10}},
     {"attackerType": "OGRE", "level": 1, "spawnTurn": 17, "spawnPoint": {"x": 39, "y": 9}},
-    {"attackerType": "WITCH", "level": 1, "spawnTurn": 17, "spawnPoint": {"x": 0, "y": 10}},
-    {"attackerType": "WITCH", "level": 1, "spawnTurn": 17, "spawnPoint": {"x": 39, "y": 9}},
-    {"attackerType": "WITCH", "level": 1, "spawnTurn": 18, "spawnPoint": {"x": 0, "y": 10}},
-    {"attackerType": "WITCH", "level": 1, "spawnTurn": 18, "spawnPoint": {"x": 39, "y": 9}},
-    {"attackerType": "WITCH", "level": 1, "spawnTurn": 18, "spawnPoint": {"x": 0, "y": 10}}
+    {"attackerType": "RED_WITCH", "level": 1, "spawnTurn": 17, "spawnPoint": {"x": 0, "y": 10}},
+    {"attackerType": "GREEN_WITCH", "level": 1, "spawnTurn": 17, "spawnPoint": {"x": 39, "y": 9}},
+    {"attackerType": "GREEN_WITCH", "level": 1, "spawnTurn": 18, "spawnPoint": {"x": 0, "y": 10}},
+    {"attackerType": "GREEN_WITCH", "level": 1, "spawnTurn": 18, "spawnPoint": {"x": 39, "y": 9}},
+    {"attackerType": "RED_WITCH", "level": 1, "spawnTurn": 18, "spawnPoint": {"x": 0, "y": 10}}
   ],
   "availableTowers": ["SPIKE_TOWER", "SPEAR_TOWER", "BOW_TOWER", "WIZARD_TOWER", "ALCHEMY_TOWER", "BALLISTA_TOWER", "DWARVEN_MINE"],
   "waypoints": [

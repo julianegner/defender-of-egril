@@ -179,6 +179,8 @@ private fun shouldShowSkipButton(step: TutorialStep): Boolean {
 private fun InfoContent(infoType: InfoType, onDismiss: () -> Unit) {
     when (infoType) {
         InfoType.DRAGON_INFO -> DragonInfoContent(onDismiss)
+        InfoType.GREEN_WITCH_INFO -> GreenWitchInfoContent(onDismiss)
+        InfoType.RED_WITCH_INFO -> RedWitchInfoContent(onDismiss)
         InfoType.GREED_INFO -> GreedInfoContent(onDismiss)
         InfoType.VERY_GREEDY_INFO -> VeryGreedyInfoContent(onDismiss)
         InfoType.MINE_WARNING -> MineWarningContent(onDismiss)
@@ -323,6 +325,65 @@ private fun GreedInfoContent(onDismiss: () -> Unit) {
         )
     }
 }
+
+/**
+ * Green Witch info dialog
+ */
+@Composable
+private fun GreenWitchInfoContent(onDismiss: () -> Unit) {
+    ScrollableInfoCard(
+        title = {
+            Text(
+                text = stringResource(Res.string.green_witch_info_title),
+                style = MaterialTheme.typography.titleMedium,
+                color = GamePlayColors.Success  // Green theme for green witch
+            )
+        },
+        onDismiss = onDismiss
+    ) {
+        Text(
+            text = stringResource(Res.string.green_witch_info_healing),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = stringResource(Res.string.green_witch_info_strategy),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+    }
+}
+
+/**
+ * Red Witch info dialog
+ */
+@Composable
+private fun RedWitchInfoContent(onDismiss: () -> Unit) {
+    ScrollableInfoCard(
+        title = {
+            Text(
+                text = stringResource(Res.string.red_witch_info_title),
+                style = MaterialTheme.typography.titleMedium,
+                color = GamePlayColors.ErrorDark  // Red theme for red witch
+            )
+        },
+        onDismiss = onDismiss
+    ) {
+        Text(
+            text = stringResource(Res.string.red_witch_info_disabling),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = stringResource(Res.string.red_witch_info_strategy),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+    }
+}
+
 
 /**
  * Dragon very greedy info dialog (greed > 5)
