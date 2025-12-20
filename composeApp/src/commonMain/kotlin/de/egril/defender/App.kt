@@ -133,6 +133,12 @@ fun App() {
                     onBackToMap = { viewModel.navigateToWorldMap() }
                 )
             }
+            
+            is Screen.Sticker -> {
+                StickerScreen(
+                    onBack = { viewModel.navigateToWorldMap() }
+                )
+            }
         }
     }
 }
