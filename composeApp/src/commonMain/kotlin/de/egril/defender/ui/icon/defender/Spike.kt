@@ -8,7 +8,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 /**
  * Draw spike symbol (upward pointing spikes)
  */
-fun DrawScope.drawSpikeSymbol(centerX: Float, centerY: Float, size: Float) {
+fun DrawScope.drawSpikeSymbol(centerX: Float, centerY: Float, size: Float, lineColor: Color = Color.White) {
     val spikeCount = 3
     val spikeWidth = size / 4
     val spikeHeight = size * 0.8f
@@ -22,6 +22,6 @@ fun DrawScope.drawSpikeSymbol(centerX: Float, centerY: Float, size: Float) {
             close()
         }
         drawPath(path, Color.Yellow)
-        drawPath(path, Color.White, style = Stroke(width = 1.5f))
+        drawPath(path, lineColor, style = Stroke(width = 1.5f))
     }
 }
