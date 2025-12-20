@@ -9,7 +9,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hyperether.resources.stringResource
@@ -101,6 +103,37 @@ fun StickerScreen(
 
 
                                 drawTower(DefenderType.BOW_TOWER, centerX.plus(80), centerY.minus(20), iconSize)
+                                
+                                // Draw black background with same trapezoid shape as wizard tower to prevent bow tower from showing through
+                                val wizardCenterX = centerX.plus(100)
+                                val wizardCenterY = centerY
+                                val wizardBaseSize = iconSize * 0.8f
+                                val topWidth = wizardBaseSize * 0.4f
+                                val bottomWidth = wizardBaseSize * 0.6f
+                                val towerHeight = wizardBaseSize * 0.6f
+                                val top = wizardCenterY - towerHeight / 2
+                                val bottom = wizardCenterY + towerHeight / 2
+                                
+                                val blackTrapezoid = Path().apply {
+                                    moveTo(wizardCenterX - bottomWidth / 2, bottom)
+                                    lineTo(wizardCenterX + bottomWidth / 2, bottom)
+                                    lineTo(wizardCenterX + topWidth / 2, top)
+                                    lineTo(wizardCenterX - topWidth / 2, top)
+                                    close()
+                                }
+                                drawPath(blackTrapezoid, Color.Black)
+                                
+                                // Draw battlements in black
+                                val battlement = wizardBaseSize * 0.08f
+                                for (i in 0..2) {
+                                    val x = wizardCenterX - topWidth / 2 + (topWidth / 3) * i
+                                    drawRect(
+                                        color = Color.Black,
+                                        topLeft = Offset(x, top - battlement),
+                                        size = androidx.compose.ui.geometry.Size(battlement, battlement)
+                                    )
+                                }
+                                
                                 drawTower(DefenderType.WIZARD_TOWER, centerX.plus(100), centerY, iconSize)
                             }
                         }
