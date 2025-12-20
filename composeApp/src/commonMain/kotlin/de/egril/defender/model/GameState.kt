@@ -17,6 +17,10 @@ enum class FieldEffectType {
     ACID           // Visual effect for alchemy acid with duration
 }
 
+enum class HealingEffectType {
+    GREEN_WITCH    // Visual effect for green witch healing
+}
+
 data class FieldEffect(
     val position: Position,
     val type: FieldEffectType,
@@ -24,6 +28,13 @@ data class FieldEffect(
     var turnsRemaining: Int,
     val defenderId: Int,  // Track which tower created this effect
     val attackerId: Int? = null  // For DOT effects, track which enemy has the effect
+)
+
+data class HealingEffect(
+    val position: Position,
+    val type: HealingEffectType,
+    val healAmount: Int,
+    val turnNumber: Int  // Track which turn this healing occurred for display timing
 )
 
 data class GameState(
@@ -43,6 +54,7 @@ data class GameState(
     val actionsRemainingThisTurn: MutableState<Int> = mutableStateOf(0),
     val spawnPlan: List<PlannedEnemySpawn> = level.directSpawnPlan ?: generateSpawnPlan(level.attackerWaves),
     val fieldEffects: SnapshotStateList<FieldEffect> = mutableStateListOf(), // Track active field effects
+    val healingEffects: SnapshotStateList<HealingEffect> = mutableStateListOf(), // Track active healing effects
     val traps: SnapshotStateList<Trap> = mutableStateListOf(),  // Track active traps
     val bridges: SnapshotStateList<Bridge> = mutableStateListOf(),  // Track active bridges
     val rafts: SnapshotStateList<Raft> = mutableStateListOf(),  // Track active rafts (towers on rivers)

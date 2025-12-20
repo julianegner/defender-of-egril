@@ -397,5 +397,8 @@ class EnemyMovementSystem(
         }
         // Remove expired effects in a separate operation
         state.fieldEffects.removeAll { it.turnsRemaining <= 0 }
+        
+        // Clean up healing effects from previous turns (they are shown for one turn only)
+        state.healingEffects.removeAll { it.turnNumber < state.turnNumber.value }
     }
 }
