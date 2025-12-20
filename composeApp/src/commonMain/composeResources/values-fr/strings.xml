@@ -407,6 +407,7 @@
     <string name="can_summon">Peut invoquer des serviteurs</string>
     <string name="can_heal">Peut soigner d'autres ennemis</string>
     <string name="can_disable_towers">Peut désactiver les tours</string>
+    <string name="disabled">Désactivé</string>
     <string name="immune_to_acid">Immunisé contre l'acide</string>
     <string name="immune_to_fireball">Immunisé contre la boule de feu</string>
 
@@ -668,6 +669,16 @@
     <!-- Mine on River Warning -->
     <string name="mine_on_river_warning_title">Impossible de placer une mine sur la rivière</string>
     <string name="mine_on_river_warning_message">Les mines naines ne peuvent pas être placées sur les cases de rivière. Les mines nécessitent un sol solide et ne peuvent pas être construites sur des radeaux. Veuillez sélectionner une zone de construction sur la terre ferme.</string>
+
+    <!-- Green Witch Info -->
+    <string name="green_witch_info_title">Alerte Sorcière Verte !</string>
+    <string name="green_witch_info_healing">La Sorcière Verte peut soigner d'autres ennemis ! À la fin de chaque tour ennemi, elle soigne tous les ennemis adjacents de son niveau (ex : sorcière niveau 2 soigne 2 PV par tour).</string>
+    <string name="green_witch_info_strategy">Elle se dirigera vers Ewhad s'il est blessé pour le soigner. Battez la Sorcière Verte rapidement ou les batailles seront beaucoup plus difficiles !</string>
+
+    <!-- Red Witch Info -->
+    <string name="red_witch_info_title">Alerte Sorcière Rouge !</string>
+    <string name="red_witch_info_disabling">La Sorcière Rouge peut désactiver vos tours ! Elle désactive la tour prête la plus proche de son niveau ou inférieur pendant 3 tours.</string>
+    <string name="red_witch_info_strategy">Les tours désactivées ne peuvent pas attaquer et affichent "Désactivé : XT" dans leur panneau d'information. Améliorez vos tours à des niveaux supérieurs ou battez la Sorcière Rouge rapidement !</string>
 
     <!-- Mining Outcome Table Headers -->
     <string name="dig_outcome_name">Nom</string>

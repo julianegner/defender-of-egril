@@ -17,6 +17,8 @@ enum class InfoType {
     MINE_FIRST_USE,     // First time placing a dwarven mine
     RIVER_INFO,         // River, bridge, and raft mechanics explanation
     MINE_ON_RIVER_WARNING, // Warning when trying to place mine on river
+    GREEN_WITCH_INFO,   // Green witch healing ability explanation
+    RED_WITCH_INFO,     // Red witch tower disabling ability explanation
     NONE                // No info to show
 }
 
