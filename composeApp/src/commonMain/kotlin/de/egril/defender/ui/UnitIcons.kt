@@ -41,20 +41,17 @@ fun TowerTypeIcon(
     defenderType: DefenderType,
     modifier: Modifier = Modifier
 ) {
-    // Get theme-aware line color: dark for light mode, white for dark mode
-    val lineColor = MaterialTheme.colorScheme.onBackground
-    
     Box(
         modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        // Draw tower graphics
+        // Draw tower graphics with default white lines (suitable for game UI with tile backgrounds)
         Canvas(modifier = Modifier.fillMaxSize()) {
             val centerX = size.width / 2
             val centerY = size.height / 2
             val iconSize = minOf(size.width, size.height)
 
-            drawTower(defenderType, centerX, centerY, iconSize, lineColor)
+            drawTower(defenderType, centerX, centerY, iconSize)
         }
     }
 }
