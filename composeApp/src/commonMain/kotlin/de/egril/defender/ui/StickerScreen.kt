@@ -18,6 +18,16 @@ import de.egril.defender.ui.icon.defender.*
 import de.egril.defender.ui.settings.SettingsButton
 import defender_of_egril.composeapp.generated.resources.*
 
+
+/* todo remove string resources:
+    sticker_enemies
+    sticker_goblin
+    sticker_ork
+    sticker_wizard
+    sticker_bow
+    sticker_towers
+ */
+
 /**
  * Screen for displaying sticker merchandise preview.
  * Reachable with the "sticker" cheat code.
@@ -38,16 +48,31 @@ fun StickerScreen(
         Box(
             modifier = Modifier.fillMaxSize().padding(16.dp)
         ) {
+
             // Settings button in top-right corner
             SettingsButton(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
                     .padding(8.dp)
             )
-            
+
+            // Back button
+            Button(
+                onClick = onBack,
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .width(200.dp)
+                    .height(50.dp)
+                    .padding(end = 80.dp, top = 8.dp)
+            ) {
+                Text(stringResource(Res.string.back))
+            }
+
             // Main content
             Row(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .padding(top = 100.dp)
+                    .fillMaxSize(),
                 horizontalArrangement = Arrangement.spacedBy(32.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -59,12 +84,28 @@ fun StickerScreen(
                 ) {
                     // Game map section
                     MapSection()
-                    
-                    // Enemy units group
-                    EnemyUnitsGroup()
-                    
-                    // Tower units group
-                    TowerUnitsGroup()
+
+                    Row {
+                        Box(
+                            modifier = Modifier
+                                .height(80.dp)
+                                .width(80.dp)
+                        ) {
+                            Canvas(modifier = Modifier.fillMaxSize()) {
+                                val centerX = size.width / 2
+                                val centerY = size.height / 2
+                                val iconSize = minOf(size.width, size.height)
+
+                                drawGoblinSymbol(centerX.plus(20), centerY.minus(20), iconSize * 0.7f)
+                                drawOrkSymbol(centerX, centerY.minus(10), iconSize * 0.7f)
+                                drawEvilWizardSymbol(centerX.minus(20), centerY, iconSize * 0.7f)
+
+
+                                drawTower(DefenderType.BOW_TOWER, centerX.plus(80), centerY.minus(20), iconSize)
+                                drawTower(DefenderType.WIZARD_TOWER, centerX.plus(100), centerY, iconSize)
+                            }
+                        }
+                    }
                 }
                 
                 // Right side: Title and logo
@@ -76,14 +117,6 @@ fun StickerScreen(
                     ApplicationBanner()
                     
                     Spacer(modifier = Modifier.height(48.dp))
-                    
-                    // Back button
-                    Button(
-                        onClick = onBack,
-                        modifier = Modifier.width(200.dp).height(50.dp)
-                    ) {
-                        Text(stringResource(Res.string.back))
-                    }
                 }
             }
         }
@@ -138,109 +171,6 @@ private fun MapSection() {
 }
 
 /**
- * Displays enemy units group (Goblin, Ork, Wizard)
- */
-@Composable
-private fun EnemyUnitsGroup() {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-
-        /* todo remove string resources:
-            sticker_enemies
-            sticker_goblin
-            sticker_ork
-            sticker_wizard
-         */
-
-        Box(
-            modifier = Modifier
-                .height(80.dp)
-                .width(80.dp)
-        ) {
-            Canvas(modifier = Modifier.fillMaxSize()) {
-                val centerX = size.width / 2
-                val centerY = size.height / 2
-                val iconSize = minOf(size.width, size.height)
-
-                drawGoblinSymbol(centerX.plus(20), centerY.minus(20), iconSize * 0.7f)
-                drawOrkSymbol(centerX, centerY.minus(10), iconSize * 0.7f)
-                drawEvilWizardSymbol(centerX.minus(20), centerY, iconSize * 0.7f)
-            }
-        }
-    }
-}
-
-/**
- * Displays tower units group (Bow, Wizard)
- */
-@Composable
-private fun TowerUnitsGroup() {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        Text(
-            stringResource(Res.string.sticker_towers),
-            style = MaterialTheme.typography.titleMedium
-        )
-        
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            // Bow Tower
-            TowerUnitCard(DefenderType.BOW_TOWER, stringResource(Res.string.sticker_bow))
-            
-            // Wizard Tower
-            TowerUnitCard(DefenderType.WIZARD_TOWER, stringResource(Res.string.sticker_wizard))
-        }
-    }
-}
-
-/**
- * Card displaying a single tower unit
- */
-@Composable
-private fun TowerUnitCard(
-    defenderType: DefenderType,
-    label: String
-) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(4.dp)
-    ) {
-        Box(
-            modifier = Modifier
-                .size(80.dp)
-                .border(2.dp, MaterialTheme.colorScheme.onBackground)
-                .background(MaterialTheme.colorScheme.surface)
-        ) {
-            Canvas(modifier = Modifier.fillMaxSize()) {
-                val centerX = size.width / 2
-                val centerY = size.height / 2
-                val iconSize = minOf(size.width, size.height)
-                
-                // Draw tower base
-                drawTowerBase(centerX, centerY, iconSize * 0.8f)
-                
-                // Draw tower symbol
-                when (defenderType) {
-                    DefenderType.BOW_TOWER -> drawBowSymbol(centerX, centerY, iconSize * 0.45f)
-                    DefenderType.WIZARD_TOWER -> drawWizardSymbol(centerX, centerY, iconSize * 0.4f)
-                    else -> {}
-                }
-            }
-        }
-        
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodySmall
-        )
-    }
-}
-
-/**
  * Helper function to draw a hexagon on canvas
  */
 private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawHexagon(
@@ -266,29 +196,4 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawHexagon(
     
     drawPath(path, color)
     drawPath(path, Color.Black, style = androidx.compose.ui.graphics.drawscope.Stroke(width = 1f))
-}
-
-/**
- * Helper function to draw tower base (from defender icons)
- */
-private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawTowerBase(
-    centerX: Float,
-    centerY: Float,
-    size: Float
-) {
-    val path = androidx.compose.ui.graphics.Path().apply {
-        // Trapezoid (wider at bottom, narrower at top)
-        val topWidth = size * 0.5f
-        val bottomWidth = size * 0.7f
-        val height = size * 0.4f
-        
-        moveTo(centerX - bottomWidth / 2, centerY + height / 2)
-        lineTo(centerX + bottomWidth / 2, centerY + height / 2)
-        lineTo(centerX + topWidth / 2, centerY - height / 2)
-        lineTo(centerX - topWidth / 2, centerY - height / 2)
-        close()
-    }
-    
-    drawPath(path, Color(0xFF8B7355)) // Brown
-    drawPath(path, Color.Black, style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2f))
 }
