@@ -20,7 +20,15 @@ import java.io.File
  */
 class TranslationCoverageTest {
     
-    private val projectRoot = File(System.getProperty("user.dir"))
+    private val projectRoot: File = run {
+        // During tests, user.dir is usually the composeApp directory, so we need to go up one level if needed
+        val currentDir = File(System.getProperty("user.dir"))
+        if (currentDir.name == "composeApp") {
+            currentDir.parentFile
+        } else {
+            currentDir
+        }
+    }
     private val uiSourcePath = File(projectRoot, "composeApp/src/commonMain/kotlin/de/egril/defender/ui")
     
     // Patterns to detect hardcoded strings
@@ -102,6 +110,11 @@ class TranslationCoverageTest {
                     return@forEach
                 }
                 
+                // Skip if it's a URL or domain name (contains .com, .de, .org, etc.)
+                if (stringValue.matches(Regex(""".*\.(com|de|org|net|io|co|uk)(/.*)?$"""))) {
+                    return@forEach
+                }
+                
                 // This is a violation - hardcoded user-facing string
                 violations.add("  $relativePath:$lineNumber - \"$stringValue\"")
             }
@@ -111,6 +124,9 @@ class TranslationCoverageTest {
     @Test
     fun testAllLanguageFilesHaveSameKeys() {
         val resourcesPath = File(projectRoot, "composeApp/src/commonMain/composeResources")
+        println("DEBUG: projectRoot = ${projectRoot.absolutePath}")
+        println("DEBUG: resourcesPath = ${resourcesPath.absolutePath}")
+        println("DEBUG: resourcesPath.exists() = ${resourcesPath.exists()}")
         
         if (!resourcesPath.exists()) {
             fail("Resources path not found: ${resourcesPath.absolutePath}")
