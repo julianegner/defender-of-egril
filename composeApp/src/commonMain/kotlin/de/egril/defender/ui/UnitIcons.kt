@@ -41,6 +41,9 @@ fun TowerTypeIcon(
     defenderType: DefenderType,
     modifier: Modifier = Modifier
 ) {
+    // Get theme-aware line color: dark for light mode, white for dark mode
+    val lineColor = MaterialTheme.colorScheme.onBackground
+    
     Box(
         modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
@@ -51,7 +54,7 @@ fun TowerTypeIcon(
             val centerY = size.height / 2
             val iconSize = minOf(size.width, size.height)
 
-            drawTower(defenderType, centerX, centerY, iconSize)
+            drawTower(defenderType, centerX, centerY, iconSize, lineColor)
         }
     }
 }
@@ -60,17 +63,18 @@ fun DrawScope.drawTower(
     defenderType: DefenderType,
     centerX: Float,
     centerY: Float,
-    iconSize: Float
+    iconSize: Float,
+    lineColor: Color = Color.White
 ) {
     // Draw tower base (trapezoid shape) - except for dragon's lair and dwarven mine
     if (defenderType != DefenderType.DRAGONS_LAIR && defenderType != DefenderType.DWARVEN_MINE) {
-        drawTowerBase(centerX, centerY, iconSize * 0.8f)
+        drawTowerBase(centerX, centerY, iconSize * 0.8f, lineColor)
     }
 
     // Draw tower type symbol inside
     when (defenderType) {
-        DefenderType.SPIKE_TOWER -> drawSpikeSymbol(centerX, centerY, iconSize * 0.4f)
-        DefenderType.SPEAR_TOWER -> drawSpearSymbol(centerX, centerY, iconSize * 0.5f)
+        DefenderType.SPIKE_TOWER -> drawSpikeSymbol(centerX, centerY, iconSize * 0.4f, lineColor)
+        DefenderType.SPEAR_TOWER -> drawSpearSymbol(centerX, centerY, iconSize * 0.5f, lineColor)
         DefenderType.BOW_TOWER -> drawBowSymbol(centerX, centerY, iconSize * 0.45f)
         DefenderType.WIZARD_TOWER -> drawWizardSymbol(centerX, centerY, iconSize * 0.4f)
         DefenderType.ALCHEMY_TOWER -> drawAlchemySymbol(centerX, centerY, iconSize * 0.4f)
@@ -190,10 +194,9 @@ fun TowerIcon(
 /**
  * Draw the base tower structure (trapezoid)
  */
-private fun DrawScope.drawTowerBase(centerX: Float, centerY: Float, size: Float) {
-    // Fixed: Use white color for tower bases in both modes to ensure visibility on dark backgrounds
-    // (was Color(0xFF0A2647) in dark mode which was barely visible)
-    val baseColor = Color.White
+private fun DrawScope.drawTowerBase(centerX: Float, centerY: Float, size: Float, lineColor: Color = Color.White) {
+    // Use provided lineColor for tower bases to ensure visibility in both dark and light modes
+    val baseColor = lineColor
     
     val path = Path().apply {
         val topWidth = size * 0.4f
