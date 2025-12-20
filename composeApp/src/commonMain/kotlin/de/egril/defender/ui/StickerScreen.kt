@@ -104,7 +104,7 @@ private fun MapSection() {
             style = MaterialTheme.typography.titleMedium
         )
         
-        // Simple hexagonal map display (3x3 grid for demonstration)
+        // Simple hexagonal map display (5x5 grid for demonstration)
         Box(
             modifier = Modifier
                 .size(300.dp)
@@ -284,7 +284,7 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawHexagon(
 ) {
     val path = androidx.compose.ui.graphics.Path().apply {
         for (i in 0..5) {
-            val angle = Math.PI / 3 * i
+            val angle = kotlin.math.PI / 3 * i
             val px = x + size * kotlin.math.cos(angle).toFloat()
             val py = y + size * kotlin.math.sin(angle).toFloat()
             
