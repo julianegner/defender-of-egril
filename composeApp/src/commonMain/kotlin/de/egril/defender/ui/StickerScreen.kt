@@ -11,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.hyperether.resources.stringResource
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.DefenderType
@@ -116,6 +117,18 @@ fun StickerScreen(
                         }
                         Spacer(Modifier.width(80.dp))
                         ApplicationBanner()
+                    }
+                    Row {
+                        Text("Open Source Turn Based Fantasy Tower Defense Game",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontSize = 15.sp,
+                        )
+                    }
+                    Row {
+                        Text("defender.egril.de",
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontSize = 18.sp,
+                        )
                     }
                 }
             }
