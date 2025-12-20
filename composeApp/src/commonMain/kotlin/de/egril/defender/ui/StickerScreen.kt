@@ -9,6 +9,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -112,6 +113,13 @@ fun StickerScreen(
 
 
                                 drawTower(DefenderType.BOW_TOWER, centerX.plus(80), centerY.minus(20), iconSize)
+                                
+                                // Draw black background circle behind wizard tower to prevent bow tower from showing through
+                                drawCircle(
+                                    color = Color.Black,
+                                    radius = iconSize * 0.5f,
+                                    center = Offset(centerX.plus(100), centerY)
+                                )
                                 drawTower(DefenderType.WIZARD_TOWER, centerX.plus(100), centerY, iconSize)
                             }
                         }
