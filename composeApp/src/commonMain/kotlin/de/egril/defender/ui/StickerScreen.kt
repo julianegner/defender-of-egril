@@ -141,7 +141,7 @@ fun StickerScreen(
                         ApplicationBanner()
                     }
                     Row {
-                        Text("Open Source Turn Based Fantasy Tower Defense Game",
+                        Text(stringResource(Res.string.game_sticker_tagline),
                             style = MaterialTheme.typography.bodyMedium,
                             fontSize = 15.sp,
                         )
