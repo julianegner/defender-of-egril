@@ -319,6 +319,17 @@ Add to `LevelData.createLevels()` with:
 - Group related functionality
 - Keep files focused and cohesive
 
+### Documentation Files
+- **NEVER** add markdown files to the root directory (except README.md which is allowed)
+- **ALWAYS** place documentation files under `/docs` in appropriate subfolders:
+  - `/docs/changes/`: Implementation summaries and change documentation
+  - `/docs/visual-guides/`: Visual guides and comparisons
+  - `/docs/implementation/`: Technical implementation details
+  - `/docs/features/`: Feature documentation
+  - `/docs/guides/`: User and developer guides
+  - `/docs/root/`: Core project documentation
+- Use UPPERCASE_WITH_UNDERSCORES naming convention for documentation files
+
 ### Comments
 - Use KDoc for public APIs
 - Avoid obvious comments
@@ -390,6 +401,8 @@ Add to `LevelData.createLevels()` with:
 - `docs/features/CODE_REFACTORING_ANALYSIS.md`: Code organization and patterns
 - `docs/guides/WEB_WASM_GUIDE.md`: Web/WASM platform guide
 - `docs/implementation/LOCALIZATION_IMPLEMENTATION.md`: Localization system implementation and usage
+- `docs/changes/APPLICATION_BANNER_THEME_AWARE.md`: ApplicationBanner theme-aware implementation
+- `docs/visual-guides/APPLICATION_BANNER_VISUAL_COMPARISON.md`: Visual comparison of banner changes
 
 ## Version Control
 
