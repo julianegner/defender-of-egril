@@ -739,4 +739,13 @@
     <string name="editor_info_world_map_features">Impostare coordinate X/Y per ogni livello - Creare connessioni tra livelli (strada o mare) - Connettere automaticamente i livelli in base alle dipendenze - Configurare stili visivi delle connessioni - Definire waypoint per i percorsi di connessione</string>
     <string name="editor_info_tips_title">Suggerimenti</string>
     <string name="editor_info_tips_text">Salva frequentemente per evitare di perdere il lavoro - Testa i tuoi livelli nel gioco per assicurarti che siano bilanciati - Usa i livelli esistenti come modelli - Le mappe possono essere riutilizzate su più livelli - La sequenza determina quali livelli sono giocabili</string>
+    
+    <!-- Sticker Screen -->
+    <string name="sticker_game_map">Mappa del Gioco</string>
+    <string name="sticker_enemies">Nemici</string>
+    <string name="sticker_towers">Torri</string>
+    <string name="sticker_goblin">Goblin</string>
+    <string name="sticker_ork">Orco</string>
+    <string name="sticker_wizard">Mago</string>
+    <string name="sticker_bow">Arco</string>
 </resources>

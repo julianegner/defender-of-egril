@@ -739,4 +739,13 @@
     <string name="editor_info_world_map_features">Définir les coordonnées X/Y pour chaque niveau - Créer des connexions entre les niveaux (route ou mer) - Connecter automatiquement les niveaux en fonction des dépendances - Configurer les styles visuels de connexion - Définir des points de cheminement pour les chemins de connexion</string>
     <string name="editor_info_tips_title">Conseils</string>
     <string name="editor_info_tips_text">Sauvegardez fréquemment pour éviter de perdre du travail - Testez vos niveaux dans le jeu pour vous assurer qu'ils sont équilibrés - Utilisez les niveaux existants comme modèles - Les cartes peuvent être réutilisées sur plusieurs niveaux - La séquence détermine quels niveaux sont jouables</string>
+    
+    <!-- Sticker Screen -->
+    <string name="sticker_game_map">Carte du Jeu</string>
+    <string name="sticker_enemies">Ennemis</string>
+    <string name="sticker_towers">Tours</string>
+    <string name="sticker_goblin">Gobelin</string>
+    <string name="sticker_ork">Orc</string>
+    <string name="sticker_wizard">Sorcier</string>
+    <string name="sticker_bow">Arc</string>
 </resources>
