@@ -10,11 +10,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.hyperether.resources.stringResource
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.DefenderType
 import de.egril.defender.ui.icon.enemy.*
 import de.egril.defender.ui.icon.defender.*
 import de.egril.defender.ui.settings.SettingsButton
+import defender_of_egril.composeapp.generated.resources.*
 
 /**
  * Screen for displaying sticker merchandise preview.
@@ -80,7 +82,7 @@ fun StickerScreen(
                         onClick = onBack,
                         modifier = Modifier.width(200.dp).height(50.dp)
                     ) {
-                        Text("Back")
+                        Text(stringResource(Res.string.back))
                     }
                 }
             }
@@ -98,7 +100,7 @@ private fun MapSection() {
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Text(
-            "Game Map",
+            stringResource(Res.string.sticker_game_map),
             style = MaterialTheme.typography.titleMedium
         )
         
@@ -145,7 +147,7 @@ private fun EnemyUnitsGroup() {
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Text(
-            "Enemies",
+            stringResource(Res.string.sticker_enemies),
             style = MaterialTheme.typography.titleMedium
         )
         
@@ -153,13 +155,13 @@ private fun EnemyUnitsGroup() {
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             // Goblin
-            EnemyUnitCard(AttackerType.GOBLIN, "Goblin")
+            EnemyUnitCard(AttackerType.GOBLIN, stringResource(Res.string.sticker_goblin))
             
             // Ork
-            EnemyUnitCard(AttackerType.ORK, "Ork")
+            EnemyUnitCard(AttackerType.ORK, stringResource(Res.string.sticker_ork))
             
             // Evil Wizard
-            EnemyUnitCard(AttackerType.EVIL_WIZARD, "Wizard")
+            EnemyUnitCard(AttackerType.EVIL_WIZARD, stringResource(Res.string.sticker_wizard))
         }
     }
 }
@@ -174,7 +176,7 @@ private fun TowerUnitsGroup() {
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Text(
-            "Towers",
+            stringResource(Res.string.sticker_towers),
             style = MaterialTheme.typography.titleMedium
         )
         
@@ -182,10 +184,10 @@ private fun TowerUnitsGroup() {
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             // Bow Tower
-            TowerUnitCard(DefenderType.BOW_TOWER, "Bow")
+            TowerUnitCard(DefenderType.BOW_TOWER, stringResource(Res.string.sticker_bow))
             
             // Wizard Tower
-            TowerUnitCard(DefenderType.WIZARD_TOWER, "Wizard")
+            TowerUnitCard(DefenderType.WIZARD_TOWER, stringResource(Res.string.sticker_wizard))
         }
     }
 }
