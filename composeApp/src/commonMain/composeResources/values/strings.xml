@@ -740,13 +740,4 @@
     <string name="editor_info_world_map_features">Set X/Y coordinates for each level - Create connections between levels (road or sea) - Auto-connect levels based on dependencies - Configure connection visual styles - Define waypoints for connection paths</string>
     <string name="editor_info_tips_title">Tips</string>
     <string name="editor_info_tips_text">Save frequently to avoid losing work - Test your levels in the game to ensure they are balanced - Use the existing levels as templates - Maps can be reused across multiple levels - The sequence determines which levels are playable</string>
-    
-    <!-- Sticker Screen -->
-    <string name="sticker_game_map">Game Map</string>
-    <string name="sticker_enemies">Enemies</string>
-    <string name="sticker_towers">Towers</string>
-    <string name="sticker_goblin">Goblin</string>
-    <string name="sticker_ork">Ork</string>
-    <string name="sticker_wizard">Wizard</string>
-    <string name="sticker_bow">Bow</string>
 </resources>
