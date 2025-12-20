@@ -146,22 +146,28 @@ private fun EnemyUnitsGroup() {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Text(
-            stringResource(Res.string.sticker_enemies),
-            style = MaterialTheme.typography.titleMedium
-        )
-        
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
+
+        /* todo remove string resources:
+            sticker_enemies
+            sticker_goblin
+            sticker_ork
+            sticker_wizard
+         */
+
+        Box(
+            modifier = Modifier
+                .height(80.dp)
+                .width(80.dp)
         ) {
-            // Goblin
-            EnemyUnitCard(AttackerType.GOBLIN, stringResource(Res.string.sticker_goblin))
-            
-            // Ork
-            EnemyUnitCard(AttackerType.ORK, stringResource(Res.string.sticker_ork))
-            
-            // Evil Wizard
-            EnemyUnitCard(AttackerType.EVIL_WIZARD, stringResource(Res.string.sticker_wizard))
+            Canvas(modifier = Modifier.fillMaxSize()) {
+                val centerX = size.width / 2
+                val centerY = size.height / 2
+                val iconSize = minOf(size.width, size.height)
+
+                drawGoblinSymbol(centerX.plus(20), centerY.minus(20), iconSize * 0.7f)
+                drawOrkSymbol(centerX, centerY.minus(10), iconSize * 0.7f)
+                drawEvilWizardSymbol(centerX.minus(20), centerY, iconSize * 0.7f)
+            }
         }
     }
 }
@@ -189,45 +195,6 @@ private fun TowerUnitsGroup() {
             // Wizard Tower
             TowerUnitCard(DefenderType.WIZARD_TOWER, stringResource(Res.string.sticker_wizard))
         }
-    }
-}
-
-/**
- * Card displaying a single enemy unit
- */
-@Composable
-private fun EnemyUnitCard(
-    attackerType: AttackerType,
-    label: String
-) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(4.dp)
-    ) {
-        Box(
-            modifier = Modifier
-                .size(80.dp)
-                .border(2.dp, MaterialTheme.colorScheme.onBackground)
-                .background(MaterialTheme.colorScheme.surface)
-        ) {
-            Canvas(modifier = Modifier.fillMaxSize()) {
-                val centerX = size.width / 2
-                val centerY = size.height / 2
-                val iconSize = minOf(size.width, size.height)
-                
-                when (attackerType) {
-                    AttackerType.GOBLIN -> drawGoblinSymbol(centerX, centerY, iconSize * 0.7f)
-                    AttackerType.ORK -> drawOrkSymbol(centerX, centerY, iconSize * 0.7f)
-                    AttackerType.EVIL_WIZARD -> drawEvilWizardSymbol(centerX, centerY, iconSize * 0.7f)
-                    else -> {}
-                }
-            }
-        }
-        
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodySmall
-        )
     }
 }
 
