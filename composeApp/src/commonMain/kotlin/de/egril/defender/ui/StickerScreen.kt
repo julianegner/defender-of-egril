@@ -22,17 +22,6 @@ import defender_of_egril.composeapp.generated.resources.*
 import kotlinx.serialization.EncodeDefault
 import org.jetbrains.compose.resources.painterResource
 
-
-/* todo remove string resources:
-    sticker_enemies
-    sticker_goblin
-    sticker_ork
-    sticker_wizard
-    sticker_bow
-    sticker_towers
-    sticker_game_map
- */
-
 /**
  * Screen for displaying sticker merchandise preview.
  * Reachable with the "sticker" cheat code.
