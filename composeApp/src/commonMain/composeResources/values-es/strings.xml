@@ -412,7 +412,7 @@
     <string name="tutorial_welcome_title">¡Bienvenido a Defender of Egril!</string>
     <string name="tutorial_welcome">Este es un juego de defensa de torres. Tu objetivo es evitar que los enemigos lleguen al objetivo construyendo torres defensivas.</string>
     <string name="tutorial_resources_title">Recursos</string>
-    <string name="tutorial_resources">Tienes monedas para construir torres y puntos de salud. Los enemigos débiles cuestan 1 PS, pero los enemigos poderosos (magos, brujas, magos malvados, demonios, dragones) cuestan PS igual a su nivel. ¡Ewhad cuesta todos tus PS!</string>
+    <string name="tutorial_resources">Tienes monedas para construir torres y puntos de salud. Cuando derrotas enemigos, ganas monedas iguales a su recompensa base multiplicada por su nivel. Los enemigos débiles cuestan 1 PS, pero los enemigos poderosos (magos, brujas, magos malvados, demonios, dragones) cuestan PS igual a su nivel. ¡Ewhad cuesta todos tus PS!</string>
     <string name="tutorial_towers_title">Torres disponibles</string>
     <string name="tutorial_towers">Torre de Púas: Corto alcance, barata. Torre de Lanza: Alcance medio. Torre de Arco: Largo alcance. ¡Elige sabiamente según tu estrategia!</string>
     <string name="tutorial_build_title">Construir torres</string>

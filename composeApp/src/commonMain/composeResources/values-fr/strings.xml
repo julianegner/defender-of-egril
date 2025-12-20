@@ -414,7 +414,7 @@
     <string name="tutorial_welcome_title">Bienvenue dans Defender of Egril!</string>
     <string name="tutorial_welcome">Ceci est un jeu de défense de tours. Votre objectif est d'empêcher les ennemis d'atteindre la cible en construisant des tours défensives.</string>
     <string name="tutorial_resources_title">Ressources</string>
-    <string name="tutorial_resources">Vous avez des pièces pour construire des tours et des points de vie. Les ennemis faibles coûtent 1 PV, mais les ennemis puissants (sorciers, sorcières, mages maléfiques, démons, dragons) coûtent des PV égaux à leur niveau. Ewhad coûte tous vos PV!</string>
+    <string name="tutorial_resources">Vous avez des pièces pour construire des tours et des points de vie. Lorsque vous battez des ennemis, vous gagnez des pièces égales à leur récompense de base multipliée par leur niveau. Les ennemis faibles coûtent 1 PV, mais les ennemis puissants (sorciers, sorcières, mages maléfiques, démons, dragons) coûtent des PV égaux à leur niveau. Ewhad coûte tous vos PV!</string>
     <string name="tutorial_towers_title">Tours disponibles</string>
     <string name="tutorial_towers">Tour à Piques: Courte portée, bon marché. Tour de Lance: Portée moyenne. Tour d'Arc: Longue portée. Choisissez judicieusement selon votre stratégie!</string>
     <string name="tutorial_build_title">Construire des tours</string>
