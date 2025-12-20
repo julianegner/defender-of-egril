@@ -739,4 +739,13 @@
     <string name="editor_info_world_map_features">X/Y-Koordinaten für jedes Level festlegen - Verbindungen zwischen Leveln erstellen (Straße oder Meer) - Level automatisch basierend auf Abhängigkeiten verbinden - Visuelle Stile für Verbindungen konfigurieren - Wegpunkte für Verbindungspfade definieren</string>
     <string name="editor_info_tips_title">Tipps</string>
     <string name="editor_info_tips_text">Speichern Sie häufig, um Arbeitsverlust zu vermeiden - Testen Sie Ihre Level im Spiel, um sicherzustellen, dass sie ausgewogen sind - Verwenden Sie vorhandene Level als Vorlagen - Karten können über mehrere Level hinweg wiederverwendet werden - Die Sequenz bestimmt, welche Level spielbar sind</string>
+    
+    <!-- Sticker Screen -->
+    <string name="sticker_game_map">Spielkarte</string>
+    <string name="sticker_enemies">Feinde</string>
+    <string name="sticker_towers">Türme</string>
+    <string name="sticker_goblin">Goblin</string>
+    <string name="sticker_ork">Ork</string>
+    <string name="sticker_wizard">Zauberer</string>
+    <string name="sticker_bow">Bogen</string>
 </resources>
