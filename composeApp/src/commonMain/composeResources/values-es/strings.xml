@@ -741,4 +741,23 @@
     <string name="editor_info_tips_text">Guarda frecuentemente para evitar perder trabajo - Prueba tus niveles en el juego para asegurarte de que estén balanceados - Usa los niveles existentes como plantillas - Los mapas pueden reutilizarse en múltiples niveles - La secuencia determina qué niveles son jugables</string>
 
     <string name="game_sticker_tagline">Open Source Turn Based Fantasy Tower Defense Game</string>
+    
+    <!-- Player Profile Strings -->
+    <string name="player_create_title">Crear nuevo jugador</string>
+    <string name="player_create_prompt">Ingresa tu nombre de jugador</string>
+    <string name="player_name">Nombre del jugador</string>
+    <string name="player_name_empty_error">El nombre del jugador no puede estar vacío</string>
+    <string name="player_name_too_long_error">El nombre del jugador es demasiado largo (máx. 50 caracteres)</string>
+    <string name="player_name_exists_error">Ya existe un jugador con este nombre</string>
+    <string name="player_select_title">Seleccionar jugador</string>
+    <string name="player_no_profiles">No se encontraron perfiles de jugador. ¡Crea uno nuevo para empezar a jugar!</string>
+    <string name="player_last_played">Última partida: %s</string>
+    <string name="player_new">Nuevo jugador</string>
+    <string name="player_delete_confirm_title">¿Eliminar jugador?</string>
+    <string name="player_delete_confirm_message">¿Estás seguro de que quieres eliminar al jugador "%s"? Todo el progreso y los archivos guardados de este jugador se eliminarán permanentemente.</string>
+    <string name="select">Seleccionar</string>
+    <string name="create">Crear</string>
+    <string name="delete">Eliminar</string>
+    <string name="close">Cerrar</string>
+    <string name="switch_player">Cambiar jugador</string>
 </resources>
