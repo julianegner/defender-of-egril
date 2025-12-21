@@ -11,7 +11,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import de.egril.defender.save.PlayerProfile
-import de.egril.defender.utils.formatTimestampFriendly
+import de.egril.defender.utils.formatTimestamp
+import de.egril.defender.ui.icon.TrashIcon
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
 
@@ -223,7 +224,7 @@ private fun PlayerProfileCard(
                 Text(
                     text = stringResource(
                         Res.string.player_last_played,
-                        formatTimestampFriendly(player.lastPlayedAt)
+                        formatTimestamp(player.lastPlayedAt)
                     ),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -239,8 +240,10 @@ private fun PlayerProfileCard(
                     }
                 }
                 
-                IconButton(onClick = { showDeleteConfirm = true }) {
-                    Text("🗑", style = MaterialTheme.typography.titleMedium)
+                IconButton(
+                    onClick = { showDeleteConfirm = true }
+                ) {
+                    TrashIcon(size = 20.dp, contentDescription = "Delete player")
                 }
             }
         }
