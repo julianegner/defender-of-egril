@@ -741,4 +741,23 @@
     <string name="editor_info_tips_text">Speichern Sie häufig, um Arbeitsverlust zu vermeiden - Testen Sie Ihre Level im Spiel, um sicherzustellen, dass sie ausgewogen sind - Verwenden Sie vorhandene Level als Vorlagen - Karten können über mehrere Level hinweg wiederverwendet werden - Die Sequenz bestimmt, welche Level spielbar sind</string>
 
     <string name="game_sticker_tagline">Open Source Turn Based Fantasy Tower Defense Game</string>
+    
+    <!-- Player Profile Strings -->
+    <string name="player_create_title">Neuen Spieler erstellen</string>
+    <string name="player_create_prompt">Geben Sie Ihren Spielernamen ein</string>
+    <string name="player_name">Spielername</string>
+    <string name="player_name_empty_error">Spielername darf nicht leer sein</string>
+    <string name="player_name_too_long_error">Spielername ist zu lang (max. 50 Zeichen)</string>
+    <string name="player_name_exists_error">Ein Spieler mit diesem Namen existiert bereits</string>
+    <string name="player_select_title">Spieler auswählen</string>
+    <string name="player_no_profiles">Keine Spielerprofile gefunden. Erstellen Sie ein neues Profil, um zu spielen!</string>
+    <string name="player_last_played">Zuletzt gespielt: %s</string>
+    <string name="player_new">Neuer Spieler</string>
+    <string name="player_delete_confirm_title">Spieler löschen?</string>
+    <string name="player_delete_confirm_message">Möchten Sie wirklich den Spieler "%s" löschen? Alle Fortschritte und Speicherstände dieses Spielers werden dauerhaft gelöscht.</string>
+    <string name="select">Auswählen</string>
+    <string name="create">Erstellen</string>
+    <string name="delete">Löschen</string>
+    <string name="close">Schließen</string>
+    <string name="switch_player">Spieler wechseln</string>
 </resources>
