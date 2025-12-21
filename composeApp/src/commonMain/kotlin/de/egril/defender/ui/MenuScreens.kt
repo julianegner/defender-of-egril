@@ -10,6 +10,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -29,7 +30,9 @@ import org.jetbrains.compose.resources.painterResource
 @Composable
 fun MainMenuScreen(
     onStartGame: () -> Unit,
-    onShowRules: () -> Unit
+    onShowRules: () -> Unit,
+    onSelectPlayer: () -> Unit,
+    currentPlayerName: String?
 ) {
     // Track if settings hint should be shown
     val showSettingsHint by AppSettings.settingsHintShown
@@ -47,6 +50,41 @@ fun MainMenuScreen(
                     .align(Alignment.TopEnd)
                     .padding(8.dp)
             )
+            
+            // Player name and selection button in top-left corner
+            if (currentPlayerName != null) {
+                Row(
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .padding(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Column {
+                        Text(
+                            text = stringResource(Res.string.player_name),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Text(
+                            text = currentPlayerName,
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                    }
+                    
+                    OutlinedButton(
+                        onClick = onSelectPlayer,
+                        modifier = Modifier.height(36.dp)
+                    ) {
+                        Text(
+                            text = stringResource(Res.string.switch_player),
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                }
+            }
             
             Column(
                 modifier = Modifier.fillMaxSize(),

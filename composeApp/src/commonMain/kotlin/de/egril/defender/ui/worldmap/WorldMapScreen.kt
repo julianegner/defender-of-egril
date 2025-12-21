@@ -42,7 +42,9 @@ fun WorldMapScreen(
     onLoadGame: () -> Unit,
     onCheatCode: ((String) -> Boolean)? = null,  // Callback for processing cheat codes, returns true if code was valid
     onReloadWorldMap: (() -> Unit)? = null,  // Callback to reload world map after syncing repository files
-    checkForNewRepositoryData: Boolean = true  // Set to false in tests to avoid repository checks
+    checkForNewRepositoryData: Boolean = true,  // Set to false in tests to avoid repository checks
+    onSwitchPlayer: (() -> Unit)? = null,  // Callback to switch player
+    currentPlayerName: String? = null  // Current player name for display
 ) {
     var showCheatDialog by remember { mutableStateOf(false) }
     var showNewRepoDataDialog by remember { mutableStateOf(false) }
@@ -124,7 +126,7 @@ fun WorldMapScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Title and subtitle - clickable for cheat code access (less obvious than a button)
+                // Title, subtitle, and player info - clickable for cheat code access (less obvious than a button)
                 Column(
                     modifier = Modifier
                         .then(
@@ -147,6 +149,31 @@ fun WorldMapScreen(
                         ),
                         color = MaterialTheme.colorScheme.onBackground
                     )
+                    
+                    // Player name and switch button (if available)
+                    if (currentPlayerName != null && onSwitchPlayer != null) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Text(
+                                text = currentPlayerName,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                            
+                            TextButton(
+                                onClick = onSwitchPlayer,
+                                modifier = Modifier.height(28.dp)
+                            ) {
+                                Text(
+                                    text = stringResource(Res.string.switch_player),
+                                    style = MaterialTheme.typography.labelSmall
+                                )
+                            }
+                        }
+                    }
                 }
                 
                 // Difficulty and Settings button
