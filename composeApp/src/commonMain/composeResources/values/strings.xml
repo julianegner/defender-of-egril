@@ -755,9 +755,5 @@
     <string name="player_new">New Player</string>
     <string name="player_delete_confirm_title">Delete Player?</string>
     <string name="player_delete_confirm_message">Are you sure you want to delete player "%s"? All progress and save files for this player will be permanently deleted.</string>
-    <string name="select">Select</string>
-    <string name="create">Create</string>
-    <string name="delete">Delete</string>
-    <string name="close">Close</string>
     <string name="switch_player">Switch Player</string>
 </resources>

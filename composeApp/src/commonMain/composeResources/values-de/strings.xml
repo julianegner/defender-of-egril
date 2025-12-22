@@ -755,9 +755,5 @@
     <string name="player_new">Neuer Spieler</string>
     <string name="player_delete_confirm_title">Spieler löschen?</string>
     <string name="player_delete_confirm_message">Möchten Sie wirklich den Spieler "%s" löschen? Alle Fortschritte und Speicherstände dieses Spielers werden dauerhaft gelöscht.</string>
-    <string name="select">Auswählen</string>
-    <string name="create">Erstellen</string>
-    <string name="delete">Löschen</string>
-    <string name="close">Schließen</string>
     <string name="switch_player">Spieler wechseln</string>
 </resources>
