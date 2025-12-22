@@ -155,30 +155,39 @@ class EnemyAbilitySystem(private val state: GameState) {
     }
     
     /**
-     * Red Witch disables the nearest active tower of her level or less
+     * Red Witch disables adjacent towers (within 1 hex distance).
+     * Disables one tower per turn.
+     * Duration: 1 turn base, +1 turn for every 5 levels (level 5=2 turns, level 10=3 turns, level 20=4 turns, etc.)
      */
     private fun disableNearestTower(witch: Attacker) {
-        // Find nearest tower that:
+        // Get adjacent positions (1 hex distance)
+        val adjacentPositions = witch.position.value.getHexNeighbors()
+        
+        // Find adjacent towers that:
         // - Is ready (not building)
         // - Is not already disabled
-        // - Has level <= witch level
-        val eligibleTowers = state.defenders.filter { tower ->
+        // - Is adjacent (within 1 hex)
+        val adjacentTowers = state.defenders.filter { tower ->
             tower.isReady && 
             !tower.isDisabled.value && 
-            tower.level.value <= witch.level.value
+            adjacentPositions.contains(tower.position.value)
         }
         
-        if (eligibleTowers.isEmpty()) return
+        if (adjacentTowers.isEmpty()) return
         
-        // Find closest tower
-        val nearestTower = eligibleTowers.minByOrNull { tower ->
-            tower.position.value.distanceTo(witch.position.value)
-        }
+        // Pick the first adjacent tower (any adjacent tower is valid)
+        val targetTower = adjacentTowers.firstOrNull()
         
-        if (nearestTower != null) {
-            // Disable for 3 turns
-            nearestTower.isDisabled.value = true
-            nearestTower.disabledTurnsRemaining.value = 3
+        if (targetTower != null) {
+            // Calculate disable duration: 1 turn base + 1 per 5 levels
+            // Level 1-4: 1 turn
+            // Level 5-9: 2 turns
+            // Level 10-14: 3 turns
+            // Level 20-24: 4 turns, etc.
+            val disableDuration = 1 + (witch.level.value / 5)
+            
+            targetTower.isDisabled.value = true
+            targetTower.disabledTurnsRemaining.value = disableDuration
         }
     }
     
