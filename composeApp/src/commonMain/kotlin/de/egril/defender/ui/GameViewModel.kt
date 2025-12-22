@@ -237,8 +237,8 @@ class GameViewModel {
             // Start enemy turn: change phase to ENEMY_TURN
             engine.startEnemyTurn()
             
-            // Show "ENEMY TURN" indicator
-            delay(800)
+            // Show "ENEMY TURN" indicator (reduced from 800ms to 300ms)
+            delay(300)
             
             // Calculate all movement steps for existing units
             val movementSteps = engine.calculateEnemyTurnMovements()
@@ -249,20 +249,20 @@ class GameViewModel {
                 for ((attackerId, newPosition) in stepMovements) {
                     engine.applyMovement(attackerId, newPosition)
                 }
-                // Delay between movement steps so user can see the animation
-                delay(400)
+                // Delay between movement steps so user can see the animation (reduced from 400ms to 200ms)
+                delay(200)
             }
             
-            // Add a small delay to see final positions before spawning new units
+            // Add a small delay to see final positions before spawning new units (reduced from 300ms to 150ms)
             if (movementSteps.isNotEmpty()) {
-                delay(300)
+                delay(150)
             }
             
             // Now spawn new units (spawn points should be clear after movements)
             engine.spawnEnemyTurnAttackers()
             
-            // Show spawned units briefly
-            delay(400)
+            // Show spawned units briefly (reduced from 400ms to 200ms)
+            delay(200)
             
             // Move newly spawned units away from spawn points
             val newSpawnMovements = engine.calculateNewlySpawnedMovements()
@@ -270,13 +270,13 @@ class GameViewModel {
                 for ((attackerId, newPosition) in stepMovements) {
                     engine.applyMovement(attackerId, newPosition)
                 }
-                // Delay between movement steps
-                delay(400)
+                // Delay between movement steps (reduced from 400ms to 200ms)
+                delay(200)
             }
             
-            // Add a small delay after newly spawned units have moved
+            // Add a small delay after newly spawned units have moved (reduced from 300ms to 150ms)
             if (newSpawnMovements.isNotEmpty()) {
-                delay(300)
+                delay(150)
             }
             
             // Complete enemy turn: apply effects and return to player turn
