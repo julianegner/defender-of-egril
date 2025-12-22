@@ -27,6 +27,10 @@ fun CreatePlayerDialog(
     var playerName by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     
+    // Pre-fetch error messages for use in non-composable contexts
+    val emptyNameError = stringResource(Res.string.player_name_empty_error)
+    val tooLongNameError = stringResource(Res.string.player_name_too_long_error)
+    
     Dialog(onDismissRequest = onDismiss) {
         Surface(
             modifier = Modifier.widthIn(max = 400.dp),
@@ -90,8 +94,8 @@ fun CreatePlayerDialog(
                         onClick = {
                             val trimmed = playerName.trim()
                             when {
-                                trimmed.isEmpty() -> errorMessage = stringResource(Res.string.player_name_empty_error)
-                                trimmed.length > 50 -> errorMessage = stringResource(Res.string.player_name_too_long_error)
+                                trimmed.isEmpty() -> errorMessage = emptyNameError
+                                trimmed.length > 50 -> errorMessage = tooLongNameError
                                 else -> onCreatePlayer(trimmed)
                             }
                         },
@@ -243,7 +247,7 @@ private fun PlayerProfileCard(
                 IconButton(
                     onClick = { showDeleteConfirm = true }
                 ) {
-                    TrashIcon(size = 20.dp, contentDescription = "Delete player")
+                    TrashIcon(size = 20.dp)
                 }
             }
         }
