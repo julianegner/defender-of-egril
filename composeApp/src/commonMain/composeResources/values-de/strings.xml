@@ -412,7 +412,7 @@
     <string name="tutorial_welcome_title">Willkommen bei Defender of Egril!</string>
     <string name="tutorial_welcome">Dies ist ein Tower-Defense-Spiel. Ihr Ziel ist es, Feinde daran zu hindern, das Ziel zu erreichen, indem Sie Verteidigungstürme bauen.</string>
     <string name="tutorial_resources_title">Ressourcen</string>
-    <string name="tutorial_resources">Sie haben Münzen zum Bauen von Türmen und Lebenspunkte. Schwache Feinde kosten 1 LP, aber mächtige Feinde (Zauberer, Hexen, Magier, Dämonen, Drachen) kosten LP gleich ihrer Stufe. Ewhad kostet alle LP!</string>
+    <string name="tutorial_resources">Sie haben Münzen zum Bauen von Türmen und Lebenspunkte. Wenn Sie Feinde besiegen, erhalten Sie Münzen entsprechend ihrer Grundbelohnung multipliziert mit ihrer Stufe. Schwache Feinde kosten 1 LP, aber mächtige Feinde (Zauberer, Hexen, Magier, Dämonen, Drachen) kosten LP gleich ihrer Stufe. Ewhad kostet alle LP!</string>
     <string name="tutorial_towers_title">Verfügbare Türme</string>
     <string name="tutorial_towers">Stachelturm: Nahkampf, günstig. Speerturm: Mittlere Reichweite. Bogenturm: Große Reichweite. Wählen Sie weise basierend auf Ihrer Strategie!</string>
     <string name="tutorial_build_title">Türme bauen</string>
