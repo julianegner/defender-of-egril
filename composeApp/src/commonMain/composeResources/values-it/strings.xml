@@ -755,9 +755,5 @@
     <string name="player_new">Nuovo giocatore</string>
     <string name="player_delete_confirm_title">Eliminare il giocatore?</string>
     <string name="player_delete_confirm_message">Sei sicuro di voler eliminare il giocatore "%s"? Tutti i progressi e i file salvati di questo giocatore verranno eliminati permanentemente.</string>
-    <string name="select">Seleziona</string>
-    <string name="create">Crea</string>
-    <string name="delete">Elimina</string>
-    <string name="close">Chiudi</string>
     <string name="switch_player">Cambia giocatore</string>
 </resources>
