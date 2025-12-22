@@ -33,7 +33,7 @@ class TargetRingsOverlayTest {
         val wizardTower = Defender(
             id = 1,
             type = DefenderType.WIZARD_TOWER,
-            position = Position(10, 3),
+            position = androidx.compose.runtime.mutableStateOf(Position(10, 3)),
             level = androidx.compose.runtime.mutableStateOf(1),
             buildTimeRemaining = androidx.compose.runtime.mutableStateOf(0),
             actionsRemaining = androidx.compose.runtime.mutableStateOf(1),
@@ -115,7 +115,7 @@ class TargetRingsOverlayTest {
         val alchemyTower = Defender(
             id = 1,
             type = DefenderType.ALCHEMY_TOWER,
-            position = Position(12, 4),
+            position = androidx.compose.runtime.mutableStateOf(Position(12, 4)),
             level = androidx.compose.runtime.mutableStateOf(1),
             buildTimeRemaining = androidx.compose.runtime.mutableStateOf(0),
             actionsRemaining = androidx.compose.runtime.mutableStateOf(1),
@@ -189,7 +189,7 @@ class TargetRingsOverlayTest {
         val bowTower = Defender(
             id = 1,
             type = DefenderType.BOW_TOWER,
-            position = Position(10, 4),
+            position = androidx.compose.runtime.mutableStateOf(Position(10, 4)),
             level = androidx.compose.runtime.mutableStateOf(1),
             buildTimeRemaining = androidx.compose.runtime.mutableStateOf(0),
             actionsRemaining = androidx.compose.runtime.mutableStateOf(1),
@@ -252,7 +252,7 @@ class TargetRingsOverlayTest {
         val wizardTower = Defender(
             id = 1,
             type = DefenderType.WIZARD_TOWER,
-            position = Position(10, 3),
+            position = androidx.compose.runtime.mutableStateOf(Position(10, 3)),
             level = androidx.compose.runtime.mutableStateOf(1),
             buildTimeRemaining = androidx.compose.runtime.mutableStateOf(0),
             actionsRemaining = androidx.compose.runtime.mutableStateOf(0),  // NO actions left

@@ -180,7 +180,7 @@ class GamePlayScreenTest {
         val tower1 = de.egril.defender.model.Defender(
             id = 1,
             type = de.egril.defender.model.DefenderType.SPIKE_TOWER,
-            position = de.egril.defender.model.Position(8, 3),
+            position = androidx.compose.runtime.mutableStateOf(de.egril.defender.model.Position(8, 3)),
             level = androidx.compose.runtime.mutableStateOf(1),
             buildTimeRemaining = androidx.compose.runtime.mutableStateOf(0),
             actionsRemaining = androidx.compose.runtime.mutableStateOf(1),
@@ -191,7 +191,7 @@ class GamePlayScreenTest {
         val tower2 = de.egril.defender.model.Defender(
             id = 2,
             type = de.egril.defender.model.DefenderType.BOW_TOWER,
-            position = de.egril.defender.model.Position(12, 2),
+            position = androidx.compose.runtime.mutableStateOf(de.egril.defender.model.Position(12, 2)),
             level = androidx.compose.runtime.mutableStateOf(1),
             buildTimeRemaining = androidx.compose.runtime.mutableStateOf(0),
             actionsRemaining = androidx.compose.runtime.mutableStateOf(1),
@@ -202,7 +202,7 @@ class GamePlayScreenTest {
         val tower3 = de.egril.defender.model.Defender(
             id = 3,
             type = de.egril.defender.model.DefenderType.SPEAR_TOWER,
-            position = de.egril.defender.model.Position(16, 5),
+            position = androidx.compose.runtime.mutableStateOf(de.egril.defender.model.Position(16, 5)),
             level = androidx.compose.runtime.mutableStateOf(1),
             buildTimeRemaining = androidx.compose.runtime.mutableStateOf(0),
             actionsRemaining = androidx.compose.runtime.mutableStateOf(1),
@@ -266,7 +266,7 @@ class GamePlayScreenTest {
         val bowTower = de.egril.defender.model.Defender(
             id = 1,
             type = de.egril.defender.model.DefenderType.BOW_TOWER,
-            position = de.egril.defender.model.Position(10, 4),
+            position = androidx.compose.runtime.mutableStateOf(de.egril.defender.model.Position(10, 4)),
             level = androidx.compose.runtime.mutableStateOf(1),
             buildTimeRemaining = androidx.compose.runtime.mutableStateOf(0),
             actionsRemaining = androidx.compose.runtime.mutableStateOf(1),
@@ -336,7 +336,7 @@ class GamePlayScreenTest {
         val wizardTower = de.egril.defender.model.Defender(
             id = 1,
             type = de.egril.defender.model.DefenderType.WIZARD_TOWER,
-            position = de.egril.defender.model.Position(10, 3),
+            position = androidx.compose.runtime.mutableStateOf(de.egril.defender.model.Position(10, 3)),
             level = androidx.compose.runtime.mutableStateOf(1),
             buildTimeRemaining = androidx.compose.runtime.mutableStateOf(0),
             actionsRemaining = androidx.compose.runtime.mutableStateOf(1),
@@ -413,7 +413,7 @@ class GamePlayScreenTest {
         val alchemyTower = de.egril.defender.model.Defender(
             id = 1,
             type = de.egril.defender.model.DefenderType.ALCHEMY_TOWER,
-            position = de.egril.defender.model.Position(12, 4),
+            position = androidx.compose.runtime.mutableStateOf(de.egril.defender.model.Position(12, 4)),
             level = androidx.compose.runtime.mutableStateOf(1),
             buildTimeRemaining = androidx.compose.runtime.mutableStateOf(0),
             actionsRemaining = androidx.compose.runtime.mutableStateOf(1),
@@ -492,7 +492,7 @@ class GamePlayScreenTest {
         val dwarvenMine = de.egril.defender.model.Defender(
             id = 1,
             type = de.egril.defender.model.DefenderType.DWARVEN_MINE,
-            position = de.egril.defender.model.Position(9, 5),
+            position = androidx.compose.runtime.mutableStateOf(de.egril.defender.model.Position(9, 5)),
             level = androidx.compose.runtime.mutableStateOf(1),
             buildTimeRemaining = androidx.compose.runtime.mutableStateOf(0),
             actionsRemaining = androidx.compose.runtime.mutableStateOf(2), // Mines have special actions
@@ -513,7 +513,7 @@ class GamePlayScreenTest {
         val spearTower = de.egril.defender.model.Defender(
             id = 2,
             type = de.egril.defender.model.DefenderType.SPEAR_TOWER,
-            position = de.egril.defender.model.Position(11, 3),
+            position = androidx.compose.runtime.mutableStateOf(de.egril.defender.model.Position(11, 3)),
             level = androidx.compose.runtime.mutableStateOf(1),
             buildTimeRemaining = androidx.compose.runtime.mutableStateOf(0),
             actionsRemaining = androidx.compose.runtime.mutableStateOf(1),

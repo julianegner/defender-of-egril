@@ -1,0 +1,196 @@
+# This workflow will build a Java project with Gradle and cache/restore any dependencies to improve the workflow execution time
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-gradle
+
+name: Build (and Release)
+
+on:
+  push:
+    branches: [ "main" ]
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:  # Allow manual triggering
+
+permissions:
+  contents: write
+
+jobs:
+  check_version_tag:
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+      - name: Check Version Tag
+        run: |
+          echo "Version tag detected: ${{ github.ref }}"
+
+  build_wasm_js:
+    if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 24
+        uses: actions/setup-java@v4
+        with:
+          java-version: '24'
+          distribution: 'temurin'
+      - name: Build with Gradle
+        uses: gradle/gradle-build-action@v3
+        with:
+          arguments: :composeApp:wasmJsBrowserDistribution
+
+      - name: Install zip
+        uses: montudor/action-zip@v1
+      - name: Zip wasm folder
+        run: zip -qq -r defender-of-egril_wasm.zip productionExecutable
+        working-directory: composeApp/build/dist/wasmJs
+      - name: Upload wasm Build
+        uses: actions/upload-artifact@v4
+        with:
+          name: wasm-build
+          path: composeApp/build/dist/wasmJs/defender-of-egril_wasm.zip
+
+  build_jvm:
+    if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 24
+        uses: actions/setup-java@v4
+        with:
+          java-version: '24'
+          distribution: 'temurin'
+      - name: Build with Gradle
+        uses: gradle/gradle-build-action@v3
+        with:
+          arguments: :composeApp:packageUberJarForCurrentOS
+      - name: Upload JVM Build
+        uses: actions/upload-artifact@v4
+        with:
+          name: jvm-build
+          path: composeApp/build/compose/jars/defender-of-egril-linux-x64-*.jar
+
+  build_macos:
+    if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 24
+        uses: actions/setup-java@v4
+        with:
+          java-version: '24'
+          distribution: 'temurin'
+      - name: Build with Gradle
+        uses: gradle/gradle-build-action@v3
+        with:
+          # use :composeApp:packageReleaseDmg for release
+          arguments: :composeApp:packageDmg
+
+      - name: Upload MacOS Build
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-build
+          path: composeApp/build/compose/binaries/main/app
+
+  build_linux_deb:
+    if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 24
+        uses: actions/setup-java@v4
+        with:
+          java-version: '24'
+          distribution: 'temurin'
+      - name: Build with Gradle
+        uses: gradle/gradle-build-action@v3
+        with:
+          arguments: :composeApp:packageDeb
+      - name: Upload Linux Build
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-build
+          path: composeApp/build/compose/binaries/main/deb/defender-of-egril_*_amd64.deb
+
+  build_windows:
+    if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 24
+        uses: actions/setup-java@v4
+        with:
+          java-version: '24'
+          distribution: 'temurin'
+      - name: Build with Gradle
+        uses: gradle/gradle-build-action@v3
+        with:
+          arguments: :composeApp:packageExe
+      - name: Upload Windows Build
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-build
+          path: composeApp\build\compose\binaries\main\exe\defender-of-egril-*.exe
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/')
+    needs:
+      - "build_wasm_js"
+      - "build_jvm"
+      - "build_macos"
+      - "build_linux_deb"
+      - "build_windows"
+    runs-on: ubuntu-latest
+    steps:
+      - name: List Available Artifacts
+        run: |
+          echo "Checking build directory..."
+          ls -R build/ || echo "Directory does not exist or is empty."
+          echo "Debugging complete."
+
+      - name: Download Wasm Build
+        uses: actions/download-artifact@v4
+        with:
+          name: wasm-build
+          path: build/wasm
+
+      - name: Download JVM Build
+        uses: actions/download-artifact@v4
+        with:
+          name: jvm-build
+          path: build/jvm
+
+      - name: Download MacOS Build
+        uses: actions/download-artifact@v4
+        with:
+          name: macos-build
+          path: build/macos
+
+      - name: Download Linux Build
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-build
+          path: build/linux
+
+      - name: Download Windows Build
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-build
+          path: build/windows
+
+      - name: Display downloaded files
+        run: ls -R build
+
+      - name: Install zip
+        uses: montudor/action-zip@v1
+      - name: Zip MacOS folder
+        run: zip -qq -r defender-of-egril_macos.zip defender-of-egril.app/Contents
+        working-directory: build/macos/
+
+      - name: Make Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            build/linux/*
+            build/macos/*
+            build/windows/*
+            build/jvm/*
+            build/wasm/*
