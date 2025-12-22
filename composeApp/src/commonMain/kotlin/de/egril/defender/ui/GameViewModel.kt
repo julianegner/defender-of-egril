@@ -235,10 +235,8 @@ class GameViewModel {
         // Process enemy turn with animations
         viewModelScope.launch(Dispatchers.Default) {
             // Start enemy turn: change phase to ENEMY_TURN
+            // The UI immediately shows "ENEMY TURN" indicator when phase changes
             engine.startEnemyTurn()
-            
-            // Show "ENEMY TURN" indicator (reduced from 800ms to 300ms)
-            delay(300)
             
             // Calculate all movement steps for existing units
             val movementSteps = engine.calculateEnemyTurnMovements()
