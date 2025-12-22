@@ -67,3 +67,21 @@ jobs:
         uses: gradle/gradle-build-action@v3
         with:
           arguments: :composeApp:testDebugUnitTest
+
+  run_tests_wasm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 24
+        uses: actions/setup-java@v4
+        with:
+          java-version: '24'
+          distribution: 'temurin'
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Run WASM Tests
+        uses: gradle/gradle-build-action@v3
+        with:
+          arguments: :composeApp:wasmJsBrowserTest
