@@ -10,7 +10,7 @@ The project uses GitHub Actions for continuous integration and deployment. The w
 
 ### 1. Tests Workflow (`tests.yml`)
 
-**Trigger:** On every push to any branch, pull requests to main, or manual dispatch
+**Trigger:** On pushes to main branch, pull requests to main, or manual dispatch
 
 **Purpose:** Run automated tests across multiple platforms
 
@@ -19,6 +19,9 @@ The project uses GitHub Actions for continuous integration and deployment. The w
 - `run_tests_jvm_windows`: Run desktop tests on Windows
 - `run_tests_jvm_macos`: Run desktop tests on macOS
 - `run_tests_android`: Run Android unit tests on Ubuntu
+
+**Note on WASM Testing:**
+WASM browser tests are not currently run in CI because the common test suite uses JVM-specific APIs (`File`, `System`, `runBlocking`) that are not available in the WASM platform. The WASM build itself compiles and runs successfully - only the test code needs refactoring for true multiplatform support. This is a known limitation and does not affect WASM runtime functionality.
 
 **Configuration:**
 - JDK: 24 (Temurin distribution)
@@ -160,6 +163,19 @@ Check the build logs in the GitHub Actions run. Common issues:
 - Missing signing keys (Android)
 - Gradle configuration errors
 - Platform-specific build tool issues
+
+### Gradle Deprecation Warnings
+
+You may see deprecation warnings during builds:
+```
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 10.
+```
+
+These warnings come from the Android Gradle Plugin and other dependencies, not from project code. The warnings include:
+- Multi-string notation for dependencies (internal to Android plugin)
+- Archives configuration (internal to Android plugin)
+
+These are being tracked by the plugin maintainers and will be fixed in future versions. They do not affect the build output or functionality.
 
 ### GitHub Pages Deployment
 
