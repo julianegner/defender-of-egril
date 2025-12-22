@@ -61,14 +61,18 @@ class EnemyAbilitySystem(private val state: GameState) {
                 AttackerType.GREEN_WITCH -> {
                     // Heal adjacent units
                     val adjacentPositions = attacker.position.value.getHexNeighbors()
+                    println("DEBUG: Green witch ${attacker.id} at ${attacker.position.value} checking ${adjacentPositions.size} adjacent positions")
+                    var healedCount = 0
                     for (adjacent in adjacentPositions) {
                         val adjacentEnemy = state.attackers.find { 
                             !it.isDefeated.value && it.id != attacker.id && it.position.value == adjacent 
                         }
                         if (adjacentEnemy != null) {
                             val healAmount = min(attacker.level.value, adjacentEnemy.maxHealth - adjacentEnemy.currentHealth.value)
+                            println("DEBUG: Found ${adjacentEnemy.type} at $adjacent, HP ${adjacentEnemy.currentHealth.value}/${adjacentEnemy.maxHealth}, heal amount: $healAmount")
                             if (healAmount > 0) {
                                 adjacentEnemy.currentHealth.value += healAmount
+                                healedCount++
                                 // Add visual healing effect
                                 state.healingEffects.add(
                                     HealingEffect(
@@ -78,8 +82,14 @@ class EnemyAbilitySystem(private val state: GameState) {
                                         turnNumber = state.turnNumber.value
                                     )
                                 )
+                                println("DEBUG: Healed ${adjacentEnemy.type} for $healAmount HP (new HP: ${adjacentEnemy.currentHealth.value})")
                             }
                         }
+                    }
+                    if (healedCount > 0) {
+                        println("DEBUG: Green witch ${attacker.id} healed $healedCount enemies")
+                    } else {
+                        println("DEBUG: Green witch ${attacker.id} found no adjacent damaged enemies to heal")
                     }
                 }
                 AttackerType.RED_WITCH -> {
