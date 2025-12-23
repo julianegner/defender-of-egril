@@ -56,6 +56,7 @@ User-facing changes and enhancements:
 
 ### Testing (`testing/`)
 Test guides and procedures:
+- Playwright UI tests (PLAYWRIGHT_UI_TESTS.md)
 - Enemy level testing
 - Keyboard navigation testing
 - Save/load testing
