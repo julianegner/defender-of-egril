@@ -68,6 +68,16 @@ jobs:
         with:
           arguments: :composeApp:testDebugUnitTest
 
-  # Note: WASM tests are not run in CI because commonTest uses JVM-specific APIs
-  # (File, System, runBlocking) that are not available in WASM. The WASM build
-  # itself works correctly; only tests need refactoring for true multiplatform support.
+  run_tests_wasmjs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 24
+        uses: actions/setup-java@v4
+        with:
+          java-version: '24'
+          distribution: 'temurin'
+      - name: Run WASM tests
+        uses: gradle/gradle-build-action@v3
+        with:
+          arguments: :composeApp:wasmJsBrowserTest
