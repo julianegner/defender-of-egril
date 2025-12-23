@@ -203,8 +203,28 @@ The project uses GitHub Actions for continuous integration and deployment:
 - **Builds**: Multi-platform builds (WASM, JVM, macOS, Linux, Windows)
 - **Releases**: Automated releases on version tags
 - **Deployment**: GitHub Pages deployment for WASM version
+- **UI Tests**: Playwright-based automated UI testing (manual trigger)
 
 See [CI/CD Workflows Guide](docs/guides/CI_CD_WORKFLOWS.md) for details.
+
+### UI Testing
+
+The project includes automated UI tests using Playwright that test the game end-to-end in a real browser:
+
+**Running UI Tests Locally:**
+```bash
+npm install
+npx playwright install chromium
+npx playwright test
+```
+
+**Running via GitHub Actions:**
+1. Go to the Actions tab in GitHub
+2. Select "Playwright UI Tests" workflow
+3. Click "Run workflow"
+4. Download test results and screenshots from artifacts
+
+The tests automatically play through the tutorial level, building towers, attacking enemies, and capturing screenshots at each step. See [Playwright UI Tests Guide](docs/testing/PLAYWRIGHT_UI_TESTS.md) for details.
 
 ### Utility Scripts
 
