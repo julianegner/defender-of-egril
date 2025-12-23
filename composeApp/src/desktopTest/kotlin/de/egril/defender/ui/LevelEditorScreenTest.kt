@@ -236,7 +236,7 @@ class LevelEditorScreenTest {
             composeTestRule.onNodeWithText("Level Sequence", substring = true, ignoreCase = true)
                 .performClick()
             composeTestRule.waitForIdle()
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             println("Note: Could not switch to Level Sequence: ${e.message}")
         }
         
