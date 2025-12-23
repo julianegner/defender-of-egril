@@ -196,26 +196,55 @@ This game is built using:
 
 For detailed development information, see [DEVELOPMENT.md](docs/root/DEVELOPMENT.md).
 
-### CI/CD
+### Testing
 
-The project uses GitHub Actions for continuous integration and deployment:
-- **Tests**: Automated testing on Linux, Windows, macOS, and Android
-- **Builds**: Multi-platform builds (WASM, JVM, macOS, Linux, Windows)
-- **Releases**: Automated releases on version tags
-- **Deployment**: GitHub Pages deployment for WASM version
-- **UI Tests**: Playwright-based automated UI testing (manual trigger)
+The project includes both unit tests and end-to-end UI tests to ensure quality and functionality.
 
-See [CI/CD Workflows Guide](docs/guides/CI_CD_WORKFLOWS.md) for details.
+#### Unit Tests
 
-### UI Testing
+Unit tests are written in Kotlin and test game logic, UI components, and data handling.
 
-The project includes automated UI tests using Playwright that test the game end-to-end in a real browser:
+**Running Unit Tests Locally:**
+
+```bash
+# Run all desktop tests
+./gradlew :composeApp:desktopTest
+
+# Run Android tests
+./gradlew :composeApp:testDebugUnitTest
+
+# Run WASM tests
+./gradlew :composeApp:wasmJsBrowserTest
+
+# Run all tests across all platforms
+./gradlew test
+```
+
+**What's Tested:**
+- Game logic (combat, pathfinding, tower placement)
+- Save/load functionality
+- UI components (world map, settings, level completion)
+- Data serialization
+
+#### UI Tests (Playwright)
+
+End-to-end UI tests using Playwright test the game in a real browser, simulating actual user interactions.
 
 **Running UI Tests Locally:**
+
 ```bash
+# Install dependencies (first time only)
 npm install
 npx playwright install chromium
+
+# Run UI tests
 npx playwright test
+
+# Run in headed mode (see the browser)
+npx playwright test --headed
+
+# View test report
+npx playwright show-report
 ```
 
 **Running via GitHub Actions:**
@@ -224,7 +253,26 @@ npx playwright test
 3. Click "Run workflow"
 4. Download test results and screenshots from artifacts
 
-The tests automatically play through the tutorial level, building towers, attacking enemies, and capturing screenshots at each step. See [Playwright UI Tests Guide](docs/testing/PLAYWRIGHT_UI_TESTS.md) for details.
+**What's Tested:**
+- Tutorial level playthrough (building towers, combat)
+- Main menu navigation
+- World map level selection
+- Settings dialog functionality
+- Save/load game flows
+- Error handling and console monitoring
+
+The tests automatically capture 30+ screenshots per run, documenting every step of gameplay. See [Playwright UI Tests Guide](docs/testing/PLAYWRIGHT_UI_TESTS.md) for details.
+
+### CI/CD
+
+The project uses GitHub Actions for continuous integration and deployment:
+- **Unit Tests**: Automated testing on Linux, Windows, macOS, and Android
+- **UI Tests**: Playwright-based end-to-end browser testing (manual trigger)
+- **Builds**: Multi-platform builds (WASM, JVM, macOS, Linux, Windows)
+- **Releases**: Automated releases on version tags
+- **Deployment**: GitHub Pages deployment for WASM version
+
+See [CI/CD Workflows Guide](docs/guides/CI_CD_WORKFLOWS.md) for details.
 
 ### Utility Scripts
 
