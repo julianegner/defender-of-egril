@@ -24,7 +24,9 @@ class MainMenuLayoutTest {
         composeTestRule.setContent {
             MainMenuScreen(
                 onStartGame = {},
-                onShowRules = {}
+                onShowRules = {},
+                onSelectPlayer = {},  // No player selection in tests
+                currentPlayerName = null  // No player name in tests
             )
         }
         
