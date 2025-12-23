@@ -34,7 +34,9 @@ class SettingsHintBoxTest {
         composeTestRule.setContent {
             MainMenuScreen(
                 onStartGame = {},
-                onShowRules = {}
+                onShowRules = {},
+                onSelectPlayer = {},  // No player selection in tests
+                currentPlayerName = null  // No player name in tests
             )
         }
         
@@ -62,7 +64,9 @@ class SettingsHintBoxTest {
         composeTestRule.setContent {
             MainMenuScreen(
                 onStartGame = {},
-                onShowRules = {}
+                onShowRules = {},
+                onSelectPlayer = {},  // No player selection in tests
+                currentPlayerName = null  // No player name in tests
             )
         }
         
@@ -94,7 +98,9 @@ class SettingsHintBoxTest {
         composeTestRule.setContent {
             MainMenuScreen(
                 onStartGame = {},
-                onShowRules = {}
+                onShowRules = {},
+                onSelectPlayer = {},  // No player selection in tests
+                currentPlayerName = null  // No player name in tests
             )
         }
         
@@ -116,7 +122,9 @@ class SettingsHintBoxTest {
         composeTestRule.setContent {
             MainMenuScreen(
                 onStartGame = { startGameClicked = true },
-                onShowRules = { showRulesClicked = true }
+                onShowRules = { showRulesClicked = true },
+                onSelectPlayer = {},  // No player selection in tests
+                currentPlayerName = null  // No player name in tests
             )
         }
         
@@ -149,7 +157,9 @@ class SettingsHintBoxTest {
         composeTestRule.setContent {
             MainMenuScreen(
                 onStartGame = {},
-                onShowRules = {}
+                onShowRules = {},
+                onSelectPlayer = {},  // No player selection in tests
+                currentPlayerName = null  // No player name in tests
             )
         }
         
