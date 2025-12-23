@@ -13,10 +13,56 @@ import * as fs from 'fs';
  * 5. Continue until victory or defeat
  */
 
+// Test timeout constants
+const FULL_GAME_TIMEOUT = 300000;      // 5 minutes for complete gameplay
+const NAVIGATION_TIMEOUT = 120000;     // 2 minutes for menu/navigation
+const SAVE_LOAD_TIMEOUT = 180000;      // 3 minutes for save/load tests
+
+// Common UI position percentages for canvas-based interaction
+const UI_POSITIONS = {
+  startGameButton: { x: 0.5, y: 0.65 },     // Center-bottom
+  tutorialLevel: { x: 0.25, y: 0.4 },       // Left side, first level
+  level2: { x: 0.35, y: 0.5 },              // Second level
+  level3: { x: 0.45, y: 0.4 },              // Third level
+  confirmButton: { x: 0.5, y: 0.7 },        // Center dialog confirm
+  settingsButton: { x: 0.95, y: 0.05 },     // Top-right corner
+  rulesButton: { x: 0.5, y: 0.55 },         // Center, below start
+  nextTurnButton: { x: 0.9, y: 0.9 },       // Bottom-right
+  towerButtons: {
+    spike: { x: 0.15, y: 0.15 },
+    bow: { x: 0.15, y: 0.20 },
+    spear: { x: 0.15, y: 0.25 },
+  },
+  upgradeButton: { x: 0.85, y: 0.3 },       // Tower details panel
+  saveButton: { x: 0.5, y: 0.45 },          // Menu save option
+  saveConfirm: { x: 0.5, y: 0.6 },          // Save dialog confirm
+  enemyTarget: { x: 0.65, y: 0.5 },         // Middle-right for enemies
+};
+
 // Create screenshots directory if it doesn't exist
 const screenshotsDir = path.join(process.cwd(), 'test-screenshots', 'playwright');
 if (!fs.existsSync(screenshotsDir)) {
   fs.mkdirSync(screenshotsDir, { recursive: true });
+}
+
+/**
+ * Helper to navigate to tutorial level from main menu
+ */
+async function navigateToTutorial(page: Page, boundingBox: { width: number, height: number }) {
+  // Click "Start Game"
+  await clickCanvas(page, boundingBox.width * UI_POSITIONS.startGameButton.x, 
+                         boundingBox.height * UI_POSITIONS.startGameButton.y);
+  await page.waitForTimeout(2000);
+  
+  // Click tutorial level
+  await clickCanvas(page, boundingBox.width * UI_POSITIONS.tutorialLevel.x,
+                         boundingBox.height * UI_POSITIONS.tutorialLevel.y);
+  await page.waitForTimeout(1000);
+  
+  // Confirm level selection
+  await clickCanvas(page, boundingBox.width * UI_POSITIONS.confirmButton.x,
+                         boundingBox.height * UI_POSITIONS.confirmButton.y);
+  await page.waitForTimeout(2000);
 }
 
 /**
@@ -54,7 +100,7 @@ async function clickCanvas(page: Page, x: number, y: number) {
 }
 
 test.describe('Defender of Egril - Tutorial Level Playthrough', () => {
-  test.setTimeout(300000); // 5 minutes for full test
+  test.setTimeout(FULL_GAME_TIMEOUT);
 
   test('should complete tutorial level with bow towers', async ({ page }) => {
     console.log('🎮 Starting Defender of Egril UI test...');
@@ -96,8 +142,8 @@ test.describe('Defender of Egril - Tutorial Level Playthrough', () => {
     console.log(`Canvas dimensions: ${boundingBox.width}x${boundingBox.height}`);
     
     // Click in the center-bottom area where "Start Game" typically appears
-    const startGameX = boundingBox.width / 2;
-    const startGameY = boundingBox.height * 0.65; // 65% down from top
+    const startGameX = boundingBox.width * UI_POSITIONS.startGameButton.x;
+    const startGameY = boundingBox.height * UI_POSITIONS.startGameButton.y;
     await clickCanvas(page, startGameX, startGameY);
     await page.waitForTimeout(2000);
     await screenshot('clicked_start_game');
@@ -106,16 +152,16 @@ test.describe('Defender of Egril - Tutorial Level Playthrough', () => {
     console.log('🎯 Step 2: Selecting tutorial level...');
     await page.waitForTimeout(2000);
     
-    // Click on the first/tutorial level (typically on the left side)
-    const tutorialX = boundingBox.width * 0.25; // 25% from left
-    const tutorialY = boundingBox.height * 0.4; // 40% down
+    // Click on the first/tutorial level
+    const tutorialX = boundingBox.width * UI_POSITIONS.tutorialLevel.x;
+    const tutorialY = boundingBox.height * UI_POSITIONS.tutorialLevel.y;
     await clickCanvas(page, tutorialX, tutorialY);
     await page.waitForTimeout(1000);
     await screenshot('selected_tutorial_level');
     
-    // Click to confirm/start the level (there might be a dialog)
-    const confirmX = boundingBox.width / 2;
-    const confirmY = boundingBox.height * 0.7;
+    // Click to confirm/start the level
+    const confirmX = boundingBox.width * UI_POSITIONS.confirmButton.x;
+    const confirmY = boundingBox.height * UI_POSITIONS.confirmButton.y;
     await clickCanvas(page, confirmX, confirmY);
     await page.waitForTimeout(2000);
     await screenshot('tutorial_level_started');
@@ -272,7 +318,7 @@ test.describe('Defender of Egril - Tutorial Level Playthrough', () => {
 });
 
 test.describe('Defender of Egril - Main Menu and Navigation', () => {
-  test.setTimeout(120000); // 2 minutes for navigation tests
+  test.setTimeout(NAVIGATION_TIMEOUT);
 
   test('should navigate through main menu and settings', async ({ page }) => {
     console.log('🎮 Testing main menu navigation...');
@@ -296,9 +342,8 @@ test.describe('Defender of Egril - Main Menu and Navigation', () => {
     }
 
     // Try to access settings (typically top-right area)
-    const settingsX = boundingBox.width * 0.95;
-    const settingsY = boundingBox.height * 0.05;
-    await clickCanvas(page, settingsX, settingsY);
+    await clickCanvas(page, boundingBox.width * UI_POSITIONS.settingsButton.x, 
+                           boundingBox.height * UI_POSITIONS.settingsButton.y);
     await page.waitForTimeout(1000);
     await screenshot('settings_opened');
 
@@ -308,9 +353,8 @@ test.describe('Defender of Egril - Main Menu and Navigation', () => {
     await screenshot('settings_closed');
 
     // Try to access rules/help (often middle button)
-    const rulesX = boundingBox.width / 2;
-    const rulesY = boundingBox.height * 0.55;
-    await clickCanvas(page, rulesX, rulesY);
+    await clickCanvas(page, boundingBox.width * UI_POSITIONS.rulesButton.x, 
+                           boundingBox.height * UI_POSITIONS.rulesButton.y);
     await page.waitForTimeout(1000);
     await screenshot('rules_screen');
 
@@ -343,17 +387,19 @@ test.describe('Defender of Egril - Main Menu and Navigation', () => {
     }
 
     // Click "Start Game"
-    const startGameX = boundingBox.width / 2;
-    const startGameY = boundingBox.height * 0.65;
-    await clickCanvas(page, startGameX, startGameY);
+    await clickCanvas(page, boundingBox.width * UI_POSITIONS.startGameButton.x, 
+                           boundingBox.height * UI_POSITIONS.startGameButton.y);
     await page.waitForTimeout(2000);
     await screenshot('world_map_displayed');
 
     // Try clicking different level positions to view details
     const levelPositions = [
-      { x: boundingBox.width * 0.25, y: boundingBox.height * 0.4 },  // Tutorial
-      { x: boundingBox.width * 0.35, y: boundingBox.height * 0.5 },  // Level 2
-      { x: boundingBox.width * 0.45, y: boundingBox.height * 0.4 },  // Level 3
+      { x: boundingBox.width * UI_POSITIONS.tutorialLevel.x, 
+        y: boundingBox.height * UI_POSITIONS.tutorialLevel.y },  // Tutorial
+      { x: boundingBox.width * UI_POSITIONS.level2.x, 
+        y: boundingBox.height * UI_POSITIONS.level2.y },  // Level 2
+      { x: boundingBox.width * UI_POSITIONS.level3.x, 
+        y: boundingBox.height * UI_POSITIONS.level3.y },  // Level 3
     ];
 
     for (let i = 0; i < levelPositions.length; i++) {
@@ -374,7 +420,7 @@ test.describe('Defender of Egril - Main Menu and Navigation', () => {
 });
 
 test.describe('Defender of Egril - Different Tower Strategies', () => {
-  test.setTimeout(300000); // 5 minutes for full test
+  test.setTimeout(FULL_GAME_TIMEOUT);
 
   test('should complete tutorial with mixed tower types', async ({ page }) => {
     console.log('🎮 Testing mixed tower strategy...');
@@ -396,23 +442,8 @@ test.describe('Defender of Egril - Different Tower Strategies', () => {
       throw new Error('Canvas not found');
     }
 
-    // Navigate to tutorial level
-    const startGameX = boundingBox.width / 2;
-    const startGameY = boundingBox.height * 0.65;
-    await clickCanvas(page, startGameX, startGameY);
-    await page.waitForTimeout(2000);
-    await screenshot('world_map');
-
-    const tutorialX = boundingBox.width * 0.25;
-    const tutorialY = boundingBox.height * 0.4;
-    await clickCanvas(page, tutorialX, tutorialY);
-    await page.waitForTimeout(1000);
-    await screenshot('tutorial_selected');
-
-    const confirmX = boundingBox.width / 2;
-    const confirmY = boundingBox.height * 0.7;
-    await clickCanvas(page, confirmX, confirmY);
-    await page.waitForTimeout(2000);
+    // Navigate to tutorial level using helper
+    await navigateToTutorial(page, boundingBox);
     await screenshot('tutorial_started');
 
     // Build mixed towers: spike, bow, and spear
@@ -429,7 +460,7 @@ test.describe('Defender of Egril - Different Tower Strategies', () => {
     ];
 
     for (let i = 0; i < buildLocations.length; i++) {
-      const tower = towerTypes[i % towerTypes.length];
+      const tower = towerTypes[i];  // Direct access since arrays are same length
       const towerButtonX = boundingBox.width * 0.15;
       const towerButtonY = boundingBox.height * tower.buttonY;
       
@@ -445,8 +476,8 @@ test.describe('Defender of Egril - Different Tower Strategies', () => {
     }
 
     // Start battle
-    const nextTurnX = boundingBox.width * 0.9;
-    const nextTurnY = boundingBox.height * 0.9;
+    const nextTurnX = boundingBox.width * UI_POSITIONS.nextTurnButton.x;
+    const nextTurnY = boundingBox.height * UI_POSITIONS.nextTurnButton.y;
     await clickCanvas(page, nextTurnX, nextTurnY);
     await page.waitForTimeout(2000);
     await screenshot('mixed_strategy_battle_started');
@@ -502,39 +533,48 @@ test.describe('Defender of Egril - Different Tower Strategies', () => {
     await clickCanvas(page, boundingBox.width * 0.25, boundingBox.height * 0.4);
     await page.waitForTimeout(1000);
     await clickCanvas(page, boundingBox.width / 2, boundingBox.height * 0.7);
-    await page.waitForTimeout(2000);
+    // Navigate to tutorial using helper
+    await navigateToTutorial(page, boundingBox);
     await screenshot('upgrade_test_started');
 
-    // Build one tower
-    await clickCanvas(page, boundingBox.width * 0.15, boundingBox.height * 0.20);
+    // Build one tower at a specific location (save position for later)
+    const towerPos = { 
+      x: boundingBox.width * 0.45, 
+      y: boundingBox.height * 0.50 
+    };
+    await clickCanvas(page, boundingBox.width * UI_POSITIONS.towerButtons.bow.x, 
+                           boundingBox.height * UI_POSITIONS.towerButtons.bow.y);
     await page.waitForTimeout(500);
-    await clickCanvas(page, boundingBox.width * 0.45, boundingBox.height * 0.50);
+    await clickCanvas(page, towerPos.x, towerPos.y);
     await page.waitForTimeout(1000);
     await screenshot('tower_built_for_upgrade');
 
     // Start battle
-    await clickCanvas(page, boundingBox.width * 0.9, boundingBox.height * 0.9);
+    await clickCanvas(page, boundingBox.width * UI_POSITIONS.nextTurnButton.x, 
+                           boundingBox.height * UI_POSITIONS.nextTurnButton.y);
     await page.waitForTimeout(2000);
 
     // Play turns and try to upgrade tower
     for (let turn = 1; turn <= 5; turn++) {
-      // Click tower
-      await clickCanvas(page, boundingBox.width * 0.45, boundingBox.height * 0.50);
+      // Click tower (using saved position)
+      await clickCanvas(page, towerPos.x, towerPos.y);
       await page.waitForTimeout(500);
       await screenshot(`tower_selected_turn_${turn}`);
       
       // Try clicking upgrade button (typically in tower details panel)
-      const upgradeX = boundingBox.width * 0.85;
-      const upgradeY = boundingBox.height * 0.3;
-      await clickCanvas(page, upgradeX, upgradeY);
+      await clickCanvas(page, boundingBox.width * UI_POSITIONS.upgradeButton.x, 
+                             boundingBox.height * UI_POSITIONS.upgradeButton.y);
       await page.waitForTimeout(500);
       await screenshot(`upgrade_attempt_turn_${turn}`);
       
       // Attack enemy
-      await clickCanvas(page, boundingBox.width * 0.65, boundingBox.height * 0.5);
+      await clickCanvas(page, boundingBox.width * UI_POSITIONS.enemyTarget.x, 
+                             boundingBox.height * UI_POSITIONS.enemyTarget.y);
       await page.waitForTimeout(500);
       
       // Next turn
+      await clickCanvas(page, boundingBox.width * UI_POSITIONS.nextTurnButton.x,
+                             boundingBox.height * UI_POSITIONS.nextTurnButton.y);
       await clickCanvas(page, boundingBox.width * 0.9, boundingBox.height * 0.9);
       await page.waitForTimeout(1500);
     }
@@ -546,7 +586,7 @@ test.describe('Defender of Egril - Different Tower Strategies', () => {
 });
 
 test.describe('Defender of Egril - Save and Load', () => {
-  test.setTimeout(180000); // 3 minutes
+  test.setTimeout(SAVE_LOAD_TIMEOUT);
 
   test('should test save game functionality', async ({ page }) => {
     console.log('🎮 Testing save game functionality...');
@@ -567,17 +607,13 @@ test.describe('Defender of Egril - Save and Load', () => {
       throw new Error('Canvas not found');
     }
 
-    // Start a game
-    await clickCanvas(page, boundingBox.width / 2, boundingBox.height * 0.65);
-    await page.waitForTimeout(2000);
-    await clickCanvas(page, boundingBox.width * 0.25, boundingBox.height * 0.4);
-    await page.waitForTimeout(1000);
-    await clickCanvas(page, boundingBox.width / 2, boundingBox.height * 0.7);
-    await page.waitForTimeout(2000);
+    // Navigate to tutorial using helper
+    await navigateToTutorial(page, boundingBox);
     await screenshot('game_started_for_save');
 
     // Build a tower
-    await clickCanvas(page, boundingBox.width * 0.15, boundingBox.height * 0.20);
+    await clickCanvas(page, boundingBox.width * UI_POSITIONS.towerButtons.bow.x, 
+                           boundingBox.height * UI_POSITIONS.towerButtons.bow.y);
     await page.waitForTimeout(500);
     await clickCanvas(page, boundingBox.width * 0.45, boundingBox.height * 0.50);
     await page.waitForTimeout(1000);
@@ -588,15 +624,15 @@ test.describe('Defender of Egril - Save and Load', () => {
     await page.waitForTimeout(1000);
     await screenshot('game_menu_opened');
 
-    // Try clicking save button (typically middle of screen)
-    const saveX = boundingBox.width * 0.5;
-    const saveY = boundingBox.height * 0.45;
-    await clickCanvas(page, saveX, saveY);
+    // Try clicking save button
+    await clickCanvas(page, boundingBox.width * UI_POSITIONS.saveButton.x, 
+                           boundingBox.height * UI_POSITIONS.saveButton.y);
     await page.waitForTimeout(1000);
     await screenshot('save_dialog_opened');
 
     // Try to save
-    await clickCanvas(page, boundingBox.width * 0.5, boundingBox.height * 0.6);
+    await clickCanvas(page, boundingBox.width * UI_POSITIONS.saveConfirm.x, 
+                           boundingBox.height * UI_POSITIONS.saveConfirm.y);
     await page.waitForTimeout(1000);
     await screenshot('game_saved');
 
