@@ -19,14 +19,12 @@ if (!fs.existsSync(screenshotsDir)) {
   fs.mkdirSync(screenshotsDir, { recursive: true });
 }
 
-let screenshotCounter = 0;
-
 /**
  * Helper function to take a screenshot with a descriptive name
+ * Uses a timestamp-based approach to ensure unique filenames
  */
-async function takeScreenshot(page: Page, description: string) {
-  screenshotCounter++;
-  const filename = `${String(screenshotCounter).padStart(3, '0')}_${description.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.png`;
+async function takeScreenshot(page: Page, description: string, counter: number) {
+  const filename = `${String(counter).padStart(3, '0')}_${description.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.png`;
   const filepath = path.join(screenshotsDir, filename);
   await page.screenshot({ path: filepath, fullPage: true });
   console.log(`📸 Screenshot saved: ${filename}`);
@@ -55,50 +53,32 @@ async function clickCanvas(page: Page, x: number, y: number) {
   await page.waitForTimeout(500); // Wait for UI to update
 }
 
-/**
- * Helper function to find and click text on the canvas
- * This is tricky with canvas, so we'll use OCR or position-based clicking
- */
-async function clickTextOnCanvas(page: Page, text: string, description: string) {
-  console.log(`🔍 Looking for: ${text}`);
-  
-  // For canvas-based UI, we need to use approximate positions
-  // These positions are based on typical UI layout
-  const positions: Record<string, { x: number, y: number }> = {
-    'start_game': { x: 640, y: 500 },     // Center-bottom for Start Game button
-    'tutorial': { x: 200, y: 300 },        // Left side for first level
-    'bow_tower': { x: 100, y: 150 },       // Top-left area for tower selection
-    'build_spot': { x: 400, y: 400 },      // A typical build location
-    'next_turn': { x: 1100, y: 700 },      // Bottom-right for Next Turn button
-    'enemy': { x: 700, y: 400 },           // Middle area where enemies appear
-  };
-  
-  if (positions[text.toLowerCase()]) {
-    const pos = positions[text.toLowerCase()];
-    await clickCanvas(page, pos.x, pos.y);
-    await takeScreenshot(page, description);
-  } else {
-    console.warn(`⚠️ Unknown position for: ${text}`);
-  }
-}
-
 test.describe('Defender of Egril - Tutorial Level Playthrough', () => {
   test.setTimeout(300000); // 5 minutes for full test
 
   test('should complete tutorial level with bow towers', async ({ page }) => {
     console.log('🎮 Starting Defender of Egril UI test...');
     
+    // Screenshot counter for this test run
+    let screenshotCounter = 0;
+    
+    // Helper to take screenshot with auto-incrementing counter
+    const screenshot = async (description: string) => {
+      screenshotCounter++;
+      await takeScreenshot(page, description, screenshotCounter);
+    };
+    
     // Navigate to the game
     await page.goto('/');
     console.log('📍 Navigated to game URL');
     
     // Take initial screenshot
-    await takeScreenshot(page, 'initial_load');
+    await screenshot('initial_load');
     
     // Wait for game to load
     console.log('⏳ Waiting for game to load...');
     await waitForGameLoad(page);
-    await takeScreenshot(page, 'game_loaded');
+    await screenshot('game_loaded');
     
     // Step 1: Click "Start Game" button
     console.log('🎯 Step 1: Clicking Start Game...');
@@ -120,7 +100,7 @@ test.describe('Defender of Egril - Tutorial Level Playthrough', () => {
     const startGameY = boundingBox.height * 0.65; // 65% down from top
     await clickCanvas(page, startGameX, startGameY);
     await page.waitForTimeout(2000);
-    await takeScreenshot(page, 'clicked_start_game');
+    await screenshot('clicked_start_game');
     
     // Step 2: Select tutorial level from world map
     console.log('🎯 Step 2: Selecting tutorial level...');
@@ -131,14 +111,14 @@ test.describe('Defender of Egril - Tutorial Level Playthrough', () => {
     const tutorialY = boundingBox.height * 0.4; // 40% down
     await clickCanvas(page, tutorialX, tutorialY);
     await page.waitForTimeout(1000);
-    await takeScreenshot(page, 'selected_tutorial_level');
+    await screenshot('selected_tutorial_level');
     
     // Click to confirm/start the level (there might be a dialog)
     const confirmX = boundingBox.width / 2;
     const confirmY = boundingBox.height * 0.7;
     await clickCanvas(page, confirmX, confirmY);
     await page.waitForTimeout(2000);
-    await takeScreenshot(page, 'tutorial_level_started');
+    await screenshot('tutorial_level_started');
     
     // Step 3: Build bow towers
     console.log('🎯 Step 3: Building bow towers...');
@@ -166,7 +146,7 @@ test.describe('Defender of Egril - Tutorial Level Playthrough', () => {
       const loc = buildLocations[i];
       await clickCanvas(page, loc.x, loc.y);
       await page.waitForTimeout(1000);
-      await takeScreenshot(page, `built_bow_tower_${i + 1}`);
+      await screenshot(`built_bow_tower_${i + 1}`);
     }
     
     // Step 4: Start the battle by clicking "Next Turn"
@@ -175,7 +155,7 @@ test.describe('Defender of Egril - Tutorial Level Playthrough', () => {
     const nextTurnY = boundingBox.height * 0.9; // Bottom
     await clickCanvas(page, nextTurnX, nextTurnY);
     await page.waitForTimeout(2000);
-    await takeScreenshot(page, 'battle_started');
+    await screenshot('battle_started');
     
     // Step 5: Play through the level
     console.log('🎯 Step 5: Playing through the level...');
@@ -190,7 +170,7 @@ test.describe('Defender of Egril - Tutorial Level Playthrough', () => {
       
       // Check for victory or defeat messages by taking a screenshot
       // and checking if the game is still active
-      await takeScreenshot(page, `turn_${turnCount}_start`);
+      await screenshot(`turn_${turnCount}_start`);
       
       // Attack enemies with bow towers
       // Click on towers and then on enemies
@@ -219,7 +199,7 @@ test.describe('Defender of Egril - Tutorial Level Playthrough', () => {
         await page.waitForTimeout(300);
       }
       
-      await takeScreenshot(page, `turn_${turnCount}_after_attacks`);
+      await screenshot(`turn_${turnCount}_after_attacks`);
       
       // Click "Next Turn" button
       await clickCanvas(page, nextTurnX, nextTurnY);
@@ -233,7 +213,7 @@ test.describe('Defender of Egril - Tutorial Level Playthrough', () => {
       }
     }
     
-    await takeScreenshot(page, 'game_complete');
+    await screenshot('game_complete');
     
     console.log('✨ Test completed successfully!');
     console.log(`📊 Total turns played: ${turnCount}`);
@@ -244,6 +224,15 @@ test.describe('Defender of Egril - Tutorial Level Playthrough', () => {
   });
   
   test('should handle errors gracefully', async ({ page }) => {
+    // Screenshot counter for this test run
+    let screenshotCounter = 0;
+    
+    // Helper to take screenshot with auto-incrementing counter
+    const screenshot = async (description: string) => {
+      screenshotCounter++;
+      await takeScreenshot(page, description, screenshotCounter);
+    };
+    
     // Set up error listener
     const errors: string[] = [];
     
@@ -262,7 +251,7 @@ test.describe('Defender of Egril - Tutorial Level Playthrough', () => {
     // Navigate to the game
     await page.goto('/');
     await waitForGameLoad(page);
-    await takeScreenshot(page, 'error_test_loaded');
+    await screenshot('error_test_loaded');
     
     // Wait a bit to catch any immediate errors
     await page.waitForTimeout(5000);
@@ -278,6 +267,6 @@ test.describe('Defender of Egril - Tutorial Level Playthrough', () => {
     }
     
     // Take final screenshot
-    await takeScreenshot(page, 'error_test_complete');
+    await screenshot('error_test_complete');
   });
 });
