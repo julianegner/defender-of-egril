@@ -54,7 +54,9 @@ class WorldMapScreenTest {
                 onShowRules = { showRulesClicked = true },
                 onOpenEditor = { openEditorClicked = true },
                 onLoadGame = { loadGameClicked = true },
-                checkForNewRepositoryData = false  // Disable repository check in tests
+                checkForNewRepositoryData = false,  // Disable repository check in tests
+                onSwitchPlayer = null,  // No player switching in tests
+                currentPlayerName = null  // No player name in tests
             )
         }
         
@@ -103,7 +105,9 @@ class WorldMapScreenTest {
                 onShowRules = {},
                 onOpenEditor = {},
                 onLoadGame = {},
-                checkForNewRepositoryData = false  // Disable repository check in tests
+                checkForNewRepositoryData = false,  // Disable repository check in tests
+                onSwitchPlayer = null,  // No player switching in tests
+                currentPlayerName = null  // No player name in tests
             )
         }
         
@@ -136,7 +140,9 @@ class WorldMapScreenTest {
                 onShowRules = {},
                 onOpenEditor = {},
                 onLoadGame = {},
-                checkForNewRepositoryData = false  // Disable repository check in tests
+                checkForNewRepositoryData = false,  // Disable repository check in tests
+                onSwitchPlayer = null,  // No player switching in tests
+                currentPlayerName = null  // No player name in tests
             )
         }
         
@@ -169,7 +175,9 @@ class WorldMapScreenTest {
                 onShowRules = {},
                 onOpenEditor = {},
                 onLoadGame = {},
-                checkForNewRepositoryData = false  // Disable repository check in tests
+                checkForNewRepositoryData = false,  // Disable repository check in tests
+                onSwitchPlayer = null,  // No player switching in tests
+                currentPlayerName = null  // No player name in tests
             )
         }
         
@@ -202,7 +210,9 @@ class WorldMapScreenTest {
                 onShowRules = { showRulesClicked = true },
                 onOpenEditor = {},
                 onLoadGame = { loadGameClicked = true },
-                checkForNewRepositoryData = false  // Disable repository check in tests
+                checkForNewRepositoryData = false,  // Disable repository check in tests
+                onSwitchPlayer = null,  // No player switching in tests
+                currentPlayerName = null  // No player name in tests
             )
         }
         
