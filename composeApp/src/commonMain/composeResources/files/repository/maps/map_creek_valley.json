@@ -1,6 +1,7 @@
 {
   "id": "map_creek_valley",
   "name": "Creek Valley",
+  "nameKey": "map_creek_valley_name",
   "width": 40,
   "height": 30,
   "readyToUse": true,
@@ -1214,70 +1215,265 @@
     "5,30": "NO_PLAY"
   },
   "riverTiles": {
-    "39,28": {"flowDirection": "NORTH_WEST", "flowSpeed": 1},
-    "38,27": {"flowDirection": "NORTH_WEST", "flowSpeed": 1},
-    "38,26": {"flowDirection": "NORTH_WEST", "flowSpeed": 1},
-    "37,25": {"flowDirection": "NORTH_WEST", "flowSpeed": 1},
-    "37,24": {"flowDirection": "NORTH_WEST", "flowSpeed": 1},
-    "36,23": {"flowDirection": "NORTH_WEST", "flowSpeed": 1},
-    "35,22": {"flowDirection": "NORTH_WEST", "flowSpeed": 1},
-    "34,21": {"flowDirection": "NORTH_WEST", "flowSpeed": 1},
-    "33,20": {"flowDirection": "NORTH_WEST", "flowSpeed": 1},
-    "32,19": {"flowDirection": "NORTH_WEST", "flowSpeed": 1},
-    "32,18": {"flowDirection": "NORTH_WEST", "flowSpeed": 1},
-    "31,17": {"flowDirection": "NORTH_WEST", "flowSpeed": 1},
-    "31,16": {"flowDirection": "NORTH_WEST", "flowSpeed": 1},
-    "30,15": {"flowDirection": "NORTH_WEST", "flowSpeed": 1},
-    "30,14": {"flowDirection": "NORTH_WEST", "flowSpeed": 1},
-    "29,13": {"flowDirection": "NORTH_WEST", "flowSpeed": 1},
-    "36,22": {"flowDirection": "WEST", "flowSpeed": 1},
-    "34,20": {"flowDirection": "WEST", "flowSpeed": 1},
-    "29,12": {"flowDirection": "WEST", "flowSpeed": 1},
-    "28,12": {"flowDirection": "WEST", "flowSpeed": 1},
-    "27,12": {"flowDirection": "WEST", "flowSpeed": 1},
-    "25,12": {"flowDirection": "WEST", "flowSpeed": 1},
-    "24,12": {"flowDirection": "WEST", "flowSpeed": 1},
-    "23,12": {"flowDirection": "WEST", "flowSpeed": 1},
-    "22,12": {"flowDirection": "WEST", "flowSpeed": 1},
-    "21,12": {"flowDirection": "WEST", "flowSpeed": 1},
-    "20,12": {"flowDirection": "WEST", "flowSpeed": 1},
-    "19,12": {"flowDirection": "WEST", "flowSpeed": 1},
-    "26,12": {"flowDirection": "WEST", "flowSpeed": 1},
-    "17,13": {"flowDirection": "WEST", "flowSpeed": 1},
-    "16,13": {"flowDirection": "WEST", "flowSpeed": 1},
-    "15,13": {"flowDirection": "WEST", "flowSpeed": 1},
-    "14,13": {"flowDirection": "WEST", "flowSpeed": 1},
-    "13,14": {"flowDirection": "WEST", "flowSpeed": 1},
-    "12,14": {"flowDirection": "WEST", "flowSpeed": 1},
-    "11,14": {"flowDirection": "WEST", "flowSpeed": 1},
-    "10,14": {"flowDirection": "WEST", "flowSpeed": 1},
-    "18,12": {"flowDirection": "SOUTH_WEST", "flowSpeed": 1},
-    "13,13": {"flowDirection": "SOUTH_WEST", "flowSpeed": 1},
-    "9,14": {"flowDirection": "SOUTH_WEST", "flowSpeed": 1},
-    "8,15": {"flowDirection": "SOUTH_WEST", "flowSpeed": 1},
-    "8,16": {"flowDirection": "SOUTH_WEST", "flowSpeed": 1},
-    "7,17": {"flowDirection": "SOUTH_WEST", "flowSpeed": 1},
-    "7,18": {"flowDirection": "WEST", "flowSpeed": 1},
-    "6,18": {"flowDirection": "WEST", "flowSpeed": 1},
-    "5,18": {"flowDirection": "WEST", "flowSpeed": 1},
-    "4,18": {"flowDirection": "NORTH_WEST", "flowSpeed": 1},
-    "3,17": {"flowDirection": "NORTH_WEST", "flowSpeed": 1},
-    "3,16": {"flowDirection": "NORTH_WEST", "flowSpeed": 1},
-    "2,15": {"flowDirection": "NORTH_WEST", "flowSpeed": 1},
-    "2,14": {"flowDirection": "NORTH_WEST", "flowSpeed": 1},
-    "1,13": {"flowDirection": "NORTH_WEST", "flowSpeed": 1},
-    "1,12": {"flowDirection": "NORTH_EAST", "flowSpeed": 1},
-    "1,11": {"flowDirection": "NORTH_EAST", "flowSpeed": 1},
-    "2,10": {"flowDirection": "NORTH_EAST", "flowSpeed": 1},
-    "2,9": {"flowDirection": "NORTH_EAST", "flowSpeed": 1},
-    "3,8": {"flowDirection": "NORTH_EAST", "flowSpeed": 1},
-    "3,7": {"flowDirection": "NORTH_EAST", "flowSpeed": 1},
-    "4,6": {"flowDirection": "NORTH_EAST", "flowSpeed": 1},
-    "4,5": {"flowDirection": "NORTH_EAST", "flowSpeed": 1},
-    "5,4": {"flowDirection": "NORTH_EAST", "flowSpeed": 1},
-    "5,3": {"flowDirection": "NORTH_EAST", "flowSpeed": 1},
-    "6,2": {"flowDirection": "NORTH_EAST", "flowSpeed": 1},
-    "6,1": {"flowDirection": "NORTH_EAST", "flowSpeed": 1},
-    "7,0": {"flowDirection": "NORTH_EAST", "flowSpeed": 1}
+    "39,28": {
+      "flowDirection": "NORTH_WEST",
+      "flowSpeed": 1
+    },
+    "38,27": {
+      "flowDirection": "NORTH_WEST",
+      "flowSpeed": 1
+    },
+    "38,26": {
+      "flowDirection": "NORTH_WEST",
+      "flowSpeed": 1
+    },
+    "37,25": {
+      "flowDirection": "NORTH_WEST",
+      "flowSpeed": 1
+    },
+    "37,24": {
+      "flowDirection": "NORTH_WEST",
+      "flowSpeed": 1
+    },
+    "36,23": {
+      "flowDirection": "NORTH_WEST",
+      "flowSpeed": 1
+    },
+    "35,22": {
+      "flowDirection": "NORTH_WEST",
+      "flowSpeed": 1
+    },
+    "34,21": {
+      "flowDirection": "NORTH_WEST",
+      "flowSpeed": 1
+    },
+    "33,20": {
+      "flowDirection": "NORTH_WEST",
+      "flowSpeed": 1
+    },
+    "32,19": {
+      "flowDirection": "NORTH_WEST",
+      "flowSpeed": 1
+    },
+    "32,18": {
+      "flowDirection": "NORTH_WEST",
+      "flowSpeed": 1
+    },
+    "31,17": {
+      "flowDirection": "NORTH_WEST",
+      "flowSpeed": 1
+    },
+    "31,16": {
+      "flowDirection": "NORTH_WEST",
+      "flowSpeed": 1
+    },
+    "30,15": {
+      "flowDirection": "NORTH_WEST",
+      "flowSpeed": 1
+    },
+    "30,14": {
+      "flowDirection": "NORTH_WEST",
+      "flowSpeed": 1
+    },
+    "29,13": {
+      "flowDirection": "NORTH_WEST",
+      "flowSpeed": 1
+    },
+    "36,22": {
+      "flowDirection": "WEST",
+      "flowSpeed": 1
+    },
+    "34,20": {
+      "flowDirection": "WEST",
+      "flowSpeed": 1
+    },
+    "29,12": {
+      "flowDirection": "WEST",
+      "flowSpeed": 1
+    },
+    "28,12": {
+      "flowDirection": "WEST",
+      "flowSpeed": 1
+    },
+    "27,12": {
+      "flowDirection": "WEST",
+      "flowSpeed": 1
+    },
+    "25,12": {
+      "flowDirection": "WEST",
+      "flowSpeed": 1
+    },
+    "24,12": {
+      "flowDirection": "WEST",
+      "flowSpeed": 1
+    },
+    "23,12": {
+      "flowDirection": "WEST",
+      "flowSpeed": 1
+    },
+    "22,12": {
+      "flowDirection": "WEST",
+      "flowSpeed": 1
+    },
+    "21,12": {
+      "flowDirection": "WEST",
+      "flowSpeed": 1
+    },
+    "20,12": {
+      "flowDirection": "WEST",
+      "flowSpeed": 1
+    },
+    "19,12": {
+      "flowDirection": "WEST",
+      "flowSpeed": 1
+    },
+    "26,12": {
+      "flowDirection": "WEST",
+      "flowSpeed": 1
+    },
+    "17,13": {
+      "flowDirection": "WEST",
+      "flowSpeed": 1
+    },
+    "16,13": {
+      "flowDirection": "WEST",
+      "flowSpeed": 1
+    },
+    "15,13": {
+      "flowDirection": "WEST",
+      "flowSpeed": 1
+    },
+    "14,13": {
+      "flowDirection": "WEST",
+      "flowSpeed": 1
+    },
+    "13,14": {
+      "flowDirection": "WEST",
+      "flowSpeed": 1
+    },
+    "12,14": {
+      "flowDirection": "WEST",
+      "flowSpeed": 1
+    },
+    "11,14": {
+      "flowDirection": "WEST",
+      "flowSpeed": 1
+    },
+    "10,14": {
+      "flowDirection": "WEST",
+      "flowSpeed": 1
+    },
+    "18,12": {
+      "flowDirection": "SOUTH_WEST",
+      "flowSpeed": 1
+    },
+    "13,13": {
+      "flowDirection": "SOUTH_WEST",
+      "flowSpeed": 1
+    },
+    "9,14": {
+      "flowDirection": "SOUTH_WEST",
+      "flowSpeed": 1
+    },
+    "8,15": {
+      "flowDirection": "SOUTH_WEST",
+      "flowSpeed": 1
+    },
+    "8,16": {
+      "flowDirection": "SOUTH_WEST",
+      "flowSpeed": 1
+    },
+    "7,17": {
+      "flowDirection": "SOUTH_WEST",
+      "flowSpeed": 1
+    },
+    "7,18": {
+      "flowDirection": "WEST",
+      "flowSpeed": 1
+    },
+    "6,18": {
+      "flowDirection": "WEST",
+      "flowSpeed": 1
+    },
+    "5,18": {
+      "flowDirection": "WEST",
+      "flowSpeed": 1
+    },
+    "4,18": {
+      "flowDirection": "NORTH_WEST",
+      "flowSpeed": 1
+    },
+    "3,17": {
+      "flowDirection": "NORTH_WEST",
+      "flowSpeed": 1
+    },
+    "3,16": {
+      "flowDirection": "NORTH_WEST",
+      "flowSpeed": 1
+    },
+    "2,15": {
+      "flowDirection": "NORTH_WEST",
+      "flowSpeed": 1
+    },
+    "2,14": {
+      "flowDirection": "NORTH_WEST",
+      "flowSpeed": 1
+    },
+    "1,13": {
+      "flowDirection": "NORTH_WEST",
+      "flowSpeed": 1
+    },
+    "1,12": {
+      "flowDirection": "NORTH_EAST",
+      "flowSpeed": 1
+    },
+    "1,11": {
+      "flowDirection": "NORTH_EAST",
+      "flowSpeed": 1
+    },
+    "2,10": {
+      "flowDirection": "NORTH_EAST",
+      "flowSpeed": 1
+    },
+    "2,9": {
+      "flowDirection": "NORTH_EAST",
+      "flowSpeed": 1
+    },
+    "3,8": {
+      "flowDirection": "NORTH_EAST",
+      "flowSpeed": 1
+    },
+    "3,7": {
+      "flowDirection": "NORTH_EAST",
+      "flowSpeed": 1
+    },
+    "4,6": {
+      "flowDirection": "NORTH_EAST",
+      "flowSpeed": 1
+    },
+    "4,5": {
+      "flowDirection": "NORTH_EAST",
+      "flowSpeed": 1
+    },
+    "5,4": {
+      "flowDirection": "NORTH_EAST",
+      "flowSpeed": 1
+    },
+    "5,3": {
+      "flowDirection": "NORTH_EAST",
+      "flowSpeed": 1
+    },
+    "6,2": {
+      "flowDirection": "NORTH_EAST",
+      "flowSpeed": 1
+    },
+    "6,1": {
+      "flowDirection": "NORTH_EAST",
+      "flowSpeed": 1
+    },
+    "7,0": {
+      "flowDirection": "NORTH_EAST",
+      "flowSpeed": 1
+    }
   }
 }
