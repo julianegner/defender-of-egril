@@ -2,14 +2,30 @@
   "id": "ewhads_challenge",
   "mapId": "map_ewhads_challenge",
   "title": "Ewhad's Challenge",
+  "titleKey": "level_ewhads_challenge_title",
   "subtitle": "",
+  "subtitleKey": "level_ewhads_challenge_subtitle",
   "startCoins": 300,
   "startHealthPoints": 10,
   "enemySpawns": [
-    {"attackerType": "EWHAD", "level": 1, "spawnTurn": 1, "spawnPoint": {"x": 0, "y": 1}}
+    {
+      "attackerType": "EWHAD",
+      "level": 1,
+      "spawnTurn": 1,
+      "spawnPoint": {
+        "x": 0,
+        "y": 1
+      }
+    }
   ],
-  "availableTowers": ["SPIKE_TOWER", "SPEAR_TOWER", "BOW_TOWER", "WIZARD_TOWER", "ALCHEMY_TOWER", "BALLISTA_TOWER", "DWARVEN_MINE"],
-  "waypoints": [
-    
-  ]
+  "availableTowers": [
+    "SPIKE_TOWER",
+    "SPEAR_TOWER",
+    "BOW_TOWER",
+    "WIZARD_TOWER",
+    "ALCHEMY_TOWER",
+    "BALLISTA_TOWER",
+    "DWARVEN_MINE"
+  ],
+  "waypoints": []
 }
