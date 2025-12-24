@@ -742,20 +742,95 @@
 
     <string name="game_sticker_tagline">Open Source Turn Based Fantasy Tower Defense Game</string>
     
-    <!-- Example Level/Map Names (for demonstrating translation system) -->
-    <string name="level_tutorial_title">Benvenuto a Defender of Egril</string>
-    <string name="level_tutorial_subtitle">Tutorial</string>
-    <string name="level_first_wave_title">La Prima Ondata</string>
-    <string name="level_first_wave_subtitle"></string>
+    <!-- Level Names -->
+    <string name="level_welcome_to_defender_of_egril_title">Benvenuto a Defender of Egril</string>
+    <string name="level_welcome_to_defender_of_egril_subtitle">Tutorial</string>
+    <string name="level_the_first_wave_title">La Prima Ondata</string>
+    <string name="level_the_first_wave_subtitle"></string>
     <string name="level_mixed_forces_title">Forze Miste</string>
     <string name="level_mixed_forces_subtitle"></string>
-    <string name="level_ork_invasion_title">L'Invasione Ork</string>
-    <string name="level_ork_invasion_subtitle"></string>
-    <string name="level_dark_magic_title">La Magia Oscura Si Innalza</string>
-    <string name="level_dark_magic_subtitle"></string>
-    <string name="level_final_stand_title">L'Ultima Battaglia</string>
-    <string name="level_final_stand_subtitle"></string>
+    <string name="level_the_ork_invasion_title">L\'Invasione Ork</string>
+    <string name="level_the_ork_invasion_subtitle"></string>
+    <string name="level_dark_magic_rises_title">La Magia Oscura Si Innalza</string>
+    <string name="level_dark_magic_rises_subtitle"></string>
+    <string name="level_the_final_stand_title">L\'Ultima Resistenza</string>
+    <string name="level_the_final_stand_subtitle"></string>
+    <string name="level_the_plains_title">Le Pianure</string>
+    <string name="level_the_plains_subtitle">Battaglia in Campo Aperto</string>
+    <string name="level_the_spiral_challenge_title">La Sfida della Spirale</string>
+    <string name="level_the_spiral_challenge_subtitle">Naviga nella Spirale</string>
+    <string name="level_the_dance_title">La Danza</string>
+    <string name="level_the_dance_subtitle">Segui il Ritmo</string>
+    <string name="level_the_rush_title">L\'Assalto</string>
+    <string name="level_the_rush_subtitle">Difendi Contro l\'Assalto</string>
+    <string name="level_the_woods_first_incursion_title">I Boschi - Prima Incursione</string>
+    <string name="level_the_woods_first_incursion_subtitle">Guarda i Sentieri della Foresta</string>
+    <string name="level_the_woods_full_assault_title">I Boschi - Assalto Totale</string>
+    <string name="level_the_woods_full_assault_subtitle">Scatena Tutte le Difese</string>
+    <string name="level_the_fast_and_furious_title">Veloce e Furioso</string>
+    <string name="level_the_fast_and_furious_subtitle">Sfida a Un PV</string>
+    <string name="level_the_cross_title">La Croce</string>
+    <string name="level_the_cross_subtitle">Quattro Percorsi Divisi</string>
+    <string name="level_the_winding_path_title">Il Sentiero Tortuoso</string>
+    <string name="level_the_winding_path_subtitle">Una Strada Lunga e Tortuosa</string>
+    <string name="level_the_fortress_1_first_attacks_title">La Fortezza 1</string>
+    <string name="level_the_fortress_1_first_attacks_subtitle">Primi Attacchi</string>
+    <string name="level_the_fortress_2_orks_marching_title">La Fortezza 2</string>
+    <string name="level_the_fortress_2_orks_marching_subtitle">Gli Ork Stanno Marciando</string>
+    <string name="level_the_fortress_3_necromancer_title">La Fortezza 3</string>
+    <string name="level_the_fortress_3_necromancer_subtitle">Il Negromante</string>
+    <string name="level_the_fortress_4_magic_assault_title">La Fortezza 4</string>
+    <string name="level_the_fortress_4_magic_assault_subtitle">Assalto Magico</string>
+    <string name="level_the_fortress_5_mighty_forces_title">La Fortezza 5</string>
+    <string name="level_the_fortress_5_mighty_forces_subtitle">Forze Potenti</string>
+    <string name="level_ewhads_challenge_title">Sfida di Ewhad</string>
+    <string name="level_ewhads_challenge_subtitle"></string>
+    <string name="level_the_creek_title">Il Ruscello</string>
+    <string name="level_the_creek_subtitle"></string>
+    <string name="level_the_island_title">L\'Isola</string>
+    <string name="level_the_island_subtitle"></string>
+    <string name="level_the_river_title">Il Fiume</string>
+    <string name="level_the_river_subtitle"></string>
+    <string name="level_creek_valley_title">Valle del Ruscello</string>
+    <string name="level_creek_valley_subtitle"></string>
+    <string name="level_maelstrom_title">Maelstrom</string>
+    <string name="level_maelstrom_subtitle"></string>
     
+    <!-- Map Names -->
     <string name="map_tutorial_name">Mappa Tutorial</string>
-    <string name="map_generated_name">Mappa Generata %s</string>
+    <string name="map_straight_name">Mappa Dritta</string>
+    <string name="map_plains_name">Le Pianure</string>
+    <string name="map_spiral_name">Mappa Sfida della Spirale</string>
+    <string name="map_dance_name">La Danza</string>
+    <string name="map_the_rush_name">L\'Assalto</string>
+    <string name="map_woods_name">I Boschi</string>
+    <string name="map_fast_and_furious_name">Mappa Veloce e Furioso</string>
+    <string name="map_the_cross_name">La Croce</string>
+    <string name="map_winding_path_name">Il Sentiero Tortuoso</string>
+    <string name="map_the_fortress_name">La Fortezza</string>
+    <string name="map_ewhads_challenge_name">Sfida di Ewhad</string>
+    <string name="map_the_creek_name">Il Ruscello</string>
+    <string name="map_the_island_name">L\'Isola</string>
+    <string name="map_the_river_name">Il Fiume</string>
+    <string name="map_creek_valley_name">Valle del Ruscello</string>
+    <string name="map_the_maelstrom_name">Il Maelstrom</string>
+    
+    <!-- World Map Location Names -->
+    <string name="location_tutorial_name">Tutorial</string>
+    <string name="location_the_beginning_name">L\'Inizio</string>
+    <string name="location_the_plains_name">Le Pianure</string>
+    <string name="location_the_spiral_name">La Spirale</string>
+    <string name="location_the_dance_name">La Danza</string>
+    <string name="location_the_village_name">Il Villaggio</string>
+    <string name="location_the_woods_name">I Boschi</string>
+    <string name="location_the_fast_name">I Veloci</string>
+    <string name="location_the_cross_name">La Croce</string>
+    <string name="location_the_winding_path_name">Il Sentiero Tortuoso</string>
+    <string name="location_the_fortress_name">La Fortezza</string>
+    <string name="location_ewhads_challege_name">Sfida di Ewhad</string>
+    <string name="location_the_creek_name">Il Ruscello</string>
+    <string name="location_the_island_name">L\'Isola</string>
+    <string name="location_the_river_name">Il Fiume</string>
+    <string name="location_creek_valley_name">Valle del Ruscello</string>
+    <string name="location_the_maelstrom_name">Il Maelstrom</string>
 </resources>
