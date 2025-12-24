@@ -1,6 +1,7 @@
 {
   "id": "map_winding_path",
   "name": "The Winding Path",
+  "nameKey": "map_winding_path_name",
   "width": 80,
   "height": 80,
   "readyToUse": true,

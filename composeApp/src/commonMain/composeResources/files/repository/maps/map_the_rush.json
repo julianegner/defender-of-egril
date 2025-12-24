@@ -1,6 +1,7 @@
 {
   "id": "map_the_rush",
   "name": "The Rush",
+  "nameKey": "map_the_rush_name",
   "width": 20,
   "height": 20,
   "readyToUse": true,

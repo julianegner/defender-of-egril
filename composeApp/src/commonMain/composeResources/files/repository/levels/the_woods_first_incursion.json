@@ -2,109 +2,931 @@
   "id": "the_woods_first_incursion",
   "mapId": "map_woods",
   "title": "The Woods - First Incursion",
+  "titleKey": "level_the_woods_first_incursion_title",
   "subtitle": "Guard the Forest Paths",
+  "subtitleKey": "level_the_woods_first_incursion_subtitle",
   "startCoins": 150,
   "startHealthPoints": 10,
   "enemySpawns": [
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 1, "spawnPoint": {"x": 0, "y": 10}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 1, "spawnPoint": {"x": 39, "y": 9}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 1, "spawnPoint": {"x": 0, "y": 10}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 1, "spawnPoint": {"x": 39, "y": 9}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 2, "spawnPoint": {"x": 0, "y": 10}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 2, "spawnPoint": {"x": 39, "y": 9}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 2, "spawnPoint": {"x": 0, "y": 10}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 2, "spawnPoint": {"x": 39, "y": 9}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 3, "spawnPoint": {"x": 0, "y": 10}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 3, "spawnPoint": {"x": 39, "y": 9}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 3, "spawnPoint": {"x": 0, "y": 10}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 3, "spawnPoint": {"x": 39, "y": 9}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 4, "spawnPoint": {"x": 0, "y": 10}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 4, "spawnPoint": {"x": 39, "y": 9}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 4, "spawnPoint": {"x": 0, "y": 10}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 4, "spawnPoint": {"x": 39, "y": 9}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 5, "spawnPoint": {"x": 0, "y": 10}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 5, "spawnPoint": {"x": 39, "y": 9}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 5, "spawnPoint": {"x": 0, "y": 10}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 5, "spawnPoint": {"x": 39, "y": 9}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 6, "spawnPoint": {"x": 0, "y": 10}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 6, "spawnPoint": {"x": 39, "y": 9}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 6, "spawnPoint": {"x": 0, "y": 10}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 6, "spawnPoint": {"x": 39, "y": 9}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 7, "spawnPoint": {"x": 0, "y": 10}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 7, "spawnPoint": {"x": 39, "y": 9}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 7, "spawnPoint": {"x": 0, "y": 10}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 7, "spawnPoint": {"x": 39, "y": 9}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 8, "spawnPoint": {"x": 0, "y": 10}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 8, "spawnPoint": {"x": 39, "y": 9}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 8, "spawnPoint": {"x": 0, "y": 10}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 8, "spawnPoint": {"x": 39, "y": 9}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 9, "spawnPoint": {"x": 0, "y": 10}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 9, "spawnPoint": {"x": 39, "y": 9}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 9, "spawnPoint": {"x": 0, "y": 10}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 9, "spawnPoint": {"x": 39, "y": 9}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 10, "spawnPoint": {"x": 0, "y": 10}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 10, "spawnPoint": {"x": 39, "y": 9}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 10, "spawnPoint": {"x": 0, "y": 10}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 10, "spawnPoint": {"x": 39, "y": 9}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 11, "spawnPoint": {"x": 0, "y": 10}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 11, "spawnPoint": {"x": 39, "y": 9}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 11, "spawnPoint": {"x": 0, "y": 10}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 11, "spawnPoint": {"x": 39, "y": 9}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 12, "spawnPoint": {"x": 0, "y": 10}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 12, "spawnPoint": {"x": 39, "y": 9}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 12, "spawnPoint": {"x": 0, "y": 10}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 12, "spawnPoint": {"x": 39, "y": 9}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 13, "spawnPoint": {"x": 0, "y": 10}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 13, "spawnPoint": {"x": 39, "y": 9}}
+    {
+      "attackerType": "GOBLIN",
+      "level": 1,
+      "spawnTurn": 1,
+      "spawnPoint": {
+        "x": 0,
+        "y": 10
+      }
+    },
+    {
+      "attackerType": "GOBLIN",
+      "level": 1,
+      "spawnTurn": 1,
+      "spawnPoint": {
+        "x": 39,
+        "y": 9
+      }
+    },
+    {
+      "attackerType": "GOBLIN",
+      "level": 1,
+      "spawnTurn": 1,
+      "spawnPoint": {
+        "x": 0,
+        "y": 10
+      }
+    },
+    {
+      "attackerType": "GOBLIN",
+      "level": 1,
+      "spawnTurn": 1,
+      "spawnPoint": {
+        "x": 39,
+        "y": 9
+      }
+    },
+    {
+      "attackerType": "GOBLIN",
+      "level": 1,
+      "spawnTurn": 2,
+      "spawnPoint": {
+        "x": 0,
+        "y": 10
+      }
+    },
+    {
+      "attackerType": "GOBLIN",
+      "level": 1,
+      "spawnTurn": 2,
+      "spawnPoint": {
+        "x": 39,
+        "y": 9
+      }
+    },
+    {
+      "attackerType": "GOBLIN",
+      "level": 1,
+      "spawnTurn": 2,
+      "spawnPoint": {
+        "x": 0,
+        "y": 10
+      }
+    },
+    {
+      "attackerType": "GOBLIN",
+      "level": 1,
+      "spawnTurn": 2,
+      "spawnPoint": {
+        "x": 39,
+        "y": 9
+      }
+    },
+    {
+      "attackerType": "GOBLIN",
+      "level": 1,
+      "spawnTurn": 3,
+      "spawnPoint": {
+        "x": 0,
+        "y": 10
+      }
+    },
+    {
+      "attackerType": "GOBLIN",
+      "level": 1,
+      "spawnTurn": 3,
+      "spawnPoint": {
+        "x": 39,
+        "y": 9
+      }
+    },
+    {
+      "attackerType": "GOBLIN",
+      "level": 1,
+      "spawnTurn": 3,
+      "spawnPoint": {
+        "x": 0,
+        "y": 10
+      }
+    },
+    {
+      "attackerType": "GOBLIN",
+      "level": 1,
+      "spawnTurn": 3,
+      "spawnPoint": {
+        "x": 39,
+        "y": 9
+      }
+    },
+    {
+      "attackerType": "GOBLIN",
+      "level": 1,
+      "spawnTurn": 4,
+      "spawnPoint": {
+        "x": 0,
+        "y": 10
+      }
+    },
+    {
+      "attackerType": "GOBLIN",
+      "level": 1,
+      "spawnTurn": 4,
+      "spawnPoint": {
+        "x": 39,
+        "y": 9
+      }
+    },
+    {
+      "attackerType": "GOBLIN",
+      "level": 1,
+      "spawnTurn": 4,
+      "spawnPoint": {
+        "x": 0,
+        "y": 10
+      }
+    },
+    {
+      "attackerType": "GOBLIN",
+      "level": 1,
+      "spawnTurn": 4,
+      "spawnPoint": {
+        "x": 39,
+        "y": 9
+      }
+    },
+    {
+      "attackerType": "GOBLIN",
+      "level": 1,
+      "spawnTurn": 5,
+      "spawnPoint": {
+        "x": 0,
+        "y": 10
+      }
+    },
+    {
+      "attackerType": "GOBLIN",
+      "level": 1,
+      "spawnTurn": 5,
+      "spawnPoint": {
+        "x": 39,
+        "y": 9
+      }
+    },
+    {
+      "attackerType": "GOBLIN",
+      "level": 1,
+      "spawnTurn": 5,
+      "spawnPoint": {
+        "x": 0,
+        "y": 10
+      }
+    },
+    {
+      "attackerType": "GOBLIN",
+      "level": 1,
+      "spawnTurn": 5,
+      "spawnPoint": {
+        "x": 39,
+        "y": 9
+      }
+    },
+    {
+      "attackerType": "GOBLIN",
+      "level": 1,
+      "spawnTurn": 6,
+      "spawnPoint": {
+        "x": 0,
+        "y": 10
+      }
+    },
+    {
+      "attackerType": "GOBLIN",
+      "level": 1,
+      "spawnTurn": 6,
+      "spawnPoint": {
+        "x": 39,
+        "y": 9
+      }
+    },
+    {
+      "attackerType": "GOBLIN",
+      "level": 1,
+      "spawnTurn": 6,
+      "spawnPoint": {
+        "x": 0,
+        "y": 10
+      }
+    },
+    {
+      "attackerType": "GOBLIN",
+      "level": 1,
+      "spawnTurn": 6,
+      "spawnPoint": {
+        "x": 39,
+        "y": 9
+      }
+    },
+    {
+      "attackerType": "GOBLIN",
+      "level": 1,
+      "spawnTurn": 7,
+      "spawnPoint": {
+        "x": 0,
+        "y": 10
+      }
+    },
+    {
+      "attackerType": "GOBLIN",
+      "level": 1,
+      "spawnTurn": 7,
+      "spawnPoint": {
+        "x": 39,
+        "y": 9
+      }
+    },
+    {
+      "attackerType": "GOBLIN",
+      "level": 1,
+      "spawnTurn": 7,
+      "spawnPoint": {
+        "x": 0,
+        "y": 10
+      }
+    },
+    {
+      "attackerType": "GOBLIN",
+      "level": 1,
+      "spawnTurn": 7,
+      "spawnPoint": {
+        "x": 39,
+        "y": 9
+      }
+    },
+    {
+      "attackerType": "GOBLIN",
+      "level": 1,
+      "spawnTurn": 8,
+      "spawnPoint": {
+        "x": 0,
+        "y": 10
+      }
+    },
+    {
+      "attackerType": "GOBLIN",
+      "level": 1,
+      "spawnTurn": 8,
+      "spawnPoint": {
+        "x": 39,
+        "y": 9
+      }
+    },
+    {
+      "attackerType": "GOBLIN",
+      "level": 1,
+      "spawnTurn": 8,
+      "spawnPoint": {
+        "x": 0,
+        "y": 10
+      }
+    },
+    {
+      "attackerType": "GOBLIN",
+      "level": 1,
+      "spawnTurn": 8,
+      "spawnPoint": {
+        "x": 39,
+        "y": 9
+      }
+    },
+    {
+      "attackerType": "GOBLIN",
+      "level": 1,
+      "spawnTurn": 9,
+      "spawnPoint": {
+        "x": 0,
+        "y": 10
+      }
+    },
+    {
+      "attackerType": "GOBLIN",
+      "level": 1,
+      "spawnTurn": 9,
+      "spawnPoint": {
+        "x": 39,
+        "y": 9
+      }
+    },
+    {
+      "attackerType": "GOBLIN",
+      "level": 1,
+      "spawnTurn": 9,
+      "spawnPoint": {
+        "x": 0,
+        "y": 10
+      }
+    },
+    {
+      "attackerType": "GOBLIN",
+      "level": 1,
+      "spawnTurn": 9,
+      "spawnPoint": {
+        "x": 39,
+        "y": 9
+      }
+    },
+    {
+      "attackerType": "GOBLIN",
+      "level": 1,
+      "spawnTurn": 10,
+      "spawnPoint": {
+        "x": 0,
+        "y": 10
+      }
+    },
+    {
+      "attackerType": "GOBLIN",
+      "level": 1,
+      "spawnTurn": 10,
+      "spawnPoint": {
+        "x": 39,
+        "y": 9
+      }
+    },
+    {
+      "attackerType": "GOBLIN",
+      "level": 1,
+      "spawnTurn": 10,
+      "spawnPoint": {
+        "x": 0,
+        "y": 10
+      }
+    },
+    {
+      "attackerType": "GOBLIN",
+      "level": 1,
+      "spawnTurn": 10,
+      "spawnPoint": {
+        "x": 39,
+        "y": 9
+      }
+    },
+    {
+      "attackerType": "GOBLIN",
+      "level": 1,
+      "spawnTurn": 11,
+      "spawnPoint": {
+        "x": 0,
+        "y": 10
+      }
+    },
+    {
+      "attackerType": "GOBLIN",
+      "level": 1,
+      "spawnTurn": 11,
+      "spawnPoint": {
+        "x": 39,
+        "y": 9
+      }
+    },
+    {
+      "attackerType": "GOBLIN",
+      "level": 1,
+      "spawnTurn": 11,
+      "spawnPoint": {
+        "x": 0,
+        "y": 10
+      }
+    },
+    {
+      "attackerType": "GOBLIN",
+      "level": 1,
+      "spawnTurn": 11,
+      "spawnPoint": {
+        "x": 39,
+        "y": 9
+      }
+    },
+    {
+      "attackerType": "GOBLIN",
+      "level": 1,
+      "spawnTurn": 12,
+      "spawnPoint": {
+        "x": 0,
+        "y": 10
+      }
+    },
+    {
+      "attackerType": "GOBLIN",
+      "level": 1,
+      "spawnTurn": 12,
+      "spawnPoint": {
+        "x": 39,
+        "y": 9
+      }
+    },
+    {
+      "attackerType": "GOBLIN",
+      "level": 1,
+      "spawnTurn": 12,
+      "spawnPoint": {
+        "x": 0,
+        "y": 10
+      }
+    },
+    {
+      "attackerType": "GOBLIN",
+      "level": 1,
+      "spawnTurn": 12,
+      "spawnPoint": {
+        "x": 39,
+        "y": 9
+      }
+    },
+    {
+      "attackerType": "GOBLIN",
+      "level": 1,
+      "spawnTurn": 13,
+      "spawnPoint": {
+        "x": 0,
+        "y": 10
+      }
+    },
+    {
+      "attackerType": "GOBLIN",
+      "level": 1,
+      "spawnTurn": 13,
+      "spawnPoint": {
+        "x": 39,
+        "y": 9
+      }
+    }
   ],
-  "availableTowers": ["SPIKE_TOWER", "SPEAR_TOWER", "BOW_TOWER"],
+  "availableTowers": [
+    "SPIKE_TOWER",
+    "SPEAR_TOWER",
+    "BOW_TOWER"
+  ],
   "waypoints": [
-    {"position": {"x": 39, "y": 9}, "nextTargetPosition": {"x": 36, "y": 9}},
-    {"position": {"x": 36, "y": 9}, "nextTargetPosition": {"x": 35, "y": 7}},
-    {"position": {"x": 35, "y": 7}, "nextTargetPosition": {"x": 30, "y": 7}},
-    {"position": {"x": 30, "y": 7}, "nextTargetPosition": {"x": 29, "y": 9}},
-    {"position": {"x": 29, "y": 9}, "nextTargetPosition": {"x": 27, "y": 9}},
-    {"position": {"x": 27, "y": 9}, "nextTargetPosition": {"x": 26, "y": 7}},
-    {"position": {"x": 26, "y": 7}, "nextTargetPosition": {"x": 24, "y": 7}},
-    {"position": {"x": 24, "y": 7}, "nextTargetPosition": {"x": 23, "y": 9}},
-    {"position": {"x": 23, "y": 9}, "nextTargetPosition": {"x": 21, "y": 9}},
-    {"position": {"x": 21, "y": 9}, "nextTargetPosition": {"x": 20, "y": 7}},
-    {"position": {"x": 20, "y": 7}, "nextTargetPosition": {"x": 18, "y": 7}},
-    {"position": {"x": 18, "y": 7}, "nextTargetPosition": {"x": 17, "y": 9}},
-    {"position": {"x": 17, "y": 9}, "nextTargetPosition": {"x": 15, "y": 9}},
-    {"position": {"x": 15, "y": 9}, "nextTargetPosition": {"x": 14, "y": 7}},
-    {"position": {"x": 14, "y": 7}, "nextTargetPosition": {"x": 12, "y": 7}},
-    {"position": {"x": 12, "y": 7}, "nextTargetPosition": {"x": 11, "y": 9}},
-    {"position": {"x": 11, "y": 9}, "nextTargetPosition": {"x": 9, "y": 9}},
-    {"position": {"x": 9, "y": 9}, "nextTargetPosition": {"x": 8, "y": 7}},
-    {"position": {"x": 8, "y": 7}, "nextTargetPosition": {"x": 6, "y": 7}},
-    {"position": {"x": 6, "y": 7}, "nextTargetPosition": {"x": 5, "y": 9}},
-    {"position": {"x": 5, "y": 9}, "nextTargetPosition": {"x": 0, "y": 9}},
-    {"position": {"x": 0, "y": 10}, "nextTargetPosition": {"x": 2, "y": 10}},
-    {"position": {"x": 2, "y": 10}, "nextTargetPosition": {"x": 3, "y": 12}},
-    {"position": {"x": 3, "y": 12}, "nextTargetPosition": {"x": 5, "y": 12}},
-    {"position": {"x": 5, "y": 12}, "nextTargetPosition": {"x": 6, "y": 10}},
-    {"position": {"x": 6, "y": 10}, "nextTargetPosition": {"x": 8, "y": 10}},
-    {"position": {"x": 8, "y": 10}, "nextTargetPosition": {"x": 9, "y": 12}},
-    {"position": {"x": 9, "y": 12}, "nextTargetPosition": {"x": 11, "y": 12}},
-    {"position": {"x": 11, "y": 12}, "nextTargetPosition": {"x": 12, "y": 10}},
-    {"position": {"x": 12, "y": 10}, "nextTargetPosition": {"x": 14, "y": 10}},
-    {"position": {"x": 14, "y": 10}, "nextTargetPosition": {"x": 15, "y": 12}},
-    {"position": {"x": 15, "y": 12}, "nextTargetPosition": {"x": 17, "y": 12}},
-    {"position": {"x": 17, "y": 12}, "nextTargetPosition": {"x": 18, "y": 10}},
-    {"position": {"x": 18, "y": 10}, "nextTargetPosition": {"x": 20, "y": 10}},
-    {"position": {"x": 20, "y": 10}, "nextTargetPosition": {"x": 21, "y": 12}},
-    {"position": {"x": 21, "y": 12}, "nextTargetPosition": {"x": 23, "y": 12}},
-    {"position": {"x": 23, "y": 12}, "nextTargetPosition": {"x": 24, "y": 10}},
-    {"position": {"x": 24, "y": 10}, "nextTargetPosition": {"x": 26, "y": 10}},
-    {"position": {"x": 26, "y": 10}, "nextTargetPosition": {"x": 27, "y": 12}},
-    {"position": {"x": 27, "y": 12}, "nextTargetPosition": {"x": 29, "y": 12}},
-    {"position": {"x": 29, "y": 12}, "nextTargetPosition": {"x": 30, "y": 10}},
-    {"position": {"x": 30, "y": 10}, "nextTargetPosition": {"x": 32, "y": 10}},
-    {"position": {"x": 32, "y": 10}, "nextTargetPosition": {"x": 33, "y": 12}},
-    {"position": {"x": 33, "y": 12}, "nextTargetPosition": {"x": 35, "y": 12}},
-    {"position": {"x": 35, "y": 12}, "nextTargetPosition": {"x": 36, "y": 10}},
-    {"position": {"x": 36, "y": 10}, "nextTargetPosition": {"x": 39, "y": 10}}
+    {
+      "position": {
+        "x": 39,
+        "y": 9
+      },
+      "nextTargetPosition": {
+        "x": 36,
+        "y": 9
+      }
+    },
+    {
+      "position": {
+        "x": 36,
+        "y": 9
+      },
+      "nextTargetPosition": {
+        "x": 35,
+        "y": 7
+      }
+    },
+    {
+      "position": {
+        "x": 35,
+        "y": 7
+      },
+      "nextTargetPosition": {
+        "x": 30,
+        "y": 7
+      }
+    },
+    {
+      "position": {
+        "x": 30,
+        "y": 7
+      },
+      "nextTargetPosition": {
+        "x": 29,
+        "y": 9
+      }
+    },
+    {
+      "position": {
+        "x": 29,
+        "y": 9
+      },
+      "nextTargetPosition": {
+        "x": 27,
+        "y": 9
+      }
+    },
+    {
+      "position": {
+        "x": 27,
+        "y": 9
+      },
+      "nextTargetPosition": {
+        "x": 26,
+        "y": 7
+      }
+    },
+    {
+      "position": {
+        "x": 26,
+        "y": 7
+      },
+      "nextTargetPosition": {
+        "x": 24,
+        "y": 7
+      }
+    },
+    {
+      "position": {
+        "x": 24,
+        "y": 7
+      },
+      "nextTargetPosition": {
+        "x": 23,
+        "y": 9
+      }
+    },
+    {
+      "position": {
+        "x": 23,
+        "y": 9
+      },
+      "nextTargetPosition": {
+        "x": 21,
+        "y": 9
+      }
+    },
+    {
+      "position": {
+        "x": 21,
+        "y": 9
+      },
+      "nextTargetPosition": {
+        "x": 20,
+        "y": 7
+      }
+    },
+    {
+      "position": {
+        "x": 20,
+        "y": 7
+      },
+      "nextTargetPosition": {
+        "x": 18,
+        "y": 7
+      }
+    },
+    {
+      "position": {
+        "x": 18,
+        "y": 7
+      },
+      "nextTargetPosition": {
+        "x": 17,
+        "y": 9
+      }
+    },
+    {
+      "position": {
+        "x": 17,
+        "y": 9
+      },
+      "nextTargetPosition": {
+        "x": 15,
+        "y": 9
+      }
+    },
+    {
+      "position": {
+        "x": 15,
+        "y": 9
+      },
+      "nextTargetPosition": {
+        "x": 14,
+        "y": 7
+      }
+    },
+    {
+      "position": {
+        "x": 14,
+        "y": 7
+      },
+      "nextTargetPosition": {
+        "x": 12,
+        "y": 7
+      }
+    },
+    {
+      "position": {
+        "x": 12,
+        "y": 7
+      },
+      "nextTargetPosition": {
+        "x": 11,
+        "y": 9
+      }
+    },
+    {
+      "position": {
+        "x": 11,
+        "y": 9
+      },
+      "nextTargetPosition": {
+        "x": 9,
+        "y": 9
+      }
+    },
+    {
+      "position": {
+        "x": 9,
+        "y": 9
+      },
+      "nextTargetPosition": {
+        "x": 8,
+        "y": 7
+      }
+    },
+    {
+      "position": {
+        "x": 8,
+        "y": 7
+      },
+      "nextTargetPosition": {
+        "x": 6,
+        "y": 7
+      }
+    },
+    {
+      "position": {
+        "x": 6,
+        "y": 7
+      },
+      "nextTargetPosition": {
+        "x": 5,
+        "y": 9
+      }
+    },
+    {
+      "position": {
+        "x": 5,
+        "y": 9
+      },
+      "nextTargetPosition": {
+        "x": 0,
+        "y": 9
+      }
+    },
+    {
+      "position": {
+        "x": 0,
+        "y": 10
+      },
+      "nextTargetPosition": {
+        "x": 2,
+        "y": 10
+      }
+    },
+    {
+      "position": {
+        "x": 2,
+        "y": 10
+      },
+      "nextTargetPosition": {
+        "x": 3,
+        "y": 12
+      }
+    },
+    {
+      "position": {
+        "x": 3,
+        "y": 12
+      },
+      "nextTargetPosition": {
+        "x": 5,
+        "y": 12
+      }
+    },
+    {
+      "position": {
+        "x": 5,
+        "y": 12
+      },
+      "nextTargetPosition": {
+        "x": 6,
+        "y": 10
+      }
+    },
+    {
+      "position": {
+        "x": 6,
+        "y": 10
+      },
+      "nextTargetPosition": {
+        "x": 8,
+        "y": 10
+      }
+    },
+    {
+      "position": {
+        "x": 8,
+        "y": 10
+      },
+      "nextTargetPosition": {
+        "x": 9,
+        "y": 12
+      }
+    },
+    {
+      "position": {
+        "x": 9,
+        "y": 12
+      },
+      "nextTargetPosition": {
+        "x": 11,
+        "y": 12
+      }
+    },
+    {
+      "position": {
+        "x": 11,
+        "y": 12
+      },
+      "nextTargetPosition": {
+        "x": 12,
+        "y": 10
+      }
+    },
+    {
+      "position": {
+        "x": 12,
+        "y": 10
+      },
+      "nextTargetPosition": {
+        "x": 14,
+        "y": 10
+      }
+    },
+    {
+      "position": {
+        "x": 14,
+        "y": 10
+      },
+      "nextTargetPosition": {
+        "x": 15,
+        "y": 12
+      }
+    },
+    {
+      "position": {
+        "x": 15,
+        "y": 12
+      },
+      "nextTargetPosition": {
+        "x": 17,
+        "y": 12
+      }
+    },
+    {
+      "position": {
+        "x": 17,
+        "y": 12
+      },
+      "nextTargetPosition": {
+        "x": 18,
+        "y": 10
+      }
+    },
+    {
+      "position": {
+        "x": 18,
+        "y": 10
+      },
+      "nextTargetPosition": {
+        "x": 20,
+        "y": 10
+      }
+    },
+    {
+      "position": {
+        "x": 20,
+        "y": 10
+      },
+      "nextTargetPosition": {
+        "x": 21,
+        "y": 12
+      }
+    },
+    {
+      "position": {
+        "x": 21,
+        "y": 12
+      },
+      "nextTargetPosition": {
+        "x": 23,
+        "y": 12
+      }
+    },
+    {
+      "position": {
+        "x": 23,
+        "y": 12
+      },
+      "nextTargetPosition": {
+        "x": 24,
+        "y": 10
+      }
+    },
+    {
+      "position": {
+        "x": 24,
+        "y": 10
+      },
+      "nextTargetPosition": {
+        "x": 26,
+        "y": 10
+      }
+    },
+    {
+      "position": {
+        "x": 26,
+        "y": 10
+      },
+      "nextTargetPosition": {
+        "x": 27,
+        "y": 12
+      }
+    },
+    {
+      "position": {
+        "x": 27,
+        "y": 12
+      },
+      "nextTargetPosition": {
+        "x": 29,
+        "y": 12
+      }
+    },
+    {
+      "position": {
+        "x": 29,
+        "y": 12
+      },
+      "nextTargetPosition": {
+        "x": 30,
+        "y": 10
+      }
+    },
+    {
+      "position": {
+        "x": 30,
+        "y": 10
+      },
+      "nextTargetPosition": {
+        "x": 32,
+        "y": 10
+      }
+    },
+    {
+      "position": {
+        "x": 32,
+        "y": 10
+      },
+      "nextTargetPosition": {
+        "x": 33,
+        "y": 12
+      }
+    },
+    {
+      "position": {
+        "x": 33,
+        "y": 12
+      },
+      "nextTargetPosition": {
+        "x": 35,
+        "y": 12
+      }
+    },
+    {
+      "position": {
+        "x": 35,
+        "y": 12
+      },
+      "nextTargetPosition": {
+        "x": 36,
+        "y": 10
+      }
+    },
+    {
+      "position": {
+        "x": 36,
+        "y": 10
+      },
+      "nextTargetPosition": {
+        "x": 39,
+        "y": 10
+      }
+    }
   ],
-  "prerequisites": ["the_rush"]
+  "prerequisites": [
+    "the_rush"
+  ]
 }
