@@ -741,4 +741,21 @@
     <string name="editor_info_tips_text">Guarda frecuentemente para evitar perder trabajo - Prueba tus niveles en el juego para asegurarte de que estén balanceados - Usa los niveles existentes como plantillas - Los mapas pueden reutilizarse en múltiples niveles - La secuencia determina qué niveles son jugables</string>
 
     <string name="game_sticker_tagline">Open Source Turn Based Fantasy Tower Defense Game</string>
+    
+    <!-- Example Level/Map Names (for demonstrating translation system) -->
+    <string name="level_tutorial_title">Bienvenido a Defender of Egril</string>
+    <string name="level_tutorial_subtitle">Tutorial</string>
+    <string name="level_first_wave_title">La Primera Ola</string>
+    <string name="level_first_wave_subtitle"></string>
+    <string name="level_mixed_forces_title">Fuerzas Mixtas</string>
+    <string name="level_mixed_forces_subtitle"></string>
+    <string name="level_ork_invasion_title">La Invasión Ork</string>
+    <string name="level_ork_invasion_subtitle"></string>
+    <string name="level_dark_magic_title">La Magia Oscura Se Levanta</string>
+    <string name="level_dark_magic_subtitle"></string>
+    <string name="level_final_stand_title">La Última Batalla</string>
+    <string name="level_final_stand_subtitle"></string>
+    
+    <string name="map_tutorial_name">Mapa Tutorial</string>
+    <string name="map_generated_name">Mapa Generado %s</string>
 </resources>

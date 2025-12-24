@@ -739,6 +739,22 @@
     <string name="editor_info_world_map_features">X/Y-Koordinaten für jedes Level festlegen - Verbindungen zwischen Leveln erstellen (Straße oder Meer) - Level automatisch basierend auf Abhängigkeiten verbinden - Visuelle Stile für Verbindungen konfigurieren - Wegpunkte für Verbindungspfade definieren</string>
     <string name="editor_info_tips_title">Tipps</string>
     <string name="editor_info_tips_text">Speichern Sie häufig, um Arbeitsverlust zu vermeiden - Testen Sie Ihre Level im Spiel, um sicherzustellen, dass sie ausgewogen sind - Verwenden Sie vorhandene Level als Vorlagen - Karten können über mehrere Level hinweg wiederverwendet werden - Die Sequenz bestimmt, welche Level spielbar sind</string>
-
-    <string name="game_sticker_tagline">Open Source Turn Based Fantasy Tower Defense Game</string>
+    <string name="game_sticker_tagline">Open-Source-rundenbasiertes Fantasy-Tower-Defense-Spiel</string>
+    
+    <!-- Example Level/Map Names (for demonstrating translation system) -->
+    <string name="level_tutorial_title">Willkommen zu Defender of Egril</string>
+    <string name="level_tutorial_subtitle">Tutorial</string>
+    <string name="level_first_wave_title">Die Erste Welle</string>
+    <string name="level_first_wave_subtitle"></string>
+    <string name="level_mixed_forces_title">Gemischte Kräfte</string>
+    <string name="level_mixed_forces_subtitle"></string>
+    <string name="level_ork_invasion_title">Die Ork-Invasion</string>
+    <string name="level_ork_invasion_subtitle"></string>
+    <string name="level_dark_magic_title">Dunkle Magie Erhebt Sich</string>
+    <string name="level_dark_magic_subtitle"></string>
+    <string name="level_final_stand_title">Der Letzte Stand</string>
+    <string name="level_final_stand_subtitle"></string>
+    
+    <string name="map_tutorial_name">Tutorial-Karte</string>
+    <string name="map_generated_name">Generierte Karte %s</string>
 </resources>
