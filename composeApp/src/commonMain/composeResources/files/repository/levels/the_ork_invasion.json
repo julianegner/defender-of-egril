@@ -4,7 +4,6 @@
   "title": "The Ork Invasion",
   "titleKey": "level_the_ork_invasion_title",
   "subtitle": "",
-  "subtitleKey": "level_the_ork_invasion_subtitle",
   "startCoins": 300,
   "startHealthPoints": 10,
   "enemySpawns": [

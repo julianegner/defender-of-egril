@@ -4,7 +4,6 @@
   "title": "The River",
   "titleKey": "level_the_river_title",
   "subtitle": "",
-  "subtitleKey": "level_the_river_subtitle",
   "startCoins": 1000,
   "startHealthPoints": 10,
   "enemySpawns": [

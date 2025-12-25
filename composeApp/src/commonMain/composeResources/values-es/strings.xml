@@ -745,17 +745,7 @@
     <!-- Level Names -->
     <string name="level_welcome_to_defender_of_egril_title">Bienvenido a Defender of Egril</string>
     <string name="level_welcome_to_defender_of_egril_subtitle">Tutorial</string>
-    <string name="level_the_first_wave_title">La Primera Ola</string>
-    <string name="level_the_first_wave_subtitle"></string>
-    <string name="level_mixed_forces_title">Fuerzas Mixtas</string>
-    <string name="level_mixed_forces_subtitle"></string>
-    <string name="level_the_ork_invasion_title">La Invasión Ork</string>
-    <string name="level_the_ork_invasion_subtitle"></string>
-    <string name="level_dark_magic_rises_title">La Magia Oscura Se Levanta</string>
-    <string name="level_dark_magic_rises_subtitle"></string>
-    <string name="level_the_final_stand_title">La Última Batalla</string>
-    <string name="level_the_final_stand_subtitle"></string>
-    <string name="level_the_plains_title">Las Llanuras</string>
+    <string name="level_the_first_wave_title">La Primera Ola</string>    <string name="level_mixed_forces_title">Fuerzas Mixtas</string>    <string name="level_the_ork_invasion_title">La Invasión Ork</string>    <string name="level_dark_magic_rises_title">La Magia Oscura Se Levanta</string>    <string name="level_the_final_stand_title">La Última Batalla</string>    <string name="level_the_plains_title">Las Llanuras</string>
     <string name="level_the_plains_subtitle">Batalla en Campo Abierto</string>
     <string name="level_the_spiral_challenge_title">El Desafío de la Espiral</string>
     <string name="level_the_spiral_challenge_subtitle">Navega por la Espiral</string>
@@ -772,30 +762,9 @@
     <string name="level_the_cross_title">La Cruz</string>
     <string name="level_the_cross_subtitle">Cuatro Caminos Divididos</string>
     <string name="level_the_winding_path_title">El Camino Sinuoso</string>
-    <string name="level_the_winding_path_subtitle">Un Camino Largo y Tortuoso</string>
-    <string name="level_the_fortress_1_first_attacks_title">La Fortaleza 1</string>
-    <string name="level_the_fortress_1_first_attacks_subtitle">Primeros Ataques</string>
-    <string name="level_the_fortress_2_orks_marching_title">La Fortaleza 2</string>
-    <string name="level_the_fortress_2_orks_marching_subtitle">Los Orks Están Marchando</string>
-    <string name="level_the_fortress_3_necromancer_title">La Fortaleza 3</string>
-    <string name="level_the_fortress_3_necromancer_subtitle">El Nigromante</string>
-    <string name="level_the_fortress_4_magic_assault_title">La Fortaleza 4</string>
-    <string name="level_the_fortress_4_magic_assault_subtitle">Asalto Mágico</string>
-    <string name="level_the_fortress_5_mighty_forces_title">La Fortaleza 5</string>
-    <string name="level_the_fortress_5_mighty_forces_subtitle">Fuerzas Poderosas</string>
-    <string name="level_ewhads_challenge_title">Desafío de Ewhad</string>
-    <string name="level_ewhads_challenge_subtitle"></string>
-    <string name="level_the_creek_title">El Arroyo</string>
-    <string name="level_the_creek_subtitle"></string>
-    <string name="level_the_island_title">La Isla</string>
-    <string name="level_the_island_subtitle"></string>
-    <string name="level_the_river_title">El Río</string>
-    <string name="level_the_river_subtitle"></string>
-    <string name="level_creek_valley_title">Valle del Arroyo</string>
-    <string name="level_creek_valley_subtitle"></string>
-    <string name="level_maelstrom_title">Vorágine</string>
-    <string name="level_maelstrom_subtitle"></string>
-    
+    <string name="level_the_winding_path_subtitle">Un Camino Largo y Tortuoso</string>        <string name="level_the_fortress_title">La Fortaleza %s</string>
+    <string name="level_the_fortress_1_first_attacks_subtitle">Primeros Ataques</string>    <string name="level_the_fortress_2_orks_marching_subtitle">Los Orks Están Marchando</string>    <string name="level_the_fortress_3_necromancer_subtitle">El Nigromante</string>    <string name="level_the_fortress_4_magic_assault_subtitle">Asalto Mágico</string>    <string name="level_the_fortress_5_mighty_forces_subtitle">Fuerzas Poderosas</string>
+    <string name="level_ewhads_challenge_title">Desafío de Ewhad</string>    <string name="level_the_creek_title">El Arroyo</string>    <string name="level_the_island_title">La Isla</string>    <string name="level_the_river_title">El Río</string>    <string name="level_creek_valley_title">Valle del Arroyo</string>    <string name="level_maelstrom_title">Vorágine</string>    
     <!-- Map Names -->
     <string name="map_tutorial_name">Mapa Tutorial</string>
     <string name="map_straight_name">Mapa Recto</string>
