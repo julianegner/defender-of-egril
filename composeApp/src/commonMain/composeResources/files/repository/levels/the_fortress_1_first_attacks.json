@@ -2,7 +2,7 @@
   "id": "the_fortress_1_first_attacks",
   "mapId": "map_the_fortress",
   "title": "The Fortress 1",
-  "titleKey": "level_the_fortress_1_first_attacks_title",
+  "titleKey": "level_the_fortress_title:1",
   "subtitle": "First Attacks",
   "subtitleKey": "level_the_fortress_1_first_attacks_subtitle",
   "startCoins": 200,

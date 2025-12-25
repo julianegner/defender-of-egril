@@ -2,7 +2,7 @@
   "id": "the_fortress_2_orks_marching",
   "mapId": "map_the_fortress",
   "title": "The Fortress 2",
-  "titleKey": "level_the_fortress_2_orks_marching_title",
+  "titleKey": "level_the_fortress_title:2",
   "subtitle": "The Orks are Marching",
   "subtitleKey": "level_the_fortress_2_orks_marching_subtitle",
   "startCoins": 250,

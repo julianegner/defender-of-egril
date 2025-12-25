@@ -2,7 +2,7 @@
   "id": "the_fortress_4_magic_assault",
   "mapId": "map_the_fortress",
   "title": "The Fortress 4",
-  "titleKey": "level_the_fortress_4_magic_assault_title",
+  "titleKey": "level_the_fortress_title:4",
   "subtitle": "Magic Assault",
   "subtitleKey": "level_the_fortress_4_magic_assault_subtitle",
   "startCoins": 400,
