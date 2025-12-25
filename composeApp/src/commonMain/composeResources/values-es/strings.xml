@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Main Menu -->
     <string name="app_name">Defensor de Egril</string>
     <string name="app_subtitle">Defiende los prados de Egril contra las Hordas de Gleid Thyae bajo la Bandera del malvado Ewhad</string>
     <string name="start_game">Iniciar juego</string>
     <string name="rules">Reglas</string>
-    
-    <!-- Level Complete Screen -->
     <string name="victory">¡Victoria!</string>
     <string name="battle_won">¡Batalla ganada!</string>
     <string name="defeat">Derrota</string>
@@ -15,8 +12,6 @@
     <string name="defeat_message">Los enemigos han atravesado tus defensas...</string>
     <string name="retry">Reintentar</string>
     <string name="world_map">Mapa del mundo</string>
-    
-    <!-- Settings -->
     <string name="settings">Configuración</string>
     <string name="language">Idioma</string>
     <string name="appearance">Apariencia</string>
@@ -42,16 +37,12 @@
     <string name="settings_hint_title">Configuración Disponible</string>
     <string name="settings_hint_message">Haga clic en el icono de configuración para personalizar su experiencia. La configuración disponible incluye:</string>
     <string name="settings_hint_dismiss">¡Entendido!</string>
-    
-    <!-- Common Actions -->
     <string name="back">Atrás</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancelar</string>
     <string name="save">Guardar</string>
     <string name="delete">Eliminar</string>
     <string name="edit">Editar</string>
-    
-    <!-- Game Play -->
     <string name="coins">Monedas</string>
     <string name="health">Salud</string>
     <string name="turn">Turno</string>
@@ -81,34 +72,22 @@
     <string name="import_error">Error de importación</string>
     <string name="import_error_message">No se pudieron importar algunos archivos. Por favor, verifica el formato del archivo.</string>
     <string name="in_x_turns">en %s turnos</string>
-    
-    <!-- Towers -->
     <string name="tower">Torre</string>
     <string name="raft">Balsa</string>
     <string name="damage">Daño</string>
     <string name="range">Alcance</string>
     <string name="actions">Acciones</string>
-    
-    <!-- Enemies -->
     <string name="enemy">Enemigo</string>
     <string name="enemies">Enemigos</string>
-    
-    <!-- Status Messages -->
     <string name="locked">Bloqueado</string>
     <string name="unlocked">Desbloqueado</string>
     <string name="completed">Completado</string>
-    
-    <!-- World Map -->
     <string name="world_map_title">Mapa del mundo</string>
     <string name="world_map_subtitle">Prados de Egril</string>
     <string name="back_to_world_map">Volver al mapa del mundo</string>
     <string name="play_level">Jugar nivel</string>
     <string name="requires_completing">Requiere completar:</string>
-    
-    <!-- Load Game Screen -->
     <string name="no_saved_games">No se encontraron partidas guardadas</string>
-    
-    <!-- Rules Screen -->
     <string name="how_to_play">Cómo jugar</string>
     <string name="game_overview">Descripción del juego</string>
     <string name="game_overview_text">Defensor de Egril es un juego de defensa de torres por turnos. Defiende los prados de Egril contra oleadas de enemigos bajo la bandera malvada de Ewhad.</string>
@@ -160,8 +139,6 @@
     <string name="focus_fire">Concentra el fuego en enemigos resistentes (Ogros, Orcos)</string>
     <string name="wizard_for_aoe">Torres de mago para daño de área masivo</string>
     <string name="upgrade_vs_build">Mejora torres de alto nivel en lugar de construir nuevas</string>
-    
-    <!-- Additional RulesScreen strings -->
     <string name="attack_enemies_desc">Atacar enemigos - haz clic en la torre con acciones, luego en el enemigo al alcance</string>
     <string name="build_timers_advance">Los temporizadores de construcción avanzan (cuentan hacia atrás)</string>
     <string name="dot_effects_applied">Se aplican efectos de daño con el tiempo</string>
@@ -185,11 +162,7 @@
     <string name="coins_label">monedas</string>
     <string name="hp_label">PS</string>
     <string name="speed_label">Velocidad</string>
-    
-    <!-- Status text -->
     <string name="available">Disponible</string>
-    
-    <!-- Defender/Tower names -->
     <string name="spike_tower_name">Torre de púas</string>
     <string name="spear_tower_name">Torre de lanzas</string>
     <string name="bow_tower_name">Torre de arqueros</string>
@@ -198,15 +171,11 @@
     <string name="ballista_tower_name">Torre de balista</string>
     <string name="dwarven_mine_name">Mina</string>
     <string name="dragons_lair_name">Guarida del dragón</string>
-    
-    <!-- Attack type names -->
     <string name="attack_type_melee">Cuerpo a cuerpo</string>
     <string name="attack_type_ranged">A distancia</string>
     <string name="attack_type_fireball">Bola de fuego</string>
     <string name="attack_type_acid">Ácido</string>
     <string name="attack_type_special">Especial</string>
-    
-    <!-- Attacker/Enemy names -->
     <string name="goblin_name">Goblin</string>
     <string name="ork_name">Orco</string>
     <string name="ogre_name">Ogro</string>
@@ -220,13 +189,9 @@
     <string name="green_witch_name">Bruja verde</string>
     <string name="ewhad_name">Ewhad</string>
     <string name="dragon_name">Dragón</string>
-    
-    <!-- SavedGameCard strings -->
     <string name="enemies_on_map">Enemigos en el mapa:</string>
     <string name="enemies_to_come">Enemigos por venir:</string>
     <string name="delete_savegame">Eliminar partida guardada</string>
-    
-    <!-- Gameplay UI strings -->
     <string name="attack_button">ATAQUE</string>
     <string name="attack_area_button">ATAQUE DE ÁREA</string>
     <string name="undo">Deshacer</string>
@@ -262,8 +227,6 @@
     <string name="building_label">Construcción</string>
     <string name="active_label">Activos</string>
     <string name="planned_label">Planificados</string>
-    
-    <!-- GameLegend strings -->
     <string name="legend">Leyenda</string>
     <string name="areas_label">Áreas</string>
     <string name="build_island">Isla de construcción</string>
@@ -276,7 +239,6 @@
     <string name="not_enough_actions">no hay suficientes acciones</string>
     <string name="name_label">Nombre</string>
     <string name="reward">Recompensa</string>
-
     <string name="special_label">Especial</string>
     <string name="units_label">Unidades</string>
     <string name="tower_ready">Torre (Lista)</string>
@@ -286,24 +248,14 @@
     <string name="legend_info_tower_icons">Iconos muestran tipo de torre/enemigo</string>
     <string name="legend_info_tower_actions">Nivel y acciones mostradas en torres</string>
     <string name="legend_info_enemy_health">Salud mostrada en enemigos</string>
-    
-    <!-- EditorButtonCard strings -->
     <string name="level_editor">Editor de niveles</string>
     <string name="create_edit_maps_levels">Crear &amp; editar mapas y niveles</string>
-    
-    <!-- SavedGameCard additional strings -->
     <string name="built_towers">Torres construidas:</string>
-    
-    <!-- Gameplay page strings -->
     <string name="spawn">Spawn</string>
     <string name="target">Objetivo</string>
     <string name="start_battle">Iniciar batalla</string>
     <string name="your_turn_message">Tu turno - Coloca torres y ataca enemigos</string>
     <string name="building">en construcción</string>
-    
-    <!-- DefenderInfo mining strings -->
-    
-    <!-- Tower short names -->
     <string name="spike_tower_short">Púas</string>
     <string name="spear_tower_short">Lanza</string>
     <string name="bow_tower_short">Arco</string>
@@ -312,8 +264,6 @@
     <string name="ballista_tower_short">Balista</string>
     <string name="dwarven_mine_short">Mina</string>
     <string name="dragons_lair_short">Guarida</string>
-    
-    <!-- Editor strings -->
     <string name="map_editor">Editor de mapas</string>
     <string name="level_sequence">Secuencia de niveles</string>
     <string name="maps">Mapas</string>
@@ -400,15 +350,11 @@
     <string name="change_all_levels_in_turn">Cambiar todos los niveles en el turno %d</string>
     <string name="mixed_levels_warning">Este turno contiene unidades con diferentes niveles (%s). ¿Estás seguro de que quieres cambiarlos todos al nivel %d?</string>
     <string name="apply">Aplicar</string>
-
-    <!-- Enemy ability descriptions -->
     <string name="can_summon">Puede invocar secuaces</string>
     <string name="can_heal">Puede curar otros enemigos</string>
     <string name="can_disable_towers">Puede desactivar torres</string>
     <string name="immune_to_acid">Inmune al ácido</string>
     <string name="immune_to_fireball">Inmune a la bola de fuego</string>
-
-    <!-- Tutorial -->
     <string name="tutorial_welcome_title">¡Bienvenido a Defender of Egril!</string>
     <string name="tutorial_welcome">Este es un juego de defensa de torres. Tu objetivo es evitar que los enemigos lleguen al objetivo construyendo torres defensivas.</string>
     <string name="tutorial_resources_title">Recursos</string>
@@ -440,8 +386,6 @@
     <string name="tutorial_next">Siguiente</string>
     <string name="tutorial_got_it">¡Entendido!</string>
     <string name="tutorial_skip">Saltar tutorial</string>
-
-    <!-- Sound Settings -->
     <string name="sound">Sonido</string>
     <string name="sound_enabled">Sonido</string>
     <string name="sound_disabled">Silenciado</string>
@@ -464,14 +408,10 @@
     <string name="gameplay_music_volume">Volumen de música del juego</string>
     <string name="show_detailed_sound_settings">Mostrar configuración de sonido detallada</string>
     <string name="hide_detailed_sound_settings">Ocultar configuración de sonido detallada</string>
-
-    <!-- Control Pad Settings -->
     <string name="controls">Controles</string>
     <string name="show_control_pad">Mostrar panel de control</string>
     <string name="control_pad_enabled">Panel de Control</string>
     <string name="control_pad_disabled">Sin Panel de Control</string>
-    
-    <!-- Difficulty Settings -->
     <string name="difficulty">Dificultad</string>
     <string name="difficulty_baby">Bebé</string>
     <string name="difficulty_easy">Fácil</string>
@@ -484,30 +424,22 @@
     <string name="difficulty_hard_desc">Los enemigos tienen el doble de niveles</string>
     <string name="difficulty_nightmare_desc">Los enemigos aparecen 3 veces con niveles crecientes</string>
     <string name="difficulty_info_current_level">Nota: Cambiar la dificultad no afecta al nivel actual. Inicia o reinicia un nivel para aplicarlo.</string>
-    
-    <!-- Dragon Names -->
     <string name="the_dragon">El dragón</string>
     <string name="awakens">despierta</string>
     <string name="lair_of_the_dragon">Guarida del Dragón</string>
-
-    <!-- Dragon Info -->
     <string name="dragon_info_title">¡Alerta de Dragón!</string>
     <string name="dragon_info_movement">El dragón alterna movimiento: Turno 1, 3, 5...: Camina 1 casilla en el camino. Turno 2, 4, 6...: Vuela hasta 5 casillas, puede cruzar obstáculos pero debe aterrizar en el camino</string>
     <string name="dragon_info_eating">¡Los dragones devoran enemigos sobre los que aterrizan (excepto Ewhad), ganando sus puntos de salud!</string>
     <string name="dragon_info_level">El nivel del dragón aumenta con la salud: Nivel = PS ÷ 500 (mín. 1)</string>
     <string name="got_it">¡Entendido!</string>
-
-    <!-- Dragon Greed Info -->
     <string name="dragon_greed_title">¡Avaricia de Dragón!</string>
     <string name="dragon_greed_message">¡El dragón se ha vuelto codicioso! Avaricia = Nivel del Dragón ÷ 5. El dragón devorará unidades en casillas adyacentes según su nivel de avaricia cada turno.</string>
     <string name="dragon_very_greedy_title">¡Asalto Minero del Dragón!</string>
-    <string name="dragon_very_greedy_message">¡El dragón es muy codicioso (avaricia > 5)! Ahora cazará y destruirá minas enanas, absorbiendo toda la salud que tendría un nuevo dragón (500 PS por mina). ¡Las minas se convertirán en escombros destruidos. Defiéndelas o reconstruye rápidamente!</string>
+    <string name="dragon_very_greedy_message">¡El dragón es muy codicioso (avaricia &gt; 5)! Ahora cazará y destruirá minas enanas, absorbiendo toda la salud que tendría un nuevo dragón (500 PS por mina). ¡Las minas se convertirán en escombros destruidos. Defiéndelas o reconstruye rápidamente!</string>
     <string name="mine_warning_title">¡Mina Amenazada!</string>
     <string name="mine_warning_message">¡El dragón se acerca! Los enanos se preparan para defender su mina, pero puede que no sea suficiente...</string>
     <string name="one_hp_warning_title">¡Advertencia Crítica!</string>
     <string name="one_hp_warning_message">¡Solo tienes 1 punto de salud! Ni un solo enemigo puede alcanzar el objetivo, o perderás. ¡Defiende con extrema precaución!</string>
-    
-    <!-- Enemy Info Display -->
     <string name="greedy_label">codicioso</string>
     <string name="very_greedy_label">muy codicioso</string>
     <string name="greedy_desc">Come unidades enemigas cercanas</string>
@@ -516,7 +448,6 @@
     <string name="dragon_info_button">¿Qué hace un dragón?</string>
     <string name="mighty_unit_warning">¡Unidad poderosa! Inflige %d PV de daño si alcanza el objetivo (nivel × 1 PV)</string>
     <string name="ewhad_target_warning">¡JEFE! Si Ewhad alcanza el objetivo, ¡el nivel se pierde!</string>
-<!-- Waypoint Editor -->
     <string name="waypoints_tab">Puntos de Paso</string>
     <string name="waypoints_title">Conexiones de Puntos de Paso</string>
     <string name="waypoints_description">Configure las conexiones de puntos de paso para este nivel. Los puntos de paso definen el camino que seguirán los enemigos.</string>
@@ -569,8 +500,6 @@
     <string name="cancel_connection">Cancelar</string>
     <string name="drag_to_reorder">Arrastra para reordenar</string>
     <string name="drag_to_add">Arrastra para agregar</string>
-    
-    <!-- Plurals -->
     <plurals name="enemy_count">
         <item quantity="one">%d enemigo</item>
         <item quantity="other">%d enemigos</item>
@@ -587,8 +516,6 @@
         <item quantity="one">%d punto de salud</item>
         <item quantity="other">%d puntos de salud</item>
     </plurals>
-    
-    <!-- New Repository Data Dialog -->
     <string name="new_repository_data_title">Nuevo contenido disponible</string>
     <string name="new_repository_data_message">Se han encontrado nuevos mapas y niveles en el repositorio que no están en sus datos del juego. ¿Desea agregarlos?</string>
     <string name="new_maps_found">%d nuevo(s) mapa(s) encontrado(s):</string>
@@ -597,26 +524,18 @@
     <string name="sequence_will_be_replaced">La secuencia de niveles se actualizará.</string>
     <string name="sequence_backup_warning">Nota: Si ha modificado el archivo de secuencia, deberá rehacer esos cambios. Su secuencia actual se respaldará en sequence-N.json.</string>
     <string name="add_data">Agregar nuevo contenido</string>
-    
-    <!-- Unsaved Changes Dialog -->
     <string name="unsaved_changes_title">Cambios no guardados</string>
     <string name="unsaved_changes_message">Tienes progreso no guardado en este nivel. ¿Qué te gustaría hacer?</string>
     <string name="save_and_exit">Guardar y Salir</string>
     <string name="discard_changes">Descartar Cambios</string>
-    
-    <!-- End Turn Confirmation Dialog -->
     <string name="end_turn_confirmation_title">¿Terminar turno?</string>
     <string name="end_turn_confirmation_message">Tienes torres con puntos de acción sin usar. ¿Estás seguro de que quieres terminar tu turno?</string>
     <string name="end_turn_confirm">Terminar turno</string>
-    
-    <!-- Magical Trap Feature -->
     <string name="magical_trap">Trampa Mágica</string>
     <string name="magical_trap_cooldown">Enfriamiento: %d turnos</string>
     <string name="magical_trap_available">Trampa Mágica Disponible</string>
     <string name="magical_trap_tutorial_title">¡Trampa Mágica Desbloqueada!</string>
     <string name="magical_trap_tutorial_message">¡Tu torre de mago ha alcanzado el nivel 10 y ahora puede colocar trampas mágicas! Estas trampas teletransportan a los enemigos de vuelta a su punto de aparición cuando se activan. Después de colocar una trampa, hay un tiempo de enfriamiento de 10 turnos antes de poder colocar otra.</string>
-    
-    <!-- Level Prerequisites -->
     <string name="level_dependencies">Dependencias de Nivel</string>
     <string name="validation_passed">Validación Exitosa</string>
     <string name="validation_failed">Validación Fallida</string>
@@ -631,63 +550,39 @@
     <string name="all">todos</string>
     <string name="requires">Requiere</string>
     <string name="entry_point">Punto de Entrada</string>
-    
-    <!-- World Map Locations -->
     <string name="levels_at_location">%s nivel(es) en esta ubicación</string>
     <string name="requires_any_of">Requiere completar %s de:</string>
     <string name="requires_all">Requiere completar todos:</string>
-    
-    <!-- World Map Position Editor -->
     <string name="world_map_positions">Mapa Mundial</string>
     <string name="world_map_position_instructions">Seleccione un mapa de la lista, luego haga clic en el mapa mundial para establecer su posición. La posición se guarda como un permil (0-1000) de las dimensiones del mapa.</string>
     <string name="no_position_set">Sin posición establecida</string>
-    <!-- Extended Area Attack Feature -->
     <string name="extended_area_tutorial_title">¡Ataque de Área Extendido!</string>
     <string name="extended_area_tutorial_message">¡Tu torre ha alcanzado el nivel 20 y ahora tiene un ataque de área extendido! Los ataques de bola de fuego y ácido ahora afectan a enemigos dentro de 2 casillas del objetivo en lugar de solo 1. ¡Esto hace que tus ataques de área sean mucho más poderosos contra grupos de enemigos!</string>
-
-    <!-- First Time Tower Usage Info -->
     <string name="wizard_first_use_title">Torre de Mago</string>
     <string name="wizard_first_use_message">¡La Torre de Mago es una poderosa torre de área de efecto que lanza bolas de fuego a los enemigos! Cada bola de fuego daña al objetivo y a todos los enemigos en casillas adyacentes. Tiene un tiempo de construcción más largo (2 turnos) pero puede devastar grupos de enemigos. En el nivel 10, los magos pueden colocar trampas mágicas que teletransportan enemigos de vuelta al punto de aparición. ¡En el nivel 20, el radio de la bola de fuego aumenta a 2 casillas!</string>
-
     <string name="alchemy_first_use_title">Torre de Alquimia</string>
     <string name="alchemy_first_use_message">¡La Torre de Alquimia lanza ácido que causa daño con el tiempo! A diferencia de otras torres, el daño del ácido persiste durante múltiples rondas (base 2 turnos, aumenta con el nivel). El ácido afecta al objetivo y a los enemigos adyacentes en un área pequeña. Aunque el daño por turno es menor, el daño total con el tiempo puede ser muy efectivo. ¡En el nivel 20, el área de ácido aumenta a 2 casillas!</string>
-
     <string name="ballista_first_use_title">Torre de Ballesta</string>
     <string name="ballista_first_use_message">¡La Ballesta es un arma de asedio de largo alcance con un alcance excepcional (5 casillas) y alto daño! Sin embargo, tiene un alcance mínimo de 3 casillas y no puede atacar enemigos cercanos. Requiere 2 turnos para construirse. Úsala para atacar enemigos desde la distancia antes de que se acerquen demasiado, o colócala detrás de otras torres para máxima efectividad.</string>
-
     <string name="mine_first_use_title">Mina Enana</string>
     <string name="mine_first_use_message">¡La Mina Enana es una estructura especial que genera monedas mediante operaciones mineras! A diferencia de las torres de combate, las minas usan la acción "cavar" para encontrar recursos valiosos (escombros, latón, plata, oro, gemas o diamantes). Las minas también pueden construir trampas que dañan a los enemigos. En niveles más altos, las minas pueden cavar más veces por turno y alcanzar más lejos. Advertencia: ¡Los dragones son codiciosos y destruirán las minas para reclamar el tesoro!</string>
-
-    <!-- River Mechanics Info -->
     <string name="river_info_title">Mecánicas del Río</string>
     <string name="river_info_placement">¡Puedes colocar torres en casillas de río! Cuando lo hagas, se colocarán en balsas.</string>
     <string name="river_info_movement">Las balsas se mueven automáticamente con el flujo del río al final de cada turno. La velocidad del flujo determina cuántas casillas se mueven (1 o 2 casillas).</string>
     <string name="river_info_destruction">Las balsas se destruyen si alcanzan un remolino o se mueven fuera de los límites del mapa. La torre en la balsa también se destruye.</string>
     <string name="river_info_bridges">Los puentes bloquean el movimiento de las balsas. Las balsas no pueden pasar a través de puentes que cruzan el río. Múltiples balsas en el mismo río se mueven en orden - las que están río abajo se mueven primero.</string>
-
-    <!-- Mine on River Warning -->
     <string name="mine_on_river_warning_title">No se puede colocar mina en el río</string>
     <string name="mine_on_river_warning_message">Las minas enanas no se pueden colocar en casillas de río. Las minas requieren tierra firme y no se pueden construir en balsas. Por favor selecciona un área de construcción en tierra.</string>
-
-    <!-- Mining Outcome Table Headers -->
     <string name="dig_outcome_name">Nombre</string>
     <string name="dig_outcome_chance">Probabilidad (%)</string>
     <string name="dig_outcome_reward">Recompensa</string>
-
-    <!-- Delete Confirmation Dialog -->
     <string name="delete_save_game">Eliminar partida guardada</string>
     <string name="delete_save_game_confirm">¿Estás seguro de que deseas eliminar esta partida guardada?</string>
-
-    <!-- Editor - Speed Labels -->
     <string name="speed_slow">1 (Lento)</string>
     <string name="speed_fast">2 (Rápido)</string>
-
-    <!-- Editor - River Properties -->
     <string name="river_properties">Propiedades del río</string>
     <string name="flow_direction">Dirección del flujo:</string>
     <string name="flow_speed">Velocidad del flujo:</string>
-
-    <!-- Editor - World Map Position Editor -->
     <string name="add_location">+ Añadir ubicación</string>
     <string name="add_location_dialog_title">Añadir ubicación</string>
     <string name="location_name">Nombre de ubicación</string>
@@ -710,8 +605,6 @@
     <string name="from">Desde:</string>
     <string name="to">Hasta:</string>
     <string name="connection_type">Tipo de conexión:</string>
-    
-    <!-- Editor Info Page -->
     <string name="info">Info</string>
     <string name="editor_info_title">Guía del Editor de Niveles</string>
     <string name="editor_info_intro">¡Bienvenido al Editor de Niveles! Esta herramienta te permite crear mapas personalizados, niveles y secuencias de niveles para Defender of Egril.</string>
@@ -739,13 +632,15 @@
     <string name="editor_info_world_map_features">Establecer coordenadas X/Y para cada nivel - Crear conexiones entre niveles (camino o mar) - Conectar automáticamente niveles según dependencias - Configurar estilos visuales de conexión - Definir puntos de ruta para caminos de conexión</string>
     <string name="editor_info_tips_title">Consejos</string>
     <string name="editor_info_tips_text">Guarda frecuentemente para evitar perder trabajo - Prueba tus niveles en el juego para asegurarte de que estén balanceados - Usa los niveles existentes como plantillas - Los mapas pueden reutilizarse en múltiples niveles - La secuencia determina qué niveles son jugables</string>
-
     <string name="game_sticker_tagline">Open Source Turn Based Fantasy Tower Defense Game</string>
-    
-    <!-- Level Names -->
     <string name="level_welcome_to_defender_of_egril_title">Bienvenido a Defender of Egril</string>
     <string name="level_welcome_to_defender_of_egril_subtitle">Tutorial</string>
-    <string name="level_the_first_wave_title">La Primera Ola</string>    <string name="level_mixed_forces_title">Fuerzas Mixtas</string>    <string name="level_the_ork_invasion_title">La Invasión Ork</string>    <string name="level_dark_magic_rises_title">La Magia Oscura Se Levanta</string>    <string name="level_the_final_stand_title">La Última Batalla</string>    <string name="level_the_plains_title">Las Llanuras</string>
+    <string name="level_the_first_wave_title">La Primera Ola</string>
+    <string name="level_mixed_forces_title">Fuerzas Mixtas</string>
+    <string name="level_the_ork_invasion_title">La Invasión Ork</string>
+    <string name="level_dark_magic_rises_title">La Magia Oscura Se Levanta</string>
+    <string name="level_the_final_stand_title">La Última Batalla</string>
+    <string name="level_the_plains_title">Las Llanuras</string>
     <string name="level_the_plains_subtitle">Batalla en Campo Abierto</string>
     <string name="level_the_spiral_challenge_title">El Desafío de la Espiral</string>
     <string name="level_the_spiral_challenge_subtitle">Navega por la Espiral</string>
@@ -762,10 +657,19 @@
     <string name="level_the_cross_title">La Cruz</string>
     <string name="level_the_cross_subtitle">Cuatro Caminos Divididos</string>
     <string name="level_the_winding_path_title">El Camino Sinuoso</string>
-    <string name="level_the_winding_path_subtitle">Un Camino Largo y Tortuoso</string>        <string name="level_the_fortress_title">La Fortaleza %s</string>
-    <string name="level_the_fortress_1_first_attacks_subtitle">Primeros Ataques</string>    <string name="level_the_fortress_2_orks_marching_subtitle">Los Orks Están Marchando</string>    <string name="level_the_fortress_3_necromancer_subtitle">El Nigromante</string>    <string name="level_the_fortress_4_magic_assault_subtitle">Asalto Mágico</string>    <string name="level_the_fortress_5_mighty_forces_subtitle">Fuerzas Poderosas</string>
-    <string name="level_ewhads_challenge_title">Desafío de Ewhad</string>    <string name="level_the_creek_title">El Arroyo</string>    <string name="level_the_island_title">La Isla</string>    <string name="level_the_river_title">El Río</string>    <string name="level_creek_valley_title">Valle del Arroyo</string>    <string name="level_maelstrom_title">Vorágine</string>    
-    <!-- Map Names -->
+    <string name="level_the_winding_path_subtitle">Un Camino Largo y Tortuoso</string>
+    <string name="level_the_fortress_title">La Fortaleza %s</string>
+    <string name="level_the_fortress_1_first_attacks_subtitle">Primeros Ataques</string>
+    <string name="level_the_fortress_2_orks_marching_subtitle">Los Orks Están Marchando</string>
+    <string name="level_the_fortress_3_necromancer_subtitle">El Nigromante</string>
+    <string name="level_the_fortress_4_magic_assault_subtitle">Asalto Mágico</string>
+    <string name="level_the_fortress_5_mighty_forces_subtitle">Fuerzas Poderosas</string>
+    <string name="level_ewhads_challenge_title">Desafío de Ewhad</string>
+    <string name="level_the_creek_title">El Arroyo</string>
+    <string name="level_the_island_title">La Isla</string>
+    <string name="level_the_river_title">El Río</string>
+    <string name="level_creek_valley_title">Valle del Arroyo</string>
+    <string name="level_maelstrom_title">Vorágine</string>
     <string name="map_tutorial_name">Mapa Tutorial</string>
     <string name="map_straight_name">Mapa Recto</string>
     <string name="map_plains_name">Las Llanuras</string>
@@ -783,8 +687,6 @@
     <string name="map_the_river_name">El Río</string>
     <string name="map_creek_valley_name">Valle del Arroyo</string>
     <string name="map_the_maelstrom_name">La Vorágine</string>
-    
-    <!-- World Map Location Names -->
     <string name="location_tutorial_name">Tutorial</string>
     <string name="location_the_beginning_name">El Comienzo</string>
     <string name="location_the_plains_name">Las Llanuras</string>
