@@ -4,7 +4,6 @@
   "title": "The Island",
   "titleKey": "level_the_island_title",
   "subtitle": "",
-  "subtitleKey": "level_the_island_subtitle",
   "startCoins": 100,
   "startHealthPoints": 10,
   "enemySpawns": [

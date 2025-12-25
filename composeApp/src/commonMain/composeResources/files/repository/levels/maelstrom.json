@@ -4,7 +4,6 @@
   "title": "Maelstrom",
   "titleKey": "level_maelstrom_title",
   "subtitle": "",
-  "subtitleKey": "level_maelstrom_subtitle",
   "startCoins": 1000,
   "startHealthPoints": 10,
   "enemySpawns": [

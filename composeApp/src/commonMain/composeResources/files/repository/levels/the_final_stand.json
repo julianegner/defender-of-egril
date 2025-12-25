@@ -4,7 +4,6 @@
   "title": "The Final Stand",
   "titleKey": "level_the_final_stand_title",
   "subtitle": "",
-  "subtitleKey": "level_the_final_stand_subtitle",
   "startCoins": 1000,
   "startHealthPoints": 100,
   "enemySpawns": [

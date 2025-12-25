@@ -745,17 +745,7 @@
     <!-- Level Names -->
     <string name="level_welcome_to_defender_of_egril_title">Bienvenue à Defender of Egril</string>
     <string name="level_welcome_to_defender_of_egril_subtitle">Tutoriel</string>
-    <string name="level_the_first_wave_title">La Première Vague</string>
-    <string name="level_the_first_wave_subtitle"></string>
-    <string name="level_mixed_forces_title">Forces Mixtes</string>
-    <string name="level_mixed_forces_subtitle"></string>
-    <string name="level_the_ork_invasion_title">L\'Invasion Ork</string>
-    <string name="level_the_ork_invasion_subtitle"></string>
-    <string name="level_dark_magic_rises_title">La Magie Noire Se Lève</string>
-    <string name="level_dark_magic_rises_subtitle"></string>
-    <string name="level_the_final_stand_title">La Dernière Bataille</string>
-    <string name="level_the_final_stand_subtitle"></string>
-    <string name="level_the_plains_title">Les Plaines</string>
+    <string name="level_the_first_wave_title">La Première Vague</string>    <string name="level_mixed_forces_title">Forces Mixtes</string>    <string name="level_the_ork_invasion_title">L\'Invasion Ork</string>    <string name="level_dark_magic_rises_title">La Magie Noire Se Lève</string>    <string name="level_the_final_stand_title">La Dernière Bataille</string>    <string name="level_the_plains_title">Les Plaines</string>
     <string name="level_the_plains_subtitle">Bataille en Plein Champ</string>
     <string name="level_the_spiral_challenge_title">Le Défi de la Spirale</string>
     <string name="level_the_spiral_challenge_subtitle">Naviguez dans la Spirale</string>
@@ -772,30 +762,9 @@
     <string name="level_the_cross_title">La Croix</string>
     <string name="level_the_cross_subtitle">Quatre Chemins Divisés</string>
     <string name="level_the_winding_path_title">Le Chemin Sinueux</string>
-    <string name="level_the_winding_path_subtitle">Une Route Longue et Tortueuse</string>
-    <string name="level_the_fortress_1_first_attacks_title">La Forteresse 1</string>
-    <string name="level_the_fortress_1_first_attacks_subtitle">Premières Attaques</string>
-    <string name="level_the_fortress_2_orks_marching_title">La Forteresse 2</string>
-    <string name="level_the_fortress_2_orks_marching_subtitle">Les Orks Marchent</string>
-    <string name="level_the_fortress_3_necromancer_title">La Forteresse 3</string>
-    <string name="level_the_fortress_3_necromancer_subtitle">Le Nécromancien</string>
-    <string name="level_the_fortress_4_magic_assault_title">La Forteresse 4</string>
-    <string name="level_the_fortress_4_magic_assault_subtitle">Assaut Magique</string>
-    <string name="level_the_fortress_5_mighty_forces_title">La Forteresse 5</string>
-    <string name="level_the_fortress_5_mighty_forces_subtitle">Forces Puissantes</string>
-    <string name="level_ewhads_challenge_title">Défi d\'Ewhad</string>
-    <string name="level_ewhads_challenge_subtitle"></string>
-    <string name="level_the_creek_title">Le Ruisseau</string>
-    <string name="level_the_creek_subtitle"></string>
-    <string name="level_the_island_title">L\'Île</string>
-    <string name="level_the_island_subtitle"></string>
-    <string name="level_the_river_title">La Rivière</string>
-    <string name="level_the_river_subtitle"></string>
-    <string name="level_creek_valley_title">Vallée du Ruisseau</string>
-    <string name="level_creek_valley_subtitle"></string>
-    <string name="level_maelstrom_title">Maelström</string>
-    <string name="level_maelstrom_subtitle"></string>
-    
+    <string name="level_the_winding_path_subtitle">Une Route Longue et Tortueuse</string>        <string name="level_the_fortress_title">La Forteresse %s</string>
+    <string name="level_the_fortress_1_first_attacks_subtitle">Premières Attaques</string>    <string name="level_the_fortress_2_orks_marching_subtitle">Les Orks Marchent</string>    <string name="level_the_fortress_3_necromancer_subtitle">Le Nécromancien</string>    <string name="level_the_fortress_4_magic_assault_subtitle">Assaut Magique</string>    <string name="level_the_fortress_5_mighty_forces_subtitle">Forces Puissantes</string>
+    <string name="level_ewhads_challenge_title">Défi d\'Ewhad</string>    <string name="level_the_creek_title">Le Ruisseau</string>    <string name="level_the_island_title">L\'Île</string>    <string name="level_the_river_title">La Rivière</string>    <string name="level_creek_valley_title">Vallée du Ruisseau</string>    <string name="level_maelstrom_title">Maelström</string>    
     <!-- Map Names -->
     <string name="map_tutorial_name">Carte Tutoriel</string>
     <string name="map_straight_name">Carte Droite</string>

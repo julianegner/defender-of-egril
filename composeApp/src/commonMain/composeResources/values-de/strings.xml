@@ -744,17 +744,7 @@
     <!-- Level Names -->
     <string name="level_welcome_to_defender_of_egril_title">Willkommen bei Defender of Egril</string>
     <string name="level_welcome_to_defender_of_egril_subtitle">Tutorial</string>
-    <string name="level_the_first_wave_title">Die Erste Welle</string>
-    <string name="level_the_first_wave_subtitle"></string>
-    <string name="level_mixed_forces_title">Gemischte Streitkräfte</string>
-    <string name="level_mixed_forces_subtitle"></string>
-    <string name="level_the_ork_invasion_title">Die Ork-Invasion</string>
-    <string name="level_the_ork_invasion_subtitle"></string>
-    <string name="level_dark_magic_rises_title">Dunkle Magie Erhebt Sich</string>
-    <string name="level_dark_magic_rises_subtitle"></string>
-    <string name="level_the_final_stand_title">Der Letzte Widerstand</string>
-    <string name="level_the_final_stand_subtitle"></string>
-    <string name="level_the_plains_title">Die Ebenen</string>
+    <string name="level_the_first_wave_title">Die Erste Welle</string>    <string name="level_mixed_forces_title">Gemischte Streitkräfte</string>    <string name="level_the_ork_invasion_title">Die Ork-Invasion</string>    <string name="level_dark_magic_rises_title">Dunkle Magie Erhebt Sich</string>    <string name="level_the_final_stand_title">Der Letzte Widerstand</string>    <string name="level_the_plains_title">Die Ebenen</string>
     <string name="level_the_plains_subtitle">Schlacht auf offenem Feld</string>
     <string name="level_the_spiral_challenge_title">Die Spiral-Herausforderung</string>
     <string name="level_the_spiral_challenge_subtitle">Navigiere durch die Spirale</string>
@@ -771,30 +761,9 @@
     <string name="level_the_cross_title">Das Kreuz</string>
     <string name="level_the_cross_subtitle">Vier geteilte Pfade</string>
     <string name="level_the_winding_path_title">Der gewundene Pfad</string>
-    <string name="level_the_winding_path_subtitle">Eine lange und verschlungene Straße</string>
-    <string name="level_the_fortress_1_first_attacks_title">Die Festung 1</string>
-    <string name="level_the_fortress_1_first_attacks_subtitle">Erste Angriffe</string>
-    <string name="level_the_fortress_2_orks_marching_title">Die Festung 2</string>
-    <string name="level_the_fortress_2_orks_marching_subtitle">Die Orks marschieren</string>
-    <string name="level_the_fortress_3_necromancer_title">Die Festung 3</string>
-    <string name="level_the_fortress_3_necromancer_subtitle">Der Nekromant</string>
-    <string name="level_the_fortress_4_magic_assault_title">Die Festung 4</string>
-    <string name="level_the_fortress_4_magic_assault_subtitle">Magischer Angriff</string>
-    <string name="level_the_fortress_5_mighty_forces_title">Die Festung 5</string>
-    <string name="level_the_fortress_5_mighty_forces_subtitle">Mächtige Streitkräfte</string>
-    <string name="level_ewhads_challenge_title">Ewhads Herausforderung</string>
-    <string name="level_ewhads_challenge_subtitle"></string>
-    <string name="level_the_creek_title">Der Bach</string>
-    <string name="level_the_creek_subtitle"></string>
-    <string name="level_the_island_title">Die Insel</string>
-    <string name="level_the_island_subtitle"></string>
-    <string name="level_the_river_title">Der Fluss</string>
-    <string name="level_the_river_subtitle"></string>
-    <string name="level_creek_valley_title">Bachtal</string>
-    <string name="level_creek_valley_subtitle"></string>
-    <string name="level_maelstrom_title">Mahlstrom</string>
-    <string name="level_maelstrom_subtitle"></string>
-    
+    <string name="level_the_winding_path_subtitle">Eine lange und verschlungene Straße</string>        <string name="level_the_fortress_title">Die Festung %s</string>
+    <string name="level_the_fortress_1_first_attacks_subtitle">Erste Angriffe</string>    <string name="level_the_fortress_2_orks_marching_subtitle">Die Orks marschieren</string>    <string name="level_the_fortress_3_necromancer_subtitle">Der Nekromant</string>    <string name="level_the_fortress_4_magic_assault_subtitle">Magischer Angriff</string>    <string name="level_the_fortress_5_mighty_forces_subtitle">Mächtige Streitkräfte</string>
+    <string name="level_ewhads_challenge_title">Ewhads Herausforderung</string>    <string name="level_the_creek_title">Der Bach</string>    <string name="level_the_island_title">Die Insel</string>    <string name="level_the_river_title">Der Fluss</string>    <string name="level_creek_valley_title">Bachtal</string>    <string name="level_maelstrom_title">Mahlstrom</string>    
     <!-- Map Names -->
     <string name="map_tutorial_name">Tutorial-Karte</string>
     <string name="map_straight_name">Gerade Karte</string>

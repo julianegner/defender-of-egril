@@ -38,11 +38,23 @@ fun EditorMap.getLocalizedName(locale: AppLocale = currentLanguage.value): Strin
 /**
  * Get the localized title for a level.
  * Falls back to the direct title if titleKey is null or not found in resources.
+ * 
+ * Supports parameterized keys in format "key:param" where param is substituted into the translated string.
+ * Example: "level_the_fortress_title:1" -> looks up "level_the_fortress_title" and replaces %s with "1"
  */
 fun EditorLevel.getLocalizedTitle(locale: AppLocale = currentLanguage.value): String {
     return if (titleKey != null) {
         try {
-            LocalizedStrings.get(titleKey, locale)
+            // Check if titleKey contains a parameter (format: "key:param")
+            if (titleKey.contains(':')) {
+                val parts = titleKey.split(':', limit = 2)
+                val baseKey = parts[0]
+                val param = parts[1]
+                val template = LocalizedStrings.get(baseKey, locale)
+                template.replace("%s", param)
+            } else {
+                LocalizedStrings.get(titleKey, locale)
+            }
         } catch (e: Exception) {
             title  // Fallback to direct title if key not found
         }

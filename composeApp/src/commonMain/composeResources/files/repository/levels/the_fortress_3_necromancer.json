@@ -2,7 +2,7 @@
   "id": "the_fortress_3_necromancer",
   "mapId": "map_the_fortress",
   "title": "The Fortress 3",
-  "titleKey": "level_the_fortress_3_necromancer_title",
+  "titleKey": "level_the_fortress_title:3",
   "subtitle": "The Necromancer",
   "subtitleKey": "level_the_fortress_3_necromancer_subtitle",
   "startCoins": 300,

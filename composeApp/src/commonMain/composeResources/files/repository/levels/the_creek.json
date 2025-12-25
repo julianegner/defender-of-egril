@@ -4,7 +4,6 @@
   "title": "The Creek",
   "titleKey": "level_the_creek_title",
   "subtitle": "",
-  "subtitleKey": "level_the_creek_subtitle",
   "startCoins": 200,
   "startHealthPoints": 10,
   "enemySpawns": [

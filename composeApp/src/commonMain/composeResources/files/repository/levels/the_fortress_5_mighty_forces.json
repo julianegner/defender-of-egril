@@ -2,7 +2,7 @@
   "id": "the_fortress_5_mighty_forces",
   "mapId": "map_the_fortress",
   "title": "The Fortress 5",
-  "titleKey": "level_the_fortress_5_mighty_forces_title",
+  "titleKey": "level_the_fortress_title:5",
   "subtitle": "Mighty Forces",
   "subtitleKey": "level_the_fortress_5_mighty_forces_subtitle",
   "startCoins": 500,
