@@ -64,11 +64,11 @@ fun ApplicationBanner(
                 drawOrkSymbol(centerX, centerY.minus(10), iconSize * 0.7f)
                 drawEvilWizardSymbol(centerX.minus(20), centerY, iconSize * 0.7f)
 
-                // Draw bow tower
-                drawTower(DefenderType.BOW_TOWER, centerX.plus(80), centerY.minus(20), iconSize, lineColor)
+                // Draw bow tower (increased offset for better spacing from enemy icons)
+                drawTower(DefenderType.BOW_TOWER, centerX.plus(100), centerY.minus(20), iconSize, lineColor)
                 
                 // Draw background with same trapezoid shape as wizard tower to prevent bow tower from showing through
-                val wizardCenterX = centerX.plus(100)
+                val wizardCenterX = centerX.plus(120)
                 val wizardCenterY = centerY
                 val wizardBaseSize = iconSize * 0.8f
                 val topWidth = wizardBaseSize * 0.4f
@@ -97,8 +97,8 @@ fun ApplicationBanner(
                     )
                 }
                 
-                // Draw wizard tower
-                drawTower(DefenderType.WIZARD_TOWER, centerX.plus(100), centerY, iconSize, lineColor)
+                // Draw wizard tower (increased offset for better spacing from enemy icons)
+                drawTower(DefenderType.WIZARD_TOWER, centerX.plus(120), centerY, iconSize, lineColor)
             }
         }
         
