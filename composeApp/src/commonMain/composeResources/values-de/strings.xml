@@ -801,4 +801,20 @@
     <string name="location_the_river_name">Der Fluss</string>
     <string name="location_creek_valley_name">Bachtal</string>
     <string name="location_the_maelstrom_name">Der Mahlstrom</string>
+    <!-- Player Profile Strings -->
+    <string name="player_create_title">Neuen Spieler erstellen</string>
+    <string name="player_create_prompt">Geben Sie Ihren Spielernamen ein</string>
+    <string name="player_edit_title">Spielernamen bearbeiten</string>
+    <string name="player_edit_prompt">Geben Sie einen neuen Namen für diesen Spieler ein</string>
+    <string name="player_name">Spielername</string>
+    <string name="player_name_empty_error">Spielername darf nicht leer sein</string>
+    <string name="player_name_too_long_error">Spielername ist zu lang (max. 50 Zeichen)</string>
+    <string name="player_name_exists_error">Ein Spieler mit diesem Namen existiert bereits</string>
+    <string name="player_select_title">Spieler auswählen</string>
+    <string name="player_no_profiles">Keine Spielerprofile gefunden. Erstellen Sie ein neues Profil, um zu spielen!</string>
+    <string name="player_last_played">Zuletzt gespielt: %s</string>
+    <string name="player_new">Neuer Spieler</string>
+    <string name="player_delete_confirm_title">Spieler löschen?</string>
+    <string name="player_delete_confirm_message">Möchten Sie wirklich den Spieler "%s" löschen? Alle Fortschritte und Speicherstände dieses Spielers werden dauerhaft gelöscht.</string>
+    <string name="switch_player">Spieler wechseln</string>
 </resources>
