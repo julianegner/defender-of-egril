@@ -17,14 +17,16 @@ import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
 
 /**
- * Dialog for creating a new player profile
+ * Dialog for creating or editing a player profile
  */
 @Composable
-fun CreatePlayerDialog(
-    onCreatePlayer: (String) -> Unit,
+fun PlayerNameDialog(
+    initialName: String = "",
+    isEdit: Boolean = false,
+    onSave: (String) -> Unit,
     onDismiss: () -> Unit
 ) {
-    var playerName by remember { mutableStateOf("") }
+    var playerName by remember { mutableStateOf(initialName) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     
     // Pre-fetch error messages for use in non-composable contexts
@@ -42,7 +44,11 @@ fun CreatePlayerDialog(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = stringResource(Res.string.player_create_title),
+                    text = if (isEdit) {
+                        stringResource(Res.string.player_edit_title)
+                    } else {
+                        stringResource(Res.string.player_create_title)
+                    },
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold
                 )
@@ -50,7 +56,11 @@ fun CreatePlayerDialog(
                 Spacer(modifier = Modifier.height(16.dp))
                 
                 Text(
-                    text = stringResource(Res.string.player_create_prompt),
+                    text = if (isEdit) {
+                        stringResource(Res.string.player_edit_prompt)
+                    } else {
+                        stringResource(Res.string.player_create_prompt)
+                    },
                     style = MaterialTheme.typography.bodyMedium
                 )
                 
@@ -96,17 +106,36 @@ fun CreatePlayerDialog(
                             when {
                                 trimmed.isEmpty() -> errorMessage = emptyNameError
                                 trimmed.length > 50 -> errorMessage = tooLongNameError
-                                else -> onCreatePlayer(trimmed)
+                                else -> onSave(trimmed)
                             }
                         },
                         modifier = Modifier.weight(1f)
                     ) {
-                        Text(stringResource(Res.string.create))
+                        Text(if (isEdit) {
+                            stringResource(Res.string.save)
+                        } else {
+                            stringResource(Res.string.create)
+                        })
                     }
                 }
             }
         }
     }
+}
+
+/**
+ * Dialog for creating a new player profile (wrapper for backward compatibility)
+ */
+@Composable
+fun CreatePlayerDialog(
+    onCreatePlayer: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    PlayerNameDialog(
+        isEdit = false,
+        onSave = onCreatePlayer,
+        onDismiss = onDismiss
+    )
 }
 
 /**

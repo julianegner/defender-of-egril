@@ -43,6 +43,7 @@ fun App() {
         // Show player selection dialog if needed
         var showPlayerSelection by remember { mutableStateOf(false) }
         var showCreatePlayer by remember { mutableStateOf(false) }
+        var showEditPlayer by remember { mutableStateOf(false) }
         
         // On first launch, show create player dialog if no players exist
         LaunchedEffect(needsPlayerSelection) {
@@ -102,12 +103,27 @@ fun App() {
             )
         }
         
+        if (showEditPlayer) {
+            PlayerNameDialog(
+                initialName = currentPlayer?.name ?: "",
+                isEdit = true,
+                onSave = { newName ->
+                    val success = viewModel.renameCurrentPlayer(newName)
+                    if (success) {
+                        showEditPlayer = false
+                    }
+                },
+                onDismiss = { showEditPlayer = false }
+            )
+        }
+        
         when (val screen = currentScreen) {
             is Screen.MainMenu -> {
                 MainMenuScreen(
                     onStartGame = { viewModel.navigateToWorldMap() },
                     onShowRules = { viewModel.navigateToRules() },
                     onSelectPlayer = { showPlayerSelection = true },
+                    onEditPlayerName = { showEditPlayer = true },
                     currentPlayerName = currentPlayer?.name
                 )
             }
@@ -123,6 +139,7 @@ fun App() {
                     onCheatCode = { code -> viewModel.applyWorldMapCheatCode(code) },
                     onReloadWorldMap = { viewModel.reloadWorldMap() },
                     onSwitchPlayer = { showPlayerSelection = true },
+                    onEditPlayerName = { showEditPlayer = true },
                     currentPlayerName = currentPlayer?.name
                 )
             }

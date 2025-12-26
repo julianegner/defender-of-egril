@@ -745,6 +745,8 @@
     <!-- Player Profile Strings -->
     <string name="player_create_title">Créer un nouveau joueur</string>
     <string name="player_create_prompt">Entrez votre nom de joueur</string>
+    <string name="player_edit_title">Modifier le nom du joueur</string>
+    <string name="player_edit_prompt">Entrez un nouveau nom pour ce joueur</string>
     <string name="player_name">Nom du joueur</string>
     <string name="player_name_empty_error">Le nom du joueur ne peut pas être vide</string>
     <string name="player_name_too_long_error">Le nom du joueur est trop long (max. 50 caractères)</string>

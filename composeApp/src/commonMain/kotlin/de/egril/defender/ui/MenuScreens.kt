@@ -3,6 +3,7 @@
 package de.egril.defender.ui
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -32,6 +33,7 @@ fun MainMenuScreen(
     onStartGame: () -> Unit,
     onShowRules: () -> Unit,
     onSelectPlayer: () -> Unit,
+    onEditPlayerName: () -> Unit,
     currentPlayerName: String?
 ) {
     // Track if settings hint should be shown
@@ -60,7 +62,9 @@ fun MainMenuScreen(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Column {
+                    Column(
+                        modifier = Modifier.clickable { onEditPlayerName() }
+                    ) {
                         Text(
                             text = stringResource(Res.string.player_name),
                             style = MaterialTheme.typography.labelSmall,
@@ -70,7 +74,7 @@ fun MainMenuScreen(
                             text = currentPlayerName,
                             style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onBackground
+                            color = MaterialTheme.colorScheme.primary
                         )
                     }
                     
