@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.sp
 import de.egril.defender.editor.EditorStorage
 import de.egril.defender.editor.TileType
 import de.egril.defender.model.*
+import de.egril.defender.ui.getLocalizedName
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
@@ -111,7 +112,8 @@ fun HexagonMinimap(
         )
     }
     
-    return map.name
+    val locale = com.hyperether.resources.currentLanguage.value
+    return map.getLocalizedName(locale)
 }
 
 /**
