@@ -3,6 +3,9 @@ package de.egril.defender.editor
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.DefenderType
 import de.egril.defender.model.Position
+import de.egril.defender.ui.getLocalizedTitle
+import de.egril.defender.ui.getLocalizedSubtitle
+import de.egril.defender.ui.getLocalizedName
 
 /**
  * Example demonstrating how to create levels with translation support.
