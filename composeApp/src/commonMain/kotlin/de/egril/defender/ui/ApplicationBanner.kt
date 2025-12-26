@@ -102,7 +102,7 @@ fun ApplicationBanner(
             }
         }
         
-        Spacer(modifier = Modifier.width(80.dp))
+        Spacer(modifier = Modifier.width(100.dp))
         
         // Left side: Two rows of text
         Column(
