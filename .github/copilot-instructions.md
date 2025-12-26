@@ -90,6 +90,18 @@ Defender of Egril is a turn-based tower defense game built with Kotlin Multiplat
 - Modular UI structure: Extract large screens into focused component files (see `ui/gameplay/` and `ui/editor/`)
 - Manual JSON serialization for cross-platform compatibility (see `EditorJsonSerializer`, `SaveJsonSerializer`)
 
+### JSON Formatting for Level Files
+- **Enemy Spawns**: Always write enemy spawn objects on a single line for compactness and readability
+  ```json
+  "enemySpawns": [
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 1, "spawnPoint": {"x": 0, "y": 1}},
+    {"attackerType": "ORK", "level": 2, "spawnTurn": 5, "spawnPoint": {"x": 0, "y": 4}}
+  ]
+  ```
+- **Rationale**: This format saves hundreds of lines per level file while maintaining readability
+- **When Creating/Editing Levels**: Always use this compact single-line format for enemy spawn entries
+- **Other Fields**: Keep other JSON fields (id, title, startCoins, etc.) on separate lines with normal formatting
+
 ### Localization System
 - **Plugin**: Uses `compose-multiplatform-localize` plugin (version 1.1.1) for string resource management
 - **String Resources**: Located in `composeApp/src/commonMain/composeResources/`

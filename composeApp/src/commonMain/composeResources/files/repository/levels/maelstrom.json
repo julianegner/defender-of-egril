@@ -7,844 +7,100 @@
   "startCoins": 1000,
   "startHealthPoints": 10,
   "enemySpawns": [
-    {
-      "attackerType": "GOBLIN",
-      "level": 1,
-      "spawnTurn": 1,
-      "spawnPoint": {
-        "x": 16,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "GOBLIN",
-      "level": 1,
-      "spawnTurn": 1,
-      "spawnPoint": {
-        "x": 16,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "GOBLIN",
-      "level": 1,
-      "spawnTurn": 1,
-      "spawnPoint": {
-        "x": 20,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "GOBLIN",
-      "level": 1,
-      "spawnTurn": 1,
-      "spawnPoint": {
-        "x": 20,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "GOBLIN",
-      "level": 1,
-      "spawnTurn": 1,
-      "spawnPoint": {
-        "x": 28,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "GOBLIN",
-      "level": 1,
-      "spawnTurn": 1,
-      "spawnPoint": {
-        "x": 28,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "GOBLIN",
-      "level": 1,
-      "spawnTurn": 1,
-      "spawnPoint": {
-        "x": 32,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "GOBLIN",
-      "level": 1,
-      "spawnTurn": 1,
-      "spawnPoint": {
-        "x": 32,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "GOBLIN",
-      "level": 1,
-      "spawnTurn": 2,
-      "spawnPoint": {
-        "x": 16,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "GOBLIN",
-      "level": 1,
-      "spawnTurn": 2,
-      "spawnPoint": {
-        "x": 16,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "GOBLIN",
-      "level": 1,
-      "spawnTurn": 2,
-      "spawnPoint": {
-        "x": 20,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "GOBLIN",
-      "level": 1,
-      "spawnTurn": 2,
-      "spawnPoint": {
-        "x": 20,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "GOBLIN",
-      "level": 1,
-      "spawnTurn": 2,
-      "spawnPoint": {
-        "x": 28,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "GOBLIN",
-      "level": 1,
-      "spawnTurn": 2,
-      "spawnPoint": {
-        "x": 28,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "GOBLIN",
-      "level": 1,
-      "spawnTurn": 2,
-      "spawnPoint": {
-        "x": 32,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "GOBLIN",
-      "level": 1,
-      "spawnTurn": 2,
-      "spawnPoint": {
-        "x": 32,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "ORK",
-      "level": 1,
-      "spawnTurn": 3,
-      "spawnPoint": {
-        "x": 16,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "ORK",
-      "level": 1,
-      "spawnTurn": 3,
-      "spawnPoint": {
-        "x": 20,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "ORK",
-      "level": 1,
-      "spawnTurn": 3,
-      "spawnPoint": {
-        "x": 28,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "ORK",
-      "level": 1,
-      "spawnTurn": 3,
-      "spawnPoint": {
-        "x": 32,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "GOBLIN",
-      "level": 1,
-      "spawnTurn": 4,
-      "spawnPoint": {
-        "x": 16,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "GOBLIN",
-      "level": 1,
-      "spawnTurn": 4,
-      "spawnPoint": {
-        "x": 16,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "GOBLIN",
-      "level": 1,
-      "spawnTurn": 4,
-      "spawnPoint": {
-        "x": 20,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "GOBLIN",
-      "level": 1,
-      "spawnTurn": 4,
-      "spawnPoint": {
-        "x": 20,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "GOBLIN",
-      "level": 1,
-      "spawnTurn": 4,
-      "spawnPoint": {
-        "x": 28,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "GOBLIN",
-      "level": 1,
-      "spawnTurn": 4,
-      "spawnPoint": {
-        "x": 28,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "GOBLIN",
-      "level": 1,
-      "spawnTurn": 4,
-      "spawnPoint": {
-        "x": 32,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "GOBLIN",
-      "level": 1,
-      "spawnTurn": 4,
-      "spawnPoint": {
-        "x": 32,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "ORK",
-      "level": 1,
-      "spawnTurn": 5,
-      "spawnPoint": {
-        "x": 16,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "ORK",
-      "level": 1,
-      "spawnTurn": 5,
-      "spawnPoint": {
-        "x": 20,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "ORK",
-      "level": 1,
-      "spawnTurn": 5,
-      "spawnPoint": {
-        "x": 28,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "ORK",
-      "level": 1,
-      "spawnTurn": 5,
-      "spawnPoint": {
-        "x": 32,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "EVIL_WIZARD",
-      "level": 4,
-      "spawnTurn": 6,
-      "spawnPoint": {
-        "x": 20,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "SKELETON",
-      "level": 4,
-      "spawnTurn": 6,
-      "spawnPoint": {
-        "x": 16,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "SKELETON",
-      "level": 4,
-      "spawnTurn": 6,
-      "spawnPoint": {
-        "x": 28,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "SKELETON",
-      "level": 4,
-      "spawnTurn": 6,
-      "spawnPoint": {
-        "x": 32,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "SKELETON",
-      "level": 2,
-      "spawnTurn": 7,
-      "spawnPoint": {
-        "x": 16,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "SKELETON",
-      "level": 2,
-      "spawnTurn": 7,
-      "spawnPoint": {
-        "x": 16,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "SKELETON",
-      "level": 2,
-      "spawnTurn": 7,
-      "spawnPoint": {
-        "x": 20,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "SKELETON",
-      "level": 2,
-      "spawnTurn": 7,
-      "spawnPoint": {
-        "x": 20,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "SKELETON",
-      "level": 2,
-      "spawnTurn": 7,
-      "spawnPoint": {
-        "x": 28,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "SKELETON",
-      "level": 2,
-      "spawnTurn": 7,
-      "spawnPoint": {
-        "x": 28,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "SKELETON",
-      "level": 2,
-      "spawnTurn": 7,
-      "spawnPoint": {
-        "x": 32,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "SKELETON",
-      "level": 2,
-      "spawnTurn": 7,
-      "spawnPoint": {
-        "x": 32,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "ORK",
-      "level": 1,
-      "spawnTurn": 8,
-      "spawnPoint": {
-        "x": 16,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "ORK",
-      "level": 1,
-      "spawnTurn": 8,
-      "spawnPoint": {
-        "x": 20,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "ORK",
-      "level": 1,
-      "spawnTurn": 8,
-      "spawnPoint": {
-        "x": 28,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "ORK",
-      "level": 1,
-      "spawnTurn": 8,
-      "spawnPoint": {
-        "x": 32,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "ORK",
-      "level": 1,
-      "spawnTurn": 9,
-      "spawnPoint": {
-        "x": 16,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "ORK",
-      "level": 1,
-      "spawnTurn": 9,
-      "spawnPoint": {
-        "x": 20,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "ORK",
-      "level": 1,
-      "spawnTurn": 9,
-      "spawnPoint": {
-        "x": 28,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "ORK",
-      "level": 1,
-      "spawnTurn": 9,
-      "spawnPoint": {
-        "x": 32,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "GOBLIN",
-      "level": 3,
-      "spawnTurn": 10,
-      "spawnPoint": {
-        "x": 16,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "GOBLIN",
-      "level": 3,
-      "spawnTurn": 10,
-      "spawnPoint": {
-        "x": 16,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "GOBLIN",
-      "level": 3,
-      "spawnTurn": 10,
-      "spawnPoint": {
-        "x": 20,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "GOBLIN",
-      "level": 3,
-      "spawnTurn": 10,
-      "spawnPoint": {
-        "x": 20,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "GOBLIN",
-      "level": 3,
-      "spawnTurn": 10,
-      "spawnPoint": {
-        "x": 28,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "GOBLIN",
-      "level": 3,
-      "spawnTurn": 10,
-      "spawnPoint": {
-        "x": 28,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "GOBLIN",
-      "level": 3,
-      "spawnTurn": 10,
-      "spawnPoint": {
-        "x": 32,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "GOBLIN",
-      "level": 3,
-      "spawnTurn": 10,
-      "spawnPoint": {
-        "x": 32,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "GOBLIN",
-      "level": 4,
-      "spawnTurn": 11,
-      "spawnPoint": {
-        "x": 16,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "GOBLIN",
-      "level": 4,
-      "spawnTurn": 11,
-      "spawnPoint": {
-        "x": 16,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "GOBLIN",
-      "level": 4,
-      "spawnTurn": 11,
-      "spawnPoint": {
-        "x": 20,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "GOBLIN",
-      "level": 4,
-      "spawnTurn": 11,
-      "spawnPoint": {
-        "x": 20,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "GOBLIN",
-      "level": 4,
-      "spawnTurn": 11,
-      "spawnPoint": {
-        "x": 28,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "GOBLIN",
-      "level": 4,
-      "spawnTurn": 11,
-      "spawnPoint": {
-        "x": 28,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "GOBLIN",
-      "level": 4,
-      "spawnTurn": 11,
-      "spawnPoint": {
-        "x": 32,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "GOBLIN",
-      "level": 4,
-      "spawnTurn": 11,
-      "spawnPoint": {
-        "x": 32,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "ORK",
-      "level": 3,
-      "spawnTurn": 12,
-      "spawnPoint": {
-        "x": 16,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "ORK",
-      "level": 3,
-      "spawnTurn": 12,
-      "spawnPoint": {
-        "x": 20,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "ORK",
-      "level": 3,
-      "spawnTurn": 12,
-      "spawnPoint": {
-        "x": 28,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "ORK",
-      "level": 3,
-      "spawnTurn": 12,
-      "spawnPoint": {
-        "x": 32,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "EVIL_WIZARD",
-      "level": 5,
-      "spawnTurn": 13,
-      "spawnPoint": {
-        "x": 20,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "SKELETON",
-      "level": 5,
-      "spawnTurn": 13,
-      "spawnPoint": {
-        "x": 16,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "SKELETON",
-      "level": 5,
-      "spawnTurn": 13,
-      "spawnPoint": {
-        "x": 28,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "SKELETON",
-      "level": 5,
-      "spawnTurn": 13,
-      "spawnPoint": {
-        "x": 32,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "SKELETON",
-      "level": 5,
-      "spawnTurn": 14,
-      "spawnPoint": {
-        "x": 16,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "SKELETON",
-      "level": 5,
-      "spawnTurn": 14,
-      "spawnPoint": {
-        "x": 16,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "SKELETON",
-      "level": 5,
-      "spawnTurn": 14,
-      "spawnPoint": {
-        "x": 20,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "SKELETON",
-      "level": 5,
-      "spawnTurn": 14,
-      "spawnPoint": {
-        "x": 20,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "SKELETON",
-      "level": 5,
-      "spawnTurn": 14,
-      "spawnPoint": {
-        "x": 28,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "SKELETON",
-      "level": 5,
-      "spawnTurn": 14,
-      "spawnPoint": {
-        "x": 28,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "SKELETON",
-      "level": 5,
-      "spawnTurn": 14,
-      "spawnPoint": {
-        "x": 32,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "SKELETON",
-      "level": 5,
-      "spawnTurn": 14,
-      "spawnPoint": {
-        "x": 32,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "SKELETON",
-      "level": 5,
-      "spawnTurn": 15,
-      "spawnPoint": {
-        "x": 16,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "SKELETON",
-      "level": 5,
-      "spawnTurn": 15,
-      "spawnPoint": {
-        "x": 16,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "SKELETON",
-      "level": 5,
-      "spawnTurn": 15,
-      "spawnPoint": {
-        "x": 20,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "SKELETON",
-      "level": 5,
-      "spawnTurn": 15,
-      "spawnPoint": {
-        "x": 20,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "SKELETON",
-      "level": 5,
-      "spawnTurn": 15,
-      "spawnPoint": {
-        "x": 28,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "SKELETON",
-      "level": 5,
-      "spawnTurn": 15,
-      "spawnPoint": {
-        "x": 28,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "SKELETON",
-      "level": 5,
-      "spawnTurn": 15,
-      "spawnPoint": {
-        "x": 32,
-        "y": 48
-      }
-    },
-    {
-      "attackerType": "SKELETON",
-      "level": 5,
-      "spawnTurn": 15,
-      "spawnPoint": {
-        "x": 32,
-        "y": 48
-      }
-    }
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 1, "spawnPoint": {"x": 16, "y": 48}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 1, "spawnPoint": {"x": 16, "y": 48}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 1, "spawnPoint": {"x": 20, "y": 48}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 1, "spawnPoint": {"x": 20, "y": 48}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 1, "spawnPoint": {"x": 28, "y": 48}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 1, "spawnPoint": {"x": 28, "y": 48}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 1, "spawnPoint": {"x": 32, "y": 48}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 1, "spawnPoint": {"x": 32, "y": 48}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 2, "spawnPoint": {"x": 16, "y": 48}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 2, "spawnPoint": {"x": 16, "y": 48}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 2, "spawnPoint": {"x": 20, "y": 48}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 2, "spawnPoint": {"x": 20, "y": 48}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 2, "spawnPoint": {"x": 28, "y": 48}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 2, "spawnPoint": {"x": 28, "y": 48}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 2, "spawnPoint": {"x": 32, "y": 48}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 2, "spawnPoint": {"x": 32, "y": 48}},
+    {"attackerType": "ORK", "level": 1, "spawnTurn": 3, "spawnPoint": {"x": 16, "y": 48}},
+    {"attackerType": "ORK", "level": 1, "spawnTurn": 3, "spawnPoint": {"x": 20, "y": 48}},
+    {"attackerType": "ORK", "level": 1, "spawnTurn": 3, "spawnPoint": {"x": 28, "y": 48}},
+    {"attackerType": "ORK", "level": 1, "spawnTurn": 3, "spawnPoint": {"x": 32, "y": 48}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 4, "spawnPoint": {"x": 16, "y": 48}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 4, "spawnPoint": {"x": 16, "y": 48}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 4, "spawnPoint": {"x": 20, "y": 48}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 4, "spawnPoint": {"x": 20, "y": 48}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 4, "spawnPoint": {"x": 28, "y": 48}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 4, "spawnPoint": {"x": 28, "y": 48}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 4, "spawnPoint": {"x": 32, "y": 48}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 4, "spawnPoint": {"x": 32, "y": 48}},
+    {"attackerType": "ORK", "level": 1, "spawnTurn": 5, "spawnPoint": {"x": 16, "y": 48}},
+    {"attackerType": "ORK", "level": 1, "spawnTurn": 5, "spawnPoint": {"x": 20, "y": 48}},
+    {"attackerType": "ORK", "level": 1, "spawnTurn": 5, "spawnPoint": {"x": 28, "y": 48}},
+    {"attackerType": "ORK", "level": 1, "spawnTurn": 5, "spawnPoint": {"x": 32, "y": 48}},
+    {"attackerType": "EVIL_WIZARD", "level": 4, "spawnTurn": 6, "spawnPoint": {"x": 20, "y": 48}},
+    {"attackerType": "SKELETON", "level": 4, "spawnTurn": 6, "spawnPoint": {"x": 16, "y": 48}},
+    {"attackerType": "SKELETON", "level": 4, "spawnTurn": 6, "spawnPoint": {"x": 28, "y": 48}},
+    {"attackerType": "SKELETON", "level": 4, "spawnTurn": 6, "spawnPoint": {"x": 32, "y": 48}},
+    {"attackerType": "SKELETON", "level": 2, "spawnTurn": 7, "spawnPoint": {"x": 16, "y": 48}},
+    {"attackerType": "SKELETON", "level": 2, "spawnTurn": 7, "spawnPoint": {"x": 16, "y": 48}},
+    {"attackerType": "SKELETON", "level": 2, "spawnTurn": 7, "spawnPoint": {"x": 20, "y": 48}},
+    {"attackerType": "SKELETON", "level": 2, "spawnTurn": 7, "spawnPoint": {"x": 20, "y": 48}},
+    {"attackerType": "SKELETON", "level": 2, "spawnTurn": 7, "spawnPoint": {"x": 28, "y": 48}},
+    {"attackerType": "SKELETON", "level": 2, "spawnTurn": 7, "spawnPoint": {"x": 28, "y": 48}},
+    {"attackerType": "SKELETON", "level": 2, "spawnTurn": 7, "spawnPoint": {"x": 32, "y": 48}},
+    {"attackerType": "SKELETON", "level": 2, "spawnTurn": 7, "spawnPoint": {"x": 32, "y": 48}},
+    {"attackerType": "ORK", "level": 1, "spawnTurn": 8, "spawnPoint": {"x": 16, "y": 48}},
+    {"attackerType": "ORK", "level": 1, "spawnTurn": 8, "spawnPoint": {"x": 20, "y": 48}},
+    {"attackerType": "ORK", "level": 1, "spawnTurn": 8, "spawnPoint": {"x": 28, "y": 48}},
+    {"attackerType": "ORK", "level": 1, "spawnTurn": 8, "spawnPoint": {"x": 32, "y": 48}},
+    {"attackerType": "ORK", "level": 1, "spawnTurn": 9, "spawnPoint": {"x": 16, "y": 48}},
+    {"attackerType": "ORK", "level": 1, "spawnTurn": 9, "spawnPoint": {"x": 20, "y": 48}},
+    {"attackerType": "ORK", "level": 1, "spawnTurn": 9, "spawnPoint": {"x": 28, "y": 48}},
+    {"attackerType": "ORK", "level": 1, "spawnTurn": 9, "spawnPoint": {"x": 32, "y": 48}},
+    {"attackerType": "GOBLIN", "level": 3, "spawnTurn": 10, "spawnPoint": {"x": 16, "y": 48}},
+    {"attackerType": "GOBLIN", "level": 3, "spawnTurn": 10, "spawnPoint": {"x": 16, "y": 48}},
+    {"attackerType": "GOBLIN", "level": 3, "spawnTurn": 10, "spawnPoint": {"x": 20, "y": 48}},
+    {"attackerType": "GOBLIN", "level": 3, "spawnTurn": 10, "spawnPoint": {"x": 20, "y": 48}},
+    {"attackerType": "GOBLIN", "level": 3, "spawnTurn": 10, "spawnPoint": {"x": 28, "y": 48}},
+    {"attackerType": "GOBLIN", "level": 3, "spawnTurn": 10, "spawnPoint": {"x": 28, "y": 48}},
+    {"attackerType": "GOBLIN", "level": 3, "spawnTurn": 10, "spawnPoint": {"x": 32, "y": 48}},
+    {"attackerType": "GOBLIN", "level": 3, "spawnTurn": 10, "spawnPoint": {"x": 32, "y": 48}},
+    {"attackerType": "GOBLIN", "level": 4, "spawnTurn": 11, "spawnPoint": {"x": 16, "y": 48}},
+    {"attackerType": "GOBLIN", "level": 4, "spawnTurn": 11, "spawnPoint": {"x": 16, "y": 48}},
+    {"attackerType": "GOBLIN", "level": 4, "spawnTurn": 11, "spawnPoint": {"x": 20, "y": 48}},
+    {"attackerType": "GOBLIN", "level": 4, "spawnTurn": 11, "spawnPoint": {"x": 20, "y": 48}},
+    {"attackerType": "GOBLIN", "level": 4, "spawnTurn": 11, "spawnPoint": {"x": 28, "y": 48}},
+    {"attackerType": "GOBLIN", "level": 4, "spawnTurn": 11, "spawnPoint": {"x": 28, "y": 48}},
+    {"attackerType": "GOBLIN", "level": 4, "spawnTurn": 11, "spawnPoint": {"x": 32, "y": 48}},
+    {"attackerType": "GOBLIN", "level": 4, "spawnTurn": 11, "spawnPoint": {"x": 32, "y": 48}},
+    {"attackerType": "ORK", "level": 3, "spawnTurn": 12, "spawnPoint": {"x": 16, "y": 48}},
+    {"attackerType": "ORK", "level": 3, "spawnTurn": 12, "spawnPoint": {"x": 20, "y": 48}},
+    {"attackerType": "ORK", "level": 3, "spawnTurn": 12, "spawnPoint": {"x": 28, "y": 48}},
+    {"attackerType": "ORK", "level": 3, "spawnTurn": 12, "spawnPoint": {"x": 32, "y": 48}},
+    {"attackerType": "EVIL_WIZARD", "level": 5, "spawnTurn": 13, "spawnPoint": {"x": 20, "y": 48}},
+    {"attackerType": "SKELETON", "level": 5, "spawnTurn": 13, "spawnPoint": {"x": 16, "y": 48}},
+    {"attackerType": "SKELETON", "level": 5, "spawnTurn": 13, "spawnPoint": {"x": 28, "y": 48}},
+    {"attackerType": "SKELETON", "level": 5, "spawnTurn": 13, "spawnPoint": {"x": 32, "y": 48}},
+    {"attackerType": "SKELETON", "level": 5, "spawnTurn": 14, "spawnPoint": {"x": 16, "y": 48}},
+    {"attackerType": "SKELETON", "level": 5, "spawnTurn": 14, "spawnPoint": {"x": 16, "y": 48}},
+    {"attackerType": "SKELETON", "level": 5, "spawnTurn": 14, "spawnPoint": {"x": 20, "y": 48}},
+    {"attackerType": "SKELETON", "level": 5, "spawnTurn": 14, "spawnPoint": {"x": 20, "y": 48}},
+    {"attackerType": "SKELETON", "level": 5, "spawnTurn": 14, "spawnPoint": {"x": 28, "y": 48}},
+    {"attackerType": "SKELETON", "level": 5, "spawnTurn": 14, "spawnPoint": {"x": 28, "y": 48}},
+    {"attackerType": "SKELETON", "level": 5, "spawnTurn": 14, "spawnPoint": {"x": 32, "y": 48}},
+    {"attackerType": "SKELETON", "level": 5, "spawnTurn": 14, "spawnPoint": {"x": 32, "y": 48}},
+    {"attackerType": "SKELETON", "level": 5, "spawnTurn": 15, "spawnPoint": {"x": 16, "y": 48}},
+    {"attackerType": "SKELETON", "level": 5, "spawnTurn": 15, "spawnPoint": {"x": 16, "y": 48}},
+    {"attackerType": "SKELETON", "level": 5, "spawnTurn": 15, "spawnPoint": {"x": 20, "y": 48}},
+    {"attackerType": "SKELETON", "level": 5, "spawnTurn": 15, "spawnPoint": {"x": 20, "y": 48}},
+    {"attackerType": "SKELETON", "level": 5, "spawnTurn": 15, "spawnPoint": {"x": 28, "y": 48}},
+    {"attackerType": "SKELETON", "level": 5, "spawnTurn": 15, "spawnPoint": {"x": 28, "y": 48}},
+    {"attackerType": "SKELETON", "level": 5, "spawnTurn": 15, "spawnPoint": {"x": 32, "y": 48}},
+    {"attackerType": "SKELETON", "level": 5, "spawnTurn": 15, "spawnPoint": {"x": 32, "y": 48}}
   ],
-  "availableTowers": [
-    "SPIKE_TOWER",
-    "SPEAR_TOWER",
-    "BOW_TOWER",
-    "WIZARD_TOWER",
-    "ALCHEMY_TOWER"
-  ],
+  "availableTowers": ["SPIKE_TOWER", "SPEAR_TOWER", "BOW_TOWER", "WIZARD_TOWER", "ALCHEMY_TOWER"],
   "waypoints": [],
-  "prerequisites": [
-    "the_river"
-  ]
+  "prerequisites": ["the_river"]
 }
