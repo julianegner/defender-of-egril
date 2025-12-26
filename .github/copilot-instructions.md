@@ -115,6 +115,31 @@ Defender of Egril is a turn-based tower defense game built with Kotlin Multiplat
 - **When Creating/Editing Maps**: Always use this compact single-line format for river tile entries
 - **Other Fields**: Keep other JSON fields (id, name, width, height, tiles, etc.) on separate lines with normal formatting
 
+### JSON Formatting for Worldmap Files
+- **Position Objects**: Always write position objects on a single line for compactness and readability
+  ```json
+  "position": {"x": 82, "y": 873}
+  ```
+- **Level ID Arrays**: Always write levelIds arrays on a single line for compactness and readability
+  ```json
+  "levelIds": ["welcome_to_defender_of_egril"]
+  ```
+  or with multiple entries:
+  ```json
+  "levelIds": ["the_first_wave", "mixed_forces", "the_ork_invasion", "dark_magic_rises"]
+  ```
+- **Control Points**: Always write controlPoints arrays on a single line with compact position objects
+  ```json
+  "controlPoints": [{"x": 668, "y": 488}, {"x": 629, "y": 406}]
+  ```
+- **Segment Types**: Always write segmentTypes arrays on a single line
+  ```json
+  "segmentTypes": ["SEA_ROUTE", "SEA_ROUTE", "SEA_ROUTE", "ROAD", "ROAD"]
+  ```
+- **Rationale**: This format saves hundreds of lines in worldmap files while maintaining readability
+- **When Creating/Editing Worldmap**: Always use this compact single-line format for position, levelIds, controlPoints, and segmentTypes
+- **Other Fields**: Keep other JSON fields (id, name, fromLocationId, etc.) on separate lines with normal formatting
+
 ### Localization System
 - **Plugin**: Uses `compose-multiplatform-localize` plugin (version 1.1.1) for string resource management
 - **String Resources**: Located in `composeApp/src/commonMain/composeResources/`

@@ -4,308 +4,163 @@
       "id": "tutorial",
       "name": "Tutorial",
       "nameKey": "location_tutorial_name",
-      "position": {
-        "x": 82,
-        "y": 873
-      },
-      "levelIds": [
-        "welcome_to_defender_of_egril"
-      ]
+      "position": {"x": 82, "y": 873},
+      "levelIds": ["welcome_to_defender_of_egril"]
     },
     {
       "id": "the_beginning",
       "name": "The Beginning",
       "nameKey": "location_the_beginning_name",
-      "position": {
-        "x": 167,
-        "y": 589
-      },
-      "levelIds": [
-        "the_first_wave",
-        "mixed_forces",
-        "the_ork_invasion",
-        "dark_magic_rises"
-      ]
+      "position": {"x": 167, "y": 589},
+      "levelIds": ["the_first_wave", "mixed_forces", "the_ork_invasion", "dark_magic_rises"]
     },
     {
       "id": "the_plains",
       "name": "The Plains",
       "nameKey": "location_the_plains_name",
-      "position": {
-        "x": 258,
-        "y": 572
-      },
-      "levelIds": [
-        "the_plains"
-      ]
+      "position": {"x": 258, "y": 572},
+      "levelIds": ["the_plains"]
     },
     {
       "id": "the_spiral",
       "name": "The Spiral",
       "nameKey": "location_the_spiral_name",
-      "position": {
-        "x": 344,
-        "y": 484
-      },
-      "levelIds": [
-        "the_spiral_challenge"
-      ]
+      "position": {"x": 344, "y": 484},
+      "levelIds": ["the_spiral_challenge"]
     },
     {
       "id": "the_dance",
       "name": "The Dance",
       "nameKey": "location_the_dance_name",
-      "position": {
-        "x": 251,
-        "y": 337
-      },
-      "levelIds": [
-        "the_dance"
-      ]
+      "position": {"x": 251, "y": 337},
+      "levelIds": ["the_dance"]
     },
     {
       "id": "the_village",
       "name": "The Village",
       "nameKey": "location_the_village_name",
-      "position": {
-        "x": 309,
-        "y": 306
-      },
-      "levelIds": [
-        "the_rush"
-      ]
+      "position": {"x": 309, "y": 306},
+      "levelIds": ["the_rush"]
     },
     {
       "id": "the_woods",
       "name": "The Woods",
       "nameKey": "location_the_woods_name",
-      "position": {
-        "x": 352,
-        "y": 410
-      },
-      "levelIds": [
-        "the_woods_first_incursion",
-        "the_woods_full_assault"
-      ]
+      "position": {"x": 352, "y": 410},
+      "levelIds": ["the_woods_first_incursion", "the_woods_full_assault"]
     },
     {
       "id": "the_fast",
       "name": "The Fast",
       "nameKey": "location_the_fast_name",
-      "position": {
-        "x": 476,
-        "y": 457
-      },
-      "levelIds": [
-        "the_fast_and_furious"
-      ]
+      "position": {"x": 476, "y": 457},
+      "levelIds": ["the_fast_and_furious"]
     },
     {
       "id": "the_cross",
       "name": "The Cross",
       "nameKey": "location_the_cross_name",
-      "position": {
-        "x": 580,
-        "y": 517
-      },
-      "levelIds": [
-        "the_cross"
-      ]
+      "position": {"x": 580, "y": 517},
+      "levelIds": ["the_cross"]
     },
     {
       "id": "the_winding_path",
       "name": "The Winding Path",
       "nameKey": "location_the_winding_path_name",
-      "position": {
-        "x": 660,
-        "y": 527
-      },
-      "levelIds": [
-        "the_winding_path"
-      ]
+      "position": {"x": 660, "y": 527},
+      "levelIds": ["the_winding_path"]
     },
     {
       "id": "the_fortress",
       "name": "The Fortress",
       "nameKey": "location_the_fortress_name",
-      "position": {
-        "x": 640,
-        "y": 339
-      },
-      "levelIds": [
-        "the_fortress_1_first_attacks",
-        "the_fortress_2_orks_marching",
-        "the_fortress_3_necromancer",
-        "the_fortress_4_magic_assault",
-        "the_fortress_5_mighty_forces",
-        "the_final_stand"
-      ]
+      "position": {"x": 640, "y": 339},
+      "levelIds": ["the_fortress_1_first_attacks", "the_fortress_2_orks_marching", "the_fortress_3_necromancer", "the_fortress_4_magic_assault", "the_fortress_5_mighty_forces", "the_final_stand"]
     },
     {
       "id": "ewhads_challege",
       "name": "Ewhads Challege",
       "nameKey": "location_ewhads_challege_name",
-      "position": {
-        "x": 797,
-        "y": 870
-      },
-      "levelIds": [
-        "ewhads_challenge"
-      ]
+      "position": {"x": 797, "y": 870},
+      "levelIds": ["ewhads_challenge"]
     },
     {
       "id": "the_creek",
       "name": "The Creek",
       "nameKey": "location_the_creek_name",
-      "position": {
-        "x": 438,
-        "y": 820
-      },
-      "levelIds": [
-        "the_creek"
-      ]
+      "position": {"x": 438, "y": 820},
+      "levelIds": ["the_creek"]
     },
     {
       "id": "the_island",
       "name": "The Island",
       "nameKey": "location_the_island_name",
-      "position": {
-        "x": 721,
-        "y": 884
-      },
-      "levelIds": [
-        "the_island"
-      ]
+      "position": {"x": 721, "y": 884},
+      "levelIds": ["the_island"]
     },
     {
       "id": "the_river",
       "name": "The River",
       "nameKey": "location_the_river_name",
-      "position": {
-        "x": 320,
-        "y": 547
-      },
-      "levelIds": [
-        "the_river"
-      ]
+      "position": {"x": 320, "y": 547},
+      "levelIds": ["the_river"]
     },
     {
       "id": "creek_valley",
       "name": "Creek Valley",
       "nameKey": "location_creek_valley_name",
-      "position": {
-        "x": 422,
-        "y": 530
-      },
-      "levelIds": [
-        "creek_valley"
-      ]
+      "position": {"x": 422, "y": 530},
+      "levelIds": ["creek_valley"]
     },
     {
       "id": "the_maelstrom",
       "name": "The Maelstrom",
       "nameKey": "location_the_maelstrom_name",
-      "position": {
-        "x": 500,
-        "y": 500
-      },
-      "levelIds": [
-        "maelstrom"
-      ]
+      "position": {"x": 500, "y": 500},
+      "levelIds": ["maelstrom"]
     }
   ],
   "paths": [
     {
       "fromLocationId": "the_beginning",
       "toLocationId": "the_plains",
-      "controlPoints": [
-        {
-          "x": 224,
-          "y": 592
-        }
-      ],
+      "controlPoints": [{"x": 224, "y": 592}],
       "type": "ROAD"
     },
     {
       "fromLocationId": "the_plains",
       "toLocationId": "the_spiral",
-      "controlPoints": [
-        {
-          "x": 302,
-          "y": 538
-        }
-      ],
+      "controlPoints": [{"x": 302, "y": 538}],
       "type": "ROAD"
     },
     {
       "fromLocationId": "the_spiral",
       "toLocationId": "the_dance",
-      "controlPoints": [
-        {
-          "x": 303,
-          "y": 470
-        },
-        {
-          "x": 290,
-          "y": 441
-        },
-        {
-          "x": 287,
-          "y": 384
-        }
-      ],
+      "controlPoints": [{"x": 303, "y": 470}, {"x": 290, "y": 441}, {"x": 287, "y": 384}],
       "type": "ROAD"
     },
     {
       "fromLocationId": "the_dance",
       "toLocationId": "the_village",
-      "controlPoints": [
-        {
-          "x": 277,
-          "y": 314
-        }
-      ],
+      "controlPoints": [{"x": 277, "y": 314}],
       "type": "ROAD"
     },
     {
       "fromLocationId": "the_village",
       "toLocationId": "the_woods",
-      "controlPoints": [
-        {
-          "x": 315,
-          "y": 375
-        }
-      ],
+      "controlPoints": [{"x": 315, "y": 375}],
       "type": "ROAD"
     },
     {
       "fromLocationId": "the_woods",
       "toLocationId": "the_fast",
-      "controlPoints": [
-        {
-          "x": 398,
-          "y": 390
-        },
-        {
-          "x": 421,
-          "y": 439
-        },
-        {
-          "x": 459,
-          "y": 440
-        }
-      ],
+      "controlPoints": [{"x": 398, "y": 390}, {"x": 421, "y": 439}, {"x": 459, "y": 440}],
       "type": "ROAD"
     },
     {
       "fromLocationId": "the_fast",
       "toLocationId": "the_cross",
-      "controlPoints": [
-        {
-          "x": 533,
-          "y": 514
-        }
-      ],
+      "controlPoints": [{"x": 533, "y": 514}],
       "type": "ROAD"
     },
     {
@@ -317,188 +172,50 @@
     {
       "fromLocationId": "the_winding_path",
       "toLocationId": "the_fortress",
-      "controlPoints": [
-        {
-          "x": 668,
-          "y": 488
-        },
-        {
-          "x": 629,
-          "y": 406
-        }
-      ],
+      "controlPoints": [{"x": 668, "y": 488}, {"x": 629, "y": 406}],
       "type": "ROAD"
     },
     {
       "fromLocationId": "the_beginning",
       "toLocationId": "the_creek",
-      "controlPoints": [
-        {
-          "x": 210,
-          "y": 615
-        },
-        {
-          "x": 218,
-          "y": 640
-        },
-        {
-          "x": 294,
-          "y": 708
-        },
-        {
-          "x": 306,
-          "y": 727
-        },
-        {
-          "x": 323,
-          "y": 791
-        },
-        {
-          "x": 388,
-          "y": 805
-        },
-        {
-          "x": 413,
-          "y": 821
-        }
-      ],
+      "controlPoints": [{"x": 210, "y": 615}, {"x": 218, "y": 640}, {"x": 294, "y": 708}, {"x": 306, "y": 727}, {"x": 323, "y": 791}, {"x": 388, "y": 805}, {"x": 413, "y": 821}],
       "type": "ROAD"
     },
     {
       "fromLocationId": "the_creek",
       "toLocationId": "the_island",
-      "controlPoints": [
-        {
-          "x": 414,
-          "y": 857
-        },
-        {
-          "x": 423,
-          "y": 879
-        },
-        {
-          "x": 487,
-          "y": 916
-        },
-        {
-          "x": 671,
-          "y": 924
-        }
-      ],
+      "controlPoints": [{"x": 414, "y": 857}, {"x": 423, "y": 879}, {"x": 487, "y": 916}, {"x": 671, "y": 924}],
       "type": "SEA_ROUTE"
     },
     {
       "fromLocationId": "creek_valley",
       "toLocationId": "the_river",
-      "controlPoints": [
-        {
-          "x": 387,
-          "y": 564
-        },
-        {
-          "x": 341,
-          "y": 575
-        }
-      ],
+      "controlPoints": [{"x": 387, "y": 564}, {"x": 341, "y": 575}],
       "type": "ROAD"
     },
     {
       "fromLocationId": "the_island",
       "toLocationId": "creek_valley",
-      "controlPoints": [
-        {
-          "x": 701,
-          "y": 771
-        },
-        {
-          "x": 630,
-          "y": 746
-        },
-        {
-          "x": 589,
-          "y": 727
-        },
-        {
-          "x": 567,
-          "y": 715
-        },
-        {
-          "x": 519,
-          "y": 694
-        },
-        {
-          "x": 499,
-          "y": 628
-        },
-        {
-          "x": 469,
-          "y": 599
-        },
-        {
-          "x": 458,
-          "y": 574
-        }
-      ],
+      "controlPoints": [{"x": 701, "y": 771}, {"x": 630, "y": 746}, {"x": 589, "y": 727}, {"x": 567, "y": 715}, {"x": 519, "y": 694}, {"x": 499, "y": 628}, {"x": 469, "y": 599}, {"x": 458, "y": 574}],
       "type": "ROAD",
-      "segmentTypes": [
-        "SEA_ROUTE",
-        "SEA_ROUTE",
-        "SEA_ROUTE",
-        "ROAD",
-        "ROAD",
-        "ROAD",
-        "ROAD",
-        "ROAD",
-        "ROAD"
-      ]
+      "segmentTypes": ["SEA_ROUTE", "SEA_ROUTE", "SEA_ROUTE", "ROAD", "ROAD", "ROAD", "ROAD", "ROAD", "ROAD"]
     },
     {
       "fromLocationId": "the_river",
       "toLocationId": "the_maelstrom",
-      "controlPoints": [
-        {
-          "x": 390,
-          "y": 500
-        },
-        {
-          "x": 441,
-          "y": 493
-        }
-      ],
+      "controlPoints": [{"x": 390, "y": 500}, {"x": 441, "y": 493}],
       "type": "ROAD"
     },
     {
       "fromLocationId": "tutorial",
       "toLocationId": "the_beginning",
-      "controlPoints": [
-        {
-          "x": 80,
-          "y": 798
-        }
-      ],
+      "controlPoints": [{"x": 80, "y": 798}],
       "type": "SEA_ROUTE"
     },
     {
       "fromLocationId": "the_maelstrom",
       "toLocationId": "the_fortress",
-      "controlPoints": [
-        {
-          "x": 506,
-          "y": 432
-        },
-        {
-          "x": 533,
-          "y": 408
-        },
-        {
-          "x": 585,
-          "y": 402
-        },
-        {
-          "x": 629,
-          "y": 406
-        }
-      ],
+      "controlPoints": [{"x": 506, "y": 432}, {"x": 533, "y": 408}, {"x": 585, "y": 402}, {"x": 629, "y": 406}],
       "type": "ROAD"
     }
   ]
