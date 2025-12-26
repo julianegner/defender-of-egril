@@ -802,4 +802,20 @@
     <string name="location_the_river_name">The River</string>
     <string name="location_creek_valley_name">Creek Valley</string>
     <string name="location_the_maelstrom_name">The Maelstrom</string>
+    <!-- Player Profile Strings -->
+    <string name="player_create_title">Create New Player</string>
+    <string name="player_create_prompt">Enter your player name</string>
+    <string name="player_edit_title">Edit Player Name</string>
+    <string name="player_edit_prompt">Enter a new name for this player</string>
+    <string name="player_name">Player Name</string>
+    <string name="player_name_empty_error">Player name cannot be empty</string>
+    <string name="player_name_too_long_error">Player name is too long (max 50 characters)</string>
+    <string name="player_name_exists_error">A player with this name already exists</string>
+    <string name="player_select_title">Select Player</string>
+    <string name="player_no_profiles">No player profiles found. Create a new one to start playing!</string>
+    <string name="player_last_played">Last played: %s</string>
+    <string name="player_new">New Player</string>
+    <string name="player_delete_confirm_title">Delete Player?</string>
+    <string name="player_delete_confirm_message">Are you sure you want to delete player "%s"? All progress and save files for this player will be permanently deleted.</string>
+    <string name="switch_player">Switch Player</string>
 </resources>
