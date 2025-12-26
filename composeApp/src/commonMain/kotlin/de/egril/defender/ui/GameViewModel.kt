@@ -40,6 +40,16 @@ class GameViewModel {
     
     private val _cheatDigOutcome = MutableStateFlow<DigOutcome?>(null)
     val cheatDigOutcome: StateFlow<DigOutcome?> = _cheatDigOutcome.asStateFlow()
+    
+    // Player profile state
+    private val _currentPlayer = MutableStateFlow<de.egril.defender.save.PlayerProfile?>(null)
+    val currentPlayer: StateFlow<de.egril.defender.save.PlayerProfile?> = _currentPlayer.asStateFlow()
+    
+    private val _allPlayers = MutableStateFlow<List<de.egril.defender.save.PlayerProfile>>(emptyList())
+    val allPlayers: StateFlow<List<de.egril.defender.save.PlayerProfile>> = _allPlayers.asStateFlow()
+    
+    private val _needsPlayerSelection = MutableStateFlow(false)
+    val needsPlayerSelection: StateFlow<Boolean> = _needsPlayerSelection.asStateFlow()
 
     // Track initial game state to detect unsaved changes
     private var initialGameStateSnapshot: String? = null
@@ -49,7 +59,52 @@ class GameViewModel {
     private val viewModelScope = CoroutineScope(Dispatchers.Default)
     
     init {
+        initializePlayerProfile()
         initializeWorldMap()
+    }
+    
+    /**
+     * Initialize player profile system
+     * - Checks for existing players
+     * - Migrates old saves if needed
+     * - Sets up the current player
+     */
+    private fun initializePlayerProfile() {
+        // Check for existing player profiles
+        val profiles = de.egril.defender.save.PlayerProfileStorage.getAllProfiles()
+        _allPlayers.value = profiles.profiles
+        
+        if (profiles.profiles.isEmpty()) {
+            // No profiles exist - check if we need to migrate old saves
+            val migratedProfile = de.egril.defender.save.PlayerProfileStorage.migrateExistingSaves()
+            if (migratedProfile != null) {
+                // Migration successful, use the migrated profile
+                println("Migrated existing saves to player profile: ${migratedProfile.name}")
+                _currentPlayer.value = migratedProfile
+                de.egril.defender.save.SaveFileStorage.setCurrentPlayer(migratedProfile.id)
+                _allPlayers.value = listOf(migratedProfile)
+            } else {
+                // No existing saves, need to create first player
+                _needsPlayerSelection.value = true
+            }
+        } else {
+            // Load the last used player or the most recently played one
+            val lastPlayerId = profiles.lastUsedPlayerId
+            val playerToUse = if (lastPlayerId != null) {
+                profiles.profiles.find { it.id == lastPlayerId }
+            } else {
+                profiles.profiles.maxByOrNull { it.lastPlayedAt }
+            }
+            
+            if (playerToUse != null) {
+                _currentPlayer.value = playerToUse
+                de.egril.defender.save.SaveFileStorage.setCurrentPlayer(playerToUse.id)
+                de.egril.defender.save.PlayerProfileStorage.updateLastPlayed(playerToUse.id)
+            } else {
+                // Shouldn't happen, but handle gracefully
+                _needsPlayerSelection.value = true
+            }
+        }
     }
     
     private fun initializeWorldMap() {
@@ -561,5 +616,89 @@ class GameViewModel {
     
     private fun saveWorldMapStatus() {
         de.egril.defender.save.SaveFileStorage.saveWorldMapStatus(_worldLevels.value)
+    }
+    
+    // Player Profile Management
+    
+    /**
+     * Create a new player profile
+     * @return true if successful, false if name is invalid or already exists
+     */
+    fun createPlayer(name: String): Boolean {
+        val profile = de.egril.defender.save.PlayerProfileStorage.createProfile(name)
+        if (profile != null) {
+            _currentPlayer.value = profile
+            _allPlayers.value = de.egril.defender.save.PlayerProfileStorage.getAllProfiles().profiles
+            de.egril.defender.save.SaveFileStorage.setCurrentPlayer(profile.id)
+            _needsPlayerSelection.value = false
+            
+            // Reload world map for new player
+            initializeWorldMap()
+            
+            return true
+        }
+        return false
+    }
+    
+    /**
+     * Switch to a different player profile
+     */
+    fun switchPlayer(playerId: String) {
+        val profile = de.egril.defender.save.PlayerProfileStorage.getProfile(playerId)
+        if (profile != null) {
+            _currentPlayer.value = profile
+            de.egril.defender.save.SaveFileStorage.setCurrentPlayer(playerId)
+            de.egril.defender.save.PlayerProfileStorage.updateLastPlayed(playerId)
+            
+            // Reload world map for new player
+            initializeWorldMap()
+            
+            // Reload saved games list
+            refreshSavedGames()
+        }
+    }
+    
+    /**
+     * Delete a player profile
+     */
+    fun deletePlayer(playerId: String): Boolean {
+        // Don't allow deleting the current player
+        if (_currentPlayer.value?.id == playerId) {
+            return false
+        }
+        
+        val success = de.egril.defender.save.PlayerProfileStorage.deleteProfile(playerId)
+        if (success) {
+            _allPlayers.value = de.egril.defender.save.PlayerProfileStorage.getAllProfiles().profiles
+        }
+        return success
+    }
+    
+    /**
+     * Rename the current player profile
+     * @return true if successful, false if name is invalid or already exists
+     */
+    fun renameCurrentPlayer(newName: String): Boolean {
+        val currentPlayerId = _currentPlayer.value?.id ?: return false
+        val updatedProfile = de.egril.defender.save.PlayerProfileStorage.renameProfile(currentPlayerId, newName)
+        if (updatedProfile != null) {
+            _currentPlayer.value = updatedProfile
+            _allPlayers.value = de.egril.defender.save.PlayerProfileStorage.getAllProfiles().profiles
+            
+            // Update SaveFileStorage if the ID changed
+            if (updatedProfile.id != currentPlayerId) {
+                de.egril.defender.save.SaveFileStorage.setCurrentPlayer(updatedProfile.id)
+            }
+            
+            return true
+        }
+        return false
+    }
+    
+    /**
+     * Refresh the list of all player profiles
+     */
+    fun refreshPlayerProfiles() {
+        _allPlayers.value = de.egril.defender.save.PlayerProfileStorage.getAllProfiles().profiles
     }
 }
