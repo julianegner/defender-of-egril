@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Main Menu -->
     <string name="app_name">Défenseur d'Egril</string>
     <string name="app_subtitle">Défendez les prairies d'Egril contre les Hordes de Gleid Thyae sous la Bannière du maléfique Ewhad</string>
     <string name="start_game">Commencer le jeu</string>
     <string name="rules">Règles</string>
+    
+    <!-- Level Complete Screen -->
     <string name="victory">Victoire !</string>
     <string name="battle_won">Bataille gagnée !</string>
     <string name="defeat">Défaite</string>
@@ -12,6 +15,8 @@
     <string name="defeat_message">Les ennemis ont percé vos défenses...</string>
     <string name="retry">Réessayer</string>
     <string name="world_map">Carte du monde</string>
+    
+    <!-- Settings -->
     <string name="settings">Paramètres</string>
     <string name="language">Langue</string>
     <string name="appearance">Apparence</string>
@@ -37,12 +42,16 @@
     <string name="settings_hint_title">Paramètres Disponibles</string>
     <string name="settings_hint_message">Cliquez sur l'icône des paramètres pour personnaliser votre expérience. Les paramètres disponibles incluent :</string>
     <string name="settings_hint_dismiss">Compris !</string>
+    
+    <!-- Common Actions -->
     <string name="back">Retour</string>
     <string name="ok">OK</string>
     <string name="cancel">Annuler</string>
     <string name="save">Sauvegarder</string>
     <string name="delete">Supprimer</string>
     <string name="edit">Modifier</string>
+    
+    <!-- Game Play -->
     <string name="coins">Pièces</string>
     <string name="health">Santé</string>
     <string name="turn">Tour</string>
@@ -72,22 +81,34 @@
     <string name="import_error">Erreur d'importation</string>
     <string name="import_error_message">Impossible d'importer certains fichiers. Veuillez vérifier le format du fichier.</string>
     <string name="in_x_turns">dans %s tours</string>
+    
+    <!-- Towers -->
     <string name="tower">Tour</string>
     <string name="raft">Radeau</string>
     <string name="damage">Dégâts</string>
     <string name="range">Portée</string>
     <string name="actions">Actions</string>
+    
+    <!-- Enemies -->
     <string name="enemy">Ennemi</string>
     <string name="enemies">Ennemis</string>
+    
+    <!-- Status Messages -->
     <string name="locked">Verrouillé</string>
     <string name="unlocked">Déverrouillé</string>
     <string name="completed">Terminé</string>
+    
+    <!-- World Map -->
     <string name="world_map_title">Carte du monde</string>
     <string name="world_map_subtitle">Prairies d\'Egril</string>
     <string name="back_to_world_map">Retour à la carte du monde</string>
     <string name="play_level">Jouer au niveau</string>
     <string name="requires_completing">Nécessite de compléter:</string>
+    
+    <!-- Load Game Screen -->
     <string name="no_saved_games">Aucune partie sauvegardée trouvée</string>
+    
+    <!-- Rules Screen -->
     <string name="how_to_play">Comment jouer</string>
     <string name="game_overview">Aperçu du jeu</string>
     <string name="game_overview_text">Défenseur d'Egril est un jeu de tower defense au tour par tour. Défendez les prairies d'Egril contre des vagues d'ennemis sous la bannière maléfique d'Ewhad.</string>
@@ -139,6 +160,8 @@
     <string name="focus_fire">Concentrez le tir sur les ennemis résistants (Ogres, Orcs)</string>
     <string name="wizard_for_aoe">Tours de sorcier pour des dégâts de zone massifs</string>
     <string name="upgrade_vs_build">Améliorez les tours de haut niveau plutôt que d'en construire de nouvelles</string>
+    
+    <!-- Additional RulesScreen strings -->
     <string name="attack_enemies_desc">Attaquer les ennemis - cliquez sur la tour avec des actions, puis sur l'ennemi à portée</string>
     <string name="build_timers_advance">Les minuteries de construction avancent (compte à rebours)</string>
     <string name="dot_effects_applied">Les effets de dégâts sur la durée sont appliqués</string>
@@ -162,7 +185,11 @@
     <string name="coins_label">pièces</string>
     <string name="hp_label">PV</string>
     <string name="speed_label">Vitesse</string>
+    
+    <!-- Status text -->
     <string name="available">Disponible</string>
+    
+    <!-- Defender/Tower names -->
     <string name="spike_tower_name">Tour à piques</string>
     <string name="spear_tower_name">Tour à lances</string>
     <string name="bow_tower_name">Tour d'archerie</string>
@@ -171,11 +198,15 @@
     <string name="ballista_tower_name">Tour de baliste</string>
     <string name="dwarven_mine_name">Mine</string>
     <string name="dragons_lair_name">Repaire du dragon</string>
+    
+    <!-- Attack type names -->
     <string name="attack_type_melee">Corps-à-corps</string>
     <string name="attack_type_ranged">À distance</string>
     <string name="attack_type_fireball">Boule de feu</string>
     <string name="attack_type_acid">Acide</string>
     <string name="attack_type_special">Spécial</string>
+    
+    <!-- Attacker/Enemy names -->
     <string name="goblin_name">Gobelin</string>
     <string name="ork_name">Orc</string>
     <string name="ogre_name">Ogre</string>
@@ -189,9 +220,13 @@
     <string name="green_witch_name">Sorcière verte</string>
     <string name="ewhad_name">Ewhad</string>
     <string name="dragon_name">Dragon</string>
+    
+    <!-- SavedGameCard strings -->
     <string name="enemies_on_map">Ennemis sur la carte:</string>
     <string name="enemies_to_come">Ennemis à venir:</string>
     <string name="delete_savegame">Supprimer la sauvegarde</string>
+    
+    <!-- Gameplay UI strings -->
     <string name="attack_button">ATTAQUE</string>
     <string name="attack_area_button">ATTAQUE DE ZONE</string>
     <string name="undo">Annuler</string>
@@ -227,6 +262,8 @@
     <string name="building_label">Construction</string>
     <string name="active_label">Actifs</string>
     <string name="planned_label">Prévus</string>
+    
+    <!-- GameLegend strings -->
     <string name="legend">Légende</string>
     <string name="areas_label">Zones</string>
     <string name="build_island">Île de construction</string>
@@ -239,6 +276,7 @@
     <string name="not_enough_actions">pas assez d'actions</string>
     <string name="name_label">Nom</string>
     <string name="reward">Récompense</string>
+
     <string name="special_label">Spécial</string>
     <string name="units_label">Unités</string>
     <string name="tower_ready">Tour (Prête)</string>
@@ -248,14 +286,24 @@
     <string name="legend_info_tower_icons">Icônes montrent type de tour/ennemi</string>
     <string name="legend_info_tower_actions">Niveau et actions affichés sur tours</string>
     <string name="legend_info_enemy_health">Santé affichée sur ennemis</string>
+    
+    <!-- EditorButtonCard strings -->
     <string name="level_editor">Éditeur de niveaux</string>
     <string name="create_edit_maps_levels">Créer &amp; modifier les cartes et niveaux</string>
+    
+    <!-- SavedGameCard additional strings -->
     <string name="built_towers">Tours construites:</string>
+    
+    <!-- Gameplay page strings -->
     <string name="spawn">Spawn</string>
     <string name="target">Cible</string>
     <string name="start_battle">Commencer la bataille</string>
     <string name="your_turn_message">Votre tour - Placez des tours et attaquez les ennemis</string>
     <string name="building">en construction</string>
+    
+    <!-- DefenderInfo mining strings -->
+    
+    <!-- Tower short names -->
     <string name="spike_tower_short">Piques</string>
     <string name="spear_tower_short">Lance</string>
     <string name="bow_tower_short">Arc</string>
@@ -264,6 +312,8 @@
     <string name="ballista_tower_short">Baliste</string>
     <string name="dwarven_mine_short">Mine</string>
     <string name="dragons_lair_short">Repaire</string>
+    
+    <!-- Editor strings -->
     <string name="map_editor">Éditeur de carte</string>
     <string name="level_sequence">Séquence de niveaux</string>
     <string name="maps">Cartes</string>
@@ -352,11 +402,15 @@
     <string name="change_all_levels_in_turn">Modifier tous les niveaux du tour %d</string>
     <string name="mixed_levels_warning">Ce tour contient des unités avec différents niveaux (%s). Êtes-vous sûr de vouloir tous les changer au niveau %d?</string>
     <string name="apply">Appliquer</string>
+
+    <!-- Enemy ability descriptions -->
     <string name="can_summon">Peut invoquer des serviteurs</string>
     <string name="can_heal">Peut soigner d'autres ennemis</string>
     <string name="can_disable_towers">Peut désactiver les tours</string>
     <string name="immune_to_acid">Immunisé contre l'acide</string>
     <string name="immune_to_fireball">Immunisé contre la boule de feu</string>
+
+    <!-- Tutorial -->
     <string name="tutorial_welcome_title">Bienvenue dans Defender of Egril!</string>
     <string name="tutorial_welcome">Ceci est un jeu de défense de tours. Votre objectif est d'empêcher les ennemis d'atteindre la cible en construisant des tours défensives.</string>
     <string name="tutorial_resources_title">Ressources</string>
@@ -388,6 +442,8 @@
     <string name="tutorial_next">Suivant</string>
     <string name="tutorial_got_it">Compris!</string>
     <string name="tutorial_skip">Passer le tutoriel</string>
+
+    <!-- Sound Settings -->
     <string name="sound">Son</string>
     <string name="sound_enabled">Son</string>
     <string name="sound_disabled">Muet</string>
@@ -410,10 +466,14 @@
     <string name="gameplay_music_volume">Volume de la musique de jeu</string>
     <string name="show_detailed_sound_settings">Afficher les paramètres sonores détaillés</string>
     <string name="hide_detailed_sound_settings">Masquer les paramètres sonores détaillés</string>
+
+    <!-- Control Pad Settings -->
     <string name="controls">Contrôles</string>
     <string name="show_control_pad">Afficher le pavé directionnel</string>
     <string name="control_pad_enabled">Pavé Directionnel</string>
     <string name="control_pad_disabled">Sans Pavé Directionnel</string>
+    
+    <!-- Difficulty Settings -->
     <string name="difficulty">Difficulté</string>
     <string name="difficulty_baby">Bébé</string>
     <string name="difficulty_easy">Facile</string>
@@ -426,22 +486,30 @@
     <string name="difficulty_hard_desc">Les ennemis ont le double de niveaux</string>
     <string name="difficulty_nightmare_desc">Les ennemis apparaissent 3 fois avec des niveaux croissants</string>
     <string name="difficulty_info_current_level">Remarque : La modification de la difficulté n\'affecte pas le niveau actuel. Démarrez ou redémarrez un niveau pour l'appliquer.</string>
+    
+    <!-- Dragon Names -->
     <string name="the_dragon">Le dragon</string>
     <string name="awakens">se réveille</string>
     <string name="lair_of_the_dragon">Repaire du Dragon</string>
+
+    <!-- Dragon Info -->
     <string name="dragon_info_title">Alerte Dragon !</string>
     <string name="dragon_info_movement">Le dragon alterne ses mouvements : Tour 1, 3, 5... : Marche 1 case sur le chemin. Tour 2, 4, 6... : Vole jusqu'à 5 cases, peut traverser les obstacles mais doit atterrir sur le chemin</string>
     <string name="dragon_info_eating">Les dragons dévorent les ennemis sur lesquels ils atterrissent (sauf Ewhad), gagnant leurs points de vie !</string>
     <string name="dragon_info_level">Le niveau du dragon augmente avec la santé : Niveau = PV ÷ 500 (min. 1)</string>
     <string name="got_it">Compris !</string>
+
+    <!-- Dragon Greed Info -->
     <string name="dragon_greed_title">Avidité du Dragon !</string>
     <string name="dragon_greed_message">Le dragon est devenu avide ! Avidité = Niveau du Dragon ÷ 5. Le dragon dévorera désormais des unités sur les tuiles adjacentes selon son niveau d'avidité à chaque tour.</string>
     <string name="dragon_very_greedy_title">Raid Minier du Dragon !</string>
-    <string name="dragon_very_greedy_message">Le dragon est très avide (avidité &gt; 5) ! Il va maintenant traquer et détruire les mines naines, absorbant toute la santé qu'aurait un nouveau dragon (500 PV par mine). Les mines deviendront des décombres détruits. Défendez-les ou reconstruisez rapidement !</string>
+    <string name="dragon_very_greedy_message">Le dragon est très avide (avidité > 5) ! Il va maintenant traquer et détruire les mines naines, absorbant toute la santé qu'aurait un nouveau dragon (500 PV par mine). Les mines deviendront des décombres détruits. Défendez-les ou reconstruisez rapidement !</string>
     <string name="mine_warning_title">Mine Menacée !</string>
     <string name="mine_warning_message">Le dragon approche ! Les nains se préparent à défendre leur mine, mais cela pourrait ne pas suffire...</string>
     <string name="one_hp_warning_title">Avertissement Critique !</string>
     <string name="one_hp_warning_message">Vous n\'avez qu'1 point de vie ! Pas un seul ennemi ne peut atteindre la cible, sinon vous perdrez. Défendez avec une extrême prudence !</string>
+    
+    <!-- Enemy Info Display -->
     <string name="greedy_label">avide</string>
     <string name="very_greedy_label">très avide</string>
     <string name="greedy_desc">Mange les unités ennemies environnantes</string>
@@ -450,6 +518,7 @@
     <string name="dragon_info_button">Que fait un dragon ?</string>
     <string name="mighty_unit_warning">Unité puissante ! Inflige %d PV de dégâts si elle atteint la cible (niveau × 1 PV)</string>
     <string name="ewhad_target_warning">BOSS ! Si Ewhad atteint la cible, le niveau est perdu !</string>
+<!-- Waypoint Editor -->
     <string name="waypoints_tab">Points de Passage</string>
     <string name="waypoints_title">Connexions des Points de Passage</string>
     <string name="waypoints_description">Configurez les connexions des points de passage pour ce niveau. Les points de passage définissent le chemin que suivront les ennemis.</string>
@@ -500,6 +569,8 @@
     <string name="click_target_waypoint">2. Cliquez sur une cible (point de passage ou cible)</string>
     <string name="connection_mode_active">Mode connexion actif</string>
     <string name="cancel_connection">Annuler</string>
+    
+    <!-- Plurals -->
     <plurals name="enemy_count">
         <item quantity="one">%d ennemi</item>
         <item quantity="other">%d ennemis</item>
@@ -516,6 +587,8 @@
         <item quantity="one">%d point de vie</item>
         <item quantity="other">%d points de vie</item>
     </plurals>
+    
+    <!-- New Repository Data Dialog -->
     <string name="new_repository_data_title">Nouveau contenu disponible</string>
     <string name="new_repository_data_message">De nouvelles cartes et niveaux ont été trouvés dans le référentiel qui ne sont pas dans vos données de jeu. Voulez-vous les ajouter ?</string>
     <string name="new_maps_found">%d nouvelle(s) carte(s) trouvée(s) :</string>
@@ -524,18 +597,26 @@
     <string name="sequence_will_be_replaced">La séquence de niveaux sera mise à jour.</string>
     <string name="sequence_backup_warning">Remarque : Si vous avez modifié le fichier de séquence, vous devrez refaire ces modifications. Votre séquence actuelle sera sauvegardée dans sequence-N.json.</string>
     <string name="add_data">Ajouter du nouveau contenu</string>
+    
+    <!-- Unsaved Changes Dialog -->
     <string name="unsaved_changes_title">Modifications non enregistrées</string>
     <string name="unsaved_changes_message">Vous avez des progrès non enregistrés dans ce niveau. Que souhaitez-vous faire ?</string>
     <string name="save_and_exit">Enregistrer et Quitter</string>
     <string name="discard_changes">Ignorer les Modifications</string>
+    
+    <!-- End Turn Confirmation Dialog -->
     <string name="end_turn_confirmation_title">Terminer le tour ?</string>
     <string name="end_turn_confirmation_message">Certaines de vos tours ont des points d'action inutilisés. Êtes-vous sûr de vouloir terminer votre tour ?</string>
     <string name="end_turn_confirm">Terminer le tour</string>
+    
+    <!-- Magical Trap Feature -->
     <string name="magical_trap">Piège Magique</string>
     <string name="magical_trap_cooldown">Temps de recharge : %d tours</string>
     <string name="magical_trap_available">Piège Magique Disponible</string>
     <string name="magical_trap_tutorial_title">Piège Magique Débloqué !</string>
     <string name="magical_trap_tutorial_message">Votre tour de magicien a atteint le niveau 10 et peut désormais placer des pièges magiques ! Ces pièges téléportent les ennemis à leur point d'apparition lorsqu'ils sont déclenchés. Après avoir placé un piège, il y a un temps de recharge de 10 tours avant de pouvoir en placer un autre.</string>
+    
+    <!-- Level Prerequisites -->
     <string name="level_dependencies">Dépendances des Niveaux</string>
     <string name="validation_passed">Validation Réussie</string>
     <string name="validation_failed">Validation Échouée</string>
@@ -550,39 +631,63 @@
     <string name="all">tous</string>
     <string name="requires">Nécessite</string>
     <string name="entry_point">Point d'Entrée</string>
+    
+    <!-- World Map Locations -->
     <string name="levels_at_location">%s niveau(x) à cet emplacement</string>
     <string name="requires_any_of">Nécessite de compléter %s de :</string>
     <string name="requires_all">Nécessite de compléter tous :</string>
+    
+    <!-- World Map Position Editor -->
     <string name="world_map_positions">Carte du Monde</string>
     <string name="world_map_position_instructions">Sélectionnez une carte dans la liste, puis cliquez sur la carte du monde pour définir sa position. La position est enregistrée en pour mille (0-1000) des dimensions de la carte.</string>
     <string name="no_position_set">Aucune position définie</string>
+    <!-- Extended Area Attack Feature -->
     <string name="extended_area_tutorial_title">Attaque de Zone Étendue !</string>
     <string name="extended_area_tutorial_message">Votre tour a atteint le niveau 20 et possède maintenant une attaque de zone étendue ! Les attaques de boule de feu et d'acide affectent désormais les ennemis dans un rayon de 2 cases au lieu d'une seule. Cela rend vos attaques de zone beaucoup plus puissantes contre les groupes d'ennemis !</string>
+
+    <!-- First Time Tower Usage Info -->
     <string name="wizard_first_use_title">Tour de Magicien</string>
     <string name="wizard_first_use_message">La Tour de Magicien est une puissante tour à zone d'effet qui lance des boules de feu sur les ennemis ! Chaque boule de feu endommage la cible et tous les ennemis dans les cases adjacentes. Elle a un temps de construction plus long (2 tours) mais peut dévaster des groupes d'ennemis. Au niveau 10, les magiciens peuvent placer des pièges magiques qui téléportent les ennemis au point d'apparition. Au niveau 20, le rayon de la boule de feu augmente à 2 cases !</string>
+
     <string name="alchemy_first_use_title">Tour d'Alchimie</string>
     <string name="alchemy_first_use_message">La Tour d'Alchimie lance de l'acide qui inflige des dégâts dans le temps ! Contrairement aux autres tours, les dégâts d'acide persistent pendant plusieurs tours (base 2 tours, augmente avec le niveau). L\'acide affecte la cible et les ennemis adjacents dans une petite zone. Bien que les dégâts par tour soient plus faibles, les dégâts totaux dans le temps peuvent être très efficaces. Au niveau 20, la zone d'acide augmente à 2 cases !</string>
+
     <string name="ballista_first_use_title">Tour Baliste</string>
     <string name="ballista_first_use_message">La Baliste est une arme de siège à longue portée avec une portée exceptionnelle (5 cases) et des dégâts élevés ! Cependant, elle a une portée minimale de 3 cases et ne peut pas attaquer les ennemis proches. Elle nécessite 2 tours pour être construite. Utilisez-la pour cibler les ennemis à distance avant qu'ils ne se rapprochent trop, ou positionnez-la derrière d'autres tours pour une efficacité maximale.</string>
+
     <string name="mine_first_use_title">Mine Naine</string>
     <string name="mine_first_use_message">La Mine Naine est une structure spéciale qui génère des pièces grâce aux opérations minières ! Contrairement aux tours de combat, les mines utilisent l'action "creuser" pour trouver des ressources précieuses (gravats, laiton, argent, or, gemmes ou diamants). Les mines peuvent également construire des pièges qui endommagent les ennemis. À des niveaux plus élevés, les mines peuvent creuser plus de fois par tour et avoir une portée plus grande. Attention : Les dragons sont avides et détruiront les mines pour s\'emparer du trésor !</string>
+
+    <!-- River Mechanics Info -->
     <string name="river_info_title">Mécaniques des Rivières</string>
     <string name="river_info_placement">Vous pouvez placer des tours sur les cases de rivière ! Lorsque vous le faites, elles seront placées sur des radeaux.</string>
     <string name="river_info_movement">Les radeaux se déplacent automatiquement avec le courant de la rivière à la fin de chaque tour. La vitesse du courant détermine combien de cases ils se déplacent (1 ou 2 cases).</string>
     <string name="river_info_destruction">Les radeaux sont détruits s\'ils atteignent un maelström (tourbillon) ou sortent des limites de la carte. La tour sur le radeau est également détruite.</string>
     <string name="river_info_bridges">Les ponts bloquent le mouvement des radeaux. Les radeaux ne peuvent pas passer à travers les ponts qui enjambent la rivière. Plusieurs radeaux sur la même rivière se déplacent dans l'ordre - les radeaux en aval bougent en premier.</string>
+
+    <!-- Mine on River Warning -->
     <string name="mine_on_river_warning_title">Impossible de placer une mine sur la rivière</string>
     <string name="mine_on_river_warning_message">Les mines naines ne peuvent pas être placées sur les cases de rivière. Les mines nécessitent un sol solide et ne peuvent pas être construites sur des radeaux. Veuillez sélectionner une zone de construction sur la terre ferme.</string>
+
+    <!-- Mining Outcome Table Headers -->
     <string name="dig_outcome_name">Nom</string>
     <string name="dig_outcome_chance">Chance (%)</string>
     <string name="dig_outcome_reward">Récompense</string>
+
+    <!-- Delete Confirmation Dialog -->
     <string name="delete_save_game">Supprimer la sauvegarde</string>
     <string name="delete_save_game_confirm">Êtes-vous sûr de vouloir supprimer cette sauvegarde ?</string>
+
+    <!-- Editor - Speed Labels -->
     <string name="speed_slow">1 (Lent)</string>
     <string name="speed_fast">2 (Rapide)</string>
+
+    <!-- Editor - River Properties -->
     <string name="river_properties">Propriétés de la rivière</string>
     <string name="flow_direction">Direction du courant :</string>
     <string name="flow_speed">Vitesse du courant :</string>
+
+    <!-- Editor - World Map Position Editor -->
     <string name="add_location">+ Ajouter un lieu</string>
     <string name="add_location_dialog_title">Ajouter un lieu</string>
     <string name="location_name">Nom du lieu</string>
@@ -605,6 +710,8 @@
     <string name="from">De :</string>
     <string name="to">Vers :</string>
     <string name="connection_type">Type de connexion :</string>
+    
+    <!-- Editor Info Page -->
     <string name="info">Info</string>
     <string name="editor_info_title">Guide de l'Éditeur de Niveaux</string>
     <string name="editor_info_intro">Bienvenue dans l'Éditeur de Niveaux ! Cet outil vous permet de créer des cartes personnalisées, des niveaux et des séquences de niveaux pour Defender of Egril.</string>
@@ -632,15 +739,13 @@
     <string name="editor_info_world_map_features">Définir les coordonnées X/Y pour chaque niveau - Créer des connexions entre les niveaux (route ou mer) - Connecter automatiquement les niveaux en fonction des dépendances - Configurer les styles visuels de connexion - Définir des points de cheminement pour les chemins de connexion</string>
     <string name="editor_info_tips_title">Conseils</string>
     <string name="editor_info_tips_text">Sauvegardez fréquemment pour éviter de perdre du travail - Testez vos niveaux dans le jeu pour vous assurer qu'ils sont équilibrés - Utilisez les niveaux existants comme modèles - Les cartes peuvent être réutilisées sur plusieurs niveaux - La séquence détermine quels niveaux sont jouables</string>
+
     <string name="game_sticker_tagline">Open Source Turn Based Fantasy Tower Defense Game</string>
+    
+    <!-- Level Names -->
     <string name="level_welcome_to_defender_of_egril_title">Bienvenue à Defender of Egril</string>
     <string name="level_welcome_to_defender_of_egril_subtitle">Tutoriel</string>
-    <string name="level_the_first_wave_title">La Première Vague</string>
-    <string name="level_mixed_forces_title">Forces Mixtes</string>
-    <string name="level_the_ork_invasion_title">L\'Invasion Ork</string>
-    <string name="level_dark_magic_rises_title">La Magie Noire Se Lève</string>
-    <string name="level_the_final_stand_title">La Dernière Bataille</string>
-    <string name="level_the_plains_title">Les Plaines</string>
+    <string name="level_the_first_wave_title">La Première Vague</string>    <string name="level_mixed_forces_title">Forces Mixtes</string>    <string name="level_the_ork_invasion_title">L\'Invasion Ork</string>    <string name="level_dark_magic_rises_title">La Magie Noire Se Lève</string>    <string name="level_the_final_stand_title">La Dernière Bataille</string>    <string name="level_the_plains_title">Les Plaines</string>
     <string name="level_the_plains_subtitle">Bataille en Plein Champ</string>
     <string name="level_the_spiral_challenge_title">Le Défi de la Spirale</string>
     <string name="level_the_spiral_challenge_subtitle">Naviguez dans la Spirale</string>
@@ -657,19 +762,10 @@
     <string name="level_the_cross_title">La Croix</string>
     <string name="level_the_cross_subtitle">Quatre Chemins Divisés</string>
     <string name="level_the_winding_path_title">Le Chemin Sinueux</string>
-    <string name="level_the_winding_path_subtitle">Une Route Longue et Tortueuse</string>
-    <string name="level_the_fortress_title">La Forteresse %s</string>
-    <string name="level_the_fortress_1_first_attacks_subtitle">Premières Attaques</string>
-    <string name="level_the_fortress_2_orks_marching_subtitle">Les Orks Marchent</string>
-    <string name="level_the_fortress_3_necromancer_subtitle">Le Nécromancien</string>
-    <string name="level_the_fortress_4_magic_assault_subtitle">Assaut Magique</string>
-    <string name="level_the_fortress_5_mighty_forces_subtitle">Forces Puissantes</string>
-    <string name="level_ewhads_challenge_title">Défi d\'Ewhad</string>
-    <string name="level_the_creek_title">Le Ruisseau</string>
-    <string name="level_the_island_title">L\'Île</string>
-    <string name="level_the_river_title">La Rivière</string>
-    <string name="level_creek_valley_title">Vallée du Ruisseau</string>
-    <string name="level_maelstrom_title">Maelström</string>
+    <string name="level_the_winding_path_subtitle">Une Route Longue et Tortueuse</string>        <string name="level_the_fortress_title">La Forteresse %s</string>
+    <string name="level_the_fortress_1_first_attacks_subtitle">Premières Attaques</string>    <string name="level_the_fortress_2_orks_marching_subtitle">Les Orks Marchent</string>    <string name="level_the_fortress_3_necromancer_subtitle">Le Nécromancien</string>    <string name="level_the_fortress_4_magic_assault_subtitle">Assaut Magique</string>    <string name="level_the_fortress_5_mighty_forces_subtitle">Forces Puissantes</string>
+    <string name="level_ewhads_challenge_title">Défi d\'Ewhad</string>    <string name="level_the_creek_title">Le Ruisseau</string>    <string name="level_the_island_title">L\'Île</string>    <string name="level_the_river_title">La Rivière</string>    <string name="level_creek_valley_title">Vallée du Ruisseau</string>    <string name="level_maelstrom_title">Maelström</string>    
+    <!-- Map Names -->
     <string name="map_tutorial_name">Carte Tutoriel</string>
     <string name="map_straight_name">Carte Droite</string>
     <string name="map_plains_name">Les Plaines</string>
@@ -687,6 +783,8 @@
     <string name="map_the_river_name">La Rivière</string>
     <string name="map_creek_valley_name">Vallée du Ruisseau</string>
     <string name="map_the_maelstrom_name">Le Maelström</string>
+    
+    <!-- World Map Location Names -->
     <string name="location_tutorial_name">Tutoriel</string>
     <string name="location_the_beginning_name">Le Début</string>
     <string name="location_the_plains_name">Les Plaines</string>
