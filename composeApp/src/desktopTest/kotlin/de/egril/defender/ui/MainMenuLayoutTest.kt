@@ -25,7 +25,8 @@ class MainMenuLayoutTest {
             MainMenuScreen(
                 onStartGame = {},
                 onShowRules = {},
-                onSelectPlayer = {},  // No player selection in tests
+                onSelectPlayer = {},
+                onEditPlayerName = {},  // No player selection in tests
                 currentPlayerName = null  // No player name in tests
             )
         }
