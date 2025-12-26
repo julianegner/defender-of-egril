@@ -50,6 +50,7 @@ fun ApplicationBanner(
     val bowTowerOffset = if (isPlatformMobile) 100f else 80f
     val wizardTowerOffset = if (isPlatformMobile) 120f else 100f
     val spacerWidth = if (isPlatformMobile) 100.dp else 80.dp
+    val canvasWidth = if (isPlatformMobile) 200.dp else 80.dp
     
     Row(
         modifier = modifier,
@@ -60,7 +61,7 @@ fun ApplicationBanner(
         Box(
             modifier = Modifier
                 .height(80.dp)
-                .width(80.dp)
+                .width(canvasWidth)
         ) {
             Canvas(modifier = Modifier.fillMaxSize()) {
                 val centerX = size.width / 2
