@@ -468,3 +468,11 @@ data class PrerequisiteValidationResult(
 data class LevelSequence(
     val sequence: List<String>  // List of level IDs in order
 )
+
+/**
+ * Exception thrown when critical repository data files are missing or empty
+ */
+class MissingRepositoryDataException(
+    val missingCategories: List<String>
+) : Exception("Missing or empty repository data categories: ${missingCategories.joinToString(", ")}")
+
