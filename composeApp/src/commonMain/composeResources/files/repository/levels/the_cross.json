@@ -363,10 +363,10 @@
   ],
   "availableTowers": ["SPIKE_TOWER", "SPEAR_TOWER", "BOW_TOWER", "WIZARD_TOWER", "ALCHEMY_TOWER", "BALLISTA_TOWER", "DWARVEN_MINE"],
   "waypoints": [
-    {"position": {"x": 20,"y": 0},"nextTargetPosition": {"x": 20,"y": 36}},
-    {"position": {"x": 39,"y": 39},"nextTargetPosition": {"x": 21,"y": 39}},
-    {"position": {"x": 0,"y": 39},"nextTargetPosition": {"x": 18,"y": 39}},
-    {"position": {"x": 20,"y": 77},"nextTargetPosition": {"x": 20,"y": 42}}
-  ],
+ {"position": {"x": 20, "y": 0}, "nextTargetPosition": {"x": 20, "y": 36}},
+ {"position": {"x": 39, "y": 39}, "nextTargetPosition": {"x": 21, "y": 39}},
+ {"position": {"x": 0, "y": 39}, "nextTargetPosition": {"x": 18, "y": 39}},
+ {"position": {"x": 20, "y": 77}, "nextTargetPosition": {"x": 20, "y": 42}}
+ ],
   "prerequisites": ["the_fast_and_furious"]
 }
