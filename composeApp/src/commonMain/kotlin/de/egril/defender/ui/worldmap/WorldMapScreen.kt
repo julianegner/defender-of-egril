@@ -44,6 +44,7 @@ fun WorldMapScreen(
     onReloadWorldMap: (() -> Unit)? = null,  // Callback to reload world map after syncing repository files
     checkForNewRepositoryData: Boolean = true,  // Set to false in tests to avoid repository checks
     onSwitchPlayer: (() -> Unit)? = null,  // Callback to switch player
+    onEditPlayerName: (() -> Unit)? = null,  // Callback to edit player name
     currentPlayerName: String? = null  // Current player name for display
 ) {
     var showCheatDialog by remember { mutableStateOf(false) }
@@ -126,51 +127,111 @@ fun WorldMapScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Title, subtitle, and player info - clickable for cheat code access (less obvious than a button)
-                Column(
-                    modifier = Modifier
-                        .then(
+                // Title/subtitle area and player info
+                // In Image Map View: Stack player info below title
+                // In Level Cards View: Show player info in same row with spacing
+                if (useLevelCards) {
+                    // Level Cards View: Title and player info in same row
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        // Title and subtitle - clickable for cheat code access
+                        Column(
+                            modifier = Modifier.then(
+                                if (onCheatCode != null) {
+                                    Modifier.clickable { showCheatDialog = true }
+                                } else {
+                                    Modifier
+                                }
+                            )
+                        ) {
+                            Text(
+                                text = stringResource(Res.string.world_map_title),
+                                style = MaterialTheme.typography.titleLarge,
+                                color = MaterialTheme.colorScheme.onBackground
+                            )
+                            Text(
+                                text = stringResource(Res.string.world_map_subtitle),
+                                style = MaterialTheme.typography.titleMedium.copy(
+                                    fontStyle = FontStyle.Italic
+                                ),
+                                color = MaterialTheme.colorScheme.onBackground
+                            )
+                        }
+                        
+                        // Player name and switch button (if available)
+                        if (currentPlayerName != null && onSwitchPlayer != null && onEditPlayerName != null) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Text(
+                                    text = currentPlayerName,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.clickable { onEditPlayerName() }
+                                )
+                                
+                                TextButton(
+                                    onClick = onSwitchPlayer,
+                                    modifier = Modifier.height(28.dp)
+                                ) {
+                                    Text(
+                                        text = stringResource(Res.string.switch_player),
+                                        style = MaterialTheme.typography.labelSmall
+                                    )
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    // Image Map View: Title and player info stacked
+                    Column(
+                        modifier = Modifier.then(
                             if (onCheatCode != null) {
                                 Modifier.clickable { showCheatDialog = true }
                             } else {
                                 Modifier
                             }
                         )
-                ) {
-                    Text(
-                        text = stringResource(Res.string.world_map_title),
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-                    Text(
-                        text = stringResource(Res.string.world_map_subtitle),
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            fontStyle = FontStyle.Italic
-                        ),
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-                    
-                    // Player name and switch button (if available)
-                    if (currentPlayerName != null && onSwitchPlayer != null) {
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            Text(
-                                text = currentPlayerName,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                            
-                            TextButton(
-                                onClick = onSwitchPlayer,
-                                modifier = Modifier.height(28.dp)
+                    ) {
+                        Text(
+                            text = stringResource(Res.string.world_map_title),
+                            style = MaterialTheme.typography.titleLarge,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                        Text(
+                            text = stringResource(Res.string.world_map_subtitle),
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                fontStyle = FontStyle.Italic
+                            ),
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                        
+                        // Player name and switch button (if available) - shown below title
+                        if (currentPlayerName != null && onSwitchPlayer != null && onEditPlayerName != null) {
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
                                 Text(
-                                    text = stringResource(Res.string.switch_player),
-                                    style = MaterialTheme.typography.labelSmall
+                                    text = currentPlayerName,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.clickable { onEditPlayerName() }
                                 )
+                                
+                                TextButton(
+                                    onClick = onSwitchPlayer,
+                                    modifier = Modifier.height(28.dp)
+                                ) {
+                                    Text(
+                                        text = stringResource(Res.string.switch_player),
+                                        style = MaterialTheme.typography.labelSmall
+                                    )
+                                }
                             }
                         }
                     }

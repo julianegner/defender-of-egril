@@ -675,6 +675,27 @@ class GameViewModel {
     }
     
     /**
+     * Rename the current player profile
+     * @return true if successful, false if name is invalid or already exists
+     */
+    fun renameCurrentPlayer(newName: String): Boolean {
+        val currentPlayerId = _currentPlayer.value?.id ?: return false
+        val updatedProfile = de.egril.defender.save.PlayerProfileStorage.renameProfile(currentPlayerId, newName)
+        if (updatedProfile != null) {
+            _currentPlayer.value = updatedProfile
+            _allPlayers.value = de.egril.defender.save.PlayerProfileStorage.getAllProfiles().profiles
+            
+            // Update SaveFileStorage if the ID changed
+            if (updatedProfile.id != currentPlayerId) {
+                de.egril.defender.save.SaveFileStorage.setCurrentPlayer(updatedProfile.id)
+            }
+            
+            return true
+        }
+        return false
+    }
+    
+    /**
      * Refresh the list of all player profiles
      */
     fun refreshPlayerProfiles() {

@@ -55,7 +55,8 @@ class WorldMapScreenTest {
                 onOpenEditor = { openEditorClicked = true },
                 onLoadGame = { loadGameClicked = true },
                 checkForNewRepositoryData = false,  // Disable repository check in tests
-                onSwitchPlayer = null,  // No player switching in tests
+                onSwitchPlayer = null,
+                onEditPlayerName = null,  // No player switching in tests
                 currentPlayerName = null  // No player name in tests
             )
         }
@@ -106,7 +107,8 @@ class WorldMapScreenTest {
                 onOpenEditor = {},
                 onLoadGame = {},
                 checkForNewRepositoryData = false,  // Disable repository check in tests
-                onSwitchPlayer = null,  // No player switching in tests
+                onSwitchPlayer = null,
+                onEditPlayerName = null,  // No player switching in tests
                 currentPlayerName = null  // No player name in tests
             )
         }
@@ -141,7 +143,8 @@ class WorldMapScreenTest {
                 onOpenEditor = {},
                 onLoadGame = {},
                 checkForNewRepositoryData = false,  // Disable repository check in tests
-                onSwitchPlayer = null,  // No player switching in tests
+                onSwitchPlayer = null,
+                onEditPlayerName = null,  // No player switching in tests
                 currentPlayerName = null  // No player name in tests
             )
         }
@@ -176,7 +179,8 @@ class WorldMapScreenTest {
                 onOpenEditor = {},
                 onLoadGame = {},
                 checkForNewRepositoryData = false,  // Disable repository check in tests
-                onSwitchPlayer = null,  // No player switching in tests
+                onSwitchPlayer = null,
+                onEditPlayerName = null,  // No player switching in tests
                 currentPlayerName = null  // No player name in tests
             )
         }
@@ -211,7 +215,8 @@ class WorldMapScreenTest {
                 onOpenEditor = {},
                 onLoadGame = { loadGameClicked = true },
                 checkForNewRepositoryData = false,  // Disable repository check in tests
-                onSwitchPlayer = null,  // No player switching in tests
+                onSwitchPlayer = null,
+                onEditPlayerName = null,  // No player switching in tests
                 currentPlayerName = null  // No player name in tests
             )
         }

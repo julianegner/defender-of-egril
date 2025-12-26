@@ -108,6 +108,61 @@ object PlayerProfileStorage {
     }
     
     /**
+     * Rename a player profile
+     * @param playerId The ID of the player to rename
+     * @param newName The new display name
+     * @return The updated profile, or null if rename failed
+     */
+    fun renameProfile(playerId: String, newName: String): PlayerProfile? {
+        val trimmedName = newName.trim()
+        if (trimmedName.isEmpty() || trimmedName.length > 50) {
+            return null
+        }
+        
+        val profiles = getAllProfiles()
+        val profile = profiles.profiles.find { it.id == playerId } ?: return null
+        
+        // Generate new ID from the new name
+        val newId = sanitizeName(trimmedName)
+        
+        // Check if new ID conflicts with an existing profile (unless it's the same profile)
+        if (newId != playerId && profiles.profiles.any { it.id == newId }) {
+            return null
+        }
+        
+        // If the ID changed, we need to rename the directory
+        if (newId != playerId) {
+            val oldDir = "$PLAYERS_DIR/$playerId"
+            val newDir = "$PLAYERS_DIR/$newId"
+            
+            // Rename the directory
+            try {
+                fileStorage.renameDirectory(oldDir, newDir)
+            } catch (e: Exception) {
+                println("Error renaming player directory: ${e.message}")
+                return null
+            }
+        }
+        
+        // Update the profile with the new name and ID
+        val updatedProfile = profile.copy(
+            id = newId,
+            name = trimmedName
+        )
+        
+        // Update profiles list
+        val updatedProfiles = profiles.copy(
+            profiles = profiles.profiles.map { p ->
+                if (p.id == playerId) updatedProfile else p
+            },
+            lastUsedPlayerId = if (profiles.lastUsedPlayerId == playerId) newId else profiles.lastUsedPlayerId
+        )
+        saveProfiles(updatedProfiles)
+        
+        return updatedProfile
+    }
+    
+    /**
      * Delete a player profile and all their data
      */
     fun deleteProfile(playerId: String): Boolean {
