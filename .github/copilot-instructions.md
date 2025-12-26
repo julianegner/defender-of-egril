@@ -117,6 +117,9 @@ Defender of Egril is a turn-based tower defense game built with Kotlin Multiplat
   - ALL user-facing strings MUST use `stringResource(Res.string.key_name)` - no hardcoded strings
   - Exceptions: Cheat codes (not translated), single-character symbols (•, ✓, etc.), variable interpolations
   - New strings MUST be added to ALL language files (values/, values-de/, values-es/, values-fr/, values-it/)
+  - **IMPORTANT**: Check for duplicate string keys before adding new strings - each `name` attribute must be unique within a file
+  - Use this command to check for duplicates: `grep 'string name=' file.xml | sed 's/.*name="\([^"]*\)".*/\1/' | sort | uniq -d`
+  - If a string already exists in the codebase, reuse it instead of creating a duplicate
   - Run `TranslationCoverageTest` to verify complete translation coverage
 
 ### Icons and Emojis
