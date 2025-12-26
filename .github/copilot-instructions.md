@@ -98,7 +98,7 @@ Defender of Egril is a turn-based tower defense game built with Kotlin Multiplat
     {"attackerType": "ORK", "level": 2, "spawnTurn": 5, "spawnPoint": {"x": 0, "y": 4}}
   ]
   ```
-- **Waypoints**: Write each waypoint object on its own line (not all on one line, not fully expanded)
+- **Waypoints**: Write each waypoint object on its own line (not all on one line, not fully expanded). **Always add one space after commas** within objects.
   ```json
   "waypoints": [
     {"position": {"x": 20, "y": 0}, "nextTargetPosition": {"x": 20, "y": 36}},
@@ -106,6 +106,7 @@ Defender of Egril is a turn-based tower defense game built with Kotlin Multiplat
     {"position": {"x": 0, "y": 39}, "nextTargetPosition": {"x": 18, "y": 39}}
   ]
   ```
+  Note: Use `{"x": 20, "y": 0}` (with spaces) NOT `{"x":20,"y":0}` (without spaces)
 - **Rationale**: Enemy spawn format saves hundreds of lines per level file while maintaining readability. Waypoints use one-per-line for better readability when editing pathfinding.
 - **When Creating/Editing Levels**: Always use compact single-line format for enemy spawns, and one-per-line format for waypoints
 - **Other Fields**: Keep other JSON fields (id, title, startCoins, etc.) on separate lines with normal formatting
