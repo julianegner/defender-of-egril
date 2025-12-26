@@ -758,4 +758,10 @@
     <string name="player_delete_confirm_title">Supprimer le joueur?</string>
     <string name="player_delete_confirm_message">Êtes-vous sûr de vouloir supprimer le joueur "%s"? Tous les progrès et les fichiers sauvegardés de ce joueur seront définitivement supprimés.</string>
     <string name="switch_player">Changer de joueur</string>
+    
+    <!-- Repository Data Error -->
+    <string name="error_missing_repository_data_title">Données de jeu manquantes</string>
+    <string name="error_missing_repository_data_message">Les fichiers de données de jeu critiques sont manquants ou vides. Le jeu ne peut pas démarrer sans ces fichiers.</string>
+    <string name="error_missing_repository_data_categories">Catégories de données manquantes:</string>
+    <string name="error_missing_repository_data_reinstall">Veuillez réinstaller le jeu ou restaurer les données de jeu depuis le menu Paramètres.</string>
 </resources>
