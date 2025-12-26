@@ -36,6 +36,21 @@ fun App() {
         val gameState by viewModel.gameState.collectAsState()
         val savedGames by viewModel.savedGames.collectAsState()
         val cheatDigOutcome by viewModel.cheatDigOutcome.collectAsState()
+        val needsPlayerSelection by viewModel.needsPlayerSelection.collectAsState()
+        val currentPlayer by viewModel.currentPlayer.collectAsState()
+        val allPlayers by viewModel.allPlayers.collectAsState()
+        
+        // Show player selection dialog if needed
+        var showPlayerSelection by remember { mutableStateOf(false) }
+        var showCreatePlayer by remember { mutableStateOf(false) }
+        var showEditPlayer by remember { mutableStateOf(false) }
+        
+        // On first launch, show create player dialog if no players exist
+        LaunchedEffect(needsPlayerSelection) {
+            if (needsPlayerSelection) {
+                showCreatePlayer = true
+            }
+        }
         
         // Register unsaved changes checker for window close handling
         LaunchedEffect(currentScreen) {
@@ -51,11 +66,65 @@ fun App() {
             }
         }
         
+        // Player selection dialogs
+        if (showCreatePlayer) {
+            CreatePlayerDialog(
+                onCreatePlayer = { name ->
+                    val success = viewModel.createPlayer(name)
+                    if (success) {
+                        showCreatePlayer = false
+                    }
+                },
+                onDismiss = {
+                    // Only allow dismiss if we already have a player
+                    if (currentPlayer != null) {
+                        showCreatePlayer = false
+                    }
+                }
+            )
+        }
+        
+        if (showPlayerSelection) {
+            SelectPlayerDialog(
+                players = allPlayers,
+                currentPlayerId = currentPlayer?.id,
+                onSelectPlayer = { playerId ->
+                    viewModel.switchPlayer(playerId)
+                    showPlayerSelection = false
+                },
+                onCreateNewPlayer = {
+                    showPlayerSelection = false
+                    showCreatePlayer = true
+                },
+                onDeletePlayer = { playerId ->
+                    viewModel.deletePlayer(playerId)
+                },
+                onDismiss = { showPlayerSelection = false }
+            )
+        }
+        
+        if (showEditPlayer) {
+            PlayerNameDialog(
+                initialName = currentPlayer?.name ?: "",
+                isEdit = true,
+                onSave = { newName ->
+                    val success = viewModel.renameCurrentPlayer(newName)
+                    if (success) {
+                        showEditPlayer = false
+                    }
+                },
+                onDismiss = { showEditPlayer = false }
+            )
+        }
+        
         when (val screen = currentScreen) {
             is Screen.MainMenu -> {
                 MainMenuScreen(
                     onStartGame = { viewModel.navigateToWorldMap() },
-                    onShowRules = { viewModel.navigateToRules() }
+                    onShowRules = { viewModel.navigateToRules() },
+                    onSelectPlayer = { showPlayerSelection = true },
+                    onEditPlayerName = { showEditPlayer = true },
+                    currentPlayerName = currentPlayer?.name
                 )
             }
             
@@ -68,7 +137,10 @@ fun App() {
                     onOpenEditor = { viewModel.navigateToLevelEditor() },
                     onLoadGame = { viewModel.navigateToLoadGame() },
                     onCheatCode = { code -> viewModel.applyWorldMapCheatCode(code) },
-                    onReloadWorldMap = { viewModel.reloadWorldMap() }
+                    onReloadWorldMap = { viewModel.reloadWorldMap() },
+                    onSwitchPlayer = { showPlayerSelection = true },
+                    onEditPlayerName = { showEditPlayer = true },
+                    currentPlayerName = currentPlayer?.name
                 )
             }
             
