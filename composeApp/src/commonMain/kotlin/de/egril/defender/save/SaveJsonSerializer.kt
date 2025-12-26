@@ -519,4 +519,64 @@ object SaveJsonSerializer {
         // If we reach here, the string wasn't properly terminated
         return null
     }
+    
+    // Player Profile Serialization
+    
+    fun serializePlayerProfiles(profiles: PlayerProfiles): String {
+        val profilesJson = profiles.profiles.joinToString(",\n    ") { profile ->
+            """{
+      "id": "${profile.id}",
+      "name": "${profile.name}",
+      "createdAt": ${profile.createdAt},
+      "lastPlayedAt": ${profile.lastPlayedAt}
+    }"""
+        }
+        
+        val lastUsedPlayerIdJson = profiles.lastUsedPlayerId?.let { "\"$it\"" } ?: "null"
+        
+        return """{
+  "profiles": [
+    $profilesJson
+  ],
+  "lastUsedPlayerId": $lastUsedPlayerIdJson
+}"""
+    }
+    
+    fun deserializePlayerProfiles(json: String): PlayerProfiles? {
+        try {
+            val profiles = mutableListOf<PlayerProfile>()
+            
+            // Parse profiles array
+            val profilesSection = json.substringAfter("\"profiles\": [").substringBefore("],")
+            if (profilesSection.isNotBlank()) {
+                val profileEntries = JsonUtils.splitJsonArray(profilesSection)
+                for (entry in profileEntries) {
+                    val id = JsonUtils.extractValue(entry, "id")
+                    val name = JsonUtils.extractValue(entry, "name")
+                    val createdAt = JsonUtils.extractValue(entry, "createdAt").toLong()
+                    val lastPlayedAt = JsonUtils.extractValue(entry, "lastPlayedAt").toLong()
+                    
+                    profiles.add(PlayerProfile(
+                        id = id,
+                        name = name,
+                        createdAt = createdAt,
+                        lastPlayedAt = lastPlayedAt
+                    ))
+                }
+            }
+            
+            // Parse lastUsedPlayerId
+            val lastUsedPlayerId = try {
+                val value = JsonUtils.extractValue(json, "lastUsedPlayerId")
+                if (value == "null") null else value
+            } catch (e: Exception) {
+                null
+            }
+            
+            return PlayerProfiles(profiles, lastUsedPlayerId)
+        } catch (e: Exception) {
+            println("Error deserializing player profiles: ${e.message}")
+            return null
+        }
+    }
 }
