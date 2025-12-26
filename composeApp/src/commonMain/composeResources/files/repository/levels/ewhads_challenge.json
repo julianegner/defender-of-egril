@@ -7,24 +7,8 @@
   "startCoins": 300,
   "startHealthPoints": 10,
   "enemySpawns": [
-    {
-      "attackerType": "EWHAD",
-      "level": 1,
-      "spawnTurn": 1,
-      "spawnPoint": {
-        "x": 0,
-        "y": 1
-      }
-    }
+    {"attackerType": "EWHAD", "level": 1, "spawnTurn": 1, "spawnPoint": {"x": 0, "y": 1}}
   ],
-  "availableTowers": [
-    "SPIKE_TOWER",
-    "SPEAR_TOWER",
-    "BOW_TOWER",
-    "WIZARD_TOWER",
-    "ALCHEMY_TOWER",
-    "BALLISTA_TOWER",
-    "DWARVEN_MINE"
-  ],
+  "availableTowers": ["SPIKE_TOWER", "SPEAR_TOWER", "BOW_TOWER", "WIZARD_TOWER", "ALCHEMY_TOWER", "BALLISTA_TOWER", "DWARVEN_MINE"],
   "waypoints": []
 }
