@@ -187,27 +187,29 @@ fun WorldMapScreen(
                     }
                 } else {
                     // Image Map View: Title and player info stacked
-                    Column(
-                        modifier = Modifier.then(
-                            if (onCheatCode != null) {
-                                Modifier.clickable { showCheatDialog = true }
-                            } else {
-                                Modifier
-                            }
-                        )
-                    ) {
-                        Text(
-                            text = stringResource(Res.string.world_map_title),
-                            style = MaterialTheme.typography.titleLarge,
-                            color = MaterialTheme.colorScheme.onBackground
-                        )
-                        Text(
-                            text = stringResource(Res.string.world_map_subtitle),
-                            style = MaterialTheme.typography.titleMedium.copy(
-                                fontStyle = FontStyle.Italic
-                            ),
-                            color = MaterialTheme.colorScheme.onBackground
-                        )
+                    Column{
+                        Column(
+                            modifier = Modifier.then(
+                                if (onCheatCode != null) {
+                                    Modifier.clickable { showCheatDialog = true }
+                                } else {
+                                    Modifier
+                                }
+                            )
+                        ) {
+                            Text(
+                                text = stringResource(Res.string.world_map_title),
+                                style = MaterialTheme.typography.titleLarge,
+                                color = MaterialTheme.colorScheme.onBackground
+                            )
+                            Text(
+                                text = stringResource(Res.string.world_map_subtitle),
+                                style = MaterialTheme.typography.titleMedium.copy(
+                                    fontStyle = FontStyle.Italic
+                                ),
+                                color = MaterialTheme.colorScheme.onBackground
+                            )
+                        }
                         
                         // Player name and switch button (if available) - shown below title
                         if (currentPlayerName != null && onSwitchPlayer != null && onEditPlayerName != null) {
