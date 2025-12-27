@@ -454,33 +454,33 @@ fun GridCell(
                         // Show healing effect overlay if present
                         if (healingEffect != null) {
                             // Show 3 green "+" symbols in different sizes
-                            Column(
+                            // Positioned with smaller symbols higher than larger ones
+                            Box(
                                 modifier = Modifier.fillMaxSize(),
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Center
+                                contentAlignment = Alignment.Center
                             ) {
-                                // Large + symbol
+                                // Large + symbol at center
                                 Text(
                                     "+",
                                     style = MaterialTheme.typography.headlineLarge,
                                     color = androidx.compose.ui.graphics.Color(0xFF4CAF50), // Green
                                     fontWeight = FontWeight.Bold
                                 )
-                                // Medium + symbol
+                                // Medium + symbol - offset left and higher
                                 Text(
                                     "+",
                                     style = MaterialTheme.typography.headlineMedium,
                                     color = androidx.compose.ui.graphics.Color(0xFF4CAF50), // Green
                                     fontWeight = FontWeight.Bold,
-                                    modifier = Modifier.offset(x = (-8).dp)
+                                    modifier = Modifier.offset(x = (-12).dp, y = (-8).dp)
                                 )
-                                // Small + symbol
+                                // Small + symbol - offset right and even higher
                                 Text(
                                     "+",
                                     style = MaterialTheme.typography.headlineSmall,
                                     color = androidx.compose.ui.graphics.Color(0xFF4CAF50), // Green
                                     fontWeight = FontWeight.Bold,
-                                    modifier = Modifier.offset(x = 8.dp)
+                                    modifier = Modifier.offset(x = 12.dp, y = (-16).dp)
                                 )
                             }
                         }
