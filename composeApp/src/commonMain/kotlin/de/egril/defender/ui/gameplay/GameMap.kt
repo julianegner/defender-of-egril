@@ -453,29 +453,36 @@ fun GridCell(
                         EnemyIcon(attacker = attacker)
                         // Show healing effect overlay if present
                         if (healingEffect != null) {
-                            // Green healing rings around the enemy
-                            Canvas(modifier = Modifier.matchParentSize()) {
-                                val center = androidx.compose.ui.geometry.Offset(size.width / 2, size.height / 2)
-                                val maxRadius = size.minDimension / 2
-                                // Draw 3 concentric green rings
-                                for (i in 1..3) {
-                                    val radius = maxRadius * (0.5f + i * 0.15f)
-                                    drawCircle(
-                                        color = androidx.compose.ui.graphics.Color(0xFF4CAF50), // Green
-                                        radius = radius,
-                                        center = center,
-                                        style = androidx.compose.ui.graphics.drawscope.Stroke(width = 3f)
-                                    )
-                                }
+                            // Show 3 green "+" symbols in different sizes
+                            Column(
+                                modifier = Modifier.fillMaxSize(),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                // Large + symbol
+                                Text(
+                                    "+",
+                                    style = MaterialTheme.typography.headlineLarge,
+                                    color = androidx.compose.ui.graphics.Color(0xFF4CAF50), // Green
+                                    fontWeight = FontWeight.Bold
+                                )
+                                // Medium + symbol
+                                Text(
+                                    "+",
+                                    style = MaterialTheme.typography.headlineMedium,
+                                    color = androidx.compose.ui.graphics.Color(0xFF4CAF50), // Green
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.offset(x = (-8).dp)
+                                )
+                                // Small + symbol
+                                Text(
+                                    "+",
+                                    style = MaterialTheme.typography.headlineSmall,
+                                    color = androidx.compose.ui.graphics.Color(0xFF4CAF50), // Green
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.offset(x = 8.dp)
+                                )
                             }
-                            // Show heal amount as text overlay
-                            Text(
-                                "+${healingEffect.healAmount}",
-                                style = MaterialTheme.typography.labelMedium,
-                                color = androidx.compose.ui.graphics.Color(0xFF4CAF50), // Green
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier.align(Alignment.TopCenter)
-                            )
                         }
                     }
                 }
