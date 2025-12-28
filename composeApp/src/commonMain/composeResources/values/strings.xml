@@ -107,6 +107,7 @@
     
     <!-- Load Game Screen -->
     <string name="no_saved_games">No saved games found</string>
+    <string name="savegame_folder">savegame folder:</string>
     
     <!-- Rules Screen -->
     <string name="how_to_play">How to Play</string>
