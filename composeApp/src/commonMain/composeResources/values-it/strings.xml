@@ -107,6 +107,7 @@
     
     <!-- Load Game Screen -->
     <string name="no_saved_games">Nessuna partita salvata trovata</string>
+    <string name="savegame_folder">cartella di salvataggio:</string>
     
     <!-- Rules Screen -->
     <string name="how_to_play">Come giocare</string>
