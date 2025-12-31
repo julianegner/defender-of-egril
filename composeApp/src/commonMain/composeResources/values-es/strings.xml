@@ -107,6 +107,7 @@
     
     <!-- Load Game Screen -->
     <string name="no_saved_games">No se encontraron partidas guardadas</string>
+    <string name="savegame_folder">carpeta de guardados:</string>
     
     <!-- Rules Screen -->
     <string name="how_to_play">Cómo jugar</string>
