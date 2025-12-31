@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import de.egril.defender.save.SaveGameMetadata
 import de.egril.defender.save.getFileExportImport
 import de.egril.defender.save.SaveFileStorage
+import de.egril.defender.editor.getFileStorage
 import de.egril.defender.ui.settings.SettingsButton
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
@@ -212,6 +213,28 @@ fun LoadGameScreen(
             Button(onClick = onBack) {
                 Text(stringResource(Res.string.back))
             }
+            
+            Spacer(modifier = Modifier.height(8.dp))
+            
+            // Display savegame folder path at the bottom
+            val fileStorage = remember { getFileStorage() }
+            val savegamePath = remember {
+                // Get the path for the savefiles directory
+                val playerId = SaveFileStorage.getCurrentPlayer()
+                val savefilesPath = if (playerId != null) {
+                    "players/$playerId/savefiles"
+                } else {
+                    "savefiles"
+                }
+                fileStorage.getAbsolutePath(savefilesPath)
+            }
+            
+            Text(
+                text = "${stringResource(Res.string.savegame_folder)} $savegamePath",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 4.dp)
+            )
         }
         }
     }
