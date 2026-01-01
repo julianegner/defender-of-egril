@@ -368,7 +368,7 @@ fun BaseGridCell(
                             while (true) {
                                 val event = awaitPointerEvent()
                                 when (event.type) {
-                                    PointerEventType.Enter -> {
+                                    PointerEventType.Move, PointerEventType.Enter -> {
                                         onHover(true)
                                     }
                                     PointerEventType.Exit -> {
