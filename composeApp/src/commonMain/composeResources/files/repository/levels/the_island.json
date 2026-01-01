@@ -49,6 +49,8 @@
     {"attackerType": "GREEN_WITCH", "level": 1, "spawnTurn": 7, "spawnPoint": {"x": 15, "y": 26}}
   ],
   "availableTowers": ["SPIKE_TOWER", "SPEAR_TOWER", "BOW_TOWER", "WIZARD_TOWER"],
-  "waypoints": [],
+  "waypoints": [
+
+  ],
   "prerequisites": ["the_creek"]
 }
