@@ -673,12 +673,13 @@ private fun GamePlayScreenContent(
                         }
                     },
                     onPrimaryAction = {
-                        // Check if any defenders have actions remaining
-                        val hasActionsRemaining = gameState.defenders.any { defender ->
-                            defender.isReady && defender.actionsRemaining.value > 0
+                        // Check if any defenders have actions remaining and enemies in range
+                        val hasActionsRemainingWithEnemiesInRange = gameState.defenders.any { defender ->
+                            defender.isReady && defender.actionsRemaining.value > 0 &&
+                            gameState.attackers.any { attacker -> defender.canAttack(attacker) }
                         }
                         
-                        if (hasActionsRemaining) {
+                        if (hasActionsRemainingWithEnemiesInRange) {
                             // Show confirmation dialog
                             showEndTurnConfirmation = true
                         } else {
