@@ -27,9 +27,15 @@ object EditorStorage {
     private val CURRENT_VERSION = "7" // Increment when level data format changes - v7: added world map locations file
     
     private var worldMapDataCache: WorldMapData? = null
+    private var initialized = false
     
-    // Initialize and validate repository data
-    init {
+    /**
+     * Initialize and validate repository data
+     * Must be called before using EditorStorage in production code
+     */
+    fun ensureInitialized() {
+        if (initialized) return
+        
         // Check if gamedata directory has existing user data
         val hasUserData = hasExistingGamedataFiles()
         
@@ -55,6 +61,8 @@ object EditorStorage {
         if (sequence.sequence.isEmpty()) {
             throw MissingRepositoryDataException(listOf("sequence (empty)"))
         }
+        
+        initialized = true
     }
     
     /**
