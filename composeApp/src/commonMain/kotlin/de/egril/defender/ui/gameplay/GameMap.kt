@@ -26,6 +26,7 @@ import defender_of_egril.composeapp.generated.resources.*
 import de.egril.defender.ui.icon.TestTubeIcon
 import de.egril.defender.ui.icon.enemy.EnemyIcon
 import de.egril.defender.ui.editor.RiverFlowIndicator
+import kotlin.math.sqrt
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -47,6 +48,9 @@ fun GameGrid(
     var containerSize by remember { mutableStateOf(IntSize.Zero) }
     var contentSize by remember { mutableStateOf(IntSize.Zero) }
     var isInitialized by remember { mutableStateOf(false) }
+    
+    // State for hover position (for tower placement preview)
+    var hoveredPosition by remember { mutableStateOf<Position?>(null) }
 
     val hexSize = 40.dp  // Radius of hexagon (center to corner)
 
@@ -219,7 +223,12 @@ fun GameGrid(
                 selectedWizardAction = selectedWizardAction,
                 targetCircleInfo = targetCircleMap[position],
                 onClick = { onCellClick(position) },
-                hexSize = hexSize
+                hexSize = hexSize,
+                selectedDefenderType = selectedDefenderType,
+                hoveredPosition = hoveredPosition,
+                onHoverChange = { isHovering ->
+                    hoveredPosition = if (isHovering) position else null
+                }
             )
         }
 
@@ -283,7 +292,10 @@ fun GridCell(
     selectedWizardAction: WizardAction? = null,
     targetCircleInfo: TargetCircleInfo?,
     onClick: () -> Unit,
-    hexSize: androidx.compose.ui.unit.Dp = 48.dp
+    hexSize: androidx.compose.ui.unit.Dp = 48.dp,
+    selectedDefenderType: DefenderType? = null,
+    hoveredPosition: Position? = null,
+    onHoverChange: ((Boolean) -> Unit)? = null
 ) {
     val isDarkMode = de.egril.defender.ui.settings.AppSettings.isDarkMode.value
     
@@ -337,6 +349,34 @@ fun GridCell(
             }
         } ?: false
     } ?: false
+    
+    // Calculate hover preview for tower placement
+    val isHoveringForPreview = hoveredPosition == position && selectedDefenderType != null
+    val isBuildableTile = (isBuildArea || isBuildIsland) && defender == null && attacker == null
+    val showPlacementPreview = isHoveringForPreview && isBuildableTile
+    
+    // Calculate range preview tiles when hovering over a buildable tile with a tower type selected
+    val isInPreviewRange = if (showPlacementPreview && hoveredPosition != null) {
+        false  // The hovered tile itself is not in the range
+    } else if (selectedDefenderType != null && hoveredPosition != null && isBuildableTile) {
+        // Check if this tile is in range of the hovered position
+        val distance = hoveredPosition.distanceTo(position)
+        val minRange = selectedDefenderType.minRange
+        val maxRange = selectedDefenderType.baseRange
+        
+        // For area attacks, show range on path or river tiles
+        val hasAreaAttackPreview = selectedDefenderType.attackType == AttackType.AREA || 
+                                   selectedDefenderType.attackType == AttackType.LASTING
+        val isValidPreviewTargetTile = if (hasAreaAttackPreview) {
+            isOnPath || isRiverTile
+        } else {
+            isOnPath
+        }
+        
+        distance >= minRange && distance <= maxRange && isValidPreviewTargetTile
+    } else {
+        false
+    }
 
     // Base background color based on area type - ALWAYS visible
     // Build islands + strips adjacent to path allow tower placement
@@ -375,6 +415,11 @@ fun GridCell(
         }
 
         trap != null -> GamePlayColors.Trap.copy(alpha = 0.6f)  // Brown tint for trap
+        
+        // Tower placement preview - highlight the hovered build tile differently than range tiles
+        showPlacementPreview -> GamePlayColors.Yellow.copy(alpha = 0.4f)  // Light yellow for the build tile being hovered
+        isInPreviewRange -> GamePlayColors.Success.copy(alpha = 0.2f)  // Very light green for range preview tiles
+        
         isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> baseBackgroundColor.copy(alpha = 0.7f)
         isTargetSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> baseBackgroundColor.copy(alpha = 0.8f)
         else -> baseBackgroundColor  // No selection highlighting during placement or in initial phase
@@ -406,6 +451,10 @@ fun GridCell(
     }
 
     val borderColor = when {
+        // Tower placement preview - dashed borders for preview (we'll handle this with Canvas later)
+        showPlacementPreview -> GamePlayColors.Yellow  // Yellow border for hovered build tile
+        isInPreviewRange -> GamePlayColors.Success  // Green border for range preview tiles
+        
         cellIsInRange && isValidTargetTile && showRange && canPlaceTrapHere -> GamePlayColors.Success  // Green border for tiles in range (path or river for area attacks)
         isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> GamePlayColors.Yellow  // Yellow border for selected defender (not during initial building)
         isSpawnPoint -> GamePlayColors.WarningDark  // Darker orange border for spawn in dark mode
@@ -425,6 +474,7 @@ fun GridCell(
 
     // Thicker borders for important elements
     val borderWidth = when {
+        showPlacementPreview || isInPreviewRange -> 3.dp  // Medium border for preview
         isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> 5.dp  // Extra thick border for selected defender (not during initial building)
         cellIsInRange && isValidTargetTile && showRange && canPlaceTrapHere -> 4.dp  // Thick border for cells in range (path or river for area attacks)
         isSpawnPoint || isTarget -> 3.dp
@@ -432,14 +482,18 @@ fun GridCell(
         fieldEffect != null -> 3.dp  // Thick border for field effects
         else -> 0.dp  // No border for empty cells
     }
+    
+    // Flag to indicate dashed border (for preview only)
+    val useDashedBorder = showPlacementPreview || isInPreviewRange
 
     BaseGridCell(
         hexSize = hexSize,
         backgroundColor = backgroundColor,
-        borderColor = borderColor,
-        borderWidth = borderWidth,
+        borderColor = if (useDashedBorder) Color.Transparent else borderColor,  // Don't use regular border for dashed preview
+        borderWidth = if (useDashedBorder) 0.dp else borderWidth,
         backgroundPainter = tilePainter,
-        onClick = onClick
+        onClick = onClick,
+        onHover = onHoverChange
     ) {
         when {
             attacker != null -> {
@@ -641,6 +695,49 @@ fun GridCell(
                         }
                     }
                 }
+            }
+        }
+        
+        // Draw dashed border for tower placement preview
+        if (useDashedBorder) {
+            Canvas(modifier = Modifier
+                .matchParentSize()
+                .zIndex(12f)) {
+                val sqrt3 = sqrt(3.0).toFloat()
+                val centerX = size.width / 2f
+                val centerY = size.height / 2f
+                val radius = minOf(size.width, size.height) / 2f
+                
+                // Create hexagon path
+                val path = androidx.compose.ui.graphics.Path().apply {
+                    // Top point
+                    moveTo(centerX, centerY - radius)
+                    // Top-right
+                    lineTo(centerX + radius * sqrt3 / 2f, centerY - radius / 2f)
+                    // Bottom-right
+                    lineTo(centerX + radius * sqrt3 / 2f, centerY + radius / 2f)
+                    // Bottom point
+                    lineTo(centerX, centerY + radius)
+                    // Bottom-left
+                    lineTo(centerX - radius * sqrt3 / 2f, centerY + radius / 2f)
+                    // Top-left
+                    lineTo(centerX - radius * sqrt3 / 2f, centerY - radius / 2f)
+                    // Close the path
+                    close()
+                }
+                
+                // Draw dashed border
+                drawPath(
+                    path = path,
+                    color = borderColor,
+                    style = androidx.compose.ui.graphics.drawscope.Stroke(
+                        width = borderWidth.toPx(),
+                        pathEffect = androidx.compose.ui.graphics.PathEffect.dashPathEffect(
+                            intervals = floatArrayOf(10f, 5f),  // 10px dash, 5px gap
+                            phase = 0f
+                        )
+                    )
+                )
             }
         }
     }
