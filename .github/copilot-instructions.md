@@ -341,8 +341,8 @@ Add to `LevelData.createLevels()` with:
 ## Testing Strategy
 
 ### Test Structure
-- Unit tests in `commonTest/kotlin/`
-- UI tests in `desktopTest/kotlin/` for Compose UI testing
+- Unit tests in `commonTest/kotlin/` (run on all platforms including WASM)
+- UI tests in `desktopTest/kotlin/` for Compose UI testing (desktop only)
 - Test game logic in isolation
 - Use descriptive test names
 
