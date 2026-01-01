@@ -365,6 +365,7 @@ class GameEngine(private val state: GameState) {
                 
                 // Use the attacker's current target if set, otherwise use level target
                 // Special case: Green Witch moves towards damaged enemies (especially Ewhad)
+                // Special case: Red Witch moves towards closest not-disabled tower
                 val target = if (attacker.type == AttackerType.GREEN_WITCH) {
                     val healingTarget = enemyAbilities.findHealingTarget(attacker)
                     if (healingTarget != null) {
@@ -375,6 +376,18 @@ class GameEngine(private val state: GameState) {
                         healingTarget.position.value
                     } else {
                         // No damaged enemies, move towards normal target
+                        attacker.currentTarget?.value ?: state.level.targetPositions.first()
+                    }
+                } else if (attacker.type == AttackerType.RED_WITCH) {
+                    val towerTarget = enemyAbilities.findTowerTarget(attacker)
+                    if (towerTarget != null) {
+                        // Move towards the tower to disable it
+                        if (stepIndex == 0) {
+                            println("Red witch ${attacker.id} at $currentPos moving towards tower at $towerTarget")
+                        }
+                        towerTarget
+                    } else {
+                        // No towers to disable, move towards normal target
                         attacker.currentTarget?.value ?: state.level.targetPositions.first()
                     }
                 } else {
@@ -665,6 +678,7 @@ class GameEngine(private val state: GameState) {
                 
                 // Use the attacker's current target if set, otherwise use level target
                 // Special case: Green Witch moves towards damaged enemies (especially Ewhad)
+                // Special case: Red Witch moves towards closest not-disabled tower
                 val target = if (attacker.type == AttackerType.GREEN_WITCH) {
                     val healingTarget = enemyAbilities.findHealingTarget(attacker)
                     if (healingTarget != null) {
@@ -672,6 +686,15 @@ class GameEngine(private val state: GameState) {
                         healingTarget.position.value
                     } else {
                         // No damaged enemies, move towards normal target
+                        attacker.currentTarget?.value ?: state.level.targetPositions.first()
+                    }
+                } else if (attacker.type == AttackerType.RED_WITCH) {
+                    val towerTarget = enemyAbilities.findTowerTarget(attacker)
+                    if (towerTarget != null) {
+                        // Move towards the tower to disable it
+                        towerTarget
+                    } else {
+                        // No towers to disable, move towards normal target
                         attacker.currentTarget?.value ?: state.level.targetPositions.first()
                     }
                 } else {

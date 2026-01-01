@@ -79,7 +79,8 @@ object CheatCodeHandler {
                     "ogre" -> AttackerType.OGRE
                     "skeleton" -> AttackerType.SKELETON
                     "wizard", "evil_wizard", "evilwizard" -> AttackerType.EVIL_WIZARD
-                    "witch" -> AttackerType.WITCH
+                    "greenwitch" -> AttackerType.GREEN_WITCH
+                    "redwitch" -> AttackerType.RED_WITCH
                     else -> return Pair(false, null)
                 }
                 

@@ -22,7 +22,6 @@ enum class AttackerType(
     OGRE("Ogre", health = 80, speed = 1, reward = 20, canBuildBridge = true),
     SKELETON("Skeleton", health = 15, speed = 5, reward = 7),
     EVIL_WIZARD("Evil Wizard", health = 30, speed = 2, reward = 15, canBuildBridge = true),
-    WITCH("Witch", health = 25, speed = 4, reward = 12),
     BLUE_DEMON("Blue Demon", health = 15, speed = 6, reward = 10, immuneToAcid = true),
     RED_DEMON("Red Demon", health = 60, speed = 1, reward = 15, immuneToFireball = true),
     EVIL_MAGE("Evil Mage", health = 40, speed = 2, reward = 20, canSummon = true),
@@ -93,7 +92,6 @@ data class Attacker(
     fun calculateTargetDamage(): Int {
         return when (type) {
             AttackerType.EVIL_WIZARD,
-            AttackerType.WITCH,
             AttackerType.RED_WITCH,
             AttackerType.GREEN_WITCH,
             AttackerType.EVIL_MAGE,
