@@ -96,6 +96,8 @@
     {"attackerType": "GOBLIN", "level": 2, "spawnTurn": 12, "spawnPoint": {"x": 4, "y": 1}}
   ],
   "availableTowers": ["SPIKE_TOWER", "SPEAR_TOWER", "BOW_TOWER", "WIZARD_TOWER", "ALCHEMY_TOWER", "BALLISTA_TOWER", "DWARVEN_MINE"],
-  "waypoints": [],
+  "waypoints": [
+
+  ],
   "prerequisites": ["dark_magic_rises"]
 }

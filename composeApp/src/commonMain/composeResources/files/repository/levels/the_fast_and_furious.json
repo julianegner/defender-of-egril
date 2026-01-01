@@ -15,6 +15,8 @@
     {"attackerType": "GOBLIN", "level": 20, "spawnTurn": 1, "spawnPoint": {"x": 0, "y": 8}}
   ],
   "availableTowers": ["SPIKE_TOWER", "SPEAR_TOWER", "BOW_TOWER", "WIZARD_TOWER", "ALCHEMY_TOWER", "BALLISTA_TOWER"],
-  "waypoints": [],
+  "waypoints": [
+
+  ],
   "prerequisites": ["the_woods_full_assault"]
 }
