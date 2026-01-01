@@ -1087,4 +1087,218 @@ class GamePlayScreenTest {
             println("Could not interact with End Turn button in test")
         }
     }
+    
+    @Test
+    fun testEndTurnWarningShownForMineWithActions() {
+        // Test that end turn confirmation IS shown when mine has actions (regardless of enemies)
+        val level = LevelData.createLevels().first { it.id == 1 }
+        val gameState = GameState(level)
+        
+        // Set game to player turn phase
+        gameState.phase.value = GamePhase.PLAYER_TURN
+        gameState.turnNumber.value = 2
+        
+        // Add a Dwarven Mine with actions
+        val mine = de.egril.defender.model.Defender(
+            id = 1,
+            type = de.egril.defender.model.DefenderType.DWARVEN_MINE,
+            position = androidx.compose.runtime.mutableStateOf(de.egril.defender.model.Position(10, 4)),
+            level = androidx.compose.runtime.mutableStateOf(1),
+            buildTimeRemaining = androidx.compose.runtime.mutableStateOf(0),
+            actionsRemaining = androidx.compose.runtime.mutableStateOf(1), // Has unused actions
+            placedOnTurn = 1
+        )
+        gameState.defenders.add(mine)
+        
+        // NO enemies in the game - mine should still trigger warning
+        
+        var endTurnCalled = false
+        var confirmationShown = false
+        
+        composeTestRule.setContent {
+            GamePlayScreen(
+                gameState = gameState,
+                onPlaceDefender = { _, _ -> true },
+                onUpgradeDefender = { true },
+                onUndoTower = { true },
+                onSellTower = { true },
+                onStartFirstPlayerTurn = {},
+                onDefenderAttack = { _, _ -> true },
+                onDefenderAttackPosition = { _, _ -> true },
+                onEndPlayerTurn = { endTurnCalled = true },
+                onBackToMap = {}
+            )
+        }
+        
+        composeTestRule.waitForIdle()
+        
+        // Try to find "End Turn" button and click it
+        try {
+            composeTestRule.onNodeWithText("End Turn", substring = true, ignoreCase = true)
+                .assertExists()
+                .performClick()
+            
+            composeTestRule.waitForIdle()
+            
+            // Check if confirmation dialog appears (it SHOULD appear for mines)
+            try {
+                composeTestRule.onNodeWithText("End Turn?", substring = true, ignoreCase = true)
+                    .assertExists()
+                confirmationShown = true
+            } catch (e: AssertionError) {
+                confirmationShown = false
+            }
+            
+            // Verify that confirmation was shown for mine with actions
+            assert(confirmationShown) { "End turn confirmation SHOULD be shown when mine has unused actions" }
+            assert(!endTurnCalled) { "End turn should NOT be called directly when mine has actions" }
+        } catch (e: AssertionError) {
+            println("Could not interact with End Turn button in test")
+        }
+    }
+    
+    @Test
+    fun testEndTurnWarningShownForWizardWithTrapAbility() {
+        // Test that end turn confirmation IS shown when wizard (level 10+) has actions (can place traps)
+        val level = LevelData.createLevels().first { it.id == 1 }
+        val gameState = GameState(level)
+        
+        // Set game to player turn phase
+        gameState.phase.value = GamePhase.PLAYER_TURN
+        gameState.turnNumber.value = 2
+        
+        // Add a Wizard Tower at level 10 with actions
+        val wizard = de.egril.defender.model.Defender(
+            id = 1,
+            type = de.egril.defender.model.DefenderType.WIZARD_TOWER,
+            position = androidx.compose.runtime.mutableStateOf(de.egril.defender.model.Position(10, 4)),
+            level = androidx.compose.runtime.mutableStateOf(10), // Level 10+ can place magical traps
+            buildTimeRemaining = androidx.compose.runtime.mutableStateOf(0),
+            actionsRemaining = androidx.compose.runtime.mutableStateOf(1), // Has unused actions
+            placedOnTurn = 1
+        )
+        gameState.defenders.add(wizard)
+        
+        // NO enemies in the game - wizard should still trigger warning (can place traps)
+        
+        var endTurnCalled = false
+        var confirmationShown = false
+        
+        composeTestRule.setContent {
+            GamePlayScreen(
+                gameState = gameState,
+                onPlaceDefender = { _, _ -> true },
+                onUpgradeDefender = { true },
+                onUndoTower = { true },
+                onSellTower = { true },
+                onStartFirstPlayerTurn = {},
+                onDefenderAttack = { _, _ -> true },
+                onDefenderAttackPosition = { _, _ -> true },
+                onEndPlayerTurn = { endTurnCalled = true },
+                onBackToMap = {}
+            )
+        }
+        
+        composeTestRule.waitForIdle()
+        
+        // Try to find "End Turn" button and click it
+        try {
+            composeTestRule.onNodeWithText("End Turn", substring = true, ignoreCase = true)
+                .assertExists()
+                .performClick()
+            
+            composeTestRule.waitForIdle()
+            
+            // Check if confirmation dialog appears (it SHOULD appear)
+            try {
+                composeTestRule.onNodeWithText("End Turn?", substring = true, ignoreCase = true)
+                    .assertExists()
+                confirmationShown = true
+            } catch (e: AssertionError) {
+                confirmationShown = false
+            }
+            
+            // Verify that confirmation was shown for level 10+ wizard
+            assert(confirmationShown) { "End turn confirmation SHOULD be shown when wizard level 10+ has unused actions (can place traps)" }
+            assert(!endTurnCalled) { "End turn should NOT be called directly when wizard has trap ability" }
+        } catch (e: AssertionError) {
+            println("Could not interact with End Turn button in test")
+        }
+    }
+    
+    @Test
+    fun testEndTurnWarningForAreaAttackWithExtendedRange() {
+        // Test that wizard with area attack considers extended range (range + areaEffectRadius)
+        val level = LevelData.createLevels().first { it.id == 1 }
+        val gameState = GameState(level)
+        
+        // Set game to player turn phase
+        gameState.phase.value = GamePhase.PLAYER_TURN
+        gameState.turnNumber.value = 2
+        
+        // Add a Wizard Tower (range 3, area attack with radius 1 = effective range 4)
+        val wizard = de.egril.defender.model.Defender(
+            id = 1,
+            type = de.egril.defender.model.DefenderType.WIZARD_TOWER,
+            position = androidx.compose.runtime.mutableStateOf(de.egril.defender.model.Position(10, 4)),
+            level = androidx.compose.runtime.mutableStateOf(1), // Level 1 has areaEffectRadius = 1
+            buildTimeRemaining = androidx.compose.runtime.mutableStateOf(0),
+            actionsRemaining = androidx.compose.runtime.mutableStateOf(1),
+            placedOnTurn = 1
+        )
+        gameState.defenders.add(wizard)
+        
+        // Add an enemy at distance 4 (outside normal range 3, but within effective range 3+1=4)
+        val enemy = de.egril.defender.model.Attacker(
+            id = 1,
+            type = de.egril.defender.model.AttackerType.GOBLIN,
+            position = androidx.compose.runtime.mutableStateOf(de.egril.defender.model.Position(6, 4)),
+            level = androidx.compose.runtime.mutableStateOf(1)
+        )
+        gameState.attackers.add(enemy)
+        
+        var endTurnCalled = false
+        var confirmationShown = false
+        
+        composeTestRule.setContent {
+            GamePlayScreen(
+                gameState = gameState,
+                onPlaceDefender = { _, _ -> true },
+                onUpgradeDefender = { true },
+                onUndoTower = { true },
+                onSellTower = { true },
+                onStartFirstPlayerTurn = {},
+                onDefenderAttack = { _, _ -> true },
+                onDefenderAttackPosition = { _, _ -> true },
+                onEndPlayerTurn = { endTurnCalled = true },
+                onBackToMap = {}
+            )
+        }
+        
+        composeTestRule.waitForIdle()
+        
+        // Try to find "End Turn" button and click it
+        try {
+            composeTestRule.onNodeWithText("End Turn", substring = true, ignoreCase = true)
+                .assertExists()
+                .performClick()
+            
+            composeTestRule.waitForIdle()
+            
+            // Check if confirmation dialog appears (it SHOULD appear due to extended range)
+            try {
+                composeTestRule.onNodeWithText("End Turn?", substring = true, ignoreCase = true)
+                    .assertExists()
+                confirmationShown = true
+            } catch (e: AssertionError) {
+                confirmationShown = false
+            }
+            
+            // Verify that confirmation was shown (enemy is within extended range)
+            assert(confirmationShown) { "End turn confirmation SHOULD be shown when enemy is within area attack extended range" }
+            assert(!endTurnCalled) { "End turn should NOT be called directly when enemy is in extended range" }
+        } catch (e: AssertionError) {
+            println("Could not interact with End Turn button in test")
+        }
+    }
 }

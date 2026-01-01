@@ -673,13 +673,34 @@ private fun GamePlayScreenContent(
                         }
                     },
                     onPrimaryAction = {
-                        // Check if any defenders have actions remaining and enemies in range
-                        val hasActionsRemainingWithEnemiesInRange = gameState.defenders.any { defender ->
-                            defender.isReady && defender.actionsRemaining.value > 0 &&
-                            gameState.attackers.any { attacker -> defender.canAttack(attacker) }
+                        // Check if any defenders have actions remaining that should be warned about
+                        val hasActionsRemainingToWarn = gameState.defenders.any { defender ->
+                            if (!defender.isReady || defender.actionsRemaining.value <= 0) {
+                                false
+                            } else if (defender.type.isMine) {
+                                // Mines always count (dig action doesn't need enemies)
+                                true
+                            } else if (defender.type == DefenderType.WIZARD_TOWER && defender.level.value >= 10) {
+                                // Wizard towers at level 10+ can place magical traps (doesn't need enemies)
+                                true
+                            } else {
+                                // For attack towers, check if enemies are in effective range
+                                gameState.attackers.any { attacker ->
+                                    val distance = defender.position.value.distanceTo(attacker.position.value)
+                                    // For area/lasting attacks, include the area effect radius in range calculation
+                                    val effectiveRange = if (defender.type.attackType == AttackType.AREA || 
+                                                            defender.type.attackType == AttackType.LASTING) {
+                                        defender.range + defender.areaEffectRadius
+                                    } else {
+                                        defender.range
+                                    }
+                                    // Check if enemy is within effective range (respecting min range)
+                                    distance >= defender.type.minRange && distance <= effectiveRange
+                                }
+                            }
                         }
                         
-                        if (hasActionsRemainingWithEnemiesInRange) {
+                        if (hasActionsRemainingToWarn) {
                             // Show confirmation dialog
                             showEndTurnConfirmation = true
                         } else {
