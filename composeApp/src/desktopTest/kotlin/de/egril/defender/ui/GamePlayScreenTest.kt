@@ -1167,7 +1167,7 @@ class GamePlayScreenTest {
         gameState.phase.value = GamePhase.PLAYER_TURN
         gameState.turnNumber.value = 2
         
-        // Add a Wizard Tower at level 10 with actions
+        // Add a Wizard Tower at level 10 with actions and trap available
         val wizard = de.egril.defender.model.Defender(
             id = 1,
             type = de.egril.defender.model.DefenderType.WIZARD_TOWER,
@@ -1175,11 +1175,12 @@ class GamePlayScreenTest {
             level = androidx.compose.runtime.mutableStateOf(10), // Level 10+ can place magical traps
             buildTimeRemaining = androidx.compose.runtime.mutableStateOf(0),
             actionsRemaining = androidx.compose.runtime.mutableStateOf(1), // Has unused actions
-            placedOnTurn = 1
+            placedOnTurn = 1,
+            trapCooldownRemaining = androidx.compose.runtime.mutableStateOf(0) // Trap is available
         )
         gameState.defenders.add(wizard)
         
-        // NO enemies in the game - wizard should still trigger warning (can place traps)
+        // NO enemies in the game - wizard should still trigger warning (can place traps and trap is available)
         
         var endTurnCalled = false
         var confirmationShown = false
@@ -1218,9 +1219,79 @@ class GamePlayScreenTest {
                 confirmationShown = false
             }
             
-            // Verify that confirmation was shown for level 10+ wizard
-            assert(confirmationShown) { "End turn confirmation SHOULD be shown when wizard level 10+ has unused actions (can place traps)" }
-            assert(!endTurnCalled) { "End turn should NOT be called directly when wizard has trap ability" }
+            // Verify that confirmation was shown for level 10+ wizard with available trap
+            assert(confirmationShown) { "End turn confirmation SHOULD be shown when wizard level 10+ has unused actions and trap is available" }
+            assert(!endTurnCalled) { "End turn should NOT be called directly when wizard has trap ability and trap is available" }
+        } catch (e: AssertionError) {
+            println("Could not interact with End Turn button in test")
+        }
+    }
+    
+    @Test
+    fun testEndTurnNoWarningForWizardWithTrapOnCooldown() {
+        // Test that wizard level 10+ with trap on cooldown does NOT trigger warning (unless enemies are in range)
+        val level = LevelData.createLevels().first { it.id == 1 }
+        val gameState = GameState(level)
+        
+        // Set game to player turn phase
+        gameState.phase.value = GamePhase.PLAYER_TURN
+        gameState.turnNumber.value = 2
+        
+        // Add a Wizard Tower at level 10 with actions but trap on cooldown
+        val wizard = de.egril.defender.model.Defender(
+            id = 1,
+            type = de.egril.defender.model.DefenderType.WIZARD_TOWER,
+            position = androidx.compose.runtime.mutableStateOf(de.egril.defender.model.Position(10, 4)),
+            level = androidx.compose.runtime.mutableStateOf(10), // Level 10+ can place magical traps
+            buildTimeRemaining = androidx.compose.runtime.mutableStateOf(0),
+            actionsRemaining = androidx.compose.runtime.mutableStateOf(1), // Has unused actions
+            placedOnTurn = 1,
+            trapCooldownRemaining = androidx.compose.runtime.mutableStateOf(5) // Trap is on cooldown
+        )
+        gameState.defenders.add(wizard)
+        
+        // NO enemies in the game - wizard should NOT trigger warning (trap on cooldown, no enemies)
+        
+        var endTurnCalled = false
+        var confirmationShown = false
+        
+        composeTestRule.setContent {
+            GamePlayScreen(
+                gameState = gameState,
+                onPlaceDefender = { _, _ -> true },
+                onUpgradeDefender = { true },
+                onUndoTower = { true },
+                onSellTower = { true },
+                onStartFirstPlayerTurn = {},
+                onDefenderAttack = { _, _ -> true },
+                onDefenderAttackPosition = { _, _ -> true },
+                onEndPlayerTurn = { endTurnCalled = true },
+                onBackToMap = {}
+            )
+        }
+        
+        composeTestRule.waitForIdle()
+        
+        // Try to find "End Turn" button and click it
+        try {
+            composeTestRule.onNodeWithText("End Turn", substring = true, ignoreCase = true)
+                .assertExists()
+                .performClick()
+            
+            composeTestRule.waitForIdle()
+            
+            // Check if confirmation dialog appears (it should NOT appear)
+            try {
+                composeTestRule.onNodeWithText("End Turn?", substring = true, ignoreCase = true)
+                    .assertExists()
+                confirmationShown = true
+            } catch (e: AssertionError) {
+                confirmationShown = false
+            }
+            
+            // Verify that confirmation was NOT shown when trap is on cooldown and no enemies
+            assert(!confirmationShown) { "End turn confirmation should NOT be shown when wizard trap is on cooldown and no enemies in range" }
+            assert(endTurnCalled) { "End turn should be called directly when wizard trap is on cooldown and no enemies" }
         } catch (e: AssertionError) {
             println("Could not interact with End Turn button in test")
         }

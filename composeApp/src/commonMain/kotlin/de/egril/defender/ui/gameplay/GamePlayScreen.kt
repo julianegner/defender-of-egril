@@ -680,8 +680,9 @@ private fun GamePlayScreenContent(
                             } else if (defender.type.isMine) {
                                 // Mines always count (dig action doesn't need enemies)
                                 true
-                            } else if (defender.type == DefenderType.WIZARD_TOWER && defender.level.value >= 10) {
-                                // Wizard towers at level 10+ can place magical traps (doesn't need enemies)
+                            } else if (defender.type == DefenderType.WIZARD_TOWER && defender.level.value >= 10 && 
+                                       defender.trapCooldownRemaining.value == 0) {
+                                // Wizard towers at level 10+ can place magical traps (only if trap is available)
                                 true
                             } else {
                                 // For attack towers, check if enemies are in effective range
