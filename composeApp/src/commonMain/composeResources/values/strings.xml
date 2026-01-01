@@ -759,4 +759,18 @@
     <string name="player_delete_confirm_title">Delete Player?</string>
     <string name="player_delete_confirm_message">Are you sure you want to delete player "%s"? All progress and save files for this player will be permanently deleted.</string>
     <string name="switch_player">Switch Player</string>
+    
+    <!-- World Map Conflict Strings -->
+    <string name="world_map_conflict_title">World Map Progress Conflict</string>
+    <string name="world_map_conflict_message">The world map progress in this save file differs from your current progress. Which version would you like to keep?</string>
+    <string name="world_map_conflict_differences">Differences:</string>
+    <string name="world_map_conflict_level">Level</string>
+    <string name="world_map_conflict_saved">Saved</string>
+    <string name="world_map_conflict_current">Current</string>
+    <string name="world_map_conflict_use_saved">Use Saved Progress</string>
+    <string name="world_map_conflict_use_current">Keep Current Progress</string>
+    <string name="level_status_locked">Locked</string>
+    <string name="level_status_unlocked">Unlocked</string>
+    <string name="level_status_won">Won</string>
+    <string name="level_status_unknown">Unknown</string>
 </resources>

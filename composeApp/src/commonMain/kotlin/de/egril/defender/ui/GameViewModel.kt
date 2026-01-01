@@ -27,6 +27,16 @@ sealed class Screen {
     data class LevelComplete(val levelId: Int, val won: Boolean, val isLastLevel: Boolean) : Screen()
 }
 
+/**
+ * Represents a conflict between saved world map progress and current world map progress
+ */
+data class WorldMapConflict(
+    val savedGame: de.egril.defender.save.SavedGame,
+    val savedWorldMap: de.egril.defender.save.WorldMapSave,
+    val currentWorldMap: Map<String, LevelStatus>,
+    val level: Level  // The level to load after conflict is resolved
+)
+
 class GameViewModel {
     
     private val _currentScreen = MutableStateFlow<Screen>(Screen.MainMenu)
@@ -50,6 +60,10 @@ class GameViewModel {
     
     private val _needsPlayerSelection = MutableStateFlow(false)
     val needsPlayerSelection: StateFlow<Boolean> = _needsPlayerSelection.asStateFlow()
+    
+    // World map progress conflict state
+    private val _worldMapConflict = MutableStateFlow<WorldMapConflict?>(null)
+    val worldMapConflict: StateFlow<WorldMapConflict?> = _worldMapConflict.asStateFlow()
 
     // Track initial game state to detect unsaved changes
     private var initialGameStateSnapshot: String? = null
@@ -57,6 +71,7 @@ class GameViewModel {
 
     private var gameEngine: GameEngine? = null
     private val viewModelScope = CoroutineScope(Dispatchers.Default)
+    
     
     init {
         initializePlayerProfile()
@@ -517,6 +532,12 @@ class GameViewModel {
                 
                 if (levelWithCorrectMap != null) {
                     println("Found level with matching map ID: ${levelWithCorrectMap.name} (ID: ${levelWithCorrectMap.id})")
+                    
+                    // Check for world map progress conflict before loading
+                    if (checkAndHandleWorldMapConflict(savedGame, levelWithCorrectMap)) {
+                        return  // Conflict detected, wait for user resolution
+                    }
+                    
                     val gameState = de.egril.defender.save.SaveFileStorage.convertSavedGameToGameState(savedGame, levelWithCorrectMap)
                     _gameState.value = gameState
                     gameEngine = GameEngine(gameState)
@@ -535,6 +556,11 @@ class GameViewModel {
         
         // No map ID mismatch or one/both map IDs are null (backward compatibility)
         if (level != null) {
+            // Check for world map progress conflict before loading
+            if (checkAndHandleWorldMapConflict(savedGame, level)) {
+                return  // Conflict detected, wait for user resolution
+            }
+            
             val gameState = de.egril.defender.save.SaveFileStorage.convertSavedGameToGameState(savedGame, level)
             _gameState.value = gameState
             gameEngine = GameEngine(gameState)
@@ -543,6 +569,71 @@ class GameViewModel {
             initialGameStateSnapshot = createGameStateSnapshot(gameState)
             lastSaveSnapshot = initialGameStateSnapshot
         }
+    }
+    
+    /**
+     * Check if there's a world map progress conflict and handle it
+     * Returns true if there's a conflict that needs user resolution
+     */
+    private fun checkAndHandleWorldMapConflict(savedGame: de.egril.defender.save.SavedGame, level: Level): Boolean {
+        val savedWorldMap = savedGame.worldMapSave ?: return false  // No saved world map, no conflict
+        val currentWorldMap = de.egril.defender.save.SaveFileStorage.loadWorldMapStatus() ?: return false  // No current world map, no conflict
+        
+        // Check if the two world maps are different
+        if (savedWorldMap.levelStatuses != currentWorldMap) {
+            // Conflict detected!
+            _worldMapConflict.value = WorldMapConflict(
+                savedGame = savedGame,
+                savedWorldMap = savedWorldMap,
+                currentWorldMap = currentWorldMap,
+                level = level
+            )
+            return true
+        }
+        
+        return false
+    }
+    
+    /**
+     * Resolve world map conflict by choosing which version to keep
+     */
+    fun resolveWorldMapConflict(useSavedVersion: Boolean) {
+        val conflict = _worldMapConflict.value ?: return
+        
+        if (useSavedVersion) {
+            // Use the world map from the save file
+            // Convert saved world map to world levels and save it as current
+            val updatedWorldLevels = _worldLevels.value.map { worldLevel ->
+                val status = conflict.savedWorldMap.levelStatuses[worldLevel.level.editorLevelId]
+                if (status != null) {
+                    worldLevel.copy(status = status)
+                } else {
+                    worldLevel
+                }
+            }
+            _worldLevels.value = updatedWorldLevels
+            de.egril.defender.save.SaveFileStorage.saveWorldMapStatus(updatedWorldLevels)
+        }
+        // If not using saved version, keep current world map (do nothing)
+        
+        // Clear the conflict and load the game
+        _worldMapConflict.value = null
+        
+        // Load the game state
+        val gameState = de.egril.defender.save.SaveFileStorage.convertSavedGameToGameState(conflict.savedGame, conflict.level)
+        _gameState.value = gameState
+        gameEngine = GameEngine(gameState)
+        _currentScreen.value = Screen.GamePlay(conflict.level.id)
+        // Set snapshots when loading a saved game
+        initialGameStateSnapshot = createGameStateSnapshot(gameState)
+        lastSaveSnapshot = initialGameStateSnapshot
+    }
+    
+    /**
+     * Cancel world map conflict resolution
+     */
+    fun cancelWorldMapConflict() {
+        _worldMapConflict.value = null
     }
     
     fun deleteSavedGame(saveId: String) {

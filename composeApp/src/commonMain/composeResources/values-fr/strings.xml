@@ -759,4 +759,18 @@
     <string name="player_delete_confirm_title">Supprimer le joueur?</string>
     <string name="player_delete_confirm_message">Êtes-vous sûr de vouloir supprimer le joueur "%s"? Tous les progrès et les fichiers sauvegardés de ce joueur seront définitivement supprimés.</string>
     <string name="switch_player">Changer de joueur</string>
+    
+    <!-- World Map Conflict Strings -->
+    <string name="world_map_conflict_title">Conflit de progression de la carte du monde</string>
+    <string name="world_map_conflict_message">La progression de la carte du monde dans ce fichier de sauvegarde diffère de votre progression actuelle. Quelle version souhaitez-vous conserver?</string>
+    <string name="world_map_conflict_differences">Différences:</string>
+    <string name="world_map_conflict_level">Niveau</string>
+    <string name="world_map_conflict_saved">Sauvegardé</string>
+    <string name="world_map_conflict_current">Actuel</string>
+    <string name="world_map_conflict_use_saved">Utiliser la progression sauvegardée</string>
+    <string name="world_map_conflict_use_current">Conserver la progression actuelle</string>
+    <string name="level_status_locked">Verrouillé</string>
+    <string name="level_status_unlocked">Déverrouillé</string>
+    <string name="level_status_won">Gagné</string>
+    <string name="level_status_unknown">Inconnu</string>
 </resources>

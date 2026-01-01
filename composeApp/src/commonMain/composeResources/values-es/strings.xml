@@ -759,4 +759,18 @@
     <string name="player_delete_confirm_title">¿Eliminar jugador?</string>
     <string name="player_delete_confirm_message">¿Estás seguro de que quieres eliminar al jugador "%s"? Todo el progreso y los archivos guardados de este jugador se eliminarán permanentemente.</string>
     <string name="switch_player">Cambiar jugador</string>
+    
+    <!-- World Map Conflict Strings -->
+    <string name="world_map_conflict_title">Conflicto de progreso del mapa mundial</string>
+    <string name="world_map_conflict_message">El progreso del mapa mundial en este archivo guardado difiere de tu progreso actual. ¿Qué versión te gustaría conservar?</string>
+    <string name="world_map_conflict_differences">Diferencias:</string>
+    <string name="world_map_conflict_level">Nivel</string>
+    <string name="world_map_conflict_saved">Guardado</string>
+    <string name="world_map_conflict_current">Actual</string>
+    <string name="world_map_conflict_use_saved">Usar progreso guardado</string>
+    <string name="world_map_conflict_use_current">Mantener progreso actual</string>
+    <string name="level_status_locked">Bloqueado</string>
+    <string name="level_status_unlocked">Desbloqueado</string>
+    <string name="level_status_won">Ganado</string>
+    <string name="level_status_unknown">Desconocido</string>
 </resources>
