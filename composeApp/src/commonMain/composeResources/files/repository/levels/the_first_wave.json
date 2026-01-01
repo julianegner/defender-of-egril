@@ -39,5 +39,7 @@
     {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 5, "spawnPoint": {"x": 0, "y": 7}}
   ],
   "availableTowers": ["SPIKE_TOWER", "SPEAR_TOWER", "BOW_TOWER"],
-  "waypoints": []
+  "waypoints": [
+
+  ]
 }
