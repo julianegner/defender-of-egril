@@ -76,18 +76,6 @@ class MightyUnitDamageTest {
     }
     
     @Test
-    fun testWitchDealsLevelDamage() {
-        val witch = Attacker(
-            id = 1,
-            type = AttackerType.WITCH,
-            position = mutableStateOf(Position(0, 0)),
-            level = mutableStateOf(2)
-        )
-        assertEquals(2, witch.calculateTargetDamage(), 
-            "Witch at level 2 should deal 2 HP damage")
-    }
-    
-    @Test
     fun testRedWitchDealsLevelDamage() {
         val redWitch = Attacker(
             id = 1,
@@ -204,7 +192,6 @@ class MightyUnitDamageTest {
         // Test all mighty units at level 1 deal 1 damage
         val mightyTypes = listOf(
             AttackerType.EVIL_WIZARD,
-            AttackerType.WITCH,
             AttackerType.RED_WITCH,
             AttackerType.GREEN_WITCH,
             AttackerType.EVIL_MAGE,
@@ -230,7 +217,6 @@ class MightyUnitDamageTest {
         // Test all mighty units at level 10 deal 10 damage
         val mightyTypes = listOf(
             AttackerType.EVIL_WIZARD,
-            AttackerType.WITCH,
             AttackerType.RED_WITCH,
             AttackerType.GREEN_WITCH,
             AttackerType.EVIL_MAGE,
