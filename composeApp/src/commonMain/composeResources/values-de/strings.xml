@@ -759,4 +759,18 @@
     <string name="player_delete_confirm_title">Spieler löschen?</string>
     <string name="player_delete_confirm_message">Möchten Sie wirklich den Spieler "%s" löschen? Alle Fortschritte und Speicherstände dieses Spielers werden dauerhaft gelöscht.</string>
     <string name="switch_player">Spieler wechseln</string>
+    
+    <!-- World Map Conflict Strings -->
+    <string name="world_map_conflict_title">Konflikt beim Weltkartenfortschritt</string>
+    <string name="world_map_conflict_message">Der Weltkartenfortschritt in dieser Speicherdatei unterscheidet sich von Ihrem aktuellen Fortschritt. Welche Version möchten Sie behalten?</string>
+    <string name="world_map_conflict_differences">Unterschiede:</string>
+    <string name="world_map_conflict_level">Level</string>
+    <string name="world_map_conflict_saved">Gespeichert</string>
+    <string name="world_map_conflict_current">Aktuell</string>
+    <string name="world_map_conflict_use_saved">Gespeicherten Fortschritt verwenden</string>
+    <string name="world_map_conflict_use_current">Aktuellen Fortschritt behalten</string>
+    <string name="level_status_locked">Gesperrt</string>
+    <string name="level_status_unlocked">Freigeschaltet</string>
+    <string name="level_status_won">Gewonnen</string>
+    <string name="level_status_unknown">Unbekannt</string>
 </resources>
