@@ -608,7 +608,7 @@
     
     <!-- End Turn Confirmation Dialog -->
     <string name="end_turn_confirmation_title">¿Terminar turno?</string>
-    <string name="end_turn_confirmation_message">Tienes torres con puntos de acción sin usar. ¿Estás seguro de que quieres terminar tu turno?</string>
+    <string name="end_turn_confirmation_message">Tienes torres con puntos de acción sin usar y enemigos al alcance, o minas con acciones sin usar. ¿Estás seguro de que quieres terminar tu turno?</string>
     <string name="end_turn_confirm">Terminar turno</string>
     
     <!-- Magical Trap Feature -->
