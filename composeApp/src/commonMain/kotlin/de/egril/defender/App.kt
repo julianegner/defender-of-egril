@@ -39,6 +39,7 @@ fun App() {
         val needsPlayerSelection by viewModel.needsPlayerSelection.collectAsState()
         val currentPlayer by viewModel.currentPlayer.collectAsState()
         val allPlayers by viewModel.allPlayers.collectAsState()
+        val worldMapConflict by viewModel.worldMapConflict.collectAsState()
         
         // Show player selection dialog if needed
         var showPlayerSelection by remember { mutableStateOf(false) }
@@ -114,6 +115,16 @@ fun App() {
                     }
                 },
                 onDismiss = { showEditPlayer = false }
+            )
+        }
+        
+        // World map conflict dialog
+        worldMapConflict?.let { conflict ->
+            de.egril.defender.ui.loadgame.WorldMapConflictDialog(
+                conflict = conflict,
+                onUseSavedVersion = { viewModel.resolveWorldMapConflict(useSavedVersion = true) },
+                onUseCurrentVersion = { viewModel.resolveWorldMapConflict(useSavedVersion = false) },
+                onCancel = { viewModel.cancelWorldMapConflict() }
             )
         }
         
