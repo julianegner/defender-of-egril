@@ -312,6 +312,11 @@ object SaveFileStorage {
             )
         }
         
+        // Load the current world map status to include in the save
+        val worldMapSave = loadWorldMapStatus()?.let { statusMap ->
+            WorldMapSave(statusMap)
+        }
+        
         return SavedGame(
             id = saveId,
             timestamp = currentTimeMillis(),
@@ -333,7 +338,8 @@ object SaveFileStorage {
             comment = comment,
             mapId = gameState.level.mapId,  // Save the map ID for verification on load
             rafts = rafts,
-            nextRaftId = gameState.nextRaftId.value
+            nextRaftId = gameState.nextRaftId.value,
+            worldMapSave = worldMapSave  // Include world map status in the save
         )
     }
     
