@@ -59,7 +59,7 @@ class EnemyAbilitySystem(private val state: GameState) {
                     }
                 }
                 AttackerType.GREEN_WITCH -> {
-                    // Heal adjacent units
+                    // Heal adjacent units (5x level healing amount)
                     val adjacentPositions = attacker.position.value.getHexNeighbors()
                     println("DEBUG: Green witch ${attacker.id} at ${attacker.position.value} checking ${adjacentPositions.size} adjacent positions")
                     var healedCount = 0
@@ -68,7 +68,8 @@ class EnemyAbilitySystem(private val state: GameState) {
                             !it.isDefeated.value && it.id != attacker.id && it.position.value == adjacent 
                         }
                         if (adjacentEnemy != null) {
-                            val healAmount = min(attacker.level.value, adjacentEnemy.maxHealth - adjacentEnemy.currentHealth.value)
+                            // Heal 5x witch level, but never exceed max health
+                            val healAmount = min(attacker.level.value * 5, adjacentEnemy.maxHealth - adjacentEnemy.currentHealth.value)
                             println("DEBUG: Found ${adjacentEnemy.type} at $adjacent, HP ${adjacentEnemy.currentHealth.value}/${adjacentEnemy.maxHealth}, heal amount: $healAmount")
                             if (healAmount > 0) {
                                 adjacentEnemy.currentHealth.value += healAmount
@@ -273,5 +274,25 @@ class EnemyAbilitySystem(private val state: GameState) {
         return damagedEnemies.minByOrNull { enemy ->
             witch.position.value.distanceTo(enemy.position.value)
         }
+    }
+    
+    /**
+     * Find the nearest tower that is not disabled for Red Witch to move towards and disable.
+     * Returns the tower's position if found.
+     */
+    fun findTowerTarget(witch: Attacker): Position? {
+        // Find ready towers that are not disabled
+        val availableTowers = state.defenders.filter { tower ->
+            tower.isReady && !tower.isDisabled.value
+        }
+        
+        if (availableTowers.isEmpty()) return null
+        
+        // Find the closest tower
+        val nearestTower = availableTowers.minByOrNull { tower ->
+            witch.position.value.distanceTo(tower.position.value)
+        }
+        
+        return nearestTower?.position?.value
     }
 }

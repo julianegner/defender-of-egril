@@ -1030,7 +1030,7 @@ object EditorStorage {
             if (level4Spawns.filter { it.spawnTurn == turn }.size >= 6) turn++
         }
         turn++  // Small gap between waves
-        (List(20) { AttackerType.ORK } + List(5) { AttackerType.WITCH }).forEach { type ->
+        (List(20) { AttackerType.ORK } + List(5) { AttackerType.GREEN_WITCH }).forEach { type ->
             level4Spawns.add(EditorEnemySpawn(type, 1, turn))
             if (level4Spawns.filter { it.spawnTurn == turn }.size >= 6) turn++
         }
@@ -1040,7 +1040,7 @@ object EditorStorage {
             if (level4Spawns.filter { it.spawnTurn == turn }.size >= 6) turn++
         }
         turn++  // Small gap between waves
-        (List(10) { AttackerType.EVIL_WIZARD } + List(10) { AttackerType.WITCH }).forEach { type ->
+        (List(10) { AttackerType.EVIL_WIZARD } + List(10) { AttackerType.RED_WITCH }).forEach { type ->
             level4Spawns.add(EditorEnemySpawn(type, 1, turn))
             if (level4Spawns.filter { it.spawnTurn == turn }.size >= 6) turn++
         }
@@ -1066,7 +1066,7 @@ object EditorStorage {
             if (level5Spawns.filter { it.spawnTurn == turn }.size >= 6) turn++
         }
         turn++  // Small gap between waves
-        (List(30) { AttackerType.ORK } + List(5) { AttackerType.WITCH }).forEach { type ->
+        (List(30) { AttackerType.ORK } + List(5) { AttackerType.GREEN_WITCH }).forEach { type ->
             level5Spawns.add(EditorEnemySpawn(type, 1, turn))
             if (level5Spawns.filter { it.spawnTurn == turn }.size >= 6) turn++
         }
@@ -1077,7 +1077,7 @@ object EditorStorage {
         }
         turn++  // Small gap between waves
         (List(20) { AttackerType.OGRE } + List(10) { AttackerType.EVIL_WIZARD } + 
-         List(10) { AttackerType.WITCH } + List(1) { AttackerType.EWHAD }).forEach { type ->
+         List(10) { AttackerType.RED_WITCH } + List(1) { AttackerType.EWHAD }).forEach { type ->
             level5Spawns.add(EditorEnemySpawn(type, 1, turn))
             if (level5Spawns.filter { it.spawnTurn == turn }.size >= 6) turn++
         }
@@ -1141,7 +1141,7 @@ object EditorStorage {
                     1 -> AttackerType.SKELETON
                     2 -> AttackerType.ORK
                     3 -> AttackerType.EVIL_WIZARD
-                    else -> AttackerType.WITCH
+                    else -> if (index % 2 == 0) AttackerType.GREEN_WITCH else AttackerType.RED_WITCH
                 }
                 EditorEnemySpawn(enemyType, 1, index / 6 + 1)
             },
