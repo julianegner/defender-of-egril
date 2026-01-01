@@ -607,7 +607,7 @@
     
     <!-- End Turn Confirmation Dialog -->
     <string name="end_turn_confirmation_title">Runde beenden?</string>
-    <string name="end_turn_confirmation_message">Einige Türme haben noch ungenutzte Aktionspunkte. Möchten Sie Ihre Runde wirklich beenden?</string>
+    <string name="end_turn_confirmation_message">Sie haben Türme mit ungenutzten Aktionspunkten und Feinden in Reichweite, oder Minen mit ungenutzten Aktionen. Möchten Sie Ihre Runde wirklich beenden?</string>
     <string name="end_turn_confirm">Runde beenden</string>
     
     <!-- Magical Trap Feature -->
