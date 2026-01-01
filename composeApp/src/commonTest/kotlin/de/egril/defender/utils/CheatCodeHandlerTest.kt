@@ -159,7 +159,8 @@ class CheatCodeHandlerTest {
             Triple("spawn wizard", AttackerType.EVIL_WIZARD, 1),
             Triple("spawn evil_wizard", AttackerType.EVIL_WIZARD, 1),
             Triple("spawn evilwizard", AttackerType.EVIL_WIZARD, 1),
-            Triple("spawn witch", AttackerType.WITCH, 1),
+            Triple("spawn greenwitch", AttackerType.GREEN_WITCH, 1),
+            Triple("spawn redwitch", AttackerType.RED_WITCH, 1),
             Triple("spawn goblin 5", AttackerType.GOBLIN, 5),
             Triple("spawn ork 10", AttackerType.ORK, 10)
         )
