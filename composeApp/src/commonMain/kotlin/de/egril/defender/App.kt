@@ -172,8 +172,10 @@ fun App() {
                     savedGames = savedGames,
                     onLoadGame = { saveId -> viewModel.loadGame(saveId) },
                     onDeleteGame = { saveId -> viewModel.deleteSavedGame(saveId) },
-                    onDownloadGame = { saveId -> viewModel.downloadSaveGame(saveId) },
-                    onDownloadAll = { viewModel.downloadAllSaveGames() },
+                    onDownloadGame = { saveId, includeGameState -> viewModel.downloadSaveGame(saveId, includeGameState) },
+                    onDownloadAll = { includeGameState -> viewModel.downloadAllSaveGames(includeGameState) },
+                    onExportGameProgress = { viewModel.downloadGameState() },
+                    onImportGameProgress = { json -> viewModel.importWorldMapProgress(json) },
                     onUpload = {
                         // Trigger refresh of saved games list after upload
                         viewModel.navigateToLoadGame()

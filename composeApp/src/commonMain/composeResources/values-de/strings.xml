@@ -760,6 +760,14 @@
     <string name="player_delete_confirm_message">Möchten Sie wirklich den Spieler "%s" löschen? Alle Fortschritte und Speicherstände dieses Spielers werden dauerhaft gelöscht.</string>
     <string name="switch_player">Spieler wechseln</string>
     
+        
+    <!-- Game Data Transfer Strings -->
+    <string name="game_data_transfer">Spielfortschritt-Übertragung</string>
+    <string name="game_data_transfer_description">Spielerfortschritt (gewonnene/freigeschaltete Level) beim Download von Speicherständen einschließen</string>
+    <string name="export_game_progress">Spielfortschritt exportieren</string>
+    <string name="export_game_progress_description">Nur Ihren Level-Fortschritt ohne Speicherdaten herunterladen</string>
+    <string name="import_game_progress">Spielfortschritt importieren</string>
+    
     <!-- World Map Conflict Strings -->
     <string name="world_map_conflict_title">Konflikt beim Weltkartenfortschritt</string>
     <string name="world_map_conflict_message">Der Weltkartenfortschritt in dieser Speicherdatei unterscheidet sich von Ihrem aktuellen Fortschritt. Welche Version möchten Sie behalten?</string>

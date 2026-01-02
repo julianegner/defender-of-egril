@@ -312,11 +312,6 @@ object SaveFileStorage {
             )
         }
         
-        // Load the current world map status to include in the save
-        val worldMapSave = loadWorldMapStatus()?.let { statusMap ->
-            WorldMapSave(statusMap)
-        }
-        
         return SavedGame(
             id = saveId,
             timestamp = currentTimeMillis(),
@@ -339,7 +334,7 @@ object SaveFileStorage {
             mapId = gameState.level.mapId,  // Save the map ID for verification on load
             rafts = rafts,
             nextRaftId = gameState.nextRaftId.value,
-            worldMapSave = worldMapSave  // Include world map status in the save
+            worldMapSave = null  // Don't automatically include world map - only on explicit export
         )
     }
     
@@ -432,5 +427,64 @@ object SaveFileStorage {
         })
         
         return gameState
+    }
+    
+    /**
+     * Get save game JSON with world map included (for game data transfer)
+     */
+    fun getSaveGameWithWorldMapJson(saveId: String): String? {
+        val json = fileStorage.readFile("${getSavefilesDir()}/$saveId.json") ?: return null
+        val savedGame = SaveJsonSerializer.deserializeSavedGame(json) ?: return null
+        
+        // Add current world map status
+        val worldMapSave = loadWorldMapStatus()?.let { statusMap ->
+            WorldMapSave(statusMap)
+        }
+        
+        val savedGameWithWorldMap = savedGame.copy(worldMapSave = worldMapSave)
+        return SaveJsonSerializer.serializeSavedGame(savedGameWithWorldMap)
+    }
+    
+    /**
+     * Export just the world map progress (game state without level data)
+     */
+    fun exportWorldMapProgress(): String {
+        val worldMapSave = loadWorldMapStatus()?.let { statusMap ->
+            WorldMapSave(statusMap)
+        } ?: WorldMapSave(emptyMap())
+        
+        return SaveJsonSerializer.serializeWorldMapSave(worldMapSave)
+    }
+    
+    /**
+     * Import world map progress from JSON
+     * Returns a WorldMapSave if different from current, null if identical or error
+     */
+    fun importWorldMapProgress(json: String): WorldMapSave? {
+        val importedWorldMap = SaveJsonSerializer.deserializeWorldMapSave(json) ?: return null
+        val currentWorldMap = loadWorldMapStatus() ?: emptyMap()
+        
+        // Check if different
+        if (importedWorldMap.levelStatuses != currentWorldMap) {
+            return importedWorldMap
+        }
+        
+        return null // Identical, no need to import
+    }
+    
+    /**
+     * Apply imported world map progress
+     */
+    fun applyWorldMapProgress(worldMapSave: WorldMapSave, worldLevels: List<WorldLevel>): List<WorldLevel> {
+        val updatedWorldLevels = worldLevels.map { worldLevel ->
+            val status = worldMapSave.levelStatuses[worldLevel.level.editorLevelId]
+            if (status != null) {
+                worldLevel.copy(status = status)
+            } else {
+                worldLevel
+            }
+        }
+        saveWorldMapStatus(updatedWorldLevels)
+        return updatedWorldLevels
     }
 }
