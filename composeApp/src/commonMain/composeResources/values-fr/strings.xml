@@ -760,6 +760,14 @@
     <string name="player_delete_confirm_message">Êtes-vous sûr de vouloir supprimer le joueur "%s"? Tous les progrès et les fichiers sauvegardés de ce joueur seront définitivement supprimés.</string>
     <string name="switch_player">Changer de joueur</string>
     
+        
+    <!-- Game Data Transfer Strings -->
+    <string name="game_data_transfer">Transfert des données de jeu</string>
+    <string name="game_data_transfer_description">Inclure la progression du joueur (niveaux gagnés/déverrouillés) lors du téléchargement des sauvegardes</string>
+    <string name="export_game_progress">Exporter la progression du jeu</string>
+    <string name="export_game_progress_description">Télécharger uniquement votre progression de niveau sans données de sauvegarde</string>
+    <string name="import_game_progress">Importer la progression du jeu</string>
+    
     <!-- World Map Conflict Strings -->
     <string name="world_map_conflict_title">Conflit de progression de la carte du monde</string>
     <string name="world_map_conflict_message">La progression de la carte du monde dans ce fichier de sauvegarde diffère de votre progression actuelle. Quelle version souhaitez-vous conserver?</string>

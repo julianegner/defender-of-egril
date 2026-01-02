@@ -31,10 +31,10 @@ sealed class Screen {
  * Represents a conflict between saved world map progress and current world map progress
  */
 data class WorldMapConflict(
-    val savedGame: de.egril.defender.save.SavedGame,
+    val savedGame: de.egril.defender.save.SavedGame?,  // Null when importing just game state
     val savedWorldMap: de.egril.defender.save.WorldMapSave,
     val currentWorldMap: Map<String, LevelStatus>,
-    val level: Level  // The level to load after conflict is resolved
+    val level: Level?  // Null when importing just game state (no level to load)
 )
 
 class GameViewModel {
@@ -532,12 +532,6 @@ class GameViewModel {
                 
                 if (levelWithCorrectMap != null) {
                     println("Found level with matching map ID: ${levelWithCorrectMap.name} (ID: ${levelWithCorrectMap.id})")
-                    
-                    // Check for world map progress conflict before loading
-                    if (checkAndHandleWorldMapConflict(savedGame, levelWithCorrectMap)) {
-                        return  // Conflict detected, wait for user resolution
-                    }
-                    
                     val gameState = de.egril.defender.save.SaveFileStorage.convertSavedGameToGameState(savedGame, levelWithCorrectMap)
                     _gameState.value = gameState
                     gameEngine = GameEngine(gameState)
@@ -556,11 +550,6 @@ class GameViewModel {
         
         // No map ID mismatch or one/both map IDs are null (backward compatibility)
         if (level != null) {
-            // Check for world map progress conflict before loading
-            if (checkAndHandleWorldMapConflict(savedGame, level)) {
-                return  // Conflict detected, wait for user resolution
-            }
-            
             val gameState = de.egril.defender.save.SaveFileStorage.convertSavedGameToGameState(savedGame, level)
             _gameState.value = gameState
             gameEngine = GameEngine(gameState)
@@ -572,26 +561,25 @@ class GameViewModel {
     }
     
     /**
-     * Check if there's a world map progress conflict and handle it
-     * Returns true if there's a conflict that needs user resolution
+     * Import world map progress and check for conflicts
+     * Returns true if conflict detected and shown to user
      */
-    private fun checkAndHandleWorldMapConflict(savedGame: de.egril.defender.save.SavedGame, level: Level): Boolean {
-        val savedWorldMap = savedGame.worldMapSave ?: return false  // No saved world map, no conflict
-        val currentWorldMap = de.egril.defender.save.SaveFileStorage.loadWorldMapStatus() ?: return false  // No current world map, no conflict
+    fun importWorldMapProgress(json: String): Boolean {
+        val importedWorldMap = de.egril.defender.save.SaveFileStorage.importWorldMapProgress(json)
         
-        // Check if the two world maps are different
-        if (savedWorldMap.levelStatuses != currentWorldMap) {
-            // Conflict detected!
+        if (importedWorldMap != null) {
+            // Conflict detected - show dialog
+            val currentWorldMap = de.egril.defender.save.SaveFileStorage.loadWorldMapStatus() ?: emptyMap()
             _worldMapConflict.value = WorldMapConflict(
-                savedGame = savedGame,
-                savedWorldMap = savedWorldMap,
+                savedGame = null,  // No associated save game
+                savedWorldMap = importedWorldMap,
                 currentWorldMap = currentWorldMap,
-                level = level
+                level = null  // No level to load
             )
             return true
         }
         
-        return false
+        return false  // No conflict, nothing to do
     }
     
     /**
@@ -601,32 +589,28 @@ class GameViewModel {
         val conflict = _worldMapConflict.value ?: return
         
         if (useSavedVersion) {
-            // Use the world map from the save file
-            // Convert saved world map to world levels and save it as current
-            val updatedWorldLevels = _worldLevels.value.map { worldLevel ->
-                val status = conflict.savedWorldMap.levelStatuses[worldLevel.level.editorLevelId]
-                if (status != null) {
-                    worldLevel.copy(status = status)
-                } else {
-                    worldLevel
-                }
-            }
+            // Use the world map from the import/save
+            val updatedWorldLevels = de.egril.defender.save.SaveFileStorage.applyWorldMapProgress(
+                conflict.savedWorldMap,
+                _worldLevels.value
+            )
             _worldLevels.value = updatedWorldLevels
-            de.egril.defender.save.SaveFileStorage.saveWorldMapStatus(updatedWorldLevels)
         }
         // If not using saved version, keep current world map (do nothing)
         
-        // Clear the conflict and load the game
+        // Clear the conflict
         _worldMapConflict.value = null
         
-        // Load the game state
-        val gameState = de.egril.defender.save.SaveFileStorage.convertSavedGameToGameState(conflict.savedGame, conflict.level)
-        _gameState.value = gameState
-        gameEngine = GameEngine(gameState)
-        _currentScreen.value = Screen.GamePlay(conflict.level.id)
-        // Set snapshots when loading a saved game
-        initialGameStateSnapshot = createGameStateSnapshot(gameState)
-        lastSaveSnapshot = initialGameStateSnapshot
+        // If there's an associated saved game and level, load it
+        if (conflict.savedGame != null && conflict.level != null) {
+            val gameState = de.egril.defender.save.SaveFileStorage.convertSavedGameToGameState(conflict.savedGame, conflict.level)
+            _gameState.value = gameState
+            gameEngine = GameEngine(gameState)
+            _currentScreen.value = Screen.GamePlay(conflict.level.id)
+            // Set snapshots when loading a saved game
+            initialGameStateSnapshot = createGameStateSnapshot(gameState)
+            lastSaveSnapshot = initialGameStateSnapshot
+        }
     }
     
     /**
@@ -643,25 +627,57 @@ class GameViewModel {
     
     // Download/Upload functionality
     
-    fun downloadSaveGame(saveId: String) {
+    fun downloadSaveGame(saveId: String, includeGameState: Boolean = false) {
         viewModelScope.launch {
-            val jsonContent = de.egril.defender.save.SaveFileStorage.getSaveGameJson(saveId)
+            val jsonContent = if (includeGameState) {
+                de.egril.defender.save.SaveFileStorage.getSaveGameWithWorldMapJson(saveId)
+            } else {
+                de.egril.defender.save.SaveFileStorage.getSaveGameJson(saveId)
+            }
+            
             if (jsonContent != null) {
                 val fileExportImport = de.egril.defender.save.getFileExportImport()
-                fileExportImport.exportFile("$saveId.json", jsonContent)
+                val filename = if (includeGameState) {
+                    "${saveId}_with_progress.json"
+                } else {
+                    "$saveId.json"
+                }
+                fileExportImport.exportFile(filename, jsonContent)
             }
         }
     }
     
-    fun downloadAllSaveGames() {
+    fun downloadAllSaveGames(includeGameState: Boolean = false) {
         viewModelScope.launch {
-            val allSaves = de.egril.defender.save.SaveFileStorage.getAllSaveGamesJson()
+            val allSaves = if (includeGameState) {
+                // Get all saves with world map included
+                de.egril.defender.save.SaveFileStorage.getAllSaveGamesJson().mapValues { (filename, _) ->
+                    val saveId = filename.removeSuffix(".json")
+                    de.egril.defender.save.SaveFileStorage.getSaveGameWithWorldMapJson(saveId) ?: ""
+                }.filter { it.value.isNotEmpty() }
+            } else {
+                de.egril.defender.save.SaveFileStorage.getAllSaveGamesJson()
+            }
+            
             if (allSaves.isNotEmpty()) {
                 val timestamp = de.egril.defender.utils.formatTimestampISO(de.egril.defender.utils.currentTimeMillis())
-                val zipFilename = "defender-of-egril-saves-$timestamp.zip"
+                val zipFilename = if (includeGameState) {
+                    "defender-of-egril-saves-with-progress-$timestamp.zip"
+                } else {
+                    "defender-of-egril-saves-$timestamp.zip"
+                }
                 val fileExportImport = de.egril.defender.save.getFileExportImport()
                 fileExportImport.exportZip(zipFilename, allSaves)
             }
+        }
+    }
+    
+    fun downloadGameState() {
+        viewModelScope.launch {
+            val jsonContent = de.egril.defender.save.SaveFileStorage.exportWorldMapProgress()
+            val fileExportImport = de.egril.defender.save.getFileExportImport()
+            val timestamp = de.egril.defender.utils.formatTimestampISO(de.egril.defender.utils.currentTimeMillis())
+            fileExportImport.exportFile("game-progress-$timestamp.json", jsonContent)
         }
     }
     
