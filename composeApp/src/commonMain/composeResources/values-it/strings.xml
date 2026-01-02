@@ -760,6 +760,14 @@
     <string name="player_delete_confirm_message">Sei sicuro di voler eliminare il giocatore "%s"? Tutti i progressi e i file salvati di questo giocatore verranno eliminati permanentemente.</string>
     <string name="switch_player">Cambia giocatore</string>
     
+        
+    <!-- Game Data Transfer Strings -->
+    <string name="game_data_transfer">Trasferimento dati di gioco</string>
+    <string name="game_data_transfer_description">Includere il progresso del giocatore (livelli vinti/sbloccati) durante il download dei salvataggi</string>
+    <string name="export_game_progress">Esporta progresso del gioco</string>
+    <string name="export_game_progress_description">Scarica solo il tuo progresso di livello senza dati di salvataggio</string>
+    <string name="import_game_progress">Importa progresso del gioco</string>
+    
     <!-- World Map Conflict Strings -->
     <string name="world_map_conflict_title">Conflitto di progresso della mappa del mondo</string>
     <string name="world_map_conflict_message">Il progresso della mappa del mondo in questo file salvato differisce dal tuo progresso attuale. Quale versione desideri mantenere?</string>
