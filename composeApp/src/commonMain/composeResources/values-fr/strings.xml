@@ -607,7 +607,7 @@
     
     <!-- End Turn Confirmation Dialog -->
     <string name="end_turn_confirmation_title">Terminer le tour ?</string>
-    <string name="end_turn_confirmation_message">Certaines de vos tours ont des points d'action inutilisés. Êtes-vous sûr de vouloir terminer votre tour ?</string>
+    <string name="end_turn_confirmation_message">Vous avez des tours avec des points d'action inutilisés et des ennemis à portée, ou des mines avec des actions inutilisées. Êtes-vous sûr de vouloir terminer votre tour ?</string>
     <string name="end_turn_confirm">Terminer le tour</string>
     
     <!-- Magical Trap Feature -->
