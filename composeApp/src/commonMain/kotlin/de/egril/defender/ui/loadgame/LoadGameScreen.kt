@@ -189,19 +189,21 @@ fun LoadGameScreen(
                             )
                         }
                         
-                        Spacer(modifier = Modifier.height(8.dp))
-                        
-                        // Export Game Progress button
-                        Button(
-                            onClick = onExportGameProgress,
-                            modifier = Modifier.fillMaxWidth(),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.tertiary
-                            )
-                        ) {
-                            de.egril.defender.ui.icon.DownloadIcon(size = 16.dp)
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(stringResource(Res.string.export_game_progress))
+                        // Export Game Progress button - only show when toggle is enabled
+                        if (gameDataTransferEnabled) {
+                            Spacer(modifier = Modifier.height(8.dp))
+                            
+                            Button(
+                                onClick = onExportGameProgress,
+                                modifier = Modifier.fillMaxWidth(),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.tertiary
+                                )
+                            ) {
+                                de.egril.defender.ui.icon.DownloadIcon(size = 16.dp)
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(stringResource(Res.string.export_game_progress))
+                            }
                         }
                     }
                 }
