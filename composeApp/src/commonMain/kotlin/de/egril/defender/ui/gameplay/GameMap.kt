@@ -352,19 +352,34 @@ fun GridCell(
     
     // Calculate hover preview for tower placement
     val isHoveringForPreview = hoveredPosition == position && selectedDefenderType != null
-    val isBuildableTile = (isBuildArea || isBuildIsland) && defender == null && attacker == null
+    // Include river tiles as buildable (for rafts)
+    val isBuildableTile = (isBuildArea || isBuildIsland || isRiverTile) && defender == null && attacker == null
     val showPlacementPreview = isHoveringForPreview && isBuildableTile
     
+    // Check if hovered position is buildable (needed for range preview calculation)
+    // Include river tiles as buildable (for rafts)
+    val hoveredPositionIsBuildable = if (hoveredPosition != null && selectedDefenderType != null) {
+        val hoveredIsBuildArea = gameState.level.isBuildArea(hoveredPosition)
+        val hoveredIsBuildIsland = gameState.level.isBuildIsland(hoveredPosition)
+        val hoveredIsRiver = gameState.level.isRiverTile(hoveredPosition)
+        val hoveredHasDefender = gameState.defenders.any { it.position.value == hoveredPosition }
+        val hoveredHasAttacker = gameState.attackers.any { it.position.value == hoveredPosition && !it.isDefeated.value }
+        (hoveredIsBuildArea || hoveredIsBuildIsland || hoveredIsRiver) && !hoveredHasDefender && !hoveredHasAttacker
+    } else {
+        false
+    }
+    
     // Calculate range preview tiles when hovering over a buildable tile with a tower type selected
-    val isInPreviewRange = if (showPlacementPreview && hoveredPosition != null) {
+    // Reuse the same logic as for existing towers (cellIsInRange)
+    val isInPreviewRange = if (showPlacementPreview) {
         false  // The hovered tile itself is not in the range
-    } else if (selectedDefenderType != null && hoveredPosition != null && isBuildableTile) {
-        // Check if this tile is in range of the hovered position
+    } else if (selectedDefenderType != null && hoveredPosition != null && hoveredPositionIsBuildable) {
+        // Check if this tile is in range of the hovered position (same logic as cellIsInRange)
         val distance = hoveredPosition.distanceTo(position)
         val minRange = selectedDefenderType.minRange
         val maxRange = selectedDefenderType.baseRange
         
-        // For area attacks, show range on path or river tiles
+        // Only show range on valid target tiles (path or river for area attacks, path only for single-target)
         val hasAreaAttackPreview = selectedDefenderType.attackType == AttackType.AREA || 
                                    selectedDefenderType.attackType == AttackType.LASTING
         val isValidPreviewTargetTile = if (hasAreaAttackPreview) {
