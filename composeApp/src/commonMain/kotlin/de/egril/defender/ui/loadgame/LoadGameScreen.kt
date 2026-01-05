@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import de.egril.defender.save.SaveGameMetadata
 import de.egril.defender.save.getFileExportImport
 import de.egril.defender.save.SaveFileStorage
+import de.egril.defender.editor.getFileStorage
 import de.egril.defender.ui.settings.SettingsButton
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
@@ -24,8 +25,10 @@ fun LoadGameScreen(
     savedGames: List<SaveGameMetadata>,
     onLoadGame: (String) -> Unit,
     onDeleteGame: (String) -> Unit,
-    onDownloadGame: (String) -> Unit,
-    onDownloadAll: () -> Unit,
+    onDownloadGame: (String, Boolean) -> Unit,  // Added includeGameState parameter
+    onDownloadAll: (Boolean) -> Unit,  // Added includeGameState parameter
+    onExportGameProgress: () -> Unit,  // New: Export just game progress
+    onImportGameProgress: (String) -> Unit,  // New: Import game progress
     onUpload: () -> Unit,
     onBack: () -> Unit
 ) {
@@ -34,6 +37,7 @@ fun LoadGameScreen(
     var filesImported by remember { mutableStateOf(0) }
     var showImportSuccess by remember { mutableStateOf(false) }
     var showImportError by remember { mutableStateOf(false) }
+    var gameDataTransferEnabled by remember { mutableStateOf(false) }  // New: Toggle state
     
     // Pending imports waiting for override decision
     var pendingImports by remember { mutableStateOf<List<Pair<String, String>>>(emptyList()) }
@@ -51,13 +55,25 @@ fun LoadGameScreen(
                 var successCount = 0
                 val conflicts = mutableListOf<Pair<String, String>>()
                 
-                // First pass: import files that don't conflict
+                // First pass: Check file types and import
                 importedFiles.forEach { file ->
-                    if (SaveFileStorage.saveGameExists(file.filename)) {
-                        conflicts.add(Pair(file.filename, file.content))
+                    // Check if this is a game progress file (contains only levelStatuses)
+                    val isGameProgressFile = file.content.contains("\"levelStatuses\"") && 
+                                           !file.content.contains("\"levelId\"") &&
+                                           !file.content.contains("\"defenders\"")
+                    
+                    if (isGameProgressFile) {
+                        // This is a game progress file - import it via the callback
+                        onImportGameProgress(file.content)
+                        successCount++
                     } else {
-                        if (SaveFileStorage.importSaveGame(file.filename, file.content, overwrite = false)) {
-                            successCount++
+                        // This is a save game file
+                        if (SaveFileStorage.saveGameExists(file.filename)) {
+                            conflicts.add(Pair(file.filename, file.content))
+                        } else {
+                            if (SaveFileStorage.importSaveGame(file.filename, file.content, overwrite = false)) {
+                                successCount++
+                            }
                         }
                     }
                 }
@@ -139,6 +155,59 @@ fun LoadGameScreen(
                     color = MaterialTheme.colorScheme.onBackground
                 )
                 
+                // Game Data Transfer toggle and Export Game Progress button
+                Card(
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth().padding(12.dp)
+                    ) {
+                        // Toggle row
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = stringResource(Res.string.game_data_transfer),
+                                    style = MaterialTheme.typography.titleSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                Text(
+                                    text = stringResource(Res.string.game_data_transfer_description),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                                )
+                            }
+                            Switch(
+                                checked = gameDataTransferEnabled,
+                                onCheckedChange = { gameDataTransferEnabled = it }
+                            )
+                        }
+                        
+                        // Export Game Progress button - only show when toggle is enabled
+                        if (gameDataTransferEnabled) {
+                            Spacer(modifier = Modifier.height(8.dp))
+                            
+                            Button(
+                                onClick = onExportGameProgress,
+                                modifier = Modifier.fillMaxWidth(),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.tertiary
+                                )
+                            ) {
+                                de.egril.defender.ui.icon.DownloadIcon(size = 16.dp)
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(stringResource(Res.string.export_game_progress))
+                            }
+                        }
+                    }
+                }
+                
                 // Download All and Upload buttons row (only show if there are saved games)
                 if (savedGames.isNotEmpty()) {
                     Row(
@@ -146,7 +215,7 @@ fun LoadGameScreen(
                         horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
                     ) {
                         Button(
-                            onClick = onDownloadAll,
+                            onClick = { onDownloadAll(gameDataTransferEnabled) },
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = MaterialTheme.colorScheme.primary
                             )
@@ -201,7 +270,7 @@ fun LoadGameScreen(
                             saveGame = saveGame,
                             onLoad = { onLoadGame(saveGame.id) },
                             onDelete = { showDeleteDialog = saveGame.id },
-                            onDownload = { onDownloadGame(saveGame.id) }
+                            onDownload = { onDownloadGame(saveGame.id, gameDataTransferEnabled) }
                         )
                     }
                 }
@@ -212,6 +281,28 @@ fun LoadGameScreen(
             Button(onClick = onBack) {
                 Text(stringResource(Res.string.back))
             }
+            
+            Spacer(modifier = Modifier.height(8.dp))
+            
+            // Display savegame folder path at the bottom
+            val fileStorage = remember { getFileStorage() }
+            val savegamePath = remember {
+                // Get the path for the savefiles directory
+                val playerId = SaveFileStorage.getCurrentPlayer()
+                val savefilesPath = if (playerId != null) {
+                    "players/$playerId/savefiles"
+                } else {
+                    "savefiles"
+                }
+                fileStorage.getAbsolutePath(savefilesPath)
+            }
+            
+            Text(
+                text = "${stringResource(Res.string.savegame_folder)} $savegamePath",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 4.dp)
+            )
         }
         }
     }

@@ -107,6 +107,7 @@
     
     <!-- Load Game Screen -->
     <string name="no_saved_games">Aucune partie sauvegardée trouvée</string>
+    <string name="savegame_folder">dossier de sauvegarde:</string>
     
     <!-- Rules Screen -->
     <string name="how_to_play">Comment jouer</string>
@@ -606,7 +607,7 @@
     
     <!-- End Turn Confirmation Dialog -->
     <string name="end_turn_confirmation_title">Terminer le tour ?</string>
-    <string name="end_turn_confirmation_message">Certaines de vos tours ont des points d'action inutilisés. Êtes-vous sûr de vouloir terminer votre tour ?</string>
+    <string name="end_turn_confirmation_message">Vous avez des tours avec des points d'action inutilisés et des ennemis à portée, ou des mines avec des actions inutilisées. Êtes-vous sûr de vouloir terminer votre tour ?</string>
     <string name="end_turn_confirm">Terminer le tour</string>
     
     <!-- Magical Trap Feature -->
@@ -741,4 +742,49 @@
     <string name="editor_info_tips_text">Sauvegardez fréquemment pour éviter de perdre du travail - Testez vos niveaux dans le jeu pour vous assurer qu'ils sont équilibrés - Utilisez les niveaux existants comme modèles - Les cartes peuvent être réutilisées sur plusieurs niveaux - La séquence détermine quels niveaux sont jouables</string>
 
     <string name="game_sticker_tagline">Open Source Turn Based Fantasy Tower Defense Game</string>
+    
+    <!-- Player Profile Strings -->
+    <string name="player_create_title">Créer un nouveau joueur</string>
+    <string name="player_create_prompt">Entrez votre nom de joueur</string>
+    <string name="player_edit_title">Modifier le nom du joueur</string>
+    <string name="player_edit_prompt">Entrez un nouveau nom pour ce joueur</string>
+    <string name="player_name">Nom du joueur</string>
+    <string name="player_name_empty_error">Le nom du joueur ne peut pas être vide</string>
+    <string name="player_name_too_long_error">Le nom du joueur est trop long (max. 50 caractères)</string>
+    <string name="player_name_exists_error">Un joueur avec ce nom existe déjà</string>
+    <string name="player_select_title">Sélectionner un joueur</string>
+    <string name="player_no_profiles">Aucun profil de joueur trouvé. Créez-en un nouveau pour commencer à jouer!</string>
+    <string name="player_last_played">Dernière partie: %s</string>
+    <string name="player_new">Nouveau joueur</string>
+    <string name="player_delete_confirm_title">Supprimer le joueur?</string>
+    <string name="player_delete_confirm_message">Êtes-vous sûr de vouloir supprimer le joueur "%s"? Tous les progrès et les fichiers sauvegardés de ce joueur seront définitivement supprimés.</string>
+    <string name="switch_player">Changer de joueur</string>
+
+    <!-- Repository Data Error -->
+    <string name="error_missing_repository_data_title">Données de jeu manquantes</string>
+    <string name="error_missing_repository_data_message">Les fichiers de données de jeu critiques sont manquants ou vides. Le jeu ne peut pas démarrer sans ces fichiers.</string>
+    <string name="error_missing_repository_data_categories">Catégories de données manquantes:</string>
+    <string name="error_missing_repository_data_reinstall">Veuillez réinstaller le jeu ou restaurer les données de jeu depuis le menu Paramètres.</string>
+
+
+    <!-- Game Data Transfer Strings -->
+    <string name="game_data_transfer">Transfert des données de jeu</string>
+    <string name="game_data_transfer_description">Inclure la progression du joueur (niveaux gagnés/déverrouillés) lors du téléchargement des sauvegardes</string>
+    <string name="export_game_progress">Exporter la progression du jeu</string>
+    <string name="export_game_progress_description">Télécharger uniquement votre progression de niveau sans données de sauvegarde</string>
+    <string name="import_game_progress">Importer la progression du jeu</string>
+
+    <!-- World Map Conflict Strings -->
+    <string name="world_map_conflict_title">Conflit de progression de la carte du monde</string>
+    <string name="world_map_conflict_message">La progression de la carte du monde dans ce fichier de sauvegarde diffère de votre progression actuelle. Quelle version souhaitez-vous conserver?</string>
+    <string name="world_map_conflict_differences">Différences:</string>
+    <string name="world_map_conflict_level">Niveau</string>
+    <string name="world_map_conflict_saved">Sauvegardé</string>
+    <string name="world_map_conflict_current">Actuel</string>
+    <string name="world_map_conflict_use_saved">Utiliser la progression sauvegardée</string>
+    <string name="world_map_conflict_use_current">Conserver la progression actuelle</string>
+    <string name="level_status_locked">Verrouillé</string>
+    <string name="level_status_unlocked">Déverrouillé</string>
+    <string name="level_status_won">Gagné</string>
+    <string name="level_status_unknown">Inconnu</string>
 </resources>
