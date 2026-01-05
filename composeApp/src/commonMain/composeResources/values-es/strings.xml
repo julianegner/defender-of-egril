@@ -673,7 +673,7 @@
 
     <!-- Green Witch Info -->
     <string name="green_witch_info_title">¡Alerta de Bruja Verde!</string>
-    <string name="green_witch_info_healing">¡La Bruja Verde puede curar a otros enemigos! Al final de cada turno enemigo, cura a todos los enemigos adyacentes por su nivel (ej: bruja nivel 2 cura 2 PS por turno).</string>
+    <string name="green_witch_info_healing">¡La Bruja Verde puede curar a otros enemigos! Al final de cada turno enemigo, cura a todos los enemigos adyacentes por 5 veces su nivel (ej: bruja nivel 2 cura 10 PS por turno).</string>
     <string name="green_witch_info_strategy">Se moverá hacia Ewhad si está herido para curarlo. ¡Derrota a la Bruja Verde rápidamente o las batallas serán mucho más difíciles!</string>
 
     <!-- Red Witch Info -->

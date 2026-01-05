@@ -279,11 +279,12 @@ class EnemyAbilitySystem(private val state: GameState) {
     /**
      * Find the nearest tower that is not disabled for Red Witch to move towards and disable.
      * Returns the tower's position if found.
+     * Only targets towers that the witch can actually disable (tower level <= witch level).
      */
     fun findTowerTarget(witch: Attacker): Position? {
-        // Find ready towers that are not disabled
+        // Find ready towers that are not disabled and can be disabled by this witch
         val availableTowers = state.defenders.filter { tower ->
-            tower.isReady && !tower.isDisabled.value
+            tower.isReady && !tower.isDisabled.value && tower.level.value <= witch.level.value
         }
         
         if (availableTowers.isEmpty()) return null

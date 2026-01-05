@@ -673,7 +673,7 @@
 
     <!-- Green Witch Info -->
     <string name="green_witch_info_title">Grüne Hexe Alarm!</string>
-    <string name="green_witch_info_healing">Die Grüne Hexe kann andere Feinde heilen! Am Ende jeder Feindphase heilt sie alle angrenzenden Feinde um ihre Stufe (z.B. Stufe 2 Hexe heilt 2 HP pro Runde).</string>
+    <string name="green_witch_info_healing">Die Grüne Hexe kann andere Feinde heilen! Am Ende jeder Feindphase heilt sie alle angrenzenden Feinde um das 5-fache ihrer Stufe (z.B. Stufe 2 Hexe heilt 10 HP pro Runde).</string>
     <string name="green_witch_info_strategy">Sie bewegt sich zu Ewhad, wenn er verletzt ist, um ihn zu heilen. Besiegen Sie die Grüne Hexe schnell, sonst werden Kämpfe viel schwieriger!</string>
 
     <!-- Red Witch Info -->
