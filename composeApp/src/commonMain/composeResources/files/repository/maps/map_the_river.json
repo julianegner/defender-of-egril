@@ -1,6 +1,7 @@
 {
   "id": "map_the_river",
   "name": "The River",
+  "nameKey": "map_the_river_name",
   "width": 40,
   "height": 30,
   "readyToUse": true,

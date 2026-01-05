@@ -1,6 +1,7 @@
 {
   "id": "map_the_island",
   "name": "The Island",
+  "nameKey": "map_the_island_name",
   "width": 30,
   "height": 30,
   "readyToUse": true,

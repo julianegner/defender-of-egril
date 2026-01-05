@@ -2,6 +2,7 @@
   "id": "the_first_wave",
   "mapId": "map_straight",
   "title": "The First Wave",
+  "titleKey": "level_the_first_wave_title",
   "subtitle": "",
   "startCoins": 100,
   "startHealthPoints": 10,
@@ -39,6 +40,6 @@
   ],
   "availableTowers": ["SPIKE_TOWER", "SPEAR_TOWER", "BOW_TOWER"],
   "waypoints": [
-    
+
   ]
 }

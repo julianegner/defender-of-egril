@@ -2,6 +2,7 @@
   "id": "the_final_stand",
   "mapId": "map_the_fortress",
   "title": "The Final Stand",
+  "titleKey": "level_the_final_stand_title",
   "subtitle": "",
   "startCoins": 1000,
   "startHealthPoints": 100,
@@ -205,7 +206,7 @@
   ],
   "availableTowers": ["SPIKE_TOWER", "SPEAR_TOWER", "BOW_TOWER", "WIZARD_TOWER", "ALCHEMY_TOWER", "BALLISTA_TOWER", "DWARVEN_MINE"],
   "waypoints": [
-    
+
   ],
   "prerequisites": ["the_fortress_5_mighty_forces"]
 }

@@ -2,7 +2,9 @@
   "id": "the_winding_path",
   "mapId": "map_winding_path",
   "title": "The Winding Path",
+  "titleKey": "level_the_winding_path_title",
   "subtitle": "A Long and Twisting Road",
+  "subtitleKey": "level_the_winding_path_subtitle",
   "startCoins": 250,
   "startHealthPoints": 8,
   "enemySpawns": [
@@ -81,7 +83,7 @@
   ],
   "availableTowers": ["SPIKE_TOWER", "SPEAR_TOWER", "BOW_TOWER", "WIZARD_TOWER", "ALCHEMY_TOWER", "BALLISTA_TOWER", "DWARVEN_MINE"],
   "waypoints": [
-    
+
   ],
   "prerequisites": ["maelstrom", "the_cross"]
 }

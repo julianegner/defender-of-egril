@@ -33,6 +33,7 @@ import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.utils.isPlatformAndroid
 import de.egril.defender.utils.isPlatformMobile
 import de.egril.defender.editor.EditorStorage
+import de.egril.defender.ui.getLocalizedName
 import org.jetbrains.compose.resources.painterResource
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.world_map_background
@@ -51,7 +52,8 @@ data class WorldMapLocation(
     val x: Float,  // X position as fraction of map width (0.0 to 1.0)
     val y: Float,  // Y position as fraction of map height (0.0 to 1.0)
     val levelIds: List<String>,  // Editor level IDs at this location
-    val name: String  // Display name for this location
+    val name: String,  // Display name for this location (fallback)
+    val locationData: de.egril.defender.editor.WorldMapLocationData? = null  // Original location data for localization
 )
 
 /**
@@ -445,8 +447,10 @@ private fun BoxScope.LocationMarkersOverlay(
                     color = Color(0xB3404040),  // Semi-transparent dark gray (70% opacity)
                     shadowElevation = labelElevation
                 ) {
+                    val locale = com.hyperether.resources.currentLanguage.value
+                    val localizedName = location.locationData?.getLocalizedName(locale) ?: location.name
                     Text(
-                        text = location.name,
+                        text = localizedName,
                         style = MaterialTheme.typography.labelSmall.copy(fontSize = labelFontSize),
                         color = Color.White,
                         modifier = Modifier.padding(horizontal = labelHorizontalPadding, vertical = labelVerticalPadding)
@@ -535,7 +539,8 @@ private fun generateFromWorldMapData(
                 x = x.coerceIn(0.1f, 0.9f),
                 y = y.coerceIn(0.15f, 0.85f),
                 levelIds = locationData.levelIds,
-                name = locationData.name
+                name = locationData.name,
+                locationData = locationData
             )
             locations.add(location)
             locationById[locationData.id] = location
@@ -576,14 +581,16 @@ private fun generateFromWorldMapData(
                     x = fromX.coerceIn(0.1f, 0.9f),
                     y = fromY.coerceIn(0.15f, 0.85f),
                     levelIds = emptyList(),
-                    name = fromLocationData.name
+                    name = fromLocationData.name,
+                    locationData = fromLocationData
                 )
                 val tempToLocation = toLocation ?: WorldMapLocation(
                     id = toLocationData.id,
                     x = toX.coerceIn(0.1f, 0.9f),
                     y = toY.coerceIn(0.15f, 0.85f),
                     levelIds = emptyList(),
-                    name = toLocationData.name
+                    name = toLocationData.name,
+                    locationData = toLocationData
                 )
                 
                 val controlPoints = pathData.controlPoints.map { it.toNormalized() }
