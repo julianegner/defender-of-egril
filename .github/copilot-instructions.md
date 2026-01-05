@@ -90,6 +90,65 @@ Defender of Egril is a turn-based tower defense game built with Kotlin Multiplat
 - Modular UI structure: Extract large screens into focused component files (see `ui/gameplay/` and `ui/editor/`)
 - Manual JSON serialization for cross-platform compatibility (see `EditorJsonSerializer`, `SaveJsonSerializer`)
 
+### JSON Formatting for Level Files
+- **Enemy Spawns**: Always write enemy spawn objects on a single line for compactness and readability
+  ```json
+  "enemySpawns": [
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 1, "spawnPoint": {"x": 0, "y": 1}},
+    {"attackerType": "ORK", "level": 2, "spawnTurn": 5, "spawnPoint": {"x": 0, "y": 4}}
+  ]
+  ```
+- **Waypoints**: Write each waypoint object on its own line (not all on one line, not fully expanded). **Always add one space after commas** within objects.
+  ```json
+  "waypoints": [
+    {"position": {"x": 20, "y": 0}, "nextTargetPosition": {"x": 20, "y": 36}},
+    {"position": {"x": 39, "y": 39}, "nextTargetPosition": {"x": 21, "y": 39}},
+    {"position": {"x": 0, "y": 39}, "nextTargetPosition": {"x": 18, "y": 39}}
+  ]
+  ```
+  Note: Use `{"x": 20, "y": 0}` (with spaces) NOT `{"x":20,"y":0}` (without spaces)
+- **Rationale**: Enemy spawn format saves hundreds of lines per level file while maintaining readability. Waypoints use one-per-line for better readability when editing pathfinding.
+- **When Creating/Editing Levels**: Always use compact single-line format for enemy spawns, and one-per-line format for waypoints
+- **Other Fields**: Keep other JSON fields (id, title, startCoins, etc.) on separate lines with normal formatting
+
+### JSON Formatting for Map Files
+- **River Tiles**: Always write river tile objects on a single line for compactness and readability
+  ```json
+  "riverTiles": {
+    "36,22": {"flowDirection": "WEST", "flowSpeed": 1},
+    "35,22": {"flowDirection": "NORTH_WEST", "flowSpeed": 1},
+    "34,21": {"flowDirection": "NORTH_WEST", "flowSpeed": 1}
+  }
+  ```
+- **Rationale**: This format saves hundreds of lines per map file while maintaining readability
+- **When Creating/Editing Maps**: Always use this compact single-line format for river tile entries
+- **Other Fields**: Keep other JSON fields (id, name, width, height, tiles, etc.) on separate lines with normal formatting
+
+### JSON Formatting for Worldmap Files
+- **Position Objects**: Always write position objects on a single line for compactness and readability
+  ```json
+  "position": {"x": 82, "y": 873}
+  ```
+- **Level ID Arrays**: Always write levelIds arrays on a single line for compactness and readability
+  ```json
+  "levelIds": ["welcome_to_defender_of_egril"]
+  ```
+  or with multiple entries:
+  ```json
+  "levelIds": ["the_first_wave", "mixed_forces", "the_ork_invasion", "dark_magic_rises"]
+  ```
+- **Control Points**: Always write controlPoints arrays on a single line with compact position objects
+  ```json
+  "controlPoints": [{"x": 668, "y": 488}, {"x": 629, "y": 406}]
+  ```
+- **Segment Types**: Always write segmentTypes arrays on a single line
+  ```json
+  "segmentTypes": ["SEA_ROUTE", "SEA_ROUTE", "SEA_ROUTE", "ROAD", "ROAD"]
+  ```
+- **Rationale**: This format saves hundreds of lines in worldmap files while maintaining readability
+- **When Creating/Editing Worldmap**: Always use this compact single-line format for position, levelIds, controlPoints, and segmentTypes
+- **Other Fields**: Keep other JSON fields (id, name, fromLocationId, etc.) on separate lines with normal formatting
+
 ### Localization System
 - **Plugin**: Uses `compose-multiplatform-localize` plugin (version 1.1.1) for string resource management
 - **String Resources**: Located in `composeApp/src/commonMain/composeResources/`

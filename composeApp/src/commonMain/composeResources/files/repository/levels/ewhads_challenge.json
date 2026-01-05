@@ -2,6 +2,7 @@
   "id": "ewhads_challenge",
   "mapId": "map_ewhads_challenge",
   "title": "Ewhad's Challenge",
+  "titleKey": "level_ewhads_challenge_title",
   "subtitle": "",
   "startCoins": 300,
   "startHealthPoints": 10,
@@ -10,6 +11,6 @@
   ],
   "availableTowers": ["SPIKE_TOWER", "SPEAR_TOWER", "BOW_TOWER", "WIZARD_TOWER", "ALCHEMY_TOWER", "BALLISTA_TOWER", "DWARVEN_MINE"],
   "waypoints": [
-    
+
   ]
 }

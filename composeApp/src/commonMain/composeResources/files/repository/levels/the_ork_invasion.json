@@ -2,6 +2,7 @@
   "id": "the_ork_invasion",
   "mapId": "map_straight",
   "title": "The Ork Invasion",
+  "titleKey": "level_the_ork_invasion_title",
   "subtitle": "",
   "startCoins": 300,
   "startHealthPoints": 10,
@@ -124,7 +125,7 @@
   ],
   "availableTowers": ["SPIKE_TOWER", "SPEAR_TOWER", "BOW_TOWER"],
   "waypoints": [
-    
+
   ],
   "prerequisites": ["mixed_forces"]
 }

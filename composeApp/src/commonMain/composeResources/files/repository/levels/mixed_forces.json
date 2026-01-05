@@ -2,6 +2,7 @@
   "id": "mixed_forces",
   "mapId": "map_straight",
   "title": "Mixed Forces",
+  "titleKey": "level_mixed_forces_title",
   "subtitle": "",
   "startCoins": 300,
   "startHealthPoints": 10,
@@ -74,7 +75,7 @@
   ],
   "availableTowers": ["SPIKE_TOWER", "SPEAR_TOWER", "BOW_TOWER"],
   "waypoints": [
-    
+
   ],
   "prerequisites": ["the_first_wave"]
 }

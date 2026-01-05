@@ -1,6 +1,7 @@
 {
   "id": "map_woods",
   "name": "The Woods",
+  "nameKey": "map_woods_name",
   "width": 40,
   "height": 20,
   "readyToUse": true,

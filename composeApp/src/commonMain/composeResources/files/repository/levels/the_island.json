@@ -2,6 +2,7 @@
   "id": "the_island",
   "mapId": "map_the_island",
   "title": "The Island",
+  "titleKey": "level_the_island_title",
   "subtitle": "",
   "startCoins": 100,
   "startHealthPoints": 10,
@@ -49,7 +50,7 @@
   ],
   "availableTowers": ["SPIKE_TOWER", "SPEAR_TOWER", "BOW_TOWER", "WIZARD_TOWER"],
   "waypoints": [
-    
+
   ],
   "prerequisites": ["the_creek"]
 }
