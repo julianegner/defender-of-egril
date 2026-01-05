@@ -54,8 +54,9 @@ fun GameHeader(
             }
 
             // Level name in center (without prefix, bold when collapsed)
+            val locale = com.hyperether.resources.currentLanguage.value
             Text(
-                text = gameState.level.name,
+                text = gameState.level.getLocalizedTitle(locale),
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.weight(1f),

@@ -15,6 +15,8 @@ data class Level(
     val id: Int,
     val name: String,
     val subtitle: String = "",  // Optional subtitle for the level
+    val titleKey: String? = null,  // Optional translation key for the title
+    val subtitleKey: String? = null,  // Optional translation key for the subtitle
     val gridWidth: Int = 30,
     val gridHeight: Int = 8,
     val startPositions: List<Position> = listOf(
@@ -86,6 +88,8 @@ data class Level(
             id = "" + this.id,
             name = this.name,
             subtitle = this.subtitle,
+            titleKey = this.titleKey,  // Include translation key
+            subtitleKey = this.subtitleKey,  // Include translation key
             initialCoins = this.initialCoins,
             healthPoints = this.healthPoints,
             enemyTypeCounts = enemyCounts
@@ -115,6 +119,8 @@ data class Level(
             id = "" + this.id,
             name = this.name,
             subtitle = this.subtitle,
+            titleKey = this.titleKey,  // Include translation key
+            subtitleKey = this.subtitleKey,  // Include translation key
             initialCoins = modifiedCoins,
             healthPoints = modifiedHP,
             enemyTypeCounts = modifiedEnemyCounts

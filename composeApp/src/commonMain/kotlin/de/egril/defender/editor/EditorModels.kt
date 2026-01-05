@@ -446,6 +446,8 @@ data class EditorLevel(
             id = "" + index,
             name = this.title,
             subtitle = this.subtitle,
+            titleKey = this.titleKey,  // Include translation key
+            subtitleKey = this.subtitleKey,  // Include translation key
             initialCoins = startCoins,
             healthPoints = startHealthPoints,
             enemyTypeCounts = enemyCountMap
