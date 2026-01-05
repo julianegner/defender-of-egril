@@ -169,6 +169,7 @@ class EnemyAbilitySystem(private val state: GameState) {
      * Red Witch disables adjacent towers (within 1 hex distance).
      * Disables one tower per turn.
      * Duration: 1 turn base, +1 turn for every 5 levels (level 5=2 turns, level 10=3 turns, level 20=4 turns, etc.)
+     * Can only disable towers where tower level <= witch level.
      */
     private fun disableNearestTower(witch: Attacker) {
         // Get adjacent positions (1 hex distance)
@@ -178,10 +179,12 @@ class EnemyAbilitySystem(private val state: GameState) {
         // - Is ready (not building)
         // - Is not already disabled
         // - Is adjacent (within 1 hex)
+        // - Can be disabled by this witch (tower level <= witch level)
         val adjacentTowers = state.defenders.filter { tower ->
             tower.isReady && 
             !tower.isDisabled.value && 
-            adjacentPositions.contains(tower.position.value)
+            adjacentPositions.contains(tower.position.value) &&
+            tower.level.value <= witch.level.value
         }
         
         if (adjacentTowers.isEmpty()) return
