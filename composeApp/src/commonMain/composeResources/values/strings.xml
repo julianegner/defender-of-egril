@@ -674,7 +674,7 @@
 
     <!-- Green Witch Info -->
     <string name="green_witch_info_title">Green Witch Alert!</string>
-    <string name="green_witch_info_healing">The Green Witch can heal other enemies! At the end of each enemy turn, she heals all adjacent enemies by her level (e.g., level 2 witch heals 2 HP per turn).</string>
+    <string name="green_witch_info_healing">The Green Witch can heal other enemies! At the end of each enemy turn, she heals all adjacent enemies by 5 times her level (e.g., level 2 witch heals 10 HP per turn).</string>
     <string name="green_witch_info_strategy">She will move towards Ewhad if he has damaged health to heal him. Focus on defeating the Green Witch quickly or she will make battles much harder!</string>
 
     <!-- Red Witch Info -->
