@@ -858,4 +858,5 @@
     <string name="level_status_unlocked">Desbloqueado</string>
     <string name="level_status_won">Ganado</string>
     <string name="level_status_unknown">Desconocido</string>
+    <string name="show_testing_levels">Mostrar niveles de prueba</string>
 </resources>

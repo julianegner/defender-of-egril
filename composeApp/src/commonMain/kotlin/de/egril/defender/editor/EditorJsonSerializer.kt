@@ -179,6 +179,12 @@ object EditorJsonSerializer {
             ""
         }
         
+        val testingOnlyJson = if (level.testingOnly) {
+            ",\n  \"testingOnly\": true"
+        } else {
+            ""
+        }
+        
         return """{
   "id": "${level.id}",
   "mapId": "${level.mapId}",
@@ -193,7 +199,7 @@ object EditorJsonSerializer {
   "waypoints": [
     $waypointsJson
   ],
-  "prerequisites": [$prerequisitesJson]$requiredCountJson
+  "prerequisites": [$prerequisitesJson]$requiredCountJson$testingOnlyJson
 }"""
     }
     
@@ -360,7 +366,18 @@ object EditorJsonSerializer {
                 null
             }
             
-            return EditorLevel(id, mapId, title, titleKey, subtitle, subtitleKey, startCoins, startHealthPoints, spawns, towers, waypoints, prerequisites, requiredPrerequisiteCount)
+            // Parse testingOnly (optional, defaults to false)
+            val testingOnly = if (json.contains("\"testingOnly\"")) {
+                try {
+                    JsonUtils.extractValue(json, "testingOnly").toBoolean()
+                } catch (e: Exception) {
+                    false
+                }
+            } else {
+                false
+            }
+            
+            return EditorLevel(id, mapId, title, titleKey, subtitle, subtitleKey, startCoins, startHealthPoints, spawns, towers, waypoints, prerequisites, requiredPrerequisiteCount, testingOnly)
         } catch (e: Exception) {
             println("Error deserializing level: ${e.message}")
             return null
