@@ -133,6 +133,16 @@ The web version uses browser localStorage for save games and supports:
 - Click and drag to pan
 - All game features available on other platforms (except level editor)
 
+### run Tests
+
+```bash
+# Run all tests
+./gradlew test
+```
+./gradlew :composeApp:desktopTest
+./gradlew :composeApp:wasmJsBrowserTest
+
+
 ## Project Structure
 
 ```
