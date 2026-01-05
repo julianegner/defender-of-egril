@@ -762,6 +762,8 @@ object EditorStorage {
             id = numericId,
             name = editorLevel.title,
             subtitle = editorLevel.subtitle,
+            titleKey = editorLevel.titleKey,  // Store translation key for localization
+            subtitleKey = editorLevel.subtitleKey,  // Store translation key for localization
             gridWidth = map.width,
             gridHeight = map.height,
             startPositions = map.getSpawnPoints(),
