@@ -9,6 +9,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntSize
@@ -489,7 +490,8 @@ fun GridCell(
 
     // Thicker borders for important elements
     val borderWidth = when {
-        showPlacementPreview || isInPreviewRange -> 3.dp  // Medium border for preview
+        showPlacementPreview -> 6.dp  // Double thickness for hovered build tile
+        isInPreviewRange -> 3.dp  // Medium border for range preview
         isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> 5.dp  // Extra thick border for selected defender (not during initial building)
         cellIsInRange && isValidTargetTile && showRange && canPlaceTrapHere -> 4.dp  // Thick border for cells in range (path or river for area attacks)
         isSpawnPoint || isTarget -> 3.dp
@@ -617,6 +619,21 @@ fun GridCell(
                         }
                     }
                 }
+            }
+        }
+        
+        // Show half-transparent tower icon on hovered build tile
+        if (showPlacementPreview && selectedDefenderType != null) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .graphicsLayer(alpha = 0.5f),  // 50% transparency
+                contentAlignment = Alignment.Center
+            ) {
+                TowerTypeIcon(
+                    defenderType = selectedDefenderType,
+                    modifier = Modifier.fillMaxSize()
+                )
             }
         }
         
