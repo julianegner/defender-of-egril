@@ -859,4 +859,5 @@
     <string name="level_status_won">Ganado</string>
     <string name="level_status_unknown">Desconocido</string>
     <string name="show_testing_levels">Mostrar niveles de prueba</string>
+    <string name="test_level">Nivel de prueba</string>
 </resources>

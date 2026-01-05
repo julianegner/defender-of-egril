@@ -307,6 +307,7 @@ fun LevelEditorView(
     var enemySpawns by remember { mutableStateOf(level.enemySpawns.toMutableList()) }
     var availableTowersState by remember { mutableStateOf(level.availableTowers.toSet()) }
     var waypointsState by remember { mutableStateOf(level.waypoints.toMutableList()) }
+    var testingOnly by remember { mutableStateOf(level.testingOnly) }
     var showEnemyDialog by remember { mutableStateOf(false) }
     var showEnemyDialogForTurn by remember { mutableStateOf(1) }
     var showSaveAsDialog by remember { mutableStateOf(false) }
@@ -433,7 +434,9 @@ fun LevelEditorView(
                     startCoins = startCoins,
                     onStartCoinsChange = { startCoins = it },
                     startHP = startHP,
-                    onStartHPChange = { startHP = it }
+                    onStartHPChange = { startHP = it },
+                    testingOnly = testingOnly,
+                    onTestingOnlyChange = { testingOnly = it }
                 )
                 1 -> EnemySpawnsTab(
                     enemySpawns = enemySpawns,
@@ -480,7 +483,8 @@ fun LevelEditorView(
                             startHealthPoints = startHP.toIntOrNull() ?: 10,
                             enemySpawns = enemySpawns.toList(),
                             availableTowers = availableTowersState,
-                            waypoints = waypointsState.toList()
+                            waypoints = waypointsState.toList(),
+                            testingOnly = testingOnly
                         )
                         onSave(updatedLevel)
                     },
@@ -560,7 +564,8 @@ fun LevelEditorView(
                     startHealthPoints = startHP.toIntOrNull() ?: 10,
                     enemySpawns = enemySpawns.toList(),
                     availableTowers = availableTowersState,
-                    waypoints = waypointsState.toList()
+                    waypoints = waypointsState.toList(),
+                    testingOnly = testingOnly
                 )
                 onSave(newLevel)
                 showSaveAsDialog = false
