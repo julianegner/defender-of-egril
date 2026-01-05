@@ -55,6 +55,7 @@ enum class ConnectionType {
 data class WorldMapLocationData(
     val id: String,                      // Unique identifier for this location
     val name: String,                    // Display name shown on the map
+    val nameKey: String? = null,         // Optional string resource key for translation (e.g., "location_starting_village")
     val position: WorldMapPoint,         // Position on the world map
     val levelIds: List<String>           // List of level IDs at this location
 )

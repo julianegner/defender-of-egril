@@ -34,7 +34,8 @@ data class SavedGame(
     val comment: String? = null,  // Optional player comment
     val mapId: String? = null,  // Map identifier (for ensuring correct map is loaded)
     val rafts: List<SavedRaft> = emptyList(),  // Rafts on river tiles
-    val nextRaftId: Int = 1  // Next raft ID to use
+    val nextRaftId: Int = 1,  // Next raft ID to use
+    val worldMapSave: WorldMapSave? = null  // World map progress at the time of saving (for conflict detection on load)
 )
 
 data class SavedDefender(

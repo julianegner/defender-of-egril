@@ -754,6 +754,66 @@
     <string name="editor_info_tips_text">Save frequently to avoid losing work - Test your levels in the game to ensure they are balanced - Use the existing levels as templates - Maps can be reused across multiple levels - The sequence determines which levels are playable</string>
     <string name="game_sticker_tagline">Open Source Turn Based Fantasy Tower Defense Game</string>
     
+    <!-- Level Names -->
+    <string name="level_welcome_to_defender_of_egril_title">Welcome to Defender of Egril</string>
+    <string name="level_welcome_to_defender_of_egril_subtitle">Tutorial</string>
+    <string name="level_the_first_wave_title">The First Wave</string>    <string name="level_mixed_forces_title">Mixed Forces</string>    <string name="level_the_ork_invasion_title">The Ork Invasion</string>    <string name="level_dark_magic_rises_title">Dark Magic Rises</string>    <string name="level_the_final_stand_title">The Final Stand</string>    <string name="level_the_plains_title">The Plains</string>
+    <string name="level_the_plains_subtitle">Open Field Battle</string>
+    <string name="level_the_spiral_challenge_title">The Spiral Challenge</string>
+    <string name="level_the_spiral_challenge_subtitle">Navigate the Spiral</string>
+    <string name="level_the_dance_title">The Dance</string>
+    <string name="level_the_dance_subtitle">Follow the Rhythm</string>
+    <string name="level_the_rush_title">The Rush</string>
+    <string name="level_the_rush_subtitle">Defend Against the Rush</string>
+    <string name="level_the_woods_first_incursion_title">The Woods - First Incursion</string>
+    <string name="level_the_woods_first_incursion_subtitle">Guard the Forest Paths</string>
+    <string name="level_the_woods_full_assault_title">The Woods - Full Assault</string>
+    <string name="level_the_woods_full_assault_subtitle">Unleash All Defenses</string>
+    <string name="level_the_fast_and_furious_title">The Fast and Furious</string>
+    <string name="level_the_fast_and_furious_subtitle">One HP Challenge</string>
+    <string name="level_the_cross_title">The Cross</string>
+    <string name="level_the_cross_subtitle">Four Divided Paths</string>
+    <string name="level_the_winding_path_title">The Winding Path</string>
+    <string name="level_the_winding_path_subtitle">A Long and Twisting Road</string>        <string name="level_the_fortress_title">The Fortress %s</string>
+    <string name="level_the_fortress_1_first_attacks_subtitle">First Attacks</string>    <string name="level_the_fortress_2_orks_marching_subtitle">The Orks are Marching</string>    <string name="level_the_fortress_3_necromancer_subtitle">The Necromancer</string>    <string name="level_the_fortress_4_magic_assault_subtitle">Magic Assault</string>    <string name="level_the_fortress_5_mighty_forces_subtitle">Mighty Forces</string>
+    <string name="level_ewhads_challenge_title">Ewhad\'s Challenge</string>    <string name="level_the_creek_title">The Creek</string>    <string name="level_the_island_title">The Island</string>    <string name="level_the_river_title">The River</string>    <string name="level_creek_valley_title">Creek Valley</string>    <string name="level_maelstrom_title">Maelstrom</string>    
+    <!-- Map Names -->
+    <string name="map_tutorial_name">Tutorial Map</string>
+    <string name="map_straight_name">Straight Map</string>
+    <string name="map_plains_name">The Plains</string>
+    <string name="map_spiral_name">Spiral Challenge Map</string>
+    <string name="map_dance_name">The Dance</string>
+    <string name="map_the_rush_name">The Rush</string>
+    <string name="map_woods_name">The Woods</string>
+    <string name="map_fast_and_furious_name">Fast and Furious Map</string>
+    <string name="map_the_cross_name">The Cross</string>
+    <string name="map_winding_path_name">The Winding Path</string>
+    <string name="map_the_fortress_name">The Fortress</string>
+    <string name="map_ewhads_challenge_name">Ewhads Challenge</string>
+    <string name="map_the_creek_name">The Creek</string>
+    <string name="map_the_island_name">The Island</string>
+    <string name="map_the_river_name">The River</string>
+    <string name="map_creek_valley_name">Creek Valley</string>
+    <string name="map_the_maelstrom_name">The Maelstrom</string>
+    
+    <!-- World Map Location Names -->
+    <string name="location_tutorial_name">Tutorial</string>
+    <string name="location_the_beginning_name">The Beginning</string>
+    <string name="location_the_plains_name">The Plains</string>
+    <string name="location_the_spiral_name">The Spiral</string>
+    <string name="location_the_dance_name">The Dance</string>
+    <string name="location_the_village_name">The Village</string>
+    <string name="location_the_woods_name">The Woods</string>
+    <string name="location_the_fast_name">The Fast</string>
+    <string name="location_the_cross_name">The Cross</string>
+    <string name="location_the_winding_path_name">The Winding Path</string>
+    <string name="location_the_fortress_name">The Fortress</string>
+    <string name="location_ewhads_challege_name">Ewhads Challege</string>
+    <string name="location_the_creek_name">The Creek</string>
+    <string name="location_the_island_name">The Island</string>
+    <string name="location_the_river_name">The River</string>
+    <string name="location_creek_valley_name">Creek Valley</string>
+    <string name="location_the_maelstrom_name">The Maelstrom</string>
     <!-- Player Profile Strings -->
     <string name="player_create_title">Create New Player</string>
     <string name="player_create_prompt">Enter your player name</string>
@@ -770,4 +830,31 @@
     <string name="player_delete_confirm_title">Delete Player?</string>
     <string name="player_delete_confirm_message">Are you sure you want to delete player "%s"? All progress and save files for this player will be permanently deleted.</string>
     <string name="switch_player">Switch Player</string>
+
+    <!-- Repository Data Error -->
+    <string name="error_missing_repository_data_title">Missing Game Data</string>
+    <string name="error_missing_repository_data_message">Critical game data files are missing or empty. The game cannot start without these files.</string>
+    <string name="error_missing_repository_data_categories">Missing data categories:</string>
+    <string name="error_missing_repository_data_reinstall">Please reinstall the game or restore the game data from the Settings menu.</string>
+
+    <!-- Game Data Transfer Strings -->
+    <string name="game_data_transfer">Game Data Transfer</string>
+    <string name="game_data_transfer_description">Include player progress (won/unlocked levels) when downloading saves</string>
+    <string name="export_game_progress">Export Game Progress</string>
+    <string name="export_game_progress_description">Download only your level progress without save data</string>
+    <string name="import_game_progress">Import Game Progress</string>
+
+    <!-- World Map Conflict Strings -->
+    <string name="world_map_conflict_title">World Map Progress Conflict</string>
+    <string name="world_map_conflict_message">The world map progress in this save file differs from your current progress. Which version would you like to keep?</string>
+    <string name="world_map_conflict_differences">Differences:</string>
+    <string name="world_map_conflict_level">Level</string>
+    <string name="world_map_conflict_saved">Saved</string>
+    <string name="world_map_conflict_current">Current</string>
+    <string name="world_map_conflict_use_saved">Use Saved Progress</string>
+    <string name="world_map_conflict_use_current">Keep Current Progress</string>
+    <string name="level_status_locked">Locked</string>
+    <string name="level_status_unlocked">Unlocked</string>
+    <string name="level_status_won">Won</string>
+    <string name="level_status_unknown">Unknown</string>
 </resources>
