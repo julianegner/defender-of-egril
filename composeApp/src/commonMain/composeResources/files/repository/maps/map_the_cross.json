@@ -1,6 +1,7 @@
 {
   "id": "map_the_cross",
   "name": "The Cross",
+  "nameKey": "map_the_cross_name",
   "width": 40,
   "height": 78,
   "readyToUse": true,

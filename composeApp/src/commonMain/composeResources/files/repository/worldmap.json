@@ -3,102 +3,119 @@
     {
       "id": "tutorial",
       "name": "Tutorial",
+      "nameKey": "location_tutorial_name",
       "position": {"x": 82, "y": 873},
       "levelIds": ["welcome_to_defender_of_egril"]
     },
     {
       "id": "the_beginning",
       "name": "The Beginning",
+      "nameKey": "location_the_beginning_name",
       "position": {"x": 167, "y": 589},
       "levelIds": ["the_first_wave", "mixed_forces", "the_ork_invasion", "dark_magic_rises"]
     },
     {
       "id": "the_plains",
       "name": "The Plains",
+      "nameKey": "location_the_plains_name",
       "position": {"x": 258, "y": 572},
       "levelIds": ["the_plains"]
     },
     {
       "id": "the_spiral",
       "name": "The Spiral",
+      "nameKey": "location_the_spiral_name",
       "position": {"x": 344, "y": 484},
       "levelIds": ["the_spiral_challenge"]
     },
     {
       "id": "the_dance",
       "name": "The Dance",
+      "nameKey": "location_the_dance_name",
       "position": {"x": 251, "y": 337},
       "levelIds": ["the_dance"]
     },
     {
       "id": "the_village",
       "name": "The Village",
+      "nameKey": "location_the_village_name",
       "position": {"x": 309, "y": 306},
       "levelIds": ["the_rush"]
     },
     {
       "id": "the_woods",
       "name": "The Woods",
+      "nameKey": "location_the_woods_name",
       "position": {"x": 352, "y": 410},
       "levelIds": ["the_woods_first_incursion", "the_woods_full_assault"]
     },
     {
       "id": "the_fast",
       "name": "The Fast",
+      "nameKey": "location_the_fast_name",
       "position": {"x": 476, "y": 457},
       "levelIds": ["the_fast_and_furious"]
     },
     {
       "id": "the_cross",
       "name": "The Cross",
+      "nameKey": "location_the_cross_name",
       "position": {"x": 580, "y": 517},
       "levelIds": ["the_cross"]
     },
     {
       "id": "the_winding_path",
       "name": "The Winding Path",
+      "nameKey": "location_the_winding_path_name",
       "position": {"x": 660, "y": 527},
       "levelIds": ["the_winding_path"]
     },
     {
       "id": "the_fortress",
       "name": "The Fortress",
+      "nameKey": "location_the_fortress_name",
       "position": {"x": 640, "y": 339},
       "levelIds": ["the_fortress_1_first_attacks", "the_fortress_2_orks_marching", "the_fortress_3_necromancer", "the_fortress_4_magic_assault", "the_fortress_5_mighty_forces", "the_final_stand"]
     },
     {
       "id": "ewhads_challege",
       "name": "Ewhads Challege",
+      "nameKey": "location_ewhads_challege_name",
       "position": {"x": 797, "y": 870},
       "levelIds": ["ewhads_challenge"]
     },
     {
       "id": "the_creek",
       "name": "The Creek",
+      "nameKey": "location_the_creek_name",
       "position": {"x": 438, "y": 820},
       "levelIds": ["the_creek"]
     },
     {
       "id": "the_island",
       "name": "The Island",
+      "nameKey": "location_the_island_name",
       "position": {"x": 721, "y": 884},
       "levelIds": ["the_island"]
     },
     {
       "id": "the_river",
       "name": "The River",
+      "nameKey": "location_the_river_name",
       "position": {"x": 320, "y": 547},
       "levelIds": ["the_river"]
     },
     {
       "id": "creek_valley",
       "name": "Creek Valley",
+      "nameKey": "location_creek_valley_name",
       "position": {"x": 422, "y": 530},
       "levelIds": ["creek_valley"]
     },
     {
       "id": "the_maelstrom",
       "name": "The Maelstrom",
+      "nameKey": "location_the_maelstrom_name",
       "position": {"x": 500, "y": 500},
       "levelIds": ["maelstrom"]
     }

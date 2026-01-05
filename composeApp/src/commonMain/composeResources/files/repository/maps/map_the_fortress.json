@@ -1,6 +1,7 @@
 {
   "id": "map_the_fortress",
   "name": "The Fortress",
+  "nameKey": "map_the_fortress_name",
   "width": 40,
   "height": 30,
   "readyToUse": true,
