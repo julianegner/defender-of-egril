@@ -68,6 +68,7 @@ fun App() {
         val needsPlayerSelection by viewModel.needsPlayerSelection.collectAsState()
         val currentPlayer by viewModel.currentPlayer.collectAsState()
         val allPlayers by viewModel.allPlayers.collectAsState()
+        val worldMapConflict by viewModel.worldMapConflict.collectAsState()
         
         // Show player selection dialog if needed
         var showPlayerSelection by remember { mutableStateOf(false) }
@@ -146,6 +147,16 @@ fun App() {
             )
         }
         
+        // World map conflict dialog
+        worldMapConflict?.let { conflict ->
+            de.egril.defender.ui.loadgame.WorldMapConflictDialog(
+                conflict = conflict,
+                onUseSavedVersion = { viewModel.resolveWorldMapConflict(useSavedVersion = true) },
+                onUseCurrentVersion = { viewModel.resolveWorldMapConflict(useSavedVersion = false) },
+                onCancel = { viewModel.cancelWorldMapConflict() }
+            )
+        }
+        
         when (val screen = currentScreen) {
             is Screen.MainMenu -> {
                 MainMenuScreen(
@@ -190,8 +201,10 @@ fun App() {
                     savedGames = savedGames,
                     onLoadGame = { saveId -> viewModel.loadGame(saveId) },
                     onDeleteGame = { saveId -> viewModel.deleteSavedGame(saveId) },
-                    onDownloadGame = { saveId -> viewModel.downloadSaveGame(saveId) },
-                    onDownloadAll = { viewModel.downloadAllSaveGames() },
+                    onDownloadGame = { saveId, includeGameState -> viewModel.downloadSaveGame(saveId, includeGameState) },
+                    onDownloadAll = { includeGameState -> viewModel.downloadAllSaveGames(includeGameState) },
+                    onExportGameProgress = { viewModel.downloadGameState() },
+                    onImportGameProgress = { json -> viewModel.importWorldMapProgress(json) },
                     onUpload = {
                         // Trigger refresh of saved games list after upload
                         viewModel.navigateToLoadGame()
