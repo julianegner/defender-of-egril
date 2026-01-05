@@ -9,6 +9,7 @@ import de.egril.defender.utils.currentTimeMillis
 /**
  * File-based storage for save games
  * Uses the same FileStorage infrastructure as the editor
+ * Supports player-specific directories for save files and world map progress
  */
 object SaveFileStorage {
     private val fileStorage = getFileStorage()
@@ -19,8 +20,46 @@ object SaveFileStorage {
     // Cache levels to avoid reloading on every call to getAllSavedGames()
     private var cachedLevels: List<Level>? = null
     
+    // Current player ID - null means use legacy directory structure
+    private var currentPlayerId: String? = null
+    
     init {
         fileStorage.createDirectory(SAVEFILES_DIR)
+    }
+    
+    /**
+     * Set the current player context
+     * All save/load operations will use this player's directory
+     */
+    fun setCurrentPlayer(playerId: String?) {
+        currentPlayerId = playerId
+    }
+    
+    /**
+     * Get the current player ID
+     */
+    fun getCurrentPlayer(): String? = currentPlayerId
+    
+    /**
+     * Get the savefiles directory for the current player
+     */
+    private fun getSavefilesDir(): String {
+        return if (currentPlayerId != null) {
+            PlayerProfileStorage.getPlayerSavefilesDirectory(currentPlayerId!!)
+        } else {
+            SAVEFILES_DIR
+        }
+    }
+    
+    /**
+     * Get the level progress file path for the current player
+     */
+    private fun getLevelProgressFile(): String {
+        return if (currentPlayerId != null) {
+            PlayerProfileStorage.getPlayerLevelProgressFile(currentPlayerId!!)
+        } else {
+            LEVEL_PROGRESS_FILE
+        }
     }
     
     /**
@@ -38,14 +77,14 @@ object SaveFileStorage {
         }.toMap()
         val worldMapSave = WorldMapSave(statusMap)
         val json = SaveJsonSerializer.serializeWorldMapSave(worldMapSave)
-        fileStorage.writeFile(LEVEL_PROGRESS_FILE, json)
+        fileStorage.writeFile(getLevelProgressFile(), json)
     }
     
     /**
      * Load world map status
      */
     fun loadWorldMapStatus(): Map<String, LevelStatus>? {
-        val json = fileStorage.readFile(LEVEL_PROGRESS_FILE) ?: return null
+        val json = fileStorage.readFile(getLevelProgressFile()) ?: return null
         val worldMapSave = SaveJsonSerializer.deserializeWorldMapSave(json)
         return worldMapSave?.levelStatuses
     }
@@ -57,7 +96,7 @@ object SaveFileStorage {
         val saveId = "savegame_${currentTimeMillis()}"
         val savedGame = convertGameStateToSavedGame(gameState, saveId, comment)
         val json = SaveJsonSerializer.serializeSavedGame(savedGame)
-        fileStorage.writeFile("$SAVEFILES_DIR/$saveId.json", json)
+        fileStorage.writeFile("${getSavefilesDir()}/$saveId.json", json)
         return saveId
     }
     
@@ -65,7 +104,7 @@ object SaveFileStorage {
      * Load a saved game
      */
     fun loadGameState(saveId: String): SavedGame? {
-        val json = fileStorage.readFile("$SAVEFILES_DIR/$saveId.json") ?: return null
+        val json = fileStorage.readFile("${getSavefilesDir()}/$saveId.json") ?: return null
         return SaveJsonSerializer.deserializeSavedGame(json)
     }
     
@@ -73,7 +112,7 @@ object SaveFileStorage {
      * Get all saved games (metadata only)
      */
     fun getAllSavedGames(): List<SaveGameMetadata> {
-        val files = fileStorage.listFiles(SAVEFILES_DIR)
+        val files = fileStorage.listFiles(getSavefilesDir())
         val savedGames = mutableListOf<SaveGameMetadata>()
         
         // Load levels to get spawn plans (cache for performance)
@@ -83,7 +122,7 @@ object SaveFileStorage {
             if (!filename.endsWith(".json") || filename == "level_progress.json") continue
             
             val saveId = filename.removeSuffix(".json")
-            val json = fileStorage.readFile("$SAVEFILES_DIR/$filename")
+            val json = fileStorage.readFile("${getSavefilesDir()}/$filename")
             if (json != null) {
                 val savedGame = SaveJsonSerializer.deserializeSavedGame(json)
                 if (savedGame != null) {
@@ -149,26 +188,26 @@ object SaveFileStorage {
      * Delete a saved game
      */
     fun deleteSavedGame(saveId: String) {
-        fileStorage.deleteFile("$SAVEFILES_DIR/$saveId.json")
+        fileStorage.deleteFile("${getSavefilesDir()}/$saveId.json")
     }
     
     /**
      * Get the JSON content of a saved game for export
      */
     fun getSaveGameJson(saveId: String): String? {
-        return fileStorage.readFile("$SAVEFILES_DIR/$saveId.json")
+        return fileStorage.readFile("${getSavefilesDir()}/$saveId.json")
     }
     
     /**
      * Get all saved games as a map of filename to JSON content
      */
     fun getAllSaveGamesJson(): Map<String, String> {
-        val files = fileStorage.listFiles(SAVEFILES_DIR)
+        val files = fileStorage.listFiles(getSavefilesDir())
         val result = mutableMapOf<String, String>()
         
         files.forEach { filename ->
             if (filename.endsWith(".json") && filename != "level_progress.json") {
-                val content = fileStorage.readFile("$SAVEFILES_DIR/$filename")
+                val content = fileStorage.readFile("${getSavefilesDir()}/$filename")
                 if (content != null) {
                     result[filename] = content
                 }
@@ -192,7 +231,7 @@ object SaveFileStorage {
             }
             
             // Check if file already exists
-            val targetPath = "$SAVEFILES_DIR/$filename"
+            val targetPath = "${getSavefilesDir()}/$filename"
             if (fileStorage.fileExists(targetPath) && !overwrite) {
                 println("Save game already exists: $filename")
                 return false
@@ -212,7 +251,7 @@ object SaveFileStorage {
      * Check if a save game with the given filename exists
      */
     fun saveGameExists(filename: String): Boolean {
-        return fileStorage.fileExists("$SAVEFILES_DIR/$filename")
+        return fileStorage.fileExists("${getSavefilesDir()}/$filename")
     }
     
     /**
@@ -294,7 +333,8 @@ object SaveFileStorage {
             comment = comment,
             mapId = gameState.level.mapId,  // Save the map ID for verification on load
             rafts = rafts,
-            nextRaftId = gameState.nextRaftId.value
+            nextRaftId = gameState.nextRaftId.value,
+            worldMapSave = null  // Don't automatically include world map - only on explicit export
         )
     }
     
@@ -387,5 +427,64 @@ object SaveFileStorage {
         })
         
         return gameState
+    }
+    
+    /**
+     * Get save game JSON with world map included (for game data transfer)
+     */
+    fun getSaveGameWithWorldMapJson(saveId: String): String? {
+        val json = fileStorage.readFile("${getSavefilesDir()}/$saveId.json") ?: return null
+        val savedGame = SaveJsonSerializer.deserializeSavedGame(json) ?: return null
+        
+        // Add current world map status
+        val worldMapSave = loadWorldMapStatus()?.let { statusMap ->
+            WorldMapSave(statusMap)
+        }
+        
+        val savedGameWithWorldMap = savedGame.copy(worldMapSave = worldMapSave)
+        return SaveJsonSerializer.serializeSavedGame(savedGameWithWorldMap)
+    }
+    
+    /**
+     * Export just the world map progress (game state without level data)
+     */
+    fun exportWorldMapProgress(): String {
+        val worldMapSave = loadWorldMapStatus()?.let { statusMap ->
+            WorldMapSave(statusMap)
+        } ?: WorldMapSave(emptyMap())
+        
+        return SaveJsonSerializer.serializeWorldMapSave(worldMapSave)
+    }
+    
+    /**
+     * Import world map progress from JSON
+     * Returns a WorldMapSave if different from current, null if identical or error
+     */
+    fun importWorldMapProgress(json: String): WorldMapSave? {
+        val importedWorldMap = SaveJsonSerializer.deserializeWorldMapSave(json) ?: return null
+        val currentWorldMap = loadWorldMapStatus() ?: emptyMap()
+        
+        // Check if different
+        if (importedWorldMap.levelStatuses != currentWorldMap) {
+            return importedWorldMap
+        }
+        
+        return null // Identical, no need to import
+    }
+    
+    /**
+     * Apply imported world map progress
+     */
+    fun applyWorldMapProgress(worldMapSave: WorldMapSave, worldLevels: List<WorldLevel>): List<WorldLevel> {
+        val updatedWorldLevels = worldLevels.map { worldLevel ->
+            val status = worldMapSave.levelStatuses[worldLevel.level.editorLevelId]
+            if (status != null) {
+                worldLevel.copy(status = status)
+            } else {
+                worldLevel
+            }
+        }
+        saveWorldMapStatus(updatedWorldLevels)
+        return updatedWorldLevels
     }
 }
