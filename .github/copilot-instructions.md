@@ -400,7 +400,8 @@ Add to `LevelData.createLevels()` with:
 ## Testing Strategy
 
 ### Test Structure
-- Unit tests in `commonTest/kotlin/`
+- Unit tests in `commonTest/kotlin/` (run on all platforms including WASM)
+- UI tests in `desktopTest/kotlin/` for Compose UI testing (desktop only)
 - Test game logic in isolation
 - Use descriptive test names
 
@@ -408,6 +409,17 @@ Add to `LevelData.createLevels()` with:
 - Core game mechanics (tower placement, attacks, movement)
 - Edge cases (boundary conditions, invalid inputs)
 - State transitions
+- **Always add tests for new or changed behavior**
+  - When adding new features, create tests that verify the feature works as expected
+  - When modifying existing behavior, add tests that verify both the old behavior is prevented and new behavior works
+  - Example: For end turn warning changes, test scenarios where warning should/shouldn't appear
+
+### UI Testing Guidelines
+- Use Compose Test Rule for UI component testing
+- Test user interactions (button clicks, text input, etc.)
+- Verify UI state changes based on game state
+- Capture screenshots for visual verification when appropriate
+- See `GamePlayScreenTest.kt` for examples of UI tests
 
 ### Cheat Codes (for testing)
 **In-Game** (click coins display):
