@@ -30,7 +30,36 @@ fun App() {
     }
     
     MaterialTheme(colorScheme = colorScheme) {
-        val viewModel = remember { GameViewModel() }
+        // Track repository data error
+        var repositoryDataError by remember { mutableStateOf<de.egril.defender.editor.MissingRepositoryDataException?>(null) }
+        
+        // Try to create ViewModel, catch repository data errors
+        val viewModel = remember {
+            try {
+                GameViewModel()
+            } catch (e: de.egril.defender.editor.MissingRepositoryDataException) {
+                repositoryDataError = e
+                null
+            }
+        }
+        
+        // Show error dialog if repository data is missing
+        if (repositoryDataError != null) {
+            MissingRepositoryDataDialog(
+                missingCategories = repositoryDataError!!.missingCategories,
+                onDismiss = {
+                    // Cannot dismiss - this is a fatal error
+                    // User needs to reinstall or restore data
+                }
+            )
+            return@MaterialTheme
+        }
+        
+        // Null check for viewModel (should not happen if no exception was thrown)
+        if (viewModel == null) {
+            return@MaterialTheme
+        }
+        
         val currentScreen by viewModel.currentScreen.collectAsState()
         val worldLevels by viewModel.worldLevels.collectAsState()
         val gameState by viewModel.gameState.collectAsState()

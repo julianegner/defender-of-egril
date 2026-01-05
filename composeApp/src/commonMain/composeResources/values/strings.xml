@@ -759,14 +759,20 @@
     <string name="player_delete_confirm_title">Delete Player?</string>
     <string name="player_delete_confirm_message">Are you sure you want to delete player "%s"? All progress and save files for this player will be permanently deleted.</string>
     <string name="switch_player">Switch Player</string>
-    
+
+    <!-- Repository Data Error -->
+    <string name="error_missing_repository_data_title">Missing Game Data</string>
+    <string name="error_missing_repository_data_message">Critical game data files are missing or empty. The game cannot start without these files.</string>
+    <string name="error_missing_repository_data_categories">Missing data categories:</string>
+    <string name="error_missing_repository_data_reinstall">Please reinstall the game or restore the game data from the Settings menu.</string>
+
     <!-- Game Data Transfer Strings -->
     <string name="game_data_transfer">Game Data Transfer</string>
     <string name="game_data_transfer_description">Include player progress (won/unlocked levels) when downloading saves</string>
     <string name="export_game_progress">Export Game Progress</string>
     <string name="export_game_progress_description">Download only your level progress without save data</string>
     <string name="import_game_progress">Import Game Progress</string>
-    
+
     <!-- World Map Conflict Strings -->
     <string name="world_map_conflict_title">World Map Progress Conflict</string>
     <string name="world_map_conflict_message">The world map progress in this save file differs from your current progress. Which version would you like to keep?</string>

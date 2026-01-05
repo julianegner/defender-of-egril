@@ -74,6 +74,9 @@ class GameViewModel {
     
     
     init {
+        // Ensure EditorStorage is initialized with repository data
+        de.egril.defender.editor.EditorStorage.ensureInitialized()
+        
         initializePlayerProfile()
         initializeWorldMap()
     }
