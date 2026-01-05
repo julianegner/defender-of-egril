@@ -759,4 +759,10 @@
     <string name="player_delete_confirm_title">Delete Player?</string>
     <string name="player_delete_confirm_message">Are you sure you want to delete player "%s"? All progress and save files for this player will be permanently deleted.</string>
     <string name="switch_player">Switch Player</string>
+    
+    <!-- Repository Data Error -->
+    <string name="error_missing_repository_data_title">Missing Game Data</string>
+    <string name="error_missing_repository_data_message">Critical game data files are missing or empty. The game cannot start without these files.</string>
+    <string name="error_missing_repository_data_categories">Missing data categories:</string>
+    <string name="error_missing_repository_data_reinstall">Please reinstall the game or restore the game data from the Settings menu.</string>
 </resources>

@@ -759,4 +759,10 @@
     <string name="player_delete_confirm_title">Spieler löschen?</string>
     <string name="player_delete_confirm_message">Möchten Sie wirklich den Spieler "%s" löschen? Alle Fortschritte und Speicherstände dieses Spielers werden dauerhaft gelöscht.</string>
     <string name="switch_player">Spieler wechseln</string>
+    
+    <!-- Repository Data Error -->
+    <string name="error_missing_repository_data_title">Fehlende Spieldaten</string>
+    <string name="error_missing_repository_data_message">Kritische Spieldatendateien fehlen oder sind leer. Das Spiel kann ohne diese Dateien nicht gestartet werden.</string>
+    <string name="error_missing_repository_data_categories">Fehlende Datenkategorien:</string>
+    <string name="error_missing_repository_data_reinstall">Bitte installieren Sie das Spiel neu oder stellen Sie die Spieldaten über das Einstellungsmenü wieder her.</string>
 </resources>

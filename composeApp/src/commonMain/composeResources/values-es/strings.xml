@@ -759,4 +759,10 @@
     <string name="player_delete_confirm_title">¿Eliminar jugador?</string>
     <string name="player_delete_confirm_message">¿Estás seguro de que quieres eliminar al jugador "%s"? Todo el progreso y los archivos guardados de este jugador se eliminarán permanentemente.</string>
     <string name="switch_player">Cambiar jugador</string>
+    
+    <!-- Repository Data Error -->
+    <string name="error_missing_repository_data_title">Faltan datos del juego</string>
+    <string name="error_missing_repository_data_message">Faltan archivos de datos críticos del juego o están vacíos. El juego no puede iniciarse sin estos archivos.</string>
+    <string name="error_missing_repository_data_categories">Categorías de datos faltantes:</string>
+    <string name="error_missing_repository_data_reinstall">Por favor, reinstala el juego o restaura los datos del juego desde el menú de Configuración.</string>
 </resources>
