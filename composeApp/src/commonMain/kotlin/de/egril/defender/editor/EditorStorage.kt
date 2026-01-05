@@ -24,7 +24,7 @@ object EditorStorage {
     private val SEQUENCE_FILE = "gamedata/sequence.json"
     private val WORLDMAP_FILE = "gamedata/worldmap.json"
     private val VERSION_FILE = "gamedata/version.txt"
-    private val CURRENT_VERSION = "7" // Increment when level data format changes - v7: added world map locations file
+    private val CURRENT_VERSION = "8" // Increment when level data format changes - v8: added translation keys (titleKey, subtitleKey, nameKey) to levels, maps, and locations
     
     private var worldMapDataCache: WorldMapData? = null
     private var initialized = false
@@ -762,6 +762,8 @@ object EditorStorage {
             id = numericId,
             name = editorLevel.title,
             subtitle = editorLevel.subtitle,
+            titleKey = editorLevel.titleKey,  // Store translation key for localization
+            subtitleKey = editorLevel.subtitleKey,  // Store translation key for localization
             gridWidth = map.width,
             gridHeight = map.height,
             startPositions = map.getSpawnPoints(),
