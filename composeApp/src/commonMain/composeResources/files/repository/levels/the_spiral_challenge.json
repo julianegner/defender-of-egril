@@ -2,7 +2,9 @@
   "id": "the_spiral_challenge",
   "mapId": "map_spiral",
   "title": "The Spiral Challenge",
+  "titleKey": "level_the_spiral_challenge_title",
   "subtitle": "Navigate the Spiral",
+  "subtitleKey": "level_the_spiral_challenge_subtitle",
   "startCoins": 250,
   "startHealthPoints": 10,
   "enemySpawns": [
@@ -59,7 +61,7 @@
   ],
   "availableTowers": ["SPIKE_TOWER", "SPEAR_TOWER", "BOW_TOWER", "WIZARD_TOWER", "ALCHEMY_TOWER", "BALLISTA_TOWER", "DWARVEN_MINE"],
   "waypoints": [
-    
+
   ],
   "prerequisites": ["the_plains"]
 }
