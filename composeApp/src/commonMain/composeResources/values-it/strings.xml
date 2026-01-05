@@ -673,7 +673,7 @@
 
     <!-- Green Witch Info -->
     <string name="green_witch_info_title">Allarme Strega Verde!</string>
-    <string name="green_witch_info_healing">La Strega Verde può curare altri nemici! Alla fine di ogni turno nemico, cura tutti i nemici adiacenti del suo livello (es: strega livello 2 cura 2 PS per turno).</string>
+    <string name="green_witch_info_healing">La Strega Verde può curare altri nemici! Alla fine di ogni turno nemico, cura tutti i nemici adiacenti di 5 volte il suo livello (es: strega livello 2 cura 10 PS per turno).</string>
     <string name="green_witch_info_strategy">Si muoverà verso Ewhad se è ferito per curarlo. Sconfiggi la Strega Verde rapidamente o le battaglie diventeranno molto più difficili!</string>
 
     <!-- Red Witch Info -->
