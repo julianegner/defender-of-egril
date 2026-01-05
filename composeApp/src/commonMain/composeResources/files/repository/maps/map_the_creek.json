@@ -1,6 +1,7 @@
 {
   "id": "map_the_creek",
   "name": "The Creek",
+  "nameKey": "map_the_creek_name",
   "width": 30,
   "height": 30,
   "readyToUse": true,

@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.sp
 import de.egril.defender.model.LevelStatus
 import de.egril.defender.model.WorldLevel
 import de.egril.defender.ui.*
+import de.egril.defender.ui.getLocalizedTitle
 import de.egril.defender.ui.icon.CheckmarkIcon
 import de.egril.defender.ui.icon.LockIcon
 import de.egril.defender.ui.icon.SwordIcon
@@ -121,9 +122,10 @@ fun LevelCard(
                         )
                         
                         // List prerequisite level names (up to 3)
+                        val locale = com.hyperether.resources.currentLanguage.value
                         for (prereqId in prerequisites.take(3)) {
                             val prereqLevel = EditorStorage.getLevel(prereqId)
-                            val prereqName = prereqLevel?.title ?: prereqId
+                            val prereqName = prereqLevel?.getLocalizedTitle(locale) ?: prereqId
                             
                             Text(
                                 text = "• $prereqName",

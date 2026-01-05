@@ -2,6 +2,7 @@
   "id": "creek_valley",
   "mapId": "map_creek_valley",
   "title": "Creek Valley",
+  "titleKey": "level_creek_valley_title",
   "subtitle": "",
   "startCoins": 1000,
   "startHealthPoints": 10,
@@ -101,7 +102,7 @@
   ],
   "availableTowers": ["SPIKE_TOWER", "SPEAR_TOWER", "BOW_TOWER", "WIZARD_TOWER", "ALCHEMY_TOWER"],
   "waypoints": [
-    
+
   ],
   "prerequisites": ["the_island"]
 }
