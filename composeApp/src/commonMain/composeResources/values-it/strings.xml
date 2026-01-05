@@ -759,15 +759,21 @@
     <string name="player_delete_confirm_title">Eliminare il giocatore?</string>
     <string name="player_delete_confirm_message">Sei sicuro di voler eliminare il giocatore "%s"? Tutti i progressi e i file salvati di questo giocatore verranno eliminati permanentemente.</string>
     <string name="switch_player">Cambia giocatore</string>
-    
-        
+
+    <!-- Repository Data Error -->
+    <string name="error_missing_repository_data_title">Dati di gioco mancanti</string>
+    <string name="error_missing_repository_data_message">I file di dati di gioco critici sono mancanti o vuoti. Il gioco non può avviarsi senza questi file.</string>
+    <string name="error_missing_repository_data_categories">Categorie di dati mancanti:</string>
+    <string name="error_missing_repository_data_reinstall">Si prega di reinstallare il gioco o ripristinare i dati di gioco dal menu Impostazioni.</string>
+
+
     <!-- Game Data Transfer Strings -->
     <string name="game_data_transfer">Trasferimento dati di gioco</string>
     <string name="game_data_transfer_description">Includere il progresso del giocatore (livelli vinti/sbloccati) durante il download dei salvataggi</string>
     <string name="export_game_progress">Esporta progresso del gioco</string>
     <string name="export_game_progress_description">Scarica solo il tuo progresso di livello senza dati di salvataggio</string>
     <string name="import_game_progress">Importa progresso del gioco</string>
-    
+
     <!-- World Map Conflict Strings -->
     <string name="world_map_conflict_title">Conflitto di progresso della mappa del mondo</string>
     <string name="world_map_conflict_message">Il progresso della mappa del mondo in questo file salvato differisce dal tuo progresso attuale. Quale versione desideri mantenere?</string>
