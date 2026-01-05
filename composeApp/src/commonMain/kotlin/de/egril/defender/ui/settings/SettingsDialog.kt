@@ -154,6 +154,17 @@ fun SettingsDialog(
                         },
                         modifier = Modifier.fillMaxWidth()
                     )
+                    
+                    // Show testing levels switch
+                    GenericSwitch(
+                        state = AppSettings.showTestingLevels,
+                        checkedText = stringResource(Res.string.show_testing_levels),
+                        uncheckedText = stringResource(Res.string.show_testing_levels),
+                        onCheckedChange = { enabled ->
+                            AppSettings.saveShowTestingLevels(enabled)
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    )
                 }
                 
                 HorizontalDivider()
