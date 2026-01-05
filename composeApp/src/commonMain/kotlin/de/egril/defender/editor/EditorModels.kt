@@ -232,7 +232,8 @@ data class EditorLevel(
     val availableTowers: Set<DefenderType>,  // Which towers can be built
     val waypoints: List<EditorWaypoint> = emptyList(),  // Waypoints for complex pathing
     val prerequisites: Set<String> = emptySet(),  // Level IDs that must be won to unlock this level
-    val requiredPrerequisiteCount: Int? = null  // Number of prerequisites needed (null = all required)
+    val requiredPrerequisiteCount: Int? = null,  // Number of prerequisites needed (null = all required)
+    val testingOnly: Boolean = false  // If true, level is only shown when "show testing levels" setting is enabled
 ) {
     /**
      * Get the effective required prerequisite count.
