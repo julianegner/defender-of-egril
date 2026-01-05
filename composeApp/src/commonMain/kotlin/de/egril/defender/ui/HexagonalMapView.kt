@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onSizeChanged
@@ -345,6 +346,7 @@ fun BaseGridCell(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     backgroundPainter: androidx.compose.ui.graphics.painter.Painter? = null,
+    onHover: ((Boolean) -> Unit)? = null,
     content: @Composable BoxScope.() -> Unit = { }
 ) {
     val sqrt3 = sqrt(3.0).toFloat()
@@ -359,6 +361,27 @@ fun BaseGridCell(
             .background(backgroundColor)
             .border(borderWidth, borderColor, HexagonShape())
             .clickable(onClick = onClick)
+            .then(
+                if (onHover != null) {
+                    Modifier.pointerInput(Unit) {
+                        awaitPointerEventScope {
+                            while (true) {
+                                val event = awaitPointerEvent()
+                                when (event.type) {
+                                    PointerEventType.Move, PointerEventType.Enter -> {
+                                        onHover(true)
+                                    }
+                                    PointerEventType.Exit -> {
+                                        onHover(false)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    Modifier
+                }
+            )
             .then(modifier),
         contentAlignment = Alignment.Center
     ) {
