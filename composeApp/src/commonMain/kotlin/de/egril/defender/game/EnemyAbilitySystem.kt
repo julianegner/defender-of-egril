@@ -175,19 +175,37 @@ class EnemyAbilitySystem(private val state: GameState) {
         // Get adjacent positions (1 hex distance)
         val adjacentPositions = witch.position.value.getHexNeighbors()
         
+        println("DEBUG: Red witch ${witch.id} level ${witch.level.value} at ${witch.position.value} checking ${adjacentPositions.size} adjacent positions")
+        println("DEBUG: Adjacent positions: $adjacentPositions")
+        
+        // Log all towers in the game for debugging
+        println("DEBUG: All towers in game (${state.defenders.size}):")
+        state.defenders.forEach { tower ->
+            println("DEBUG:   ${tower.type} id=${tower.id} level=${tower.level.value} at ${tower.position.value} isReady=${tower.isReady} isDisabled=${tower.isDisabled.value}")
+        }
+        
         // Find adjacent towers that:
         // - Is ready (not building)
         // - Is not already disabled
         // - Is adjacent (within 1 hex)
         // - Can be disabled by this witch (tower level <= witch level)
         val adjacentTowers = state.defenders.filter { tower ->
-            tower.isReady && 
-            !tower.isDisabled.value && 
-            adjacentPositions.contains(tower.position.value) &&
-            tower.level.value <= witch.level.value
+            val isReady = tower.isReady
+            val notDisabled = !tower.isDisabled.value
+            val isAdjacent = adjacentPositions.contains(tower.position.value)
+            val canDisable = tower.level.value <= witch.level.value
+            
+            println("DEBUG: Checking tower ${tower.type} id=${tower.id}: isReady=$isReady, notDisabled=$notDisabled, isAdjacent=$isAdjacent, canDisable=$canDisable (tower level ${tower.level.value} vs witch level ${witch.level.value})")
+            
+            isReady && notDisabled && isAdjacent && canDisable
         }
         
-        if (adjacentTowers.isEmpty()) return
+        println("DEBUG: Found ${adjacentTowers.size} eligible adjacent towers to disable")
+        
+        if (adjacentTowers.isEmpty()) {
+            println("DEBUG: Red witch ${witch.id} found no eligible adjacent towers to disable")
+            return
+        }
         
         // Pick the first adjacent tower (any adjacent tower is valid)
         val targetTower = adjacentTowers.firstOrNull()
@@ -202,6 +220,8 @@ class EnemyAbilitySystem(private val state: GameState) {
             
             targetTower.isDisabled.value = true
             targetTower.disabledTurnsRemaining.value = disableDuration
+            
+            println("DEBUG: Red witch ${witch.id} disabled ${targetTower.type} id=${targetTower.id} at ${targetTower.position.value} for $disableDuration turns")
         }
     }
     
