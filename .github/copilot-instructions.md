@@ -117,6 +117,9 @@ Defender of Egril is a turn-based tower defense game built with Kotlin Multiplat
   - ALL user-facing strings MUST use `stringResource(Res.string.key_name)` - no hardcoded strings
   - Exceptions: Cheat codes (not translated), single-character symbols (•, ✓, etc.), variable interpolations
   - New strings MUST be added to ALL language files (values/, values-de/, values-es/, values-fr/, values-it/)
+  - **IMPORTANT**: Check for duplicate string keys before adding new strings - each `name` attribute must be unique within a file
+  - Use this command to check for duplicates: `grep 'string name=' file.xml | sed 's/.*name="\([^"]*\)".*/\1/' | sort | uniq -d`
+  - If a string already exists in the codebase, reuse it instead of creating a duplicate
   - Run `TranslationCoverageTest` to verify complete translation coverage
 
 ### Icons and Emojis
@@ -338,7 +341,8 @@ Add to `LevelData.createLevels()` with:
 ## Testing Strategy
 
 ### Test Structure
-- Unit tests in `commonTest/kotlin/`
+- Unit tests in `commonTest/kotlin/` (run on all platforms including WASM)
+- UI tests in `desktopTest/kotlin/` for Compose UI testing (desktop only)
 - Test game logic in isolation
 - Use descriptive test names
 
@@ -346,6 +350,17 @@ Add to `LevelData.createLevels()` with:
 - Core game mechanics (tower placement, attacks, movement)
 - Edge cases (boundary conditions, invalid inputs)
 - State transitions
+- **Always add tests for new or changed behavior**
+  - When adding new features, create tests that verify the feature works as expected
+  - When modifying existing behavior, add tests that verify both the old behavior is prevented and new behavior works
+  - Example: For end turn warning changes, test scenarios where warning should/shouldn't appear
+
+### UI Testing Guidelines
+- Use Compose Test Rule for UI component testing
+- Test user interactions (button clicks, text input, etc.)
+- Verify UI state changes based on game state
+- Capture screenshots for visual verification when appropriate
+- See `GamePlayScreenTest.kt` for examples of UI tests
 
 ### Cheat Codes (for testing)
 **In-Game** (click coins display):

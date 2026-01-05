@@ -27,6 +27,16 @@ sealed class Screen {
     data class LevelComplete(val levelId: Int, val won: Boolean, val isLastLevel: Boolean) : Screen()
 }
 
+/**
+ * Represents a conflict between saved world map progress and current world map progress
+ */
+data class WorldMapConflict(
+    val savedGame: de.egril.defender.save.SavedGame?,  // Null when importing just game state
+    val savedWorldMap: de.egril.defender.save.WorldMapSave,
+    val currentWorldMap: Map<String, LevelStatus>,
+    val level: Level?  // Null when importing just game state (no level to load)
+)
+
 class GameViewModel {
     
     private val _currentScreen = MutableStateFlow<Screen>(Screen.MainMenu)
@@ -40,6 +50,20 @@ class GameViewModel {
     
     private val _cheatDigOutcome = MutableStateFlow<DigOutcome?>(null)
     val cheatDigOutcome: StateFlow<DigOutcome?> = _cheatDigOutcome.asStateFlow()
+    
+    // Player profile state
+    private val _currentPlayer = MutableStateFlow<de.egril.defender.save.PlayerProfile?>(null)
+    val currentPlayer: StateFlow<de.egril.defender.save.PlayerProfile?> = _currentPlayer.asStateFlow()
+    
+    private val _allPlayers = MutableStateFlow<List<de.egril.defender.save.PlayerProfile>>(emptyList())
+    val allPlayers: StateFlow<List<de.egril.defender.save.PlayerProfile>> = _allPlayers.asStateFlow()
+    
+    private val _needsPlayerSelection = MutableStateFlow(false)
+    val needsPlayerSelection: StateFlow<Boolean> = _needsPlayerSelection.asStateFlow()
+    
+    // World map progress conflict state
+    private val _worldMapConflict = MutableStateFlow<WorldMapConflict?>(null)
+    val worldMapConflict: StateFlow<WorldMapConflict?> = _worldMapConflict.asStateFlow()
 
     // Track initial game state to detect unsaved changes
     private var initialGameStateSnapshot: String? = null
@@ -48,8 +72,57 @@ class GameViewModel {
     private var gameEngine: GameEngine? = null
     private val viewModelScope = CoroutineScope(Dispatchers.Default)
     
+    
     init {
+        // Ensure EditorStorage is initialized with repository data
+        de.egril.defender.editor.EditorStorage.ensureInitialized()
+        
+        initializePlayerProfile()
         initializeWorldMap()
+    }
+    
+    /**
+     * Initialize player profile system
+     * - Checks for existing players
+     * - Migrates old saves if needed
+     * - Sets up the current player
+     */
+    private fun initializePlayerProfile() {
+        // Check for existing player profiles
+        val profiles = de.egril.defender.save.PlayerProfileStorage.getAllProfiles()
+        _allPlayers.value = profiles.profiles
+        
+        if (profiles.profiles.isEmpty()) {
+            // No profiles exist - check if we need to migrate old saves
+            val migratedProfile = de.egril.defender.save.PlayerProfileStorage.migrateExistingSaves()
+            if (migratedProfile != null) {
+                // Migration successful, use the migrated profile
+                println("Migrated existing saves to player profile: ${migratedProfile.name}")
+                _currentPlayer.value = migratedProfile
+                de.egril.defender.save.SaveFileStorage.setCurrentPlayer(migratedProfile.id)
+                _allPlayers.value = listOf(migratedProfile)
+            } else {
+                // No existing saves, need to create first player
+                _needsPlayerSelection.value = true
+            }
+        } else {
+            // Load the last used player or the most recently played one
+            val lastPlayerId = profiles.lastUsedPlayerId
+            val playerToUse = if (lastPlayerId != null) {
+                profiles.profiles.find { it.id == lastPlayerId }
+            } else {
+                profiles.profiles.maxByOrNull { it.lastPlayedAt }
+            }
+            
+            if (playerToUse != null) {
+                _currentPlayer.value = playerToUse
+                de.egril.defender.save.SaveFileStorage.setCurrentPlayer(playerToUse.id)
+                de.egril.defender.save.PlayerProfileStorage.updateLastPlayed(playerToUse.id)
+            } else {
+                // Shouldn't happen, but handle gracefully
+                _needsPlayerSelection.value = true
+            }
+        }
     }
     
     private fun initializeWorldMap() {
@@ -490,6 +563,66 @@ class GameViewModel {
         }
     }
     
+    /**
+     * Import world map progress and check for conflicts
+     * Returns true if conflict detected and shown to user
+     */
+    fun importWorldMapProgress(json: String): Boolean {
+        val importedWorldMap = de.egril.defender.save.SaveFileStorage.importWorldMapProgress(json)
+        
+        if (importedWorldMap != null) {
+            // Conflict detected - show dialog
+            val currentWorldMap = de.egril.defender.save.SaveFileStorage.loadWorldMapStatus() ?: emptyMap()
+            _worldMapConflict.value = WorldMapConflict(
+                savedGame = null,  // No associated save game
+                savedWorldMap = importedWorldMap,
+                currentWorldMap = currentWorldMap,
+                level = null  // No level to load
+            )
+            return true
+        }
+        
+        return false  // No conflict, nothing to do
+    }
+    
+    /**
+     * Resolve world map conflict by choosing which version to keep
+     */
+    fun resolveWorldMapConflict(useSavedVersion: Boolean) {
+        val conflict = _worldMapConflict.value ?: return
+        
+        if (useSavedVersion) {
+            // Use the world map from the import/save
+            val updatedWorldLevels = de.egril.defender.save.SaveFileStorage.applyWorldMapProgress(
+                conflict.savedWorldMap,
+                _worldLevels.value
+            )
+            _worldLevels.value = updatedWorldLevels
+        }
+        // If not using saved version, keep current world map (do nothing)
+        
+        // Clear the conflict
+        _worldMapConflict.value = null
+        
+        // If there's an associated saved game and level, load it
+        if (conflict.savedGame != null && conflict.level != null) {
+            val gameState = de.egril.defender.save.SaveFileStorage.convertSavedGameToGameState(conflict.savedGame, conflict.level)
+            _gameState.value = gameState
+            gameEngine = GameEngine(gameState)
+            _currentScreen.value = Screen.GamePlay(conflict.level.id)
+            // Set snapshots when loading a saved game
+            initialGameStateSnapshot = createGameStateSnapshot(gameState)
+            lastSaveSnapshot = initialGameStateSnapshot
+        }
+    }
+    
+    /**
+     * Cancel world map conflict resolution
+     */
+    fun cancelWorldMapConflict() {
+        _worldMapConflict.value = null
+    }
+    
     fun deleteSavedGame(saveId: String) {
         de.egril.defender.save.SaveFileStorage.deleteSavedGame(saveId)
         refreshSavedGames()
@@ -497,25 +630,57 @@ class GameViewModel {
     
     // Download/Upload functionality
     
-    fun downloadSaveGame(saveId: String) {
+    fun downloadSaveGame(saveId: String, includeGameState: Boolean = false) {
         viewModelScope.launch {
-            val jsonContent = de.egril.defender.save.SaveFileStorage.getSaveGameJson(saveId)
+            val jsonContent = if (includeGameState) {
+                de.egril.defender.save.SaveFileStorage.getSaveGameWithWorldMapJson(saveId)
+            } else {
+                de.egril.defender.save.SaveFileStorage.getSaveGameJson(saveId)
+            }
+            
             if (jsonContent != null) {
                 val fileExportImport = de.egril.defender.save.getFileExportImport()
-                fileExportImport.exportFile("$saveId.json", jsonContent)
+                val filename = if (includeGameState) {
+                    "${saveId}_with_progress.json"
+                } else {
+                    "$saveId.json"
+                }
+                fileExportImport.exportFile(filename, jsonContent)
             }
         }
     }
     
-    fun downloadAllSaveGames() {
+    fun downloadAllSaveGames(includeGameState: Boolean = false) {
         viewModelScope.launch {
-            val allSaves = de.egril.defender.save.SaveFileStorage.getAllSaveGamesJson()
+            val allSaves = if (includeGameState) {
+                // Get all saves with world map included
+                de.egril.defender.save.SaveFileStorage.getAllSaveGamesJson().mapValues { (filename, _) ->
+                    val saveId = filename.removeSuffix(".json")
+                    de.egril.defender.save.SaveFileStorage.getSaveGameWithWorldMapJson(saveId) ?: ""
+                }.filter { it.value.isNotEmpty() }
+            } else {
+                de.egril.defender.save.SaveFileStorage.getAllSaveGamesJson()
+            }
+            
             if (allSaves.isNotEmpty()) {
                 val timestamp = de.egril.defender.utils.formatTimestampISO(de.egril.defender.utils.currentTimeMillis())
-                val zipFilename = "defender-of-egril-saves-$timestamp.zip"
+                val zipFilename = if (includeGameState) {
+                    "defender-of-egril-saves-with-progress-$timestamp.zip"
+                } else {
+                    "defender-of-egril-saves-$timestamp.zip"
+                }
                 val fileExportImport = de.egril.defender.save.getFileExportImport()
                 fileExportImport.exportZip(zipFilename, allSaves)
             }
+        }
+    }
+    
+    fun downloadGameState() {
+        viewModelScope.launch {
+            val jsonContent = de.egril.defender.save.SaveFileStorage.exportWorldMapProgress()
+            val fileExportImport = de.egril.defender.save.getFileExportImport()
+            val timestamp = de.egril.defender.utils.formatTimestampISO(de.egril.defender.utils.currentTimeMillis())
+            fileExportImport.exportFile("game-progress-$timestamp.json", jsonContent)
         }
     }
     
@@ -561,5 +726,89 @@ class GameViewModel {
     
     private fun saveWorldMapStatus() {
         de.egril.defender.save.SaveFileStorage.saveWorldMapStatus(_worldLevels.value)
+    }
+    
+    // Player Profile Management
+    
+    /**
+     * Create a new player profile
+     * @return true if successful, false if name is invalid or already exists
+     */
+    fun createPlayer(name: String): Boolean {
+        val profile = de.egril.defender.save.PlayerProfileStorage.createProfile(name)
+        if (profile != null) {
+            _currentPlayer.value = profile
+            _allPlayers.value = de.egril.defender.save.PlayerProfileStorage.getAllProfiles().profiles
+            de.egril.defender.save.SaveFileStorage.setCurrentPlayer(profile.id)
+            _needsPlayerSelection.value = false
+            
+            // Reload world map for new player
+            initializeWorldMap()
+            
+            return true
+        }
+        return false
+    }
+    
+    /**
+     * Switch to a different player profile
+     */
+    fun switchPlayer(playerId: String) {
+        val profile = de.egril.defender.save.PlayerProfileStorage.getProfile(playerId)
+        if (profile != null) {
+            _currentPlayer.value = profile
+            de.egril.defender.save.SaveFileStorage.setCurrentPlayer(playerId)
+            de.egril.defender.save.PlayerProfileStorage.updateLastPlayed(playerId)
+            
+            // Reload world map for new player
+            initializeWorldMap()
+            
+            // Reload saved games list
+            refreshSavedGames()
+        }
+    }
+    
+    /**
+     * Delete a player profile
+     */
+    fun deletePlayer(playerId: String): Boolean {
+        // Don't allow deleting the current player
+        if (_currentPlayer.value?.id == playerId) {
+            return false
+        }
+        
+        val success = de.egril.defender.save.PlayerProfileStorage.deleteProfile(playerId)
+        if (success) {
+            _allPlayers.value = de.egril.defender.save.PlayerProfileStorage.getAllProfiles().profiles
+        }
+        return success
+    }
+    
+    /**
+     * Rename the current player profile
+     * @return true if successful, false if name is invalid or already exists
+     */
+    fun renameCurrentPlayer(newName: String): Boolean {
+        val currentPlayerId = _currentPlayer.value?.id ?: return false
+        val updatedProfile = de.egril.defender.save.PlayerProfileStorage.renameProfile(currentPlayerId, newName)
+        if (updatedProfile != null) {
+            _currentPlayer.value = updatedProfile
+            _allPlayers.value = de.egril.defender.save.PlayerProfileStorage.getAllProfiles().profiles
+            
+            // Update SaveFileStorage if the ID changed
+            if (updatedProfile.id != currentPlayerId) {
+                de.egril.defender.save.SaveFileStorage.setCurrentPlayer(updatedProfile.id)
+            }
+            
+            return true
+        }
+        return false
+    }
+    
+    /**
+     * Refresh the list of all player profiles
+     */
+    fun refreshPlayerProfiles() {
+        _allPlayers.value = de.egril.defender.save.PlayerProfileStorage.getAllProfiles().profiles
     }
 }
