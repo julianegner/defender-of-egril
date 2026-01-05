@@ -2,7 +2,9 @@
   "id": "the_fast_and_furious",
   "mapId": "map_fast_and_furious",
   "title": "The Fast and Furious",
+  "titleKey": "level_the_fast_and_furious_title",
   "subtitle": "One HP Challenge",
+  "subtitleKey": "level_the_fast_and_furious_subtitle",
   "startCoins": 1000,
   "startHealthPoints": 1,
   "enemySpawns": [
@@ -14,7 +16,7 @@
   ],
   "availableTowers": ["SPIKE_TOWER", "SPEAR_TOWER", "BOW_TOWER", "WIZARD_TOWER", "ALCHEMY_TOWER", "BALLISTA_TOWER"],
   "waypoints": [
-    
+
   ],
   "prerequisites": ["the_woods_full_assault"]
 }

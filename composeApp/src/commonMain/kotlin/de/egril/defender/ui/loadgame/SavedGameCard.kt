@@ -10,6 +10,7 @@ import de.egril.defender.game.LevelData
 import de.egril.defender.model.*
 import de.egril.defender.save.SaveGameMetadata
 import de.egril.defender.utils.formatTimestamp
+import de.egril.defender.ui.getLocalizedTitle
 
 @Composable
 fun SavedGameCard(
@@ -77,8 +78,16 @@ fun SavedGameCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+            // Get localized level name if level is available
+            val locale = com.hyperether.resources.currentLanguage.value
+            val displayName = if (level != null) {
+                level.getLocalizedTitle(locale)
+            } else {
+                saveGame.levelName  // Fallback to saved name if level not found
+            }
+            
             SavedGameCardHeader(
-                levelName = saveGame.levelName,
+                levelName = displayName,
                 dateStr = dateStr
             )
             
