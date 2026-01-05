@@ -6,6 +6,8 @@ import com.hyperether.resources.currentLanguage
 import de.egril.defender.editor.EditorLevel
 import de.egril.defender.editor.EditorMap
 import de.egril.defender.editor.WorldMapLocationData
+import de.egril.defender.model.Level
+import de.egril.defender.ui.common.LevelInfoEnemiesLevelData
 
 /**
  * Utility functions for getting localized names for maps, levels, and locations.
@@ -92,5 +94,93 @@ fun WorldMapLocationData.getLocalizedName(locale: AppLocale = currentLanguage.va
         }
     } else {
         name
+    }
+}
+
+/**
+ * Get the localized title for a Level (game model, not editor).
+ * Falls back to the direct name if titleKey is null or not found in resources.
+ * 
+ * Supports parameterized keys in format "key:param" where param is substituted into the translated string.
+ * Example: "level_the_fortress_title:1" -> looks up "level_the_fortress_title" and replaces %s with "1"
+ */
+fun Level.getLocalizedTitle(locale: AppLocale = currentLanguage.value): String {
+    return if (titleKey != null) {
+        try {
+            // Check if titleKey contains a parameter (format: "key:param")
+            if (titleKey.contains(':')) {
+                val parts = titleKey.split(':', limit = 2)
+                val baseKey = parts[0]
+                val param = parts[1]
+                val template = LocalizedStrings.get(baseKey, locale)
+                template.replace("%s", param)
+            } else {
+                LocalizedStrings.get(titleKey, locale)
+            }
+        } catch (e: Exception) {
+            name  // Fallback to direct name if key not found
+        }
+    } else {
+        name
+    }
+}
+
+/**
+ * Get the localized subtitle for a Level (game model, not editor).
+ * Falls back to the direct subtitle if subtitleKey is null or not found in resources.
+ */
+fun Level.getLocalizedSubtitle(locale: AppLocale = currentLanguage.value): String {
+    return if (subtitleKey != null) {
+        try {
+            LocalizedStrings.get(subtitleKey, locale)
+        } catch (e: Exception) {
+            subtitle  // Fallback to direct subtitle if key not found
+        }
+    } else {
+        subtitle
+    }
+}
+
+/**
+ * Get the localized title for a LevelInfoEnemiesLevelData.
+ * Falls back to the direct name if titleKey is null or not found in resources.
+ * 
+ * Supports parameterized keys in format "key:param" where param is substituted into the translated string.
+ * Example: "level_the_fortress_title:1" -> looks up "level_the_fortress_title" and replaces %s with "1"
+ */
+fun LevelInfoEnemiesLevelData.getLocalizedTitle(locale: AppLocale = currentLanguage.value): String {
+    return if (titleKey != null) {
+        try {
+            // Check if titleKey contains a parameter (format: "key:param")
+            if (titleKey.contains(':')) {
+                val parts = titleKey.split(':', limit = 2)
+                val baseKey = parts[0]
+                val param = parts[1]
+                val template = LocalizedStrings.get(baseKey, locale)
+                template.replace("%s", param)
+            } else {
+                LocalizedStrings.get(titleKey, locale)
+            }
+        } catch (e: Exception) {
+            name  // Fallback to direct name if key not found
+        }
+    } else {
+        name
+    }
+}
+
+/**
+ * Get the localized subtitle for a LevelInfoEnemiesLevelData.
+ * Falls back to the direct subtitle if subtitleKey is null or not found in resources.
+ */
+fun LevelInfoEnemiesLevelData.getLocalizedSubtitle(locale: AppLocale = currentLanguage.value): String {
+    return if (subtitleKey != null) {
+        try {
+            LocalizedStrings.get(subtitleKey, locale)
+        } catch (e: Exception) {
+            subtitle  // Fallback to direct subtitle if key not found
+        }
+    } else {
+        subtitle
     }
 }
