@@ -122,6 +122,14 @@ object SaveJsonSerializer {
         // Map ID (optional field for backward compatibility)
         val mapIdJson = savedGame.mapId?.let { "\"$it\"" } ?: "null"
         
+        // World map save (optional field)
+        val worldMapSaveJson = savedGame.worldMapSave?.let { worldMap ->
+            val statusesJson = worldMap.levelStatuses.entries.joinToString(", ") { (editorLevelId, status) ->
+                "\"$editorLevelId\": \"${status.name}\""
+            }
+            """{"levelStatuses": {$statusesJson}}"""
+        } ?: "null"
+        
         return """{
   "id": "${savedGame.id}",
   "timestamp": ${savedGame.timestamp},
@@ -153,7 +161,8 @@ object SaveJsonSerializer {
   ],
   "nextRaftId": ${savedGame.nextRaftId},
   "comment": $commentJson,
-  "mapId": $mapIdJson
+  "mapId": $mapIdJson,
+  "worldMapSave": $worldMapSaveJson
 }"""
     }
     
@@ -266,6 +275,29 @@ object SaveJsonSerializer {
                 null  // If mapId field doesn't exist (old save), default to null
             }
             
+            // Parse worldMapSave (optional field, may not exist in older saves)
+            val worldMapSave = try {
+                if (json.contains("\"worldMapSave\":")) {
+                    val worldMapSection = json.substringAfter("\"worldMapSave\":")
+                        .trim()
+                    
+                    // Check if it's null
+                    if (worldMapSection.startsWith("null")) {
+                        null
+                    } else {
+                        // Extract the world map object
+                        val worldMapJson = worldMapSection.substringAfter("{").substringBefore("}}")
+                            .let { "{$it}" }
+                        deserializeWorldMapSave(worldMapJson)
+                    }
+                } else {
+                    null  // Field doesn't exist in old saves
+                }
+            } catch (e: Exception) {
+                println("Warning: Failed to parse worldMapSave: ${e.message}")
+                null  // If worldMapSave field doesn't exist or is malformed, default to null
+            }
+            
             return SavedGame(
                 id = id,
                 timestamp = timestamp,
@@ -287,7 +319,8 @@ object SaveJsonSerializer {
                 comment = comment,
                 mapId = mapId,
                 rafts = rafts,
-                nextRaftId = nextRaftId
+                nextRaftId = nextRaftId,
+                worldMapSave = worldMapSave
             )
         } catch (e: Exception) {
             println("Error deserializing saved game: ${e.message}")
