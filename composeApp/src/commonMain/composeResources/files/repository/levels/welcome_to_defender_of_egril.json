@@ -2,7 +2,9 @@
   "id": "welcome_to_defender_of_egril",
   "mapId": "map_tutorial",
   "title": "Welcome to Defender of Egril",
+  "titleKey": "level_welcome_to_defender_of_egril_title",
   "subtitle": "Tutorial",
+  "subtitleKey": "level_welcome_to_defender_of_egril_subtitle",
   "startCoins": 60,
   "startHealthPoints": 10,
   "enemySpawns": [
@@ -15,6 +17,6 @@
   ],
   "availableTowers": ["SPIKE_TOWER", "SPEAR_TOWER", "BOW_TOWER"],
   "waypoints": [
-    
+
   ]
 }

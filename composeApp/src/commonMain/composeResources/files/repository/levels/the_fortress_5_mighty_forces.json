@@ -2,7 +2,9 @@
   "id": "the_fortress_5_mighty_forces",
   "mapId": "map_the_fortress",
   "title": "The Fortress 5",
+  "titleKey": "level_the_fortress_title:5",
   "subtitle": "Mighty Forces",
+  "subtitleKey": "level_the_fortress_5_mighty_forces_subtitle",
   "startCoins": 500,
   "startHealthPoints": 15,
   "enemySpawns": [
@@ -157,7 +159,7 @@
   ],
   "availableTowers": ["SPIKE_TOWER", "SPEAR_TOWER", "BOW_TOWER", "WIZARD_TOWER", "ALCHEMY_TOWER", "BALLISTA_TOWER", "DWARVEN_MINE"],
   "waypoints": [
-    
+
   ],
   "prerequisites": ["the_fortress_4_magic_assault"]
 }

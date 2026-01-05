@@ -24,6 +24,7 @@ enum class TileType {
 data class EditorMap(
     val id: String,
     val name: String = "",
+    val nameKey: String? = null,  // Optional string resource key for translation (e.g., "map_spiral_challenge")
     val width: Int,
     val height: Int,
     val tiles: Map<String, TileType>,  // "x,y" -> TileType
@@ -222,7 +223,9 @@ data class EditorLevel(
     val id: String,
     val mapId: String,
     val title: String,
+    val titleKey: String? = null,  // Optional string resource key for title translation (e.g., "level_first_battle_title")
     val subtitle: String = "",
+    val subtitleKey: String? = null,  // Optional string resource key for subtitle translation (e.g., "level_first_battle_subtitle")
     val startCoins: Int,
     val startHealthPoints: Int = 10,
     val enemySpawns: List<EditorEnemySpawn>,
@@ -443,6 +446,8 @@ data class EditorLevel(
             id = "" + index,
             name = this.title,
             subtitle = this.subtitle,
+            titleKey = this.titleKey,  // Include translation key
+            subtitleKey = this.subtitleKey,  // Include translation key
             initialCoins = startCoins,
             healthPoints = startHealthPoints,
             enemyTypeCounts = enemyCountMap
@@ -468,3 +473,11 @@ data class PrerequisiteValidationResult(
 data class LevelSequence(
     val sequence: List<String>  // List of level IDs in order
 )
+
+/**
+ * Exception thrown when critical repository data files are missing or empty
+ */
+class MissingRepositoryDataException(
+    val missingCategories: List<String>
+) : Exception("Missing or empty repository data categories: ${missingCategories.joinToString(", ")}")
+

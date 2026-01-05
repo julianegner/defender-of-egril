@@ -1,6 +1,7 @@
 {
   "id": "map_tutorial",
   "name": "Tutorial Map",
+  "nameKey": "map_tutorial_name",
   "width": 15,
   "height": 8,
   "readyToUse": true,
@@ -62,9 +63,9 @@
     "8,3": "BUILD_AREA",
     "8,6": "BUILD_AREA",
     "9,3": "BUILD_AREA",
-    "9,6": "BUILD_AREA",
+    "9,6": "ISLAND",
     "10,3": "BUILD_AREA",
-    "10,6": "BUILD_AREA",
+    "10,6": "ISLAND",
     "11,2": "BUILD_AREA",
     "11,6": "BUILD_AREA",
     "12,2": "BUILD_AREA",
@@ -77,8 +78,6 @@
     "6,1": "ISLAND",
     "5,2": "ISLAND",
     "6,2": "ISLAND",
-    "9,6": "ISLAND",
-    "10,6": "ISLAND",
     "9,7": "ISLAND",
     "10,7": "ISLAND"
   }

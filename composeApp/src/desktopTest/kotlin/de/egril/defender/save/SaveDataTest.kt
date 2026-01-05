@@ -409,4 +409,85 @@ class SaveDataTest {
         assertNotNull(deserialized)
         assertEquals("map_test_123", deserialized.mapId)
     }
+    
+    @Test
+    fun testSavedGameWithWorldMapSave() {
+        val worldMapSave = WorldMapSave(
+            levelStatuses = mapOf(
+                "level_001" to LevelStatus.WON,
+                "level_002" to LevelStatus.UNLOCKED,
+                "level_003" to LevelStatus.LOCKED
+            )
+        )
+        
+        val savedGame = SavedGame(
+            id = "test_save_with_worldmap",
+            timestamp = System.currentTimeMillis(),
+            levelId = 1,
+            levelName = "The First Wave",
+            turnNumber = 3,
+            coins = 100,
+            healthPoints = 10,
+            phase = GamePhase.PLAYER_TURN,
+            defenders = emptyList(),
+            attackers = emptyList(),
+            nextDefenderId = 1,
+            nextAttackerId = 1,
+            currentWaveIndex = 0,
+            spawnCounter = 0,
+            attackersToSpawn = emptyList(),
+            fieldEffects = emptyList(),
+            traps = emptyList(),
+            comment = null,
+            mapId = null,
+            worldMapSave = worldMapSave
+        )
+        
+        // Test serialization
+        val json = SaveJsonSerializer.serializeSavedGame(savedGame)
+        assertNotNull(json)
+        
+        // Test deserialization
+        val deserialized = SaveJsonSerializer.deserializeSavedGame(json)
+        assertNotNull(deserialized)
+        assertNotNull(deserialized.worldMapSave)
+        assertEquals(3, deserialized.worldMapSave!!.levelStatuses.size)
+        assertEquals(LevelStatus.WON, deserialized.worldMapSave!!.levelStatuses["level_001"])
+        assertEquals(LevelStatus.UNLOCKED, deserialized.worldMapSave!!.levelStatuses["level_002"])
+        assertEquals(LevelStatus.LOCKED, deserialized.worldMapSave!!.levelStatuses["level_003"])
+    }
+    
+    @Test
+    fun testBackwardCompatibilityWithoutWorldMapSave() {
+        // Test that old saves without worldMapSave field can still be loaded
+        val oldSaveJson = """{
+  "id": "old_save_no_worldmap",
+  "timestamp": 1234567890,
+  "levelId": 1,
+  "levelName": "Test Level",
+  "turnNumber": 5,
+  "coins": 100,
+  "healthPoints": 10,
+  "phase": "PLAYER_TURN",
+  "defenders": [],
+  "attackers": [],
+  "nextDefenderId": 1,
+  "nextAttackerId": 1,
+  "currentWaveIndex": 0,
+  "spawnCounter": 0,
+  "attackersToSpawn": [],
+  "fieldEffects": [],
+  "traps": [],
+  "rafts": [],
+  "nextRaftId": 1,
+  "comment": null,
+  "mapId": null
+}"""
+        
+        // Should deserialize successfully with worldMapSave defaulting to null
+        val deserialized = SaveJsonSerializer.deserializeSavedGame(oldSaveJson)
+        assertNotNull(deserialized)
+        assertEquals("old_save_no_worldmap", deserialized.id)
+        assertEquals(null, deserialized.worldMapSave)  // Should default to null for old saves
+    }
 }

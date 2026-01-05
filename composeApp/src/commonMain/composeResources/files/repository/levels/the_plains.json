@@ -2,7 +2,9 @@
   "id": "the_plains",
   "mapId": "map_plains",
   "title": "The Plains",
+  "titleKey": "level_the_plains_title",
   "subtitle": "Open Field Battle",
+  "subtitleKey": "level_the_plains_subtitle",
   "startCoins": 200,
   "startHealthPoints": 10,
   "enemySpawns": [
@@ -49,7 +51,7 @@
   ],
   "availableTowers": ["SPIKE_TOWER", "SPEAR_TOWER", "BOW_TOWER", "WIZARD_TOWER", "ALCHEMY_TOWER", "BALLISTA_TOWER", "DWARVEN_MINE"],
   "waypoints": [
-    
+
   ],
   "prerequisites": ["dark_magic_rises"]
 }

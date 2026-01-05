@@ -16,6 +16,7 @@ import androidx.compose.ui.window.Dialog
 import de.egril.defender.model.LevelStatus
 import de.egril.defender.model.WorldLevel
 import de.egril.defender.ui.settings.AppSettings
+import de.egril.defender.ui.getLocalizedName
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
 
@@ -49,8 +50,10 @@ fun LevelLocationDialog(
                 modifier = Modifier.padding(16.dp)
             ) {
                 // Header with location name
+                val locale = com.hyperether.resources.currentLanguage.value
+                val localizedName = location.locationData?.getLocalizedName(locale) ?: location.name
                 Text(
-                    text = location.name,
+                    text = localizedName,
                     style = MaterialTheme.typography.headlineSmall,
                     color = if (isDarkMode) Color.White else Color.Black
                 )

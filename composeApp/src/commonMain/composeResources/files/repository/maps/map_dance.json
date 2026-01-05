@@ -1,6 +1,7 @@
 {
   "id": "map_dance",
   "name": "The Dance",
+  "nameKey": "map_dance_name",
   "width": 40,
   "height": 40,
   "readyToUse": true,
