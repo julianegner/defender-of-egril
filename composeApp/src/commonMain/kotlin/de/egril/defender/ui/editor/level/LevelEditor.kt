@@ -209,38 +209,41 @@ private fun LevelCard(
         Column(
             modifier = Modifier.fillMaxWidth()
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { onSelect() }
-                    .padding(12.dp)
+            Box(
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onSelect() }
+                        .padding(12.dp)
                 ) {
-                    Text(
-                        text = level.title,
-                        style = MaterialTheme.typography.titleSmall
-                    )
-                    // Add ready/not ready indicator
-                    if (EditorStorage.isLevelReadyToPlay(level)) {
-                        CheckmarkIcon(
-                            size = 16.dp,
-                            tint = Color.Green
-                        )
-                    } else {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
                         Text(
-                            text = "✗",
-                            color = Color.Red,
+                            text = level.title,
                             style = MaterialTheme.typography.titleSmall
                         )
+                        // Add ready/not ready indicator
+                        if (EditorStorage.isLevelReadyToPlay(level)) {
+                            CheckmarkIcon(
+                                size = 16.dp,
+                                tint = Color.Green
+                            )
+                        } else {
+                            Text(
+                                text = "✗",
+                                color = Color.Red,
+                                style = MaterialTheme.typography.titleSmall
+                            )
+                        }
+                        // Add warning badge if enemies are outside spawn points
+                        if (hasEnemiesOutsideSpawnPoints) {
+                            WarningBadge()
+                        }
                     }
-                    // Add warning badge if enemies are outside spawn points
-                    if (hasEnemiesOutsideSpawnPoints) {
-                        WarningBadge()
-                    }
-                }
                 if (level.subtitle.isNotEmpty()) {
                     Text(
                         text = level.subtitle,
@@ -266,6 +269,19 @@ private fun LevelCard(
                     color = if (EditorStorage.isLevelReadyToPlay(level)) Color.Green else Color.Red
                 )
             }
+            
+            // Test Level badge in upper right corner
+            if (level.testingOnly) {
+                Text(
+                    text = stringResource(Res.string.test_level),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = Color.Red,
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(8.dp)
+                )
+            }
+        }
             Row(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 8.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
