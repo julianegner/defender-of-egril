@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.sp
 import de.egril.defender.model.DefenderType
 import de.egril.defender.ui.icon.defender.*
 import de.egril.defender.ui.icon.enemy.*
+import de.egril.defender.utils.isPlatformMobile
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.black_shield
 import defender_of_egril.composeapp.generated.resources.greatvibes_regular
@@ -43,6 +44,28 @@ fun ApplicationBanner(
     // Load the Great Vibes font
     val greatVibesFont = FontFamily(Font(Res.font.greatvibes_regular))
     
+    // Platform-specific spacing values
+    // Mobile (Android/iOS) needs more spacing to prevent overlap
+    // Desktop and WASM use original tighter spacing
+
+    val elementOffsetX = if (isPlatformMobile) 60f else 0f
+    val elementOffsetY = if (isPlatformMobile) -80f else 0f
+
+    val goblinOffsetX = elementOffsetX + (if (isPlatformMobile) 15f else 20f)
+    val goblinOffsetY = elementOffsetY + (if (isPlatformMobile) -15f else -20f)
+    val orkOffsetX = elementOffsetX + (if (isPlatformMobile) -50f else 0f)
+    val orkOffsetY = elementOffsetY + (if (isPlatformMobile) 20f else -10f)
+    val wizardOffsetX = elementOffsetX + (if (isPlatformMobile) -100f else -20f)
+    val wizardOffsetY = elementOffsetY + (if (isPlatformMobile) 60f else 0f)
+
+    val bowTowerOffsetX = elementOffsetX + (if (isPlatformMobile) 160f else 80f)
+    val bowTowerOffsetY = elementOffsetY + (if (isPlatformMobile) 0f else -20f)
+    val wizardTowerOffsetX = elementOffsetX + (if (isPlatformMobile) 240f else 100f)
+    val wizardTowerOffsetY = elementOffsetY + (if (isPlatformMobile) 60f else 0f)
+
+    val spacerWidth = if (isPlatformMobile) 80.dp else 80.dp
+    val canvasWidth = if (isPlatformMobile) 80.dp else 80.dp
+    
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
@@ -52,7 +75,7 @@ fun ApplicationBanner(
         Box(
             modifier = Modifier
                 .height(80.dp)
-                .width(80.dp)
+                .width(canvasWidth)
         ) {
             Canvas(modifier = Modifier.fillMaxSize()) {
                 val centerX = size.width / 2
@@ -60,16 +83,16 @@ fun ApplicationBanner(
                 val iconSize = minOf(size.width, size.height)
 
                 // Draw enemy symbols
-                drawGoblinSymbol(centerX.plus(20), centerY.minus(20), iconSize * 0.7f)
-                drawOrkSymbol(centerX, centerY.minus(10), iconSize * 0.7f)
-                drawEvilWizardSymbol(centerX.minus(20), centerY, iconSize * 0.7f)
+                drawGoblinSymbol(centerX.plus(goblinOffsetX), centerY.plus(goblinOffsetY), iconSize * 0.7f)
+                drawOrkSymbol(centerX.plus(orkOffsetX), centerY.plus(orkOffsetY), iconSize * 0.7f)
+                drawEvilWizardSymbol(centerX.plus(wizardOffsetX), centerY.plus(wizardOffsetY), iconSize * 0.7f)
 
-                // Draw bow tower
-                drawTower(DefenderType.BOW_TOWER, centerX.plus(80), centerY.minus(20), iconSize, lineColor)
+                // Draw bow tower (platform-specific offset for mobile spacing)
+                drawTower(DefenderType.BOW_TOWER, centerX.plus(bowTowerOffsetX), centerY.plus(bowTowerOffsetY), iconSize, lineColor)
                 
                 // Draw background with same trapezoid shape as wizard tower to prevent bow tower from showing through
-                val wizardCenterX = centerX.plus(100)
-                val wizardCenterY = centerY
+                val wizardCenterX = centerX.plus(wizardTowerOffsetX)
+                val wizardCenterY = centerY.plus(wizardTowerOffsetY)
                 val wizardBaseSize = iconSize * 0.8f
                 val topWidth = wizardBaseSize * 0.4f
                 val bottomWidth = wizardBaseSize * 0.6f
@@ -97,12 +120,12 @@ fun ApplicationBanner(
                     )
                 }
                 
-                // Draw wizard tower
-                drawTower(DefenderType.WIZARD_TOWER, centerX.plus(100), centerY, iconSize, lineColor)
+                // Draw wizard tower (platform-specific offset for mobile spacing)
+                drawTower(DefenderType.WIZARD_TOWER, centerX.plus(wizardTowerOffsetX), centerY.plus(wizardTowerOffsetY), iconSize, lineColor)
             }
         }
         
-        Spacer(modifier = Modifier.width(80.dp))
+        Spacer(modifier = Modifier.width(spacerWidth))
         
         // Left side: Two rows of text
         Column(
