@@ -72,9 +72,9 @@ class GreenWitchHealingTest {
         assertTrue(healthAfterHealing > healthBeforeHealing, 
             "Goblin should be healed by green witch (before: $healthBeforeHealing, after: $healthAfterHealing)")
         
-        // With a level 1 green witch, healing should be 1 HP
-        assertEquals(11, healthAfterHealing, 
-            "Level 1 green witch should heal 1 HP (from 10 to 11)")
+        // With a level 1 green witch, healing should be 5 HP (5x level)
+        assertEquals(15, healthAfterHealing, 
+            "Level 1 green witch should heal 5 HP (from 10 to 15)")
     }
     
     @Test
@@ -82,7 +82,7 @@ class GreenWitchHealingTest {
         val level = createTestLevel()
         val state = GameState(level)
         
-        // Create a level 5 green witch (can heal up to 5 HP per turn)
+        // Create a level 5 green witch (can heal up to 25 HP per turn = 5x5)
         val greenWitch = Attacker(
             id = state.nextAttackerId.value++,
             type = AttackerType.GREEN_WITCH,
@@ -105,7 +105,7 @@ class GreenWitchHealingTest {
         val enemyAbilities = EnemyAbilitySystem(state)
         enemyAbilities.processEnemyAbilities()
         
-        // Healing should be capped at missing health (2 HP), not witch level (5 HP)
+        // Healing should be capped at missing health (2 HP), not witch heal amount (25 HP)
         assertEquals(20, slightlyDamagedGoblin.currentHealth.value,
             "Goblin should be healed to max HP (18 + 2 = 20), not overheal")
     }
@@ -177,8 +177,8 @@ class GreenWitchHealingTest {
         for (enemy in damagedEnemies) {
             assertTrue(enemy.currentHealth.value > 10,
                 "Adjacent enemy at ${enemy.position.value} should be healed")
-            assertEquals(13, enemy.currentHealth.value,
-                "Level 3 green witch should heal 3 HP to each adjacent enemy")
+            assertEquals(20, enemy.currentHealth.value,
+                "Level 3 green witch should heal 15 HP (5x3) to each adjacent enemy, bringing 10 to full 20 HP")
         }
     }
     

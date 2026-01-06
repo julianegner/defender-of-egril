@@ -406,6 +406,7 @@
     <string name="can_summon">Puede invocar secuaces</string>
     <string name="can_heal">Puede curar otros enemigos</string>
     <string name="can_disable_towers">Puede desactivar torres</string>
+    <string name="disabled">Desactivado</string>
     <string name="immune_to_acid">Inmune al ácido</string>
     <string name="immune_to_fireball">Inmune a la bola de fuego</string>
 
@@ -670,6 +671,16 @@
     <string name="mine_on_river_warning_title">No se puede colocar mina en el río</string>
     <string name="mine_on_river_warning_message">Las minas enanas no se pueden colocar en casillas de río. Las minas requieren tierra firme y no se pueden construir en balsas. Por favor selecciona un área de construcción en tierra.</string>
 
+    <!-- Green Witch Info -->
+    <string name="green_witch_info_title">¡Alerta de Bruja Verde!</string>
+    <string name="green_witch_info_healing">¡La Bruja Verde puede curar a otros enemigos! Al final de cada turno enemigo, cura a todos los enemigos adyacentes por 5 veces su nivel (ej: bruja nivel 2 cura 10 PS por turno).</string>
+    <string name="green_witch_info_strategy">Se moverá hacia Ewhad si está herido para curarlo. ¡Derrota a la Bruja Verde rápidamente o las batallas serán mucho más difíciles!</string>
+
+    <!-- Red Witch Info -->
+    <string name="red_witch_info_title">¡Alerta de Bruja Roja!</string>
+    <string name="red_witch_info_disabling">¡La Bruja Roja puede desactivar tus torres! Desactiva la torre lista más cercana de su nivel o inferior durante 3 turnos.</string>
+    <string name="red_witch_info_strategy">Las torres desactivadas no pueden atacar y muestran "Desactivado: XT" en su panel de información. ¡Mejora tus torres a niveles superiores o derrota a la Bruja Roja rápidamente!</string>
+
     <!-- Mining Outcome Table Headers -->
     <string name="dig_outcome_name">Nombre</string>
     <string name="dig_outcome_chance">Probabilidad (%)</string>
@@ -847,4 +858,6 @@
     <string name="level_status_unlocked">Desbloqueado</string>
     <string name="level_status_won">Ganado</string>
     <string name="level_status_unknown">Desconocido</string>
+    <string name="show_testing_levels">Mostrar niveles de prueba</string>
+    <string name="test_level">Nivel de prueba</string>
 </resources>

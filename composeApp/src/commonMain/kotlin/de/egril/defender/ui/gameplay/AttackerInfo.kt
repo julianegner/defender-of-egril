@@ -243,7 +243,6 @@ fun AttackerInfo(
                     // Mighty unit warning - for wizards, witches, demons, dragons
                     val isMightyUnit = when (attacker.type) {
                         AttackerType.EVIL_WIZARD,
-                        AttackerType.WITCH,
                         AttackerType.RED_WITCH,
                         AttackerType.GREEN_WITCH,
                         AttackerType.EVIL_MAGE,
