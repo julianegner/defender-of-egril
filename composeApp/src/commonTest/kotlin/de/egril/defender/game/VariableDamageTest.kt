@@ -96,17 +96,6 @@ class VariableDamageTest {
     }
     
     @Test
-    fun testWitchCausesLevelDamage() {
-        val witch2 = Attacker(
-            id = 1,
-            type = AttackerType.WITCH,
-            position = mutableStateOf(Position(0, 0)),
-            level = mutableStateOf(2)
-        )
-        assertEquals(2, witch2.calculateTargetDamage(), "Witch level 2 should cause 2 HP damage")
-    }
-    
-    @Test
     fun testRedWitchCausesLevelDamage() {
         val redWitch = Attacker(
             id = 1,

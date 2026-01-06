@@ -527,8 +527,12 @@ private fun generateFromWorldMapData(
     // Convert WorldMapLocationData to WorldMapLocation
     for (locationData in worldMapData.locations) {
         // Check if at least one level at this location is ready to play
+        // If showTestingLevels is false, also check that level is not testing-only
         val hasPlayableLevel = locationData.levelIds.any { levelId ->
-            EditorStorage.isLevelReadyToPlay(levelId)
+            val level = editorLevels[levelId]
+            val isReadyToPlay = EditorStorage.isLevelReadyToPlay(levelId)
+            val isVisibleBasedOnTesting = AppSettings.showTestingLevels.value || level?.testingOnly != true
+            isReadyToPlay && isVisibleBasedOnTesting
         }
         
         // Only add location if it has at least one playable level

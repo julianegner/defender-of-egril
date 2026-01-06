@@ -193,6 +193,33 @@ private fun GamePlayScreenContent(
         }
     }
     
+    // Witch info popups
+    LaunchedEffect(gameState.attackers.size, gameState.infoState.value) {
+        val infoState = gameState.infoState.value
+        
+        // Skip if already showing an info
+        if (infoState.currentInfo != InfoType.NONE) {
+            return@LaunchedEffect
+        }
+        
+        // Check for green witches on the field
+        val greenWitches = gameState.attackers.filter { 
+            it.type == AttackerType.GREEN_WITCH && !it.isDefeated.value 
+        }
+        if (greenWitches.isNotEmpty() && !infoState.hasSeen(InfoType.GREEN_WITCH_INFO)) {
+            gameState.infoState.value = infoState.showInfo(InfoType.GREEN_WITCH_INFO)
+            return@LaunchedEffect
+        }
+        
+        // Check for red witches on the field
+        val redWitches = gameState.attackers.filter { 
+            it.type == AttackerType.RED_WITCH && !it.isDefeated.value 
+        }
+        if (redWitches.isNotEmpty() && !infoState.hasSeen(InfoType.RED_WITCH_INFO)) {
+            gameState.infoState.value = infoState.showInfo(InfoType.RED_WITCH_INFO)
+        }
+    }
+    
     // Check for mine warnings
     LaunchedEffect(gameState.mineWarnings.size, gameState.infoState.value) {
         val infoState = gameState.infoState.value
