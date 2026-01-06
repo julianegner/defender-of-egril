@@ -212,11 +212,12 @@ class EnemyAbilitySystem(private val state: GameState) {
         
         if (targetTower != null) {
             // Calculate disable duration: 1 turn base + 1 per 5 levels
-            // Level 1-4: 1 turn
-            // Level 5-9: 2 turns
-            // Level 10-14: 3 turns
-            // Level 20-24: 4 turns, etc.
-            val disableDuration = 1 + (witch.level.value / 5)
+            // +1 to account for immediate decrement at end of this turn
+            // Level 1-4: 2 turns (disabled for 1 player turn)
+            // Level 5-9: 3 turns (disabled for 2 player turns)
+            // Level 10-14: 4 turns (disabled for 3 player turns)
+            // Level 20-24: 5 turns (disabled for 4 player turns), etc.
+            val disableDuration = 1 + (witch.level.value / 5) + 1
             
             targetTower.isDisabled.value = true
             targetTower.disabledTurnsRemaining.value = disableDuration
