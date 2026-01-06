@@ -149,7 +149,8 @@ data class Defender(
     
     fun resetActions() {
         if (isReady) {
-            actionsRemaining.value = actionsPerTurnCalculated
+            // Disabled towers get 0 actions (grey appearance)
+            actionsRemaining.value = if (isDisabled.value) 0 else actionsPerTurnCalculated
             hasBeenUsed.value = false  // Reset usage tracking at start of new turn
         }
     }

@@ -562,8 +562,19 @@ fun GridCell(
             defender != null -> {
                 // Use graphical icon for towers
                 // Key by id, position, level and actionsRemaining to force recomposition when these change
-                key(defender.id, defender.position.value.x, defender.position.value.y, defender.level.value, defender.actionsRemaining.value, defender.buildTimeRemaining.value) {
-                    TowerIcon(defender = defender, gameState = gameState)
+                key(defender.id, defender.position.value.x, defender.position.value.y, defender.level.value, defender.actionsRemaining.value, defender.buildTimeRemaining.value, defender.isDisabled.value, defender.disabledTurnsRemaining.value) {
+                    Box(contentAlignment = Alignment.Center) {
+                        TowerIcon(defender = defender, gameState = gameState)
+                        // Show red "XT" overlay if tower is disabled by Red Witch
+                        if (defender.isDisabled.value && defender.disabledTurnsRemaining.value > 0) {
+                            Text(
+                                "${defender.disabledTurnsRemaining.value}T",
+                                style = MaterialTheme.typography.headlineMedium,
+                                color = Color.Red,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
                 }
             }
 
