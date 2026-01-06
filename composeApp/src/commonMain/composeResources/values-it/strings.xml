@@ -408,6 +408,7 @@
     <string name="can_summon">Può evocare servitori</string>
     <string name="can_heal">Può curare altri nemici</string>
     <string name="can_disable_towers">Può disabilitare le torri</string>
+    <string name="disabled">Disabilitato</string>
     <string name="immune_to_acid">Immune all'acido</string>
     <string name="immune_to_fireball">Immune alla palla di fuoco</string>
 
@@ -670,6 +671,16 @@
     <string name="mine_on_river_warning_title">Impossibile posizionare la miniera sul fiume</string>
     <string name="mine_on_river_warning_message">Le miniere naniche non possono essere posizionate sulle caselle del fiume. Le miniere richiedono terreno solido e non possono essere costruite sulle zattere. Si prega di selezionare un\'area di costruzione sulla terraferma.</string>
 
+    <!-- Green Witch Info -->
+    <string name="green_witch_info_title">Allarme Strega Verde!</string>
+    <string name="green_witch_info_healing">La Strega Verde può curare altri nemici! Alla fine di ogni turno nemico, cura tutti i nemici adiacenti di 5 volte il suo livello (es: strega livello 2 cura 10 PS per turno).</string>
+    <string name="green_witch_info_strategy">Si muoverà verso Ewhad se è ferito per curarlo. Sconfiggi la Strega Verde rapidamente o le battaglie diventeranno molto più difficili!</string>
+
+    <!-- Red Witch Info -->
+    <string name="red_witch_info_title">Allarme Strega Rossa!</string>
+    <string name="red_witch_info_disabling">La Strega Rossa può disabilitare le tue torri! Disabilita la torre pronta più vicina del suo livello o inferiore per 3 turni.</string>
+    <string name="red_witch_info_strategy">Le torri disabilitate non possono attaccare e mostrano "Disabilitato: XT" nel loro pannello informativo. Migliora le tue torri a livelli superiori o sconfiggi la Strega Rossa rapidamente!</string>
+
     <!-- Mining Outcome Table Headers -->
     <string name="dig_outcome_name">Nome</string>
     <string name="dig_outcome_chance">Probabilità (%)</string>
@@ -847,4 +858,6 @@
     <string name="level_status_unlocked">Sbloccato</string>
     <string name="level_status_won">Vinto</string>
     <string name="level_status_unknown">Sconosciuto</string>
+    <string name="show_testing_levels">Mostra livelli di test</string>
+    <string name="test_level">Livello di test</string>
 </resources>

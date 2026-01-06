@@ -46,6 +46,7 @@ object AppSettings {
     private const val KEY_USE_LEVEL_CARDS = "use_level_cards"
     private const val KEY_SETTINGS_HINT_SHOWN = "settings_hint_shown"
     private const val KEY_USE_TILE_IMAGES = "use_tile_images"
+    private const val KEY_SHOW_TESTING_LEVELS = "show_testing_levels"
     
     private val settings: Settings = Settings()
     
@@ -149,6 +150,14 @@ object AppSettings {
      */
     val useTileImages: MutableState<Boolean> = mutableStateOf(
         settings.getBoolean(KEY_USE_TILE_IMAGES, true)
+    )
+    
+    /**
+     * Show testing levels - show levels marked as testing only on world map
+     * Default is false (testing levels hidden)
+     */
+    val showTestingLevels: MutableState<Boolean> = mutableStateOf(
+        settings.getBoolean(KEY_SHOW_TESTING_LEVELS, false)
     )
     
     /**
@@ -312,6 +321,14 @@ object AppSettings {
     }
     
     /**
+     * Save show testing levels preference
+     */
+    fun saveShowTestingLevels(show: Boolean) {
+        showTestingLevels.value = show
+        settings.putBoolean(KEY_SHOW_TESTING_LEVELS, show)
+    }
+    
+    /**
      * Reset all settings to defaults
      */
     fun resetToDefaults() {
@@ -344,6 +361,9 @@ object AppSettings {
         
         // Reset tile images to ON
         saveUseTileImages(true)
+        
+        // Reset show testing levels to OFF
+        saveShowTestingLevels(false)
         
         // Note: Don't reset settings hint shown state when resetting settings
         // as user has already seen it once

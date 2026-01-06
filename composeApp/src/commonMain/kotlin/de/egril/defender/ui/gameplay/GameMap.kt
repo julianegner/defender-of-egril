@@ -309,6 +309,9 @@ fun GridCell(
     val defender = gameState.defenders.find { it.position.value == position }
     val attacker = gameState.attackers.find { it.position.value == position && !it.isDefeated.value }
     
+    // Check for healing effects at this position
+    val healingEffect = gameState.healingEffects.find { it.position == position }
+    
     // Determine the tile type for background image loading
     val riverTile = gameState.level.getRiverTile(position)
     val isMaelstrom = riverTile?.flowDirection == RiverFlow.MAELSTROM
@@ -517,15 +520,61 @@ fun GridCell(
                 // Use graphical icon for enemy units
                 // Key by id, position, level, and currentHealth to force recomposition when any changes
                 key(attacker.id, attacker.position.value.x, attacker.position.value.y, attacker.level, attacker.currentHealth.value) {
-                    EnemyIcon(attacker = attacker)
+                    Box(contentAlignment = Alignment.Center) {
+                        EnemyIcon(attacker = attacker)
+                        // Show healing effect overlay if present
+                        if (healingEffect != null) {
+                            // Show 3 green "+" symbols in different sizes
+                            // Positioned with smaller symbols higher than larger ones
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                // Large + symbol at center
+                                Text(
+                                    "+",
+                                    style = MaterialTheme.typography.headlineLarge,
+                                    color = androidx.compose.ui.graphics.Color(0xFF4CAF50), // Green
+                                    fontWeight = FontWeight.Bold
+                                )
+                                // Medium + symbol - offset left and higher
+                                Text(
+                                    "+",
+                                    style = MaterialTheme.typography.headlineMedium,
+                                    color = androidx.compose.ui.graphics.Color(0xFF4CAF50), // Green
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.offset(x = (-12).dp, y = (-8).dp)
+                                )
+                                // Small + symbol - offset right and even higher
+                                Text(
+                                    "+",
+                                    style = MaterialTheme.typography.headlineSmall,
+                                    color = androidx.compose.ui.graphics.Color(0xFF4CAF50), // Green
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.offset(x = 12.dp, y = (-16).dp)
+                                )
+                            }
+                        }
+                    }
                 }
             }
 
             defender != null -> {
                 // Use graphical icon for towers
                 // Key by id, position, level and actionsRemaining to force recomposition when these change
-                key(defender.id, defender.position.value.x, defender.position.value.y, defender.level.value, defender.actionsRemaining.value, defender.buildTimeRemaining.value) {
-                    TowerIcon(defender = defender, gameState = gameState)
+                key(defender.id, defender.position.value.x, defender.position.value.y, defender.level.value, defender.actionsRemaining.value, defender.buildTimeRemaining.value, defender.isDisabled.value, defender.disabledTurnsRemaining.value) {
+                    Box(contentAlignment = Alignment.Center) {
+                        TowerIcon(defender = defender, gameState = gameState)
+                        // Show red "XT" overlay if tower is disabled by Red Witch
+                        if (defender.isDisabled.value && defender.disabledTurnsRemaining.value > 0) {
+                            Text(
+                                "${defender.disabledTurnsRemaining.value}T",
+                                style = MaterialTheme.typography.headlineMedium,
+                                color = Color.Red,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
                 }
             }
 

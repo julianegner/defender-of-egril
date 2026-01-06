@@ -209,38 +209,41 @@ private fun LevelCard(
         Column(
             modifier = Modifier.fillMaxWidth()
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { onSelect() }
-                    .padding(12.dp)
+            Box(
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onSelect() }
+                        .padding(12.dp)
                 ) {
-                    Text(
-                        text = level.title,
-                        style = MaterialTheme.typography.titleSmall
-                    )
-                    // Add ready/not ready indicator
-                    if (EditorStorage.isLevelReadyToPlay(level)) {
-                        CheckmarkIcon(
-                            size = 16.dp,
-                            tint = Color.Green
-                        )
-                    } else {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
                         Text(
-                            text = "✗",
-                            color = Color.Red,
+                            text = level.title,
                             style = MaterialTheme.typography.titleSmall
                         )
+                        // Add ready/not ready indicator
+                        if (EditorStorage.isLevelReadyToPlay(level)) {
+                            CheckmarkIcon(
+                                size = 16.dp,
+                                tint = Color.Green
+                            )
+                        } else {
+                            Text(
+                                text = "✗",
+                                color = Color.Red,
+                                style = MaterialTheme.typography.titleSmall
+                            )
+                        }
+                        // Add warning badge if enemies are outside spawn points
+                        if (hasEnemiesOutsideSpawnPoints) {
+                            WarningBadge()
+                        }
                     }
-                    // Add warning badge if enemies are outside spawn points
-                    if (hasEnemiesOutsideSpawnPoints) {
-                        WarningBadge()
-                    }
-                }
                 if (level.subtitle.isNotEmpty()) {
                     Text(
                         text = level.subtitle,
@@ -266,6 +269,19 @@ private fun LevelCard(
                     color = if (EditorStorage.isLevelReadyToPlay(level)) Color.Green else Color.Red
                 )
             }
+            
+            // Test Level badge in upper right corner
+            if (level.testingOnly) {
+                Text(
+                    text = stringResource(Res.string.test_level),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = Color.Red,
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(8.dp)
+                )
+            }
+        }
             Row(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 8.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -307,6 +323,7 @@ fun LevelEditorView(
     var enemySpawns by remember { mutableStateOf(level.enemySpawns.toMutableList()) }
     var availableTowersState by remember { mutableStateOf(level.availableTowers.toSet()) }
     var waypointsState by remember { mutableStateOf(level.waypoints.toMutableList()) }
+    var testingOnly by remember { mutableStateOf(level.testingOnly) }
     var showEnemyDialog by remember { mutableStateOf(false) }
     var showEnemyDialogForTurn by remember { mutableStateOf(1) }
     var showSaveAsDialog by remember { mutableStateOf(false) }
@@ -433,7 +450,9 @@ fun LevelEditorView(
                     startCoins = startCoins,
                     onStartCoinsChange = { startCoins = it },
                     startHP = startHP,
-                    onStartHPChange = { startHP = it }
+                    onStartHPChange = { startHP = it },
+                    testingOnly = testingOnly,
+                    onTestingOnlyChange = { testingOnly = it }
                 )
                 1 -> EnemySpawnsTab(
                     enemySpawns = enemySpawns,
@@ -480,7 +499,8 @@ fun LevelEditorView(
                             startHealthPoints = startHP.toIntOrNull() ?: 10,
                             enemySpawns = enemySpawns.toList(),
                             availableTowers = availableTowersState,
-                            waypoints = waypointsState.toList()
+                            waypoints = waypointsState.toList(),
+                            testingOnly = testingOnly
                         )
                         onSave(updatedLevel)
                     },
@@ -560,7 +580,8 @@ fun LevelEditorView(
                     startHealthPoints = startHP.toIntOrNull() ?: 10,
                     enemySpawns = enemySpawns.toList(),
                     availableTowers = availableTowersState,
-                    waypoints = waypointsState.toList()
+                    waypoints = waypointsState.toList(),
+                    testingOnly = testingOnly
                 )
                 onSave(newLevel)
                 showSaveAsDialog = false
