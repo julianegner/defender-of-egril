@@ -14,8 +14,10 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
@@ -27,6 +29,7 @@ import defender_of_egril.composeapp.generated.resources.map_label
 import defender_of_egril.composeapp.generated.resources.start_coins
 import defender_of_egril.composeapp.generated.resources.start_hp
 import defender_of_egril.composeapp.generated.resources.subtitle_optional
+import defender_of_egril.composeapp.generated.resources.test_level
 
 /**
  * Tab 1: Level Info (title, subtitle, map, coins, HP)
@@ -43,21 +46,45 @@ fun LevelInfoTab(
     startCoins: String,
     onStartCoinsChange: (String) -> Unit,
     startHP: String,
-    onStartHPChange: (String) -> Unit
+    onStartHPChange: (String) -> Unit,
+    testingOnly: Boolean,
+    onTestingOnlyChange: (Boolean) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(vertical = 8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        // Title and subtitle
+        // Title and Test Level toggle in same row
         item {
-            OutlinedTextField(
-                value = title,
-                onValueChange = onTitleChange,
-                label = { Text(stringResource(Res.string.level_title)) },
-                modifier = Modifier.fillMaxWidth()
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                OutlinedTextField(
+                    value = title,
+                    onValueChange = onTitleChange,
+                    label = { Text(stringResource(Res.string.level_title)) },
+                    modifier = Modifier.weight(1f)
+                )
+                
+                // Test Level toggle
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    modifier = Modifier.padding(start = 8.dp)
+                ) {
+                    Text(
+                        text = stringResource(Res.string.test_level),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Switch(
+                        checked = testingOnly,
+                        onCheckedChange = onTestingOnlyChange
+                    )
+                }
+            }
         }
 
         item {

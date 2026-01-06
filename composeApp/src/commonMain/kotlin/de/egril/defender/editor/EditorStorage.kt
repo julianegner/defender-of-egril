@@ -28,7 +28,7 @@ object EditorStorage {
     
     private var worldMapDataCache: WorldMapData? = null
     private var initialized = false
-    
+
     /**
      * Initialize and validate repository data
      * Must be called before using EditorStorage in production code
@@ -39,7 +39,7 @@ object EditorStorage {
         
         // Check if gamedata directory has existing user data
         val hasUserData = hasExistingGamedataFiles()
-        
+
         if (!hasUserData) {
             // No user data - try to load from repository
             println("No gamedata found - loading from repository...")
@@ -52,7 +52,7 @@ object EditorStorage {
                 return
             }
         }
-        
+
         // Validate that we have all required data categories
         val missingCategories = validateRepositoryData()
         if (missingCategories.isNotEmpty()) {
@@ -60,47 +60,47 @@ object EditorStorage {
             // If we do, we're in a test environment with incomplete data
             println("Missing data categories: $missingCategories - continuing anyway (test environment)")
         }
-        
+
         // Load sequence to populate cache
         val sequence = getLevelSequence()
         if (sequence.sequence.isEmpty()) {
             println("Level sequence is empty - continuing anyway (test environment)")
         }
-        
+
         initialized = true
     }
-    
+
     /**
      * Validate that all required repository data exists and is not empty
      * @return List of missing or empty categories
      */
     private fun validateRepositoryData(): List<String> {
         val missing = mutableListOf<String>()
-        
+
         // Check maps
         val maps = getAllMaps()
         if (maps.isEmpty()) {
             missing.add("maps")
         }
-        
+
         // Check levels
         val levels = getAllLevels()
         if (levels.isEmpty()) {
             missing.add("levels")
         }
-        
+
         // Check sequence
         val sequence = getLevelSequence()
         if (sequence.sequence.isEmpty()) {
             missing.add("sequence")
         }
-        
+
         // Check worldmap (optional but good to have)
         val worldMapData = getWorldMapData()
         if (worldMapData.locations.isEmpty() && worldMapData.paths.isEmpty()) {
             missing.add("worldmap")
         }
-        
+
         return missing
     }
     
@@ -791,7 +791,7 @@ object EditorStorage {
         
         return level
     }
-    
+
     /**
      * Try to load maps and levels from repository resources.
      * Returns true if repository files were found and loaded successfully.

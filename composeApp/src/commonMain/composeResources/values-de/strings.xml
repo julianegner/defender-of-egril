@@ -406,6 +406,7 @@
     <string name="can_summon">Kann Diener beschwören</string>
     <string name="can_heal">Kann andere Feinde heilen</string>
     <string name="can_disable_towers">Kann Türme deaktivieren</string>
+    <string name="disabled">Deaktiviert</string>
     <string name="immune_to_acid">Immun gegen Säure</string>
     <string name="immune_to_fireball">Immun gegen Feuerball</string>
 
@@ -670,6 +671,16 @@
     <string name="mine_on_river_warning_title">Kann Mine nicht auf Fluss platzieren</string>
     <string name="mine_on_river_warning_message">Zwergenminen können nicht auf Flussfeldern platziert werden. Minen benötigen festen Boden und können nicht auf Flößen gebaut werden. Bitte wählen Sie stattdessen einen Baubereich auf festem Land.</string>
 
+    <!-- Green Witch Info -->
+    <string name="green_witch_info_title">Grüne Hexe Alarm!</string>
+    <string name="green_witch_info_healing">Die Grüne Hexe kann andere Feinde heilen! Am Ende jeder Feindphase heilt sie alle angrenzenden Feinde um das 5-fache ihrer Stufe (z.B. Stufe 2 Hexe heilt 10 HP pro Runde).</string>
+    <string name="green_witch_info_strategy">Sie bewegt sich zu Ewhad, wenn er verletzt ist, um ihn zu heilen. Besiegen Sie die Grüne Hexe schnell, sonst werden Kämpfe viel schwieriger!</string>
+
+    <!-- Red Witch Info -->
+    <string name="red_witch_info_title">Rote Hexe Alarm!</string>
+    <string name="red_witch_info_disabling">Die Rote Hexe kann Ihre Türme deaktivieren! Sie deaktiviert den nächsten bereiten Turm ihrer Stufe oder niedriger für 3 Runden.</string>
+    <string name="red_witch_info_strategy">Deaktivierte Türme können nicht angreifen und zeigen "Deaktiviert: XT" in ihrem Info-Panel. Verbessern Sie Ihre Türme auf höhere Stufen oder besiegen Sie die Rote Hexe schnell!</string>
+
     <!-- Mining Outcome Table Headers -->
     <string name="dig_outcome_name">Name</string>
     <string name="dig_outcome_chance">Chance (%)</string>
@@ -846,4 +857,6 @@
     <string name="level_status_unlocked">Freigeschaltet</string>
     <string name="level_status_won">Gewonnen</string>
     <string name="level_status_unknown">Unbekannt</string>
+    <string name="show_testing_levels">Test-Level anzeigen</string>
+    <string name="test_level">Test-Level</string>
 </resources>

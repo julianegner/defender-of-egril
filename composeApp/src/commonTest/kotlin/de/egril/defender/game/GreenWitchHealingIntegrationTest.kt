@@ -46,7 +46,7 @@ class GreenWitchHealingIntegrationTest {
             id = state.nextAttackerId.value++,
             type = AttackerType.GREEN_WITCH,
             position = mutableStateOf(Position(3, 3)),
-            level = mutableStateOf(2)  // Level 2 green witch can heal 2 HP
+            level = mutableStateOf(2)  // Level 2 green witch can heal 10 HP (5x2)
         )
         state.attackers.add(greenWitch)
         
@@ -68,8 +68,9 @@ class GreenWitchHealingIntegrationTest {
         engine.completeEnemyTurn()
         
         // Verify the goblin was healed during the enemy turn
-        assertEquals(17, damagedGoblin.currentHealth.value,
-            "Level 2 green witch should heal 2 HP to adjacent goblin (15 + 2 = 17)")
+        // Level 2 witch heals 10 HP (5x2), but goblin only needs 5 HP to reach max
+        assertEquals(20, damagedGoblin.currentHealth.value,
+            "Level 2 green witch should heal goblin to full HP (15 + 5 = 20)")
     }
     
     @Test
@@ -100,23 +101,23 @@ class GreenWitchHealingIntegrationTest {
         damagedOgre.currentHealth.value = 10  // 80 max HP, damaged to 10
         state.attackers.add(damagedOgre)
         
-        // Turn 1: Heal 3 HP
+        // Turn 1: Heal 15 HP (5x3)
         engine.startEnemyTurn()
         engine.completeEnemyTurn()
-        assertEquals(13, damagedOgre.currentHealth.value,
-            "Turn 1: Ogre should be healed from 10 to 13")
+        assertEquals(25, damagedOgre.currentHealth.value,
+            "Turn 1: Ogre should be healed from 10 to 25 (10 + 15)")
         
-        // Turn 2: Heal another 3 HP
+        // Turn 2: Heal another 15 HP (5x3)
         engine.startEnemyTurn()
         engine.completeEnemyTurn()
-        assertEquals(16, damagedOgre.currentHealth.value,
-            "Turn 2: Ogre should be healed from 13 to 16")
+        assertEquals(40, damagedOgre.currentHealth.value,
+            "Turn 2: Ogre should be healed from 25 to 40 (25 + 15)")
         
-        // Turn 3: Heal another 3 HP
+        // Turn 3: Heal another 15 HP (5x3)
         engine.startEnemyTurn()
         engine.completeEnemyTurn()
-        assertEquals(19, damagedOgre.currentHealth.value,
-            "Turn 3: Ogre should be healed from 16 to 19")
+        assertEquals(55, damagedOgre.currentHealth.value,
+            "Turn 3: Ogre should be healed from 40 to 55 (40 + 15)")
     }
     
     @Test
@@ -168,8 +169,8 @@ class GreenWitchHealingIntegrationTest {
         assertTrue(healthAfterHealing > healthAfterAttack,
             "Green witch should heal the damaged goblin (before: $healthAfterAttack, after: $healthAfterHealing)")
         
-        // Healing amount should be min(3, missing health)
-        val expectedHealing = minOf(3, 20 - healthAfterAttack)
+        // Healing amount should be min(15 (5x3), missing health)
+        val expectedHealing = minOf(15, 20 - healthAfterAttack)
         assertEquals(healthAfterAttack + expectedHealing, healthAfterHealing,
             "Healing should be $expectedHealing HP")
     }

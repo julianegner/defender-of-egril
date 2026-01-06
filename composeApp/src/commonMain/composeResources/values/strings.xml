@@ -408,6 +408,7 @@
     <string name="can_summon">Can summon minions</string>
     <string name="can_heal">Can heal other enemies</string>
     <string name="can_disable_towers">Can disable towers</string>
+    <string name="disabled">Disabled</string>
     <string name="immune_to_acid">Immune to acid</string>
     <string name="immune_to_fireball">Immune to fireball</string>
 
@@ -671,6 +672,16 @@
     <string name="mine_on_river_warning_title">Cannot Place Mine on River</string>
     <string name="mine_on_river_warning_message">Dwarven mines cannot be placed on river tiles. Mines require solid ground and cannot be built on rafts. Please select a build area on land instead.</string>
 
+    <!-- Green Witch Info -->
+    <string name="green_witch_info_title">Green Witch Alert!</string>
+    <string name="green_witch_info_healing">The Green Witch can heal other enemies! At the end of each enemy turn, she heals all adjacent enemies by 5 times her level (e.g., level 2 witch heals 10 HP per turn).</string>
+    <string name="green_witch_info_strategy">She will move towards Ewhad if he has damaged health to heal him. Focus on defeating the Green Witch quickly or she will make battles much harder!</string>
+
+    <!-- Red Witch Info -->
+    <string name="red_witch_info_title">Red Witch Alert!</string>
+    <string name="red_witch_info_disabling">The Red Witch can disable your towers! She disables the nearest ready tower of her level or lower for 3 turns.</string>
+    <string name="red_witch_info_strategy">Disabled towers cannot attack and show "Disabled: XT" in their info panel. Upgrade your towers to higher levels or defeat the Red Witch quickly!</string>
+
     <!-- Mining Outcome Table Headers -->
     <string name="dig_outcome_name">Name</string>
     <string name="dig_outcome_chance">Chance (%)</string>
@@ -846,4 +857,6 @@
     <string name="level_status_unlocked">Unlocked</string>
     <string name="level_status_won">Won</string>
     <string name="level_status_unknown">Unknown</string>
+    <string name="show_testing_levels">Show Testing Levels</string>
+    <string name="test_level">Test Level</string>
 </resources>
