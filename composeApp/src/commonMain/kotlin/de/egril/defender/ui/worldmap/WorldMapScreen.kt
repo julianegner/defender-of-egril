@@ -55,6 +55,22 @@ fun WorldMapScreen(
     // Watch the setting for world map style
     val useLevelCards = AppSettings.useLevelCards.value
     
+    // Watch the setting for showing testing levels
+    val showTestingLevels = AppSettings.showTestingLevels.value
+    
+    // Filter world levels based on testingOnly flag
+    val visibleWorldLevels = remember(worldLevels, showTestingLevels) {
+        if (showTestingLevels) {
+            worldLevels
+        } else {
+            // Filter out levels marked as testing only
+            worldLevels.filter { worldLevel ->
+                val editorLevel = de.egril.defender.editor.EditorStorage.getLevel(worldLevel.level.editorLevelId ?: "")
+                editorLevel?.testingOnly != true
+            }
+        }
+    }
+    
     val scope = rememberCoroutineScope()
     
     // Start background music when entering world map
@@ -101,7 +117,7 @@ fun WorldMapScreen(
             if (useLevelCards) {
                 // Level cards view - grid of level cards
                 LevelCardsView(
-                    worldLevels = worldLevels,
+                    worldLevels = visibleWorldLevels,
                     onLevelSelected = onLevelSelected,
                     modifier = Modifier
                         .fillMaxSize()
@@ -110,7 +126,7 @@ fun WorldMapScreen(
             } else {
                 // Image-based World Map as background with clickable locations
                 ImageWorldMapView(
-                    worldLevels = worldLevels,
+                    worldLevels = visibleWorldLevels,
                     onLocationClicked = { location, levelsAtLocation ->
                         selectedLocation = location to levelsAtLocation
                     },

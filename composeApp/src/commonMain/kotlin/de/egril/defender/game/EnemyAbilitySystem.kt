@@ -59,16 +59,38 @@ class EnemyAbilitySystem(private val state: GameState) {
                     }
                 }
                 AttackerType.GREEN_WITCH -> {
-                    // Heal adjacent units
+                    // Heal adjacent units (5x level healing amount)
                     val adjacentPositions = attacker.position.value.getHexNeighbors()
+                    println("DEBUG: Green witch ${attacker.id} at ${attacker.position.value} checking ${adjacentPositions.size} adjacent positions")
+                    var healedCount = 0
                     for (adjacent in adjacentPositions) {
                         val adjacentEnemy = state.attackers.find { 
                             !it.isDefeated.value && it.id != attacker.id && it.position.value == adjacent 
                         }
                         if (adjacentEnemy != null) {
-                            val healAmount = min(attacker.level.value, adjacentEnemy.maxHealth - adjacentEnemy.currentHealth.value)
-                            adjacentEnemy.currentHealth.value += healAmount
+                            // Heal 5x witch level, but never exceed max health
+                            val healAmount = min(attacker.level.value * 5, adjacentEnemy.maxHealth - adjacentEnemy.currentHealth.value)
+                            println("DEBUG: Found ${adjacentEnemy.type} at $adjacent, HP ${adjacentEnemy.currentHealth.value}/${adjacentEnemy.maxHealth}, heal amount: $healAmount")
+                            if (healAmount > 0) {
+                                adjacentEnemy.currentHealth.value += healAmount
+                                healedCount++
+                                // Add visual healing effect
+                                state.healingEffects.add(
+                                    HealingEffect(
+                                        position = adjacent,
+                                        type = HealingEffectType.GREEN_WITCH,
+                                        healAmount = healAmount,
+                                        turnNumber = state.turnNumber.value
+                                    )
+                                )
+                                println("DEBUG: Healed ${adjacentEnemy.type} for $healAmount HP (new HP: ${adjacentEnemy.currentHealth.value})")
+                            }
                         }
+                    }
+                    if (healedCount > 0) {
+                        println("DEBUG: Green witch ${attacker.id} healed $healedCount enemies")
+                    } else {
+                        println("DEBUG: Green witch ${attacker.id} found no adjacent damaged enemies to heal")
                     }
                 }
                 AttackerType.RED_WITCH -> {
@@ -144,30 +166,63 @@ class EnemyAbilitySystem(private val state: GameState) {
     }
     
     /**
-     * Red Witch disables the nearest active tower of her level or less
+     * Red Witch disables adjacent towers (within 1 hex distance).
+     * Disables one tower per turn.
+     * Duration: 1 turn base, +1 turn for every 5 levels (level 5=2 turns, level 10=3 turns, level 20=4 turns, etc.)
+     * Can only disable towers where tower level <= witch level.
      */
     private fun disableNearestTower(witch: Attacker) {
-        // Find nearest tower that:
+        // Get adjacent positions (1 hex distance)
+        val adjacentPositions = witch.position.value.getHexNeighbors()
+        
+        println("DEBUG: Red witch ${witch.id} level ${witch.level.value} at ${witch.position.value} checking ${adjacentPositions.size} adjacent positions")
+        println("DEBUG: Adjacent positions: $adjacentPositions")
+        
+        // Log all towers in the game for debugging
+        println("DEBUG: All towers in game (${state.defenders.size}):")
+        state.defenders.forEach { tower ->
+            println("DEBUG:   ${tower.type} id=${tower.id} level=${tower.level.value} at ${tower.position.value} isReady=${tower.isReady} isDisabled=${tower.isDisabled.value}")
+        }
+        
+        // Find adjacent towers that:
         // - Is ready (not building)
         // - Is not already disabled
-        // - Has level <= witch level
-        val eligibleTowers = state.defenders.filter { tower ->
-            tower.isReady && 
-            !tower.isDisabled.value && 
-            tower.level.value <= witch.level.value
+        // - Is adjacent (within 1 hex)
+        // - Can be disabled by this witch (tower level <= witch level)
+        val adjacentTowers = state.defenders.filter { tower ->
+            val isReady = tower.isReady
+            val notDisabled = !tower.isDisabled.value
+            val isAdjacent = adjacentPositions.contains(tower.position.value)
+            val canDisable = tower.level.value <= witch.level.value
+            
+            println("DEBUG: Checking tower ${tower.type} id=${tower.id}: isReady=$isReady, notDisabled=$notDisabled, isAdjacent=$isAdjacent, canDisable=$canDisable (tower level ${tower.level.value} vs witch level ${witch.level.value})")
+            
+            isReady && notDisabled && isAdjacent && canDisable
         }
         
-        if (eligibleTowers.isEmpty()) return
+        println("DEBUG: Found ${adjacentTowers.size} eligible adjacent towers to disable")
         
-        // Find closest tower
-        val nearestTower = eligibleTowers.minByOrNull { tower ->
-            tower.position.value.distanceTo(witch.position.value)
+        if (adjacentTowers.isEmpty()) {
+            println("DEBUG: Red witch ${witch.id} found no eligible adjacent towers to disable")
+            return
         }
         
-        if (nearestTower != null) {
-            // Disable for 3 turns
-            nearestTower.isDisabled.value = true
-            nearestTower.disabledTurnsRemaining.value = 3
+        // Pick the first adjacent tower (any adjacent tower is valid)
+        val targetTower = adjacentTowers.firstOrNull()
+        
+        if (targetTower != null) {
+            // Calculate disable duration: 1 turn base + 1 per 5 levels
+            // +1 to account for immediate decrement at end of this turn
+            // Level 1-4: 2 turns (disabled for 1 player turn)
+            // Level 5-9: 3 turns (disabled for 2 player turns)
+            // Level 10-14: 4 turns (disabled for 3 player turns)
+            // Level 20-24: 5 turns (disabled for 4 player turns), etc.
+            val disableDuration = 1 + (witch.level.value / 5) + 1
+            
+            targetTower.isDisabled.value = true
+            targetTower.disabledTurnsRemaining.value = disableDuration
+            
+            println("DEBUG: Red witch ${witch.id} disabled ${targetTower.type} id=${targetTower.id} at ${targetTower.position.value} for $disableDuration turns")
         }
     }
     
@@ -213,5 +268,56 @@ class EnemyAbilitySystem(private val state: GameState) {
         
         // Return the first adjacent path position, or tower position if none found
         return adjacentPathPositions.firstOrNull() ?: towerPosition
+    }
+    
+    /**
+     * Find the nearest damaged enemy for Green Witch to move towards and heal.
+     * Prioritizes Ewhad if he exists and has damaged health.
+     */
+    fun findHealingTarget(witch: Attacker): Attacker? {
+        // First check if Ewhad exists and is damaged
+        val ewhad = state.attackers.find {
+            it.type == AttackerType.EWHAD &&
+            !it.isDefeated.value &&
+            it.currentHealth.value < it.maxHealth
+        }
+        
+        if (ewhad != null) {
+            return ewhad  // Always prioritize healing Ewhad
+        }
+        
+        // Otherwise, find nearest damaged enemy
+        val damagedEnemies = state.attackers.filter {
+            !it.isDefeated.value &&
+            it.id != witch.id &&
+            it.currentHealth.value < it.maxHealth
+        }
+        
+        if (damagedEnemies.isEmpty()) return null
+        
+        return damagedEnemies.minByOrNull { enemy ->
+            witch.position.value.distanceTo(enemy.position.value)
+        }
+    }
+    
+    /**
+     * Find the nearest tower that is not disabled for Red Witch to move towards and disable.
+     * Returns the tower's position if found.
+     * Only targets towers that the witch can actually disable (tower level <= witch level).
+     */
+    fun findTowerTarget(witch: Attacker): Position? {
+        // Find ready towers that are not disabled and can be disabled by this witch
+        val availableTowers = state.defenders.filter { tower ->
+            tower.isReady && !tower.isDisabled.value && tower.level.value <= witch.level.value
+        }
+        
+        if (availableTowers.isEmpty()) return null
+        
+        // Find the closest tower
+        val nearestTower = availableTowers.minByOrNull { tower ->
+            witch.position.value.distanceTo(tower.position.value)
+        }
+        
+        return nearestTower?.position?.value
     }
 }
