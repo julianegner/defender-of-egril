@@ -465,6 +465,20 @@ fun DefenderActionsInfo(defender: Defender) {
                 color = GamePlayColors.Warning
             )
         }
+    } else if (defender.isDisabled.value) {
+        // Show disabled status by Red Witch
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            de.egril.defender.ui.icon.LockIcon(size = 16.dp)
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(
+                "${stringResource(Res.string.disabled)}: ${defender.disabledTurnsRemaining.value}T",
+                style = MaterialTheme.typography.titleMedium,
+                color = GamePlayColors.ErrorDark,
+                fontWeight = FontWeight.Bold
+            )
+        }
     } else {
         Row(
             verticalAlignment = Alignment.CenterVertically
