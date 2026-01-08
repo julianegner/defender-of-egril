@@ -1,6 +1,7 @@
 {
   "id": "map_straight",
   "name": "Straight Map",
+  "nameKey": "map_straight_name",
   "width": 45,
   "height": 11,
   "readyToUse": true,

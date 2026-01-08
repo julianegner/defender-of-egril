@@ -9,6 +9,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntSize
@@ -26,6 +27,7 @@ import defender_of_egril.composeapp.generated.resources.*
 import de.egril.defender.ui.icon.TestTubeIcon
 import de.egril.defender.ui.icon.enemy.EnemyIcon
 import de.egril.defender.ui.editor.RiverFlowIndicator
+import kotlin.math.sqrt
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -47,6 +49,9 @@ fun GameGrid(
     var containerSize by remember { mutableStateOf(IntSize.Zero) }
     var contentSize by remember { mutableStateOf(IntSize.Zero) }
     var isInitialized by remember { mutableStateOf(false) }
+    
+    // State for hover position (for tower placement preview)
+    var hoveredPosition by remember { mutableStateOf<Position?>(null) }
 
     val hexSize = 40.dp  // Radius of hexagon (center to corner)
 
@@ -219,7 +224,12 @@ fun GameGrid(
                 selectedWizardAction = selectedWizardAction,
                 targetCircleInfo = targetCircleMap[position],
                 onClick = { onCellClick(position) },
-                hexSize = hexSize
+                hexSize = hexSize,
+                selectedDefenderType = selectedDefenderType,
+                hoveredPosition = hoveredPosition,
+                onHoverChange = { isHovering ->
+                    hoveredPosition = if (isHovering) position else null
+                }
             )
         }
 
@@ -283,7 +293,10 @@ fun GridCell(
     selectedWizardAction: WizardAction? = null,
     targetCircleInfo: TargetCircleInfo?,
     onClick: () -> Unit,
-    hexSize: androidx.compose.ui.unit.Dp = 48.dp
+    hexSize: androidx.compose.ui.unit.Dp = 48.dp,
+    selectedDefenderType: DefenderType? = null,
+    hoveredPosition: Position? = null,
+    onHoverChange: ((Boolean) -> Unit)? = null
 ) {
     val isDarkMode = de.egril.defender.ui.settings.AppSettings.isDarkMode.value
     
@@ -295,6 +308,9 @@ fun GridCell(
     val isRiverTile = gameState.level.isRiverTile(position)
     val defender = gameState.defenders.find { it.position.value == position }
     val attacker = gameState.attackers.find { it.position.value == position && !it.isDefeated.value }
+    
+    // Check for healing effects at this position
+    val healingEffect = gameState.healingEffects.find { it.position == position }
     
     // Determine the tile type for background image loading
     val riverTile = gameState.level.getRiverTile(position)
@@ -337,6 +353,49 @@ fun GridCell(
             }
         } ?: false
     } ?: false
+    
+    // Calculate hover preview for tower placement
+    val isHoveringForPreview = hoveredPosition == position && selectedDefenderType != null
+    // Include river tiles as buildable (for rafts)
+    val isBuildableTile = (isBuildArea || isBuildIsland || isRiverTile) && defender == null && attacker == null
+    val showPlacementPreview = isHoveringForPreview && isBuildableTile
+    
+    // Check if hovered position is buildable (needed for range preview calculation)
+    // Include river tiles as buildable (for rafts)
+    val hoveredPositionIsBuildable = if (hoveredPosition != null && selectedDefenderType != null) {
+        val hoveredIsBuildArea = gameState.level.isBuildArea(hoveredPosition)
+        val hoveredIsBuildIsland = gameState.level.isBuildIsland(hoveredPosition)
+        val hoveredIsRiver = gameState.level.isRiverTile(hoveredPosition)
+        val hoveredHasDefender = gameState.defenders.any { it.position.value == hoveredPosition }
+        val hoveredHasAttacker = gameState.attackers.any { it.position.value == hoveredPosition && !it.isDefeated.value }
+        (hoveredIsBuildArea || hoveredIsBuildIsland || hoveredIsRiver) && !hoveredHasDefender && !hoveredHasAttacker
+    } else {
+        false
+    }
+    
+    // Calculate range preview tiles when hovering over a buildable tile with a tower type selected
+    // Reuse the same logic as for existing towers (cellIsInRange)
+    val isInPreviewRange = if (showPlacementPreview) {
+        false  // The hovered tile itself is not in the range
+    } else if (selectedDefenderType != null && hoveredPosition != null && hoveredPositionIsBuildable) {
+        // Check if this tile is in range of the hovered position (same logic as cellIsInRange)
+        val distance = hoveredPosition.distanceTo(position)
+        val minRange = selectedDefenderType.minRange
+        val maxRange = selectedDefenderType.baseRange
+        
+        // Only show range on valid target tiles (path or river for area attacks, path only for single-target)
+        val hasAreaAttackPreview = selectedDefenderType.attackType == AttackType.AREA || 
+                                   selectedDefenderType.attackType == AttackType.LASTING
+        val isValidPreviewTargetTile = if (hasAreaAttackPreview) {
+            isOnPath || isRiverTile
+        } else {
+            isOnPath
+        }
+        
+        distance >= minRange && distance <= maxRange && isValidPreviewTargetTile
+    } else {
+        false
+    }
 
     // Base background color based on area type - ALWAYS visible
     // Build islands + strips adjacent to path allow tower placement
@@ -375,6 +434,11 @@ fun GridCell(
         }
 
         trap != null -> GamePlayColors.Trap.copy(alpha = 0.6f)  // Brown tint for trap
+        
+        // Tower placement preview - highlight the hovered build tile differently than range tiles
+        showPlacementPreview -> GamePlayColors.Yellow.copy(alpha = 0.4f)  // Light yellow for the build tile being hovered
+        isInPreviewRange -> GamePlayColors.Success.copy(alpha = 0.2f)  // Very light green for range preview tiles
+        
         isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> baseBackgroundColor.copy(alpha = 0.7f)
         isTargetSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> baseBackgroundColor.copy(alpha = 0.8f)
         else -> baseBackgroundColor  // No selection highlighting during placement or in initial phase
@@ -406,6 +470,10 @@ fun GridCell(
     }
 
     val borderColor = when {
+        // Tower placement preview - dashed borders for preview (we'll handle this with Canvas later)
+        showPlacementPreview -> GamePlayColors.Yellow  // Yellow border for hovered build tile
+        isInPreviewRange -> GamePlayColors.Success  // Green border for range preview tiles
+        
         cellIsInRange && isValidTargetTile && showRange && canPlaceTrapHere -> GamePlayColors.Success  // Green border for tiles in range (path or river for area attacks)
         isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> GamePlayColors.Yellow  // Yellow border for selected defender (not during initial building)
         isSpawnPoint -> GamePlayColors.WarningDark  // Darker orange border for spawn in dark mode
@@ -425,6 +493,8 @@ fun GridCell(
 
     // Thicker borders for important elements
     val borderWidth = when {
+        showPlacementPreview -> 6.dp  // Double thickness for hovered build tile
+        isInPreviewRange -> 3.dp  // Medium border for range preview
         isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> 5.dp  // Extra thick border for selected defender (not during initial building)
         cellIsInRange && isValidTargetTile && showRange && canPlaceTrapHere -> 4.dp  // Thick border for cells in range (path or river for area attacks)
         isSpawnPoint || isTarget -> 3.dp
@@ -432,29 +502,79 @@ fun GridCell(
         fieldEffect != null -> 3.dp  // Thick border for field effects
         else -> 0.dp  // No border for empty cells
     }
+    
+    // Flag to indicate dashed border (for preview only)
+    val useDashedBorder = showPlacementPreview || isInPreviewRange
 
     BaseGridCell(
         hexSize = hexSize,
         backgroundColor = backgroundColor,
-        borderColor = borderColor,
-        borderWidth = borderWidth,
+        borderColor = if (useDashedBorder) Color.Transparent else borderColor,  // Don't use regular border for dashed preview
+        borderWidth = if (useDashedBorder) 0.dp else borderWidth,
         backgroundPainter = tilePainter,
-        onClick = onClick
+        onClick = onClick,
+        onHover = onHoverChange
     ) {
         when {
             attacker != null -> {
                 // Use graphical icon for enemy units
                 // Key by id, position, level, and currentHealth to force recomposition when any changes
                 key(attacker.id, attacker.position.value.x, attacker.position.value.y, attacker.level, attacker.currentHealth.value) {
-                    EnemyIcon(attacker = attacker)
+                    Box(contentAlignment = Alignment.Center) {
+                        EnemyIcon(attacker = attacker)
+                        // Show healing effect overlay if present
+                        if (healingEffect != null) {
+                            // Show 3 green "+" symbols in different sizes
+                            // Positioned with smaller symbols higher than larger ones
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                // Large + symbol at center
+                                Text(
+                                    "+",
+                                    style = MaterialTheme.typography.headlineLarge,
+                                    color = androidx.compose.ui.graphics.Color(0xFF4CAF50), // Green
+                                    fontWeight = FontWeight.Bold
+                                )
+                                // Medium + symbol - offset left and higher
+                                Text(
+                                    "+",
+                                    style = MaterialTheme.typography.headlineMedium,
+                                    color = androidx.compose.ui.graphics.Color(0xFF4CAF50), // Green
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.offset(x = (-12).dp, y = (-8).dp)
+                                )
+                                // Small + symbol - offset right and even higher
+                                Text(
+                                    "+",
+                                    style = MaterialTheme.typography.headlineSmall,
+                                    color = androidx.compose.ui.graphics.Color(0xFF4CAF50), // Green
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.offset(x = 12.dp, y = (-16).dp)
+                                )
+                            }
+                        }
+                    }
                 }
             }
 
             defender != null -> {
                 // Use graphical icon for towers
                 // Key by id, position, level and actionsRemaining to force recomposition when these change
-                key(defender.id, defender.position.value.x, defender.position.value.y, defender.level.value, defender.actionsRemaining.value, defender.buildTimeRemaining.value) {
-                    TowerIcon(defender = defender, gameState = gameState)
+                key(defender.id, defender.position.value.x, defender.position.value.y, defender.level.value, defender.actionsRemaining.value, defender.buildTimeRemaining.value, defender.isDisabled.value, defender.disabledTurnsRemaining.value) {
+                    Box(contentAlignment = Alignment.Center) {
+                        TowerIcon(defender = defender, gameState = gameState)
+                        // Show red "XT" overlay if tower is disabled by Red Witch
+                        if (defender.isDisabled.value && defender.disabledTurnsRemaining.value > 0) {
+                            Text(
+                                "${defender.disabledTurnsRemaining.value}T",
+                                style = MaterialTheme.typography.headlineMedium,
+                                color = Color.Red,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
                 }
             }
 
@@ -551,6 +671,21 @@ fun GridCell(
             }
         }
         
+        // Show half-transparent tower icon on hovered build tile
+        if (showPlacementPreview && selectedDefenderType != null) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .graphicsLayer(alpha = 0.5f),  // 50% transparency
+                contentAlignment = Alignment.Center
+            ) {
+                TowerTypeIcon(
+                    defenderType = selectedDefenderType,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+        }
+        
         // Draw target circles AFTER other content so they appear on top
         // Inner circles on central target tile, outer ring segments on neighbor tiles
         targetCircleInfo?.let { info ->
@@ -641,6 +776,49 @@ fun GridCell(
                         }
                     }
                 }
+            }
+        }
+        
+        // Draw dashed border for tower placement preview
+        if (useDashedBorder) {
+            Canvas(modifier = Modifier
+                .matchParentSize()
+                .zIndex(12f)) {
+                val sqrt3 = sqrt(3.0).toFloat()
+                val centerX = size.width / 2f
+                val centerY = size.height / 2f
+                val radius = minOf(size.width, size.height) / 2f
+                
+                // Create hexagon path
+                val path = androidx.compose.ui.graphics.Path().apply {
+                    // Top point
+                    moveTo(centerX, centerY - radius)
+                    // Top-right
+                    lineTo(centerX + radius * sqrt3 / 2f, centerY - radius / 2f)
+                    // Bottom-right
+                    lineTo(centerX + radius * sqrt3 / 2f, centerY + radius / 2f)
+                    // Bottom point
+                    lineTo(centerX, centerY + radius)
+                    // Bottom-left
+                    lineTo(centerX - radius * sqrt3 / 2f, centerY + radius / 2f)
+                    // Top-left
+                    lineTo(centerX - radius * sqrt3 / 2f, centerY - radius / 2f)
+                    // Close the path
+                    close()
+                }
+                
+                // Draw dashed border
+                drawPath(
+                    path = path,
+                    color = borderColor,
+                    style = androidx.compose.ui.graphics.drawscope.Stroke(
+                        width = borderWidth.toPx(),
+                        pathEffect = androidx.compose.ui.graphics.PathEffect.dashPathEffect(
+                            intervals = floatArrayOf(10f, 5f),  // 10px dash, 5px gap
+                            phase = 0f
+                        )
+                    )
+                )
             }
         }
     }

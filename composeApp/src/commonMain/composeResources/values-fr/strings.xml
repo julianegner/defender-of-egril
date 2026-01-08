@@ -107,6 +107,7 @@
     
     <!-- Load Game Screen -->
     <string name="no_saved_games">Aucune partie sauvegardée trouvée</string>
+    <string name="savegame_folder">dossier de sauvegarde:</string>
     
     <!-- Rules Screen -->
     <string name="how_to_play">Comment jouer</string>
@@ -407,6 +408,7 @@
     <string name="can_summon">Peut invoquer des serviteurs</string>
     <string name="can_heal">Peut soigner d'autres ennemis</string>
     <string name="can_disable_towers">Peut désactiver les tours</string>
+    <string name="disabled">Désactivé</string>
     <string name="immune_to_acid">Immunisé contre l'acide</string>
     <string name="immune_to_fireball">Immunisé contre la boule de feu</string>
 
@@ -414,7 +416,7 @@
     <string name="tutorial_welcome_title">Bienvenue dans Defender of Egril!</string>
     <string name="tutorial_welcome">Ceci est un jeu de défense de tours. Votre objectif est d'empêcher les ennemis d'atteindre la cible en construisant des tours défensives.</string>
     <string name="tutorial_resources_title">Ressources</string>
-    <string name="tutorial_resources">Vous avez des pièces pour construire des tours et des points de vie. Les ennemis faibles coûtent 1 PV, mais les ennemis puissants (sorciers, sorcières, mages maléfiques, démons, dragons) coûtent des PV égaux à leur niveau. Ewhad coûte tous vos PV!</string>
+    <string name="tutorial_resources">Vous avez des pièces pour construire des tours et des points de vie. Lorsque vous battez des ennemis, vous gagnez des pièces égales à leur récompense de base multipliée par leur niveau. Les ennemis faibles coûtent 1 PV, mais les ennemis puissants (sorciers, sorcières, mages maléfiques, démons, dragons) coûtent des PV égaux à leur niveau. Ewhad coûte tous vos PV!</string>
     <string name="tutorial_towers_title">Tours disponibles</string>
     <string name="tutorial_towers">Tour à Piques: Courte portée, bon marché. Tour de Lance: Portée moyenne. Tour d'Arc: Longue portée. Choisissez judicieusement selon votre stratégie!</string>
     <string name="tutorial_build_title">Construire des tours</string>
@@ -606,7 +608,7 @@
     
     <!-- End Turn Confirmation Dialog -->
     <string name="end_turn_confirmation_title">Terminer le tour ?</string>
-    <string name="end_turn_confirmation_message">Certaines de vos tours ont des points d'action inutilisés. Êtes-vous sûr de vouloir terminer votre tour ?</string>
+    <string name="end_turn_confirmation_message">Vous avez des tours avec des points d'action inutilisés et des ennemis à portée, ou des mines avec des actions inutilisées. Êtes-vous sûr de vouloir terminer votre tour ?</string>
     <string name="end_turn_confirm">Terminer le tour</string>
     
     <!-- Magical Trap Feature -->
@@ -668,6 +670,16 @@
     <!-- Mine on River Warning -->
     <string name="mine_on_river_warning_title">Impossible de placer une mine sur la rivière</string>
     <string name="mine_on_river_warning_message">Les mines naines ne peuvent pas être placées sur les cases de rivière. Les mines nécessitent un sol solide et ne peuvent pas être construites sur des radeaux. Veuillez sélectionner une zone de construction sur la terre ferme.</string>
+
+    <!-- Green Witch Info -->
+    <string name="green_witch_info_title">Alerte Sorcière Verte !</string>
+    <string name="green_witch_info_healing">La Sorcière Verte peut soigner d'autres ennemis ! À la fin de chaque tour ennemi, elle soigne tous les ennemis adjacents de 5 fois son niveau (ex : sorcière niveau 2 soigne 10 PV par tour).</string>
+    <string name="green_witch_info_strategy">Elle se dirigera vers Ewhad s'il est blessé pour le soigner. Battez la Sorcière Verte rapidement ou les batailles seront beaucoup plus difficiles !</string>
+
+    <!-- Red Witch Info -->
+    <string name="red_witch_info_title">Alerte Sorcière Rouge !</string>
+    <string name="red_witch_info_disabling">La Sorcière Rouge peut désactiver vos tours ! Elle désactive la tour prête la plus proche de son niveau ou inférieur pendant 3 tours.</string>
+    <string name="red_witch_info_strategy">Les tours désactivées ne peuvent pas attaquer et affichent "Désactivé : XT" dans leur panneau d'information. Améliorez vos tours à des niveaux supérieurs ou battez la Sorcière Rouge rapidement !</string>
 
     <!-- Mining Outcome Table Headers -->
     <string name="dig_outcome_name">Nom</string>
@@ -739,4 +751,113 @@
     <string name="editor_info_world_map_features">Définir les coordonnées X/Y pour chaque niveau - Créer des connexions entre les niveaux (route ou mer) - Connecter automatiquement les niveaux en fonction des dépendances - Configurer les styles visuels de connexion - Définir des points de cheminement pour les chemins de connexion</string>
     <string name="editor_info_tips_title">Conseils</string>
     <string name="editor_info_tips_text">Sauvegardez fréquemment pour éviter de perdre du travail - Testez vos niveaux dans le jeu pour vous assurer qu'ils sont équilibrés - Utilisez les niveaux existants comme modèles - Les cartes peuvent être réutilisées sur plusieurs niveaux - La séquence détermine quels niveaux sont jouables</string>
+
+    <string name="game_sticker_tagline">Open Source Turn Based Fantasy Tower Defense Game</string>
+    
+    <!-- Level Names -->
+    <string name="level_welcome_to_defender_of_egril_title">Bienvenue à Defender of Egril</string>
+    <string name="level_welcome_to_defender_of_egril_subtitle">Tutoriel</string>
+    <string name="level_the_first_wave_title">La Première Vague</string>    <string name="level_mixed_forces_title">Forces Mixtes</string>    <string name="level_the_ork_invasion_title">L\'Invasion Ork</string>    <string name="level_dark_magic_rises_title">La Magie Noire Se Lève</string>    <string name="level_the_final_stand_title">La Dernière Bataille</string>    <string name="level_the_plains_title">Les Plaines</string>
+    <string name="level_the_plains_subtitle">Bataille en Plein Champ</string>
+    <string name="level_the_spiral_challenge_title">Le Défi de la Spirale</string>
+    <string name="level_the_spiral_challenge_subtitle">Naviguez dans la Spirale</string>
+    <string name="level_the_dance_title">La Danse</string>
+    <string name="level_the_dance_subtitle">Suivez le Rythme</string>
+    <string name="level_the_rush_title">La Ruée</string>
+    <string name="level_the_rush_subtitle">Défendez Contre la Ruée</string>
+    <string name="level_the_woods_first_incursion_title">Les Bois - Première Incursion</string>
+    <string name="level_the_woods_first_incursion_subtitle">Gardez les Sentiers de la Forêt</string>
+    <string name="level_the_woods_full_assault_title">Les Bois - Assaut Total</string>
+    <string name="level_the_woods_full_assault_subtitle">Libérez Toutes les Défenses</string>
+    <string name="level_the_fast_and_furious_title">Rapide et Furieux</string>
+    <string name="level_the_fast_and_furious_subtitle">Défi à Un PV</string>
+    <string name="level_the_cross_title">La Croix</string>
+    <string name="level_the_cross_subtitle">Quatre Chemins Divisés</string>
+    <string name="level_the_winding_path_title">Le Chemin Sinueux</string>
+    <string name="level_the_winding_path_subtitle">Une Route Longue et Tortueuse</string>        <string name="level_the_fortress_title">La Forteresse %s</string>
+    <string name="level_the_fortress_1_first_attacks_subtitle">Premières Attaques</string>    <string name="level_the_fortress_2_orks_marching_subtitle">Les Orks Marchent</string>    <string name="level_the_fortress_3_necromancer_subtitle">Le Nécromancien</string>    <string name="level_the_fortress_4_magic_assault_subtitle">Assaut Magique</string>    <string name="level_the_fortress_5_mighty_forces_subtitle">Forces Puissantes</string>
+    <string name="level_ewhads_challenge_title">Défi d\'Ewhad</string>    <string name="level_the_creek_title">Le Ruisseau</string>    <string name="level_the_island_title">L\'Île</string>    <string name="level_the_river_title">La Rivière</string>    <string name="level_creek_valley_title">Vallée du Ruisseau</string>    <string name="level_maelstrom_title">Maelström</string>    
+    <!-- Map Names -->
+    <string name="map_tutorial_name">Carte Tutoriel</string>
+    <string name="map_straight_name">Carte Droite</string>
+    <string name="map_plains_name">Les Plaines</string>
+    <string name="map_spiral_name">Carte Défi de la Spirale</string>
+    <string name="map_dance_name">La Danse</string>
+    <string name="map_the_rush_name">La Ruée</string>
+    <string name="map_woods_name">Les Bois</string>
+    <string name="map_fast_and_furious_name">Carte Rapide et Furieux</string>
+    <string name="map_the_cross_name">La Croix</string>
+    <string name="map_winding_path_name">Le Chemin Sinueux</string>
+    <string name="map_the_fortress_name">La Forteresse</string>
+    <string name="map_ewhads_challenge_name">Défi d\'Ewhad</string>
+    <string name="map_the_creek_name">Le Ruisseau</string>
+    <string name="map_the_island_name">L\'Île</string>
+    <string name="map_the_river_name">La Rivière</string>
+    <string name="map_creek_valley_name">Vallée du Ruisseau</string>
+    <string name="map_the_maelstrom_name">Le Maelström</string>
+    
+    <!-- World Map Location Names -->
+    <string name="location_tutorial_name">Tutoriel</string>
+    <string name="location_the_beginning_name">Le Début</string>
+    <string name="location_the_plains_name">Les Plaines</string>
+    <string name="location_the_spiral_name">La Spirale</string>
+    <string name="location_the_dance_name">La Danse</string>
+    <string name="location_the_village_name">Le Village</string>
+    <string name="location_the_woods_name">Les Bois</string>
+    <string name="location_the_fast_name">Les Rapides</string>
+    <string name="location_the_cross_name">La Croix</string>
+    <string name="location_the_winding_path_name">Le Chemin Sinueux</string>
+    <string name="location_the_fortress_name">La Forteresse</string>
+    <string name="location_ewhads_challege_name">Défi d\'Ewhad</string>
+    <string name="location_the_creek_name">Le Ruisseau</string>
+    <string name="location_the_island_name">L\'Île</string>
+    <string name="location_the_river_name">La Rivière</string>
+    <string name="location_creek_valley_name">Vallée du Ruisseau</string>
+    <string name="location_the_maelstrom_name">Le Maelström</string>
+    <!-- Player Profile Strings -->
+    <string name="player_create_title">Créer un nouveau joueur</string>
+    <string name="player_create_prompt">Entrez votre nom de joueur</string>
+    <string name="player_edit_title">Modifier le nom du joueur</string>
+    <string name="player_edit_prompt">Entrez un nouveau nom pour ce joueur</string>
+    <string name="player_name">Nom du joueur</string>
+    <string name="player_name_empty_error">Le nom du joueur ne peut pas être vide</string>
+    <string name="player_name_too_long_error">Le nom du joueur est trop long (max. 50 caractères)</string>
+    <string name="player_name_exists_error">Un joueur avec ce nom existe déjà</string>
+    <string name="player_select_title">Sélectionner un joueur</string>
+    <string name="player_no_profiles">Aucun profil de joueur trouvé. Créez-en un nouveau pour commencer à jouer!</string>
+    <string name="player_last_played">Dernière partie: %s</string>
+    <string name="player_new">Nouveau joueur</string>
+    <string name="player_delete_confirm_title">Supprimer le joueur?</string>
+    <string name="player_delete_confirm_message">Êtes-vous sûr de vouloir supprimer le joueur "%s"? Tous les progrès et les fichiers sauvegardés de ce joueur seront définitivement supprimés.</string>
+    <string name="switch_player">Changer de joueur</string>
+
+    <!-- Repository Data Error -->
+    <string name="error_missing_repository_data_title">Données de jeu manquantes</string>
+    <string name="error_missing_repository_data_message">Les fichiers de données de jeu critiques sont manquants ou vides. Le jeu ne peut pas démarrer sans ces fichiers.</string>
+    <string name="error_missing_repository_data_categories">Catégories de données manquantes:</string>
+    <string name="error_missing_repository_data_reinstall">Veuillez réinstaller le jeu ou restaurer les données de jeu depuis le menu Paramètres.</string>
+
+
+    <!-- Game Data Transfer Strings -->
+    <string name="game_data_transfer">Transfert des données de jeu</string>
+    <string name="game_data_transfer_description">Inclure la progression du joueur (niveaux gagnés/déverrouillés) lors du téléchargement des sauvegardes</string>
+    <string name="export_game_progress">Exporter la progression du jeu</string>
+    <string name="export_game_progress_description">Télécharger uniquement votre progression de niveau sans données de sauvegarde</string>
+    <string name="import_game_progress">Importer la progression du jeu</string>
+
+    <!-- World Map Conflict Strings -->
+    <string name="world_map_conflict_title">Conflit de progression de la carte du monde</string>
+    <string name="world_map_conflict_message">La progression de la carte du monde dans ce fichier de sauvegarde diffère de votre progression actuelle. Quelle version souhaitez-vous conserver?</string>
+    <string name="world_map_conflict_differences">Différences:</string>
+    <string name="world_map_conflict_level">Niveau</string>
+    <string name="world_map_conflict_saved">Sauvegardé</string>
+    <string name="world_map_conflict_current">Actuel</string>
+    <string name="world_map_conflict_use_saved">Utiliser la progression sauvegardée</string>
+    <string name="world_map_conflict_use_current">Conserver la progression actuelle</string>
+    <string name="level_status_locked">Verrouillé</string>
+    <string name="level_status_unlocked">Déverrouillé</string>
+    <string name="level_status_won">Gagné</string>
+    <string name="level_status_unknown">Inconnu</string>
+    <string name="show_testing_levels">Afficher les niveaux de test</string>
+    <string name="test_level">Niveau de test</string>
 </resources>

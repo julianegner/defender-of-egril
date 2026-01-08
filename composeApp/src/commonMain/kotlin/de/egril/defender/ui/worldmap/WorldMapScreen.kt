@@ -42,7 +42,10 @@ fun WorldMapScreen(
     onLoadGame: () -> Unit,
     onCheatCode: ((String) -> Boolean)? = null,  // Callback for processing cheat codes, returns true if code was valid
     onReloadWorldMap: (() -> Unit)? = null,  // Callback to reload world map after syncing repository files
-    checkForNewRepositoryData: Boolean = true  // Set to false in tests to avoid repository checks
+    checkForNewRepositoryData: Boolean = true,  // Set to false in tests to avoid repository checks
+    onSwitchPlayer: (() -> Unit)? = null,  // Callback to switch player
+    onEditPlayerName: (() -> Unit)? = null,  // Callback to edit player name
+    currentPlayerName: String? = null  // Current player name for display
 ) {
     var showCheatDialog by remember { mutableStateOf(false) }
     var showNewRepoDataDialog by remember { mutableStateOf(false) }
@@ -51,6 +54,22 @@ fun WorldMapScreen(
     
     // Watch the setting for world map style
     val useLevelCards = AppSettings.useLevelCards.value
+    
+    // Watch the setting for showing testing levels
+    val showTestingLevels = AppSettings.showTestingLevels.value
+    
+    // Filter world levels based on testingOnly flag
+    val visibleWorldLevels = remember(worldLevels, showTestingLevels) {
+        if (showTestingLevels) {
+            worldLevels
+        } else {
+            // Filter out levels marked as testing only
+            worldLevels.filter { worldLevel ->
+                val editorLevel = de.egril.defender.editor.EditorStorage.getLevel(worldLevel.level.editorLevelId ?: "")
+                editorLevel?.testingOnly != true
+            }
+        }
+    }
     
     val scope = rememberCoroutineScope()
     
@@ -98,7 +117,7 @@ fun WorldMapScreen(
             if (useLevelCards) {
                 // Level cards view - grid of level cards
                 LevelCardsView(
-                    worldLevels = worldLevels,
+                    worldLevels = visibleWorldLevels,
                     onLevelSelected = onLevelSelected,
                     modifier = Modifier
                         .fillMaxSize()
@@ -107,7 +126,7 @@ fun WorldMapScreen(
             } else {
                 // Image-based World Map as background with clickable locations
                 ImageWorldMapView(
-                    worldLevels = worldLevels,
+                    worldLevels = visibleWorldLevels,
                     onLocationClicked = { location, levelsAtLocation ->
                         selectedLocation = location to levelsAtLocation
                     },
@@ -124,29 +143,116 @@ fun WorldMapScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Title and subtitle - clickable for cheat code access (less obvious than a button)
-                Column(
-                    modifier = Modifier
-                        .then(
-                            if (onCheatCode != null) {
-                                Modifier.clickable { showCheatDialog = true }
-                            } else {
-                                Modifier
+                // Title/subtitle area and player info
+                // In Image Map View: Stack player info below title
+                // In Level Cards View: Show player info in same row with spacing
+                if (useLevelCards) {
+                    // Level Cards View: Title and player info in same row
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        // Title and subtitle - clickable for cheat code access
+                        Column(
+                            modifier = Modifier.then(
+                                if (onCheatCode != null) {
+                                    Modifier.clickable { showCheatDialog = true }
+                                } else {
+                                    Modifier
+                                }
+                            )
+                        ) {
+                            Text(
+                                text = stringResource(Res.string.world_map_title),
+                                style = MaterialTheme.typography.titleLarge,
+                                color = MaterialTheme.colorScheme.onBackground
+                            )
+                            Text(
+                                text = stringResource(Res.string.world_map_subtitle),
+                                style = MaterialTheme.typography.titleMedium.copy(
+                                    fontStyle = FontStyle.Italic
+                                ),
+                                color = MaterialTheme.colorScheme.onBackground
+                            )
+                        }
+                        
+                        // Player name and switch button (if available)
+                        if (currentPlayerName != null && onSwitchPlayer != null && onEditPlayerName != null) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Text(
+                                    text = currentPlayerName,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.clickable { onEditPlayerName() }
+                                )
+                                
+                                TextButton(
+                                    onClick = onSwitchPlayer,
+                                    modifier = Modifier.height(28.dp)
+                                ) {
+                                    Text(
+                                        text = stringResource(Res.string.switch_player),
+                                        style = MaterialTheme.typography.labelSmall
+                                    )
+                                }
                             }
-                        )
-                ) {
-                    Text(
-                        text = stringResource(Res.string.world_map_title),
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-                    Text(
-                        text = stringResource(Res.string.world_map_subtitle),
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            fontStyle = FontStyle.Italic
-                        ),
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
+                        }
+                    }
+                } else {
+                    // Image Map View: Title and player info stacked
+                    Column{
+                        Column(
+                            modifier = Modifier.then(
+                                if (onCheatCode != null) {
+                                    Modifier.clickable { showCheatDialog = true }
+                                } else {
+                                    Modifier
+                                }
+                            )
+                        ) {
+                            Text(
+                                text = stringResource(Res.string.world_map_title),
+                                style = MaterialTheme.typography.titleLarge,
+                                color = MaterialTheme.colorScheme.onBackground
+                            )
+                            Text(
+                                text = stringResource(Res.string.world_map_subtitle),
+                                style = MaterialTheme.typography.titleMedium.copy(
+                                    fontStyle = FontStyle.Italic
+                                ),
+                                color = MaterialTheme.colorScheme.onBackground
+                            )
+                        }
+                        
+                        // Player name and switch button (if available) - shown below title
+                        if (currentPlayerName != null && onSwitchPlayer != null && onEditPlayerName != null) {
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Text(
+                                    text = currentPlayerName,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.clickable { onEditPlayerName() }
+                                )
+                                
+                                TextButton(
+                                    onClick = onSwitchPlayer,
+                                    modifier = Modifier.height(28.dp)
+                                ) {
+                                    Text(
+                                        text = stringResource(Res.string.switch_player),
+                                        style = MaterialTheme.typography.labelSmall
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
                 
                 // Difficulty and Settings button

@@ -55,6 +55,12 @@ yarn.lock
 # UI Test Screenshots (regenerated during test runs)
 test-screenshots/*.png
 test-screenshots/*.jpg
+test-screenshots/playwright/
+
+# Playwright
+playwright-report/
+test-results/
+package-lock.json
 
 # Scripts directory - generated files
 scripts/node_modules/

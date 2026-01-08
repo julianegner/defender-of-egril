@@ -17,6 +17,10 @@ object EditorJsonSerializer {
             "\"$pos\": \"${type.name}\""
         }
         
+        val nameKeyJson = if (map.nameKey != null) {
+            ",\n  \"nameKey\": \"${map.nameKey}\""
+        } else ""
+        
         val worldMapPositionJson = if (map.worldMapPosition != null) {
             ",\n  \"worldMapPosition\": {\"x\": ${map.worldMapPosition.x}, \"y\": ${map.worldMapPosition.y}}"
         } else ""
@@ -30,7 +34,7 @@ object EditorJsonSerializer {
         
         return """{
   "id": "${map.id}",
-  "name": "${map.name}",
+  "name": "${map.name}"$nameKeyJson,
   "width": ${map.width},
   "height": ${map.height},
   "readyToUse": ${map.readyToUse}$worldMapPositionJson,
@@ -44,6 +48,11 @@ object EditorJsonSerializer {
         try {
             val id = JsonUtils.extractValue(json, "id")
             val name = JsonUtils.extractValue(json, "name")
+            val nameKey = try {
+                JsonUtils.extractValue(json, "nameKey").takeIf { it.isNotEmpty() }
+            } catch (e: Exception) {
+                null  // Optional field - null if not present
+            }
             val width = JsonUtils.extractValue(json, "width").toInt()
             val height = JsonUtils.extractValue(json, "height").toInt()
             val readyToUse = try {
@@ -131,7 +140,7 @@ object EditorJsonSerializer {
                 // River tiles are optional, continue without them
             }
             
-            return EditorMap(id, name, width, height, tiles, readyToUse, worldMapPosition, riverTiles)
+            return EditorMap(id, name, nameKey, width, height, tiles, readyToUse, worldMapPosition, riverTiles)
         } catch (e: Exception) {
             println("Error deserializing map: ${e.message}")
             return null
@@ -156,8 +165,22 @@ object EditorJsonSerializer {
         
         val prerequisitesJson = level.prerequisites.joinToString(", ") { "\"$it\"" }
         
+        val titleKeyJson = if (level.titleKey != null) {
+            ",\n  \"titleKey\": \"${level.titleKey}\""
+        } else ""
+        
+        val subtitleKeyJson = if (level.subtitleKey != null) {
+            ",\n  \"subtitleKey\": \"${level.subtitleKey}\""
+        } else ""
+        
         val requiredCountJson = if (level.requiredPrerequisiteCount != null) {
             ",\n  \"requiredPrerequisiteCount\": ${level.requiredPrerequisiteCount}"
+        } else {
+            ""
+        }
+        
+        val testingOnlyJson = if (level.testingOnly) {
+            ",\n  \"testingOnly\": true"
         } else {
             ""
         }
@@ -165,8 +188,8 @@ object EditorJsonSerializer {
         return """{
   "id": "${level.id}",
   "mapId": "${level.mapId}",
-  "title": "${level.title}",
-  "subtitle": "${level.subtitle}",
+  "title": "${level.title}"$titleKeyJson,
+  "subtitle": "${level.subtitle}"$subtitleKeyJson,
   "startCoins": ${level.startCoins},
   "startHealthPoints": ${level.startHealthPoints},
   "enemySpawns": [
@@ -176,7 +199,7 @@ object EditorJsonSerializer {
   "waypoints": [
     $waypointsJson
   ],
-  "prerequisites": [$prerequisitesJson]$requiredCountJson
+  "prerequisites": [$prerequisitesJson]$requiredCountJson$testingOnlyJson
 }"""
     }
     
@@ -185,7 +208,17 @@ object EditorJsonSerializer {
             val id = JsonUtils.extractValue(json, "id")
             val mapId = JsonUtils.extractValue(json, "mapId")
             val title = JsonUtils.extractValue(json, "title")
+            val titleKey = try {
+                JsonUtils.extractValue(json, "titleKey").takeIf { it.isNotEmpty() }
+            } catch (e: Exception) {
+                null  // Optional field - null if not present
+            }
             val subtitle = JsonUtils.extractValue(json, "subtitle")
+            val subtitleKey = try {
+                JsonUtils.extractValue(json, "subtitleKey").takeIf { it.isNotEmpty() }
+            } catch (e: Exception) {
+                null  // Optional field - null if not present
+            }
             val startCoins = JsonUtils.extractValue(json, "startCoins").toInt()
             val startHealthPoints = JsonUtils.extractValue(json, "startHealthPoints").toInt()
             
@@ -333,7 +366,18 @@ object EditorJsonSerializer {
                 null
             }
             
-            return EditorLevel(id, mapId, title, subtitle, startCoins, startHealthPoints, spawns, towers, waypoints, prerequisites, requiredPrerequisiteCount)
+            // Parse testingOnly (optional, defaults to false)
+            val testingOnly = if (json.contains("\"testingOnly\"")) {
+                try {
+                    JsonUtils.extractValue(json, "testingOnly").toBoolean()
+                } catch (e: Exception) {
+                    false
+                }
+            } else {
+                false
+            }
+            
+            return EditorLevel(id, mapId, title, titleKey, subtitle, subtitleKey, startCoins, startHealthPoints, spawns, towers, waypoints, prerequisites, requiredPrerequisiteCount, testingOnly)
         } catch (e: Exception) {
             println("Error deserializing level: ${e.message}")
             return null
@@ -366,9 +410,13 @@ object EditorJsonSerializer {
     fun serializeWorldMapData(data: WorldMapData): String {
         val locationsJson = data.locations.joinToString(",\n    ") { location ->
             val levelIdsJson = location.levelIds.joinToString(", ") { "\"$it\"" }
+            val nameKeyJson = if (location.nameKey != null) {
+                """,
+      "nameKey": "${location.nameKey}""""
+            } else ""
             """{
       "id": "${location.id}",
-      "name": "${location.name}",
+      "name": "${location.name}"$nameKeyJson,
       "position": {"x": ${location.position.x}, "y": ${location.position.y}},
       "levelIds": [$levelIdsJson]
     }"""
@@ -422,6 +470,11 @@ object EditorJsonSerializer {
                     
                     val id = JsonUtils.extractValue(entry, "id")
                     val name = JsonUtils.extractValue(entry, "name")
+                    val nameKey = try {
+                        JsonUtils.extractValue(entry, "nameKey").takeIf { it.isNotEmpty() }
+                    } catch (e: Exception) {
+                        null  // Optional field - null if not present
+                    }
                     
                     // Parse position
                     val posSection = entry.substringAfter("\"position\": {").substringBefore("}")
@@ -441,7 +494,7 @@ object EditorJsonSerializer {
                         }
                     }
                     
-                    locations.add(WorldMapLocationData(id, name, position, levelIds))
+                    locations.add(WorldMapLocationData(id, name, nameKey, position, levelIds))
                 }
             }
             
