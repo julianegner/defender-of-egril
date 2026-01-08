@@ -107,6 +107,7 @@
     
     <!-- Load Game Screen -->
     <string name="no_saved_games">No se encontraron partidas guardadas</string>
+    <string name="savegame_folder">carpeta de guardados:</string>
     
     <!-- Rules Screen -->
     <string name="how_to_play">Cómo jugar</string>
@@ -405,6 +406,7 @@
     <string name="can_summon">Puede invocar secuaces</string>
     <string name="can_heal">Puede curar otros enemigos</string>
     <string name="can_disable_towers">Puede desactivar torres</string>
+    <string name="disabled">Desactivado</string>
     <string name="immune_to_acid">Inmune al ácido</string>
     <string name="immune_to_fireball">Inmune a la bola de fuego</string>
 
@@ -412,7 +414,7 @@
     <string name="tutorial_welcome_title">¡Bienvenido a Defender of Egril!</string>
     <string name="tutorial_welcome">Este es un juego de defensa de torres. Tu objetivo es evitar que los enemigos lleguen al objetivo construyendo torres defensivas.</string>
     <string name="tutorial_resources_title">Recursos</string>
-    <string name="tutorial_resources">Tienes monedas para construir torres y puntos de salud. Los enemigos débiles cuestan 1 PS, pero los enemigos poderosos (magos, brujas, magos malvados, demonios, dragones) cuestan PS igual a su nivel. ¡Ewhad cuesta todos tus PS!</string>
+    <string name="tutorial_resources">Tienes monedas para construir torres y puntos de salud. Cuando derrotas enemigos, ganas monedas iguales a su recompensa base multiplicada por su nivel. Los enemigos débiles cuestan 1 PS, pero los enemigos poderosos (magos, brujas, magos malvados, demonios, dragones) cuestan PS igual a su nivel. ¡Ewhad cuesta todos tus PS!</string>
     <string name="tutorial_towers_title">Torres disponibles</string>
     <string name="tutorial_towers">Torre de Púas: Corto alcance, barata. Torre de Lanza: Alcance medio. Torre de Arco: Largo alcance. ¡Elige sabiamente según tu estrategia!</string>
     <string name="tutorial_build_title">Construir torres</string>
@@ -606,7 +608,7 @@
     
     <!-- End Turn Confirmation Dialog -->
     <string name="end_turn_confirmation_title">¿Terminar turno?</string>
-    <string name="end_turn_confirmation_message">Tienes torres con puntos de acción sin usar. ¿Estás seguro de que quieres terminar tu turno?</string>
+    <string name="end_turn_confirmation_message">Tienes torres con puntos de acción sin usar y enemigos al alcance, o minas con acciones sin usar. ¿Estás seguro de que quieres terminar tu turno?</string>
     <string name="end_turn_confirm">Terminar turno</string>
     
     <!-- Magical Trap Feature -->
@@ -668,6 +670,16 @@
     <!-- Mine on River Warning -->
     <string name="mine_on_river_warning_title">No se puede colocar mina en el río</string>
     <string name="mine_on_river_warning_message">Las minas enanas no se pueden colocar en casillas de río. Las minas requieren tierra firme y no se pueden construir en balsas. Por favor selecciona un área de construcción en tierra.</string>
+
+    <!-- Green Witch Info -->
+    <string name="green_witch_info_title">¡Alerta de Bruja Verde!</string>
+    <string name="green_witch_info_healing">¡La Bruja Verde puede curar a otros enemigos! Al final de cada turno enemigo, cura a todos los enemigos adyacentes por 5 veces su nivel (ej: bruja nivel 2 cura 10 PS por turno).</string>
+    <string name="green_witch_info_strategy">Se moverá hacia Ewhad si está herido para curarlo. ¡Derrota a la Bruja Verde rápidamente o las batallas serán mucho más difíciles!</string>
+
+    <!-- Red Witch Info -->
+    <string name="red_witch_info_title">¡Alerta de Bruja Roja!</string>
+    <string name="red_witch_info_disabling">¡La Bruja Roja puede desactivar tus torres! Desactiva la torre lista más cercana de su nivel o inferior durante 3 turnos.</string>
+    <string name="red_witch_info_strategy">Las torres desactivadas no pueden atacar y muestran "Desactivado: XT" en su panel de información. ¡Mejora tus torres a niveles superiores o derrota a la Bruja Roja rápidamente!</string>
 
     <!-- Mining Outcome Table Headers -->
     <string name="dig_outcome_name">Nombre</string>
@@ -739,4 +751,113 @@
     <string name="editor_info_world_map_features">Establecer coordenadas X/Y para cada nivel - Crear conexiones entre niveles (camino o mar) - Conectar automáticamente niveles según dependencias - Configurar estilos visuales de conexión - Definir puntos de ruta para caminos de conexión</string>
     <string name="editor_info_tips_title">Consejos</string>
     <string name="editor_info_tips_text">Guarda frecuentemente para evitar perder trabajo - Prueba tus niveles en el juego para asegurarte de que estén balanceados - Usa los niveles existentes como plantillas - Los mapas pueden reutilizarse en múltiples niveles - La secuencia determina qué niveles son jugables</string>
+
+    <string name="game_sticker_tagline">Open Source Turn Based Fantasy Tower Defense Game</string>
+    
+    <!-- Level Names -->
+    <string name="level_welcome_to_defender_of_egril_title">Bienvenido a Defender of Egril</string>
+    <string name="level_welcome_to_defender_of_egril_subtitle">Tutorial</string>
+    <string name="level_the_first_wave_title">La Primera Ola</string>    <string name="level_mixed_forces_title">Fuerzas Mixtas</string>    <string name="level_the_ork_invasion_title">La Invasión Ork</string>    <string name="level_dark_magic_rises_title">La Magia Oscura Se Levanta</string>    <string name="level_the_final_stand_title">La Última Batalla</string>    <string name="level_the_plains_title">Las Llanuras</string>
+    <string name="level_the_plains_subtitle">Batalla en Campo Abierto</string>
+    <string name="level_the_spiral_challenge_title">El Desafío de la Espiral</string>
+    <string name="level_the_spiral_challenge_subtitle">Navega por la Espiral</string>
+    <string name="level_the_dance_title">La Danza</string>
+    <string name="level_the_dance_subtitle">Sigue el Ritmo</string>
+    <string name="level_the_rush_title">La Embestida</string>
+    <string name="level_the_rush_subtitle">Defiende Contra la Embestida</string>
+    <string name="level_the_woods_first_incursion_title">Los Bosques - Primera Incursión</string>
+    <string name="level_the_woods_first_incursion_subtitle">Guarda los Senderos del Bosque</string>
+    <string name="level_the_woods_full_assault_title">Los Bosques - Asalto Total</string>
+    <string name="level_the_woods_full_assault_subtitle">Libera Todas las Defensas</string>
+    <string name="level_the_fast_and_furious_title">Rápido y Furioso</string>
+    <string name="level_the_fast_and_furious_subtitle">Desafío de Un HP</string>
+    <string name="level_the_cross_title">La Cruz</string>
+    <string name="level_the_cross_subtitle">Cuatro Caminos Divididos</string>
+    <string name="level_the_winding_path_title">El Camino Sinuoso</string>
+    <string name="level_the_winding_path_subtitle">Un Camino Largo y Tortuoso</string>        <string name="level_the_fortress_title">La Fortaleza %s</string>
+    <string name="level_the_fortress_1_first_attacks_subtitle">Primeros Ataques</string>    <string name="level_the_fortress_2_orks_marching_subtitle">Los Orks Están Marchando</string>    <string name="level_the_fortress_3_necromancer_subtitle">El Nigromante</string>    <string name="level_the_fortress_4_magic_assault_subtitle">Asalto Mágico</string>    <string name="level_the_fortress_5_mighty_forces_subtitle">Fuerzas Poderosas</string>
+    <string name="level_ewhads_challenge_title">Desafío de Ewhad</string>    <string name="level_the_creek_title">El Arroyo</string>    <string name="level_the_island_title">La Isla</string>    <string name="level_the_river_title">El Río</string>    <string name="level_creek_valley_title">Valle del Arroyo</string>    <string name="level_maelstrom_title">Vorágine</string>    
+    <!-- Map Names -->
+    <string name="map_tutorial_name">Mapa Tutorial</string>
+    <string name="map_straight_name">Mapa Recto</string>
+    <string name="map_plains_name">Las Llanuras</string>
+    <string name="map_spiral_name">Mapa Desafío de la Espiral</string>
+    <string name="map_dance_name">La Danza</string>
+    <string name="map_the_rush_name">La Embestida</string>
+    <string name="map_woods_name">Los Bosques</string>
+    <string name="map_fast_and_furious_name">Mapa Rápido y Furioso</string>
+    <string name="map_the_cross_name">La Cruz</string>
+    <string name="map_winding_path_name">El Camino Sinuoso</string>
+    <string name="map_the_fortress_name">La Fortaleza</string>
+    <string name="map_ewhads_challenge_name">Desafío de Ewhad</string>
+    <string name="map_the_creek_name">El Arroyo</string>
+    <string name="map_the_island_name">La Isla</string>
+    <string name="map_the_river_name">El Río</string>
+    <string name="map_creek_valley_name">Valle del Arroyo</string>
+    <string name="map_the_maelstrom_name">La Vorágine</string>
+    
+    <!-- World Map Location Names -->
+    <string name="location_tutorial_name">Tutorial</string>
+    <string name="location_the_beginning_name">El Comienzo</string>
+    <string name="location_the_plains_name">Las Llanuras</string>
+    <string name="location_the_spiral_name">La Espiral</string>
+    <string name="location_the_dance_name">La Danza</string>
+    <string name="location_the_village_name">El Pueblo</string>
+    <string name="location_the_woods_name">Los Bosques</string>
+    <string name="location_the_fast_name">Los Rápidos</string>
+    <string name="location_the_cross_name">La Cruz</string>
+    <string name="location_the_winding_path_name">El Camino Sinuoso</string>
+    <string name="location_the_fortress_name">La Fortaleza</string>
+    <string name="location_ewhads_challege_name">Desafío de Ewhad</string>
+    <string name="location_the_creek_name">El Arroyo</string>
+    <string name="location_the_island_name">La Isla</string>
+    <string name="location_the_river_name">El Río</string>
+    <string name="location_creek_valley_name">Valle del Arroyo</string>
+    <string name="location_the_maelstrom_name">La Vorágine</string>
+    <!-- Player Profile Strings -->
+    <string name="player_create_title">Crear nuevo jugador</string>
+    <string name="player_create_prompt">Ingresa tu nombre de jugador</string>
+    <string name="player_edit_title">Editar nombre del jugador</string>
+    <string name="player_edit_prompt">Ingresa un nuevo nombre para este jugador</string>
+    <string name="player_name">Nombre del jugador</string>
+    <string name="player_name_empty_error">El nombre del jugador no puede estar vacío</string>
+    <string name="player_name_too_long_error">El nombre del jugador es demasiado largo (máx. 50 caracteres)</string>
+    <string name="player_name_exists_error">Ya existe un jugador con este nombre</string>
+    <string name="player_select_title">Seleccionar jugador</string>
+    <string name="player_no_profiles">No se encontraron perfiles de jugador. ¡Crea uno nuevo para empezar a jugar!</string>
+    <string name="player_last_played">Última partida: %s</string>
+    <string name="player_new">Nuevo jugador</string>
+    <string name="player_delete_confirm_title">¿Eliminar jugador?</string>
+    <string name="player_delete_confirm_message">¿Estás seguro de que quieres eliminar al jugador "%s"? Todo el progreso y los archivos guardados de este jugador se eliminarán permanentemente.</string>
+    <string name="switch_player">Cambiar jugador</string>
+
+    <!-- Repository Data Error -->
+    <string name="error_missing_repository_data_title">Faltan datos del juego</string>
+    <string name="error_missing_repository_data_message">Faltan archivos de datos críticos del juego o están vacíos. El juego no puede iniciarse sin estos archivos.</string>
+    <string name="error_missing_repository_data_categories">Categorías de datos faltantes:</string>
+    <string name="error_missing_repository_data_reinstall">Por favor, reinstala el juego o restaura los datos del juego desde el menú de Configuración.</string>
+
+
+    <!-- Game Data Transfer Strings -->
+    <string name="game_data_transfer">Transferencia de datos del juego</string>
+    <string name="game_data_transfer_description">Incluir el progreso del jugador (niveles ganados/desbloqueados) al descargar partidas guardadas</string>
+    <string name="export_game_progress">Exportar progreso del juego</string>
+    <string name="export_game_progress_description">Descargar solo tu progreso de nivel sin datos de guardado</string>
+    <string name="import_game_progress">Importar progreso del juego</string>
+
+    <!-- World Map Conflict Strings -->
+    <string name="world_map_conflict_title">Conflicto de progreso del mapa mundial</string>
+    <string name="world_map_conflict_message">El progreso del mapa mundial en este archivo guardado difiere de tu progreso actual. ¿Qué versión te gustaría conservar?</string>
+    <string name="world_map_conflict_differences">Diferencias:</string>
+    <string name="world_map_conflict_level">Nivel</string>
+    <string name="world_map_conflict_saved">Guardado</string>
+    <string name="world_map_conflict_current">Actual</string>
+    <string name="world_map_conflict_use_saved">Usar progreso guardado</string>
+    <string name="world_map_conflict_use_current">Mantener progreso actual</string>
+    <string name="level_status_locked">Bloqueado</string>
+    <string name="level_status_unlocked">Desbloqueado</string>
+    <string name="level_status_won">Ganado</string>
+    <string name="level_status_unknown">Desconocido</string>
+    <string name="show_testing_levels">Mostrar niveles de prueba</string>
+    <string name="test_level">Nivel de prueba</string>
 </resources>

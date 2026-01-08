@@ -18,6 +18,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
+import de.egril.defender.ui.getLocalizedTitle
+import de.egril.defender.ui.getLocalizedSubtitle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.egril.defender.model.AttackerType
@@ -32,6 +34,8 @@ data class LevelInfoEnemiesLevelData(
     val id: String,
     val name: String,
     val subtitle: String = "",
+    val titleKey: String? = null,  // Optional translation key for the title
+    val subtitleKey: String? = null,  // Optional translation key for the subtitle
     val initialCoins: Int,
     val healthPoints: Int,
     val enemyTypeCounts: Map<AttackerType, Int>
@@ -60,8 +64,9 @@ fun RowScope.LevelInfoEnemiesColumn(
                     fontSize = 18.sp
                 )
 
+                val locale = com.hyperether.resources.currentLanguage.value
                 Text(
-                    text = level.name,
+                    text = level.getLocalizedTitle(locale),
                     style = MaterialTheme.typography.bodyMedium,
                     color = textColor,
                     textAlign = TextAlign.Start,
@@ -70,9 +75,10 @@ fun RowScope.LevelInfoEnemiesColumn(
                 )
 
                 // Show subtitle if it's not empty
-                if (level.subtitle.isNotEmpty()) {
+                val localizedSubtitle = level.getLocalizedSubtitle(locale)
+                if (localizedSubtitle.isNotEmpty()) {
                     Text(
-                        text = level.subtitle,
+                        text = localizedSubtitle,
                         style = MaterialTheme.typography.bodySmall,
                         color = textColor.copy(alpha = 0.85f),
                         textAlign = TextAlign.Start,

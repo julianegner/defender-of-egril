@@ -193,6 +193,33 @@ private fun GamePlayScreenContent(
         }
     }
     
+    // Witch info popups
+    LaunchedEffect(gameState.attackers.size, gameState.infoState.value) {
+        val infoState = gameState.infoState.value
+        
+        // Skip if already showing an info
+        if (infoState.currentInfo != InfoType.NONE) {
+            return@LaunchedEffect
+        }
+        
+        // Check for green witches on the field
+        val greenWitches = gameState.attackers.filter { 
+            it.type == AttackerType.GREEN_WITCH && !it.isDefeated.value 
+        }
+        if (greenWitches.isNotEmpty() && !infoState.hasSeen(InfoType.GREEN_WITCH_INFO)) {
+            gameState.infoState.value = infoState.showInfo(InfoType.GREEN_WITCH_INFO)
+            return@LaunchedEffect
+        }
+        
+        // Check for red witches on the field
+        val redWitches = gameState.attackers.filter { 
+            it.type == AttackerType.RED_WITCH && !it.isDefeated.value 
+        }
+        if (redWitches.isNotEmpty() && !infoState.hasSeen(InfoType.RED_WITCH_INFO)) {
+            gameState.infoState.value = infoState.showInfo(InfoType.RED_WITCH_INFO)
+        }
+    }
+    
     // Check for mine warnings
     LaunchedEffect(gameState.mineWarnings.size, gameState.infoState.value) {
         val infoState = gameState.infoState.value
@@ -673,12 +700,35 @@ private fun GamePlayScreenContent(
                         }
                     },
                     onPrimaryAction = {
-                        // Check if any defenders have actions remaining
-                        val hasActionsRemaining = gameState.defenders.any { defender ->
-                            defender.isReady && defender.actionsRemaining.value > 0
+                        // Check if any defenders have actions remaining that should be warned about
+                        val hasActionsRemainingToWarn = gameState.defenders.any { defender ->
+                            if (!defender.isReady || defender.actionsRemaining.value <= 0) {
+                                false
+                            } else if (defender.type.isMine) {
+                                // Mines always count (dig action doesn't need enemies)
+                                true
+                            } else if (defender.type == DefenderType.WIZARD_TOWER && defender.level.value >= 10 && 
+                                       defender.trapCooldownRemaining.value == 0) {
+                                // Wizard towers at level 10+ can place magical traps (only if trap is available)
+                                true
+                            } else {
+                                // For attack towers, check if enemies are in effective range
+                                gameState.attackers.any { attacker ->
+                                    val distance = defender.position.value.distanceTo(attacker.position.value)
+                                    // For area/lasting attacks, include the area effect radius in range calculation
+                                    val effectiveRange = if (defender.type.attackType == AttackType.AREA || 
+                                                            defender.type.attackType == AttackType.LASTING) {
+                                        defender.range + defender.areaEffectRadius
+                                    } else {
+                                        defender.range
+                                    }
+                                    // Check if enemy is within effective range (respecting min range)
+                                    distance >= defender.type.minRange && distance <= effectiveRange
+                                }
+                            }
                         }
                         
-                        if (hasActionsRemaining) {
+                        if (hasActionsRemainingToWarn) {
                             // Show confirmation dialog
                             showEndTurnConfirmation = true
                         } else {

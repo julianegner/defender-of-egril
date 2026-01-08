@@ -133,6 +133,16 @@ The web version uses browser localStorage for save games and supports:
 - Click and drag to pan
 - All game features available on other platforms (except level editor)
 
+### run Tests
+
+```bash
+# Run all tests
+./gradlew test
+```
+./gradlew :composeApp:desktopTest
+./gradlew :composeApp:wasmJsBrowserTest
+
+
 ## Project Structure
 
 ```
@@ -195,6 +205,84 @@ This game is built using:
 - Kotlin Multiplatform for cross-platform support
 
 For detailed development information, see [DEVELOPMENT.md](docs/root/DEVELOPMENT.md).
+
+### Testing
+
+The project includes both unit tests and end-to-end UI tests to ensure quality and functionality.
+
+#### Unit Tests
+
+Unit tests are written in Kotlin and test game logic, UI components, and data handling.
+
+**Running Unit Tests Locally:**
+
+```bash
+# Run all desktop tests
+./gradlew :composeApp:desktopTest
+
+# Run Android tests
+./gradlew :composeApp:testDebugUnitTest
+
+# Run WASM tests
+./gradlew :composeApp:wasmJsBrowserTest
+
+# Run all tests across all platforms
+./gradlew test
+```
+
+**What's Tested:**
+- Game logic (combat, pathfinding, tower placement)
+- Save/load functionality
+- UI components (world map, settings, level completion)
+- Data serialization
+
+#### UI Tests (Playwright)
+
+End-to-end UI tests using Playwright test the game in a real browser, simulating actual user interactions.
+
+**Running UI Tests Locally:**
+
+```bash
+# Install dependencies (first time only)
+npm install
+npx playwright install chromium
+
+# Run UI tests
+npx playwright test
+
+# Run in headed mode (see the browser)
+npx playwright test --headed
+
+# View test report
+npx playwright show-report
+```
+
+**Running via GitHub Actions:**
+1. Go to the Actions tab in GitHub
+2. Select "Playwright UI Tests" workflow
+3. Click "Run workflow"
+4. Download test results and screenshots from artifacts
+
+**What's Tested:**
+- Tutorial level playthrough (building towers, combat)
+- Main menu navigation
+- World map level selection
+- Settings dialog functionality
+- Save/load game flows
+- Error handling and console monitoring
+
+The tests automatically capture 30+ screenshots per run, documenting every step of gameplay. See [Playwright UI Tests Guide](docs/testing/PLAYWRIGHT_UI_TESTS.md) for details.
+
+### CI/CD
+
+The project uses GitHub Actions for continuous integration and deployment:
+- **Unit Tests**: Automated testing on Linux, Windows, macOS, and Android
+- **UI Tests**: Playwright-based end-to-end browser testing (manual trigger)
+- **Builds**: Multi-platform builds (WASM, JVM, macOS, Linux, Windows)
+- **Releases**: Automated releases on version tags
+- **Deployment**: GitHub Pages deployment for WASM version
+
+See [CI/CD Workflows Guide](docs/guides/CI_CD_WORKFLOWS.md) for details.
 
 ### Utility Scripts
 

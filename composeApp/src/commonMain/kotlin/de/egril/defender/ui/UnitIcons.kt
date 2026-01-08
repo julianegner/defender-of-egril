@@ -45,29 +45,39 @@ fun TowerTypeIcon(
         modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        // Draw tower graphics
+        // Draw tower graphics with default white lines (suitable for game UI with tile backgrounds)
         Canvas(modifier = Modifier.fillMaxSize()) {
             val centerX = size.width / 2
             val centerY = size.height / 2
             val iconSize = minOf(size.width, size.height)
-            
-            // Draw tower base (trapezoid shape) - except for dragon's lair and dwarven mine
-            if (defenderType != DefenderType.DRAGONS_LAIR && defenderType != DefenderType.DWARVEN_MINE) {
-                drawTowerBase(centerX, centerY, iconSize * 0.8f)
-            }
-            
-            // Draw tower type symbol inside
-            when (defenderType) {
-                DefenderType.SPIKE_TOWER -> drawSpikeSymbol(centerX, centerY, iconSize * 0.4f)
-                DefenderType.SPEAR_TOWER -> drawSpearSymbol(centerX, centerY, iconSize * 0.5f)
-                DefenderType.BOW_TOWER -> drawBowSymbol(centerX, centerY, iconSize * 0.45f)
-                DefenderType.WIZARD_TOWER -> drawWizardSymbol(centerX, centerY, iconSize * 0.4f)
-                DefenderType.ALCHEMY_TOWER -> drawAlchemySymbol(centerX, centerY, iconSize * 0.4f)
-                DefenderType.BALLISTA_TOWER -> drawBallistaSymbol(centerX, centerY, iconSize * 0.5f)
-                DefenderType.DWARVEN_MINE -> drawMineSymbol(centerX, centerY, iconSize * 0.4f)
-                DefenderType.DRAGONS_LAIR -> drawDragonLairSymbol(centerX, centerY, iconSize * 0.6f)
-            }
+
+            drawTower(defenderType, centerX, centerY, iconSize)
         }
+    }
+}
+
+fun DrawScope.drawTower(
+    defenderType: DefenderType,
+    centerX: Float,
+    centerY: Float,
+    iconSize: Float,
+    lineColor: Color = Color.White
+) {
+    // Draw tower base (trapezoid shape) - except for dragon's lair and dwarven mine
+    if (defenderType != DefenderType.DRAGONS_LAIR && defenderType != DefenderType.DWARVEN_MINE) {
+        drawTowerBase(centerX, centerY, iconSize * 0.8f, lineColor)
+    }
+
+    // Draw tower type symbol inside
+    when (defenderType) {
+        DefenderType.SPIKE_TOWER -> drawSpikeSymbol(centerX, centerY, iconSize * 0.4f, lineColor)
+        DefenderType.SPEAR_TOWER -> drawSpearSymbol(centerX, centerY, iconSize * 0.5f, lineColor)
+        DefenderType.BOW_TOWER -> drawBowSymbol(centerX, centerY, iconSize * 0.45f)
+        DefenderType.WIZARD_TOWER -> drawWizardSymbol(centerX, centerY, iconSize * 0.4f)
+        DefenderType.ALCHEMY_TOWER -> drawAlchemySymbol(centerX, centerY, iconSize * 0.4f)
+        DefenderType.BALLISTA_TOWER -> drawBallistaSymbol(centerX, centerY, iconSize * 0.5f)
+        DefenderType.DWARVEN_MINE -> drawMineSymbol(centerX, centerY, iconSize * 0.4f)
+        DefenderType.DRAGONS_LAIR -> drawDragonLairSymbol(centerX, centerY, iconSize * 0.6f)
     }
 }
 
@@ -181,10 +191,9 @@ fun TowerIcon(
 /**
  * Draw the base tower structure (trapezoid)
  */
-private fun DrawScope.drawTowerBase(centerX: Float, centerY: Float, size: Float) {
-    // Fixed: Use white color for tower bases in both modes to ensure visibility on dark backgrounds
-    // (was Color(0xFF0A2647) in dark mode which was barely visible)
-    val baseColor = Color.White
+private fun DrawScope.drawTowerBase(centerX: Float, centerY: Float, size: Float, lineColor: Color = Color.White) {
+    // Use provided lineColor for tower bases to ensure visibility in both dark and light modes
+    val baseColor = lineColor
     
     val path = Path().apply {
         val topWidth = size * 0.4f

@@ -2,6 +2,7 @@
   "id": "the_creek",
   "mapId": "map_the_creek",
   "title": "The Creek",
+  "titleKey": "level_the_creek_title",
   "subtitle": "",
   "startCoins": 200,
   "startHealthPoints": 10,
@@ -96,7 +97,7 @@
   ],
   "availableTowers": ["SPIKE_TOWER", "SPEAR_TOWER", "BOW_TOWER", "WIZARD_TOWER", "ALCHEMY_TOWER", "BALLISTA_TOWER", "DWARVEN_MINE"],
   "waypoints": [
-    
+
   ],
   "prerequisites": ["dark_magic_rises"]
 }

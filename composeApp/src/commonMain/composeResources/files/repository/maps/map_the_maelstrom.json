@@ -1,6 +1,7 @@
 {
   "id": "map_the_maelstrom",
   "name": "The Maelstrom",
+  "nameKey": "map_the_maelstrom_name",
   "width": 50,
   "height": 50,
   "readyToUse": true,

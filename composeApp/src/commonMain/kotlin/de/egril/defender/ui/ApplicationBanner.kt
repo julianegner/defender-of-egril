@@ -1,5 +1,6 @@
 package de.egril.defender.ui
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.MaterialTheme
@@ -7,20 +8,27 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import de.egril.defender.model.DefenderType
+import de.egril.defender.ui.icon.defender.*
+import de.egril.defender.ui.icon.enemy.*
+import de.egril.defender.utils.isPlatformMobile
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.black_shield
-import defender_of_egril.composeapp.generated.resources.black_shield2
 import defender_of_egril.composeapp.generated.resources.greatvibes_regular
 import org.jetbrains.compose.resources.Font
 import org.jetbrains.compose.resources.painterResource
 
 /**
- * Application banner component that displays the game title with the application logo.
- * Layout: Two rows of text on the left, logo on the right.
+ * Application banner component that displays the game title with the application logo and unit symbols.
+ * Layout: Canvas with enemy and tower symbols on the left, two rows of text in the middle, logo on the right.
+ * - Canvas: Enemy symbols (goblin, ork, wizard) and tower symbols (bow, wizard)
  * - First row: "Defender of" in Great Vibes handwritten font
  * - Second row: "Egril" in larger Great Vibes handwritten font
  * - Right side: Application logo (shield with crossed swords)
@@ -29,14 +37,96 @@ import org.jetbrains.compose.resources.painterResource
 fun ApplicationBanner(
     modifier: Modifier = Modifier
 ) {
+    // Get theme-aware colors
+    val lineColor = MaterialTheme.colorScheme.onBackground
+    val backgroundColor = MaterialTheme.colorScheme.background
+    
     // Load the Great Vibes font
     val greatVibesFont = FontFamily(Font(Res.font.greatvibes_regular))
+    
+    // Platform-specific spacing values
+    // Mobile (Android/iOS) needs more spacing to prevent overlap
+    // Desktop and WASM use original tighter spacing
+
+    val elementOffsetX = if (isPlatformMobile) 60f else 0f
+    val elementOffsetY = if (isPlatformMobile) -80f else 0f
+
+    val goblinOffsetX = elementOffsetX + (if (isPlatformMobile) 15f else 20f)
+    val goblinOffsetY = elementOffsetY + (if (isPlatformMobile) -15f else -20f)
+    val orkOffsetX = elementOffsetX + (if (isPlatformMobile) -50f else 0f)
+    val orkOffsetY = elementOffsetY + (if (isPlatformMobile) 20f else -10f)
+    val wizardOffsetX = elementOffsetX + (if (isPlatformMobile) -100f else -20f)
+    val wizardOffsetY = elementOffsetY + (if (isPlatformMobile) 60f else 0f)
+
+    val bowTowerOffsetX = elementOffsetX + (if (isPlatformMobile) 160f else 80f)
+    val bowTowerOffsetY = elementOffsetY + (if (isPlatformMobile) 0f else -20f)
+    val wizardTowerOffsetX = elementOffsetX + (if (isPlatformMobile) 240f else 100f)
+    val wizardTowerOffsetY = elementOffsetY + (if (isPlatformMobile) 60f else 0f)
+
+    val spacerWidth = if (isPlatformMobile) 80.dp else 80.dp
+    val canvasWidth = if (isPlatformMobile) 80.dp else 80.dp
     
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center
     ) {
+        // Canvas with enemy and tower symbols
+        Box(
+            modifier = Modifier
+                .height(80.dp)
+                .width(canvasWidth)
+        ) {
+            Canvas(modifier = Modifier.fillMaxSize()) {
+                val centerX = size.width / 2
+                val centerY = (size.height / 2) + 20f
+                val iconSize = minOf(size.width, size.height)
+
+                // Draw enemy symbols
+                drawGoblinSymbol(centerX.plus(goblinOffsetX), centerY.plus(goblinOffsetY), iconSize * 0.7f)
+                drawOrkSymbol(centerX.plus(orkOffsetX), centerY.plus(orkOffsetY), iconSize * 0.7f)
+                drawEvilWizardSymbol(centerX.plus(wizardOffsetX), centerY.plus(wizardOffsetY), iconSize * 0.7f)
+
+                // Draw bow tower (platform-specific offset for mobile spacing)
+                drawTower(DefenderType.BOW_TOWER, centerX.plus(bowTowerOffsetX), centerY.plus(bowTowerOffsetY), iconSize, lineColor)
+                
+                // Draw background with same trapezoid shape as wizard tower to prevent bow tower from showing through
+                val wizardCenterX = centerX.plus(wizardTowerOffsetX)
+                val wizardCenterY = centerY.plus(wizardTowerOffsetY)
+                val wizardBaseSize = iconSize * 0.8f
+                val topWidth = wizardBaseSize * 0.4f
+                val bottomWidth = wizardBaseSize * 0.6f
+                val towerHeight = wizardBaseSize * 0.6f
+                val top = wizardCenterY - towerHeight / 2
+                val bottom = wizardCenterY + towerHeight / 2
+                
+                val trapezoid = Path().apply {
+                    moveTo(wizardCenterX - bottomWidth / 2, bottom)
+                    lineTo(wizardCenterX + bottomWidth / 2, bottom)
+                    lineTo(wizardCenterX + topWidth / 2, top)
+                    lineTo(wizardCenterX - topWidth / 2, top)
+                    close()
+                }
+                drawPath(trapezoid, backgroundColor)
+                
+                // Draw battlements with background color
+                val battlement = wizardBaseSize * 0.08f
+                for (i in 0..2) {
+                    val x = wizardCenterX - topWidth / 2 + (topWidth / 3) * i
+                    drawRect(
+                        color = backgroundColor,
+                        topLeft = Offset(x, top - battlement),
+                        size = androidx.compose.ui.geometry.Size(battlement, battlement)
+                    )
+                }
+                
+                // Draw wizard tower (platform-specific offset for mobile spacing)
+                drawTower(DefenderType.WIZARD_TOWER, centerX.plus(wizardTowerOffsetX), centerY.plus(wizardTowerOffsetY), iconSize, lineColor)
+            }
+        }
+        
+        Spacer(modifier = Modifier.width(spacerWidth))
+        
         // Left side: Two rows of text
         Column(
             horizontalAlignment = Alignment.End,

@@ -1,11 +1,15 @@
 # Map Generation Refactoring and The Plains Map
 
+> **Note (Dec 2024)**: The `MapGenerator.kt` file and the `initializeDefaultMapsAndLevels()` function have been removed as they were only used for fallback generation when repository files were missing. All maps and levels are now loaded exclusively from repository files in `composeResources/files/repository/`. The maps and levels described in this document are still available in the repository.
+
 ## Overview
 This update addresses feedback to refactor map generation code and add a new simple map called "The Plains".
 
 ## Changes Made
 
-### 1. Refactoring: MapGenerator.kt (New File)
+### 1. Refactoring: MapGenerator.kt (New File) [REMOVED]
+**Status: This file has been removed** - Map generation is no longer used as fallback.
+
 Created a dedicated `MapGenerator.kt` file to hold all map generation utilities, making the code more modular and reusable.
 
 **Functions:**

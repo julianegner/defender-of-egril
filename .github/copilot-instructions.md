@@ -90,6 +90,65 @@ Defender of Egril is a turn-based tower defense game built with Kotlin Multiplat
 - Modular UI structure: Extract large screens into focused component files (see `ui/gameplay/` and `ui/editor/`)
 - Manual JSON serialization for cross-platform compatibility (see `EditorJsonSerializer`, `SaveJsonSerializer`)
 
+### JSON Formatting for Level Files
+- **Enemy Spawns**: Always write enemy spawn objects on a single line for compactness and readability
+  ```json
+  "enemySpawns": [
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 1, "spawnPoint": {"x": 0, "y": 1}},
+    {"attackerType": "ORK", "level": 2, "spawnTurn": 5, "spawnPoint": {"x": 0, "y": 4}}
+  ]
+  ```
+- **Waypoints**: Write each waypoint object on its own line (not all on one line, not fully expanded). **Always add one space after commas** within objects.
+  ```json
+  "waypoints": [
+    {"position": {"x": 20, "y": 0}, "nextTargetPosition": {"x": 20, "y": 36}},
+    {"position": {"x": 39, "y": 39}, "nextTargetPosition": {"x": 21, "y": 39}},
+    {"position": {"x": 0, "y": 39}, "nextTargetPosition": {"x": 18, "y": 39}}
+  ]
+  ```
+  Note: Use `{"x": 20, "y": 0}` (with spaces) NOT `{"x":20,"y":0}` (without spaces)
+- **Rationale**: Enemy spawn format saves hundreds of lines per level file while maintaining readability. Waypoints use one-per-line for better readability when editing pathfinding.
+- **When Creating/Editing Levels**: Always use compact single-line format for enemy spawns, and one-per-line format for waypoints
+- **Other Fields**: Keep other JSON fields (id, title, startCoins, etc.) on separate lines with normal formatting
+
+### JSON Formatting for Map Files
+- **River Tiles**: Always write river tile objects on a single line for compactness and readability
+  ```json
+  "riverTiles": {
+    "36,22": {"flowDirection": "WEST", "flowSpeed": 1},
+    "35,22": {"flowDirection": "NORTH_WEST", "flowSpeed": 1},
+    "34,21": {"flowDirection": "NORTH_WEST", "flowSpeed": 1}
+  }
+  ```
+- **Rationale**: This format saves hundreds of lines per map file while maintaining readability
+- **When Creating/Editing Maps**: Always use this compact single-line format for river tile entries
+- **Other Fields**: Keep other JSON fields (id, name, width, height, tiles, etc.) on separate lines with normal formatting
+
+### JSON Formatting for Worldmap Files
+- **Position Objects**: Always write position objects on a single line for compactness and readability
+  ```json
+  "position": {"x": 82, "y": 873}
+  ```
+- **Level ID Arrays**: Always write levelIds arrays on a single line for compactness and readability
+  ```json
+  "levelIds": ["welcome_to_defender_of_egril"]
+  ```
+  or with multiple entries:
+  ```json
+  "levelIds": ["the_first_wave", "mixed_forces", "the_ork_invasion", "dark_magic_rises"]
+  ```
+- **Control Points**: Always write controlPoints arrays on a single line with compact position objects
+  ```json
+  "controlPoints": [{"x": 668, "y": 488}, {"x": 629, "y": 406}]
+  ```
+- **Segment Types**: Always write segmentTypes arrays on a single line
+  ```json
+  "segmentTypes": ["SEA_ROUTE", "SEA_ROUTE", "SEA_ROUTE", "ROAD", "ROAD"]
+  ```
+- **Rationale**: This format saves hundreds of lines in worldmap files while maintaining readability
+- **When Creating/Editing Worldmap**: Always use this compact single-line format for position, levelIds, controlPoints, and segmentTypes
+- **Other Fields**: Keep other JSON fields (id, name, fromLocationId, etc.) on separate lines with normal formatting
+
 ### Localization System
 - **Plugin**: Uses `compose-multiplatform-localize` plugin (version 1.1.1) for string resource management
 - **String Resources**: Located in `composeApp/src/commonMain/composeResources/`
@@ -117,6 +176,9 @@ Defender of Egril is a turn-based tower defense game built with Kotlin Multiplat
   - ALL user-facing strings MUST use `stringResource(Res.string.key_name)` - no hardcoded strings
   - Exceptions: Cheat codes (not translated), single-character symbols (•, ✓, etc.), variable interpolations
   - New strings MUST be added to ALL language files (values/, values-de/, values-es/, values-fr/, values-it/)
+  - **IMPORTANT**: Check for duplicate string keys before adding new strings - each `name` attribute must be unique within a file
+  - Use this command to check for duplicates: `grep 'string name=' file.xml | sed 's/.*name="\([^"]*\)".*/\1/' | sort | uniq -d`
+  - If a string already exists in the codebase, reuse it instead of creating a duplicate
   - Run `TranslationCoverageTest` to verify complete translation coverage
 
 ### Icons and Emojis
@@ -161,18 +223,18 @@ Defender of Egril is a turn-based tower defense game built with Kotlin Multiplat
 - **Dragon's Lair**: Spawns dragons, cannot be sold or upgraded (0 coins - special placement)
 
 ### Current Enemy Types
-- **Goblin**: Fast, weak (20 HP, speed 2, 5 coins reward)
-- **Ork**: Slow, tough (40 HP, speed 1, 10 coins)
-- **Ogre**: Very tough (80 HP, speed 1, 20 coins)
-- **Skeleton**: Fast undead (15 HP, speed 2, 7 coins)
-- **Evil Wizard**: Magic attacker (30 HP, speed 1, 15 coins)
-- **Witch**: Dark magic (25 HP, speed 2, 12 coins)
-- **Blue Demon**: Fast, acid immune (15 HP, speed 3, 10 coins)
-- **Red Demon**: Tough, fireball immune (60 HP, speed 1, 15 coins)
-- **Evil Mage**: Can summon minions (40 HP, speed 1, 20 coins)
-- **Red Witch**: Can disable towers (30 HP, speed 2, 18 coins)
-- **Green Witch**: Can heal other enemies (25 HP, speed 2, 15 coins)
-- **Ewhad**: Boss with summoning (200 HP, speed 1, 100 coins)
+- **Goblin**: Fast, weak (20 HP, speed 2, 5 coins base reward × level)
+- **Ork**: Slow, tough (40 HP, speed 1, 10 coins base reward × level)
+- **Ogre**: Very tough (80 HP, speed 1, 20 coins base reward × level)
+- **Skeleton**: Fast undead (15 HP, speed 2, 7 coins base reward × level)
+- **Evil Wizard**: Magic attacker (30 HP, speed 1, 15 coins base reward × level)
+- **Witch**: Dark magic (25 HP, speed 2, 12 coins base reward × level)
+- **Blue Demon**: Fast, acid immune (15 HP, speed 3, 10 coins base reward × level)
+- **Red Demon**: Tough, fireball immune (60 HP, speed 1, 15 coins base reward × level)
+- **Evil Mage**: Can summon minions (40 HP, speed 1, 20 coins base reward × level)
+- **Red Witch**: Can disable towers (30 HP, speed 2, 18 coins base reward × level)
+- **Green Witch**: Can heal other enemies (25 HP, speed 2, 15 coins base reward × level)
+- **Ewhad**: Boss with summoning (200 HP, speed 1, 100 coins base reward × level)
 - **Dragon**: Powerful boss, starts slow then flies fast (500 HP, variable speed, 0 coins)
 
 ### Adding New Features
@@ -319,6 +381,17 @@ Add to `LevelData.createLevels()` with:
 - Group related functionality
 - Keep files focused and cohesive
 
+### Documentation Files
+- **NEVER** add markdown files to the root directory (except README.md which is allowed)
+- **ALWAYS** place documentation files under `/docs` in appropriate subfolders:
+  - `/docs/changes/`: Implementation summaries and change documentation
+  - `/docs/visual-guides/`: Visual guides and comparisons
+  - `/docs/implementation/`: Technical implementation details
+  - `/docs/features/`: Feature documentation
+  - `/docs/guides/`: User and developer guides
+  - `/docs/root/`: Core project documentation
+- Use UPPERCASE_WITH_UNDERSCORES naming convention for documentation files
+
 ### Comments
 - Use KDoc for public APIs
 - Avoid obvious comments
@@ -327,7 +400,8 @@ Add to `LevelData.createLevels()` with:
 ## Testing Strategy
 
 ### Test Structure
-- Unit tests in `commonTest/kotlin/`
+- Unit tests in `commonTest/kotlin/` (run on all platforms including WASM)
+- UI tests in `desktopTest/kotlin/` for Compose UI testing (desktop only)
 - Test game logic in isolation
 - Use descriptive test names
 
@@ -335,6 +409,17 @@ Add to `LevelData.createLevels()` with:
 - Core game mechanics (tower placement, attacks, movement)
 - Edge cases (boundary conditions, invalid inputs)
 - State transitions
+- **Always add tests for new or changed behavior**
+  - When adding new features, create tests that verify the feature works as expected
+  - When modifying existing behavior, add tests that verify both the old behavior is prevented and new behavior works
+  - Example: For end turn warning changes, test scenarios where warning should/shouldn't appear
+
+### UI Testing Guidelines
+- Use Compose Test Rule for UI component testing
+- Test user interactions (button clicks, text input, etc.)
+- Verify UI state changes based on game state
+- Capture screenshots for visual verification when appropriate
+- See `GamePlayScreenTest.kt` for examples of UI tests
 
 ### Cheat Codes (for testing)
 **In-Game** (click coins display):
@@ -390,6 +475,8 @@ Add to `LevelData.createLevels()` with:
 - `docs/features/CODE_REFACTORING_ANALYSIS.md`: Code organization and patterns
 - `docs/guides/WEB_WASM_GUIDE.md`: Web/WASM platform guide
 - `docs/implementation/LOCALIZATION_IMPLEMENTATION.md`: Localization system implementation and usage
+- `docs/changes/APPLICATION_BANNER_THEME_AWARE.md`: ApplicationBanner theme-aware implementation
+- `docs/visual-guides/APPLICATION_BANNER_VISUAL_COMPARISON.md`: Visual comparison of banner changes
 
 ## Version Control
 

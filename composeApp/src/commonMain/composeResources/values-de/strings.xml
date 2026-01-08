@@ -107,6 +107,7 @@
     
     <!-- Load Game Screen -->
     <string name="no_saved_games">Keine gespeicherten Spiele gefunden</string>
+    <string name="savegame_folder">Speicherort:</string>
     
     <!-- Rules Screen -->
     <string name="how_to_play">Wie man spielt</string>
@@ -304,7 +305,7 @@
     <!-- DefenderInfo mining strings -->
     
     <!-- Tower short names -->
-    <string name="spike_tower_short">Stachel</string>
+    <string name="spike_tower_short">Pike</string>
     <string name="spear_tower_short">Speer</string>
     <string name="bow_tower_short">Bogen</string>
     <string name="wizard_tower_short">Zauberer</string>
@@ -405,6 +406,7 @@
     <string name="can_summon">Kann Diener beschwören</string>
     <string name="can_heal">Kann andere Feinde heilen</string>
     <string name="can_disable_towers">Kann Türme deaktivieren</string>
+    <string name="disabled">Deaktiviert</string>
     <string name="immune_to_acid">Immun gegen Säure</string>
     <string name="immune_to_fireball">Immun gegen Feuerball</string>
 
@@ -412,9 +414,9 @@
     <string name="tutorial_welcome_title">Willkommen bei Defender of Egril!</string>
     <string name="tutorial_welcome">Dies ist ein Tower-Defense-Spiel. Ihr Ziel ist es, Feinde daran zu hindern, das Ziel zu erreichen, indem Sie Verteidigungstürme bauen.</string>
     <string name="tutorial_resources_title">Ressourcen</string>
-    <string name="tutorial_resources">Sie haben Münzen zum Bauen von Türmen und Lebenspunkte. Schwache Feinde kosten 1 LP, aber mächtige Feinde (Zauberer, Hexen, Magier, Dämonen, Drachen) kosten LP gleich ihrer Stufe. Ewhad kostet alle LP!</string>
+    <string name="tutorial_resources">Sie haben Münzen zum Bauen von Türmen und Lebenspunkte. Wenn Sie Feinde besiegen, erhalten Sie Münzen entsprechend ihrer Grundbelohnung multipliziert mit ihrer Stufe. Schwache Feinde kosten 1 LP, aber mächtige Feinde (Zauberer, Hexen, Magier, Dämonen, Drachen) kosten LP gleich ihrer Stufe. Ewhad kostet alle LP!</string>
     <string name="tutorial_towers_title">Verfügbare Türme</string>
-    <string name="tutorial_towers">Stachelturm: Nahkampf, günstig. Speerturm: Mittlere Reichweite. Bogenturm: Große Reichweite. Wählen Sie weise basierend auf Ihrer Strategie!</string>
+    <string name="tutorial_towers">Pikenturm: Nahkampf, günstig. Speerturm: Mittlere Reichweite. Bogenturm: Große Reichweite. Wählen Sie weise basierend auf Ihrer Strategie!</string>
     <string name="tutorial_build_title">Türme bauen</string>
     <string name="tutorial_build">Wählen Sie unten einen Turmtyp und klicken Sie auf einen grünen Baubereich, um ihn zu platzieren. Bauen Sie Ihre Verteidigung auf!</string>
     <string name="tutorial_initial_building_title">Anfängliche Bauphase</string>
@@ -606,7 +608,7 @@
     
     <!-- End Turn Confirmation Dialog -->
     <string name="end_turn_confirmation_title">Runde beenden?</string>
-    <string name="end_turn_confirmation_message">Einige Türme haben noch ungenutzte Aktionspunkte. Möchten Sie Ihre Runde wirklich beenden?</string>
+    <string name="end_turn_confirmation_message">Sie haben Türme mit ungenutzten Aktionspunkten und Feinden in Reichweite, oder Minen mit ungenutzten Aktionen. Möchten Sie Ihre Runde wirklich beenden?</string>
     <string name="end_turn_confirm">Runde beenden</string>
     
     <!-- Magical Trap Feature -->
@@ -668,6 +670,16 @@
     <!-- Mine on River Warning -->
     <string name="mine_on_river_warning_title">Kann Mine nicht auf Fluss platzieren</string>
     <string name="mine_on_river_warning_message">Zwergenminen können nicht auf Flussfeldern platziert werden. Minen benötigen festen Boden und können nicht auf Flößen gebaut werden. Bitte wählen Sie stattdessen einen Baubereich auf festem Land.</string>
+
+    <!-- Green Witch Info -->
+    <string name="green_witch_info_title">Grüne Hexe Alarm!</string>
+    <string name="green_witch_info_healing">Die Grüne Hexe kann andere Feinde heilen! Am Ende jeder Feindphase heilt sie alle angrenzenden Feinde um das 5-fache ihrer Stufe (z.B. Stufe 2 Hexe heilt 10 HP pro Runde).</string>
+    <string name="green_witch_info_strategy">Sie bewegt sich zu Ewhad, wenn er verletzt ist, um ihn zu heilen. Besiegen Sie die Grüne Hexe schnell, sonst werden Kämpfe viel schwieriger!</string>
+
+    <!-- Red Witch Info -->
+    <string name="red_witch_info_title">Rote Hexe Alarm!</string>
+    <string name="red_witch_info_disabling">Die Rote Hexe kann Ihre Türme deaktivieren! Sie deaktiviert den nächsten bereiten Turm ihrer Stufe oder niedriger für 3 Runden.</string>
+    <string name="red_witch_info_strategy">Deaktivierte Türme können nicht angreifen und zeigen "Deaktiviert: XT" in ihrem Info-Panel. Verbessern Sie Ihre Türme auf höhere Stufen oder besiegen Sie die Rote Hexe schnell!</string>
 
     <!-- Mining Outcome Table Headers -->
     <string name="dig_outcome_name">Name</string>
@@ -739,4 +751,112 @@
     <string name="editor_info_world_map_features">X/Y-Koordinaten für jedes Level festlegen - Verbindungen zwischen Leveln erstellen (Straße oder Meer) - Level automatisch basierend auf Abhängigkeiten verbinden - Visuelle Stile für Verbindungen konfigurieren - Wegpunkte für Verbindungspfade definieren</string>
     <string name="editor_info_tips_title">Tipps</string>
     <string name="editor_info_tips_text">Speichern Sie häufig, um Arbeitsverlust zu vermeiden - Testen Sie Ihre Level im Spiel, um sicherzustellen, dass sie ausgewogen sind - Verwenden Sie vorhandene Level als Vorlagen - Karten können über mehrere Level hinweg wiederverwendet werden - Die Sequenz bestimmt, welche Level spielbar sind</string>
+    <string name="game_sticker_tagline">Open Source Turn Based Fantasy Tower Defense Game</string>
+    
+    <!-- Level Names -->
+    <string name="level_welcome_to_defender_of_egril_title">Willkommen bei Defender of Egril</string>
+    <string name="level_welcome_to_defender_of_egril_subtitle">Tutorial</string>
+    <string name="level_the_first_wave_title">Die Erste Welle</string>    <string name="level_mixed_forces_title">Gemischte Streitkräfte</string>    <string name="level_the_ork_invasion_title">Die Ork-Invasion</string>    <string name="level_dark_magic_rises_title">Dunkle Magie Erhebt Sich</string>    <string name="level_the_final_stand_title">Der Letzte Widerstand</string>    <string name="level_the_plains_title">Die Ebenen</string>
+    <string name="level_the_plains_subtitle">Schlacht auf offenem Feld</string>
+    <string name="level_the_spiral_challenge_title">Die Spiral-Herausforderung</string>
+    <string name="level_the_spiral_challenge_subtitle">Navigiere durch die Spirale</string>
+    <string name="level_the_dance_title">Der Tanz</string>
+    <string name="level_the_dance_subtitle">Folge dem Rhythmus</string>
+    <string name="level_the_rush_title">Der Ansturm</string>
+    <string name="level_the_rush_subtitle">Verteidige gegen den Ansturm</string>
+    <string name="level_the_woods_first_incursion_title">Die Wälder - Erste Invasion</string>
+    <string name="level_the_woods_first_incursion_subtitle">Bewache die Waldpfade</string>
+    <string name="level_the_woods_full_assault_title">Die Wälder - Voller Angriff</string>
+    <string name="level_the_woods_full_assault_subtitle">Setze alle Verteidigungen ein</string>
+    <string name="level_the_fast_and_furious_title">Schnell und Wütend</string>
+    <string name="level_the_fast_and_furious_subtitle">Ein-HP-Herausforderung</string>
+    <string name="level_the_cross_title">Das Kreuz</string>
+    <string name="level_the_cross_subtitle">Vier geteilte Pfade</string>
+    <string name="level_the_winding_path_title">Der gewundene Pfad</string>
+    <string name="level_the_winding_path_subtitle">Eine lange und verschlungene Straße</string>        <string name="level_the_fortress_title">Die Festung %s</string>
+    <string name="level_the_fortress_1_first_attacks_subtitle">Erste Angriffe</string>    <string name="level_the_fortress_2_orks_marching_subtitle">Die Orks marschieren</string>    <string name="level_the_fortress_3_necromancer_subtitle">Der Nekromant</string>    <string name="level_the_fortress_4_magic_assault_subtitle">Magischer Angriff</string>    <string name="level_the_fortress_5_mighty_forces_subtitle">Mächtige Streitkräfte</string>
+    <string name="level_ewhads_challenge_title">Ewhads Herausforderung</string>    <string name="level_the_creek_title">Der Bach</string>    <string name="level_the_island_title">Die Insel</string>    <string name="level_the_river_title">Der Fluss</string>    <string name="level_creek_valley_title">Bachtal</string>    <string name="level_maelstrom_title">Mahlstrom</string>    
+    <!-- Map Names -->
+    <string name="map_tutorial_name">Tutorial-Karte</string>
+    <string name="map_straight_name">Gerade Karte</string>
+    <string name="map_plains_name">Die Ebenen</string>
+    <string name="map_spiral_name">Spiral-Herausforderungskarte</string>
+    <string name="map_dance_name">Der Tanz</string>
+    <string name="map_the_rush_name">Der Ansturm</string>
+    <string name="map_woods_name">Die Wälder</string>
+    <string name="map_fast_and_furious_name">Schnell und Wütend Karte</string>
+    <string name="map_the_cross_name">Das Kreuz</string>
+    <string name="map_winding_path_name">Der gewundene Pfad</string>
+    <string name="map_the_fortress_name">Die Festung</string>
+    <string name="map_ewhads_challenge_name">Ewhads Herausforderung</string>
+    <string name="map_the_creek_name">Der Bach</string>
+    <string name="map_the_island_name">Die Insel</string>
+    <string name="map_the_river_name">Der Fluss</string>
+    <string name="map_creek_valley_name">Bachtal</string>
+    <string name="map_the_maelstrom_name">Der Mahlstrom</string>
+    
+    <!-- World Map Location Names -->
+    <string name="location_tutorial_name">Tutorial</string>
+    <string name="location_the_beginning_name">Der Anfang</string>
+    <string name="location_the_plains_name">Die Ebenen</string>
+    <string name="location_the_spiral_name">Die Spirale</string>
+    <string name="location_the_dance_name">Der Tanz</string>
+    <string name="location_the_village_name">Das Dorf</string>
+    <string name="location_the_woods_name">Die Wälder</string>
+    <string name="location_the_fast_name">Die Schnellen</string>
+    <string name="location_the_cross_name">Das Kreuz</string>
+    <string name="location_the_winding_path_name">Der gewundene Pfad</string>
+    <string name="location_the_fortress_name">Die Festung</string>
+    <string name="location_ewhads_challege_name">Ewhads Herausforderung</string>
+    <string name="location_the_creek_name">Der Bach</string>
+    <string name="location_the_island_name">Die Insel</string>
+    <string name="location_the_river_name">Der Fluss</string>
+    <string name="location_creek_valley_name">Bachtal</string>
+    <string name="location_the_maelstrom_name">Der Mahlstrom</string>
+    <!-- Player Profile Strings -->
+    <string name="player_create_title">Neuen Spieler erstellen</string>
+    <string name="player_create_prompt">Geben Sie Ihren Spielernamen ein</string>
+    <string name="player_edit_title">Spielernamen bearbeiten</string>
+    <string name="player_edit_prompt">Geben Sie einen neuen Namen für diesen Spieler ein</string>
+    <string name="player_name">Spielername</string>
+    <string name="player_name_empty_error">Spielername darf nicht leer sein</string>
+    <string name="player_name_too_long_error">Spielername ist zu lang (max. 50 Zeichen)</string>
+    <string name="player_name_exists_error">Ein Spieler mit diesem Namen existiert bereits</string>
+    <string name="player_select_title">Spieler auswählen</string>
+    <string name="player_no_profiles">Keine Spielerprofile gefunden. Erstellen Sie ein neues Profil, um zu spielen!</string>
+    <string name="player_last_played">Zuletzt gespielt: %s</string>
+    <string name="player_new">Neuer Spieler</string>
+    <string name="player_delete_confirm_title">Spieler löschen?</string>
+    <string name="player_delete_confirm_message">Möchten Sie wirklich den Spieler "%s" löschen? Alle Fortschritte und Speicherstände dieses Spielers werden dauerhaft gelöscht.</string>
+    <string name="switch_player">Spieler wechseln</string>
+
+    <!-- Repository Data Error -->
+    <string name="error_missing_repository_data_title">Fehlende Spieldaten</string>
+    <string name="error_missing_repository_data_message">Kritische Spieldatendateien fehlen oder sind leer. Das Spiel kann ohne diese Dateien nicht gestartet werden.</string>
+    <string name="error_missing_repository_data_categories">Fehlende Datenkategorien:</string>
+    <string name="error_missing_repository_data_reinstall">Bitte installieren Sie das Spiel neu oder stellen Sie die Spieldaten über das Einstellungsmenü wieder her.</string>
+
+
+    <!-- Game Data Transfer Strings -->
+    <string name="game_data_transfer">Spielfortschritt-Übertragung</string>
+    <string name="game_data_transfer_description">Spielerfortschritt (gewonnene/freigeschaltete Level) beim Download von Speicherständen einschließen</string>
+    <string name="export_game_progress">Spielfortschritt exportieren</string>
+    <string name="export_game_progress_description">Nur Ihren Level-Fortschritt ohne Speicherdaten herunterladen</string>
+    <string name="import_game_progress">Spielfortschritt importieren</string>
+
+    <!-- World Map Conflict Strings -->
+    <string name="world_map_conflict_title">Konflikt beim Weltkartenfortschritt</string>
+    <string name="world_map_conflict_message">Der Weltkartenfortschritt in dieser Speicherdatei unterscheidet sich von Ihrem aktuellen Fortschritt. Welche Version möchten Sie behalten?</string>
+    <string name="world_map_conflict_differences">Unterschiede:</string>
+    <string name="world_map_conflict_level">Level</string>
+    <string name="world_map_conflict_saved">Gespeichert</string>
+    <string name="world_map_conflict_current">Aktuell</string>
+    <string name="world_map_conflict_use_saved">Gespeicherten Fortschritt verwenden</string>
+    <string name="world_map_conflict_use_current">Aktuellen Fortschritt behalten</string>
+    <string name="level_status_locked">Gesperrt</string>
+    <string name="level_status_unlocked">Freigeschaltet</string>
+    <string name="level_status_won">Gewonnen</string>
+    <string name="level_status_unknown">Unbekannt</string>
+    <string name="show_testing_levels">Test-Level anzeigen</string>
+    <string name="test_level">Test-Level</string>
 </resources>
