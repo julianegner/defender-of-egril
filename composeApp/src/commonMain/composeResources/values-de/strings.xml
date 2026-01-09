@@ -859,4 +859,8 @@
     <string name="level_status_unknown">Unbekannt</string>
     <string name="show_testing_levels">Test-Level anzeigen</string>
     <string name="test_level">Test-Level</string>
+
+    <!-- Platform Information Dialog -->
+    <string name="platform_information_title">Plattforminformationen</string>
+    <string name="platform_information_label">Aktuelle Plattform:</string>
 </resources>
