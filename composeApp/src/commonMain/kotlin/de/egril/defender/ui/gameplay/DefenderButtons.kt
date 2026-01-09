@@ -30,7 +30,7 @@ fun CompactDefenderButton(
     onClick: () -> Unit
 ) {
     val isDarkMode = de.egril.defender.ui.settings.AppSettings.isDarkMode.value
-    val isAndroidTV = getPlatform().isAndroidTV
+    val isAndroidTV = remember { getPlatform().isAndroidTV }
     
     // Apply Android TV border if selected
     val buttonModifier = if (isAndroidTV && isSelected) {
@@ -101,7 +101,7 @@ fun DefenderButton(
     onClick: () -> Unit
 ) {
     val isDarkMode = de.egril.defender.ui.settings.AppSettings.isDarkMode.value
-    val isAndroidTV = getPlatform().isAndroidTV
+    val isAndroidTV = remember { getPlatform().isAndroidTV }
     // Recalculate canAfford based on current coins.value to ensure reactivity
     val actuallyCanAfford = coinsState.value >= type.baseCost
 
