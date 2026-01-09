@@ -65,6 +65,7 @@ fun App() {
         val gameState by viewModel.gameState.collectAsState()
         val savedGames by viewModel.savedGames.collectAsState()
         val cheatDigOutcome by viewModel.cheatDigOutcome.collectAsState()
+        val showPlatformInfo by viewModel.showPlatformInfo.collectAsState()
         val needsPlayerSelection by viewModel.needsPlayerSelection.collectAsState()
         val currentPlayer by viewModel.currentPlayer.collectAsState()
         val allPlayers by viewModel.allPlayers.collectAsState()
@@ -180,7 +181,9 @@ fun App() {
                     onReloadWorldMap = { viewModel.reloadWorldMap() },
                     onSwitchPlayer = { showPlayerSelection = true },
                     onEditPlayerName = { showEditPlayer = true },
-                    currentPlayerName = currentPlayer?.name
+                    currentPlayerName = currentPlayer?.name,
+                    showPlatformInfo = showPlatformInfo,
+                    onClearPlatformInfo = { viewModel.clearPlatformInfo() }
                 )
             }
             
@@ -233,6 +236,8 @@ fun App() {
                         onWizardPlaceMagicalTrap = { wizardId, trapPos -> viewModel.performWizardPlaceMagicalTrap(wizardId, trapPos) },
                         cheatDigOutcome = cheatDigOutcome,
                         onClearCheatDigOutcome = { viewModel.clearCheatDigOutcome() },
+                        showPlatformInfo = showPlatformInfo,
+                        onClearPlatformInfo = { viewModel.clearPlatformInfo() },
                         hasUnsavedChanges = { viewModel.hasUnsavedChanges() }
                     )
                 }

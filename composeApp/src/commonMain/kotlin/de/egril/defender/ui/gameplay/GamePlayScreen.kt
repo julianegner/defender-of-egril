@@ -35,6 +35,8 @@ fun GamePlayScreen(
     onWizardPlaceMagicalTrap: ((Int, Position) -> Boolean)? = null,  // Add wizard magical trap callback
     cheatDigOutcome: DigOutcome? = null,  // Dig outcome from cheat code
     onClearCheatDigOutcome: (() -> Unit)? = null,  // Callback to clear cheat dig outcome
+    showPlatformInfo: Boolean = false,  // Show platform info from cheat code
+    onClearPlatformInfo: (() -> Unit)? = null,  // Callback to clear platform info
     hasUnsavedChanges: (() -> Boolean)? = null  // Callback to check for unsaved changes
 ) {
     GamePlayScreenContent(
@@ -55,6 +57,8 @@ fun GamePlayScreen(
         onWizardPlaceMagicalTrap = onWizardPlaceMagicalTrap,
         cheatDigOutcome = cheatDigOutcome,
         onClearCheatDigOutcome = onClearCheatDigOutcome,
+        showPlatformInfo = showPlatformInfo,
+        onClearPlatformInfo = onClearPlatformInfo,
         hasUnsavedChanges = hasUnsavedChanges
     )
 }
@@ -78,6 +82,8 @@ private fun GamePlayScreenContent(
     onWizardPlaceMagicalTrap: ((Int, Position) -> Boolean)? = null,  // Add wizard magical trap callback
     cheatDigOutcome: DigOutcome? = null,  // Dig outcome from cheat code
     onClearCheatDigOutcome: (() -> Unit)? = null,  // Callback to clear cheat dig outcome
+    showPlatformInfo: Boolean = false,  // Show platform info from cheat code
+    onClearPlatformInfo: (() -> Unit)? = null,  // Callback to clear platform info
     hasUnsavedChanges: (() -> Boolean)? = null  // Callback to check for unsaved changes
 
 ) {
@@ -804,6 +810,14 @@ private fun GamePlayScreenContent(
                 showHints = true,
                 initialInput = cheatCodeInput,
                 onInputChange = { cheatCodeInput = it }
+            )
+        }
+        
+        // Platform info dialog (from platform cheat code)
+        if (showPlatformInfo && onClearPlatformInfo != null) {
+            de.egril.defender.ui.PlatformInfoDialog(
+                platformInfo = de.egril.defender.utils.getPlatform().name,
+                onDismiss = onClearPlatformInfo
             )
         }
         

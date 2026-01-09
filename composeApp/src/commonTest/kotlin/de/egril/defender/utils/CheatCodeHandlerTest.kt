@@ -626,4 +626,54 @@ class CheatCodeHandlerTest {
         // Entry level should remain unlocked
         assertEquals(LevelStatus.UNLOCKED, lockedLevels[0].status, "Entry level should NOT be locked (no prerequisites)")
     }
+    
+    @Test
+    fun testPlatformCheatCodeGameplay() {
+        var platformInfoShown = false
+        val (success, digOutcome) = CheatCodeHandler.applyCheatCode(
+            code = "platform",
+            addCoins = { },
+            setCoins = { },
+            performMineDigWithOutcome = { null },
+            spawnEnemy = { _, _ -> },
+            showPlatformInfo = { platformInfoShown = true }
+        )
+        
+        assertTrue(success, "Platform cheat code should be recognized")
+        assertTrue(platformInfoShown, "Platform cheat code should call showPlatformInfo")
+        assertEquals(null, digOutcome, "Platform cheat should not return dig outcome")
+    }
+    
+    @Test
+    fun testPlatformCheatCodeWorldMap() {
+        var platformInfoShown = false
+        val success = CheatCodeHandler.applyWorldMapCheatCode(
+            code = "platform",
+            unlockAllLevels = { },
+            showPlatformInfo = { platformInfoShown = true }
+        )
+        
+        assertTrue(success, "Platform cheat code should be recognized on world map")
+        assertTrue(platformInfoShown, "Platform cheat code should call showPlatformInfo on world map")
+    }
+    
+    @Test
+    fun testPlatformCheatCodeCaseInsensitive() {
+        val testCases = listOf("platform", "PLATFORM", "PlAtFoRm", "  platform  ")
+        
+        for (code in testCases) {
+            var platformInfoShown = false
+            val (success, _) = CheatCodeHandler.applyCheatCode(
+                code = code,
+                addCoins = { },
+                setCoins = { },
+                performMineDigWithOutcome = { null },
+                spawnEnemy = { _, _ -> },
+                showPlatformInfo = { platformInfoShown = true }
+            )
+            
+            assertTrue(success, "Platform cheat code '$code' should be recognized")
+            assertTrue(platformInfoShown, "Platform cheat code '$code' should call showPlatformInfo")
+        }
+    }
 }
