@@ -1,5 +1,6 @@
 package de.egril.defender.ui.gameplay
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -16,6 +17,7 @@ import de.egril.defender.ui.icon.LightningIcon
 import de.egril.defender.ui.icon.MoneyIcon
 import de.egril.defender.ui.icon.TargetIcon
 import de.egril.defender.ui.icon.TimerIcon
+import de.egril.defender.utils.getPlatform
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
 
@@ -28,6 +30,14 @@ fun CompactDefenderButton(
     onClick: () -> Unit
 ) {
     val isDarkMode = de.egril.defender.ui.settings.AppSettings.isDarkMode.value
+    val isAndroidTV = getPlatform().isAndroidTV
+    
+    // Apply Android TV border if selected
+    val buttonModifier = if (isAndroidTV && isSelected) {
+        modifier.border(4.dp, Color.Yellow, MaterialTheme.shapes.small)
+    } else {
+        modifier
+    }
     
     Button(
         onClick = onClick,
@@ -36,7 +46,7 @@ fun CompactDefenderButton(
             containerColor = if (isSelected) GamePlayColors.InfoDark else MaterialTheme.colorScheme.primary,
             contentColor = if (isSelected && isDarkMode) Color.White else Color.White  // Brighter text when selected in dark mode
         ),
-        modifier = modifier,
+        modifier = buttonModifier,
         contentPadding = PaddingValues(4.dp)
     ) {
         Row(
@@ -91,8 +101,16 @@ fun DefenderButton(
     onClick: () -> Unit
 ) {
     val isDarkMode = de.egril.defender.ui.settings.AppSettings.isDarkMode.value
+    val isAndroidTV = getPlatform().isAndroidTV
     // Recalculate canAfford based on current coins.value to ensure reactivity
     val actuallyCanAfford = coinsState.value >= type.baseCost
+
+    // Apply Android TV border if selected
+    val buttonModifier = if (isAndroidTV && isSelected) {
+        Modifier.fillMaxWidth().height(70.dp).border(4.dp, Color.Yellow, MaterialTheme.shapes.small)
+    } else {
+        Modifier.fillMaxWidth().height(70.dp)
+    }
 
     Button(
         onClick = onClick,
@@ -101,7 +119,7 @@ fun DefenderButton(
             containerColor = if (isSelected) GamePlayColors.InfoDark else MaterialTheme.colorScheme.primary,
             contentColor = if (isSelected && isDarkMode) Color.White else Color.White  // Brighter text when selected in dark mode
         ),
-        modifier = Modifier.fillMaxWidth().height(70.dp),
+        modifier = buttonModifier,
         contentPadding = PaddingValues(2.dp)
     ) {
         Row(
