@@ -860,4 +860,8 @@
     <string name="level_status_unknown">Sconosciuto</string>
     <string name="show_testing_levels">Mostra livelli di test</string>
     <string name="test_level">Livello di test</string>
+
+    <!-- Platform Information Dialog -->
+    <string name="platform_information_title">Informazioni sulla piattaforma</string>
+    <string name="platform_information_label">Piattaforma corrente:</string>
 </resources>

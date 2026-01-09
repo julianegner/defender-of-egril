@@ -51,6 +51,9 @@ class GameViewModel {
     private val _cheatDigOutcome = MutableStateFlow<DigOutcome?>(null)
     val cheatDigOutcome: StateFlow<DigOutcome?> = _cheatDigOutcome.asStateFlow()
     
+    private val _showPlatformInfo = MutableStateFlow(false)
+    val showPlatformInfo: StateFlow<Boolean> = _showPlatformInfo.asStateFlow()
+    
     // Player profile state
     private val _currentPlayer = MutableStateFlow<de.egril.defender.save.PlayerProfile?>(null)
     val currentPlayer: StateFlow<de.egril.defender.save.PlayerProfile?> = _currentPlayer.asStateFlow()
@@ -408,7 +411,8 @@ class GameViewModel {
             addCoins = { amount -> gameEngine?.addCoins(amount) },
             setCoins = { amount -> gameEngine?.setCoins(amount) },
             performMineDigWithOutcome = { outcome -> performMineDigWithOutcome(outcome) },
-            spawnEnemy = { attackerType, level -> gameEngine?.spawnEnemy(attackerType, level) }
+            spawnEnemy = { attackerType, level -> gameEngine?.spawnEnemy(attackerType, level) },
+            showPlatformInfo = { _showPlatformInfo.value = true }
         )
         
         if (digOutcome != null) {
@@ -420,6 +424,10 @@ class GameViewModel {
     
     fun clearCheatDigOutcome() {
         _cheatDigOutcome.value = null
+    }
+    
+    fun clearPlatformInfo() {
+        _showPlatformInfo.value = false
     }
     
     fun applyWorldMapCheatCode(code: String): Boolean {
@@ -435,7 +443,8 @@ class GameViewModel {
             unlockLevel = { editorLevelId -> unlockLevel(editorLevelId) },
             lockAllLevels = { lockAllLevels() },
             lockLevel = { editorLevelId -> lockLevel(editorLevelId) },
-            worldLevels = _worldLevels.value
+            worldLevels = _worldLevels.value,
+            showPlatformInfo = { _showPlatformInfo.value = true }
         )
     }
     

@@ -45,7 +45,9 @@ fun WorldMapScreen(
     checkForNewRepositoryData: Boolean = true,  // Set to false in tests to avoid repository checks
     onSwitchPlayer: (() -> Unit)? = null,  // Callback to switch player
     onEditPlayerName: (() -> Unit)? = null,  // Callback to edit player name
-    currentPlayerName: String? = null  // Current player name for display
+    currentPlayerName: String? = null,  // Current player name for display
+    showPlatformInfo: Boolean = false,  // Show platform info from cheat code
+    onClearPlatformInfo: (() -> Unit)? = null  // Callback to clear platform info
 ) {
     var showCheatDialog by remember { mutableStateOf(false) }
     var showNewRepoDataDialog by remember { mutableStateOf(false) }
@@ -395,6 +397,14 @@ fun WorldMapScreen(
         CheatCodeDialog(
             onDismiss = { showCheatDialog = false },
             onApplyCheatCode = onCheatCode
+        )
+    }
+    
+    // Platform info dialog (from platform cheat code)
+    if (showPlatformInfo && onClearPlatformInfo != null) {
+        de.egril.defender.ui.PlatformInfoDialog(
+            platformInfo = de.egril.defender.utils.getPlatform().name,
+            onDismiss = onClearPlatformInfo
         )
     }
     
