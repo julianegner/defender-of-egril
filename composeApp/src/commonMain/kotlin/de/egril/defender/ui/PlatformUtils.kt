@@ -11,3 +11,8 @@ expect fun isEditorAvailable(): Boolean
  * and 1.0 for desktop platforms.
  */
 expect fun getGameplayUIScale(): Float
+
+/**
+ * Platform-specific function to exit the application
+ */
+expect fun exitApplication()
