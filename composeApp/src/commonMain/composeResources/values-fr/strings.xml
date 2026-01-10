@@ -5,6 +5,10 @@
     <string name="app_subtitle">Défendez les prairies d'Egril contre les Hordes de Gleid Thyae sous la Bannière du maléfique Ewhad</string>
     <string name="start_game">Commencer le jeu</string>
     <string name="rules">Règles</string>
+    <string name="exit_game">Quitter le jeu</string>
+    <string name="exit_game_confirm_title">Quitter le jeu ?</string>
+    <string name="exit_game_confirm_message">Êtes-vous sûr de vouloir quitter le jeu ?</string>
+    <string name="exit">Quitter</string>
     
     <!-- Level Complete Screen -->
     <string name="victory">Victoire !</string>
