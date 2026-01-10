@@ -58,6 +58,7 @@
     <string name="level">Livello</string>
     <string name="upgrade">Potenzia</string>
     <string name="sell">Vendi</string>
+    <string name="selected">Selezionato</string>
     <string name="attack">Attacco</string>
     <string name="end_turn">Termina turno</string>
     <string name="next_turn">Turno successivo</string>
