@@ -1,12 +1,15 @@
 package de.egril.defender.ui.gameplay
 
 import androidx.compose.foundation.border
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -31,13 +34,26 @@ fun CompactDefenderButton(
 ) {
     val isDarkMode = de.egril.defender.ui.settings.AppSettings.isDarkMode.value
     val isAndroidTV = remember { getPlatform().isAndroidTV }
+    val locale = com.hyperether.resources.currentLanguage.value
     
-    // Apply Android TV border if selected
-    val buttonModifier = if (isAndroidTV && isSelected) {
-        modifier.border(4.dp, Color.Yellow, MaterialTheme.shapes.small)
-    } else {
-        modifier
-    }
+    // Create accessible content description
+    val towerName = type.getLocalizedShortName(locale)
+    val description = "$towerName, ${stringResource(Res.string.coins_label)}: ${type.baseCost}" +
+        if (isSelected) ", ${stringResource(Res.string.selected)}" else ""
+    
+    // Apply Android TV border if selected for better focus visibility
+    val buttonModifier = modifier
+        .then(
+            if (isAndroidTV && isSelected) {
+                Modifier.border(4.dp, Color.Yellow, MaterialTheme.shapes.small)
+            } else {
+                Modifier
+            }
+        )
+        .semantics {
+            contentDescription = description
+        }
+        .focusable()
     
     Button(
         onClick = onClick,
@@ -102,15 +118,34 @@ fun DefenderButton(
 ) {
     val isDarkMode = de.egril.defender.ui.settings.AppSettings.isDarkMode.value
     val isAndroidTV = remember { getPlatform().isAndroidTV }
+    val locale = com.hyperether.resources.currentLanguage.value
     // Recalculate canAfford based on current coins.value to ensure reactivity
     val actuallyCanAfford = coinsState.value >= type.baseCost
 
-    // Apply Android TV border if selected
-    val buttonModifier = if (isAndroidTV && isSelected) {
-        Modifier.fillMaxWidth().height(70.dp).border(4.dp, Color.Yellow, MaterialTheme.shapes.small)
-    } else {
-        Modifier.fillMaxWidth().height(70.dp)
-    }
+    // Create accessible content description
+    val towerName = type.getLocalizedName(locale)
+    val attackTypeName = type.attackType.getLocalizedName(locale)
+    val description = "$towerName, $attackTypeName, " +
+        "${stringResource(Res.string.damage)}: ${type.baseDamage}, " +
+        "${stringResource(Res.string.range)}: ${type.baseRange}, " +
+        "${stringResource(Res.string.coins_label)}: ${type.baseCost}" +
+        if (isSelected) ", ${stringResource(Res.string.selected)}" else ""
+
+    // Apply Android TV border if selected for better focus visibility
+    val buttonModifier = Modifier
+        .fillMaxWidth()
+        .height(70.dp)
+        .then(
+            if (isAndroidTV && isSelected) {
+                Modifier.border(4.dp, Color.Yellow, MaterialTheme.shapes.small)
+            } else {
+                Modifier
+            }
+        )
+        .semantics {
+            contentDescription = description
+        }
+        .focusable()
 
     Button(
         onClick = onClick,
