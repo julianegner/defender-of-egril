@@ -7,6 +7,8 @@ enum class TutorialStep {
     WELCOME,                // Introduction to the game
     RESOURCES,              // Explain coins and health
     TOWER_TYPES,            // Explain available towers first
+    LEGEND_INFO,            // Explain the legend and what it shows
+    ENEMY_LIST_INFO,        // Explain the enemy list and upcoming enemies
     BUILD_TOWER,            // Guide to place first tower
     INITIAL_BUILDING,       // Explain initial building phase
     UNDO_TOWER,             // Explain undo in initial phase
@@ -58,7 +60,9 @@ data class TutorialState(
         return when (currentStep) {
             TutorialStep.WELCOME -> TutorialStep.RESOURCES
             TutorialStep.RESOURCES -> TutorialStep.TOWER_TYPES
-            TutorialStep.TOWER_TYPES -> TutorialStep.BUILD_TOWER
+            TutorialStep.TOWER_TYPES -> TutorialStep.LEGEND_INFO
+            TutorialStep.LEGEND_INFO -> TutorialStep.ENEMY_LIST_INFO
+            TutorialStep.ENEMY_LIST_INFO -> TutorialStep.BUILD_TOWER
             TutorialStep.BUILD_TOWER -> {
                 if (hasPlacedFirstTower) TutorialStep.INITIAL_BUILDING
                 else TutorialStep.BUILD_TOWER
