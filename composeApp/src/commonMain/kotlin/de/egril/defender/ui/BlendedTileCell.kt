@@ -21,6 +21,8 @@ import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.drawscope.withTransform
+import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerEventType
@@ -179,6 +181,7 @@ private fun BlendedTileBackground(
 /**
  * Draws a neighbor tile with alpha gradient blending at the edge.
  * The gradient makes the neighbor tile visible near the shared edge and transparent towards center.
+ * This creates a smooth visual transition between adjacent tiles of different types.
  */
 private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawNeighborBlend(
     neighborPainter: Painter,
@@ -192,42 +195,42 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawNeighborBlend(
     val dy = neighborPos.y - currentPos.y
     
     // Calculate the angle to the neighbor for gradient orientation
-    // For hexagonal grid with odd-row offset, we need to consider the actual hex layout
     val centerX = size.width / 2f
     val centerY = size.height / 2f
     
     // Determine edge direction based on neighbor offset
-    // This creates a linear gradient perpendicular to the edge
     val edgeAngle = getEdgeAngle(dx, dy, currentPos.y % 2 == 1)
     
-    // Create radial gradient brush centered on the edge between hexagons
-    // The gradient should be transparent at center and opaque towards the edge
-    val gradientRadius = hexSizePx * 0.6f  // Blend zone extends about 60% from center
-    val edgeDistance = hexSizePx * 0.7f    // Edge is about 70% from center
+    // Create a narrow blend strip along the edge
+    // Calculate the edge center point
+    val edgeDistance = hexSizePx * 0.75f   // Distance to edge center
+    val edgeCenterX = centerX + kotlin.math.cos(edgeAngle) * edgeDistance
+    val edgeCenterY = centerY + kotlin.math.sin(edgeAngle) * edgeDistance
     
-    // Calculate gradient center point (towards the neighbor)
-    val gradientCenterX = centerX + kotlin.math.cos(edgeAngle) * edgeDistance
-    val gradientCenterY = centerY + kotlin.math.sin(edgeAngle) * edgeDistance
+    // Draw a clipped portion of the neighbor tile near the edge with alpha gradient
+    // This creates the smooth transition effect
+    val blendWidth = hexSizePx * 0.4f  // Width of the blend zone
     
+    // Create radial gradient centered on the edge
     val brush = Brush.radialGradient(
         colors = listOf(
-            Color.Transparent,
-            Color.White.copy(alpha = 0.5f),
-            Color.White
+            Color.White.copy(alpha = 0.3f),  // Semi-transparent at edge center
+            Color.Transparent               // Fully transparent away from edge
         ),
-        center = Offset(gradientCenterX, gradientCenterY),
-        radius = gradientRadius
+        center = Offset(edgeCenterX, edgeCenterY),
+        radius = blendWidth
     )
     
-    // Draw neighbor tile with gradient mask
-    // Use graphicsLayer for compositing instead of saveLayer
+    // For now, just draw the neighbor tile with a simple alpha blend at edges
+    // This is a simplified approach that will work reliably cross-platform
+    // Future enhancement: use more sophisticated blending with proper layer support
     drawIntoCanvas { canvas ->
-        // Draw neighbor tile first
+        // Draw neighbor tile at reduced opacity
         with(neighborPainter) {
             draw(size)
         }
         
-        // Apply gradient mask using DST_IN blend mode
+        // Apply the gradient mask by drawing on top with DstIn blend mode
         drawRect(
             brush = brush,
             blendMode = BlendMode.DstIn
