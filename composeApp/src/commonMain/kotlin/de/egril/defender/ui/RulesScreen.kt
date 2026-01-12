@@ -10,7 +10,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -23,6 +22,8 @@ import de.egril.defender.ui.icon.TargetIcon
 import de.egril.defender.ui.icon.TimerIcon
 import de.egril.defender.ui.settings.SettingsButton
 import com.hyperether.resources.stringResource
+import de.egril.defender.ui.hexagon.EnemyIconOnHexagon
+import de.egril.defender.ui.hexagon.TowerIconOnHexagon
 import defender_of_egril.composeapp.generated.resources.*
 import defender_of_egril.composeapp.generated.resources.Res
 

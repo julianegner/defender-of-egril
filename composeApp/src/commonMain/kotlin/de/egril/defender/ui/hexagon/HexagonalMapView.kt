@@ -1,5 +1,6 @@
-package de.egril.defender.ui
+package de.egril.defender.ui.hexagon
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -16,17 +17,20 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import de.egril.defender.model.Position
-import de.egril.defender.ui.settings.AppSettings
+import de.egril.defender.ui.mouseWheelZoom
 import de.egril.defender.utils.isPlatformMobile
 import kotlin.math.sqrt
 
@@ -229,7 +233,7 @@ fun HexagonalMapView(
             )
             .then(
                 if (config.enableZoomMode) {
-                    Modifier.mouseWheelZoom(
+                    Modifier.Companion.mouseWheelZoom(
                         containerSize = containerSize,
                         scale = scale,
                         offsetX = offsetX,
@@ -339,13 +343,13 @@ fun HexagonalMapView(
 
 @Composable
 fun BaseGridCell(
-    hexSize: androidx.compose.ui.unit.Dp,
+    hexSize: Dp,
     backgroundColor: Color,
     borderColor: Color,
-    borderWidth: androidx.compose.ui.unit.Dp,
+    borderWidth: Dp,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    backgroundPainter: androidx.compose.ui.graphics.painter.Painter? = null,
+    backgroundPainter: Painter? = null,
     onHover: ((Boolean) -> Unit)? = null,
     content: @Composable BoxScope.() -> Unit = { }
 ) {
@@ -387,11 +391,11 @@ fun BaseGridCell(
     ) {
         // Draw background image if provided, otherwise the background color will show
         backgroundPainter?.let { painter ->
-            androidx.compose.foundation.Image(
+            Image(
                 painter = painter,
                 contentDescription = null,
                 modifier = Modifier.matchParentSize(),
-                contentScale = androidx.compose.ui.layout.ContentScale.Crop
+                contentScale = ContentScale.Crop
             )
         }
         content()

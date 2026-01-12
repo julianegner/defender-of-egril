@@ -1,4 +1,4 @@
-package de.egril.defender.ui
+package de.egril.defender.ui.hexagon
 
 /**
  * Constants for hexagonal grid layout spacing.

@@ -3,7 +3,7 @@ package de.egril.defender.utils
 // Kotlin
 import androidx.compose.ui.geometry.Offset
 import de.egril.defender.model.Position
-import de.egril.defender.ui.HexagonalGridConstants
+import de.egril.defender.ui.hexagon.HexagonalGridConstants
 import kotlin.math.sqrt
 
 /**
