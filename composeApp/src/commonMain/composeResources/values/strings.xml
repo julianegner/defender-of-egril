@@ -5,6 +5,10 @@
     <string name="app_subtitle">Defend the meadows of Egril against the Hordes of Gleid Thyae under the Banner of the evil Ewhad</string>
     <string name="start_game">Start Game</string>
     <string name="rules">Rules</string>
+    <string name="exit_game">Exit Game</string>
+    <string name="exit_game_confirm_title">Exit Game?</string>
+    <string name="exit_game_confirm_message">Are you sure you want to exit the game?</string>
+    <string name="exit">Exit</string>
     
     <!-- Level Complete Screen -->
     <string name="victory">Victory!</string>
