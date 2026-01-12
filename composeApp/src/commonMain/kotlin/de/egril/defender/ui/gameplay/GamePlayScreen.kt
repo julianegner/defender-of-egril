@@ -523,10 +523,11 @@ private fun GamePlayScreenContent(
             )
 
             // Overlay panel with Legend and Enemy List (conditionally shown)
-            // Auto-open during LEGEND_INFO or ENEMY_LIST_INFO tutorial steps
-            val shouldShowOverlayForTutorial = gameState.tutorialState.value.currentStep == TutorialStep.LEGEND_INFO || 
-                                               gameState.tutorialState.value.currentStep == TutorialStep.ENEMY_LIST_INFO
-            val isOverlayVisible = showOverlay || shouldShowOverlayForTutorial
+            // Auto-open during LEGEND_INFO (legend only) or ENEMY_LIST_INFO (enemy list only) tutorial steps
+            val currentTutorialStep = gameState.tutorialState.value.currentStep
+            val shouldShowLegendForTutorial = currentTutorialStep == TutorialStep.LEGEND_INFO
+            val shouldShowEnemyListForTutorial = currentTutorialStep == TutorialStep.ENEMY_LIST_INFO
+            val isOverlayVisible = showOverlay || shouldShowLegendForTutorial || shouldShowEnemyListForTutorial
             
             if (isOverlayVisible) {
                 Column(
@@ -536,13 +537,20 @@ private fun GamePlayScreenContent(
                         .fillMaxHeight()
                         .padding(8.dp)
                 ) {
-                    // Legend
-                    GameLegend(modifier = Modifier.fillMaxWidth())
+                    // Legend - show if user opened overlay OR during LEGEND_INFO tutorial step
+                    if (showOverlay || shouldShowLegendForTutorial) {
+                        GameLegend(modifier = Modifier.fillMaxWidth())
+                        
+                        // Add spacer only if both legend and enemy list are shown
+                        if (showOverlay) {
+                            Spacer(modifier = Modifier.height(16.dp))
+                        }
+                    }
 
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    // Enemy List
-                    EnemyListPanel(gameState = gameState, modifier = Modifier.fillMaxWidth().weight(1f))
+                    // Enemy List - show if user opened overlay OR during ENEMY_LIST_INFO tutorial step
+                    if (showOverlay || shouldShowEnemyListForTutorial) {
+                        EnemyListPanel(gameState = gameState, modifier = Modifier.fillMaxWidth().weight(1f))
+                    }
                 }
             }
             

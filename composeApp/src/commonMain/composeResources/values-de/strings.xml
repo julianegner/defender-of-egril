@@ -422,7 +422,7 @@
     <string name="tutorial_towers_title">Verfügbare Türme</string>
     <string name="tutorial_towers">Pikenturm: Nahkampf, günstig. Speerturm: Mittlere Reichweite. Bogenturm: Große Reichweite. Wählen Sie weise basierend auf Ihrer Strategie!</string>
     <string name="tutorial_legend_title">Die Legende</string>
-    <string name="tutorial_legend">Die Legende rechts zeigt Ihnen, was verschiedene Farben und Symbole auf der Spielkarte bedeuten. Sie erklärt Baubereiche (grün), Feindpfade (braun) und spezielle Felder. Die Legende öffnet sich automatisch, um Ihnen zu helfen, die Karte besser zu verstehen!</string>
+    <string name="tutorial_legend">Die Legende rechts zeigt Ihnen, was verschiedene Farben und Symbole auf der Spielkarte bedeuten. Sie erklärt Baubereiche (grün), Feindpfade (braun) und spezielle Felder.</string>
     <string name="tutorial_enemy_list_title">Feindliste</string>
     <string name="tutorial_enemy_list">Die Feindliste zeigt alle Feinde, die sich derzeit auf der Karte befinden, und diejenigen, die in zukünftigen Runden erscheinen werden. Nutzen Sie dies, um Ihre Verteidigung zu planen! Sie können die Gesundheit, Stufe und Ankunftszeit jedes Feindes sehen.</string>
     <string name="tutorial_build_title">Türme bauen</string>

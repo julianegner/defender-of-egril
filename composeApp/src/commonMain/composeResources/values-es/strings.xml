@@ -422,7 +422,7 @@
     <string name="tutorial_towers_title">Torres disponibles</string>
     <string name="tutorial_towers">Torre de Púas: Corto alcance, barata. Torre de Lanza: Alcance medio. Torre de Arco: Largo alcance. ¡Elige sabiamente según tu estrategia!</string>
     <string name="tutorial_legend_title">La Leyenda</string>
-    <string name="tutorial_legend">La Leyenda a la derecha te muestra qué significan los diferentes colores y símbolos en el mapa del juego. Explica las áreas de construcción (verde), los caminos de enemigos (marrón) y las casillas especiales. ¡La leyenda se abre automáticamente para ayudarte a entender mejor el mapa!</string>
+    <string name="tutorial_legend">La Leyenda a la derecha te muestra qué significan los diferentes colores y símbolos en el mapa del juego. Explica las áreas de construcción (verde), los caminos de enemigos (marrón) y las casillas especiales.</string>
     <string name="tutorial_enemy_list_title">Lista de enemigos</string>
     <string name="tutorial_enemy_list">La Lista de Enemigos muestra todos los enemigos actualmente en el mapa y aquellos que aparecerán en turnos futuros. ¡Úsala para planificar tus defensas! Puedes ver la salud, nivel y cuándo llegará cada enemigo.</string>
     <string name="tutorial_build_title">Construir torres</string>
