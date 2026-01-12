@@ -539,7 +539,10 @@ private fun GamePlayScreenContent(
                 ) {
                     // Legend - show if user opened overlay OR during LEGEND_INFO tutorial step
                     if (showOverlay || shouldShowLegendForTutorial) {
-                        GameLegend(modifier = Modifier.fillMaxWidth())
+                        GameLegend(
+                            modifier = Modifier.fillMaxWidth(),
+                            forceExpanded = shouldShowLegendForTutorial
+                        )
                         
                         // Add spacer only if both legend and enemy list are shown
                         if (showOverlay) {
@@ -549,7 +552,11 @@ private fun GamePlayScreenContent(
 
                     // Enemy List - show if user opened overlay OR during ENEMY_LIST_INFO tutorial step
                     if (showOverlay || shouldShowEnemyListForTutorial) {
-                        EnemyListPanel(gameState = gameState, modifier = Modifier.fillMaxWidth().weight(1f))
+                        EnemyListPanel(
+                            gameState = gameState, 
+                            modifier = Modifier.fillMaxWidth().weight(1f),
+                            forceExpanded = shouldShowEnemyListForTutorial
+                        )
                     }
                 }
             }
