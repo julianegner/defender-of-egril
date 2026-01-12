@@ -523,7 +523,12 @@ private fun GamePlayScreenContent(
             )
 
             // Overlay panel with Legend and Enemy List (conditionally shown)
-            if (showOverlay) {
+            // Auto-open during LEGEND_INFO or ENEMY_LIST_INFO tutorial steps
+            val shouldShowOverlayForTutorial = gameState.tutorialState.value.currentStep == TutorialStep.LEGEND_INFO || 
+                                               gameState.tutorialState.value.currentStep == TutorialStep.ENEMY_LIST_INFO
+            val isOverlayVisible = showOverlay || shouldShowOverlayForTutorial
+            
+            if (isOverlayVisible) {
                 Column(
                     modifier = Modifier
                         .align(Alignment.TopEnd)
@@ -541,7 +546,7 @@ private fun GamePlayScreenContent(
                 }
             }
             
-            // Tutorial card (positioned in upper right corner)
+            // Tutorial card (positioned in upper right corner, or to the left of legend/enemy list when they're showing)
             if (gameState.tutorialState.value.shouldShowOverlay() || gameState.infoState.value.shouldShowOverlay()) {
                 // Check if we should allow skipping attack step
                 // (tower has no actions left or can't reach any enemies)
@@ -566,10 +571,20 @@ private fun GamePlayScreenContent(
                     }
                 }
                 
+                // Position tutorial card to the left of the overlay panel when it's showing
+                val tutorialAlignment = if (isOverlayVisible) {
+                    Alignment.TopEnd
+                } else {
+                    Alignment.TopEnd
+                }
+                
+                // Add padding to position tutorial to the left of the overlay
+                val tutorialPaddingEnd = if (isOverlayVisible) 266.dp else 8.dp  // 250dp overlay + 16dp spacing
+                
                 Box(
                     modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(8.dp)
+                        .align(tutorialAlignment)
+                        .padding(top = 8.dp, end = tutorialPaddingEnd, start = 8.dp, bottom = 8.dp)
                 ) {
                     // Show info or tutorial in the tutorial overlay
                     TutorialOverlay(
