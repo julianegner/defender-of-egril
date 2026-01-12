@@ -34,8 +34,8 @@ fun screenToHexGridPosition(
     val verticalSpacing = hexHeight * 0.75f
     
     // Layout spacing (matching HexagonalMapView.kt)
-    val rowSpacing = -hexHeight + verticalSpacing - 15f //7f  // -27.0 for hexSize=40
-    val colSpacing = -18f //-10f
+    val rowSpacing = -hexHeight + verticalSpacing - 7f  // -27.0 for hexSize=40
+    val colSpacing = -10f
     val oddRowOffset = hexWidth * 0.42f
     
     // Calculate row (y) from vertical position

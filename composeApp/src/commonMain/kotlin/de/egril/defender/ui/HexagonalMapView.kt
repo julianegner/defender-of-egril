@@ -316,7 +316,7 @@ fun HexagonalMapView(
                     translationX = offsetX,
                     translationY = offsetY
                 ),
-            verticalArrangement = Arrangement.spacedBy((-hexHeight + verticalSpacing).dp)
+            verticalArrangement = Arrangement.spacedBy((-hexHeight + verticalSpacing - 7f).dp)
         ) {
             for (y in 0 until gridHeight) {
                 Row(
@@ -325,7 +325,7 @@ fun HexagonalMapView(
                             start = if (y % 2 == 1) (hexWidth * 0.42f).dp else 0.dp
                         )
                         .offset(y = (-(y - 1)).dp),
-                    horizontalArrangement = Arrangement.spacedBy((-(hexWidth * 0.25f)).dp)
+                    horizontalArrangement = Arrangement.spacedBy((-10).dp)
                 ) {
                     for (x in 0 until gridWidth) {
                         val position = Position(x, y)
