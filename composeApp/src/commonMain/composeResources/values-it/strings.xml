@@ -424,7 +424,7 @@
     <string name="tutorial_towers_title">Torri disponibili</string>
     <string name="tutorial_towers">Torre di Punte: Corto raggio, economica. Torre di Lancia: Raggio medio. Torre ad Arco: Lungo raggio. Scegli saggiamente in base alla tua strategia!</string>
     <string name="tutorial_legend_title">La Leggenda</string>
-    <string name="tutorial_legend">La Leggenda a destra ti mostra cosa significano i diversi colori e simboli sulla mappa di gioco. Spiega le aree di costruzione (verde), i percorsi nemici (marrone) e le tessere speciali. La leggenda si apre automaticamente per aiutarti a capire meglio la mappa!</string>
+    <string name="tutorial_legend">La Leggenda a destra ti mostra cosa significano i diversi colori e simboli sulla mappa di gioco. Spiega le aree di costruzione (verde), i percorsi nemici (marrone) e le tessere speciali.</string>
     <string name="tutorial_enemy_list_title">Lista dei nemici</string>
     <string name="tutorial_enemy_list">La Lista dei Nemici mostra tutti i nemici attualmente sulla mappa e quelli che appariranno nei turni futuri. Usala per pianificare le tue difese! Puoi vedere la salute, il livello e quando arriverà ogni nemico.</string>
     <string name="tutorial_build_title">Costruire torri</string>
