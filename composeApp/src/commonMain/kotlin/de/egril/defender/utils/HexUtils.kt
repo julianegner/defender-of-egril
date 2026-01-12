@@ -3,6 +3,7 @@ package de.egril.defender.utils
 // Kotlin
 import androidx.compose.ui.geometry.Offset
 import de.egril.defender.model.Position
+import de.egril.defender.ui.HexagonalGridConstants
 import kotlin.math.sqrt
 
 /**
@@ -33,10 +34,10 @@ fun screenToHexGridPosition(
     val hexHeight = (hexSize * 2f)
     val verticalSpacing = hexHeight * 0.75f
     
-    // Layout spacing (matching HexagonalMapView.kt)
-    val rowSpacing = -hexHeight + verticalSpacing - 7f  // -27.0 for hexSize=40
-    val colSpacing = -10f
-    val oddRowOffset = hexWidth * 0.42f
+    // Layout spacing (using HexagonalGridConstants to match HexagonalMapView.kt)
+    val rowSpacing = -hexHeight + verticalSpacing + HexagonalGridConstants.VERTICAL_SPACING_ADJUSTMENT  // -27.0 for hexSize=40
+    val colSpacing = HexagonalGridConstants.HORIZONTAL_SPACING
+    val oddRowOffset = hexWidth * HexagonalGridConstants.ODD_ROW_OFFSET_RATIO
     
     // Calculate row (y) from vertical position
     // Formula (accounting for Row.offset modifier and Arrangement.spacedBy):
