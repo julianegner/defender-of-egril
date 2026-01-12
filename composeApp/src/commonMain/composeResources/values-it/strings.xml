@@ -868,4 +868,9 @@
     <!-- Platform Information Dialog -->
     <string name="platform_information_title">Informazioni sulla piattaforma</string>
     <string name="platform_information_label">Piattaforma corrente:</string>
+
+    <!-- Initial Language Selection Dialog -->
+    <string name="initial_language_title">Scegli la tua lingua</string>
+    <string name="initial_language_prompt">Seleziona la tua lingua preferita per il gioco</string>
+    <string name="initial_language_continue">Continua</string>
 </resources>
