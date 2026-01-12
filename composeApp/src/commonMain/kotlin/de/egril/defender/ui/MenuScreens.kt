@@ -24,6 +24,7 @@ import de.egril.defender.ui.settings.SettingsButton
 import de.egril.defender.ui.settings.SettingsHintBox
 import de.egril.defender.utils.isPlatformMobile
 import com.hyperether.resources.stringResource
+import de.egril.defender.utils.isPlatformIos
 import defender_of_egril.composeapp.generated.resources.*
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.emoji_sword
@@ -60,22 +61,25 @@ fun MainMenuScreen(
             )
             
             // Exit button in top-left corner (above player name if present)
-            Button(
-                onClick = { showExitConfirmation = true },
-                modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .padding(8.dp)
-                    .height(32.dp)
-                    .widthIn(min = 80.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.error
-                )
-            ) {
-                Text(
-                    text = stringResource(Res.string.exit_game),
-                    style = MaterialTheme.typography.bodySmall,
-                    fontSize = 12.sp
-                )
+            // iOS does not support exiting the app programmatically
+            if (!isPlatformIos) {
+                Button(
+                    onClick = { showExitConfirmation = true },
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .padding(8.dp)
+                        .height(32.dp)
+                        .widthIn(min = 80.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error
+                    )
+                ) {
+                    Text(
+                        text = stringResource(Res.string.exit_game),
+                        style = MaterialTheme.typography.bodySmall,
+                        fontSize = 12.sp
+                    )
+                }
             }
             
             // Player name and selection button below exit button
