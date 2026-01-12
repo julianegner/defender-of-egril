@@ -61,7 +61,5 @@ fun screenToHexGridPosition(
     }
     val x = kotlin.math.round(xApprox).toInt()
     
-    println("Debug HexUtils: px=$px, py=$py -> xApprox=$xApprox, yApprox=$yApprox -> x=$x, y=$y")
-    
     return Position(x, y)
 }
