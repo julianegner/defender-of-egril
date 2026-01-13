@@ -307,6 +307,10 @@ class GameViewModel {
     fun endPlayerTurn() {
         val state = _gameState.value ?: return
         val engine = gameEngine ?: return
+
+        // Auto-fire towers before enemies move.
+        // IMPORTANT: must run on the main thread because GameState uses Compose snapshot state.
+        engine.autoDefenderAttacks()
         
         // Process enemy turn with animations
         viewModelScope.launch(Dispatchers.Default) {
