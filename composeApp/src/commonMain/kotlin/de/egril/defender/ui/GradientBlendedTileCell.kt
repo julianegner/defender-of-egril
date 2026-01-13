@@ -227,6 +227,12 @@ private fun shouldBlendWithNeighbor(currentType: TileType, neighborType: TileTyp
         neighborType == TileType.TARGET || 
         neighborType == TileType.RIVER) return false
     
+    // Don't show NO_PLAY image on buildable tiles (BUILD_AREA or ISLAND)
+    if ((currentType == TileType.BUILD_AREA || currentType == TileType.ISLAND) && 
+        neighborType == TileType.NO_PLAY) {
+        return false
+    }
+    
     // Both tiles should be blendable types
     return shouldBlendTileType(currentType) && shouldBlendTileType(neighborType)
 }
