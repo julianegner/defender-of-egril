@@ -23,6 +23,7 @@ import defender_of_egril.composeapp.generated.resources.*
 fun PlayerNameDialog(
     initialName: String = "",
     isEdit: Boolean = false,
+    showCancelButton: Boolean = true,
     onSave: (String) -> Unit,
     onDismiss: () -> Unit
 ) {
@@ -91,13 +92,15 @@ fun PlayerNameDialog(
                 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = if (showCancelButton) Arrangement.spacedBy(8.dp) else Arrangement.End
                 ) {
-                    OutlinedButton(
-                        onClick = onDismiss,
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text(stringResource(Res.string.cancel))
+                    if (showCancelButton) {
+                        OutlinedButton(
+                            onClick = onDismiss,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text(stringResource(Res.string.cancel))
+                        }
                     }
                     
                     Button(
@@ -109,7 +112,7 @@ fun PlayerNameDialog(
                                 else -> onSave(trimmed)
                             }
                         },
-                        modifier = Modifier.weight(1f)
+                        modifier = if (showCancelButton) Modifier.weight(1f) else Modifier.fillMaxWidth()
                     ) {
                         Text(if (isEdit) {
                             stringResource(Res.string.save)
@@ -128,11 +131,13 @@ fun PlayerNameDialog(
  */
 @Composable
 fun CreatePlayerDialog(
+    showCancelButton: Boolean = true,
     onCreatePlayer: (String) -> Unit,
     onDismiss: () -> Unit
 ) {
     PlayerNameDialog(
         isEdit = false,
+        showCancelButton = showCancelButton,
         onSave = onCreatePlayer,
         onDismiss = onDismiss
     )

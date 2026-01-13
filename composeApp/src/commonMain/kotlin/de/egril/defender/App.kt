@@ -120,6 +120,7 @@ fun App() {
         // Player selection dialogs
         if (showCreatePlayer) {
             CreatePlayerDialog(
+                showCancelButton = currentPlayer != null,
                 onCreatePlayer = { name ->
                     val success = viewModel.createPlayer(name)
                     if (success) {
