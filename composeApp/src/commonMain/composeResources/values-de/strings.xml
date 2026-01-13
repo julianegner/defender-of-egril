@@ -421,6 +421,10 @@
     <string name="tutorial_resources">Sie haben Münzen zum Bauen von Türmen und Lebenspunkte. Wenn Sie Feinde besiegen, erhalten Sie Münzen entsprechend ihrer Grundbelohnung multipliziert mit ihrer Stufe. Schwache Feinde kosten 1 LP, aber mächtige Feinde (Zauberer, Hexen, Magier, Dämonen, Drachen) kosten LP gleich ihrer Stufe. Ewhad kostet alle LP!</string>
     <string name="tutorial_towers_title">Verfügbare Türme</string>
     <string name="tutorial_towers">Pikenturm: Nahkampf, günstig. Speerturm: Mittlere Reichweite. Bogenturm: Große Reichweite. Wählen Sie weise basierend auf Ihrer Strategie!</string>
+    <string name="tutorial_legend_title">Die Legende</string>
+    <string name="tutorial_legend">Die Legende rechts zeigt Ihnen, was verschiedene Farben und Symbole auf der Spielkarte bedeuten. Sie erklärt Baubereiche (grün), Feindpfade (braun) und spezielle Felder.</string>
+    <string name="tutorial_enemy_list_title">Feindliste</string>
+    <string name="tutorial_enemy_list">Die Feindliste zeigt alle Feinde, die sich derzeit auf der Karte befinden, und diejenigen, die in zukünftigen Runden erscheinen werden. Nutzen Sie dies, um Ihre Verteidigung zu planen! Sie können die Gesundheit, Stufe und Ankunftszeit jedes Feindes sehen.</string>
     <string name="tutorial_build_title">Türme bauen</string>
     <string name="tutorial_build">Wählen Sie unten einen Turmtyp und klicken Sie auf einen grünen Baubereich, um ihn zu platzieren. Bauen Sie Ihre Verteidigung auf!</string>
     <string name="tutorial_initial_building_title">Anfängliche Bauphase</string>
@@ -867,4 +871,9 @@
     <!-- Platform Information Dialog -->
     <string name="platform_information_title">Plattforminformationen</string>
     <string name="platform_information_label">Aktuelle Plattform:</string>
+
+    <!-- Initial Language Selection Dialog -->
+    <string name="initial_language_title">Wähle deine Sprache</string>
+    <string name="initial_language_prompt">Wähle deine bevorzugte Sprache für das Spiel</string>
+    <string name="initial_language_continue">Weiter</string>
 </resources>

@@ -35,10 +35,18 @@ fun ExpandableCard(
     modifier: Modifier = Modifier,
     subtitle: String? = null,
     defaultExpanded: Boolean = false,
+    forceExpanded: Boolean = false,
     content: @Composable () -> Unit
 ) {
     var isExpanded by remember { mutableStateOf(defaultExpanded) }
     val isDarkMode = de.egril.defender.ui.settings.AppSettings.isDarkMode.value
+    
+    // Force expansion when forceExpanded is true
+    LaunchedEffect(forceExpanded) {
+        if (forceExpanded) {
+            isExpanded = true
+        }
+    }
 
     Card(modifier = modifier) {
         Column(modifier = Modifier.padding(GamePlayConstants.Spacing.Sections)) {

@@ -423,6 +423,10 @@
     <string name="tutorial_resources">Hai monete per costruire torri e punti vita. Quando sconfiggi i nemici, guadagni monete pari alla loro ricompensa base moltiplicata per il loro livello. I nemici deboli costano 1 PV, ma i nemici potenti (maghi, streghe, maghi malvagi, demoni, draghi) costano PV pari al loro livello. Ewhad costa tutti i tuoi PV!</string>
     <string name="tutorial_towers_title">Torri disponibili</string>
     <string name="tutorial_towers">Torre di Punte: Corto raggio, economica. Torre di Lancia: Raggio medio. Torre ad Arco: Lungo raggio. Scegli saggiamente in base alla tua strategia!</string>
+    <string name="tutorial_legend_title">La Leggenda</string>
+    <string name="tutorial_legend">La Leggenda a destra ti mostra cosa significano i diversi colori e simboli sulla mappa di gioco. Spiega le aree di costruzione (verde), i percorsi nemici (marrone) e le tessere speciali.</string>
+    <string name="tutorial_enemy_list_title">Lista dei nemici</string>
+    <string name="tutorial_enemy_list">La Lista dei Nemici mostra tutti i nemici attualmente sulla mappa e quelli che appariranno nei turni futuri. Usala per pianificare le tue difese! Puoi vedere la salute, il livello e quando arriverà ogni nemico.</string>
     <string name="tutorial_build_title">Costruire torri</string>
     <string name="tutorial_build">Seleziona un tipo di torre sotto, quindi fai clic su un'area di costruzione verde per posizionarla. Costruisci le tue difese!</string>
     <string name="tutorial_initial_building_title">Fase di costruzione iniziale</string>
@@ -868,4 +872,9 @@
     <!-- Platform Information Dialog -->
     <string name="platform_information_title">Informazioni sulla piattaforma</string>
     <string name="platform_information_label">Piattaforma corrente:</string>
+
+    <!-- Initial Language Selection Dialog -->
+    <string name="initial_language_title">Scegli la tua lingua</string>
+    <string name="initial_language_prompt">Seleziona la tua lingua preferita per il gioco</string>
+    <string name="initial_language_continue">Continua</string>
 </resources>

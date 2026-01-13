@@ -119,6 +119,8 @@ private fun getTutorialTitle(step: TutorialStep): String {
         TutorialStep.WELCOME -> stringResource(Res.string.tutorial_welcome_title)
         TutorialStep.RESOURCES -> stringResource(Res.string.tutorial_resources_title)
         TutorialStep.TOWER_TYPES -> stringResource(Res.string.tutorial_towers_title)
+        TutorialStep.LEGEND_INFO -> stringResource(Res.string.tutorial_legend_title)
+        TutorialStep.ENEMY_LIST_INFO -> stringResource(Res.string.tutorial_enemy_list_title)
         TutorialStep.BUILD_TOWER -> stringResource(Res.string.tutorial_build_title)
         TutorialStep.INITIAL_BUILDING -> stringResource(Res.string.tutorial_initial_building_title)
         TutorialStep.UNDO_TOWER -> stringResource(Res.string.tutorial_undo_title)
@@ -140,6 +142,8 @@ private fun getTutorialContent(step: TutorialStep): String {
         TutorialStep.WELCOME -> stringResource(Res.string.tutorial_welcome)
         TutorialStep.RESOURCES -> stringResource(Res.string.tutorial_resources)
         TutorialStep.TOWER_TYPES -> stringResource(Res.string.tutorial_towers)
+        TutorialStep.LEGEND_INFO -> stringResource(Res.string.tutorial_legend)
+        TutorialStep.ENEMY_LIST_INFO -> stringResource(Res.string.tutorial_enemy_list)
         TutorialStep.BUILD_TOWER -> stringResource(Res.string.tutorial_build)
         TutorialStep.INITIAL_BUILDING -> stringResource(Res.string.tutorial_initial_building)
         TutorialStep.UNDO_TOWER -> stringResource(Res.string.tutorial_undo)
@@ -168,6 +172,8 @@ private fun shouldShowSkipButton(step: TutorialStep): Boolean {
         TutorialStep.WELCOME,
         TutorialStep.RESOURCES,
         TutorialStep.TOWER_TYPES,
+        TutorialStep.LEGEND_INFO,
+        TutorialStep.ENEMY_LIST_INFO,
         TutorialStep.BUILD_TOWER
     )
 }
