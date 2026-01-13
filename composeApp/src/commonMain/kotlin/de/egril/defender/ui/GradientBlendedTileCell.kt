@@ -14,12 +14,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.Dp
@@ -27,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import de.egril.defender.editor.TileType
 import de.egril.defender.model.Position
 import de.egril.defender.model.getHexNeighbors
+import de.egril.defender.ui.hexagon.HexagonShape
 import kotlin.math.sqrt
 
 /**
