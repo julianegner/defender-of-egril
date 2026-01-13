@@ -710,14 +710,7 @@ private fun GamePlayScreenContent(
                     },
                     onPrimaryAction = {
                         // Check if there are unused action points before ending turn
-                        val hasUnusedActions = gameState.defenders.any { defender ->
-                            defender.isReady && 
-                            defender.actionsRemaining.value > 0 && 
-                            !defender.isDisabled.value && 
-                            (defender.type.attackType != AttackType.NONE || defender.type == DefenderType.DWARVEN_MINE)
-                        }
-                        
-                        if (hasUnusedActions) {
+                        if (gameState.hasDefendersWithUnusedActions()) {
                             // Show confirmation dialog
                             showEndTurnConfirmation = true
                         } else {

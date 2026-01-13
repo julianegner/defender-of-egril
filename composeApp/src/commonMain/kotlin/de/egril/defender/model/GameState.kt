@@ -139,4 +139,17 @@ data class GameState(
             raft.isActive && raft.currentPosition.value == position
         }
     }
+    
+    /**
+     * Check if there are defenders with unused action points
+     * Used to show end turn confirmation dialog
+     */
+    fun hasDefendersWithUnusedActions(): Boolean {
+        return defenders.any { defender ->
+            defender.isReady && 
+            defender.actionsRemaining.value > 0 && 
+            !defender.isDisabled.value && 
+            (defender.type.attackType != AttackType.NONE || defender.type == DefenderType.DWARVEN_MINE)
+        }
+    }
 }
