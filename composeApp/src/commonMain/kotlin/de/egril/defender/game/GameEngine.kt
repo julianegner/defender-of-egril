@@ -104,10 +104,26 @@ class GameEngine(private val state: GameState) {
         if (attackable.isEmpty()) return null
 
         return attackable.minWithOrNull(
-            compareBy<Attacker> { estimateRemainingDistanceToGoal(it) }
+            compareByDescending<Attacker> { threatScore(it) }
+                .thenBy { estimateRemainingDistanceToGoal(it) }
                 .thenBy { it.currentHealth.value }
                 .thenBy { it.id }
         )
+    }
+
+    private fun threatScore(attacker: Attacker): Int {
+        // Higher score = higher priority
+        return when (attacker.type) {
+            AttackerType.EWHAD -> 100
+            AttackerType.DRAGON -> 90
+            AttackerType.GREEN_WITCH -> 80
+            AttackerType.RED_WITCH -> 75
+            AttackerType.EVIL_MAGE -> 70
+            AttackerType.EVIL_WIZARD -> 65
+            AttackerType.RED_DEMON -> 60
+            AttackerType.BLUE_DEMON -> 55
+            else -> 0
+        }
     }
 
     private fun estimateRemainingDistanceToGoal(attacker: Attacker): Int {
