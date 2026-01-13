@@ -31,6 +31,7 @@ enum class DifficultyLevel {
 object AppSettings {
     private const val KEY_DARK_MODE = "dark_mode"
     private const val KEY_LANGUAGE = "language"
+    private const val KEY_LANGUAGE_CHOSEN = "language_chosen"
     private const val KEY_SOUND_ENABLED = "sound_enabled"
     private const val KEY_SOUND_VOLUME = "sound_volume"
     private const val KEY_EFFECTS_ENABLED = "effects_enabled"
@@ -177,6 +178,44 @@ object AppSettings {
                 // If saved language is invalid, keep default
             }
         }
+    }
+    
+    /**
+     * Check if user has chosen language on first start
+     */
+    fun hasChosenLanguage(): Boolean {
+        return settings.getBoolean(KEY_LANGUAGE_CHOSEN, false)
+    }
+    
+    /**
+     * Mark language as chosen (after first-time language selection)
+     */
+    fun markLanguageChosen() {
+        settings.putBoolean(KEY_LANGUAGE_CHOSEN, true)
+    }
+    
+    /**
+     * Detect and preselect platform language if supported
+     * Returns the detected locale or null if not detected/supported
+     */
+    fun detectAndPreselectPlatformLanguage(): AppLocale? {
+        try {
+            val systemLangCode = de.egril.defender.utils.getSystemLanguageCode()
+            if (systemLangCode != null) {
+                // Find matching locale in supported languages
+                val matchingLocale = AppLocale.entries.find { 
+                    it.code.equals(systemLangCode, ignoreCase = true) 
+                }
+                if (matchingLocale != null) {
+                    // Preselect but don't save yet (user needs to confirm)
+                    currentLanguage.value = matchingLocale
+                    return matchingLocale
+                }
+            }
+        } catch (e: Exception) {
+            // If detection fails, keep default
+        }
+        return null
     }
     
     /**

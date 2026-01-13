@@ -1,7 +1,5 @@
 package de.egril.defender.ui.worldmap
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -10,12 +8,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import de.egril.defender.model.LevelStatus
 import de.egril.defender.model.WorldLevel
-import de.egril.defender.ui.HexagonMinimap
-import de.egril.defender.ui.MinimapConfig
+import de.egril.defender.ui.hexagon.HexagonMinimap
+import de.egril.defender.ui.hexagon.MinimapConfig
 import de.egril.defender.ui.common.LevelInfoEnemiesColumn
 import de.egril.defender.ui.icon.CheckmarkIcon
 import de.egril.defender.ui.icon.LockIcon

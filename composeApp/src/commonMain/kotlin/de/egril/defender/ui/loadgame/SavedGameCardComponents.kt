@@ -13,9 +13,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.egril.defender.model.*
 import de.egril.defender.save.SaveGameMetadata
-import de.egril.defender.ui.HexagonMinimap
-import de.egril.defender.ui.HexagonShape
-import de.egril.defender.ui.MinimapConfig
+import de.egril.defender.ui.hexagon.HexagonMinimap
+import de.egril.defender.ui.hexagon.HexagonShape
+import de.egril.defender.ui.hexagon.MinimapConfig
 import de.egril.defender.ui.TowerTypeIcon
 import de.egril.defender.ui.getLocalizedName
 import de.egril.defender.ui.icon.MoneyIcon

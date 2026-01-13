@@ -127,4 +127,93 @@ class MainMenuScreenTest {
         // The settings button contains a settings icon, so we check for clickable elements
         composeTestRule.onRoot().assertExists()
     }
+    
+    @Test
+    fun testMainMenuHasExitButton() {
+        composeTestRule.setContent {
+            MainMenuScreen(
+                onStartGame = {},
+                onShowRules = {},
+                onSelectPlayer = {},
+                onEditPlayerName = {},
+                currentPlayerName = null
+            )
+        }
+        
+        composeTestRule.waitForIdle()
+        
+        // Check that Exit Game button exists
+        composeTestRule.onNodeWithText("Exit Game", substring = true, ignoreCase = true)
+            .assertExists()
+            .assertHasClickAction()
+    }
+    
+    @Test
+    fun testExitButtonShowsConfirmationDialog() {
+        composeTestRule.setContent {
+            MainMenuScreen(
+                onStartGame = {},
+                onShowRules = {},
+                onSelectPlayer = {},
+                onEditPlayerName = {},
+                currentPlayerName = null
+            )
+        }
+        
+        composeTestRule.waitForIdle()
+        
+        // Click Exit Game button
+        composeTestRule.onNodeWithText("Exit Game", substring = true, ignoreCase = true)
+            .performClick()
+        
+        composeTestRule.waitForIdle()
+        
+        // Verify confirmation dialog appears
+        composeTestRule.onNodeWithText("Exit Game?", substring = true, ignoreCase = true)
+            .assertExists()
+        
+        // Verify dialog message
+        composeTestRule.onNodeWithText("Are you sure you want to exit", substring = true, ignoreCase = true)
+            .assertExists()
+        
+        // Verify Cancel button exists
+        composeTestRule.onNodeWithText("Cancel", substring = true, ignoreCase = true)
+            .assertExists()
+            .assertHasClickAction()
+        
+        // Verify Exit button exists in dialog (check for exact match)
+        composeTestRule.onAllNodesWithText("Exit", useUnmergedTree = false)
+            .assertCountEquals(1) // Only the Exit button in the dialog (not the "Exit Game" button which has different text)
+    }
+    
+    @Test
+    fun testExitConfirmationDialogCanBeCancelled() {
+        composeTestRule.setContent {
+            MainMenuScreen(
+                onStartGame = {},
+                onShowRules = {},
+                onSelectPlayer = {},
+                onEditPlayerName = {},
+                currentPlayerName = null
+            )
+        }
+        
+        composeTestRule.waitForIdle()
+        
+        // Click Exit Game button
+        composeTestRule.onNodeWithText("Exit Game", substring = true, ignoreCase = true)
+            .performClick()
+        
+        composeTestRule.waitForIdle()
+        
+        // Click Cancel button in dialog
+        composeTestRule.onNodeWithText("Cancel", substring = true, ignoreCase = true)
+            .performClick()
+        
+        composeTestRule.waitForIdle()
+        
+        // Verify dialog is dismissed (confirmation title should not exist)
+        composeTestRule.onNodeWithText("Exit Game?", substring = true, ignoreCase = true)
+            .assertDoesNotExist()
+    }
 }

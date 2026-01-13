@@ -2,7 +2,6 @@ package de.egril.defender.ui.worldmap
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -13,7 +12,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.egril.defender.model.LevelStatus
 import de.egril.defender.model.WorldLevel
-import de.egril.defender.ui.*
 import de.egril.defender.ui.getLocalizedTitle
 import de.egril.defender.ui.icon.CheckmarkIcon
 import de.egril.defender.ui.icon.LockIcon
@@ -21,6 +19,8 @@ import de.egril.defender.ui.icon.SwordIcon
 import de.egril.defender.editor.EditorStorage
 import com.hyperether.resources.stringResource
 import de.egril.defender.ui.common.LevelInfoEnemiesColumn
+import de.egril.defender.ui.hexagon.HexagonMinimap
+import de.egril.defender.ui.hexagon.MinimapConfig
 import defender_of_egril.composeapp.generated.resources.*
 import defender_of_egril.composeapp.generated.resources.Res
 

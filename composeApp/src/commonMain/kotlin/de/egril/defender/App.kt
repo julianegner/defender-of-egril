@@ -76,10 +76,20 @@ fun App() {
         var showCreatePlayer by remember { mutableStateOf(false) }
         var showEditPlayer by remember { mutableStateOf(false) }
         
-        // On first launch, show create player dialog if no players exist
+        // Show initial language chooser dialog on first start
+        var showInitialLanguageChooser by remember { mutableStateOf(false) }
+        
+        // On first launch, check if we need to show language chooser first
         LaunchedEffect(needsPlayerSelection) {
             if (needsPlayerSelection) {
-                showCreatePlayer = true
+                // Check if language has been chosen before
+                if (!AppSettings.hasChosenLanguage()) {
+                    // First time - show language chooser first
+                    showInitialLanguageChooser = true
+                } else {
+                    // Language already chosen - proceed to player creation
+                    showCreatePlayer = true
+                }
             }
         }
         
@@ -97,9 +107,20 @@ fun App() {
             }
         }
         
+        // Initial language chooser dialog (first start only)
+        if (showInitialLanguageChooser) {
+            de.egril.defender.ui.settings.InitialLanguageChooserDialog(
+                onLanguageSelected = {
+                    showInitialLanguageChooser = false
+                    showCreatePlayer = true
+                }
+            )
+        }
+        
         // Player selection dialogs
         if (showCreatePlayer) {
             CreatePlayerDialog(
+                showCancelButton = currentPlayer != null,
                 onCreatePlayer = { name ->
                     val success = viewModel.createPlayer(name)
                     if (success) {
