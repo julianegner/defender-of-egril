@@ -35,6 +35,10 @@
     <string name="tile_background_images">Immagini di Sfondo delle Tessere</string>
     <string name="tile_background_images_on">Immagini delle Tessere Attive</string>
     <string name="tile_background_images_off">Sfondi a Colori</string>
+    <string name="header_text_size">Dimensione del Testo dell'Intestazione del Livello</string>
+    <string name="header_text_size_small">Piccolo</string>
+    <string name="header_text_size_medium">Medio</string>
+    <string name="header_text_size_large">Grande</string>
     <string name="reset_settings">Ripristina Impostazioni</string>
     <string name="restore_game_data">Ripristina Dati di Gioco</string>
     <string name="restore_game_data_confirm_title">Ripristinare i Dati di Gioco?</string>
