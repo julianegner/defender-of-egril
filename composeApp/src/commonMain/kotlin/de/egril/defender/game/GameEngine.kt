@@ -53,9 +53,74 @@ class GameEngine(private val state: GameState) {
     
     fun performWizardPlaceMagicalTrap(wizardId: Int, trapPosition: Position): Boolean =
         mineOperations.performWizardPlaceMagicalTrap(wizardId, trapPosition)
+
+    fun autoDefenderAttacks() {
+        if (state.phase.value != GamePhase.PLAYER_TURN) return
+
+        val activeAttackers = state.attackers.filter { attacker ->
+            !attacker.isDefeated.value && !attacker.isBuildingBridge.value
+        }
+        if (activeAttackers.isEmpty()) return
+
+        for (defender in state.defenders) {
+            if (!defender.isReady) continue
+            if (defender.actionsRemaining.value <= 0) continue
+            if (defender.isDisabled.value) continue
+            if (defender.type.attackType == AttackType.NONE) continue
+
+            while (defender.actionsRemaining.value > 0) {
+                val target = selectAutoTargetForDefender(defender, activeAttackers) ?: break
+
+                when (defender.type.attackType) {
+                    AttackType.MELEE, AttackType.RANGED -> {
+                        combatSystem.defenderAttack(defender.id, target.id) {
+                            combatSystem.processDefeatedAttackers()
+                        }
+                    }
+                    AttackType.AREA, AttackType.LASTING -> {
+                        combatSystem.defenderAttackPosition(defender.id, target.position.value) {
+                            combatSystem.processDefeatedAttackers()
+                        }
+                    }
+                    AttackType.NONE -> break
+                }
+
+                // Refresh attacker list for subsequent shots
+                if (state.attackers.none { !it.isDefeated.value && !it.isBuildingBridge.value }) {
+                    return
+                }
+            }
+        }
+    }
     
     fun checkAndActivateTraps() {
         mineOperations.checkAndActivateTraps { combatSystem.processDefeatedAttackers() }
+    }
+
+    private fun selectAutoTargetForDefender(defender: Defender, candidates: List<Attacker>): Attacker? {
+        val attackable = candidates.filter { attacker ->
+            !attacker.isDefeated.value && defender.canAttack(attacker)
+        }
+        if (attackable.isEmpty()) return null
+
+        return attackable.minWithOrNull(
+            compareBy<Attacker> { estimateRemainingDistanceToGoal(it) }
+                .thenBy { it.currentHealth.value }
+                .thenBy { it.id }
+        )
+    }
+
+    private fun estimateRemainingDistanceToGoal(attacker: Attacker): Int {
+        val currentPos = attacker.position.value
+        val nextGoal = attacker.currentTarget?.value
+        val finalGoal = findClosestTargetPosition(currentPos)
+
+        return if (nextGoal != null) {
+            // Estimate remaining progress as: distance to nextGoal + heuristic distance from nextGoal to final goal
+            currentPos.distanceTo(nextGoal) + nextGoal.distanceTo(finalGoal)
+        } else {
+            currentPos.distanceTo(finalGoal)
+        }
     }
     
     /**
