@@ -604,7 +604,7 @@ private fun GamePlayScreenContent(
                     // Show info or tutorial in the tutorial overlay
                     TutorialOverlay(
                         currentStep = gameState.tutorialState.value.currentStep,
-                        isNextEnabled = gameState.tutorialState.value.isNextEnabled(),
+                        isNextEnabled = gameState.tutorialState.value.isNextEnabled(gameState.defenders.size),
                         onNext = {
                             val currentTutorialState = gameState.tutorialState.value
                             gameState.tutorialState.value = currentTutorialState.advanceStep()
