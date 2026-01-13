@@ -228,6 +228,7 @@ fun App() {
                         onDefenderAttack = { defenderId, targetId -> viewModel.defenderAttack(defenderId, targetId) },
                         onDefenderAttackPosition = { defenderId, targetPos -> viewModel.defenderAttackPosition(defenderId, targetPos) },
                         onEndPlayerTurn = { viewModel.endPlayerTurn() },
+                        onAutoAttackAndEndTurn = { viewModel.autoAttackAndEndTurn() },
                         onBackToMap = { viewModel.navigateToWorldMap() },
                         onSaveGame = { comment -> viewModel.saveCurrentGame(comment) },
                         onCheatCode = { code -> viewModel.applyCheatCode(code) },

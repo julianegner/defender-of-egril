@@ -614,6 +614,8 @@
     <string name="end_turn_confirmation_title">Terminare il turno?</string>
     <string name="end_turn_confirmation_message">Hai torri con punti azione inutilizzati e nemici a portata, o miniere con azioni inutilizzate. Sei sicuro di voler terminare il turno?</string>
     <string name="end_turn_confirm">Termina turno</string>
+    <string name="auto_attack_and_end_turn">Attacco Auto e Termina Turno</string>
+    <string name="auto_attack_warning">Nota: Le miniere e le torri con attacchi durevoli potrebbero avere ancora punti azione inutilizzati dopo l'attacco automatico.</string>
     
     <!-- Magical Trap Feature -->
     <string name="magical_trap">Trappola Magica</string>
