@@ -423,6 +423,10 @@
     <string name="tutorial_resources">You have coins to build towers and health points. When you defeat enemies, you earn coins equal to their base reward multiplied by their level. Weak enemies cost 1 HP, but mighty enemies (wizards, witches, mages, demons, dragons) cost HP equal to their level. Ewhad costs all your HP!</string>
     <string name="tutorial_towers_title">Available Towers</string>
     <string name="tutorial_towers">Spike Tower: Close range, cheap. Spear Tower: Medium range. Bow Tower: Long range. Choose wisely based on your strategy!</string>
+    <string name="tutorial_legend_title">The Legend</string>
+    <string name="tutorial_legend">The Legend on the right shows you what different colors and symbols mean on the game map. It explains build areas (green), enemy paths (brown), and special tiles.</string>
+    <string name="tutorial_enemy_list_title">Enemy List</string>
+    <string name="tutorial_enemy_list">The Enemy List shows all enemies currently on the map and those that will spawn in future turns. Use this to plan your defenses! You can see each enemy's health, level, and when they will arrive.</string>
     <string name="tutorial_build_title">Building Towers</string>
     <string name="tutorial_build">Select a tower type from below, then click on a green build area to place it. Build your defenses!</string>
     <string name="tutorial_initial_building_title">Initial Building Phase</string>
