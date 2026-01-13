@@ -3,6 +3,7 @@ package de.egril.defender.utils
 import android.content.pm.PackageManager
 import android.os.Build
 import de.egril.defender.AndroidContextProvider
+import java.util.Locale
 
 class AndroidPlatform : Platform {
     override val name: String = buildPlatformName()
@@ -27,3 +28,11 @@ class AndroidPlatform : Platform {
 }
 
 actual fun getPlatform(): Platform = AndroidPlatform()
+
+actual fun getSystemLanguageCode(): String? {
+    return try {
+        Locale.getDefault().language.lowercase()
+    } catch (e: Exception) {
+        null
+    }
+}

@@ -1,3 +1,5 @@
+@file:OptIn(kotlin.js.ExperimentalWasmJsInterop::class)
+
 package de.egril.defender.utils
 
 class WasmPlatform: Platform {
@@ -5,3 +7,11 @@ class WasmPlatform: Platform {
 }
 
 actual fun getPlatform(): Platform = WasmPlatform()
+
+// External JS function to get browser language
+@JsFun("() => { try { return navigator.language.split('-')[0].toLowerCase(); } catch (e) { return null; } }")
+private external fun getBrowserLanguage(): String?
+
+actual fun getSystemLanguageCode(): String? {
+    return getBrowserLanguage()
+}

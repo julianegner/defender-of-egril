@@ -1,14 +1,17 @@
 package de.egril.defender.ui.gameplay
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.onSizeChanged
@@ -30,6 +33,13 @@ import defender_of_egril.composeapp.generated.resources.*
 import de.egril.defender.ui.icon.TestTubeIcon
 import de.egril.defender.ui.icon.enemy.EnemyIcon
 import de.egril.defender.ui.editor.RiverFlowIndicator
+import de.egril.defender.ui.hexagon.BaseGridCell
+import de.egril.defender.ui.hexagon.HexagonMinimap
+import de.egril.defender.ui.hexagon.HexagonalMapConfig
+import de.egril.defender.ui.hexagon.HexagonalMapView
+import de.egril.defender.ui.hexagon.MinimapConfig
+import de.egril.defender.ui.icon.PentagramIcon
+import de.egril.defender.ui.settings.AppSettings
 import kotlin.math.sqrt
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -661,7 +671,13 @@ private fun BoxScope.GridCellContent(
             attacker != null -> {
                 // Use graphical icon for enemy units
                 // Key by id, position, level, and currentHealth to force recomposition when any changes
-                key(attacker.id, attacker.position.value.x, attacker.position.value.y, attacker.level, attacker.currentHealth.value) {
+                key(
+                    attacker.id,
+                    attacker.position.value.x,
+                    attacker.position.value.y,
+                    attacker.level,
+                    attacker.currentHealth.value
+                ) {
                     Box(contentAlignment = Alignment.Center) {
                         EnemyIcon(attacker = attacker)
                         // Show healing effect overlay if present
@@ -676,14 +692,14 @@ private fun BoxScope.GridCellContent(
                                 Text(
                                     "+",
                                     style = MaterialTheme.typography.headlineLarge,
-                                    color = androidx.compose.ui.graphics.Color(0xFF4CAF50), // Green
+                                    color = Color(0xFF4CAF50), // Green
                                     fontWeight = FontWeight.Bold
                                 )
                                 // Medium + symbol - offset left and higher
                                 Text(
                                     "+",
                                     style = MaterialTheme.typography.headlineMedium,
-                                    color = androidx.compose.ui.graphics.Color(0xFF4CAF50), // Green
+                                    color = Color(0xFF4CAF50), // Green
                                     fontWeight = FontWeight.Bold,
                                     modifier = Modifier.offset(x = (-12).dp, y = (-8).dp)
                                 )
@@ -691,7 +707,7 @@ private fun BoxScope.GridCellContent(
                                 Text(
                                     "+",
                                     style = MaterialTheme.typography.headlineSmall,
-                                    color = androidx.compose.ui.graphics.Color(0xFF4CAF50), // Green
+                                    color = Color(0xFF4CAF50), // Green
                                     fontWeight = FontWeight.Bold,
                                     modifier = Modifier.offset(x = 12.dp, y = (-16).dp)
                                 )
@@ -704,7 +720,16 @@ private fun BoxScope.GridCellContent(
             defender != null -> {
                 // Use graphical icon for towers
                 // Key by id, position, level and actionsRemaining to force recomposition when these change
-                key(defender.id, defender.position.value.x, defender.position.value.y, defender.level.value, defender.actionsRemaining.value, defender.buildTimeRemaining.value, defender.isDisabled.value, defender.disabledTurnsRemaining.value) {
+                key(
+                    defender.id,
+                    defender.position.value.x,
+                    defender.position.value.y,
+                    defender.level.value,
+                    defender.actionsRemaining.value,
+                    defender.buildTimeRemaining.value,
+                    defender.isDisabled.value,
+                    defender.disabledTurnsRemaining.value
+                ) {
                     Box(contentAlignment = Alignment.Center) {
                         TowerIcon(defender = defender, gameState = gameState)
                         // Show red "XT" overlay if tower is disabled by Red Witch
@@ -760,8 +785,9 @@ private fun BoxScope.GridCellContent(
                     when (trap.type) {
                         TrapType.MAGICAL -> {
                             // Magical trap - show pentagram (no damage display)
-                            de.egril.defender.ui.icon.PentagramIcon(size = 24.dp)
+                            PentagramIcon(size = 24.dp)
                         }
+
                         TrapType.DWARVEN -> {
                             // Dwarven trap - show hole icon with damage
                             HoleIcon(size = 20.dp)
@@ -778,14 +804,22 @@ private fun BoxScope.GridCellContent(
 
             isSpawnPoint -> {
                 // Show spawn indicator when cell is empty
-                Text(stringResource(Res.string.spawn), style = MaterialTheme.typography.labelSmall, color = GamePlayColors.Warning)
+                Text(
+                    stringResource(Res.string.spawn),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = GamePlayColors.Warning
+                )
             }
 
             isTarget -> {
                 // Show target indicator when cell is empty
-                Text(stringResource(Res.string.target), style = MaterialTheme.typography.labelSmall, color = GamePlayColors.Success)
+                Text(
+                    stringResource(Res.string.target),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = GamePlayColors.Success
+                )
             }
-            
+
             isRiverTile -> {
                 // Check if there's a bridge at this position
                 val bridge = gameState.getBridgeAt(position)
@@ -798,9 +832,9 @@ private fun BoxScope.GridCellContent(
                     if (riverTile != null) {
                         // Don't show trap icon on maelstrom when tile images are enabled
                         // (the tile_river_maelstrom.png image already shows the maelstrom visually)
-                        val useTileImages = de.egril.defender.ui.settings.AppSettings.useTileImages.value
+                        val useTileImages = AppSettings.useTileImages.value
                         val isMaelstromWithTileImage = riverTile.flowDirection == RiverFlow.MAELSTROM && useTileImages
-                        
+
                         if (!isMaelstromWithTileImage) {
                             RiverFlowIndicator(
                                 flowDirection = riverTile.flowDirection,
@@ -812,7 +846,7 @@ private fun BoxScope.GridCellContent(
                 }
             }
         }
-        
+
         // Show half-transparent tower icon on hovered build tile
         if (showPlacementPreview && selectedDefenderType != null) {
             Box(
@@ -827,64 +861,67 @@ private fun BoxScope.GridCellContent(
                 )
             }
         }
-        
+
         // Draw target circles AFTER other content so they appear on top
         // Inner circles on central target tile, outer ring segments on neighbor tiles
         targetCircleInfo?.let { info ->
-            Canvas(modifier = Modifier
-                .matchParentSize()
-                .zIndex(11f)) {
+            Canvas(
+                modifier = Modifier
+                    .matchParentSize()
+                    .zIndex(11f)
+            ) {
                 when (info) {
                     is TargetCircleInfo.CentralTarget -> {
                         // Draw 3 inner circles on the central target tile
                         val centerX = size.width / 2
                         val centerY = size.height / 2
-                        val center = androidx.compose.ui.geometry.Offset(centerX, centerY)
-                        
+                        val center = Offset(centerX, centerY)
+
                         // Filled inner circle
                         drawCircle(
                             color = info.color,
                             radius = TargetCircleConstants.INNER_CIRCLE_1_RADIUS,
                             center = center
                         )
-                        
+
                         // Two stroke circles
                         drawCircle(
                             color = info.color,
                             radius = TargetCircleConstants.INNER_CIRCLE_2_RADIUS,
                             center = center,
-                            style = androidx.compose.ui.graphics.drawscope.Stroke(
+                            style = Stroke(
                                 width = TargetCircleConstants.INNER_CIRCLE_STROKE_WIDTH
                             )
                         )
-                        
+
                         drawCircle(
                             color = info.color,
                             radius = TargetCircleConstants.INNER_CIRCLE_3_RADIUS,
                             center = center,
-                            style = androidx.compose.ui.graphics.drawscope.Stroke(
+                            style = Stroke(
                                 width = TargetCircleConstants.INNER_CIRCLE_STROKE_WIDTH
                             )
                         )
                     }
+
                     is TargetCircleInfo.NeighborTarget -> {
                         // Draw outer ring segments on neighbor tiles (only for AREA and LASTING)
                         if (info.attackType == AttackType.AREA || info.attackType == AttackType.LASTING) {
                             // Use different radii based on distance from center
                             // Distance 2 (extended area for level 20+) uses larger radii
-                            val radius1 = if (info.distanceFromCenter >= 2) 
-                                TargetCircleConstants.EXTENDED_OUTER_CIRCLE_1_RADIUS 
-                            else 
+                            val radius1 = if (info.distanceFromCenter >= 2)
+                                TargetCircleConstants.EXTENDED_OUTER_CIRCLE_1_RADIUS
+                            else
                                 TargetCircleConstants.OUTER_CIRCLE_1_RADIUS
-                            val radius2 = if (info.distanceFromCenter >= 2) 
-                                TargetCircleConstants.EXTENDED_OUTER_CIRCLE_2_RADIUS 
-                            else 
+                            val radius2 = if (info.distanceFromCenter >= 2)
+                                TargetCircleConstants.EXTENDED_OUTER_CIRCLE_2_RADIUS
+                            else
                                 TargetCircleConstants.OUTER_CIRCLE_2_RADIUS
-                            val radius3 = if (info.distanceFromCenter >= 2) 
-                                TargetCircleConstants.EXTENDED_OUTER_CIRCLE_3_RADIUS 
-                            else 
+                            val radius3 = if (info.distanceFromCenter >= 2)
+                                TargetCircleConstants.EXTENDED_OUTER_CIRCLE_3_RADIUS
+                            else
                                 TargetCircleConstants.OUTER_CIRCLE_3_RADIUS
-                            
+
                             // Draw 3 concentric arc segments
                             CircularSegmentDrawer.drawArcSegment(
                                 drawScope = this,
@@ -895,7 +932,7 @@ private fun BoxScope.GridCellContent(
                                 neighborPos = info.thisPosition,
                                 hexSize = hexSize.value
                             )
-                            
+
                             CircularSegmentDrawer.drawArcSegment(
                                 drawScope = this,
                                 color = info.color,
@@ -905,7 +942,7 @@ private fun BoxScope.GridCellContent(
                                 neighborPos = info.thisPosition,
                                 hexSize = hexSize.value
                             )
-                            
+
                             CircularSegmentDrawer.drawArcSegment(
                                 drawScope = this,
                                 color = info.color,
@@ -920,19 +957,21 @@ private fun BoxScope.GridCellContent(
                 }
             }
         }
-        
+
         // Draw dashed border for tower placement preview
         if (useDashedBorder) {
-            Canvas(modifier = Modifier
-                .matchParentSize()
-                .zIndex(12f)) {
+            Canvas(
+                modifier = Modifier
+                    .matchParentSize()
+                    .zIndex(12f)
+            ) {
                 val sqrt3 = sqrt(3.0).toFloat()
                 val centerX = size.width / 2f
                 val centerY = size.height / 2f
                 val radius = minOf(size.width, size.height) / 2f
-                
+
                 // Create hexagon path
-                val path = androidx.compose.ui.graphics.Path().apply {
+                val path = Path().apply {
                     // Top point
                     moveTo(centerX, centerY - radius)
                     // Top-right
@@ -948,14 +987,14 @@ private fun BoxScope.GridCellContent(
                     // Close the path
                     close()
                 }
-                
+
                 // Draw dashed border
                 drawPath(
                     path = path,
                     color = borderColor,
-                    style = androidx.compose.ui.graphics.drawscope.Stroke(
+                    style = Stroke(
                         width = borderWidth.toPx(),
-                        pathEffect = androidx.compose.ui.graphics.PathEffect.dashPathEffect(
+                        pathEffect = PathEffect.dashPathEffect(
                             intervals = floatArrayOf(10f, 5f),  // 10px dash, 5px gap
                             phase = 0f
                         )

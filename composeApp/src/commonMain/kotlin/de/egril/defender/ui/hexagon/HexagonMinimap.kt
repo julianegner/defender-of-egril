@@ -1,4 +1,4 @@
-package de.egril.defender.ui
+package de.egril.defender.ui.hexagon
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -17,10 +17,13 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.hyperether.resources.currentLanguage
+import de.egril.defender.editor.EditorMap
 import de.egril.defender.editor.EditorStorage
 import de.egril.defender.editor.TileType
 import de.egril.defender.model.*
 import de.egril.defender.ui.getLocalizedName
+import de.egril.defender.ui.settings.AppSettings
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
@@ -112,7 +115,7 @@ fun HexagonMinimap(
         )
     }
     
-    val locale = com.hyperether.resources.currentLanguage.value
+    val locale = currentLanguage.value
     return map.getLocalizedName(locale)
 }
 
@@ -121,7 +124,7 @@ fun HexagonMinimap(
  */
 @Composable
 fun HexagonMinimapFromEditorMap(
-    map: de.egril.defender.editor.EditorMap,
+    map: EditorMap,
     modifier: Modifier = Modifier,
     config: MinimapConfig = MinimapConfig(),
     scale: Float? = null,
@@ -167,7 +170,7 @@ fun HexagonMinimapFromEditorMap(
 
 @Composable
 private fun HexagonMinimapContent(
-    map: de.egril.defender.editor.EditorMap,
+    map: EditorMap,
     level: Level,
     config: MinimapConfig,
     gameState: GameState?,
@@ -177,7 +180,7 @@ private fun HexagonMinimapContent(
     containerSize: IntSize?,
     contentSize: IntSize?
 ) {
-    val isDarkMode = de.egril.defender.ui.settings.AppSettings.isDarkMode.value
+    val isDarkMode = AppSettings.isDarkMode.value
     
     // Cache tile type checks for performance
     val hasSpawnTile = remember(map.tiles) { map.tiles.values.contains(TileType.SPAWN_POINT) }
