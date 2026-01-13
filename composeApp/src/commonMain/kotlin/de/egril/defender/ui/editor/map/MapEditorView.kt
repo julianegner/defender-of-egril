@@ -16,19 +16,19 @@ import androidx.compose.ui.unit.IntSize
 import de.egril.defender.editor.EditorMap
 import de.egril.defender.editor.TileType
 import de.egril.defender.model.Position
-import de.egril.defender.ui.BaseGridCell
-import de.egril.defender.ui.HexagonMinimapFromEditorMap
-import de.egril.defender.ui.HexagonalMapConfig
-import de.egril.defender.ui.HexagonalMapView
-import de.egril.defender.ui.MinimapConfig
+import de.egril.defender.ui.hexagon.BaseGridCell
+import de.egril.defender.ui.hexagon.HexagonMinimapFromEditorMap
+import de.egril.defender.ui.hexagon.HexagonalMapConfig
+import de.egril.defender.ui.hexagon.HexagonalMapView
+import de.egril.defender.ui.hexagon.MinimapConfig
 import de.egril.defender.ui.constrainMapOffsets
-import de.egril.defender.ui.icon.PushpinIcon
 import de.egril.defender.ui.editor.ConfirmationDialog
 import de.egril.defender.ui.editor.SaveAsDialog
 import de.egril.defender.ui.editor.getTileColor
 import de.egril.defender.ui.editor.RiverFlowIndicator
 import de.egril.defender.utils.screenToHexGridPosition
 import com.hyperether.resources.stringResource
+import de.egril.defender.model.RiverTile
 import defender_of_egril.composeapp.generated.resources.*
 
 /**
@@ -178,7 +178,7 @@ fun MapEditorView(
                             // If painting a river tile, add river data
                             if (selectedTileType == TileType.RIVER) {
                                 riverTiles = riverTiles.toMutableMap().apply {
-                                    this[key] = de.egril.defender.model.RiverTile(
+                                    this[key] = RiverTile(
                                         position = position,
                                         flowDirection = selectedRiverFlow,
                                         flowSpeed = selectedRiverSpeed

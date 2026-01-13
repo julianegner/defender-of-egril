@@ -18,7 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
 import de.egril.defender.model.DefenderType
-import de.egril.defender.ui.TowerIconOnHexagon
+import de.egril.defender.ui.hexagon.TowerIconOnHexagon
 import de.egril.defender.ui.getLocalizedName
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.add_all_towers
