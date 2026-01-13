@@ -127,8 +127,7 @@ fun GradientBlendedTileCell(
 
 /**
  * Renders the tile background with gradient transitions to neighbor tiles.
- * Neighbors are drawn as background layers, then the main tile is drawn on top
- * with a gradient mask that makes edges transparent (1/3 of hexagon width).
+ * Main tile is drawn first, then neighbors are drawn with alpha transparency on top.
  */
 @Composable
 private fun GradientBlendedTileBackground(
@@ -141,58 +140,68 @@ private fun GradientBlendedTileBackground(
 ) {
     Canvas(modifier = Modifier.fillMaxSize()) {
         val hexSizePx = hexSize.toPx()
+        val centerX = size.width / 2f
+        val centerY = size.height / 2f
         
-        // Step 1: Draw neighbor tiles as background layers
+        // Step 1: Draw the main tile first (full opacity)
+        drawIntoCanvas { canvas ->
+            with(painter) {
+                draw(size)
+            }
+        }
+        
+        // Step 2: Draw neighbor tiles on top with low alpha for blending
+        // Each neighbor is drawn at very low opacity to create subtle transitions
         val neighbors = position.getHexNeighbors()
         for (neighbor in neighbors) {
             val neighborType = getNeighborTileType(neighbor)
             if (neighborType != null && shouldBlendWithNeighbor(tileType, neighborType)) {
                 val neighborPainter = getNeighborTilePainter(neighbor, neighborType)
                 if (neighborPainter != null) {
-                    // Draw neighbor tile at full opacity as background
+                    // Draw neighbor tile with 15% opacity
+                    // This creates a subtle blend without complex compositing
                     drawIntoCanvas { canvas ->
+                        canvas.saveLayer(
+                            androidx.compose.ui.geometry.Rect(0f, 0f, size.width, size.height),
+                            androidx.compose.ui.graphics.Paint().apply {
+                                alpha = 0.15f  // 15% opacity for subtle blending
+                            }
+                        )
+                        
                         with(neighborPainter) {
                             draw(size)
                         }
+                        
+                        canvas.restore()
                     }
                 }
             }
         }
-        
-        // Step 2: Draw main tile with gradient mask
-        // The gradient makes edges transparent (1/3 of hexagon width)
-        drawIntoCanvas { canvas ->
-            // Create a radial gradient that is opaque in center and transparent at edges
-            // The gradient should affect about 1/3 of the hexagon width (edge zone)
-            val centerX = size.width / 2f
-            val centerY = size.height / 2f
-            
-            // Gradient radius: full center is opaque, outer 1/3 fades to transparent
-            val opaqueRadius = hexSizePx * 0.55f  // Inner 55% is fully opaque
-            val fadeRadius = hexSizePx * 0.85f    // Fades from 55% to 85%
-            
-            // Create gradient brush using colorStops parameter
-            val gradientBrush = Brush.radialGradient(
-                0f to Color.White,                    // Fully opaque at center
-                0.65f to Color.White,                 // Fully opaque until 65%
-                0.85f to Color.White.copy(alpha = 0.5f), // Semi-transparent in fade zone
-                1f to Color.Transparent,              // Fully transparent at edges
-                center = Offset(centerX, centerY),
-                radius = fadeRadius
-            )
-            
-            // Draw the main tile
-            with(painter) {
-                draw(size)
-            }
-            
-            // Apply gradient mask using DstIn blend mode
-            // This makes the tile transparent at edges while keeping center opaque
-            drawRect(
-                brush = gradientBrush,
-                blendMode = BlendMode.DstIn
-            )
-        }
+    }
+}
+
+/**
+ * Calculate the angle (in radians) from the current hex to the neighbor hex.
+ */
+private fun getEdgeAngle(dx: Int, dy: Int, isOddRow: Boolean): Float {
+    return when {
+        // East
+        dx == 1 && dy == 0 -> 0f
+        // North-East
+        (dx == 0 && dy == -1 && !isOddRow) || (dx == 1 && dy == -1 && isOddRow) -> 
+            -kotlin.math.PI.toFloat() / 3f
+        // North-West
+        (dx == -1 && dy == -1 && !isOddRow) || (dx == 0 && dy == -1 && isOddRow) -> 
+            -2f * kotlin.math.PI.toFloat() / 3f
+        // West
+        dx == -1 && dy == 0 -> kotlin.math.PI.toFloat()
+        // South-West
+        (dx == -1 && dy == 1 && !isOddRow) || (dx == 0 && dy == 1 && isOddRow) -> 
+            2f * kotlin.math.PI.toFloat() / 3f
+        // South-East
+        (dx == 0 && dy == 1 && !isOddRow) || (dx == 1 && dy == 1 && isOddRow) -> 
+            kotlin.math.PI.toFloat() / 3f
+        else -> 0f
     }
 }
 
