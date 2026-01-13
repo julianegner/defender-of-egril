@@ -423,6 +423,10 @@
     <string name="tutorial_resources">Vous avez des pièces pour construire des tours et des points de vie. Lorsque vous battez des ennemis, vous gagnez des pièces égales à leur récompense de base multipliée par leur niveau. Les ennemis faibles coûtent 1 PV, mais les ennemis puissants (sorciers, sorcières, mages maléfiques, démons, dragons) coûtent des PV égaux à leur niveau. Ewhad coûte tous vos PV!</string>
     <string name="tutorial_towers_title">Tours disponibles</string>
     <string name="tutorial_towers">Tour à Piques: Courte portée, bon marché. Tour de Lance: Portée moyenne. Tour d'Arc: Longue portée. Choisissez judicieusement selon votre stratégie!</string>
+    <string name="tutorial_legend_title">La Légende</string>
+    <string name="tutorial_legend">La Légende à droite vous montre ce que signifient les différentes couleurs et symboles sur la carte du jeu. Elle explique les zones de construction (vert), les chemins ennemis (marron) et les tuiles spéciales.</string>
+    <string name="tutorial_enemy_list_title">Liste des ennemis</string>
+    <string name="tutorial_enemy_list">La Liste des Ennemis affiche tous les ennemis actuellement sur la carte et ceux qui apparaîtront dans les tours futurs. Utilisez-la pour planifier vos défenses! Vous pouvez voir la santé, le niveau et le moment d'arrivée de chaque ennemi.</string>
     <string name="tutorial_build_title">Construire des tours</string>
     <string name="tutorial_build">Sélectionnez un type de tour ci-dessous, puis cliquez sur une zone de construction verte pour la placer. Construisez vos défenses!</string>
     <string name="tutorial_initial_building_title">Phase de construction initiale</string>
