@@ -25,14 +25,15 @@ import de.egril.defender.ui.hexagon.HexagonShape
 import defender_of_egril.composeapp.generated.resources.*
 
 @Composable
-fun GameLegend(modifier: Modifier = Modifier) {
+fun GameLegend(modifier: Modifier = Modifier, forceExpanded: Boolean = false) {
     val isDarkMode = de.egril.defender.ui.settings.AppSettings.isDarkMode.value
     val borderColor = if (isDarkMode) Color(0xFF303030) else Color.Gray  // Even darker border in dark mode
     
     ExpandableCard(
         title = stringResource(Res.string.legend),
         modifier = modifier,
-        defaultExpanded = false
+        defaultExpanded = false,
+        forceExpanded = forceExpanded
     ) {
         LazyColumn(
             modifier = Modifier.fillMaxWidth().heightIn(max = 400.dp),
@@ -248,7 +249,7 @@ private fun Color.luminance(): Float {
 }
 
 @Composable
-fun EnemyListPanel(gameState: GameState, modifier: Modifier = Modifier) {
+fun EnemyListPanel(gameState: GameState, modifier: Modifier = Modifier, forceExpanded: Boolean = false) {
     // Expand by default during initial building phase, collapsed otherwise
     // This state is remembered per GameState instance (each level has its own GameState)
     // so it will auto-expand when a new level is loaded
@@ -278,7 +279,8 @@ fun EnemyListPanel(gameState: GameState, modifier: Modifier = Modifier) {
     ExpandableCard(
         title = stringResource(Res.string.enemies),
         modifier = modifier,
-        defaultExpanded = true
+        defaultExpanded = true,
+        forceExpanded = forceExpanded
     ) {
         Text(
             "${stringResource(Res.string.active_label)}: ${activeEnemies.size} | ${stringResource(Res.string.planned_label)}: ${plannedSpawns.size}",
