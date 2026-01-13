@@ -370,6 +370,22 @@ class GameViewModel {
         }
     }
 
+    fun autoAttackAndEndTurn() {
+        // This method is called from the "Auto-Attack and End Turn" button in the confirmation dialog
+        // It explicitly calls autoDefenderAttacks() before ending the turn
+        // Note: endPlayerTurn() already calls autoDefenderAttacks(), so this just ensures
+        // the user gets the explicit auto-attack behavior they requested
+        val engine = gameEngine ?: return
+        
+        // Explicitly trigger auto-attacks for all ready defenders
+        // This is the same as what endPlayerTurn() does, but called explicitly
+        // to make it clear that auto-attack is happening
+        engine.autoDefenderAttacks()
+        
+        // Now end the turn (which will call autoDefenderAttacks again, but that's safe)
+        endPlayerTurn()
+    }
+
     private fun completeLevel(levelId: Int, won: Boolean) {
         val isLastLevel = _worldLevels.value.lastOrNull()?.level?.id == levelId
         if (won) {

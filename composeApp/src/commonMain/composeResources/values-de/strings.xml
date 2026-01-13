@@ -614,6 +614,8 @@
     <string name="end_turn_confirmation_title">Runde beenden?</string>
     <string name="end_turn_confirmation_message">Sie haben Türme mit ungenutzten Aktionspunkten und Feinden in Reichweite, oder Minen mit ungenutzten Aktionen. Möchten Sie Ihre Runde wirklich beenden?</string>
     <string name="end_turn_confirm">Runde beenden</string>
+    <string name="auto_attack_and_end_turn">Auto-Angriff und Runde beenden</string>
+    <string name="auto_attack_warning">Hinweis: Minen und Türme mit dauerhaften Angriffen könnten nach dem Auto-Angriff noch ungenutzte Aktionspunkte haben.</string>
     
     <!-- Magical Trap Feature -->
     <string name="magical_trap">Magische Falle</string>

@@ -27,6 +27,7 @@ fun GamePlayScreen(
     onDefenderAttack: (Int, Int) -> Boolean,
     onDefenderAttackPosition: (Int, Position) -> Boolean,
     onEndPlayerTurn: () -> Unit,
+    onAutoAttackAndEndTurn: () -> Unit,  // Add auto-attack callback
     onBackToMap: () -> Unit,
     onSaveGame: ((String?) -> String?)? = null,  // Add save game callback with optional comment
     onCheatCode: ((String) -> Boolean)? = null,  // Add cheat code callback
@@ -49,6 +50,7 @@ fun GamePlayScreen(
         onDefenderAttack = onDefenderAttack,
         onDefenderAttackPosition = onDefenderAttackPosition,
         onEndPlayerTurn = onEndPlayerTurn,
+        onAutoAttackAndEndTurn = onAutoAttackAndEndTurn,
         onBackToMap = onBackToMap,
         onSaveGame = onSaveGame,
         onCheatCode = onCheatCode,
@@ -74,6 +76,7 @@ private fun GamePlayScreenContent(
     onDefenderAttack: (Int, Int) -> Boolean,
     onDefenderAttackPosition: (Int, Position) -> Boolean,
     onEndPlayerTurn: () -> Unit,
+    onAutoAttackAndEndTurn: () -> Unit,  // Add auto-attack callback
     onBackToMap: () -> Unit,
     onSaveGame: ((String?) -> String?)? = null,  // Add save game callback with optional comment
     onCheatCode: ((String) -> Boolean)? = null,
@@ -706,12 +709,25 @@ private fun GamePlayScreenContent(
                         }
                     },
                     onPrimaryAction = {
-                        // End turn directly
-                        onEndPlayerTurn()
-                        // Track tutorial progress
-                        if (gameState.tutorialState.value.isActive && 
-                            !gameState.tutorialState.value.hasStartedFirstTurn) {
-                            gameState.tutorialState.value = gameState.tutorialState.value.markTurnStarted()
+                        // Check if there are unused action points before ending turn
+                        val hasUnusedActions = gameState.defenders.any { defender ->
+                            defender.isReady && 
+                            defender.actionsRemaining.value > 0 && 
+                            !defender.isDisabled.value && 
+                            (defender.type.attackType != AttackType.NONE || defender.type == DefenderType.DWARVEN_MINE)
+                        }
+                        
+                        if (hasUnusedActions) {
+                            // Show confirmation dialog
+                            showEndTurnConfirmation = true
+                        } else {
+                            // End turn directly
+                            onEndPlayerTurn()
+                            // Track tutorial progress
+                            if (gameState.tutorialState.value.isActive && 
+                                !gameState.tutorialState.value.hasStartedFirstTurn) {
+                                gameState.tutorialState.value = gameState.tutorialState.value.markTurnStarted()
+                            }
                         }
                     },
                     onMineAction = handleMineAction,
@@ -816,6 +832,15 @@ private fun GamePlayScreenContent(
                 onConfirm = {
                     showEndTurnConfirmation = false
                     onEndPlayerTurn()
+                    // Track tutorial progress
+                    if (gameState.tutorialState.value.isActive && 
+                        !gameState.tutorialState.value.hasStartedFirstTurn) {
+                        gameState.tutorialState.value = gameState.tutorialState.value.markTurnStarted()
+                    }
+                },
+                onAutoAttackAndConfirm = {
+                    showEndTurnConfirmation = false
+                    onAutoAttackAndEndTurn()
                     // Track tutorial progress
                     if (gameState.tutorialState.value.isActive && 
                         !gameState.tutorialState.value.hasStartedFirstTurn) {

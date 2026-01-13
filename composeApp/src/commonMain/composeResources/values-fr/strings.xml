@@ -614,6 +614,8 @@
     <string name="end_turn_confirmation_title">Terminer le tour ?</string>
     <string name="end_turn_confirmation_message">Vous avez des tours avec des points d'action inutilisés et des ennemis à portée, ou des mines avec des actions inutilisées. Êtes-vous sûr de vouloir terminer votre tour ?</string>
     <string name="end_turn_confirm">Terminer le tour</string>
+    <string name="auto_attack_and_end_turn">Attaque Auto et Terminer le Tour</string>
+    <string name="auto_attack_warning">Note : Les mines et les tours à attaque durable pourraient avoir des points d'action inutilisés après l'attaque automatique.</string>
     
     <!-- Magical Trap Feature -->
     <string name="magical_trap">Piège Magique</string>
