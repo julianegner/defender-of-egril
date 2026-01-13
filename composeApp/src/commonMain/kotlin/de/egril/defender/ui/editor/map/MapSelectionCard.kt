@@ -16,7 +16,7 @@ import de.egril.defender.editor.EditorMap
 import de.egril.defender.model.Level
 import de.egril.defender.model.Position
 import de.egril.defender.ui.icon.CheckmarkIcon
-import de.egril.defender.ui.HexagonMinimapFromEditorMap
+import de.egril.defender.ui.hexagon.HexagonMinimapFromEditorMap
 
 /**
  * Card for selecting a map in the level editor

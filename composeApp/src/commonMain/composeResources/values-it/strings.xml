@@ -5,6 +5,10 @@
     <string name="app_subtitle">Difendi i prati di Egril contro le Orde di Gleid Thyae sotto la Bandiera del malvagio Ewhad</string>
     <string name="start_game">Inizia partita</string>
     <string name="rules">Regole</string>
+    <string name="exit_game">Esci dal gioco</string>
+    <string name="exit_game_confirm_title">Uscire dal gioco?</string>
+    <string name="exit_game_confirm_message">Sei sicuro di voler uscire dal gioco?</string>
+    <string name="exit">Esci</string>
     
     <!-- Level Complete Screen -->
     <string name="victory">Vittoria!</string>
@@ -419,12 +423,16 @@
     <string name="tutorial_resources">Hai monete per costruire torri e punti vita. Quando sconfiggi i nemici, guadagni monete pari alla loro ricompensa base moltiplicata per il loro livello. I nemici deboli costano 1 PV, ma i nemici potenti (maghi, streghe, maghi malvagi, demoni, draghi) costano PV pari al loro livello. Ewhad costa tutti i tuoi PV!</string>
     <string name="tutorial_towers_title">Torri disponibili</string>
     <string name="tutorial_towers">Torre di Punte: Corto raggio, economica. Torre di Lancia: Raggio medio. Torre ad Arco: Lungo raggio. Scegli saggiamente in base alla tua strategia!</string>
+    <string name="tutorial_legend_title">La Leggenda</string>
+    <string name="tutorial_legend">La Leggenda a destra ti mostra cosa significano i diversi colori e simboli sulla mappa di gioco. Spiega le aree di costruzione (verde), i percorsi nemici (marrone) e le tessere speciali.</string>
+    <string name="tutorial_enemy_list_title">Lista dei nemici</string>
+    <string name="tutorial_enemy_list">La Lista dei Nemici mostra tutti i nemici attualmente sulla mappa e quelli che appariranno nei turni futuri. Usala per pianificare le tue difese! Puoi vedere la salute, il livello e quando arriverà ogni nemico.</string>
     <string name="tutorial_build_title">Costruire torri</string>
     <string name="tutorial_build">Seleziona un tipo di torre sotto, quindi fai clic su un'area di costruzione verde per posizionarla. Costruisci le tue difese!</string>
     <string name="tutorial_initial_building_title">Fase di costruzione iniziale</string>
     <string name="tutorial_initial_building">In questa fase iniziale, le torri vengono costruite istantaneamente ma non possono ancora attaccare. Fai clic su una torre per vedere il suo raggio - le caselle del percorso ottengono bordi verdi. Più avanti nel gioco, le torri impiegheranno 1-2 turni per essere costruite.</string>
     <string name="tutorial_undo_title">Annulla torri</string>
-    <string name="tutorial_undo">Durante questa fase iniziale, puoi annullare il posizionamento della torre selezionandola e vendendola per un rimborso completo. Dopo l'inizio della battaglia, puoi vendere le torri solo per il 75%% del loro valore.</string>
+    <string name="tutorial_undo">Durante questa fase iniziale, puoi annullare il posizionamento della torre selezionandola e vendendola per un rimborso completo. Dopo l'inizio della battaglia, puoi vendere le torri solo per il 75% del loro valore.</string>
     <string name="tutorial_combat_title">Inizia la battaglia</string>
     <string name="tutorial_combat">Fai clic sul pulsante Inizia battaglia quando sei pronto. Il tuo obiettivo è difendere il Bersaglio alla fine del percorso - non lasciare che i nemici lo raggiungano!</string>
     <string name="tutorial_enemies_title">Nemici in arrivo!</string>
@@ -436,7 +444,7 @@
     <string name="tutorial_upgrade_title">Potenzia torri</string>
     <string name="tutorial_upgrade">Seleziona una torre e fai clic su Potenzia per aumentare le sue statistiche. Vedrai danno, raggio e azioni attuali per turno, più come saranno dopo il potenziamento. I potenziamenti costano monete ma rendono le torri più potenti!</string>
     <string name="tutorial_sell_title">Vendi torri</string>
-    <string name="tutorial_sell">Seleziona una torre e fai clic su Vendi per ottenere il 75%% del suo investimento totale (costo + potenziamenti). Usa questo se hai bisogno di monete o vuoi riposizionare la tua difesa.</string>
+    <string name="tutorial_sell">Seleziona una torre e fai clic su Vendi per ottenere il 75% del suo investimento totale (costo + potenziamenti). Usa questo se hai bisogno di monete o vuoi riposizionare la tua difesa.</string>
     <string name="tutorial_save_game_title">Salva i tuoi progressi</string>
     <string name="tutorial_save_game">Puoi salvare il tuo gioco in qualsiasi momento usando il pulsante Salva gioco. Questo ti permette di provare diverse strategie o continuare più tardi. Per caricare un gioco salvato, usa il pulsante Carica gioco sulla schermata della mappa del mondo.</string>
     <string name="tutorial_complete_title">Tutorial completato!</string>
@@ -860,4 +868,13 @@
     <string name="level_status_unknown">Sconosciuto</string>
     <string name="show_testing_levels">Mostra livelli di test</string>
     <string name="test_level">Livello di test</string>
+
+    <!-- Platform Information Dialog -->
+    <string name="platform_information_title">Informazioni sulla piattaforma</string>
+    <string name="platform_information_label">Piattaforma corrente:</string>
+
+    <!-- Initial Language Selection Dialog -->
+    <string name="initial_language_title">Scegli la tua lingua</string>
+    <string name="initial_language_prompt">Seleziona la tua lingua preferita per il gioco</string>
+    <string name="initial_language_continue">Continua</string>
 </resources>

@@ -5,6 +5,10 @@
     <string name="app_subtitle">Verteidige die Wiesen von Egril gegen die Horden von Gleid Thyae unter der Flagge des bösen Ewhad</string>
     <string name="start_game">Spiel starten</string>
     <string name="rules">Regeln</string>
+    <string name="exit_game">Spiel beenden</string>
+    <string name="exit_game_confirm_title">Spiel beenden?</string>
+    <string name="exit_game_confirm_message">Möchten Sie das Spiel wirklich beenden?</string>
+    <string name="exit">Beenden</string>
 
     <!-- Level Complete Screen -->
     <string name="victory">Sieg!</string>
@@ -417,12 +421,16 @@
     <string name="tutorial_resources">Sie haben Münzen zum Bauen von Türmen und Lebenspunkte. Wenn Sie Feinde besiegen, erhalten Sie Münzen entsprechend ihrer Grundbelohnung multipliziert mit ihrer Stufe. Schwache Feinde kosten 1 LP, aber mächtige Feinde (Zauberer, Hexen, Magier, Dämonen, Drachen) kosten LP gleich ihrer Stufe. Ewhad kostet alle LP!</string>
     <string name="tutorial_towers_title">Verfügbare Türme</string>
     <string name="tutorial_towers">Pikenturm: Nahkampf, günstig. Speerturm: Mittlere Reichweite. Bogenturm: Große Reichweite. Wählen Sie weise basierend auf Ihrer Strategie!</string>
+    <string name="tutorial_legend_title">Die Legende</string>
+    <string name="tutorial_legend">Die Legende rechts zeigt Ihnen, was verschiedene Farben und Symbole auf der Spielkarte bedeuten. Sie erklärt Baubereiche (grün), Feindpfade (braun) und spezielle Felder.</string>
+    <string name="tutorial_enemy_list_title">Feindliste</string>
+    <string name="tutorial_enemy_list">Die Feindliste zeigt alle Feinde, die sich derzeit auf der Karte befinden, und diejenigen, die in zukünftigen Runden erscheinen werden. Nutzen Sie dies, um Ihre Verteidigung zu planen! Sie können die Gesundheit, Stufe und Ankunftszeit jedes Feindes sehen.</string>
     <string name="tutorial_build_title">Türme bauen</string>
     <string name="tutorial_build">Wählen Sie unten einen Turmtyp und klicken Sie auf einen grünen Baubereich, um ihn zu platzieren. Bauen Sie Ihre Verteidigung auf!</string>
     <string name="tutorial_initial_building_title">Anfängliche Bauphase</string>
     <string name="tutorial_initial_building">In dieser Anfangsphase werden Türme sofort gebaut, können aber noch nicht angreifen. Klicken Sie auf einen Turm, um seine Reichweite zu sehen - Pfadfelder bekommen grüne Ränder. Später im Spiel dauert der Bau von Türmen 1-2 Runden.</string>
     <string name="tutorial_undo_title">Türme rückgängig machen</string>
-    <string name="tutorial_undo">Während dieser Anfangsphase können Sie die Turmplatzierung rückgängig machen, indem Sie ihn auswählen und für eine vollständige Rückerstattung verkaufen. Nach Beginn der Schlacht können Sie Türme nur noch für 75%% ihres Wertes verkaufen.</string>
+    <string name="tutorial_undo">Während dieser Anfangsphase können Sie die Turmplatzierung rückgängig machen, indem Sie ihn auswählen und für eine vollständige Rückerstattung verkaufen. Nach Beginn der Schlacht können Sie Türme nur noch für 75% ihres Wertes verkaufen.</string>
     <string name="tutorial_combat_title">Starten Sie die Schlacht</string>
     <string name="tutorial_combat">Klicken Sie auf die Schaltfläche Schlacht starten, wenn Sie bereit sind. Ihr Ziel ist es, das Ziel am Ende des Pfades zu verteidigen - lassen Sie keine Feinde es erreichen!</string>
     <string name="tutorial_enemies_title">Feinde im Anmarsch!</string>
@@ -434,7 +442,7 @@
     <string name="tutorial_upgrade_title">Türme aufwerten</string>
     <string name="tutorial_upgrade">Wählen Sie einen Turm und klicken Sie auf Aufwerten, um seine Werte zu erhöhen. Sie sehen aktuellen Schaden, Reichweite und Aktionen pro Runde, plus wie sie nach dem Aufwerten sein werden. Aufwertungen kosten Münzen, machen Türme aber stärker!</string>
     <string name="tutorial_sell_title">Türme verkaufen</string>
-    <string name="tutorial_sell">Wählen Sie einen Turm und klicken Sie auf Verkaufen, um 75%% seiner Gesamtinvestition (Kosten + Aufwertungen) zurückzubekommen. Nutzen Sie dies, wenn Sie Münzen benötigen oder Ihre Verteidigung neu positionieren möchten.</string>
+    <string name="tutorial_sell">Wählen Sie einen Turm und klicken Sie auf Verkaufen, um 75% seiner Gesamtinvestition (Kosten + Aufwertungen) zurückzubekommen. Nutzen Sie dies, wenn Sie Münzen benötigen oder Ihre Verteidigung neu positionieren möchten.</string>
     <string name="tutorial_save_game_title">Speichern Sie Ihren Fortschritt</string>
     <string name="tutorial_save_game">Sie können Ihr Spiel jederzeit mit der Schaltfläche Spiel speichern sichern. So können Sie verschiedene Strategien ausprobieren oder später weiterspielen. Um ein gespeichertes Spiel zu laden, verwenden Sie die Schaltfläche Spiel laden auf dem Weltkarten-Bildschirm.</string>
     <string name="tutorial_complete_title">Tutorial abgeschlossen!</string>
@@ -859,4 +867,13 @@
     <string name="level_status_unknown">Unbekannt</string>
     <string name="show_testing_levels">Test-Level anzeigen</string>
     <string name="test_level">Test-Level</string>
+
+    <!-- Platform Information Dialog -->
+    <string name="platform_information_title">Plattforminformationen</string>
+    <string name="platform_information_label">Aktuelle Plattform:</string>
+
+    <!-- Initial Language Selection Dialog -->
+    <string name="initial_language_title">Wähle deine Sprache</string>
+    <string name="initial_language_prompt">Wähle deine bevorzugte Sprache für das Spiel</string>
+    <string name="initial_language_continue">Weiter</string>
 </resources>

@@ -98,14 +98,14 @@ fun SpawnPointMinimap(
 }
 
 /**
- * Helper function to draw a hexagon
+ * Helper function to draw a hexagon (pointy-top orientation)
  */
 private fun DrawScope.drawHexagon(centerX: Float, centerY: Float, radius: Float, color: Color) {
     val path = Path()
     for (i in 0..5) {
-        val angle = (PI / 3.0 * i).toFloat()
-        val x = centerX + radius * cos(angle)
-        val y = centerY + radius * sin(angle)
+        val angle = PI * (60.0 * i - 30.0) / 180.0
+        val x = centerX + (radius * cos(angle)).toFloat()
+        val y = centerY + (radius * sin(angle)).toFloat()
 
         if (i == 0) {
             path.moveTo(x, y)
@@ -119,14 +119,14 @@ private fun DrawScope.drawHexagon(centerX: Float, centerY: Float, radius: Float,
 }
 
 /**
- * Helper function to draw a hexagon border
+ * Helper function to draw a hexagon border (pointy-top orientation)
  */
 private fun DrawScope.drawHexagonBorder(centerX: Float, centerY: Float, radius: Float, color: Color, strokeWidth: Float) {
     val path = Path()
     for (i in 0..5) {
-        val angle = (PI / 3.0 * i).toFloat()
-        val x = centerX + radius * cos(angle)
-        val y = centerY + radius * sin(angle)
+        val angle = PI * (60.0 * i - 30.0) / 180.0
+        val x = centerX + (radius * cos(angle)).toFloat()
+        val y = centerY + (radius * sin(angle)).toFloat()
 
         if (i == 0) {
             path.moveTo(x, y)

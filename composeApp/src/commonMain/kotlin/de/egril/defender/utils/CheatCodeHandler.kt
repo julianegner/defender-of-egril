@@ -19,6 +19,7 @@ object CheatCodeHandler {
      * @param setCoins Callback to set coins to a specific value
      * @param performMineDigWithOutcome Callback to perform mine dig with a specific outcome
      * @param spawnEnemy Callback to spawn an enemy
+     * @param showPlatformInfo Callback to show platform information (optional)
      * @return Pair of (success: Boolean, digOutcome: DigOutcome?). Success is true if the cheat code 
      *         was recognized and applied. DigOutcome is non-null if a dig cheat was applied.
      */
@@ -27,7 +28,8 @@ object CheatCodeHandler {
         addCoins: (Int) -> Unit,
         setCoins: (Int) -> Unit,
         performMineDigWithOutcome: (DigOutcome) -> DigOutcome?,
-        spawnEnemy: (AttackerType, Int) -> Unit
+        spawnEnemy: (AttackerType, Int) -> Unit,
+        showPlatformInfo: (() -> Unit)? = null
     ): Pair<Boolean, DigOutcome?> {
         val lowercaseCode = code.lowercase().trim()
         
@@ -53,6 +55,10 @@ object CheatCodeHandler {
             }
             "emptypocket" -> {
                 setCoins(0)
+                return Pair(true, null)
+            }
+            "platform" -> {
+                showPlatformInfo?.invoke()
                 return Pair(true, null)
             }
             // Dig outcome cheat codes
@@ -101,6 +107,7 @@ object CheatCodeHandler {
      * @param lockAllLevels Callback to lock all levels
      * @param lockLevel Callback to lock a specific level by index or ID
      * @param worldLevels Current list of world levels (needed to validate level references)
+     * @param showPlatformInfo Callback to show platform information (optional)
      * @return true if the cheat code was recognized and applied, false otherwise
      */
     fun applyWorldMapCheatCode(
@@ -109,7 +116,8 @@ object CheatCodeHandler {
         unlockLevel: ((String) -> Unit)? = null,
         lockAllLevels: (() -> Unit)? = null,
         lockLevel: ((String) -> Unit)? = null,
-        worldLevels: List<WorldLevel>? = null
+        worldLevels: List<WorldLevel>? = null,
+        showPlatformInfo: (() -> Unit)? = null
     ): Boolean {
         val lowercaseCode = code.lowercase().trim()
         
@@ -121,6 +129,10 @@ object CheatCodeHandler {
             }
             "lockall", "lock all" -> {
                 lockAllLevels?.invoke()
+                return true
+            }
+            "platform" -> {
+                showPlatformInfo?.invoke()
                 return true
             }
         }
