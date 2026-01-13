@@ -165,6 +165,56 @@ fun SettingsDialog(
                         },
                         modifier = Modifier.fillMaxWidth()
                     )
+                    
+                    // Level header text size slider
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Text(
+                            text = stringResource(Res.string.header_text_size),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = stringResource(Res.string.header_text_size_small),
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                            Slider(
+                                value = AppSettings.headerTextSize.value.ordinal.toFloat(),
+                                onValueChange = { value ->
+                                    val size = when (value.toInt()) {
+                                        0 -> HeaderTextSize.SMALL
+                                        1 -> HeaderTextSize.MEDIUM
+                                        else -> HeaderTextSize.LARGE
+                                    }
+                                    AppSettings.saveHeaderTextSize(size)
+                                },
+                                modifier = Modifier.weight(1f),
+                                valueRange = 0f..2f,
+                                steps = 1
+                            )
+                            Text(
+                                text = stringResource(Res.string.header_text_size_large),
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
+                        Text(
+                            text = when (AppSettings.headerTextSize.value) {
+                                HeaderTextSize.SMALL -> stringResource(Res.string.header_text_size_small)
+                                HeaderTextSize.MEDIUM -> stringResource(Res.string.header_text_size_medium)
+                                HeaderTextSize.LARGE -> stringResource(Res.string.header_text_size_large)
+                            },
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.align(Alignment.CenterHorizontally)
+                        )
+                    }
                 }
                 
                 HorizontalDivider()

@@ -35,6 +35,10 @@
     <string name="tile_background_images">Imágenes de Fondo de Casilla</string>
     <string name="tile_background_images_on">Imágenes de Casilla Activadas</string>
     <string name="tile_background_images_off">Fondos de Color</string>
+    <string name="header_text_size">Tamaño de Texto del Encabezado del Nivel</string>
+    <string name="header_text_size_small">Pequeño</string>
+    <string name="header_text_size_medium">Mediano</string>
+    <string name="header_text_size_large">Grande</string>
     <string name="reset_settings">Restablecer Configuración</string>
     <string name="restore_game_data">Restaurar Datos del Juego</string>
     <string name="restore_game_data_confirm_title">¿Restaurar Datos del Juego?</string>

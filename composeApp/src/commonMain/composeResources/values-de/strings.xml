@@ -35,6 +35,10 @@
     <string name="tile_background_images">Kachel-Hintergrundbilder</string>
     <string name="tile_background_images_on">Kachelbilder An</string>
     <string name="tile_background_images_off">Farbhintergründe</string>
+    <string name="header_text_size">Level-Header-Textgröße</string>
+    <string name="header_text_size_small">Klein</string>
+    <string name="header_text_size_medium">Mittel</string>
+    <string name="header_text_size_large">Groß</string>
     <string name="reset_settings">Einstellungen zurücksetzen</string>
     <string name="restore_game_data">Spieldaten wiederherstellen</string>
     <string name="restore_game_data_confirm_title">Spieldaten wiederherstellen?</string>
