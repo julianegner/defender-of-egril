@@ -35,6 +35,8 @@ fun GamePlayScreen(
     onWizardPlaceMagicalTrap: ((Int, Position) -> Boolean)? = null,  // Add wizard magical trap callback
     cheatDigOutcome: DigOutcome? = null,  // Dig outcome from cheat code
     onClearCheatDigOutcome: (() -> Unit)? = null,  // Callback to clear cheat dig outcome
+    showPlatformInfo: Boolean = false,  // Show platform info from cheat code
+    onClearPlatformInfo: (() -> Unit)? = null,  // Callback to clear platform info
     hasUnsavedChanges: (() -> Boolean)? = null  // Callback to check for unsaved changes
 ) {
     GamePlayScreenContent(
@@ -55,6 +57,8 @@ fun GamePlayScreen(
         onWizardPlaceMagicalTrap = onWizardPlaceMagicalTrap,
         cheatDigOutcome = cheatDigOutcome,
         onClearCheatDigOutcome = onClearCheatDigOutcome,
+        showPlatformInfo = showPlatformInfo,
+        onClearPlatformInfo = onClearPlatformInfo,
         hasUnsavedChanges = hasUnsavedChanges
     )
 }
@@ -78,6 +82,8 @@ private fun GamePlayScreenContent(
     onWizardPlaceMagicalTrap: ((Int, Position) -> Boolean)? = null,  // Add wizard magical trap callback
     cheatDigOutcome: DigOutcome? = null,  // Dig outcome from cheat code
     onClearCheatDigOutcome: (() -> Unit)? = null,  // Callback to clear cheat dig outcome
+    showPlatformInfo: Boolean = false,  // Show platform info from cheat code
+    onClearPlatformInfo: (() -> Unit)? = null,  // Callback to clear platform info
     hasUnsavedChanges: (() -> Boolean)? = null  // Callback to check for unsaved changes
 
 ) {
@@ -517,7 +523,13 @@ private fun GamePlayScreenContent(
             )
 
             // Overlay panel with Legend and Enemy List (conditionally shown)
-            if (showOverlay) {
+            // Auto-open during LEGEND_INFO (legend only) or ENEMY_LIST_INFO (enemy list only) tutorial steps
+            val currentTutorialStep = gameState.tutorialState.value.currentStep
+            val shouldShowLegendForTutorial = currentTutorialStep == TutorialStep.LEGEND_INFO
+            val shouldShowEnemyListForTutorial = currentTutorialStep == TutorialStep.ENEMY_LIST_INFO
+            val isOverlayVisible = showOverlay || shouldShowLegendForTutorial || shouldShowEnemyListForTutorial
+            
+            if (isOverlayVisible) {
                 Column(
                     modifier = Modifier
                         .align(Alignment.TopEnd)
@@ -525,17 +537,31 @@ private fun GamePlayScreenContent(
                         .fillMaxHeight()
                         .padding(8.dp)
                 ) {
-                    // Legend
-                    GameLegend(modifier = Modifier.fillMaxWidth())
+                    // Legend - show if user opened overlay OR during LEGEND_INFO tutorial step
+                    if (showOverlay || shouldShowLegendForTutorial) {
+                        GameLegend(
+                            modifier = Modifier.fillMaxWidth(),
+                            forceExpanded = shouldShowLegendForTutorial
+                        )
+                        
+                        // Add spacer only if both legend and enemy list are shown
+                        if (showOverlay) {
+                            Spacer(modifier = Modifier.height(16.dp))
+                        }
+                    }
 
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    // Enemy List
-                    EnemyListPanel(gameState = gameState, modifier = Modifier.fillMaxWidth().weight(1f))
+                    // Enemy List - show if user opened overlay OR during ENEMY_LIST_INFO tutorial step
+                    if (showOverlay || shouldShowEnemyListForTutorial) {
+                        EnemyListPanel(
+                            gameState = gameState, 
+                            modifier = Modifier.fillMaxWidth().weight(1f),
+                            forceExpanded = shouldShowEnemyListForTutorial
+                        )
+                    }
                 }
             }
             
-            // Tutorial card (positioned in upper right corner)
+            // Tutorial card (positioned in upper right corner, or to the left of legend/enemy list when they're showing)
             if (gameState.tutorialState.value.shouldShowOverlay() || gameState.infoState.value.shouldShowOverlay()) {
                 // Check if we should allow skipping attack step
                 // (tower has no actions left or can't reach any enemies)
@@ -560,10 +586,20 @@ private fun GamePlayScreenContent(
                     }
                 }
                 
+                // Position tutorial card to the left of the overlay panel when it's showing
+                val tutorialAlignment = if (isOverlayVisible) {
+                    Alignment.TopEnd
+                } else {
+                    Alignment.TopEnd
+                }
+                
+                // Add padding to position tutorial to the left of the overlay
+                val tutorialPaddingEnd = if (isOverlayVisible) 266.dp else 8.dp  // 250dp overlay + 16dp spacing
+                
                 Box(
                     modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(8.dp)
+                        .align(tutorialAlignment)
+                        .padding(top = 8.dp, end = tutorialPaddingEnd, start = 8.dp, bottom = 8.dp)
                 ) {
                     // Show info or tutorial in the tutorial overlay
                     TutorialOverlay(
@@ -804,6 +840,14 @@ private fun GamePlayScreenContent(
                 showHints = true,
                 initialInput = cheatCodeInput,
                 onInputChange = { cheatCodeInput = it }
+            )
+        }
+        
+        // Platform info dialog (from platform cheat code)
+        if (showPlatformInfo && onClearPlatformInfo != null) {
+            de.egril.defender.ui.PlatformInfoDialog(
+                platformInfo = de.egril.defender.utils.getPlatform().name,
+                onDismiss = onClearPlatformInfo
             )
         }
         

@@ -5,6 +5,10 @@
     <string name="app_subtitle">Defend the meadows of Egril against the Hordes of Gleid Thyae under the Banner of the evil Ewhad</string>
     <string name="start_game">Start Game</string>
     <string name="rules">Rules</string>
+    <string name="exit_game">Exit Game</string>
+    <string name="exit_game_confirm_title">Exit Game?</string>
+    <string name="exit_game_confirm_message">Are you sure you want to exit the game?</string>
+    <string name="exit">Exit</string>
     
     <!-- Level Complete Screen -->
     <string name="victory">Victory!</string>
@@ -419,12 +423,16 @@
     <string name="tutorial_resources">You have coins to build towers and health points. When you defeat enemies, you earn coins equal to their base reward multiplied by their level. Weak enemies cost 1 HP, but mighty enemies (wizards, witches, mages, demons, dragons) cost HP equal to their level. Ewhad costs all your HP!</string>
     <string name="tutorial_towers_title">Available Towers</string>
     <string name="tutorial_towers">Spike Tower: Close range, cheap. Spear Tower: Medium range. Bow Tower: Long range. Choose wisely based on your strategy!</string>
+    <string name="tutorial_legend_title">The Legend</string>
+    <string name="tutorial_legend">The Legend on the right shows you what different colors and symbols mean on the game map. It explains build areas (green), enemy paths (brown), and special tiles.</string>
+    <string name="tutorial_enemy_list_title">Enemy List</string>
+    <string name="tutorial_enemy_list">The Enemy List shows all enemies currently on the map and those that will spawn in future turns. Use this to plan your defenses! You can see each enemy's health, level, and when they will arrive.</string>
     <string name="tutorial_build_title">Building Towers</string>
     <string name="tutorial_build">Select a tower type from below, then click on a green build area to place it. Build your defenses!</string>
     <string name="tutorial_initial_building_title">Initial Building Phase</string>
     <string name="tutorial_initial_building">In this initial phase, towers are built instantly but cannot attack yet. Click on a tower to see its range - path tiles get green borders. Later in the game, towers will take 1-2 turns to build.</string>
     <string name="tutorial_undo_title">Undo Towers</string>
-    <string name="tutorial_undo">During this initial phase, you can undo tower placement by selecting it and selling for a full refund. After the battle starts, you can only sell towers for 75%% of their value.</string>
+    <string name="tutorial_undo">During this initial phase, you can undo tower placement by selecting it and selling for a full refund. After the battle starts, you can only sell towers for 75% of their value.</string>
     <string name="tutorial_combat_title">Start the Battle</string>
     <string name="tutorial_combat">Click the Start Battle button when ready. Your goal is to defend the Target at the end of the path - don't let enemies reach it!</string>
     <string name="tutorial_enemies_title">Enemies Incoming!</string>
@@ -436,7 +444,7 @@
     <string name="tutorial_upgrade_title">Upgrade Towers</string>
     <string name="tutorial_upgrade">Select a tower and click Upgrade to increase its stats. You'll see current damage, range, and actions per turn, plus what they'll be after upgrading. Upgrades cost coins but make towers more powerful!</string>
     <string name="tutorial_sell_title">Sell Towers</string>
-    <string name="tutorial_sell">Select a tower and click Sell to get back 75%% of its total investment (cost + upgrades). Use this if you need coins or want to reposition your defense.</string>
+    <string name="tutorial_sell">Select a tower and click Sell to get back 75% of its total investment (cost + upgrades). Use this if you need coins or want to reposition your defense.</string>
     <string name="tutorial_save_game_title">Save Your Progress</string>
     <string name="tutorial_save_game">You can save your game at any time using the Save Game button. This lets you try different strategies or continue later. To load a saved game, use the Load Game button on the world map screen.</string>
     <string name="tutorial_complete_title">Tutorial Complete!</string>
@@ -859,4 +867,13 @@
     <string name="level_status_unknown">Unknown</string>
     <string name="show_testing_levels">Show Testing Levels</string>
     <string name="test_level">Test Level</string>
+
+    <!-- Platform Information Dialog -->
+    <string name="platform_information_title">Platform Information</string>
+    <string name="platform_information_label">Current platform:</string>
+
+    <!-- Initial Language Selection Dialog -->
+    <string name="initial_language_title">Choose Your Language</string>
+    <string name="initial_language_prompt">Select your preferred language for the game</string>
+    <string name="initial_language_continue">Continue</string>
 </resources>

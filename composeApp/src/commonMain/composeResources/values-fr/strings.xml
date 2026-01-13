@@ -5,6 +5,10 @@
     <string name="app_subtitle">Défendez les prairies d'Egril contre les Hordes de Gleid Thyae sous la Bannière du maléfique Ewhad</string>
     <string name="start_game">Commencer le jeu</string>
     <string name="rules">Règles</string>
+    <string name="exit_game">Quitter le jeu</string>
+    <string name="exit_game_confirm_title">Quitter le jeu ?</string>
+    <string name="exit_game_confirm_message">Êtes-vous sûr de vouloir quitter le jeu ?</string>
+    <string name="exit">Quitter</string>
     
     <!-- Level Complete Screen -->
     <string name="victory">Victoire !</string>
@@ -419,12 +423,16 @@
     <string name="tutorial_resources">Vous avez des pièces pour construire des tours et des points de vie. Lorsque vous battez des ennemis, vous gagnez des pièces égales à leur récompense de base multipliée par leur niveau. Les ennemis faibles coûtent 1 PV, mais les ennemis puissants (sorciers, sorcières, mages maléfiques, démons, dragons) coûtent des PV égaux à leur niveau. Ewhad coûte tous vos PV!</string>
     <string name="tutorial_towers_title">Tours disponibles</string>
     <string name="tutorial_towers">Tour à Piques: Courte portée, bon marché. Tour de Lance: Portée moyenne. Tour d'Arc: Longue portée. Choisissez judicieusement selon votre stratégie!</string>
+    <string name="tutorial_legend_title">La Légende</string>
+    <string name="tutorial_legend">La Légende à droite vous montre ce que signifient les différentes couleurs et symboles sur la carte du jeu. Elle explique les zones de construction (vert), les chemins ennemis (marron) et les tuiles spéciales.</string>
+    <string name="tutorial_enemy_list_title">Liste des ennemis</string>
+    <string name="tutorial_enemy_list">La Liste des Ennemis affiche tous les ennemis actuellement sur la carte et ceux qui apparaîtront dans les tours futurs. Utilisez-la pour planifier vos défenses! Vous pouvez voir la santé, le niveau et le moment d'arrivée de chaque ennemi.</string>
     <string name="tutorial_build_title">Construire des tours</string>
     <string name="tutorial_build">Sélectionnez un type de tour ci-dessous, puis cliquez sur une zone de construction verte pour la placer. Construisez vos défenses!</string>
     <string name="tutorial_initial_building_title">Phase de construction initiale</string>
     <string name="tutorial_initial_building">Dans cette phase initiale, les tours sont construites instantanément mais ne peuvent pas encore attaquer. Cliquez sur une tour pour voir sa portée - les tuiles du chemin obtiennent des bordures vertes. Plus tard dans le jeu, les tours prendront 1-2 tours pour se construire.</string>
     <string name="tutorial_undo_title">Annuler les tours</string>
-    <string name="tutorial_undo">Pendant cette phase initiale, vous pouvez annuler le placement d'une tour en la sélectionnant et en la vendant pour un remboursement complet. Après le début de la bataille, vous ne pouvez vendre les tours que pour 75%% de leur valeur.</string>
+    <string name="tutorial_undo">Pendant cette phase initiale, vous pouvez annuler le placement d'une tour en la sélectionnant et en la vendant pour un remboursement complet. Après le début de la bataille, vous ne pouvez vendre les tours que pour 75% de leur valeur.</string>
     <string name="tutorial_combat_title">Démarrer la bataille</string>
     <string name="tutorial_combat">Cliquez sur le bouton Démarrer la bataille lorsque vous êtes prêt. Votre objectif est de défendre la Cible à la fin du chemin - ne laissez pas les ennemis l'atteindre!</string>
     <string name="tutorial_enemies_title">Ennemis en approche!</string>
@@ -436,7 +444,7 @@
     <string name="tutorial_upgrade_title">Améliorer les tours</string>
     <string name="tutorial_upgrade">Sélectionnez une tour et cliquez sur Améliorer pour augmenter ses statistiques. Vous verrez les dégâts, la portée et les actions actuelles par tour, ainsi que ce qu'elles seront après l'amélioration. Les améliorations coûtent des pièces mais rendent les tours plus puissantes!</string>
     <string name="tutorial_sell_title">Vendre des tours</string>
-    <string name="tutorial_sell">Sélectionnez une tour et cliquez sur Vendre pour récupérer 75%% de son investissement total (coût + améliorations). Utilisez ceci si vous avez besoin de pièces ou souhaitez repositionner votre défense.</string>
+    <string name="tutorial_sell">Sélectionnez une tour et cliquez sur Vendre pour récupérer 75% de son investissement total (coût + améliorations). Utilisez ceci si vous avez besoin de pièces ou souhaitez repositionner votre défense.</string>
     <string name="tutorial_save_game_title">Sauvegardez votre progression</string>
     <string name="tutorial_save_game">Vous pouvez sauvegarder votre jeu à tout moment en utilisant le bouton Sauvegarder. Cela vous permet d'essayer différentes stratégies ou de continuer plus tard. Pour charger une partie sauvegardée, utilisez le bouton Charger sur l'écran de la carte du monde.</string>
     <string name="tutorial_complete_title">Tutoriel terminé!</string>
@@ -860,4 +868,13 @@
     <string name="level_status_unknown">Inconnu</string>
     <string name="show_testing_levels">Afficher les niveaux de test</string>
     <string name="test_level">Niveau de test</string>
+
+    <!-- Platform Information Dialog -->
+    <string name="platform_information_title">Informations sur la plateforme</string>
+    <string name="platform_information_label">Plateforme actuelle:</string>
+
+    <!-- Initial Language Selection Dialog -->
+    <string name="initial_language_title">Choisissez votre langue</string>
+    <string name="initial_language_prompt">Sélectionnez votre langue préférée pour le jeu</string>
+    <string name="initial_language_continue">Continuer</string>
 </resources>

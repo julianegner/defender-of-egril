@@ -1,4 +1,4 @@
-package de.egril.defender.ui
+package de.egril.defender.ui.hexagon
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.DefenderType
+import de.egril.defender.ui.TowerTypeIcon
 import de.egril.defender.ui.icon.enemy.EnemyTypeIcon
 import kotlin.math.sqrt
 

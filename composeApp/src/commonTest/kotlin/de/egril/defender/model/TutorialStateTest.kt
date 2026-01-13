@@ -64,7 +64,15 @@ class TutorialStateTest {
         state = state.advanceStep()
         assertEquals(TutorialStep.TOWER_TYPES, state.currentStep, "Should advance to TOWER_TYPES")
         
-        // TOWER_TYPES -> BUILD_TOWER
+        // TOWER_TYPES -> LEGEND_INFO
+        state = state.advanceStep()
+        assertEquals(TutorialStep.LEGEND_INFO, state.currentStep, "Should advance to LEGEND_INFO")
+        
+        // LEGEND_INFO -> ENEMY_LIST_INFO
+        state = state.advanceStep()
+        assertEquals(TutorialStep.ENEMY_LIST_INFO, state.currentStep, "Should advance to ENEMY_LIST_INFO")
+        
+        // ENEMY_LIST_INFO -> BUILD_TOWER
         state = state.advanceStep()
         assertEquals(TutorialStep.BUILD_TOWER, state.currentStep, "Should advance to BUILD_TOWER")
         

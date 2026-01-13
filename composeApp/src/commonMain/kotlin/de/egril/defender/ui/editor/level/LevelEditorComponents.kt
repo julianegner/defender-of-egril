@@ -26,6 +26,7 @@ import de.egril.defender.ui.icon.TriangleDownIcon
 import de.egril.defender.ui.icon.TriangleRightIcon
 import de.egril.defender.ui.icon.UpArrowIcon
 import com.hyperether.resources.stringResource
+import de.egril.defender.ui.hexagon.EnemyIconOnHexagon
 import defender_of_egril.composeapp.generated.resources.*
 
 /**

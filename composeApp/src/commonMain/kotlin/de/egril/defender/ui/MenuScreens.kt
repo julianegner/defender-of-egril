@@ -8,6 +8,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -21,6 +24,7 @@ import de.egril.defender.ui.settings.SettingsButton
 import de.egril.defender.ui.settings.SettingsHintBox
 import de.egril.defender.utils.isPlatformMobile
 import com.hyperether.resources.stringResource
+import de.egril.defender.utils.isPlatformIos
 import defender_of_egril.composeapp.generated.resources.*
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.emoji_sword
@@ -39,6 +43,9 @@ fun MainMenuScreen(
     // Track if settings hint should be shown
     val showSettingsHint by AppSettings.settingsHintShown
     
+    // Track if exit confirmation dialog should be shown
+    var showExitConfirmation by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
+    
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
@@ -53,12 +60,34 @@ fun MainMenuScreen(
                     .padding(8.dp)
             )
             
-            // Player name and selection button in top-left corner
+            // Exit button in top-left corner (above player name if present)
+            // iOS does not support exiting the app programmatically
+            if (!isPlatformIos) {
+                Button(
+                    onClick = { showExitConfirmation = true },
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .padding(8.dp)
+                        .height(32.dp)
+                        .widthIn(min = 80.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error
+                    )
+                ) {
+                    Text(
+                        text = stringResource(Res.string.exit_game),
+                        style = MaterialTheme.typography.bodySmall,
+                        fontSize = 12.sp
+                    )
+                }
+            }
+            
+            // Player name and selection button below exit button
             if (currentPlayerName != null) {
                 Row(
                     modifier = Modifier
                         .align(Alignment.TopStart)
-                        .padding(8.dp),
+                        .padding(start = 8.dp, top = 48.dp, end = 8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
@@ -181,6 +210,33 @@ fun MainMenuScreen(
                         .padding(top = 60.dp, end = 8.dp)  // Position below settings button
                 )
             }
+        }
+        
+        // Exit confirmation dialog
+        if (showExitConfirmation) {
+            AlertDialog(
+                onDismissRequest = { showExitConfirmation = false },
+                title = { Text(stringResource(Res.string.exit_game_confirm_title)) },
+                text = { Text(stringResource(Res.string.exit_game_confirm_message)) },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            showExitConfirmation = false
+                            exitApplication()
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.error
+                        )
+                    ) {
+                        Text(stringResource(Res.string.exit))
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showExitConfirmation = false }) {
+                        Text(stringResource(Res.string.cancel))
+                    }
+                }
+            )
         }
     }
 }

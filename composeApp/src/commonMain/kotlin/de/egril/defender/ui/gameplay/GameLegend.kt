@@ -2,7 +2,6 @@ package de.egril.defender.ui.gameplay
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -19,22 +18,22 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.egril.defender.model.*
 import de.egril.defender.ui.*
-import de.egril.defender.ui.icon.TriangleDownIcon
-import de.egril.defender.ui.icon.TriangleLeftIcon
 import de.egril.defender.ui.icon.enemy.EnemyIcon
 import de.egril.defender.ui.icon.enemy.EnemyTypeIcon
 import com.hyperether.resources.stringResource
+import de.egril.defender.ui.hexagon.HexagonShape
 import defender_of_egril.composeapp.generated.resources.*
 
 @Composable
-fun GameLegend(modifier: Modifier = Modifier) {
+fun GameLegend(modifier: Modifier = Modifier, forceExpanded: Boolean = false) {
     val isDarkMode = de.egril.defender.ui.settings.AppSettings.isDarkMode.value
     val borderColor = if (isDarkMode) Color(0xFF303030) else Color.Gray  // Even darker border in dark mode
     
     ExpandableCard(
         title = stringResource(Res.string.legend),
         modifier = modifier,
-        defaultExpanded = false
+        defaultExpanded = false,
+        forceExpanded = forceExpanded
     ) {
         LazyColumn(
             modifier = Modifier.fillMaxWidth().heightIn(max = 400.dp),
@@ -250,7 +249,7 @@ private fun Color.luminance(): Float {
 }
 
 @Composable
-fun EnemyListPanel(gameState: GameState, modifier: Modifier = Modifier) {
+fun EnemyListPanel(gameState: GameState, modifier: Modifier = Modifier, forceExpanded: Boolean = false) {
     // Expand by default during initial building phase, collapsed otherwise
     // This state is remembered per GameState instance (each level has its own GameState)
     // so it will auto-expand when a new level is loaded
@@ -280,7 +279,8 @@ fun EnemyListPanel(gameState: GameState, modifier: Modifier = Modifier) {
     ExpandableCard(
         title = stringResource(Res.string.enemies),
         modifier = modifier,
-        defaultExpanded = true
+        defaultExpanded = true,
+        forceExpanded = forceExpanded
     ) {
         Text(
             "${stringResource(Res.string.active_label)}: ${activeEnemies.size} | ${stringResource(Res.string.planned_label)}: ${plannedSpawns.size}",
