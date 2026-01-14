@@ -310,9 +310,13 @@ Add to `LevelData.createLevels()` with:
 3. **Use in code**: Use `stringResource(Res.string.your_key)` in Composables
 4. **Test**: Run `TranslationCoverageTest` to verify all language files are synchronized
 5. **Never hardcode**: Do not use hardcoded strings like `Text("Hello")` - always use stringResource
-5. Update `LanguageChooser.kt`'s `getCountryCode()` function if language code differs from country code
-6. Test language switching via Settings dialog
-7. All ~318 strings must be translated for complete localization
+6. **IMPORTANT: No multiline strings in XML**: Always keep string content on a single line in XML files
+   - Use `\n` for line breaks within the string value
+   - Example: `<string name="message">Line 1\nLine 2\nLine 3</string>`
+   - Do NOT split the string value across multiple lines in the XML - this breaks the build
+7. Update `LanguageChooser.kt`'s `getCountryCode()` function if language code differs from country code
+8. Test language switching via Settings dialog
+9. All ~318 strings must be translated for complete localization
 
 ## Build and Test Commands
 
