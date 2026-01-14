@@ -185,6 +185,12 @@ object EditorJsonSerializer {
             ""
         }
         
+        val allowAutoAttackJson = if (level.allowAutoAttack) {
+            ",\n  \"allowAutoAttack\": true"
+        } else {
+            ""
+        }
+        
         return """{
   "id": "${level.id}",
   "mapId": "${level.mapId}",
@@ -199,7 +205,7 @@ object EditorJsonSerializer {
   "waypoints": [
     $waypointsJson
   ],
-  "prerequisites": [$prerequisitesJson]$requiredCountJson$testingOnlyJson
+  "prerequisites": [$prerequisitesJson]$requiredCountJson$testingOnlyJson$allowAutoAttackJson
 }"""
     }
     
@@ -377,7 +383,18 @@ object EditorJsonSerializer {
                 false
             }
             
-            return EditorLevel(id, mapId, title, titleKey, subtitle, subtitleKey, startCoins, startHealthPoints, spawns, towers, waypoints, prerequisites, requiredPrerequisiteCount, testingOnly)
+            // Parse allowAutoAttack (optional, defaults to false)
+            val allowAutoAttack = if (json.contains("\"allowAutoAttack\"")) {
+                try {
+                    JsonUtils.extractValue(json, "allowAutoAttack").toBoolean()
+                } catch (e: Exception) {
+                    false
+                }
+            } else {
+                false
+            }
+            
+            return EditorLevel(id, mapId, title, titleKey, subtitle, subtitleKey, startCoins, startHealthPoints, spawns, towers, waypoints, prerequisites, requiredPrerequisiteCount, testingOnly, allowAutoAttack)
         } catch (e: Exception) {
             println("Error deserializing level: ${e.message}")
             return null

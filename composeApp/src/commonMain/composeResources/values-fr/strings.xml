@@ -866,6 +866,7 @@
     <string name="level_status_unknown">Inconnu</string>
     <string name="show_testing_levels">Afficher les niveaux de test</string>
     <string name="test_level">Niveau de test</string>
+    <string name="allow_auto_attack">Autoriser l'Attaque Automatique</string>
 
     <!-- Platform Information Dialog -->
     <string name="platform_information_title">Informations sur la plateforme</string>

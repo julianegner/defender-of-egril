@@ -842,7 +842,8 @@ private fun GamePlayScreenContent(
                 },
                 onCancel = {
                     showEndTurnConfirmation = false
-                }
+                },
+                showAutoAttackButton = gameState.level.allowAutoAttack
             )
         }
         }

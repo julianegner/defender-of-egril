@@ -191,7 +191,8 @@ fun UnsavedChangesDialog(
 fun EndTurnConfirmationDialog(
     onConfirm: () -> Unit,
     onAutoAttackAndConfirm: () -> Unit,
-    onCancel: () -> Unit
+    onCancel: () -> Unit,
+    showAutoAttackButton: Boolean = true
 ) {
     AlertDialog(
         onDismissRequest = onCancel,
@@ -204,12 +205,14 @@ fun EndTurnConfirmationDialog(
                     stringResource(Res.string.end_turn_confirmation_message),
                     style = MaterialTheme.typography.bodyLarge
                 )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    stringResource(Res.string.auto_attack_warning),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                if (showAutoAttackButton) {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        stringResource(Res.string.auto_attack_warning),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
         },
         confirmButton = {
@@ -236,14 +239,16 @@ fun EndTurnConfirmationDialog(
                         Text(stringResource(Res.string.end_turn_confirm))
                     }
                 }
-                Button(
-                    onClick = onAutoAttackAndConfirm,
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary
-                    )
-                ) {
-                    Text(stringResource(Res.string.auto_attack_and_end_turn))
+                if (showAutoAttackButton) {
+                    Button(
+                        onClick = onAutoAttackAndConfirm,
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary
+                        )
+                    ) {
+                        Text(stringResource(Res.string.auto_attack_and_end_turn))
+                    }
                 }
             }
         }
