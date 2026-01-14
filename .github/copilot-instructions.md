@@ -254,6 +254,20 @@ Defender of Egril is a turn-based tower defense game built with Kotlin Multiplat
 5. UI will automatically include it in tower selection
 6. If tower has special mechanics (like Dwarven Mine), update `TowerManager.kt` and relevant game systems
 
+#### Level Editor UI Guidelines (LevelInfoTab Layout)
+When adding new level-wide toggle options in the Level Editor:
+- **Location**: Level Editor → First tab (Level Info)
+- **Layout Structure**:
+  - Left side: Title and Subtitle input fields in a Column (takes weight(1f))
+  - Right side: Level Toggles Container (bordered Column with fixed width)
+    - Contains all level-wide boolean settings (Test Level, Allow Auto-Attack, etc.)
+    - Uses a bordered container with `MaterialTheme.colorScheme.outline` border
+    - Padding of 12.dp inside the container
+    - Toggles are arranged vertically with 8.dp spacing
+    - Each toggle is a Row with label Text and Switch
+- **Adding New Toggles**: Add new toggle Rows to the Level Toggles Container Column
+- **Rationale**: This layout groups all level settings together and allows the container to grow vertically as more toggles are added, while keeping input fields cleanly separated on the left
+
 #### New Level (Editor Method - Recommended)
 1. Use the in-game Level Editor (desktop and web/wasm only):
    - Create or select a map in Map Editor tab

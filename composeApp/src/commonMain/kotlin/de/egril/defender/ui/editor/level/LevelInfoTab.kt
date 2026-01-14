@@ -1,5 +1,6 @@
 package de.egril.defender.ui.editor.level
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -34,6 +35,9 @@ import defender_of_egril.composeapp.generated.resources.test_level
 
 /**
  * Tab 1: Level Info (title, subtitle, map, coins, HP)
+ * 
+ * Layout: Title and Subtitle input fields on the left, level toggles (Test Level, Allow Auto-Attack, etc.) 
+ * in a bordered container on the right. This container will grow vertically as more toggles are added.
  */
 @Composable
 fun LevelInfoTab(
@@ -58,61 +62,76 @@ fun LevelInfoTab(
         contentPadding = PaddingValues(vertical = 8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        // Title and Test Level toggle in same row
+        // Title, Subtitle, and Level Toggles Row
         item {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.Top
             ) {
-                OutlinedTextField(
-                    value = title,
-                    onValueChange = onTitleChange,
-                    label = { Text(stringResource(Res.string.level_title)) },
-                    modifier = Modifier.weight(1f)
-                )
-                
-                // Test Level toggle
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
-                    modifier = Modifier.padding(start = 8.dp)
+                // Left side: Title and Subtitle fields in a column
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Text(
-                        text = stringResource(Res.string.test_level),
-                        style = MaterialTheme.typography.bodyMedium
+                    OutlinedTextField(
+                        value = title,
+                        onValueChange = onTitleChange,
+                        label = { Text(stringResource(Res.string.level_title)) },
+                        modifier = Modifier.fillMaxWidth()
                     )
-                    Switch(
-                        checked = testingOnly,
-                        onCheckedChange = onTestingOnlyChange
+                    
+                    OutlinedTextField(
+                        value = subtitle,
+                        onValueChange = onSubtitleChange,
+                        label = { Text(stringResource(Res.string.subtitle_optional)) },
+                        modifier = Modifier.fillMaxWidth()
                     )
                 }
                 
-                // Allow Auto-Attack toggle
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
-                    modifier = Modifier.padding(start = 8.dp)
+                // Right side: Level Toggles Container
+                // This container holds all level-related toggles and will grow as more toggles are added
+                Column(
+                    modifier = Modifier
+                        .border(
+                            width = 1.dp,
+                            color = MaterialTheme.colorScheme.outline,
+                            shape = MaterialTheme.shapes.small
+                        )
+                        .padding(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Text(
-                        text = stringResource(Res.string.allow_auto_attack),
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                    Switch(
-                        checked = allowAutoAttack,
-                        onCheckedChange = onAllowAutoAttackChange
-                    )
+                    // Test Level toggle
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(
+                            text = stringResource(Res.string.test_level),
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        Switch(
+                            checked = testingOnly,
+                            onCheckedChange = onTestingOnlyChange
+                        )
+                    }
+                    
+                    // Allow Auto-Attack toggle
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(
+                            text = stringResource(Res.string.allow_auto_attack),
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        Switch(
+                            checked = allowAutoAttack,
+                            onCheckedChange = onAllowAutoAttackChange
+                        )
+                    }
                 }
             }
-        }
-
-        item {
-            OutlinedTextField(
-                value = subtitle,
-                onValueChange = onSubtitleChange,
-                label = { Text(stringResource(Res.string.subtitle_optional)) },
-                modifier = Modifier.fillMaxWidth()
-            )
         }
 
 
