@@ -93,6 +93,7 @@ fun LevelInfoTab(
                 // This container holds all level-related toggles and will grow as more toggles are added
                 Column(
                     modifier = Modifier
+                        .padding(top =  8.dp)
                         .border(
                             width = 1.dp,
                             color = MaterialTheme.colorScheme.outline,
