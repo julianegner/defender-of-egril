@@ -866,6 +866,8 @@
     <string name="show_testing_levels">Test-Level anzeigen</string>
     <string name="test_level">Test-Level</string>
     <string name="allow_auto_attack">Auto-Angriff erlauben</string>
+    <string name="auto_attack_info_title">Auto-Angriff-Funktion</string>
+    <string name="auto_attack_info_message">Wenn aktiviert, können Spieler die Schaltfläche \"Auto-Angriff und Runde beenden\" im Bestätigungsdialog verwenden.\n\nSo funktioniert es:\n• Greift automatisch Feinde mit allen verfügbaren Türmen an\n• Zielt auf Feinde nach Priorität (zuerst Bosse, dann spezielle Feinde)\n• Beeinflusst NICHT Minen (Grabaktionen)\n• Nutzt dauernde Angriffstürme NICHT optimal\n\nTipp: Spieler möchten möglicherweise Säure-/dauerhafte Angriffe manuell ausführen, bevor sie Auto-Angriff für beste Ergebnisse verwenden.</string>
 
     <!-- Platform Information Dialog -->
     <string name="platform_information_title">Plattforminformationen</string>

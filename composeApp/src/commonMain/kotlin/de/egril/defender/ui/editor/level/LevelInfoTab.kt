@@ -13,11 +13,17 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -26,8 +32,11 @@ import de.egril.defender.editor.EditorMap
 import de.egril.defender.ui.editor.map.MapSelectionCard
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.allow_auto_attack
+import defender_of_egril.composeapp.generated.resources.auto_attack_info_message
+import defender_of_egril.composeapp.generated.resources.auto_attack_info_title
 import defender_of_egril.composeapp.generated.resources.level_title
 import defender_of_egril.composeapp.generated.resources.map_label
+import defender_of_egril.composeapp.generated.resources.ok
 import defender_of_egril.composeapp.generated.resources.start_coins
 import defender_of_egril.composeapp.generated.resources.start_hp
 import defender_of_egril.composeapp.generated.resources.subtitle_optional
@@ -57,6 +66,8 @@ fun LevelInfoTab(
     allowAutoAttack: Boolean,
     onAllowAutoAttackChange: (Boolean) -> Unit
 ) {
+    var showAutoAttackInfo by remember { mutableStateOf(false) }
+    
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(vertical = 8.dp),
@@ -93,7 +104,7 @@ fun LevelInfoTab(
                 // This container holds all level-related toggles and will grow as more toggles are added
                 Column(
                     modifier = Modifier
-                        .padding(top =  8.dp)
+                        .padding(top = 8.dp)
                         .border(
                             width = 1.dp,
                             color = MaterialTheme.colorScheme.outline,
@@ -128,6 +139,18 @@ fun LevelInfoTab(
                         )
                         Switch(
                             checked = allowAutoAttack,
+                            onCheckedChange = { newValue ->
+                                // Show info dialog when enabling for the first time
+                                if (newValue && !allowAutoAttack) {
+                                    showAutoAttackInfo = true
+                                }
+                                onAllowAutoAttackChange(newValue)
+                            }
+                        )
+                    }
+                }
+            }
+        }
                             onCheckedChange = onAllowAutoAttackChange
                         )
                     }
@@ -188,5 +211,19 @@ fun LevelInfoTab(
                 )
             }
         }
+    }
+    
+    // Info dialog for auto-attack feature
+    if (showAutoAttackInfo) {
+        AlertDialog(
+            onDismissRequest = { showAutoAttackInfo = false },
+            title = { Text(stringResource(Res.string.auto_attack_info_title)) },
+            text = { Text(stringResource(Res.string.auto_attack_info_message)) },
+            confirmButton = {
+                Button(onClick = { showAutoAttackInfo = false }) {
+                    Text(stringResource(Res.string.ok))
+                }
+            }
+        )
     }
 }
