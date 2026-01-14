@@ -76,7 +76,8 @@
   ],
   "availableTowers": ["SPIKE_TOWER", "SPEAR_TOWER", "BOW_TOWER", "BALLISTA_TOWER"],
   "waypoints": [
-
+    
   ],
-  "prerequisites": ["the_fortress_1_first_attacks"]
+  "prerequisites": ["the_fortress_1_first_attacks"],
+  "allowAutoAttack": true
 }
