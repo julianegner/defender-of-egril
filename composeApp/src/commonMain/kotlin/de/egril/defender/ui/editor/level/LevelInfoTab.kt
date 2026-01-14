@@ -24,6 +24,7 @@ import com.hyperether.resources.stringResource
 import de.egril.defender.editor.EditorMap
 import de.egril.defender.ui.editor.map.MapSelectionCard
 import defender_of_egril.composeapp.generated.resources.Res
+import defender_of_egril.composeapp.generated.resources.allow_auto_attack
 import defender_of_egril.composeapp.generated.resources.level_title
 import defender_of_egril.composeapp.generated.resources.map_label
 import defender_of_egril.composeapp.generated.resources.start_coins
@@ -48,7 +49,9 @@ fun LevelInfoTab(
     startHP: String,
     onStartHPChange: (String) -> Unit,
     testingOnly: Boolean,
-    onTestingOnlyChange: (Boolean) -> Unit
+    onTestingOnlyChange: (Boolean) -> Unit,
+    allowAutoAttack: Boolean,
+    onAllowAutoAttackChange: (Boolean) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -82,6 +85,22 @@ fun LevelInfoTab(
                     Switch(
                         checked = testingOnly,
                         onCheckedChange = onTestingOnlyChange
+                    )
+                }
+                
+                // Allow Auto-Attack toggle
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    modifier = Modifier.padding(start = 8.dp)
+                ) {
+                    Text(
+                        text = stringResource(Res.string.allow_auto_attack),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Switch(
+                        checked = allowAutoAttack,
+                        onCheckedChange = onAllowAutoAttackChange
                     )
                 }
             }
