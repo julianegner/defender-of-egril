@@ -34,7 +34,9 @@ fun CompactDefenderButton(
         enabled = canAfford,
         colors = ButtonDefaults.buttonColors(
             containerColor = if (isSelected) GamePlayColors.InfoDark else MaterialTheme.colorScheme.primary,
-            contentColor = if (isSelected && isDarkMode) Color.White else Color.White  // Brighter text when selected in dark mode
+            contentColor = if (isSelected && isDarkMode) Color.White else Color.White,  // Brighter text when selected in dark mode
+            disabledContainerColor = GamePlayColors.DisabledButton,
+            disabledContentColor = GamePlayColors.DisabledButtonText
         ),
         modifier = modifier,
         contentPadding = PaddingValues(4.dp)
@@ -99,7 +101,9 @@ fun DefenderButton(
         enabled = actuallyCanAfford,  // Use recalculated value
         colors = ButtonDefaults.buttonColors(
             containerColor = if (isSelected) GamePlayColors.InfoDark else MaterialTheme.colorScheme.primary,
-            contentColor = if (isSelected && isDarkMode) Color.White else Color.White  // Brighter text when selected in dark mode
+            contentColor = if (isSelected && isDarkMode) Color.White else Color.White,  // Brighter text when selected in dark mode
+            disabledContainerColor = GamePlayColors.DisabledButton,
+            disabledContentColor = GamePlayColors.DisabledButtonText
         ),
         modifier = Modifier.fillMaxWidth().height(70.dp),
         contentPadding = PaddingValues(2.dp)
