@@ -167,53 +167,57 @@ fun SettingsDialog(
                     )
                     
                     // Level header text size slider
-                    Column(
+                    Row(
                         modifier = Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
                             text = stringResource(Res.string.header_text_size),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurface
                         )
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalAlignment = Alignment.CenterVertically
+                        Column(
+                            modifier = Modifier.weight(1f),
+                            verticalArrangement = Arrangement.spacedBy(0.dp)
                         ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = stringResource(Res.string.header_text_size_small),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    modifier = Modifier.width(40.dp)
+                                )
+                                Slider(
+                                    value = AppSettings.headerTextSize.value.ordinal.toFloat(),
+                                    onValueChange = { value ->
+                                        val size = when (value.toInt()) {
+                                            0 -> HeaderTextSize.SMALL
+                                            1 -> HeaderTextSize.MEDIUM
+                                            else -> HeaderTextSize.LARGE
+                                        }
+                                        AppSettings.saveHeaderTextSize(size)
+                                    },
+                                    modifier = Modifier.weight(1f),
+                                    valueRange = 0f..2f,
+                                    steps = 1
+                                )
+                                Text(
+                                    text = stringResource(Res.string.header_text_size_large),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    modifier = Modifier.width(40.dp)
+                                )
+                            }
                             Text(
-                                text = stringResource(Res.string.header_text_size_small),
-                                style = MaterialTheme.typography.bodySmall
-                            )
-                            Slider(
-                                value = AppSettings.headerTextSize.value.ordinal.toFloat(),
-                                onValueChange = { value ->
-                                    val size = when (value.toInt()) {
-                                        0 -> HeaderTextSize.SMALL
-                                        1 -> HeaderTextSize.MEDIUM
-                                        else -> HeaderTextSize.LARGE
-                                    }
-                                    AppSettings.saveHeaderTextSize(size)
-                                },
-                                modifier = Modifier.weight(1f),
-                                valueRange = 0f..2f,
-                                steps = 1
-                            )
-                            Text(
-                                text = stringResource(Res.string.header_text_size_large),
-                                style = MaterialTheme.typography.bodySmall
+                                text = stringResource(Res.string.header_text_size_medium),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.align(Alignment.CenterHorizontally)
                             )
                         }
-                        Text(
-                            text = when (AppSettings.headerTextSize.value) {
-                                HeaderTextSize.SMALL -> stringResource(Res.string.header_text_size_small)
-                                HeaderTextSize.MEDIUM -> stringResource(Res.string.header_text_size_medium)
-                                HeaderTextSize.LARGE -> stringResource(Res.string.header_text_size_large)
-                            },
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.align(Alignment.CenterHorizontally)
-                        )
                     }
                 }
                 
