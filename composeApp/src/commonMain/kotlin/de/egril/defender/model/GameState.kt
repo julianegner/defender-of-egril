@@ -141,15 +141,36 @@ data class GameState(
     }
     
     /**
-     * Check if there are defenders with unused action points
+     * Check if there are defenders with unused action points and enemies in range
      * Used to show end turn confirmation dialog
      */
     fun hasDefendersWithUnusedActions(): Boolean {
+        // Get active attackers (not defeated, not building bridges)
+        val activeAttackers = attackers.filter { !it.isDefeated.value && !it.isBuildingBridge.value }
+        
         return defenders.any { defender ->
-            defender.isReady && 
-            defender.actionsRemaining.value > 0 && 
-            !defender.isDisabled.value && 
-            (defender.type.attackType != AttackType.NONE || defender.type == DefenderType.DWARVEN_MINE)
+            if (!defender.isReady || 
+                defender.actionsRemaining.value <= 0 || 
+                defender.isDisabled.value) {
+                return@any false
+            }
+            
+            // Special handling for different tower types
+            when (defender.type) {
+                DefenderType.DWARVEN_MINE -> {
+                    // Mines always count as having unused actions (digging)
+                    true
+                }
+                else -> {
+                    // Only count attack towers if they have AttackType and enemies in range
+                    if (defender.type.attackType == AttackType.NONE) {
+                        false
+                    } else {
+                        // Check if there are any enemies in range
+                        activeAttackers.any { attacker -> defender.canAttack(attacker) }
+                    }
+                }
+            }
         }
     }
 }

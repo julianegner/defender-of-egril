@@ -867,6 +867,8 @@
     <string name="show_testing_levels">Mostrar niveles de prueba</string>
     <string name="test_level">Nivel de prueba</string>
     <string name="allow_auto_attack">Permitir Auto-Ataque</string>
+    <string name="auto_attack_info_title">Función de Auto-Ataque</string>
+    <string name="auto_attack_info_message">Cuando está habilitado, los jugadores pueden usar el botón \"Auto-Ataque y Terminar Turno\" en el diálogo de confirmación.\n\nCómo funciona:\n• Ataca automáticamente a los enemigos con todas las torres disponibles\n• Apunta a los enemigos por prioridad (jefes primero, luego enemigos especiales)\n• NO afecta las minas (acciones de excavación)\n• NO usa las torres de ataque duradero de manera óptima\n\nConsejo: Los jugadores pueden querer realizar ataques de ácido/duraderos manualmente antes de usar auto-ataque para mejores resultados.</string>
 
     <!-- Platform Information Dialog -->
     <string name="platform_information_title">Información de plataforma</string>
