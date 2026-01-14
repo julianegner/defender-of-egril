@@ -70,6 +70,14 @@ object GamePlayColors {
     private val TrapDarkMode = Color(0xFF9E6A3F)      // Softer brown - dwarven mine traps
     private val RiverDarkMode = Color(0xFF2E5C8A)     // Darker blue - river tiles
     
+    // Disabled button colors (light mode)
+    private val DisabledButtonLight = Color(0xFF9E9E9E)        // Gray - disabled button background
+    private val DisabledButtonTextLight = Color(0xFF757575)    // Dark gray - disabled button text
+    
+    // Disabled button colors (dark mode)
+    private val DisabledButtonDarkMode = Color(0xFF424242)     // Dark gray - disabled button background
+    private val DisabledButtonTextDarkMode = Color(0xFF9E9E9E) // Medium gray - disabled button text
+    
     // Public properties that adapt to dark mode
     val Success: Color
         @Composable get() = if (AppSettings.isDarkMode.value) SuccessDarkMode else SuccessLight
@@ -130,4 +138,10 @@ object GamePlayColors {
     
     val River: Color
         @Composable get() = if (AppSettings.isDarkMode.value) RiverDarkMode else RiverLight
+    
+    val DisabledButton: Color
+        @Composable get() = if (AppSettings.isDarkMode.value) DisabledButtonDarkMode else DisabledButtonLight
+    
+    val DisabledButtonText: Color
+        @Composable get() = if (AppSettings.isDarkMode.value) DisabledButtonTextDarkMode else DisabledButtonTextLight
 }
