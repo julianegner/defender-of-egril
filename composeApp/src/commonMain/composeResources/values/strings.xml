@@ -35,6 +35,10 @@
     <string name="tile_background_images">Tile Background Images</string>
     <string name="tile_background_images_on">Tile Images On</string>
     <string name="tile_background_images_off">Color Backgrounds</string>
+    <string name="header_text_size">Level Header Text Size</string>
+    <string name="header_text_size_small">Small</string>
+    <string name="header_text_size_medium">Medium</string>
+    <string name="header_text_size_large">Large</string>
     <string name="reset_settings">Reset Settings</string>
     <string name="restore_game_data">Restore Game Data</string>
     <string name="restore_game_data_confirm_title">Restore Game Data?</string>

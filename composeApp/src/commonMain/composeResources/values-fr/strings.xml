@@ -35,6 +35,10 @@
     <string name="tile_background_images">Images de Fond de Tuile</string>
     <string name="tile_background_images_on">Images de Tuile Activées</string>
     <string name="tile_background_images_off">Fonds de Couleur</string>
+    <string name="header_text_size">Taille du Texte de l'En-tête du Niveau</string>
+    <string name="header_text_size_small">Petit</string>
+    <string name="header_text_size_medium">Moyen</string>
+    <string name="header_text_size_large">Grand</string>
     <string name="reset_settings">Réinitialiser les Paramètres</string>
     <string name="restore_game_data">Restaurer les Données du Jeu</string>
     <string name="restore_game_data_confirm_title">Restaurer les Données du Jeu ?</string>
