@@ -115,7 +115,7 @@
   ],
   "availableTowers": ["SPIKE_TOWER", "SPEAR_TOWER", "BOW_TOWER"],
   "waypoints": [
-
+    
   ],
   "prerequisites": ["the_ork_invasion"]
 }

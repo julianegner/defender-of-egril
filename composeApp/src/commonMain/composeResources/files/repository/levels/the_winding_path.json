@@ -83,7 +83,8 @@
   ],
   "availableTowers": ["SPIKE_TOWER", "SPEAR_TOWER", "BOW_TOWER", "WIZARD_TOWER", "ALCHEMY_TOWER", "BALLISTA_TOWER", "DWARVEN_MINE"],
   "waypoints": [
-
+    
   ],
-  "prerequisites": ["maelstrom", "the_cross"]
+  "prerequisites": ["maelstrom", "the_cross"],
+  "allowAutoAttack": true
 }
