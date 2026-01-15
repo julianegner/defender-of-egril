@@ -100,7 +100,8 @@ iosSimulatorArm64()
 **Desktop**:
 - `composeApp:desktopJar` - Build JAR
 - `composeApp:run` - Run desktop app
-- `composeApp:packageMsi` - Create Windows installer
+- `composeApp:packageExe` - Create Windows EXE installer
+- `composeApp:packageMsi` - Create Windows MSI installer
 - `composeApp:packageDmg` - Create macOS installer
 - `composeApp:packageDeb` - Create Linux package
 

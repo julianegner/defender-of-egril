@@ -101,6 +101,12 @@ Then open http://localhost:8080 in your browser
 
 # Build web/wasm bundle
 ./gradlew :composeApp:wasmJsBrowserDevelopmentWebpack
+
+# Build Windows EXE installer (from bash)
+./gradlew :composeApp:packageExe
+
+# Build Windows MSI installer (from bash)
+./gradlew :composeApp:packageMsi
 ```
 
 ### Running Desktop Version

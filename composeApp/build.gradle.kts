@@ -263,7 +263,7 @@ compose.desktop {
         mainClass = "de.egril.defender.MainKt"
 
         nativeDistributions {
-            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
+            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Exe, TargetFormat.Deb)
             packageVersion = "1.0.0"
             
             macOS {
