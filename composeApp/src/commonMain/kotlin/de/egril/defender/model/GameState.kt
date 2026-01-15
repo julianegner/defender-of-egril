@@ -173,4 +173,43 @@ data class GameState(
             }
         }
     }
+    
+    /**
+     * Check if there are defenders with special actions that cannot be automated effectively.
+     * Returns a list of defender types that have remaining special actions.
+     */
+    fun getDefenderTypesWithSpecialActions(): List<DefenderType> {
+        val typesWithActions = mutableSetOf<DefenderType>()
+        
+        defenders.forEach { defender ->
+            if (!defender.isReady || defender.actionsRemaining.value <= 0 || defender.isDisabled.value) {
+                return@forEach
+            }
+            
+            when {
+                // Dwarven mines with digging actions
+                defender.type == DefenderType.DWARVEN_MINE -> {
+                    typesWithActions.add(DefenderType.DWARVEN_MINE)
+                }
+                // Alchemy towers with lasting attacks
+                defender.type == DefenderType.ALCHEMY_TOWER -> {
+                    // Check if there are any enemies in range
+                    val hasTargets = attackers.any { attacker ->
+                        !attacker.isDefeated.value && !attacker.isBuildingBridge.value && defender.canAttack(attacker)
+                    }
+                    if (hasTargets) {
+                        typesWithActions.add(DefenderType.ALCHEMY_TOWER)
+                    }
+                }
+                // Wizard towers (level 10+) with magical trap available
+                defender.type == DefenderType.WIZARD_TOWER && defender.level.value >= 10 -> {
+                    if (defender.trapCooldownRemaining.value == 0) {
+                        typesWithActions.add(DefenderType.WIZARD_TOWER)
+                    }
+                }
+            }
+        }
+        
+        return typesWithActions.toList()
+    }
 }

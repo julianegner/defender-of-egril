@@ -38,7 +38,9 @@ fun GamePlayScreen(
     onClearCheatDigOutcome: (() -> Unit)? = null,  // Callback to clear cheat dig outcome
     showPlatformInfo: Boolean = false,  // Show platform info from cheat code
     onClearPlatformInfo: (() -> Unit)? = null,  // Callback to clear platform info
-    hasUnsavedChanges: (() -> Boolean)? = null  // Callback to check for unsaved changes
+    hasUnsavedChanges: (() -> Boolean)? = null,  // Callback to check for unsaved changes
+    specialActionsRemaining: List<DefenderType> = emptyList(),  // List of defender types with remaining special actions
+    onClearSpecialActionsWarning: (() -> Unit)? = null  // Callback to clear special actions warning
 ) {
     GamePlayScreenContent(
         gameState = gameState,
@@ -61,7 +63,9 @@ fun GamePlayScreen(
         onClearCheatDigOutcome = onClearCheatDigOutcome,
         showPlatformInfo = showPlatformInfo,
         onClearPlatformInfo = onClearPlatformInfo,
-        hasUnsavedChanges = hasUnsavedChanges
+        hasUnsavedChanges = hasUnsavedChanges,
+        specialActionsRemaining = specialActionsRemaining,
+        onClearSpecialActionsWarning = onClearSpecialActionsWarning
     )
 }
 
@@ -87,7 +91,9 @@ private fun GamePlayScreenContent(
     onClearCheatDigOutcome: (() -> Unit)? = null,  // Callback to clear cheat dig outcome
     showPlatformInfo: Boolean = false,  // Show platform info from cheat code
     onClearPlatformInfo: (() -> Unit)? = null,  // Callback to clear platform info
-    hasUnsavedChanges: (() -> Boolean)? = null  // Callback to check for unsaved changes
+    hasUnsavedChanges: (() -> Boolean)? = null,  // Callback to check for unsaved changes
+    specialActionsRemaining: List<DefenderType> = emptyList(),  // List of defender types with remaining special actions
+    onClearSpecialActionsWarning: (() -> Unit)? = null  // Callback to clear special actions warning
 
 ) {
     var selectedDefenderType by remember { mutableStateOf<DefenderType?>(null) }
@@ -844,6 +850,16 @@ private fun GamePlayScreenContent(
                     showEndTurnConfirmation = false
                 },
                 showAutoAttackButton = gameState.level.allowAutoAttack
+            )
+        }
+        
+        // Special actions remaining dialog
+        if (specialActionsRemaining.isNotEmpty()) {
+            SpecialActionsRemainingDialog(
+                remainingTypes = specialActionsRemaining,
+                onContinueTurn = {
+                    onClearSpecialActionsWarning?.invoke()
+                }
             )
         }
         }

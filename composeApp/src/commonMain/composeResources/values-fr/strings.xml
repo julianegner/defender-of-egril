@@ -616,6 +616,12 @@
     <string name="end_turn_confirm">Terminer le tour</string>
     <string name="auto_attack_and_end_turn">Attaque Auto et Terminer le Tour</string>
     <string name="auto_attack_warning">Note : Les mines et les tours à attaque durable pourraient avoir des points d'action inutilisés après l'attaque automatique.</string>
+    <string name="special_actions_remaining_title">Actions Spéciales Disponibles</string>
+    <string name="special_actions_remaining_message">Attaque automatique terminée, mais les tours suivantes ont encore des actions qui ne peuvent pas être automatisées efficacement :</string>
+    <string name="dwarven_mine_actions">Mines : Peuvent creuser ou construire des pièges</string>
+    <string name="alchemy_tower_actions">Tours d'Alchimie : Les attaques durables bénéficient d'un ciblage manuel</string>
+    <string name="wizard_tower_actions">Tours de Magicien : Peuvent placer des pièges magiques (niveau 10+)</string>
+    <string name="continue_turn">Continuer le Tour</string>
     
     <!-- Magical Trap Feature -->
     <string name="magical_trap">Piège Magique</string>

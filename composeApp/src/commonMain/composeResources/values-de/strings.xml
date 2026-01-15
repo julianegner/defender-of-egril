@@ -616,6 +616,12 @@
     <string name="end_turn_confirm">Runde beenden</string>
     <string name="auto_attack_and_end_turn">Auto-Angriff und Runde beenden</string>
     <string name="auto_attack_warning">Hinweis: Minen und Türme mit dauerhaften Angriffen könnten nach dem Auto-Angriff noch ungenutzte Aktionspunkte haben.</string>
+    <string name="special_actions_remaining_title">Spezialaktionen verfügbar</string>
+    <string name="special_actions_remaining_message">Auto-Angriff abgeschlossen, aber folgende Türme haben noch Aktionen, die nicht effektiv automatisiert werden können:</string>
+    <string name="dwarven_mine_actions">Minen: Können graben oder Fallen bauen</string>
+    <string name="alchemy_tower_actions">Alchemie-Türme: Dauerhafte Angriffe profitieren von manueller Zielauswahl</string>
+    <string name="wizard_tower_actions">Zauber-Türme: Können magische Fallen platzieren (Stufe 10+)</string>
+    <string name="continue_turn">Runde fortsetzen</string>
     
     <!-- Magical Trap Feature -->
     <string name="magical_trap">Magische Falle</string>
