@@ -72,9 +72,12 @@ class GameEngine(private val state: GameState) {
                 val attackSucceeded = when (defender.type.attackType) {
                     AttackType.MELEE, AttackType.RANGED -> {
                         val target = selectAutoTargetForDefender(defender, activeAttackers) ?: break
-                        combatSystem.defenderAttack(defender.id, target.id) {
+                        val success = combatSystem.defenderAttack(defender.id, target.id) {
                             combatSystem.processDefeatedAttackers()
                         }
+                        // If attack failed, break to avoid infinite loop
+                        if (!success) break
+                        success
                     }
                     AttackType.AREA, AttackType.LASTING -> {
                         // For area/lasting attacks, find the best position that hits the most enemies
