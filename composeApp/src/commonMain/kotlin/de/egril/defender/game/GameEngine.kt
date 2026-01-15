@@ -118,10 +118,17 @@ class GameEngine(private val state: GameState) {
      */
     private fun selectBestAreaAttackPosition(defender: Defender, candidates: List<Attacker>): Position? {
         val radius = defender.areaEffectRadius
+        val effectiveRange = defender.range + radius
         
-        // Find all positions we can attack
+        // Find all positions we can attack (considering area effect extends range)
         val attackablePositions = candidates.filter { attacker ->
-            !attacker.isDefeated.value && defender.canAttack(attacker)
+            if (!attacker.isDefeated.value && defender.isReady && defender.actionsRemaining.value > 0 && !defender.isDisabled.value) {
+                val distance = defender.position.value.distanceTo(attacker.position.value)
+                // For area attacks, we can target positions within range + area radius
+                distance >= defender.type.minRange && distance <= effectiveRange
+            } else {
+                false
+            }
         }.map { it.position.value }.distinct()
         
         if (attackablePositions.isEmpty()) return null
