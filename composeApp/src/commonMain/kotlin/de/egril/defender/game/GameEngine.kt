@@ -168,7 +168,11 @@ class GameEngine(private val state: GameState) {
             val affectedEnemies = candidates.filter { attacker ->
                 !attacker.isDefeated.value && 
                 affectedPositions.contains(attacker.position.value) &&
-                attacker.canBeDamagedByFireball()
+                when (defender.type.attackType) {
+                    AttackType.AREA -> attacker.canBeDamagedByFireball()
+                    AttackType.LASTING -> attacker.canBeDamagedByAcid()
+                    else -> true  // Should not happen for other attack types
+                }
             }
             
             // Calculate score: number of enemies hit + sum of threat scores + proximity to goal
