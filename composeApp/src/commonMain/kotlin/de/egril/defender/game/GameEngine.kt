@@ -121,6 +121,7 @@ class GameEngine(private val state: GameState) {
         val effectiveRange = defender.range + radius
         
         // Find all positions we can attack (considering area effect extends range)
+        // IMPORTANT: Only include positions that are valid targets (on path or river)
         val attackablePositions = candidates.filter { attacker ->
             if (!attacker.isDefeated.value && defender.isReady && defender.actionsRemaining.value > 0 && !defender.isDisabled.value) {
                 val distance = defender.position.value.distanceTo(attacker.position.value)
@@ -130,6 +131,10 @@ class GameEngine(private val state: GameState) {
                 false
             }
         }.map { it.position.value }.distinct()
+            .filter { pos -> 
+                // Only include positions that are valid attack targets (on path or river)
+                state.level.isOnPath(pos) || state.level.getRiverTile(pos) != null
+            }
         
         if (attackablePositions.isEmpty()) return null
         
@@ -150,11 +155,6 @@ class GameEngine(private val state: GameState) {
                     targetPos.getHexNeighborsWithinRadius(radius, state.level.gridWidth, state.level.gridHeight)
                         .filter { state.level.isOnPath(it) || state.isBridgeAt(it) }
                 )
-            }
-            
-            // Only include target position if it's on the path or a bridge
-            if (!state.level.isOnPath(targetPos) && !state.isBridgeAt(targetPos)) {
-                affectedPositions.remove(targetPos)
             }
             
             // Count enemies in affected area (considering immunities)
