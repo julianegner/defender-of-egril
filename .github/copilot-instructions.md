@@ -310,10 +310,9 @@ Add to `LevelData.createLevels()` with:
 3. **Use in code**: Use `stringResource(Res.string.your_key)` in Composables
 4. **Test**: Run `TranslationCoverageTest` to verify all language files are synchronized
 5. **Never hardcode**: Do not use hardcoded strings like `Text("Hello")` - always use stringResource
-6. **IMPORTANT: No multiline strings in XML**: Always keep string content on a single line in XML files
-   - Use `\n` for line breaks within the string value
-   - Example: `<string name="message">Line 1\nLine 2\nLine 3</string>`
-   - Do NOT split the string value across multiple lines in the XML - this breaks the build
+6. **IMPORTANT: Version 2.0.0 limitation with `\n`**: The hyperether.localization plugin version 2.0.0 has a bug that causes compilation errors when using `\n` escape sequences in strings. **Do NOT use `\n` for line breaks**. Instead, write strings as continuous text without line breaks. If multiple paragraphs or bullet points are needed, use punctuation (periods, semicolons) to separate concepts within a single continuous string.
+   - ❌ DON'T: `<string name="message">Line 1\nLine 2\nLine 3</string>`
+   - ✅ DO: `<string name="message">Line 1. Line 2. Line 3.</string>`
 7. Update `LanguageChooser.kt`'s `getCountryCode()` function if language code differs from country code
 8. Test language switching via Settings dialog
 9. All ~318 strings must be translated for complete localization

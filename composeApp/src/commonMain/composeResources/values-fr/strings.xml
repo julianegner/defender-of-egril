@@ -868,7 +868,7 @@
     <string name="test_level">Niveau de test</string>
     <string name="allow_auto_attack">Autoriser l'Attaque Automatique</string>
     <string name="auto_attack_info_title">Fonction d'Attaque Automatique</string>
-    <string name="auto_attack_info_message">Lorsqu'elle est activée, les joueurs peuvent utiliser le bouton \"Attaque Auto et Terminer le Tour\" dans le dialogue de confirmation.\n\nComment cela fonctionne :\n• Attaque automatiquement les ennemis avec toutes les tours disponibles\n• Cible les ennemis par priorité (boss d'abord, puis ennemis spéciaux)\n• N'affecte PAS les mines (actions de creusage)\n• N'utilise PAS les tours à attaque durable de manière optimale\n\nConseil : Les joueurs peuvent vouloir effectuer des attaques acide/durables manuellement avant d'utiliser l'attaque automatique pour de meilleurs résultats.</string>
+    <string name="auto_attack_info_message">Lorsqu'elle est activée, les joueurs peuvent utiliser le bouton Attaque Auto et Terminer le Tour dans le dialogue de confirmation. Comment cela fonctionne : Attaque automatiquement les ennemis avec toutes les tours disponibles. Cible les ennemis par priorité (boss d'abord, puis ennemis spéciaux). N'affecte PAS les mines (actions de creusage). N'utilise PAS les tours à attaque durable de manière optimale. Conseil : Les joueurs peuvent vouloir effectuer des attaques acide/durables manuellement avant d'utiliser l'attaque automatique pour de meilleurs résultats.</string>
 
     <!-- Platform Information Dialog -->
     <string name="platform_information_title">Informations sur la plateforme</string>

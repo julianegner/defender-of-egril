@@ -151,12 +151,6 @@ fun LevelInfoTab(
                 }
             }
         }
-                            onCheckedChange = onAllowAutoAttackChange
-                        )
-                    }
-                }
-            }
-        }
 
 
         // Map selection with mini-maps using a grid layout
