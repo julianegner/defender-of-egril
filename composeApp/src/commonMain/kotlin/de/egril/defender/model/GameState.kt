@@ -191,15 +191,9 @@ data class GameState(
                 defender.type == DefenderType.DWARVEN_MINE -> {
                     typesWithActions.add(DefenderType.DWARVEN_MINE)
                 }
-                // Alchemy towers with lasting attacks
+                // Alchemy towers with lasting attacks (always show, even if no enemies in range)
                 defender.type == DefenderType.ALCHEMY_TOWER -> {
-                    // Check if there are any enemies in range
-                    val hasTargets = attackers.any { attacker ->
-                        !attacker.isDefeated.value && !attacker.isBuildingBridge.value && defender.canAttack(attacker)
-                    }
-                    if (hasTargets) {
-                        typesWithActions.add(DefenderType.ALCHEMY_TOWER)
-                    }
+                    typesWithActions.add(DefenderType.ALCHEMY_TOWER)
                 }
                 // Wizard towers (level 10+) with magical trap available
                 defender.type == DefenderType.WIZARD_TOWER && defender.level.value >= 10 -> {
