@@ -57,10 +57,8 @@ class GameEngine(private val state: GameState) {
     fun autoDefenderAttacks() {
         if (state.phase.value != GamePhase.PLAYER_TURN) return
 
-        val activeAttackers = state.attackers.filter { attacker ->
-            !attacker.isDefeated.value && !attacker.isBuildingBridge.value
-        }
-        if (activeAttackers.isEmpty()) return
+        // Check if there are any attackers to target
+        if (state.attackers.none { !it.isDefeated.value && !it.isBuildingBridge.value }) return
 
         for (defender in state.defenders) {
             if (!defender.isReady) continue
@@ -69,6 +67,14 @@ class GameEngine(private val state: GameState) {
             if (defender.type.attackType == AttackType.NONE) continue
 
             while (defender.actionsRemaining.value > 0) {
+                // Get fresh list of active attackers for each attack
+                val activeAttackers = state.attackers.filter { attacker ->
+                    !attacker.isDefeated.value && !attacker.isBuildingBridge.value
+                }
+                
+                // If no attackers left, we're done
+                if (activeAttackers.isEmpty()) return
+                
                 val attackSucceeded = when (defender.type.attackType) {
                     AttackType.MELEE, AttackType.RANGED -> {
                         val target = selectAutoTargetForDefender(defender, activeAttackers) ?: break
@@ -90,11 +96,6 @@ class GameEngine(private val state: GameState) {
                         success
                     }
                     AttackType.NONE -> break
-                }
-
-                // Refresh attacker list for subsequent shots
-                if (state.attackers.none { !it.isDefeated.value && !it.isBuildingBridge.value }) {
-                    return
                 }
             }
         }
