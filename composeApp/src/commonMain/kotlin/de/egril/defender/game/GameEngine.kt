@@ -69,7 +69,7 @@ class GameEngine(private val state: GameState) {
             if (defender.type.attackType == AttackType.NONE) continue
 
             while (defender.actionsRemaining.value > 0) {
-                when (defender.type.attackType) {
+                val attackSucceeded = when (defender.type.attackType) {
                     AttackType.MELEE, AttackType.RANGED -> {
                         val target = selectAutoTargetForDefender(defender, activeAttackers) ?: break
                         combatSystem.defenderAttack(defender.id, target.id) {
@@ -79,9 +79,12 @@ class GameEngine(private val state: GameState) {
                     AttackType.AREA, AttackType.LASTING -> {
                         // For area/lasting attacks, find the best position that hits the most enemies
                         val targetPosition = selectBestAreaAttackPosition(defender, activeAttackers) ?: break
-                        combatSystem.defenderAttackPosition(defender.id, targetPosition) {
+                        val success = combatSystem.defenderAttackPosition(defender.id, targetPosition) {
                             combatSystem.processDefeatedAttackers()
                         }
+                        // If attack failed (invalid position), break to avoid infinite loop
+                        if (!success) break
+                        success
                     }
                     AttackType.NONE -> break
                 }
