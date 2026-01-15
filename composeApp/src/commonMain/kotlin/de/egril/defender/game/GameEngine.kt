@@ -130,7 +130,7 @@ class GameEngine(private val state: GameState) {
         // Find all positions we can attack (considering area effect extends range)
         // IMPORTANT: Only include positions that are valid targets (on path or river)
         val attackablePositions = candidates.filter { attacker ->
-            if (!attacker.isDefeated.value && defender.isReady && defender.actionsRemaining.value > 0 && !defender.isDisabled.value) {
+            if (!attacker.isDefeated.value) {
                 val distance = defender.position.value.distanceTo(attacker.position.value)
                 // For area attacks, we can target positions within range + area radius
                 distance >= defender.type.minRange && distance <= effectiveRange
@@ -140,7 +140,7 @@ class GameEngine(private val state: GameState) {
         }.map { it.position.value }.distinct()
             .filter { pos -> 
                 // Only include positions that are valid attack targets (on path or river)
-                state.level.isOnPath(pos) || state.level.getRiverTile(pos) != null
+                state.level.isOnPath(pos) || state.level.getRiverTile(pos) || state.isBridgeAt(pos)
             }
         
         if (attackablePositions.isEmpty()) return null
