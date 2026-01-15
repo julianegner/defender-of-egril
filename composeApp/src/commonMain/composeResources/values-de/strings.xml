@@ -10,6 +10,12 @@
     <string name="exit_game_confirm_message">Möchten Sie das Spiel wirklich beenden?</string>
     <string name="exit">Beenden</string>
 
+    <!-- Commit Info Dialog -->
+    <string name="commit_info_title">Build-Informationen</string>
+    <string name="commit_hash_label">Commit-Hash:</string>
+    <string name="commit_date_label">Commit-Datum:</string>
+    <string name="commit_message_label">Commit-Nachricht:</string>
+
     <!-- Level Complete Screen -->
     <string name="victory">Sieg!</string>
     <string name="battle_won">Schlacht gewonnen!</string>
