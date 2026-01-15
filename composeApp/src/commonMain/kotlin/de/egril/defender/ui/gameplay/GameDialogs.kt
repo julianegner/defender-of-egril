@@ -254,3 +254,51 @@ fun EndTurnConfirmationDialog(
         }
     )
 }
+
+@Composable
+fun SpecialActionsRemainingDialog(
+    remainingTypes: List<DefenderType>,
+    onContinueTurn: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onContinueTurn,
+        title = { Text(stringResource(Res.string.special_actions_remaining_title)) },
+        text = {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Text(
+                    stringResource(Res.string.special_actions_remaining_message),
+                    style = MaterialTheme.typography.bodyLarge
+                )
+                
+                // List each tower type with remaining actions
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                    modifier = Modifier.padding(start = 8.dp)
+                ) {
+                    remainingTypes.forEach { type ->
+                        val message = when (type) {
+                            DefenderType.DWARVEN_MINE -> stringResource(Res.string.dwarven_mine_actions)
+                            DefenderType.ALCHEMY_TOWER -> stringResource(Res.string.alchemy_tower_actions)
+                            DefenderType.WIZARD_TOWER -> stringResource(Res.string.wizard_tower_actions)
+                            else -> ""
+                        }
+                        if (message.isNotEmpty()) {
+                            Text(
+                                text = "• $message",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            Button(onClick = onContinueTurn) {
+                Text(stringResource(Res.string.continue_turn))
+            }
+        }
+    )
+}

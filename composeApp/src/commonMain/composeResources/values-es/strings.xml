@@ -616,6 +616,12 @@
     <string name="end_turn_confirm">Terminar turno</string>
     <string name="auto_attack_and_end_turn">Auto-Ataque y Terminar Turno</string>
     <string name="auto_attack_warning">Nota: Las minas y torres con ataques duraderos podrían tener puntos de acción sin usar después del auto-ataque.</string>
+    <string name="special_actions_remaining_title">Acciones Especiales Disponibles</string>
+    <string name="special_actions_remaining_message">Auto-ataque completado, pero las siguientes torres aún tienen acciones que no se pueden automatizar efectivamente:</string>
+    <string name="dwarven_mine_actions">Minas: Pueden excavar o construir trampas</string>
+    <string name="alchemy_tower_actions">Torres de Alquimia: Los ataques duraderos se benefician del apuntado manual</string>
+    <string name="wizard_tower_actions">Torres de Mago: Pueden colocar trampas mágicas (nivel 10+)</string>
+    <string name="continue_turn">Continuar Turno</string>
     
     <!-- Magical Trap Feature -->
     <string name="magical_trap">Trampa Mágica</string>

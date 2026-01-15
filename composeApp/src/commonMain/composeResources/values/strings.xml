@@ -617,6 +617,12 @@
     <string name="end_turn_confirm">End Turn</string>
     <string name="auto_attack_and_end_turn">Auto-Attack and End Turn</string>
     <string name="auto_attack_warning">Note: Mines and lasting attack towers might still have unused action points after auto-attack.</string>
+    <string name="special_actions_remaining_title">Special Actions Remaining</string>
+    <string name="special_actions_remaining_message">Auto-attack completed, but the following towers still have actions that cannot be automated effectively:</string>
+    <string name="dwarven_mine_actions">Mines: Can dig for coins or build traps</string>
+    <string name="alchemy_tower_actions">Alchemy Towers: Lasting attacks benefit from manual targeting</string>
+    <string name="wizard_tower_actions">Wizard Towers: Can place magical traps (level 10+)</string>
+    <string name="continue_turn">Continue Turn</string>
     
     <!-- Magical Trap Feature -->
     <string name="magical_trap">Magical Trap</string>

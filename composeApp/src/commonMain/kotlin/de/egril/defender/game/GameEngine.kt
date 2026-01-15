@@ -69,16 +69,17 @@ class GameEngine(private val state: GameState) {
             if (defender.type.attackType == AttackType.NONE) continue
 
             while (defender.actionsRemaining.value > 0) {
-                val target = selectAutoTargetForDefender(defender, activeAttackers) ?: break
-
                 when (defender.type.attackType) {
                     AttackType.MELEE, AttackType.RANGED -> {
+                        val target = selectAutoTargetForDefender(defender, activeAttackers) ?: break
                         combatSystem.defenderAttack(defender.id, target.id) {
                             combatSystem.processDefeatedAttackers()
                         }
                     }
                     AttackType.AREA, AttackType.LASTING -> {
-                        combatSystem.defenderAttackPosition(defender.id, target.position.value) {
+                        // For area/lasting attacks, find the best position that hits the most enemies
+                        val targetPosition = selectBestAreaAttackPosition(defender, activeAttackers) ?: break
+                        combatSystem.defenderAttackPosition(defender.id, targetPosition) {
                             combatSystem.processDefeatedAttackers()
                         }
                     }
@@ -109,6 +110,71 @@ class GameEngine(private val state: GameState) {
                 .thenBy { it.currentHealth.value }
                 .thenBy { it.id }
         )
+    }
+
+    /**
+     * Select the best position for an area or lasting attack.
+     * Tries to maximize the number of enemies hit, prioritizing high-threat enemies.
+     */
+    private fun selectBestAreaAttackPosition(defender: Defender, candidates: List<Attacker>): Position? {
+        val radius = defender.areaEffectRadius
+        
+        // Find all positions we can attack
+        val attackablePositions = candidates.filter { attacker ->
+            !attacker.isDefeated.value && defender.canAttack(attacker)
+        }.map { it.position.value }.distinct()
+        
+        if (attackablePositions.isEmpty()) return null
+        
+        // For each position, count how many enemies would be hit (considering area effect)
+        val positionScores = attackablePositions.map { targetPos ->
+            val affectedPositions = mutableSetOf(targetPos)
+            
+            if (radius == 1) {
+                affectedPositions.addAll(
+                    targetPos.getHexNeighbors().filter { neighbor ->
+                        neighbor.x >= 0 && neighbor.x < state.level.gridWidth &&
+                        neighbor.y >= 0 && neighbor.y < state.level.gridHeight &&
+                        (state.level.isOnPath(neighbor) || state.isBridgeAt(neighbor))
+                    }
+                )
+            } else {
+                affectedPositions.addAll(
+                    targetPos.getHexNeighborsWithinRadius(radius, state.level.gridWidth, state.level.gridHeight)
+                        .filter { state.level.isOnPath(it) || state.isBridgeAt(it) }
+                )
+            }
+            
+            // Only include target position if it's on the path or a bridge
+            if (!state.level.isOnPath(targetPos) && !state.isBridgeAt(targetPos)) {
+                affectedPositions.remove(targetPos)
+            }
+            
+            // Count enemies in affected area (considering immunities)
+            val affectedEnemies = candidates.filter { attacker ->
+                !attacker.isDefeated.value && 
+                affectedPositions.contains(attacker.position.value) &&
+                attacker.canBeDamagedByFireball()
+            }
+            
+            // Calculate score: number of enemies hit + sum of threat scores + proximity to goal
+            val enemyCount = affectedEnemies.size
+            val totalThreat = affectedEnemies.sumOf { threatScore(it) }
+            val avgDistanceToGoal = if (affectedEnemies.isNotEmpty()) {
+                affectedEnemies.map { estimateRemainingDistanceToGoal(it) }.average()
+            } else {
+                Double.MAX_VALUE
+            }
+            
+            Triple(targetPos, enemyCount * 1000 + totalThreat, avgDistanceToGoal)
+        }
+        
+        // Select position with highest score (most enemies + highest threat)
+        // Tie-breaker: closest to goal
+        return positionScores.maxWithOrNull(
+            compareBy<Triple<Position, Int, Double>> { it.second }
+                .thenBy { -it.third }  // Negative because lower distance is better
+        )?.first
     }
 
     private fun threatScore(attacker: Attacker): Int {
