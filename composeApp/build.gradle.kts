@@ -40,6 +40,39 @@ val generateBuildConfig by tasks.registering {
             "unknown"
         }
         
+        val commitDate = try {
+            val process = Runtime.getRuntime().exec("git show -s --format=%ci HEAD")
+            val date = process.inputStream.bufferedReader().use { it.readText().trim() }
+            val exitCode = process.waitFor()
+            if (exitCode != 0) {
+                logger.warn("git command exited with code $exitCode")
+                "unknown"
+            } else {
+                date
+            }
+        } catch (e: Exception) {
+            logger.warn("Failed to get git commit date: ${e.message}")
+            "unknown"
+        }
+        
+        val commitMessage = try {
+            val process = Runtime.getRuntime().exec(arrayOf("git", "log", "-1", "--pretty=%B"))
+            val message = process.inputStream.bufferedReader().use { it.readText().trim() }
+            val exitCode = process.waitFor()
+            if (exitCode != 0) {
+                logger.warn("git command exited with code $exitCode")
+                "unknown"
+            } else {
+                // Escape quotes and newlines for Kotlin string
+                message.replace("\\", "\\\\")
+                    .replace("\"", "\\\"")
+                    .replace("\n", "\\n")
+            }
+        } catch (e: Exception) {
+            logger.warn("Failed to get git commit message: ${e.message}")
+            "unknown"
+        }
+        
         val versionName = "1.0"
         
         val buildConfigContent = """
@@ -52,6 +85,8 @@ val generateBuildConfig by tasks.registering {
             |object BuildConfig {
             |    const val VERSION_NAME = "$versionName"
             |    const val COMMIT_HASH = "$commitHash"
+            |    const val COMMIT_DATE = "$commitDate"
+            |    const val COMMIT_MESSAGE = "$commitMessage"
             |}
             |""".trimMargin()
         
@@ -60,7 +95,7 @@ val generateBuildConfig by tasks.registering {
             writeText(buildConfigContent)
         }
         
-        logger.info("Generated BuildConfig with commit hash: $commitHash")
+        logger.info("Generated BuildConfig with commit hash: $commitHash, date: $commitDate")
     }
 }
 
