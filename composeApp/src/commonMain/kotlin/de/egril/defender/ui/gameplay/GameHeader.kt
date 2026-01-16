@@ -29,6 +29,8 @@ fun GameHeader(
     onSaveGame: (() -> Unit)?,
     onCheatCode: (() -> Unit)?
 ) {
+    val headerTextSize = de.egril.defender.ui.settings.AppSettings.headerTextSize.value
+    
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -49,21 +51,42 @@ fun GameHeader(
             ) {
                 GameStats(
                     gameState = gameState,
-                    onCheatCode = onCheatCode
+                    onCheatCode = onCheatCode,
+                    headerTextSize = headerTextSize
                 )
             }
 
             // Level name in center (without prefix, bold when collapsed)
             val locale = com.hyperether.resources.currentLanguage.value
+            val titleFontSize = when (headerTextSize) {
+                de.egril.defender.ui.settings.HeaderTextSize.SMALL -> GamePlayConstants.TextSizes.Body
+                de.egril.defender.ui.settings.HeaderTextSize.MEDIUM -> GamePlayConstants.TextSizes.Medium
+                de.egril.defender.ui.settings.HeaderTextSize.LARGE -> GamePlayConstants.TextSizes.Large
+            }
             Text(
                 text = gameState.level.getLocalizedTitle(locale),
-                style = MaterialTheme.typography.bodyMedium,
+                fontSize = titleFontSize,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.weight(1f),
                 textAlign = TextAlign.Center
             )
 
             // Buttons and difficulty at far right
+            val buttonHeight = when (headerTextSize) {
+                de.egril.defender.ui.settings.HeaderTextSize.SMALL -> GamePlayConstants.ButtonSizes.CompactHeight
+                de.egril.defender.ui.settings.HeaderTextSize.MEDIUM -> 40.dp
+                de.egril.defender.ui.settings.HeaderTextSize.LARGE -> 48.dp
+            }
+            val buttonIconSize = when (headerTextSize) {
+                de.egril.defender.ui.settings.HeaderTextSize.SMALL -> GamePlayConstants.IconSizes.Medium
+                de.egril.defender.ui.settings.HeaderTextSize.MEDIUM -> GamePlayConstants.IconSizes.Large
+                de.egril.defender.ui.settings.HeaderTextSize.LARGE -> GamePlayConstants.IconSizes.ExtraLarge
+            }
+            val buttonTextSize = when (headerTextSize) {
+                de.egril.defender.ui.settings.HeaderTextSize.SMALL -> GamePlayConstants.TextSizes.Body
+                de.egril.defender.ui.settings.HeaderTextSize.MEDIUM -> GamePlayConstants.TextSizes.Medium
+                de.egril.defender.ui.settings.HeaderTextSize.LARGE -> GamePlayConstants.TextSizes.Large
+            }
             Row(
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
                 verticalAlignment = Alignment.CenterVertically
@@ -75,17 +98,17 @@ fun GameHeader(
                 
                 // Settings button (icon only to save space)
                 SettingsButton(
-                    modifier = Modifier.size(GamePlayConstants.ButtonSizes.CompactHeight)
+                    modifier = Modifier.size(buttonHeight)
                 )
                 
                 if (onSaveGame != null) {
                     Button(
                         onClick = onSaveGame,
-                        modifier = Modifier.height(GamePlayConstants.ButtonSizes.CompactHeight),
+                        modifier = Modifier.height(buttonHeight),
                         contentPadding = PaddingValues(horizontal = GamePlayConstants.Spacing.Items, vertical = 0.dp)
                     ) {
                         SaveIcon(
-                            size = GamePlayConstants.IconSizes.Medium,
+                            size = buttonIconSize,
                             modifier = Modifier.align(Alignment.CenterVertically)
                         )
                     }
@@ -93,28 +116,28 @@ fun GameHeader(
 
                 Button(
                     onClick = onBackToMap,
-                    modifier = Modifier.height(GamePlayConstants.ButtonSizes.CompactHeight),
+                    modifier = Modifier.height(buttonHeight),
                     contentPadding = PaddingValues(horizontal = GamePlayConstants.Spacing.Items, vertical = 0.dp)
                 ) {
                     Text(
                         stringResource(Res.string.map_label),
-                        fontSize = GamePlayConstants.TextSizes.Body,
+                        fontSize = buttonTextSize,
                         modifier = Modifier.align(Alignment.CenterVertically)
                     )
                 }
 
                 Button(
                     onClick = { onShowOverlayChange(!showOverlay) },
-                    modifier = Modifier.height(GamePlayConstants.ButtonSizes.CompactHeight),
+                    modifier = Modifier.height(buttonHeight),
                     contentPadding = PaddingValues(horizontal = GamePlayConstants.Spacing.Items, vertical = 0.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = if (showOverlay) GamePlayColors.Success else GamePlayColors.Info
                     )
                 ) {
                     if (showOverlay) {
-                        TriangleRightIcon(size = GamePlayConstants.IconSizes.Medium)
+                        TriangleRightIcon(size = buttonIconSize)
                     } else {
-                        TriangleLeftIcon(size = GamePlayConstants.IconSizes.Medium)
+                        TriangleLeftIcon(size = buttonIconSize)
                     }
                 }
             }
@@ -125,16 +148,28 @@ fun GameHeader(
 @Composable
 private fun GameStats(
     gameState: GameState,
-    onCheatCode: (() -> Unit)?
+    onCheatCode: (() -> Unit)?,
+    headerTextSize: de.egril.defender.ui.settings.HeaderTextSize
 ) {
+    val iconSize = when (headerTextSize) {
+        de.egril.defender.ui.settings.HeaderTextSize.SMALL -> GamePlayConstants.IconSizes.Large
+        de.egril.defender.ui.settings.HeaderTextSize.MEDIUM -> GamePlayConstants.IconSizes.ExtraLarge
+        de.egril.defender.ui.settings.HeaderTextSize.LARGE -> 32.dp
+    }
+    val textStyle = when (headerTextSize) {
+        de.egril.defender.ui.settings.HeaderTextSize.SMALL -> MaterialTheme.typography.bodyLarge
+        de.egril.defender.ui.settings.HeaderTextSize.MEDIUM -> MaterialTheme.typography.titleMedium
+        de.egril.defender.ui.settings.HeaderTextSize.LARGE -> MaterialTheme.typography.titleLarge
+    }
+    
     GameStatsDisplay(
         coins = gameState.coins.value,
         health = gameState.healthPoints.value,
         turn = gameState.turnNumber.value,
         activeEnemyCount = gameState.getActiveEnemyCount(),
         remainingEnemyCount = gameState.getRemainingEnemyCount(),
-        iconSize = GamePlayConstants.IconSizes.Large,
-        textStyle = MaterialTheme.typography.bodyLarge,
+        iconSize = iconSize,
+        textStyle = textStyle,
         onCoinsClick = onCheatCode
     )
 }

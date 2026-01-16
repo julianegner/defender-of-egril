@@ -2,6 +2,48 @@
 
 This directory contains utility scripts for the Defender of Egril project.
 
+## Build Windows EXE
+
+### Overview
+
+`build-windows-exe.sh` is a convenience script that builds a Windows EXE installer for the game using Gradle.
+
+### Requirements
+
+- **JDK 11+** must be installed
+- **Gradle** (included via wrapper)
+- Can be run from any platform (Linux, macOS, or Windows with bash/WSL)
+
+### Usage
+
+```bash
+# Build Windows EXE installer
+./build-windows-exe.sh
+
+# Or run directly with Gradle
+./gradlew :composeApp:packageExe
+```
+
+### Output
+
+The script creates a Windows EXE installer at:
+`composeApp/build/compose/binaries/main/exe/`
+
+The installer file will be named: `DefenderOfEgril-1.0.0.exe` (or similar based on version)
+
+### How It Works
+
+1. **Gradle Task**: Executes the `:composeApp:packageExe` Gradle task
+2. **JPackage**: Uses Java's jpackage tool to create a native Windows installer
+3. **Bundling**: Packages the JVM, application code, and resources into a single EXE
+4. **Output**: Creates a self-contained Windows installer
+
+### Note
+
+- Building on Linux/macOS creates a Windows-compatible installer
+- The build process may take 5-10 minutes depending on your machine
+- The resulting EXE can be installed on any Windows 10+ system
+
 ## Dragon Names Scraper
 
 ### Overview

@@ -75,7 +75,34 @@ WASM browser tests are not currently run in CI because the common test suite use
 - `pages: write` - To deploy to GitHub Pages
 - `id-token: write` - Required by actions/configure-pages
 
-### 4. Debug Android ProGuard (`debug-proguard.yml`)
+### 4. Build Windows EXE (`build-windows-exe.yml`)
+
+**Trigger:** On pushes to main branch, pull requests to main, or manual dispatch
+
+**Purpose:** Build Windows EXE installer independently
+
+**Jobs:**
+- `build_windows_exe`: Build Windows EXE installer on Windows runner
+
+**Configuration:**
+- JDK: 24 (Temurin distribution)
+- Gradle: Uses project wrapper (9.2.1)
+- Build command: `:composeApp:packageExe`
+- Runner: `windows-latest`
+
+**Artifacts:**
+- Windows EXE installer uploaded as `windows-exe-installer`
+- Retention: 30 days
+- Can be downloaded from the workflow run
+
+**Usage:**
+This workflow provides an easy way to build and test Windows EXE installers without creating a full release. Artifacts can be downloaded from:
+1. Go to Actions tab
+2. Select "Build Windows EXE" workflow
+3. Click on a completed run
+4. Download the `windows-exe-installer` artifact
+
+### 5. Debug Android ProGuard (`debug-proguard.yml`)
 
 **Trigger:** Manual dispatch only
 

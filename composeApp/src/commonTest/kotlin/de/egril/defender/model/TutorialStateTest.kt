@@ -53,6 +53,25 @@ class TutorialStateTest {
     }
     
     @Test
+    fun testBuildTowerWithExistingDefenders() {
+        // Test that Next button is enabled at BUILD_TOWER step if defenders already exist
+        // This handles the case where a player loads a saved tutorial game with towers already built
+        val state = TutorialState(isActive = true, currentStep = TutorialStep.BUILD_TOWER)
+        
+        // Without defenders, Next should be disabled
+        assertFalse(state.isNextEnabled(defendersCount = 0), "Next should be disabled without defenders")
+        
+        // With defenders on the map, Next should be enabled even if hasPlacedFirstTower is false
+        assertTrue(state.isNextEnabled(defendersCount = 1), "Next should be enabled with 1 defender")
+        assertTrue(state.isNextEnabled(defendersCount = 3), "Next should be enabled with 3 defenders")
+        
+        // With hasPlacedFirstTower flag set, Next should also be enabled
+        val stateWithFlag = state.markTowerPlaced()
+        assertTrue(stateWithFlag.isNextEnabled(defendersCount = 0), "Next should be enabled with flag set")
+        assertTrue(stateWithFlag.isNextEnabled(defendersCount = 1), "Next should be enabled with both flag and defenders")
+    }
+    
+    @Test
     fun testStepProgression() {
         var state = TutorialState(isActive = true, currentStep = TutorialStep.WELCOME)
         

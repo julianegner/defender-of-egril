@@ -10,6 +10,12 @@
     <string name="exit_game_confirm_message">Möchten Sie das Spiel wirklich beenden?</string>
     <string name="exit">Beenden</string>
 
+    <!-- Commit Info Dialog -->
+    <string name="commit_info_title">Build-Informationen</string>
+    <string name="commit_hash_label">Commit-Hash:</string>
+    <string name="commit_date_label">Commit-Datum:</string>
+    <string name="commit_message_label">Commit-Nachricht:</string>
+
     <!-- Level Complete Screen -->
     <string name="victory">Sieg!</string>
     <string name="battle_won">Schlacht gewonnen!</string>
@@ -35,6 +41,10 @@
     <string name="tile_background_images">Kachel-Hintergrundbilder</string>
     <string name="tile_background_images_on">Kachelbilder An</string>
     <string name="tile_background_images_off">Farbhintergründe</string>
+    <string name="header_text_size">Level-Header-Textgröße</string>
+    <string name="header_text_size_small">Klein</string>
+    <string name="header_text_size_medium">Mittel</string>
+    <string name="header_text_size_large">Groß</string>
     <string name="reset_settings">Einstellungen zurücksetzen</string>
     <string name="restore_game_data">Spieldaten wiederherstellen</string>
     <string name="restore_game_data_confirm_title">Spieldaten wiederherstellen?</string>
@@ -431,7 +441,7 @@
     <string name="tutorial_initial_building_title">Anfängliche Bauphase</string>
     <string name="tutorial_initial_building">In dieser Anfangsphase werden Türme sofort gebaut, können aber noch nicht angreifen. Klicken Sie auf einen Turm, um seine Reichweite zu sehen - Pfadfelder bekommen grüne Ränder. Später im Spiel dauert der Bau von Türmen 1-2 Runden.</string>
     <string name="tutorial_undo_title">Türme rückgängig machen</string>
-    <string name="tutorial_undo">Während dieser Anfangsphase können Sie die Turmplatzierung rückgängig machen, indem Sie ihn auswählen und für eine vollständige Rückerstattung verkaufen. Nach Beginn der Schlacht können Sie Türme nur noch für 75%% ihres Wertes verkaufen.</string>
+    <string name="tutorial_undo">Während dieser Anfangsphase können Sie die Turmplatzierung rückgängig machen, indem Sie ihn auswählen und für eine vollständige Rückerstattung verkaufen. Nach Beginn der Schlacht können Sie Türme nur noch für 75% ihres Wertes verkaufen.</string>
     <string name="tutorial_combat_title">Starten Sie die Schlacht</string>
     <string name="tutorial_combat">Klicken Sie auf die Schaltfläche Schlacht starten, wenn Sie bereit sind. Ihr Ziel ist es, das Ziel am Ende des Pfades zu verteidigen - lassen Sie keine Feinde es erreichen!</string>
     <string name="tutorial_enemies_title">Feinde im Anmarsch!</string>
@@ -443,7 +453,7 @@
     <string name="tutorial_upgrade_title">Türme aufwerten</string>
     <string name="tutorial_upgrade">Wählen Sie einen Turm und klicken Sie auf Aufwerten, um seine Werte zu erhöhen. Sie sehen aktuellen Schaden, Reichweite und Aktionen pro Runde, plus wie sie nach dem Aufwerten sein werden. Aufwertungen kosten Münzen, machen Türme aber stärker!</string>
     <string name="tutorial_sell_title">Türme verkaufen</string>
-    <string name="tutorial_sell">Wählen Sie einen Turm und klicken Sie auf Verkaufen, um 75%% seiner Gesamtinvestition (Kosten + Aufwertungen) zurückzubekommen. Nutzen Sie dies, wenn Sie Münzen benötigen oder Ihre Verteidigung neu positionieren möchten.</string>
+    <string name="tutorial_sell">Wählen Sie einen Turm und klicken Sie auf Verkaufen, um 75% seiner Gesamtinvestition (Kosten + Aufwertungen) zurückzubekommen. Nutzen Sie dies, wenn Sie Münzen benötigen oder Ihre Verteidigung neu positionieren möchten.</string>
     <string name="tutorial_save_game_title">Speichern Sie Ihren Fortschritt</string>
     <string name="tutorial_save_game">Sie können Ihr Spiel jederzeit mit der Schaltfläche Spiel speichern sichern. So können Sie verschiedene Strategien ausprobieren oder später weiterspielen. Um ein gespeichertes Spiel zu laden, verwenden Sie die Schaltfläche Spiel laden auf dem Weltkarten-Bildschirm.</string>
     <string name="tutorial_complete_title">Tutorial abgeschlossen!</string>
