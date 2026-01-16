@@ -615,7 +615,7 @@
     <string name="end_turn_confirmation_message">Vous avez des tours avec des points d'action inutilisés et des ennemis à portée, ou des mines avec des actions inutilisées. Êtes-vous sûr de vouloir terminer votre tour ?</string>
     <string name="end_turn_confirm">Terminer le tour</string>
     <string name="auto_attack_and_end_turn">Attaque Auto et Terminer le Tour</string>
-    <string name="auto_attack_warning">Note : Les mines et les tours à attaque durable pourraient avoir des points d'action inutilisés après l'attaque automatique.</string>
+    <string name="auto_attack_warning">Note : Après la fin de l'attaque automatique, si les mines ou les tours avec des capacités de piège ou des attaques durables ont encore des points d'action, vous pouvez les utiliser avant la fin du tour.</string>
     <string name="special_actions_remaining_title">Actions Spéciales Disponibles</string>
     <string name="special_actions_remaining_message">Attaque automatique terminée, mais les tours suivantes ont encore des actions qui ne peuvent pas être automatisées efficacement :</string>
     <string name="dwarven_mine_actions">Mines : Peuvent creuser ou construire des pièges</string>

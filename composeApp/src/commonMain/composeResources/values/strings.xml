@@ -616,7 +616,7 @@
     <string name="end_turn_confirmation_message">You have towers with unused action points and enemies in range, or mines with unused actions. Are you sure you want to end your turn?</string>
     <string name="end_turn_confirm">End Turn</string>
     <string name="auto_attack_and_end_turn">Auto-Attack and End Turn</string>
-    <string name="auto_attack_warning">Note: Mines and lasting attack towers might still have unused action points after auto-attack.</string>
+    <string name="auto_attack_warning">Note: After auto-attack completes, if mines or towers with trap abilities or lasting attacks still have action points, you can use them before the turn ends.</string>
     <string name="special_actions_remaining_title">Special Actions Remaining</string>
     <string name="special_actions_remaining_message">Auto-attack completed, but the following towers still have actions that cannot be automated effectively:</string>
     <string name="dwarven_mine_actions">Mines: Can dig for coins or build traps</string>

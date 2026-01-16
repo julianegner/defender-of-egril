@@ -615,7 +615,7 @@
     <string name="end_turn_confirmation_message">Tienes torres con puntos de acción sin usar y enemigos al alcance, o minas con acciones sin usar. ¿Estás seguro de que quieres terminar tu turno?</string>
     <string name="end_turn_confirm">Terminar turno</string>
     <string name="auto_attack_and_end_turn">Auto-Ataque y Terminar Turno</string>
-    <string name="auto_attack_warning">Nota: Las minas y torres con ataques duraderos podrían tener puntos de acción sin usar después del auto-ataque.</string>
+    <string name="auto_attack_warning">Nota: Después de completar el auto-ataque, si las minas o torres con habilidades de trampa o ataques duraderos aún tienen puntos de acción, puede usarlos antes de que termine el turno.</string>
     <string name="special_actions_remaining_title">Acciones Especiales Disponibles</string>
     <string name="special_actions_remaining_message">Auto-ataque completado, pero las siguientes torres aún tienen acciones que no se pueden automatizar efectivamente:</string>
     <string name="dwarven_mine_actions">Minas: Pueden excavar o construir trampas</string>
