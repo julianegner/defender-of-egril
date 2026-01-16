@@ -175,6 +175,38 @@ data class GameState(
     }
     
     /**
+     * Check if there are defenders that can perform auto-attacks.
+     * Returns true if there are defenders with actions that can be automated (regular attacks).
+     * Excludes special actions like mines, traps, and alchemy towers.
+     */
+    fun hasDefendersForAutoAttack(): Boolean {
+        val activeAttackers = attackers.filter { !it.isDefeated.value && !it.isBuildingBridge.value }
+        if (activeAttackers.isEmpty()) return false
+        
+        return defenders.any { defender ->
+            if (!defender.isReady || 
+                defender.actionsRemaining.value <= 0 || 
+                defender.isDisabled.value) {
+                return@any false
+            }
+            
+            // Only count towers that can do regular auto-attacks
+            // Exclude mines (no attack), alchemy towers (special manual targeting preferred), 
+            // and wizard towers level 10+ (have trap ability that needs manual placement)
+            when {
+                defender.type == DefenderType.DWARVEN_MINE -> false
+                defender.type == DefenderType.ALCHEMY_TOWER -> false
+                defender.type == DefenderType.WIZARD_TOWER && defender.level.value >= 10 -> false
+                defender.type.attackType == AttackType.NONE -> false
+                else -> {
+                    // Check if there are any enemies in range
+                    activeAttackers.any { attacker -> defender.canAttack(attacker) }
+                }
+            }
+        }
+    }
+    
+    /**
      * Check if there are defenders with special actions that cannot be automated effectively.
      * Returns a list of defender types that have remaining special actions.
      */

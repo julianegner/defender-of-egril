@@ -193,6 +193,7 @@ private fun InfoContent(infoType: InfoType, onDismiss: () -> Unit) {
         InfoType.MINE_FIRST_USE -> MineFirstUseContent(onDismiss)
         InfoType.RIVER_INFO -> RiverInfoContent(onDismiss)
         InfoType.MINE_ON_RIVER_WARNING -> MineOnRiverWarningContent(onDismiss)
+        InfoType.AUTO_ATTACK_INFO -> AutoAttackInfoContent(onDismiss)
         InfoType.NONE -> { /* No content to show */ }
     }
 }
@@ -700,6 +701,31 @@ private fun MineOnRiverWarningContent(onDismiss: () -> Unit) {
     ) {
         Text(
             text = stringResource(Res.string.mine_on_river_warning_message),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+    }
+}
+
+/**
+ * Auto-attack feature info content shown the first time auto-attack becomes available
+ */
+@Composable
+private fun AutoAttackInfoContent(onDismiss: () -> Unit) {
+    ScrollableInfoCard(
+        title = {
+            Text(
+                text = stringResource(Res.string.auto_attack_info_title),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
+        },
+        buttonColor = MaterialTheme.colorScheme.primary,
+        width = 450.dp,
+        onDismiss = onDismiss
+    ) {
+        Text(
+            text = stringResource(Res.string.auto_attack_info_message),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurface
         )
