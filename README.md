@@ -109,6 +109,12 @@ Then open http://localhost:8080 in your browser
 ./gradlew :composeApp:packageMsi
 ```
 
+**GitHub Actions**: You can also build Windows EXE installers using GitHub Actions:
+1. Go to the Actions tab in GitHub
+2. Select "Build Windows EXE" workflow
+3. Click "Run workflow" to trigger a build
+4. Download the generated installer from the workflow artifacts
+
 ### Running Desktop Version
 
 ```bash
@@ -285,6 +291,7 @@ The project uses GitHub Actions for continuous integration and deployment:
 - **Unit Tests**: Automated testing on Linux, Windows, macOS, and Android
 - **UI Tests**: Playwright-based end-to-end browser testing (manual trigger)
 - **Builds**: Multi-platform builds (WASM, JVM, macOS, Linux, Windows)
+- **Windows EXE**: Dedicated workflow for building Windows installers (on push, PR, or manual trigger)
 - **Releases**: Automated releases on version tags
 - **Deployment**: GitHub Pages deployment for WASM version
 
