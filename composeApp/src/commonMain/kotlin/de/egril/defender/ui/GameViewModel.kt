@@ -312,9 +312,8 @@ class GameViewModel {
         val state = _gameState.value ?: return
         val engine = gameEngine ?: return
 
-        // Auto-fire towers before enemies move.
-        // IMPORTANT: must run on the main thread because GameState uses Compose snapshot state.
-        engine.autoDefenderAttacks()
+        // NOTE: Auto-attacks are NOT triggered here when clicking "End Turn".
+        // They only happen when clicking "Auto-Attack and End Turn" button (see autoAttackAndEndTurn()).
         
         // Process enemy turn with animations
         viewModelScope.launch(Dispatchers.Default) {
