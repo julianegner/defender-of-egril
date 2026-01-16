@@ -191,11 +191,10 @@ data class GameState(
             }
             
             // Only count towers that can do regular auto-attacks
-            // Exclude mines (no attack), alchemy towers (special manual targeting preferred), 
-            // and wizard towers level 10+ (have trap ability that needs manual placement)
+            // Exclude mines (no attack) and wizard towers level 10+ (have trap ability that needs manual placement)
+            // Alchemy towers CAN auto-attack (they check acid immunity like wizard towers check fireball immunity)
             when {
                 defender.type == DefenderType.DWARVEN_MINE -> false
-                defender.type == DefenderType.ALCHEMY_TOWER -> false
                 defender.type == DefenderType.WIZARD_TOWER && defender.level.value >= 10 -> false
                 defender.type.attackType == AttackType.NONE -> false
                 else -> {
@@ -212,6 +211,7 @@ data class GameState(
      */
     fun getDefenderTypesWithSpecialActions(): List<DefenderType> {
         val typesWithActions = mutableSetOf<DefenderType>()
+        val activeAttackers = attackers.filter { !it.isDefeated.value && !it.isBuildingBridge.value }
         
         defenders.forEach { defender ->
             if (!defender.isReady || defender.actionsRemaining.value <= 0 || defender.isDisabled.value) {
@@ -223,9 +223,13 @@ data class GameState(
                 defender.type == DefenderType.DWARVEN_MINE -> {
                     typesWithActions.add(DefenderType.DWARVEN_MINE)
                 }
-                // Alchemy towers with lasting attacks (always show, even if no enemies in range)
+                // Alchemy towers with lasting attacks only when no enemies in range
+                // (if enemies are in range, they will auto-attack like normal towers)
                 defender.type == DefenderType.ALCHEMY_TOWER -> {
-                    typesWithActions.add(DefenderType.ALCHEMY_TOWER)
+                    val hasEnemiesInRange = activeAttackers.any { attacker -> defender.canAttack(attacker) }
+                    if (!hasEnemiesInRange) {
+                        typesWithActions.add(DefenderType.ALCHEMY_TOWER)
+                    }
                 }
                 // Wizard towers (level 10+) with magical trap available
                 defender.type == DefenderType.WIZARD_TOWER && defender.level.value >= 10 -> {
