@@ -70,6 +70,7 @@ fun App() {
         val currentPlayer by viewModel.currentPlayer.collectAsState()
         val allPlayers by viewModel.allPlayers.collectAsState()
         val worldMapConflict by viewModel.worldMapConflict.collectAsState()
+        val specialActionsRemaining by viewModel.specialActionsRemaining.collectAsState()
         
         // Show player selection dialog if needed
         var showPlayerSelection by remember { mutableStateOf(false) }
@@ -228,6 +229,7 @@ fun App() {
                         onDefenderAttack = { defenderId, targetId -> viewModel.defenderAttack(defenderId, targetId) },
                         onDefenderAttackPosition = { defenderId, targetPos -> viewModel.defenderAttackPosition(defenderId, targetPos) },
                         onEndPlayerTurn = { viewModel.endPlayerTurn() },
+                        onAutoAttackAndEndTurn = { viewModel.autoAttackAndEndTurn() },
                         onBackToMap = { viewModel.navigateToWorldMap() },
                         onSaveGame = { comment -> viewModel.saveCurrentGame(comment) },
                         onCheatCode = { code -> viewModel.applyCheatCode(code) },
@@ -238,7 +240,9 @@ fun App() {
                         onClearCheatDigOutcome = { viewModel.clearCheatDigOutcome() },
                         showPlatformInfo = showPlatformInfo,
                         onClearPlatformInfo = { viewModel.clearPlatformInfo() },
-                        hasUnsavedChanges = { viewModel.hasUnsavedChanges() }
+                        hasUnsavedChanges = { viewModel.hasUnsavedChanges() },
+                        specialActionsRemaining = specialActionsRemaining,
+                        onClearSpecialActionsWarning = { viewModel.clearSpecialActionsWarning() }
                     )
                 }
             }

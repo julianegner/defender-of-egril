@@ -57,10 +57,8 @@ class GameEngine(private val state: GameState) {
     fun autoDefenderAttacks() {
         if (state.phase.value != GamePhase.PLAYER_TURN) return
 
-        val activeAttackers = state.attackers.filter { attacker ->
-            !attacker.isDefeated.value && !attacker.isBuildingBridge.value
-        }
-        if (activeAttackers.isEmpty()) return
+        // Check if there are any attackers to target
+        if (state.attackers.none { !it.isDefeated.value && !it.isBuildingBridge.value }) return
 
         for (defender in state.defenders) {
             if (!defender.isReady) continue
@@ -69,25 +67,35 @@ class GameEngine(private val state: GameState) {
             if (defender.type.attackType == AttackType.NONE) continue
 
             while (defender.actionsRemaining.value > 0) {
-                val target = selectAutoTargetForDefender(defender, activeAttackers) ?: break
-
-                when (defender.type.attackType) {
+                // Get fresh list of active attackers for each attack
+                val activeAttackers = state.attackers.filter { attacker ->
+                    !attacker.isDefeated.value && !attacker.isBuildingBridge.value
+                }
+                
+                // If no attackers left, we're done
+                if (activeAttackers.isEmpty()) return
+                
+                val attackSucceeded = when (defender.type.attackType) {
                     AttackType.MELEE, AttackType.RANGED -> {
-                        combatSystem.defenderAttack(defender.id, target.id) {
+                        val target = selectAutoTargetForDefender(defender, activeAttackers) ?: break
+                        val success = combatSystem.defenderAttack(defender.id, target.id) {
                             combatSystem.processDefeatedAttackers()
                         }
+                        // If attack failed, break to avoid infinite loop
+                        if (!success) break
+                        success
                     }
                     AttackType.AREA, AttackType.LASTING -> {
-                        combatSystem.defenderAttackPosition(defender.id, target.position.value) {
+                        // For area/lasting attacks, find the best position that hits the most enemies
+                        val targetPosition = selectBestAreaAttackPosition(defender, activeAttackers) ?: break
+                        val success = combatSystem.defenderAttackPosition(defender.id, targetPosition) {
                             combatSystem.processDefeatedAttackers()
                         }
+                        // If attack failed (invalid position), break to avoid infinite loop
+                        if (!success) break
+                        success
                     }
                     AttackType.NONE -> break
-                }
-
-                // Refresh attacker list for subsequent shots
-                if (state.attackers.none { !it.isDefeated.value && !it.isBuildingBridge.value }) {
-                    return
                 }
             }
         }
@@ -109,6 +117,97 @@ class GameEngine(private val state: GameState) {
                 .thenBy { it.currentHealth.value }
                 .thenBy { it.id }
         )
+    }
+
+    /**
+     * Select the best position for an area or lasting attack.
+     * Tries to maximize the number of enemies hit, prioritizing high-threat enemies.
+     */
+    private fun selectBestAreaAttackPosition(defender: Defender, candidates: List<Attacker>): Position? {
+        val radius = defender.areaEffectRadius
+        
+        // Collect all enemy positions that could potentially be in range
+        val enemyPositions = candidates.filter { !it.isDefeated.value }.map { it.position.value }.toSet()
+        
+        // Find all valid attack positions (within defender's direct range)
+        // These are positions we can target with our area attack
+        val validAttackPositions = mutableSetOf<Position>()
+        
+        // Check all enemy positions and their neighbors as potential target positions
+        for (enemyPos in enemyPositions) {
+            // Add the enemy position itself
+            val distance = defender.position.value.distanceTo(enemyPos)
+            if (distance >= defender.type.minRange && distance <= defender.range) {
+                if (state.level.isOnPath(enemyPos) || state.level.getRiverTile(enemyPos) != null || state.isBridgeAt(enemyPos)) {
+                    validAttackPositions.add(enemyPos)
+                }
+            }
+            
+            // Also consider positions near the enemy (within area radius)
+            // that are within our direct attack range
+            if (radius > 0) {
+                val nearbyPositions = enemyPos.getHexNeighborsWithinRadius(radius, state.level.gridWidth, state.level.gridHeight)
+                for (nearbyPos in nearbyPositions) {
+                    val nearbyDistance = defender.position.value.distanceTo(nearbyPos)
+                    if (nearbyDistance >= defender.type.minRange && nearbyDistance <= defender.range) {
+                        if (state.level.isOnPath(nearbyPos) || state.level.getRiverTile(nearbyPos) != null || state.isBridgeAt(nearbyPos)) {
+                            validAttackPositions.add(nearbyPos)
+                        }
+                    }
+                }
+            }
+        }
+        
+        if (validAttackPositions.isEmpty()) return null
+        
+        // For each position, count how many enemies would be hit (considering area effect)
+        val positionScores = validAttackPositions.map { targetPos ->
+            val affectedPositions = mutableSetOf(targetPos)
+            
+            if (radius == 1) {
+                affectedPositions.addAll(
+                    targetPos.getHexNeighbors().filter { neighbor ->
+                        neighbor.x >= 0 && neighbor.x < state.level.gridWidth &&
+                        neighbor.y >= 0 && neighbor.y < state.level.gridHeight &&
+                        (state.level.isOnPath(neighbor) || state.isBridgeAt(neighbor))
+                    }
+                )
+            } else {
+                affectedPositions.addAll(
+                    targetPos.getHexNeighborsWithinRadius(radius, state.level.gridWidth, state.level.gridHeight)
+                        .filter { state.level.isOnPath(it) || state.isBridgeAt(it) }
+                )
+            }
+            
+            // Count enemies in affected area (considering immunities)
+            val affectedEnemies = candidates.filter { attacker ->
+                !attacker.isDefeated.value && 
+                affectedPositions.contains(attacker.position.value) &&
+                when (defender.type.attackType) {
+                    AttackType.AREA -> attacker.canBeDamagedByFireball()
+                    AttackType.LASTING -> attacker.canBeDamagedByAcid()
+                    else -> true  // Should not happen for other attack types
+                }
+            }
+            
+            // Calculate score: number of enemies hit + sum of threat scores + proximity to goal
+            val enemyCount = affectedEnemies.size
+            val totalThreat = affectedEnemies.sumOf { threatScore(it) }
+            val avgDistanceToGoal = if (affectedEnemies.isNotEmpty()) {
+                affectedEnemies.map { estimateRemainingDistanceToGoal(it) }.average()
+            } else {
+                Double.MAX_VALUE
+            }
+            
+            Triple(targetPos, enemyCount * 1000 + totalThreat, avgDistanceToGoal)
+        }
+        
+        // Select position with highest score (most enemies + highest threat)
+        // Tie-breaker: closest to goal
+        return positionScores.maxWithOrNull(
+            compareBy<Triple<Position, Int, Double>> { it.second }
+                .thenBy { -it.third }  // Negative because lower distance is better
+        )?.first
     }
 
     private fun threatScore(attacker: Attacker): Int {

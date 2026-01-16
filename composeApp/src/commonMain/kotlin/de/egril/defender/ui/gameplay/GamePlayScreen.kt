@@ -27,6 +27,7 @@ fun GamePlayScreen(
     onDefenderAttack: (Int, Int) -> Boolean,
     onDefenderAttackPosition: (Int, Position) -> Boolean,
     onEndPlayerTurn: () -> Unit,
+    onAutoAttackAndEndTurn: () -> Unit,  // Add auto-attack callback
     onBackToMap: () -> Unit,
     onSaveGame: ((String?) -> String?)? = null,  // Add save game callback with optional comment
     onCheatCode: ((String) -> Boolean)? = null,  // Add cheat code callback
@@ -37,7 +38,9 @@ fun GamePlayScreen(
     onClearCheatDigOutcome: (() -> Unit)? = null,  // Callback to clear cheat dig outcome
     showPlatformInfo: Boolean = false,  // Show platform info from cheat code
     onClearPlatformInfo: (() -> Unit)? = null,  // Callback to clear platform info
-    hasUnsavedChanges: (() -> Boolean)? = null  // Callback to check for unsaved changes
+    hasUnsavedChanges: (() -> Boolean)? = null,  // Callback to check for unsaved changes
+    specialActionsRemaining: List<DefenderType> = emptyList(),  // List of defender types with remaining special actions
+    onClearSpecialActionsWarning: (() -> Unit)? = null  // Callback to clear special actions warning
 ) {
     GamePlayScreenContent(
         gameState = gameState,
@@ -49,6 +52,7 @@ fun GamePlayScreen(
         onDefenderAttack = onDefenderAttack,
         onDefenderAttackPosition = onDefenderAttackPosition,
         onEndPlayerTurn = onEndPlayerTurn,
+        onAutoAttackAndEndTurn = onAutoAttackAndEndTurn,
         onBackToMap = onBackToMap,
         onSaveGame = onSaveGame,
         onCheatCode = onCheatCode,
@@ -59,7 +63,9 @@ fun GamePlayScreen(
         onClearCheatDigOutcome = onClearCheatDigOutcome,
         showPlatformInfo = showPlatformInfo,
         onClearPlatformInfo = onClearPlatformInfo,
-        hasUnsavedChanges = hasUnsavedChanges
+        hasUnsavedChanges = hasUnsavedChanges,
+        specialActionsRemaining = specialActionsRemaining,
+        onClearSpecialActionsWarning = onClearSpecialActionsWarning
     )
 }
 
@@ -74,6 +80,7 @@ private fun GamePlayScreenContent(
     onDefenderAttack: (Int, Int) -> Boolean,
     onDefenderAttackPosition: (Int, Position) -> Boolean,
     onEndPlayerTurn: () -> Unit,
+    onAutoAttackAndEndTurn: () -> Unit,  // Add auto-attack callback
     onBackToMap: () -> Unit,
     onSaveGame: ((String?) -> String?)? = null,  // Add save game callback with optional comment
     onCheatCode: ((String) -> Boolean)? = null,
@@ -84,7 +91,9 @@ private fun GamePlayScreenContent(
     onClearCheatDigOutcome: (() -> Unit)? = null,  // Callback to clear cheat dig outcome
     showPlatformInfo: Boolean = false,  // Show platform info from cheat code
     onClearPlatformInfo: (() -> Unit)? = null,  // Callback to clear platform info
-    hasUnsavedChanges: (() -> Boolean)? = null  // Callback to check for unsaved changes
+    hasUnsavedChanges: (() -> Boolean)? = null,  // Callback to check for unsaved changes
+    specialActionsRemaining: List<DefenderType> = emptyList(),  // List of defender types with remaining special actions
+    onClearSpecialActionsWarning: (() -> Unit)? = null  // Callback to clear special actions warning
 
 ) {
     var selectedDefenderType by remember { mutableStateOf<DefenderType?>(null) }
@@ -633,6 +642,13 @@ private fun GamePlayScreenContent(
                         selectedDefenderId = null  // Clear defender selection when starting battle
                         selectedAttackerId = null  // Clear attacker selection when starting battle
                         onStartFirstPlayerTurn()
+                        
+                        // Show first-time auto-attack info at the start of the level if allowed and not seen
+                        if (gameState.level.allowAutoAttack && 
+                            !gameState.infoState.value.hasSeen(InfoType.AUTO_ATTACK_INFO)) {
+                            gameState.infoState.value = gameState.infoState.value.showInfo(InfoType.AUTO_ATTACK_INFO)
+                        }
+                        
                         // Track tutorial progress and auto-advance START_COMBAT step
                         if (gameState.tutorialState.value.isActive) {
                             if (!gameState.tutorialState.value.hasStartedFirstTurn) {
@@ -706,12 +722,18 @@ private fun GamePlayScreenContent(
                         }
                     },
                     onPrimaryAction = {
-                        // End turn directly
-                        onEndPlayerTurn()
-                        // Track tutorial progress
-                        if (gameState.tutorialState.value.isActive && 
-                            !gameState.tutorialState.value.hasStartedFirstTurn) {
-                            gameState.tutorialState.value = gameState.tutorialState.value.markTurnStarted()
+                        // Check if there are unused action points before ending turn
+                        if (gameState.hasDefendersWithUnusedActions()) {
+                            // Show confirmation dialog
+                            showEndTurnConfirmation = true
+                        } else {
+                            // End turn directly
+                            onEndPlayerTurn()
+                            // Track tutorial progress
+                            if (gameState.tutorialState.value.isActive && 
+                                !gameState.tutorialState.value.hasStartedFirstTurn) {
+                                gameState.tutorialState.value = gameState.tutorialState.value.markTurnStarted()
+                            }
                         }
                     },
                     onMineAction = handleMineAction,
@@ -822,8 +844,28 @@ private fun GamePlayScreenContent(
                         gameState.tutorialState.value = gameState.tutorialState.value.markTurnStarted()
                     }
                 },
+                onAutoAttackAndConfirm = {
+                    showEndTurnConfirmation = false
+                    onAutoAttackAndEndTurn()
+                    // Track tutorial progress
+                    if (gameState.tutorialState.value.isActive && 
+                        !gameState.tutorialState.value.hasStartedFirstTurn) {
+                        gameState.tutorialState.value = gameState.tutorialState.value.markTurnStarted()
+                    }
+                },
                 onCancel = {
                     showEndTurnConfirmation = false
+                },
+                showAutoAttackButton = gameState.level.allowAutoAttack && gameState.hasDefendersForAutoAttack()
+            )
+        }
+        
+        // Special actions remaining dialog
+        if (specialActionsRemaining.isNotEmpty()) {
+            SpecialActionsRemainingDialog(
+                remainingTypes = specialActionsRemaining,
+                onContinueTurn = {
+                    onClearSpecialActionsWarning?.invoke()
                 }
             )
         }
