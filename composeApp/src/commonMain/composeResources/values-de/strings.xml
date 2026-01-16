@@ -873,7 +873,7 @@
     <string name="test_level">Test-Level</string>
     <string name="allow_auto_attack">Auto-Angriff erlauben</string>
     <string name="auto_attack_info_title">Auto-Angriff-Funktion</string>
-    <string name="auto_attack_info_message">Wenn aktiviert, können Spieler die Schaltfläche Auto-Angriff und Runde beenden im Bestätigungsdialog verwenden. So funktioniert es: Greift automatisch Feinde mit allen verfügbaren Türmen an. Zielt auf Feinde nach Priorität (zuerst Bosse, dann spezielle Feinde). Beeinflusst NICHT Minen (Grabaktionen). Nutzt dauernde Angriffstürme NICHT optimal. Tipp: Spieler möchten möglicherweise Säure-/dauerhafte Angriffe manuell ausführen, bevor sie Auto-Angriff für beste Ergebnisse verwenden.</string>
+    <string name="auto_attack_info_message">Sie können nun die Auto-Angriff-Funktion verwenden. Wenn Sie "Zug beenden" wählen und noch verwendbare Aktionspunkte übrig sind, bietet der Dialog die Option "Auto-Angriff und Zug beenden". Dann greifen Türme mit verbleibenden Aktionspunkten automatisch Feinde an. Greift Feinde nach Priorität an (zuerst Bosse, dann spezielle Feinde). Wenn noch Aktionen übrig sind (Minen, Fallen, Säureangriffe ohne Feind in Reichweite), erhalten Sie eine Nachricht, welche Art von Aktion noch verwendbar ist, andernfalls endet der Zug.</string>
 
     <!-- Platform Information Dialog -->
     <string name="platform_information_title">Plattforminformationen</string>
