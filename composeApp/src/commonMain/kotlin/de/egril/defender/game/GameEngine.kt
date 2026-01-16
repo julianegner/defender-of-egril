@@ -125,28 +125,43 @@ class GameEngine(private val state: GameState) {
      */
     private fun selectBestAreaAttackPosition(defender: Defender, candidates: List<Attacker>): Position? {
         val radius = defender.areaEffectRadius
-        val effectiveRange = defender.range + radius
         
-        // Find all positions we can attack (considering area effect extends range)
-        // IMPORTANT: Only include positions that are valid targets (on path or river)
-        val attackablePositions = candidates.filter { attacker ->
-            if (!attacker.isDefeated.value) {
-                val distance = defender.position.value.distanceTo(attacker.position.value)
-                // For area attacks, we can target positions within range + area radius
-                distance >= defender.type.minRange && distance <= effectiveRange
-            } else {
-                false
-            }
-        }.map { it.position.value }.distinct()
-            .filter { pos -> 
-                // Only include positions that are valid attack targets (on path or river)
-                state.level.isOnPath(pos) || state.level.getRiverTile(pos) != null || state.isBridgeAt(pos)
-            }
+        // Collect all enemy positions that could potentially be in range
+        val enemyPositions = candidates.filter { !it.isDefeated.value }.map { it.position.value }.toSet()
         
-        if (attackablePositions.isEmpty()) return null
+        // Find all valid attack positions (within defender's direct range)
+        // These are positions we can target with our area attack
+        val validAttackPositions = mutableSetOf<Position>()
+        
+        // Check all enemy positions and their neighbors as potential target positions
+        for (enemyPos in enemyPositions) {
+            // Add the enemy position itself
+            val distance = defender.position.value.distanceTo(enemyPos)
+            if (distance >= defender.type.minRange && distance <= defender.range) {
+                if (state.level.isOnPath(enemyPos) || state.level.getRiverTile(enemyPos) != null || state.isBridgeAt(enemyPos)) {
+                    validAttackPositions.add(enemyPos)
+                }
+            }
+            
+            // Also consider positions near the enemy (within area radius)
+            // that are within our direct attack range
+            if (radius > 0) {
+                val nearbyPositions = enemyPos.getHexNeighborsWithinRadius(radius, state.level.gridWidth, state.level.gridHeight)
+                for (nearbyPos in nearbyPositions) {
+                    val nearbyDistance = defender.position.value.distanceTo(nearbyPos)
+                    if (nearbyDistance >= defender.type.minRange && nearbyDistance <= defender.range) {
+                        if (state.level.isOnPath(nearbyPos) || state.level.getRiverTile(nearbyPos) != null || state.isBridgeAt(nearbyPos)) {
+                            validAttackPositions.add(nearbyPos)
+                        }
+                    }
+                }
+            }
+        }
+        
+        if (validAttackPositions.isEmpty()) return null
         
         // For each position, count how many enemies would be hit (considering area effect)
-        val positionScores = attackablePositions.map { targetPos ->
+        val positionScores = validAttackPositions.map { targetPos ->
             val affectedPositions = mutableSetOf(targetPos)
             
             if (radius == 1) {
