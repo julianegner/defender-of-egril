@@ -324,6 +324,7 @@ fun LevelEditorView(
     var availableTowersState by remember { mutableStateOf(level.availableTowers.toSet()) }
     var waypointsState by remember { mutableStateOf(level.waypoints.toMutableList()) }
     var testingOnly by remember { mutableStateOf(level.testingOnly) }
+    var allowAutoAttack by remember { mutableStateOf(level.allowAutoAttack) }
     var showEnemyDialog by remember { mutableStateOf(false) }
     var showEnemyDialogForTurn by remember { mutableStateOf(1) }
     var showSaveAsDialog by remember { mutableStateOf(false) }
@@ -452,7 +453,9 @@ fun LevelEditorView(
                     startHP = startHP,
                     onStartHPChange = { startHP = it },
                     testingOnly = testingOnly,
-                    onTestingOnlyChange = { testingOnly = it }
+                    onTestingOnlyChange = { testingOnly = it },
+                    allowAutoAttack = allowAutoAttack,
+                    onAllowAutoAttackChange = { allowAutoAttack = it }
                 )
                 1 -> EnemySpawnsTab(
                     enemySpawns = enemySpawns,
@@ -500,7 +503,8 @@ fun LevelEditorView(
                             enemySpawns = enemySpawns.toList(),
                             availableTowers = availableTowersState,
                             waypoints = waypointsState.toList(),
-                            testingOnly = testingOnly
+                            testingOnly = testingOnly,
+                            allowAutoAttack = allowAutoAttack
                         )
                         onSave(updatedLevel)
                     },
