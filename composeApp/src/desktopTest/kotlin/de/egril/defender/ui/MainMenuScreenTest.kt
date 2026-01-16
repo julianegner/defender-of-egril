@@ -216,4 +216,68 @@ class MainMenuScreenTest {
         composeTestRule.onNodeWithText("Exit Game?", substring = true, ignoreCase = true)
             .assertDoesNotExist()
     }
+    
+    @Test
+    fun testVersionTextIsClickableAndShowsCommitInfo() {
+        composeTestRule.setContent {
+            MainMenuScreen(
+                onStartGame = {},
+                onShowRules = {},
+                onSelectPlayer = {},
+                onEditPlayerName = {},
+                currentPlayerName = null
+            )
+        }
+        
+        composeTestRule.waitForIdle()
+        
+        // Find and click the version text (contains "v1.0" and commit hash)
+        composeTestRule.onNodeWithText("v1.0", substring = true)
+            .performClick()
+        
+        composeTestRule.waitForIdle()
+        
+        // Verify commit info dialog appears
+        composeTestRule.onNodeWithText("Build Information", substring = true, ignoreCase = true)
+            .assertExists()
+        
+        // Verify commit hash is shown in dialog
+        composeTestRule.onNodeWithText("Commit Hash", substring = true, ignoreCase = true)
+            .assertExists()
+    }
+    
+    @Test
+    fun testCommitInfoDialogCanBeDismissedFromMainMenu() {
+        composeTestRule.setContent {
+            MainMenuScreen(
+                onStartGame = {},
+                onShowRules = {},
+                onSelectPlayer = {},
+                onEditPlayerName = {},
+                currentPlayerName = null
+            )
+        }
+        
+        composeTestRule.waitForIdle()
+        
+        // Click version text to show dialog
+        composeTestRule.onNodeWithText("v1.0", substring = true)
+            .performClick()
+        
+        composeTestRule.waitForIdle()
+        
+        // Verify dialog is shown
+        composeTestRule.onNodeWithText("Build Information", substring = true, ignoreCase = true)
+            .assertExists()
+        
+        // Click close button
+        composeTestRule.onNodeWithText("Close", substring = true, ignoreCase = true)
+            .performClick()
+        
+        composeTestRule.waitForIdle()
+        
+        // Verify dialog is dismissed
+        composeTestRule.onNodeWithText("Build Information", substring = true, ignoreCase = true)
+            .assertDoesNotExist()
+    }
 }

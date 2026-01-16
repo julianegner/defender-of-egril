@@ -10,6 +10,12 @@
     <string name="exit_game_confirm_message">Are you sure you want to exit the game?</string>
     <string name="exit">Exit</string>
     
+    <!-- Commit Info Dialog -->
+    <string name="commit_info_title">Build Information</string>
+    <string name="commit_hash_label">Commit Hash:</string>
+    <string name="commit_date_label">Commit Date:</string>
+    <string name="commit_message_label">Commit Message:</string>
+    
     <!-- Level Complete Screen -->
     <string name="victory">Victory!</string>
     <string name="battle_won">Battle Won!</string>
@@ -35,6 +41,10 @@
     <string name="tile_background_images">Tile Background Images</string>
     <string name="tile_background_images_on">Tile Images On</string>
     <string name="tile_background_images_off">Color Backgrounds</string>
+    <string name="header_text_size">Level Header Text Size</string>
+    <string name="header_text_size_small">Small</string>
+    <string name="header_text_size_medium">Medium</string>
+    <string name="header_text_size_large">Large</string>
     <string name="reset_settings">Reset Settings</string>
     <string name="restore_game_data">Restore Game Data</string>
     <string name="restore_game_data_confirm_title">Restore Game Data?</string>
@@ -432,7 +442,7 @@
     <string name="tutorial_initial_building_title">Initial Building Phase</string>
     <string name="tutorial_initial_building">In this initial phase, towers are built instantly but cannot attack yet. Click on a tower to see its range - path tiles get green borders. Later in the game, towers will take 1-2 turns to build.</string>
     <string name="tutorial_undo_title">Undo Towers</string>
-    <string name="tutorial_undo">During this initial phase, you can undo tower placement by selecting it and selling for a full refund. After the battle starts, you can only sell towers for 75%% of their value.</string>
+    <string name="tutorial_undo">During this initial phase, you can undo tower placement by selecting it and selling for a full refund. After the battle starts, you can only sell towers for 75% of their value.</string>
     <string name="tutorial_combat_title">Start the Battle</string>
     <string name="tutorial_combat">Click the Start Battle button when ready. Your goal is to defend the Target at the end of the path - don't let enemies reach it!</string>
     <string name="tutorial_enemies_title">Enemies Incoming!</string>
@@ -444,7 +454,7 @@
     <string name="tutorial_upgrade_title">Upgrade Towers</string>
     <string name="tutorial_upgrade">Select a tower and click Upgrade to increase its stats. You'll see current damage, range, and actions per turn, plus what they'll be after upgrading. Upgrades cost coins but make towers more powerful!</string>
     <string name="tutorial_sell_title">Sell Towers</string>
-    <string name="tutorial_sell">Select a tower and click Sell to get back 75%% of its total investment (cost + upgrades). Use this if you need coins or want to reposition your defense.</string>
+    <string name="tutorial_sell">Select a tower and click Sell to get back 75% of its total investment (cost + upgrades). Use this if you need coins or want to reposition your defense.</string>
     <string name="tutorial_save_game_title">Save Your Progress</string>
     <string name="tutorial_save_game">You can save your game at any time using the Save Game button. This lets you try different strategies or continue later. To load a saved game, use the Load Game button on the world map screen.</string>
     <string name="tutorial_complete_title">Tutorial Complete!</string>
