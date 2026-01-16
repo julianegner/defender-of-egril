@@ -43,10 +43,11 @@ data class TutorialState(
     
     /**
      * Check if the Next button should be enabled for the current step
+     * @param defendersCount Number of defenders currently on the map (optional)
      */
-    fun isNextEnabled(): Boolean {
+    fun isNextEnabled(defendersCount: Int = 0): Boolean {
         return when (currentStep) {
-            TutorialStep.BUILD_TOWER -> hasPlacedFirstTower
+            TutorialStep.BUILD_TOWER -> hasPlacedFirstTower || defendersCount > 0
             TutorialStep.START_COMBAT -> hasStartedFirstTurn
             TutorialStep.ATTACKING -> hasAttackedEnemy || canSkipAttacking
             else -> true  // All other steps can advance immediately
