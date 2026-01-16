@@ -717,6 +717,12 @@ private fun GamePlayScreenContent(
                     onPrimaryAction = {
                         // Check if there are unused action points before ending turn
                         if (gameState.hasDefendersWithUnusedActions()) {
+                            // Show first-time auto-attack info if available and not seen
+                            if (gameState.level.allowAutoAttack && 
+                                gameState.hasDefendersForAutoAttack() &&
+                                !gameState.infoState.value.hasSeen(InfoType.AUTO_ATTACK_INFO)) {
+                                gameState.infoState.value = gameState.infoState.value.showInfo(InfoType.AUTO_ATTACK_INFO)
+                            }
                             // Show confirmation dialog
                             showEndTurnConfirmation = true
                         } else {
@@ -849,7 +855,7 @@ private fun GamePlayScreenContent(
                 onCancel = {
                     showEndTurnConfirmation = false
                 },
-                showAutoAttackButton = gameState.level.allowAutoAttack
+                showAutoAttackButton = gameState.level.allowAutoAttack && gameState.hasDefendersForAutoAttack()
             )
         }
         
