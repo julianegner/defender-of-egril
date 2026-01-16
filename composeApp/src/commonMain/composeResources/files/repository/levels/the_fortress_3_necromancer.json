@@ -71,7 +71,8 @@
   ],
   "availableTowers": ["SPIKE_TOWER", "SPEAR_TOWER", "BOW_TOWER", "WIZARD_TOWER"],
   "waypoints": [
-
+    
   ],
-  "prerequisites": ["the_fortress_2_orks_marching"]
+  "prerequisites": ["the_fortress_2_orks_marching"],
+  "allowAutoAttack": true
 }

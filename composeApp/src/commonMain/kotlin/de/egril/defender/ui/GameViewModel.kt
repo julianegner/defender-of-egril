@@ -67,6 +67,10 @@ class GameViewModel {
     // World map progress conflict state
     private val _worldMapConflict = MutableStateFlow<WorldMapConflict?>(null)
     val worldMapConflict: StateFlow<WorldMapConflict?> = _worldMapConflict.asStateFlow()
+    
+    // Special actions remaining after auto-attack
+    private val _specialActionsRemaining = MutableStateFlow<List<DefenderType>>(emptyList())
+    val specialActionsRemaining: StateFlow<List<DefenderType>> = _specialActionsRemaining.asStateFlow()
 
     // Track initial game state to detect unsaved changes
     private var initialGameStateSnapshot: String? = null
@@ -308,9 +312,8 @@ class GameViewModel {
         val state = _gameState.value ?: return
         val engine = gameEngine ?: return
 
-        // Auto-fire towers before enemies move.
-        // IMPORTANT: must run on the main thread because GameState uses Compose snapshot state.
-        engine.autoDefenderAttacks()
+        // NOTE: Auto-attacks are NOT triggered here when clicking "End Turn".
+        // They only happen when clicking "Auto-Attack and End Turn" button (see autoAttackAndEndTurn()).
         
         // Process enemy turn with animations
         viewModelScope.launch(Dispatchers.Default) {
@@ -368,6 +371,32 @@ class GameViewModel {
                 completeLevel(updatedState.level.id, won = false)
             }
         }
+    }
+
+    fun autoAttackAndEndTurn() {
+        // This method is called from the "Auto-Attack and End Turn" button in the confirmation dialog
+        // It explicitly calls autoDefenderAttacks() before ending the turn
+        val engine = gameEngine ?: return
+        val currentState = gameState.value ?: return
+        
+        // Explicitly trigger auto-attacks for all ready defenders
+        engine.autoDefenderAttacks()
+        
+        // Check if there are special actions remaining (mines, alchemy, wizard traps)
+        val specialActionTypes = currentState.getDefenderTypesWithSpecialActions()
+        
+        if (specialActionTypes.isNotEmpty()) {
+            // There are special actions remaining - show warning dialog instead of ending turn
+            // Store the types so the UI can display them
+            _specialActionsRemaining.value = specialActionTypes
+        } else {
+            // No special actions remaining - proceed with ending turn
+            endPlayerTurn()
+        }
+    }
+    
+    fun clearSpecialActionsWarning() {
+        _specialActionsRemaining.value = emptyList()
     }
 
     private fun completeLevel(levelId: Int, won: Boolean) {

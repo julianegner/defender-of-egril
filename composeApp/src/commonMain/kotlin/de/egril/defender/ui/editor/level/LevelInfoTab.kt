@@ -1,5 +1,6 @@
 package de.egril.defender.ui.editor.level
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -12,11 +13,17 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -24,8 +31,12 @@ import com.hyperether.resources.stringResource
 import de.egril.defender.editor.EditorMap
 import de.egril.defender.ui.editor.map.MapSelectionCard
 import defender_of_egril.composeapp.generated.resources.Res
+import defender_of_egril.composeapp.generated.resources.allow_auto_attack
+import defender_of_egril.composeapp.generated.resources.auto_attack_info_message
+import defender_of_egril.composeapp.generated.resources.auto_attack_info_title
 import defender_of_egril.composeapp.generated.resources.level_title
 import defender_of_egril.composeapp.generated.resources.map_label
+import defender_of_egril.composeapp.generated.resources.ok
 import defender_of_egril.composeapp.generated.resources.start_coins
 import defender_of_egril.composeapp.generated.resources.start_hp
 import defender_of_egril.composeapp.generated.resources.subtitle_optional
@@ -33,6 +44,9 @@ import defender_of_egril.composeapp.generated.resources.test_level
 
 /**
  * Tab 1: Level Info (title, subtitle, map, coins, HP)
+ * 
+ * Layout: Title and Subtitle input fields on the left, level toggles (Test Level, Allow Auto-Attack, etc.) 
+ * in a bordered container on the right. This container will grow vertically as more toggles are added.
  */
 @Composable
 fun LevelInfoTab(
@@ -48,52 +62,94 @@ fun LevelInfoTab(
     startHP: String,
     onStartHPChange: (String) -> Unit,
     testingOnly: Boolean,
-    onTestingOnlyChange: (Boolean) -> Unit
+    onTestingOnlyChange: (Boolean) -> Unit,
+    allowAutoAttack: Boolean,
+    onAllowAutoAttackChange: (Boolean) -> Unit
 ) {
+    var showAutoAttackInfo by remember { mutableStateOf(false) }
+    
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(vertical = 8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        // Title and Test Level toggle in same row
+        // Title, Subtitle, and Level Toggles Row
         item {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.Top
             ) {
-                OutlinedTextField(
-                    value = title,
-                    onValueChange = onTitleChange,
-                    label = { Text(stringResource(Res.string.level_title)) },
-                    modifier = Modifier.weight(1f)
-                )
-                
-                // Test Level toggle
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
-                    modifier = Modifier.padding(start = 8.dp)
+                // Left side: Title and Subtitle fields in a column
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Text(
-                        text = stringResource(Res.string.test_level),
-                        style = MaterialTheme.typography.bodyMedium
+                    OutlinedTextField(
+                        value = title,
+                        onValueChange = onTitleChange,
+                        label = { Text(stringResource(Res.string.level_title)) },
+                        modifier = Modifier.fillMaxWidth()
                     )
-                    Switch(
-                        checked = testingOnly,
-                        onCheckedChange = onTestingOnlyChange
+                    
+                    OutlinedTextField(
+                        value = subtitle,
+                        onValueChange = onSubtitleChange,
+                        label = { Text(stringResource(Res.string.subtitle_optional)) },
+                        modifier = Modifier.fillMaxWidth()
                     )
                 }
+                
+                // Right side: Level Toggles Container
+                // This container holds all level-related toggles and will grow as more toggles are added
+                Column(
+                    modifier = Modifier
+                        .padding(top = 8.dp)
+                        .border(
+                            width = 1.dp,
+                            color = MaterialTheme.colorScheme.outline,
+                            shape = MaterialTheme.shapes.small
+                        )
+                        .padding(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    // Test Level toggle
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(
+                            text = stringResource(Res.string.test_level),
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        Switch(
+                            checked = testingOnly,
+                            onCheckedChange = onTestingOnlyChange
+                        )
+                    }
+                    
+                    // Allow Auto-Attack toggle
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(
+                            text = stringResource(Res.string.allow_auto_attack),
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        Switch(
+                            checked = allowAutoAttack,
+                            onCheckedChange = { newValue ->
+                                // Show info dialog when enabling for the first time
+                                if (newValue && !allowAutoAttack) {
+                                    showAutoAttackInfo = true
+                                }
+                                onAllowAutoAttackChange(newValue)
+                            }
+                        )
+                    }
+                }
             }
-        }
-
-        item {
-            OutlinedTextField(
-                value = subtitle,
-                onValueChange = onSubtitleChange,
-                label = { Text(stringResource(Res.string.subtitle_optional)) },
-                modifier = Modifier.fillMaxWidth()
-            )
         }
 
 
@@ -149,5 +205,19 @@ fun LevelInfoTab(
                 )
             }
         }
+    }
+    
+    // Info dialog for auto-attack feature
+    if (showAutoAttackInfo) {
+        AlertDialog(
+            onDismissRequest = { showAutoAttackInfo = false },
+            title = { Text(stringResource(Res.string.auto_attack_info_title)) },
+            text = { Text(stringResource(Res.string.auto_attack_info_message)) },
+            confirmButton = {
+                Button(onClick = { showAutoAttackInfo = false }) {
+                    Text(stringResource(Res.string.ok))
+                }
+            }
+        )
     }
 }
