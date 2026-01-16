@@ -615,7 +615,7 @@
     <string name="end_turn_confirmation_message">Hai torri con punti azione inutilizzati e nemici a portata, o miniere con azioni inutilizzate. Sei sicuro di voler terminare il turno?</string>
     <string name="end_turn_confirm">Termina turno</string>
     <string name="auto_attack_and_end_turn">Attacco Auto e Termina Turno</string>
-    <string name="auto_attack_warning">Nota: Le miniere e le torri con attacchi durevoli potrebbero avere ancora punti azione inutilizzati dopo l'attacco automatico.</string>
+    <string name="auto_attack_warning">Nota: Dopo il completamento dell'attacco automatico, se le miniere o le torri con abilità di trappola o attacchi durevoli hanno ancora punti azione, è possibile utilizzarli prima della fine del turno.</string>
     <string name="special_actions_remaining_title">Azioni Speciali Disponibili</string>
     <string name="special_actions_remaining_message">Attacco automatico completato, ma le seguenti torri hanno ancora azioni che non possono essere automatizzate efficacemente:</string>
     <string name="dwarven_mine_actions">Miniere: Possono scavare o costruire trappole</string>
