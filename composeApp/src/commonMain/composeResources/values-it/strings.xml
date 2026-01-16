@@ -874,7 +874,7 @@
     <string name="test_level">Livello di test</string>
     <string name="allow_auto_attack">Consenti Attacco Automatico</string>
     <string name="auto_attack_info_title">Funzione Attacco Automatico</string>
-    <string name="auto_attack_info_message">Quando abilitato, i giocatori possono usare il pulsante Attacco Auto e Termina Turno nel dialogo di conferma. Come funziona: Attacca automaticamente i nemici con tutte le torri disponibili. Colpisce i nemici per priorità (boss prima, poi nemici speciali). NON influisce sulle miniere (azioni di scavo). NON usa le torri ad attacco durevole in modo ottimale. Suggerimento: I giocatori potrebbero voler eseguire attacchi acido/durevoli manualmente prima di usare l'attacco automatico per risultati migliori.</string>
+    <string name="auto_attack_info_message">Ora puoi usare la funzione Attacco Auto. Quando selezioni "Termina Turno" e ci sono punti azione utilizzabili rimasti, il dialogo offre l'opzione "Attacco Auto e Termina Turno". Quindi, le torri con punti azione rimasti attaccano automaticamente i nemici. Colpisce i nemici per priorità (prima i boss, poi i nemici speciali). Se rimangono azioni (miniere, trappole, attacchi acidi senza nemici a portata), ricevi un messaggio che indica quale tipo di azione è ancora utilizzabile, altrimenti il turno termina.</string>
 
     <!-- Platform Information Dialog -->
     <string name="platform_information_title">Informazioni sulla piattaforma</string>

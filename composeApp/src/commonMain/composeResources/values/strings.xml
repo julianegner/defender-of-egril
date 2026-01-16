@@ -873,7 +873,7 @@
     <string name="test_level">Test Level</string>
     <string name="allow_auto_attack">Allow Auto-Attack</string>
     <string name="auto_attack_info_title">Auto-Attack Feature</string>
-    <string name="auto_attack_info_message">When enabled, players can use the Auto-Attack and End Turn button in the end turn confirmation dialog. How it works: Automatically attacks enemies with all available towers. Targets enemies by priority (bosses first, then special enemies). Does NOT affect mines (digging actions). Does NOT use lasting attack towers optimally. Tip: Players may want to manually perform acid/lasting attacks before using auto-attack for best results.</string>
+    <string name="auto_attack_info_message">You can now use the Auto-Attack function. When you select "End Turn" and there are usable action points left, the dialog gives the option "Auto-Attack and End Turn". Then, towers with action points left automatically attack enemies. Targets enemies by priority (bosses first, then special enemies). If there are actions left (mines, traps, acid attacks with no enemy in range), you get a message stating which kind of action is still usable, otherwise the turn ends.</string>
 
     <!-- Platform Information Dialog -->
     <string name="platform_information_title">Platform Information</string>
