@@ -1,15 +1,11 @@
 package de.egril.defender.ui.gameplay
 
-import androidx.compose.foundation.border
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -20,7 +16,6 @@ import de.egril.defender.ui.icon.LightningIcon
 import de.egril.defender.ui.icon.MoneyIcon
 import de.egril.defender.ui.icon.TargetIcon
 import de.egril.defender.ui.icon.TimerIcon
-import de.egril.defender.utils.getPlatform
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
 
@@ -33,7 +28,6 @@ fun CompactDefenderButton(
     onClick: () -> Unit
 ) {
     val isDarkMode = de.egril.defender.ui.settings.AppSettings.isDarkMode.value
-    val isAndroidTV = remember { getPlatform().isAndroidTV }
     val locale = com.hyperether.resources.currentLanguage.value
     
     // Create accessible content description
@@ -41,19 +35,11 @@ fun CompactDefenderButton(
     val description = "$towerName, ${stringResource(Res.string.coins_label)}: ${type.baseCost}" +
         if (isSelected) ", ${stringResource(Res.string.selected)}" else ""
     
-    // Apply Android TV border if selected for better focus visibility
-    val buttonModifier = modifier
-        .then(
-            if (isAndroidTV && isSelected) {
-                Modifier.border(4.dp, Color.Yellow, MaterialTheme.shapes.small)
-            } else {
-                Modifier
-            }
-        )
-        .semantics {
-            contentDescription = description
-        }
-        .focusable()
+    // Apply Android TV modifiers for accessibility and focus
+    val buttonModifier = modifier.androidTVModifier(
+        isSelected = isSelected,
+        description = description
+    )
     
     Button(
         onClick = onClick,
@@ -119,7 +105,6 @@ fun DefenderButton(
     onClick: () -> Unit
 ) {
     val isDarkMode = de.egril.defender.ui.settings.AppSettings.isDarkMode.value
-    val isAndroidTV = remember { getPlatform().isAndroidTV }
     val locale = com.hyperether.resources.currentLanguage.value
     // Recalculate canAfford based on current coins.value to ensure reactivity
     val actuallyCanAfford = coinsState.value >= type.baseCost
@@ -133,21 +118,14 @@ fun DefenderButton(
         "${stringResource(Res.string.coins_label)}: ${type.baseCost}" +
         if (isSelected) ", ${stringResource(Res.string.selected)}" else ""
 
-    // Apply Android TV border if selected for better focus visibility
+    // Apply Android TV modifiers for accessibility and focus
     val buttonModifier = Modifier
         .fillMaxWidth()
         .height(70.dp)
-        .then(
-            if (isAndroidTV && isSelected) {
-                Modifier.border(4.dp, Color.Yellow, MaterialTheme.shapes.small)
-            } else {
-                Modifier
-            }
+        .androidTVModifier(
+            isSelected = isSelected,
+            description = description
         )
-        .semantics {
-            contentDescription = description
-        }
-        .focusable()
 
     Button(
         onClick = onClick,
