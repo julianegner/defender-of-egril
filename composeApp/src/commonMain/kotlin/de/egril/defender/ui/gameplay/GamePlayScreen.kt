@@ -642,6 +642,13 @@ private fun GamePlayScreenContent(
                         selectedDefenderId = null  // Clear defender selection when starting battle
                         selectedAttackerId = null  // Clear attacker selection when starting battle
                         onStartFirstPlayerTurn()
+                        
+                        // Show first-time auto-attack info at the start of the level if allowed and not seen
+                        if (gameState.level.allowAutoAttack && 
+                            !gameState.infoState.value.hasSeen(InfoType.AUTO_ATTACK_INFO)) {
+                            gameState.infoState.value = gameState.infoState.value.showInfo(InfoType.AUTO_ATTACK_INFO)
+                        }
+                        
                         // Track tutorial progress and auto-advance START_COMBAT step
                         if (gameState.tutorialState.value.isActive) {
                             if (!gameState.tutorialState.value.hasStartedFirstTurn) {
@@ -717,12 +724,6 @@ private fun GamePlayScreenContent(
                     onPrimaryAction = {
                         // Check if there are unused action points before ending turn
                         if (gameState.hasDefendersWithUnusedActions()) {
-                            // Show first-time auto-attack info if available and not seen
-                            if (gameState.level.allowAutoAttack && 
-                                gameState.hasDefendersForAutoAttack() &&
-                                !gameState.infoState.value.hasSeen(InfoType.AUTO_ATTACK_INFO)) {
-                                gameState.infoState.value = gameState.infoState.value.showInfo(InfoType.AUTO_ATTACK_INFO)
-                            }
                             // Show confirmation dialog
                             showEndTurnConfirmation = true
                         } else {
