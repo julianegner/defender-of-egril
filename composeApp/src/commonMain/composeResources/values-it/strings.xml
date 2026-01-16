@@ -10,6 +10,12 @@
     <string name="exit_game_confirm_message">Sei sicuro di voler uscire dal gioco?</string>
     <string name="exit">Esci</string>
     
+    <!-- Commit Info Dialog -->
+    <string name="commit_info_title">Informazioni di build</string>
+    <string name="commit_hash_label">Hash del commit:</string>
+    <string name="commit_date_label">Data del commit:</string>
+    <string name="commit_message_label">Messaggio del commit:</string>
+    
     <!-- Level Complete Screen -->
     <string name="victory">Vittoria!</string>
     <string name="battle_won">Battaglia vinta!</string>
@@ -35,6 +41,10 @@
     <string name="tile_background_images">Immagini di Sfondo delle Tessere</string>
     <string name="tile_background_images_on">Immagini delle Tessere Attive</string>
     <string name="tile_background_images_off">Sfondi a Colori</string>
+    <string name="header_text_size">Dimensione del Testo dell'Intestazione del Livello</string>
+    <string name="header_text_size_small">Piccolo</string>
+    <string name="header_text_size_medium">Medio</string>
+    <string name="header_text_size_large">Grande</string>
     <string name="reset_settings">Ripristina Impostazioni</string>
     <string name="restore_game_data">Ripristina Dati di Gioco</string>
     <string name="restore_game_data_confirm_title">Ripristinare i Dati di Gioco?</string>
@@ -432,7 +442,7 @@
     <string name="tutorial_initial_building_title">Fase di costruzione iniziale</string>
     <string name="tutorial_initial_building">In questa fase iniziale, le torri vengono costruite istantaneamente ma non possono ancora attaccare. Fai clic su una torre per vedere il suo raggio - le caselle del percorso ottengono bordi verdi. Più avanti nel gioco, le torri impiegheranno 1-2 turni per essere costruite.</string>
     <string name="tutorial_undo_title">Annulla torri</string>
-    <string name="tutorial_undo">Durante questa fase iniziale, puoi annullare il posizionamento della torre selezionandola e vendendola per un rimborso completo. Dopo l'inizio della battaglia, puoi vendere le torri solo per il 75%% del loro valore.</string>
+    <string name="tutorial_undo">Durante questa fase iniziale, puoi annullare il posizionamento della torre selezionandola e vendendola per un rimborso completo. Dopo l'inizio della battaglia, puoi vendere le torri solo per il 75% del loro valore.</string>
     <string name="tutorial_combat_title">Inizia la battaglia</string>
     <string name="tutorial_combat">Fai clic sul pulsante Inizia battaglia quando sei pronto. Il tuo obiettivo è difendere il Bersaglio alla fine del percorso - non lasciare che i nemici lo raggiungano!</string>
     <string name="tutorial_enemies_title">Nemici in arrivo!</string>
@@ -444,7 +454,7 @@
     <string name="tutorial_upgrade_title">Potenzia torri</string>
     <string name="tutorial_upgrade">Seleziona una torre e fai clic su Potenzia per aumentare le sue statistiche. Vedrai danno, raggio e azioni attuali per turno, più come saranno dopo il potenziamento. I potenziamenti costano monete ma rendono le torri più potenti!</string>
     <string name="tutorial_sell_title">Vendi torri</string>
-    <string name="tutorial_sell">Seleziona una torre e fai clic su Vendi per ottenere il 75%% del suo investimento totale (costo + potenziamenti). Usa questo se hai bisogno di monete o vuoi riposizionare la tua difesa.</string>
+    <string name="tutorial_sell">Seleziona una torre e fai clic su Vendi per ottenere il 75% del suo investimento totale (costo + potenziamenti). Usa questo se hai bisogno di monete o vuoi riposizionare la tua difesa.</string>
     <string name="tutorial_save_game_title">Salva i tuoi progressi</string>
     <string name="tutorial_save_game">Puoi salvare il tuo gioco in qualsiasi momento usando il pulsante Salva gioco. Questo ti permette di provare diverse strategie o continuare più tardi. Per caricare un gioco salvato, usa il pulsante Carica gioco sulla schermata della mappa del mondo.</string>
     <string name="tutorial_complete_title">Tutorial completato!</string>
