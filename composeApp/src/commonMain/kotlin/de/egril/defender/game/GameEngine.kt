@@ -140,7 +140,7 @@ class GameEngine(private val state: GameState) {
         }.map { it.position.value }.distinct()
             .filter { pos -> 
                 // Only include positions that are valid attack targets (on path or river)
-                state.level.isOnPath(pos) || state.level.getRiverTile(pos) || state.isBridgeAt(pos)
+                state.level.isOnPath(pos) || state.level.getRiverTile(pos) != null || state.isBridgeAt(pos)
             }
         
         if (attackablePositions.isEmpty()) return null
