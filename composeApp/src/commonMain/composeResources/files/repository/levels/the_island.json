@@ -50,7 +50,8 @@
   ],
   "availableTowers": ["SPIKE_TOWER", "SPEAR_TOWER", "BOW_TOWER", "WIZARD_TOWER"],
   "waypoints": [
-
+    
   ],
-  "prerequisites": ["the_creek"]
+  "prerequisites": ["the_creek"],
+  "allowAutoAttack": true
 }

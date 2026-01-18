@@ -233,7 +233,8 @@ data class EditorLevel(
     val waypoints: List<EditorWaypoint> = emptyList(),  // Waypoints for complex pathing
     val prerequisites: Set<String> = emptySet(),  // Level IDs that must be won to unlock this level
     val requiredPrerequisiteCount: Int? = null,  // Number of prerequisites needed (null = all required)
-    val testingOnly: Boolean = false  // If true, level is only shown when "show testing levels" setting is enabled
+    val testingOnly: Boolean = false,  // If true, level is only shown when "show testing levels" setting is enabled
+    val allowAutoAttack: Boolean = false  // If true, shows auto-attack button in end turn confirmation dialog
 ) {
     /**
      * Get the effective required prerequisite count.

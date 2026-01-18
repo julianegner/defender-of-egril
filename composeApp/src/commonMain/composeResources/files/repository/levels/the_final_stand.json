@@ -206,7 +206,8 @@
   ],
   "availableTowers": ["SPIKE_TOWER", "SPEAR_TOWER", "BOW_TOWER", "WIZARD_TOWER", "ALCHEMY_TOWER", "BALLISTA_TOWER", "DWARVEN_MINE"],
   "waypoints": [
-
+    
   ],
-  "prerequisites": ["the_fortress_5_mighty_forces"]
+  "prerequisites": ["the_fortress_5_mighty_forces"],
+  "allowAutoAttack": true
 }

@@ -51,7 +51,8 @@
   ],
   "availableTowers": ["SPIKE_TOWER", "SPEAR_TOWER", "BOW_TOWER"],
   "waypoints": [
-
+    
   ],
-  "prerequisites": ["the_winding_path"]
+  "prerequisites": ["the_winding_path"],
+  "allowAutoAttack": true
 }
