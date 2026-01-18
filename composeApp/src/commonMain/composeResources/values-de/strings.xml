@@ -628,6 +628,14 @@
     <string name="end_turn_confirmation_title">Runde beenden?</string>
     <string name="end_turn_confirmation_message">Sie haben Türme mit ungenutzten Aktionspunkten und Feinden in Reichweite, oder Minen mit ungenutzten Aktionen. Möchten Sie Ihre Runde wirklich beenden?</string>
     <string name="end_turn_confirm">Runde beenden</string>
+    <string name="auto_attack_and_end_turn">Auto-Angriff und Runde beenden</string>
+    <string name="auto_attack_warning">Hinweis: Nach Abschluss des Auto-Angriffs können Sie Minen oder Türme mit Fallenfähigkeiten oder dauerhaften Angriffen nutzen, wenn diese noch Aktionspunkte haben, bevor die Runde endet.</string>
+    <string name="special_actions_remaining_title">Spezialaktionen verfügbar</string>
+    <string name="special_actions_remaining_message">Auto-Angriff abgeschlossen, aber folgende Türme haben noch Aktionen, die nicht effektiv automatisiert werden können:</string>
+    <string name="dwarven_mine_actions">Minen: Können graben oder Fallen bauen</string>
+    <string name="alchemy_tower_actions">Alchemie-Türme: Dauerhafte Angriffe profitieren von manueller Zielauswahl</string>
+    <string name="wizard_tower_actions">Zauber-Türme: Können magische Fallen platzieren (Stufe 10+)</string>
+    <string name="continue_turn">Runde fortsetzen</string>
     
     <!-- Magical Trap Feature -->
     <string name="magical_trap">Magische Falle</string>
@@ -877,6 +885,9 @@
     <string name="level_status_unknown">Unbekannt</string>
     <string name="show_testing_levels">Test-Level anzeigen</string>
     <string name="test_level">Test-Level</string>
+    <string name="allow_auto_attack">Auto-Angriff erlauben</string>
+    <string name="auto_attack_info_title">Auto-Angriff-Funktion</string>
+    <string name="auto_attack_info_message">Sie können nun die Auto-Angriff-Funktion verwenden. Wenn Sie "Zug beenden" wählen und noch verwendbare Aktionspunkte übrig sind, bietet der Dialog die Option "Auto-Angriff und Zug beenden". Dann greifen Türme mit verbleibenden Aktionspunkten automatisch Feinde an. Greift Feinde nach Priorität an (zuerst Bosse, dann spezielle Feinde). Wenn noch Aktionen übrig sind (Minen, Fallen, Säureangriffe ohne Feind in Reichweite), erhalten Sie eine Nachricht, welche Art von Aktion noch verwendbar ist, andernfalls endet der Zug.</string>
 
     <!-- Platform Information Dialog -->
     <string name="platform_information_title">Plattforminformationen</string>

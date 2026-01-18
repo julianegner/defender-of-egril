@@ -51,7 +51,8 @@
   ],
   "availableTowers": ["SPIKE_TOWER", "SPEAR_TOWER", "BOW_TOWER", "WIZARD_TOWER", "ALCHEMY_TOWER", "BALLISTA_TOWER", "DWARVEN_MINE"],
   "waypoints": [
-
+    
   ],
-  "prerequisites": ["dark_magic_rises"]
+  "prerequisites": ["dark_magic_rises"],
+  "allowAutoAttack": true
 }

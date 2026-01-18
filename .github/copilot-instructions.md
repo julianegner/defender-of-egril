@@ -254,6 +254,20 @@ Defender of Egril is a turn-based tower defense game built with Kotlin Multiplat
 5. UI will automatically include it in tower selection
 6. If tower has special mechanics (like Dwarven Mine), update `TowerManager.kt` and relevant game systems
 
+#### Level Editor UI Guidelines (LevelInfoTab Layout)
+When adding new level-wide toggle options in the Level Editor:
+- **Location**: Level Editor → First tab (Level Info)
+- **Layout Structure**:
+  - Left side: Title and Subtitle input fields in a Column (takes weight(1f))
+  - Right side: Level Toggles Container (bordered Column with fixed width)
+    - Contains all level-wide boolean settings (Test Level, Allow Auto-Attack, etc.)
+    - Uses a bordered container with `MaterialTheme.colorScheme.outline` border
+    - Padding of 12.dp inside the container
+    - Toggles are arranged vertically with 8.dp spacing
+    - Each toggle is a Row with label Text and Switch
+- **Adding New Toggles**: Add new toggle Rows to the Level Toggles Container Column
+- **Rationale**: This layout groups all level settings together and allows the container to grow vertically as more toggles are added, while keeping input fields cleanly separated on the left
+
 #### New Level (Editor Method - Recommended)
 1. Use the in-game Level Editor (desktop and web/wasm only):
    - Create or select a map in Map Editor tab
@@ -296,9 +310,12 @@ Add to `LevelData.createLevels()` with:
 3. **Use in code**: Use `stringResource(Res.string.your_key)` in Composables
 4. **Test**: Run `TranslationCoverageTest` to verify all language files are synchronized
 5. **Never hardcode**: Do not use hardcoded strings like `Text("Hello")` - always use stringResource
-5. Update `LanguageChooser.kt`'s `getCountryCode()` function if language code differs from country code
-6. Test language switching via Settings dialog
-7. All ~318 strings must be translated for complete localization
+6. **IMPORTANT: Version 2.0.0 limitation with `\n`**: The hyperether.localization plugin version 2.0.0 has a bug that causes compilation errors when using `\n` escape sequences in strings. **Do NOT use `\n` for line breaks**. Instead, write strings as continuous text without line breaks. If multiple paragraphs or bullet points are needed, use punctuation (periods, semicolons) to separate concepts within a single continuous string.
+   - ❌ DON'T: `<string name="message">Line 1\nLine 2\nLine 3</string>`
+   - ✅ DO: `<string name="message">Line 1. Line 2. Line 3.</string>`
+7. Update `LanguageChooser.kt`'s `getCountryCode()` function if language code differs from country code
+8. Test language switching via Settings dialog
+9. All ~318 strings must be translated for complete localization
 
 ## Build and Test Commands
 

@@ -190,37 +190,114 @@ fun UnsavedChangesDialog(
 @Composable
 fun EndTurnConfirmationDialog(
     onConfirm: () -> Unit,
-    onCancel: () -> Unit
+    onAutoAttackAndConfirm: () -> Unit,
+    onCancel: () -> Unit,
+    showAutoAttackButton: Boolean = true
 ) {
     AlertDialog(
         onDismissRequest = onCancel,
         title = { Text(stringResource(Res.string.end_turn_confirmation_title)) },
         text = {
-            Text(
-                stringResource(Res.string.end_turn_confirmation_message),
-                style = MaterialTheme.typography.bodyLarge
-            )
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    stringResource(Res.string.end_turn_confirmation_message),
+                    style = MaterialTheme.typography.bodyLarge
+                )
+                if (showAutoAttackButton) {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        stringResource(Res.string.auto_attack_warning),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
         },
         confirmButton = {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Button(
-                    onClick = onCancel,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.secondary
-                    )
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Text(stringResource(Res.string.cancel))
+                    Button(
+                        onClick = onCancel,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.secondary
+                        )
+                    ) {
+                        Text(stringResource(Res.string.cancel))
+                    }
+                    Button(
+                        onClick = onConfirm,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = GamePlayColors.WarningDeep
+                        )
+                    ) {
+                        Text(stringResource(Res.string.end_turn_confirm))
+                    }
                 }
-                Button(
-                    onClick = onConfirm,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = GamePlayColors.WarningDeep
-                    )
+                if (showAutoAttackButton) {
+                    Button(
+                        onClick = onAutoAttackAndConfirm,
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary
+                        )
+                    ) {
+                        Text(stringResource(Res.string.auto_attack_and_end_turn))
+                    }
+                }
+            }
+        }
+    )
+}
+
+@Composable
+fun SpecialActionsRemainingDialog(
+    remainingTypes: List<DefenderType>,
+    onContinueTurn: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onContinueTurn,
+        title = { Text(stringResource(Res.string.special_actions_remaining_title)) },
+        text = {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Text(
+                    stringResource(Res.string.special_actions_remaining_message),
+                    style = MaterialTheme.typography.bodyLarge
+                )
+                
+                // List each tower type with remaining actions
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                    modifier = Modifier.padding(start = 8.dp)
                 ) {
-                    Text(stringResource(Res.string.end_turn_confirm))
+                    remainingTypes.forEach { type ->
+                        val message = when (type) {
+                            DefenderType.DWARVEN_MINE -> stringResource(Res.string.dwarven_mine_actions)
+                            DefenderType.ALCHEMY_TOWER -> stringResource(Res.string.alchemy_tower_actions)
+                            DefenderType.WIZARD_TOWER -> stringResource(Res.string.wizard_tower_actions)
+                            else -> ""
+                        }
+                        if (message.isNotEmpty()) {
+                            Text(
+                                text = "• $message",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
                 }
+            }
+        },
+        confirmButton = {
+            Button(onClick = onContinueTurn) {
+                Text(stringResource(Res.string.continue_turn))
             }
         }
     )
