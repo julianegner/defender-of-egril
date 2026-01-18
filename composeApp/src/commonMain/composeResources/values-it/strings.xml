@@ -629,6 +629,14 @@
     <string name="end_turn_confirmation_title">Terminare il turno?</string>
     <string name="end_turn_confirmation_message">Hai torri con punti azione inutilizzati e nemici a portata, o miniere con azioni inutilizzate. Sei sicuro di voler terminare il turno?</string>
     <string name="end_turn_confirm">Termina turno</string>
+    <string name="auto_attack_and_end_turn">Attacco Auto e Termina Turno</string>
+    <string name="auto_attack_warning">Nota: Dopo il completamento dell'attacco automatico, se le miniere o le torri con abilità di trappola o attacchi durevoli hanno ancora punti azione, è possibile utilizzarli prima della fine del turno.</string>
+    <string name="special_actions_remaining_title">Azioni Speciali Disponibili</string>
+    <string name="special_actions_remaining_message">Attacco automatico completato, ma le seguenti torri hanno ancora azioni che non possono essere automatizzate efficacemente:</string>
+    <string name="dwarven_mine_actions">Miniere: Possono scavare o costruire trappole</string>
+    <string name="alchemy_tower_actions">Torri di Alchimia: Gli attacchi durevoli beneficiano del puntamento manuale</string>
+    <string name="wizard_tower_actions">Torri del Mago: Possono piazzare trappole magiche (livello 10+)</string>
+    <string name="continue_turn">Continua Turno</string>
     
     <!-- Magical Trap Feature -->
     <string name="magical_trap">Trappola Magica</string>
@@ -879,6 +887,9 @@
     <string name="level_status_unknown">Sconosciuto</string>
     <string name="show_testing_levels">Mostra livelli di test</string>
     <string name="test_level">Livello di test</string>
+    <string name="allow_auto_attack">Consenti Attacco Automatico</string>
+    <string name="auto_attack_info_title">Funzione Attacco Automatico</string>
+    <string name="auto_attack_info_message">Ora puoi usare la funzione Attacco Auto. Quando selezioni "Termina Turno" e ci sono punti azione utilizzabili rimasti, il dialogo offre l'opzione "Attacco Auto e Termina Turno". Quindi, le torri con punti azione rimasti attaccano automaticamente i nemici. Colpisce i nemici per priorità (prima i boss, poi i nemici speciali). Se rimangono azioni (miniere, trappole, attacchi acidi senza nemici a portata), ricevi un messaggio che indica quale tipo di azione è ancora utilizzabile, altrimenti il turno termina.</string>
 
     <!-- Platform Information Dialog -->
     <string name="platform_information_title">Informazioni sulla piattaforma</string>

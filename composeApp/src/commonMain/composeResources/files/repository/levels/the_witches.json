@@ -50,5 +50,7 @@
   "waypoints": [
     
   ],
-  "prerequisites": []
+  "prerequisites": [],
+  "testingOnly": true,
+  "allowAutoAttack": true
 }

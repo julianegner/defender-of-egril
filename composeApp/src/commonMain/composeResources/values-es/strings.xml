@@ -629,6 +629,14 @@
     <string name="end_turn_confirmation_title">¿Terminar turno?</string>
     <string name="end_turn_confirmation_message">Tienes torres con puntos de acción sin usar y enemigos al alcance, o minas con acciones sin usar. ¿Estás seguro de que quieres terminar tu turno?</string>
     <string name="end_turn_confirm">Terminar turno</string>
+    <string name="auto_attack_and_end_turn">Auto-Ataque y Terminar Turno</string>
+    <string name="auto_attack_warning">Nota: Después de completar el auto-ataque, si las minas o torres con habilidades de trampa o ataques duraderos aún tienen puntos de acción, puede usarlos antes de que termine el turno.</string>
+    <string name="special_actions_remaining_title">Acciones Especiales Disponibles</string>
+    <string name="special_actions_remaining_message">Auto-ataque completado, pero las siguientes torres aún tienen acciones que no se pueden automatizar efectivamente:</string>
+    <string name="dwarven_mine_actions">Minas: Pueden excavar o construir trampas</string>
+    <string name="alchemy_tower_actions">Torres de Alquimia: Los ataques duraderos se benefician del apuntado manual</string>
+    <string name="wizard_tower_actions">Torres de Mago: Pueden colocar trampas mágicas (nivel 10+)</string>
+    <string name="continue_turn">Continuar Turno</string>
     
     <!-- Magical Trap Feature -->
     <string name="magical_trap">Trampa Mágica</string>
@@ -879,6 +887,9 @@
     <string name="level_status_unknown">Desconocido</string>
     <string name="show_testing_levels">Mostrar niveles de prueba</string>
     <string name="test_level">Nivel de prueba</string>
+    <string name="allow_auto_attack">Permitir Auto-Ataque</string>
+    <string name="auto_attack_info_title">Función de Auto-Ataque</string>
+    <string name="auto_attack_info_message">Ahora puede usar la función de Auto-Ataque. Cuando selecciona "Terminar Turno" y quedan puntos de acción utilizables, el diálogo ofrece la opción "Auto-Ataque y Terminar Turno". Entonces, las torres con puntos de acción restantes atacan automáticamente a los enemigos. Ataca a los enemigos por prioridad (primero jefes, luego enemigos especiales). Si quedan acciones (minas, trampas, ataques de ácido sin enemigo en alcance), recibe un mensaje indicando qué tipo de acción sigue siendo utilizable, de lo contrario el turno termina.</string>
 
     <!-- Platform Information Dialog -->
     <string name="platform_information_title">Información de plataforma</string>
