@@ -353,6 +353,9 @@ fun GridCell(
 
     // Check for traps at this position
     val trap = gameState.traps.find { it.position == position }
+    
+    // Check for barricades at this position
+    val barricade = gameState.barricades.find { it.position == position }
 
     // Check if this cell is in range of the selected defender
     val cellIsInRange = selectedDefenderId?.let { defenderId ->
@@ -448,6 +451,8 @@ fun GridCell(
 
         trap != null -> GamePlayColors.Trap.copy(alpha = 0.6f)  // Brown tint for trap
         
+        barricade != null -> Color(0xFF795548).copy(alpha = 0.5f)  // Brown tint for barricade
+        
         // Tower placement preview - highlight the hovered build tile differently than range tiles
         showPlacementPreview -> GamePlayColors.Yellow.copy(alpha = 0.4f)  // Light yellow for the build tile being hovered
         isInPreviewRange -> GamePlayColors.Success.copy(alpha = 0.2f)  // Very light green for range preview tiles
@@ -501,6 +506,7 @@ fun GridCell(
         }
 
         trap != null -> GamePlayColors.Trap  // Brown border for trap
+        barricade != null -> Color(0xFF795548)  // Brown border for barricade
         else -> Color.Transparent  // No borders for empty cells
     }
 
@@ -513,6 +519,8 @@ fun GridCell(
         isSpawnPoint || isTarget -> 3.dp
         attacker != null || defender != null -> 3.dp
         fieldEffect != null -> 3.dp  // Thick border for field effects
+        trap != null -> 3.dp  // Thick border for trap
+        barricade != null -> 3.dp  // Thick border for barricade
         else -> 0.dp  // No border for empty cells
     }
     
@@ -600,6 +608,7 @@ fun GridCell(
                 defender = defender,
                 fieldEffect = fieldEffect,
                 trap = trap,
+                barricade = barricade,
                 isSpawnPoint = isSpawnPoint,
                 isTarget = isTarget,
                 isRiverTile = isRiverTile,
@@ -630,6 +639,7 @@ fun GridCell(
                 defender = defender,
                 fieldEffect = fieldEffect,
                 trap = trap,
+                barricade = barricade,
                 isSpawnPoint = isSpawnPoint,
                 isTarget = isTarget,
                 isRiverTile = isRiverTile,
@@ -657,6 +667,7 @@ private fun BoxScope.GridCellContent(
     defender: Defender?,
     fieldEffect: FieldEffect?,
     trap: Trap?,
+    barricade: Barricade?,
     isSpawnPoint: Boolean,
     isTarget: Boolean,
     isRiverTile: Boolean,
@@ -800,6 +811,27 @@ private fun BoxScope.GridCellContent(
                             )
                         }
                     }
+                }
+            }
+            
+            barricade != null -> {
+                // Show barricade with HP
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    // Show wood/barricade symbol with brown color
+                    Text(
+                        "🪵",  // Wood/log emoji
+                        fontSize = 24.sp
+                    )
+                    // Show health points
+                    Text(
+                        "${barricade.healthPoints.value} HP",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Color(0xFF795548),  // Brown color
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             }
 

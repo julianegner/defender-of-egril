@@ -65,7 +65,7 @@ class BarricadeSystem(private val state: GameState) {
         }
         
         // Play sound
-        GlobalSoundManager.playSound(SoundEvent.TOWER_PLACED)
+        GlobalSoundManager.playSound(SoundEvent.TOWER_UPGRADED)
         
         // Consume action
         tower.actionsRemaining.value--
