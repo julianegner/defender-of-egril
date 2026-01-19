@@ -10,6 +10,12 @@
     <string name="exit_game_confirm_message">Êtes-vous sûr de vouloir quitter le jeu ?</string>
     <string name="exit">Quitter</string>
     
+    <!-- Commit Info Dialog -->
+    <string name="commit_info_title">Informations de build</string>
+    <string name="commit_hash_label">Hash du commit :</string>
+    <string name="commit_date_label">Date du commit :</string>
+    <string name="commit_message_label">Message du commit :</string>
+    
     <!-- Level Complete Screen -->
     <string name="victory">Victoire !</string>
     <string name="battle_won">Bataille gagnée !</string>
@@ -35,6 +41,13 @@
     <string name="tile_background_images">Images de Fond de Tuile</string>
     <string name="tile_background_images_on">Images de Tuile Activées</string>
     <string name="tile_background_images_off">Fonds de Couleur</string>
+    <string name="tile_smooth_transitions">Transitions Douces de Tuiles</string>
+    <string name="tile_smooth_transitions_on">Transitions Douces Activées</string>
+    <string name="tile_smooth_transitions_off">Bords Nets</string>
+    <string name="header_text_size">Taille du Texte de l'En-tête du Niveau</string>
+    <string name="header_text_size_small">Petit</string>
+    <string name="header_text_size_medium">Moyen</string>
+    <string name="header_text_size_large">Grand</string>
     <string name="reset_settings">Réinitialiser les Paramètres</string>
     <string name="restore_game_data">Restaurer les Données du Jeu</string>
     <string name="restore_game_data_confirm_title">Restaurer les Données du Jeu ?</string>
@@ -62,6 +75,7 @@
     <string name="level">Niveau</string>
     <string name="upgrade">Améliorer</string>
     <string name="sell">Vendre</string>
+    <string name="selected">Sélectionné</string>
     <string name="attack">Attaque</string>
     <string name="end_turn">Terminer le tour</string>
     <string name="next_turn">Tour suivant</string>
@@ -618,6 +632,14 @@
     <string name="end_turn_confirmation_title">Terminer le tour ?</string>
     <string name="end_turn_confirmation_message">Vous avez des tours avec des points d'action inutilisés et des ennemis à portée, ou des mines avec des actions inutilisées. Êtes-vous sûr de vouloir terminer votre tour ?</string>
     <string name="end_turn_confirm">Terminer le tour</string>
+    <string name="auto_attack_and_end_turn">Attaque Auto et Terminer le Tour</string>
+    <string name="auto_attack_warning">Note : Après la fin de l'attaque automatique, si les mines ou les tours avec des capacités de piège ou des attaques durables ont encore des points d'action, vous pouvez les utiliser avant la fin du tour.</string>
+    <string name="special_actions_remaining_title">Actions Spéciales Disponibles</string>
+    <string name="special_actions_remaining_message">Attaque automatique terminée, mais les tours suivantes ont encore des actions qui ne peuvent pas être automatisées efficacement :</string>
+    <string name="dwarven_mine_actions">Mines : Peuvent creuser ou construire des pièges</string>
+    <string name="alchemy_tower_actions">Tours d'Alchimie : Les attaques durables bénéficient d'un ciblage manuel</string>
+    <string name="wizard_tower_actions">Tours de Magicien : Peuvent placer des pièges magiques (niveau 10+)</string>
+    <string name="continue_turn">Continuer le Tour</string>
     
     <!-- Magical Trap Feature -->
     <string name="magical_trap">Piège Magique</string>
@@ -868,6 +890,9 @@
     <string name="level_status_unknown">Inconnu</string>
     <string name="show_testing_levels">Afficher les niveaux de test</string>
     <string name="test_level">Niveau de test</string>
+    <string name="allow_auto_attack">Autoriser l'Attaque Automatique</string>
+    <string name="auto_attack_info_title">Fonction d'Attaque Automatique</string>
+    <string name="auto_attack_info_message">Vous pouvez maintenant utiliser la fonction Attaque Auto. Lorsque vous sélectionnez "Terminer le Tour" et qu'il reste des points d'action utilisables, le dialogue propose l'option "Attaque Auto et Terminer le Tour". Ensuite, les tours avec des points d'action restants attaquent automatiquement les ennemis. Cible les ennemis par priorité (d'abord les boss, puis les ennemis spéciaux). S'il reste des actions (mines, pièges, attaques acides sans ennemi à portée), vous recevez un message indiquant quel type d'action est encore utilisable, sinon le tour se termine.</string>
 
     <!-- Platform Information Dialog -->
     <string name="platform_information_title">Informations sur la plateforme</string>

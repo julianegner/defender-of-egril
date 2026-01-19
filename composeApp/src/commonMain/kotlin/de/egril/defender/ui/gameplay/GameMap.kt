@@ -13,13 +13,16 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import de.egril.defender.model.*
+import de.egril.defender.model.getHexNeighbors
 import de.egril.defender.ui.*
 import de.egril.defender.ui.icon.ExplosionIcon
 import de.egril.defender.ui.icon.HoleIcon
@@ -515,16 +518,156 @@ fun GridCell(
     
     // Flag to indicate dashed border (for preview only)
     val useDashedBorder = showPlacementPreview || isInPreviewRange
+    
+    // Determine if we should use gradient blending
+    val useTileImages = de.egril.defender.ui.settings.AppSettings.useTileImages.value
+    val useTileSmoothTransitions = de.egril.defender.ui.settings.AppSettings.useTileSmoothTransitions.value
+    val shouldUseGradientBlending = useTileImages && useTileSmoothTransitions && tilePainter != null
+    
+    // Helper function to get tile type for a position
+    val getNeighborTileType: (Position) -> de.egril.defender.editor.TileType? = { pos ->
+        if (pos.x < 0 || pos.x >= gameState.level.gridWidth || 
+            pos.y < 0 || pos.y >= gameState.level.gridHeight) {
+            null
+        } else {
+            when {
+                gameState.level.isSpawnPoint(pos) -> de.egril.defender.editor.TileType.SPAWN_POINT
+                gameState.level.isTargetPosition(pos) -> de.egril.defender.editor.TileType.TARGET
+                gameState.level.isRiverTile(pos) -> de.egril.defender.editor.TileType.RIVER
+                gameState.level.isOnPath(pos) -> de.egril.defender.editor.TileType.PATH
+                gameState.level.isBuildIsland(pos) -> de.egril.defender.editor.TileType.ISLAND
+                gameState.level.isBuildArea(pos) -> de.egril.defender.editor.TileType.BUILD_AREA
+                else -> de.egril.defender.editor.TileType.NO_PLAY
+            }
+        }
+    }
+    
+    // Pre-compute neighbor tile types for gradient blending
+    val neighborTileTypes = remember(position, gameState.defenders.size, gameState.level) {
+        if (!shouldUseGradientBlending) {
+            emptyMap()
+        } else {
+            val neighbors = position.getHexNeighbors()
+            neighbors.mapNotNull { neighborPos ->
+                val neighborType = getNeighborTileType(neighborPos)
+                if (neighborType != null) {
+                    neighborPos to neighborType
+                } else {
+                    null
+                }
+            }.toMap()
+        }
+    }
+    
+    // Get the actual painters for neighbors (must be done in @Composable context)
+    val neighborPainters = neighborTileTypes.mapValues { (pos, type) ->
+        // Check if there's a ready defender on this tile (build area or island)
+        val neighborDefender = gameState.defenders.find { it.position.value == pos }
+        val neighborIsReady = neighborDefender?.isReady == true
+        val neighborIsBuildArea = gameState.level.isBuildArea(pos)
+        val neighborIsBuildIsland = gameState.level.isBuildIsland(pos)
+        val shouldShowNeighborTile = !(neighborDefender != null && neighborIsReady && 
+                                       (neighborIsBuildArea || neighborIsBuildIsland))
+        
+        if (shouldShowNeighborTile) {
+            val neighborRiverTile = gameState.level.getRiverTile(pos)
+            val neighborIsMaelstrom = neighborRiverTile?.flowDirection == RiverFlow.MAELSTROM
+            TileImageProvider.getTilePainter(type, isMaelstrom = neighborIsMaelstrom)
+        } else {
+            null
+        }
+    }
 
-    BaseGridCell(
-        hexSize = hexSize,
-        backgroundColor = backgroundColor,
-        borderColor = if (useDashedBorder) Color.Transparent else borderColor,  // Don't use regular border for dashed preview
-        borderWidth = if (useDashedBorder) 0.dp else borderWidth,
-        backgroundPainter = tilePainter,
-        onClick = onClick,
-        onHover = onHoverChange
-    ) {
+    if (shouldUseGradientBlending) {
+        GradientBlendedTileCell(
+            hexSize = hexSize,
+            position = position,
+            tileType = tileType,
+            backgroundColor = backgroundColor,
+            borderColor = if (useDashedBorder) Color.Transparent else borderColor,
+            borderWidth = if (useDashedBorder) 0.dp else borderWidth,
+            backgroundPainter = tilePainter,
+            onClick = onClick,
+            onHover = onHoverChange,
+            getNeighborTileType = getNeighborTileType,
+            getNeighborTilePainter = { pos, _ -> neighborPainters[pos] }
+        ) {
+            GridCellContent(
+                position = position,
+                gameState = gameState,
+                attacker = attacker,
+                healingEffect = healingEffect,
+                defender = defender,
+                fieldEffect = fieldEffect,
+                trap = trap,
+                isSpawnPoint = isSpawnPoint,
+                isTarget = isTarget,
+                isRiverTile = isRiverTile,
+                showPlacementPreview = showPlacementPreview,
+                selectedDefenderType = selectedDefenderType,
+                targetCircleInfo = targetCircleInfo,
+                useDashedBorder = useDashedBorder,
+                borderColor = borderColor,
+                borderWidth = borderWidth,
+                hexSize = hexSize
+            )
+        }
+    } else {
+        BaseGridCell(
+            hexSize = hexSize,
+            backgroundColor = backgroundColor,
+            borderColor = if (useDashedBorder) Color.Transparent else borderColor,
+            borderWidth = if (useDashedBorder) 0.dp else borderWidth,
+            backgroundPainter = tilePainter,
+            onClick = onClick,
+            onHover = onHoverChange
+        ) {
+            GridCellContent(
+                position = position,
+                gameState = gameState,
+                attacker = attacker,
+                healingEffect = healingEffect,
+                defender = defender,
+                fieldEffect = fieldEffect,
+                trap = trap,
+                isSpawnPoint = isSpawnPoint,
+                isTarget = isTarget,
+                isRiverTile = isRiverTile,
+                showPlacementPreview = showPlacementPreview,
+                selectedDefenderType = selectedDefenderType,
+                targetCircleInfo = targetCircleInfo,
+                useDashedBorder = useDashedBorder,
+                borderColor = borderColor,
+                borderWidth = borderWidth,
+                hexSize = hexSize
+            )
+        }
+    }
+}
+
+/**
+ * Content displayed inside a grid cell (separated for reuse between BaseGridCell and GradientBlendedTileCell)
+ */
+@Composable
+private fun BoxScope.GridCellContent(
+    position: Position,
+    gameState: GameState,
+    attacker: Attacker?,
+    healingEffect: HealingEffect?,
+    defender: Defender?,
+    fieldEffect: FieldEffect?,
+    trap: Trap?,
+    isSpawnPoint: Boolean,
+    isTarget: Boolean,
+    isRiverTile: Boolean,
+    showPlacementPreview: Boolean,
+    selectedDefenderType: DefenderType?,
+    targetCircleInfo: TargetCircleInfo?,
+    useDashedBorder: Boolean,
+    borderColor: Color,
+    borderWidth: Dp,
+    hexSize: Dp
+) {
         when {
             attacker != null -> {
                 // Use graphical icon for enemy units
@@ -860,7 +1003,6 @@ fun GridCell(
                 )
             }
         }
-    }
 }
 
 /**

@@ -43,6 +43,9 @@ fun MainMenuScreen(
     // Track if settings hint should be shown
     val showSettingsHint by AppSettings.settingsHintShown
     
+    // Track if commit info dialog should be shown
+    var showCommitInfo by remember { mutableStateOf(false) }
+    
     // Track if exit confirmation dialog should be shown
     var showExitConfirmation by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
     
@@ -186,7 +189,7 @@ fun MainMenuScreen(
                 }
             }
             
-            // Version info at the bottom
+            // Version info at the bottom - clickable to show commit info
             Text(
                 text = "v${BuildConfig.VERSION_NAME} (${BuildConfig.COMMIT_HASH})",
                 style = MaterialTheme.typography.bodySmall,
@@ -195,6 +198,7 @@ fun MainMenuScreen(
                 modifier = Modifier
                     .align(Alignment.BottomStart)
                     .padding(bottom = 8.dp)
+                    .clickable { showCommitInfo = true }
             )
             
             // Settings hint box - positioned below and to the left of settings button
@@ -236,6 +240,13 @@ fun MainMenuScreen(
                         Text(stringResource(Res.string.cancel))
                     }
                 }
+            )
+        }
+        
+        // Commit info dialog
+        if (showCommitInfo) {
+            CommitInfoDialog(
+                onDismiss = { showCommitInfo = false }
             )
         }
     }

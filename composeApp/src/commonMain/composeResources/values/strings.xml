@@ -10,6 +10,12 @@
     <string name="exit_game_confirm_message">Are you sure you want to exit the game?</string>
     <string name="exit">Exit</string>
     
+    <!-- Commit Info Dialog -->
+    <string name="commit_info_title">Build Information</string>
+    <string name="commit_hash_label">Commit Hash:</string>
+    <string name="commit_date_label">Commit Date:</string>
+    <string name="commit_message_label">Commit Message:</string>
+    
     <!-- Level Complete Screen -->
     <string name="victory">Victory!</string>
     <string name="battle_won">Battle Won!</string>
@@ -35,6 +41,13 @@
     <string name="tile_background_images">Tile Background Images</string>
     <string name="tile_background_images_on">Tile Images On</string>
     <string name="tile_background_images_off">Color Backgrounds</string>
+    <string name="tile_smooth_transitions">Tile Smooth Transitions</string>
+    <string name="tile_smooth_transitions_on">Smooth Transitions On</string>
+    <string name="tile_smooth_transitions_off">Sharp Edges</string>
+    <string name="header_text_size">Level Header Text Size</string>
+    <string name="header_text_size_small">Small</string>
+    <string name="header_text_size_medium">Medium</string>
+    <string name="header_text_size_large">Large</string>
     <string name="reset_settings">Reset Settings</string>
     <string name="restore_game_data">Restore Game Data</string>
     <string name="restore_game_data_confirm_title">Restore Game Data?</string>
@@ -62,6 +75,7 @@
     <string name="level">Level</string>
     <string name="upgrade">Upgrade</string>
     <string name="sell">Sell</string>
+    <string name="selected">Selected</string>
     <string name="attack">Attack</string>
     <string name="end_turn">End Turn</string>
     <string name="next_turn">Next Turn</string>
@@ -619,6 +633,14 @@
     <string name="end_turn_confirmation_title">End Turn?</string>
     <string name="end_turn_confirmation_message">You have towers with unused action points and enemies in range, or mines with unused actions. Are you sure you want to end your turn?</string>
     <string name="end_turn_confirm">End Turn</string>
+    <string name="auto_attack_and_end_turn">Auto-Attack and End Turn</string>
+    <string name="auto_attack_warning">Note: After auto-attack completes, if mines or towers with trap abilities or lasting attacks still have action points, you can use them before the turn ends.</string>
+    <string name="special_actions_remaining_title">Special Actions Remaining</string>
+    <string name="special_actions_remaining_message">Auto-attack completed, but the following towers still have actions that cannot be automated effectively:</string>
+    <string name="dwarven_mine_actions">Mines: Can dig for coins or build traps</string>
+    <string name="alchemy_tower_actions">Alchemy Towers: Lasting attacks benefit from manual targeting</string>
+    <string name="wizard_tower_actions">Wizard Towers: Can place magical traps (level 10+)</string>
+    <string name="continue_turn">Continue Turn</string>
     
     <!-- Magical Trap Feature -->
     <string name="magical_trap">Magical Trap</string>
@@ -867,6 +889,9 @@
     <string name="level_status_unknown">Unknown</string>
     <string name="show_testing_levels">Show Testing Levels</string>
     <string name="test_level">Test Level</string>
+    <string name="allow_auto_attack">Allow Auto-Attack</string>
+    <string name="auto_attack_info_title">Auto-Attack Feature</string>
+    <string name="auto_attack_info_message">You can now use the Auto-Attack function. When you select "End Turn" and there are usable action points left, the dialog gives the option "Auto-Attack and End Turn". Then, towers with action points left automatically attack enemies. Targets enemies by priority (bosses first, then special enemies). If there are actions left (mines, traps, acid attacks with no enemy in range), you get a message stating which kind of action is still usable, otherwise the turn ends.</string>
 
     <!-- Platform Information Dialog -->
     <string name="platform_information_title">Platform Information</string>

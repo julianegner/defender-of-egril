@@ -139,4 +139,107 @@ data class GameState(
             raft.isActive && raft.currentPosition.value == position
         }
     }
+    
+    /**
+     * Check if there are defenders with unused action points and enemies in range
+     * Used to show end turn confirmation dialog
+     */
+    fun hasDefendersWithUnusedActions(): Boolean {
+        // Get active attackers (not defeated, not building bridges)
+        val activeAttackers = attackers.filter { !it.isDefeated.value && !it.isBuildingBridge.value }
+        
+        return defenders.any { defender ->
+            if (!defender.isReady || 
+                defender.actionsRemaining.value <= 0 || 
+                defender.isDisabled.value) {
+                return@any false
+            }
+            
+            // Special handling for different tower types
+            when (defender.type) {
+                DefenderType.DWARVEN_MINE -> {
+                    // Mines always count as having unused actions (digging)
+                    true
+                }
+                else -> {
+                    // Only count attack towers if they have AttackType and enemies in range
+                    if (defender.type.attackType == AttackType.NONE) {
+                        false
+                    } else {
+                        // Check if there are any enemies in range
+                        activeAttackers.any { attacker -> defender.canAttack(attacker) }
+                    }
+                }
+            }
+        }
+    }
+    
+    /**
+     * Check if there are defenders that can perform auto-attacks.
+     * Returns true if there are defenders with actions that can be automated (regular attacks).
+     * Excludes special actions like mines, traps, and alchemy towers.
+     */
+    fun hasDefendersForAutoAttack(): Boolean {
+        val activeAttackers = attackers.filter { !it.isDefeated.value && !it.isBuildingBridge.value }
+        if (activeAttackers.isEmpty()) return false
+        
+        return defenders.any { defender ->
+            if (!defender.isReady || 
+                defender.actionsRemaining.value <= 0 || 
+                defender.isDisabled.value) {
+                return@any false
+            }
+            
+            // Only count towers that can do regular auto-attacks
+            // Exclude mines (no attack) and wizard towers level 10+ (have trap ability that needs manual placement)
+            // Alchemy towers CAN auto-attack (they check acid immunity like wizard towers check fireball immunity)
+            when {
+                defender.type == DefenderType.DWARVEN_MINE -> false
+                defender.type == DefenderType.WIZARD_TOWER && defender.level.value >= 10 -> false
+                defender.type.attackType == AttackType.NONE -> false
+                else -> {
+                    // Check if there are any enemies in range
+                    activeAttackers.any { attacker -> defender.canAttack(attacker) }
+                }
+            }
+        }
+    }
+    
+    /**
+     * Check if there are defenders with special actions that cannot be automated effectively.
+     * Returns a list of defender types that have remaining special actions.
+     */
+    fun getDefenderTypesWithSpecialActions(): List<DefenderType> {
+        val typesWithActions = mutableSetOf<DefenderType>()
+        val activeAttackers = attackers.filter { !it.isDefeated.value && !it.isBuildingBridge.value }
+        
+        defenders.forEach { defender ->
+            if (!defender.isReady || defender.actionsRemaining.value <= 0 || defender.isDisabled.value) {
+                return@forEach
+            }
+            
+            when {
+                // Dwarven mines with digging actions
+                defender.type == DefenderType.DWARVEN_MINE -> {
+                    typesWithActions.add(DefenderType.DWARVEN_MINE)
+                }
+                // Alchemy towers with lasting attacks only when no enemies in range
+                // (if enemies are in range, they will auto-attack like normal towers)
+                defender.type == DefenderType.ALCHEMY_TOWER -> {
+                    val hasEnemiesInRange = activeAttackers.any { attacker -> defender.canAttack(attacker) }
+                    if (!hasEnemiesInRange) {
+                        typesWithActions.add(DefenderType.ALCHEMY_TOWER)
+                    }
+                }
+                // Wizard towers (level 10+) with magical trap available
+                defender.type == DefenderType.WIZARD_TOWER && defender.level.value >= 10 -> {
+                    if (defender.trapCooldownRemaining.value == 0) {
+                        typesWithActions.add(DefenderType.WIZARD_TOWER)
+                    }
+                }
+            }
+        }
+        
+        return typesWithActions.toList()
+    }
 }

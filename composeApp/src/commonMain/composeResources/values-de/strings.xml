@@ -10,6 +10,12 @@
     <string name="exit_game_confirm_message">Möchten Sie das Spiel wirklich beenden?</string>
     <string name="exit">Beenden</string>
 
+    <!-- Commit Info Dialog -->
+    <string name="commit_info_title">Build-Informationen</string>
+    <string name="commit_hash_label">Commit-Hash:</string>
+    <string name="commit_date_label">Commit-Datum:</string>
+    <string name="commit_message_label">Commit-Nachricht:</string>
+
     <!-- Level Complete Screen -->
     <string name="victory">Sieg!</string>
     <string name="battle_won">Schlacht gewonnen!</string>
@@ -35,6 +41,13 @@
     <string name="tile_background_images">Kachel-Hintergrundbilder</string>
     <string name="tile_background_images_on">Kachelbilder An</string>
     <string name="tile_background_images_off">Farbhintergründe</string>
+    <string name="tile_smooth_transitions">Weiche Kachel-Übergänge</string>
+    <string name="tile_smooth_transitions_on">Weiche Übergänge An</string>
+    <string name="tile_smooth_transitions_off">Scharfe Kanten</string>
+    <string name="header_text_size">Level-Header-Textgröße</string>
+    <string name="header_text_size_small">Klein</string>
+    <string name="header_text_size_medium">Mittel</string>
+    <string name="header_text_size_large">Groß</string>
     <string name="reset_settings">Einstellungen zurücksetzen</string>
     <string name="restore_game_data">Spieldaten wiederherstellen</string>
     <string name="restore_game_data_confirm_title">Spieldaten wiederherstellen?</string>
@@ -62,6 +75,7 @@
     <string name="level">Stufe</string>
     <string name="upgrade">Aufwerten</string>
     <string name="sell">Verkaufen</string>
+    <string name="selected">Ausgewählt</string>
     <string name="attack">Angriff</string>
     <string name="end_turn">Runde beenden</string>
     <string name="next_turn">Nächste Runde</string>
@@ -618,6 +632,14 @@
     <string name="end_turn_confirmation_title">Runde beenden?</string>
     <string name="end_turn_confirmation_message">Sie haben Türme mit ungenutzten Aktionspunkten und Feinden in Reichweite, oder Minen mit ungenutzten Aktionen. Möchten Sie Ihre Runde wirklich beenden?</string>
     <string name="end_turn_confirm">Runde beenden</string>
+    <string name="auto_attack_and_end_turn">Auto-Angriff und Runde beenden</string>
+    <string name="auto_attack_warning">Hinweis: Nach Abschluss des Auto-Angriffs können Sie Minen oder Türme mit Fallenfähigkeiten oder dauerhaften Angriffen nutzen, wenn diese noch Aktionspunkte haben, bevor die Runde endet.</string>
+    <string name="special_actions_remaining_title">Spezialaktionen verfügbar</string>
+    <string name="special_actions_remaining_message">Auto-Angriff abgeschlossen, aber folgende Türme haben noch Aktionen, die nicht effektiv automatisiert werden können:</string>
+    <string name="dwarven_mine_actions">Minen: Können graben oder Fallen bauen</string>
+    <string name="alchemy_tower_actions">Alchemie-Türme: Dauerhafte Angriffe profitieren von manueller Zielauswahl</string>
+    <string name="wizard_tower_actions">Zauber-Türme: Können magische Fallen platzieren (Stufe 10+)</string>
+    <string name="continue_turn">Runde fortsetzen</string>
     
     <!-- Magical Trap Feature -->
     <string name="magical_trap">Magische Falle</string>
@@ -867,6 +889,9 @@
     <string name="level_status_unknown">Unbekannt</string>
     <string name="show_testing_levels">Test-Level anzeigen</string>
     <string name="test_level">Test-Level</string>
+    <string name="allow_auto_attack">Auto-Angriff erlauben</string>
+    <string name="auto_attack_info_title">Auto-Angriff-Funktion</string>
+    <string name="auto_attack_info_message">Sie können nun die Auto-Angriff-Funktion verwenden. Wenn Sie "Zug beenden" wählen und noch verwendbare Aktionspunkte übrig sind, bietet der Dialog die Option "Auto-Angriff und Zug beenden". Dann greifen Türme mit verbleibenden Aktionspunkten automatisch Feinde an. Greift Feinde nach Priorität an (zuerst Bosse, dann spezielle Feinde). Wenn noch Aktionen übrig sind (Minen, Fallen, Säureangriffe ohne Feind in Reichweite), erhalten Sie eine Nachricht, welche Art von Aktion noch verwendbar ist, andernfalls endet der Zug.</string>
 
     <!-- Platform Information Dialog -->
     <string name="platform_information_title">Plattforminformationen</string>

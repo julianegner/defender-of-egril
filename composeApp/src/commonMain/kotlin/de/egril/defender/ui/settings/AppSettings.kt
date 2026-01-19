@@ -25,6 +25,19 @@ enum class DifficultyLevel {
 }
 
 /**
+ * Level header text size options
+ */
+enum class HeaderTextSize {
+    SMALL,
+    MEDIUM,
+    LARGE;
+    
+    companion object {
+        val DEFAULT = SMALL
+    }
+}
+
+/**
  * Manages application settings using multiplatform-settings library
  * Persists dark mode preference, language selection, sound settings, control pad visibility, difficulty level, and world map style
  */
@@ -47,7 +60,9 @@ object AppSettings {
     private const val KEY_USE_LEVEL_CARDS = "use_level_cards"
     private const val KEY_SETTINGS_HINT_SHOWN = "settings_hint_shown"
     private const val KEY_USE_TILE_IMAGES = "use_tile_images"
+    private const val KEY_USE_TILE_SMOOTH_TRANSITIONS = "use_tile_smooth_transitions"
     private const val KEY_SHOW_TESTING_LEVELS = "show_testing_levels"
+    private const val KEY_HEADER_TEXT_SIZE = "header_text_size"
     
     private val settings: Settings = Settings()
     
@@ -154,11 +169,32 @@ object AppSettings {
     )
     
     /**
+     * Use tile smooth transitions - blend adjacent tiles for smoother visual transitions
+     * Only applies when useTileImages is true
+     * Default is true (smooth transitions ON)
+     */
+    val useTileSmoothTransitions: MutableState<Boolean> = mutableStateOf(
+        settings.getBoolean(KEY_USE_TILE_SMOOTH_TRANSITIONS, true)
+    )
+    
+    /**
      * Show testing levels - show levels marked as testing only on world map
      * Default is false (testing levels hidden)
      */
     val showTestingLevels: MutableState<Boolean> = mutableStateOf(
         settings.getBoolean(KEY_SHOW_TESTING_LEVELS, false)
+    )
+    
+    /**
+     * Level header text size - controls the size of text and icons in the game header
+     * Default is SMALL (current size)
+     */
+    val headerTextSize: MutableState<HeaderTextSize> = mutableStateOf(
+        try {
+            HeaderTextSize.valueOf(settings[KEY_HEADER_TEXT_SIZE, HeaderTextSize.DEFAULT.name])
+        } catch (e: Exception) {
+            HeaderTextSize.DEFAULT
+        }
     )
     
     /**
@@ -360,11 +396,28 @@ object AppSettings {
     }
     
     /**
+     * Save tile smooth transitions preference
+     * Note: The value is saved regardless of useTileImages state, but only used when useTileImages is true
+     */
+    fun saveUseTileSmoothTransitions(useTransitions: Boolean) {
+        useTileSmoothTransitions.value = useTransitions
+        settings.putBoolean(KEY_USE_TILE_SMOOTH_TRANSITIONS, useTransitions)
+    }
+    
+    /**
      * Save show testing levels preference
      */
     fun saveShowTestingLevels(show: Boolean) {
         showTestingLevels.value = show
         settings.putBoolean(KEY_SHOW_TESTING_LEVELS, show)
+    }
+    
+    /**
+     * Save level header text size preference
+     */
+    fun saveHeaderTextSize(size: HeaderTextSize) {
+        headerTextSize.value = size
+        settings[KEY_HEADER_TEXT_SIZE] = size.name
     }
     
     /**
@@ -401,8 +454,14 @@ object AppSettings {
         // Reset tile images to ON
         saveUseTileImages(true)
         
+        // Reset tile smooth transitions to ON
+        saveUseTileSmoothTransitions(true)
+        
         // Reset show testing levels to OFF
         saveShowTestingLevels(false)
+        
+        // Reset header text size to default (SMALL)
+        saveHeaderTextSize(HeaderTextSize.DEFAULT)
         
         // Note: Don't reset settings hint shown state when resetting settings
         // as user has already seen it once

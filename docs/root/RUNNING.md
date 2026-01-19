@@ -39,6 +39,12 @@ gradlew.bat :composeApp:run
 
 ## Building a Distributable Package
 
+### Windows (EXE Installer)
+```bash
+./gradlew :composeApp:packageExe
+```
+The installer will be created in `composeApp/build/compose/binaries/main/exe/`
+
 ### Windows (MSI Installer)
 ```bash
 ./gradlew :composeApp:packageMsi
