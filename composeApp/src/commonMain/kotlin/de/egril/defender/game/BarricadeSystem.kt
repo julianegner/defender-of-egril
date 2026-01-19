@@ -27,6 +27,11 @@ class BarricadeSystem(private val state: GameState) {
     }
     
     /**
+     * Get the range for barricade placement (3 tiles)
+     */
+    fun getBarricadeRange(): Int = 3
+    
+    /**
      * Build a new barricade or reinforce an existing one.
      * Returns true if successful.
      */
@@ -39,11 +44,17 @@ class BarricadeSystem(private val state: GameState) {
         // Check if tower has actions remaining
         if (!tower.isReady || tower.actionsRemaining.value <= 0) return false
         
-        // Check if position is valid (on path, adjacent to tower)
+        // Check if position is valid (empty path tile within range)
         if (!state.level.isOnPath(barricadePosition)) return false
         
+        // Check if position is within 3 tiles range
         val distance = tower.position.value.distanceTo(barricadePosition)
-        if (distance != 1) return false  // Must be adjacent
+        if (distance > getBarricadeRange()) return false
+        
+        // Check if position is empty (no attacker, no defender, no existing barricade without reinforcement)
+        val hasAttacker = state.attackers.any { !it.isDefeated.value && it.position.value == barricadePosition }
+        val hasDefender = state.defenders.any { it.position.value == barricadePosition }
+        if (hasAttacker || hasDefender) return false
         
         // Calculate HP to add
         val hpToAdd = calculateBarricadeHP(tower)

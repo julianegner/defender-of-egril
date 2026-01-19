@@ -34,6 +34,8 @@ fun GamePlayScreen(
     onMineDig: ((Int) -> DigOutcome?)? = null,  // Add mine dig callback
     onMineBuildTrap: ((Int, Position) -> Boolean)? = null,  // Add mine build trap callback
     onWizardPlaceMagicalTrap: ((Int, Position) -> Boolean)? = null,  // Add wizard magical trap callback
+    onBuildBarricade: ((Int, Position) -> Boolean)? = null,  // Add barricade building callback
+    onRemoveBarricade: ((Position) -> Boolean)? = null,  // Add barricade removal callback
     cheatDigOutcome: DigOutcome? = null,  // Dig outcome from cheat code
     onClearCheatDigOutcome: (() -> Unit)? = null,  // Callback to clear cheat dig outcome
     showPlatformInfo: Boolean = false,  // Show platform info from cheat code
@@ -59,6 +61,8 @@ fun GamePlayScreen(
         onMineDig = onMineDig,
         onMineBuildTrap = onMineBuildTrap,
         onWizardPlaceMagicalTrap = onWizardPlaceMagicalTrap,
+        onBuildBarricade = onBuildBarricade,
+        onRemoveBarricade = onRemoveBarricade,
         cheatDigOutcome = cheatDigOutcome,
         onClearCheatDigOutcome = onClearCheatDigOutcome,
         showPlatformInfo = showPlatformInfo,
@@ -87,6 +91,8 @@ private fun GamePlayScreenContent(
     onMineDig: ((Int) -> DigOutcome?)? = null,
     onMineBuildTrap: ((Int, Position) -> Boolean)? = null,
     onWizardPlaceMagicalTrap: ((Int, Position) -> Boolean)? = null,  // Add wizard magical trap callback
+    onBuildBarricade: ((Int, Position) -> Boolean)? = null,  // Add barricade building callback
+    onRemoveBarricade: ((Position) -> Boolean)? = null,  // Add barricade removal callback
     cheatDigOutcome: DigOutcome? = null,  // Dig outcome from cheat code
     onClearCheatDigOutcome: (() -> Unit)? = null,  // Callback to clear cheat dig outcome
     showPlatformInfo: Boolean = false,  // Show platform info from cheat code
@@ -106,6 +112,7 @@ private fun GamePlayScreenContent(
     var showMineActionDialog by remember { mutableStateOf(false) }
     var selectedMineAction by remember { mutableStateOf<MineAction?>(null) }
     var selectedWizardAction by remember { mutableStateOf<WizardAction?>(null) }  // For wizard magical trap placement
+    var selectedBarricadeAction by remember { mutableStateOf<BarricadeAction?>(null) }  // For spike/spear tower barricade placement
     var currentDigOutcome by remember { mutableStateOf<DigOutcome?>(null) }
     var currentDragonName by remember { mutableStateOf<String?>(null) }  // Track dragon name for dig outcome
     var showDigOutcomeDialog by remember { mutableStateOf(false) }
@@ -403,6 +410,7 @@ private fun GamePlayScreenContent(
                 selectedTargetPosition = selectedTargetPosition,
                 selectedMineAction = selectedMineAction,
                 selectedWizardAction = selectedWizardAction,
+                selectedBarricadeAction = selectedBarricadeAction,
                 onCellClick = { position ->
                     // Try to place defender if one is selected
                     selectedDefenderType?.let { type ->
@@ -451,6 +459,13 @@ private fun GamePlayScreenContent(
                             return@GameGrid
                         }
                     }
+                    
+                    // Check if there's a barricade at this position - allow removal
+                    val barricade = gameState.barricades.find { it.position == position }
+                    if (barricade != null && selectedDefenderId == null && selectedAttackerId == null) {
+                        onRemoveBarricade?.invoke(position)
+                        return@GameGrid
+                    }
 
                     // Handle targeting for selected defender
                     if (selectedDefenderId != null) {
@@ -483,6 +498,26 @@ private fun GamePlayScreenContent(
                                     !hasTrap) {
                                     if (onWizardPlaceMagicalTrap?.invoke(selectedDefender.id, position) == true) {
                                         selectedWizardAction = null
+                                    }
+                                }
+                                return@GameGrid
+                            }
+                            
+                            // Handle barricade placement for spike/spear towers (level 10+)
+                            if ((selectedDefender.type == DefenderType.SPIKE_TOWER || 
+                                 selectedDefender.type == DefenderType.SPEAR_TOWER) && 
+                                selectedDefender.level.value >= 10 && 
+                                selectedBarricadeAction == BarricadeAction.BUILD_BARRICADE) {
+                                // Check if position is on path, within range (3 tiles), and empty
+                                val distance = selectedDefender.position.value.distanceTo(position)
+                                val hasDefender = gameState.defenders.any { it.position.value == position }
+                                val hasEnemy = gameState.attackers.any { it.position.value == position && !it.isDefeated.value }
+                                if (gameState.level.isOnPath(position) && 
+                                    distance <= 3 && 
+                                    !hasDefender && 
+                                    !hasEnemy) {
+                                    if (onBuildBarricade?.invoke(selectedDefender.id, position) == true) {
+                                        selectedBarricadeAction = null
                                     }
                                 }
                                 return@GameGrid
