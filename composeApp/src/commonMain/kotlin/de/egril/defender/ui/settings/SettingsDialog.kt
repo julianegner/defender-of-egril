@@ -155,6 +155,19 @@ fun SettingsDialog(
                         modifier = Modifier.fillMaxWidth()
                     )
                     
+                    // Tile smooth transitions switch (only visible when tile images are on)
+                    if (AppSettings.useTileImages.value) {
+                        DualLabelSwitch(
+                            state = AppSettings.useTileSmoothTransitions,
+                            leftText = stringResource(Res.string.tile_smooth_transitions_off),
+                            rightText = stringResource(Res.string.tile_smooth_transitions_on),
+                            onCheckedChange = { enabled ->
+                                AppSettings.saveUseTileSmoothTransitions(enabled)
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                    
                     // Show testing levels switch
                     GenericSwitch(
                         state = AppSettings.showTestingLevels,

@@ -41,6 +41,9 @@
     <string name="tile_background_images">Immagini di Sfondo delle Tessere</string>
     <string name="tile_background_images_on">Immagini delle Tessere Attive</string>
     <string name="tile_background_images_off">Sfondi a Colori</string>
+    <string name="tile_smooth_transitions">Transizioni Morbide delle Tessere</string>
+    <string name="tile_smooth_transitions_on">Transizioni Morbide Attive</string>
+    <string name="tile_smooth_transitions_off">Bordi Netti</string>
     <string name="header_text_size">Dimensione del Testo dell'Intestazione del Livello</string>
     <string name="header_text_size_small">Piccolo</string>
     <string name="header_text_size_medium">Medio</string>

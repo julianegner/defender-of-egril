@@ -41,6 +41,9 @@
     <string name="tile_background_images">Kachel-Hintergrundbilder</string>
     <string name="tile_background_images_on">Kachelbilder An</string>
     <string name="tile_background_images_off">Farbhintergründe</string>
+    <string name="tile_smooth_transitions">Weiche Kachel-Übergänge</string>
+    <string name="tile_smooth_transitions_on">Weiche Übergänge An</string>
+    <string name="tile_smooth_transitions_off">Scharfe Kanten</string>
     <string name="header_text_size">Level-Header-Textgröße</string>
     <string name="header_text_size_small">Klein</string>
     <string name="header_text_size_medium">Mittel</string>
