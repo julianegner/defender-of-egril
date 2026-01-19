@@ -20,6 +20,7 @@ class GameEngine(private val state: GameState) {
     private val enemyAbilities = EnemyAbilitySystem(state)
     private val mineOperations = MineOperations(state)
     private val raftSystem = RaftSystem(state)
+    private val barricadeSystem = BarricadeSystem(state)  // Add barricade system
     
     // Tower Management - delegated to TowerManager
     fun placeDefender(type: DefenderType, position: Position): Boolean =
@@ -53,6 +54,13 @@ class GameEngine(private val state: GameState) {
     
     fun performWizardPlaceMagicalTrap(wizardId: Int, trapPosition: Position): Boolean =
         mineOperations.performWizardPlaceMagicalTrap(wizardId, trapPosition)
+    
+    // Barricade Operations - delegated to BarricadeSystem
+    fun performBuildBarricade(towerId: Int, barricadePosition: Position): Boolean =
+        barricadeSystem.performBuildBarricade(towerId, barricadePosition)
+    
+    fun removeBarricade(position: Position): Boolean =
+        barricadeSystem.removeBarricade(position)
 
     fun autoDefenderAttacks() {
         if (state.phase.value != GamePhase.PLAYER_TURN) return
@@ -652,6 +660,33 @@ class GameEngine(private val state: GameState) {
     fun applyMovement(attackerId: Int, newPosition: Position) {
         val attacker = state.attackers.find { it.id == attackerId } ?: return
         if (attacker.isDefeated.value) return
+        
+        // Check for barricades adjacent to the new position BEFORE moving
+        // If there's a barricade, attack it instead of moving
+        val adjacentBarricade = barricadeSystem.checkEnemyAdjacentToBarricade(newPosition)
+        if (adjacentBarricade != null) {
+            // Enemy attacks the barricade
+            val barricadeDestroyedPosition = barricadeSystem.handleEnemyAttackBarricade(attacker, adjacentBarricade)
+            if (barricadeDestroyedPosition != null) {
+                // Barricade was destroyed, enemy moves to barricade position
+                attacker.position.value = barricadeDestroyedPosition
+                
+                // Check waypoint and target after moving to barricade position
+                if (state.level.isWaypoint(barricadeDestroyedPosition) && attacker.currentTarget?.value == barricadeDestroyedPosition) {
+                    val waypoint = state.level.getWaypointAt(barricadeDestroyedPosition)
+                    if (waypoint != null) {
+                        attacker.currentTarget.value = waypoint.nextTarget
+                    }
+                }
+                
+                // Check if reached target
+                if (state.level.isTargetPosition(barricadeDestroyedPosition)) {
+                    applyTargetDamage(attacker)
+                }
+            }
+            // If barricade not destroyed, enemy doesn't move (stays at current position)
+            return
+        }
         
         // Special handling for dragons - they can eat other units
         if (attacker.type.isDragon) {

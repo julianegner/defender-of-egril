@@ -56,6 +56,7 @@ data class GameState(
     val fieldEffects: SnapshotStateList<FieldEffect> = mutableStateListOf(), // Track active field effects
     val healingEffects: SnapshotStateList<HealingEffect> = mutableStateListOf(), // Track active healing effects
     val traps: SnapshotStateList<Trap> = mutableStateListOf(),  // Track active traps
+    val barricades: SnapshotStateList<Barricade> = mutableStateListOf(),  // Track active barricades
     val bridges: SnapshotStateList<Bridge> = mutableStateListOf(),  // Track active bridges
     val rafts: SnapshotStateList<Raft> = mutableStateListOf(),  // Track active rafts (towers on rivers)
     val difficulty: DifficultyLevel = DifficultyLevel.MEDIUM,  // Track difficulty for this game session
