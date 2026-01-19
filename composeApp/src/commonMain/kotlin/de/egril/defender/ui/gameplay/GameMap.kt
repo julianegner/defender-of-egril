@@ -377,14 +377,15 @@ fun GridCell(
     val isHoveringForTrapPreview = hoveredPosition == position
     val isTrapPlacementMode = selectedMineAction == MineAction.BUILD_TRAP || selectedWizardAction == WizardAction.PLACE_MAGICAL_TRAP
     
-    // Check if this tile is valid for trap placement (on path, in range, no enemy, no existing trap)
+    // Check if this tile is valid for trap placement (on path, in range, no enemy, no existing trap, no field effects)
     val isValidTrapPlacement = if (isTrapPlacementMode && isHoveringForTrapPreview && selectedDefenderId != null) {
         val selectedDefender = gameState.defenders.find { it.id == selectedDefenderId }
         selectedDefender?.let { sel ->
             val distance = sel.position.value.distanceTo(position)
             val hasEnemy = attacker != null
             val hasTrap = trap != null
-            isOnPath && distance <= sel.range && !hasEnemy && !hasTrap
+            val hasFieldEffect = fieldEffect != null
+            isOnPath && distance <= sel.range && !hasEnemy && !hasTrap && !hasFieldEffect
         } ?: false
     } else {
         false

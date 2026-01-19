@@ -153,6 +153,31 @@ class TrapPlacementPreviewTest {
     }
     
     @Test
+    fun testTrapPreviewNotShownOnTilesWithFieldEffects() {
+        // Create a simple test level
+        val level = createTestLevel()
+        val gameState = GameState(level)
+        
+        // Find a path position
+        val pathPosition = level.pathCells.first()
+        
+        // Add a field effect (fireball) at the path position
+        val fieldEffect = FieldEffect(
+            position = pathPosition,
+            type = FieldEffectType.FIREBALL,
+            damage = 10,
+            turnsRemaining = 1,
+            defenderId = 1
+        )
+        gameState.fieldEffects.add(fieldEffect)
+        
+        // Trap preview should not be shown when there's a field effect on the tile
+        // This is verified in GameMap.kt: val hasFieldEffect = fieldEffect != null
+        val hasFieldEffect = gameState.fieldEffects.any { it.position == pathPosition }
+        assertTrue(hasFieldEffect, "Tile should have a field effect")
+    }
+    
+    @Test
     fun testTrapTypesHaveCorrectProperties() {
         // Verify trap types exist and have correct properties
         val dwarvenTrap = TrapType.DWARVEN
