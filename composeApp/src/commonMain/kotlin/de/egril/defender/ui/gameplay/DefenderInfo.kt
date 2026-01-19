@@ -185,33 +185,20 @@ fun DefenderInfo(
                     } else {
 
                         // Normal tower stats and buttons
-                        val baseDamage =
-                            if (defender.type == DefenderType.DWARVEN_MINE) defender.trapDamage else defender.damage
-                        val nextLevelDamage = baseDamage + 5
-                        val nextActualDamage = when (defender.type.attackType) {
-                            AttackType.LASTING -> nextLevelDamage / 2
-                            else -> nextLevelDamage
-                        }
-                        val nextLevel = defender.level.value + 1
-                        val nextRangeCalculated = defender.type.baseRange + (nextLevel - 1) / 2
-                        val nextRange = if (defender.type == DefenderType.SPIKE_TOWER && nextLevel >= 5) {
-                            minOf(nextRangeCalculated, 2)
-                        } else if (defender.type == DefenderType.DWARVEN_MINE) {
-                            val mineReach = 3 + (nextLevel / 5)
-                            minOf(mineReach, 10)
+                        // Calculate next level stats by temporarily setting the level
+                        val currentLevel = defender.level.value
+                        val nextLevel = currentLevel + 1
+                        defender.level.value = nextLevel
+                        val nextActualDamage = if (defender.type == DefenderType.DWARVEN_MINE) {
+                            defender.trapDamage
                         } else {
-                            nextRangeCalculated
+                            defender.actualDamage
                         }
-                        val nextActions =
-                            if (defender.type == DefenderType.SPIKE_TOWER) {
-                                val bonusActions = nextLevel / 5
-                                minOf(defender.type.actionsPerTurn + bonusActions, 3)
-                            } else if (defender.type == DefenderType.DWARVEN_MINE) {
-                                1 + (nextLevel / 5)
-                            } else {
-                                defender.type.actionsPerTurn
-                            }
-                            // Current stats column
+                        val nextRange = defender.range
+                        val nextActions = defender.actionsPerTurnCalculated
+                        defender.level.value = currentLevel
+                        
+                        // Current stats column
                             Column(modifier = Modifier.weight(0.5f)) {
                                 Text(
                                     "Lvl ${defender.level.value}",
