@@ -28,6 +28,18 @@ fun CompactDefenderButton(
     onClick: () -> Unit
 ) {
     val isDarkMode = de.egril.defender.ui.settings.AppSettings.isDarkMode.value
+    val locale = com.hyperether.resources.currentLanguage.value
+    
+    // Create accessible content description
+    val towerName = type.getLocalizedShortName(locale)
+    val description = "$towerName, ${stringResource(Res.string.coins_label)}: ${type.baseCost}" +
+        if (isSelected) ", ${stringResource(Res.string.selected)}" else ""
+    
+    // Apply Android TV modifiers for accessibility and focus
+    val buttonModifier = modifier.androidTVModifier(
+        isSelected = isSelected,
+        description = description
+    )
     
     Button(
         onClick = onClick,
@@ -38,7 +50,7 @@ fun CompactDefenderButton(
             disabledContainerColor = GamePlayColors.DisabledButton,
             disabledContentColor = GamePlayColors.DisabledButtonText
         ),
-        modifier = modifier,
+        modifier = buttonModifier,
         contentPadding = PaddingValues(4.dp)
     ) {
         Row(
@@ -93,8 +105,27 @@ fun DefenderButton(
     onClick: () -> Unit
 ) {
     val isDarkMode = de.egril.defender.ui.settings.AppSettings.isDarkMode.value
+    val locale = com.hyperether.resources.currentLanguage.value
     // Recalculate canAfford based on current coins.value to ensure reactivity
     val actuallyCanAfford = coinsState.value >= type.baseCost
+
+    // Create accessible content description
+    val towerName = type.getLocalizedName(locale)
+    val attackTypeName = type.attackType.getLocalizedName(locale)
+    val description = "$towerName, $attackTypeName, " +
+        "${stringResource(Res.string.damage)}: ${type.baseDamage}, " +
+        "${stringResource(Res.string.range)}: ${type.baseRange}, " +
+        "${stringResource(Res.string.coins_label)}: ${type.baseCost}" +
+        if (isSelected) ", ${stringResource(Res.string.selected)}" else ""
+
+    // Apply Android TV modifiers for accessibility and focus
+    val buttonModifier = Modifier
+        .fillMaxWidth()
+        .height(70.dp)
+        .androidTVModifier(
+            isSelected = isSelected,
+            description = description
+        )
 
     Button(
         onClick = onClick,
@@ -105,7 +136,7 @@ fun DefenderButton(
             disabledContainerColor = GamePlayColors.DisabledButton,
             disabledContentColor = GamePlayColors.DisabledButtonText
         ),
-        modifier = Modifier.fillMaxWidth().height(70.dp),
+        modifier = buttonModifier,
         contentPadding = PaddingValues(2.dp)
     ) {
         Row(

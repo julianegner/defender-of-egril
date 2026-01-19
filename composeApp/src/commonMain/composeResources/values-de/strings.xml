@@ -75,6 +75,7 @@
     <string name="level">Stufe</string>
     <string name="upgrade">Aufwerten</string>
     <string name="sell">Verkaufen</string>
+    <string name="selected">Ausgewählt</string>
     <string name="attack">Angriff</string>
     <string name="end_turn">Runde beenden</string>
     <string name="next_turn">Nächste Runde</string>
