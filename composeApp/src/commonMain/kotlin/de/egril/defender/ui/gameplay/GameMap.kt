@@ -521,7 +521,8 @@ fun GridCell(
     
     // Determine if we should use gradient blending
     val useTileImages = de.egril.defender.ui.settings.AppSettings.useTileImages.value
-    val shouldUseGradientBlending = useTileImages && tilePainter != null
+    val useTileSmoothTransitions = de.egril.defender.ui.settings.AppSettings.useTileSmoothTransitions.value
+    val shouldUseGradientBlending = useTileImages && useTileSmoothTransitions && tilePainter != null
     
     // Helper function to get tile type for a position
     val getNeighborTileType: (Position) -> de.egril.defender.editor.TileType? = { pos ->
