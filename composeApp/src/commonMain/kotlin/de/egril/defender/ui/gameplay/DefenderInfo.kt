@@ -196,13 +196,18 @@ fun DefenderInfo(
                         val nextRangeCalculated = defender.type.baseRange + (nextLevel - 1) / 2
                         val nextRange = if (defender.type == DefenderType.SPIKE_TOWER && nextLevel >= 5) {
                             minOf(nextRangeCalculated, 2)
+                        } else if (defender.type == DefenderType.DWARVEN_MINE) {
+                            val mineReach = 3 + (nextLevel / 5)
+                            minOf(mineReach, 10)
                         } else {
                             nextRangeCalculated
                         }
                         val nextActions =
-                            if (defender.type == DefenderType.SPIKE_TOWER || defender.type == DefenderType.DWARVEN_MINE) {
+                            if (defender.type == DefenderType.SPIKE_TOWER) {
                                 val bonusActions = nextLevel / 5
-                                minOf(1 + bonusActions, 3)
+                                minOf(defender.type.actionsPerTurn + bonusActions, 3)
+                            } else if (defender.type == DefenderType.DWARVEN_MINE) {
+                                1 + (nextLevel / 5)
                             } else {
                                 defender.type.actionsPerTurn
                             }
