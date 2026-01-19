@@ -639,7 +639,16 @@
     <string name="dwarven_mine_actions">Minen: Können graben oder Fallen bauen</string>
     <string name="alchemy_tower_actions">Alchemie-Türme: Dauerhafte Angriffe profitieren von manueller Zielauswahl</string>
     <string name="wizard_tower_actions">Zauber-Türme: Können magische Fallen platzieren (Stufe 10+)</string>
+    <string name="spike_spear_tower_actions">Pike-/Speertürme: Können Barrikaden bauen (Stufe 10+)</string>
     <string name="continue_turn">Runde fortsetzen</string>
+    
+    <!-- Barricade Feature -->
+    <string name="barricade">Barrikade</string>
+    <string name="barricade_hp">Barrikaden-LP: %d</string>
+    <string name="build_barricade">Barrikade bauen</string>
+    <string name="remove_barricade">Barrikade entfernen</string>
+    <string name="barricade_info_title">Barrikaden-Fähigkeit freigeschaltet!</string>
+    <string name="barricade_info_message">Ihr Pike- oder Speerturm hat Stufe 10 erreicht und kann jetzt Barrikaden bauen! Barrikaden sind Holzkonstruktionen auf angrenzenden Pfadfeldern, die Feindbewegungen blockieren. Jede Barrikade hat Lebenspunkte gleich der Turmstufe minus 10 (mindestens 1). Wenn Feinde eine Barrikade erreichen, greifen sie mit Schaden gleich ihrer Stufe an (Drachen verursachen das 5-fache ihrer Stufe). Wird eine Barrikade zerstört, bewegt sich der Feind auf dieses Feld. Sie können neue Barrikaden bauen oder bestehende verstärken und auf Barrikaden klicken, um sie zu entfernen.</string>
     
     <!-- Magical Trap Feature -->
     <string name="magical_trap">Magische Falle</string>

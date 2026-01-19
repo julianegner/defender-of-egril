@@ -639,7 +639,16 @@
     <string name="dwarven_mine_actions">Miniere: Possono scavare o costruire trappole</string>
     <string name="alchemy_tower_actions">Torri di Alchimia: Gli attacchi durevoli beneficiano del puntamento manuale</string>
     <string name="wizard_tower_actions">Torri del Mago: Possono piazzare trappole magiche (livello 10+)</string>
+    <string name="spike_spear_tower_actions">Torri di Picche/Lance: Possono costruire barricate (livello 10+)</string>
     <string name="continue_turn">Continua Turno</string>
+    
+    <!-- Barricade Feature -->
+    <string name="barricade">Barricata</string>
+    <string name="barricade_hp">PV barricata: %d</string>
+    <string name="build_barricade">Costruisci barricata</string>
+    <string name="remove_barricade">Rimuovi barricata</string>
+    <string name="barricade_info_title">Abilità barricata sbloccata!</string>
+    <string name="barricade_info_message">La tua torre di Picche o Lance ha raggiunto il livello 10 e ora può costruire barricate! Le barricate sono strutture di legno posizionate su caselle di percorso adiacenti che bloccano il movimento nemico. Ogni barricata ha punti vita pari al livello della torre meno 10 (minimo 1). Quando i nemici raggiungono una barricata, la attaccano con danno pari al loro livello (i draghi infliggono 5× il loro livello). Se una barricata viene distrutta, il nemico si sposta su quella casella. Puoi costruire nuove barricate o rinforzare quelle esistenti e fare clic sulle barricate per rimuoverle.</string>
     
     <!-- Magical Trap Feature -->
     <string name="magical_trap">Trappola Magica</string>

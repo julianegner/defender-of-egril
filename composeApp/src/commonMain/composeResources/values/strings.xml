@@ -640,7 +640,16 @@
     <string name="dwarven_mine_actions">Mines: Can dig for coins or build traps</string>
     <string name="alchemy_tower_actions">Alchemy Towers: Lasting attacks benefit from manual targeting</string>
     <string name="wizard_tower_actions">Wizard Towers: Can place magical traps (level 10+)</string>
+    <string name="spike_spear_tower_actions">Spike/Spear Towers: Can build barricades (level 10+)</string>
     <string name="continue_turn">Continue Turn</string>
+    
+    <!-- Barricade Feature -->
+    <string name="barricade">Barricade</string>
+    <string name="barricade_hp">Barricade HP: %d</string>
+    <string name="build_barricade">Build Barricade</string>
+    <string name="remove_barricade">Remove Barricade</string>
+    <string name="barricade_info_title">Barricade Ability Unlocked!</string>
+    <string name="barricade_info_message">Your Spike or Spear tower has reached level 10 and can now build barricades! Barricades are wooden structures placed on adjacent path tiles that block enemy movement. Each barricade has health points equal to the tower level minus 10 (minimum 1). When enemies reach a barricade, they attack it with damage equal to their level (dragons deal 5× their level). If a barricade is destroyed, the enemy moves to that tile. You can build new barricades or reinforce existing ones, and click on barricades to remove them.</string>
     
     <!-- Magical Trap Feature -->
     <string name="magical_trap">Magical Trap</string>
