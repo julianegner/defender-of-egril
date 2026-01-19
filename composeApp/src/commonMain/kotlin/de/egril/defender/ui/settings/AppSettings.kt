@@ -60,6 +60,7 @@ object AppSettings {
     private const val KEY_USE_LEVEL_CARDS = "use_level_cards"
     private const val KEY_SETTINGS_HINT_SHOWN = "settings_hint_shown"
     private const val KEY_USE_TILE_IMAGES = "use_tile_images"
+    private const val KEY_USE_TILE_SMOOTH_TRANSITIONS = "use_tile_smooth_transitions"
     private const val KEY_SHOW_TESTING_LEVELS = "show_testing_levels"
     private const val KEY_HEADER_TEXT_SIZE = "header_text_size"
     
@@ -165,6 +166,15 @@ object AppSettings {
      */
     val useTileImages: MutableState<Boolean> = mutableStateOf(
         settings.getBoolean(KEY_USE_TILE_IMAGES, true)
+    )
+    
+    /**
+     * Use tile smooth transitions - blend adjacent tiles for smoother visual transitions
+     * Only applies when useTileImages is true
+     * Default is true (smooth transitions ON)
+     */
+    val useTileSmoothTransitions: MutableState<Boolean> = mutableStateOf(
+        settings.getBoolean(KEY_USE_TILE_SMOOTH_TRANSITIONS, true)
     )
     
     /**
@@ -386,6 +396,15 @@ object AppSettings {
     }
     
     /**
+     * Save tile smooth transitions preference
+     * Note: The value is saved regardless of useTileImages state, but only used when useTileImages is true
+     */
+    fun saveUseTileSmoothTransitions(useTransitions: Boolean) {
+        useTileSmoothTransitions.value = useTransitions
+        settings.putBoolean(KEY_USE_TILE_SMOOTH_TRANSITIONS, useTransitions)
+    }
+    
+    /**
      * Save show testing levels preference
      */
     fun saveShowTestingLevels(show: Boolean) {
@@ -434,6 +453,9 @@ object AppSettings {
         
         // Reset tile images to ON
         saveUseTileImages(true)
+        
+        // Reset tile smooth transitions to ON
+        saveUseTileSmoothTransitions(true)
         
         // Reset show testing levels to OFF
         saveShowTestingLevels(false)
