@@ -75,6 +75,7 @@
     <string name="level">Niveau</string>
     <string name="upgrade">Améliorer</string>
     <string name="sell">Vendre</string>
+    <string name="selected">Sélectionné</string>
     <string name="attack">Attaque</string>
     <string name="end_turn">Terminer le tour</string>
     <string name="next_turn">Tour suivant</string>
