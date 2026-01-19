@@ -37,6 +37,7 @@ class GamePlayScreenTest {
                 onDefenderAttack = { _, _ -> true },
                 onDefenderAttackPosition = { _, _ -> true },
                 onEndPlayerTurn = {},
+                onAutoAttackAndEndTurn = {},
                 onBackToMap = {}
             )
         }
@@ -76,6 +77,7 @@ class GamePlayScreenTest {
                 onDefenderAttack = { _, _ -> true },
                 onDefenderAttackPosition = { _, _ -> true },
                 onEndPlayerTurn = {},
+                onAutoAttackAndEndTurn = {},
                 onBackToMap = {}
             )
         }
@@ -112,6 +114,7 @@ class GamePlayScreenTest {
                 onDefenderAttack = { _, _ -> true },
                 onDefenderAttackPosition = { _, _ -> true },
                 onEndPlayerTurn = {},
+                onAutoAttackAndEndTurn = {},
                 onBackToMap = {}
             )
         }
@@ -151,6 +154,7 @@ class GamePlayScreenTest {
                 onDefenderAttack = { _, _ -> true },
                 onDefenderAttackPosition = { _, _ -> true },
                 onEndPlayerTurn = {},
+                onAutoAttackAndEndTurn = {},
                 onBackToMap = {}
             )
         }
@@ -234,6 +238,7 @@ class GamePlayScreenTest {
                 onDefenderAttack = { _, _ -> true },
                 onDefenderAttackPosition = { _, _ -> true },
                 onEndPlayerTurn = {},
+                onAutoAttackAndEndTurn = {},
                 onBackToMap = {}
             )
         }
@@ -304,6 +309,7 @@ class GamePlayScreenTest {
                 onDefenderAttack = { _, _ -> true },
                 onDefenderAttackPosition = { _, _ -> true },
                 onEndPlayerTurn = {},
+                onAutoAttackAndEndTurn = {},
                 onBackToMap = {}
             )
         }
@@ -381,6 +387,7 @@ class GamePlayScreenTest {
                 onDefenderAttack = { _, _ -> true },
                 onDefenderAttackPosition = { _, _ -> true },
                 onEndPlayerTurn = {},
+                onAutoAttackAndEndTurn = {},
                 onBackToMap = {}
             )
         }
@@ -460,6 +467,7 @@ class GamePlayScreenTest {
                 onDefenderAttack = { _, _ -> true },
                 onDefenderAttackPosition = { _, _ -> true },
                 onEndPlayerTurn = {},
+                onAutoAttackAndEndTurn = {},
                 onBackToMap = {}
             )
         }
@@ -550,6 +558,7 @@ class GamePlayScreenTest {
                 onDefenderAttack = { _, _ -> true },
                 onDefenderAttackPosition = { _, _ -> true },
                 onEndPlayerTurn = {},
+                onAutoAttackAndEndTurn = {},
                 onBackToMap = {},
                 onMineDig = { de.egril.defender.model.DigOutcome.GOLD } // Simulate dig returning GOLD
             )
@@ -589,6 +598,7 @@ class GamePlayScreenTest {
                 onDefenderAttack = { _, _ -> true },
                 onDefenderAttackPosition = { _, _ -> true },
                 onEndPlayerTurn = {},
+                onAutoAttackAndEndTurn = {},
                 onBackToMap = {}
             )
         }
@@ -656,6 +666,7 @@ class GamePlayScreenTest {
                 onDefenderAttack = { _, _ -> true },
                 onDefenderAttackPosition = { _, _ -> true },
                 onEndPlayerTurn = {},
+                onAutoAttackAndEndTurn = {},
                 onBackToMap = {}
             )
         }
@@ -706,6 +717,7 @@ class GamePlayScreenTest {
                     onDefenderAttack = { _, _ -> true },
                     onDefenderAttackPosition = { _, _ -> true },
                     onEndPlayerTurn = {},
+                    onAutoAttackAndEndTurn = {},
                     onBackToMap = {}
                 )
                 
@@ -837,6 +849,7 @@ class GamePlayScreenTest {
                 onDefenderAttack = { _, _ -> true },
                 onDefenderAttackPosition = { _, _ -> true },
                 onEndPlayerTurn = {},
+                onAutoAttackAndEndTurn = {},
                 onBackToMap = {}
             )
         }
@@ -900,6 +913,7 @@ class GamePlayScreenTest {
                 onDefenderAttack = { _, _ -> true },
                 onDefenderAttackPosition = { _, _ -> true },
                 onEndPlayerTurn = { endTurnCalled = true },
+                onAutoAttackAndEndTurn = {},
                 onBackToMap = {}
             )
         }
@@ -980,6 +994,7 @@ class GamePlayScreenTest {
                 onDefenderAttack = { _, _ -> true },
                 onDefenderAttackPosition = { _, _ -> true },
                 onEndPlayerTurn = { endTurnCalled = true },
+                onAutoAttackAndEndTurn = {},
                 onBackToMap = {}
             )
         }
@@ -1057,6 +1072,7 @@ class GamePlayScreenTest {
                 onDefenderAttack = { _, _ -> true },
                 onDefenderAttackPosition = { _, _ -> true },
                 onEndPlayerTurn = { endTurnCalled = true },
+                onAutoAttackAndEndTurn = {},
                 onBackToMap = {}
             )
         }
@@ -1126,6 +1142,7 @@ class GamePlayScreenTest {
                 onDefenderAttack = { _, _ -> true },
                 onDefenderAttackPosition = { _, _ -> true },
                 onEndPlayerTurn = { endTurnCalled = true },
+                onAutoAttackAndEndTurn = {},
                 onBackToMap = {}
             )
         }
@@ -1196,6 +1213,7 @@ class GamePlayScreenTest {
                 onDefenderAttack = { _, _ -> true },
                 onDefenderAttackPosition = { _, _ -> true },
                 onEndPlayerTurn = { endTurnCalled = true },
+                onAutoAttackAndEndTurn = {},
                 onBackToMap = {}
             )
         }
@@ -1266,6 +1284,7 @@ class GamePlayScreenTest {
                 onDefenderAttack = { _, _ -> true },
                 onDefenderAttackPosition = { _, _ -> true },
                 onEndPlayerTurn = { endTurnCalled = true },
+                onAutoAttackAndEndTurn = {},
                 onBackToMap = {}
             )
         }
@@ -1342,6 +1361,7 @@ class GamePlayScreenTest {
                 onDefenderAttack = { _, _ -> true },
                 onDefenderAttackPosition = { _, _ -> true },
                 onEndPlayerTurn = { endTurnCalled = true },
+                onAutoAttackAndEndTurn = {},
                 onBackToMap = {}
             )
         }
