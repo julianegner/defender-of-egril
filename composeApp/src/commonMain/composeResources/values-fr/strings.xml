@@ -41,6 +41,9 @@
     <string name="tile_background_images">Images de Fond de Tuile</string>
     <string name="tile_background_images_on">Images de Tuile Activées</string>
     <string name="tile_background_images_off">Fonds de Couleur</string>
+    <string name="tile_smooth_transitions">Transitions Douces de Tuiles</string>
+    <string name="tile_smooth_transitions_on">Transitions Douces Activées</string>
+    <string name="tile_smooth_transitions_off">Bords Nets</string>
     <string name="header_text_size">Taille du Texte de l'En-tête du Niveau</string>
     <string name="header_text_size_small">Petit</string>
     <string name="header_text_size_medium">Moyen</string>
