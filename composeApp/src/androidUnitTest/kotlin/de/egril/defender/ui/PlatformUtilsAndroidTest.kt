@@ -35,7 +35,7 @@ class PlatformUtilsAndroidTest {
     }
     
     @Test
-    fun `getGameplayUIScale returns 0,5f for Android`() {
+    fun `getGameplayUIScale returns 0 point 5f for Android`() {
         // Android uses smaller UI scale for touch devices
         assertEquals(0.5f, getGameplayUIScale())
     }
