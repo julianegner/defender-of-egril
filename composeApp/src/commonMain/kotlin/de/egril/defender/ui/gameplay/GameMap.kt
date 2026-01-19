@@ -373,6 +373,25 @@ fun GridCell(
     val isBuildableTile = (isBuildArea || isBuildIsland || isRiverTile) && defender == null && attacker == null
     val showPlacementPreview = isHoveringForPreview && isBuildableTile
     
+    // Calculate hover preview for trap placement
+    val isHoveringForTrapPreview = hoveredPosition == position
+    val isTrapPlacementMode = selectedMineAction == MineAction.BUILD_TRAP || selectedWizardAction == WizardAction.PLACE_MAGICAL_TRAP
+    
+    // Check if this tile is valid for trap placement (on path, in range, no enemy, no existing trap)
+    val isValidTrapPlacement = if (isTrapPlacementMode && isHoveringForTrapPreview && selectedDefenderId != null) {
+        val selectedDefender = gameState.defenders.find { it.id == selectedDefenderId }
+        selectedDefender?.let { sel ->
+            val distance = sel.position.value.distanceTo(position)
+            val hasEnemy = attacker != null
+            val hasTrap = trap != null
+            isOnPath && distance <= sel.range && !hasEnemy && !hasTrap
+        } ?: false
+    } else {
+        false
+    }
+    
+    val showTrapPreview = isValidTrapPlacement
+    
     // Check if hovered position is buildable (needed for range preview calculation)
     // Include river tiles as buildable (for rafts)
     val hoveredPositionIsBuildable = if (hoveredPosition != null && selectedDefenderType != null) {
@@ -609,7 +628,10 @@ fun GridCell(
                 useDashedBorder = useDashedBorder,
                 borderColor = borderColor,
                 borderWidth = borderWidth,
-                hexSize = hexSize
+                hexSize = hexSize,
+                showTrapPreview = showTrapPreview,
+                selectedMineAction = selectedMineAction,
+                selectedWizardAction = selectedWizardAction
             )
         }
     } else {
@@ -639,7 +661,10 @@ fun GridCell(
                 useDashedBorder = useDashedBorder,
                 borderColor = borderColor,
                 borderWidth = borderWidth,
-                hexSize = hexSize
+                hexSize = hexSize,
+                showTrapPreview = showTrapPreview,
+                selectedMineAction = selectedMineAction,
+                selectedWizardAction = selectedWizardAction
             )
         }
     }
@@ -666,7 +691,10 @@ private fun BoxScope.GridCellContent(
     useDashedBorder: Boolean,
     borderColor: Color,
     borderWidth: Dp,
-    hexSize: Dp
+    hexSize: Dp,
+    showTrapPreview: Boolean = false,
+    selectedMineAction: MineAction? = null,
+    selectedWizardAction: WizardAction? = null
 ) {
         when {
             attacker != null -> {
@@ -860,6 +888,28 @@ private fun BoxScope.GridCellContent(
                     defenderType = selectedDefenderType,
                     modifier = Modifier.fillMaxSize()
                 )
+            }
+        }
+
+        // Show half-transparent trap icon on hovered path tile (when in trap placement mode)
+        if (showTrapPreview) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .graphicsLayer(alpha = 0.5f),  // 50% transparency
+                contentAlignment = Alignment.Center
+            ) {
+                // Show different icon based on trap type
+                when {
+                    selectedMineAction == MineAction.BUILD_TRAP -> {
+                        // Dwarven trap - show hole icon
+                        HoleIcon(size = 24.dp)
+                    }
+                    selectedWizardAction == WizardAction.PLACE_MAGICAL_TRAP -> {
+                        // Magical trap - show pentagram icon
+                        PentagramIcon(size = 24.dp)
+                    }
+                }
             }
         }
 
