@@ -598,21 +598,25 @@ fun BarricadeButton(
             )
         ) {
             Row(
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
             ) {
                 WoodIcon(size = 24.dp)
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    stringResource(Res.string.build_barricade),
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                // Show HP amount in white
+                Column(
+                    modifier = Modifier.weight(1f),
+                    horizontalAlignment = Alignment.Start
+                ) {
+                    Text(
+                        stringResource(Res.string.build_barricade),
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+                // Show HP amount in white on the right side
                 Text(
                     "HP$hpAmount",
-                    fontSize = 14.sp,
+                    fontSize = 16.sp,
                     color = Color.White,
                     fontWeight = FontWeight.Bold
                 )

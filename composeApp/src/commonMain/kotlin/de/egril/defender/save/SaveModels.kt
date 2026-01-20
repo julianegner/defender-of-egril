@@ -35,6 +35,7 @@ data class SavedGame(
     val mapId: String? = null,  // Map identifier (for ensuring correct map is loaded)
     val rafts: List<SavedRaft> = emptyList(),  // Rafts on river tiles
     val nextRaftId: Int = 1,  // Next raft ID to use
+    val barricades: List<SavedBarricade> = emptyList(),  // Barricades placed by spike/spear towers
     val worldMapSave: WorldMapSave? = null  // World map progress at the time of saving (for conflict detection on load)
 )
 
@@ -80,6 +81,12 @@ data class SavedRaft(
     val id: Int,
     val defenderId: Int,  // The tower on this raft
     val position: Position
+)
+
+data class SavedBarricade(
+    val position: Position,
+    val healthPoints: Int,
+    val defenderId: Int  // The tower that built this barricade
 )
 
 /**
