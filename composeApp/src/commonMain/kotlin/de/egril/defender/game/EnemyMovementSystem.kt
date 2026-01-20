@@ -375,8 +375,12 @@ class EnemyMovementSystem(
                     barricadeAtPosition.takeDamage(damage)
                     
                     // Add damage effect for visualization
-                    state.barricadeDamageEffects.add(
-                        DamageEffect(position = barricadeAtPosition.position, damage = damage)
+                    state.damageEffects.add(
+                        DamageEffect(
+                            position = barricadeAtPosition.position,
+                            damageAmount = damage,
+                            turnNumber = state.turnNumber.value
+                        )
                     )
                     
                     if (barricadeAtPosition.isDestroyed()) {

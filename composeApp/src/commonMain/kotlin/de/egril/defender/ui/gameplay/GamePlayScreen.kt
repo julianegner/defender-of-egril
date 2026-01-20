@@ -113,6 +113,13 @@ private fun GamePlayScreenContent(
     var selectedMineAction by remember { mutableStateOf<MineAction?>(null) }
     var selectedWizardAction by remember { mutableStateOf<WizardAction?>(null) }  // For wizard magical trap placement
     var selectedBarricadeAction by remember { mutableStateOf<BarricadeAction?>(null) }  // For spike/spear tower barricade placement
+    
+    // Removal confirmation dialog states
+    var showRemoveBarricadeDialog by remember { mutableStateOf(false) }
+    var barricadeToRemove by remember { mutableStateOf<Position?>(null) }
+    var showRemoveTrapDialog by remember { mutableStateOf(false) }
+    var trapToRemove by remember { mutableStateOf<Position?>(null) }
+    
     var currentDigOutcome by remember { mutableStateOf<DigOutcome?>(null) }
     var currentDragonName by remember { mutableStateOf<String?>(null) }  // Track dragon name for dig outcome
     var showDigOutcomeDialog by remember { mutableStateOf(false) }
@@ -488,10 +495,19 @@ private fun GamePlayScreenContent(
                         }
                     }
 
-                    // Check if there's a barricade at this position - allow removal
+                    // Check if there's a barricade at this position - show removal confirmation
                     val barricade = gameState.barricades.find { it.position == position }
                     if (barricade != null && selectedDefenderId == null && selectedAttackerId == null) {
-                        onRemoveBarricade?.invoke(position)
+                        barricadeToRemove = position
+                        showRemoveBarricadeDialog = true
+                        return@GameGrid
+                    }
+                    
+                    // Check if there's a trap at this position - show removal confirmation
+                    val trap = gameState.traps.find { it.position == position }
+                    if (trap != null && selectedDefenderId == null && selectedAttackerId == null) {
+                        trapToRemove = position
+                        showRemoveTrapDialog = true
                         return@GameGrid
                     }
 
@@ -906,6 +922,37 @@ private fun GamePlayScreenContent(
             de.egril.defender.ui.PlatformInfoDialog(
                 platformInfo = de.egril.defender.utils.getPlatform().name,
                 onDismiss = onClearPlatformInfo
+            )
+        }
+        
+        // Remove barricade confirmation dialog
+        if (showRemoveBarricadeDialog && barricadeToRemove != null) {
+            RemoveBarricadeConfirmationDialog(
+                onConfirm = {
+                    onRemoveBarricade?.invoke(barricadeToRemove!!)
+                    showRemoveBarricadeDialog = false
+                    barricadeToRemove = null
+                },
+                onCancel = {
+                    showRemoveBarricadeDialog = false
+                    barricadeToRemove = null
+                }
+            )
+        }
+        
+        // Remove trap confirmation dialog
+        if (showRemoveTrapDialog && trapToRemove != null) {
+            RemoveTrapConfirmationDialog(
+                onConfirm = {
+                    // Remove trap from game state
+                    gameState.traps.removeAll { it.position == trapToRemove }
+                    showRemoveTrapDialog = false
+                    trapToRemove = null
+                },
+                onCancel = {
+                    showRemoveTrapDialog = false
+                    trapToRemove = null
+                }
             )
         }
         
