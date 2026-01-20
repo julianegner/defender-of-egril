@@ -20,6 +20,7 @@ import de.egril.defender.ui.icon.LightningIcon
 import de.egril.defender.ui.icon.PickIcon
 import de.egril.defender.ui.icon.SwordIcon
 import de.egril.defender.ui.icon.TimerIcon
+import de.egril.defender.ui.icon.WoodIcon
 import com.hyperether.resources.AppLocale
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
@@ -587,10 +588,7 @@ fun BarricadeButton(
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = "🪵",  // Wood/log emoji
-                    fontSize = 24.sp
-                )
+                WoodIcon(size = 24.dp)
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     stringResource(Res.string.build_barricade),

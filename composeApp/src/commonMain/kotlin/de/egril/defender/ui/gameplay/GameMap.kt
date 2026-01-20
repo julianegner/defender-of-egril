@@ -26,6 +26,7 @@ import de.egril.defender.model.getHexNeighbors
 import de.egril.defender.ui.*
 import de.egril.defender.ui.icon.ExplosionIcon
 import de.egril.defender.ui.icon.HoleIcon
+import de.egril.defender.ui.icon.WoodIcon
 import com.hyperether.resources.stringResource
 import de.egril.defender.ui.editor.map.MapControlState
 import de.egril.defender.ui.editor.map.MapControls
@@ -853,10 +854,7 @@ private fun BoxScope.GridCellContent(
                     verticalArrangement = Arrangement.Center
                 ) {
                     // Show wood/barricade symbol with brown color
-                    Text(
-                        "🪵",  // Wood/log emoji
-                        fontSize = 24.sp
-                    )
+                    WoodIcon(size = 24.dp)
                     // Show health points
                     Text(
                         "${barricade.healthPoints.value} HP",
@@ -875,10 +873,7 @@ private fun BoxScope.GridCellContent(
                     modifier = Modifier.graphicsLayer(alpha = 0.5f)  // Semi-transparent
                 ) {
                     // Show wood/barricade symbol with brown color
-                    Text(
-                        "🪵",  // Wood/log emoji
-                        fontSize = 24.sp
-                    )
+                    WoodIcon(size = 24.dp)
                     // Show "NEW" text for new barricade preview
                     Text(
                         stringResource(Res.string.barricade),

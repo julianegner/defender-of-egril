@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.egril.defender.model.TutorialStep
 import de.egril.defender.model.InfoType
+import de.egril.defender.ui.icon.WoodIcon
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
 
@@ -541,10 +542,7 @@ private fun BarricadeInfoContent(onDismiss: () -> Unit) {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Text(
-                    text = "🪵",  // Wood/log emoji for barricade
-                    fontSize = 32.sp
-                )
+                WoodIcon(size = 32.dp)
                 Text(
                     text = stringResource(Res.string.barricade_info_title),
                     style = MaterialTheme.typography.titleLarge,
