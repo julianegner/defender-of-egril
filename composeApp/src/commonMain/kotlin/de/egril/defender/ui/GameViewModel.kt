@@ -37,6 +37,15 @@ data class WorldMapConflict(
     val level: Level?  // Null when importing just game state (no level to load)
 )
 
+/**
+ * Data class for reminder messages
+ */
+data class ReminderMessage(
+    val type: de.egril.defender.ui.gameplay.ReminderType,
+    val elapsedTime: String? = null,
+    val timeDescription: String? = null
+)
+
 class GameViewModel {
     
     private val _currentScreen = MutableStateFlow<Screen>(Screen.MainMenu)
@@ -71,6 +80,20 @@ class GameViewModel {
     // Special actions remaining after auto-attack
     private val _specialActionsRemaining = MutableStateFlow<List<DefenderType>>(emptyList())
     val specialActionsRemaining: StateFlow<List<DefenderType>> = _specialActionsRemaining.asStateFlow()
+
+    // Time reminders for breaks and sleep
+    private val _reminderMessage = MutableStateFlow<ReminderMessage?>(null)
+    val reminderMessage: StateFlow<ReminderMessage?> = _reminderMessage.asStateFlow()
+    
+    // Track game session time
+    private var gameSessionStartTime: Long? = null
+    private var lastBreakReminderTime: Long? = null
+    private var lastSleepReminderTime: Long? = null
+    
+    // Constants for reminder intervals
+    private val BREAK_REMINDER_INTERVAL_MS = 2 * 60 * 60 * 1000L  // 2 hours
+    private val SLEEP_REMINDER_INTERVAL_MS = 60 * 60 * 1000L       // 1 hour
+    private val SLEEP_START_HOUR = 23  // 23:00 (11 PM)
 
     // Track initial game state to detect unsaved changes
     private var initialGameStateSnapshot: String? = null
@@ -179,10 +202,12 @@ class GameViewModel {
     }
     
     fun navigateToMainMenu() {
+        stopTimeTracking()
         _currentScreen.value = Screen.MainMenu
     }
     
     fun navigateToWorldMap() {
+        stopTimeTracking()
         // Reload levels from disk to ensure latest changes are visible
         reloadWorldMap()
         _currentScreen.value = Screen.WorldMap
@@ -229,6 +254,9 @@ class GameViewModel {
             // Capture initial state snapshot
             initialGameStateSnapshot = createGameStateSnapshot(newGameState)
             lastSaveSnapshot = initialGameStateSnapshot
+            
+            // Start time tracking for reminders
+            startTimeTracking()
         }
     }
     
@@ -584,6 +612,9 @@ class GameViewModel {
                     // Set snapshots when loading a saved game
                     initialGameStateSnapshot = createGameStateSnapshot(gameState)
                     lastSaveSnapshot = initialGameStateSnapshot
+                    
+                    // Start time tracking for reminders
+                    startTimeTracking()
                     return
                 } else {
                     println("ERROR: Could not find any level with map ID ${savedGame.mapId}. Save file may be incompatible.")
@@ -602,6 +633,9 @@ class GameViewModel {
             // Set snapshots when loading a saved game
             initialGameStateSnapshot = createGameStateSnapshot(gameState)
             lastSaveSnapshot = initialGameStateSnapshot
+            
+            // Start time tracking for reminders
+            startTimeTracking()
         }
     }
     
@@ -852,5 +886,108 @@ class GameViewModel {
      */
     fun refreshPlayerProfiles() {
         _allPlayers.value = de.egril.defender.save.PlayerProfileStorage.getAllProfiles().profiles
+    }
+    
+    /**
+     * Start tracking time for reminders when a game is started
+     */
+    fun startTimeTracking() {
+        val currentTime = de.egril.defender.utils.currentTimeMillis()
+        gameSessionStartTime = currentTime
+        lastBreakReminderTime = currentTime
+        lastSleepReminderTime = currentTime
+        
+        // Start coroutine to check for reminders
+        viewModelScope.launch {
+            checkTimeReminders()
+        }
+    }
+    
+    /**
+     * Stop tracking time when leaving the game screen
+     */
+    fun stopTimeTracking() {
+        gameSessionStartTime = null
+        lastBreakReminderTime = null
+        lastSleepReminderTime = null
+    }
+    
+    /**
+     * Check and show time reminders periodically
+     */
+    private suspend fun checkTimeReminders() {
+        while (gameSessionStartTime != null) {
+            delay(60000L)  // Check every minute
+            
+            val currentTime = de.egril.defender.utils.currentTimeMillis()
+            
+            // Check break reminder (every 2 hours)
+            lastBreakReminderTime?.let { lastBreak ->
+                if (currentTime - lastBreak >= BREAK_REMINDER_INTERVAL_MS) {
+                    gameSessionStartTime?.let { sessionStart ->
+                        val elapsedMs = currentTime - sessionStart
+                        val elapsedTime = formatElapsedTime(elapsedMs)
+                        _reminderMessage.value = ReminderMessage(
+                            type = de.egril.defender.ui.gameplay.ReminderType.BREAK,
+                            elapsedTime = elapsedTime
+                        )
+                        lastBreakReminderTime = currentTime
+                    }
+                }
+            }
+            
+            // Check sleep reminder (after 23:00, every hour)
+            lastSleepReminderTime?.let { lastSleep ->
+                if (currentTime - lastSleep >= SLEEP_REMINDER_INTERVAL_MS) {
+                    val hour = getLocalHour(currentTime)
+                    if (hour >= SLEEP_START_HOUR || hour < 6) {  // Between 23:00 and 06:00
+                        val timeDescription = when {
+                            hour == 23 -> "close_to_midnight"
+                            hour == 0 -> "midnight"
+                            else -> "after_midnight"
+                        }
+                        _reminderMessage.value = ReminderMessage(
+                            type = de.egril.defender.ui.gameplay.ReminderType.SLEEP,
+                            timeDescription = timeDescription
+                        )
+                        lastSleepReminderTime = currentTime
+                    }
+                }
+            }
+        }
+    }
+    
+    /**
+     * Clear the current reminder message
+     */
+    fun clearReminderMessage() {
+        _reminderMessage.value = null
+    }
+    
+    /**
+     * Format elapsed time as "X hours Y minutes"
+     */
+    private fun formatElapsedTime(elapsedMs: Long): String {
+        val hours = elapsedMs / (60 * 60 * 1000)
+        val minutes = (elapsedMs % (60 * 60 * 1000)) / (60 * 1000)
+        
+        return buildString {
+            if (hours > 0) {
+                append("$hours ")
+                append(if (hours == 1L) "hour" else "hours")
+            }
+            if (minutes > 0) {
+                if (hours > 0) append(" ")
+                append("$minutes ")
+                append(if (minutes == 1L) "minute" else "minutes")
+            }
+        }
+    }
+    
+    /**
+     * Get the local hour (0-23) from timestamp
+     */
+    private fun getLocalHour(timestamp: Long): Int {
+        return de.egril.defender.utils.getLocalHour(timestamp)
     }
 }

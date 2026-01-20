@@ -40,7 +40,9 @@ fun GamePlayScreen(
     onClearPlatformInfo: (() -> Unit)? = null,  // Callback to clear platform info
     hasUnsavedChanges: (() -> Boolean)? = null,  // Callback to check for unsaved changes
     specialActionsRemaining: List<DefenderType> = emptyList(),  // List of defender types with remaining special actions
-    onClearSpecialActionsWarning: (() -> Unit)? = null  // Callback to clear special actions warning
+    onClearSpecialActionsWarning: (() -> Unit)? = null,  // Callback to clear special actions warning
+    reminderMessage: ReminderMessage? = null,  // Time reminder message
+    onClearReminderMessage: (() -> Unit)? = null  // Callback to clear reminder message
 ) {
     GamePlayScreenContent(
         gameState = gameState,
@@ -65,7 +67,9 @@ fun GamePlayScreen(
         onClearPlatformInfo = onClearPlatformInfo,
         hasUnsavedChanges = hasUnsavedChanges,
         specialActionsRemaining = specialActionsRemaining,
-        onClearSpecialActionsWarning = onClearSpecialActionsWarning
+        onClearSpecialActionsWarning = onClearSpecialActionsWarning,
+        reminderMessage = reminderMessage,
+        onClearReminderMessage = onClearReminderMessage
     )
 }
 
@@ -93,8 +97,9 @@ private fun GamePlayScreenContent(
     onClearPlatformInfo: (() -> Unit)? = null,  // Callback to clear platform info
     hasUnsavedChanges: (() -> Boolean)? = null,  // Callback to check for unsaved changes
     specialActionsRemaining: List<DefenderType> = emptyList(),  // List of defender types with remaining special actions
-    onClearSpecialActionsWarning: (() -> Unit)? = null  // Callback to clear special actions warning
-
+    onClearSpecialActionsWarning: (() -> Unit)? = null,  // Callback to clear special actions warning
+    reminderMessage: ReminderMessage? = null,  // Time reminder message
+    onClearReminderMessage: (() -> Unit)? = null  // Callback to clear reminder message
 ) {
     var selectedDefenderType by remember { mutableStateOf<DefenderType?>(null) }
     var selectedDefenderId by remember { mutableStateOf<Int?>(null) }
@@ -918,6 +923,23 @@ private fun GamePlayScreenContent(
                 remainingTypes = specialActionsRemaining,
                 onContinueTurn = {
                     onClearSpecialActionsWarning?.invoke()
+                }
+            )
+        }
+        
+        // Time reminder dialog
+        reminderMessage?.let { reminder ->
+            ReminderDialog(
+                type = reminder.type,
+                elapsedTime = reminder.elapsedTime,
+                timeDescription = when (reminder.timeDescription) {
+                    "close_to_midnight" -> com.hyperether.resources.stringResource(defender_of_egril.composeapp.generated.resources.Res.string.time_for_sleep_close_to_midnight)
+                    "midnight" -> com.hyperether.resources.stringResource(defender_of_egril.composeapp.generated.resources.Res.string.time_for_sleep_midnight)
+                    "after_midnight" -> com.hyperether.resources.stringResource(defender_of_egril.composeapp.generated.resources.Res.string.time_for_sleep_after_midnight)
+                    else -> null
+                },
+                onDismiss = {
+                    onClearReminderMessage?.invoke()
                 }
             )
         }
