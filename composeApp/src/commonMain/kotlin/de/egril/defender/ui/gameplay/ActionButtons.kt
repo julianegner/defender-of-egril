@@ -1,6 +1,5 @@
 package de.egril.defender.ui.gameplay
 
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -41,15 +40,13 @@ fun AttackButton(
                 if (target != null && defender.canAttack(target)) {
                     Button(
                         onClick = { onDefenderAttackPosition(defender.id, selectedTargetPosition) },
-                        modifier = modifier.then(
-                            if (isAttackModeActive) {
-                                Modifier.border(
-                                    width = 3.dp,
-                                    color = GamePlayColors.Yellow,
-                                    shape = MaterialTheme.shapes.small
-                                )
-                            } else Modifier
-                        ),
+                        modifier = modifier,
+                        border = if (isAttackModeActive) {
+                            androidx.compose.foundation.BorderStroke(
+                                width = 3.dp,
+                                color = GamePlayColors.Yellow
+                            )
+                        } else null,
                         colors = ButtonDefaults.buttonColors(
                             containerColor = GamePlayColors.ErrorDark
                         )
@@ -81,15 +78,13 @@ fun AttackButton(
                 // No enemy at position, show position coordinates
                 Button(
                     onClick = { onDefenderAttackPosition(defender.id, selectedTargetPosition) },
-                    modifier = modifier.then(
-                        if (isAttackModeActive) {
-                            Modifier.border(
-                                width = 3.dp,
-                                color = GamePlayColors.Yellow,
-                                shape = MaterialTheme.shapes.small
-                            )
-                        } else Modifier
-                    ),
+                    modifier = modifier,
+                    border = if (isAttackModeActive) {
+                        androidx.compose.foundation.BorderStroke(
+                            width = 3.dp,
+                            color = GamePlayColors.Yellow
+                        )
+                    } else null,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = GamePlayColors.ErrorDark
                     )
@@ -120,15 +115,13 @@ fun AttackButton(
             if (target != null && defender.canAttack(target)) {
                 Button(
                     onClick = { onDefenderAttack(defender.id, selectedTargetId) },
-                    modifier = modifier.then(
-                        if (isAttackModeActive) {
-                            Modifier.border(
-                                width = 3.dp,
-                                color = GamePlayColors.Yellow,
-                                shape = MaterialTheme.shapes.small
-                            )
-                        } else Modifier
-                    ),
+                    modifier = modifier,
+                    border = if (isAttackModeActive) {
+                        androidx.compose.foundation.BorderStroke(
+                            width = 3.dp,
+                            color = GamePlayColors.Yellow
+                        )
+                    } else null,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = GamePlayColors.ErrorDark
                     )
@@ -163,15 +156,13 @@ fun AttackButton(
                 if (distance >= defender.type.minRange && distance <= defender.range) {
                     Button(
                         onClick = { onDefenderAttackPosition(defender.id, selectedTargetPosition) },
-                        modifier = modifier.then(
-                            if (isAttackModeActive) {
-                                Modifier.border(
-                                    width = 3.dp,
-                                    color = GamePlayColors.Yellow,
-                                    shape = MaterialTheme.shapes.small
-                                )
-                            } else Modifier
-                        ),
+                        modifier = modifier,
+                        border = if (isAttackModeActive) {
+                            androidx.compose.foundation.BorderStroke(
+                                width = 3.dp,
+                                color = GamePlayColors.Yellow
+                            )
+                        } else null,
                         colors = ButtonDefaults.buttonColors(
                             containerColor = GamePlayColors.ErrorDark
                         )

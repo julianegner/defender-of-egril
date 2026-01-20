@@ -1,6 +1,5 @@
 package de.egril.defender.ui.gameplay
 
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -411,16 +410,13 @@ private fun RowScope.dwarvenMineActionButtonArea(
                     modifier = Modifier
                         .width(240.dp)
                         .height(buttonHeight)
-                        .padding(start = horizontalSpacing)
-                        .then(
-                            if (isTrapModeActive) {
-                                Modifier.border(
-                                    width = 3.dp,
-                                    color = GamePlayColors.Yellow,
-                                    shape = MaterialTheme.shapes.small
-                                )
-                            } else Modifier
-                        ),
+                        .padding(start = horizontalSpacing),
+                    border = if (isTrapModeActive) {
+                        androidx.compose.foundation.BorderStroke(
+                            width = 3.dp,
+                            color = GamePlayColors.Yellow
+                        )
+                    } else null,
                     contentPadding = PaddingValues(
                         horizontal = 4.dp,
                         vertical = 2.dp
@@ -529,18 +525,16 @@ fun MagicalTrapButton(
         Button(
             onClick = { onWizardAction(defender.id, WizardAction.PLACE_MAGICAL_TRAP) },
             enabled = !isOnCooldown && defender.actionsRemaining.value > 0,
-            modifier = modifier.then(
-                if (isTrapModeActive) {
-                    Modifier.border(
-                        width = 3.dp,
-                        color = GamePlayColors.Yellow,
-                        shape = MaterialTheme.shapes.small
-                    )
-                } else Modifier
-            ),
+            modifier = modifier,
             colors = ButtonDefaults.buttonColors(
                 containerColor = GamePlayColors.InfoDark
-            )
+            ),
+            border = if (isTrapModeActive) {
+                androidx.compose.foundation.BorderStroke(
+                    width = 3.dp,
+                    color = GamePlayColors.Yellow
+                )
+            } else null
         ) {
             Row(
                 horizontalArrangement = Arrangement.Center,
