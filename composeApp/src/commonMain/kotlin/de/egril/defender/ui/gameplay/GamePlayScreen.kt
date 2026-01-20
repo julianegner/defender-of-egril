@@ -328,7 +328,8 @@ private fun GamePlayScreenContent(
             }
 
             MineAction.BUILD_TRAP -> {
-                selectedMineAction = action
+                // Toggle trap placement mode - if already selected, deselect it
+                selectedMineAction = if (selectedMineAction == action) null else action
                 showMineActionDialog = true
             }
         }
@@ -338,7 +339,8 @@ private fun GamePlayScreenContent(
     val handleWizardAction: (Int, WizardAction) -> Unit = { wizardId, action ->
         when (action) {
             WizardAction.PLACE_MAGICAL_TRAP -> {
-                selectedWizardAction = action
+                // Toggle trap placement mode - if already selected, deselect it
+                selectedWizardAction = if (selectedWizardAction == action) null else action
                 // The user will now click on the map to place the trap
             }
         }
@@ -426,12 +428,18 @@ private fun GamePlayScreenContent(
                         if (previousSelectedDefenderId == defender.id) {
                             // Deselect if clicking the same defender
                             selectedDefenderId = null
+                            // Clear trap modes when deselecting
+                            selectedMineAction = null
+                            selectedWizardAction = null
                         } else {
                             // Select this defender, deselect any selected attacker
                             selectedDefenderId = defender.id
                             selectedAttackerId = null
                             selectedTargetId = null
                             selectedTargetPosition = null
+                            // Clear trap modes when selecting a different defender
+                            selectedMineAction = null
+                            selectedWizardAction = null
                             return@GameGrid
                         }
                     }
@@ -692,6 +700,8 @@ private fun GamePlayScreenContent(
                     },
                     onMineAction = handleMineAction,
                     onWizardAction = handleWizardAction,
+                    selectedMineAction = selectedMineAction,
+                    selectedWizardAction = selectedWizardAction,
                     uiScale = uiScale,
                     onShowDragonInfo = { 
                         gameState.infoState.value = gameState.infoState.value.showInfo(InfoType.DRAGON_INFO)
@@ -768,6 +778,8 @@ private fun GamePlayScreenContent(
                     },
                     onMineAction = handleMineAction,
                     onWizardAction = handleWizardAction,
+                    selectedMineAction = selectedMineAction,
+                    selectedWizardAction = selectedWizardAction,
                     uiScale = uiScale,
                     onShowDragonInfo = { 
                         gameState.infoState.value = gameState.infoState.value.showInfo(InfoType.DRAGON_INFO)
