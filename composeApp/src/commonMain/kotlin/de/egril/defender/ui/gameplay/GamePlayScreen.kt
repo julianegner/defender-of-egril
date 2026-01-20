@@ -335,7 +335,13 @@ private fun GamePlayScreenContent(
             }
 
             MineAction.BUILD_TRAP -> {
-                selectedMineAction = action
+                // Toggle trap placement mode - if already selected, deselect it
+                selectedMineAction = if (selectedMineAction == action) null else action
+                // Clear target selection when entering trap placement mode
+                if (selectedMineAction != null) {
+                    selectedTargetId = null
+                    selectedTargetPosition = null
+                }
                 showMineActionDialog = true
             }
         }
@@ -345,7 +351,13 @@ private fun GamePlayScreenContent(
     val handleWizardAction: (Int, WizardAction) -> Unit = { wizardId, action ->
         when (action) {
             WizardAction.PLACE_MAGICAL_TRAP -> {
-                selectedWizardAction = action
+                // Toggle trap placement mode - if already selected, deselect it
+                selectedWizardAction = if (selectedWizardAction == action) null else action
+                // Clear target selection when entering trap placement mode
+                if (selectedWizardAction != null) {
+                    selectedTargetId = null
+                    selectedTargetPosition = null
+                }
                 // The user will now click on the map to place the trap
             }
         }
@@ -360,7 +372,7 @@ private fun GamePlayScreenContent(
             }
         }
     }
-    
+
     // Keyboard event handler for Ctrl+S save shortcut
     // Using onPreviewKeyEvent to intercept before HexagonalMapView handles it
     // This works in the "capture" phase and doesn't require focus on this element
@@ -444,12 +456,18 @@ private fun GamePlayScreenContent(
                         if (previousSelectedDefenderId == defender.id) {
                             // Deselect if clicking the same defender
                             selectedDefenderId = null
+                            // Clear trap modes when deselecting
+                            selectedMineAction = null
+                            selectedWizardAction = null
                         } else {
                             // Select this defender, deselect any selected attacker
                             selectedDefenderId = defender.id
                             selectedAttackerId = null
                             selectedTargetId = null
                             selectedTargetPosition = null
+                            // Clear trap modes when selecting a different defender
+                            selectedMineAction = null
+                            selectedWizardAction = null
                             return@GameGrid
                         }
                     }
@@ -469,7 +487,7 @@ private fun GamePlayScreenContent(
                             return@GameGrid
                         }
                     }
-                    
+
                     // Check if there's a barricade at this position - allow removal
                     val barricade = gameState.barricades.find { it.position == position }
                     if (barricade != null && selectedDefenderId == null && selectedAttackerId == null) {
@@ -512,19 +530,19 @@ private fun GamePlayScreenContent(
                                 }
                                 return@GameGrid
                             }
-                            
+
                             // Handle barricade placement for spike/spear towers (level 10+)
-                            if ((selectedDefender.type == DefenderType.SPIKE_TOWER || 
-                                 selectedDefender.type == DefenderType.SPEAR_TOWER) && 
-                                selectedDefender.level.value >= 10 && 
+                            if ((selectedDefender.type == DefenderType.SPIKE_TOWER ||
+                                 selectedDefender.type == DefenderType.SPEAR_TOWER) &&
+                                selectedDefender.level.value >= 10 &&
                                 selectedBarricadeAction == BarricadeAction.BUILD_BARRICADE) {
                                 // Check if position is on path, within range (3 tiles), and empty
                                 val distance = selectedDefender.position.value.distanceTo(position)
                                 val hasDefender = gameState.defenders.any { it.position.value == position }
                                 val hasEnemy = gameState.attackers.any { it.position.value == position && !it.isDefeated.value }
-                                if (gameState.level.isOnPath(position) && 
-                                    distance <= 3 && 
-                                    !hasDefender && 
+                                if (gameState.level.isOnPath(position) &&
+                                    distance <= 3 &&
+                                    !hasDefender &&
                                     !hasEnemy) {
                                     if (onBuildBarricade?.invoke(selectedDefender.id, position) == true) {
                                         selectedBarricadeAction = null
@@ -737,6 +755,8 @@ private fun GamePlayScreenContent(
                     },
                     onMineAction = handleMineAction,
                     onWizardAction = handleWizardAction,
+                    selectedMineAction = selectedMineAction,
+                    selectedWizardAction = selectedWizardAction,
                     onBarricadeAction = handleBarricadeAction,
                     uiScale = uiScale,
                     onShowDragonInfo = { 
@@ -814,6 +834,8 @@ private fun GamePlayScreenContent(
                     },
                     onMineAction = handleMineAction,
                     onWizardAction = handleWizardAction,
+                    selectedMineAction = selectedMineAction,
+                    selectedWizardAction = selectedWizardAction,
                     onBarricadeAction = handleBarricadeAction,
                     uiScale = uiScale,
                     onShowDragonInfo = { 
