@@ -661,26 +661,32 @@ class GameEngine(private val state: GameState) {
         val attacker = state.attackers.find { it.id == attackerId } ?: return
         if (attacker.isDefeated.value) return
         
-        // Check for barricades adjacent to the new position BEFORE moving
+        // Check if there's a barricade AT the new position (enemy trying to move onto a barricade)
         // If there's a barricade, attack it instead of moving
-        val adjacentBarricade = barricadeSystem.checkEnemyAdjacentToBarricade(newPosition)
-        if (adjacentBarricade != null) {
+        val barricadeAtPosition = barricadeSystem.getBarricadeAt(newPosition)
+        if (barricadeAtPosition != null && !barricadeAtPosition.isDestroyed()) {
             // Enemy attacks the barricade
-            val barricadeDestroyedPosition = barricadeSystem.handleEnemyAttackBarricade(attacker, adjacentBarricade)
-            if (barricadeDestroyedPosition != null) {
+            val damage = if (attacker.type.isDragon) {
+                attacker.level.value * 5
+            } else {
+                attacker.level.value
+            }
+            
+            val wasDestroyed = barricadeSystem.handleEnemyAttackBarricade(attacker, barricadeAtPosition, damage)
+            if (wasDestroyed) {
                 // Barricade was destroyed, enemy moves to barricade position
-                attacker.position.value = barricadeDestroyedPosition
+                attacker.position.value = newPosition
                 
                 // Check waypoint and target after moving to barricade position
-                if (state.level.isWaypoint(barricadeDestroyedPosition) && attacker.currentTarget?.value == barricadeDestroyedPosition) {
-                    val waypoint = state.level.getWaypointAt(barricadeDestroyedPosition)
+                if (state.level.isWaypoint(newPosition) && attacker.currentTarget?.value == newPosition) {
+                    val waypoint = state.level.getWaypointAt(newPosition)
                     if (waypoint != null) {
                         attacker.currentTarget.value = waypoint.nextTarget
                     }
                 }
                 
                 // Check if reached target
-                if (state.level.isTargetPosition(barricadeDestroyedPosition)) {
+                if (state.level.isTargetPosition(newPosition)) {
                     applyTargetDamage(attacker)
                 }
             }

@@ -102,38 +102,27 @@ class BarricadeSystem(private val state: GameState) {
     }
     
     /**
-     * Check if an enemy can attack a barricade (adjacent check)
-     */
-    fun checkEnemyAdjacentToBarricade(enemyPosition: Position): Barricade? {
-        val neighbors = enemyPosition.getHexNeighbors()
-        return state.barricades.find { barricade ->
-            barricade.position in neighbors && !barricade.isDestroyed()
-        }
-    }
-    
-    /**
      * Handle enemy attacking a barricade.
-     * Returns the new position for the enemy if barricade is destroyed, null otherwise.
+     * Returns true if barricade is destroyed, false otherwise.
      */
-    fun handleEnemyAttackBarricade(enemy: Attacker, barricade: Barricade): Position? {
-        // Calculate damage: enemy level (dragons × 5)
-        val damage = if (enemy.type.isDragon) {
-            enemy.level.value * 5
-        } else {
-            enemy.level.value
-        }
-        
+    fun handleEnemyAttackBarricade(enemy: Attacker, barricade: Barricade, damage: Int): Boolean {
         // Apply damage to barricade
         val wasDestroyed = barricade.takeDamage(damage)
+        
+        // Add damage effect for visualization
+        state.damageEffects.add(
+            DamageEffect(
+                position = barricade.position,
+                damageAmount = damage,
+                turnNumber = state.turnNumber.value
+            )
+        )
         
         if (wasDestroyed) {
             // Remove destroyed barricade
             state.barricades.remove(barricade)
-            // Enemy moves to barricade position
-            return barricade.position
         }
         
-        // Barricade still stands, enemy doesn't move
-        return null
+        return wasDestroyed
     }
 }

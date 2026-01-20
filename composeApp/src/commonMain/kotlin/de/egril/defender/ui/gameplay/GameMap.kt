@@ -329,6 +329,9 @@ fun GridCell(
     // Check for healing effects at this position
     val healingEffect = gameState.healingEffects.find { it.position == position }
     
+    // Check for damage effects at this position
+    val damageEffect = gameState.damageEffects.find { it.position == position }
+    
     // Determine the tile type for background image loading
     val riverTile = gameState.level.getRiverTile(position)
     val isMaelstrom = riverTile?.flowDirection == RiverFlow.MAELSTROM
@@ -655,6 +658,7 @@ fun GridCell(
                 gameState = gameState,
                 attacker = attacker,
                 healingEffect = healingEffect,
+                damageEffect = damageEffect,
                 defender = defender,
                 fieldEffect = fieldEffect,
                 trap = trap,
@@ -690,6 +694,7 @@ fun GridCell(
                 gameState = gameState,
                 attacker = attacker,
                 healingEffect = healingEffect,
+                damageEffect = damageEffect,
                 defender = defender,
                 fieldEffect = fieldEffect,
                 trap = trap,
@@ -722,6 +727,7 @@ private fun BoxScope.GridCellContent(
     gameState: GameState,
     attacker: Attacker?,
     healingEffect: HealingEffect?,
+    damageEffect: DamageEffect?,
     defender: Defender?,
     fieldEffect: FieldEffect?,
     trap: Trap?,
@@ -878,19 +884,54 @@ private fun BoxScope.GridCellContent(
             
             barricade != null -> {
                 // Show barricade with HP
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    // Show wood/barricade symbol with brown color
-                    WoodIcon(size = 24.dp)
-                    // Show health points
-                    Text(
-                        "${barricade.healthPoints.value} HP",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = Color(0xFF795548),  // Brown color
-                        fontWeight = FontWeight.Bold
-                    )
+                Box(contentAlignment = Alignment.Center) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        // Show wood/barricade symbol with brown color
+                        WoodIcon(size = 24.dp)
+                        // Show health points
+                        Text(
+                            "${barricade.healthPoints.value} HP",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Color(0xFF795548),  // Brown color
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    // Show damage effect overlay if present
+                    if (damageEffect != null) {
+                        // Show 3 red "-" symbols in different sizes
+                        // Positioned with smaller symbols higher than larger ones
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            // Large - symbol at center
+                            Text(
+                                "-",
+                                style = MaterialTheme.typography.headlineLarge,
+                                color = Color.Red,
+                                fontWeight = FontWeight.Bold
+                            )
+                            // Medium - symbol - offset left and higher
+                            Text(
+                                "-",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = Color.Red,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.offset(x = (-10).dp, y = (-12).dp)
+                            )
+                            // Small - symbol - offset right and higher
+                            Text(
+                                "-",
+                                style = MaterialTheme.typography.titleSmall,
+                                color = Color.Red,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.offset(x = 8.dp, y = (-15).dp)
+                            )
+                        }
+                    }
                 }
             }
             

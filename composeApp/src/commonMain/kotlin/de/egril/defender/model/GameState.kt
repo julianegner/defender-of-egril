@@ -37,6 +37,12 @@ data class HealingEffect(
     val turnNumber: Int  // Track which turn this healing occurred for display timing
 )
 
+data class DamageEffect(
+    val position: Position,
+    val damageAmount: Int,
+    val turnNumber: Int  // Track which turn this damage occurred for display timing
+)
+
 data class GameState(
     val level: Level,
     val phase: MutableState<GamePhase> = mutableStateOf(GamePhase.INITIAL_BUILDING),
@@ -55,6 +61,7 @@ data class GameState(
     val spawnPlan: List<PlannedEnemySpawn> = level.directSpawnPlan ?: generateSpawnPlan(level.attackerWaves),
     val fieldEffects: SnapshotStateList<FieldEffect> = mutableStateListOf(), // Track active field effects
     val healingEffects: SnapshotStateList<HealingEffect> = mutableStateListOf(), // Track active healing effects
+    val damageEffects: SnapshotStateList<DamageEffect> = mutableStateListOf(), // Track barricade damage effects
     val traps: SnapshotStateList<Trap> = mutableStateListOf(),  // Track active traps
     val barricades: SnapshotStateList<Barricade> = mutableStateListOf(),  // Track active barricades
     val bridges: SnapshotStateList<Bridge> = mutableStateListOf(),  // Track active bridges

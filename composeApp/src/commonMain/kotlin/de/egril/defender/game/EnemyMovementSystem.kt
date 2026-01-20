@@ -400,5 +400,8 @@ class EnemyMovementSystem(
         
         // Clean up healing effects from previous turns (they are shown for one turn only)
         state.healingEffects.removeAll { it.turnNumber < state.turnNumber.value }
+        
+        // Clean up damage effects from previous turns (they are shown for one turn only)
+        state.damageEffects.removeAll { it.turnNumber < state.turnNumber.value }
     }
 }

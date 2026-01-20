@@ -585,6 +585,9 @@ fun BarricadeButton(
     modifier: Modifier = Modifier.fillMaxWidth().height(56.dp)
 ) {
     if (defender.isReady) {
+        // Calculate HP that will be added
+        val hpAmount = maxOf(1, defender.level.value - 10)
+        
         // Button to enter barricade placement mode - enabled when tower has actions
         Button(
             onClick = { onBarricadeAction(defender.id, BarricadeAction.BUILD_BARRICADE) },
@@ -603,6 +606,14 @@ fun BarricadeButton(
                 Text(
                     stringResource(Res.string.build_barricade),
                     fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                // Show HP amount in white
+                Text(
+                    "HP$hpAmount",
+                    fontSize = 14.sp,
+                    color = Color.White,
                     fontWeight = FontWeight.Bold
                 )
             }
