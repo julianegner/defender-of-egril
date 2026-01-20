@@ -422,54 +422,6 @@ object SaveJsonSerializer {
         return Position(x, y)
     }
     
-    private fun JsonUtils.extractValue(json: String, key: String): String {
-        val pattern = "\"$key\":\\s*\"?([^,\"\\}\\]]+)\"?"
-        val regex = Regex(pattern)
-        val match = regex.find(json)
-        return match?.groupValues?.get(1)?.trim() ?: ""
-    }
-    
-    private fun JsonUtils.splitJsonArray(arrayContent: String): List<String> {
-        val result = mutableListOf<String>()
-        var depth = 0
-        var currentItem = StringBuilder()
-        
-        for (char in arrayContent) {
-            when (char) {
-                '{' -> {
-                    depth++
-                    currentItem.append(char)
-                }
-                '}' -> {
-                    depth--
-                    currentItem.append(char)
-                    if (depth == 0 && currentItem.isNotBlank()) {
-                        result.add(currentItem.toString().trim())
-                        currentItem = StringBuilder()
-                    }
-                }
-                ',' -> {
-                    if (depth == 0) {
-                        // Skip comma between items
-                    } else {
-                        currentItem.append(char)
-                    }
-                }
-                else -> {
-                    if (depth > 0 || !char.isWhitespace()) {
-                        currentItem.append(char)
-                    }
-                }
-            }
-        }
-        
-        if (currentItem.isNotBlank()) {
-            result.add(currentItem.toString().trim())
-        }
-        
-        return result
-    }
-    
     fun serializeSaveGameMetadata(metadata: SaveGameMetadata): String {
         return """{
   "id": "${metadata.id}",
