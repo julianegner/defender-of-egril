@@ -648,6 +648,8 @@
     <string name="barricade_hp">Barricade HP: %d</string>
     <string name="build_barricade">Build Barricade</string>
     <string name="remove_barricade">Remove Barricade</string>
+    <string name="remove_barricade_title">Remove Barricade?</string>
+    <string name="remove_barricade_message">Are you sure you want to remove this barricade?</string>
     <string name="barricade_info_title">Barricade Ability Unlocked!</string>
     <string name="barricade_info_message">Your Spike or Spear tower has reached level 10 and can now build barricades! Barricades are wooden structures placed on adjacent path tiles that block enemy movement. Each barricade has health points equal to the tower level minus 10 (minimum 1). When enemies reach a barricade, they attack it with damage equal to their level (dragons deal 5× their level). If a barricade is destroyed, the enemy moves to that tile. You can build new barricades or reinforce existing ones, and click on barricades to remove them.</string>
     
@@ -657,6 +659,13 @@
     <string name="magical_trap_available">Magical Trap Available</string>
     <string name="magical_trap_tutorial_title">Magical Trap Unlocked!</string>
     <string name="magical_trap_tutorial_message">Your wizard tower has reached level 10 and can now place magical traps! These traps teleport enemies back to their spawn point when triggered. After placing a trap, there is a 10-turn cooldown before you can place another one.</string>
+    <string name="remove_magical_trap_title">Remove Magical Trap?</string>
+    <string name="remove_magical_trap_message">Are you sure you want to remove this magical trap?</string>
+    
+    <!-- Trap Feature -->
+    <string name="remove_trap_title">Remove Trap?</string>
+    <string name="remove_trap_message">Are you sure you want to remove this trap?</string>
+    <string name="no">No</string>
     
     <!-- Level Prerequisites -->
     <string name="level_dependencies">Level Dependencies</string>

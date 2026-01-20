@@ -362,7 +362,52 @@ class EnemyMovementSystem(
                     it.id != attacker.id && !it.isDefeated.value && it.position.value == newPos
                 }
                 
-                if (!isOccupied) {
+                if (isOccupied) {
+                    // Can't move further, stop trying
+                    break
+                }
+                
+                // Check for barricades (barricades block non-flying enemies)
+                val barricadeAtPosition = state.barricades.find { it.position == newPos && !it.isDestroyed() }
+                if (barricadeAtPosition != null) {
+                    // Goblin encounters barricade - attack it
+                    val damage = attacker.level.value  // Goblins are not dragons, so regular damage
+                    barricadeAtPosition.takeDamage(damage)
+                    
+                    // Add damage effect for visualization
+                    state.barricadeDamageEffects.add(
+                        DamageEffect(position = barricadeAtPosition.position, damage = damage)
+                    )
+                    
+                    if (barricadeAtPosition.isDestroyed()) {
+                        // Barricade destroyed, remove it and goblin can move to that position
+                        state.barricades.remove(barricadeAtPosition)
+                        println("Goblin ${attacker.id} destroyed barricade at $newPos")
+                        attacker.position.value = newPos
+                        
+                        // Check if reached a waypoint
+                        if (state.level.isWaypoint(newPos) && attacker.currentTarget?.value == newPos) {
+                            val waypoint = state.level.getWaypointAt(newPos)
+                            if (waypoint != null) {
+                                attacker.currentTarget.value = waypoint.nextTarget
+                                println("Goblin ${attacker.id} reached waypoint at $newPos, next target: ${waypoint.nextTarget}")
+                            }
+                        }
+                        
+                        remainingSpeed--
+                        
+                        // Check if reached any target
+                        if (state.level.isTargetPosition(attacker.position.value)) {
+                            applyTargetDamage(attacker)
+                            break
+                        }
+                    } else {
+                        // Barricade not destroyed, goblin stops here
+                        println("Goblin ${attacker.id} hit barricade at $newPos (${barricadeAtPosition.healthPoints.value} HP remaining), stopping")
+                        break
+                    }
+                } else {
+                    // No barricade, move normally
                     attacker.position.value = newPos
                     
                     // Check if reached a waypoint and update target BEFORE next move
@@ -382,9 +427,6 @@ class EnemyMovementSystem(
                         applyTargetDamage(attacker)
                         break
                     }
-                } else {
-                    // Can't move further, stop trying
-                    break
                 }
             }
         }
