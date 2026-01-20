@@ -330,6 +330,11 @@ private fun GamePlayScreenContent(
             MineAction.BUILD_TRAP -> {
                 // Toggle trap placement mode - if already selected, deselect it
                 selectedMineAction = if (selectedMineAction == action) null else action
+                // Clear target selection when entering trap placement mode
+                if (selectedMineAction != null) {
+                    selectedTargetId = null
+                    selectedTargetPosition = null
+                }
                 showMineActionDialog = true
             }
         }
@@ -341,6 +346,11 @@ private fun GamePlayScreenContent(
             WizardAction.PLACE_MAGICAL_TRAP -> {
                 // Toggle trap placement mode - if already selected, deselect it
                 selectedWizardAction = if (selectedWizardAction == action) null else action
+                // Clear target selection when entering trap placement mode
+                if (selectedWizardAction != null) {
+                    selectedTargetId = null
+                    selectedTargetPosition = null
+                }
                 // The user will now click on the map to place the trap
             }
         }

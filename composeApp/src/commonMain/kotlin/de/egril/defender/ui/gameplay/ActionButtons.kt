@@ -1,5 +1,6 @@
 package de.egril.defender.ui.gameplay
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -29,6 +30,9 @@ fun AttackButton(
     modifier: Modifier = Modifier.fillMaxWidth().height(56.dp)
 ) {
     if (defender.isReady && defender.actionsRemaining.value > 0) {
+        // Determine if attack mode is active (target or position selected)
+        val isAttackModeActive = selectedTargetId != null || selectedTargetPosition != null
+        
         // For AOE/DOT towers with position selected
         if ((defender.type.attackType == AttackType.AREA || defender.type.attackType == AttackType.LASTING) && selectedTargetPosition != null) {
             // If there's an enemy at the position, show enemy info
@@ -37,7 +41,15 @@ fun AttackButton(
                 if (target != null && defender.canAttack(target)) {
                     Button(
                         onClick = { onDefenderAttackPosition(defender.id, selectedTargetPosition) },
-                        modifier = modifier,
+                        modifier = modifier.then(
+                            if (isAttackModeActive) {
+                                Modifier.border(
+                                    width = 3.dp,
+                                    color = GamePlayColors.Yellow,
+                                    shape = MaterialTheme.shapes.small
+                                )
+                            } else Modifier
+                        ),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = GamePlayColors.ErrorDark
                         )
@@ -69,7 +81,15 @@ fun AttackButton(
                 // No enemy at position, show position coordinates
                 Button(
                     onClick = { onDefenderAttackPosition(defender.id, selectedTargetPosition) },
-                    modifier = modifier,
+                    modifier = modifier.then(
+                        if (isAttackModeActive) {
+                            Modifier.border(
+                                width = 3.dp,
+                                color = GamePlayColors.Yellow,
+                                shape = MaterialTheme.shapes.small
+                            )
+                        } else Modifier
+                    ),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = GamePlayColors.ErrorDark
                     )
@@ -100,7 +120,15 @@ fun AttackButton(
             if (target != null && defender.canAttack(target)) {
                 Button(
                     onClick = { onDefenderAttack(defender.id, selectedTargetId) },
-                    modifier = modifier,
+                    modifier = modifier.then(
+                        if (isAttackModeActive) {
+                            Modifier.border(
+                                width = 3.dp,
+                                color = GamePlayColors.Yellow,
+                                shape = MaterialTheme.shapes.small
+                            )
+                        } else Modifier
+                    ),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = GamePlayColors.ErrorDark
                     )
@@ -135,7 +163,15 @@ fun AttackButton(
                 if (distance >= defender.type.minRange && distance <= defender.range) {
                     Button(
                         onClick = { onDefenderAttackPosition(defender.id, selectedTargetPosition) },
-                        modifier = modifier,
+                        modifier = modifier.then(
+                            if (isAttackModeActive) {
+                                Modifier.border(
+                                    width = 3.dp,
+                                    color = GamePlayColors.Yellow,
+                                    shape = MaterialTheme.shapes.small
+                                )
+                            } else Modifier
+                        ),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = GamePlayColors.ErrorDark
                         )
