@@ -661,11 +661,13 @@ class GameEngine(private val state: GameState) {
         val attacker = state.attackers.find { it.id == attackerId } ?: return
         if (attacker.isDefeated.value) return
         
-        // Check if there's a barricade AT the new position (enemy trying to move onto a barricade)
-        // If there's a barricade, attack it instead of moving
+        // Check if there's a barricade AT the new position
+        // Flying dragons can fly over barricades (like they fly over non-playable tiles)
         val barricadeAtPosition = barricadeSystem.getBarricadeAt(newPosition)
-        if (barricadeAtPosition != null && !barricadeAtPosition.isDestroyed()) {
-            // Enemy attacks the barricade
+        val isFlying = attacker.isFlying.value
+        
+        if (barricadeAtPosition != null && !barricadeAtPosition.isDestroyed() && !isFlying) {
+            // Non-flying enemy encounters barricade - attack it instead of moving
             val damage = if (attacker.type.isDragon) {
                 attacker.level.value * 5
             } else {
@@ -693,6 +695,9 @@ class GameEngine(private val state: GameState) {
             // If barricade not destroyed, enemy doesn't move (stays at current position)
             return
         }
+        
+        // Flying dragons can move over barricades without attacking them
+        // (They pass over barricades just like they pass over non-playable tiles)
         
         // Special handling for dragons - they can eat other units
         if (attacker.type.isDragon) {
