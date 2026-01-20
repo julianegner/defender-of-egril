@@ -902,4 +902,36 @@
     <string name="initial_language_title">Elige tu idioma</string>
     <string name="initial_language_prompt">Selecciona tu idioma preferido para el juego</string>
     <string name="initial_language_continue">Continuar</string>
+
+    <!-- Installation Information Screen -->
+    <string name="installation_info">Info de Instalación</string>
+    <string name="installation_info_title">Cómo instalar Defender of Egril</string>
+    <string name="installation_windows_title">Windows</string>
+    <string name="installation_windows_step1">1. Descarga el instalador (.exe o .msi) desde GitHub Releases</string>
+    <string name="installation_windows_step2">2. Ejecuta el instalador</string>
+    <string name="installation_windows_step3">3. Si aparece Windows Defender SmartScreen con una advertencia:</string>
+    <string name="installation_windows_step3a">• Haz clic en "Más información"</string>
+    <string name="installation_windows_step3b">• Luego haz clic en "Ejecutar de todas formas"</string>
+    <string name="installation_windows_note">Esta advertencia aparece porque el juego no está firmado con un certificado comercial. El juego es seguro de instalar.</string>
+    <string name="installation_android_title">Android (Instalación manual)</string>
+    <string name="installation_android_step1">1. Habilita "Instalar aplicaciones desconocidas" en Ajustes:</string>
+    <string name="installation_android_step1a">• Ve a Ajustes → Aplicaciones → Acceso especial → Instalar aplicaciones desconocidas</string>
+    <string name="installation_android_step1b">• Selecciona tu navegador y habilita "Permitir desde esta fuente"</string>
+    <string name="installation_android_step2">2. Descarga el APK desde GitHub Releases</string>
+    <string name="installation_android_step3">3. Abre el archivo APK descargado</string>
+    <string name="installation_android_step4">4. Toca "Instalar" cuando se te solicite</string>
+    <string name="installation_android_note">Por seguridad, deshabilita "Instalar aplicaciones desconocidas" después de la instalación.</string>
+    <string name="installation_ios_title">iOS</string>
+    <string name="installation_ios_step1">1. Instala desde App Store (cuando esté disponible)</string>
+    <string name="installation_ios_step2">2. O compila desde el código fuente usando Xcode</string>
+    <string name="installation_linux_title">Linux</string>
+    <string name="installation_linux_step1">Ejecuta desde terminal con JDK 11+:</string>
+    <string name="installation_linux_command">./gradlew :composeApp:run</string>
+    <string name="installation_macos_title">macOS</string>
+    <string name="installation_macos_step1">Ejecuta desde terminal con JDK 11+:</string>
+    <string name="installation_macos_command">./gradlew :composeApp:run</string>
+    <string name="installation_web_title">Web/Navegador</string>
+    <string name="installation_web_step1">¡No se necesita instalación!</string>
+    <string name="installation_web_step2">Solo visita la URL del juego en cualquier navegador moderno (Chrome, Firefox, Safari, Edge)</string>
+    <string name="installation_details_link">Para instrucciones detalladas, consulta INSTALL.md en el repositorio de GitHub.</string>
 </resources>

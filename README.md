@@ -73,6 +73,8 @@ Then open http://localhost:8080 in your browser
 
 📖 **For detailed gameplay instructions, see [GAMEPLAY.md](docs/root/GAMEPLAY.md)**
 
+🎮 **For installation instructions on all platforms, see [INSTALL.md](INSTALL.md)**
+
 ## Building and Running
 
 ### Prerequisites
