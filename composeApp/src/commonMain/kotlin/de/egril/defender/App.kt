@@ -185,6 +185,7 @@ fun App() {
                 MainMenuScreen(
                     onStartGame = { viewModel.navigateToWorldMap() },
                     onShowRules = { viewModel.navigateToRules() },
+                    onShowInstallationInfo = { viewModel.navigateToInstallationInfo() },
                     onSelectPlayer = { showPlayerSelection = true },
                     onEditPlayerName = { showEditPlayer = true },
                     currentPlayerName = currentPlayer?.name
@@ -211,6 +212,12 @@ fun App() {
             
             is Screen.Rules -> {
                 RulesScreen(
+                    onBack = { viewModel.navigateToMainMenu() }
+                )
+            }
+            
+            is Screen.InstallationInfo -> {
+                InstallationInfoScreen(
                     onBack = { viewModel.navigateToMainMenu() }
                 )
             }
