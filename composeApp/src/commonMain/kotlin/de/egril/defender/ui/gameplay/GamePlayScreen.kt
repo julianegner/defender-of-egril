@@ -15,6 +15,9 @@ import androidx.compose.ui.unit.dp
 import de.egril.defender.model.*
 import de.egril.defender.ui.CheatCodeDialog
 import de.egril.defender.ui.getGameplayUIScale
+import de.egril.defender.ui.ReminderMessage
+import com.hyperether.resources.stringResource
+import defender_of_egril.composeapp.generated.resources.*
 
 @Composable
 fun GamePlayScreen(
@@ -933,9 +936,9 @@ private fun GamePlayScreenContent(
                 type = reminder.type,
                 elapsedTime = reminder.elapsedTime,
                 timeDescription = when (reminder.timeDescription) {
-                    "close_to_midnight" -> com.hyperether.resources.stringResource(defender_of_egril.composeapp.generated.resources.Res.string.time_for_sleep_close_to_midnight)
-                    "midnight" -> com.hyperether.resources.stringResource(defender_of_egril.composeapp.generated.resources.Res.string.time_for_sleep_midnight)
-                    "after_midnight" -> com.hyperether.resources.stringResource(defender_of_egril.composeapp.generated.resources.Res.string.time_for_sleep_after_midnight)
+                    "close_to_midnight" -> stringResource(Res.string.time_for_sleep_close_to_midnight)
+                    "midnight" -> stringResource(Res.string.time_for_sleep_midnight)
+                    "after_midnight" -> stringResource(Res.string.time_for_sleep_after_midnight)
                     else -> null
                 },
                 onDismiss = {
