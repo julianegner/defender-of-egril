@@ -31,7 +31,7 @@ object GamePlayColors {
     private val YellowLight = Color(0xFFFFEB3B)       // Yellow - selected items, attack type
     
     // Extended palette for specific uses (dark mode - much softer)
-    private val InfoDeepDarkMode = Color(0xFF0A2647)      // Much darker blue for selected towers
+    private val InfoDeepDarkMode = Color(0xFF3A5A8F)      // Lighter blue for selected towers (better contrast in dark mode)
     private val InfoTintDarkMode = Color(0xFF5C6BC0)      // Darker light blue for no actions
     private val WarningDeepDarkMode = Color(0xFFE65100)   // Much darker deep orange
     private val WarningIntenseDarkMode = Color(0xFFEF6C00)   // Much darker orange

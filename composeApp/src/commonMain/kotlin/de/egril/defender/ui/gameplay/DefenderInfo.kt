@@ -33,6 +33,8 @@ fun DefenderInfo(
     onSellTower: (Int) -> Unit,
     onMineAction: ((Int, MineAction) -> Unit)? = null,
     onWizardAction: ((Int, WizardAction) -> Unit)? = null,  // For wizard tower magical traps - click to select action, then click map
+    selectedMineAction: MineAction? = null,  // Current trap placement mode
+    selectedWizardAction: WizardAction? = null,  // Current wizard trap placement mode
     compactBuyPanel: Boolean = false,
     isMobile: Boolean = false,  // Add platform parameter
     selectedTargetId: Int? = null,
@@ -289,6 +291,7 @@ fun DefenderInfo(
                                     MagicalTrapButton(
                                         defender = defender,
                                         onWizardAction = onWizardAction,
+                                        selectedWizardAction = selectedWizardAction,
                                         modifier = Modifier
                                             .width(240.dp)
                                             .height(buttonHeight)
@@ -301,6 +304,7 @@ fun DefenderInfo(
                                 gameState,
                                 defender,
                                 onMineAction,
+                                selectedMineAction,
                                 compactBuyPanel,
                                 horizontalSpacing,
                                 buttonHeight
@@ -347,6 +351,7 @@ private fun RowScope.dwarvenMineActionButtonArea(
     gameState: GameState,
     defender: Defender,
     onMineAction: ((Int, MineAction) -> Unit)?,
+    selectedMineAction: MineAction? = null,  // Current trap placement mode
     compactBuyPanel: Boolean = false,
     horizontalSpacing: Dp = 8.dp,
     buttonHeight: Dp = 60.dp
@@ -383,6 +388,7 @@ private fun RowScope.dwarvenMineActionButtonArea(
 
             Column(modifier = Modifier.weight(0.5f)) {
                 // Trap button
+                val isTrapModeActive = selectedMineAction == MineAction.BUILD_TRAP
                 Button(
                     onClick = {
                         onMineAction?.invoke(
@@ -395,6 +401,12 @@ private fun RowScope.dwarvenMineActionButtonArea(
                         .width(240.dp)
                         .height(buttonHeight)
                         .padding(start = horizontalSpacing),
+                    border = if (isTrapModeActive) {
+                        androidx.compose.foundation.BorderStroke(
+                            width = 3.dp,
+                            color = GamePlayColors.Yellow
+                        )
+                    } else null,
                     contentPadding = PaddingValues(
                         horizontal = 4.dp,
                         vertical = 2.dp
@@ -492,10 +504,12 @@ fun DefenderActionsInfo(defender: Defender) {
 fun MagicalTrapButton(
     defender: Defender,
     onWizardAction: (Int, WizardAction) -> Unit,
+    selectedWizardAction: WizardAction? = null,  // Current wizard trap placement mode
     modifier: Modifier = Modifier.fillMaxWidth().height(56.dp)
 ) {
     if (defender.isReady) {
         val isOnCooldown = defender.trapCooldownRemaining.value > 0
+        val isTrapModeActive = selectedWizardAction == WizardAction.PLACE_MAGICAL_TRAP
         
         // Button to enter magical trap placement mode - enabled when trap is ready and has actions
         Button(
@@ -504,7 +518,13 @@ fun MagicalTrapButton(
             modifier = modifier,
             colors = ButtonDefaults.buttonColors(
                 containerColor = GamePlayColors.InfoDark
-            )
+            ),
+            border = if (isTrapModeActive) {
+                androidx.compose.foundation.BorderStroke(
+                    width = 3.dp,
+                    color = GamePlayColors.Yellow
+                )
+            } else null
         ) {
             Row(
                 horizontalArrangement = Arrangement.Center,
