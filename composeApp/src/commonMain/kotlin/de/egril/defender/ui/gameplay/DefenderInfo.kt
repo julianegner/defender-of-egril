@@ -33,6 +33,8 @@ fun DefenderInfo(
     onSellTower: (Int) -> Unit,
     onMineAction: ((Int, MineAction) -> Unit)? = null,
     onWizardAction: ((Int, WizardAction) -> Unit)? = null,  // For wizard tower magical traps - click to select action, then click map
+    selectedMineAction: MineAction? = null,  // Current trap placement mode
+    selectedWizardAction: WizardAction? = null,  // Current wizard trap placement mode
     compactBuyPanel: Boolean = false,
     isMobile: Boolean = false,  // Add platform parameter
     selectedTargetId: Int? = null,
@@ -185,28 +187,18 @@ fun DefenderInfo(
                     } else {
 
                         // Normal tower stats and buttons
-                        val baseDamage =
-                            if (defender.type == DefenderType.DWARVEN_MINE) defender.trapDamage else defender.damage
-                        val nextLevelDamage = baseDamage + 5
-                        val nextActualDamage = when (defender.type.attackType) {
-                            AttackType.LASTING -> nextLevelDamage / 2
-                            else -> nextLevelDamage
-                        }
-                        val nextLevel = defender.level.value + 1
-                        val nextRangeCalculated = defender.type.baseRange + (nextLevel - 1) / 2
-                        val nextRange = if (defender.type == DefenderType.SPIKE_TOWER && nextLevel >= 5) {
-                            minOf(nextRangeCalculated, 2)
+                        // Calculate next level stats using helper functions
+                        val currentLevel = defender.level.value
+                        val nextLevel = currentLevel + 1
+                        val nextActualDamage = if (defender.type == DefenderType.DWARVEN_MINE) {
+                            calculateTrapDamage(defender, nextLevel)
                         } else {
-                            nextRangeCalculated
+                            calculateActualDamage(defender, nextLevel)
                         }
-                        val nextActions =
-                            if (defender.type == DefenderType.SPIKE_TOWER || defender.type == DefenderType.DWARVEN_MINE) {
-                                val bonusActions = nextLevel / 5
-                                minOf(1 + bonusActions, 3)
-                            } else {
-                                defender.type.actionsPerTurn
-                            }
-                            // Current stats column
+                        val nextRange = calculateRange(defender, nextLevel)
+                        val nextActions = calculateActionsPerTurn(defender, nextLevel)
+                        
+                        // Current stats column
                             Column(modifier = Modifier.weight(0.5f)) {
                                 Text(
                                     "Lvl ${defender.level.value}",
@@ -299,6 +291,7 @@ fun DefenderInfo(
                                     MagicalTrapButton(
                                         defender = defender,
                                         onWizardAction = onWizardAction,
+                                        selectedWizardAction = selectedWizardAction,
                                         modifier = Modifier
                                             .width(240.dp)
                                             .height(buttonHeight)
@@ -311,6 +304,7 @@ fun DefenderInfo(
                                 gameState,
                                 defender,
                                 onMineAction,
+                                selectedMineAction,
                                 compactBuyPanel,
                                 horizontalSpacing,
                                 buttonHeight
@@ -357,6 +351,7 @@ private fun RowScope.dwarvenMineActionButtonArea(
     gameState: GameState,
     defender: Defender,
     onMineAction: ((Int, MineAction) -> Unit)?,
+    selectedMineAction: MineAction? = null,  // Current trap placement mode
     compactBuyPanel: Boolean = false,
     horizontalSpacing: Dp = 8.dp,
     buttonHeight: Dp = 60.dp
@@ -393,6 +388,7 @@ private fun RowScope.dwarvenMineActionButtonArea(
 
             Column(modifier = Modifier.weight(0.5f)) {
                 // Trap button
+                val isTrapModeActive = selectedMineAction == MineAction.BUILD_TRAP
                 Button(
                     onClick = {
                         onMineAction?.invoke(
@@ -405,6 +401,12 @@ private fun RowScope.dwarvenMineActionButtonArea(
                         .width(240.dp)
                         .height(buttonHeight)
                         .padding(start = horizontalSpacing),
+                    border = if (isTrapModeActive) {
+                        androidx.compose.foundation.BorderStroke(
+                            width = 3.dp,
+                            color = GamePlayColors.Yellow
+                        )
+                    } else null,
                     contentPadding = PaddingValues(
                         horizontal = 4.dp,
                         vertical = 2.dp
@@ -502,10 +504,12 @@ fun DefenderActionsInfo(defender: Defender) {
 fun MagicalTrapButton(
     defender: Defender,
     onWizardAction: (Int, WizardAction) -> Unit,
+    selectedWizardAction: WizardAction? = null,  // Current wizard trap placement mode
     modifier: Modifier = Modifier.fillMaxWidth().height(56.dp)
 ) {
     if (defender.isReady) {
         val isOnCooldown = defender.trapCooldownRemaining.value > 0
+        val isTrapModeActive = selectedWizardAction == WizardAction.PLACE_MAGICAL_TRAP
         
         // Button to enter magical trap placement mode - enabled when trap is ready and has actions
         Button(
@@ -514,7 +518,13 @@ fun MagicalTrapButton(
             modifier = modifier,
             colors = ButtonDefaults.buttonColors(
                 containerColor = GamePlayColors.InfoDark
-            )
+            ),
+            border = if (isTrapModeActive) {
+                androidx.compose.foundation.BorderStroke(
+                    width = 3.dp,
+                    color = GamePlayColors.Yellow
+                )
+            } else null
         ) {
             Row(
                 horizontalArrangement = Arrangement.Center,
@@ -541,5 +551,66 @@ fun MagicalTrapButton(
                 }
             }
         }
+    }
+}
+
+/**
+ * Calculate the damage for a defender at a specific level
+ */
+private fun calculateDamage(defender: Defender, level: Int): Int {
+    return defender.type.baseDamage + (level - 1) * 5
+}
+
+/**
+ * Calculate the actual damage (accounting for LASTING attack type) for a defender at a specific level
+ */
+private fun calculateActualDamage(defender: Defender, level: Int): Int {
+    val baseDamage = calculateDamage(defender, level)
+    return when (defender.type.attackType) {
+        AttackType.LASTING -> baseDamage / 2
+        else -> baseDamage
+    }
+}
+
+/**
+ * Calculate trap damage for dwarven mine at a specific level
+ */
+private fun calculateTrapDamage(defender: Defender, level: Int): Int {
+    return if (defender.type == DefenderType.DWARVEN_MINE) {
+        10 + ((level / 2) * 5)
+    } else {
+        0
+    }
+}
+
+/**
+ * Calculate the range for a defender at a specific level
+ */
+private fun calculateRange(defender: Defender, level: Int): Int {
+    val baseCalculatedRange = defender.type.baseRange + (level - 1) / 2
+    
+    if (defender.type == DefenderType.SPIKE_TOWER && level >= 5) {
+        return minOf(baseCalculatedRange, 2)
+    }
+    
+    if (defender.type == DefenderType.DWARVEN_MINE) {
+        val mineReach = 3 + (level / 5)
+        return minOf(mineReach, 10)
+    }
+    
+    return baseCalculatedRange
+}
+
+/**
+ * Calculate actions per turn for a defender at a specific level
+ */
+private fun calculateActionsPerTurn(defender: Defender, level: Int): Int {
+    return if (defender.type == DefenderType.SPIKE_TOWER) {
+        val bonusActions = level / 5
+        minOf(defender.type.actionsPerTurn + bonusActions, 3)
+    } else if (defender.type == DefenderType.DWARVEN_MINE) {
+        1 + (level / 5)
+    } else {
+        defender.type.actionsPerTurn
     }
 }

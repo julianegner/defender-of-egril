@@ -176,6 +176,18 @@ kotlin {
             dependsOn(jvmMain)
         }
         
+        // Create androidUnitTest source set for Android-specific tests
+        val androidUnitTest by getting {
+            dependencies {
+                implementation(libs.kotlin.test)
+                implementation(libs.kotlin.test.junit)
+                implementation(libs.junit)
+                implementation(libs.mockk.android)
+                implementation(libs.robolectric)
+                implementation(libs.kotlinx.coroutines.test)
+            }
+        }
+        
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
@@ -229,6 +241,9 @@ android {
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
         versionName = "1.0"
+        
+        // Configure test instrumentation runner
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     packaging {
         resources {

@@ -102,6 +102,9 @@ class MineOperations(private val state: GameState) {
         // Check if there's an enemy unit at this position
         if (state.attackers.any { it.position.value == trapPosition && !it.isDefeated.value }) return false
         
+        // Check if there's a field effect at this position
+        if (state.fieldEffects.any { it.position == trapPosition }) return false
+        
         // Create trap with current mine damage
         val trap = Trap(
             position = trapPosition,
@@ -276,6 +279,9 @@ class MineOperations(private val state: GameState) {
         
         // Check if there's an enemy unit at this position
         if (state.attackers.any { it.position.value == trapPosition && !it.isDefeated.value }) return false
+        
+        // Check if there's a field effect at this position
+        if (state.fieldEffects.any { it.position == trapPosition }) return false
         
         // Create magical trap (no damage, just teleports)
         val trap = Trap(
