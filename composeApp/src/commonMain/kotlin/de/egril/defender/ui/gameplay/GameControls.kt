@@ -69,6 +69,7 @@ fun GameControlsPanel(
     onPrimaryAction: () -> Unit,
     onMineAction: ((Int, MineAction) -> Unit)? = null,
     onWizardAction: ((Int, WizardAction) -> Unit)? = null,  // Add wizard action callback for magical trap placement mode
+    onBarricadeAction: ((Int, BarricadeAction) -> Unit)? = null,  // Add barricade action callback for barricade placement mode
     uiScale: Float = 1f,  // Add platform scale parameter
     onShowDragonInfo: () -> Unit = {}  // Add dragon info callback
 ) {
@@ -112,6 +113,7 @@ fun GameControlsPanel(
                                 onSellTower,
                                 onMineAction = onMineAction,
                                 onWizardAction = onWizardAction,
+                                onBarricadeAction = onBarricadeAction,
                                 compactBuyPanel,
                                 isMobile = uiScale < 1f,
                                 selectedTargetId = selectedTargetId,
@@ -231,6 +233,7 @@ fun GameControlsPanel(
                         onSellTower,
                         onMineAction = onMineAction,
                         onWizardAction = onWizardAction,
+                        onBarricadeAction = onBarricadeAction,
                         compactBuyPanel,
                         isMobile = uiScale < 1f,
                         selectedTargetId = selectedTargetId,

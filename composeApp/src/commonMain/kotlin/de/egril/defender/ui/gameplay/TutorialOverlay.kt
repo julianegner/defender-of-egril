@@ -553,7 +553,7 @@ private fun BarricadeInfoContent(onDismiss: () -> Unit) {
             }
         },
         buttonColor = Color(0xFF795548),  // Brown button
-        width = 400.dp,
+        width = 600.dp,  // Increased from 400.dp to show German text without scrolling
         onDismiss = onDismiss
     ) {
         Text(

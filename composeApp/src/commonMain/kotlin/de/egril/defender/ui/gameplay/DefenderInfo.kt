@@ -33,6 +33,7 @@ fun DefenderInfo(
     onSellTower: (Int) -> Unit,
     onMineAction: ((Int, MineAction) -> Unit)? = null,
     onWizardAction: ((Int, WizardAction) -> Unit)? = null,  // For wizard tower magical traps - click to select action, then click map
+    onBarricadeAction: ((Int, BarricadeAction) -> Unit)? = null,  // For spike/spear tower barricades - click to select action, then click map
     compactBuyPanel: Boolean = false,
     isMobile: Boolean = false,  // Add platform parameter
     selectedTargetId: Int? = null,
@@ -305,6 +306,24 @@ fun DefenderInfo(
                                     )
                                 }
                             }
+                            
+                            // Barricade button for spike/spear tower level 10+
+                            if (isPlayerTurn &&
+                                (defender.type == DefenderType.SPIKE_TOWER || defender.type == DefenderType.SPEAR_TOWER) &&
+                                defender.level.value >= 10 &&
+                                onBarricadeAction != null) {
+
+                                Spacer(modifier = Modifier.width(horizontalSpacing))
+                                Column(modifier = Modifier.weight(1.3f)) {
+                                    BarricadeButton(
+                                        defender = defender,
+                                        onBarricadeAction = onBarricadeAction,
+                                        modifier = Modifier
+                                            .width(240.dp)
+                                            .height(buttonHeight)
+                                    )
+                                }
+                            }
 
                             dwarvenMineActionButtonArea(
                                 defender.type,
@@ -539,6 +558,45 @@ fun MagicalTrapButton(
                         )
                     }
                 }
+            }
+        }
+    }
+}
+
+/**
+ * Button for spike/spear tower to place barricades (level 10+)
+ * Works like wizard magical trap button - click to enter placement mode, then click on map
+ */
+@Composable
+fun BarricadeButton(
+    defender: Defender,
+    onBarricadeAction: (Int, BarricadeAction) -> Unit,
+    modifier: Modifier = Modifier.fillMaxWidth().height(56.dp)
+) {
+    if (defender.isReady) {
+        // Button to enter barricade placement mode - enabled when tower has actions
+        Button(
+            onClick = { onBarricadeAction(defender.id, BarricadeAction.BUILD_BARRICADE) },
+            enabled = defender.actionsRemaining.value > 0,
+            modifier = modifier,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color(0xFF795548)  // Brown color for wood
+            )
+        ) {
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "🪵",  // Wood/log emoji
+                    fontSize = 24.sp
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    stringResource(Res.string.build_barricade),
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
             }
         }
     }

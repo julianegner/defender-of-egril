@@ -351,6 +351,16 @@ private fun GamePlayScreenContent(
         }
     }
     
+    // Barricade action handler - similar to wizard action, click button first then select on map
+    val handleBarricadeAction: (Int, BarricadeAction) -> Unit = { towerId, action ->
+        when (action) {
+            BarricadeAction.BUILD_BARRICADE -> {
+                selectedBarricadeAction = action
+                // The user will now click on the map to place the barricade
+            }
+        }
+    }
+    
     // Keyboard event handler for Ctrl+S save shortcut
     // Using onPreviewKeyEvent to intercept before HexagonalMapView handles it
     // This works in the "capture" phase and doesn't require focus on this element
@@ -727,6 +737,7 @@ private fun GamePlayScreenContent(
                     },
                     onMineAction = handleMineAction,
                     onWizardAction = handleWizardAction,
+                    onBarricadeAction = handleBarricadeAction,
                     uiScale = uiScale,
                     onShowDragonInfo = { 
                         gameState.infoState.value = gameState.infoState.value.showInfo(InfoType.DRAGON_INFO)
@@ -803,6 +814,7 @@ private fun GamePlayScreenContent(
                     },
                     onMineAction = handleMineAction,
                     onWizardAction = handleWizardAction,
+                    onBarricadeAction = handleBarricadeAction,
                     uiScale = uiScale,
                     onShowDragonInfo = { 
                         gameState.infoState.value = gameState.infoState.value.showInfo(InfoType.DRAGON_INFO)
