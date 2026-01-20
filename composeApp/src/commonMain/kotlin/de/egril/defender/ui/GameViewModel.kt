@@ -467,6 +467,38 @@ class GameViewModel {
     }
     
     fun applyCheatCode(code: String): Boolean {
+        // Check for reminder testing cheat codes first
+        val lowerCode = code.lowercase().trim()
+        if (lowerCode == "breakreminder" || lowerCode == "break") {
+            // Trigger break reminder with current session time
+            val currentTime = de.egril.defender.utils.currentTimeMillis()
+            gameSessionStartTime?.let { sessionStart ->
+                val elapsedMs = currentTime - sessionStart
+                val elapsedTime = formatElapsedTime(elapsedMs)
+                _reminderMessage.value = ReminderMessage(
+                    type = de.egril.defender.ui.gameplay.ReminderType.BREAK,
+                    elapsedTime = elapsedTime
+                )
+            }
+            return true
+        }
+        
+        if (lowerCode == "sleepreminder" || lowerCode == "sleep") {
+            // Trigger sleep reminder
+            val currentTime = de.egril.defender.utils.currentTimeMillis()
+            val hour = de.egril.defender.utils.getLocalHour(currentTime)
+            val timeDescription = when {
+                hour == 23 -> "close_to_midnight"
+                hour == 0 -> "midnight"
+                else -> "after_midnight"
+            }
+            _reminderMessage.value = ReminderMessage(
+                type = de.egril.defender.ui.gameplay.ReminderType.SLEEP,
+                timeDescription = timeDescription
+            )
+            return true
+        }
+        
         val (success, digOutcome) = CheatCodeHandler.applyCheatCode(
             code = code,
             addCoins = { amount -> gameEngine?.addCoins(amount) },
