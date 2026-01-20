@@ -15,6 +15,9 @@ import androidx.compose.ui.unit.dp
 import de.egril.defender.model.*
 import de.egril.defender.ui.CheatCodeDialog
 import de.egril.defender.ui.getGameplayUIScale
+import de.egril.defender.ui.editor.ConfirmationDialog
+import com.hyperether.resources.stringResource
+import defender_of_egril.composeapp.generated.resources.*
 
 @Composable
 fun GamePlayScreen(
@@ -927,13 +930,15 @@ private fun GamePlayScreenContent(
         
         // Remove barricade confirmation dialog
         if (showRemoveBarricadeDialog && barricadeToRemove != null) {
-            RemoveBarricadeConfirmationDialog(
+            ConfirmationDialog(
+                title = stringResource(Res.string.remove_barricade_title),
+                message = stringResource(Res.string.remove_barricade_message),
                 onConfirm = {
                     onRemoveBarricade?.invoke(barricadeToRemove!!)
                     showRemoveBarricadeDialog = false
                     barricadeToRemove = null
                 },
-                onCancel = {
+                onDismiss = {
                     showRemoveBarricadeDialog = false
                     barricadeToRemove = null
                 }
@@ -942,14 +947,16 @@ private fun GamePlayScreenContent(
         
         // Remove trap confirmation dialog
         if (showRemoveTrapDialog && trapToRemove != null) {
-            RemoveTrapConfirmationDialog(
+            ConfirmationDialog(
+                title = stringResource(Res.string.remove_trap_title),
+                message = stringResource(Res.string.remove_trap_message),
                 onConfirm = {
                     // Remove trap from game state
                     gameState.traps.removeAll { it.position == trapToRemove }
                     showRemoveTrapDialog = false
                     trapToRemove = null
                 },
-                onCancel = {
+                onDismiss = {
                     showRemoveTrapDialog = false
                     trapToRemove = null
                 }
