@@ -75,7 +75,8 @@
       "name": "The Fortress",
       "nameKey": "location_the_fortress_name",
       "position": {"x": 640, "y": 339},
-      "levelIds": ["the_fortress_1_first_attacks", "the_fortress_2_orks_marching", "the_fortress_3_necromancer", "the_fortress_4_magic_assault", "the_fortress_5_mighty_forces", "the_final_stand"]
+      "levelIds": ["the_fortress_1_first_attacks", "the_fortress_2_orks_marching", "the_fortress_3_necromancer", "the_fortress_4_magic_assault", "the_fortress_5_mighty_forces", "the_final_stand"],
+      "iconResourceName": "fortress"
     },
     {
       "id": "ewhads_challege",
