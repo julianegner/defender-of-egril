@@ -71,6 +71,7 @@ fun App() {
         val allPlayers by viewModel.allPlayers.collectAsState()
         val worldMapConflict by viewModel.worldMapConflict.collectAsState()
         val specialActionsRemaining by viewModel.specialActionsRemaining.collectAsState()
+        val reminderMessage by viewModel.reminderMessage.collectAsState()
         
         // Show player selection dialog if needed
         var showPlayerSelection by remember { mutableStateOf(false) }
@@ -270,7 +271,9 @@ fun App() {
                         onClearPlatformInfo = { viewModel.clearPlatformInfo() },
                         hasUnsavedChanges = { viewModel.hasUnsavedChanges() },
                         specialActionsRemaining = specialActionsRemaining,
-                        onClearSpecialActionsWarning = { viewModel.clearSpecialActionsWarning() }
+                        onClearSpecialActionsWarning = { viewModel.clearSpecialActionsWarning() },
+                        reminderMessage = reminderMessage,
+                        onClearReminderMessage = { viewModel.clearReminderMessage() }
                     )
                 }
             }

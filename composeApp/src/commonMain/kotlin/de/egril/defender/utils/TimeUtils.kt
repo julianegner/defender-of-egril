@@ -17,3 +17,9 @@ expect fun formatTimestamp(timestamp: Long): String
  * Platform-specific implementation.
  */
 expect fun formatTimestampISO(timestamp: Long): String
+
+/**
+ * Get the local hour (0-23) from a timestamp.
+ * Platform-specific implementation.
+ */
+expect fun getLocalHour(timestamp: Long): Int

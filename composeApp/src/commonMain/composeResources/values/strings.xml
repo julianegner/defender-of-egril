@@ -902,6 +902,18 @@
     <string name="initial_language_prompt">Select your preferred language for the game</string>
     <string name="initial_language_continue">Continue</string>
 
+    <!-- Time Reminders -->
+    <string name="time_for_break_title">Time for a Break?</string>
+    <string name="time_for_break_message">You have been playing for %s.</string>
+    <string name="time_for_sleep_title">Time for Sleep?</string>
+    <string name="time_for_sleep_close_to_midnight">It is close to midnight.</string>
+    <string name="time_for_sleep_midnight">It is midnight.</string>
+    <string name="time_for_sleep_after_midnight">It is after midnight.</string>
+    <string name="hours">%d hours</string>
+    <string name="hour">%d hour</string>
+    <string name="minutes">%d minutes</string>
+    <string name="minute">%d minute</string>
+
     <!-- Installation Information Screen -->
     <string name="installation_info">Installation Info</string>
     <string name="installation_info_title">How to Install Defender of Egril</string>

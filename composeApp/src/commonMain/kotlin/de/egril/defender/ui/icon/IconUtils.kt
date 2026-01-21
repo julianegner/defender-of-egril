@@ -55,6 +55,8 @@ import defender_of_egril.composeapp.generated.resources.emoji_number_1
 import defender_of_egril.composeapp.generated.resources.emoji_number_2
 import defender_of_egril.composeapp.generated.resources.emoji_speaker_low
 import defender_of_egril.composeapp.generated.resources.emoji_speaker_high
+import defender_of_egril.composeapp.generated.resources.emoji_coffee
+import defender_of_egril.composeapp.generated.resources.emoji_bed
 import org.jetbrains.compose.resources.painterResource
 import kotlin.math.PI
 import kotlin.math.cos
@@ -233,6 +235,38 @@ fun MoneyIcon(
     Image(
         painter = painterResource(Res.drawable.emoji_money),
         contentDescription = "Money",
+        modifier = modifier.size(size)
+    )
+}
+
+/**
+ * Displays a coffee cup emoji icon using Image for cross-platform compatibility
+ * Source: Noto Emoji (U+2615)
+ */
+@Composable
+fun CoffeeIcon(
+    modifier: Modifier = Modifier.Companion,
+    size: Dp = 16.dp
+) {
+    Image(
+        painter = painterResource(Res.drawable.emoji_coffee),
+        contentDescription = "Coffee",
+        modifier = modifier.size(size)
+    )
+}
+
+/**
+ * Displays a bed emoji icon using Image for cross-platform compatibility
+ * Source: Noto Emoji (U+1F6CF)
+ */
+@Composable
+fun BedIcon(
+    modifier: Modifier = Modifier.Companion,
+    size: Dp = 16.dp
+) {
+    Image(
+        painter = painterResource(Res.drawable.emoji_bed),
+        contentDescription = "Bed",
         modifier = modifier.size(size)
     )
 }
