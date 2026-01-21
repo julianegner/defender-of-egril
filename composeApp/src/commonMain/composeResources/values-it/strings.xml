@@ -639,7 +639,18 @@
     <string name="dwarven_mine_actions">Miniere: Possono scavare o costruire trappole</string>
     <string name="alchemy_tower_actions">Torri di Alchimia: Gli attacchi durevoli beneficiano del puntamento manuale</string>
     <string name="wizard_tower_actions">Torri del Mago: Possono piazzare trappole magiche (livello 10+)</string>
+    <string name="spike_spear_tower_actions">Torri di Picche/Lance: Possono costruire barricate (livello 10+)</string>
     <string name="continue_turn">Continua Turno</string>
+    
+    <!-- Barricade Feature -->
+    <string name="barricade">Barricata</string>
+    <string name="barricade_hp">PV barricata: %d</string>
+    <string name="build_barricade">Costruisci barricata</string>
+    <string name="remove_barricade">Rimuovi barricata</string>
+    <string name="barricade_info_title">Abilità barricata sbloccata!</string>
+    <string name="barricade_info_message">La tua torre di Picche o Lance ha raggiunto il livello 10 e ora può costruire barricate! Le barricate sono strutture di legno posizionate su caselle di percorso adiacenti che bloccano il movimento nemico. Ogni barricata ha punti vita pari al livello della torre meno 10 (minimo 1). Quando i nemici raggiungono una barricata, la attaccano con danno pari al loro livello (i draghi infliggono 5× il loro livello). Se una barricata viene distrutta, il nemico si sposta su quella casella. Puoi costruire nuove barricate o rinforzare quelle esistenti e fare clic sulle barricate per rimuoverle.</string>
+    <string name="remove_barricade_title">Rimuovere Barricata?</string>
+    <string name="remove_barricade_message">Sei sicuro di voler rimuovere questa barricata?</string>
     
     <!-- Magical Trap Feature -->
     <string name="magical_trap">Trappola Magica</string>
@@ -647,6 +658,13 @@
     <string name="magical_trap_available">Trappola Magica Disponibile</string>
     <string name="magical_trap_tutorial_title">Trappola Magica Sbloccata!</string>
     <string name="magical_trap_tutorial_message">La tua torre del mago ha raggiunto il livello 10 e ora può piazzare trappole magiche! Queste trappole teletrasportano i nemici al loro punto di partenza quando vengono attivate. Dopo aver piazzato una trappola, c\'è un tempo di ricarica di 10 turni prima di poterne piazzare un\'altra.</string>
+    <string name="remove_magical_trap_title">Rimuovere Trappola Magica?</string>
+    <string name="remove_magical_trap_message">Sei sicuro di voler rimuovere questa trappola magica?</string>
+    
+    <!-- Trap Feature -->
+    <string name="remove_trap_title">Rimuovere Trappola?</string>
+    <string name="remove_trap_message">Sei sicuro di voler rimuovere questa trappola?</string>
+    <string name="no">No</string>
     
     <!-- Level Prerequisites -->
     <string name="level_dependencies">Dipendenze dei Livelli</string>

@@ -11,6 +11,7 @@ enum class InfoType {
     ONE_HP_WARNING,     // Warning when player starts with only 1 HP
     MAGICAL_TRAP_INFO,  // Magical trap unlocked at wizard level 10
     EXTENDED_AREA_INFO, // Extended area attack unlocked at level 20 (wizard/alchemy)
+    BARRICADE_INFO,     // Barricade ability unlocked at level 10 (spike/spear towers)
     WIZARD_FIRST_USE,   // First time placing a wizard tower
     ALCHEMY_FIRST_USE,  // First time placing an alchemy tower
     BALLISTA_FIRST_USE, // First time placing a ballista tower

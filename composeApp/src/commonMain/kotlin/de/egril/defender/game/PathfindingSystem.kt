@@ -167,7 +167,7 @@ class PathfindingSystem(private val state: GameState) {
              isGoalMineForDragon(neighbor, goal, attacker) ||
              isDestroyedMinePosition(neighbor) ||
              state.isBridgeAt(neighbor)) &&  // Bridges are walkable for enemies
-            !isBlocked(neighbor)
+            !isBlocked(neighbor, attacker)
         }
     }
     
@@ -197,9 +197,19 @@ class PathfindingSystem(private val state: GameState) {
         return state.destroyedMinePositions.contains(pos)
     }
     
-    private fun isBlocked(pos: Position): Boolean {
+    private fun isBlocked(pos: Position, attacker: Attacker? = null): Boolean {
         // Check if position has a build island (these block enemies)
-        return state.level.isBuildIsland(pos)
+        if (state.level.isBuildIsland(pos)) return true
+        
+        // Check if position has a barricade
+        // Flying dragons can move over barricades (like they can fly over non-playable tiles)
+        val isFlying = attacker?.isFlying?.value == true
+        if (!isFlying) {
+            val hasBarricade = state.barricades.any { it.position == pos && !it.isDestroyed() }
+            if (hasBarricade) return true
+        }
+        
+        return false
     }
     
     fun moveTowards(from: Position, to: Position, attacker: Attacker? = null): Position {
@@ -215,7 +225,7 @@ class PathfindingSystem(private val state: GameState) {
              isGoalMineForDragon(neighbor, to, attacker) ||
              isDestroyedMinePosition(neighbor) ||
              state.isBridgeAt(neighbor)) &&  // Bridges are walkable for enemies
-            !isBlocked(neighbor)
+            !isBlocked(neighbor, attacker)
         }
         
         if (validNeighbors.isEmpty()) {

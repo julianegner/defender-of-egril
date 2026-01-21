@@ -20,6 +20,7 @@ class GameEngine(private val state: GameState) {
     private val enemyAbilities = EnemyAbilitySystem(state)
     private val mineOperations = MineOperations(state)
     private val raftSystem = RaftSystem(state)
+    private val barricadeSystem = BarricadeSystem(state)  // Add barricade system
     
     // Tower Management - delegated to TowerManager
     fun placeDefender(type: DefenderType, position: Position): Boolean =
@@ -53,6 +54,13 @@ class GameEngine(private val state: GameState) {
     
     fun performWizardPlaceMagicalTrap(wizardId: Int, trapPosition: Position): Boolean =
         mineOperations.performWizardPlaceMagicalTrap(wizardId, trapPosition)
+    
+    // Barricade Operations - delegated to BarricadeSystem
+    fun performBuildBarricade(towerId: Int, barricadePosition: Position): Boolean =
+        barricadeSystem.performBuildBarricade(towerId, barricadePosition)
+    
+    fun removeBarricade(position: Position): Boolean =
+        barricadeSystem.removeBarricade(position)
 
     fun autoDefenderAttacks() {
         if (state.phase.value != GamePhase.PLAYER_TURN) return
@@ -652,6 +660,44 @@ class GameEngine(private val state: GameState) {
     fun applyMovement(attackerId: Int, newPosition: Position) {
         val attacker = state.attackers.find { it.id == attackerId } ?: return
         if (attacker.isDefeated.value) return
+        
+        // Check if there's a barricade AT the new position
+        // Flying dragons can fly over barricades (like they fly over non-playable tiles)
+        val barricadeAtPosition = barricadeSystem.getBarricadeAt(newPosition)
+        val isFlying = attacker.isFlying.value
+        
+        if (barricadeAtPosition != null && !barricadeAtPosition.isDestroyed() && !isFlying) {
+            // Non-flying enemy encounters barricade - attack it instead of moving
+            val damage = if (attacker.type.isDragon) {
+                attacker.level.value * 5
+            } else {
+                attacker.level.value
+            }
+            
+            val wasDestroyed = barricadeSystem.handleEnemyAttackBarricade(attacker, barricadeAtPosition, damage)
+            if (wasDestroyed) {
+                // Barricade was destroyed, enemy moves to barricade position
+                attacker.position.value = newPosition
+                
+                // Check waypoint and target after moving to barricade position
+                if (state.level.isWaypoint(newPosition) && attacker.currentTarget?.value == newPosition) {
+                    val waypoint = state.level.getWaypointAt(newPosition)
+                    if (waypoint != null) {
+                        attacker.currentTarget.value = waypoint.nextTarget
+                    }
+                }
+                
+                // Check if reached target
+                if (state.level.isTargetPosition(newPosition)) {
+                    applyTargetDamage(attacker)
+                }
+            }
+            // If barricade not destroyed, enemy doesn't move (stays at current position)
+            return
+        }
+        
+        // Flying dragons can move over barricades without attacking them
+        // (They pass over barricades just like they pass over non-playable tiles)
         
         // Special handling for dragons - they can eat other units
         if (attacker.type.isDragon) {
