@@ -11,6 +11,7 @@ import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -1179,6 +1180,7 @@ private fun AddLocationDialog(
 ) {
     var name by remember { mutableStateOf("") }
     var selectedLevelIds by remember { mutableStateOf(setOf<String>()) }
+    var selectedIconResourceName by remember { mutableStateOf<String?>(null) }
     
     // Get levels not yet assigned to any location
     val assignedLevelIds = existingLocations.flatMap { it.levelIds }.toSet()
@@ -1188,7 +1190,7 @@ private fun AddLocationDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(Res.string.add_location_dialog_title)) },
         text = {
-            Column {
+            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
@@ -1201,7 +1203,7 @@ private fun AddLocationDialog(
                 Text(stringResource(Res.string.select_levels), style = MaterialTheme.typography.bodyMedium)
                 
                 LazyColumn(
-                    modifier = Modifier.height(200.dp)
+                    modifier = Modifier.height(150.dp)
                 ) {
                     items(availableLevels) { level ->
                         Row(
@@ -1231,6 +1233,91 @@ private fun AddLocationDialog(
                         }
                     }
                 }
+                
+                Divider(modifier = Modifier.padding(vertical = 16.dp))
+                
+                // Icon Selection Section
+                Text(stringResource(Res.string.location_icon_optional), style = MaterialTheme.typography.bodyMedium)
+                Spacer(modifier = Modifier.height(8.dp))
+                
+                // Current icon preview
+                if (selectedIconResourceName != null) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            val iconPainter = LocationIconUtils.loadIconPainter(selectedIconResourceName)
+                            if (iconPainter != null) {
+                                Image(
+                                    painter = iconPainter,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(32.dp)
+                                )
+                                Text(
+                                    text = LocationIconUtils.getIconDisplayName(selectedIconResourceName!!),
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            }
+                        }
+                        TextButton(
+                            onClick = { selectedIconResourceName = null }
+                        ) {
+                            Text(stringResource(Res.string.remove))
+                        }
+                    }
+                } else {
+                    Text(
+                        text = stringResource(Res.string.no_icon_selected),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                
+                Spacer(modifier = Modifier.height(8.dp))
+                
+                // Icon selection grid/slider
+                Text(stringResource(Res.string.available_icons), style = MaterialTheme.typography.bodySmall)
+                LazyRow(
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(LocationIconUtils.AVAILABLE_LOCATION_ICONS) { iconName ->
+                        val iconPainter = LocationIconUtils.loadIconPainter(iconName)
+                        if (iconPainter != null) {
+                            Surface(
+                                modifier = Modifier
+                                    .size(48.dp)
+                                    .clickable {
+                                        selectedIconResourceName = iconName
+                                    },
+                                shape = RoundedCornerShape(8.dp),
+                                color = if (selectedIconResourceName == iconName)
+                                    MaterialTheme.colorScheme.primaryContainer
+                                else
+                                    MaterialTheme.colorScheme.surfaceVariant,
+                                shadowElevation = if (selectedIconResourceName == iconName) 4.dp else 1.dp
+                            ) {
+                                Box(
+                                    contentAlignment = Alignment.Center,
+                                    modifier = Modifier.fillMaxSize().padding(8.dp)
+                                ) {
+                                    Image(
+                                        painter = iconPainter,
+                                        contentDescription = LocationIconUtils.getIconDisplayName(iconName),
+                                        modifier = Modifier.fillMaxSize()
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
             }
         },
         confirmButton = {
@@ -1242,7 +1329,8 @@ private fun AddLocationDialog(
                             id = locationId,
                             name = name,
                             position = WorldMapPoint(500, 500), // Center by default
-                            levelIds = selectedLevelIds.toList()
+                            levelIds = selectedLevelIds.toList(),
+                            iconResourceName = selectedIconResourceName
                         ))
                     }
                 },
@@ -1272,6 +1360,7 @@ private fun EditLocationDialog(
 ) {
     var name by remember { mutableStateOf(location.name) }
     var selectedLevelIds by remember { mutableStateOf(location.levelIds.toSet()) }
+    var selectedIconResourceName by remember { mutableStateOf(location.iconResourceName) }
 
     // Get levels not yet assigned to other locations (excluding current location)
     val assignedLevelIds = existingLocations
@@ -1284,7 +1373,7 @@ private fun EditLocationDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(Res.string.edit_location)) },
         text = {
-            Column {
+            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
@@ -1297,7 +1386,7 @@ private fun EditLocationDialog(
                 Text(stringResource(Res.string.select_levels), style = MaterialTheme.typography.bodyMedium)
 
                 LazyColumn(
-                    modifier = Modifier.height(200.dp)
+                    modifier = Modifier.height(150.dp)
                 ) {
                     items(availableLevels) { level ->
                         Row(
@@ -1327,6 +1416,97 @@ private fun EditLocationDialog(
                         }
                     }
                 }
+                
+                Divider(modifier = Modifier.padding(vertical = 16.dp))
+                
+                // Icon Selection Section
+                Text(stringResource(Res.string.location_icon_optional), style = MaterialTheme.typography.bodyMedium)
+                Spacer(modifier = Modifier.height(8.dp))
+                
+                // Current icon preview
+                if (selectedIconResourceName != null) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            val iconPainter = LocationIconUtils.loadIconPainter(selectedIconResourceName)
+                            if (iconPainter != null) {
+                                Image(
+                                    painter = iconPainter,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(32.dp)
+                                )
+                                Text(
+                                    text = LocationIconUtils.getIconDisplayName(selectedIconResourceName!!),
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            } else {
+                                Text(
+                                    text = stringResource(Res.string.invalid_icon),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = Color.Red
+                                )
+                            }
+                        }
+                        TextButton(
+                            onClick = { selectedIconResourceName = null }
+                        ) {
+                            Text(stringResource(Res.string.remove))
+                        }
+                    }
+                } else {
+                    Text(
+                        text = stringResource(Res.string.no_icon_selected),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                
+                Spacer(modifier = Modifier.height(8.dp))
+                
+                // Icon selection grid/slider
+                Text(stringResource(Res.string.available_icons), style = MaterialTheme.typography.bodySmall)
+                LazyRow(
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(LocationIconUtils.AVAILABLE_LOCATION_ICONS) { iconName ->
+                        val iconPainter = LocationIconUtils.loadIconPainter(iconName)
+                        if (iconPainter != null) {
+                            Surface(
+                                modifier = Modifier
+                                    .size(48.dp)
+                                    .clickable {
+                                        selectedIconResourceName = iconName
+                                    },
+                                shape = RoundedCornerShape(8.dp),
+                                color = if (selectedIconResourceName == iconName)
+                                    MaterialTheme.colorScheme.primaryContainer
+                                else
+                                    MaterialTheme.colorScheme.surfaceVariant,
+                                shadowElevation = if (selectedIconResourceName == iconName) 4.dp else 1.dp
+                            ) {
+                                Box(
+                                    contentAlignment = Alignment.Center,
+                                    modifier = Modifier.fillMaxSize().padding(8.dp)
+                                ) {
+                                    Image(
+                                        painter = iconPainter,
+                                        contentDescription = LocationIconUtils.getIconDisplayName(iconName),
+                                        modifier = Modifier.fillMaxSize()
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
             }
         },
         confirmButton = {
@@ -1335,7 +1515,8 @@ private fun EditLocationDialog(
                     if (name.isNotBlank() && selectedLevelIds.isNotEmpty()) {
                         onConfirm(location.copy(
                             name = name,
-                            levelIds = selectedLevelIds.toList()
+                            levelIds = selectedLevelIds.toList(),
+                            iconResourceName = selectedIconResourceName
                         ))
                     }
                 },

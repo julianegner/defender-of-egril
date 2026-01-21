@@ -771,6 +771,10 @@
     <string name="from">Von:</string>
     <string name="to">Nach:</string>
     <string name="connection_type">Verbindungstyp:</string>
+    <string name="location_icon_optional">Ortssymbol (Optional)</string>
+    <string name="no_icon_selected">Kein Symbol ausgewählt (verwendet nummerierten Marker)</string>
+    <string name="available_icons">Verfügbare Symbole:</string>
+    <string name="invalid_icon">Ungültiges Symbol</string>
     
     <!-- Editor Info Page -->
     <string name="info">Info</string>

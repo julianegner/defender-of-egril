@@ -17,3 +17,8 @@ Stable Diffusion / Flux1.dev on huggingface
 -> https://huggingface.co/black-forest-labs/FLUX.1-dev
 is used for all tile and dig_outcome images as well as for dragon_destroying_mine.png
 
+Conversion from jpg to png using
+https://convertio.co/jpg-png/
+or
+https://www.pixelcut.ai/ai-image-editor?tool=removeBackground
+
