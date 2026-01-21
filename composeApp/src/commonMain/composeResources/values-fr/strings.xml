@@ -902,4 +902,16 @@
     <string name="initial_language_title">Choisissez votre langue</string>
     <string name="initial_language_prompt">Sélectionnez votre langue préférée pour le jeu</string>
     <string name="initial_language_continue">Continuer</string>
+
+    <!-- Time Reminders -->
+    <string name="time_for_break_title">Temps pour une pause?</string>
+    <string name="time_for_break_message">Vous jouez depuis %s.</string>
+    <string name="time_for_sleep_title">Temps de dormir?</string>
+    <string name="time_for_sleep_close_to_midnight">Il est presque minuit.</string>
+    <string name="time_for_sleep_midnight">Il est minuit.</string>
+    <string name="time_for_sleep_after_midnight">Il est après minuit.</string>
+    <string name="hours">%d heures</string>
+    <string name="hour">%d heure</string>
+    <string name="minutes">%d minutes</string>
+    <string name="minute">%d minute</string>
 </resources>
