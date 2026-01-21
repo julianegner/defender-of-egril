@@ -158,6 +158,10 @@ object SaveFileStorage {
                             .eachCount()
                     }
                     
+                    // Count traps by type
+                    val dwarvenTrapCount = savedGame.traps.count { it.type == "DWARVEN" }
+                    val magicalTrapCount = savedGame.traps.count { it.type == "MAGICAL" }
+                    
                     savedGames.add(
                         SaveGameMetadata(
                             id = savedGame.id,
@@ -166,11 +170,15 @@ object SaveFileStorage {
                             levelName = savedGame.levelName,
                             turnNumber = savedGame.turnNumber,
                             coins = savedGame.coins,
+                            healthPoints = savedGame.healthPoints,
                             towerCount = savedGame.defenders.size,
                             enemyCount = savedGame.attackers.count { !it.isDefeated },
                             defenderCounts = defenderCounts,
                             attackerCounts = attackerCounts,
                             remainingSpawnCounts = remainingSpawnCounts,
+                            dwarvenTrapCount = dwarvenTrapCount,
+                            magicalTrapCount = magicalTrapCount,
+                            barricadeCount = savedGame.barricades.size,
                             comment = savedGame.comment,
                             defenderPositions = savedGame.defenders,
                             attackerPositions = savedGame.attackers,
