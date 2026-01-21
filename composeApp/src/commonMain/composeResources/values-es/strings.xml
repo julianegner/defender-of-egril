@@ -662,6 +662,7 @@
     <string name="remove_magical_trap_message">¿Está seguro de que desea eliminar esta trampa mágica?</string>
     
     <!-- Trap Feature -->
+    <string name="defensive_items">Objetos Defensivos</string>
     <string name="remove_trap_title">¿Eliminar Trampa?</string>
     <string name="remove_trap_message">¿Está seguro de que desea eliminar esta trampa?</string>
     <string name="no">No</string>

@@ -662,6 +662,7 @@
     <string name="remove_magical_trap_message">Êtes-vous sûr de vouloir retirer ce piège magique?</string>
     
     <!-- Trap Feature -->
+    <string name="defensive_items">Objets Défensifs</string>
     <string name="remove_trap_title">Retirer le Piège?</string>
     <string name="remove_trap_message">Êtes-vous sûr de vouloir retirer ce piège?</string>
     <string name="no">Non</string>

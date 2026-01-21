@@ -99,11 +99,15 @@ data class SaveGameMetadata(
     val levelName: String,
     val turnNumber: Int,
     val coins: Int,
+    val healthPoints: Int,
     val towerCount: Int,
     val enemyCount: Int,
     val defenderCounts: Map<DefenderType, Int>,  // Count of each tower type
     val attackerCounts: Map<AttackerType, Int>,  // Count of each enemy type currently on map
     val remainingSpawnCounts: Map<AttackerType, Int>,  // Count of enemies still to spawn
+    val dwarvenTrapCount: Int = 0,  // Count of dwarven traps
+    val magicalTrapCount: Int = 0,  // Count of magical traps
+    val barricadeCount: Int = 0,  // Count of barricades
     val comment: String? = null,  // Optional player comment
     val defenderPositions: List<SavedDefender> = emptyList(),  // Positions for minimap display
     val attackerPositions: List<SavedAttacker> = emptyList(),  // Positions for minimap display
