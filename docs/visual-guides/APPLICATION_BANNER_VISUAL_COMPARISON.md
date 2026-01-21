@@ -100,3 +100,89 @@ Column {
 ```
 
 Both screens now show the same beautiful banner with game symbols!
+
+---
+
+## Update: Enemy Icon Outlines (Latest Enhancement)
+
+### Visual Comparison: Enemy Icons
+
+#### Before Outlines
+```
+Dark Mode:
+╔═══════════════════════════════════╗
+║  👹 👺 🧙   🗡️ 🧙‍♂️                 ║
+╚═══════════════════════════════════╝
+Issue: Dark green ork hard to see on dark background
+
+Light Mode:
+┌───────────────────────────────────┐
+│  👹 👺 🧙   🗡️ 🧙‍♂️                 │
+└───────────────────────────────────┘
+Issue: Icons lack clear definition
+```
+
+#### After Outlines
+```
+Dark Mode:
+╔═══════════════════════════════════╗
+║  ⬜👹 ⬜👺 ⬜🧙   🗡️ 🧙‍♂️            ║
+╚═══════════════════════════════════╝
+✅ White outlines (3px) ensure all enemies visible
+
+Light Mode:
+┌───────────────────────────────────┐
+│  ⬛👹 ⬛👺 ⬛🧙   🗡️ 🧙‍♂️            │
+└───────────────────────────────────┘
+✅ Black outlines (3px) provide clear definition
+```
+
+### Theme Detection for Outlines
+
+```kotlin
+// ApplicationBanner.kt
+val outlineColor = if (MaterialTheme.colorScheme.background.luminance() < 0.5f) {
+    Color.White  // Dark background → white outline
+} else {
+    Color.Black  // Light background → black outline
+}
+
+// Pass to enemy symbol functions
+drawGoblinSymbol(..., outlineColor)
+drawOrkSymbol(..., outlineColor)
+drawEvilWizardSymbol(..., outlineColor)
+```
+
+### Enemy Icon Details
+
+**Goblin (Light Green)**
+- Before: Green head + ears + body
+- After: + 3px black/white outline
+
+**Ork (Dark Olive Green)**
+- Before: Dark green head + tusks + gray armor
+- After: + 3px black/white outline
+- ✨ Most improved visibility in dark mode!
+
+**Evil Wizard (Purple/Indigo)**
+- Before: Purple hat + face + staff with orb
+- After: + 3px black/white outline
+
+### Implementation Notes
+
+**Backward Compatible:**
+- Enemy symbols accept optional `outlineColor: Color? = null`
+- Other uses (like EnemyIcon.kt in gameplay) don't get outlines
+- Only ApplicationBanner passes outline color
+
+**Drawing Order:**
+1. Draw outline shapes (3px larger)
+2. Draw original shapes (on top)
+3. Result: Clean 3px outline visible
+
+**Benefits:**
+- ✅ Better visibility in both themes
+- ✅ Clear icon boundaries
+- ✅ Automatic theme adaptation
+- ✅ Professional appearance
+- ✅ No impact on game UI (outlines only in banner)
