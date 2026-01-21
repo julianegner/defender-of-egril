@@ -752,6 +752,10 @@
     <string name="from">Da:</string>
     <string name="to">A:</string>
     <string name="connection_type">Tipo di connessione:</string>
+    <string name="location_icon_optional">Icona posizione (Opzionale)</string>
+    <string name="no_icon_selected">Nessuna icona selezionata (userà marcatore numerato)</string>
+    <string name="available_icons">Icone disponibili:</string>
+    <string name="invalid_icon">Icona non valida</string>
     
     <!-- Editor Info Page -->
     <string name="info">Info</string>

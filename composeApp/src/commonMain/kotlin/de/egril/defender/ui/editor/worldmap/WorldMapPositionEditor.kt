@@ -1237,7 +1237,7 @@ private fun AddLocationDialog(
                 Divider(modifier = Modifier.padding(vertical = 16.dp))
                 
                 // Icon Selection Section
-                Text("Location Icon (Optional)", style = MaterialTheme.typography.bodyMedium)
+                Text(stringResource(Res.string.location_icon_optional), style = MaterialTheme.typography.bodyMedium)
                 Spacer(modifier = Modifier.height(8.dp))
                 
                 // Current icon preview
@@ -1269,12 +1269,12 @@ private fun AddLocationDialog(
                         TextButton(
                             onClick = { selectedIconResourceName = null }
                         ) {
-                            Text("Remove")
+                            Text(stringResource(Res.string.remove))
                         }
                     }
                 } else {
                     Text(
-                        text = "No icon selected (will use numbered marker)",
+                        text = stringResource(Res.string.no_icon_selected),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -1283,7 +1283,7 @@ private fun AddLocationDialog(
                 Spacer(modifier = Modifier.height(8.dp))
                 
                 // Icon selection grid/slider
-                Text("Available Icons:", style = MaterialTheme.typography.bodySmall)
+                Text(stringResource(Res.string.available_icons), style = MaterialTheme.typography.bodySmall)
                 LazyRow(
                     modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -1420,7 +1420,7 @@ private fun EditLocationDialog(
                 Divider(modifier = Modifier.padding(vertical = 16.dp))
                 
                 // Icon Selection Section
-                Text("Location Icon (Optional)", style = MaterialTheme.typography.bodyMedium)
+                Text(stringResource(Res.string.location_icon_optional), style = MaterialTheme.typography.bodyMedium)
                 Spacer(modifier = Modifier.height(8.dp))
                 
                 // Current icon preview
@@ -1449,7 +1449,7 @@ private fun EditLocationDialog(
                                 )
                             } else {
                                 Text(
-                                    text = "Invalid icon",
+                                    text = stringResource(Res.string.invalid_icon),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = Color.Red
                                 )
@@ -1458,12 +1458,12 @@ private fun EditLocationDialog(
                         TextButton(
                             onClick = { selectedIconResourceName = null }
                         ) {
-                            Text("Remove")
+                            Text(stringResource(Res.string.remove))
                         }
                     }
                 } else {
                     Text(
-                        text = "No icon selected (will use numbered marker)",
+                        text = stringResource(Res.string.no_icon_selected),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -1472,7 +1472,7 @@ private fun EditLocationDialog(
                 Spacer(modifier = Modifier.height(8.dp))
                 
                 // Icon selection grid/slider
-                Text("Available Icons:", style = MaterialTheme.typography.bodySmall)
+                Text(stringResource(Res.string.available_icons), style = MaterialTheme.typography.bodySmall)
                 LazyRow(
                     modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)

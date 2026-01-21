@@ -753,6 +753,10 @@
     <string name="from">From:</string>
     <string name="to">To:</string>
     <string name="connection_type">Connection Type:</string>
+    <string name="location_icon_optional">Location Icon (Optional)</string>
+    <string name="no_icon_selected">No icon selected (will use numbered marker)</string>
+    <string name="available_icons">Available Icons:</string>
+    <string name="invalid_icon">Invalid icon</string>
     
     <!-- Editor Info Page -->
     <string name="info">Info</string>
