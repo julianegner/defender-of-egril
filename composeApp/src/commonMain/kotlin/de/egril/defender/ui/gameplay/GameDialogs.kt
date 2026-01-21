@@ -304,3 +304,69 @@ fun SpecialActionsRemainingDialog(
         }
     )
 }
+
+/**
+ * Shows time-based reminder messages to encourage breaks and sleep
+ * @param type The type of reminder (BREAK or SLEEP)
+ * @param elapsedTime Optional formatted elapsed time for break reminders
+ * @param timeDescription Optional time description for sleep reminders (close to midnight/midnight/after midnight)
+ * @param onDismiss Callback when dialog is dismissed
+ */
+@Composable
+fun ReminderDialog(
+    type: ReminderType,
+    elapsedTime: String? = null,
+    timeDescription: String? = null,
+    onDismiss: () -> Unit
+) {
+    val title = when (type) {
+        ReminderType.BREAK -> stringResource(Res.string.time_for_break_title)
+        ReminderType.SLEEP -> stringResource(Res.string.time_for_sleep_title)
+    }
+    
+    val message = when (type) {
+        ReminderType.BREAK -> {
+            elapsedTime?.let { 
+                stringResource(Res.string.time_for_break_message).replace("%s", it)
+            } ?: ""
+        }
+        ReminderType.SLEEP -> timeDescription ?: ""
+    }
+    
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(title) },
+        text = {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Icon on the left
+                when (type) {
+                    ReminderType.BREAK -> de.egril.defender.ui.icon.CoffeeIcon(size = 60.dp)
+                    ReminderType.SLEEP -> de.egril.defender.ui.icon.BedIcon(size = 60.dp)
+                }
+                
+                // Text on the right
+                Text(
+                    text = message,
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
+        },
+        confirmButton = {
+            Button(onClick = onDismiss) {
+                Text(stringResource(Res.string.ok))
+            }
+        }
+    )
+}
+
+/**
+ * Type of reminder message
+ */
+enum class ReminderType {
+    BREAK,  // Break reminder every 2 hours
+    SLEEP   // Sleep reminder after 23:00
+}

@@ -28,3 +28,12 @@ actual fun formatTimestampISO(timestamp: Long): String {
     formatter.locale = NSLocale.currentLocale
     return formatter.stringFromDate(date)
 }
+
+@OptIn(ExperimentalForeignApi::class)
+actual fun getLocalHour(timestamp: Long): Int {
+    val date = NSDate(timestamp / 1000.0)
+    val formatter = NSDateFormatter()
+    formatter.dateFormat = "HH"
+    formatter.locale = NSLocale.currentLocale
+    return formatter.stringFromDate(date).toIntOrNull() ?: 0
+}
