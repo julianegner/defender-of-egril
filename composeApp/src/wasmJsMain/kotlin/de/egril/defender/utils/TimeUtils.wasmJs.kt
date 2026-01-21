@@ -63,3 +63,8 @@ actual fun formatTimestampISO(timestamp: Long): String {
     return "${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}_" +
            "${hours.toString().padStart(2, '0')}-${minutes.toString().padStart(2, '0')}-${seconds.toString().padStart(2, '0')}"
 }
+
+actual fun getLocalHour(timestamp: Long): Int {
+    val date = jsCreateDate(timestamp.toDouble())
+    return jsGetHours(date)
+}
