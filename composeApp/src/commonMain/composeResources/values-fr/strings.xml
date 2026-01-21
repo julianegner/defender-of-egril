@@ -639,7 +639,18 @@
     <string name="dwarven_mine_actions">Mines : Peuvent creuser ou construire des pièges</string>
     <string name="alchemy_tower_actions">Tours d'Alchimie : Les attaques durables bénéficient d'un ciblage manuel</string>
     <string name="wizard_tower_actions">Tours de Magicien : Peuvent placer des pièges magiques (niveau 10+)</string>
+    <string name="spike_spear_tower_actions">Tours de Piques/Lances : Peuvent construire des barricades (niveau 10+)</string>
     <string name="continue_turn">Continuer le Tour</string>
+    
+    <!-- Barricade Feature -->
+    <string name="barricade">Barricade</string>
+    <string name="barricade_hp">PV de barricade : %d</string>
+    <string name="build_barricade">Construire une barricade</string>
+    <string name="remove_barricade">Retirer la barricade</string>
+    <string name="barricade_info_title">Capacité de barricade débloquée !</string>
+    <string name="barricade_info_message">Votre tour de Piques ou de Lances a atteint le niveau 10 et peut maintenant construire des barricades ! Les barricades sont des structures en bois placées sur des cases de chemin adjacentes qui bloquent le mouvement ennemi. Chaque barricade a des points de vie égaux au niveau de la tour moins 10 (minimum 1). Lorsque les ennemis atteignent une barricade, ils l'attaquent avec des dégâts égaux à leur niveau (les dragons infligent 5× leur niveau). Si une barricade est détruite, l'ennemi se déplace sur cette case. Vous pouvez construire de nouvelles barricades ou renforcer les existantes, et cliquer sur les barricades pour les retirer.</string>
+    <string name="remove_barricade_title">Retirer la Barricade?</string>
+    <string name="remove_barricade_message">Êtes-vous sûr de vouloir retirer cette barricade?</string>
     
     <!-- Magical Trap Feature -->
     <string name="magical_trap">Piège Magique</string>
@@ -647,6 +658,13 @@
     <string name="magical_trap_available">Piège Magique Disponible</string>
     <string name="magical_trap_tutorial_title">Piège Magique Débloqué !</string>
     <string name="magical_trap_tutorial_message">Votre tour de magicien a atteint le niveau 10 et peut désormais placer des pièges magiques ! Ces pièges téléportent les ennemis à leur point d'apparition lorsqu'ils sont déclenchés. Après avoir placé un piège, il y a un temps de recharge de 10 tours avant de pouvoir en placer un autre.</string>
+    <string name="remove_magical_trap_title">Retirer le Piège Magique?</string>
+    <string name="remove_magical_trap_message">Êtes-vous sûr de vouloir retirer ce piège magique?</string>
+    
+    <!-- Trap Feature -->
+    <string name="remove_trap_title">Retirer le Piège?</string>
+    <string name="remove_trap_message">Êtes-vous sûr de vouloir retirer ce piège?</string>
+    <string name="no">Non</string>
     
     <!-- Level Prerequisites -->
     <string name="level_dependencies">Dépendances des Niveaux</string>

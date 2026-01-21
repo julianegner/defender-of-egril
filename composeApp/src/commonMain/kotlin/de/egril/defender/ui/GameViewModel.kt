@@ -337,6 +337,14 @@ class GameViewModel {
         return gameEngine?.performWizardPlaceMagicalTrap(wizardId, trapPosition) ?: false
     }
     
+    fun performBuildBarricade(towerId: Int, barricadePosition: Position): Boolean {
+        return gameEngine?.performBuildBarricade(towerId, barricadePosition) ?: false
+    }
+    
+    fun performRemoveBarricade(barricadePosition: Position): Boolean {
+        return gameEngine?.removeBarricade(barricadePosition) ?: false
+    }
+    
     fun performMineDigWithOutcome(outcome: DigOutcome): DigOutcome? {
         return gameEngine?.performMineDigWithOutcome(outcome)
     }

@@ -16,6 +16,13 @@ enum class WizardAction {
 }
 
 /**
+ * Actions that can be performed by Spike Tower or Spear Tower (level 10+)
+ */
+enum class BarricadeAction {
+    BUILD_BARRICADE      // Build a new barricade or reinforce an existing one
+}
+
+/**
  * Possible outcomes when digging in a mine
  */
 enum class DigOutcome(val probability: Int, val coins: Int, val displayName: String) {

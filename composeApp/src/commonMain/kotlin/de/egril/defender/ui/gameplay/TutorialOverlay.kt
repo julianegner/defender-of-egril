@@ -9,10 +9,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import de.egril.defender.model.TutorialStep
 import de.egril.defender.model.InfoType
+import de.egril.defender.ui.icon.WoodIcon
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
 
@@ -193,6 +196,7 @@ private fun InfoContent(infoType: InfoType, onDismiss: () -> Unit) {
         InfoType.ONE_HP_WARNING -> OneHpWarningContent(onDismiss)
         InfoType.MAGICAL_TRAP_INFO -> MagicalTrapInfoContent(onDismiss)
         InfoType.EXTENDED_AREA_INFO -> ExtendedAreaInfoContent(onDismiss)
+        InfoType.BARRICADE_INFO -> BarricadeInfoContent(onDismiss)
         InfoType.WIZARD_FIRST_USE -> WizardFirstUseContent(onDismiss)
         InfoType.ALCHEMY_FIRST_USE -> AlchemyFirstUseContent(onDismiss)
         InfoType.BALLISTA_FIRST_USE -> BallistaFirstUseContent(onDismiss)
@@ -521,6 +525,37 @@ private fun ExtendedAreaInfoContent(onDismiss: () -> Unit) {
     ) {
         Text(
             text = stringResource(Res.string.extended_area_tutorial_message),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+    }
+}
+
+/**
+ * Barricade ability info content shown when Spike/Spear tower reaches level 10
+ */
+@Composable
+private fun BarricadeInfoContent(onDismiss: () -> Unit) {
+    ScrollableInfoCard(
+        title = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                WoodIcon(size = 32.dp)
+                Text(
+                    text = stringResource(Res.string.barricade_info_title),
+                    style = MaterialTheme.typography.titleLarge,
+                    color = Color(0xFF795548)  // Brown color for wood
+                )
+            }
+        },
+        buttonColor = Color(0xFF795548),  // Brown button
+        width = 600.dp,  // Increased from 400.dp to show German text without scrolling
+        onDismiss = onDismiss
+    ) {
+        Text(
+            text = stringResource(Res.string.barricade_info_message),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurface
         )

@@ -639,7 +639,18 @@
     <string name="dwarven_mine_actions">Minas: Pueden excavar o construir trampas</string>
     <string name="alchemy_tower_actions">Torres de Alquimia: Los ataques duraderos se benefician del apuntado manual</string>
     <string name="wizard_tower_actions">Torres de Mago: Pueden colocar trampas mágicas (nivel 10+)</string>
+    <string name="spike_spear_tower_actions">Torres de Picas/Lanzas: Pueden construir barricadas (nivel 10+)</string>
     <string name="continue_turn">Continuar Turno</string>
+    
+    <!-- Barricade Feature -->
+    <string name="barricade">Barricada</string>
+    <string name="barricade_hp">PS de barricada: %d</string>
+    <string name="build_barricade">Construir barricada</string>
+    <string name="remove_barricade">Quitar barricada</string>
+    <string name="barricade_info_title">¡Habilidad de barricada desbloqueada!</string>
+    <string name="barricade_info_message">¡Tu torre de Picas o Lanzas ha alcanzado el nivel 10 y ahora puede construir barricadas! Las barricadas son estructuras de madera colocadas en casillas de camino adyacentes que bloquean el movimiento enemigo. Cada barricada tiene puntos de salud iguales al nivel de la torre menos 10 (mínimo 1). Cuando los enemigos alcanzan una barricada, la atacan con daño igual a su nivel (los dragones causan 5× su nivel). Si se destruye una barricada, el enemigo se mueve a esa casilla. Puedes construir nuevas barricadas o reforzar las existentes, y hacer clic en las barricadas para quitarlas.</string>
+    <string name="remove_barricade_title">¿Eliminar Barricada?</string>
+    <string name="remove_barricade_message">¿Está seguro de que desea eliminar esta barricada?</string>
     
     <!-- Magical Trap Feature -->
     <string name="magical_trap">Trampa Mágica</string>
@@ -647,6 +658,13 @@
     <string name="magical_trap_available">Trampa Mágica Disponible</string>
     <string name="magical_trap_tutorial_title">¡Trampa Mágica Desbloqueada!</string>
     <string name="magical_trap_tutorial_message">¡Tu torre de mago ha alcanzado el nivel 10 y ahora puede colocar trampas mágicas! Estas trampas teletransportan a los enemigos de vuelta a su punto de aparición cuando se activan. Después de colocar una trampa, hay un tiempo de enfriamiento de 10 turnos antes de poder colocar otra.</string>
+    <string name="remove_magical_trap_title">¿Eliminar Trampa Mágica?</string>
+    <string name="remove_magical_trap_message">¿Está seguro de que desea eliminar esta trampa mágica?</string>
+    
+    <!-- Trap Feature -->
+    <string name="remove_trap_title">¿Eliminar Trampa?</string>
+    <string name="remove_trap_message">¿Está seguro de que desea eliminar esta trampa?</string>
+    <string name="no">No</string>
     
     <!-- Level Prerequisites -->
     <string name="level_dependencies">Dependencias de Nivel</string>
