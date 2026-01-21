@@ -9,7 +9,42 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 /**
  * Draw ork symbol (larger, muscular creature)
  */
-fun DrawScope.drawOrkSymbol(centerX: Float, centerY: Float, size: Float) {
+fun DrawScope.drawOrkSymbol(centerX: Float, centerY: Float, size: Float, outlineColor: Color? = null) {
+    val outlineWidth = 3f
+    
+    // Draw outline first (behind main drawing)
+    if (outlineColor != null) {
+        // Head outline
+        drawRect(
+            color = outlineColor,
+            topLeft = Offset(centerX - size * 0.25f - outlineWidth, centerY - size * 0.3f - outlineWidth),
+            size = Size(size * 0.5f + outlineWidth * 2, size * 0.35f + outlineWidth * 2)
+        )
+        
+        // Body outline
+        drawRect(
+            color = outlineColor,
+            topLeft = Offset(centerX - size * 0.25f - outlineWidth, centerY + size * 0.1f - outlineWidth),
+            size = Size(size * 0.5f + outlineWidth * 2, size * 0.3f + outlineWidth * 2)
+        )
+        
+        // Tusks outline
+        val tuskPath1 = Path().apply {
+            moveTo(centerX - size * 0.15f, centerY)
+            lineTo(centerX - size * 0.25f - outlineWidth, centerY + size * 0.15f + outlineWidth)
+            lineTo(centerX - size * 0.1f, centerY + size * 0.05f)
+            close()
+        }
+        val tuskPath2 = Path().apply {
+            moveTo(centerX + size * 0.15f, centerY)
+            lineTo(centerX + size * 0.25f + outlineWidth, centerY + size * 0.15f + outlineWidth)
+            lineTo(centerX + size * 0.1f, centerY + size * 0.05f)
+            close()
+        }
+        drawPath(tuskPath1, outlineColor)
+        drawPath(tuskPath2, outlineColor)
+    }
+    
     // Head (larger square-ish)
     drawRect(
         color = Color(0xFF556B2F), // Dark olive green
