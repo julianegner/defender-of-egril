@@ -140,25 +140,14 @@ fun SavedGameCardUnitsAndMinimap(
             TowersList(defenderCounts = saveGame.defenderCounts)
         }
         
-        // Column 2: Enemies (current and to come) and traps/barricades
+        // Column 2: Enemies (current and to come) with defensive items to the right
         Column(
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.Top
         ) {
             EnemiesList(
                 attackerCounts = saveGame.attackerCounts,
-                remainingSpawnCounts = saveGame.remainingSpawnCounts
-            )
-            
-            // Add traps and barricades if present
-            val hasTrapsOrBarricades = saveGame.dwarvenTrapCount > 0 || 
-                                      saveGame.magicalTrapCount > 0 || 
-                                      saveGame.barricadeCount > 0
-            val hasEnemies = saveGame.attackerCounts.isNotEmpty() || saveGame.remainingSpawnCounts.isNotEmpty()
-            if (hasEnemies && hasTrapsOrBarricades) {
-                Spacer(modifier = Modifier.height(8.dp))
-            }
-            TrapsAndBarricadesList(
+                remainingSpawnCounts = saveGame.remainingSpawnCounts,
                 dwarvenTrapCount = saveGame.dwarvenTrapCount,
                 magicalTrapCount = saveGame.magicalTrapCount,
                 barricadeCount = saveGame.barricadeCount
@@ -205,7 +194,10 @@ fun TowersList(defenderCounts: Map<DefenderType, Int>) {
 @Composable
 fun EnemiesList(
     attackerCounts: Map<AttackerType, Int>,
-    remainingSpawnCounts: Map<AttackerType, Int>
+    remainingSpawnCounts: Map<AttackerType, Int>,
+    dwarvenTrapCount: Int = 0,
+    magicalTrapCount: Int = 0,
+    barricadeCount: Int = 0
 ) {
     val locale = com.hyperether.resources.currentLanguage.value
     
@@ -237,7 +229,7 @@ fun EnemiesList(
             }
         }
         
-        // Remaining spawns (to the right)
+        // Remaining spawns
         if (remainingSpawnCounts.isNotEmpty()) {
             Column(
                 modifier = Modifier.weight(1f),
@@ -260,63 +252,58 @@ fun EnemiesList(
                 }
             }
         }
-    }
-}
-
-@Composable
-fun TrapsAndBarricadesList(
-    dwarvenTrapCount: Int,
-    magicalTrapCount: Int,
-    barricadeCount: Int
-) {
-    val hasAny = dwarvenTrapCount > 0 || magicalTrapCount > 0 || barricadeCount > 0
-    
-    if (hasAny) {
-        // Add title
-        Text(
-            text = stringResource(Res.string.defensive_items),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Spacer(modifier = Modifier.height(4.dp))
         
-        Column(
-            verticalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
-            if (dwarvenTrapCount > 0) {
-                UnitEntry(
-                    icon = { 
-                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            de.egril.defender.ui.icon.HoleIcon(size = 20.dp)
-                        }
-                    },
-                    name = stringResource(Res.string.trap),
-                    count = dwarvenTrapCount
+        // Defensive items (to the right)
+        val hasTrapsOrBarricades = dwarvenTrapCount > 0 || magicalTrapCount > 0 || barricadeCount > 0
+        if (hasTrapsOrBarricades) {
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.Top
+            ) {
+                Text(
+                    text = stringResource(Res.string.defensive_items),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-            }
-            
-            if (magicalTrapCount > 0) {
-                UnitEntry(
-                    icon = { 
-                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            de.egril.defender.ui.icon.PentagramIcon(size = 20.dp)
-                        }
-                    },
-                    name = stringResource(Res.string.magical_trap),
-                    count = magicalTrapCount
-                )
-            }
-            
-            if (barricadeCount > 0) {
-                UnitEntry(
-                    icon = { 
-                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            de.egril.defender.ui.icon.WoodIcon(size = 20.dp)
-                        }
-                    },
-                    name = stringResource(Res.string.barricade),
-                    count = barricadeCount
-                )
+                Spacer(modifier = Modifier.height(4.dp))
+                
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    if (dwarvenTrapCount > 0) {
+                        UnitEntry(
+                            icon = { 
+                                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                    de.egril.defender.ui.icon.HoleIcon(size = 20.dp)
+                                }
+                            },
+                            name = stringResource(Res.string.trap),
+                            count = dwarvenTrapCount
+                        )
+                    }
+                    
+                    if (magicalTrapCount > 0) {
+                        UnitEntry(
+                            icon = { 
+                                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                    de.egril.defender.ui.icon.PentagramIcon(size = 20.dp)
+                                }
+                            },
+                            name = stringResource(Res.string.magical_trap),
+                            count = magicalTrapCount
+                        )
+                    }
+                    
+                    if (barricadeCount > 0) {
+                        UnitEntry(
+                            icon = { 
+                                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                    de.egril.defender.ui.icon.WoodIcon(size = 20.dp)
+                                }
+                            },
+                            name = stringResource(Res.string.barricade),
+                            count = barricadeCount
+                        )
+                    }
+                }
             }
         }
     }
