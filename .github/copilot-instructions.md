@@ -399,7 +399,7 @@ Add to `LevelData.createLevels()` with:
 - Keep files focused and cohesive
 
 ### Documentation Files
-- **NEVER** add markdown files to the root directory (except README.md which is allowed)
+- **NEVER** add markdown files to the root directory (except README.md and INSTALL.md which are allowed)
 - **ALWAYS** place documentation files under `/docs` in appropriate subfolders:
   - `/docs/changes/`: Implementation summaries and change documentation
   - `/docs/visual-guides/`: Visual guides and comparisons
@@ -408,6 +408,16 @@ Add to `LevelData.createLevels()` with:
   - `/docs/guides/`: User and developer guides
   - `/docs/root/`: Core project documentation
 - Use UPPERCASE_WITH_UNDERSCORES naming convention for documentation files
+
+### Installation Guide Maintenance
+- **Installation instructions** are maintained in **two places**:
+  1. `INSTALL.md` - Detailed English installation guide for all platforms (root directory)
+  2. `InstallationInfoScreen.kt` - In-app installation info screen (web version only, all supported languages)
+- **ALWAYS update both** when making changes to installation instructions:
+  - Update `INSTALL.md` with detailed English instructions
+  - Update localized strings in all language files (`values/strings.xml`, `values-de/strings.xml`, `values-es/strings.xml`, `values-fr/strings.xml`, `values-it/strings.xml`)
+  - Verify that `InstallationInfoScreen.kt` correctly displays the updated strings
+- The installation info screen is accessible only on the web version via an Info button on the main menu
 
 ### Comments
 - Use KDoc for public APIs

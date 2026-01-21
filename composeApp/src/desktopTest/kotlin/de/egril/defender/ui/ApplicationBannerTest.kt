@@ -21,6 +21,7 @@ class ApplicationBannerTest {
             MainMenuScreen(
                 onStartGame = {},
                 onShowRules = {},
+                onShowInstallationInfo = {},
                 onSelectPlayer = {},
                 onEditPlayerName = {},
                 currentPlayerName = null  // No player name in tests

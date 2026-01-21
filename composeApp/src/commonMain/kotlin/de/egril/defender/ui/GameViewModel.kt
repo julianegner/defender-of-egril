@@ -20,6 +20,7 @@ sealed class Screen {
     object MainMenu : Screen()
     object WorldMap : Screen()
     object Rules : Screen()
+    object InstallationInfo : Screen()
     object LevelEditor : Screen()
     object LoadGame : Screen()
     object Sticker : Screen()
@@ -215,6 +216,10 @@ class GameViewModel {
     
     fun navigateToRules() {
         _currentScreen.value = Screen.Rules
+    }
+    
+    fun navigateToInstallationInfo() {
+        _currentScreen.value = Screen.InstallationInfo
     }
     
     fun navigateToLevelEditor() {
