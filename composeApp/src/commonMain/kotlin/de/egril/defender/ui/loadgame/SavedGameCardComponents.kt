@@ -132,28 +132,15 @@ fun SavedGameCardUnitsAndMinimap(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        // Column 1: Built towers and traps/barricades
+        // Column 1: Built towers
         Column(
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.Top
         ) {
             TowersList(defenderCounts = saveGame.defenderCounts)
-            
-            // Add traps and barricades if present
-            val hasTrapsOrBarricades = saveGame.dwarvenTrapCount > 0 || 
-                                      saveGame.magicalTrapCount > 0 || 
-                                      saveGame.barricadeCount > 0
-            if (saveGame.defenderCounts.isNotEmpty() && hasTrapsOrBarricades) {
-                Spacer(modifier = Modifier.height(8.dp))
-            }
-            TrapsAndBarricadesList(
-                dwarvenTrapCount = saveGame.dwarvenTrapCount,
-                magicalTrapCount = saveGame.magicalTrapCount,
-                barricadeCount = saveGame.barricadeCount
-            )
         }
         
-        // Column 2: Enemies (current and to come)
+        // Column 2: Enemies (current and to come) and traps/barricades
         Column(
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.Top
@@ -161,6 +148,20 @@ fun SavedGameCardUnitsAndMinimap(
             EnemiesList(
                 attackerCounts = saveGame.attackerCounts,
                 remainingSpawnCounts = saveGame.remainingSpawnCounts
+            )
+            
+            // Add traps and barricades if present
+            val hasTrapsOrBarricades = saveGame.dwarvenTrapCount > 0 || 
+                                      saveGame.magicalTrapCount > 0 || 
+                                      saveGame.barricadeCount > 0
+            val hasEnemies = saveGame.attackerCounts.isNotEmpty() || saveGame.remainingSpawnCounts.isNotEmpty()
+            if (hasEnemies && hasTrapsOrBarricades) {
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+            TrapsAndBarricadesList(
+                dwarvenTrapCount = saveGame.dwarvenTrapCount,
+                magicalTrapCount = saveGame.magicalTrapCount,
+                barricadeCount = saveGame.barricadeCount
             )
         }
         
@@ -271,58 +272,51 @@ fun TrapsAndBarricadesList(
     val hasAny = dwarvenTrapCount > 0 || magicalTrapCount > 0 || barricadeCount > 0
     
     if (hasAny) {
+        // Add title
+        Text(
+            text = stringResource(Res.string.defensive_items),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        
         Column(
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             if (dwarvenTrapCount > 0) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Start
-                ) {
-                    Box(modifier = Modifier.size(32.dp), contentAlignment = Alignment.Center) {
-                        de.egril.defender.ui.icon.HoleIcon(size = 20.dp)
-                    }
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = "$dwarvenTrapCount",
-                        style = MaterialTheme.typography.bodySmall,
-                        fontSize = 11.sp
-                    )
-                }
+                UnitEntry(
+                    icon = { 
+                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            de.egril.defender.ui.icon.HoleIcon(size = 20.dp)
+                        }
+                    },
+                    name = stringResource(Res.string.trap),
+                    count = dwarvenTrapCount
+                )
             }
             
             if (magicalTrapCount > 0) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Start
-                ) {
-                    Box(modifier = Modifier.size(32.dp), contentAlignment = Alignment.Center) {
-                        de.egril.defender.ui.icon.PentagramIcon(size = 20.dp)
-                    }
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = "$magicalTrapCount",
-                        style = MaterialTheme.typography.bodySmall,
-                        fontSize = 11.sp
-                    )
-                }
+                UnitEntry(
+                    icon = { 
+                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            de.egril.defender.ui.icon.PentagramIcon(size = 20.dp)
+                        }
+                    },
+                    name = stringResource(Res.string.magical_trap),
+                    count = magicalTrapCount
+                )
             }
             
             if (barricadeCount > 0) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Start
-                ) {
-                    Box(modifier = Modifier.size(32.dp), contentAlignment = Alignment.Center) {
-                        de.egril.defender.ui.icon.WoodIcon(size = 20.dp)
-                    }
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = "$barricadeCount",
-                        style = MaterialTheme.typography.bodySmall,
-                        fontSize = 11.sp
-                    )
-                }
+                UnitEntry(
+                    icon = { 
+                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            de.egril.defender.ui.icon.WoodIcon(size = 20.dp)
+                        }
+                    },
+                    name = stringResource(Res.string.barricade),
+                    count = barricadeCount
+                )
             }
         }
     }
