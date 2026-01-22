@@ -245,4 +245,49 @@ private fun CommandText(text: String) {
  * Implemented only for WASM platform
  */
 @Composable
-expect fun ImpressumSection()
+fun ImpressumSection() {
+    // Only show impressum if the compile flag is set
+    if (!de.egril.defender.WithImpressum.withImpressum) {
+        return
+    }
+    
+    Spacer(modifier = Modifier.height(20.dp))
+    
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text(
+            text = de.egril.defender.ui.ImpressumConstants.IMPRESSUM_TITLE,
+            style = MaterialTheme.typography.titleLarge,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+        
+        // Impressum content
+        Column(
+            modifier = Modifier
+                .padding(12.dp)
+                .fillMaxWidth()
+        ) {
+            Text(
+                text = buildString {
+                    append(de.egril.defender.ui.ImpressumConstants.IMPRESSUM_NAME)
+                    append("\n")
+                    append(de.egril.defender.ui.ImpressumConstants.IMPRESSUM_STREET)
+                    append("\n")
+                    append(de.egril.defender.ui.ImpressumConstants.IMPRESSUM_POSTAL_CODE)
+                    append(" ")
+                    append(de.egril.defender.ui.ImpressumConstants.IMPRESSUM_CITY)
+                    append("\n")
+                    append(de.egril.defender.ui.ImpressumConstants.IMPRESSUM_COUNTRY)
+                },
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.padding(bottom = 4.dp)
+            )
+            
+            Text(
+                text = "${de.egril.defender.ui.ImpressumConstants.IMPRESSUM_EMAIL_LABEL}${de.egril.defender.ui.ImpressumConstants.IMPRESSUM_EMAIL}",
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+    }
+}
