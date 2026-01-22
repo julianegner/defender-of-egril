@@ -4,7 +4,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 
 /**
- * Represents a barricade placed by Spike Tower or Spear Tower (level 10+).
+ * Represents a barricade placed by Spike Tower (level 20+) or Spear Tower (level 10+).
  * Barricades block enemy movement and take damage when enemies are adjacent.
  */
 data class Barricade(

@@ -296,4 +296,43 @@ class BarricadeSystemTest {
         assertEquals(barricadePos, barricade.position, "Barricade should be at correct position")
         assertEquals(1, barricade.healthPoints.value, "Barricade should have 1 HP")
     }
+    
+    @Test
+    fun testBarricadeTutorialTriggersAtCorrectLevel() {
+        val level = createTestLevel()
+        val gameState = GameState(level)
+        val towerManager = TowerManager(gameState)
+        
+        // Test Spike Tower: Tutorial should trigger when upgrading from level 19 to 20
+        val spikeTower = Defender(
+            id = 1,
+            type = DefenderType.SPIKE_TOWER,
+            position = mutableStateOf(Position(2, 2)),
+            level = mutableStateOf(19)
+        )
+        spikeTower.buildTimeRemaining.value = 0
+        gameState.defenders.add(spikeTower)
+        gameState.coins.value = 1000
+        
+        // Upgrade to level 20 - should trigger tutorial
+        towerManager.upgradeDefender(spikeTower.id)
+        assertEquals(20, spikeTower.level.value, "Spike tower should be level 20")
+        assertTrue(spikeTower.hasShownBarricadeTutorial.value, "Barricade tutorial should be shown for spike tower at level 20")
+        
+        // Test Spear Tower: Tutorial should trigger when upgrading from level 9 to 10
+        val spearTower = Defender(
+            id = 2,
+            type = DefenderType.SPEAR_TOWER,
+            position = mutableStateOf(Position(3, 2)),
+            level = mutableStateOf(9)
+        )
+        spearTower.buildTimeRemaining.value = 0
+        gameState.defenders.add(spearTower)
+        gameState.coins.value = 1000
+        
+        // Upgrade to level 10 - should trigger tutorial
+        towerManager.upgradeDefender(spearTower.id)
+        assertEquals(10, spearTower.level.value, "Spear tower should be level 10")
+        assertTrue(spearTower.hasShownBarricadeTutorial.value, "Barricade tutorial should be shown for spear tower at level 10")
+    }
 }
