@@ -380,7 +380,7 @@
     <string name="new_level">Neues Level</string>
     <string name="enemy_type">Gegnertyp:</string>
     <string name="add_enemy_to_turn">Gegner zu Runde %d hinzufügen</string>
-    <string name="ewhad_warning">⚠️ Ewhad kann nur einmal pro Level erscheinen!</string>
+    <string name="ewhad_warning">Ewhad kann nur einmal pro Level erscheinen!</string>
     <string name="level_lv">Lv%d</string>
     <string name="arrange_level_order">Level-Reihenfolge festlegen:</string>
     <string name="levels_in_sequence">Level in Reihenfolge:</string>
@@ -399,7 +399,7 @@
     <string name="cost_label">Kosten</string>
     <string name="damage_label">Schaden</string>
     <string name="hp_with_level">LP: %d</string>
-    <string name="add_enemy_button">➕ Feind zu Runde %d hinzufügen</string>
+    <string name="add_enemy_button">Feind zu Runde %d hinzufügen</string>
     <string name="add_all_towers">Alle hinzufügen</string>
     <string name="remove_all_towers">Alle entfernen</string>
     <string name="level_info_tab">Level-Info</string>
@@ -452,7 +452,7 @@
     <string name="tutorial_range_title">Reichweite prüfen</string>
     <string name="tutorial_range">Wählen Sie einen Turm aus, um zu sehen, welche Feinde in Reichweite sind (hervorgehoben). Türme können nur Feinde in ihrer Reichweite angreifen!</string>
     <string name="tutorial_attacking_title">Feinde angreifen</string>
-    <string name="tutorial_attacking">Klicken Sie auf einen Feind in Reichweite, um anzugreifen.\nJeder Turm hat begrenzte Aktionen pro Runde, angezeigt durch ⚡ Symbole.\nWenn Ihr Turm keine Feinde erreichen kann oder keine Aktionen mehr hat, können Sie Ihren Zug beenden oder weitere Türme platzieren.</string>
+    <string name="tutorial_attacking">Klicken Sie auf einen Feind in Reichweite, um anzugreifen. \nJeder Turm hat begrenzte Aktionen pro Runde, angezeigt durch Blitzsymbole.\nWenn Ihr Turm keine Feinde erreichen kann oder keine Aktionen mehr hat, können Sie Ihren Zug beenden oder weitere Türme platzieren.</string>
     <string name="tutorial_upgrade_title">Türme aufwerten</string>
     <string name="tutorial_upgrade">Wählen Sie einen Turm und klicken Sie auf Aufwerten, um seine Werte zu erhöhen. Sie sehen aktuellen Schaden, Reichweite und Aktionen pro Runde, plus wie sie nach dem Aufwerten sein werden. Aufwertungen kosten Münzen, machen Türme aber stärker!</string>
     <string name="tutorial_sell_title">Türme verkaufen</string>
@@ -546,12 +546,12 @@
     <string name="waypoints_description">Konfigurieren Sie Wegpunkt-Verbindungen für dieses Level. Wegpunkte definieren den Weg, dem die Gegner folgen.</string>
     <string name="waypoint_source">Quelle</string>
     <string name="waypoint_target">Ziel</string>
-    <string name="add_waypoint">➕ Wegpunkt hinzufügen</string>
+    <string name="add_waypoint">Wegpunkt hinzufügen</string>
     <string name="delete_waypoint">Löschen</string>
     <string name="no_waypoints_configured">Keine Wegpunkte für dieses Level konfiguriert.</string>
     <string name="available_waypoint_tiles">Verfügbare Wegpunkt-Felder aus Karte: %d</string>
-    <string name="waypoint_validation_success">✓ Wegpunkt-Konfiguration ist gültig</string>
-    <string name="waypoint_validation_error">✗ Wegpunkt-Konfiguration hat Fehler</string>
+    <string name="waypoint_validation_success">Wegpunkt-Konfiguration ist gültig</string>
+    <string name="waypoint_validation_error">Wegpunkt-Konfiguration hat Fehler</string>
     <string name="circular_dependency_detected">Zirkuläre Abhängigkeit erkannt! Beheben Sie die Wegpunkt-Verbindungen.</string>
     <string name="waypoint_position_format">Position (%d, %d)</string>
     <string name="spawn_point_text">Spawn-Punkt</string>
@@ -570,7 +570,7 @@
     <string name="to_spawn_point">Zu Spawn-Punkt</string>
     <string name="enemies_affected_count">%d Gegner betroffen</string>
     <string name="apply_changes">Änderungen anwenden</string>
-    <string name="spawn_point_warning">⚠ Einige Gegner werden außerhalb gültiger Spawn-Punkte gespawnt</string>
+    <string name="spawn_point_warning">Einige Gegner werden außerhalb gültiger Spawn-Punkte gespawnt</string>
     <string name="target_text">Ziel</string>
     <string name="waypoint">Wegpunkt</string>
     <string name="select_source_position">Quellposition auswählen</string>

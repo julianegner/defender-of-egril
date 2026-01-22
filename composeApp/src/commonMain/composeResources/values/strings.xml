@@ -380,7 +380,7 @@
     <string name="new_level">New Level</string>
     <string name="enemy_type">Enemy Type:</string>
     <string name="add_enemy_to_turn">Add Enemy to Turn %d</string>
-    <string name="ewhad_warning">⚠️ Ewhad can only be spawned once per level!</string>
+    <string name="ewhad_warning">Ewhad can only be spawned once per level!</string>
     <string name="level_lv">Lv%d</string>
     <string name="arrange_level_order">Arrange level order:</string>
     <string name="levels_in_sequence">Levels in Sequence:</string>
@@ -401,7 +401,7 @@
     <string name="cost_label">Cost</string>
     <string name="damage_label">Damage</string>
     <string name="hp_with_level">HP: %d</string>
-    <string name="add_enemy_button">➕ Add Enemy to Turn %d</string>
+    <string name="add_enemy_button">Add Enemy to Turn %d</string>
     <string name="add_all_towers">Add All</string>
     <string name="remove_all_towers">Remove All</string>
     <string name="level_info_tab">Level Info</string>
@@ -454,7 +454,7 @@
     <string name="tutorial_range_title">Check Range</string>
     <string name="tutorial_range">Select a tower to see which enemies are in range (highlighted). Towers can only attack enemies within their range!</string>
     <string name="tutorial_attacking_title">Attack Enemies</string>
-    <string name="tutorial_attacking">Click on an enemy in range to attack.\nEach tower has limited actions per turn shown by ⚡ symbols.\nIf your tower can't reach enemies or has no actions left, you can end your turn or place more towers.</string>
+    <string name="tutorial_attacking">Click on an enemy in range to attack.\nEach tower has limited actions per turn shown by lightning symbols.\nIf your tower can't reach enemies or has no actions left, you can end your turn or place more towers.</string>
     <string name="tutorial_upgrade_title">Upgrade Towers</string>
     <string name="tutorial_upgrade">Select a tower and click Upgrade to increase its stats. You'll see current damage, range, and actions per turn, plus what they'll be after upgrading. Upgrades cost coins but make towers more powerful!</string>
     <string name="tutorial_sell_title">Sell Towers</string>
@@ -549,12 +549,12 @@
     <string name="waypoints_description">Configure waypoint connections for this level. Waypoints define the path enemies will follow.</string>
     <string name="waypoint_source">Source</string>
     <string name="waypoint_target">Target</string>
-    <string name="add_waypoint">➕ Add Waypoint</string>
+    <string name="add_waypoint">Add Waypoint</string>
     <string name="delete_waypoint">Delete</string>
     <string name="no_waypoints_configured">No waypoints configured for this level.</string>
     <string name="available_waypoint_tiles">Available waypoint tiles from map: %d</string>
-    <string name="waypoint_validation_success">✓ Waypoint configuration is valid</string>
-    <string name="waypoint_validation_error">✗ Waypoint configuration has errors</string>
+    <string name="waypoint_validation_success">Waypoint configuration is valid</string>
+    <string name="waypoint_validation_error">Waypoint configuration has errors</string>
     <string name="circular_dependency_detected">Circular dependency detected! Fix waypoint connections.</string>
     <string name="waypoint_position_format">Position (%d, %d)</string>
     <string name="spawn_point_text">Spawn Point</string>
@@ -573,7 +573,7 @@
     <string name="to_spawn_point">To Spawn Point</string>
     <string name="enemies_affected_count">%d enemies affected</string>
     <string name="apply_changes">Apply Changes</string>
-    <string name="spawn_point_warning">⚠ Some enemies are spawned outside valid spawn points</string>
+    <string name="spawn_point_warning">Some enemies are spawned outside valid spawn points</string>
     <string name="target_text">Target</string>
     <string name="waypoint">Waypoint</string>
     <string name="select_source_position">Select source position</string>

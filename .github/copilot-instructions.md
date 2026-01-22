@@ -186,6 +186,7 @@ Defender of Egril is a turn-based tower defense game built with Kotlin Multiplat
 - **DO NOT include Unicode emojis/icons in string resources** - Use icon components instead
 - **Use Icon Components**: All icons are in `ui/icon/IconUtils.kt` (e.g., `WarningIcon`, `InfoIcon`, `LightningIcon`, `HeartIcon`, `LockIcon`)
 - **Display Icons**: Use composable icon functions with `Row` and proper spacing
+- **Validation**: Run `UnicodeEmojiValidationTest` to ensure no Unicode emojis exist in code or language files
 - **Example**: Instead of `"⚠️ Warning text"`, use:
   ```kotlin
   Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -193,6 +194,11 @@ Defender of Egril is a turn-based tower defense game built with Kotlin Multiplat
       Text("Warning text")
   }
   ```
+- **Adding New Emojis**: If a new emoji is needed:
+  1. Look it up at https://api.github.com/repos/googlefonts/noto-emoji
+  2. Download the PNG version
+  3. Add it as `emoji_*.png` in `composeResources/drawable/`
+  4. Create an Icon component in `ui/icon/IconUtils.kt`
 
 ### Grid System
 - **Hexagonal Grid**: Uses offset coordinate system (even-q vertical layout)
@@ -435,6 +441,9 @@ Add to `LevelData.createLevels()` with:
 - Core game mechanics (tower placement, attacks, movement)
 - Edge cases (boundary conditions, invalid inputs)
 - State transitions
+- **Code quality validation tests**:
+  - `TranslationCoverageTest`: Verifies all strings use localization
+  - `UnicodeEmojiValidationTest`: Ensures no Unicode emojis in code or language files (WASM compatibility)
 - **Always add tests for new or changed behavior**
   - When adding new features, create tests that verify the feature works as expected
   - When modifying existing behavior, add tests that verify both the old behavior is prevented and new behavior works

@@ -380,7 +380,7 @@
     <string name="new_level">Nouveau niveau</string>
     <string name="enemy_type">Type d'ennemi:</string>
     <string name="add_enemy_to_turn">Ajouter un ennemi au tour %d</string>
-    <string name="ewhad_warning">⚠️ Ewhad ne peut apparaître qu'une fois par niveau!</string>
+    <string name="ewhad_warning">Ewhad ne peut apparaître qu'une fois par niveau!</string>
     <string name="level_lv">Niv%d</string>
     <string name="arrange_level_order">Organiser l'ordre des niveaux:</string>
     <string name="levels_in_sequence">Niveaux dans la séquence:</string>
@@ -401,7 +401,7 @@
     <string name="cost_label">Coût</string>
     <string name="damage_label">Dégâts</string>
     <string name="hp_with_level">PV: %d</string>
-    <string name="add_enemy_button">➕ Ajouter un ennemi au tour %d</string>
+    <string name="add_enemy_button">Ajouter un ennemi au tour %d</string>
     <string name="add_all_towers">Tout ajouter</string>
     <string name="remove_all_towers">Tout supprimer</string>
     <string name="level_info_tab">Info du niveau</string>
@@ -454,7 +454,7 @@
     <string name="tutorial_range_title">Vérifier la portée</string>
     <string name="tutorial_range">Sélectionnez une tour pour voir quels ennemis sont à portée (mis en évidence). Les tours ne peuvent attaquer que les ennemis à leur portée!</string>
     <string name="tutorial_attacking_title">Attaquer les ennemis</string>
-    <string name="tutorial_attacking">Cliquez sur un ennemi à portée pour attaquer.\nChaque tour a des actions limitées par tour indiquées par des symboles ⚡.\nSi votre tour ne peut pas atteindre les ennemis ou n'a plus d'actions, vous pouvez terminer votre tour ou placer plus de tours.</string>
+    <string name="tutorial_attacking">Cliquez sur un ennemi à portée pour attaquer.\nChaque tour a des actions limitées par tour indiquées par des symboles d'éclair.\nSi votre tour ne peut pas atteindre les ennemis ou n'a plus d'actions, vous pouvez terminer votre tour ou placer plus de tours.</string>
     <string name="tutorial_upgrade_title">Améliorer les tours</string>
     <string name="tutorial_upgrade">Sélectionnez une tour et cliquez sur Améliorer pour augmenter ses statistiques. Vous verrez les dégâts, la portée et les actions actuelles par tour, ainsi que ce qu'elles seront après l'amélioration. Les améliorations coûtent des pièces mais rendent les tours plus puissantes!</string>
     <string name="tutorial_sell_title">Vendre des tours</string>
@@ -548,12 +548,12 @@
     <string name="waypoints_description">Configurez les connexions des points de passage pour ce niveau. Les points de passage définissent le chemin que suivront les ennemis.</string>
     <string name="waypoint_source">Source</string>
     <string name="waypoint_target">Cible</string>
-    <string name="add_waypoint">➕ Ajouter un Point de Passage</string>
+    <string name="add_waypoint">Ajouter un Point de Passage</string>
     <string name="delete_waypoint">Supprimer</string>
     <string name="no_waypoints_configured">Aucun point de passage configuré pour ce niveau.</string>
     <string name="available_waypoint_tiles">Tuiles de points de passage disponibles sur la carte : %d</string>
-    <string name="waypoint_validation_success">✓ La configuration des points de passage est valide</string>
-    <string name="waypoint_validation_error">✗ La configuration des points de passage contient des erreurs</string>
+    <string name="waypoint_validation_success">La configuration des points de passage est valide</string>
+    <string name="waypoint_validation_error">La configuration des points de passage contient des erreurs</string>
     <string name="circular_dependency_detected">Dépendance circulaire détectée ! Corrigez les connexions des points de passage.</string>
     <string name="waypoint_position_format">Position (%d, %d)</string>
     <string name="spawn_point_text">Point d'Apparition</string>
@@ -572,7 +572,7 @@
     <string name="to_spawn_point">Vers le Point d'Apparition</string>
     <string name="enemies_affected_count">%d ennemis affectés</string>
     <string name="apply_changes">Appliquer les Modifications</string>
-    <string name="spawn_point_warning">⚠ Certains ennemis apparaissent en dehors des points d'apparition valides</string>
+    <string name="spawn_point_warning">Certains ennemis apparaissent en dehors des points d'apparition valides</string>
     <string name="target_text">Cible</string>
     <string name="waypoint">Point de Passage</string>
     <string name="select_source_position">Sélectionner la position source</string>
