@@ -51,13 +51,6 @@ fun DrawScope.drawEvilWizardSymbol(centerX: Float, centerY: Float, size: Float, 
             end = Offset(centerX + size * 0.35f, centerY + size * 0.45f),
             strokeWidth = 3f + pathOutlineWidth
         )
-        // Orb outline on staff - use stroke for uniform outline
-        drawCircle(
-            color = outlineColor,
-            radius = size * 0.08f + outlineWidth / 2,
-            center = Offset(centerX + size * 0.35f, centerY + size * 0.05f),
-            style = Stroke(width = outlineWidth)
-        )
     }
     
     // Wizard hat (triangle)
@@ -94,6 +87,16 @@ fun DrawScope.drawEvilWizardSymbol(centerX: Float, centerY: Float, size: Float, 
         end = Offset(centerX + size * 0.35f, centerY + size * 0.45f),
         strokeWidth = 3f
     )
-    // Orb on staff
+    // Orb on staff (draw filled first)
     drawCircle(color = Color(0xFF9400D3), radius = size * 0.08f, center = Offset(centerX + size * 0.35f, centerY + size * 0.05f))
+    
+    // Draw orb outline last so it appears on top
+    if (outlineColor != null) {
+        drawCircle(
+            color = outlineColor,
+            radius = size * 0.08f + outlineWidth / 2,
+            center = Offset(centerX + size * 0.35f, centerY + size * 0.05f),
+            style = Stroke(width = outlineWidth)
+        )
+    }
 }
