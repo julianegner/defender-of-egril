@@ -128,13 +128,13 @@ Dark Mode:
 ╔═══════════════════════════════════╗
 ║  ⬜👹 ⬜👺 ⬜🧙   🗡️ 🧙‍♂️            ║
 ╚═══════════════════════════════════╝
-✅ White outlines (3px) ensure all enemies visible
+✅ White outlines (2px uniform stroke) ensure all enemies visible
 
 Light Mode:
 ┌───────────────────────────────────┐
 │  ⬛👹 ⬛👺 ⬛🧙   🗡️ 🧙‍♂️            │
 └───────────────────────────────────┘
-✅ Black outlines (3px) provide clear definition
+✅ Black outlines (2px uniform stroke) provide clear definition
 ```
 
 ### Theme Detection for Outlines
@@ -157,16 +157,16 @@ drawEvilWizardSymbol(..., outlineColor)
 
 **Goblin (Light Green)**
 - Before: Green head + ears + body
-- After: + 3px black/white outline
+- After: + 2px stroke-based outline (uniform thickness)
 
 **Ork (Dark Olive Green)**
 - Before: Dark green head + tusks + gray armor
-- After: + 3px black/white outline
+- After: + 2px stroke-based outline (uniform thickness)
 - ✨ Most improved visibility in dark mode!
 
 **Evil Wizard (Purple/Indigo)**
 - Before: Purple hat + face + staff with orb
-- After: + 3px black/white outline
+- After: + 2px stroke-based outline (uniform thickness)
 
 ### Implementation Notes
 
@@ -175,14 +175,23 @@ drawEvilWizardSymbol(..., outlineColor)
 - Other uses (like EnemyIcon.kt in gameplay) don't get outlines
 - Only ApplicationBanner passes outline color
 
-**Drawing Order:**
-1. Draw outline shapes (3px larger)
-2. Draw original shapes (on top)
-3. Result: Clean 3px outline visible
+**Drawing Technique (Updated):**
+1. Use `Stroke(width = 2f)` style instead of fill-based shapes
+2. Draw outline shapes using `drawPath(path, color, style = Stroke(width = 2f))`
+3. Draw original shapes (filled, on top)
+4. Result: Clean 2px uniform outline on all edges
+
+**Fix for Uneven Thickness:**
+- Initial implementation used fill-based offset shapes
+- This caused thick outlines on straight lines, thin on diagonals
+- Updated to use stroke-based outlines for uniform thickness
+- Stroke method ensures consistent 2px width regardless of edge angle
 
 **Benefits:**
 - ✅ Better visibility in both themes
 - ✅ Clear icon boundaries
 - ✅ Automatic theme adaptation
 - ✅ Professional appearance
+- ✅ Uniform 2px outline thickness on all edges (fixed)
+- ✅ No thick/thin variation on straight vs diagonal lines
 - ✅ No impact on game UI (outlines only in banner)
