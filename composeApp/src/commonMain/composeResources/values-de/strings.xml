@@ -190,7 +190,7 @@
     <string name="acid_desc">Säure: Kontinuierlicher Schaden für 3 Runden innerhalb 1 Feld des Einschlags</string>
     <string name="victory_defeat">Sieg &amp; Niederlage</string>
     <string name="victory_detail">Sieg: Besiege alle Feinde in allen Wellen mit mindestens 1 Gesundheitspunkt</string>
-    <string name="defeat_detail">Niederlage: Schwache Feinde (Goblins, Orks, Oger, Skelette) kosten 1 Gesundheitspunkt beim Erreichen des Ziels. Mächtige Feinde (Zauberer, Hexen, Magier, Dämonen, Drachen) kosten Gesundheitspunkte gleich ihrer Stufe. Ewhad kostet alle Gesundheitspunkte. Bei 0 Gesundheit verlierst du.</string>
+    <string name="defeat_detail">Niederlage: Schwache Feinde (Goblins, Orks, Oger, Skelette) kosten 1 Gesundheitspunkt beim Erreichen des Ziels.\nMächtige Feinde (Zauberer, Hexen, Magier, Dämonen, Drachen) kosten Gesundheitspunkte gleich ihrer Stufe.\nEwhad kostet alle Gesundheitspunkte.\nBei 0 Gesundheit verlierst du.</string>
     <string name="grid_legend">Rasterlegende</string>
     <string name="spawn_desc">Spawn: Startposition (Feinde erscheinen)</string>
     <string name="target_desc">Ziel: Zielposition (Muss verteidigt werden!)</string>
@@ -432,7 +432,7 @@
     <string name="tutorial_welcome_title">Willkommen bei Defender of Egril!</string>
     <string name="tutorial_welcome">Dies ist ein Tower-Defense-Spiel. Ihr Ziel ist es, Feinde daran zu hindern, das Ziel zu erreichen, indem Sie Verteidigungstürme bauen.</string>
     <string name="tutorial_resources_title">Ressourcen</string>
-    <string name="tutorial_resources">Sie haben Münzen zum Bauen von Türmen und Lebenspunkte. Wenn Sie Feinde besiegen, erhalten Sie Münzen entsprechend ihrer Grundbelohnung multipliziert mit ihrer Stufe. Schwache Feinde kosten 1 LP, aber mächtige Feinde (Zauberer, Hexen, Magier, Dämonen, Drachen) kosten LP gleich ihrer Stufe. Ewhad kostet alle LP!</string>
+    <string name="tutorial_resources">Sie haben Münzen zum Bauen von Türmen und Lebenspunkte.\nWenn Sie Feinde besiegen, erhalten Sie Münzen entsprechend ihrer Grundbelohnung multipliziert mit ihrer Stufe.\nSchwache Feinde kosten 1 LP, aber mächtige Feinde (Zauberer, Hexen, Magier, Dämonen, Drachen) kosten LP gleich ihrer Stufe.\nEwhad kostet alle LP!</string>
     <string name="tutorial_towers_title">Verfügbare Türme</string>
     <string name="tutorial_towers">Pikenturm: Nahkampf, günstig. Speerturm: Mittlere Reichweite. Bogenturm: Große Reichweite. Wählen Sie weise basierend auf Ihrer Strategie!</string>
     <string name="tutorial_legend_title">Die Legende</string>
@@ -442,7 +442,7 @@
     <string name="tutorial_build_title">Türme bauen</string>
     <string name="tutorial_build">Wählen Sie unten einen Turmtyp und klicken Sie auf einen grünen Baubereich, um ihn zu platzieren. Bauen Sie Ihre Verteidigung auf!</string>
     <string name="tutorial_initial_building_title">Anfängliche Bauphase</string>
-    <string name="tutorial_initial_building">In dieser Anfangsphase werden Türme sofort gebaut, können aber noch nicht angreifen. Klicken Sie auf einen Turm, um seine Reichweite zu sehen - Pfadfelder bekommen grüne Ränder. Später im Spiel dauert der Bau von Türmen 1-2 Runden.</string>
+    <string name="tutorial_initial_building">In dieser Anfangsphase werden Türme sofort gebaut, können aber noch nicht angreifen.\nKlicken Sie auf einen Turm, um seine Reichweite zu sehen - Pfadfelder bekommen grüne Ränder.\nSpäter im Spiel dauert der Bau von Türmen 1-2 Runden.</string>
     <string name="tutorial_undo_title">Türme rückgängig machen</string>
     <string name="tutorial_undo">Während dieser Anfangsphase können Sie die Turmplatzierung rückgängig machen, indem Sie ihn auswählen und für eine vollständige Rückerstattung verkaufen. Nach Beginn der Schlacht können Sie Türme nur noch für 75% ihres Wertes verkaufen.</string>
     <string name="tutorial_combat_title">Starten Sie die Schlacht</string>
@@ -452,13 +452,13 @@
     <string name="tutorial_range_title">Reichweite prüfen</string>
     <string name="tutorial_range">Wählen Sie einen Turm aus, um zu sehen, welche Feinde in Reichweite sind (hervorgehoben). Türme können nur Feinde in ihrer Reichweite angreifen!</string>
     <string name="tutorial_attacking_title">Feinde angreifen</string>
-    <string name="tutorial_attacking">Klicken Sie auf einen Feind in Reichweite, um anzugreifen. Jeder Turm hat begrenzte Aktionen pro Runde, angezeigt durch ⚡ Symbole. Wenn Ihr Turm keine Feinde erreichen kann oder keine Aktionen mehr hat, können Sie Ihren Zug beenden oder weitere Türme platzieren.</string>
+    <string name="tutorial_attacking">Klicken Sie auf einen Feind in Reichweite, um anzugreifen.\nJeder Turm hat begrenzte Aktionen pro Runde, angezeigt durch ⚡ Symbole.\nWenn Ihr Turm keine Feinde erreichen kann oder keine Aktionen mehr hat, können Sie Ihren Zug beenden oder weitere Türme platzieren.</string>
     <string name="tutorial_upgrade_title">Türme aufwerten</string>
     <string name="tutorial_upgrade">Wählen Sie einen Turm und klicken Sie auf Aufwerten, um seine Werte zu erhöhen. Sie sehen aktuellen Schaden, Reichweite und Aktionen pro Runde, plus wie sie nach dem Aufwerten sein werden. Aufwertungen kosten Münzen, machen Türme aber stärker!</string>
     <string name="tutorial_sell_title">Türme verkaufen</string>
     <string name="tutorial_sell">Wählen Sie einen Turm und klicken Sie auf Verkaufen, um 75% seiner Gesamtinvestition (Kosten + Aufwertungen) zurückzubekommen. Nutzen Sie dies, wenn Sie Münzen benötigen oder Ihre Verteidigung neu positionieren möchten.</string>
     <string name="tutorial_save_game_title">Speichern Sie Ihren Fortschritt</string>
-    <string name="tutorial_save_game">Sie können Ihr Spiel jederzeit mit der Schaltfläche Spiel speichern sichern. So können Sie verschiedene Strategien ausprobieren oder später weiterspielen. Um ein gespeichertes Spiel zu laden, verwenden Sie die Schaltfläche Spiel laden auf dem Weltkarten-Bildschirm.</string>
+    <string name="tutorial_save_game">Sie können Ihr Spiel jederzeit mit der Schaltfläche Spiel speichern sichern.\nSo können Sie verschiedene Strategien ausprobieren oder später weiterspielen.\nUm ein gespeichertes Spiel zu laden, verwenden Sie die Schaltfläche Spiel laden auf dem Weltkarten-Bildschirm.</string>
     <string name="tutorial_complete_title">Tutorial abgeschlossen!</string>
     <string name="tutorial_complete">Sie haben die Grundlagen gemeistert! In späteren Leveln schalten Sie mächtigere Türme wie Ballista, Zauberer und Alchemie-Türme frei, um stärkeren Gegnern wie Dämonen und Bossen zu begegnen. Verteidigen Sie nun Egril gegen die Horden. Viel Glück, Verteidiger!</string>
     <string name="tutorial_next">Weiter</string>
@@ -516,7 +516,7 @@
 
     <!-- Dragon Info -->
     <string name="dragon_info_title">Drachen-Alarm!</string>
-    <string name="dragon_info_movement">Der Drache wechselt seine Bewegung: Runde 1, 3, 5...: Geht 1 Feld auf Pfad. Runde 2, 4, 6...: Fliegt bis zu 5 Felder, kann Hindernisse überfliegen, muss aber auf Pfad landen</string>
+    <string name="dragon_info_movement">Der Drache wechselt seine Bewegung:\nRunde 1, 3, 5...: Geht 1 Feld auf Pfad.\nRunde 2, 4, 6...: Fliegt bis zu 5 Felder, kann Hindernisse überfliegen, muss aber auf Pfad landen</string>
     <string name="dragon_info_eating">Drachen verschlingen Gegner, auf denen sie landen (außer Ewhad), und gewinnen deren Gesundheitspunkte!</string>
     <string name="dragon_info_level">Drachenlevel steigt mit Gesundheit: Level = LP ÷ 500 (min. 1)</string>
     <string name="got_it">Verstanden!</string>
@@ -648,7 +648,7 @@
     <string name="build_barricade">Barrikade bauen</string>
     <string name="remove_barricade">Barrikade entfernen</string>
     <string name="barricade_info_title">Barrikaden-Fähigkeit freigeschaltet!</string>
-    <string name="barricade_info_message">Ihr Pike- oder Speerturm hat Stufe 10 erreicht und kann jetzt Barrikaden bauen! Barrikaden sind Holzkonstruktionen auf angrenzenden Pfadfeldern, die Feindbewegungen blockieren. Jede Barrikade hat Lebenspunkte gleich der Turmstufe minus 10 (mindestens 1). Wenn Feinde eine Barrikade erreichen, greifen sie mit Schaden gleich ihrer Stufe an (Drachen verursachen das 5-fache ihrer Stufe). Wird eine Barrikade zerstört, bewegt sich der Feind auf dieses Feld. Sie können neue Barrikaden bauen oder bestehende verstärken und auf Barrikaden klicken, um sie zu entfernen.</string>
+    <string name="barricade_info_message">Ihr Pike- oder Speerturm hat Stufe 10 erreicht und kann jetzt Barrikaden bauen!\nBarrikaden sind Holzkonstruktionen auf angrenzenden Pfadfeldern, die Feindbewegungen blockieren.\nJede Barrikade hat Lebenspunkte gleich der Turmstufe minus 10 (mindestens 1).\nWenn Feinde eine Barrikade erreichen, greifen sie mit Schaden gleich ihrer Stufe an (Drachen verursachen das 5-fache ihrer Stufe).\nWird eine Barrikade zerstört, bewegt sich der Feind auf dieses Feld.\nSie können neue Barrikaden bauen oder bestehende verstärken und auf Barrikaden klicken, um sie zu entfernen.</string>
     <string name="remove_barricade_title">Barrikade entfernen?</string>
     <string name="remove_barricade_message">Möchten Sie diese Barrikade wirklich entfernen?</string>
     
@@ -698,16 +698,16 @@
 
     <!-- First Time Tower Usage Info -->
     <string name="wizard_first_use_title">Zauberturm</string>
-    <string name="wizard_first_use_message">Der Zauberturm ist ein mächtiger Flächenangriffsturm, der Feuerbälle auf Feinde schleudert! Jeder Feuerball schadet dem Ziel und allen Feinden in angrenzenden Feldern. Er hat eine längere Bauzeit (2 Runden), kann aber Gegnergruppen vernichten. Ab Stufe 10 können Zauberer magische Fallen platzieren, die Feinde zum Spawnpunkt zurückteleportieren. Ab Stufe 20 erhöht sich der Feuerballradius auf 2 Felder!</string>
+    <string name="wizard_first_use_message">Der Zauberturm ist ein mächtiger Flächenangriffsturm, der Feuerbälle auf Feinde schleudert!\nJeder Feuerball schadet dem Ziel und allen Feinden in angrenzenden Feldern.\nEr hat eine längere Bauzeit (2 Runden), kann aber Gegnergruppen vernichten.\nAb Stufe 10 können Zauberer magische Fallen platzieren, die Feinde zum Spawnpunkt zurückteleportieren.\nAb Stufe 20 erhöht sich der Feuerballradius auf 2 Felder!</string>
 
     <string name="alchemy_first_use_title">Alchemieturm</string>
-    <string name="alchemy_first_use_message">Der Alchemieturm wirft Säure, die Schaden über Zeit verursacht! Anders als andere Türme hält der Säureschaden mehrere Runden an (Basis 2 Runden, erhöht sich mit der Stufe). Die Säure trifft das Ziel und angrenzende Feinde in einem kleinen Bereich. Obwohl der Schaden pro Runde niedriger ist, kann der Gesamtschaden über Zeit sehr effektiv sein. Ab Stufe 20 erhöht sich der Säurebereich auf 2 Felder!</string>
+    <string name="alchemy_first_use_message">Der Alchemieturm wirft Säure, die Schaden über Zeit verursacht!\nAnders als andere Türme hält der Säureschaden mehrere Runden an (Basis 2 Runden, erhöht sich mit der Stufe).\nDie Säure trifft das Ziel und angrenzende Feinde in einem kleinen Bereich.\nObwohl der Schaden pro Runde niedriger ist, kann der Gesamtschaden über Zeit sehr effektiv sein.\nAb Stufe 20 erhöht sich der Säurebereich auf 2 Felder!</string>
 
     <string name="ballista_first_use_title">Ballistaturm</string>
-    <string name="ballista_first_use_message">Die Ballista ist eine Belagerungswaffe mit außergewöhnlicher Reichweite (5 Felder) und hohem Schaden! Sie hat jedoch eine Mindestreichweite von 3 Feldern und kann nahe Feinde nicht angreifen. Sie benötigt 2 Runden zum Bau. Nutze sie, um Feinde aus der Ferne anzugreifen, bevor sie zu nah kommen, oder positioniere sie hinter anderen Türmen für maximale Effektivität.</string>
+    <string name="ballista_first_use_message">Die Ballista ist eine Belagerungswaffe mit außergewöhnlicher Reichweite (5 Felder) und hohem Schaden!\nSie hat jedoch eine Mindestreichweite von 3 Feldern und kann nahe Feinde nicht angreifen.\nSie benötigt 2 Runden zum Bau.\nNutze sie, um Feinde aus der Ferne anzugreifen, bevor sie zu nah kommen, oder positioniere sie hinter anderen Türmen für maximale Effektivität.</string>
 
     <string name="mine_first_use_title">Zwergenmine</string>
-    <string name="mine_first_use_message">Die Zwergenmine ist eine Spezialstruktur, die durch Bergbau Münzen generiert! Anders als Kampftürme nutzen Minen die "Graben"-Aktion, um wertvolle Ressourcen zu finden (Schutt, Messing, Silber, Gold, Edelsteine oder Diamanten). Minen können auch Fallen bauen, die Feinden schaden. Auf höheren Stufen können Minen öfter pro Runde graben und weiter reichen. Warnung: Drachen sind gierig und werden Minen zerstören, um den Schatz zu beanspruchen!</string>
+    <string name="mine_first_use_message">Die Zwergenmine ist eine Spezialstruktur, die durch Bergbau Münzen generiert!\nAnders als Kampftürme nutzen Minen die "Graben"-Aktion, um wertvolle Ressourcen zu finden (Schutt, Messing, Silber, Gold, Edelsteine oder Diamanten).\nMinen können auch Fallen bauen, die Feinden schaden.\nAuf höheren Stufen können Minen öfter pro Runde graben und weiter reichen.\nWarnung: Drachen sind gierig und werden Minen zerstören, um den Schatz zu beanspruchen!</string>
 
     <!-- River Mechanics Info -->
     <string name="river_info_title">Flussmechanik</string>

@@ -190,7 +190,7 @@
     <string name="acid_desc">Acid: Continuous damage for 3 turns within 1 cell of impact</string>
     <string name="victory_defeat">Victory &amp; Defeat</string>
     <string name="victory_detail">Victory: Defeat all enemies in all waves with at least 1 HP remaining</string>
-    <string name="defeat_detail">Defeat: Weak enemies (goblins, orks, ogres, skeletons) cost 1 HP when reaching the target. Mighty enemies (wizards, witches, mages, demons, dragons) cost HP equal to their level. Ewhad costs all your HP. At 0 HP, you lose.</string>
+    <string name="defeat_detail">Defeat: Weak enemies (goblins, orks, ogres, skeletons) cost 1 HP when reaching the target.\nMighty enemies (wizards, witches, mages, demons, dragons) cost HP equal to their level.\nEwhad costs all your HP.\nAt 0 HP, you lose.</string>
     <string name="grid_legend">Grid Legend</string>
     <string name="spawn_desc">Spawn: Start position (enemies spawn)</string>
     <string name="target_desc">Target: Target position (defend this!)</string>
@@ -434,7 +434,7 @@
     <string name="tutorial_welcome_title">Welcome to Defender of Egril!</string>
     <string name="tutorial_welcome">This is a tower defense game. Your goal is to stop enemies from reaching the target by building defensive towers.</string>
     <string name="tutorial_resources_title">Resources</string>
-    <string name="tutorial_resources">You have coins to build towers and health points. When you defeat enemies, you earn coins equal to their base reward multiplied by their level. Weak enemies cost 1 HP, but mighty enemies (wizards, witches, mages, demons, dragons) cost HP equal to their level. Ewhad costs all your HP!</string>
+    <string name="tutorial_resources">You have coins to build towers and health points.\nWhen you defeat enemies, you earn coins equal to their base reward multiplied by their level.\nWeak enemies cost 1 HP, but mighty enemies (wizards, witches, mages, demons, dragons) cost HP equal to their level.\nEwhad costs all your HP!</string>
     <string name="tutorial_towers_title">Available Towers</string>
     <string name="tutorial_towers">Spike Tower: Close range, cheap. Spear Tower: Medium range. Bow Tower: Long range. Choose wisely based on your strategy!</string>
     <string name="tutorial_legend_title">The Legend</string>
@@ -444,7 +444,7 @@
     <string name="tutorial_build_title">Building Towers</string>
     <string name="tutorial_build">Select a tower type from below, then click on a green build area to place it. Build your defenses!</string>
     <string name="tutorial_initial_building_title">Initial Building Phase</string>
-    <string name="tutorial_initial_building">In this initial phase, towers are built instantly but cannot attack yet. Click on a tower to see its range - path tiles get green borders. Later in the game, towers will take 1-2 turns to build.</string>
+    <string name="tutorial_initial_building">In this initial phase, towers are built instantly but cannot attack yet.\nClick on a tower to see its range - path tiles get green borders.\nLater in the game, towers will take 1-2 turns to build.</string>
     <string name="tutorial_undo_title">Undo Towers</string>
     <string name="tutorial_undo">During this initial phase, you can undo tower placement by selecting it and selling for a full refund. After the battle starts, you can only sell towers for 75% of their value.</string>
     <string name="tutorial_combat_title">Start the Battle</string>
@@ -454,13 +454,13 @@
     <string name="tutorial_range_title">Check Range</string>
     <string name="tutorial_range">Select a tower to see which enemies are in range (highlighted). Towers can only attack enemies within their range!</string>
     <string name="tutorial_attacking_title">Attack Enemies</string>
-    <string name="tutorial_attacking">Click on an enemy in range to attack. Each tower has limited actions per turn shown by ⚡ symbols. If your tower can't reach enemies or has no actions left, you can end your turn or place more towers.</string>
+    <string name="tutorial_attacking">Click on an enemy in range to attack.\nEach tower has limited actions per turn shown by ⚡ symbols.\nIf your tower can't reach enemies or has no actions left, you can end your turn or place more towers.</string>
     <string name="tutorial_upgrade_title">Upgrade Towers</string>
     <string name="tutorial_upgrade">Select a tower and click Upgrade to increase its stats. You'll see current damage, range, and actions per turn, plus what they'll be after upgrading. Upgrades cost coins but make towers more powerful!</string>
     <string name="tutorial_sell_title">Sell Towers</string>
     <string name="tutorial_sell">Select a tower and click Sell to get back 75% of its total investment (cost + upgrades). Use this if you need coins or want to reposition your defense.</string>
     <string name="tutorial_save_game_title">Save Your Progress</string>
-    <string name="tutorial_save_game">You can save your game at any time using the Save Game button. This lets you try different strategies or continue later. To load a saved game, use the Load Game button on the world map screen.</string>
+    <string name="tutorial_save_game">You can save your game at any time using the Save Game button.\nThis lets you try different strategies or continue later.\nTo load a saved game, use the Load Game button on the world map screen.</string>
     <string name="tutorial_complete_title">Tutorial Complete!</string>
     <string name="tutorial_complete">You've mastered the basics! In later levels, you'll unlock mightier towers like the Ballista, Wizard, and Alchemy towers to face stronger foes like demons and bosses. Now defend Egril against the hordes. Good luck, defender!</string>
     <string name="tutorial_next">Next</string>
@@ -513,7 +513,7 @@
 
     <!-- Dragon Info -->
     <string name="dragon_info_title">Dragon Alert!</string>
-    <string name="dragon_info_movement">The dragon alternates movement: Turn 1, 3, 5...: Walks 1 tile on path. Turn 2, 4, 6...: Flies up to 5 tiles, can cross obstacles but must land on path</string>
+    <string name="dragon_info_movement">The dragon alternates movement:\nTurn 1, 3, 5...: Walks 1 tile on path.\nTurn 2, 4, 6...: Flies up to 5 tiles, can cross obstacles but must land on path</string>
     <string name="dragon_info_eating">Dragons devour enemies they land on (except Ewhad), gaining their health points!</string>
     <string name="dragon_info_level">Dragon level increases with health: Level = HP ÷ 500 (min. 1)</string>
     <string name="got_it">Got it!</string>
@@ -651,7 +651,7 @@
     <string name="remove_barricade_title">Remove Barricade?</string>
     <string name="remove_barricade_message">Are you sure you want to remove this barricade?</string>
     <string name="barricade_info_title">Barricade Ability Unlocked!</string>
-    <string name="barricade_info_message">Your Spike or Spear tower has reached level 10 and can now build barricades! Barricades are wooden structures placed on adjacent path tiles that block enemy movement. Each barricade has health points equal to the tower level minus 10 (minimum 1). When enemies reach a barricade, they attack it with damage equal to their level (dragons deal 5× their level). If a barricade is destroyed, the enemy moves to that tile. You can build new barricades or reinforce existing ones, and click on barricades to remove them.</string>
+    <string name="barricade_info_message">Your Spike or Spear tower has reached level 10 and can now build barricades!\nBarricades are wooden structures placed on adjacent path tiles that block enemy movement.\nEach barricade has health points equal to the tower level minus 10 (minimum 1).\nWhen enemies reach a barricade, they attack it with damage equal to their level (dragons deal 5× their level).\nIf a barricade is destroyed, the enemy moves to that tile.\nYou can build new barricades or reinforce existing ones, and click on barricades to remove them.</string>
     
     <!-- Magical Trap Feature -->
     <string name="magical_trap">Magical Trap</string>
@@ -699,16 +699,16 @@
 
     <!-- First Time Tower Usage Info -->
     <string name="wizard_first_use_title">Wizard Tower</string>
-    <string name="wizard_first_use_message">The Wizard Tower is a powerful area-of-effect tower that launches fireballs at enemies! Each fireball damages the target and all enemies in adjacent tiles. It has a longer build time (2 turns) but can devastate groups of enemies. At level 10, wizards can place magical traps that teleport enemies back to spawn. At level 20, the fireball radius increases to 2 tiles!</string>
+    <string name="wizard_first_use_message">The Wizard Tower is a powerful area-of-effect tower that launches fireballs at enemies!\nEach fireball damages the target and all enemies in adjacent tiles.\nIt has a longer build time (2 turns) but can devastate groups of enemies.\nAt level 10, wizards can place magical traps that teleport enemies back to spawn.\nAt level 20, the fireball radius increases to 2 tiles!</string>
 
     <string name="alchemy_first_use_title">Alchemy Tower</string>
-    <string name="alchemy_first_use_message">The Alchemy Tower throws acid that deals damage over time! Unlike other towers, acid damage persists for multiple rounds (base 2 turns, increases with level). The acid affects the target and adjacent enemies in a small area. While the damage per turn is lower, the total damage over time can be very effective. At level 20, the acid area increases to 2 tiles!</string>
+    <string name="alchemy_first_use_message">The Alchemy Tower throws acid that deals damage over time!\nUnlike other towers, acid damage persists for multiple rounds (base 2 turns, increases with level).\nThe acid affects the target and adjacent enemies in a small area.\nWhile the damage per turn is lower, the total damage over time can be very effective.\nAt level 20, the acid area increases to 2 tiles!</string>
 
     <string name="ballista_first_use_title">Ballista Tower</string>
-    <string name="ballista_first_use_message">The Ballista is a long-range siege weapon with exceptional range (5 tiles) and high damage! However, it has a minimum range of 3 tiles and cannot attack nearby enemies. It requires 2 turns to build. Use it to target enemies from a distance before they get too close, or position it behind other towers for maximum effectiveness.</string>
+    <string name="ballista_first_use_message">The Ballista is a long-range siege weapon with exceptional range (5 tiles) and high damage!\nHowever, it has a minimum range of 3 tiles and cannot attack nearby enemies.\nIt requires 2 turns to build.\nUse it to target enemies from a distance before they get too close, or position it behind other towers for maximum effectiveness.</string>
 
     <string name="mine_first_use_title">Dwarven Mine</string>
-    <string name="mine_first_use_message">The Dwarven Mine is a special structure that generates coins through mining operations! Unlike combat towers, mines use the "dig" action to find valuable resources (rubble, brass, silver, gold, gems, or diamonds). Mines can also build traps that damage enemies. At higher levels, mines can dig more times per turn and reach further. Warning: Dragons are greedy and will destroy mines to claim the treasure!</string>
+    <string name="mine_first_use_message">The Dwarven Mine is a special structure that generates coins through mining operations!\nUnlike combat towers, mines use the "dig" action to find valuable resources (rubble, brass, silver, gold, gems, or diamonds).\nMines can also build traps that damage enemies.\nAt higher levels, mines can dig more times per turn and reach further.\nWarning: Dragons are greedy and will destroy mines to claim the treasure!</string>
 
     <!-- River Mechanics Info -->
     <string name="river_info_title">River Mechanics</string>

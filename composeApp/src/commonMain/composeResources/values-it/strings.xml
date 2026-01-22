@@ -190,7 +190,7 @@
     <string name="acid_desc">Acido: Danno continuo per 3 turni entro 1 cella dall'impatto</string>
     <string name="victory_defeat">Vittoria &amp; Sconfitta</string>
     <string name="victory_detail">Vittoria: Sconfiggi tutti i nemici in tutte le ondate con almeno 1 punto salute rimanente</string>
-    <string name="defeat_detail">Sconfitta: I nemici deboli (goblin, orchi, ogre, scheletri) costano 1 punto salute quando raggiungono il bersaglio. I nemici potenti (maghi, streghe, maghi malvagi, demoni, draghi) costano punti salute pari al loro livello. Ewhad costa tutti i tuoi punti salute. A 0 punti salute, perdi.</string>
+    <string name="defeat_detail">Sconfitta: I nemici deboli (goblin, orchi, ogre, scheletri) costano 1 punto salute quando raggiungono il bersaglio.\nI nemici potenti (maghi, streghe, maghi malvagi, demoni, draghi) costano punti salute pari al loro livello.\nEwhad costa tutti i tuoi punti salute.\nA 0 punti salute, perdi.</string>
     <string name="grid_legend">Legenda della griglia</string>
     <string name="spawn_desc">Spawn: Posizione di partenza (i nemici appaiono)</string>
     <string name="target_desc">Bersaglio: Posizione bersaglio (difendi questo!)</string>
@@ -434,7 +434,7 @@
     <string name="tutorial_welcome_title">Benvenuto in Defender of Egril!</string>
     <string name="tutorial_welcome">Questo è un gioco di difesa delle torri. Il tuo obiettivo è impedire ai nemici di raggiungere il bersaglio costruendo torri difensive.</string>
     <string name="tutorial_resources_title">Risorse</string>
-    <string name="tutorial_resources">Hai monete per costruire torri e punti vita. Quando sconfiggi i nemici, guadagni monete pari alla loro ricompensa base moltiplicata per il loro livello. I nemici deboli costano 1 PV, ma i nemici potenti (maghi, streghe, maghi malvagi, demoni, draghi) costano PV pari al loro livello. Ewhad costa tutti i tuoi PV!</string>
+    <string name="tutorial_resources">Hai monete per costruire torri e punti vita.\nQuando sconfiggi i nemici, guadagni monete pari alla loro ricompensa base moltiplicata per il loro livello.\nI nemici deboli costano 1 PV, ma i nemici potenti (maghi, streghe, maghi malvagi, demoni, draghi) costano PV pari al loro livello.\nEwhad costa tutti i tuoi PV!</string>
     <string name="tutorial_towers_title">Torri disponibili</string>
     <string name="tutorial_towers">Torre di Punte: Corto raggio, economica. Torre di Lancia: Raggio medio. Torre ad Arco: Lungo raggio. Scegli saggiamente in base alla tua strategia!</string>
     <string name="tutorial_legend_title">La Leggenda</string>
@@ -444,7 +444,7 @@
     <string name="tutorial_build_title">Costruire torri</string>
     <string name="tutorial_build">Seleziona un tipo di torre sotto, quindi fai clic su un'area di costruzione verde per posizionarla. Costruisci le tue difese!</string>
     <string name="tutorial_initial_building_title">Fase di costruzione iniziale</string>
-    <string name="tutorial_initial_building">In questa fase iniziale, le torri vengono costruite istantaneamente ma non possono ancora attaccare. Fai clic su una torre per vedere il suo raggio - le caselle del percorso ottengono bordi verdi. Più avanti nel gioco, le torri impiegheranno 1-2 turni per essere costruite.</string>
+    <string name="tutorial_initial_building">In questa fase iniziale, le torri vengono costruite istantaneamente ma non possono ancora attaccare.\nFai clic su una torre per vedere il suo raggio - le caselle del percorso ottengono bordi verdi.\nPiù avanti nel gioco, le torri impiegheranno 1-2 turni per essere costruite.</string>
     <string name="tutorial_undo_title">Annulla torri</string>
     <string name="tutorial_undo">Durante questa fase iniziale, puoi annullare il posizionamento della torre selezionandola e vendendola per un rimborso completo. Dopo l'inizio della battaglia, puoi vendere le torri solo per il 75% del loro valore.</string>
     <string name="tutorial_combat_title">Inizia la battaglia</string>
@@ -454,13 +454,13 @@
     <string name="tutorial_range_title">Controlla il raggio</string>
     <string name="tutorial_range">Seleziona una torre per vedere quali nemici sono nel raggio (evidenziati). Le torri possono attaccare solo i nemici nel loro raggio!</string>
     <string name="tutorial_attacking_title">Attacca i nemici</string>
-    <string name="tutorial_attacking">Fai clic su un nemico nel raggio per attaccare. Ogni torre ha azioni limitate per turno mostrate dai simboli ⚡. Se la tua torre non può raggiungere i nemici o non ha azioni, puoi terminare il turno o piazzare più torri.</string>
+    <string name="tutorial_attacking">Fai clic su un nemico nel raggio per attaccare.\nOgni torre ha azioni limitate per turno mostrate dai simboli ⚡.\nSe la tua torre non può raggiungere i nemici o non ha azioni, puoi terminare il turno o piazzare più torri.</string>
     <string name="tutorial_upgrade_title">Potenzia torri</string>
     <string name="tutorial_upgrade">Seleziona una torre e fai clic su Potenzia per aumentare le sue statistiche. Vedrai danno, raggio e azioni attuali per turno, più come saranno dopo il potenziamento. I potenziamenti costano monete ma rendono le torri più potenti!</string>
     <string name="tutorial_sell_title">Vendi torri</string>
     <string name="tutorial_sell">Seleziona una torre e fai clic su Vendi per ottenere il 75% del suo investimento totale (costo + potenziamenti). Usa questo se hai bisogno di monete o vuoi riposizionare la tua difesa.</string>
     <string name="tutorial_save_game_title">Salva i tuoi progressi</string>
-    <string name="tutorial_save_game">Puoi salvare il tuo gioco in qualsiasi momento usando il pulsante Salva gioco. Questo ti permette di provare diverse strategie o continuare più tardi. Per caricare un gioco salvato, usa il pulsante Carica gioco sulla schermata della mappa del mondo.</string>
+    <string name="tutorial_save_game">Puoi salvare il tuo gioco in qualsiasi momento usando il pulsante Salva gioco.\nQuesto ti permette di provare diverse strategie o continuare più tardi.\nPer caricare un gioco salvato, usa il pulsante Carica gioco sulla schermata della mappa del mondo.</string>
     <string name="tutorial_complete_title">Tutorial completato!</string>
     <string name="tutorial_complete">Hai padroneggiato le basi! Nei livelli successivi, sbloccherai torri più potenti come la Balista, il Mago e le torri di Alchimia per affrontare nemici più forti come demoni e boss. Ora difendi Egril contro le orde. Buona fortuna, difensore!</string>
     <string name="tutorial_next">Avanti</string>
@@ -518,7 +518,7 @@
 
     <!-- Dragon Info -->
     <string name="dragon_info_title">Allarme Drago!</string>
-    <string name="dragon_info_movement">Il drago alterna il movimento: Turno 1, 3, 5...: Cammina 1 casella sul percorso. Turno 2, 4, 6...: Vola fino a 5 caselle, può attraversare ostacoli ma deve atterrare sul percorso</string>
+    <string name="dragon_info_movement">Il drago alterna il movimento:\nTurno 1, 3, 5...: Cammina 1 casella sul percorso.\nTurno 2, 4, 6...: Vola fino a 5 caselle, può attraversare ostacoli ma deve atterrare sul percorso</string>
     <string name="dragon_info_eating">I draghi divorano i nemici su cui atterrano (eccetto Ewhad), guadagnando i loro punti salute!</string>
     <string name="dragon_info_level">Il livello del drago aumenta con la salute: Livello = PS ÷ 500 (min. 1)</string>
     <string name="got_it">Capito!</string>
@@ -648,7 +648,7 @@
     <string name="build_barricade">Costruisci barricata</string>
     <string name="remove_barricade">Rimuovi barricata</string>
     <string name="barricade_info_title">Abilità barricata sbloccata!</string>
-    <string name="barricade_info_message">La tua torre di Picche o Lance ha raggiunto il livello 10 e ora può costruire barricate! Le barricate sono strutture di legno posizionate su caselle di percorso adiacenti che bloccano il movimento nemico. Ogni barricata ha punti vita pari al livello della torre meno 10 (minimo 1). Quando i nemici raggiungono una barricata, la attaccano con danno pari al loro livello (i draghi infliggono 5× il loro livello). Se una barricata viene distrutta, il nemico si sposta su quella casella. Puoi costruire nuove barricate o rinforzare quelle esistenti e fare clic sulle barricate per rimuoverle.</string>
+    <string name="barricade_info_message">La tua torre di Picche o Lance ha raggiunto il livello 10 e ora può costruire barricate!\nLe barricate sono strutture di legno posizionate su caselle di percorso adiacenti che bloccano il movimento nemico.\nOgni barricata ha punti vita pari al livello della torre meno 10 (minimo 1).\nQuando i nemici raggiungono una barricata, la attaccano con danno pari al loro livello (i draghi infliggono 5× il loro livello).\nSe una barricata viene distrutta, il nemico si sposta su quella casella.\nPuoi costruire nuove barricate o rinforzare quelle esistenti e fare clic sulle barricate per rimuoverle.</string>
     <string name="remove_barricade_title">Rimuovere Barricata?</string>
     <string name="remove_barricade_message">Sei sicuro di voler rimuovere questa barricata?</string>
     
@@ -698,16 +698,16 @@
 
     <!-- First Time Tower Usage Info -->
     <string name="wizard_first_use_title">Torre del Mago</string>
-    <string name="wizard_first_use_message">La Torre del Mago è una potente torre ad area d\'effetto che lancia palle di fuoco sui nemici! Ogni palla di fuoco danneggia il bersaglio e tutti i nemici nelle caselle adiacenti. Ha un tempo di costruzione più lungo (2 turni) ma può devastare gruppi di nemici. Al livello 10, i maghi possono piazzare trappole magiche che teletrasportano i nemici al punto di spawn. Al livello 20, il raggio della palla di fuoco aumenta a 2 caselle!</string>
+    <string name="wizard_first_use_message">La Torre del Mago è una potente torre ad area d\'effetto che lancia palle di fuoco sui nemici!\nOgni palla di fuoco danneggia il bersaglio e tutti i nemici nelle caselle adiacenti.\nHa un tempo di costruzione più lungo (2 turni) ma può devastare gruppi di nemici.\nAl livello 10, i maghi possono piazzare trappole magiche che teletrasportano i nemici al punto di spawn.\nAl livello 20, il raggio della palla di fuoco aumenta a 2 caselle!</string>
 
     <string name="alchemy_first_use_title">Torre dell'Alchimia</string>
-    <string name="alchemy_first_use_message">La Torre dell'Alchimia lancia acido che infligge danni nel tempo! A differenza di altre torri, il danno da acido persiste per più turni (base 2 turni, aumenta con il livello). L\'acido colpisce il bersaglio e i nemici adiacenti in una piccola area. Sebbene il danno per turno sia inferiore, il danno totale nel tempo può essere molto efficace. Al livello 20, l'area dell'acido aumenta a 2 caselle!</string>
+    <string name="alchemy_first_use_message">La Torre dell'Alchimia lancia acido che infligge danni nel tempo!\nA differenza di altre torri, il danno da acido persiste per più turni (base 2 turni, aumenta con il livello).\nL\'acido colpisce il bersaglio e i nemici adiacenti in una piccola area.\nSebbene il danno per turno sia inferiore, il danno totale nel tempo può essere molto efficace.\nAl livello 20, l'area dell'acido aumenta a 2 caselle!</string>
 
     <string name="ballista_first_use_title">Torre Balista</string>
-    <string name="ballista_first_use_message">La Balista è un\'arma d\'assedio a lungo raggio con una portata eccezionale (5 caselle) e danni elevati! Tuttavia, ha una portata minima di 3 caselle e non può attaccare nemici vicini. Richiede 2 turni per essere costruita. Usala per colpire i nemici a distanza prima che si avvicinino troppo, o posizionala dietro altre torri per massima efficacia.</string>
+    <string name="ballista_first_use_message">La Balista è un\'arma d\'assedio a lungo raggio con una portata eccezionale (5 caselle) e danni elevati!\nTuttavia, ha una portata minima di 3 caselle e non può attaccare nemici vicini.\nRichiede 2 turni per essere costruita.\nUsala per colpire i nemici a distanza prima che si avvicinino troppo, o posizionala dietro altre torri per massima efficacia.</string>
 
     <string name="mine_first_use_title">Miniera Nanica</string>
-    <string name="mine_first_use_message">La Miniera Nanica è una struttura speciale che genera monete attraverso operazioni minerarie! A differenza delle torri da combattimento, le miniere usano l'azione "scava" per trovare risorse preziose (macerie, ottone, argento, oro, gemme o diamanti). Le miniere possono anche costruire trappole che danneggiano i nemici. A livelli più alti, le miniere possono scavare più volte per turno e raggiungere più lontano. Attenzione: I draghi sono avidi e distruggeranno le miniere per reclamare il tesoro!</string>
+    <string name="mine_first_use_message">La Miniera Nanica è una struttura speciale che genera monete attraverso operazioni minerarie!\nA differenza delle torri da combattimento, le miniere usano l'azione "scava" per trovare risorse preziose (macerie, ottone, argento, oro, gemme o diamanti).\nLe miniere possono anche costruire trappole che danneggiano i nemici.\nA livelli più alti, le miniere possono scavare più volte per turno e raggiungere più lontano.\nAttenzione: I draghi sono avidi e distruggeranno le miniere per reclamare il tesoro!</string>
 
     <!-- River Mechanics Info -->
     <string name="river_info_title">Meccaniche del Fiume</string>
