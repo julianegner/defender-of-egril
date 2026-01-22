@@ -6,24 +6,34 @@ import de.egril.defender.audio.SoundEvent
 import de.egril.defender.model.*
 
 /**
- * Handles barricade operations for Spike Tower and Spear Tower (level 10+).
+ * Handles barricade operations for Spike Tower (level 20+) and Spear Tower (level 10+).
  */
 class BarricadeSystem(private val state: GameState) {
     
     /**
      * Calculate health points for a new barricade from a tower.
-     * HP = tower level - 10 (minimum 1)
+     * Spike Tower: HP = (tower level - 20) / 2 (minimum 1)
+     * Spear Tower: HP = tower level - 10 (minimum 1)
      */
     fun calculateBarricadeHP(tower: Defender): Int {
-        return maxOf(1, tower.level.value - 10)
+        return if (tower.type == DefenderType.SPIKE_TOWER) {
+            maxOf(1, (tower.level.value - 20) / 2)
+        } else {
+            maxOf(1, tower.level.value - 10)
+        }
     }
     
     /**
-     * Check if a tower can build barricades (Spike or Spear, level 10+)
+     * Check if a tower can build barricades.
+     * Spike Tower: level 20+
+     * Spear Tower: level 10+
      */
     fun canBuildBarricade(tower: Defender): Boolean {
-        return (tower.type == DefenderType.SPIKE_TOWER || tower.type == DefenderType.SPEAR_TOWER) &&
-                tower.level.value >= 10
+        return when (tower.type) {
+            DefenderType.SPIKE_TOWER -> tower.level.value >= 20
+            DefenderType.SPEAR_TOWER -> tower.level.value >= 10
+            else -> false
+        }
     }
     
     /**
