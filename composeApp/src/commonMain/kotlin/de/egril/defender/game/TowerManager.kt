@@ -74,11 +74,14 @@ class TowerManager(private val state: GameState) {
         // Play tower upgraded sound
         GlobalSoundManager.playSound(SoundEvent.TOWER_UPGRADED)
         
-        // Check if spike or spear tower just reached level 10 for the first time (barricade ability)
-        if ((defender.type == DefenderType.SPIKE_TOWER || defender.type == DefenderType.SPEAR_TOWER) && 
-            oldLevel < 10 && 
-            defender.level.value >= 10 &&
-            !defender.hasShownBarricadeTutorial.value) {
+        // Check if spike tower just reached level 20 or spear tower just reached level 10 (barricade ability)
+        val showBarricadeTutorial = when (defender.type) {
+            DefenderType.SPIKE_TOWER -> oldLevel < 20 && defender.level.value >= 20
+            DefenderType.SPEAR_TOWER -> oldLevel < 10 && defender.level.value >= 10
+            else -> false
+        }
+        
+        if (showBarricadeTutorial && !defender.hasShownBarricadeTutorial.value) {
             // Show barricade tutorial
             state.infoState.value = state.infoState.value.showInfo(InfoType.BARRICADE_INFO)
             defender.hasShownBarricadeTutorial.value = true
