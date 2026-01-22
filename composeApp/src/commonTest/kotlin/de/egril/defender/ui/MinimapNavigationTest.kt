@@ -138,7 +138,7 @@ class MinimapNavigationTest {
         val viewportWidthRatio = (containerSize.width.toFloat() / scaledContentWidth).coerceAtMost(1f)
         val viewportHeightRatio = (containerSize.height.toFloat() / scaledContentHeight).coerceAtMost(1f)
         
-        // At 3x zoom, viewport should show 1/6 of the map (800 / (1600 * 3))
+        // At 3x zoom, viewport should show 1/6 of the map (800 / (1600 * 3) = 800/4800 ≈ 0.167)
         assertTrue(viewportWidthRatio < 0.17f, "Viewport should show less than 17% of width at 3x zoom")
         assertTrue(viewportHeightRatio < 0.17f, "Viewport should show less than 17% of height at 3x zoom")
         
