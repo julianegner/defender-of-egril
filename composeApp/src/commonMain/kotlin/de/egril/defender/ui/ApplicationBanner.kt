@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -40,6 +41,14 @@ fun ApplicationBanner(
     // Get theme-aware colors
     val lineColor = MaterialTheme.colorScheme.onBackground
     val backgroundColor = MaterialTheme.colorScheme.background
+    
+    // Determine outline color based on dark mode
+    // In dark mode: white outline, in light mode: black outline
+    val outlineColor = if (MaterialTheme.colorScheme.background.luminance() < 0.5f) {
+        Color.White
+    } else {
+        Color.Black
+    }
     
     // Load the Great Vibes font
     val greatVibesFont = FontFamily(Font(Res.font.greatvibes_regular))
@@ -82,10 +91,10 @@ fun ApplicationBanner(
                 val centerY = (size.height / 2) + 20f
                 val iconSize = minOf(size.width, size.height)
 
-                // Draw enemy symbols
-                drawGoblinSymbol(centerX.plus(goblinOffsetX), centerY.plus(goblinOffsetY), iconSize * 0.7f)
-                drawOrkSymbol(centerX.plus(orkOffsetX), centerY.plus(orkOffsetY), iconSize * 0.7f)
-                drawEvilWizardSymbol(centerX.plus(wizardOffsetX), centerY.plus(wizardOffsetY), iconSize * 0.7f)
+                // Draw enemy symbols with theme-aware outline
+                drawGoblinSymbol(centerX.plus(goblinOffsetX), centerY.plus(goblinOffsetY), iconSize * 0.7f, outlineColor)
+                drawOrkSymbol(centerX.plus(orkOffsetX), centerY.plus(orkOffsetY), iconSize * 0.7f, outlineColor)
+                drawEvilWizardSymbol(centerX.plus(wizardOffsetX), centerY.plus(wizardOffsetY), iconSize * 0.7f, outlineColor)
 
                 // Draw bow tower (platform-specific offset for mobile spacing)
                 drawTower(DefenderType.BOW_TOWER, centerX.plus(bowTowerOffsetX), centerY.plus(bowTowerOffsetY), iconSize, lineColor)

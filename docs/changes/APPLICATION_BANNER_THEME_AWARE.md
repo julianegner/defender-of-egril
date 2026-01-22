@@ -131,3 +131,80 @@ Row (horizontal layout):
 Build successful: `./gradlew :composeApp:compileKotlinDesktop` ✅
 
 The implementation is complete and ready for visual verification in the running application.
+
+---
+
+## Update: Enemy Icon Outlines (Latest Enhancement)
+
+### 4. Theme-Aware Enemy Icon Outlines
+
+**Files Modified:**
+- `composeApp/src/commonMain/kotlin/de/egril/defender/ui/icon/enemy/Goblin.kt`
+- `composeApp/src/commonMain/kotlin/de/egril/defender/ui/icon/enemy/Ork.kt`
+- `composeApp/src/commonMain/kotlin/de/egril/defender/ui/icon/enemy/EvilWizard.kt`
+- `composeApp/src/commonMain/kotlin/de/egril/defender/ui/ApplicationBanner.kt`
+
+**Changes:**
+- Added optional `outlineColor: Color?` parameter to all three enemy symbol drawing functions
+- When outline color is provided, draws a 2-pixel stroke-based outline around all enemy icon elements
+- Uses `Stroke(width = 2f)` style for uniform outline thickness on all edges
+- ApplicationBanner calculates outline color based on theme using `MaterialTheme.colorScheme.background.luminance()`
+  - **Dark mode** (luminance < 0.5): White outlines
+  - **Light mode** (luminance >= 0.5): Black outlines
+
+**Implementation Example (Goblin):**
+```kotlin
+import androidx.compose.ui.graphics.drawscope.Stroke
+
+fun DrawScope.drawGoblinSymbol(centerX: Float, centerY: Float, size: Float, outlineColor: Color? = null) {
+    val outlineWidth = 2f
+    
+    // Draw outline first (behind main drawing) using stroke style
+    if (outlineColor != null) {
+        // Head outline (circle) - stroke for uniform outline
+        drawCircle(
+            color = outlineColor,
+            radius = size * 0.3f + outlineWidth / 2,
+            center = Offset(centerX, centerY - size * 0.1f),
+            style = Stroke(width = outlineWidth)
+        )
+        
+        // Ears outline - stroke for uniform outline  
+        val earPath = Path().apply {
+            moveTo(centerX - size * 0.3f, centerY - size * 0.1f)
+            lineTo(centerX - size * 0.45f, centerY - size * 0.25f)
+            lineTo(centerX - size * 0.25f, centerY - size * 0.2f)
+            close()
+        }
+        drawPath(earPath, outlineColor, style = Stroke(width = outlineWidth))
+        // ... additional outline shapes
+    }
+    
+    // Original drawing code follows
+    // ...
+}
+```
+
+**Rationale:**
+- Improves icon visibility against various backgrounds
+- Clear definition in both light and dark themes
+- Backward compatible: outline parameter defaults to `null` for other uses
+- Consistent with Material Design principles of theme adaptation
+
+**Testing:**
+- ✅ Common unit tests pass (BUILD SUCCESSFUL)
+- ✅ Build successful with no compilation errors
+- ✅ Backward compatible (other uses of enemy symbols continue to work)
+
+**Visual Impact:**
+- Enemy icons now stand out clearly in both themes
+- Black outlines provide definition in light mode
+- White outlines ensure visibility in dark mode
+- 2px stroke-based outline width provides uniform thickness on all edges
+
+**Update (Addressing Feedback):**
+- Changed from fill-based outlines to stroke-based outlines
+- Fixed issue where outlines were thick on straight lines and thin on diagonal lines
+- Now uses `Stroke(width = 2f)` for all outline shapes
+- Ensures uniform 2px outline thickness regardless of edge angle
+- Reduced width from 3px to 2px for better visual balance

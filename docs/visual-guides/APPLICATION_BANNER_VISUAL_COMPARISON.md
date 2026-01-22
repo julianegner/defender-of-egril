@@ -100,3 +100,98 @@ Column {
 ```
 
 Both screens now show the same beautiful banner with game symbols!
+
+---
+
+## Update: Enemy Icon Outlines (Latest Enhancement)
+
+### Visual Comparison: Enemy Icons
+
+#### Before Outlines
+```
+Dark Mode:
+╔═══════════════════════════════════╗
+║  👹 👺 🧙   🗡️ 🧙‍♂️                 ║
+╚═══════════════════════════════════╝
+Issue: Dark green ork hard to see on dark background
+
+Light Mode:
+┌───────────────────────────────────┐
+│  👹 👺 🧙   🗡️ 🧙‍♂️                 │
+└───────────────────────────────────┘
+Issue: Icons lack clear definition
+```
+
+#### After Outlines
+```
+Dark Mode:
+╔═══════════════════════════════════╗
+║  ⬜👹 ⬜👺 ⬜🧙   🗡️ 🧙‍♂️            ║
+╚═══════════════════════════════════╝
+✅ White outlines (2px uniform stroke) ensure all enemies visible
+
+Light Mode:
+┌───────────────────────────────────┐
+│  ⬛👹 ⬛👺 ⬛🧙   🗡️ 🧙‍♂️            │
+└───────────────────────────────────┘
+✅ Black outlines (2px uniform stroke) provide clear definition
+```
+
+### Theme Detection for Outlines
+
+```kotlin
+// ApplicationBanner.kt
+val outlineColor = if (MaterialTheme.colorScheme.background.luminance() < 0.5f) {
+    Color.White  // Dark background → white outline
+} else {
+    Color.Black  // Light background → black outline
+}
+
+// Pass to enemy symbol functions
+drawGoblinSymbol(..., outlineColor)
+drawOrkSymbol(..., outlineColor)
+drawEvilWizardSymbol(..., outlineColor)
+```
+
+### Enemy Icon Details
+
+**Goblin (Light Green)**
+- Before: Green head + ears + body
+- After: + 2px stroke-based outline (uniform thickness)
+
+**Ork (Dark Olive Green)**
+- Before: Dark green head + tusks + gray armor
+- After: + 2px stroke-based outline (uniform thickness)
+- ✨ Most improved visibility in dark mode!
+
+**Evil Wizard (Purple/Indigo)**
+- Before: Purple hat + face + staff with orb
+- After: + 2px stroke-based outline (uniform thickness)
+
+### Implementation Notes
+
+**Backward Compatible:**
+- Enemy symbols accept optional `outlineColor: Color? = null`
+- Other uses (like EnemyIcon.kt in gameplay) don't get outlines
+- Only ApplicationBanner passes outline color
+
+**Drawing Technique (Updated):**
+1. Use `Stroke(width = 2f)` style instead of fill-based shapes
+2. Draw outline shapes using `drawPath(path, color, style = Stroke(width = 2f))`
+3. Draw original shapes (filled, on top)
+4. Result: Clean 2px uniform outline on all edges
+
+**Fix for Uneven Thickness:**
+- Initial implementation used fill-based offset shapes
+- This caused thick outlines on straight lines, thin on diagonals
+- Updated to use stroke-based outlines for uniform thickness
+- Stroke method ensures consistent 2px width regardless of edge angle
+
+**Benefits:**
+- ✅ Better visibility in both themes
+- ✅ Clear icon boundaries
+- ✅ Automatic theme adaptation
+- ✅ Professional appearance
+- ✅ Uniform 2px outline thickness on all edges (fixed)
+- ✅ No thick/thin variation on straight vs diagonal lines
+- ✅ No impact on game UI (outlines only in banner)
