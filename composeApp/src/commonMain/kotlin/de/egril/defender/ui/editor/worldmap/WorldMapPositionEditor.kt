@@ -40,6 +40,8 @@ import de.egril.defender.editor.WorldMapPathData
 import de.egril.defender.editor.WorldMapPoint
 import de.egril.defender.model.Position
 import de.egril.defender.ui.settings.AppSettings
+import de.egril.defender.ui.icon.WarningIcon
+import de.egril.defender.ui.icon.PencilIcon
 import org.jetbrains.compose.resources.painterResource
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.Res
@@ -1027,10 +1029,8 @@ private fun LocationListItem(
                 ) {
                     // Warning icon if location has unfulfilled prerequisites
                     if (hasUnfulfilledPrereqs) {
-                        Text(
-                            text = "⚠",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = Color(0xFFFFA500) // Orange
+                        WarningIcon(
+                            size = 16.dp
                         )
                     }
                     Text(
@@ -1051,10 +1051,8 @@ private fun LocationListItem(
                     onClick = onEdit,
                     contentPadding = PaddingValues(4.dp)
                 ) {
-                    Text(
-                        text = "✎",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.primary
+                    PencilIcon(
+                        size = 16.dp
                     )
                 }
 
@@ -1119,10 +1117,8 @@ private fun PathListItem(
                 ) {
                     // Warning icon if connection is invalid
                     if (!isValid) {
-                        Text(
-                            text = "⚠",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = Color(0xFFFFA500) // Orange
+                        WarningIcon(
+                            size = 16.dp
                         )
                     }
                     Text(

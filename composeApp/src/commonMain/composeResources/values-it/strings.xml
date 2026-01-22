@@ -380,7 +380,7 @@
     <string name="new_level">Nuovo livello</string>
     <string name="enemy_type">Tipo di nemico:</string>
     <string name="add_enemy_to_turn">Aggiungi nemico al turno %d</string>
-    <string name="ewhad_warning">⚠️ Ewhad può apparire solo una volta per livello!</string>
+    <string name="ewhad_warning">Ewhad può apparire solo una volta per livello!</string>
     <string name="level_lv">Liv%d</string>
     <string name="arrange_level_order">Organizza ordine dei livelli:</string>
     <string name="levels_in_sequence">Livelli nella sequenza:</string>
@@ -401,7 +401,7 @@
     <string name="cost_label">Costo</string>
     <string name="damage_label">Danno</string>
     <string name="hp_with_level">PV: %d</string>
-    <string name="add_enemy_button">➕ Aggiungi nemico al turno %d</string>
+    <string name="add_enemy_button">Aggiungi nemico al turno %d</string>
     <string name="add_all_towers">Aggiungi tutto</string>
     <string name="remove_all_towers">Rimuovi tutto</string>
     <string name="level_info_tab">Info livello</string>
@@ -454,7 +454,7 @@
     <string name="tutorial_range_title">Controlla il raggio</string>
     <string name="tutorial_range">Seleziona una torre per vedere quali nemici sono nel raggio (evidenziati). Le torri possono attaccare solo i nemici nel loro raggio!</string>
     <string name="tutorial_attacking_title">Attacca i nemici</string>
-    <string name="tutorial_attacking">Fai clic su un nemico nel raggio per attaccare. Ogni torre ha azioni limitate per turno mostrate dai simboli ⚡. Se la tua torre non può raggiungere i nemici o non ha azioni, puoi terminare il turno o piazzare più torri.</string>
+    <string name="tutorial_attacking">Fai clic su un nemico nel raggio per attaccare. Ogni torre ha azioni limitate per turno mostrate dai simboli del fulmine. Se la tua torre non può raggiungere i nemici o non ha azioni, puoi terminare il turno o piazzare più torri.</string>
     <string name="tutorial_upgrade_title">Potenzia torri</string>
     <string name="tutorial_upgrade">Seleziona una torre e fai clic su Potenzia per aumentare le sue statistiche. Vedrai danno, raggio e azioni attuali per turno, più come saranno dopo il potenziamento. I potenziamenti costano monete ma rendono le torri più potenti!</string>
     <string name="tutorial_sell_title">Vendi torri</string>
@@ -548,12 +548,12 @@
     <string name="waypoints_description">Configura le connessioni dei punti di passaggio per questo livello. I punti di passaggio definiscono il percorso che seguiranno i nemici.</string>
     <string name="waypoint_source">Sorgente</string>
     <string name="waypoint_target">Obiettivo</string>
-    <string name="add_waypoint">➕ Aggiungi Punto di Passaggio</string>
+    <string name="add_waypoint">Aggiungi Punto di Passaggio</string>
     <string name="delete_waypoint">Elimina</string>
     <string name="no_waypoints_configured">Nessun punto di passaggio configurato per questo livello.</string>
     <string name="available_waypoint_tiles">Caselle di punti di passaggio disponibili dalla mappa: %d</string>
-    <string name="waypoint_validation_success">✓ La configurazione dei punti di passaggio è valida</string>
-    <string name="waypoint_validation_error">✗ La configurazione dei punti di passaggio presenta errori</string>
+    <string name="waypoint_validation_success">La configurazione dei punti di passaggio è valida</string>
+    <string name="waypoint_validation_error">La configurazione dei punti di passaggio presenta errori</string>
     <string name="circular_dependency_detected">Dipendenza circolare rilevata! Correggi le connessioni dei punti di passaggio.</string>
     <string name="waypoint_position_format">Posizione (%d, %d)</string>
     <string name="spawn_point_text">Punto di Spawn</string>
@@ -572,7 +572,7 @@
     <string name="to_spawn_point">Al Punto di Spawn</string>
     <string name="enemies_affected_count">%d nemici interessati</string>
     <string name="apply_changes">Applica Modifiche</string>
-    <string name="spawn_point_warning">⚠ Alcuni nemici appaiono al di fuori dei punti di spawn validi</string>
+    <string name="spawn_point_warning">Alcuni nemici appaiono al di fuori dei punti di spawn validi</string>
     <string name="target_text">Obiettivo</string>
     <string name="waypoint">Punto di Passaggio</string>
     <string name="select_source_position">Seleziona posizione sorgente</string>

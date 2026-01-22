@@ -233,10 +233,9 @@ private fun LevelCard(
                                 tint = Color.Green
                             )
                         } else {
-                            Text(
-                                text = "✗",
-                                color = Color.Red,
-                                style = MaterialTheme.typography.titleSmall
+                            CrossIcon(
+                                size = 16.dp,
+                                tint = Color.Red
                             )
                         }
                         // Add warning badge if enemies are outside spawn points

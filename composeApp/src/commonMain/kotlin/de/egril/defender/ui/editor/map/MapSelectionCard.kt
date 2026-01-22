@@ -16,6 +16,7 @@ import de.egril.defender.editor.EditorMap
 import de.egril.defender.model.Level
 import de.egril.defender.model.Position
 import de.egril.defender.ui.icon.CheckmarkIcon
+import de.egril.defender.ui.icon.CrossIcon
 import de.egril.defender.ui.hexagon.HexagonMinimapFromEditorMap
 
 /**
@@ -94,7 +95,7 @@ fun MapSelectionCard(
                 if (map.readyToUse) {
                     CheckmarkIcon(size = 12.dp, tint = Color.Green)
                 } else {
-                    Text("✗", color = Color.Red, fontSize = 12.sp)
+                    CrossIcon(size = 12.dp, tint = Color.Red)
                 }
                 Text(
                     text = if (map.readyToUse) "Ready" else "Not ready",

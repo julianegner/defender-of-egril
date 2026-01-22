@@ -58,6 +58,9 @@ import defender_of_egril.composeapp.generated.resources.emoji_speaker_low
 import defender_of_egril.composeapp.generated.resources.emoji_speaker_high
 import defender_of_egril.composeapp.generated.resources.emoji_coffee
 import defender_of_egril.composeapp.generated.resources.emoji_bed
+import defender_of_egril.composeapp.generated.resources.emoji_plus
+import defender_of_egril.composeapp.generated.resources.emoji_cross
+import defender_of_egril.composeapp.generated.resources.emoji_pencil
 import org.jetbrains.compose.resources.painterResource
 import kotlin.math.PI
 import kotlin.math.cos
@@ -833,6 +836,56 @@ fun WoodIcon(
     Image(
         painter = painterResource(Res.drawable.emoji_wood),
         contentDescription = "Wood",
+        modifier = modifier.size(size)
+    )
+}
+
+/**
+ * Displays a plus sign icon using Image for cross-platform compatibility
+ * Source: Noto Emoji (U+2795)
+ */
+@Composable
+fun PlusIcon(
+    modifier: Modifier = Modifier.Companion,
+    size: Dp = 16.dp
+) {
+    Image(
+        painter = painterResource(Res.drawable.emoji_plus),
+        contentDescription = "Plus",
+        modifier = modifier.size(size)
+    )
+}
+
+/**
+ * Displays a cross/X mark icon using Image for cross-platform compatibility
+ * Source: Noto Emoji (U+2716)
+ */
+@Composable
+fun CrossIcon(
+    modifier: Modifier = Modifier.Companion,
+    size: Dp = 16.dp,
+    tint: Color? = null
+) {
+    Image(
+        painter = painterResource(Res.drawable.emoji_cross),
+        contentDescription = "Cross",
+        modifier = modifier.size(size),
+        colorFilter = tint?.let { ColorFilter.Companion.tint(it) }
+    )
+}
+
+/**
+ * Displays a pencil icon using Image for cross-platform compatibility
+ * Source: Noto Emoji (U+270F)
+ */
+@Composable
+fun PencilIcon(
+    modifier: Modifier = Modifier.Companion,
+    size: Dp = 16.dp
+) {
+    Image(
+        painter = painterResource(Res.drawable.emoji_pencil),
+        contentDescription = "Pencil",
         modifier = modifier.size(size)
     )
 }
