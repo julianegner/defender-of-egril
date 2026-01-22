@@ -13,6 +13,7 @@ import de.egril.defender.editor.EditorMap
 import de.egril.defender.model.Level
 import de.egril.defender.model.Position
 import de.egril.defender.ui.icon.CheckmarkIcon
+import de.egril.defender.ui.icon.CrossIcon
 import de.egril.defender.ui.hexagon.HexagonMinimapFromEditorMap
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
@@ -58,10 +59,9 @@ fun MapListCard(
                             tint = Color.Green
                         )
                     } else {
-                        Text(
-                            text = "✗",
-                            color = Color.Red,
-                            style = MaterialTheme.typography.titleSmall
+                        CrossIcon(
+                            size = 16.dp,
+                            tint = Color.Red
                         )
                     }
                 }

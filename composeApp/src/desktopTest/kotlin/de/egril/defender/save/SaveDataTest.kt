@@ -46,6 +46,7 @@ class SaveDataTest {
             levelName = "Test Level",
             turnNumber = 5,
             coins = 150,
+            healthPoints = 10,
             towerCount = 3,
             enemyCount = 10,
             defenderCounts = mapOf(DefenderType.SPIKE_TOWER to 2, DefenderType.BOW_TOWER to 1),

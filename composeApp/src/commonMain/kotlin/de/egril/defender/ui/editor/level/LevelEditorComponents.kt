@@ -25,6 +25,8 @@ import de.egril.defender.ui.icon.TrashIcon
 import de.egril.defender.ui.icon.TriangleDownIcon
 import de.egril.defender.ui.icon.TriangleRightIcon
 import de.egril.defender.ui.icon.UpArrowIcon
+import de.egril.defender.ui.icon.CheckmarkIcon
+import de.egril.defender.ui.icon.PushpinIcon
 import com.hyperether.resources.stringResource
 import de.egril.defender.ui.hexagon.EnemyIconOnHexagon
 import defender_of_egril.composeapp.generated.resources.*
@@ -269,7 +271,7 @@ fun SpawnPointSelectionDialog(
                                     )
                                 },
                                 leadingIcon = if (selectedSpawnPoint == point) {
-                                    { Text("✓", fontSize = 14.sp) }
+                                    { CheckmarkIcon(size = 14.dp) }
                                 } else null
                             )
                         }
@@ -782,7 +784,7 @@ private fun EnemySpawnRow(
                 modifier = Modifier.height(28.dp),
                 contentPadding = PaddingValues(horizontal = 6.dp, vertical = 0.dp)
             ) {
-                Text("📍", fontSize = 10.sp)
+                PushpinIcon(size = 10.dp)
             }
             
             // Change level button
@@ -958,7 +960,7 @@ fun ChangeAllSpawnPointsDialog(
                                                     )
                                                 },
                                                 leadingIcon = if (remappings[fromPos] == toPos) {
-                                                    { Text("✓", fontSize = 14.sp) }
+                                                    { CheckmarkIcon(size = 14.dp) }
                                                 } else null
                                             )
                                         }
