@@ -190,7 +190,7 @@
     <string name="acid_desc">Acide: Dégâts continus pendant 3 tours dans un rayon de 1 case de l'impact</string>
     <string name="victory_defeat">Victoire &amp; Défaite</string>
     <string name="victory_detail">Victoire: Vaincre tous les ennemis dans toutes les vagues avec au moins 1 point de santé restant</string>
-    <string name="defeat_detail">Défaite: Les ennemis faibles (gobelins, orcs, ogres, squelettes) coûtent 1 point de santé en atteignant la cible. Les ennemis puissants (sorciers, sorcières, mages maléfiques, démons, dragons) coûtent des points de santé égaux à leur niveau. Ewhad coûte tous vos points de santé. À 0 point de santé, vous perdez.</string>
+    <string name="defeat_detail">Défaite: Les ennemis faibles (gobelins, orcs, ogres, squelettes) coûtent 1 point de santé en atteignant la cible.\nLes ennemis puissants (sorciers, sorcières, mages maléfiques, démons, dragons) coûtent des points de santé égaux à leur niveau.\nEwhad coûte tous vos points de santé.\nÀ 0 point de santé, vous perdez.</string>
     <string name="grid_legend">Légende de la grille</string>
     <string name="spawn_desc">Spawn: Position de départ (les ennemis apparaissent)</string>
     <string name="target_desc">Cible: Position cible (défendez ceci!)</string>
@@ -434,7 +434,7 @@
     <string name="tutorial_welcome_title">Bienvenue dans Defender of Egril!</string>
     <string name="tutorial_welcome">Ceci est un jeu de défense de tours. Votre objectif est d'empêcher les ennemis d'atteindre la cible en construisant des tours défensives.</string>
     <string name="tutorial_resources_title">Ressources</string>
-    <string name="tutorial_resources">Vous avez des pièces pour construire des tours et des points de vie. Lorsque vous battez des ennemis, vous gagnez des pièces égales à leur récompense de base multipliée par leur niveau. Les ennemis faibles coûtent 1 PV, mais les ennemis puissants (sorciers, sorcières, mages maléfiques, démons, dragons) coûtent des PV égaux à leur niveau. Ewhad coûte tous vos PV!</string>
+    <string name="tutorial_resources">Vous avez des pièces pour construire des tours et des points de vie.\nLorsque vous battez des ennemis, vous gagnez des pièces égales à leur récompense de base multipliée par leur niveau.\nLes ennemis faibles coûtent 1 PV, mais les ennemis puissants (sorciers, sorcières, mages maléfiques, démons, dragons) coûtent des PV égaux à leur niveau.\nEwhad coûte tous vos PV!</string>
     <string name="tutorial_towers_title">Tours disponibles</string>
     <string name="tutorial_towers">Tour à Piques: Courte portée, bon marché. Tour de Lance: Portée moyenne. Tour d'Arc: Longue portée. Choisissez judicieusement selon votre stratégie!</string>
     <string name="tutorial_legend_title">La Légende</string>
@@ -444,7 +444,7 @@
     <string name="tutorial_build_title">Construire des tours</string>
     <string name="tutorial_build">Sélectionnez un type de tour ci-dessous, puis cliquez sur une zone de construction verte pour la placer. Construisez vos défenses!</string>
     <string name="tutorial_initial_building_title">Phase de construction initiale</string>
-    <string name="tutorial_initial_building">Dans cette phase initiale, les tours sont construites instantanément mais ne peuvent pas encore attaquer. Cliquez sur une tour pour voir sa portée - les tuiles du chemin obtiennent des bordures vertes. Plus tard dans le jeu, les tours prendront 1-2 tours pour se construire.</string>
+    <string name="tutorial_initial_building">Dans cette phase initiale, les tours sont construites instantanément mais ne peuvent pas encore attaquer.\nCliquez sur une tour pour voir sa portée - les tuiles du chemin obtiennent des bordures vertes.\nPlus tard dans le jeu, les tours prendront 1-2 tours pour se construire.</string>
     <string name="tutorial_undo_title">Annuler les tours</string>
     <string name="tutorial_undo">Pendant cette phase initiale, vous pouvez annuler le placement d'une tour en la sélectionnant et en la vendant pour un remboursement complet. Après le début de la bataille, vous ne pouvez vendre les tours que pour 75% de leur valeur.</string>
     <string name="tutorial_combat_title">Démarrer la bataille</string>
@@ -454,13 +454,13 @@
     <string name="tutorial_range_title">Vérifier la portée</string>
     <string name="tutorial_range">Sélectionnez une tour pour voir quels ennemis sont à portée (mis en évidence). Les tours ne peuvent attaquer que les ennemis à leur portée!</string>
     <string name="tutorial_attacking_title">Attaquer les ennemis</string>
-    <string name="tutorial_attacking">Cliquez sur un ennemi à portée pour attaquer. Chaque tour a des actions limitées par tour indiquées par des symboles d'éclair. Si votre tour ne peut pas atteindre les ennemis ou n'a plus d'actions, vous pouvez terminer votre tour ou placer plus de tours.</string>
+    <string name="tutorial_attacking">Cliquez sur un ennemi à portée pour attaquer.\nChaque tour a des actions limitées par tour indiquées par des symboles d'éclair.\nSi votre tour ne peut pas atteindre les ennemis ou n'a plus d'actions, vous pouvez terminer votre tour ou placer plus de tours.</string>
     <string name="tutorial_upgrade_title">Améliorer les tours</string>
     <string name="tutorial_upgrade">Sélectionnez une tour et cliquez sur Améliorer pour augmenter ses statistiques. Vous verrez les dégâts, la portée et les actions actuelles par tour, ainsi que ce qu'elles seront après l'amélioration. Les améliorations coûtent des pièces mais rendent les tours plus puissantes!</string>
     <string name="tutorial_sell_title">Vendre des tours</string>
     <string name="tutorial_sell">Sélectionnez une tour et cliquez sur Vendre pour récupérer 75% de son investissement total (coût + améliorations). Utilisez ceci si vous avez besoin de pièces ou souhaitez repositionner votre défense.</string>
     <string name="tutorial_save_game_title">Sauvegardez votre progression</string>
-    <string name="tutorial_save_game">Vous pouvez sauvegarder votre jeu à tout moment en utilisant le bouton Sauvegarder. Cela vous permet d'essayer différentes stratégies ou de continuer plus tard. Pour charger une partie sauvegardée, utilisez le bouton Charger sur l'écran de la carte du monde.</string>
+    <string name="tutorial_save_game">Vous pouvez sauvegarder votre jeu à tout moment en utilisant le bouton Sauvegarder.\nCela vous permet d'essayer différentes stratégies ou de continuer plus tard.\nPour charger une partie sauvegardée, utilisez le bouton Charger sur l'écran de la carte du monde.</string>
     <string name="tutorial_complete_title">Tutoriel terminé!</string>
     <string name="tutorial_complete">Vous avez maîtrisé les bases! Dans les niveaux ultérieurs, vous débloquerez des tours plus puissantes comme la Baliste, le Mage et les tours d'Alchimie pour affronter des ennemis plus forts comme des démons et des boss. Maintenant défendez Egril contre les hordes. Bonne chance, défenseur!</string>
     <string name="tutorial_next">Suivant</string>
@@ -518,7 +518,7 @@
 
     <!-- Dragon Info -->
     <string name="dragon_info_title">Alerte Dragon !</string>
-    <string name="dragon_info_movement">Le dragon alterne ses mouvements : Tour 1, 3, 5... : Marche 1 case sur le chemin. Tour 2, 4, 6... : Vole jusqu'à 5 cases, peut traverser les obstacles mais doit atterrir sur le chemin</string>
+    <string name="dragon_info_movement">Le dragon alterne ses mouvements :\nTour 1, 3, 5... : Marche 1 case sur le chemin.\nTour 2, 4, 6... : Vole jusqu'à 5 cases, peut traverser les obstacles mais doit atterrir sur le chemin</string>
     <string name="dragon_info_eating">Les dragons dévorent les ennemis sur lesquels ils atterrissent (sauf Ewhad), gagnant leurs points de vie !</string>
     <string name="dragon_info_level">Le niveau du dragon augmente avec la santé : Niveau = PV ÷ 500 (min. 1)</string>
     <string name="got_it">Compris !</string>
@@ -648,7 +648,7 @@
     <string name="build_barricade">Construire une barricade</string>
     <string name="remove_barricade">Retirer la barricade</string>
     <string name="barricade_info_title">Capacité de barricade débloquée !</string>
-    <string name="barricade_info_message">Votre tour de Piques ou de Lances a atteint le niveau 10 et peut maintenant construire des barricades ! Les barricades sont des structures en bois placées sur des cases de chemin adjacentes qui bloquent le mouvement ennemi. Chaque barricade a des points de vie égaux au niveau de la tour moins 10 (minimum 1). Lorsque les ennemis atteignent une barricade, ils l'attaquent avec des dégâts égaux à leur niveau (les dragons infligent 5× leur niveau). Si une barricade est détruite, l'ennemi se déplace sur cette case. Vous pouvez construire de nouvelles barricades ou renforcer les existantes, et cliquer sur les barricades pour les retirer.</string>
+    <string name="barricade_info_message">Votre tour de Piques ou de Lances a atteint le niveau 10 et peut maintenant construire des barricades !\nLes barricades sont des structures en bois placées sur des cases de chemin adjacentes qui bloquent le mouvement ennemi.\nChaque barricade a des points de vie égaux au niveau de la tour moins 10 (minimum 1).\nLorsque les ennemis atteignent une barricade, ils l'attaquent avec des dégâts égaux à leur niveau (les dragons infligent 5× leur niveau).\nSi une barricade est détruite, l'ennemi se déplace sur cette case.\nVous pouvez construire de nouvelles barricades ou renforcer les existantes, et cliquer sur les barricades pour les retirer.</string>
     <string name="remove_barricade_title">Retirer la Barricade?</string>
     <string name="remove_barricade_message">Êtes-vous sûr de vouloir retirer cette barricade?</string>
     
@@ -698,16 +698,16 @@
 
     <!-- First Time Tower Usage Info -->
     <string name="wizard_first_use_title">Tour de Magicien</string>
-    <string name="wizard_first_use_message">La Tour de Magicien est une puissante tour à zone d'effet qui lance des boules de feu sur les ennemis ! Chaque boule de feu endommage la cible et tous les ennemis dans les cases adjacentes. Elle a un temps de construction plus long (2 tours) mais peut dévaster des groupes d'ennemis. Au niveau 10, les magiciens peuvent placer des pièges magiques qui téléportent les ennemis au point d'apparition. Au niveau 20, le rayon de la boule de feu augmente à 2 cases !</string>
+    <string name="wizard_first_use_message">La Tour de Magicien est une puissante tour à zone d'effet qui lance des boules de feu sur les ennemis !\nChaque boule de feu endommage la cible et tous les ennemis dans les cases adjacentes.\nElle a un temps de construction plus long (2 tours) mais peut dévaster des groupes d'ennemis.\nAu niveau 10, les magiciens peuvent placer des pièges magiques qui téléportent les ennemis au point d'apparition.\nAu niveau 20, le rayon de la boule de feu augmente à 2 cases !</string>
 
     <string name="alchemy_first_use_title">Tour d'Alchimie</string>
-    <string name="alchemy_first_use_message">La Tour d'Alchimie lance de l'acide qui inflige des dégâts dans le temps ! Contrairement aux autres tours, les dégâts d'acide persistent pendant plusieurs tours (base 2 tours, augmente avec le niveau). L\'acide affecte la cible et les ennemis adjacents dans une petite zone. Bien que les dégâts par tour soient plus faibles, les dégâts totaux dans le temps peuvent être très efficaces. Au niveau 20, la zone d'acide augmente à 2 cases !</string>
+    <string name="alchemy_first_use_message">La Tour d'Alchimie lance de l'acide qui inflige des dégâts dans le temps !\nContrairement aux autres tours, les dégâts d'acide persistent pendant plusieurs tours (base 2 tours, augmente avec le niveau).\nL\'acide affecte la cible et les ennemis adjacents dans une petite zone.\nBien que les dégâts par tour soient plus faibles, les dégâts totaux dans le temps peuvent être très efficaces.\nAu niveau 20, la zone d'acide augmente à 2 cases !</string>
 
     <string name="ballista_first_use_title">Tour Baliste</string>
-    <string name="ballista_first_use_message">La Baliste est une arme de siège à longue portée avec une portée exceptionnelle (5 cases) et des dégâts élevés ! Cependant, elle a une portée minimale de 3 cases et ne peut pas attaquer les ennemis proches. Elle nécessite 2 tours pour être construite. Utilisez-la pour cibler les ennemis à distance avant qu'ils ne se rapprochent trop, ou positionnez-la derrière d'autres tours pour une efficacité maximale.</string>
+    <string name="ballista_first_use_message">La Baliste est une arme de siège à longue portée avec une portée exceptionnelle (5 cases) et des dégâts élevés !\nCependant, elle a une portée minimale de 3 cases et ne peut pas attaquer les ennemis proches.\nElle nécessite 2 tours pour être construite.\nUtilisez-la pour cibler les ennemis à distance avant qu'ils ne se rapprochent trop, ou positionnez-la derrière d'autres tours pour une efficacité maximale.</string>
 
     <string name="mine_first_use_title">Mine Naine</string>
-    <string name="mine_first_use_message">La Mine Naine est une structure spéciale qui génère des pièces grâce aux opérations minières ! Contrairement aux tours de combat, les mines utilisent l'action "creuser" pour trouver des ressources précieuses (gravats, laiton, argent, or, gemmes ou diamants). Les mines peuvent également construire des pièges qui endommagent les ennemis. À des niveaux plus élevés, les mines peuvent creuser plus de fois par tour et avoir une portée plus grande. Attention : Les dragons sont avides et détruiront les mines pour s\'emparer du trésor !</string>
+    <string name="mine_first_use_message">La Mine Naine est une structure spéciale qui génère des pièces grâce aux opérations minières !\nContrairement aux tours de combat, les mines utilisent l'action "creuser" pour trouver des ressources précieuses (gravats, laiton, argent, or, gemmes ou diamants).\nLes mines peuvent également construire des pièges qui endommagent les ennemis.\nÀ des niveaux plus élevés, les mines peuvent creuser plus de fois par tour et avoir une portée plus grande.\nAttention : Les dragons sont avides et détruiront les mines pour s\'emparer du trésor !</string>
 
     <!-- River Mechanics Info -->
     <string name="river_info_title">Mécaniques des Rivières</string>

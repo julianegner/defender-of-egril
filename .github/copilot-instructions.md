@@ -150,7 +150,7 @@ Defender of Egril is a turn-based tower defense game built with Kotlin Multiplat
 - **Other Fields**: Keep other JSON fields (id, name, fromLocationId, etc.) on separate lines with normal formatting
 
 ### Localization System
-- **Plugin**: Uses `compose-multiplatform-localize` plugin (version 1.1.1) for string resource management
+- **Plugin**: Uses `compose-multiplatform-localize` plugin (version 2.0.1) for string resource management
 - **String Resources**: Located in `composeApp/src/commonMain/composeResources/`
   - `values/strings.xml`: Default English strings
   - `values-de/strings.xml`: German translations
@@ -316,9 +316,8 @@ Add to `LevelData.createLevels()` with:
 3. **Use in code**: Use `stringResource(Res.string.your_key)` in Composables
 4. **Test**: Run `TranslationCoverageTest` to verify all language files are synchronized
 5. **Never hardcode**: Do not use hardcoded strings like `Text("Hello")` - always use stringResource
-6. **IMPORTANT: Version 2.0.0 limitation with `\n`**: The hyperether.localization plugin version 2.0.0 has a bug that causes compilation errors when using `\n` escape sequences in strings. **Do NOT use `\n` for line breaks**. Instead, write strings as continuous text without line breaks. If multiple paragraphs or bullet points are needed, use punctuation (periods, semicolons) to separate concepts within a single continuous string.
-   - ❌ DON'T: `<string name="message">Line 1\nLine 2\nLine 3</string>`
-   - ✅ DO: `<string name="message">Line 1. Line 2. Line 3.</string>`
+6. **Line breaks**: Use `\n` for line breaks in multi-paragraph or multi-line strings for better readability.
+   - Example: `<string name="message">Line 1\nLine 2\nLine 3</string>`
 7. Update `LanguageChooser.kt`'s `getCountryCode()` function if language code differs from country code
 8. Test language switching via Settings dialog
 9. All ~318 strings must be translated for complete localization
@@ -488,7 +487,7 @@ Add to `LevelData.createLevels()` with:
 - Gradle 8.9 (included via wrapper)
 
 ### Localization
-- **compose-multiplatform-localize** plugin (v1.1.1): String resource management and code generation
+- **compose-multiplatform-localize** plugin (v2.0.1): String resource management and code generation
 - **FlagKit** (v1.1.0): Vector flag icons for language selection UI
 - **multiplatform-settings** (v1.3.0): Cross-platform settings persistence (prepared for future use)
 

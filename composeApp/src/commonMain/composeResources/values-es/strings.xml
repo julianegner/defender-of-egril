@@ -190,7 +190,7 @@
     <string name="acid_desc">Ácido: Daño continuo durante 3 turnos dentro de 1 casilla del impacto</string>
     <string name="victory_defeat">Victoria &amp; Derrota</string>
     <string name="victory_detail">Victoria: Derrota a todos los enemigos en todas las oleadas con al menos 1 punto de salud restante</string>
-    <string name="defeat_detail">Derrota: Los enemigos débiles (goblins, orcos, ogros, esqueletos) cuestan 1 punto de salud al llegar al objetivo. Los enemigos poderosos (magos, brujas, magos malvados, demonios, dragones) cuestan puntos de salud igual a su nivel. Ewhad cuesta todos tus puntos de salud. A 0 puntos de salud, pierdes.</string>
+    <string name="defeat_detail">Derrota: Los enemigos débiles (goblins, orcos, ogros, esqueletos) cuestan 1 punto de salud al llegar al objetivo.\nLos enemigos poderosos (magos, brujas, magos malvados, demonios, dragones) cuestan puntos de salud igual a su nivel.\nEwhad cuesta todos tus puntos de salud.\nA 0 puntos de salud, pierdes.</string>
     <string name="grid_legend">Leyenda de la cuadrícula</string>
     <string name="spawn_desc">Spawn: Posición inicial (los enemigos aparecen)</string>
     <string name="target_desc">Objetivo: Posición objetivo (¡defiende esto!)</string>
@@ -432,7 +432,7 @@
     <string name="tutorial_welcome_title">¡Bienvenido a Defender of Egril!</string>
     <string name="tutorial_welcome">Este es un juego de defensa de torres. Tu objetivo es evitar que los enemigos lleguen al objetivo construyendo torres defensivas.</string>
     <string name="tutorial_resources_title">Recursos</string>
-    <string name="tutorial_resources">Tienes monedas para construir torres y puntos de salud. Cuando derrotas enemigos, ganas monedas iguales a su recompensa base multiplicada por su nivel. Los enemigos débiles cuestan 1 PS, pero los enemigos poderosos (magos, brujas, magos malvados, demonios, dragones) cuestan PS igual a su nivel. ¡Ewhad cuesta todos tus PS!</string>
+    <string name="tutorial_resources">Tienes monedas para construir torres y puntos de salud.\nCuando derrotas enemigos, ganas monedas iguales a su recompensa base multiplicada por su nivel.\nLos enemigos débiles cuestan 1 PS, pero los enemigos poderosos (magos, brujas, magos malvados, demonios, dragones) cuestan PS igual a su nivel.\n¡Ewhad cuesta todos tus PS!</string>
     <string name="tutorial_towers_title">Torres disponibles</string>
     <string name="tutorial_towers">Torre de Púas: Corto alcance, barata. Torre de Lanza: Alcance medio. Torre de Arco: Largo alcance. ¡Elige sabiamente según tu estrategia!</string>
     <string name="tutorial_legend_title">La Leyenda</string>
@@ -442,7 +442,7 @@
     <string name="tutorial_build_title">Construir torres</string>
     <string name="tutorial_build">Selecciona un tipo de torre abajo, luego haz clic en un área de construcción verde para colocarla. ¡Construye tus defensas!</string>
     <string name="tutorial_initial_building_title">Fase de construcción inicial</string>
-    <string name="tutorial_initial_building">En esta fase inicial, las torres se construyen instantáneamente pero aún no pueden atacar. Haz clic en una torre para ver su alcance - las casillas del camino obtienen bordes verdes. Más adelante en el juego, las torres tardarán 1-2 turnos en construirse.</string>
+    <string name="tutorial_initial_building">En esta fase inicial, las torres se construyen instantáneamente pero aún no pueden atacar.\nHaz clic en una torre para ver su alcance - las casillas del camino obtienen bordes verdes.\nMás adelante en el juego, las torres tardarán 1-2 turnos en construirse.</string>
     <string name="tutorial_undo_title">Deshacer torres</string>
     <string name="tutorial_undo">Durante esta fase inicial, puedes deshacer la colocación de torres seleccionándola y vendiéndola por un reembolso completo. Después de que comience la batalla, solo puedes vender torres por el 75% de su valor.</string>
     <string name="tutorial_combat_title">Iniciar la batalla</string>
@@ -452,13 +452,13 @@
     <string name="tutorial_range_title">Verificar alcance</string>
     <string name="tutorial_range">Selecciona una torre para ver qué enemigos están en alcance (resaltados). ¡Las torres solo pueden atacar enemigos dentro de su alcance!</string>
     <string name="tutorial_attacking_title">Atacar enemigos</string>
-    <string name="tutorial_attacking">Haz clic en un enemigo en alcance para atacar. Cada torre tiene acciones limitadas por turno mostradas por símbolos de rayo. Si tu torre no puede alcanzar enemigos o no tiene acciones, puedes terminar tu turno o colocar más torres.</string>
+    <string name="tutorial_attacking">Haz clic en un enemigo en alcance para atacar.\nCada torre tiene acciones limitadas por turno mostradas por símbolos de rayo.\nSi tu torre no puede alcanzar enemigos o no tiene acciones, puedes terminar tu turno o colocar más torres.</string>
     <string name="tutorial_upgrade_title">Mejorar torres</string>
     <string name="tutorial_upgrade">Selecciona una torre y haz clic en Mejorar para aumentar sus estadísticas. Verás daño, alcance y acciones actuales por turno, además de cómo serán después de mejorar. ¡Las mejoras cuestan monedas pero hacen las torres más poderosas!</string>
     <string name="tutorial_sell_title">Vender torres</string>
     <string name="tutorial_sell">Selecciona una torre y haz clic en Vender para recuperar el 75% de su inversión total (costo + mejoras). Usa esto si necesitas monedas o quieres reposicionar tu defensa.</string>
     <string name="tutorial_save_game_title">Guarda tu progreso</string>
-    <string name="tutorial_save_game">Puedes guardar tu juego en cualquier momento usando el botón Guardar Juego. Esto te permite probar diferentes estrategias o continuar más tarde. Para cargar una partida guardada, usa el botón Cargar Juego en la pantalla del mapa mundial.</string>
+    <string name="tutorial_save_game">Puedes guardar tu juego en cualquier momento usando el botón Guardar Juego.\nEsto te permite probar diferentes estrategias o continuar más tarde.\nPara cargar una partida guardada, usa el botón Cargar Juego en la pantalla del mapa mundial.</string>
     <string name="tutorial_complete_title">¡Tutorial completado!</string>
     <string name="tutorial_complete">¡Has dominado lo básico! En niveles posteriores, desbloquearás torres más poderosas como la Ballista, Mago y torres de Alquimia para enfrentar enemigos más fuertes como demonios y jefes. Ahora defiende Egril contra las hordas. ¡Buena suerte, defensor!</string>
     <string name="tutorial_next">Siguiente</string>
@@ -516,7 +516,7 @@
 
     <!-- Dragon Info -->
     <string name="dragon_info_title">¡Alerta de Dragón!</string>
-    <string name="dragon_info_movement">El dragón alterna movimiento: Turno 1, 3, 5...: Camina 1 casilla en el camino. Turno 2, 4, 6...: Vuela hasta 5 casillas, puede cruzar obstáculos pero debe aterrizar en el camino</string>
+    <string name="dragon_info_movement">El dragón alterna movimiento:\nTurno 1, 3, 5...: Camina 1 casilla en el camino.\nTurno 2, 4, 6...: Vuela hasta 5 casillas, puede cruzar obstáculos pero debe aterrizar en el camino</string>
     <string name="dragon_info_eating">¡Los dragones devoran enemigos sobre los que aterrizan (excepto Ewhad), ganando sus puntos de salud!</string>
     <string name="dragon_info_level">El nivel del dragón aumenta con la salud: Nivel = PS ÷ 500 (mín. 1)</string>
     <string name="got_it">¡Entendido!</string>
@@ -648,7 +648,7 @@
     <string name="build_barricade">Construir barricada</string>
     <string name="remove_barricade">Quitar barricada</string>
     <string name="barricade_info_title">¡Habilidad de barricada desbloqueada!</string>
-    <string name="barricade_info_message">¡Tu torre de Picas o Lanzas ha alcanzado el nivel 10 y ahora puede construir barricadas! Las barricadas son estructuras de madera colocadas en casillas de camino adyacentes que bloquean el movimiento enemigo. Cada barricada tiene puntos de salud iguales al nivel de la torre menos 10 (mínimo 1). Cuando los enemigos alcanzan una barricada, la atacan con daño igual a su nivel (los dragones causan 5× su nivel). Si se destruye una barricada, el enemigo se mueve a esa casilla. Puedes construir nuevas barricadas o reforzar las existentes, y hacer clic en las barricadas para quitarlas.</string>
+    <string name="barricade_info_message">¡Tu torre de Picas o Lanzas ha alcanzado el nivel 10 y ahora puede construir barricadas!\nLas barricadas son estructuras de madera colocadas en casillas de camino adyacentes que bloquean el movimiento enemigo.\nCada barricada tiene puntos de salud iguales al nivel de la torre menos 10 (mínimo 1).\nCuando los enemigos alcanzan una barricada, la atacan con daño igual a su nivel (los dragones causan 5× su nivel).\nSi se destruye una barricada, el enemigo se mueve a esa casilla.\nPuedes construir nuevas barricadas o reforzar las existentes, y hacer clic en las barricadas para quitarlas.</string>
     <string name="remove_barricade_title">¿Eliminar Barricada?</string>
     <string name="remove_barricade_message">¿Está seguro de que desea eliminar esta barricada?</string>
     
@@ -698,16 +698,16 @@
 
     <!-- First Time Tower Usage Info -->
     <string name="wizard_first_use_title">Torre de Mago</string>
-    <string name="wizard_first_use_message">¡La Torre de Mago es una poderosa torre de área de efecto que lanza bolas de fuego a los enemigos! Cada bola de fuego daña al objetivo y a todos los enemigos en casillas adyacentes. Tiene un tiempo de construcción más largo (2 turnos) pero puede devastar grupos de enemigos. En el nivel 10, los magos pueden colocar trampas mágicas que teletransportan enemigos de vuelta al punto de aparición. ¡En el nivel 20, el radio de la bola de fuego aumenta a 2 casillas!</string>
+    <string name="wizard_first_use_message">¡La Torre de Mago es una poderosa torre de área de efecto que lanza bolas de fuego a los enemigos!\nCada bola de fuego daña al objetivo y a todos los enemigos en casillas adyacentes.\nTiene un tiempo de construcción más largo (2 turnos) pero puede devastar grupos de enemigos.\nEn el nivel 10, los magos pueden colocar trampas mágicas que teletransportan enemigos de vuelta al punto de aparición.\n¡En el nivel 20, el radio de la bola de fuego aumenta a 2 casillas!</string>
 
     <string name="alchemy_first_use_title">Torre de Alquimia</string>
-    <string name="alchemy_first_use_message">¡La Torre de Alquimia lanza ácido que causa daño con el tiempo! A diferencia de otras torres, el daño del ácido persiste durante múltiples rondas (base 2 turnos, aumenta con el nivel). El ácido afecta al objetivo y a los enemigos adyacentes en un área pequeña. Aunque el daño por turno es menor, el daño total con el tiempo puede ser muy efectivo. ¡En el nivel 20, el área de ácido aumenta a 2 casillas!</string>
+    <string name="alchemy_first_use_message">¡La Torre de Alquimia lanza ácido que causa daño con el tiempo!\nA diferencia de otras torres, el daño del ácido persiste durante múltiples rondas (base 2 turnos, aumenta con el nivel).\nEl ácido afecta al objetivo y a los enemigos adyacentes en un área pequeña.\nAunque el daño por turno es menor, el daño total con el tiempo puede ser muy efectivo.\n¡En el nivel 20, el área de ácido aumenta a 2 casillas!</string>
 
     <string name="ballista_first_use_title">Torre de Ballesta</string>
-    <string name="ballista_first_use_message">¡La Ballesta es un arma de asedio de largo alcance con un alcance excepcional (5 casillas) y alto daño! Sin embargo, tiene un alcance mínimo de 3 casillas y no puede atacar enemigos cercanos. Requiere 2 turnos para construirse. Úsala para atacar enemigos desde la distancia antes de que se acerquen demasiado, o colócala detrás de otras torres para máxima efectividad.</string>
+    <string name="ballista_first_use_message">¡La Ballesta es un arma de asedio de largo alcance con un alcance excepcional (5 casillas) y alto daño!\nSin embargo, tiene un alcance mínimo de 3 casillas y no puede atacar enemigos cercanos.\nRequiere 2 turnos para construirse.\nÚsala para atacar enemigos desde la distancia antes de que se acerquen demasiado, o colócala detrás de otras torres para máxima efectividad.</string>
 
     <string name="mine_first_use_title">Mina Enana</string>
-    <string name="mine_first_use_message">¡La Mina Enana es una estructura especial que genera monedas mediante operaciones mineras! A diferencia de las torres de combate, las minas usan la acción "cavar" para encontrar recursos valiosos (escombros, latón, plata, oro, gemas o diamantes). Las minas también pueden construir trampas que dañan a los enemigos. En niveles más altos, las minas pueden cavar más veces por turno y alcanzar más lejos. Advertencia: ¡Los dragones son codiciosos y destruirán las minas para reclamar el tesoro!</string>
+    <string name="mine_first_use_message">¡La Mina Enana es una estructura especial que genera monedas mediante operaciones mineras!\nA diferencia de las torres de combate, las minas usan la acción "cavar" para encontrar recursos valiosos (escombros, latón, plata, oro, gemas o diamantes).\nLas minas también pueden construir trampas que dañan a los enemigos.\nEn niveles más altos, las minas pueden cavar más veces por turno y alcanzar más lejos.\nAdvertencia: ¡Los dragones son codiciosos y destruirán las minas para reclamar el tesoro!</string>
 
     <!-- River Mechanics Info -->
     <string name="river_info_title">Mecánicas del Río</string>
