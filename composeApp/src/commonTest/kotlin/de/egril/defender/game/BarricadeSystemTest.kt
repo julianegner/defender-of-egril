@@ -100,7 +100,7 @@ class BarricadeSystemTest {
         assertEquals(1, barricadeSystem.calculateBarricadeHP(tower20), 
             "Level 20 spike tower barricade should have 1 HP (minimum)")
         
-        // Level 21: (21 - 20) / 2 = 0 (integer division), but minimum is 1
+        // Level 21: (21 - 20) / 2 = 1 / 2 = 0 (integer division), but minimum is 1
         val tower21 = Defender(
             id = 2,
             type = DefenderType.SPIKE_TOWER,
