@@ -5,47 +5,58 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
 
 /**
  * Draw evil wizard symbol (pointed hat with mystical energy)
  */
 fun DrawScope.drawEvilWizardSymbol(centerX: Float, centerY: Float, size: Float, outlineColor: Color? = null) {
-    val outlineWidth = 3f
+    val outlineWidth = 2f
     
-    // Draw outline first (behind main drawing)
+    // Draw outline first (behind main drawing) using stroke style for uniform thickness
     if (outlineColor != null) {
-        // Wizard hat outline (triangle)
+        // Wizard hat outline (triangle) - use stroke for uniform outline
         val hatOutlinePath = Path().apply {
-            moveTo(centerX, centerY - size * 0.4f - outlineWidth)
-            lineTo(centerX - size * 0.3f - outlineWidth, centerY + outlineWidth)
-            lineTo(centerX + size * 0.3f + outlineWidth, centerY + outlineWidth)
+            moveTo(centerX, centerY - size * 0.4f)
+            lineTo(centerX - size * 0.3f, centerY)
+            lineTo(centerX + size * 0.3f, centerY)
             close()
         }
-        drawPath(hatOutlinePath, outlineColor)
+        drawPath(hatOutlinePath, outlineColor, style = Stroke(width = outlineWidth))
         
-        // Hat brim outline
-        drawRect(
-            color = outlineColor,
-            topLeft = Offset(centerX - size * 0.35f - outlineWidth, centerY - outlineWidth),
-            size = Size(size * 0.7f + outlineWidth * 2, size * 0.08f + outlineWidth * 2)
-        )
+        // Hat brim outline - use stroke for uniform outline
+        val brimPath = Path().apply {
+            addRect(androidx.compose.ui.geometry.Rect(
+                left = centerX - size * 0.35f,
+                top = centerY,
+                right = centerX + size * 0.35f,
+                bottom = centerY + size * 0.08f
+            ))
+        }
+        drawPath(brimPath, outlineColor, style = Stroke(width = outlineWidth))
         
-        // Face outline
+        // Face outline - use stroke for uniform outline
         drawCircle(
             color = outlineColor,
-            radius = size * 0.2f + outlineWidth,
-            center = Offset(centerX, centerY + size * 0.15f)
+            radius = size * 0.2f + outlineWidth / 2,
+            center = Offset(centerX, centerY + size * 0.15f),
+            style = Stroke(width = outlineWidth)
         )
         
-        // Staff outline
+        // Staff outline - use stroke for uniform outline
         drawLine(
             color = outlineColor,
             start = Offset(centerX + size * 0.25f, centerY + size * 0.1f),
             end = Offset(centerX + size * 0.35f, centerY + size * 0.45f),
-            strokeWidth = 3f + outlineWidth * 2
+            strokeWidth = 3f + outlineWidth
         )
-        // Orb outline on staff
-        drawCircle(color = outlineColor, radius = size * 0.08f + outlineWidth, center = Offset(centerX + size * 0.35f, centerY + size * 0.05f))
+        // Orb outline on staff - use stroke for uniform outline
+        drawCircle(
+            color = outlineColor,
+            radius = size * 0.08f + outlineWidth / 2,
+            center = Offset(centerX + size * 0.35f, centerY + size * 0.05f),
+            style = Stroke(width = outlineWidth)
+        )
     }
     
     // Wizard hat (triangle)

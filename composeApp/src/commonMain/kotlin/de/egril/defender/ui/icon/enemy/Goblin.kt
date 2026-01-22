@@ -5,44 +5,50 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
 
 /**
  * Draw goblin symbol (small creature with pointy ears)
  */
 fun DrawScope.drawGoblinSymbol(centerX: Float, centerY: Float, size: Float, outlineColor: Color? = null) {
-    val outlineWidth = 3f
+    val outlineWidth = 2f
     
-    // Draw outline first (behind main drawing)
+    // Draw outline first (behind main drawing) using stroke style for uniform thickness
     if (outlineColor != null) {
-        // Head outline (circle)
+        // Head outline (circle) - use stroke for uniform outline
         drawCircle(
             color = outlineColor,
-            radius = size * 0.3f + outlineWidth,
-            center = Offset(centerX, centerY - size * 0.1f)
+            radius = size * 0.3f + outlineWidth / 2,
+            center = Offset(centerX, centerY - size * 0.1f),
+            style = Stroke(width = outlineWidth)
         )
         
-        // Pointy ears outline
+        // Pointy ears outline - use stroke for uniform outline
         val earPath1 = Path().apply {
             moveTo(centerX - size * 0.3f, centerY - size * 0.1f)
-            lineTo(centerX - size * 0.45f - outlineWidth, centerY - size * 0.25f - outlineWidth)
+            lineTo(centerX - size * 0.45f, centerY - size * 0.25f)
             lineTo(centerX - size * 0.25f, centerY - size * 0.2f)
             close()
         }
         val earPath2 = Path().apply {
             moveTo(centerX + size * 0.3f, centerY - size * 0.1f)
-            lineTo(centerX + size * 0.45f + outlineWidth, centerY - size * 0.25f - outlineWidth)
+            lineTo(centerX + size * 0.45f, centerY - size * 0.25f)
             lineTo(centerX + size * 0.25f, centerY - size * 0.2f)
             close()
         }
-        drawPath(earPath1, outlineColor)
-        drawPath(earPath2, outlineColor)
+        drawPath(earPath1, outlineColor, style = Stroke(width = outlineWidth))
+        drawPath(earPath2, outlineColor, style = Stroke(width = outlineWidth))
         
-        // Body outline
-        drawRect(
-            color = outlineColor,
-            topLeft = Offset(centerX - size * 0.15f - outlineWidth, centerY + size * 0.15f - outlineWidth),
-            size = Size(size * 0.3f + outlineWidth * 2, size * 0.25f + outlineWidth * 2)
-        )
+        // Body outline - use stroke for uniform outline
+        val bodyPath = Path().apply {
+            addRect(androidx.compose.ui.geometry.Rect(
+                left = centerX - size * 0.15f,
+                top = centerY + size * 0.15f,
+                right = centerX + size * 0.15f,
+                bottom = centerY + size * 0.4f
+            ))
+        }
+        drawPath(bodyPath, outlineColor, style = Stroke(width = outlineWidth))
     }
     
     // Head (circle)

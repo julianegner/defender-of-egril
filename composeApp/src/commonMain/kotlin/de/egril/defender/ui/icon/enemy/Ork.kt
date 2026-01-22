@@ -5,44 +5,53 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
 
 /**
  * Draw ork symbol (larger, muscular creature)
  */
 fun DrawScope.drawOrkSymbol(centerX: Float, centerY: Float, size: Float, outlineColor: Color? = null) {
-    val outlineWidth = 3f
+    val outlineWidth = 2f
     
-    // Draw outline first (behind main drawing)
+    // Draw outline first (behind main drawing) using stroke style for uniform thickness
     if (outlineColor != null) {
-        // Head outline
-        drawRect(
-            color = outlineColor,
-            topLeft = Offset(centerX - size * 0.25f - outlineWidth, centerY - size * 0.3f - outlineWidth),
-            size = Size(size * 0.5f + outlineWidth * 2, size * 0.35f + outlineWidth * 2)
-        )
+        // Head outline - use stroke for uniform outline
+        val headPath = Path().apply {
+            addRect(androidx.compose.ui.geometry.Rect(
+                left = centerX - size * 0.25f,
+                top = centerY - size * 0.3f,
+                right = centerX + size * 0.25f,
+                bottom = centerY + size * 0.05f
+            ))
+        }
+        drawPath(headPath, outlineColor, style = Stroke(width = outlineWidth))
         
-        // Body outline
-        drawRect(
-            color = outlineColor,
-            topLeft = Offset(centerX - size * 0.25f - outlineWidth, centerY + size * 0.1f - outlineWidth),
-            size = Size(size * 0.5f + outlineWidth * 2, size * 0.3f + outlineWidth * 2)
-        )
+        // Body outline - use stroke for uniform outline
+        val bodyPath = Path().apply {
+            addRect(androidx.compose.ui.geometry.Rect(
+                left = centerX - size * 0.25f,
+                top = centerY + size * 0.1f,
+                right = centerX + size * 0.25f,
+                bottom = centerY + size * 0.4f
+            ))
+        }
+        drawPath(bodyPath, outlineColor, style = Stroke(width = outlineWidth))
         
-        // Tusks outline
+        // Tusks outline - use stroke for uniform outline
         val tuskPath1 = Path().apply {
             moveTo(centerX - size * 0.15f, centerY)
-            lineTo(centerX - size * 0.25f - outlineWidth, centerY + size * 0.15f + outlineWidth)
+            lineTo(centerX - size * 0.25f, centerY + size * 0.15f)
             lineTo(centerX - size * 0.1f, centerY + size * 0.05f)
             close()
         }
         val tuskPath2 = Path().apply {
             moveTo(centerX + size * 0.15f, centerY)
-            lineTo(centerX + size * 0.25f + outlineWidth, centerY + size * 0.15f + outlineWidth)
+            lineTo(centerX + size * 0.25f, centerY + size * 0.15f)
             lineTo(centerX + size * 0.1f, centerY + size * 0.05f)
             close()
         }
-        drawPath(tuskPath1, outlineColor)
-        drawPath(tuskPath2, outlineColor)
+        drawPath(tuskPath1, outlineColor, style = Stroke(width = outlineWidth))
+        drawPath(tuskPath2, outlineColor, style = Stroke(width = outlineWidth))
     }
     
     // Head (larger square-ish)
