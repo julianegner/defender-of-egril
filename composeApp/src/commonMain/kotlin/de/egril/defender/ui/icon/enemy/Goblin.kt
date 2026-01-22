@@ -12,6 +12,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
  */
 fun DrawScope.drawGoblinSymbol(centerX: Float, centerY: Float, size: Float, outlineColor: Color? = null) {
     val outlineWidth = 2f
+    val pathOutlineWidth = 3f  // Thicker for paths to match visual appearance
     
     // Draw outline first (behind main drawing) using stroke style for uniform thickness
     if (outlineColor != null) {
@@ -23,7 +24,7 @@ fun DrawScope.drawGoblinSymbol(centerX: Float, centerY: Float, size: Float, outl
             style = Stroke(width = outlineWidth)
         )
         
-        // Pointy ears outline - use stroke for uniform outline
+        // Pointy ears outline - use stroke for uniform outline with thicker stroke
         val earPath1 = Path().apply {
             moveTo(centerX - size * 0.3f, centerY - size * 0.1f)
             lineTo(centerX - size * 0.45f, centerY - size * 0.25f)
@@ -36,10 +37,10 @@ fun DrawScope.drawGoblinSymbol(centerX: Float, centerY: Float, size: Float, outl
             lineTo(centerX + size * 0.25f, centerY - size * 0.2f)
             close()
         }
-        drawPath(earPath1, outlineColor, style = Stroke(width = outlineWidth))
-        drawPath(earPath2, outlineColor, style = Stroke(width = outlineWidth))
+        drawPath(earPath1, outlineColor, style = Stroke(width = pathOutlineWidth))
+        drawPath(earPath2, outlineColor, style = Stroke(width = pathOutlineWidth))
         
-        // Body outline - use stroke for uniform outline
+        // Body outline - use stroke for uniform outline with thicker stroke
         val bodyPath = Path().apply {
             addRect(androidx.compose.ui.geometry.Rect(
                 left = centerX - size * 0.15f,
@@ -48,7 +49,7 @@ fun DrawScope.drawGoblinSymbol(centerX: Float, centerY: Float, size: Float, outl
                 bottom = centerY + size * 0.4f
             ))
         }
-        drawPath(bodyPath, outlineColor, style = Stroke(width = outlineWidth))
+        drawPath(bodyPath, outlineColor, style = Stroke(width = pathOutlineWidth))
     }
     
     // Head (circle)

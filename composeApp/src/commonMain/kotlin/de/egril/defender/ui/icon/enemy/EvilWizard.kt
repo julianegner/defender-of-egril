@@ -12,19 +12,20 @@ import androidx.compose.ui.graphics.drawscope.Stroke
  */
 fun DrawScope.drawEvilWizardSymbol(centerX: Float, centerY: Float, size: Float, outlineColor: Color? = null) {
     val outlineWidth = 2f
+    val pathOutlineWidth = 3f  // Thicker for paths to match visual appearance
     
     // Draw outline first (behind main drawing) using stroke style for uniform thickness
     if (outlineColor != null) {
-        // Wizard hat outline (triangle) - use stroke for uniform outline
+        // Wizard hat outline (triangle) - use stroke for uniform outline with thicker stroke
         val hatOutlinePath = Path().apply {
             moveTo(centerX, centerY - size * 0.4f)
             lineTo(centerX - size * 0.3f, centerY)
             lineTo(centerX + size * 0.3f, centerY)
             close()
         }
-        drawPath(hatOutlinePath, outlineColor, style = Stroke(width = outlineWidth))
+        drawPath(hatOutlinePath, outlineColor, style = Stroke(width = pathOutlineWidth))
         
-        // Hat brim outline - use stroke for uniform outline
+        // Hat brim outline - use stroke for uniform outline with thicker stroke
         val brimPath = Path().apply {
             addRect(androidx.compose.ui.geometry.Rect(
                 left = centerX - size * 0.35f,
@@ -33,7 +34,7 @@ fun DrawScope.drawEvilWizardSymbol(centerX: Float, centerY: Float, size: Float, 
                 bottom = centerY + size * 0.08f
             ))
         }
-        drawPath(brimPath, outlineColor, style = Stroke(width = outlineWidth))
+        drawPath(brimPath, outlineColor, style = Stroke(width = pathOutlineWidth))
         
         // Face outline - use stroke for uniform outline
         drawCircle(
@@ -43,12 +44,12 @@ fun DrawScope.drawEvilWizardSymbol(centerX: Float, centerY: Float, size: Float, 
             style = Stroke(width = outlineWidth)
         )
         
-        // Staff outline - use stroke for uniform outline
+        // Staff outline - use thicker stroke to match path widths
         drawLine(
             color = outlineColor,
             start = Offset(centerX + size * 0.25f, centerY + size * 0.1f),
             end = Offset(centerX + size * 0.35f, centerY + size * 0.45f),
-            strokeWidth = 3f + outlineWidth
+            strokeWidth = 3f + pathOutlineWidth
         )
         // Orb outline on staff - use stroke for uniform outline
         drawCircle(
