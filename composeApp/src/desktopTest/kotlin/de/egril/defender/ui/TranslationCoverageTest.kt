@@ -14,7 +14,7 @@ import java.io.File
  * 
  * Exceptions:
  * - Cheat codes should NOT be translated
- * - Single-character symbols (•, ✓, ➕, X, +, -, 📍, ✗) are acceptable
+ * - Single-character symbols (•, X, +, -) are acceptable
  * - Variable interpolations ($variable) are acceptable
  * - stringResource() calls are acceptable
  */
@@ -36,7 +36,7 @@ class TranslationCoverageTest {
     
     // Patterns for acceptable strings (symbols, single chars, etc.)
     private val symbolPatterns = listOf(
-        "•", "✓", "➕", "X", "+", "-", "📍", "✗", "• "
+        "•", "X", "+", "-", "• "
     )
     
     // Patterns for strings that are part of cheat code system

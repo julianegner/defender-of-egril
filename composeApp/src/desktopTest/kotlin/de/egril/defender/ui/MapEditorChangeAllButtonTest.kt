@@ -53,7 +53,7 @@ class MapEditorChangeAllButtonTest {
         try {
             composeTestRule.onNodeWithText("Change All NO_PLAY to PATH", substring = true, ignoreCase = true)
                 .assertExists()
-            println("✓ New 'Change All NO_PLAY to PATH' button found in map editor")
+            println("SUCCESS: New 'Change All NO_PLAY to PATH' button found in map editor")
         } catch (e: Exception) {
             println("Note: Could not find button (might not be visible in current view): ${e.message}")
         }

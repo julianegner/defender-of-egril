@@ -36,6 +36,7 @@ import de.egril.defender.ui.editor.level.ChangeSpawnPointDialog
 import de.egril.defender.ui.editor.level.ChangeTurnLevelDialog
 import de.egril.defender.ui.editor.level.SpawnTurnSection
 import de.egril.defender.ui.icon.WarningIcon
+import de.egril.defender.ui.icon.PlusIcon
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.add_turn
 import defender_of_egril.composeapp.generated.resources.change_all_spawn_points
@@ -106,7 +107,7 @@ fun EnemySpawnsTab(
                         lastAddedTurn = newTurn
                     }) {
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                            Text("➕")
+                            PlusIcon(size = 16.dp)
                             Text(stringResource(Res.string.add_turn))
                         }
                     }
