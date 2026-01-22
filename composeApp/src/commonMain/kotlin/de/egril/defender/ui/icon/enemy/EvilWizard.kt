@@ -4,6 +4,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 
@@ -44,12 +45,20 @@ fun DrawScope.drawEvilWizardSymbol(centerX: Float, centerY: Float, size: Float, 
             style = Stroke(width = outlineWidth)
         )
         
-        // Staff outline - use thicker stroke to match path widths
+        // Staff outline - use thicker stroke to match path widths, with rounded cap for visible tip
         drawLine(
             color = outlineColor,
             start = Offset(centerX + size * 0.25f, centerY + size * 0.1f),
             end = Offset(centerX + size * 0.35f, centerY + size * 0.45f),
-            strokeWidth = 3f + pathOutlineWidth
+            strokeWidth = 3f + pathOutlineWidth,
+            cap = StrokeCap.Round
+        )
+        // Orb outline on staff - use stroke for uniform outline
+        drawCircle(
+            color = outlineColor,
+            radius = size * 0.08f + outlineWidth / 2,
+            center = Offset(centerX + size * 0.35f, centerY + size * 0.05f),
+            style = Stroke(width = outlineWidth)
         )
     }
     
@@ -87,16 +96,6 @@ fun DrawScope.drawEvilWizardSymbol(centerX: Float, centerY: Float, size: Float, 
         end = Offset(centerX + size * 0.35f, centerY + size * 0.45f),
         strokeWidth = 3f
     )
-    // Orb on staff (draw filled first)
+    // Orb on staff
     drawCircle(color = Color(0xFF9400D3), radius = size * 0.08f, center = Offset(centerX + size * 0.35f, centerY + size * 0.05f))
-    
-    // Draw orb outline last so it appears on top
-    if (outlineColor != null) {
-        drawCircle(
-            color = outlineColor,
-            radius = size * 0.08f + outlineWidth / 2,
-            center = Offset(centerX + size * 0.35f, centerY + size * 0.05f),
-            style = Stroke(width = outlineWidth)
-        )
-    }
 }
