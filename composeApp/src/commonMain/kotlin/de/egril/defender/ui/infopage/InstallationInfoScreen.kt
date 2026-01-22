@@ -1,6 +1,6 @@
 @file:OptIn(org.jetbrains.compose.resources.InternalResourceApi::class)
 
-package de.egril.defender.ui
+package de.egril.defender.ui.infopage
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -139,6 +139,11 @@ fun InstallationInfoScreen(
                         textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp)
                     )
+                    
+                    // Impressum section (WASM only, when flag is enabled)
+                    if (de.egril.defender.utils.isPlatformWasm) {
+                        ImpressumSection()
+                    }
                 }
                 
                 // Back button
@@ -234,3 +239,10 @@ private fun CommandText(text: String) {
         )
     }
 }
+
+/**
+ * Platform-specific impressum section
+ * Implemented only for WASM platform
+ */
+@Composable
+expect fun ImpressumSection()

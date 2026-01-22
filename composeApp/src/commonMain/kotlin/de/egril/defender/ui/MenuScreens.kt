@@ -19,6 +19,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.egril.defender.BuildConfig
+import de.egril.defender.ui.infopage.ImpressumWrapper
 import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.settings.SettingsButton
 import de.egril.defender.ui.settings.SettingsHintBox
@@ -219,6 +220,15 @@ fun MainMenuScreen(
                     .padding(bottom = 8.dp)
                     .clickable { showCommitInfo = true }
             )
+            
+            // Impressum at bottom center (WASM only, when flag is enabled)
+            if (isPlatformWasm) {
+                ImpressumWrapper(
+                    rowModifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = 8.dp)
+                )
+            }
             
             // Settings hint box - positioned below and to the left of settings button
             // Only show if hint hasn't been shown yet
