@@ -189,7 +189,7 @@ fun App() {
                     onShowRules = { viewModel.navigateToRules() },
                     onShowInstallationInfo = { viewModel.navigateToInstallationInfo() },
                     onSelectPlayer = { showPlayerSelection = true },
-                    onEditPlayerName = { showEditPlayer = true },
+                    onEditPlayerName = { viewModel.navigateToPlayerProfile() },
                     currentPlayerName = currentPlayer?.name
                 )
             }
@@ -205,7 +205,7 @@ fun App() {
                     onCheatCode = { code -> viewModel.applyWorldMapCheatCode(code) },
                     onReloadWorldMap = { viewModel.reloadWorldMap() },
                     onSwitchPlayer = { showPlayerSelection = true },
-                    onEditPlayerName = { showEditPlayer = true },
+                    onEditPlayerName = { viewModel.navigateToPlayerProfile() },
                     currentPlayerName = currentPlayer?.name,
                     showPlatformInfo = showPlatformInfo,
                     onClearPlatformInfo = { viewModel.clearPlatformInfo() }
@@ -222,6 +222,16 @@ fun App() {
                 InstallationInfoScreen(
                     onBack = { viewModel.navigateToMainMenu() }
                 )
+            }
+            
+            is Screen.PlayerProfile -> {
+                currentPlayer?.let { profile ->
+                    de.egril.defender.ui.infopage.PlayerProfileScreen(
+                        playerProfile = profile,
+                        onBack = { viewModel.navigateToMainMenu() },
+                        onEditName = { showEditPlayer = true }
+                    )
+                }
             }
             
             is Screen.LevelEditor -> {

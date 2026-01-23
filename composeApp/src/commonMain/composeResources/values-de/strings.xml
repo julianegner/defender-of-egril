@@ -968,4 +968,12 @@
     <string name="installation_web_step1">Keine Installation erforderlich!</string>
     <string name="installation_web_step2">Besuche einfach die Spiel-URL in einem modernen Browser (Chrome, Firefox, Safari, Edge)</string>
     <string name="installation_details_link">Für detaillierte Anweisungen siehe INSTALL.md im GitHub-Repository.</string>
+    
+    <!-- Player Profile Screen -->
+    <string name="player_profile">Spielerprofil</string>
+    <string name="player_created">Erstellt</string>
+    <string name="achievements">Errungenschaften</string>
+    <string name="achievements_earned">Errungenschaften erhalten</string>
+    <string name="no_achievements_yet">Noch keine Errungenschaften erhalten. Spiele das Spiel, um Errungenschaften zu erhalten!</string>
+    <string name="earned_on">Erhalten am: %1$s</string>
 </resources>

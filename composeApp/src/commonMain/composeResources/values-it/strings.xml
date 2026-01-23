@@ -969,4 +969,12 @@
     <string name="installation_web_step1">Nessuna installazione necessaria!</string>
     <string name="installation_web_step2">Visita semplicemente l\'URL del gioco in qualsiasi browser moderno (Chrome, Firefox, Safari, Edge)</string>
     <string name="installation_details_link">Per istruzioni dettagliate, consulta INSTALL.md nel repository GitHub.</string>
+
+    <!-- Player Profile Screen -->
+    <string name="player_profile">Profilo Giocatore</string>
+    <string name="player_created">Giocatore Creato</string>
+    <string name="achievements">Risultati</string>
+    <string name="achievements_earned">Risultati Ottenuti</string>
+    <string name="no_achievements_yet">Nessun risultato ancora</string>
+    <string name="earned_on">Ottenuto il %1$s</string>
 </resources>

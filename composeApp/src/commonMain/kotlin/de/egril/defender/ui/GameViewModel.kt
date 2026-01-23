@@ -24,6 +24,7 @@ sealed class Screen {
     object LevelEditor : Screen()
     object LoadGame : Screen()
     object Sticker : Screen()
+    object PlayerProfile : Screen()
     data class GamePlay(val levelId: Int) : Screen()
     data class LevelComplete(val levelId: Int, val won: Boolean, val isLastLevel: Boolean) : Screen()
 }
@@ -233,6 +234,10 @@ class GameViewModel {
     
     fun navigateToSticker() {
         _currentScreen.value = Screen.Sticker
+    }
+    
+    fun navigateToPlayerProfile() {
+        _currentScreen.value = Screen.PlayerProfile
     }
     
     fun startLevel(levelId: Int) {
