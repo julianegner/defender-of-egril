@@ -49,6 +49,11 @@ data class LevelCardPosition(
 )
 
 /**
+ * Keyboard scroll amount in pixels for arrow key navigation
+ */
+private const val KEYBOARD_SCROLL_AMOUNT = 50
+
+/**
  * Main content for the Level Dependencies tab (formerly Level Sequence)
  * Shows a tree map visualization of levels with prerequisite connections
  */
@@ -170,16 +175,12 @@ fun LevelSequenceContent() {
         ) {
             val horizontalScrollState = rememberScrollState()
             val verticalScrollState = rememberScrollState()
-            val coroutineScope = rememberCoroutineScope()
-            
-            // Keyboard scroll amount (in pixels)
-            val keyboardScrollAmount = 50
             
             // Track pending scroll operations
             var pendingScrollX by remember { mutableStateOf<Int?>(null) }
             var pendingScrollY by remember { mutableStateOf<Int?>(null) }
             
-            // Handle pending scroll operations
+            // Handle pending horizontal scroll
             LaunchedEffect(pendingScrollX) {
                 pendingScrollX?.let { delta ->
                     val newValue = (horizontalScrollState.value + delta).coerceIn(0, horizontalScrollState.maxValue)
@@ -188,6 +189,7 @@ fun LevelSequenceContent() {
                 }
             }
             
+            // Handle pending vertical scroll
             LaunchedEffect(pendingScrollY) {
                 pendingScrollY?.let { delta ->
                     val newValue = (verticalScrollState.value + delta).coerceIn(0, verticalScrollState.maxValue)
@@ -202,22 +204,22 @@ fun LevelSequenceContent() {
                     when (event.key) {
                         Key.DirectionLeft -> {
                             // Scroll left by decreasing scroll value
-                            pendingScrollX = -keyboardScrollAmount
+                            pendingScrollX = -KEYBOARD_SCROLL_AMOUNT
                             true
                         }
                         Key.DirectionRight -> {
                             // Scroll right by increasing scroll value
-                            pendingScrollX = keyboardScrollAmount
+                            pendingScrollX = KEYBOARD_SCROLL_AMOUNT
                             true
                         }
                         Key.DirectionUp -> {
                             // Scroll up by decreasing scroll value
-                            pendingScrollY = -keyboardScrollAmount
+                            pendingScrollY = -KEYBOARD_SCROLL_AMOUNT
                             true
                         }
                         Key.DirectionDown -> {
                             // Scroll down by increasing scroll value
-                            pendingScrollY = keyboardScrollAmount
+                            pendingScrollY = KEYBOARD_SCROLL_AMOUNT
                             true
                         }
                         else -> false
