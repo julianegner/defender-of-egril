@@ -48,8 +48,9 @@ data class LevelCardPosition(
 
 /**
  * Keyboard scroll amount in pixels for arrow key navigation
+ * Increased to 100 for faster traversal of large dependency graphs
  */
-private const val KEYBOARD_SCROLL_AMOUNT = 50
+private const val KEYBOARD_SCROLL_AMOUNT = 100
 
 /**
  * Padding for scrollbar spacing to prevent overlap
@@ -192,9 +193,10 @@ fun LevelSequenceContent() {
             // Handle pending horizontal scroll
             LaunchedEffect(pendingScrollX) {
                 pendingScrollX?.let { delta ->
-                    // Calculate new scroll position without artificial limits
-                    val newValue = horizontalScrollState.value + delta
-                    horizontalScrollState.scrollTo(newValue)
+                    // Scroll by delta amount, let ScrollState handle bounds naturally
+                    horizontalScrollState.animateScrollTo(
+                        (horizontalScrollState.value + delta).coerceAtLeast(0)
+                    )
                     pendingScrollX = null
                 }
             }
@@ -202,9 +204,10 @@ fun LevelSequenceContent() {
             // Handle pending vertical scroll
             LaunchedEffect(pendingScrollY) {
                 pendingScrollY?.let { delta ->
-                    // Calculate new scroll position without artificial limits
-                    val newValue = verticalScrollState.value + delta
-                    verticalScrollState.scrollTo(newValue)
+                    // Scroll by delta amount, let ScrollState handle bounds naturally
+                    verticalScrollState.animateScrollTo(
+                        (verticalScrollState.value + delta).coerceAtLeast(0)
+                    )
                     pendingScrollY = null
                 }
             }
