@@ -1,6 +1,8 @@
 package de.egril.defender.ui.editor.level
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.HorizontalScrollbar
+import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
@@ -10,6 +12,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -235,82 +238,55 @@ fun LevelSequenceContent() {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .focusRequester(focusRequester)
-                    .focusable()
-                    // Request focus on pointer events to regain focus after clicking cards
-                    .pointerInput(Unit) {
-                        awaitPointerEventScope {
-                            while (true) {
-                                val event = awaitPointerEvent(PointerEventPass.Initial)
-                                if (event.changes.any { it.pressed }) {
-                                    focusRequester.requestFocus()
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .focusRequester(focusRequester)
+                        .focusable()
+                        // Request focus on pointer events to regain focus after clicking cards
+                        .pointerInput(Unit) {
+                            awaitPointerEventScope {
+                                while (true) {
+                                    val event = awaitPointerEvent(PointerEventPass.Initial)
+                                    if (event.changes.any { it.pressed }) {
+                                        focusRequester.requestFocus()
+                                    }
                                 }
                             }
                         }
-                    }
-                    .onKeyEvent(keyboardHandler)
-                    .horizontalScroll(horizontalScrollState)
-                    .verticalScroll(verticalScrollState)
-            ) {
-                LevelTreeMap(
-                    levels = allLevels,
-                    levelPositions = levelPositions,
-                    selectedLevelId = selectedLevelId,
-                    validationResult = validationResult,
-                    onLevelClick = { levelId ->
-                        selectedLevelId = levelId
-                        showPrerequisiteEditor = true
-                    }
-                )
-            }
-            
-            // Scroll indicators
-            if (horizontalScrollState.maxValue > 0) {
-                // Horizontal scroll indicator
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .fillMaxWidth()
-                        .height(4.dp)
-                        .padding(horizontal = 20.dp)
-                        .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
+                        .onKeyEvent(keyboardHandler)
+                        .horizontalScroll(horizontalScrollState)
+                        .verticalScroll(verticalScrollState)
                 ) {
-                    val scrollProgress = if (horizontalScrollState.maxValue > 0) {
-                        horizontalScrollState.value.toFloat() / horizontalScrollState.maxValue
-                    } else 0f
-                    val indicatorWidth = 0.3f // 30% of track width
-                    Box(
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .fillMaxWidth(indicatorWidth)
-                            .offset(x = ((1f - indicatorWidth) * scrollProgress * 100).dp)
-                            .background(MaterialTheme.colorScheme.primary)
+                    LevelTreeMap(
+                        levels = allLevels,
+                        levelPositions = levelPositions,
+                        selectedLevelId = selectedLevelId,
+                        validationResult = validationResult,
+                        onLevelClick = { levelId ->
+                            selectedLevelId = levelId
+                            showPrerequisiteEditor = true
+                        }
                     )
                 }
-            }
-            
-            if (verticalScrollState.maxValue > 0) {
-                // Vertical scroll indicator
-                Box(
+                
+                // Interactive scrollbars (grabbable)
+                HorizontalScrollbar(
+                    adapter = rememberScrollbarAdapter(horizontalScrollState),
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .fillMaxWidth()
+                        .padding(end = 12.dp) // Space for vertical scrollbar
+                )
+                
+                VerticalScrollbar(
+                    adapter = rememberScrollbarAdapter(verticalScrollState),
                     modifier = Modifier
                         .align(Alignment.CenterEnd)
                         .fillMaxHeight()
-                        .width(4.dp)
-                        .padding(vertical = 20.dp)
-                        .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
-                ) {
-                    val scrollProgress = if (verticalScrollState.maxValue > 0) {
-                        verticalScrollState.value.toFloat() / verticalScrollState.maxValue
-                    } else 0f
-                    val indicatorHeight = 0.3f // 30% of track height
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .fillMaxHeight(indicatorHeight)
-                            .offset(y = ((1f - indicatorHeight) * scrollProgress * 100).dp)
-                            .background(MaterialTheme.colorScheme.primary)
-                    )
-                }
+                        .padding(bottom = 12.dp) // Space for horizontal scrollbar
+                )
             }
         }
     }
@@ -357,12 +333,15 @@ fun LevelTreeMap(
     val columnSpacing = 100.dp
     val rowSpacing = 20.dp
     
+    // Increase padding to ensure all content is reachable (from 50 to 200 pixels)
+    val contentPadding = 200.dp
+    
     Box(
         modifier = Modifier
-            .width(with(density) { ((levelsByDepth.size * (cardWidth.toPx() + columnSpacing.toPx())) + 50).toDp() })
+            .width(with(density) { ((levelsByDepth.size * (cardWidth.toPx() + columnSpacing.toPx())) + contentPadding.toPx()).toDp() })
             .height(with(density) { 
                 val maxLevelsInColumn = levelsByDepth.values.maxOfOrNull { it.size } ?: 1
-                ((maxLevelsInColumn * (cardHeight.toPx() + rowSpacing.toPx())) + 50).toDp()
+                ((maxLevelsInColumn * (cardHeight.toPx() + rowSpacing.toPx())) + contentPadding.toPx()).toDp()
             })
     ) {
         // Draw arrows between levels
@@ -517,66 +496,80 @@ fun LevelTreeCard(
             defaultElevation = if (isSelected) 8.dp else 2.dp
         )
     ) {
-        Column(
-            modifier = Modifier.padding(8.dp).fillMaxSize(),
-            verticalArrangement = Arrangement.SpaceBetween
-        ) {
-            // Title with ready indicator
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
+        Box(modifier = Modifier.fillMaxSize()) {
+            Column(
+                modifier = Modifier.padding(8.dp).fillMaxSize(),
+                verticalArrangement = Arrangement.SpaceBetween
             ) {
+                // Title with ready indicator
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Text(
+                        text = level.title,
+                        style = MaterialTheme.typography.titleSmall,
+                        maxLines = 1,
+                        modifier = Modifier.weight(1f)
+                    )
+                    if (isReady) {
+                        CheckmarkIcon(size = 14.dp, tint = Color.Green)
+                    } else {
+                        Text("X", color = Color.Red, style = MaterialTheme.typography.bodySmall)
+                    }
+                }
+                
+                // Subtitle
+                if (level.subtitle.isNotBlank()) {
+                    Text(
+                        text = level.subtitle,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1
+                    )
+                }
+                
+                // Stats
                 Text(
-                    text = level.title,
-                    style = MaterialTheme.typography.titleSmall,
-                    maxLines = 1,
-                    modifier = Modifier.weight(1f)
+                    text = "${stringResource(Res.string.enemies)}: ${level.enemySpawns.size}",
+                    style = MaterialTheme.typography.bodySmall
                 )
-                if (isReady) {
-                    CheckmarkIcon(size = 14.dp, tint = Color.Green)
+                Text(
+                    text = "${level.startCoins} coins | ${level.startHealthPoints} HP",
+                    style = MaterialTheme.typography.bodySmall
+                )
+                
+                // Prerequisites info
+                if (level.prerequisites.isNotEmpty()) {
+                    val reqCount = level.getEffectiveRequiredCount()
+                    val prereqText = if (reqCount < level.prerequisites.size) {
+                        "${stringResource(Res.string.requires)} $reqCount/${level.prerequisites.size}"
+                    } else {
+                        "${stringResource(Res.string.requires)} ${level.prerequisites.size}"
+                    }
+                    Text(
+                        text = prereqText,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.primary
+                    )
                 } else {
-                    Text("X", color = Color.Red, style = MaterialTheme.typography.bodySmall)
+                    Text(
+                        text = stringResource(Res.string.entry_point),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color(0xFF4CAF50)
+                    )
                 }
             }
             
-            // Subtitle
-            if (level.subtitle.isNotBlank()) {
+            // Test Level badge in upper right corner (matching level editor style)
+            if (level.testingOnly) {
                 Text(
-                    text = level.subtitle,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1
-                )
-            }
-            
-            // Stats
-            Text(
-                text = "${stringResource(Res.string.enemies)}: ${level.enemySpawns.size}",
-                style = MaterialTheme.typography.bodySmall
-            )
-            Text(
-                text = "${level.startCoins} coins | ${level.startHealthPoints} HP",
-                style = MaterialTheme.typography.bodySmall
-            )
-            
-            // Prerequisites info
-            if (level.prerequisites.isNotEmpty()) {
-                val reqCount = level.getEffectiveRequiredCount()
-                val prereqText = if (reqCount < level.prerequisites.size) {
-                    "${stringResource(Res.string.requires)} $reqCount/${level.prerequisites.size}"
-                } else {
-                    "${stringResource(Res.string.requires)} ${level.prerequisites.size}"
-                }
-                Text(
-                    text = prereqText,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.primary
-                )
-            } else {
-                Text(
-                    text = stringResource(Res.string.entry_point),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color(0xFF4CAF50)
+                    text = stringResource(Res.string.test_level),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = Color.Red,
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(8.dp)
                 )
             }
         }
