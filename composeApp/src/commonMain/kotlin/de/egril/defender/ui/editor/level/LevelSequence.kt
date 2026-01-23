@@ -198,7 +198,8 @@ fun LevelSequenceContent() {
             // Handle pending horizontal scroll
             LaunchedEffect(pendingScrollX) {
                 pendingScrollX?.let { delta ->
-                    val newValue = (horizontalScrollState.value + delta).coerceIn(0, horizontalScrollState.maxValue)
+                    // Calculate new scroll position without artificial limits
+                    val newValue = horizontalScrollState.value + delta
                     horizontalScrollState.scrollTo(newValue)
                     pendingScrollX = null
                 }
@@ -207,7 +208,8 @@ fun LevelSequenceContent() {
             // Handle pending vertical scroll
             LaunchedEffect(pendingScrollY) {
                 pendingScrollY?.let { delta ->
-                    val newValue = (verticalScrollState.value + delta).coerceIn(0, verticalScrollState.maxValue)
+                    // Calculate new scroll position without artificial limits
+                    val newValue = verticalScrollState.value + delta
                     verticalScrollState.scrollTo(newValue)
                     pendingScrollY = null
                 }
@@ -581,14 +583,14 @@ fun LevelTreeCard(
                 }
             }
             
-            // Test Level badge in upper right corner (matching level editor style)
+            // Test Level badge in lower right corner
             if (level.testingOnly) {
                 Text(
                     text = stringResource(Res.string.test_level),
                     style = MaterialTheme.typography.labelSmall,
                     color = Color.Red,
                     modifier = Modifier
-                        .align(Alignment.TopEnd)
+                        .align(Alignment.BottomEnd)
                         .padding(8.dp)
                 )
             }
