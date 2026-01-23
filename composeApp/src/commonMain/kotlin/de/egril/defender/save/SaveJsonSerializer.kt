@@ -544,11 +544,15 @@ object SaveJsonSerializer {
     
     fun serializePlayerProfiles(profiles: PlayerProfiles): String {
         val profilesJson = profiles.profiles.joinToString(",\n    ") { profile ->
+            val achievementsJson = profile.achievements.joinToString(", ") { achievement ->
+                """{"id": "${achievement.id.name}", "earnedAt": ${achievement.earnedAt}}"""
+            }
             """{
       "id": "${profile.id}",
       "name": "${profile.name}",
       "createdAt": ${profile.createdAt},
-      "lastPlayedAt": ${profile.lastPlayedAt}
+      "lastPlayedAt": ${profile.lastPlayedAt},
+      "achievements": [$achievementsJson]
     }"""
         }
         
@@ -576,11 +580,31 @@ object SaveJsonSerializer {
                     val createdAt = JsonUtils.extractValue(entry, "createdAt").toLong()
                     val lastPlayedAt = JsonUtils.extractValue(entry, "lastPlayedAt").toLong()
                     
+                    // Parse achievements (if present, for backward compatibility)
+                    val achievements = mutableListOf<Achievement>()
+                    try {
+                        val achievementsSection = entry.substringAfter("\"achievements\": [").substringBefore("]")
+                        if (achievementsSection.isNotBlank()) {
+                            val achievementEntries = JsonUtils.splitJsonArray(achievementsSection)
+                            for (achEntry in achievementEntries) {
+                                val achievementId = JsonUtils.extractValue(achEntry, "id")
+                                val earnedAt = JsonUtils.extractValue(achEntry, "earnedAt").toLong()
+                                achievements.add(Achievement(
+                                    id = AchievementId.valueOf(achievementId),
+                                    earnedAt = earnedAt
+                                ))
+                            }
+                        }
+                    } catch (e: Exception) {
+                        // Ignore achievement parsing errors for backward compatibility
+                    }
+                    
                     profiles.add(PlayerProfile(
                         id = id,
                         name = name,
                         createdAt = createdAt,
-                        lastPlayedAt = lastPlayedAt
+                        lastPlayedAt = lastPlayedAt,
+                        achievements = achievements
                     ))
                 }
             }

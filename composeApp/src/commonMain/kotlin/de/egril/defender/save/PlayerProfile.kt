@@ -1,5 +1,7 @@
 package de.egril.defender.save
 
+import de.egril.defender.model.Achievement
+
 /**
  * Represents a player profile
  * Each player has their own world map progress and save files
@@ -8,7 +10,8 @@ data class PlayerProfile(
     val id: String,  // Unique identifier (sanitized player name)
     val name: String,  // Display name entered by player
     val createdAt: Long,  // Timestamp when profile was created
-    val lastPlayedAt: Long  // Timestamp when profile was last used
+    val lastPlayedAt: Long,  // Timestamp when profile was last used
+    val achievements: List<Achievement> = emptyList()  // List of earned achievements
 )
 
 /**

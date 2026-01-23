@@ -225,6 +225,45 @@ object PlayerProfileStorage {
     }
     
     /**
+     * Add an achievement to a player profile
+     * @param playerId The ID of the player
+     * @param achievement The achievement to add
+     * @return True if the achievement was added, false if already earned or player not found
+     */
+    fun addAchievement(playerId: String, achievement: de.egril.defender.model.Achievement): Boolean {
+        val profiles = getAllProfiles()
+        val profile = profiles.profiles.find { it.id == playerId } ?: return false
+        
+        // Check if achievement is already earned
+        if (profile.achievements.any { it.id == achievement.id }) {
+            return false
+        }
+        
+        // Add achievement to profile
+        val updatedProfile = profile.copy(
+            achievements = profile.achievements + achievement
+        )
+        
+        // Update profiles list
+        val updatedProfiles = profiles.copy(
+            profiles = profiles.profiles.map { p ->
+                if (p.id == playerId) updatedProfile else p
+            }
+        )
+        saveProfiles(updatedProfiles)
+        
+        return true
+    }
+    
+    /**
+     * Check if a player has earned a specific achievement
+     */
+    fun hasAchievement(playerId: String, achievementId: de.egril.defender.model.AchievementId): Boolean {
+        val profile = getProfile(playerId) ?: return false
+        return profile.achievements.any { it.id == achievementId }
+    }
+    
+    /**
      * Migrate existing saves to a default player profile
      * This should be called once on first launch with the new system
      */
