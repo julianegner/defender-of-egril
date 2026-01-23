@@ -135,7 +135,8 @@ fun HexagonMinimapFromEditorMap(
     offsetX: Float? = null,
     offsetY: Float? = null,
     containerSize: IntSize? = null,
-    contentSize: IntSize? = null
+    contentSize: IntSize? = null,
+    onViewportDrag: ((Float, Float) -> Unit)? = null
 ) {
     val dummyLevel = remember(map.id) {
         Level(
@@ -168,7 +169,7 @@ fun HexagonMinimapFromEditorMap(
             offsetY = offsetY,
             containerSize = containerSize,
             contentSize = contentSize,
-            onViewportDrag = null  // Editor minimap doesn't need navigation
+            onViewportDrag = onViewportDrag
         )
     }
 }

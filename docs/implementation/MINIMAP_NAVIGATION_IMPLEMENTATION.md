@@ -15,7 +15,10 @@ Added drag gesture detection to the minimap with the following changes:
 - Added `import androidx.compose.ui.input.pointer.pointerInput`
 
 #### New Parameter
-- Added `onViewportDrag: ((Float, Float) -> Unit)?` parameter to both `HexagonMinimap()` and `HexagonMinimapContent()` functions
+- Added `onViewportDrag: ((Float, Float) -> Unit)?` parameter to:
+  - `HexagonMinimap()` - For in-game minimap
+  - `HexagonMinimapFromEditorMap()` - For map editor minimap
+  - `HexagonMinimapContent()` - Shared content implementation
 - This callback is invoked when the user drags on the minimap, passing the new viewport offsets
 
 #### Drag Gesture Implementation
@@ -75,7 +78,24 @@ HexagonMinimap(
 
 This immediately updates the viewport position when the user drags on the minimap.
 
-### 3. MinimapNavigationTest.kt
+### 3. MapEditorView.kt
+
+Updated the Map Editor to handle minimap drag events:
+
+#### Added Callback
+```kotlin
+HexagonMinimapFromEditorMap(
+    // ... existing parameters ...
+    onViewportDrag = { newOffsetX, newOffsetY ->
+        offsetX = newOffsetX
+        offsetY = newOffsetY
+    }
+)
+```
+
+This enables drag navigation in the map editor minimap, providing the same functionality as the in-game minimap.
+
+### 4. MinimapNavigationTest.kt
 
 Created comprehensive tests for the minimap navigation functionality:
 
