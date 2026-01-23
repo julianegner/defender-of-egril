@@ -64,7 +64,7 @@ private const val SCROLLBAR_PADDING = 12
 
 /**
  * Extra padding around tree map content to ensure all items are reachable
- * Increased to 400 to ensure full scroll range accessibility
+ * Increased from 200 to 400 to ensure full scroll range accessibility
  */
 private const val TREE_MAP_CONTENT_PADDING = 400
 
@@ -283,8 +283,7 @@ fun LevelSequenceContent() {
                     )
                 }
                 
-                // Interactive scrollbars (grabbable) with distinctive styling for dark mode
-                // Custom styling to make scrollbars more visible in both light and dark modes
+                // Interactive scrollbars with custom styling for better visibility in both light and dark modes
                 val scrollbarStyle = ScrollbarStyle(
                     minimalHeight = 16.dp,
                     thickness = 8.dp,
