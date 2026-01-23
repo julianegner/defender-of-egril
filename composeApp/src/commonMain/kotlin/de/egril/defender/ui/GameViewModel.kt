@@ -86,6 +86,11 @@ class GameViewModel {
     private val _reminderMessage = MutableStateFlow<ReminderMessage?>(null)
     val reminderMessage: StateFlow<ReminderMessage?> = _reminderMessage.asStateFlow()
     
+    // Achievement system
+    private var achievementManager: de.egril.defender.game.AchievementManager? = null
+    private val _newAchievement = MutableStateFlow<Achievement?>(null)
+    val newAchievement: StateFlow<Achievement?> = _newAchievement.asStateFlow()
+    
     // Track game session time
     private var gameSessionStartTime: Long? = null
     private var lastBreakReminderTime: Long? = null
@@ -260,25 +265,87 @@ class GameViewModel {
             initialGameStateSnapshot = createGameStateSnapshot(newGameState)
             lastSaveSnapshot = initialGameStateSnapshot
             
+            // Initialize achievement manager for this level
+            val playerId = _currentPlayer.value?.id
+            if (playerId != null) {
+                achievementManager = de.egril.defender.game.AchievementManager(playerId).apply {
+                    onAchievementEarned = { achievement ->
+                        _newAchievement.value = achievement
+                        // Refresh player profile to show updated achievements
+                        refreshCurrentPlayer()
+                    }
+                    startLevel(newGameState.healthPoints.value)
+                }
+            }
+            
             // Start time tracking for reminders
             startTimeTracking()
         }
     }
     
     fun placeDefender(type: DefenderType, position: Position): Boolean {
-        return gameEngine?.placeDefender(type, position) ?: false
+        val result = gameEngine?.placeDefender(type, position) ?: false
+        if (result) {
+            // Track achievement
+            val isRiverTile = _gameState.value?.level?.isRiverTile(position) ?: false
+            if (isRiverTile) {
+                achievementManager?.onBuildRaft()
+            } else {
+                achievementManager?.onBuildTower()
+            }
+        }
+        return result
     }
     
     fun upgradeDefender(defenderId: Int): Boolean {
-        return gameEngine?.upgradeDefender(defenderId) ?: false
+        // Check if this is a raft before upgrading
+        val defender = _gameState.value?.defenders?.find { it.id == defenderId }
+        val isRaft = defender?.raftId?.value != null
+        
+        val result = gameEngine?.upgradeDefender(defenderId) ?: false
+        if (result) {
+            // Track achievement
+            if (isRaft) {
+                achievementManager?.onUpgradeRaft()
+            } else {
+                achievementManager?.onUpgradeTower()
+            }
+        }
+        return result
     }
     
     fun undoTower(defenderId: Int): Boolean {
-        return gameEngine?.undoTower(defenderId) ?: false
+        // Check if this is a raft before undoing
+        val defender = _gameState.value?.defenders?.find { it.id == defenderId }
+        val isRaft = defender?.raftId?.value != null
+        
+        val result = gameEngine?.undoTower(defenderId) ?: false
+        if (result) {
+            // Track achievement
+            if (isRaft) {
+                achievementManager?.onUndoRaft()
+            } else {
+                achievementManager?.onUndoTower()
+            }
+        }
+        return result
     }
     
     fun sellTower(defenderId: Int): Boolean {
-        return gameEngine?.sellTower(defenderId) ?: false
+        // Check if this is a raft before selling
+        val defender = _gameState.value?.defenders?.find { it.id == defenderId }
+        val isRaft = defender?.raftId?.value != null
+        
+        val result = gameEngine?.sellTower(defenderId) ?: false
+        if (result) {
+            // Track achievement
+            if (isRaft) {
+                achievementManager?.onSellRaft()
+            } else {
+                achievementManager?.onSellTower()
+            }
+        }
+        return result
     }
     
     fun startFirstPlayerTurn() {
@@ -288,6 +355,9 @@ class GameViewModel {
         println("DEBUG: Attackers before: ${stateBefore?.attackers?.size}")
         
         gameEngine?.startFirstPlayerTurn()
+        
+        // Track turn start for achievements
+        achievementManager?.startTurn()
         
         val stateAfter = _gameState.value
         println("DEBUG: Phase after: ${stateAfter?.phase?.value}")
@@ -326,7 +396,20 @@ class GameViewModel {
     }
     
     fun performMineDig(mineId: Int): DigOutcome? {
-        return gameEngine?.performMineDig(mineId)
+        val outcome = gameEngine?.performMineDig(mineId)
+        if (outcome != null) {
+            // Track first dig achievement
+            achievementManager?.onDigFirstTime()
+            
+            // Track specific outcome achievements
+            when (outcome) {
+                DigOutcome.GOLD -> achievementManager?.onFindGold()
+                DigOutcome.DIAMOND -> achievementManager?.onFindDiamond()
+                DigOutcome.DRAGON -> achievementManager?.onSummonDragon()
+                else -> {} // No specific achievement for other outcomes
+            }
+        }
+        return outcome
     }
     
     fun performMineBuildTrap(mineId: Int, trapPosition: Position): Boolean {
@@ -338,7 +421,19 @@ class GameViewModel {
     }
     
     fun performBuildBarricade(towerId: Int, barricadePosition: Position): Boolean {
-        return gameEngine?.performBuildBarricade(towerId, barricadePosition) ?: false
+        val result = gameEngine?.performBuildBarricade(towerId, barricadePosition) ?: false
+        if (result) {
+            // Check if this is a new barricade or adding health to existing one
+            val barricade = _gameState.value?.barricades?.find { it.position == barricadePosition }
+            if (barricade != null) {
+                // Barricade exists, so this added health to it
+                achievementManager?.onAddHealthBarricade()
+            } else {
+                // New barricade was built
+                achievementManager?.onBuildBarricade()
+            }
+        }
+        return result
     }
     
     fun performRemoveBarricade(barricadePosition: Position): Boolean {
@@ -441,6 +536,15 @@ class GameViewModel {
     }
 
     private fun completeLevel(levelId: Int, won: Boolean) {
+        val currentHP = _gameState.value?.healthPoints?.value ?: 0
+        
+        // Track achievement for level completion
+        if (won) {
+            achievementManager?.onWinLevel(currentHP)
+        } else {
+            achievementManager?.onLoseLevel()
+        }
+        
         val isLastLevel = _worldLevels.value.lastOrNull()?.level?.id == levelId
         if (won) {
             val updatedLevels = _worldLevels.value.toMutableList()
@@ -931,6 +1035,24 @@ class GameViewModel {
      */
     fun refreshPlayerProfiles() {
         _allPlayers.value = de.egril.defender.save.PlayerProfileStorage.getAllProfiles().profiles
+    }
+    
+    /**
+     * Refresh the current player profile (e.g., after earning an achievement)
+     */
+    private fun refreshCurrentPlayer() {
+        val currentPlayerId = _currentPlayer.value?.id ?: return
+        val updatedProfile = de.egril.defender.save.PlayerProfileStorage.getProfile(currentPlayerId)
+        if (updatedProfile != null) {
+            _currentPlayer.value = updatedProfile
+        }
+    }
+    
+    /**
+     * Clear the new achievement notification
+     */
+    fun clearAchievementNotification() {
+        _newAchievement.value = null
     }
     
     /**

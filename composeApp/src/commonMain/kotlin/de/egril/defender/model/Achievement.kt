@@ -38,7 +38,6 @@ enum class AchievementId {
     DIG_FIRST_TIME,
     FIND_GOLD,
     FIND_DIAMOND,
-    FIND_RUBBLE,
     
     // Dragon achievements
     SUMMON_DRAGON,
@@ -113,7 +112,6 @@ object AchievementDefinitions {
         AchievementInfo(AchievementId.DIG_FIRST_TIME, "achievement_dig_first_time_name", "achievement_dig_first_time_desc"),
         AchievementInfo(AchievementId.FIND_GOLD, "achievement_find_gold_name", "achievement_find_gold_desc"),
         AchievementInfo(AchievementId.FIND_DIAMOND, "achievement_find_diamond_name", "achievement_find_diamond_desc"),
-        AchievementInfo(AchievementId.FIND_RUBBLE, "achievement_find_rubble_name", "achievement_find_rubble_desc"),
         
         // Dragon achievements
         AchievementInfo(AchievementId.SUMMON_DRAGON, "achievement_summon_dragon_name", "achievement_summon_dragon_desc"),
