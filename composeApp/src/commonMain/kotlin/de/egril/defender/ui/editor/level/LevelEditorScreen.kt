@@ -114,7 +114,8 @@ fun LevelEditorScreen(
                     EditorTab.WORLD_MAP_POSITIONS to stringResource(Res.string.world_map_positions)
                 )
                 
-                // Find the selected tab index, default to LEVEL_EDITOR if INFO tab is selected
+                // Find the selected tab index. INFO tab is not in the tab list (separate button),
+                // so when INFO is selected, default to LEVEL_EDITOR for visual consistency.
                 val selectedTabIndex = tabs.indexOfFirst { it.first == currentTab }.let { index ->
                     if (index == -1) tabs.indexOfFirst { it.first == EditorTab.LEVEL_EDITOR } else index
                 }
