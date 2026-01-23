@@ -108,10 +108,17 @@ fun WorldMapScreen(
         }
     }
     
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background
+    BoxWithConstraints(
+        modifier = Modifier.fillMaxSize()
     ) {
+        val windowSize = remember(maxWidth, maxHeight) {
+            "Window: ${maxWidth.value.toInt()} x ${maxHeight.value.toInt()} dp"
+        }
+        
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = MaterialTheme.colorScheme.background
+        ) {
         Box(
             modifier = Modifier.fillMaxSize()
         ) {
@@ -401,9 +408,11 @@ fun WorldMapScreen(
     }
     
     // Platform info dialog (from platform cheat code)
+        // Platform info dialog (from platform cheat code)
     if (showPlatformInfo && onClearPlatformInfo != null) {
         de.egril.defender.ui.PlatformInfoDialog(
             platformInfo = de.egril.defender.utils.getPlatform().name,
+            windowSize = windowSize,
             onDismiss = onClearPlatformInfo
         )
     }
@@ -434,5 +443,6 @@ fun WorldMapScreen(
                 showNewRepoDataDialog = false
             }
         )
+    }
     }
 }
