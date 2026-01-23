@@ -2,6 +2,7 @@ package de.egril.defender.ui.editor.level
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.HorizontalScrollbar
+import androidx.compose.foundation.ScrollbarStyle
 import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -63,8 +64,9 @@ private const val SCROLLBAR_PADDING = 12
 
 /**
  * Extra padding around tree map content to ensure all items are reachable
+ * Increased to 400 to ensure full scroll range accessibility
  */
-private const val TREE_MAP_CONTENT_PADDING = 200
+private const val TREE_MAP_CONTENT_PADDING = 400
 
 /**
  * Main content for the Level Dependencies tab (formerly Level Sequence)
@@ -281,9 +283,20 @@ fun LevelSequenceContent() {
                     )
                 }
                 
-                // Interactive scrollbars (grabbable)
+                // Interactive scrollbars (grabbable) with distinctive styling for dark mode
+                // Custom styling to make scrollbars more visible in both light and dark modes
+                val scrollbarStyle = ScrollbarStyle(
+                    minimalHeight = 16.dp,
+                    thickness = 8.dp,
+                    shape = MaterialTheme.shapes.small,
+                    hoverDurationMillis = 300,
+                    unhoverColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
+                    hoverColor = MaterialTheme.colorScheme.primary
+                )
+                
                 HorizontalScrollbar(
                     adapter = rememberScrollbarAdapter(horizontalScrollState),
+                    style = scrollbarStyle,
                     modifier = Modifier
                         .align(Alignment.BottomStart)
                         .fillMaxWidth()
@@ -292,6 +305,7 @@ fun LevelSequenceContent() {
                 
                 VerticalScrollbar(
                     adapter = rememberScrollbarAdapter(verticalScrollState),
+                    style = scrollbarStyle,
                     modifier = Modifier
                         .align(Alignment.CenterEnd)
                         .fillMaxHeight()
