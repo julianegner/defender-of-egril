@@ -57,6 +57,16 @@ data class LevelCardPosition(
 private const val KEYBOARD_SCROLL_AMOUNT = 50
 
 /**
+ * Padding for scrollbar spacing to prevent overlap
+ */
+private const val SCROLLBAR_PADDING = 12
+
+/**
+ * Extra padding around tree map content to ensure all items are reachable
+ */
+private const val TREE_MAP_CONTENT_PADDING = 200
+
+/**
  * Main content for the Level Dependencies tab (formerly Level Sequence)
  * Shows a tree map visualization of levels with prerequisite connections
  */
@@ -277,7 +287,7 @@ fun LevelSequenceContent() {
                     modifier = Modifier
                         .align(Alignment.BottomStart)
                         .fillMaxWidth()
-                        .padding(end = 12.dp) // Space for vertical scrollbar
+                        .padding(end = SCROLLBAR_PADDING.dp) // Space for vertical scrollbar
                 )
                 
                 VerticalScrollbar(
@@ -285,7 +295,7 @@ fun LevelSequenceContent() {
                     modifier = Modifier
                         .align(Alignment.CenterEnd)
                         .fillMaxHeight()
-                        .padding(bottom = 12.dp) // Space for horizontal scrollbar
+                        .padding(bottom = SCROLLBAR_PADDING.dp) // Space for horizontal scrollbar
                 )
             }
         }
@@ -333,15 +343,12 @@ fun LevelTreeMap(
     val columnSpacing = 100.dp
     val rowSpacing = 20.dp
     
-    // Increase padding to ensure all content is reachable (from 50 to 200 pixels)
-    val contentPadding = 200.dp
-    
     Box(
         modifier = Modifier
-            .width(with(density) { ((levelsByDepth.size * (cardWidth.toPx() + columnSpacing.toPx())) + contentPadding.toPx()).toDp() })
+            .width(with(density) { ((levelsByDepth.size * (cardWidth.toPx() + columnSpacing.toPx())) + TREE_MAP_CONTENT_PADDING).toDp() })
             .height(with(density) { 
                 val maxLevelsInColumn = levelsByDepth.values.maxOfOrNull { it.size } ?: 1
-                ((maxLevelsInColumn * (cardHeight.toPx() + rowSpacing.toPx())) + contentPadding.toPx()).toDp()
+                ((maxLevelsInColumn * (cardHeight.toPx() + rowSpacing.toPx())) + TREE_MAP_CONTENT_PADDING).toDp()
             })
     ) {
         // Draw arrows between levels
