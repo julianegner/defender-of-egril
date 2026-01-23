@@ -602,7 +602,7 @@ fun BarricadeButton(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                WoodIcon(size = 24.dp)
+                WoodIcon(size = 48.dp)
                 Column(
                     modifier = Modifier.weight(1f),
                     horizontalAlignment = Alignment.Start

@@ -48,7 +48,7 @@ import defender_of_egril.composeapp.generated.resources.emoji_triangle_up
 import defender_of_egril.composeapp.generated.resources.emoji_unlock
 import defender_of_egril.composeapp.generated.resources.emoji_up_arrow
 import defender_of_egril.composeapp.generated.resources.emoji_warning
-import defender_of_egril.composeapp.generated.resources.emoji_wood
+import defender_of_egril.composeapp.generated.resources.barricade
 import defender_of_egril.composeapp.generated.resources.emoji_right_arrow
 import defender_of_egril.composeapp.generated.resources.emoji_red_circle
 import defender_of_egril.composeapp.generated.resources.emoji_map
@@ -834,7 +834,7 @@ fun WoodIcon(
     size: Dp = 24.dp
 ) {
     Image(
-        painter = painterResource(Res.drawable.emoji_wood),
+        painter = painterResource(Res.drawable.barricade),
         contentDescription = "Wood",
         modifier = modifier.size(size)
     )

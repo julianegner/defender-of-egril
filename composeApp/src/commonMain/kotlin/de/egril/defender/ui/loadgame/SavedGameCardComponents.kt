@@ -296,7 +296,7 @@ fun EnemiesList(
                         UnitEntry(
                             icon = { 
                                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                                    de.egril.defender.ui.icon.WoodIcon(size = 20.dp)
+                                    de.egril.defender.ui.icon.WoodIcon(size = 24.dp)
                                 }
                             },
                             name = stringResource(Res.string.barricade),
