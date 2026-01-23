@@ -1,19 +1,12 @@
 package de.egril.defender.ui.editor.level
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.HorizontalScrollbar
-import androidx.compose.foundation.ScrollbarStyle
-import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -40,6 +33,7 @@ import de.egril.defender.editor.PrerequisiteValidationResult
 import de.egril.defender.ui.icon.CheckmarkIcon
 import de.egril.defender.ui.icon.WarningIcon
 import com.hyperether.resources.stringResource
+import de.egril.defender.utils.isPlatformDesktop
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.*
 
@@ -284,34 +278,13 @@ fun LevelSequenceContent() {
                         }
                     )
                 }
-                
-                // Interactive scrollbars with custom styling for better visibility in both light and dark modes
-                val scrollbarStyle = ScrollbarStyle(
-                    minimalHeight = 16.dp,
-                    thickness = 8.dp,
-                    shape = MaterialTheme.shapes.small,
-                    hoverDurationMillis = 300,
-                    unhoverColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
-                    hoverColor = MaterialTheme.colorScheme.primary
-                )
-                
-                HorizontalScrollbar(
-                    adapter = rememberScrollbarAdapter(horizontalScrollState),
-                    style = scrollbarStyle,
-                    modifier = Modifier
-                        .align(Alignment.BottomStart)
-                        .fillMaxWidth()
-                        .padding(end = SCROLLBAR_PADDING.dp) // Space for vertical scrollbar
-                )
-                
-                VerticalScrollbar(
-                    adapter = rememberScrollbarAdapter(verticalScrollState),
-                    style = scrollbarStyle,
-                    modifier = Modifier
-                        .align(Alignment.CenterEnd)
-                        .fillMaxHeight()
-                        .padding(bottom = SCROLLBAR_PADDING.dp) // Space for horizontal scrollbar
-                )
+
+                if (isPlatformDesktop) {
+                    LevelSequenceScrollbar(
+                        horizontalScrollState = horizontalScrollState,
+                        verticalScrollState = verticalScrollState
+                    )
+                }
             }
         }
     }
