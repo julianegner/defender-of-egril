@@ -462,6 +462,11 @@ fun GridCell(
     
     // Show barricade preview when hovering over valid barricade placement tile
     val showBarricadePreview = isBarricadePlacement && hoveredPosition == position && cellIsInBarricadeRange
+    
+    // Check if this tile should be highlighted as buildable when a tower type is selected
+    val isBuildableAndEmpty = selectedDefenderType != null && 
+                              isBuildableTile && 
+                              !showPlacementPreview  // Don't double-highlight the hovered tile
 
     // Base background color based on area type - ALWAYS visible
     // Build islands + strips adjacent to path allow tower placement
@@ -548,6 +553,9 @@ fun GridCell(
         // Barricade placement range - yellow borders
         cellIsInBarricadeRange -> GamePlayColors.Yellow  // Yellow border for barricade placement range
         
+        // Buildable tile highlighting - green borders when tower type is selected
+        isBuildableAndEmpty -> GamePlayColors.Success  // Green border for buildable tiles
+        
         cellIsInRange && isValidTargetTile && showRange && canPlaceTrapHere -> GamePlayColors.Success  // Green border for tiles in range (path or river for area attacks)
         isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> GamePlayColors.Yellow  // Yellow border for selected defender (not during initial building)
         isSpawnPoint -> GamePlayColors.WarningDark  // Darker orange border for spawn in dark mode
@@ -571,6 +579,7 @@ fun GridCell(
         showPlacementPreview -> 6.dp  // Double thickness for hovered build tile
         isInPreviewRange -> 3.dp  // Medium border for range preview
         cellIsInBarricadeRange -> 4.dp  // Thick border for barricade placement range
+        isBuildableAndEmpty -> 3.dp  // Medium border for buildable tiles
         isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> 5.dp  // Extra thick border for selected defender (not during initial building)
         cellIsInRange && isValidTargetTile && showRange && canPlaceTrapHere -> 4.dp  // Thick border for cells in range (path or river for area attacks)
         isSpawnPoint || isTarget -> 3.dp
