@@ -891,12 +891,13 @@ private fun BoxScope.GridCellContent(
                     ) {
                         // Show wood/barricade symbol with brown color
                         WoodIcon(size = 48.dp)
-                        // Show health points
+                        // Show health points - moved up for better visibility
                         Text(
                             "${barricade.healthPoints.value} HP",
                             style = MaterialTheme.typography.labelSmall,
                             color = Color(0xFF795548),  // Brown color
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.offset(y = (-12).dp)
                         )
                     }
                     // Show damage effect overlay if present
