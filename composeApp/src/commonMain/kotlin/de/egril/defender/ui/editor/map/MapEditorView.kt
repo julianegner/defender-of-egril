@@ -246,7 +246,11 @@ fun MapEditorView(
                         offsetX = offsetX,
                         offsetY = offsetY,
                         containerSize = containerSize,
-                        contentSize = actualContentSize
+                        contentSize = actualContentSize,
+                        onViewportDrag = { newOffsetX, newOffsetY ->
+                            offsetX = newOffsetX
+                            offsetY = newOffsetY
+                        }
                     )
                 }
 

@@ -289,7 +289,11 @@ fun GameGrid(
                     offsetY = offsetY,
                     containerSize = containerSize,
                     contentSize = contentSize,
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize(),
+                    onViewportDrag = { newOffsetX, newOffsetY ->
+                        offsetX = newOffsetX
+                        offsetY = newOffsetY
+                    }
                 )
             }
         }
