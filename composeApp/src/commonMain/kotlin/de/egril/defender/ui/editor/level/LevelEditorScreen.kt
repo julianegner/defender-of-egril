@@ -114,7 +114,10 @@ fun LevelEditorScreen(
                     EditorTab.WORLD_MAP_POSITIONS to stringResource(Res.string.world_map_positions)
                 )
                 
-                val selectedTabIndex = tabs.indexOfFirst { it.first == currentTab }.coerceAtLeast(0)
+                // Find the selected tab index, default to LEVEL_EDITOR if INFO tab is selected
+                val selectedTabIndex = tabs.indexOfFirst { it.first == currentTab }.let { index ->
+                    if (index == -1) tabs.indexOfFirst { it.first == EditorTab.LEVEL_EDITOR } else index
+                }
                 
                 PrimaryTabRow(
                     selectedTabIndex = selectedTabIndex,
@@ -122,7 +125,7 @@ fun LevelEditorScreen(
                 ) {
                     tabs.forEachIndexed { index, (tab, label) ->
                         Tab(
-                            selected = selectedTabIndex == index,
+                            selected = index == selectedTabIndex,
                             onClick = { currentTab = tab },
                             text = { Text(label) }
                         )
