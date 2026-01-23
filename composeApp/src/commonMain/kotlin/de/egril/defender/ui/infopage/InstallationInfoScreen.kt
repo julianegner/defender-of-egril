@@ -1,6 +1,6 @@
 @file:OptIn(org.jetbrains.compose.resources.InternalResourceApi::class)
 
-package de.egril.defender.ui
+package de.egril.defender.ui.infopage
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -139,6 +139,11 @@ fun InstallationInfoScreen(
                         textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp)
                     )
+                    
+                    // Impressum section (WASM only, when flag is enabled)
+                    if (de.egril.defender.utils.isPlatformWasm) {
+                        ImpressumSection()
+                    }
                 }
                 
                 // Back button
@@ -232,5 +237,57 @@ private fun CommandText(text: String) {
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(12.dp)
         )
+    }
+}
+
+/**
+ * Platform-specific impressum section
+ * Implemented only for WASM platform
+ */
+@Composable
+fun ImpressumSection() {
+    // Only show impressum if the compile flag is set
+    if (!de.egril.defender.WithImpressum.withImpressum) {
+        return
+    }
+    
+    Spacer(modifier = Modifier.height(20.dp))
+    
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text(
+            text = de.egril.defender.ui.ImpressumConstants.IMPRESSUM_TITLE,
+            style = MaterialTheme.typography.titleLarge,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+        
+        // Impressum content
+        Column(
+            modifier = Modifier
+                .padding(12.dp)
+                .fillMaxWidth()
+        ) {
+            Text(
+                text = buildString {
+                    append(de.egril.defender.ui.ImpressumConstants.IMPRESSUM_NAME)
+                    append("\n")
+                    append(de.egril.defender.ui.ImpressumConstants.IMPRESSUM_STREET)
+                    append("\n")
+                    append(de.egril.defender.ui.ImpressumConstants.IMPRESSUM_POSTAL_CODE)
+                    append(" ")
+                    append(de.egril.defender.ui.ImpressumConstants.IMPRESSUM_CITY)
+                    append("\n")
+                    append(de.egril.defender.ui.ImpressumConstants.IMPRESSUM_COUNTRY)
+                },
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.padding(bottom = 4.dp)
+            )
+            
+            Text(
+                text = "${de.egril.defender.ui.ImpressumConstants.IMPRESSUM_EMAIL_LABEL}${de.egril.defender.ui.ImpressumConstants.IMPRESSUM_EMAIL}",
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
     }
 }
