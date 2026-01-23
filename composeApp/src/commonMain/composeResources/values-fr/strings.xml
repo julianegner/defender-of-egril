@@ -977,4 +977,5 @@
     <string name="achievements_earned">Réalisations Obtenues</string>
     <string name="no_achievements_yet">Aucune réalisation pour l\'instant</string>
     <string name="earned_on">Obtenu le %1$s</string>
+    <string name="achievement_unlocked">Réalisation Débloquée!</string>
 </resources>

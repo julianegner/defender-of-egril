@@ -977,4 +977,5 @@
     <string name="achievements_earned">Risultati Ottenuti</string>
     <string name="no_achievements_yet">Nessun risultato ancora</string>
     <string name="earned_on">Ottenuto il %1$s</string>
+    <string name="achievement_unlocked">Risultato Sbloccato!</string>
 </resources>

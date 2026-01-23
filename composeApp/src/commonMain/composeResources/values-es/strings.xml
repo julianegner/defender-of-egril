@@ -977,4 +977,5 @@
     <string name="achievements_earned">Logros Obtenidos</string>
     <string name="no_achievements_yet">No hay logros aún</string>
     <string name="earned_on">Obtenido el %1$s</string>
+    <string name="achievement_unlocked">¡Logro Desbloqueado!</string>
 </resources>

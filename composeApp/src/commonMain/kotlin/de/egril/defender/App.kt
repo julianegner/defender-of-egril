@@ -73,6 +73,7 @@ fun App() {
         val worldMapConflict by viewModel.worldMapConflict.collectAsState()
         val specialActionsRemaining by viewModel.specialActionsRemaining.collectAsState()
         val reminderMessage by viewModel.reminderMessage.collectAsState()
+        val newAchievement by viewModel.newAchievement.collectAsState()
         
         // Show player selection dialog if needed
         var showPlayerSelection by remember { mutableStateOf(false) }
@@ -181,6 +182,12 @@ fun App() {
                 onCancel = { viewModel.cancelWorldMapConflict() }
             )
         }
+        
+        // Achievement notification dialog
+        AchievementNotificationDialog(
+            achievement = newAchievement,
+            onDismiss = { viewModel.clearAchievementNotification() }
+        )
         
         when (val screen = currentScreen) {
             is Screen.MainMenu -> {

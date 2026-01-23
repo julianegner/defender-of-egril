@@ -976,4 +976,5 @@
     <string name="achievements_earned">Errungenschaften erhalten</string>
     <string name="no_achievements_yet">Noch keine Errungenschaften erhalten. Spiele das Spiel, um Errungenschaften zu erhalten!</string>
     <string name="earned_on">Erhalten am: %1$s</string>
+    <string name="achievement_unlocked">Errungenschaft Freigeschaltet!</string>
 </resources>
