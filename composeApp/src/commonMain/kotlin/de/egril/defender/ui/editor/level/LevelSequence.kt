@@ -3,6 +3,7 @@ package de.egril.defender.ui.editor.level
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
@@ -13,11 +14,16 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.input.key.*
+import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
@@ -46,6 +52,7 @@ data class LevelCardPosition(
  * Main content for the Level Dependencies tab (formerly Level Sequence)
  * Shows a tree map visualization of levels with prerequisite connections
  */
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun LevelSequenceContent() {
     var allLevels by remember { mutableStateOf(EditorStorage.getAllLevels()) }
@@ -56,10 +63,15 @@ fun LevelSequenceContent() {
     // Track level card positions for drawing arrows
     val levelPositions = remember { mutableStateMapOf<String, LevelCardPosition>() }
     
+    // Focus requester for keyboard navigation
+    val focusRequester = remember { FocusRequester() }
+    
     // Reload data and validate
     LaunchedEffect(Unit) {
         allLevels = EditorStorage.getAllLevels()
         validationResult = EditorStorage.validateAllPrerequisites()
+        // Request focus after content loads
+        focusRequester.requestFocus()
     }
     
     // Recalculate validation when levels change
@@ -158,6 +170,62 @@ fun LevelSequenceContent() {
         ) {
             val horizontalScrollState = rememberScrollState()
             val verticalScrollState = rememberScrollState()
+            val coroutineScope = rememberCoroutineScope()
+            
+            // Keyboard scroll amount (in pixels)
+            val keyboardScrollAmount = 50
+            
+            // Track pending scroll operations
+            var pendingScrollX by remember { mutableStateOf<Int?>(null) }
+            var pendingScrollY by remember { mutableStateOf<Int?>(null) }
+            
+            // Handle pending scroll operations
+            LaunchedEffect(pendingScrollX) {
+                pendingScrollX?.let { delta ->
+                    val newValue = (horizontalScrollState.value + delta).coerceIn(0, horizontalScrollState.maxValue)
+                    horizontalScrollState.scrollTo(newValue)
+                    pendingScrollX = null
+                }
+            }
+            
+            LaunchedEffect(pendingScrollY) {
+                pendingScrollY?.let { delta ->
+                    val newValue = (verticalScrollState.value + delta).coerceIn(0, verticalScrollState.maxValue)
+                    verticalScrollState.scrollTo(newValue)
+                    pendingScrollY = null
+                }
+            }
+            
+            // Keyboard event handler for arrow key scrolling
+            val keyboardHandler: (KeyEvent) -> Boolean = { event ->
+                if (event.type == KeyEventType.KeyDown) {
+                    when (event.key) {
+                        Key.DirectionLeft -> {
+                            // Scroll left by decreasing scroll value
+                            pendingScrollX = -keyboardScrollAmount
+                            true
+                        }
+                        Key.DirectionRight -> {
+                            // Scroll right by increasing scroll value
+                            pendingScrollX = keyboardScrollAmount
+                            true
+                        }
+                        Key.DirectionUp -> {
+                            // Scroll up by decreasing scroll value
+                            pendingScrollY = -keyboardScrollAmount
+                            true
+                        }
+                        Key.DirectionDown -> {
+                            // Scroll down by increasing scroll value
+                            pendingScrollY = keyboardScrollAmount
+                            true
+                        }
+                        else -> false
+                    }
+                } else {
+                    false
+                }
+            }
             
             // Show scroll hint if content is scrollable
             val showScrollHint = horizontalScrollState.maxValue > 0 || verticalScrollState.maxValue > 0
@@ -165,6 +233,20 @@ fun LevelSequenceContent() {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
+                    .focusRequester(focusRequester)
+                    .focusable()
+                    // Request focus on pointer events to regain focus after clicking cards
+                    .pointerInput(Unit) {
+                        awaitPointerEventScope {
+                            while (true) {
+                                val event = awaitPointerEvent(PointerEventPass.Initial)
+                                if (event.changes.any { it.pressed }) {
+                                    focusRequester.requestFocus()
+                                }
+                            }
+                        }
+                    }
+                    .onKeyEvent(keyboardHandler)
                     .horizontalScroll(horizontalScrollState)
                     .verticalScroll(verticalScrollState)
             ) {
