@@ -379,39 +379,53 @@ private fun HexagonMinimapContent(
                         .then(
                             if (onViewportDrag != null && viewportWidthRatio < 1.0f && viewportHeightRatio < 1.0f) {
                                 Modifier.pointerInput(Unit) {
-                                    detectDragGestures { change, dragAmount ->
-                                        change.consume()
-                                        
-                                        // Convert drag in minimap coordinates to viewport offsets
-                                        // The minimap size is config.minimapSizeDp.dp, and the viewport can move within (1.0 - viewportRatio)
-                                        // Calculate the drag amount as a fraction of the movable area
-                                        val movableX = (1f - viewportWidthRatio).coerceAtLeast(0.001f)  // Prevent division by zero
-                                        val movableY = (1f - viewportHeightRatio).coerceAtLeast(0.001f)  // Prevent division by zero
-                                        val dragXFraction = dragAmount.x / (config.minimapSizeDp * movableX)
-                                        val dragYFraction = dragAmount.y / (config.minimapSizeDp * movableY)
-                                        
-                                        // Convert drag fraction to normalized offset change (-1 to 1 range)
-                                        // dragXFraction = 1.0 means moving from left to right of minimap
-                                        // This should map to normalizedOffset changing from -1 to 1 (a change of 2)
-                                        val deltaNormalizedX = dragXFraction * 2f
-                                        val deltaNormalizedY = dragYFraction * 2f
-                                        
-                                        // Convert normalized offset change to actual offset change
-                                        // normalizedOffset = -offset / maxOffset, so offset = -normalizedOffset * maxOffset
-                                        // delta_offset = -delta_normalizedOffset * maxOffset
-                                        val deltaOffsetX = -deltaNormalizedX * maxOffsetX
-                                        val deltaOffsetY = -deltaNormalizedY * maxOffsetY
-                                        
-                                        // Apply the offset change
-                                        val newOffsetX = offsetX + deltaOffsetX
-                                        val newOffsetY = offsetY + deltaOffsetY
-                                        
-                                        // Constrain to valid range
-                                        val constrainedX = newOffsetX.coerceIn(-maxOffsetX, maxOffsetX)
-                                        val constrainedY = newOffsetY.coerceIn(-maxOffsetY, maxOffsetY)
-                                        
-                                        onViewportDrag(constrainedX, constrainedY)
-                                    }
+                                    var dragStartOffsetX = 0f
+                                    var dragStartOffsetY = 0f
+                                    
+                                    detectDragGestures(
+                                        onDragStart = {
+                                            // Capture the current offset when drag starts
+                                            dragStartOffsetX = offsetX ?: 0f
+                                            dragStartOffsetY = offsetY ?: 0f
+                                        },
+                                        onDrag = { change, dragAmount ->
+                                            change.consume()
+                                            
+                                            // Convert drag in minimap coordinates to viewport offsets
+                                            // The minimap size is config.minimapSizeDp.dp, and the viewport can move within (1.0 - viewportRatio)
+                                            // Calculate the drag amount as a fraction of the movable area
+                                            val movableX = (1f - viewportWidthRatio).coerceAtLeast(0.001f)  // Prevent division by zero
+                                            val movableY = (1f - viewportHeightRatio).coerceAtLeast(0.001f)  // Prevent division by zero
+                                            val dragXFraction = dragAmount.x / (config.minimapSizeDp * movableX)
+                                            val dragYFraction = dragAmount.y / (config.minimapSizeDp * movableY)
+                                            
+                                            // Convert drag fraction to normalized offset change (-1 to 1 range)
+                                            // dragXFraction = 1.0 means moving from left to right of minimap
+                                            // This should map to normalizedOffset changing from -1 to 1 (a change of 2)
+                                            val deltaNormalizedX = dragXFraction * 2f
+                                            val deltaNormalizedY = dragYFraction * 2f
+                                            
+                                            // Convert normalized offset change to actual offset change
+                                            // normalizedOffset = -offset / maxOffset, so offset = -normalizedOffset * maxOffset
+                                            // delta_offset = -delta_normalizedOffset * maxOffset
+                                            val deltaOffsetX = -deltaNormalizedX * maxOffsetX
+                                            val deltaOffsetY = -deltaNormalizedY * maxOffsetY
+                                            
+                                            // Apply the offset change incrementally from drag start
+                                            val newOffsetX = dragStartOffsetX + deltaOffsetX
+                                            val newOffsetY = dragStartOffsetY + deltaOffsetY
+                                            
+                                            // Update drag start for next delta
+                                            dragStartOffsetX = newOffsetX
+                                            dragStartOffsetY = newOffsetY
+                                            
+                                            // Constrain to valid range
+                                            val constrainedX = newOffsetX.coerceIn(-maxOffsetX, maxOffsetX)
+                                            val constrainedY = newOffsetY.coerceIn(-maxOffsetY, maxOffsetY)
+                                            
+                                            onViewportDrag(constrainedX, constrainedY)
+                                        }
+                                    )
                                 }
                             } else {
                                 Modifier

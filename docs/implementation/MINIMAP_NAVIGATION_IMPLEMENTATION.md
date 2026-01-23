@@ -21,24 +21,42 @@ Added drag gesture detection to the minimap with the following changes:
 #### Drag Gesture Implementation
 Added a `pointerInput` modifier to the viewport indicator Box that:
 
-1. **Detects drag gestures** on the minimap
-2. **Converts minimap coordinates to viewport offsets** using the following calculation:
+1. **Detects drag gestures** on the minimap using `onDragStart` and `onDrag` callbacks
+2. **Captures initial offset** at drag start to prevent jumping behavior
+3. **Converts minimap coordinates to viewport offsets** using the following calculation:
    ```kotlin
-   // Convert drag in minimap coordinates to viewport offsets
-   val dragXFraction = dragAmount.x / (config.minimapSizeDp * (1f - viewportWidthRatio))
-   val dragYFraction = dragAmount.y / (config.minimapSizeDp * (1f - viewportHeightRatio))
+   // On drag start: capture the current viewport offset
+   onDragStart = {
+       dragStartOffsetX = offsetX ?: 0f
+       dragStartOffsetY = offsetY ?: 0f
+   }
    
-   // Convert drag fraction to normalized offset change (-1 to 1 range)
-   val deltaNormalizedX = dragXFraction * 2f
-   val deltaNormalizedY = dragYFraction * 2f
-   
-   // Convert normalized offset change to actual offset change
-   val deltaOffsetX = -deltaNormalizedX * maxOffsetX
-   val deltaOffsetY = -deltaNormalizedY * maxOffsetY
+   // On drag: accumulate drag amount from start position
+   onDrag = { _, dragAmount ->
+       // Convert drag in minimap coordinates to viewport offsets
+       val dragXFraction = dragAmount.x / (config.minimapSizeDp * (1f - viewportWidthRatio))
+       val dragYFraction = dragAmount.y / (config.minimapSizeDp * (1f - viewportHeightRatio))
+       
+       // Convert drag fraction to normalized offset change (-1 to 1 range)
+       val deltaNormalizedX = dragXFraction * 2f
+       val deltaNormalizedY = dragYFraction * 2f
+       
+       // Convert normalized offset change to actual offset change
+       val deltaOffsetX = -deltaNormalizedX * maxOffsetX
+       val deltaOffsetY = -deltaNormalizedY * maxOffsetY
+       
+       // Apply incrementally from drag start position
+       val newOffsetX = dragStartOffsetX + deltaOffsetX
+       val newOffsetY = dragStartOffsetY + deltaOffsetY
+       
+       // Update drag start for next increment
+       dragStartOffsetX = newOffsetX
+       dragStartOffsetY = newOffsetY
+   }
    ```
 
-3. **Constrains the offsets** to valid range: `coerceIn(-maxOffsetX, maxOffsetX)`
-4. **Calls the callback** with the new viewport position
+4. **Constrains the offsets** to valid range: `coerceIn(-maxOffsetX, maxOffsetX)`
+5. **Calls the callback** with the new viewport position
 
 ### 2. GameMap.kt
 
