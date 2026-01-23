@@ -408,7 +408,6 @@ fun WorldMapScreen(
     }
     
     // Platform info dialog (from platform cheat code)
-        // Platform info dialog (from platform cheat code)
     if (showPlatformInfo && onClearPlatformInfo != null) {
         de.egril.defender.ui.PlatformInfoDialog(
             platformInfo = de.egril.defender.utils.getPlatform().name,
