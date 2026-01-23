@@ -20,6 +20,7 @@ import de.egril.defender.ui.icon.LightningIcon
 import de.egril.defender.ui.icon.PickIcon
 import de.egril.defender.ui.icon.SwordIcon
 import de.egril.defender.ui.icon.TimerIcon
+import de.egril.defender.ui.icon.WoodIcon
 import com.hyperether.resources.AppLocale
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
@@ -35,6 +36,7 @@ fun DefenderInfo(
     onWizardAction: ((Int, WizardAction) -> Unit)? = null,  // For wizard tower magical traps - click to select action, then click map
     selectedMineAction: MineAction? = null,  // Current trap placement mode
     selectedWizardAction: WizardAction? = null,  // Current wizard trap placement mode
+    onBarricadeAction: ((Int, BarricadeAction) -> Unit)? = null,  // For spike/spear tower barricades - click to select action, then click map
     compactBuyPanel: Boolean = false,
     isMobile: Boolean = false,  // Add platform parameter
     selectedTargetId: Int? = null,
@@ -197,7 +199,7 @@ fun DefenderInfo(
                         }
                         val nextRange = calculateRange(defender, nextLevel)
                         val nextActions = calculateActionsPerTurn(defender, nextLevel)
-                        
+
                         // Current stats column
                             Column(modifier = Modifier.weight(0.5f)) {
                                 Text(
@@ -292,6 +294,24 @@ fun DefenderInfo(
                                         defender = defender,
                                         onWizardAction = onWizardAction,
                                         selectedWizardAction = selectedWizardAction,
+                                        modifier = Modifier
+                                            .width(240.dp)
+                                            .height(buttonHeight)
+                                    )
+                                }
+                            }
+
+                            // Barricade button for spike/spear tower level 10+
+                            if (isPlayerTurn &&
+                                (defender.type == DefenderType.SPIKE_TOWER || defender.type == DefenderType.SPEAR_TOWER) &&
+                                defender.level.value >= 10 &&
+                                onBarricadeAction != null) {
+
+                                Spacer(modifier = Modifier.width(horizontalSpacing))
+                                Column(modifier = Modifier.weight(1.3f)) {
+                                    BarricadeButton(
+                                        defender = defender,
+                                        onBarricadeAction = onBarricadeAction,
                                         modifier = Modifier
                                             .width(240.dp)
                                             .height(buttonHeight)
@@ -510,7 +530,7 @@ fun MagicalTrapButton(
     if (defender.isReady) {
         val isOnCooldown = defender.trapCooldownRemaining.value > 0
         val isTrapModeActive = selectedWizardAction == WizardAction.PLACE_MAGICAL_TRAP
-        
+
         // Button to enter magical trap placement mode - enabled when trap is ready and has actions
         Button(
             onClick = { onWizardAction(defender.id, WizardAction.PLACE_MAGICAL_TRAP) },
@@ -555,6 +575,57 @@ fun MagicalTrapButton(
 }
 
 /**
+ * Button for spike/spear tower to place barricades (level 10+)
+ * Works like wizard magical trap button - click to enter placement mode, then click on map
+ */
+@Composable
+fun BarricadeButton(
+    defender: Defender,
+    onBarricadeAction: (Int, BarricadeAction) -> Unit,
+    modifier: Modifier = Modifier.fillMaxWidth().height(56.dp)
+) {
+    if (defender.isReady) {
+        // Calculate HP that will be added
+        val hpAmount = maxOf(1, defender.level.value - 10)
+        
+        // Button to enter barricade placement mode - enabled when tower has actions
+        Button(
+            onClick = { onBarricadeAction(defender.id, BarricadeAction.BUILD_BARRICADE) },
+            enabled = defender.actionsRemaining.value > 0,
+            modifier = modifier,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color(0xFF795548)  // Brown color for wood
+            )
+        ) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                WoodIcon(size = 48.dp)
+                Column(
+                    modifier = Modifier.weight(1f),
+                    horizontalAlignment = Alignment.Start
+                ) {
+                    Text(
+                        stringResource(Res.string.build_barricade),
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+                // Show HP amount in white on the right side
+                Text(
+                    "HP$hpAmount",
+                    fontSize = 16.sp,
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+    }
+}
+
+/**
  * Calculate the damage for a defender at a specific level
  */
 private fun calculateDamage(defender: Defender, level: Int): Int {
@@ -588,16 +659,16 @@ private fun calculateTrapDamage(defender: Defender, level: Int): Int {
  */
 private fun calculateRange(defender: Defender, level: Int): Int {
     val baseCalculatedRange = defender.type.baseRange + (level - 1) / 2
-    
+
     if (defender.type == DefenderType.SPIKE_TOWER && level >= 5) {
         return minOf(baseCalculatedRange, 2)
     }
-    
+
     if (defender.type == DefenderType.DWARVEN_MINE) {
         val mineReach = 3 + (level / 5)
         return minOf(mineReach, 10)
     }
-    
+
     return baseCalculatedRange
 }
 

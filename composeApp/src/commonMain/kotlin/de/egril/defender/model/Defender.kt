@@ -53,6 +53,7 @@ data class Defender(
     val trapCooldownRemaining: MutableState<Int> = mutableStateOf(0),  // Turns until wizard can place another magical trap (level 10+)
     val hasShownMagicalTrapTutorial: MutableState<Boolean> = mutableStateOf(false),  // Track if tutorial was shown for this wizard
     val hasShownExtendedAreaTutorial: MutableState<Boolean> = mutableStateOf(false),  // Track if extended area tutorial was shown (level 20+)
+    val hasShownBarricadeTutorial: MutableState<Boolean> = mutableStateOf(false),  // Track if barricade tutorial was shown (level 20+ for Spike, level 10+ for Spear)
     // Raft-specific properties
     val raftId: MutableState<Int?> = mutableStateOf(null)  // ID of the raft this tower is on (null if not on raft)
 ) {

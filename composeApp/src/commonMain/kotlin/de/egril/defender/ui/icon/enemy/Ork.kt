@@ -5,11 +5,56 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
 
 /**
  * Draw ork symbol (larger, muscular creature)
  */
-fun DrawScope.drawOrkSymbol(centerX: Float, centerY: Float, size: Float) {
+fun DrawScope.drawOrkSymbol(centerX: Float, centerY: Float, size: Float, outlineColor: Color? = null) {
+    val outlineWidth = 2f
+    val pathOutlineWidth = 3f  // Thicker for paths to match visual appearance
+    
+    // Draw outline first (behind main drawing) using stroke style for uniform thickness
+    if (outlineColor != null) {
+        // Head outline - use stroke for uniform outline with thicker stroke
+        val headPath = Path().apply {
+            addRect(androidx.compose.ui.geometry.Rect(
+                left = centerX - size * 0.25f,
+                top = centerY - size * 0.3f,
+                right = centerX + size * 0.25f,
+                bottom = centerY + size * 0.05f
+            ))
+        }
+        drawPath(headPath, outlineColor, style = Stroke(width = pathOutlineWidth))
+        
+        // Body outline - use stroke for uniform outline with thicker stroke
+        val bodyPath = Path().apply {
+            addRect(androidx.compose.ui.geometry.Rect(
+                left = centerX - size * 0.25f,
+                top = centerY + size * 0.1f,
+                right = centerX + size * 0.25f,
+                bottom = centerY + size * 0.4f
+            ))
+        }
+        drawPath(bodyPath, outlineColor, style = Stroke(width = pathOutlineWidth))
+        
+        // Tusks outline - use stroke for uniform outline with thicker stroke
+        val tuskPath1 = Path().apply {
+            moveTo(centerX - size * 0.15f, centerY)
+            lineTo(centerX - size * 0.25f, centerY + size * 0.15f)
+            lineTo(centerX - size * 0.1f, centerY + size * 0.05f)
+            close()
+        }
+        val tuskPath2 = Path().apply {
+            moveTo(centerX + size * 0.15f, centerY)
+            lineTo(centerX + size * 0.25f, centerY + size * 0.15f)
+            lineTo(centerX + size * 0.1f, centerY + size * 0.05f)
+            close()
+        }
+        drawPath(tuskPath1, outlineColor, style = Stroke(width = pathOutlineWidth))
+        drawPath(tuskPath2, outlineColor, style = Stroke(width = pathOutlineWidth))
+    }
+    
     // Head (larger square-ish)
     drawRect(
         color = Color(0xFF556B2F), // Dark olive green

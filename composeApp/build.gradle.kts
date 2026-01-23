@@ -16,6 +16,9 @@ plugins {
 // Build configuration output directory
 val buildConfigOutputDir = layout.buildDirectory.dir("generated/source/buildConfig/commonMain/kotlin")
 
+// Impressum flag - can be set via gradle.properties or command line: -PwithImpressum=true
+val withImpressum: Boolean = project.findProperty("withImpressum")?.toString()?.toBoolean() ?: false
+
 // Task to generate BuildConfig with current commit hash
 val generateBuildConfig by tasks.registering {
     val outputFile = buildConfigOutputDir.get().file("de/egril/defender/BuildConfig.kt")
@@ -96,6 +99,33 @@ val generateBuildConfig by tasks.registering {
         }
         
         logger.info("Generated BuildConfig with commit hash: $commitHash, date: $commitDate")
+    }
+}
+
+// Task to generate WithImpressum constant based on project property
+val generateWithImpressumConstant by tasks.registering {
+    val outputDir = layout.buildDirectory.dir("generated/source/buildConfig/commonMain/kotlin").get().asFile
+    outputs.dir(outputDir)
+    
+    doLast {
+        val file = File(outputDir, "de/egril/defender/WithImpressum.kt")
+        logger.info("Generating WithImpressum.kt with withImpressum: $withImpressum")
+        logger.info("Output file: $file")
+        file.parentFile.mkdirs()
+        file.writeText(
+            """
+            |package de.egril.defender
+            |
+            |/**
+            | * Impressum configuration flag
+            | * This file is auto-generated during build
+            | * Set via gradle property: -PwithImpressum=true
+            | */
+            |object WithImpressum {
+            |    const val withImpressum: Boolean = $withImpressum
+            |}
+            |""".trimMargin()
+        )
     }
 }
 
@@ -226,9 +256,10 @@ kotlin {
     }
 }
 
-// Make all Kotlin compilation tasks depend on generateBuildConfig
+// Make all Kotlin compilation tasks depend on generateBuildConfig and generateWithImpressumConstant
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask<*>> {
     dependsOn(generateBuildConfig)
+    dependsOn(generateWithImpressumConstant)
 }
 
 android {

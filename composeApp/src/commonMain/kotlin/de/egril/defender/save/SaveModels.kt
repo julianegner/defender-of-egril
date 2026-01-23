@@ -35,6 +35,7 @@ data class SavedGame(
     val mapId: String? = null,  // Map identifier (for ensuring correct map is loaded)
     val rafts: List<SavedRaft> = emptyList(),  // Rafts on river tiles
     val nextRaftId: Int = 1,  // Next raft ID to use
+    val barricades: List<SavedBarricade> = emptyList(),  // Barricades placed by spike/spear towers
     val worldMapSave: WorldMapSave? = null  // World map progress at the time of saving (for conflict detection on load)
 )
 
@@ -82,6 +83,12 @@ data class SavedRaft(
     val position: Position
 )
 
+data class SavedBarricade(
+    val position: Position,
+    val healthPoints: Int,
+    val defenderId: Int  // The tower that built this barricade
+)
+
 /**
  * Metadata about a saved game (for display in load game list)
  */
@@ -92,11 +99,15 @@ data class SaveGameMetadata(
     val levelName: String,
     val turnNumber: Int,
     val coins: Int,
+    val healthPoints: Int,
     val towerCount: Int,
     val enemyCount: Int,
     val defenderCounts: Map<DefenderType, Int>,  // Count of each tower type
     val attackerCounts: Map<AttackerType, Int>,  // Count of each enemy type currently on map
     val remainingSpawnCounts: Map<AttackerType, Int>,  // Count of enemies still to spawn
+    val dwarvenTrapCount: Int = 0,  // Count of dwarven traps
+    val magicalTrapCount: Int = 0,  // Count of magical traps
+    val barricadeCount: Int = 0,  // Count of barricades
     val comment: String? = null,  // Optional player comment
     val defenderPositions: List<SavedDefender> = emptyList(),  // Positions for minimap display
     val attackerPositions: List<SavedAttacker> = emptyList(),  // Positions for minimap display

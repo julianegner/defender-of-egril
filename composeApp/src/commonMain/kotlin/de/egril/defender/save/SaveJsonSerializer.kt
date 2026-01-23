@@ -108,6 +108,14 @@ object SaveJsonSerializer {
     }"""
         }
         
+        val barricadesJson = savedGame.barricades.joinToString(",\n    ") { barricade ->
+            """{
+      "position": {"x": ${barricade.position.x}, "y": ${barricade.position.y}},
+      "healthPoints": ${barricade.healthPoints},
+      "defenderId": ${barricade.defenderId}
+    }"""
+        }
+        
         // Escape comment for JSON (handle quotes and newlines)
         val commentJson = savedGame.comment?.let { comment ->
             val escaped = comment
@@ -160,6 +168,9 @@ object SaveJsonSerializer {
     $raftsJson
   ],
   "nextRaftId": ${savedGame.nextRaftId},
+  "barricades": [
+    $barricadesJson
+  ],
   "comment": $commentJson,
   "mapId": $mapIdJson,
   "worldMapSave": $worldMapSaveJson
@@ -260,6 +271,22 @@ object SaveJsonSerializer {
                 1  // Default to 1 for old saves
             }
             
+            // Parse barricades (optional field for backward compatibility with old saves)
+            val barricades = mutableListOf<SavedBarricade>()
+            if (json.contains("\"barricades\":")) {
+                val barricadesSection = try {
+                    json.substringAfter("\"barricades\": [").substringBefore("],")
+                } catch (e: Exception) {
+                    ""  // Old saves don't have barricades
+                }
+                if (barricadesSection.isNotBlank()) {
+                    val barricadeEntries = JsonUtils.splitJsonArray(barricadesSection)
+                    for (entry in barricadeEntries) {
+                        barricades.add(parseSavedBarricade(entry))
+                    }
+                }
+            }
+            
             // Parse comment (optional field, may not exist in older saves)
             val comment = try {
                 extractCommentValue(json)
@@ -320,6 +347,7 @@ object SaveJsonSerializer {
                 mapId = mapId,
                 rafts = rafts,
                 nextRaftId = nextRaftId,
+                barricades = barricades,
                 worldMapSave = worldMapSave
             )
         } catch (e: Exception) {
@@ -366,6 +394,13 @@ object SaveJsonSerializer {
         val defenderId = JsonUtils.extractValue(json, "defenderId").toInt()
         val position = parsePosition(json)
         return SavedRaft(id, defenderId, position)
+    }
+    
+    private fun parseSavedBarricade(json: String): SavedBarricade {
+        val position = parsePosition(json)
+        val healthPoints = JsonUtils.extractValue(json, "healthPoints").toInt()
+        val defenderId = JsonUtils.extractValue(json, "defenderId").toInt()
+        return SavedBarricade(position, healthPoints, defenderId)
     }
     
     private fun parseSavedAttacker(json: String): SavedAttacker {
@@ -420,54 +455,6 @@ object SaveJsonSerializer {
         val x = JsonUtils.extractValue(posSection, "x").toInt()
         val y = JsonUtils.extractValue(posSection, "y").toInt()
         return Position(x, y)
-    }
-    
-    private fun JsonUtils.extractValue(json: String, key: String): String {
-        val pattern = "\"$key\":\\s*\"?([^,\"\\}\\]]+)\"?"
-        val regex = Regex(pattern)
-        val match = regex.find(json)
-        return match?.groupValues?.get(1)?.trim() ?: ""
-    }
-    
-    private fun JsonUtils.splitJsonArray(arrayContent: String): List<String> {
-        val result = mutableListOf<String>()
-        var depth = 0
-        var currentItem = StringBuilder()
-        
-        for (char in arrayContent) {
-            when (char) {
-                '{' -> {
-                    depth++
-                    currentItem.append(char)
-                }
-                '}' -> {
-                    depth--
-                    currentItem.append(char)
-                    if (depth == 0 && currentItem.isNotBlank()) {
-                        result.add(currentItem.toString().trim())
-                        currentItem = StringBuilder()
-                    }
-                }
-                ',' -> {
-                    if (depth == 0) {
-                        // Skip comma between items
-                    } else {
-                        currentItem.append(char)
-                    }
-                }
-                else -> {
-                    if (depth > 0 || !char.isWhitespace()) {
-                        currentItem.append(char)
-                    }
-                }
-            }
-        }
-        
-        if (currentItem.isNotBlank()) {
-            result.add(currentItem.toString().trim())
-        }
-        
-        return result
     }
     
     fun serializeSaveGameMetadata(metadata: SaveGameMetadata): String {

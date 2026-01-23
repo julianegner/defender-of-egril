@@ -15,6 +15,12 @@ import androidx.compose.ui.unit.dp
 import de.egril.defender.model.*
 import de.egril.defender.ui.CheatCodeDialog
 import de.egril.defender.ui.getGameplayUIScale
+import de.egril.defender.ui.ReminderMessage
+import com.hyperether.resources.stringResource
+import defender_of_egril.composeapp.generated.resources.*
+import de.egril.defender.ui.editor.ConfirmationDialog
+import com.hyperether.resources.stringResource
+import defender_of_egril.composeapp.generated.resources.*
 
 @Composable
 fun GamePlayScreen(
@@ -34,13 +40,17 @@ fun GamePlayScreen(
     onMineDig: ((Int) -> DigOutcome?)? = null,  // Add mine dig callback
     onMineBuildTrap: ((Int, Position) -> Boolean)? = null,  // Add mine build trap callback
     onWizardPlaceMagicalTrap: ((Int, Position) -> Boolean)? = null,  // Add wizard magical trap callback
+    onBuildBarricade: ((Int, Position) -> Boolean)? = null,  // Add barricade building callback
+    onRemoveBarricade: ((Position) -> Boolean)? = null,  // Add barricade removal callback
     cheatDigOutcome: DigOutcome? = null,  // Dig outcome from cheat code
     onClearCheatDigOutcome: (() -> Unit)? = null,  // Callback to clear cheat dig outcome
     showPlatformInfo: Boolean = false,  // Show platform info from cheat code
     onClearPlatformInfo: (() -> Unit)? = null,  // Callback to clear platform info
     hasUnsavedChanges: (() -> Boolean)? = null,  // Callback to check for unsaved changes
     specialActionsRemaining: List<DefenderType> = emptyList(),  // List of defender types with remaining special actions
-    onClearSpecialActionsWarning: (() -> Unit)? = null  // Callback to clear special actions warning
+    onClearSpecialActionsWarning: (() -> Unit)? = null,  // Callback to clear special actions warning
+    reminderMessage: ReminderMessage? = null,  // Time reminder message
+    onClearReminderMessage: (() -> Unit)? = null  // Callback to clear reminder message
 ) {
     GamePlayScreenContent(
         gameState = gameState,
@@ -59,13 +69,17 @@ fun GamePlayScreen(
         onMineDig = onMineDig,
         onMineBuildTrap = onMineBuildTrap,
         onWizardPlaceMagicalTrap = onWizardPlaceMagicalTrap,
+        onBuildBarricade = onBuildBarricade,
+        onRemoveBarricade = onRemoveBarricade,
         cheatDigOutcome = cheatDigOutcome,
         onClearCheatDigOutcome = onClearCheatDigOutcome,
         showPlatformInfo = showPlatformInfo,
         onClearPlatformInfo = onClearPlatformInfo,
         hasUnsavedChanges = hasUnsavedChanges,
         specialActionsRemaining = specialActionsRemaining,
-        onClearSpecialActionsWarning = onClearSpecialActionsWarning
+        onClearSpecialActionsWarning = onClearSpecialActionsWarning,
+        reminderMessage = reminderMessage,
+        onClearReminderMessage = onClearReminderMessage
     )
 }
 
@@ -87,14 +101,17 @@ private fun GamePlayScreenContent(
     onMineDig: ((Int) -> DigOutcome?)? = null,
     onMineBuildTrap: ((Int, Position) -> Boolean)? = null,
     onWizardPlaceMagicalTrap: ((Int, Position) -> Boolean)? = null,  // Add wizard magical trap callback
+    onBuildBarricade: ((Int, Position) -> Boolean)? = null,  // Add barricade building callback
+    onRemoveBarricade: ((Position) -> Boolean)? = null,  // Add barricade removal callback
     cheatDigOutcome: DigOutcome? = null,  // Dig outcome from cheat code
     onClearCheatDigOutcome: (() -> Unit)? = null,  // Callback to clear cheat dig outcome
     showPlatformInfo: Boolean = false,  // Show platform info from cheat code
     onClearPlatformInfo: (() -> Unit)? = null,  // Callback to clear platform info
     hasUnsavedChanges: (() -> Boolean)? = null,  // Callback to check for unsaved changes
     specialActionsRemaining: List<DefenderType> = emptyList(),  // List of defender types with remaining special actions
-    onClearSpecialActionsWarning: (() -> Unit)? = null  // Callback to clear special actions warning
-
+    onClearSpecialActionsWarning: (() -> Unit)? = null,  // Callback to clear special actions warning
+    reminderMessage: ReminderMessage? = null,  // Time reminder message
+    onClearReminderMessage: (() -> Unit)? = null  // Callback to clear reminder message
 ) {
     var selectedDefenderType by remember { mutableStateOf<DefenderType?>(null) }
     var selectedDefenderId by remember { mutableStateOf<Int?>(null) }
@@ -106,6 +123,14 @@ private fun GamePlayScreenContent(
     var showMineActionDialog by remember { mutableStateOf(false) }
     var selectedMineAction by remember { mutableStateOf<MineAction?>(null) }
     var selectedWizardAction by remember { mutableStateOf<WizardAction?>(null) }  // For wizard magical trap placement
+    var selectedBarricadeAction by remember { mutableStateOf<BarricadeAction?>(null) }  // For spike/spear tower barricade placement
+
+    // Removal confirmation dialog states
+    var showRemoveBarricadeDialog by remember { mutableStateOf(false) }
+    var barricadeToRemove by remember { mutableStateOf<Position?>(null) }
+    var showRemoveTrapDialog by remember { mutableStateOf(false) }
+    var trapToRemove by remember { mutableStateOf<Position?>(null) }
+
     var currentDigOutcome by remember { mutableStateOf<DigOutcome?>(null) }
     var currentDragonName by remember { mutableStateOf<String?>(null) }  // Track dragon name for dig outcome
     var showDigOutcomeDialog by remember { mutableStateOf(false) }
@@ -356,6 +381,16 @@ private fun GamePlayScreenContent(
         }
     }
     
+    // Barricade action handler - similar to wizard action, click button first then select on map
+    val handleBarricadeAction: (Int, BarricadeAction) -> Unit = { towerId, action ->
+        when (action) {
+            BarricadeAction.BUILD_BARRICADE -> {
+                selectedBarricadeAction = action
+                // The user will now click on the map to place the barricade
+            }
+        }
+    }
+
     // Keyboard event handler for Ctrl+S save shortcut
     // Using onPreviewKeyEvent to intercept before HexagonalMapView handles it
     // This works in the "capture" phase and doesn't require focus on this element
@@ -415,6 +450,7 @@ private fun GamePlayScreenContent(
                 selectedTargetPosition = selectedTargetPosition,
                 selectedMineAction = selectedMineAction,
                 selectedWizardAction = selectedWizardAction,
+                selectedBarricadeAction = selectedBarricadeAction,
                 onCellClick = { position ->
                     // Try to place defender if one is selected
                     selectedDefenderType?.let { type ->
@@ -470,6 +506,22 @@ private fun GamePlayScreenContent(
                         }
                     }
 
+                    // Check if there's a barricade at this position - show removal confirmation
+                    val barricade = gameState.barricades.find { it.position == position }
+                    if (barricade != null && selectedDefenderId == null && selectedAttackerId == null) {
+                        barricadeToRemove = position
+                        showRemoveBarricadeDialog = true
+                        return@GameGrid
+                    }
+
+                    // Check if there's a trap at this position - show removal confirmation
+                    val trap = gameState.traps.find { it.position == position }
+                    if (trap != null && selectedDefenderId == null && selectedAttackerId == null) {
+                        trapToRemove = position
+                        showRemoveTrapDialog = true
+                        return@GameGrid
+                    }
+
                     // Handle targeting for selected defender
                     if (selectedDefenderId != null) {
                         val selectedDefender = gameState.defenders.find { it.id == selectedDefenderId }
@@ -501,6 +553,26 @@ private fun GamePlayScreenContent(
                                     !hasTrap) {
                                     if (onWizardPlaceMagicalTrap?.invoke(selectedDefender.id, position) == true) {
                                         selectedWizardAction = null
+                                    }
+                                }
+                                return@GameGrid
+                            }
+
+                            // Handle barricade placement for spike/spear towers (level 10+)
+                            if ((selectedDefender.type == DefenderType.SPIKE_TOWER ||
+                                 selectedDefender.type == DefenderType.SPEAR_TOWER) &&
+                                selectedDefender.level.value >= 10 &&
+                                selectedBarricadeAction == BarricadeAction.BUILD_BARRICADE) {
+                                // Check if position is on path, within range (3 tiles), and empty
+                                val distance = selectedDefender.position.value.distanceTo(position)
+                                val hasDefender = gameState.defenders.any { it.position.value == position }
+                                val hasEnemy = gameState.attackers.any { it.position.value == position && !it.isDefeated.value }
+                                if (gameState.level.isOnPath(position) &&
+                                    distance <= 3 &&
+                                    !hasDefender &&
+                                    !hasEnemy) {
+                                    if (onBuildBarricade?.invoke(selectedDefender.id, position) == true) {
+                                        selectedBarricadeAction = null
                                     }
                                 }
                                 return@GameGrid
@@ -712,6 +784,7 @@ private fun GamePlayScreenContent(
                     onWizardAction = handleWizardAction,
                     selectedMineAction = selectedMineAction,
                     selectedWizardAction = selectedWizardAction,
+                    onBarricadeAction = handleBarricadeAction,
                     uiScale = uiScale,
                     onShowDragonInfo = { 
                         gameState.infoState.value = gameState.infoState.value.showInfo(InfoType.DRAGON_INFO)
@@ -790,6 +863,7 @@ private fun GamePlayScreenContent(
                     onWizardAction = handleWizardAction,
                     selectedMineAction = selectedMineAction,
                     selectedWizardAction = selectedWizardAction,
+                    onBarricadeAction = handleBarricadeAction,
                     uiScale = uiScale,
                     onShowDragonInfo = { 
                         gameState.infoState.value = gameState.infoState.value.showInfo(InfoType.DRAGON_INFO)
@@ -862,6 +936,41 @@ private fun GamePlayScreenContent(
             )
         }
         
+        // Remove barricade confirmation dialog
+        if (showRemoveBarricadeDialog && barricadeToRemove != null) {
+            ConfirmationDialog(
+                title = stringResource(Res.string.remove_barricade_title),
+                message = stringResource(Res.string.remove_barricade_message),
+                onConfirm = {
+                    onRemoveBarricade?.invoke(barricadeToRemove!!)
+                    showRemoveBarricadeDialog = false
+                    barricadeToRemove = null
+                },
+                onDismiss = {
+                    showRemoveBarricadeDialog = false
+                    barricadeToRemove = null
+                }
+            )
+        }
+
+        // Remove trap confirmation dialog
+        if (showRemoveTrapDialog && trapToRemove != null) {
+            ConfirmationDialog(
+                title = stringResource(Res.string.remove_trap_title),
+                message = stringResource(Res.string.remove_trap_message),
+                onConfirm = {
+                    // Remove trap from game state
+                    gameState.traps.removeAll { it.position == trapToRemove }
+                    showRemoveTrapDialog = false
+                    trapToRemove = null
+                },
+                onDismiss = {
+                    showRemoveTrapDialog = false
+                    trapToRemove = null
+                }
+            )
+        }
+
         // Unsaved changes dialog
         if (showUnsavedChangesDialog && unsavedChangesEnabled) {
             UnsavedChangesDialog(
@@ -918,6 +1027,23 @@ private fun GamePlayScreenContent(
                 remainingTypes = specialActionsRemaining,
                 onContinueTurn = {
                     onClearSpecialActionsWarning?.invoke()
+                }
+            )
+        }
+
+        // Time reminder dialog
+        reminderMessage?.let { reminder ->
+            ReminderDialog(
+                type = reminder.type,
+                elapsedTime = reminder.elapsedTime,
+                timeDescription = when (reminder.timeDescription) {
+                    "close_to_midnight" -> stringResource(Res.string.time_for_sleep_close_to_midnight)
+                    "midnight" -> stringResource(Res.string.time_for_sleep_midnight)
+                    "after_midnight" -> stringResource(Res.string.time_for_sleep_after_midnight)
+                    else -> null
+                },
+                onDismiss = {
+                    onClearReminderMessage?.invoke()
                 }
             )
         }

@@ -3,21 +3,24 @@ package de.egril.defender.ui.editor.level
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.input.key.*
+import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
@@ -29,6 +32,7 @@ import de.egril.defender.editor.EditorStorage
 import de.egril.defender.editor.PrerequisiteValidationResult
 import de.egril.defender.ui.icon.CheckmarkIcon
 import de.egril.defender.ui.icon.WarningIcon
+import de.egril.defender.ui.LevelSequenceScrollbar
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.*
@@ -43,9 +47,27 @@ data class LevelCardPosition(
 )
 
 /**
+ * Keyboard scroll amount in pixels for arrow key navigation
+ * Increased to 200 for effective traversal of large dependency graphs
+ */
+private const val KEYBOARD_SCROLL_AMOUNT = 200
+
+/**
+ * Padding for scrollbar spacing to prevent overlap
+ */
+private const val SCROLLBAR_PADDING = 12
+
+/**
+ * Extra padding around tree map content to ensure all items are reachable
+ * Increased from 200 to 400 to ensure full scroll range accessibility
+ */
+private const val TREE_MAP_CONTENT_PADDING = 400
+
+/**
  * Main content for the Level Dependencies tab (formerly Level Sequence)
  * Shows a tree map visualization of levels with prerequisite connections
  */
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun LevelSequenceContent() {
     var allLevels by remember { mutableStateOf(EditorStorage.getAllLevels()) }
@@ -56,10 +78,15 @@ fun LevelSequenceContent() {
     // Track level card positions for drawing arrows
     val levelPositions = remember { mutableStateMapOf<String, LevelCardPosition>() }
     
+    // Focus requester for keyboard navigation
+    val focusRequester = remember { FocusRequester() }
+    
     // Reload data and validate
     LaunchedEffect(Unit) {
         allLevels = EditorStorage.getAllLevels()
         validationResult = EditorStorage.validateAllPrerequisites()
+        // Request focus after content loads
+        focusRequester.requestFocus()
     }
     
     // Recalculate validation when levels change
@@ -159,74 +186,105 @@ fun LevelSequenceContent() {
             val horizontalScrollState = rememberScrollState()
             val verticalScrollState = rememberScrollState()
             
+            // Track pending scroll operations
+            var pendingScrollX by remember { mutableStateOf<Int?>(null) }
+            var pendingScrollY by remember { mutableStateOf<Int?>(null) }
+            
+            // Handle pending horizontal scroll
+            LaunchedEffect(pendingScrollX) {
+                pendingScrollX?.let { delta ->
+                    // Scroll by delta amount - ScrollState automatically clamps to valid range
+                    val targetValue = horizontalScrollState.value + delta
+                    horizontalScrollState.scrollTo(targetValue)
+                    pendingScrollX = null
+                }
+            }
+            
+            // Handle pending vertical scroll
+            LaunchedEffect(pendingScrollY) {
+                pendingScrollY?.let { delta ->
+                    // Scroll by delta amount - ScrollState automatically clamps to valid range
+                    val targetValue = verticalScrollState.value + delta
+                    verticalScrollState.scrollTo(targetValue)
+                    pendingScrollY = null
+                }
+            }
+            
+            // Keyboard event handler for arrow key scrolling
+            val keyboardHandler: (KeyEvent) -> Boolean = { event ->
+                if (event.type == KeyEventType.KeyDown) {
+                    when (event.key) {
+                        Key.DirectionLeft -> {
+                            // Scroll left by decreasing scroll value
+                            pendingScrollX = -KEYBOARD_SCROLL_AMOUNT
+                            true
+                        }
+                        Key.DirectionRight -> {
+                            // Scroll right by increasing scroll value
+                            pendingScrollX = KEYBOARD_SCROLL_AMOUNT
+                            true
+                        }
+                        Key.DirectionUp -> {
+                            // Scroll up by decreasing scroll value
+                            pendingScrollY = -KEYBOARD_SCROLL_AMOUNT
+                            true
+                        }
+                        Key.DirectionDown -> {
+                            // Scroll down by increasing scroll value
+                            pendingScrollY = KEYBOARD_SCROLL_AMOUNT
+                            true
+                        }
+                        else -> false
+                    }
+                } else {
+                    false
+                }
+            }
+            
             // Show scroll hint if content is scrollable
             val showScrollHint = horizontalScrollState.maxValue > 0 || verticalScrollState.maxValue > 0
             
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .horizontalScroll(horizontalScrollState)
-                    .verticalScroll(verticalScrollState)
             ) {
-                LevelTreeMap(
-                    levels = allLevels,
-                    levelPositions = levelPositions,
-                    selectedLevelId = selectedLevelId,
-                    validationResult = validationResult,
-                    onLevelClick = { levelId ->
-                        selectedLevelId = levelId
-                        showPrerequisiteEditor = true
-                    }
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .focusRequester(focusRequester)
+                        .focusable()
+                        // Request focus on pointer events to regain focus after clicking cards
+                        .pointerInput(Unit) {
+                            awaitPointerEventScope {
+                                while (true) {
+                                    val event = awaitPointerEvent(PointerEventPass.Initial)
+                                    if (event.changes.any { it.pressed }) {
+                                        focusRequester.requestFocus()
+                                    }
+                                }
+                            }
+                        }
+                        .onKeyEvent(keyboardHandler)
+                        .horizontalScroll(horizontalScrollState)
+                        .verticalScroll(verticalScrollState)
+                ) {
+                    LevelTreeMap(
+                        levels = allLevels,
+                        levelPositions = levelPositions,
+                        selectedLevelId = selectedLevelId,
+                        validationResult = validationResult,
+                        onLevelClick = { levelId ->
+                            selectedLevelId = levelId
+                            showPrerequisiteEditor = true
+                        }
+                    )
+                }
+
+                // Platform-specific scrollbars (actual implementation on desktop, no-op elsewhere)
+                LevelSequenceScrollbar(
+                    horizontalScrollState = horizontalScrollState,
+                    verticalScrollState = verticalScrollState
                 )
-            }
-            
-            // Scroll indicators
-            if (horizontalScrollState.maxValue > 0) {
-                // Horizontal scroll indicator
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .fillMaxWidth()
-                        .height(4.dp)
-                        .padding(horizontal = 20.dp)
-                        .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
-                ) {
-                    val scrollProgress = if (horizontalScrollState.maxValue > 0) {
-                        horizontalScrollState.value.toFloat() / horizontalScrollState.maxValue
-                    } else 0f
-                    val indicatorWidth = 0.3f // 30% of track width
-                    Box(
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .fillMaxWidth(indicatorWidth)
-                            .offset(x = ((1f - indicatorWidth) * scrollProgress * 100).dp)
-                            .background(MaterialTheme.colorScheme.primary)
-                    )
-                }
-            }
-            
-            if (verticalScrollState.maxValue > 0) {
-                // Vertical scroll indicator
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.CenterEnd)
-                        .fillMaxHeight()
-                        .width(4.dp)
-                        .padding(vertical = 20.dp)
-                        .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
-                ) {
-                    val scrollProgress = if (verticalScrollState.maxValue > 0) {
-                        verticalScrollState.value.toFloat() / verticalScrollState.maxValue
-                    } else 0f
-                    val indicatorHeight = 0.3f // 30% of track height
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .fillMaxHeight(indicatorHeight)
-                            .offset(y = ((1f - indicatorHeight) * scrollProgress * 100).dp)
-                            .background(MaterialTheme.colorScheme.primary)
-                    )
-                }
             }
         }
     }
@@ -275,10 +333,10 @@ fun LevelTreeMap(
     
     Box(
         modifier = Modifier
-            .width(with(density) { ((levelsByDepth.size * (cardWidth.toPx() + columnSpacing.toPx())) + 50).toDp() })
+            .width(with(density) { ((levelsByDepth.size * (cardWidth.toPx() + columnSpacing.toPx())) + TREE_MAP_CONTENT_PADDING).toDp() })
             .height(with(density) { 
                 val maxLevelsInColumn = levelsByDepth.values.maxOfOrNull { it.size } ?: 1
-                ((maxLevelsInColumn * (cardHeight.toPx() + rowSpacing.toPx())) + 50).toDp()
+                ((maxLevelsInColumn * (cardHeight.toPx() + rowSpacing.toPx())) + TREE_MAP_CONTENT_PADDING).toDp()
             })
     ) {
         // Draw arrows between levels
@@ -433,66 +491,80 @@ fun LevelTreeCard(
             defaultElevation = if (isSelected) 8.dp else 2.dp
         )
     ) {
-        Column(
-            modifier = Modifier.padding(8.dp).fillMaxSize(),
-            verticalArrangement = Arrangement.SpaceBetween
-        ) {
-            // Title with ready indicator
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
+        Box(modifier = Modifier.fillMaxSize()) {
+            Column(
+                modifier = Modifier.padding(8.dp).fillMaxSize(),
+                verticalArrangement = Arrangement.SpaceBetween
             ) {
+                // Title with ready indicator
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Text(
+                        text = level.title,
+                        style = MaterialTheme.typography.titleSmall,
+                        maxLines = 1,
+                        modifier = Modifier.weight(1f)
+                    )
+                    if (isReady) {
+                        CheckmarkIcon(size = 14.dp, tint = Color.Green)
+                    } else {
+                        Text("X", color = Color.Red, style = MaterialTheme.typography.bodySmall)
+                    }
+                }
+                
+                // Subtitle
+                if (level.subtitle.isNotBlank()) {
+                    Text(
+                        text = level.subtitle,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1
+                    )
+                }
+                
+                // Stats
                 Text(
-                    text = level.title,
-                    style = MaterialTheme.typography.titleSmall,
-                    maxLines = 1,
-                    modifier = Modifier.weight(1f)
+                    text = "${stringResource(Res.string.enemies)}: ${level.enemySpawns.size}",
+                    style = MaterialTheme.typography.bodySmall
                 )
-                if (isReady) {
-                    CheckmarkIcon(size = 14.dp, tint = Color.Green)
+                Text(
+                    text = "${level.startCoins} coins | ${level.startHealthPoints} HP",
+                    style = MaterialTheme.typography.bodySmall
+                )
+                
+                // Prerequisites info
+                if (level.prerequisites.isNotEmpty()) {
+                    val reqCount = level.getEffectiveRequiredCount()
+                    val prereqText = if (reqCount < level.prerequisites.size) {
+                        "${stringResource(Res.string.requires)} $reqCount/${level.prerequisites.size}"
+                    } else {
+                        "${stringResource(Res.string.requires)} ${level.prerequisites.size}"
+                    }
+                    Text(
+                        text = prereqText,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.primary
+                    )
                 } else {
-                    Text("X", color = Color.Red, style = MaterialTheme.typography.bodySmall)
+                    Text(
+                        text = stringResource(Res.string.entry_point),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color(0xFF4CAF50)
+                    )
                 }
             }
             
-            // Subtitle
-            if (level.subtitle.isNotBlank()) {
+            // Test Level badge in lower right corner
+            if (level.testingOnly) {
                 Text(
-                    text = level.subtitle,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1
-                )
-            }
-            
-            // Stats
-            Text(
-                text = "${stringResource(Res.string.enemies)}: ${level.enemySpawns.size}",
-                style = MaterialTheme.typography.bodySmall
-            )
-            Text(
-                text = "${level.startCoins} coins | ${level.startHealthPoints} HP",
-                style = MaterialTheme.typography.bodySmall
-            )
-            
-            // Prerequisites info
-            if (level.prerequisites.isNotEmpty()) {
-                val reqCount = level.getEffectiveRequiredCount()
-                val prereqText = if (reqCount < level.prerequisites.size) {
-                    "${stringResource(Res.string.requires)} $reqCount/${level.prerequisites.size}"
-                } else {
-                    "${stringResource(Res.string.requires)} ${level.prerequisites.size}"
-                }
-                Text(
-                    text = prereqText,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.primary
-                )
-            } else {
-                Text(
-                    text = stringResource(Res.string.entry_point),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color(0xFF4CAF50)
+                    text = stringResource(Res.string.test_level),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = Color.Red,
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(8.dp)
                 )
             }
         }

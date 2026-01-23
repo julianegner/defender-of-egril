@@ -48,6 +48,7 @@ import defender_of_egril.composeapp.generated.resources.emoji_triangle_up
 import defender_of_egril.composeapp.generated.resources.emoji_unlock
 import defender_of_egril.composeapp.generated.resources.emoji_up_arrow
 import defender_of_egril.composeapp.generated.resources.emoji_warning
+import defender_of_egril.composeapp.generated.resources.barricade
 import defender_of_egril.composeapp.generated.resources.emoji_right_arrow
 import defender_of_egril.composeapp.generated.resources.emoji_red_circle
 import defender_of_egril.composeapp.generated.resources.emoji_map
@@ -55,6 +56,11 @@ import defender_of_egril.composeapp.generated.resources.emoji_number_1
 import defender_of_egril.composeapp.generated.resources.emoji_number_2
 import defender_of_egril.composeapp.generated.resources.emoji_speaker_low
 import defender_of_egril.composeapp.generated.resources.emoji_speaker_high
+import defender_of_egril.composeapp.generated.resources.emoji_coffee
+import defender_of_egril.composeapp.generated.resources.emoji_bed
+import defender_of_egril.composeapp.generated.resources.emoji_plus
+import defender_of_egril.composeapp.generated.resources.emoji_cross
+import defender_of_egril.composeapp.generated.resources.emoji_pencil
 import org.jetbrains.compose.resources.painterResource
 import kotlin.math.PI
 import kotlin.math.cos
@@ -233,6 +239,38 @@ fun MoneyIcon(
     Image(
         painter = painterResource(Res.drawable.emoji_money),
         contentDescription = "Money",
+        modifier = modifier.size(size)
+    )
+}
+
+/**
+ * Displays a coffee cup emoji icon using Image for cross-platform compatibility
+ * Source: Noto Emoji (U+2615)
+ */
+@Composable
+fun CoffeeIcon(
+    modifier: Modifier = Modifier.Companion,
+    size: Dp = 16.dp
+) {
+    Image(
+        painter = painterResource(Res.drawable.emoji_coffee),
+        contentDescription = "Coffee",
+        modifier = modifier.size(size)
+    )
+}
+
+/**
+ * Displays a bed emoji icon using Image for cross-platform compatibility
+ * Source: Noto Emoji (U+1F6CF)
+ */
+@Composable
+fun BedIcon(
+    modifier: Modifier = Modifier.Companion,
+    size: Dp = 16.dp
+) {
+    Image(
+        painter = painterResource(Res.drawable.emoji_bed),
+        contentDescription = "Bed",
         modifier = modifier.size(size)
     )
 }
@@ -782,6 +820,72 @@ fun SpeakerHighIcon(
     Image(
         painter = painterResource(Res.drawable.emoji_speaker_high),
         contentDescription = "Speaker High",
+        modifier = modifier.size(size)
+    )
+}
+
+/**
+ * Displays a wood/log icon using Image for cross-platform compatibility
+ * Source: Custom wood icon representing barricade material
+ */
+@Composable
+fun WoodIcon(
+    modifier: Modifier = Modifier.Companion,
+    size: Dp = 24.dp
+) {
+    Image(
+        painter = painterResource(Res.drawable.barricade),
+        contentDescription = "Wood",
+        modifier = modifier.size(size)
+    )
+}
+
+/**
+ * Displays a plus sign icon using Image for cross-platform compatibility
+ * Source: Noto Emoji (U+2795)
+ */
+@Composable
+fun PlusIcon(
+    modifier: Modifier = Modifier.Companion,
+    size: Dp = 16.dp
+) {
+    Image(
+        painter = painterResource(Res.drawable.emoji_plus),
+        contentDescription = "Plus",
+        modifier = modifier.size(size)
+    )
+}
+
+/**
+ * Displays a cross/X mark icon using Image for cross-platform compatibility
+ * Source: Noto Emoji (U+2716)
+ */
+@Composable
+fun CrossIcon(
+    modifier: Modifier = Modifier.Companion,
+    size: Dp = 16.dp,
+    tint: Color? = null
+) {
+    Image(
+        painter = painterResource(Res.drawable.emoji_cross),
+        contentDescription = "Cross",
+        modifier = modifier.size(size),
+        colorFilter = tint?.let { ColorFilter.Companion.tint(it) }
+    )
+}
+
+/**
+ * Displays a pencil icon using Image for cross-platform compatibility
+ * Source: Noto Emoji (U+270F)
+ */
+@Composable
+fun PencilIcon(
+    modifier: Modifier = Modifier.Companion,
+    size: Dp = 16.dp
+) {
+    Image(
+        painter = painterResource(Res.drawable.emoji_pencil),
+        contentDescription = "Pencil",
         modifier = modifier.size(size)
     )
 }

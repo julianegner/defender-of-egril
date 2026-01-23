@@ -19,10 +19,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.egril.defender.BuildConfig
+import de.egril.defender.ui.infopage.ImpressumWrapper
 import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.settings.SettingsButton
 import de.egril.defender.ui.settings.SettingsHintBox
 import de.egril.defender.utils.isPlatformMobile
+import de.egril.defender.utils.isPlatformWasm
 import com.hyperether.resources.stringResource
 import de.egril.defender.utils.isPlatformIos
 import defender_of_egril.composeapp.generated.resources.*
@@ -36,6 +38,7 @@ import org.jetbrains.compose.resources.painterResource
 fun MainMenuScreen(
     onStartGame: () -> Unit,
     onShowRules: () -> Unit,
+    onShowInstallationInfo: () -> Unit,
     onSelectPlayer: () -> Unit,
     onEditPlayerName: () -> Unit,
     currentPlayerName: String?
@@ -56,12 +59,29 @@ fun MainMenuScreen(
         Box(
             modifier = Modifier.fillMaxSize().padding(16.dp)
         ) {
-            // Settings button in top-right corner
-            SettingsButton(
+            // Settings and Info buttons in top-right corner
+            Row(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
-                    .padding(8.dp)
-            )
+                    .padding(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                // Info button (web version only)
+                if (isPlatformWasm) {
+                    IconButton(
+                        onClick = onShowInstallationInfo,
+                        modifier = Modifier.size(48.dp)
+                    ) {
+                        Image(
+                            painter = painterResource(Res.drawable.emoji_info),
+                            contentDescription = stringResource(Res.string.installation_info),
+                            modifier = Modifier.size(32.dp)
+                        )
+                    }
+                }
+                
+                SettingsButton()
+            }
             
             // Exit button in top-left corner (above player name if present)
             // iOS does not support exiting the app programmatically
@@ -200,6 +220,15 @@ fun MainMenuScreen(
                     .padding(bottom = 8.dp)
                     .clickable { showCommitInfo = true }
             )
+            
+            // Impressum at bottom center (WASM only, when flag is enabled)
+            if (isPlatformWasm) {
+                ImpressumWrapper(
+                    rowModifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = 8.dp)
+                )
+            }
             
             // Settings hint box - positioned below and to the left of settings button
             // Only show if hint hasn't been shown yet

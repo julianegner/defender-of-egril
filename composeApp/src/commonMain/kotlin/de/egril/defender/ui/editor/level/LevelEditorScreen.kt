@@ -106,57 +106,30 @@ fun LevelEditorScreen(
                     }
                 }
                 
-                // Tab buttons
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                // Tab navigation
+                val tabs = listOf(
+                    EditorTab.MAP_EDITOR to stringResource(Res.string.map_editor),
+                    EditorTab.LEVEL_EDITOR to stringResource(Res.string.level_editor),
+                    EditorTab.LEVEL_SEQUENCE to stringResource(Res.string.level_dependencies),
+                    EditorTab.WORLD_MAP_POSITIONS to stringResource(Res.string.world_map_positions)
+                )
+                
+                // Find the selected tab index. INFO tab is not in the tab list (separate button),
+                // so when INFO is selected, default to LEVEL_EDITOR for visual consistency.
+                val selectedTabIndex = tabs.indexOfFirst { it.first == currentTab }.let { index ->
+                    if (index == -1) tabs.indexOfFirst { it.first == EditorTab.LEVEL_EDITOR } else index
+                }
+                
+                PrimaryTabRow(
+                    selectedTabIndex = selectedTabIndex,
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    Button(
-                        onClick = { currentTab = EditorTab.MAP_EDITOR },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = if (currentTab == EditorTab.MAP_EDITOR)
-                                MaterialTheme.colorScheme.primary 
-                            else 
-                                MaterialTheme.colorScheme.secondary
+                    tabs.forEachIndexed { index, (tab, label) ->
+                        Tab(
+                            selected = index == selectedTabIndex,
+                            onClick = { currentTab = tab },
+                            text = { Text(label) }
                         )
-                    ) {
-                        Text(stringResource(Res.string.map_editor))
-                    }
-                    
-                    Button(
-                        onClick = { currentTab = EditorTab.LEVEL_EDITOR },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = if (currentTab == EditorTab.LEVEL_EDITOR)
-                                MaterialTheme.colorScheme.primary 
-                            else 
-                                MaterialTheme.colorScheme.secondary
-                        )
-                    ) {
-                        Text(stringResource(Res.string.level_editor))
-                    }
-                    
-                    Button(
-                        onClick = { currentTab = EditorTab.LEVEL_SEQUENCE },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = if (currentTab == EditorTab.LEVEL_SEQUENCE)
-                                MaterialTheme.colorScheme.primary 
-                            else 
-                                MaterialTheme.colorScheme.secondary
-                        )
-                    ) {
-                        Text(stringResource(Res.string.level_dependencies))
-                    }
-                    
-                    Button(
-                        onClick = { currentTab = EditorTab.WORLD_MAP_POSITIONS },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = if (currentTab == EditorTab.WORLD_MAP_POSITIONS)
-                                MaterialTheme.colorScheme.primary 
-                            else 
-                                MaterialTheme.colorScheme.secondary
-                        )
-                    ) {
-                        Text(stringResource(Res.string.world_map_positions))
                     }
                 }
             }

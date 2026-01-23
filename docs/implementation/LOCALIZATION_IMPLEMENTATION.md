@@ -1,7 +1,7 @@
 # Localization Implementation Summary
 
 ## Overview
-This implementation adds localization support to Defender of Egril using the `compose-multiplatform-localize` library (version 2.0.0), with language chooser, settings dialog, and **plural string support** accessible from all screens.
+This implementation adds localization support to Defender of Egril using the `compose-multiplatform-localize` library (version 2.0.1), with language chooser, settings dialog, and **plural string support** accessible from all screens.
 
 ## Dependencies Added
 

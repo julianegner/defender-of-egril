@@ -190,7 +190,7 @@
     <string name="acid_desc">Acid: Continuous damage for 3 turns within 1 cell of impact</string>
     <string name="victory_defeat">Victory &amp; Defeat</string>
     <string name="victory_detail">Victory: Defeat all enemies in all waves with at least 1 HP remaining</string>
-    <string name="defeat_detail">Defeat: Weak enemies (goblins, orks, ogres, skeletons) cost 1 HP when reaching the target. Mighty enemies (wizards, witches, mages, demons, dragons) cost HP equal to their level. Ewhad costs all your HP. At 0 HP, you lose.</string>
+    <string name="defeat_detail">Defeat: Weak enemies (goblins, orks, ogres, skeletons) cost 1 HP when reaching the target.\nMighty enemies (wizards, witches, mages, demons, dragons) cost HP equal to their level.\nEwhad costs all your HP.\nAt 0 HP, you lose.</string>
     <string name="grid_legend">Grid Legend</string>
     <string name="spawn_desc">Spawn: Start position (enemies spawn)</string>
     <string name="target_desc">Target: Target position (defend this!)</string>
@@ -380,7 +380,7 @@
     <string name="new_level">New Level</string>
     <string name="enemy_type">Enemy Type:</string>
     <string name="add_enemy_to_turn">Add Enemy to Turn %d</string>
-    <string name="ewhad_warning">⚠️ Ewhad can only be spawned once per level!</string>
+    <string name="ewhad_warning">Ewhad can only be spawned once per level!</string>
     <string name="level_lv">Lv%d</string>
     <string name="arrange_level_order">Arrange level order:</string>
     <string name="levels_in_sequence">Levels in Sequence:</string>
@@ -401,7 +401,7 @@
     <string name="cost_label">Cost</string>
     <string name="damage_label">Damage</string>
     <string name="hp_with_level">HP: %d</string>
-    <string name="add_enemy_button">➕ Add Enemy to Turn %d</string>
+    <string name="add_enemy_button">Add Enemy to Turn %d</string>
     <string name="add_all_towers">Add All</string>
     <string name="remove_all_towers">Remove All</string>
     <string name="level_info_tab">Level Info</string>
@@ -434,7 +434,7 @@
     <string name="tutorial_welcome_title">Welcome to Defender of Egril!</string>
     <string name="tutorial_welcome">This is a tower defense game. Your goal is to stop enemies from reaching the target by building defensive towers.</string>
     <string name="tutorial_resources_title">Resources</string>
-    <string name="tutorial_resources">You have coins to build towers and health points. When you defeat enemies, you earn coins equal to their base reward multiplied by their level. Weak enemies cost 1 HP, but mighty enemies (wizards, witches, mages, demons, dragons) cost HP equal to their level. Ewhad costs all your HP!</string>
+    <string name="tutorial_resources">You have coins to build towers and health points.\nWhen you defeat enemies, you earn coins equal to their base reward multiplied by their level.\nWeak enemies cost 1 HP, but mighty enemies (wizards, witches, mages, demons, dragons) cost HP equal to their level.\nEwhad costs all your HP!</string>
     <string name="tutorial_towers_title">Available Towers</string>
     <string name="tutorial_towers">Spike Tower: Close range, cheap. Spear Tower: Medium range. Bow Tower: Long range. Choose wisely based on your strategy!</string>
     <string name="tutorial_legend_title">The Legend</string>
@@ -444,7 +444,7 @@
     <string name="tutorial_build_title">Building Towers</string>
     <string name="tutorial_build">Select a tower type from below, then click on a green build area to place it. Build your defenses!</string>
     <string name="tutorial_initial_building_title">Initial Building Phase</string>
-    <string name="tutorial_initial_building">In this initial phase, towers are built instantly but cannot attack yet. Click on a tower to see its range - path tiles get green borders. Later in the game, towers will take 1-2 turns to build.</string>
+    <string name="tutorial_initial_building">In this initial phase, towers are built instantly but cannot attack yet.\nClick on a tower to see its range - path tiles get green borders.\nLater in the game, towers will take 1-2 turns to build.</string>
     <string name="tutorial_undo_title">Undo Towers</string>
     <string name="tutorial_undo">During this initial phase, you can undo tower placement by selecting it and selling for a full refund. After the battle starts, you can only sell towers for 75% of their value.</string>
     <string name="tutorial_combat_title">Start the Battle</string>
@@ -454,13 +454,13 @@
     <string name="tutorial_range_title">Check Range</string>
     <string name="tutorial_range">Select a tower to see which enemies are in range (highlighted). Towers can only attack enemies within their range!</string>
     <string name="tutorial_attacking_title">Attack Enemies</string>
-    <string name="tutorial_attacking">Click on an enemy in range to attack. Each tower has limited actions per turn shown by ⚡ symbols. If your tower can't reach enemies or has no actions left, you can end your turn or place more towers.</string>
+    <string name="tutorial_attacking">Click on an enemy in range to attack.\nEach tower has limited actions per turn shown by lightning symbols.\nIf your tower can't reach enemies or has no actions left, you can end your turn or place more towers.</string>
     <string name="tutorial_upgrade_title">Upgrade Towers</string>
     <string name="tutorial_upgrade">Select a tower and click Upgrade to increase its stats. You'll see current damage, range, and actions per turn, plus what they'll be after upgrading. Upgrades cost coins but make towers more powerful!</string>
     <string name="tutorial_sell_title">Sell Towers</string>
     <string name="tutorial_sell">Select a tower and click Sell to get back 75% of its total investment (cost + upgrades). Use this if you need coins or want to reposition your defense.</string>
     <string name="tutorial_save_game_title">Save Your Progress</string>
-    <string name="tutorial_save_game">You can save your game at any time using the Save Game button. This lets you try different strategies or continue later. To load a saved game, use the Load Game button on the world map screen.</string>
+    <string name="tutorial_save_game">You can save your game at any time using the Save Game button.\nThis lets you try different strategies or continue later.\nTo load a saved game, use the Load Game button on the world map screen.</string>
     <string name="tutorial_complete_title">Tutorial Complete!</string>
     <string name="tutorial_complete">You've mastered the basics! In later levels, you'll unlock mightier towers like the Ballista, Wizard, and Alchemy towers to face stronger foes like demons and bosses. Now defend Egril against the hordes. Good luck, defender!</string>
     <string name="tutorial_next">Next</string>
@@ -513,7 +513,7 @@
 
     <!-- Dragon Info -->
     <string name="dragon_info_title">Dragon Alert!</string>
-    <string name="dragon_info_movement">The dragon alternates movement: Turn 1, 3, 5...: Walks 1 tile on path. Turn 2, 4, 6...: Flies up to 5 tiles, can cross obstacles but must land on path</string>
+    <string name="dragon_info_movement">The dragon alternates movement:\nTurn 1, 3, 5...: Walks 1 tile on path.\nTurn 2, 4, 6...: Flies up to 5 tiles, can cross obstacles but must land on path</string>
     <string name="dragon_info_eating">Dragons devour enemies they land on (except Ewhad), gaining their health points!</string>
     <string name="dragon_info_level">Dragon level increases with health: Level = HP ÷ 500 (min. 1)</string>
     <string name="got_it">Got it!</string>
@@ -549,12 +549,12 @@
     <string name="waypoints_description">Configure waypoint connections for this level. Waypoints define the path enemies will follow.</string>
     <string name="waypoint_source">Source</string>
     <string name="waypoint_target">Target</string>
-    <string name="add_waypoint">➕ Add Waypoint</string>
+    <string name="add_waypoint">Add Waypoint</string>
     <string name="delete_waypoint">Delete</string>
     <string name="no_waypoints_configured">No waypoints configured for this level.</string>
     <string name="available_waypoint_tiles">Available waypoint tiles from map: %d</string>
-    <string name="waypoint_validation_success">✓ Waypoint configuration is valid</string>
-    <string name="waypoint_validation_error">✗ Waypoint configuration has errors</string>
+    <string name="waypoint_validation_success">Waypoint configuration is valid</string>
+    <string name="waypoint_validation_error">Waypoint configuration has errors</string>
     <string name="circular_dependency_detected">Circular dependency detected! Fix waypoint connections.</string>
     <string name="waypoint_position_format">Position (%d, %d)</string>
     <string name="spawn_point_text">Spawn Point</string>
@@ -573,7 +573,7 @@
     <string name="to_spawn_point">To Spawn Point</string>
     <string name="enemies_affected_count">%d enemies affected</string>
     <string name="apply_changes">Apply Changes</string>
-    <string name="spawn_point_warning">⚠ Some enemies are spawned outside valid spawn points</string>
+    <string name="spawn_point_warning">Some enemies are spawned outside valid spawn points</string>
     <string name="target_text">Target</string>
     <string name="waypoint">Waypoint</string>
     <string name="select_source_position">Select source position</string>
@@ -640,7 +640,18 @@
     <string name="dwarven_mine_actions">Mines: Can dig for coins or build traps</string>
     <string name="alchemy_tower_actions">Alchemy Towers: Lasting attacks benefit from manual targeting</string>
     <string name="wizard_tower_actions">Wizard Towers: Can place magical traps (level 10+)</string>
+    <string name="spike_spear_tower_actions">Spike/Spear Towers: Can build barricades (level 10+)</string>
     <string name="continue_turn">Continue Turn</string>
+    
+    <!-- Barricade Feature -->
+    <string name="barricade">Barricade</string>
+    <string name="barricade_hp">Barricade HP: %d</string>
+    <string name="build_barricade">Build Barricade</string>
+    <string name="remove_barricade">Remove Barricade</string>
+    <string name="remove_barricade_title">Remove Barricade?</string>
+    <string name="remove_barricade_message">Are you sure you want to remove this barricade?</string>
+    <string name="barricade_info_title">Barricade Ability Unlocked!</string>
+    <string name="barricade_info_message">Your Spike or Spear tower has reached level 10 and can now build barricades!\nBarricades are wooden structures placed on adjacent path tiles that block enemy movement.\nEach barricade has health points equal to the tower level minus 10 (minimum 1).\nWhen enemies reach a barricade, they attack it with damage equal to their level (dragons deal 5× their level).\nIf a barricade is destroyed, the enemy moves to that tile.\nYou can build new barricades or reinforce existing ones, and click on barricades to remove them.</string>
     
     <!-- Magical Trap Feature -->
     <string name="magical_trap">Magical Trap</string>
@@ -648,6 +659,14 @@
     <string name="magical_trap_available">Magical Trap Available</string>
     <string name="magical_trap_tutorial_title">Magical Trap Unlocked!</string>
     <string name="magical_trap_tutorial_message">Your wizard tower has reached level 10 and can now place magical traps! These traps teleport enemies back to their spawn point when triggered. After placing a trap, there is a 10-turn cooldown before you can place another one.</string>
+    <string name="remove_magical_trap_title">Remove Magical Trap?</string>
+    <string name="remove_magical_trap_message">Are you sure you want to remove this magical trap?</string>
+    
+    <!-- Trap Feature -->
+    <string name="defensive_items">Defensive Items</string>
+    <string name="remove_trap_title">Remove Trap?</string>
+    <string name="remove_trap_message">Are you sure you want to remove this trap?</string>
+    <string name="no">No</string>
     
     <!-- Level Prerequisites -->
     <string name="level_dependencies">Level Dependencies</string>
@@ -680,16 +699,16 @@
 
     <!-- First Time Tower Usage Info -->
     <string name="wizard_first_use_title">Wizard Tower</string>
-    <string name="wizard_first_use_message">The Wizard Tower is a powerful area-of-effect tower that launches fireballs at enemies! Each fireball damages the target and all enemies in adjacent tiles. It has a longer build time (2 turns) but can devastate groups of enemies. At level 10, wizards can place magical traps that teleport enemies back to spawn. At level 20, the fireball radius increases to 2 tiles!</string>
+    <string name="wizard_first_use_message">The Wizard Tower is a powerful area-of-effect tower that launches fireballs at enemies!\nEach fireball damages the target and all enemies in adjacent tiles.\nIt has a longer build time (2 turns) but can devastate groups of enemies.\nAt level 10, wizards can place magical traps that teleport enemies back to spawn.\nAt level 20, the fireball radius increases to 2 tiles!</string>
 
     <string name="alchemy_first_use_title">Alchemy Tower</string>
-    <string name="alchemy_first_use_message">The Alchemy Tower throws acid that deals damage over time! Unlike other towers, acid damage persists for multiple rounds (base 2 turns, increases with level). The acid affects the target and adjacent enemies in a small area. While the damage per turn is lower, the total damage over time can be very effective. At level 20, the acid area increases to 2 tiles!</string>
+    <string name="alchemy_first_use_message">The Alchemy Tower throws acid that deals damage over time!\nUnlike other towers, acid damage persists for multiple rounds (base 2 turns, increases with level).\nThe acid affects the target and adjacent enemies in a small area.\nWhile the damage per turn is lower, the total damage over time can be very effective.\nAt level 20, the acid area increases to 2 tiles!</string>
 
     <string name="ballista_first_use_title">Ballista Tower</string>
-    <string name="ballista_first_use_message">The Ballista is a long-range siege weapon with exceptional range (5 tiles) and high damage! However, it has a minimum range of 3 tiles and cannot attack nearby enemies. It requires 2 turns to build. Use it to target enemies from a distance before they get too close, or position it behind other towers for maximum effectiveness.</string>
+    <string name="ballista_first_use_message">The Ballista is a long-range siege weapon with exceptional range (5 tiles) and high damage!\nHowever, it has a minimum range of 3 tiles and cannot attack nearby enemies.\nIt requires 2 turns to build.\nUse it to target enemies from a distance before they get too close, or position it behind other towers for maximum effectiveness.</string>
 
     <string name="mine_first_use_title">Dwarven Mine</string>
-    <string name="mine_first_use_message">The Dwarven Mine is a special structure that generates coins through mining operations! Unlike combat towers, mines use the "dig" action to find valuable resources (rubble, brass, silver, gold, gems, or diamonds). Mines can also build traps that damage enemies. At higher levels, mines can dig more times per turn and reach further. Warning: Dragons are greedy and will destroy mines to claim the treasure!</string>
+    <string name="mine_first_use_message">The Dwarven Mine is a special structure that generates coins through mining operations!\nUnlike combat towers, mines use the "dig" action to find valuable resources (rubble, brass, silver, gold, gems, or diamonds).\nMines can also build traps that damage enemies.\nAt higher levels, mines can dig more times per turn and reach further.\nWarning: Dragons are greedy and will destroy mines to claim the treasure!</string>
 
     <!-- River Mechanics Info -->
     <string name="river_info_title">River Mechanics</string>
@@ -753,6 +772,10 @@
     <string name="from">From:</string>
     <string name="to">To:</string>
     <string name="connection_type">Connection Type:</string>
+    <string name="location_icon_optional">Location Icon (Optional)</string>
+    <string name="no_icon_selected">No icon selected (will use numbered marker)</string>
+    <string name="available_icons">Available Icons:</string>
+    <string name="invalid_icon">Invalid icon</string>
     
     <!-- Editor Info Page -->
     <string name="info">Info</string>
@@ -901,4 +924,48 @@
     <string name="initial_language_title">Choose Your Language</string>
     <string name="initial_language_prompt">Select your preferred language for the game</string>
     <string name="initial_language_continue">Continue</string>
+
+    <!-- Time Reminders -->
+    <string name="time_for_break_title">Time for a Break?</string>
+    <string name="time_for_break_message">You have been playing for %s.</string>
+    <string name="time_for_sleep_title">Time for Sleep?</string>
+    <string name="time_for_sleep_close_to_midnight">It is close to midnight.</string>
+    <string name="time_for_sleep_midnight">It is midnight.</string>
+    <string name="time_for_sleep_after_midnight">It is after midnight.</string>
+    <string name="hours">%d hours</string>
+    <string name="hour">%d hour</string>
+    <string name="minutes">%d minutes</string>
+    <string name="minute">%d minute</string>
+
+    <!-- Installation Information Screen -->
+    <string name="installation_info">Installation Info</string>
+    <string name="installation_info_title">How to Install Defender of Egril</string>
+    <string name="installation_windows_title">Windows</string>
+    <string name="installation_windows_step1">1. Download the installer (.exe or .msi) from GitHub Releases</string>
+    <string name="installation_windows_step2">2. Run the installer</string>
+    <string name="installation_windows_step3">3. If Windows Defender SmartScreen appears with a warning:</string>
+    <string name="installation_windows_step3a">• Click "More info"</string>
+    <string name="installation_windows_step3b">• Then click "Run anyway"</string>
+    <string name="installation_windows_note">This warning appears because the game is not signed with a commercial certificate. The game is safe to install.</string>
+    <string name="installation_android_title">Android (Sideloading)</string>
+    <string name="installation_android_step1">1. Enable "Install unknown apps" in Settings:</string>
+    <string name="installation_android_step1a">• Go to Settings → Apps → Special app access → Install unknown apps</string>
+    <string name="installation_android_step1b">• Select your browser and enable "Allow from this source"</string>
+    <string name="installation_android_step2">2. Download the APK from GitHub Releases</string>
+    <string name="installation_android_step3">3. Open the downloaded APK file</string>
+    <string name="installation_android_step4">4. Tap "Install" when prompted</string>
+    <string name="installation_android_note">For security, disable "Install unknown apps" after installation.</string>
+    <string name="installation_ios_title">iOS</string>
+    <string name="installation_ios_step1">1. Install from App Store (when available)</string>
+    <string name="installation_ios_step2">2. Or build from source using Xcode</string>
+    <string name="installation_linux_title">Linux</string>
+    <string name="installation_linux_step1">Run from terminal with JDK 11+:</string>
+    <string name="installation_linux_command">./gradlew :composeApp:run</string>
+    <string name="installation_macos_title">macOS</string>
+    <string name="installation_macos_step1">Run from terminal with JDK 11+:</string>
+    <string name="installation_macos_command">./gradlew :composeApp:run</string>
+    <string name="installation_web_title">Web/Browser</string>
+    <string name="installation_web_step1">No installation needed!</string>
+    <string name="installation_web_step2">Just visit the game URL in any modern browser (Chrome, Firefox, Safari, Edge)</string>
+    <string name="installation_details_link">For detailed instructions, see INSTALL.md in the GitHub repository.</string>
 </resources>

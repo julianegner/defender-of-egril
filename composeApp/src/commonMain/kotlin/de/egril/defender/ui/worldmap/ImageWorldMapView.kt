@@ -399,6 +399,10 @@ private fun BoxScope.LocationMarkersOverlay(
         // Skip if no playable levels at this location
         if (levelsAtLocation.isEmpty()) continue
         
+        // Try to load custom icon for this location
+        val iconResourceName = location.locationData?.iconResourceName
+        val iconPainter = de.egril.defender.ui.editor.worldmap.LocationIconUtils.loadIconPainter(iconResourceName)
+        
         // Determine location status based on contained levels
         val hasWonLevel = levelsAtLocation.any { it.status == LevelStatus.WON }
         val hasUnlockedLevel = levelsAtLocation.any { it.status == LevelStatus.UNLOCKED }
@@ -416,6 +420,7 @@ private fun BoxScope.LocationMarkersOverlay(
         val scaleFactor = if (isPlatformAndroid) 0.35f else 1f  // 35% size on Android
         val labelScaleFactor = if (isPlatformAndroid) 0.4f else 1f  // 40% for label font
         val markerSize = (40 * scaleFactor).dp
+        val iconMarkerSize = (48 * scaleFactor).dp  // Slightly larger for icon-based markers
         val labelHorizontalPadding = (6 * scaleFactor).dp
         val labelVerticalPadding = (2 * labelScaleFactor).dp  // Scale with font for proper text fit
         val labelCornerRadius = (4 * scaleFactor).dp
@@ -423,6 +428,7 @@ private fun BoxScope.LocationMarkersOverlay(
         val labelElevation = (2 * scaleFactor).dp
         val markerElevation = (4 * scaleFactor).dp
         val labelFontSize = (11 * labelScaleFactor).sp  // Smaller label text
+        val badgeFontSize = (10 * scaleFactor).sp  // Font size for badge count
         
         // Position the marker using Box alignment offset
         Box(
@@ -459,26 +465,70 @@ private fun BoxScope.LocationMarkersOverlay(
                 
                 Spacer(modifier = Modifier.height(spacerHeight))
                 
-                // Circular marker
-                Surface(
-                    modifier = Modifier
-                        .size(markerSize)
-                        .clickable {
-                            onLocationClicked(location, levelsAtLocation)
-                        },
-                    shape = androidx.compose.foundation.shape.CircleShape,
-                    color = markerColor,
-                    shadowElevation = markerElevation
-                ) {
+                // Marker with icon or circular fallback
+                if (iconPainter != null) {
+                    // Icon-based marker
                     Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier.fillMaxSize()
+                        modifier = Modifier
+                            .size(iconMarkerSize)
+                            .clickable {
+                                onLocationClicked(location, levelsAtLocation)
+                            },
+                        contentAlignment = Alignment.Center
                     ) {
-                        Text(
-                            text = levelsAtLocation.size.toString(),
-                            style = if (isPlatformAndroid) MaterialTheme.typography.labelSmall else MaterialTheme.typography.bodyMedium,
-                            color = Color.White
+                        // Icon image
+                        Image(
+                            painter = iconPainter,
+                            contentDescription = null,
+                            modifier = Modifier.fillMaxSize()
                         )
+                        
+                        // Badge with level count (only if more than 1 level)
+                        if (levelsAtLocation.size > 1) {
+                            Surface(
+                                modifier = Modifier
+                                    .align(Alignment.BottomEnd)
+                                    .size((18 * scaleFactor).dp),
+                                shape = androidx.compose.foundation.shape.CircleShape,
+                                color = markerColor,
+                                shadowElevation = (2 * scaleFactor).dp
+                            ) {
+                                Box(
+                                    contentAlignment = Alignment.Center,
+                                    modifier = Modifier.fillMaxSize()
+                                ) {
+                                    Text(
+                                        text = levelsAtLocation.size.toString(),
+                                        style = MaterialTheme.typography.labelSmall.copy(fontSize = badgeFontSize),
+                                        color = Color.White,
+                                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                                    )
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    // Fallback: Circular marker (original behavior)
+                    Surface(
+                        modifier = Modifier
+                            .size(markerSize)
+                            .clickable {
+                                onLocationClicked(location, levelsAtLocation)
+                            },
+                        shape = androidx.compose.foundation.shape.CircleShape,
+                        color = markerColor,
+                        shadowElevation = markerElevation
+                    ) {
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            Text(
+                                text = levelsAtLocation.size.toString(),
+                                style = if (isPlatformAndroid) MaterialTheme.typography.labelSmall else MaterialTheme.typography.bodyMedium,
+                                color = Color.White
+                            )
+                        }
                     }
                 }
             }

@@ -49,7 +49,8 @@ fun SavedGameCardHeader(
 @Composable
 fun SavedGameCardStats(
     turnNumber: Int,
-    coins: Int
+    coins: Int,
+    healthPoints: Int
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -78,6 +79,20 @@ fun SavedGameCardStats(
             Spacer(modifier = Modifier.width(4.dp))
             Text(
                 text = "$coins",
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
+        
+        Spacer(modifier = Modifier.width(16.dp))
+        
+        // Health Points
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            de.egril.defender.ui.icon.HeartIcon(size = 16.dp)
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(
+                text = "$healthPoints",
                 style = MaterialTheme.typography.bodyMedium
             )
         }
@@ -125,14 +140,17 @@ fun SavedGameCardUnitsAndMinimap(
             TowersList(defenderCounts = saveGame.defenderCounts)
         }
         
-        // Column 2: Enemies (current and to come)
+        // Column 2: Enemies (current and to come) with defensive items to the right
         Column(
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.Top
         ) {
             EnemiesList(
                 attackerCounts = saveGame.attackerCounts,
-                remainingSpawnCounts = saveGame.remainingSpawnCounts
+                remainingSpawnCounts = saveGame.remainingSpawnCounts,
+                dwarvenTrapCount = saveGame.dwarvenTrapCount,
+                magicalTrapCount = saveGame.magicalTrapCount,
+                barricadeCount = saveGame.barricadeCount
             )
         }
         
@@ -176,47 +194,116 @@ fun TowersList(defenderCounts: Map<DefenderType, Int>) {
 @Composable
 fun EnemiesList(
     attackerCounts: Map<AttackerType, Int>,
-    remainingSpawnCounts: Map<AttackerType, Int>
+    remainingSpawnCounts: Map<AttackerType, Int>,
+    dwarvenTrapCount: Int = 0,
+    magicalTrapCount: Int = 0,
+    barricadeCount: Int = 0
 ) {
     val locale = com.hyperether.resources.currentLanguage.value
-    // Current enemies on map
-    if (attackerCounts.isNotEmpty()) {
-        Text(
-            text = stringResource(Res.string.enemies_on_map),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Spacer(modifier = Modifier.height(4.dp))
-        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            attackerCounts.entries.forEach { (type, count) ->
-                UnitEntry(
-                    icon = { EnemyTypeIcon(attackerType = type) },
-                    name = type.getLocalizedName(locale),
-                    count = count
+    
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        // Current enemies on map
+        if (attackerCounts.isNotEmpty()) {
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.Top
+            ) {
+                Text(
+                    text = stringResource(Res.string.enemies_on_map),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+                Spacer(modifier = Modifier.height(4.dp))
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    attackerCounts.entries.forEach { (type, count) ->
+                        UnitEntry(
+                            icon = { EnemyTypeIcon(attackerType = type) },
+                            name = type.getLocalizedName(locale),
+                            count = count
+                        )
+                    }
+                }
             }
         }
-    }
-    
-    if (attackerCounts.isNotEmpty() && remainingSpawnCounts.isNotEmpty()) {
-        Spacer(modifier = Modifier.height(8.dp))
-    }
-    
-    // Remaining spawns
-    if (remainingSpawnCounts.isNotEmpty()) {
-        Text(
-            text = stringResource(Res.string.enemies_to_come),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Spacer(modifier = Modifier.height(4.dp))
-        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            remainingSpawnCounts.entries.forEach { (type, count) ->
-                UnitEntry(
-                    icon = { EnemyTypeIcon(attackerType = type) },
-                    name = type.getLocalizedName(locale),
-                    count = count
+        
+        // Remaining spawns
+        if (remainingSpawnCounts.isNotEmpty()) {
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.Top
+            ) {
+                Text(
+                    text = stringResource(Res.string.enemies_to_come),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+                Spacer(modifier = Modifier.height(4.dp))
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    remainingSpawnCounts.entries.forEach { (type, count) ->
+                        UnitEntry(
+                            icon = { EnemyTypeIcon(attackerType = type) },
+                            name = type.getLocalizedName(locale),
+                            count = count
+                        )
+                    }
+                }
+            }
+        }
+        
+        // Defensive items (to the right)
+        val hasTrapsOrBarricades = dwarvenTrapCount > 0 || magicalTrapCount > 0 || barricadeCount > 0
+        if (hasTrapsOrBarricades) {
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.Top
+            ) {
+                Text(
+                    text = stringResource(Res.string.defensive_items),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    if (dwarvenTrapCount > 0) {
+                        UnitEntry(
+                            icon = { 
+                                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                    de.egril.defender.ui.icon.HoleIcon(size = 20.dp)
+                                }
+                            },
+                            name = stringResource(Res.string.trap),
+                            count = dwarvenTrapCount
+                        )
+                    }
+                    
+                    if (magicalTrapCount > 0) {
+                        UnitEntry(
+                            icon = { 
+                                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                    de.egril.defender.ui.icon.PentagramIcon(size = 20.dp)
+                                }
+                            },
+                            name = stringResource(Res.string.magical_trap),
+                            count = magicalTrapCount
+                        )
+                    }
+                    
+                    if (barricadeCount > 0) {
+                        UnitEntry(
+                            icon = { 
+                                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                    de.egril.defender.ui.icon.WoodIcon(size = 24.dp)
+                                }
+                            },
+                            name = stringResource(Res.string.barricade),
+                            count = barricadeCount
+                        )
+                    }
+                }
             }
         }
     }

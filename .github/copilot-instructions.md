@@ -150,7 +150,7 @@ Defender of Egril is a turn-based tower defense game built with Kotlin Multiplat
 - **Other Fields**: Keep other JSON fields (id, name, fromLocationId, etc.) on separate lines with normal formatting
 
 ### Localization System
-- **Plugin**: Uses `compose-multiplatform-localize` plugin (version 1.1.1) for string resource management
+- **Plugin**: Uses `compose-multiplatform-localize` plugin (version 2.0.1) for string resource management
 - **String Resources**: Located in `composeApp/src/commonMain/composeResources/`
   - `values/strings.xml`: Default English strings
   - `values-de/strings.xml`: German translations
@@ -186,6 +186,7 @@ Defender of Egril is a turn-based tower defense game built with Kotlin Multiplat
 - **DO NOT include Unicode emojis/icons in string resources** - Use icon components instead
 - **Use Icon Components**: All icons are in `ui/icon/IconUtils.kt` (e.g., `WarningIcon`, `InfoIcon`, `LightningIcon`, `HeartIcon`, `LockIcon`)
 - **Display Icons**: Use composable icon functions with `Row` and proper spacing
+- **Validation**: Run `UnicodeEmojiValidationTest` to ensure no Unicode emojis exist in code or language files
 - **Example**: Instead of `"⚠️ Warning text"`, use:
   ```kotlin
   Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -193,6 +194,11 @@ Defender of Egril is a turn-based tower defense game built with Kotlin Multiplat
       Text("Warning text")
   }
   ```
+- **Adding New Emojis**: If a new emoji is needed:
+  1. Look it up at https://api.github.com/repos/googlefonts/noto-emoji
+  2. Download the PNG version
+  3. Add it as `emoji_*.png` in `composeResources/drawable/`
+  4. Create an Icon component in `ui/icon/IconUtils.kt`
 
 ### Grid System
 - **Hexagonal Grid**: Uses offset coordinate system (even-q vertical layout)
@@ -310,9 +316,8 @@ Add to `LevelData.createLevels()` with:
 3. **Use in code**: Use `stringResource(Res.string.your_key)` in Composables
 4. **Test**: Run `TranslationCoverageTest` to verify all language files are synchronized
 5. **Never hardcode**: Do not use hardcoded strings like `Text("Hello")` - always use stringResource
-6. **IMPORTANT: Version 2.0.0 limitation with `\n`**: The hyperether.localization plugin version 2.0.0 has a bug that causes compilation errors when using `\n` escape sequences in strings. **Do NOT use `\n` for line breaks**. Instead, write strings as continuous text without line breaks. If multiple paragraphs or bullet points are needed, use punctuation (periods, semicolons) to separate concepts within a single continuous string.
-   - ❌ DON'T: `<string name="message">Line 1\nLine 2\nLine 3</string>`
-   - ✅ DO: `<string name="message">Line 1. Line 2. Line 3.</string>`
+6. **Line breaks**: Use `\n` for line breaks in multi-paragraph or multi-line strings for better readability.
+   - Example: `<string name="message">Line 1\nLine 2\nLine 3</string>`
 7. Update `LanguageChooser.kt`'s `getCountryCode()` function if language code differs from country code
 8. Test language switching via Settings dialog
 9. All ~318 strings must be translated for complete localization
@@ -399,7 +404,7 @@ Add to `LevelData.createLevels()` with:
 - Keep files focused and cohesive
 
 ### Documentation Files
-- **NEVER** add markdown files to the root directory (except README.md which is allowed)
+- **NEVER** add markdown files to the root directory (except README.md and INSTALL.md which are allowed)
 - **ALWAYS** place documentation files under `/docs` in appropriate subfolders:
   - `/docs/changes/`: Implementation summaries and change documentation
   - `/docs/visual-guides/`: Visual guides and comparisons
@@ -408,6 +413,16 @@ Add to `LevelData.createLevels()` with:
   - `/docs/guides/`: User and developer guides
   - `/docs/root/`: Core project documentation
 - Use UPPERCASE_WITH_UNDERSCORES naming convention for documentation files
+
+### Installation Guide Maintenance
+- **Installation instructions** are maintained in **two places**:
+  1. `INSTALL.md` - Detailed English installation guide for all platforms (root directory)
+  2. `InstallationInfoScreen.kt` - In-app installation info screen (web version only, all supported languages)
+- **ALWAYS update both** when making changes to installation instructions:
+  - Update `INSTALL.md` with detailed English instructions
+  - Update localized strings in all language files (`values/strings.xml`, `values-de/strings.xml`, `values-es/strings.xml`, `values-fr/strings.xml`, `values-it/strings.xml`)
+  - Verify that `InstallationInfoScreen.kt` correctly displays the updated strings
+- The installation info screen is accessible only on the web version via an Info button on the main menu
 
 ### Comments
 - Use KDoc for public APIs
@@ -426,6 +441,9 @@ Add to `LevelData.createLevels()` with:
 - Core game mechanics (tower placement, attacks, movement)
 - Edge cases (boundary conditions, invalid inputs)
 - State transitions
+- **Code quality validation tests**:
+  - `TranslationCoverageTest`: Verifies all strings use localization
+  - `UnicodeEmojiValidationTest`: Ensures no Unicode emojis in code or language files (WASM compatibility)
 - **Always add tests for new or changed behavior**
   - When adding new features, create tests that verify the feature works as expected
   - When modifying existing behavior, add tests that verify both the old behavior is prevented and new behavior works
@@ -469,7 +487,7 @@ Add to `LevelData.createLevels()` with:
 - Gradle 8.9 (included via wrapper)
 
 ### Localization
-- **compose-multiplatform-localize** plugin (v1.1.1): String resource management and code generation
+- **compose-multiplatform-localize** plugin (v2.0.1): String resource management and code generation
 - **FlagKit** (v1.1.0): Vector flag icons for language selection UI
 - **multiplatform-settings** (v1.3.0): Cross-platform settings persistence (prepared for future use)
 

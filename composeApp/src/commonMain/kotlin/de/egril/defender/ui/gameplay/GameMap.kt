@@ -26,6 +26,7 @@ import de.egril.defender.model.getHexNeighbors
 import de.egril.defender.ui.*
 import de.egril.defender.ui.icon.ExplosionIcon
 import de.egril.defender.ui.icon.HoleIcon
+import de.egril.defender.ui.icon.WoodIcon
 import com.hyperether.resources.stringResource
 import de.egril.defender.ui.editor.map.MapControlState
 import de.egril.defender.ui.editor.map.MapControls
@@ -52,6 +53,7 @@ fun GameGrid(
     selectedTargetPosition: Position?,
     selectedMineAction: MineAction?,
     selectedWizardAction: WizardAction? = null,
+    selectedBarricadeAction: BarricadeAction? = null,
     onCellClick: (Position) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -235,6 +237,7 @@ fun GameGrid(
                 selectedTargetPosition = selectedTargetPosition,
                 selectedMineAction = selectedMineAction,
                 selectedWizardAction = selectedWizardAction,
+                selectedBarricadeAction = selectedBarricadeAction,
                 targetCircleInfo = targetCircleMap[position],
                 onClick = { onCellClick(position) },
                 hexSize = hexSize,
@@ -286,7 +289,11 @@ fun GameGrid(
                     offsetY = offsetY,
                     containerSize = containerSize,
                     contentSize = contentSize,
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize(),
+                    onViewportDrag = { newOffsetX, newOffsetY ->
+                        offsetX = newOffsetX
+                        offsetY = newOffsetY
+                    }
                 )
             }
         }
@@ -304,6 +311,7 @@ fun GridCell(
     selectedTargetPosition: Position?,
     selectedMineAction: MineAction?,
     selectedWizardAction: WizardAction? = null,
+    selectedBarricadeAction: BarricadeAction? = null,
     targetCircleInfo: TargetCircleInfo?,
     onClick: () -> Unit,
     hexSize: androidx.compose.ui.unit.Dp = 48.dp,
@@ -324,6 +332,9 @@ fun GridCell(
     
     // Check for healing effects at this position
     val healingEffect = gameState.healingEffects.find { it.position == position }
+    
+    // Check for damage effects at this position
+    val damageEffect = gameState.damageEffects.find { it.position == position }
     
     // Determine the tile type for background image loading
     val riverTile = gameState.level.getRiverTile(position)
@@ -353,6 +364,9 @@ fun GridCell(
 
     // Check for traps at this position
     val trap = gameState.traps.find { it.position == position }
+    
+    // Check for barricades at this position
+    val barricade = gameState.barricades.find { it.position == position }
 
     // Check if this cell is in range of the selected defender
     val cellIsInRange = selectedDefenderId?.let { defenderId ->
@@ -429,6 +443,25 @@ fun GridCell(
     } else {
         false
     }
+    
+    // Barricade placement range detection (3 tiles, yellow borders for empty path tiles)
+    val isBarricadePlacement = selectedBarricadeAction == BarricadeAction.BUILD_BARRICADE
+    val cellIsInBarricadeRange = if (isBarricadePlacement && selectedDefenderId != null) {
+        val selectedDefender = gameState.defenders.find { it.id == selectedDefenderId }
+        selectedDefender?.let { sel ->
+            // Check if within 3 tiles range
+            val distance = sel.position.value.distanceTo(position)
+            val isInRange = distance > 0 && distance <= 3
+            // Check if empty path tile (no defender, no attacker, can have existing barricade for reinforcement)
+            val isEmptyPath = isOnPath && defender == null && attacker == null
+            isInRange && isEmptyPath
+        } ?: false
+    } else {
+        false
+    }
+    
+    // Show barricade preview when hovering over valid barricade placement tile
+    val showBarricadePreview = isBarricadePlacement && hoveredPosition == position && cellIsInBarricadeRange
 
     // Base background color based on area type - ALWAYS visible
     // Build islands + strips adjacent to path allow tower placement
@@ -467,6 +500,11 @@ fun GridCell(
         }
 
         trap != null -> GamePlayColors.Trap.copy(alpha = 0.6f)  // Brown tint for trap
+        
+        barricade != null -> Color(0xFF795548).copy(alpha = 0.5f)  // Brown tint for barricade
+        
+        // Barricade placement range - yellow tint for tiles in range
+        cellIsInBarricadeRange -> GamePlayColors.Yellow.copy(alpha = 0.3f)  // Light yellow for barricade placement range
         
         // Tower placement preview - highlight the hovered build tile differently than range tiles
         showPlacementPreview -> GamePlayColors.Yellow.copy(alpha = 0.4f)  // Light yellow for the build tile being hovered
@@ -507,6 +545,9 @@ fun GridCell(
         showPlacementPreview -> GamePlayColors.Yellow  // Yellow border for hovered build tile
         isInPreviewRange -> GamePlayColors.Success  // Green border for range preview tiles
         
+        // Barricade placement range - yellow borders
+        cellIsInBarricadeRange -> GamePlayColors.Yellow  // Yellow border for barricade placement range
+        
         cellIsInRange && isValidTargetTile && showRange && canPlaceTrapHere -> GamePlayColors.Success  // Green border for tiles in range (path or river for area attacks)
         isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> GamePlayColors.Yellow  // Yellow border for selected defender (not during initial building)
         isSpawnPoint -> GamePlayColors.WarningDark  // Darker orange border for spawn in dark mode
@@ -521,6 +562,7 @@ fun GridCell(
         }
 
         trap != null -> GamePlayColors.Trap  // Brown border for trap
+        barricade != null -> Color(0xFF795548)  // Brown border for barricade
         else -> Color.Transparent  // No borders for empty cells
     }
 
@@ -528,11 +570,14 @@ fun GridCell(
     val borderWidth = when {
         showPlacementPreview -> 6.dp  // Double thickness for hovered build tile
         isInPreviewRange -> 3.dp  // Medium border for range preview
+        cellIsInBarricadeRange -> 4.dp  // Thick border for barricade placement range
         isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> 5.dp  // Extra thick border for selected defender (not during initial building)
         cellIsInRange && isValidTargetTile && showRange && canPlaceTrapHere -> 4.dp  // Thick border for cells in range (path or river for area attacks)
         isSpawnPoint || isTarget -> 3.dp
         attacker != null || defender != null -> 3.dp
         fieldEffect != null -> 3.dp  // Thick border for field effects
+        trap != null -> 3.dp  // Thick border for trap
+        barricade != null -> 3.dp  // Thick border for barricade
         else -> 0.dp  // No border for empty cells
     }
     
@@ -617,13 +662,16 @@ fun GridCell(
                 gameState = gameState,
                 attacker = attacker,
                 healingEffect = healingEffect,
+                damageEffect = damageEffect,
                 defender = defender,
                 fieldEffect = fieldEffect,
                 trap = trap,
+                barricade = barricade,
                 isSpawnPoint = isSpawnPoint,
                 isTarget = isTarget,
                 isRiverTile = isRiverTile,
                 showPlacementPreview = showPlacementPreview,
+                showBarricadePreview = showBarricadePreview,
                 selectedDefenderType = selectedDefenderType,
                 targetCircleInfo = targetCircleInfo,
                 useDashedBorder = useDashedBorder,
@@ -650,13 +698,16 @@ fun GridCell(
                 gameState = gameState,
                 attacker = attacker,
                 healingEffect = healingEffect,
+                damageEffect = damageEffect,
                 defender = defender,
                 fieldEffect = fieldEffect,
                 trap = trap,
+                barricade = barricade,
                 isSpawnPoint = isSpawnPoint,
                 isTarget = isTarget,
                 isRiverTile = isRiverTile,
                 showPlacementPreview = showPlacementPreview,
+                showBarricadePreview = showBarricadePreview,
                 selectedDefenderType = selectedDefenderType,
                 targetCircleInfo = targetCircleInfo,
                 useDashedBorder = useDashedBorder,
@@ -680,13 +731,16 @@ private fun BoxScope.GridCellContent(
     gameState: GameState,
     attacker: Attacker?,
     healingEffect: HealingEffect?,
+    damageEffect: DamageEffect?,
     defender: Defender?,
     fieldEffect: FieldEffect?,
     trap: Trap?,
+    barricade: Barricade?,
     isSpawnPoint: Boolean,
     isTarget: Boolean,
     isRiverTile: Boolean,
     showPlacementPreview: Boolean,
+    showBarricadePreview: Boolean,
     selectedDefenderType: DefenderType?,
     targetCircleInfo: TargetCircleInfo?,
     useDashedBorder: Boolean,
@@ -829,6 +883,79 @@ private fun BoxScope.GridCellContent(
                             )
                         }
                     }
+                }
+            }
+            
+            barricade != null -> {
+                // Show barricade with HP
+                Box(contentAlignment = Alignment.Center) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        // Show wood/barricade symbol with brown color
+                        WoodIcon(size = 48.dp)
+                        // Show health points - moved up for better visibility
+                        Text(
+                            "${barricade.healthPoints.value} HP",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Color(0xFF795548),  // Brown color
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.offset(y = (-12).dp)
+                        )
+                    }
+                    // Show damage effect overlay if present
+                    if (damageEffect != null) {
+                        // Show 3 red "-" symbols in different sizes
+                        // Positioned with smaller symbols higher than larger ones
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            // Large - symbol at center
+                            Text(
+                                "-",
+                                style = MaterialTheme.typography.headlineLarge,
+                                color = Color.Red,
+                                fontWeight = FontWeight.Bold
+                            )
+                            // Medium - symbol - offset left and higher
+                            Text(
+                                "-",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = Color.Red,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.offset(x = (-10).dp, y = (-12).dp)
+                            )
+                            // Small - symbol - offset right and higher
+                            Text(
+                                "-",
+                                style = MaterialTheme.typography.titleSmall,
+                                color = Color.Red,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.offset(x = 8.dp, y = (-15).dp)
+                            )
+                        }
+                    }
+                }
+            }
+            
+            showBarricadePreview -> {
+                // Show see-through barricade preview when hovering
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
+                    modifier = Modifier.graphicsLayer(alpha = 0.5f)  // Semi-transparent
+                ) {
+                    // Show wood/barricade symbol with brown color
+                    WoodIcon(size = 48.dp)
+                    // Show "NEW" text for new barricade preview
+                    Text(
+                        stringResource(Res.string.barricade),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Color(0xFF795548),  // Brown color
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             }
 

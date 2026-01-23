@@ -431,11 +431,15 @@ object EditorJsonSerializer {
                 """,
       "nameKey": "${location.nameKey}""""
             } else ""
+            val iconResourceNameJson = if (location.iconResourceName != null) {
+                """,
+      "iconResourceName": "${location.iconResourceName}""""
+            } else ""
             """{
       "id": "${location.id}",
       "name": "${location.name}"$nameKeyJson,
       "position": {"x": ${location.position.x}, "y": ${location.position.y}},
-      "levelIds": [$levelIdsJson]
+      "levelIds": [$levelIdsJson]$iconResourceNameJson
     }"""
         }
         
@@ -511,7 +515,14 @@ object EditorJsonSerializer {
                         }
                     }
                     
-                    locations.add(WorldMapLocationData(id, name, nameKey, position, levelIds))
+                    // Parse optional icon resource name
+                    val iconResourceName = try {
+                        JsonUtils.extractValue(entry, "iconResourceName").takeIf { it.isNotEmpty() }
+                    } catch (e: Exception) {
+                        null  // Optional field - null if not present
+                    }
+                    
+                    locations.add(WorldMapLocationData(id, name, nameKey, position, levelIds, iconResourceName))
                 }
             }
             

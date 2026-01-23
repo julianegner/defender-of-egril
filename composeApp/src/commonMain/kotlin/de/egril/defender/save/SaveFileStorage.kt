@@ -158,6 +158,10 @@ object SaveFileStorage {
                             .eachCount()
                     }
                     
+                    // Count traps by type
+                    val dwarvenTrapCount = savedGame.traps.count { it.type == "DWARVEN" }
+                    val magicalTrapCount = savedGame.traps.count { it.type == "MAGICAL" }
+                    
                     savedGames.add(
                         SaveGameMetadata(
                             id = savedGame.id,
@@ -166,11 +170,15 @@ object SaveFileStorage {
                             levelName = savedGame.levelName,
                             turnNumber = savedGame.turnNumber,
                             coins = savedGame.coins,
+                            healthPoints = savedGame.healthPoints,
                             towerCount = savedGame.defenders.size,
                             enemyCount = savedGame.attackers.count { !it.isDefeated },
                             defenderCounts = defenderCounts,
                             attackerCounts = attackerCounts,
                             remainingSpawnCounts = remainingSpawnCounts,
+                            dwarvenTrapCount = dwarvenTrapCount,
+                            magicalTrapCount = magicalTrapCount,
+                            barricadeCount = savedGame.barricades.size,
                             comment = savedGame.comment,
                             defenderPositions = savedGame.defenders,
                             attackerPositions = savedGame.attackers,
@@ -312,6 +320,14 @@ object SaveFileStorage {
             )
         }
         
+        val barricades = gameState.barricades.map { barricade ->
+            SavedBarricade(
+                position = barricade.position,
+                healthPoints = barricade.healthPoints.value,
+                defenderId = barricade.defenderId
+            )
+        }
+        
         return SavedGame(
             id = saveId,
             timestamp = currentTimeMillis(),
@@ -334,6 +350,7 @@ object SaveFileStorage {
             mapId = gameState.level.mapId,  // Save the map ID for verification on load
             rafts = rafts,
             nextRaftId = gameState.nextRaftId.value,
+            barricades = barricades,
             worldMapSave = null  // Don't automatically include world map - only on explicit export
         )
     }
@@ -423,6 +440,16 @@ object SaveFileStorage {
                 damage = trap.damage,
                 defenderId = trap.defenderId,
                 type = try { TrapType.valueOf(trap.type) } catch (e: Exception) { TrapType.DWARVEN }
+            )
+        })
+        
+        // Restore barricades
+        gameState.barricades.clear()
+        gameState.barricades.addAll(savedGame.barricades.map { barricade ->
+            Barricade(
+                position = barricade.position,
+                healthPoints = mutableStateOf(barricade.healthPoints),
+                defenderId = barricade.defenderId
             )
         })
         

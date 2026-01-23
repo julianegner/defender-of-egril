@@ -5,6 +5,7 @@ import androidx.compose.runtime.*
 import de.egril.defender.ui.*
 import de.egril.defender.ui.editor.level.LevelEditorScreen
 import de.egril.defender.ui.gameplay.GamePlayScreen
+import de.egril.defender.ui.infopage.InstallationInfoScreen
 import de.egril.defender.ui.loadgame.LoadGameScreen
 import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.worldmap.WorldMapScreen
@@ -71,6 +72,7 @@ fun App() {
         val allPlayers by viewModel.allPlayers.collectAsState()
         val worldMapConflict by viewModel.worldMapConflict.collectAsState()
         val specialActionsRemaining by viewModel.specialActionsRemaining.collectAsState()
+        val reminderMessage by viewModel.reminderMessage.collectAsState()
         
         // Show player selection dialog if needed
         var showPlayerSelection by remember { mutableStateOf(false) }
@@ -185,6 +187,7 @@ fun App() {
                 MainMenuScreen(
                     onStartGame = { viewModel.navigateToWorldMap() },
                     onShowRules = { viewModel.navigateToRules() },
+                    onShowInstallationInfo = { viewModel.navigateToInstallationInfo() },
                     onSelectPlayer = { showPlayerSelection = true },
                     onEditPlayerName = { showEditPlayer = true },
                     currentPlayerName = currentPlayer?.name
@@ -211,6 +214,12 @@ fun App() {
             
             is Screen.Rules -> {
                 RulesScreen(
+                    onBack = { viewModel.navigateToMainMenu() }
+                )
+            }
+            
+            is Screen.InstallationInfo -> {
+                InstallationInfoScreen(
                     onBack = { viewModel.navigateToMainMenu() }
                 )
             }
@@ -257,13 +266,17 @@ fun App() {
                         onMineDig = { mineId -> viewModel.performMineDig(mineId) },
                         onMineBuildTrap = { mineId, trapPos -> viewModel.performMineBuildTrap(mineId, trapPos) },
                         onWizardPlaceMagicalTrap = { wizardId, trapPos -> viewModel.performWizardPlaceMagicalTrap(wizardId, trapPos) },
+                        onBuildBarricade = { towerId, barricadePos -> viewModel.performBuildBarricade(towerId, barricadePos) },
+                        onRemoveBarricade = { barricadePos -> viewModel.performRemoveBarricade(barricadePos) },
                         cheatDigOutcome = cheatDigOutcome,
                         onClearCheatDigOutcome = { viewModel.clearCheatDigOutcome() },
                         showPlatformInfo = showPlatformInfo,
                         onClearPlatformInfo = { viewModel.clearPlatformInfo() },
                         hasUnsavedChanges = { viewModel.hasUnsavedChanges() },
                         specialActionsRemaining = specialActionsRemaining,
-                        onClearSpecialActionsWarning = { viewModel.clearSpecialActionsWarning() }
+                        onClearSpecialActionsWarning = { viewModel.clearSpecialActionsWarning() },
+                        reminderMessage = reminderMessage,
+                        onClearReminderMessage = { viewModel.clearReminderMessage() }
                     )
                 }
             }

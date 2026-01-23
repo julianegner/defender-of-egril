@@ -57,7 +57,8 @@ data class WorldMapLocationData(
     val name: String,                    // Display name shown on the map
     val nameKey: String? = null,         // Optional string resource key for translation (e.g., "location_starting_village")
     val position: WorldMapPoint,         // Position on the world map
-    val levelIds: List<String>           // List of level IDs at this location
+    val levelIds: List<String>,          // List of level IDs at this location
+    val iconResourceName: String? = null // Optional icon resource name (without extension, e.g., "emoji_map", "emoji_pushpin")
 )
 
 /**

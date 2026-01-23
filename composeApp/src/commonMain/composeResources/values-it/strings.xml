@@ -190,7 +190,7 @@
     <string name="acid_desc">Acido: Danno continuo per 3 turni entro 1 cella dall'impatto</string>
     <string name="victory_defeat">Vittoria &amp; Sconfitta</string>
     <string name="victory_detail">Vittoria: Sconfiggi tutti i nemici in tutte le ondate con almeno 1 punto salute rimanente</string>
-    <string name="defeat_detail">Sconfitta: I nemici deboli (goblin, orchi, ogre, scheletri) costano 1 punto salute quando raggiungono il bersaglio. I nemici potenti (maghi, streghe, maghi malvagi, demoni, draghi) costano punti salute pari al loro livello. Ewhad costa tutti i tuoi punti salute. A 0 punti salute, perdi.</string>
+    <string name="defeat_detail">Sconfitta: I nemici deboli (goblin, orchi, ogre, scheletri) costano 1 punto salute quando raggiungono il bersaglio.\nI nemici potenti (maghi, streghe, maghi malvagi, demoni, draghi) costano punti salute pari al loro livello.\nEwhad costa tutti i tuoi punti salute.\nA 0 punti salute, perdi.</string>
     <string name="grid_legend">Legenda della griglia</string>
     <string name="spawn_desc">Spawn: Posizione di partenza (i nemici appaiono)</string>
     <string name="target_desc">Bersaglio: Posizione bersaglio (difendi questo!)</string>
@@ -380,7 +380,7 @@
     <string name="new_level">Nuovo livello</string>
     <string name="enemy_type">Tipo di nemico:</string>
     <string name="add_enemy_to_turn">Aggiungi nemico al turno %d</string>
-    <string name="ewhad_warning">⚠️ Ewhad può apparire solo una volta per livello!</string>
+    <string name="ewhad_warning">Ewhad può apparire solo una volta per livello!</string>
     <string name="level_lv">Liv%d</string>
     <string name="arrange_level_order">Organizza ordine dei livelli:</string>
     <string name="levels_in_sequence">Livelli nella sequenza:</string>
@@ -401,7 +401,7 @@
     <string name="cost_label">Costo</string>
     <string name="damage_label">Danno</string>
     <string name="hp_with_level">PV: %d</string>
-    <string name="add_enemy_button">➕ Aggiungi nemico al turno %d</string>
+    <string name="add_enemy_button">Aggiungi nemico al turno %d</string>
     <string name="add_all_towers">Aggiungi tutto</string>
     <string name="remove_all_towers">Rimuovi tutto</string>
     <string name="level_info_tab">Info livello</string>
@@ -434,7 +434,7 @@
     <string name="tutorial_welcome_title">Benvenuto in Defender of Egril!</string>
     <string name="tutorial_welcome">Questo è un gioco di difesa delle torri. Il tuo obiettivo è impedire ai nemici di raggiungere il bersaglio costruendo torri difensive.</string>
     <string name="tutorial_resources_title">Risorse</string>
-    <string name="tutorial_resources">Hai monete per costruire torri e punti vita. Quando sconfiggi i nemici, guadagni monete pari alla loro ricompensa base moltiplicata per il loro livello. I nemici deboli costano 1 PV, ma i nemici potenti (maghi, streghe, maghi malvagi, demoni, draghi) costano PV pari al loro livello. Ewhad costa tutti i tuoi PV!</string>
+    <string name="tutorial_resources">Hai monete per costruire torri e punti vita.\nQuando sconfiggi i nemici, guadagni monete pari alla loro ricompensa base moltiplicata per il loro livello.\nI nemici deboli costano 1 PV, ma i nemici potenti (maghi, streghe, maghi malvagi, demoni, draghi) costano PV pari al loro livello.\nEwhad costa tutti i tuoi PV!</string>
     <string name="tutorial_towers_title">Torri disponibili</string>
     <string name="tutorial_towers">Torre di Punte: Corto raggio, economica. Torre di Lancia: Raggio medio. Torre ad Arco: Lungo raggio. Scegli saggiamente in base alla tua strategia!</string>
     <string name="tutorial_legend_title">La Leggenda</string>
@@ -444,7 +444,7 @@
     <string name="tutorial_build_title">Costruire torri</string>
     <string name="tutorial_build">Seleziona un tipo di torre sotto, quindi fai clic su un'area di costruzione verde per posizionarla. Costruisci le tue difese!</string>
     <string name="tutorial_initial_building_title">Fase di costruzione iniziale</string>
-    <string name="tutorial_initial_building">In questa fase iniziale, le torri vengono costruite istantaneamente ma non possono ancora attaccare. Fai clic su una torre per vedere il suo raggio - le caselle del percorso ottengono bordi verdi. Più avanti nel gioco, le torri impiegheranno 1-2 turni per essere costruite.</string>
+    <string name="tutorial_initial_building">In questa fase iniziale, le torri vengono costruite istantaneamente ma non possono ancora attaccare.\nFai clic su una torre per vedere il suo raggio - le caselle del percorso ottengono bordi verdi.\nPiù avanti nel gioco, le torri impiegheranno 1-2 turni per essere costruite.</string>
     <string name="tutorial_undo_title">Annulla torri</string>
     <string name="tutorial_undo">Durante questa fase iniziale, puoi annullare il posizionamento della torre selezionandola e vendendola per un rimborso completo. Dopo l'inizio della battaglia, puoi vendere le torri solo per il 75% del loro valore.</string>
     <string name="tutorial_combat_title">Inizia la battaglia</string>
@@ -454,13 +454,13 @@
     <string name="tutorial_range_title">Controlla il raggio</string>
     <string name="tutorial_range">Seleziona una torre per vedere quali nemici sono nel raggio (evidenziati). Le torri possono attaccare solo i nemici nel loro raggio!</string>
     <string name="tutorial_attacking_title">Attacca i nemici</string>
-    <string name="tutorial_attacking">Fai clic su un nemico nel raggio per attaccare. Ogni torre ha azioni limitate per turno mostrate dai simboli ⚡. Se la tua torre non può raggiungere i nemici o non ha azioni, puoi terminare il turno o piazzare più torri.</string>
+    <string name="tutorial_attacking">Fai clic su un nemico nel raggio per attaccare.\nOgni torre ha azioni limitate per turno mostrate dai simboli del fulmine.\nSe la tua torre non può raggiungere i nemici o non ha azioni, puoi terminare il turno o piazzare più torri.</string>
     <string name="tutorial_upgrade_title">Potenzia torri</string>
     <string name="tutorial_upgrade">Seleziona una torre e fai clic su Potenzia per aumentare le sue statistiche. Vedrai danno, raggio e azioni attuali per turno, più come saranno dopo il potenziamento. I potenziamenti costano monete ma rendono le torri più potenti!</string>
     <string name="tutorial_sell_title">Vendi torri</string>
     <string name="tutorial_sell">Seleziona una torre e fai clic su Vendi per ottenere il 75% del suo investimento totale (costo + potenziamenti). Usa questo se hai bisogno di monete o vuoi riposizionare la tua difesa.</string>
     <string name="tutorial_save_game_title">Salva i tuoi progressi</string>
-    <string name="tutorial_save_game">Puoi salvare il tuo gioco in qualsiasi momento usando il pulsante Salva gioco. Questo ti permette di provare diverse strategie o continuare più tardi. Per caricare un gioco salvato, usa il pulsante Carica gioco sulla schermata della mappa del mondo.</string>
+    <string name="tutorial_save_game">Puoi salvare il tuo gioco in qualsiasi momento usando il pulsante Salva gioco.\nQuesto ti permette di provare diverse strategie o continuare più tardi.\nPer caricare un gioco salvato, usa il pulsante Carica gioco sulla schermata della mappa del mondo.</string>
     <string name="tutorial_complete_title">Tutorial completato!</string>
     <string name="tutorial_complete">Hai padroneggiato le basi! Nei livelli successivi, sbloccherai torri più potenti come la Balista, il Mago e le torri di Alchimia per affrontare nemici più forti come demoni e boss. Ora difendi Egril contro le orde. Buona fortuna, difensore!</string>
     <string name="tutorial_next">Avanti</string>
@@ -518,7 +518,7 @@
 
     <!-- Dragon Info -->
     <string name="dragon_info_title">Allarme Drago!</string>
-    <string name="dragon_info_movement">Il drago alterna il movimento: Turno 1, 3, 5...: Cammina 1 casella sul percorso. Turno 2, 4, 6...: Vola fino a 5 caselle, può attraversare ostacoli ma deve atterrare sul percorso</string>
+    <string name="dragon_info_movement">Il drago alterna il movimento:\nTurno 1, 3, 5...: Cammina 1 casella sul percorso.\nTurno 2, 4, 6...: Vola fino a 5 caselle, può attraversare ostacoli ma deve atterrare sul percorso</string>
     <string name="dragon_info_eating">I draghi divorano i nemici su cui atterrano (eccetto Ewhad), guadagnando i loro punti salute!</string>
     <string name="dragon_info_level">Il livello del drago aumenta con la salute: Livello = PS ÷ 500 (min. 1)</string>
     <string name="got_it">Capito!</string>
@@ -548,12 +548,12 @@
     <string name="waypoints_description">Configura le connessioni dei punti di passaggio per questo livello. I punti di passaggio definiscono il percorso che seguiranno i nemici.</string>
     <string name="waypoint_source">Sorgente</string>
     <string name="waypoint_target">Obiettivo</string>
-    <string name="add_waypoint">➕ Aggiungi Punto di Passaggio</string>
+    <string name="add_waypoint">Aggiungi Punto di Passaggio</string>
     <string name="delete_waypoint">Elimina</string>
     <string name="no_waypoints_configured">Nessun punto di passaggio configurato per questo livello.</string>
     <string name="available_waypoint_tiles">Caselle di punti di passaggio disponibili dalla mappa: %d</string>
-    <string name="waypoint_validation_success">✓ La configurazione dei punti di passaggio è valida</string>
-    <string name="waypoint_validation_error">✗ La configurazione dei punti di passaggio presenta errori</string>
+    <string name="waypoint_validation_success">La configurazione dei punti di passaggio è valida</string>
+    <string name="waypoint_validation_error">La configurazione dei punti di passaggio presenta errori</string>
     <string name="circular_dependency_detected">Dipendenza circolare rilevata! Correggi le connessioni dei punti di passaggio.</string>
     <string name="waypoint_position_format">Posizione (%d, %d)</string>
     <string name="spawn_point_text">Punto di Spawn</string>
@@ -572,7 +572,7 @@
     <string name="to_spawn_point">Al Punto di Spawn</string>
     <string name="enemies_affected_count">%d nemici interessati</string>
     <string name="apply_changes">Applica Modifiche</string>
-    <string name="spawn_point_warning">⚠ Alcuni nemici appaiono al di fuori dei punti di spawn validi</string>
+    <string name="spawn_point_warning">Alcuni nemici appaiono al di fuori dei punti di spawn validi</string>
     <string name="target_text">Obiettivo</string>
     <string name="waypoint">Punto di Passaggio</string>
     <string name="select_source_position">Seleziona posizione sorgente</string>
@@ -639,7 +639,18 @@
     <string name="dwarven_mine_actions">Miniere: Possono scavare o costruire trappole</string>
     <string name="alchemy_tower_actions">Torri di Alchimia: Gli attacchi durevoli beneficiano del puntamento manuale</string>
     <string name="wizard_tower_actions">Torri del Mago: Possono piazzare trappole magiche (livello 10+)</string>
+    <string name="spike_spear_tower_actions">Torri di Picche/Lance: Possono costruire barricate (livello 10+)</string>
     <string name="continue_turn">Continua Turno</string>
+    
+    <!-- Barricade Feature -->
+    <string name="barricade">Barricata</string>
+    <string name="barricade_hp">PV barricata: %d</string>
+    <string name="build_barricade">Costruisci barricata</string>
+    <string name="remove_barricade">Rimuovi barricata</string>
+    <string name="barricade_info_title">Abilità barricata sbloccata!</string>
+    <string name="barricade_info_message">La tua torre di Picche o Lance ha raggiunto il livello 10 e ora può costruire barricate!\nLe barricate sono strutture di legno posizionate su caselle di percorso adiacenti che bloccano il movimento nemico.\nOgni barricata ha punti vita pari al livello della torre meno 10 (minimo 1).\nQuando i nemici raggiungono una barricata, la attaccano con danno pari al loro livello (i draghi infliggono 5× il loro livello).\nSe una barricata viene distrutta, il nemico si sposta su quella casella.\nPuoi costruire nuove barricate o rinforzare quelle esistenti e fare clic sulle barricate per rimuoverle.</string>
+    <string name="remove_barricade_title">Rimuovere Barricata?</string>
+    <string name="remove_barricade_message">Sei sicuro di voler rimuovere questa barricata?</string>
     
     <!-- Magical Trap Feature -->
     <string name="magical_trap">Trappola Magica</string>
@@ -647,6 +658,14 @@
     <string name="magical_trap_available">Trappola Magica Disponibile</string>
     <string name="magical_trap_tutorial_title">Trappola Magica Sbloccata!</string>
     <string name="magical_trap_tutorial_message">La tua torre del mago ha raggiunto il livello 10 e ora può piazzare trappole magiche! Queste trappole teletrasportano i nemici al loro punto di partenza quando vengono attivate. Dopo aver piazzato una trappola, c\'è un tempo di ricarica di 10 turni prima di poterne piazzare un\'altra.</string>
+    <string name="remove_magical_trap_title">Rimuovere Trappola Magica?</string>
+    <string name="remove_magical_trap_message">Sei sicuro di voler rimuovere questa trappola magica?</string>
+    
+    <!-- Trap Feature -->
+    <string name="defensive_items">Oggetti Difensivi</string>
+    <string name="remove_trap_title">Rimuovere Trappola?</string>
+    <string name="remove_trap_message">Sei sicuro di voler rimuovere questa trappola?</string>
+    <string name="no">No</string>
     
     <!-- Level Prerequisites -->
     <string name="level_dependencies">Dipendenze dei Livelli</string>
@@ -679,16 +698,16 @@
 
     <!-- First Time Tower Usage Info -->
     <string name="wizard_first_use_title">Torre del Mago</string>
-    <string name="wizard_first_use_message">La Torre del Mago è una potente torre ad area d\'effetto che lancia palle di fuoco sui nemici! Ogni palla di fuoco danneggia il bersaglio e tutti i nemici nelle caselle adiacenti. Ha un tempo di costruzione più lungo (2 turni) ma può devastare gruppi di nemici. Al livello 10, i maghi possono piazzare trappole magiche che teletrasportano i nemici al punto di spawn. Al livello 20, il raggio della palla di fuoco aumenta a 2 caselle!</string>
+    <string name="wizard_first_use_message">La Torre del Mago è una potente torre ad area d\'effetto che lancia palle di fuoco sui nemici!\nOgni palla di fuoco danneggia il bersaglio e tutti i nemici nelle caselle adiacenti.\nHa un tempo di costruzione più lungo (2 turni) ma può devastare gruppi di nemici.\nAl livello 10, i maghi possono piazzare trappole magiche che teletrasportano i nemici al punto di spawn.\nAl livello 20, il raggio della palla di fuoco aumenta a 2 caselle!</string>
 
     <string name="alchemy_first_use_title">Torre dell'Alchimia</string>
-    <string name="alchemy_first_use_message">La Torre dell'Alchimia lancia acido che infligge danni nel tempo! A differenza di altre torri, il danno da acido persiste per più turni (base 2 turni, aumenta con il livello). L\'acido colpisce il bersaglio e i nemici adiacenti in una piccola area. Sebbene il danno per turno sia inferiore, il danno totale nel tempo può essere molto efficace. Al livello 20, l'area dell'acido aumenta a 2 caselle!</string>
+    <string name="alchemy_first_use_message">La Torre dell'Alchimia lancia acido che infligge danni nel tempo!\nA differenza di altre torri, il danno da acido persiste per più turni (base 2 turni, aumenta con il livello).\nL\'acido colpisce il bersaglio e i nemici adiacenti in una piccola area.\nSebbene il danno per turno sia inferiore, il danno totale nel tempo può essere molto efficace.\nAl livello 20, l'area dell'acido aumenta a 2 caselle!</string>
 
     <string name="ballista_first_use_title">Torre Balista</string>
-    <string name="ballista_first_use_message">La Balista è un\'arma d\'assedio a lungo raggio con una portata eccezionale (5 caselle) e danni elevati! Tuttavia, ha una portata minima di 3 caselle e non può attaccare nemici vicini. Richiede 2 turni per essere costruita. Usala per colpire i nemici a distanza prima che si avvicinino troppo, o posizionala dietro altre torri per massima efficacia.</string>
+    <string name="ballista_first_use_message">La Balista è un\'arma d\'assedio a lungo raggio con una portata eccezionale (5 caselle) e danni elevati!\nTuttavia, ha una portata minima di 3 caselle e non può attaccare nemici vicini.\nRichiede 2 turni per essere costruita.\nUsala per colpire i nemici a distanza prima che si avvicinino troppo, o posizionala dietro altre torri per massima efficacia.</string>
 
     <string name="mine_first_use_title">Miniera Nanica</string>
-    <string name="mine_first_use_message">La Miniera Nanica è una struttura speciale che genera monete attraverso operazioni minerarie! A differenza delle torri da combattimento, le miniere usano l'azione "scava" per trovare risorse preziose (macerie, ottone, argento, oro, gemme o diamanti). Le miniere possono anche costruire trappole che danneggiano i nemici. A livelli più alti, le miniere possono scavare più volte per turno e raggiungere più lontano. Attenzione: I draghi sono avidi e distruggeranno le miniere per reclamare il tesoro!</string>
+    <string name="mine_first_use_message">La Miniera Nanica è una struttura speciale che genera monete attraverso operazioni minerarie!\nA differenza delle torri da combattimento, le miniere usano l'azione "scava" per trovare risorse preziose (macerie, ottone, argento, oro, gemme o diamanti).\nLe miniere possono anche costruire trappole che danneggiano i nemici.\nA livelli più alti, le miniere possono scavare più volte per turno e raggiungere più lontano.\nAttenzione: I draghi sono avidi e distruggeranno le miniere per reclamare il tesoro!</string>
 
     <!-- River Mechanics Info -->
     <string name="river_info_title">Meccaniche del Fiume</string>
@@ -752,6 +771,10 @@
     <string name="from">Da:</string>
     <string name="to">A:</string>
     <string name="connection_type">Tipo di connessione:</string>
+    <string name="location_icon_optional">Icona posizione (Opzionale)</string>
+    <string name="no_icon_selected">Nessuna icona selezionata (userà marcatore numerato)</string>
+    <string name="available_icons">Icone disponibili:</string>
+    <string name="invalid_icon">Icona non valida</string>
     
     <!-- Editor Info Page -->
     <string name="info">Info</string>
@@ -902,4 +925,48 @@
     <string name="initial_language_title">Scegli la tua lingua</string>
     <string name="initial_language_prompt">Seleziona la tua lingua preferita per il gioco</string>
     <string name="initial_language_continue">Continua</string>
+
+    <!-- Time Reminders -->
+    <string name="time_for_break_title">Tempo per una pausa?</string>
+    <string name="time_for_break_message">Stai giocando da %s.</string>
+    <string name="time_for_sleep_title">Tempo di dormire?</string>
+    <string name="time_for_sleep_close_to_midnight">È quasi mezzanotte.</string>
+    <string name="time_for_sleep_midnight">È mezzanotte.</string>
+    <string name="time_for_sleep_after_midnight">È dopo mezzanotte.</string>
+    <string name="hours">%d ore</string>
+    <string name="hour">%d ora</string>
+    <string name="minutes">%d minuti</string>
+    <string name="minute">%d minuto</string>
+
+    <!-- Installation Information Screen -->
+    <string name="installation_info">Info di Installazione</string>
+    <string name="installation_info_title">Come installare Defender of Egril</string>
+    <string name="installation_windows_title">Windows</string>
+    <string name="installation_windows_step1">1. Scarica il programma di installazione (.exe o .msi) da GitHub Releases</string>
+    <string name="installation_windows_step2">2. Esegui il programma di installazione</string>
+    <string name="installation_windows_step3">3. Se appare Windows Defender SmartScreen con un avviso:</string>
+    <string name="installation_windows_step3a">• Fai clic su "Ulteriori informazioni"</string>
+    <string name="installation_windows_step3b">• Poi fai clic su "Esegui comunque"</string>
+    <string name="installation_windows_note">Questo avviso appare perché il gioco non è firmato con un certificato commerciale. Il gioco è sicuro da installare.</string>
+    <string name="installation_android_title">Android (Installazione manuale)</string>
+    <string name="installation_android_step1">1. Abilita "Installa app sconosciute" nelle Impostazioni:</string>
+    <string name="installation_android_step1a">• Vai a Impostazioni → App → Accesso speciale → Installa app sconosciute</string>
+    <string name="installation_android_step1b">• Seleziona il tuo browser e abilita "Consenti da questa fonte"</string>
+    <string name="installation_android_step2">2. Scarica l\'APK da GitHub Releases</string>
+    <string name="installation_android_step3">3. Apri il file APK scaricato</string>
+    <string name="installation_android_step4">4. Tocca "Installa" quando richiesto</string>
+    <string name="installation_android_note">Per sicurezza, disabilita "Installa app sconosciute" dopo l\'installazione.</string>
+    <string name="installation_ios_title">iOS</string>
+    <string name="installation_ios_step1">1. Installa dall\'App Store (quando disponibile)</string>
+    <string name="installation_ios_step2">2. Oppure compila dal codice sorgente usando Xcode</string>
+    <string name="installation_linux_title">Linux</string>
+    <string name="installation_linux_step1">Esegui dal terminale con JDK 11+:</string>
+    <string name="installation_linux_command">./gradlew :composeApp:run</string>
+    <string name="installation_macos_title">macOS</string>
+    <string name="installation_macos_step1">Esegui dal terminale con JDK 11+:</string>
+    <string name="installation_macos_command">./gradlew :composeApp:run</string>
+    <string name="installation_web_title">Web/Browser</string>
+    <string name="installation_web_step1">Nessuna installazione necessaria!</string>
+    <string name="installation_web_step2">Visita semplicemente l\'URL del gioco in qualsiasi browser moderno (Chrome, Firefox, Safari, Edge)</string>
+    <string name="installation_details_link">Per istruzioni dettagliate, consulta INSTALL.md nel repository GitHub.</string>
 </resources>

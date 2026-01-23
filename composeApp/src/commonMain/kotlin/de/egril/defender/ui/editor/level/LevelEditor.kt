@@ -233,10 +233,9 @@ private fun LevelCard(
                                 tint = Color.Green
                             )
                         } else {
-                            Text(
-                                text = "✗",
-                                color = Color.Red,
-                                style = MaterialTheme.typography.titleSmall
+                            CrossIcon(
+                                size = 16.dp,
+                                tint = Color.Red
                             )
                         }
                         // Add warning badge if enemies are outside spawn points
@@ -372,7 +371,7 @@ fun LevelEditorView(
         )
         
         // Tab Row with badges
-        TabRow(selectedTabIndex = selectedTabIndex) {
+        PrimaryTabRow(selectedTabIndex = selectedTabIndex) {
             Tab(
                 selected = selectedTabIndex == 0,
                 onClick = { selectedTabIndex = 0 },

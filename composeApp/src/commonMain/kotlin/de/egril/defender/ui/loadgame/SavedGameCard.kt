@@ -95,7 +95,8 @@ fun SavedGameCard(
             
             SavedGameCardStats(
                 turnNumber = saveGame.turnNumber,
-                coins = saveGame.coins
+                coins = saveGame.coins,
+                healthPoints = saveGame.healthPoints
             )
             
             // Display comment if present

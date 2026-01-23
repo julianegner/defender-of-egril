@@ -69,9 +69,15 @@ Open `iosApp/iosApp.xcodeproj` in Xcode and click Run
 ```bash
 ./gradlew :composeApp:wasmJsBrowserDevelopmentRun
 ```
+With Impressum (legal notice for German website compliance):
+```bash
+./gradlew :composeApp:wasmJsBrowserDevelopmentRun -PwithImpressum=true
+```
 Then open http://localhost:8080 in your browser
 
 📖 **For detailed gameplay instructions, see [GAMEPLAY.md](docs/root/GAMEPLAY.md)**
+
+🎮 **For installation instructions on all platforms, see [INSTALL.md](INSTALL.md)**
 
 ## Building and Running
 
@@ -101,6 +107,12 @@ Then open http://localhost:8080 in your browser
 
 # Build web/wasm bundle
 ./gradlew :composeApp:wasmJsBrowserDevelopmentWebpack
+
+# Build web/wasm distribution (production)
+./gradlew :composeApp:wasmJsBrowserDistribution
+
+# Build web/wasm distribution with Impressum (legal notice)
+./gradlew :composeApp:wasmJsBrowserDistribution -PwithImpressum=true
 
 # Build Windows EXE installer (from bash)
 ./gradlew :composeApp:packageExe
@@ -217,6 +229,32 @@ This game is built using:
 - Kotlin Multiplatform for cross-platform support
 
 For detailed development information, see [DEVELOPMENT.md](docs/root/DEVELOPMENT.md).
+
+### Build Flags
+
+#### Impressum Flag
+
+The `withImpressum` flag controls whether the impressum (legal notice) is included in the web/WASM build. This is required for German website compliance.
+
+**Usage:**
+
+Set in `gradle.properties`:
+```properties
+withImpressum=true
+```
+
+Or pass via command line:
+```bash
+# Run development server with impressum
+./gradlew :composeApp:wasmJsBrowserDevelopmentRun -PwithImpressum=true
+
+# Build production distribution with impressum
+./gradlew :composeApp:wasmJsBrowserDistribution -PwithImpressum=true
+```
+
+**Default:** `false` (impressum not included)
+
+**Note:** The impressum is only displayed on the web/WASM platform. It appears at the bottom of the main menu and the installation info page.
 
 ### Testing
 
