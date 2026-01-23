@@ -21,7 +21,7 @@ import androidx.compose.foundation.rememberScrollbarAdapter
 private const val SCROLLBAR_PADDING = 12
 
 @Composable
-fun BoxScope.LevelSequenceScrollbar(
+actual fun BoxScope.LevelSequenceScrollbar(
     horizontalScrollState: ScrollState,
     verticalScrollState: ScrollState
 ) {

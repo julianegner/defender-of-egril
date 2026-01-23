@@ -32,8 +32,8 @@ import de.egril.defender.editor.EditorStorage
 import de.egril.defender.editor.PrerequisiteValidationResult
 import de.egril.defender.ui.icon.CheckmarkIcon
 import de.egril.defender.ui.icon.WarningIcon
+import de.egril.defender.ui.LevelSequenceScrollbar
 import com.hyperether.resources.stringResource
-import de.egril.defender.utils.isPlatformDesktop
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.*
 
@@ -279,12 +279,11 @@ fun LevelSequenceContent() {
                     )
                 }
 
-                if (isPlatformDesktop) {
-                    LevelSequenceScrollbar(
-                        horizontalScrollState = horizontalScrollState,
-                        verticalScrollState = verticalScrollState
-                    )
-                }
+                // Platform-specific scrollbars (actual implementation on desktop, no-op elsewhere)
+                LevelSequenceScrollbar(
+                    horizontalScrollState = horizontalScrollState,
+                    verticalScrollState = verticalScrollState
+                )
             }
         }
     }
