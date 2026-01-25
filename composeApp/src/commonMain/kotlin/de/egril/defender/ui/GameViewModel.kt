@@ -281,6 +281,14 @@ class GameViewModel {
                     }
                     startLevel(newGameState.healthPoints.value)
                 }
+                
+                // Set up combat result callback for kill tracking
+                gameEngine?.setCombatResultCallback { result ->
+                    // Track kills from this attack
+                    result.killedEnemyTypes.forEach { enemyType ->
+                        achievementManager?.onEnemyKilled(enemyType, result.killsThisAttack)
+                    }
+                }
             }
             
             // Start time tracking for reminders
@@ -363,6 +371,7 @@ class GameViewModel {
         
         // Track turn start for achievements
         achievementManager?.startTurn()
+        gameEngine?.startTurnTracking()
         
         val stateAfter = _gameState.value
         println("DEBUG: Phase after: ${stateAfter?.phase?.value}")

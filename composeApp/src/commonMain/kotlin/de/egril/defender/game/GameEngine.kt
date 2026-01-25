@@ -429,6 +429,9 @@ class GameEngine(private val state: GameState) {
         // Play battle start sound
         GlobalSoundManager.playSound(SoundEvent.BATTLE_START)
         
+        // Start tracking for achievement purposes
+        startTurnTracking()
+        
         state.phase.value = GamePhase.PLAYER_TURN
         state.turnNumber.value = 1  // Start at turn 1 when game begins
         
@@ -1172,5 +1175,24 @@ class GameEngine(private val state: GameState) {
         }
         
         return false
+    }
+    
+    /**
+     * Set callback for combat results (for achievements)
+     */
+    fun setCombatResultCallback(callback: (CombatResult) -> Unit) {
+        combatSystem.onCombatResult = callback
+    }
+    
+    /**
+     * Get kills this turn for achievement tracking
+     */
+    fun getKillsThisTurn(): Int = combatSystem.getKillsThisTurn()
+    
+    /**
+     * Reset turn counters at start of turn (for achievements)
+     */
+    fun startTurnTracking() {
+        combatSystem.startTurn()
     }
 }

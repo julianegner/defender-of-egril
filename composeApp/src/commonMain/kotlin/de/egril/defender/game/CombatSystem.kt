@@ -5,12 +5,35 @@ import de.egril.defender.audio.SoundEvent
 import de.egril.defender.model.*
 
 /**
+ * Result of a combat action
+ */
+data class CombatResult(
+    val killsThisAttack: Int = 0,
+    val killedEnemyTypes: List<AttackerType> = emptyList()
+)
+
+/**
  * Handles combat mechanics including single-target, area, and lasting attacks.
  */
 class CombatSystem(
     private val state: GameState,
     private val bridgeSystem: BridgeSystem
 ) {
+    
+    // Track kills this turn for achievements
+    private var killsThisTurn = 0
+    private var killedTypesThisTurn = mutableListOf<AttackerType>()
+    
+    // Callback for combat results (for achievements)
+    var onCombatResult: ((CombatResult) -> Unit)? = null
+    
+    /**
+     * Reset turn counters at start of turn
+     */
+    fun startTurn() {
+        killsThisTurn = 0
+        killedTypesThisTurn.clear()
+    }
     
     companion object {
         // LASTING damage is applied at half the initial damage per turn
@@ -346,6 +369,25 @@ class CombatSystem(
     
     fun processDefeatedAttackers() {
         val defeated = state.attackers.filter { it.isDefeated.value && !state.level.isTargetPosition(it.position.value) }
+        
+        // Track kills for this attack
+        val killsThisAttack = defeated.size
+        val killedTypes = defeated.map { it.type }
+        
+        // Update turn totals
+        killsThisTurn += killsThisAttack
+        killedTypesThisTurn.addAll(killedTypes)
+        
+        // Emit combat result for achievement tracking
+        if (killsThisAttack > 0) {
+            onCombatResult?.invoke(
+                CombatResult(
+                    killsThisAttack = killsThisAttack,
+                    killedEnemyTypes = killedTypes
+                )
+            )
+        }
+        
         for (attacker in defeated) {
             state.coins.value += attacker.type.reward * attacker.level.value
             // Play enemy destroyed sound only if not building a bridge
@@ -355,4 +397,9 @@ class CombatSystem(
         }
         state.attackers.removeAll { it.isDefeated.value }
     }
+    
+    /**
+     * Get total kills this turn (for achievements)
+     */
+    fun getKillsThisTurn(): Int = killsThisTurn
 }
