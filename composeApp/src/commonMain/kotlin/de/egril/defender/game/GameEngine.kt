@@ -1190,6 +1190,13 @@ class GameEngine(private val state: GameState) {
     fun getKillsThisTurn(): Int = combatSystem.getKillsThisTurn()
     
     /**
+     * Set callback for raft loss events (for achievements)
+     */
+    fun setRaftLossCallback(callback: (RaftLossReason) -> Unit) {
+        raftSystem.onRaftLost = callback
+    }
+    
+    /**
      * Reset turn counters at start of turn (for achievements)
      */
     fun startTurnTracking() {

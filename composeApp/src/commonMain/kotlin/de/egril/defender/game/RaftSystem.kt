@@ -4,6 +4,15 @@ import androidx.compose.runtime.mutableStateOf
 import de.egril.defender.model.*
 
 /**
+ * Event types for raft destruction
+ */
+enum class RaftLossReason {
+    MAP_EDGE,
+    MAELSTROM,
+    OTHER
+}
+
+/**
  * Handles raft movement on river tiles.
  * 
  * Raft rules:
@@ -18,6 +27,9 @@ import de.egril.defender.model.*
  * - When multiple rafts in a row, move the one that can move first
  */
 class RaftSystem(private val state: GameState) {
+    
+    // Callback for raft loss events (for achievements)
+    var onRaftLost: ((RaftLossReason) -> Unit)? = null
     
     /**
      * Process all raft movements at the end of a turn.
@@ -143,7 +155,7 @@ class RaftSystem(private val state: GameState) {
         // Check for maelstrom at current position
         if (startRiverTile.flowDirection == RiverFlow.MAELSTROM) {
             println("Raft ${raft.id} destroyed by maelstrom at $startPos")
-            destroyRaftAndTower(raft, defender)
+            destroyRaftAndTower(raft, defender, RaftLossReason.MAELSTROM)
             return
         }
         
@@ -169,7 +181,7 @@ class RaftSystem(private val state: GameState) {
             // Check if next position is out of bounds
             if (!isPositionInBounds(nextStep)) {
                 println("Raft ${raft.id} moved out of bounds at $nextStep")
-                destroyRaftAndTower(raft, defender)
+                destroyRaftAndTower(raft, defender, RaftLossReason.MAP_EDGE)
                 return
             }
             
@@ -201,7 +213,7 @@ class RaftSystem(private val state: GameState) {
             // Check if we reached a maelstrom
             if (nextRiverTile.flowDirection == RiverFlow.MAELSTROM) {
                 println("Raft ${raft.id} destroyed by maelstrom at $currentPos")
-                destroyRaftAndTower(raft, defender)
+                destroyRaftAndTower(raft, defender, RaftLossReason.MAELSTROM)
                 return
             }
         }
@@ -276,9 +288,12 @@ class RaftSystem(private val state: GameState) {
     /**
      * Destroy a raft and its tower.
      */
-    private fun destroyRaftAndTower(raft: Raft, defender: Defender) {
+    private fun destroyRaftAndTower(raft: Raft, defender: Defender, reason: RaftLossReason = RaftLossReason.OTHER) {
         destroyRaft(raft)
         state.defenders.remove(defender)
-        println("Tower ${defender.type} destroyed with raft ${raft.id}")
+        println("Tower ${defender.type} destroyed with raft ${raft.id} due to $reason")
+        
+        // Emit event for achievement tracking
+        onRaftLost?.invoke(reason)
     }
 }

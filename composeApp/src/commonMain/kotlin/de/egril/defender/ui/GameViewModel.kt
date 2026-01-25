@@ -289,6 +289,17 @@ class GameViewModel {
                         achievementManager?.onEnemyKilled(enemyType, result.killsThisAttack)
                     }
                 }
+                
+                // Set up raft loss callback
+                gameEngine?.setRaftLossCallback { reason ->
+                    when (reason) {
+                        de.egril.defender.game.RaftLossReason.MAP_EDGE -> 
+                            achievementManager?.onRaftLostToMapEdge()
+                        de.egril.defender.game.RaftLossReason.MAELSTROM -> 
+                            achievementManager?.onRaftLostToMaelstrom()
+                        de.egril.defender.game.RaftLossReason.OTHER -> {} // No achievement
+                    }
+                }
             }
             
             // Start time tracking for reminders
