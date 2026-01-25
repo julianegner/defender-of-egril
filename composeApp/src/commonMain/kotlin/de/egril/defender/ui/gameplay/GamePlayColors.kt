@@ -70,6 +70,12 @@ object GamePlayColors {
     private val TrapDarkMode = Color(0xFF9E6A3F)      // Softer brown - dwarven mine traps
     private val RiverDarkMode = Color(0xFF2E5C8A)     // Darker blue - river tiles
     
+    // Buildable tile highlight colors (light mode) - lighter green for better distinction
+    private val BuildableHighlightLight = Color(0xFF81C784)  // Light green - buildable tiles when tower selected
+    
+    // Buildable tile highlight colors (dark mode) - lighter green for better distinction
+    private val BuildableHighlightDarkMode = Color(0xFF4CAF50)  // Medium green - buildable tiles when tower selected
+    
     // Disabled button colors (light mode)
     private val DisabledButtonLight = Color(0xFF9E9E9E)        // Gray - disabled button background
     private val DisabledButtonTextLight = Color(0xFF757575)    // Dark gray - disabled button text
@@ -144,4 +150,7 @@ object GamePlayColors {
     
     val DisabledButtonText: Color
         @Composable get() = if (AppSettings.isDarkMode.value) DisabledButtonTextDarkMode else DisabledButtonTextLight
+    
+    val BuildableHighlight: Color
+        @Composable get() = if (AppSettings.isDarkMode.value) BuildableHighlightDarkMode else BuildableHighlightLight
 }

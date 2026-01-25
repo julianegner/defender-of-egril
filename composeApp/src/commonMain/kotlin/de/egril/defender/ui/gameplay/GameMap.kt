@@ -553,8 +553,8 @@ fun GridCell(
         // Barricade placement range - yellow borders
         cellIsInBarricadeRange -> GamePlayColors.Yellow  // Yellow border for barricade placement range
         
-        // Buildable tile highlighting - green borders when tower type is selected
-        isBuildableAndEmpty -> GamePlayColors.Success  // Green border for buildable tiles
+        // Buildable tile highlighting - lighter green borders with dashed line when tower type is selected
+        isBuildableAndEmpty -> GamePlayColors.BuildableHighlight  // Lighter green border for buildable tiles
         
         cellIsInRange && isValidTargetTile && showRange && canPlaceTrapHere -> GamePlayColors.Success  // Green border for tiles in range (path or river for area attacks)
         isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> GamePlayColors.Yellow  // Yellow border for selected defender (not during initial building)
@@ -590,8 +590,8 @@ fun GridCell(
         else -> 0.dp  // No border for empty cells
     }
     
-    // Flag to indicate dashed border (for preview only)
-    val useDashedBorder = showPlacementPreview || isInPreviewRange
+    // Flag to indicate dashed border (for preview and buildable tiles)
+    val useDashedBorder = showPlacementPreview || isInPreviewRange || isBuildableAndEmpty
     
     // Determine if we should use gradient blending
     val useTileImages = de.egril.defender.ui.settings.AppSettings.useTileImages.value
