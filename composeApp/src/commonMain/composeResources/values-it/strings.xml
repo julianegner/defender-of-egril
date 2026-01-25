@@ -978,4 +978,88 @@
     <string name="no_achievements_yet">Nessun risultato ancora</string>
     <string name="earned_on">Ottenuto il %1$s</string>
     <string name="achievement_unlocked">Risultato Sbloccato!</string>
+
+    <!-- Achievements: Tower -->
+    <string name="achievement_build_tower_name">Prima Torre</string>
+    <string name="achievement_build_tower_desc">Costruisci la tua prima torre</string>
+    <string name="achievement_upgrade_tower_name">Potenziamento Torre</string>
+    <string name="achievement_upgrade_tower_desc">Potenzia una torre al livello successivo</string>
+    <string name="achievement_sell_tower_name">Mercante di Torri</string>
+    <string name="achievement_sell_tower_desc">Vendi una torre per monete</string>
+    <string name="achievement_undo_tower_name">Ripensamento</string>
+    <string name="achievement_undo_tower_desc">Annulla il posizionamento di una torre</string>
+
+    <!-- Achievements: Raft -->
+    <string name="achievement_build_raft_name">Prima Zattera</string>
+    <string name="achievement_build_raft_desc">Costruisci la tua prima zattera su un fiume</string>
+    <string name="achievement_upgrade_raft_name">Potenziamento Zattera</string>
+    <string name="achievement_upgrade_raft_desc">Potenzia una torre su zattera al livello successivo</string>
+    <string name="achievement_sell_raft_name">Mercante di Zattere</string>
+    <string name="achievement_sell_raft_desc">Vendi una zattera per monete</string>
+    <string name="achievement_undo_raft_name">Richiamo Zattera</string>
+    <string name="achievement_undo_raft_desc">Annulla il posizionamento di una zattera</string>
+    <string name="achievement_lose_raft_map_edge_name">Perso in Mare</string>
+    <string name="achievement_lose_raft_map_edge_desc">Perdi una zattera quando scorre fuori dal bordo della mappa</string>
+    <string name="achievement_lose_raft_maelstrom_name">Nel Vortice</string>
+    <string name="achievement_lose_raft_maelstrom_desc">Perdi una zattera quando affonda in un vortice</string>
+
+    <!-- Achievements: Level -->
+    <string name="achievement_win_level_name">Vittoria</string>
+    <string name="achievement_win_level_desc">Vinci il tuo primo livello</string>
+    <string name="achievement_lose_level_name">Sconfitta</string>
+    <string name="achievement_lose_level_desc">Perdi un livello</string>
+    <string name="achievement_win_level_full_hp_name">Vittoria Perfetta</string>
+    <string name="achievement_win_level_full_hp_desc">Vinci un livello senza perdere punti vita</string>
+    <string name="achievement_win_level_one_hp_name">Per un Soffio</string>
+    <string name="achievement_win_level_one_hp_desc">Vinci un livello con solo un punto vita rimanente</string>
+
+    <!-- Achievements: Combat -->
+    <string name="achievement_kill_two_enemies_same_turn_name">Doppia Uccisione</string>
+    <string name="achievement_kill_two_enemies_same_turn_desc">Uccidi almeno 2 nemici nello stesso turno</string>
+    <string name="achievement_kill_two_enemies_same_attack_name">Multi-Uccisione</string>
+    <string name="achievement_kill_two_enemies_same_attack_desc">Uccidi almeno 2 nemici con un singolo attacco</string>
+
+    <!-- Achievements: Boss Kills -->
+    <string name="achievement_kill_ogre_name">Uccisore di Orchi</string>
+    <string name="achievement_kill_ogre_desc">Uccidi un Orco</string>
+    <string name="achievement_kill_evil_wizard_name">Cacciatore di Maghi</string>
+    <string name="achievement_kill_evil_wizard_desc">Uccidi un Mago Malvagio</string>
+    <string name="achievement_kill_demon_name">Uccisore di Demoni</string>
+    <string name="achievement_kill_demon_desc">Uccidi un Demone</string>
+    <string name="achievement_kill_ewhad_name">Ewhad Sconfitto</string>
+    <string name="achievement_kill_ewhad_desc">Uccidi il boss Ewhad</string>
+    <string name="achievement_kill_witch_name">Cacciatore di Streghe</string>
+    <string name="achievement_kill_witch_desc">Uccidi una Strega</string>
+
+    <!-- Achievements: Mining -->
+    <string name="achievement_dig_first_time_name">Primo Scavo</string>
+    <string name="achievement_dig_first_time_desc">Scava in una miniera nanica per la prima volta</string>
+    <string name="achievement_find_gold_name">Cercatore d\'Oro</string>
+    <string name="achievement_find_gold_desc">Trova oro mentre scavi in una miniera</string>
+    <string name="achievement_find_diamond_name">Cacciatore di Diamanti</string>
+    <string name="achievement_find_diamond_desc">Trova un diamante mentre scavi in una miniera</string>
+
+    <!-- Achievements: Dragon -->
+    <string name="achievement_summon_dragon_name">Drago Risvegliato</string>
+    <string name="achievement_summon_dragon_desc">Evoca un drago scavando troppo in profondità</string>
+    <string name="achievement_reduce_dragon_level_name">Domatore di Draghi</string>
+    <string name="achievement_reduce_dragon_level_desc">Riduci il livello di un drago</string>
+    <string name="achievement_increase_dragon_level_name">Drago Potenziato</string>
+    <string name="achievement_increase_dragon_level_desc">Il livello di un drago aumenta</string>
+    <string name="achievement_kill_dragon_name">Uccisore di Draghi</string>
+    <string name="achievement_kill_dragon_desc">Uccidi un drago</string>
+
+    <!-- Achievements: Milestones -->
+    <string name="achievement_build_ten_towers_name">Maestro delle Torri</string>
+    <string name="achievement_build_ten_towers_desc">Costruisci almeno 10 torri in un singolo livello</string>
+    <string name="achievement_build_ten_rafts_name">Maestro delle Zattere</string>
+    <string name="achievement_build_ten_rafts_desc">Costruisci almeno 10 zattere in un singolo livello</string>
+
+    <!-- Achievements: Bridge and Barricade -->
+    <string name="achievement_destroy_bridge_name">Distruttore di Ponti</string>
+    <string name="achievement_destroy_bridge_desc">Distruggi un ponte</string>
+    <string name="achievement_build_barricade_name">Prima Barricata</string>
+    <string name="achievement_build_barricade_desc">Costruisci la tua prima barricata</string>
+    <string name="achievement_add_health_barricade_name">Fortificato</string>
+    <string name="achievement_add_health_barricade_desc">Aggiungi punti vita a una barricata esistente</string>
 </resources>

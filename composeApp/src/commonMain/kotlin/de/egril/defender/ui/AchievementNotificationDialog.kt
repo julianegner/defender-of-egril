@@ -68,9 +68,16 @@ fun AchievementNotificationDialog(
                 
                 // Achievement name
                 Text(
-                    text = achievement.id.name.replace("_", " ").lowercase().replaceFirstChar { it.uppercase() },
+                    text = achievement.id.getLocalizedName(),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+                
+                // Achievement description
+                Text(
+                    text = achievement.id.getLocalizedDescription(),
+                    style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onPrimaryContainer
                 )
                 

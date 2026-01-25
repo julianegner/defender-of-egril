@@ -977,4 +977,87 @@
     <string name="no_achievements_yet">Noch keine Errungenschaften erhalten. Spiele das Spiel, um Errungenschaften zu erhalten!</string>
     <string name="earned_on">Erhalten am: %1$s</string>
     <string name="achievement_unlocked">Errungenschaft Freigeschaltet!</string>
+
+    <!-- Achievements: Tower -->
+    <string name="achievement_build_tower_name">Erster Turm</string>
+    <string name="achievement_build_tower_desc">Baue deinen ersten Turm</string>
+    <string name="achievement_upgrade_tower_name">Turm-Upgrade</string>
+    <string name="achievement_upgrade_tower_desc">Verbessere einen Turm auf die nächste Stufe</string>
+    <string name="achievement_sell_tower_name">Turmhändler</string>
+    <string name="achievement_sell_tower_desc">Verkaufe einen Turm für Münzen</string>
+    <string name="achievement_undo_tower_name">Zweite Gedanken</string>
+    <string name="achievement_undo_tower_desc">Mache eine Turmplatzierung rückgängig</string>
+
+    <!-- Achievements: Raft -->
+    <string name="achievement_build_raft_name">Erstes Floß</string>
+    <string name="achievement_build_raft_desc">Baue dein erstes Floß auf einem Fluss</string>
+    <string name="achievement_upgrade_raft_name">Floß-Upgrade</string>
+    <string name="achievement_upgrade_raft_desc">Verbessere einen Floß-Turm auf die nächste Stufe</string>
+    <string name="achievement_sell_raft_name">Floßhändler</string>
+    <string name="achievement_sell_raft_desc">Verkaufe ein Floß für Münzen</string>
+    <string name="achievement_undo_raft_name">Floß-Rückruf</string>
+    <string name="achievement_undo_raft_desc">Mache eine Floßplatzierung rückgängig</string>
+    <string name="achievement_lose_raft_map_edge_name">Auf See verloren</string>
+    <string name="achievement_lose_raft_map_edge_desc">Verliere ein Floß, wenn es vom Kartenrand fließt</string>
+    <string name="achievement_lose_raft_maelstrom_name">In den Mahlstrom</string>
+    <string name="achievement_lose_raft_maelstrom_desc">Verliere ein Floß, wenn es in einem Mahlstrom versinkt</string>
+
+    <!-- Achievements: Game Results -->
+    <string name="achievement_win_level_name">Sieg</string>
+    <string name="achievement_win_level_desc">Gewinne dein erstes Level</string>
+    <string name="achievement_lose_level_name">Niederlage</string>
+    <string name="achievement_lose_level_desc">Verliere ein Level</string>
+    <string name="achievement_win_level_full_hp_name">Makellos</string>
+    <string name="achievement_win_level_full_hp_desc">Gewinne ein Level ohne Lebenspunkte zu verlieren</string>
+    <string name="achievement_win_level_one_hp_name">Knappes Ding</string>
+    <string name="achievement_win_level_one_hp_desc">Gewinne ein Level mit nur einem verbleibenden Lebenspunkt</string>
+
+    <!-- Achievements: Combat -->
+    <string name="achievement_kill_two_enemies_same_turn_name">Doppel-Kill</string>
+    <string name="achievement_kill_two_enemies_same_turn_desc">Töte mindestens 2 Gegner in derselben Runde</string>
+    <string name="achievement_kill_two_enemies_same_attack_name">Multi-Kill</string>
+    <string name="achievement_kill_two_enemies_same_attack_desc">Töte mindestens 2 Gegner mit einem einzigen Angriff</string>
+    <string name="achievement_kill_ogre_name">Ogertöter</string>
+    <string name="achievement_kill_ogre_desc">Töte einen Oger</string>
+    <string name="achievement_kill_evil_wizard_name">Zaubererjäger</string>
+    <string name="achievement_kill_evil_wizard_desc">Töte einen bösen Zauberer</string>
+    <string name="achievement_kill_demon_name">Dämonentöter</string>
+    <string name="achievement_kill_demon_desc">Töte einen Dämon</string>
+    <string name="achievement_kill_ewhad_name">Ewhad besiegt</string>
+    <string name="achievement_kill_ewhad_desc">Töte den Boss Ewhad</string>
+    <string name="achievement_kill_witch_name">Hexenjäger</string>
+    <string name="achievement_kill_witch_desc">Töte eine Hexe</string>
+
+    <!-- Achievements: Mining -->
+    <string name="achievement_dig_first_time_name">Erste Grabung</string>
+    <string name="achievement_dig_first_time_desc">Grabe zum ersten Mal in einer Zwergenmine</string>
+    <string name="achievement_find_gold_name">Goldgräber</string>
+    <string name="achievement_find_gold_desc">Finde Gold beim Graben in einer Mine</string>
+    <string name="achievement_find_diamond_name">Diamantenjäger</string>
+    <string name="achievement_find_diamond_desc">Finde einen Diamanten beim Graben in einer Mine</string>
+
+    <!-- Achievements: Dragon -->
+    <string name="achievement_summon_dragon_name">Drache erweckt</string>
+    <string name="achievement_summon_dragon_desc">Beschwöre einen Drachen, indem du zu tief gräbst</string>
+    <string name="achievement_reduce_dragon_level_name">Drachenzähmer</string>
+    <string name="achievement_reduce_dragon_level_desc">Reduziere die Stufe eines Drachen</string>
+    <string name="achievement_increase_dragon_level_name">Drache gestärkt</string>
+    <string name="achievement_increase_dragon_level_desc">Die Stufe eines Drachen erhöht sich</string>
+    <string name="achievement_kill_dragon_name">Drachentöter</string>
+    <string name="achievement_kill_dragon_desc">Töte einen Drachen</string>
+
+    <!-- Achievements: Building Masters -->
+    <string name="achievement_build_ten_towers_name">Turmmeister</string>
+    <string name="achievement_build_ten_towers_desc">Baue mindestens 10 Türme in einem einzigen Level</string>
+    <string name="achievement_build_ten_rafts_name">Floßmeister</string>
+    <string name="achievement_build_ten_rafts_desc">Baue mindestens 10 Flöße in einem einzigen Level</string>
+
+    <!-- Achievements: Structures -->
+    <string name="achievement_destroy_bridge_name">Brückenbrecher</string>
+    <string name="achievement_destroy_bridge_desc">Zerstöre eine Brücke</string>
+    <string name="achievement_build_barricade_name">Erste Barrikade</string>
+    <string name="achievement_build_barricade_desc">Baue deine erste Barrikade</string>
+    <string name="achievement_add_health_barricade_name">Verstärkt</string>
+    <string name="achievement_add_health_barricade_desc">Füge einer bestehenden Barrikade Lebenspunkte hinzu</string>
+
 </resources>

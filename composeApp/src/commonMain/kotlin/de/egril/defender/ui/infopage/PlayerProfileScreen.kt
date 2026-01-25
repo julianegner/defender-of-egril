@@ -23,6 +23,8 @@ import de.egril.defender.model.Achievement
 import de.egril.defender.model.AchievementDefinitions
 import de.egril.defender.model.AchievementId
 import de.egril.defender.save.PlayerProfile
+import de.egril.defender.ui.getLocalizedName
+import de.egril.defender.ui.getLocalizedDescription
 import de.egril.defender.ui.icon.ChevronRightIcon
 import de.egril.defender.ui.icon.TrophyIcon
 import de.egril.defender.ui.settings.SettingsButton
@@ -329,17 +331,25 @@ private fun AchievementItem(achievement: Achievement) {
             
             // Achievement info
             Column(modifier = Modifier.weight(1f)) {
-                // Display achievement ID name for now (will add proper strings later)
+                // Achievement name
                 Text(
-                    text = achievement.id.name.replace("_", " ").lowercase().replaceFirstChar { it.uppercase() },
+                    text = achievement.id.getLocalizedName(),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 
+                // Achievement description
+                Text(
+                    text = achievement.id.getLocalizedDescription(),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                
+                // Earned date
                 Text(
                     text = stringResource(Res.string.earned_on, formatTimestamp(achievement.earnedAt)),
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
