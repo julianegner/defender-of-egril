@@ -190,4 +190,201 @@ class TranslationCoverageTest {
         
         return keys
     }
+    
+    @Test
+    fun testNoEmptyOrWhitespaceOnlyTranslations() {
+        val resourcesPath = File(projectRoot, "composeApp/src/commonMain/composeResources")
+        
+        if (!resourcesPath.exists()) {
+            fail("Resources path not found: ${resourcesPath.absolutePath}")
+        }
+        
+        val violations = mutableListOf<String>()
+        
+        // Check all language files for empty translations
+        listOf("values", "values-de", "values-es", "values-fr", "values-it").forEach { dir ->
+            val file = File(resourcesPath, "$dir/strings.xml")
+            if (file.exists()) {
+                checkFileForEmptyTranslations(file, dir, violations)
+            }
+        }
+        
+        if (violations.isNotEmpty()) {
+            val message = buildString {
+                appendLine("Found ${violations.size} empty or whitespace-only translation(s):")
+                appendLine("Empty translations will display as '???' in the app.")
+                appendLine()
+                violations.forEach { violation ->
+                    appendLine(violation)
+                }
+                appendLine()
+                appendLine("All translations must have non-empty values.")
+            }
+            fail(message)
+        }
+    }
+    
+    private fun checkFileForEmptyTranslations(file: File, languageDir: String, violations: MutableList<String>) {
+        val emptyStringPattern = Regex("""<string\s+name="([^"]+)"\s*>\s*</string>""")
+        
+        file.readLines().forEachIndexed { index, line ->
+            val lineNumber = index + 1
+            emptyStringPattern.find(line)?.let { match ->
+                val keyName = match.groupValues[1]
+                violations.add("  $languageDir/strings.xml:$lineNumber - Key '$keyName' has empty value")
+            }
+        }
+    }
+    
+    @Test
+    fun testAllReferencedKeysExist() {
+        val resourcesPath = File(projectRoot, "composeApp/src/commonMain/composeResources")
+        val uiSourcePath = File(projectRoot, "composeApp/src/commonMain/kotlin/de/egril/defender/ui")
+        
+        if (!resourcesPath.exists()) {
+            fail("Resources path not found: ${resourcesPath.absolutePath}")
+        }
+        
+        if (!uiSourcePath.exists()) {
+            fail("UI source path not found: ${uiSourcePath.absolutePath}")
+        }
+        
+        // Get all defined keys from English strings.xml
+        val englishFile = File(resourcesPath, "values/strings.xml")
+        val definedKeys = extractStringKeys(englishFile)
+        
+        // Find all keys referenced in LocalizationUtils and NameLocalizationUtils
+        val referencedKeys = mutableSetOf<String>()
+        
+        // Check LocalizationUtils.kt
+        val localizationUtilsFile = File(uiSourcePath, "LocalizationUtils.kt")
+        if (localizationUtilsFile.exists()) {
+            extractReferencedKeys(localizationUtilsFile, referencedKeys)
+        }
+        
+        // Check NameLocalizationUtils.kt
+        val nameLocalizationUtilsFile = File(uiSourcePath, "NameLocalizationUtils.kt")
+        if (nameLocalizationUtilsFile.exists()) {
+            extractReferencedKeys(nameLocalizationUtilsFile, referencedKeys)
+        }
+        
+        // Check AchievementLocalization.kt
+        val achievementLocalizationFile = File(uiSourcePath, "AchievementLocalization.kt")
+        if (achievementLocalizationFile.exists()) {
+            extractReferencedKeys(achievementLocalizationFile, referencedKeys)
+        }
+        
+        // Find missing keys
+        val missingKeys = referencedKeys - definedKeys
+        
+        if (missingKeys.isNotEmpty()) {
+            val message = buildString {
+                appendLine("Found ${missingKeys.size} key(s) referenced in code but not defined in strings.xml:")
+                appendLine("These will display as '???' in the app.")
+                appendLine()
+                missingKeys.sorted().forEach { key ->
+                    appendLine("  - $key")
+                }
+                appendLine()
+                appendLine("All referenced keys must be defined in values/strings.xml")
+            }
+            fail(message)
+        }
+    }
+    
+    private fun extractReferencedKeys(file: File, keys: MutableSet<String>) {
+        // Pattern to match string literals in when statements or variable assignments
+        val keyPattern = Regex("""["']([a-z_][a-z0-9_]*)["']""")
+        
+        file.readLines().forEach { line ->
+            // Skip comments
+            val trimmedLine = line.trim()
+            if (trimmedLine.startsWith("//") || trimmedLine.startsWith("*") || trimmedLine.startsWith("/*")) {
+                return@forEach
+            }
+            
+            // Only look at lines that reference string keys (contain quotes and underscore)
+            if (line.contains("\"") || line.contains("'")) {
+                keyPattern.findAll(line).forEach { match ->
+                    val potentialKey = match.groupValues[1]
+                    // Only consider it a key if it looks like a string resource key
+                    // (lowercase with underscores, not a file path or URL)
+                    if (potentialKey.contains("_") && !potentialKey.contains("/") && !potentialKey.contains(".")) {
+                        keys.add(potentialKey)
+                    }
+                }
+            }
+        }
+    }
+    
+    @Test
+    fun testXmlFilesAreWellFormed() {
+        val resourcesPath = File(projectRoot, "composeApp/src/commonMain/composeResources")
+        
+        if (!resourcesPath.exists()) {
+            fail("Resources path not found: ${resourcesPath.absolutePath}")
+        }
+        
+        val violations = mutableListOf<String>()
+        
+        // Check all language files for XML well-formedness
+        listOf("values", "values-de", "values-es", "values-fr", "values-it").forEach { dir ->
+            val file = File(resourcesPath, "$dir/strings.xml")
+            if (file.exists()) {
+                try {
+                    validateXmlStructure(file, dir, violations)
+                } catch (e: Exception) {
+                    violations.add("  $dir/strings.xml - XML parsing error: ${e.message}")
+                }
+            }
+        }
+        
+        if (violations.isNotEmpty()) {
+            val message = buildString {
+                appendLine("Found ${violations.size} XML structure issue(s):")
+                appendLine("Malformed XML will cause translations to fail and display as '???'")
+                appendLine()
+                violations.forEach { violation ->
+                    appendLine(violation)
+                }
+            }
+            fail(message)
+        }
+    }
+    
+    private fun validateXmlStructure(file: File, languageDir: String, violations: MutableList<String>) {
+        val content = file.readText()
+        
+        // Check for basic XML structure issues
+        if (!content.contains("<?xml")) {
+            violations.add("  $languageDir/strings.xml - Missing XML declaration")
+        }
+        
+        if (!content.contains("<resources>") || !content.contains("</resources>")) {
+            violations.add("  $languageDir/strings.xml - Missing <resources> root element")
+        }
+        
+        // Check for unclosed tags
+        val openTags = Regex("""<string\s+name="[^"]+">""").findAll(content).count()
+        val closeTags = Regex("""</string>""").findAll(content).count()
+        
+        if (openTags != closeTags) {
+            violations.add("  $languageDir/strings.xml - Mismatched <string> tags (open: $openTags, close: $closeTags)")
+        }
+        
+        // Check for duplicate keys
+        val keys = mutableMapOf<String, Int>()
+        val stringPattern = Regex("""<string\s+name="([^"]+)"""")
+        
+        file.readLines().forEachIndexed { index, line ->
+            stringPattern.find(line)?.let { match ->
+                val key = match.groupValues[1]
+                if (keys.containsKey(key)) {
+                    violations.add("  $languageDir/strings.xml:${index + 1} - Duplicate key '$key' (first defined at line ${keys[key]})")
+                } else {
+                    keys[key] = index + 1
+                }
+            }
+        }
+    }
 }
