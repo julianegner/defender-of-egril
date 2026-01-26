@@ -90,10 +90,12 @@ All translations must have non-empty values.
 **Purpose**: Validates that all keys referenced in code are defined in strings.xml.
 
 **What it checks**:
-- Scans `LocalizationUtils.kt`, `NameLocalizationUtils.kt`, and `AchievementLocalization.kt`
-- Extracts all string key references from when statements
+- Scans ALL UI files for `stringResource(Res.string.xxx)` calls (covers ~680+ keys)
+- Also checks `LocalizationUtils.kt`, `NameLocalizationUtils.kt`, and `AchievementLocalization.kt`
 - Verifies each key exists in English strings.xml
 - Skips comments to avoid false positives
+
+**Coverage**: This test now validates **all** stringResource usages throughout the entire UI codebase, not just specific utility files.
 
 **Example failure message**:
 ```

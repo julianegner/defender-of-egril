@@ -26,7 +26,8 @@ import java.io.File
  *    - Provides exact file location and key name for easy fixing
  * 
  * 4. **testAllReferencedKeysExist**: Validates code references to string keys
- *    - Scans LocalizationUtils, NameLocalizationUtils, and AchievementLocalization
+ *    - Scans ALL UI files for stringResource(Res.string.xxx) calls
+ *    - Also checks LocalizationUtils, NameLocalizationUtils, and AchievementLocalization
  *    - Ensures all referenced keys are defined in strings.xml
  *    - Missing key definitions cause "???" to appear at runtime
  * 
@@ -277,25 +278,22 @@ class TranslationCoverageTest {
         val englishFile = File(resourcesPath, "values/strings.xml")
         val definedKeys = extractStringKeys(englishFile)
         
-        // Find all keys referenced in LocalizationUtils and NameLocalizationUtils
+        // Find all keys referenced in ALL UI files via stringResource() calls
         val referencedKeys = mutableSetOf<String>()
         
-        // Check LocalizationUtils.kt
-        val localizationUtilsFile = File(uiSourcePath, "LocalizationUtils.kt")
-        if (localizationUtilsFile.exists()) {
-            extractReferencedKeys(localizationUtilsFile, referencedKeys)
-        }
+        // Scan all .kt files in the UI directory
+        uiSourcePath.walkTopDown()
+            .filter { it.isFile && it.extension == "kt" }
+            .forEach { file ->
+                extractStringResourceKeys(file, referencedKeys)
+            }
         
-        // Check NameLocalizationUtils.kt
-        val nameLocalizationUtilsFile = File(uiSourcePath, "NameLocalizationUtils.kt")
-        if (nameLocalizationUtilsFile.exists()) {
-            extractReferencedKeys(nameLocalizationUtilsFile, referencedKeys)
-        }
-        
-        // Check AchievementLocalization.kt
-        val achievementLocalizationFile = File(uiSourcePath, "AchievementLocalization.kt")
-        if (achievementLocalizationFile.exists()) {
-            extractReferencedKeys(achievementLocalizationFile, referencedKeys)
+        // Also check localization utility files for keys in when statements
+        listOf("LocalizationUtils.kt", "NameLocalizationUtils.kt", "AchievementLocalization.kt").forEach { fileName ->
+            val utilFile = File(uiSourcePath, fileName)
+            if (utilFile.exists()) {
+                extractReferencedKeys(utilFile, referencedKeys)
+            }
         }
         
         // Find missing keys
@@ -313,6 +311,18 @@ class TranslationCoverageTest {
                 appendLine("All referenced keys must be defined in values/strings.xml")
             }
             fail(message)
+        }
+    }
+    
+    private fun extractStringResourceKeys(file: File, keys: MutableSet<String>) {
+        // Pattern to match stringResource(Res.string.key_name) calls
+        val stringResourcePattern = Regex("""stringResource\s*\(\s*Res\.string\.([a-z_][a-z_0-9]*)\b""")
+        
+        file.readLines().forEach { line ->
+            stringResourcePattern.findAll(line).forEach { match ->
+                val key = match.groupValues[1]
+                keys.add(key)
+            }
         }
     }
     
