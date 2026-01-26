@@ -64,7 +64,8 @@ fun LevelInfoTab(
     testingOnly: Boolean,
     onTestingOnlyChange: (Boolean) -> Unit,
     allowAutoAttack: Boolean,
-    onAllowAutoAttackChange: (Boolean) -> Unit
+    onAllowAutoAttackChange: (Boolean) -> Unit,
+    isOfficial: Boolean = false
 ) {
     var showAutoAttackInfo by remember { mutableStateOf(false) }
     
@@ -89,6 +90,7 @@ fun LevelInfoTab(
                         value = title,
                         onValueChange = onTitleChange,
                         label = { Text(stringResource(Res.string.level_title)) },
+                        enabled = !isOfficial,
                         modifier = Modifier.fillMaxWidth()
                     )
                     
@@ -96,6 +98,7 @@ fun LevelInfoTab(
                         value = subtitle,
                         onValueChange = onSubtitleChange,
                         label = { Text(stringResource(Res.string.subtitle_optional)) },
+                        enabled = !isOfficial,
                         modifier = Modifier.fillMaxWidth()
                     )
                 }

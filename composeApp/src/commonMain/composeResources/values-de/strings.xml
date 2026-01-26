@@ -1059,5 +1059,13 @@
     <string name="achievement_build_barricade_desc">Baue deine erste Barrikade</string>
     <string name="achievement_add_health_barricade_name">Verstärkt</string>
     <string name="achievement_add_health_barricade_desc">Füge einer bestehenden Barrikade Lebenspunkte hinzu</string>
+    
+    <!-- Official Content Badges -->
+    <string name="official">Offiziell</string>
+    <string name="user_map">Benutzerkarte</string>
+    <string name="official_level">Offizielles Level</string>
+    <string name="user_level">Benutzer-Level</string>
+    <string name="official_map_info">Dies ist eine offizielle Karte. Sie können sie kopieren, um eine Benutzerversion zu erstellen.</string>
+    <string name="official_level_info">Dies ist ein offizielles Level. Sie können es kopieren, um eine Benutzerversion zu erstellen.</string>
 
 </resources>

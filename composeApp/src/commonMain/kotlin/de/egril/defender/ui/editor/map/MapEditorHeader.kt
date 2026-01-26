@@ -107,16 +107,61 @@ private fun ExpandedMapEditorHeader(
                 .background(MaterialTheme.colorScheme.surface)
                 .padding(12.dp)
         ) {
+            // Official map info banner
+            if (map.isOfficial) {
+                Card(
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer
+                    )
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(12.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        de.egril.defender.ui.icon.InfoIcon(size = 20.dp)
+                        Text(
+                            text = stringResource(Res.string.official_map_info),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                    }
+                }
+            }
+            
             // Header with collapse button
             Row(
                 modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = stringResource(Res.string.editing_map, map.name.ifEmpty { map.id }),
-                    style = MaterialTheme.typography.titleMedium
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = stringResource(Res.string.editing_map, map.name.ifEmpty { map.id }),
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    // Official badge
+                    if (map.isOfficial) {
+                        AssistChip(
+                            onClick = { },
+                            label = {
+                                Text(
+                                    text = stringResource(Res.string.official),
+                                    fontSize = 10.sp
+                                )
+                            },
+                            colors = AssistChipDefaults.assistChipColors(
+                                containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
+                                labelColor = MaterialTheme.colorScheme.primary
+                            ),
+                            modifier = Modifier.height(24.dp)
+                        )
+                    }
+                }
                 
                 Button(
                     onClick = onCollapse,
@@ -137,6 +182,7 @@ private fun ExpandedMapEditorHeader(
                 value = mapName,
                 onValueChange = onMapNameChange,
                 label = { Text(stringResource(Res.string.map_name)) },
+                enabled = !map.isOfficial,
                 modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
             )
             

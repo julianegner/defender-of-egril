@@ -18,6 +18,10 @@ import de.egril.defender.model.Position
 import de.egril.defender.ui.icon.CheckmarkIcon
 import de.egril.defender.ui.icon.CrossIcon
 import de.egril.defender.ui.hexagon.HexagonMinimapFromEditorMap
+import com.hyperether.resources.stringResource
+import defender_of_egril.composeapp.generated.resources.Res
+import defender_of_egril.composeapp.generated.resources.official
+import defender_of_egril.composeapp.generated.resources.user_map
 
 /**
  * Card for selecting a map in the level editor
@@ -56,6 +60,28 @@ fun MapSelectionCard(
                 text = "${map.width}x${map.height}",
                 style = MaterialTheme.typography.labelSmall,
                 fontSize = 10.sp
+            )
+            
+            // Official/User badge
+            AssistChip(
+                onClick = { },
+                label = {
+                    Text(
+                        text = if (map.isOfficial) stringResource(Res.string.official) else stringResource(Res.string.user_map),
+                        fontSize = 9.sp
+                    )
+                },
+                colors = AssistChipDefaults.assistChipColors(
+                    containerColor = if (map.isOfficial) 
+                        MaterialTheme.colorScheme.primary.copy(alpha = 0.2f) 
+                    else 
+                        MaterialTheme.colorScheme.tertiary.copy(alpha = 0.2f),
+                    labelColor = if (map.isOfficial) 
+                        MaterialTheme.colorScheme.primary 
+                    else 
+                        MaterialTheme.colorScheme.tertiary
+                ),
+                modifier = Modifier.height(20.dp)
             )
             
             // Mini-map preview

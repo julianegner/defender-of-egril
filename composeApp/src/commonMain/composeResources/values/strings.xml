@@ -1061,4 +1061,12 @@
     <string name="achievement_destroy_bridge_desc">Destroy a bridge</string>
     <string name="achievement_build_barricade_desc">Build your first barricade</string>
     <string name="achievement_add_health_barricade_desc">Add health points to an existing barricade</string>
+    
+    <!-- Official Content Badges -->
+    <string name="official">Official</string>
+    <string name="user_map">User Map</string>
+    <string name="official_level">Official Level</string>
+    <string name="user_level">User Level</string>
+    <string name="official_map_info">This is an official map. You can copy it to create a user version.</string>
+    <string name="official_level_info">This is an official level. You can copy it to create a user version.</string>
 </resources>

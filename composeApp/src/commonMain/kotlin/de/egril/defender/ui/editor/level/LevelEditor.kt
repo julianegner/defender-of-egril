@@ -13,6 +13,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import de.egril.defender.editor.EditorEnemySpawn
 import de.egril.defender.editor.EditorLevel
 import de.egril.defender.editor.EditorMap
@@ -226,6 +227,27 @@ private fun LevelCard(
                             text = level.title,
                             style = MaterialTheme.typography.titleSmall
                         )
+                        // Official/User badge
+                        AssistChip(
+                            onClick = { },
+                            label = {
+                                Text(
+                                    text = if (level.isOfficial) stringResource(Res.string.official_level) else stringResource(Res.string.user_level),
+                                    fontSize = 9.sp
+                                )
+                            },
+                            colors = AssistChipDefaults.assistChipColors(
+                                containerColor = if (level.isOfficial) 
+                                    MaterialTheme.colorScheme.primary.copy(alpha = 0.2f) 
+                                else 
+                                    MaterialTheme.colorScheme.tertiary.copy(alpha = 0.2f),
+                                labelColor = if (level.isOfficial) 
+                                    MaterialTheme.colorScheme.primary 
+                                else 
+                                    MaterialTheme.colorScheme.tertiary
+                            ),
+                            modifier = Modifier.height(22.dp)
+                        )
                         // Add ready/not ready indicator
                         if (EditorStorage.isLevelReadyToPlay(level)) {
                             CheckmarkIcon(
@@ -293,6 +315,7 @@ private fun LevelCard(
                 }
                 Button(
                     onClick = onDelete,
+                    enabled = !level.isOfficial,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.error
                     ),
@@ -363,12 +386,57 @@ fun LevelEditorView(
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
+        // Official level info banner
+        if (level.isOfficial) {
+            Card(
+                modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer
+                )
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    InfoIcon(size = 20.dp)
+                    Text(
+                        text = stringResource(Res.string.official_level_info),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                }
+            }
+        }
+        
         // Title above tabs
-        Text(
-            text = "${stringResource(Res.string.level_title)}: ${level.title}",
-            style = MaterialTheme.typography.titleMedium,
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier.padding(bottom = 8.dp)
-        )
+        ) {
+            Text(
+                text = "${stringResource(Res.string.level_title)}: ${level.title}",
+                style = MaterialTheme.typography.titleMedium
+            )
+            // Official badge
+            if (level.isOfficial) {
+                AssistChip(
+                    onClick = { },
+                    label = {
+                        Text(
+                            text = stringResource(Res.string.official_level),
+                            fontSize = 10.sp
+                        )
+                    },
+                    colors = AssistChipDefaults.assistChipColors(
+                        containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
+                        labelColor = MaterialTheme.colorScheme.primary
+                    ),
+                    modifier = Modifier.height(24.dp)
+                )
+            }
+        }
         
         // Tab Row with badges
         PrimaryTabRow(selectedTabIndex = selectedTabIndex) {
@@ -454,7 +522,8 @@ fun LevelEditorView(
                     testingOnly = testingOnly,
                     onTestingOnlyChange = { testingOnly = it },
                     allowAutoAttack = allowAutoAttack,
-                    onAllowAutoAttackChange = { allowAutoAttack = it }
+                    onAllowAutoAttackChange = { allowAutoAttack = it },
+                    isOfficial = level.isOfficial
                 )
                 1 -> EnemySpawnsTab(
                     enemySpawns = enemySpawns,
@@ -507,6 +576,7 @@ fun LevelEditorView(
                         )
                         onSave(updatedLevel)
                     },
+                    enabled = !level.isOfficial,
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(stringResource(Res.string.save_level))
