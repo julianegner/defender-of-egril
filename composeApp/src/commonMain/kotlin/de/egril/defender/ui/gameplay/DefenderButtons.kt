@@ -60,10 +60,10 @@ fun CompactDefenderButton(
         ) {
             // Tower icon
             Box(
-                modifier = Modifier.size(56.dp),
+                modifier = Modifier.size(28.dp),
                 contentAlignment = Alignment.Center
             ) {
-                TowerTypeIcon(defenderType = type, modifier = Modifier.size(60.dp))
+                TowerTypeIcon(defenderType = type, modifier = Modifier.size(30.dp))
             }
 
             Spacer(modifier = Modifier.width(4.dp))

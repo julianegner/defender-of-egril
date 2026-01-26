@@ -12,8 +12,8 @@ import androidx.compose.ui.graphics.drawscope.Stroke
  */
 fun DrawScope.drawSpearSymbol(centerX: Float, centerY: Float, size: Float, lineColor: Color = Color.White) {
     val shaftWidth = size * 0.1f
-    val shaftHeight = size * 0.7f
-    val spearheadHeight = size * 0.3f
+    val shaftHeight = size * 0.6f  // Reduced from 0.7f to 0.6f
+    val spearheadHeight = size * 0.25f  // Reduced from 0.3f to 0.25f
     val spearheadWidth = size * 0.3f
     
     // Shaft
