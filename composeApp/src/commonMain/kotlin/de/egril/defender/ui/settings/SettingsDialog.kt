@@ -13,13 +13,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.hyperether.resources.stringResource
-import de.egril.defender.editor.RepositoryManager
-import de.egril.defender.ui.editor.ConfirmationDialog
 import de.egril.defender.ui.icon.SpeakerHighIcon
 import de.egril.defender.ui.icon.SpeakerLowIcon
 import defender_of_egril.composeapp.generated.resources.*
 import defender_of_egril.composeapp.generated.resources.Res
-import kotlinx.coroutines.launch
 
 /**
  * Settings dialog that provides access to app settings like language selection and dark mode
@@ -28,12 +25,6 @@ import kotlinx.coroutines.launch
 fun SettingsDialog(
     onDismiss: () -> Unit
 ) {
-    var showRestoreConfirmation by remember { mutableStateOf(false) }
-    var showRestoreSuccess by remember { mutableStateOf(false) }
-    var backupPath by remember { mutableStateOf("") }
-    var isRestoring by remember { mutableStateOf(false) }
-    val scope = rememberCoroutineScope()
-    
     Dialog(onDismissRequest = onDismiss) {
         Surface(
             modifier = Modifier
@@ -569,30 +560,6 @@ fun SettingsDialog(
                 
                 HorizontalDivider()
                 
-                // Game Data section
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Text(
-                        text = stringResource(Res.string.game_data),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    
-                    // Restore game data button
-                    OutlinedButton(
-                        onClick = {
-                            showRestoreConfirmation = true
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        enabled = !isRestoring
-                    ) {
-                        Text(stringResource(Res.string.restore_game_data))
-                    }
-                }
-                
-                HorizontalDivider()
-                
                 // Action buttons
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -617,53 +584,5 @@ fun SettingsDialog(
                 }
             }
         }
-    }
-    
-    // Restore confirmation dialog
-    if (showRestoreConfirmation) {
-        ConfirmationDialog(
-            title = stringResource(Res.string.restore_game_data_confirm_title),
-            message = stringResource(Res.string.restore_game_data_confirm_message),
-            onDismiss = { 
-                if (!isRestoring) {
-                    showRestoreConfirmation = false
-                }
-            },
-            onConfirm = {
-                showRestoreConfirmation = false
-                isRestoring = true
-                // Perform restore in a coroutine
-                scope.launch {
-                    val result = RepositoryManager.restoreFromRepository()
-                    isRestoring = false
-                    if (result != null) {
-                        backupPath = result
-                        showRestoreSuccess = true
-                    }
-                }
-            }
-        )
-    }
-    
-    // Restore success dialog
-    if (showRestoreSuccess) {
-        AlertDialog(
-            onDismissRequest = { showRestoreSuccess = false },
-            title = { Text(stringResource(Res.string.restore_game_data_success_title)) },
-            text = { 
-                Text(
-                    stringResource(Res.string.restore_game_data_success_message, backupPath)
-                )
-            },
-            confirmButton = {
-                Button(onClick = { 
-                    showRestoreSuccess = false
-                    // Close the settings dialog after restoration
-                    onDismiss()
-                }) {
-                    Text(stringResource(Res.string.ok))
-                }
-            }
-        )
     }
 }

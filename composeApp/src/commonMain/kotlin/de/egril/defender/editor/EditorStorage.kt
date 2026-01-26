@@ -51,20 +51,15 @@ object EditorStorage {
     fun ensureInitialized() {
         if (initialized) return
         
-        // Check if gamedata directory has existing user data
-        val hasUserData = hasExistingGamedataFiles()
-
-        if (!hasUserData) {
-            // No user data - try to load from repository
-            println("No gamedata found - loading from repository...")
-            if (!tryLoadRepositoryFiles()) {
-                // Repository files are missing
-                // In production, repository files are embedded in resources and will always load
-                // If we reach here, we're likely in a test environment without resources
-                println("Repository files could not be loaded - skipping initialization (test environment)")
-                initialized = true
-                return
-            }
+        // Always load official content from repository on startup
+        println("Loading official content from repository...")
+        if (!tryLoadRepositoryFiles()) {
+            // Repository files are missing
+            // In production, repository files are embedded in resources and will always load
+            // If we reach here, we're likely in a test environment without resources
+            println("Repository files could not be loaded - skipping initialization (test environment)")
+            initialized = true
+            return
         }
 
         // Validate that we have all required data categories
