@@ -47,7 +47,7 @@ fun MapListCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Column(modifier = Modifier.weight(2f)) {
+                Column(modifier = Modifier.weight(4f)) {
                     Text(
                         text = map.name.ifEmpty { "Map ${map.id}" },
                         style = MaterialTheme.typography.titleSmall
@@ -71,7 +71,7 @@ fun MapListCard(
                 // Minimap preview - 4x width
                 Box(
                     modifier = Modifier
-                        .weight(1f)
+                        .weight(6f)
                         .width(480.dp)
                         .height(160.dp)
                         .padding(4.dp)
