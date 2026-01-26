@@ -113,7 +113,8 @@ fun LevelEditorContent() {
                             val newId = "${sanitizedTitle}_${Random.nextInt(1000, 9999)}"
                             val copiedLevel = level.copy(
                                 id = newId,
-                                title = copyTitle
+                                title = copyTitle,
+                                isOfficial = false  // Copied levels are always user levels
                             )
                             EditorStorage.saveLevel(copiedLevel)
                             levels.value = EditorStorage.getAllLevels()
