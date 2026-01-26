@@ -26,7 +26,8 @@ fun MapListCard(
     map: EditorMap,
     isSelected: Boolean,
     onSelect: () -> Unit,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    onCopy: () -> Unit
 ) {
     Card(
         modifier = Modifier
@@ -100,13 +101,24 @@ fun MapListCard(
 
                 Spacer(modifier = Modifier.weight(3f))
 
-                Button(
-                    onClick = onDelete,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.error
-                    )
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Text(stringResource(Res.string.delete))
+                    Button(
+                        onClick = onDelete,
+                        enabled = !map.isOfficial,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.error
+                        )
+                    ) {
+                        Text(stringResource(Res.string.delete))
+                    }
+                    
+                    Button(
+                        onClick = onCopy
+                    ) {
+                        Text(stringResource(Res.string.copy_map))
+                    }
                 }
             }
             

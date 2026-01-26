@@ -414,6 +414,7 @@
     <string name="remove_all_turns">Rimuovi tutti i turni</string>
     <string name="confirm_remove_all_turns">Sei sicuro di voler rimuovere tutti i turni di spawn?</string>
     <string name="copy_level">Copia livello</string>
+    <string name="copy_map">Copia mappa</string>
     <string name="yes">Sì</string>
     <string name="confirm_delete_level">Sei sicuro di voler eliminare questo livello?</string>
     <string name="amount">Quantità</string>

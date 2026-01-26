@@ -412,6 +412,7 @@
     <string name="remove_all_turns">Eliminar todos los turnos</string>
     <string name="confirm_remove_all_turns">¿Estás seguro de que quieres eliminar todos los turnos de aparición?</string>
     <string name="copy_level">Copiar nivel</string>
+    <string name="copy_map">Copiar mapa</string>
     <string name="yes">Sí</string>
     <string name="confirm_delete_level">¿Estás seguro de que quieres eliminar este nivel?</string>
     <string name="amount">Cantidad</string>

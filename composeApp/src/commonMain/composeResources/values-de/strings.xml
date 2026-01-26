@@ -412,6 +412,7 @@
     <string name="remove_all_turns">Alle Runden entfernen</string>
     <string name="confirm_remove_all_turns">Sind Sie sicher, dass Sie alle Spawn-Runden entfernen möchten?</string>
     <string name="copy_level">Level kopieren</string>
+    <string name="copy_map">Karte kopieren</string>
     <string name="yes">Ja</string>
     <string name="confirm_delete_level">Sind Sie sicher, dass Sie dieses Level löschen möchten?</string>
     <string name="amount">Anzahl</string>

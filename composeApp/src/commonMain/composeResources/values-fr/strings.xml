@@ -414,6 +414,7 @@
     <string name="remove_all_turns">Supprimer tous les tours</string>
     <string name="confirm_remove_all_turns">Êtes-vous sûr de vouloir supprimer tous les tours d'apparition?</string>
     <string name="copy_level">Copier le niveau</string>
+    <string name="copy_map">Copier la carte</string>
     <string name="yes">Oui</string>
     <string name="confirm_delete_level">Êtes-vous sûr de vouloir supprimer ce niveau?</string>
     <string name="amount">Quantité</string>
