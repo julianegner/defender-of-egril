@@ -53,6 +53,7 @@ fun WorldMapScreen(
     var showNewRepoDataDialog by remember { mutableStateOf(false) }
     var newRepoData by remember { mutableStateOf<RepositoryManager.NewRepositoryData?>(null) }
     var selectedLocation by remember { mutableStateOf<Pair<WorldMapLocation, List<WorldLevel>>?>(null) }
+    var showUserLevelsDialog by remember { mutableStateOf(false) }
     
     // Watch the setting for world map style
     val useLevelCards = AppSettings.useLevelCards.value
@@ -124,10 +125,11 @@ fun WorldMapScreen(
         ) {
             // Content area - switches between image map and level cards based on setting
             if (useLevelCards) {
-                // Level cards view - grid of level cards
+                // Level cards view - grid of level cards with tabs
                 LevelCardsView(
                     worldLevels = visibleWorldLevels,
                     onLevelSelected = onLevelSelected,
+                    showUserLevelsTab = isEditorAvailable(),  // Show tabs on desktop/wasm
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(top = 80.dp, bottom = 80.dp)  // Leave space for top/bottom bars
@@ -377,6 +379,14 @@ fun WorldMapScreen(
                     Spacer(modifier = Modifier.weight(1f))
                 }
                 
+                // User Levels Button (only on desktop/wasm, only when using image map)
+                if (isEditorAvailable() && !useLevelCards) {
+                    Button(onClick = { showUserLevelsDialog = true }) {
+                        Text(stringResource(Res.string.user_levels))
+                    }
+                    Spacer(modifier = Modifier.width(16.dp))
+                }
+                
                 // Editor Button at the right end (only on desktop/wasm)
                 if (isEditorAvailable()) {
                     EditorButtonCard(onClick = onOpenEditor)
@@ -440,6 +450,36 @@ fun WorldMapScreen(
             },
             onDismiss = {
                 showNewRepoDataDialog = false
+            }
+        )
+    }
+    
+    // User Levels Dialog - shows user-created levels
+    if (showUserLevelsDialog) {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { showUserLevelsDialog = false },
+            title = { Text(stringResource(Res.string.user_levels)) },
+            text = {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(500.dp)
+                ) {
+                    LevelCardsView(
+                        worldLevels = visibleWorldLevels,
+                        onLevelSelected = { levelId ->
+                            onLevelSelected(levelId)
+                            showUserLevelsDialog = false
+                        },
+                        filterToUserLevelsOnly = true,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+            },
+            confirmButton = {
+                Button(onClick = { showUserLevelsDialog = false }) {
+                    Text(stringResource(Res.string.close))
+                }
             }
         )
     }

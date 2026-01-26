@@ -1062,6 +1062,7 @@
     
     <!-- Official Content Badges -->
     <string name="official">Offiziell</string>
+    <string name="user_levels">Benutzer-Level</string>
     <string name="user_map">Benutzerkarte</string>
     <string name="official_level">Offizielles Level</string>
     <string name="user_level">Benutzer-Level</string>
