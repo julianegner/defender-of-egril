@@ -22,6 +22,9 @@ class GameEngine(private val state: GameState) {
     private val raftSystem = RaftSystem(state)
     private val barricadeSystem = BarricadeSystem(state)  // Add barricade system
     
+    // Callback for dragon level changes (stored to set on new dragons)
+    private var dragonLevelChangeCallback: ((oldLevel: Int, newLevel: Int) -> Unit)? = null
+    
     // Tower Management - delegated to TowerManager
     fun placeDefender(type: DefenderType, position: Position): Boolean =
         towerManager.placeDefender(type, position)
@@ -1152,6 +1155,11 @@ class GameEngine(private val state: GameState) {
             currentTarget = mutableStateOf(enemyMovement.getInitialTarget(spawnPos))
         )
         
+        // Set dragon level change callback if this is a dragon
+        if (type.isDragon) {
+            attacker.onDragonLevelChanged = dragonLevelChangeCallback
+        }
+        
         // Add to attackers list
         state.attackers.add(attacker)
         
@@ -1194,6 +1202,17 @@ class GameEngine(private val state: GameState) {
      */
     fun setRaftLossCallback(callback: (RaftLossReason) -> Unit) {
         raftSystem.onRaftLost = callback
+    }
+    
+    /**
+     * Set callback for dragon level changes (for achievements)
+     */
+    fun setDragonLevelChangeCallback(callback: (oldLevel: Int, newLevel: Int) -> Unit) {
+        dragonLevelChangeCallback = callback
+        // Set callback for all existing dragons
+        state.attackers.filter { it.type.isDragon }.forEach { dragon ->
+            dragon.onDragonLevelChanged = callback
+        }
     }
     
     /**

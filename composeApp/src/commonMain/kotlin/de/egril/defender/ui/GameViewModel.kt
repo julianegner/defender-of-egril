@@ -300,6 +300,15 @@ class GameViewModel {
                         de.egril.defender.game.RaftLossReason.OTHER -> {} // No achievement
                     }
                 }
+                
+                // Set up dragon level change callback
+                gameEngine?.setDragonLevelChangeCallback { oldLevel, newLevel ->
+                    if (newLevel > oldLevel) {
+                        achievementManager?.onIncreaseDragonLevel()
+                    } else if (newLevel < oldLevel) {
+                        achievementManager?.onReduceDragonLevel()
+                    }
+                }
             }
             
             // Start time tracking for reminders
