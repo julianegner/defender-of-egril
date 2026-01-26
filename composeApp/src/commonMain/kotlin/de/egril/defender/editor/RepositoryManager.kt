@@ -106,7 +106,7 @@ object RepositoryManager {
     )
     
     /**
-     * Detect new map and level files in repository that are not in gamedata
+     * Detect new map and level files in repository that are not in gamedata/official
      * @return NewRepositoryData with lists of new files, or null if no new files found
      */
     suspend fun detectNewRepositoryFiles(): NewRepositoryData? {
@@ -117,10 +117,10 @@ object RepositoryManager {
                 return null
             }
             
-            // Check if gamedata exists
-            if (!fileStorage.fileExists(GAMEDATA_DIR)) {
-                println("Gamedata directory doesn't exist - all repository files are new")
-                // All files are new if gamedata doesn't exist
+            // Check if official gamedata exists
+            if (!fileStorage.fileExists("$GAMEDATA_DIR/official")) {
+                println("Official gamedata directory doesn't exist - all repository files are new")
+                // All files are new if official gamedata doesn't exist
                 val sequence = RepositoryLoader.loadSequence()
                 if (sequence == null) return null
                 
@@ -139,17 +139,17 @@ object RepositoryManager {
                     newLevels = levelIds,
                     hasNewSequence = true,
                     hasNewWorldMap = true,
-                    worldMapData = null  // Not loaded when gamedata doesn't exist
+                    worldMapData = RepositoryLoader.loadWorldMapData()
                 )
             }
             
-            // Compare repository files with gamedata files
-            val existingMaps = fileStorage.listFiles("$GAMEDATA_DIR/maps")
+            // Compare repository files with official gamedata files
+            val existingMaps = fileStorage.listFiles("$GAMEDATA_DIR/official/maps")
                 .filter { it.endsWith(".json") }
                 .map { it.removeSuffix(".json") }
                 .toSet()
             
-            val existingLevels = fileStorage.listFiles("$GAMEDATA_DIR/levels")
+            val existingLevels = fileStorage.listFiles("$GAMEDATA_DIR/official/levels")
                 .filter { it.endsWith(".json") }
                 .map { it.removeSuffix(".json") }
                 .toSet()
@@ -180,13 +180,13 @@ object RepositoryManager {
             }
             
             // Check if sequence is different
-            val currentSequenceJson = fileStorage.readFile("$GAMEDATA_DIR/sequence.json")
+            val currentSequenceJson = fileStorage.readFile("$GAMEDATA_DIR/official/sequence.json")
             val currentSequence = currentSequenceJson?.let { EditorJsonSerializer.deserializeSequence(it) }
             val hasNewSequence = currentSequence == null || 
                 currentSequence.sequence != repoSequence.sequence
             
             // Check if worldmap is different
-            val currentWorldMapJson = fileStorage.readFile("$GAMEDATA_DIR/worldmap.json")
+            val currentWorldMapJson = fileStorage.readFile("$GAMEDATA_DIR/official/worldmap.json")
             val repoWorldMapData = RepositoryLoader.loadWorldMapData()
             val hasNewWorldMap = if (repoWorldMapData != null) {
                 val currentWorldMapData = currentWorldMapJson?.let { EditorJsonSerializer.deserializeWorldMapData(it) }
@@ -236,94 +236,69 @@ object RepositoryManager {
                 return false
             }
             
-            // Ensure gamedata directories exist
+            // Ensure official gamedata directories exist
             fileStorage.createDirectory(GAMEDATA_DIR)
-            fileStorage.createDirectory("$GAMEDATA_DIR/maps")
-            fileStorage.createDirectory("$GAMEDATA_DIR/levels")
+            fileStorage.createDirectory("$GAMEDATA_DIR/official")
+            fileStorage.createDirectory("$GAMEDATA_DIR/official/maps")
+            fileStorage.createDirectory("$GAMEDATA_DIR/official/levels")
             
-            // Backup sequence file if it exists and there's a new sequence
-            if (newData.hasNewSequence && fileStorage.fileExists("$GAMEDATA_DIR/sequence.json")) {
-                val sequenceBackupName = findNextSequenceBackupName()
-                if (sequenceBackupName != null) {
-                    val sequenceContent = fileStorage.readFile("$GAMEDATA_DIR/sequence.json")
-                    if (sequenceContent != null) {
-                        fileStorage.writeFile("$GAMEDATA_DIR/$sequenceBackupName", sequenceContent)
-                        println("Backed up sequence to $sequenceBackupName")
-                    }
-                } else {
-                    println("Warning: Could not backup sequence file - maximum backups reached")
-                    // Continue anyway, but log the warning
-                }
-            }
+            // No backup needed - we always overwrite official data
+            // User data in gamedata/user/ is never touched
             
-            // Backup worldmap file if it exists and there's a new worldmap
-            if (newData.hasNewWorldMap && fileStorage.fileExists("$GAMEDATA_DIR/worldmap.json")) {
-                val worldmapBackupName = findNextWorldmapBackupName()
-                if (worldmapBackupName != null) {
-                    val worldmapContent = fileStorage.readFile("$GAMEDATA_DIR/worldmap.json")
-                    if (worldmapContent != null) {
-                        fileStorage.writeFile("$GAMEDATA_DIR/$worldmapBackupName", worldmapContent)
-                        println("Backed up worldmap to $worldmapBackupName")
-                    }
-                } else {
-                    println("Warning: Could not backup worldmap file - maximum backups reached")
-                    // Continue anyway, but log the warning
-                }
-            }
-            
-            // Load and save new maps
+            // Load and save new/updated maps to official directory
             for (mapId in newData.newMaps) {
                 val map = RepositoryLoader.loadMap(mapId)
                 if (map != null) {
-                    val mapJson = EditorJsonSerializer.serializeMap(map)
-                    fileStorage.writeFile("$GAMEDATA_DIR/maps/$mapId.json", mapJson)
-                    println("Added new map: $mapId")
+                    val officialMap = map.copy(isOfficial = true)
+                    val mapJson = EditorJsonSerializer.serializeMap(officialMap)
+                    fileStorage.writeFile("$GAMEDATA_DIR/official/maps/$mapId.json", mapJson)
+                    println("Added/updated official map: $mapId")
                 }
             }
             
-            // Load and save new levels
+            // Load and save new/updated levels to official directory
             for (levelId in newData.newLevels) {
                 val level = RepositoryLoader.loadLevel(levelId)
                 if (level != null) {
-                    val levelJson = EditorJsonSerializer.serializeLevel(level)
-                    fileStorage.writeFile("$GAMEDATA_DIR/levels/$levelId.json", levelJson)
-                    println("Added new level: $levelId")
+                    val officialLevel = level.copy(isOfficial = true)
+                    val levelJson = EditorJsonSerializer.serializeLevel(officialLevel)
+                    fileStorage.writeFile("$GAMEDATA_DIR/official/levels/$levelId.json", levelJson)
+                    println("Added/updated official level: $levelId")
                 }
             }
             
-            // Replace sequence file with repository version
+            // Replace official sequence file with repository version
             if (newData.hasNewSequence) {
                 val sequence = RepositoryLoader.loadSequence()
                 if (sequence != null) {
                     val sequenceJson = EditorJsonSerializer.serializeSequence(sequence)
-                    fileStorage.writeFile("$GAMEDATA_DIR/sequence.json", sequenceJson)
-                    println("Updated sequence file")
+                    fileStorage.writeFile("$GAMEDATA_DIR/official/sequence.json", sequenceJson)
+                    println("Updated official sequence file")
                 }
             }
             
-            // Replace worldmap file with repository version
+            // Replace official worldmap file with repository version
             if (newData.hasNewWorldMap) {
                 // Use cached worldmap data if available, otherwise load it
                 val worldMapData = newData.worldMapData
                 if (worldMapData != null) {
                     val worldMapJson = EditorJsonSerializer.serializeWorldMapData(worldMapData)
-                    fileStorage.writeFile("$GAMEDATA_DIR/worldmap.json", worldMapJson)
-                    println("Updated worldmap file")
+                    fileStorage.writeFile("$GAMEDATA_DIR/official/worldmap.json", worldMapJson)
+                    println("Updated official worldmap file")
                 } else {
-                    // This should not happen - if hasNewWorldMap is true, worldMapData should be cached
-                    println("Warning: worldmap data not cached, attempting to load from repository")
+                    // Load from repository if not cached
                     val loadedWorldMapData = RepositoryLoader.loadWorldMapData()
                     if (loadedWorldMapData != null) {
                         val worldMapJson = EditorJsonSerializer.serializeWorldMapData(loadedWorldMapData)
-                        fileStorage.writeFile("$GAMEDATA_DIR/worldmap.json", worldMapJson)
-                        println("Updated worldmap file (loaded from repository)")
+                        fileStorage.writeFile("$GAMEDATA_DIR/official/worldmap.json", worldMapJson)
+                        println("Updated official worldmap file (loaded from repository)")
                     } else {
                         println("Error: Could not load worldmap from repository")
                     }
                 }
             }
             
-            println("Successfully synced ${newData.newMaps.size} maps and ${newData.newLevels.size} levels")
+            println("Successfully synced ${newData.newMaps.size} maps and ${newData.newLevels.size} levels to official directory")
             return true
         } catch (e: Exception) {
             println("Error syncing new repository files: ${e.message}")
