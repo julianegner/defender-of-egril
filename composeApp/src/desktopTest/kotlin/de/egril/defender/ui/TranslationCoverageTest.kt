@@ -37,6 +37,11 @@ import java.io.File
  *    - Detects duplicate keys within a language file
  *    - Malformed XML prevents translations from loading correctly
  * 
+ * 6. **testParameterizedStringsMatchAcrossLanguages**: Validates parameter consistency
+ *    - Checks that parameterized strings use the same placeholders across all languages
+ *    - Detects mismatches like %s in English but %d in German
+ *    - Parameter mismatches can cause "???" or incorrect formatting at runtime
+ * 
  * When a test fails, it provides:
  * - Clear error message explaining the issue
  * - Exact file location and line numbers
@@ -420,5 +425,71 @@ class TranslationCoverageTest {
                 }
             }
         }
+    }
+    
+    @Test
+    fun testParameterizedStringsMatchAcrossLanguages() {
+        val resourcesPath = File(projectRoot, "composeApp/src/commonMain/composeResources")
+        
+        if (!resourcesPath.exists()) {
+            fail("Resources path not found: ${resourcesPath.absolutePath}")
+        }
+        
+        val violations = mutableListOf<String>()
+        
+        // Extract parameterized strings from English
+        val englishFile = File(resourcesPath, "values/strings.xml")
+        val englishParameters = extractParametersFromStrings(englishFile)
+        
+        // Check each language file
+        listOf("values-de", "values-es", "values-fr", "values-it").forEach { dir ->
+            val file = File(resourcesPath, "$dir/strings.xml")
+            if (file.exists()) {
+                val languageParameters = extractParametersFromStrings(file)
+                
+                // Check if parameters match for each key
+                englishParameters.forEach { (key, englishParams) ->
+                    val languageParams = languageParameters[key]
+                    if (languageParams != null && englishParams != languageParams) {
+                        violations.add("  $dir/strings.xml - Key '$key' has parameter mismatch")
+                        violations.add("    English: $englishParams")
+                        violations.add("    $dir: $languageParams")
+                    }
+                }
+            }
+        }
+        
+        if (violations.isNotEmpty()) {
+            val message = buildString {
+                appendLine("Found ${violations.size / 3} parameterized string(s) with mismatched parameters:")
+                appendLine("Parameter mismatches can cause '???' or incorrect formatting at runtime.")
+                appendLine()
+                violations.forEach { violation ->
+                    appendLine(violation)
+                }
+                appendLine()
+                appendLine("All languages must use the same parameter placeholders (e.g., %s, %d, %1\$s, %2\$d)")
+            }
+            fail(message)
+        }
+    }
+    
+    private fun extractParametersFromStrings(file: File): Map<String, List<String>> {
+        val result = mutableMapOf<String, List<String>>()
+        val stringPattern = Regex("""<string\s+name="([^"]+)"[^>]*>([^<]*)</string>""")
+        val parameterPattern = Regex("""%(\d+\$)?[sdif]""")
+        
+        file.readLines().forEach { line ->
+            stringPattern.find(line)?.let { match ->
+                val key = match.groupValues[1]
+                val value = match.groupValues[2]
+                val parameters = parameterPattern.findAll(value).map { it.value }.toList()
+                if (parameters.isNotEmpty()) {
+                    result[key] = parameters
+                }
+            }
+        }
+        
+        return result
     }
 }

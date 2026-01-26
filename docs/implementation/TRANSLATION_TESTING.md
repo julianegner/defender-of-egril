@@ -127,6 +127,31 @@ Malformed XML will cause translations to fail and display as '???'
   values-es/strings.xml:245 - Duplicate key 'victory' (first defined at line 20)
 ```
 
+### Test 6: testParameterizedStringsMatchAcrossLanguages
+
+**Purpose**: Validates that parameterized strings use consistent placeholders across all languages.
+
+**What it checks**:
+- Extracts all parameterized strings (containing %s, %d, %1$s, %2$d, etc.)
+- Compares parameter placeholders between English and each language
+- Detects mismatches like English using %s but German using %d
+- Parameter mismatches cause "???" or incorrect formatting at runtime
+
+**Example failure message**:
+```
+Found 2 parameterized string(s) with mismatched parameters:
+Parameter mismatches can cause '???' or incorrect formatting at runtime.
+
+  values-de/strings.xml - Key 'player_count' has parameter mismatch
+    English: [%d]
+    values-de: [%s]
+  values-es/strings.xml - Key 'time_remaining' has parameter mismatch
+    English: [%1$d, %2$s]
+    values-es: [%1$s, %2$d]
+
+All languages must use the same parameter placeholders (e.g., %s, %d, %1$s, %2$d)
+```
+
 ## Running the Tests
 
 ### Run all translation tests:
@@ -150,10 +175,11 @@ All tests currently pass:
 - ✅ testNoHardcodedStringsInUI
 - ✅ testAllLanguageFilesHaveSameKeys
 - ✅ testNoEmptyOrWhitespaceOnlyTranslations
-- ✅ testAllReferencedKeysExist
+- ✅ testAllReferencedKeysExist (now checks 684+ keys!)
 - ✅ testXmlFilesAreWellFormed
+- ✅ testParameterizedStringsMatchAcrossLanguages (NEW)
 
-**Total: 5 tests, 0 failures**
+**Total: 6 tests, 0 failures**
 
 ## Continuous Integration
 
