@@ -1227,13 +1227,13 @@ private fun BoxScope.GridCellContent(
                 val totalSpacing = stripeWidth + stripeSpacing
                 val diagonalLength = size.width + size.height
                 
-                // Start from top-left, go to bottom-right
+                // Start from top-right, go to bottom-left (90 degree rotation)
                 var offset = -diagonalLength
                 while (offset < diagonalLength) {
                     drawLine(
-                        color = borderColor.copy(alpha = 0.3f),
-                        start = Offset(offset, 0f),
-                        end = Offset(offset + size.height, size.height),
+                        color = borderColor.copy(alpha = 0.8f),  // 80% opacity
+                        start = Offset(size.width - offset, 0f),
+                        end = Offset(size.width - offset - size.height, size.height),
                         strokeWidth = stripeWidth
                     )
                     offset += totalSpacing
