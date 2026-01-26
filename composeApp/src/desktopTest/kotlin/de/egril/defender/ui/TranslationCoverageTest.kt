@@ -6,17 +6,41 @@ import kotlin.test.fail
 import java.io.File
 
 /**
- * Test to ensure all user-facing strings are properly translated.
+ * Comprehensive test suite to ensure all user-facing strings are properly translated
+ * and to prevent "???" from appearing in the app due to missing or broken translations.
  * 
- * This test scans the UI code for hardcoded strings and verifies that:
- * 1. No hardcoded user-facing strings exist in UI components
- * 2. All strings use stringResource() for localization
+ * This test suite performs the following checks:
  * 
- * Exceptions:
- * - Cheat codes should NOT be translated
- * - Single-character symbols (•, X, +, -) are acceptable
- * - Variable interpolations ($variable) are acceptable
- * - stringResource() calls are acceptable
+ * 1. **testNoHardcodedStringsInUI**: Scans UI code for hardcoded strings
+ *    - Ensures all strings use stringResource() for localization
+ *    - Exceptions: cheat codes, single-character symbols, variable interpolations
+ * 
+ * 2. **testAllLanguageFilesHaveSameKeys**: Verifies key synchronization across languages
+ *    - Checks that all language files (de, es, fr, it) have the same keys as English
+ *    - Detects missing keys that would cause "???" to appear
+ *    - Detects extra keys that shouldn't exist
+ * 
+ * 3. **testNoEmptyOrWhitespaceOnlyTranslations**: Detects empty translation values
+ *    - Checks all language files for empty string values
+ *    - Empty translations display as "???" in the app
+ *    - Provides exact file location and key name for easy fixing
+ * 
+ * 4. **testAllReferencedKeysExist**: Validates code references to string keys
+ *    - Scans LocalizationUtils, NameLocalizationUtils, and AchievementLocalization
+ *    - Ensures all referenced keys are defined in strings.xml
+ *    - Missing key definitions cause "???" to appear at runtime
+ * 
+ * 5. **testXmlFilesAreWellFormed**: Validates XML structure
+ *    - Checks for XML declaration and root element
+ *    - Verifies matching open/close tags
+ *    - Detects duplicate keys within a language file
+ *    - Malformed XML prevents translations from loading correctly
+ * 
+ * When a test fails, it provides:
+ * - Clear error message explaining the issue
+ * - Exact file location and line numbers
+ * - Specific keys or strings that are problematic
+ * - Guidance on how to fix the issue
  */
 class TranslationCoverageTest {
     
