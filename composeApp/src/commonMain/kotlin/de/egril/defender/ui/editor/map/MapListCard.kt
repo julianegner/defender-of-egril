@@ -47,7 +47,7 @@ fun MapListCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Column(modifier = Modifier.weight(1f)) {
+                Column(modifier = Modifier.weight(2f)) {
                     Text(
                         text = map.name.ifEmpty { "Map ${map.id}" },
                         style = MaterialTheme.typography.titleSmall
@@ -68,12 +68,12 @@ fun MapListCard(
                     )
                 }
                 
-                // Minimap preview
+                // Minimap preview - doubled size
                 Box(
                     modifier = Modifier
                         .weight(1f)
-                        .width(120.dp)
-                        .height(80.dp)
+                        .width(240.dp)
+                        .height(160.dp)
                         .padding(4.dp)
                 ) {
                     // Create a dummy level for the minimap (we only need it for the grid dimensions)

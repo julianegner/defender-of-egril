@@ -74,6 +74,14 @@ fun WorldMapScreen(
         }
     }
     
+    // Check if there are any user levels
+    val hasUserLevels = remember(worldLevels) {
+        worldLevels.any { worldLevel ->
+            val editorLevel = de.egril.defender.editor.EditorStorage.getLevel(worldLevel.level.editorLevelId ?: "")
+            editorLevel?.isOfficial == false
+        }
+    }
+    
     val scope = rememberCoroutineScope()
     
     // Start background music when entering world map
@@ -374,21 +382,29 @@ fun WorldMapScreen(
                     }
                 }
                 
-                // Spacer to push editor button to the right (only on desktop/wasm)
+                // Spacer to push buttons to the right (only on desktop/wasm)
                 if (!isPlatformMobile && isEditorAvailable()) {
                     Spacer(modifier = Modifier.weight(1f))
                 }
                 
-                // User Levels Button (only on desktop/wasm, only when using image map)
+                // User Levels and Editor Buttons in a column (only on desktop/wasm, only in image map view)
                 if (isEditorAvailable() && !useLevelCards) {
-                    Button(onClick = { showUserLevelsDialog = true }) {
-                        Text(stringResource(Res.string.user_levels))
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        horizontalAlignment = Alignment.End
+                    ) {
+                        // User Levels Button - only show if there are user levels
+                        if (hasUserLevels) {
+                            Button(onClick = { showUserLevelsDialog = true }) {
+                                Text(stringResource(Res.string.user_levels))
+                            }
+                        }
+                        
+                        // Editor Button
+                        EditorButtonCard(onClick = onOpenEditor)
                     }
-                    Spacer(modifier = Modifier.width(16.dp))
-                }
-                
-                // Editor Button at the right end (only on desktop/wasm)
-                if (isEditorAvailable()) {
+                } else if (isEditorAvailable() && useLevelCards) {
+                    // Editor Button only for level cards view (already has tabs)
                     EditorButtonCard(onClick = onOpenEditor)
                 }
             }
