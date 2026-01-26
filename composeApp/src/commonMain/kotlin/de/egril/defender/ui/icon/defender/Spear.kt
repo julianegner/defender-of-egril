@@ -12,22 +12,23 @@ import androidx.compose.ui.graphics.drawscope.Stroke
  */
 fun DrawScope.drawSpearSymbol(centerX: Float, centerY: Float, size: Float, lineColor: Color = Color.White) {
     val shaftWidth = size * 0.1f
-    val shaftHeight = size * 0.6f  // Reduced from 0.7f to 0.6f
+    val shaftHeight = size * 0.5f  // Reduced from 0.6f to 0.5f for shorter shaft
     val spearheadHeight = size * 0.25f  // Reduced from 0.3f to 0.25f
     val spearheadWidth = size * 0.3f
     
-    // Shaft
+    // Shaft - positioned higher to avoid touching tower bottom
+    // Top of shaft starts at centerY - shaftHeight (not centered)
     drawRect(
         color = Color(0xFFD2691E), // Brown
-        topLeft = Offset(centerX - shaftWidth / 2, centerY - shaftHeight / 2),
+        topLeft = Offset(centerX - shaftWidth / 2, centerY - shaftHeight),
         size = Size(shaftWidth, shaftHeight)
     )
     
     // Spearhead
     val path = Path().apply {
-        moveTo(centerX, centerY - shaftHeight / 2 - spearheadHeight)
-        lineTo(centerX - spearheadWidth / 2, centerY - shaftHeight / 2)
-        lineTo(centerX + spearheadWidth / 2, centerY - shaftHeight / 2)
+        moveTo(centerX, centerY - shaftHeight - spearheadHeight)
+        lineTo(centerX - spearheadWidth / 2, centerY - shaftHeight)
+        lineTo(centerX + spearheadWidth / 2, centerY - shaftHeight)
         close()
     }
     drawPath(path, Color(0xFFC0C0C0)) // Silver
