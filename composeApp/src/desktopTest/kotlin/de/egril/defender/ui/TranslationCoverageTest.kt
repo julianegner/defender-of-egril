@@ -42,6 +42,11 @@ import java.io.File
  *    - Detects mismatches like %s in English but %d in German
  *    - Parameter mismatches can cause "???" or incorrect formatting at runtime
  * 
+ * 7. **testNoStringResourceWithReplace**: Detects incorrect parameter passing
+ *    - Finds stringResource().replace() patterns which don't work correctly
+ *    - This pattern causes "???" because parameters aren't passed to the plugin
+ *    - Ensures parameters are passed directly: stringResource(key, param1, param2)
+ * 
  * When a test fails, it provides:
  * - Clear error message explaining the issue
  * - Exact file location and line numbers
@@ -495,5 +500,48 @@ class TranslationCoverageTest {
         }
         
         return result
+    }
+    
+    @Test
+    fun testNoStringResourceWithReplace() {
+        val uiSourcePath = File(projectRoot, "composeApp/src/commonMain/kotlin/de/egril/defender/ui")
+        
+        if (!uiSourcePath.exists()) {
+            fail("UI source path not found: ${uiSourcePath.absolutePath}")
+        }
+        
+        val violations = mutableListOf<String>()
+        
+        // Pattern to detect stringResource(...).replace(...)
+        val stringResourceReplacePattern = Regex("""stringResource\s*\([^)]+\)\s*\.\s*replace\s*\(""")
+        
+        // Scan all .kt files in the UI directory
+        uiSourcePath.walkTopDown()
+            .filter { it.isFile && it.extension == "kt" }
+            .forEach { file ->
+                val relativePath = file.relativeTo(projectRoot).path
+                file.readLines().forEachIndexed { index, line ->
+                    val lineNumber = index + 1
+                    if (stringResourceReplacePattern.containsMatchIn(line)) {
+                        violations.add("  $relativePath:$lineNumber")
+                        violations.add("    ${line.trim()}")
+                    }
+                }
+            }
+        
+        if (violations.isNotEmpty()) {
+            val message = buildString {
+                appendLine("Found ${violations.size / 2} case(s) of stringResource().replace() pattern:")
+                appendLine("This pattern causes '???' because parameters are not passed correctly.")
+                appendLine()
+                violations.forEach { violation ->
+                    appendLine(violation)
+                }
+                appendLine()
+                appendLine("Correct usage: stringResource(Res.string.key, param1, param2)")
+                appendLine("Wrong usage: stringResource(Res.string.key).replace(\"%s\", param1)")
+            }
+            fail(message)
+        }
     }
 }

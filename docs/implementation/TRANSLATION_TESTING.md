@@ -169,6 +169,29 @@ All languages must use the same parameter placeholders (e.g., %s, %d, %1$s, %2$d
 ./gradlew :composeApp:test
 ```
 
+### Test 7: testNoStringResourceWithReplace
+
+**Purpose**: Detects incorrect parameter passing that causes "???".
+
+**What it checks**:
+- Scans all UI files for `stringResource(...).replace(...)` patterns
+- This pattern doesn't work with the localization plugin
+- Parameters must be passed directly to stringResource, not via .replace()
+
+**Why this matters**: The compose-multiplatform-localize plugin requires parameters to be passed directly to the function, not post-processed with .replace(). Using .replace() causes "???" to appear because the plugin doesn't see the actual string value.
+
+**Example failure message**:
+```
+Found 1 case(s) of stringResource().replace() pattern:
+This pattern causes '???' because parameters are not passed correctly.
+
+  ui/gameplay/GameDialogs.kt:330
+    stringResource(Res.string.time_for_break_message).replace("%s", it)
+
+Correct usage: stringResource(Res.string.key, param1, param2)
+Wrong usage: stringResource(Res.string.key).replace("%s", param1)
+```
+
 ## Test Results
 
 All tests currently pass:
@@ -177,9 +200,10 @@ All tests currently pass:
 - ✅ testNoEmptyOrWhitespaceOnlyTranslations
 - ✅ testAllReferencedKeysExist (now checks 684+ keys!)
 - ✅ testXmlFilesAreWellFormed
-- ✅ testParameterizedStringsMatchAcrossLanguages (NEW)
+- ✅ testParameterizedStringsMatchAcrossLanguages
+- ✅ testNoStringResourceWithReplace (NEW)
 
-**Total: 6 tests, 0 failures**
+**Total: 7 tests, 0 failures**
 
 ## Continuous Integration
 
