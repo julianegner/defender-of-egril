@@ -68,11 +68,11 @@ fun MapListCard(
                     )
                 }
                 
-                // Minimap preview - doubled size
+                // Minimap preview - 4x width
                 Box(
                     modifier = Modifier
                         .weight(1f)
-                        .width(240.dp)
+                        .width(480.dp)
                         .height(160.dp)
                         .padding(4.dp)
                 ) {
