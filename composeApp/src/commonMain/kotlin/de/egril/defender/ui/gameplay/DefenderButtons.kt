@@ -146,10 +146,10 @@ fun DefenderButton(
         ) {
             // Tower icon on the left
             Box(
-                modifier = Modifier.size(30.dp),
+                modifier = Modifier.size(60.dp),
                 contentAlignment = Alignment.Center
             ) {
-                TowerTypeIcon(defenderType = type, modifier = Modifier.size(28.dp))
+                TowerTypeIcon(defenderType = type, modifier = Modifier.size(56.dp))
             }
 
             Spacer(modifier = Modifier.width(2.dp))
