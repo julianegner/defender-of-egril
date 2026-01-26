@@ -447,26 +447,60 @@ fun WorldMapScreen(
         )
     }
     
-    // User Levels Dialog - shows user-created levels
+    // User Levels Dialog - shows user-created levels with action buttons
     if (showUserLevelsDialog) {
         androidx.compose.material3.AlertDialog(
             onDismissRequest = { showUserLevelsDialog = false },
             title = { Text(stringResource(Res.string.user_levels)) },
             text = {
-                Box(
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(500.dp)
+                        .height(600.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    LevelCardsView(
-                        worldLevels = visibleWorldLevels,
-                        onLevelSelected = { levelId ->
-                            onLevelSelected(levelId)
-                            showUserLevelsDialog = false
-                        },
-                        filterToUserLevelsOnly = true,
-                        modifier = Modifier.fillMaxSize()
-                    )
+                    // Level cards grid
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f)
+                    ) {
+                        LevelCardsView(
+                            worldLevels = visibleWorldLevels,
+                            onLevelSelected = { levelId ->
+                                onLevelSelected(levelId)
+                                showUserLevelsDialog = false
+                            },
+                            filterToUserLevelsOnly = true,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                    
+                    // Action buttons row
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        Button(
+                            onClick = {
+                                onLoadGame()
+                                showUserLevelsDialog = false
+                            },
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text(stringResource(Res.string.load_game))
+                        }
+                        
+                        Button(
+                            onClick = {
+                                onShowRules()
+                                showUserLevelsDialog = false
+                            },
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text(stringResource(Res.string.rules))
+                        }
+                    }
                 }
             },
             confirmButton = {

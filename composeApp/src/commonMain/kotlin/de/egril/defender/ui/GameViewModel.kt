@@ -163,8 +163,30 @@ class GameViewModel {
     }
     
     private fun initializeWorldMap() {
-        val levels = LevelData.createLevels()
-        println("DEBUG: Total levels loaded: ${levels.size}")
+        // Load official levels
+        val officialLevels = LevelData.createLevels()
+        println("DEBUG: Total official levels loaded: ${officialLevels.size}")
+        
+        // Load user levels from user sequence
+        val userSequence = de.egril.defender.editor.EditorStorage.getUserLevelSequence()
+        val userLevels = userSequence.sequence.mapNotNull { levelId ->
+            val editorLevel = de.egril.defender.editor.EditorStorage.reloadLevel(levelId)
+            if (editorLevel != null && !editorLevel.isOfficial) {
+                // Check if level is ready to play
+                if (de.egril.defender.editor.EditorStorage.isLevelReadyToPlay(editorLevel)) {
+                    // Convert editor level to game level
+                    editorLevel.toLevel(officialLevels.size + userSequence.sequence.indexOf(levelId))
+                } else {
+                    null
+                }
+            } else {
+                null
+            }
+        }
+        println("DEBUG: Total user levels loaded: ${userLevels.size}")
+        
+        // Combine official and user levels
+        val allLevels = officialLevels + userLevels
         
         // Load saved world map status
         val savedStatuses = de.egril.defender.save.SaveFileStorage.loadWorldMapStatus()
@@ -172,7 +194,7 @@ class GameViewModel {
         // Get the set of won level IDs
         val wonLevelIds = savedStatuses?.filter { it.value == LevelStatus.WON }?.keys?.toSet() ?: emptySet()
         
-        _worldLevels.value = levels.mapIndexed { index, level ->
+        _worldLevels.value = allLevels.mapIndexed { index, level ->
             println("DEBUG: Loaded Level ${level.id} - Name: ${level.name} - Path Cells: ${level.pathCells.size} - Build Islands: ${level.buildIslands.size}")
 
             // Look up status by editorLevelId if available
@@ -182,11 +204,17 @@ class GameViewModel {
                 if (savedStatus != null) {
                     savedStatus
                 } else {
-                    // Check if level should be unlocked based on prerequisites
-                    if (de.egril.defender.editor.EditorStorage.isLevelUnlocked(level.editorLevelId, wonLevelIds)) {
+                    // User levels are always unlocked
+                    val editorLevel = de.egril.defender.editor.EditorStorage.getLevel(level.editorLevelId)
+                    if (editorLevel?.isOfficial == false) {
                         LevelStatus.UNLOCKED
                     } else {
-                        LevelStatus.LOCKED
+                        // Check if official level should be unlocked based on prerequisites
+                        if (de.egril.defender.editor.EditorStorage.isLevelUnlocked(level.editorLevelId, wonLevelIds)) {
+                            LevelStatus.UNLOCKED
+                        } else {
+                            LevelStatus.LOCKED
+                        }
                     }
                 }
             } else {
