@@ -218,50 +218,18 @@ private fun LevelCard(
                         .fillMaxWidth()
                         .clickable { onSelect() }
                         .padding(12.dp)
+                        .padding(top = 24.dp)  // Add top padding for the badges
                 ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Text(
-                            text = level.title,
-                            style = MaterialTheme.typography.titleSmall
-                        )
-                        // Official/User badge
-                        AssistChip(
-                            onClick = { },
-                            label = {
-                                Text(
-                                    text = if (level.isOfficial) stringResource(Res.string.official_level) else stringResource(Res.string.user_level),
-                                    fontSize = 9.sp
-                                )
-                            },
-                            colors = AssistChipDefaults.assistChipColors(
-                                containerColor = if (level.isOfficial) 
-                                    MaterialTheme.colorScheme.primary.copy(alpha = 0.2f) 
-                                else 
-                                    MaterialTheme.colorScheme.tertiary.copy(alpha = 0.2f),
-                                labelColor = if (level.isOfficial) 
-                                    MaterialTheme.colorScheme.primary 
-                                else 
-                                    MaterialTheme.colorScheme.tertiary
-                            ),
-                            modifier = Modifier.height(22.dp)
-                        )
-                        // Add ready/not ready indicator
-                        if (EditorStorage.isLevelReadyToPlay(level)) {
-                            CheckmarkIcon(
-                                size = 16.dp,
-                                tint = Color.Green
-                            )
-                        } else {
-                            CrossIcon(
-                                size = 16.dp,
-                                tint = Color.Red
-                            )
-                        }
-                        // Add warning badge if enemies are outside spawn points
-                        if (hasEnemiesOutsideSpawnPoints) {
+                    Text(
+                        text = level.title,
+                        style = MaterialTheme.typography.titleSmall
+                    )
+                    // Add warning badge if enemies are outside spawn points
+                    if (hasEnemiesOutsideSpawnPoints) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
                             WarningBadge()
                         }
                     }
@@ -291,16 +259,47 @@ private fun LevelCard(
                 )
             }
             
-            // Test Level badge in upper right corner
-            if (level.testingOnly) {
-                Text(
-                    text = stringResource(Res.string.test_level),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = Color.Red,
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(8.dp)
-                )
+            // Badges in upper right corner
+            Column(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(8.dp),
+                horizontalAlignment = Alignment.End,
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Test Level badge
+                    if (level.testingOnly) {
+                        Text(
+                            text = stringResource(Res.string.test_level),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                    // Ready/not ready check indicator
+                    if (EditorStorage.isLevelReadyToPlay(level)) {
+                        CheckmarkIcon(
+                            size = 20.dp,
+                            tint = Color.Green
+                        )
+                    } else {
+                        CrossIcon(
+                            size = 20.dp,
+                            tint = Color.Red
+                        )
+                    }
+                }
+                // Official/User badge below the check
+                if (level.isOfficial) {
+                    Text(
+                        text = stringResource(Res.string.official_level),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
             }
         }
             Row(
