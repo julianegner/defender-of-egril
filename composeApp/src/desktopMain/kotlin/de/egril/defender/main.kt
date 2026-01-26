@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.toComposeImageBitmap
 import androidx.compose.ui.window.Window
@@ -16,10 +17,13 @@ import androidx.compose.material3.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.window.FrameWindowScope
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
 import de.egril.defender.utils.WindowCloseHandler
 import org.jetbrains.skia.Image
+import java.awt.Dimension
 
 fun main() = application {
     val iconPainter by produceState<BitmapPainter?>(null) {
@@ -45,9 +49,14 @@ fun main() = application {
             }
         },
         title = "Defender of Egril",
-        state = WindowState(placement = WindowPlacement.Maximized),
+        state = WindowState(placement = WindowPlacement.Maximized, size = DpSize(1024.dp, 768.dp)),
         icon = iconPainter,
     ) {
+        // Set minimum window size to ensure tower buttons remain visible
+        LaunchedEffect(Unit) {
+            window.minimumSize = Dimension(1024, 768)
+        }
+        
         App()
         
         // Show unsaved changes dialog when trying to close window

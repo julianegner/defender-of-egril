@@ -71,7 +71,7 @@ fun DrawScope.drawTower(
     // Draw tower type symbol inside
     when (defenderType) {
         DefenderType.SPIKE_TOWER -> drawSpikeSymbol(centerX, centerY, iconSize * 0.4f, lineColor)
-        DefenderType.SPEAR_TOWER -> drawSpearSymbol(centerX, centerY, iconSize * 0.5f, lineColor)
+        DefenderType.SPEAR_TOWER -> drawSpearSymbol(centerX, centerY + iconSize * 0.15f, iconSize * 0.5f, lineColor)  // Move down 30% for better positioning
         DefenderType.BOW_TOWER -> drawBowSymbol(centerX, centerY, iconSize * 0.45f)
         DefenderType.WIZARD_TOWER -> drawWizardSymbol(centerX, centerY, iconSize * 0.4f)
         DefenderType.ALCHEMY_TOWER -> drawAlchemySymbol(centerX, centerY, iconSize * 0.4f)
@@ -112,7 +112,7 @@ fun TowerIcon(
             // Draw tower type symbol inside
             when (defender.type) {
                 DefenderType.SPIKE_TOWER -> drawSpikeSymbol(centerX, centerY, iconSize * 0.4f)
-                DefenderType.SPEAR_TOWER -> drawSpearSymbol(centerX, centerY, iconSize * 0.5f)
+                DefenderType.SPEAR_TOWER -> drawSpearSymbol(centerX, centerY + iconSize * 0.15f, iconSize * 0.5f)  // Move down 30% for better positioning
                 DefenderType.BOW_TOWER -> drawBowSymbol(centerX, centerY, iconSize * 0.45f)
                 DefenderType.WIZARD_TOWER -> drawWizardSymbol(centerX, centerY, iconSize * 0.4f)
                 DefenderType.ALCHEMY_TOWER -> drawAlchemySymbol(centerX, centerY, iconSize * 0.4f)
