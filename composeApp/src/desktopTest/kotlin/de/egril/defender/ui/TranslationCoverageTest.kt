@@ -460,8 +460,10 @@ class TranslationCoverageTest {
         }
         
         if (violations.isNotEmpty()) {
+            // Count actual mismatches (every 3 lines = 1 mismatch)
+            val mismatchCount = violations.count { it.contains("has parameter mismatch") }
             val message = buildString {
-                appendLine("Found ${violations.size / 3} parameterized string(s) with mismatched parameters:")
+                appendLine("Found $mismatchCount parameterized string(s) with mismatched parameters:")
                 appendLine("Parameter mismatches can cause '???' or incorrect formatting at runtime.")
                 appendLine()
                 violations.forEach { violation ->
@@ -477,7 +479,9 @@ class TranslationCoverageTest {
     private fun extractParametersFromStrings(file: File): Map<String, List<String>> {
         val result = mutableMapOf<String, List<String>>()
         val stringPattern = Regex("""<string\s+name="([^"]+)"[^>]*>([^<]*)</string>""")
-        val parameterPattern = Regex("""%(\d+\$)?[sdif]""")
+        // Match common format specifiers: %s (string), %d (decimal), %i (integer), %f (float),
+        // %x/%X (hex), %o (octal), %e/%E (scientific), %g/%G (general), and positional variants like %1$s
+        val parameterPattern = Regex("""%(\d+\$)?[sdifoOxXeEgGfaA]""")
         
         file.readLines().forEach { line ->
             stringPattern.find(line)?.let { match ->
