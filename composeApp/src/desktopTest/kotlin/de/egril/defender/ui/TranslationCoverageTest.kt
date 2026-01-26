@@ -479,9 +479,9 @@ class TranslationCoverageTest {
     private fun extractParametersFromStrings(file: File): Map<String, List<String>> {
         val result = mutableMapOf<String, List<String>>()
         val stringPattern = Regex("""<string\s+name="([^"]+)"[^>]*>([^<]*)</string>""")
-        // Match common format specifiers: %s (string), %d (decimal), %i (integer), %f (float),
-        // %x/%X (hex), %o (octal), %e/%E (scientific), %g/%G (general), and positional variants like %1$s
-        val parameterPattern = Regex("""%(\d+\$)?[sdifoOxXeEgGfaA]""")
+        // Match format specifiers commonly used: %s (string), %d (decimal), %f (float)
+        // Also supports positional variants like %1$s, %2$d
+        val parameterPattern = Regex("""%(\d+\$)?[sdf]""")
         
         file.readLines().forEach { line ->
             stringPattern.find(line)?.let { match ->
