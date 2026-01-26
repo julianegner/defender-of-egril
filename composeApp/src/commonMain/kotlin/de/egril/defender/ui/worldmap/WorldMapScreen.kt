@@ -118,7 +118,6 @@ fun WorldMapScreen(
                     // Silently ignore repository check errors to avoid disrupting the user experience
                     println("Info: Repository check skipped - ${e.message}")
                 }
-                }
             }
         }
     }
