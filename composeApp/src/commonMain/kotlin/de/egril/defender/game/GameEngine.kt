@@ -22,6 +22,9 @@ class GameEngine(private val state: GameState) {
     private val raftSystem = RaftSystem(state)
     private val barricadeSystem = BarricadeSystem(state)  // Add barricade system
     
+    // Callback for dragon level changes (stored to set on new dragons)
+    private var dragonLevelChangeCallback: ((oldLevel: Int, newLevel: Int) -> Unit)? = null
+    
     // Tower Management - delegated to TowerManager
     fun placeDefender(type: DefenderType, position: Position): Boolean =
         towerManager.placeDefender(type, position)
@@ -428,6 +431,9 @@ class GameEngine(private val state: GameState) {
         
         // Play battle start sound
         GlobalSoundManager.playSound(SoundEvent.BATTLE_START)
+        
+        // Start tracking for achievement purposes
+        startTurnTracking()
         
         state.phase.value = GamePhase.PLAYER_TURN
         state.turnNumber.value = 1  // Start at turn 1 when game begins
@@ -1149,6 +1155,11 @@ class GameEngine(private val state: GameState) {
             currentTarget = mutableStateOf(enemyMovement.getInitialTarget(spawnPos))
         )
         
+        // Set dragon level change callback if this is a dragon
+        if (type.isDragon) {
+            attacker.onDragonLevelChanged = dragonLevelChangeCallback
+        }
+        
         // Add to attackers list
         state.attackers.add(attacker)
         
@@ -1172,5 +1183,42 @@ class GameEngine(private val state: GameState) {
         }
         
         return false
+    }
+    
+    /**
+     * Set callback for combat results (for achievements)
+     */
+    fun setCombatResultCallback(callback: (CombatResult) -> Unit) {
+        combatSystem.onCombatResult = callback
+    }
+    
+    /**
+     * Get kills this turn for achievement tracking
+     */
+    fun getKillsThisTurn(): Int = combatSystem.getKillsThisTurn()
+    
+    /**
+     * Set callback for raft loss events (for achievements)
+     */
+    fun setRaftLossCallback(callback: (RaftLossReason) -> Unit) {
+        raftSystem.onRaftLost = callback
+    }
+    
+    /**
+     * Set callback for dragon level changes (for achievements)
+     */
+    fun setDragonLevelChangeCallback(callback: (oldLevel: Int, newLevel: Int) -> Unit) {
+        dragonLevelChangeCallback = callback
+        // Set callback for all existing dragons
+        state.attackers.filter { it.type.isDragon }.forEach { dragon ->
+            dragon.onDragonLevelChanged = callback
+        }
+    }
+    
+    /**
+     * Reset turn counters at start of turn (for achievements)
+     */
+    fun startTurnTracking() {
+        combatSystem.startTurn()
     }
 }

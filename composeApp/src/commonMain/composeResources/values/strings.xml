@@ -968,4 +968,97 @@
     <string name="installation_web_step1">No installation needed!</string>
     <string name="installation_web_step2">Just visit the game URL in any modern browser (Chrome, Firefox, Safari, Edge)</string>
     <string name="installation_details_link">For detailed instructions, see INSTALL.md in the GitHub repository.</string>
+    
+    <!-- Player Profile Screen -->
+    <string name="player_profile">Player Profile</string>
+    <string name="player_created">Created</string>
+    <string name="achievements">Achievements</string>
+    <string name="achievements_earned">Achievements Earned</string>
+    <string name="no_achievements_yet">No achievements earned yet. Play the game to earn achievements!</string>
+    <string name="earned_on">Earned on: %1$s</string>
+    <string name="achievement_unlocked">Achievement Unlocked!</string>
+    
+    <!-- Achievement Names -->
+    <string name="achievement_build_tower_name">First Tower</string>
+    <string name="achievement_upgrade_tower_name">Tower Upgrade</string>
+    <string name="achievement_sell_tower_name">Tower Merchant</string>
+    <string name="achievement_undo_tower_name">Second Thoughts</string>
+    
+    <string name="achievement_build_raft_name">First Raft</string>
+    <string name="achievement_upgrade_raft_name">Raft Upgrade</string>
+    <string name="achievement_sell_raft_name">Raft Merchant</string>
+    <string name="achievement_undo_raft_name">Raft Recall</string>
+    <string name="achievement_lose_raft_map_edge_name">Lost at Sea</string>
+    <string name="achievement_lose_raft_maelstrom_name">Into the Maelstrom</string>
+    
+    <string name="achievement_win_level_name">Victory</string>
+    <string name="achievement_lose_level_name">Defeat</string>
+    <string name="achievement_win_level_full_hp_name">Flawless Victory</string>
+    <string name="achievement_win_level_one_hp_name">Close Call</string>
+    
+    <string name="achievement_kill_two_enemies_same_turn_name">Double Kill</string>
+    <string name="achievement_kill_two_enemies_same_attack_name">Multi-Kill</string>
+    <string name="achievement_kill_ogre_name">Ogre Slayer</string>
+    <string name="achievement_kill_evil_wizard_name">Wizard Hunter</string>
+    <string name="achievement_kill_demon_name">Demon Slayer</string>
+    <string name="achievement_kill_ewhad_name">Ewhad Defeated</string>
+    <string name="achievement_kill_witch_name">Witch Hunter</string>
+    
+    <string name="achievement_dig_first_time_name">First Dig</string>
+    <string name="achievement_find_gold_name">Gold Digger</string>
+    <string name="achievement_find_diamond_name">Diamond Hunter</string>
+    
+    <string name="achievement_summon_dragon_name">Dragon Awakened</string>
+    <string name="achievement_reduce_dragon_level_name">Dragon Tamer</string>
+    <string name="achievement_increase_dragon_level_name">Dragon Empowered</string>
+    <string name="achievement_kill_dragon_name">Dragonslayer</string>
+    
+    <string name="achievement_build_ten_towers_name">Tower Master</string>
+    <string name="achievement_build_ten_rafts_name">Raft Master</string>
+    
+    <string name="achievement_destroy_bridge_name">Bridge Breaker</string>
+    <string name="achievement_build_barricade_name">First Barricade</string>
+    <string name="achievement_add_health_barricade_name">Fortified</string>
+    
+    <!-- Achievement Descriptions -->
+    <string name="achievement_build_tower_desc">Build your first tower</string>
+    <string name="achievement_upgrade_tower_desc">Upgrade a tower to the next level</string>
+    <string name="achievement_sell_tower_desc">Sell a tower for coins</string>
+    <string name="achievement_undo_tower_desc">Undo a tower placement</string>
+    
+    <string name="achievement_build_raft_desc">Build your first raft on a river</string>
+    <string name="achievement_upgrade_raft_desc">Upgrade a raft tower to the next level</string>
+    <string name="achievement_sell_raft_desc">Sell a raft for coins</string>
+    <string name="achievement_undo_raft_desc">Undo a raft placement</string>
+    <string name="achievement_lose_raft_map_edge_desc">Lose a raft when it flows off the map edge</string>
+    <string name="achievement_lose_raft_maelstrom_desc">Lose a raft when it sinks in a maelstrom</string>
+    
+    <string name="achievement_win_level_desc">Win your first level</string>
+    <string name="achievement_lose_level_desc">Lose a level</string>
+    <string name="achievement_win_level_full_hp_desc">Win a level without losing any health points</string>
+    <string name="achievement_win_level_one_hp_desc">Win a level with only one health point remaining</string>
+    
+    <string name="achievement_kill_two_enemies_same_turn_desc">Kill at least 2 enemies in the same turn</string>
+    <string name="achievement_kill_two_enemies_same_attack_desc">Kill at least 2 enemies with a single attack</string>
+    <string name="achievement_kill_ogre_desc">Kill an Ogre</string>
+    <string name="achievement_kill_evil_wizard_desc">Kill an Evil Wizard</string>
+    <string name="achievement_kill_demon_desc">Kill a Demon</string>
+    <string name="achievement_kill_ewhad_desc">Kill the boss Ewhad</string>
+    <string name="achievement_kill_witch_desc">Kill a Witch</string>
+    
+    <string name="achievement_dig_first_time_desc">Dig in a dwarven mine for the first time</string>
+    <string name="achievement_find_gold_desc">Find gold while digging in a mine</string>
+    <string name="achievement_find_diamond_desc">Find a diamond while digging in a mine</string>
+    
+    <string name="achievement_summon_dragon_desc">Summon a dragon by digging too deep</string>
+    <string name="achievement_reduce_dragon_level_desc">Reduce a dragon's level</string>
+    <string name="achievement_increase_dragon_level_desc">A dragon's level increases</string>
+    <string name="achievement_kill_dragon_desc">Kill a dragon</string>
+    
+    <string name="achievement_build_ten_towers_desc">Build at least 10 towers in a single level</string>
+    <string name="achievement_build_ten_rafts_desc">Build at least 10 rafts in a single level</string>
+    
+    <string name="achievement_destroy_bridge_desc">Destroy a bridge</string>
+    <string name="achievement_build_barricade_desc">Build your first barricade</string>
+    <string name="achievement_add_health_barricade_desc">Add health points to an existing barricade</string>
 </resources>
