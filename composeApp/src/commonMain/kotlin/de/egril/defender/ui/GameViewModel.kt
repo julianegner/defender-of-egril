@@ -175,7 +175,10 @@ class GameViewModel {
                 // Check if level is ready to play
                 if (de.egril.defender.editor.EditorStorage.isLevelReadyToPlay(editorLevel)) {
                     // Convert editor level to game level
-                    editorLevel.toLevel(officialLevels.size + userSequence.sequence.indexOf(levelId))
+                    de.egril.defender.editor.EditorStorage.convertToGameLevel(
+                        editorLevel, 
+                        officialLevels.size + userSequence.sequence.indexOf(levelId) + 1
+                    )
                 } else {
                     null
                 }
