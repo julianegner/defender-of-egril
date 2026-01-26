@@ -689,7 +689,8 @@ fun GridCell(
                 hexSize = hexSize,
                 showTrapPreview = showTrapPreview,
                 selectedMineAction = selectedMineAction,
-                selectedWizardAction = selectedWizardAction
+                selectedWizardAction = selectedWizardAction,
+                isBuildableAndEmpty = isBuildableAndEmpty
             )
         }
     } else {
@@ -725,7 +726,8 @@ fun GridCell(
                 hexSize = hexSize,
                 showTrapPreview = showTrapPreview,
                 selectedMineAction = selectedMineAction,
-                selectedWizardAction = selectedWizardAction
+                selectedWizardAction = selectedWizardAction,
+                isBuildableAndEmpty = isBuildableAndEmpty
             )
         }
     }
@@ -758,7 +760,8 @@ private fun BoxScope.GridCellContent(
     hexSize: Dp,
     showTrapPreview: Boolean = false,
     selectedMineAction: MineAction? = null,
-    selectedWizardAction: WizardAction? = null
+    selectedWizardAction: WizardAction? = null,
+    isBuildableAndEmpty: Boolean = false
 ) {
         when {
             attacker != null -> {
@@ -1190,7 +1193,56 @@ private fun BoxScope.GridCellContent(
                 )
             }
         }
-}
+        
+        // Draw diagonal stripes for buildable tiles
+        if (isBuildableAndEmpty) {
+            Canvas(
+                modifier = Modifier
+                    .matchParentSize()
+                    .zIndex(11f)  // Below the dashed border
+            ) {
+                val sqrt3 = sqrt(3.0).toFloat()
+                val centerX = size.width / 2f
+                val centerY = size.height / 2f
+                val radius = minOf(size.width, size.height) / 2f
+
+                // Create hexagon clip path
+                val hexPath = Path().apply {
+                    moveTo(centerX, centerY - radius)
+                    lineTo(centerX + radius * sqrt3 / 2f, centerY - radius / 2f)
+                    lineTo(centerX + radius * sqrt3 / 2f, centerY + radius / 2f)
+                    lineTo(centerX, centerY + radius)
+                    lineTo(centerX - radius * sqrt3 / 2f, centerY + radius / 2f)
+                    lineTo(centerX - radius * sqrt3 / 2f, centerY - radius / 2f)
+                    close()
+                }
+                
+                // Draw diagonal stripes with clipping
+                drawContext.canvas.save()
+                drawContext.canvas.clipPath(hexPath)
+                
+                // Draw diagonal stripes
+                val stripeWidth = 8f
+                val stripeSpacing = 16f
+                val totalSpacing = stripeWidth + stripeSpacing
+                val diagonalLength = size.width + size.height
+                
+                // Start from top-left, go to bottom-right
+                var offset = -diagonalLength
+                while (offset < diagonalLength) {
+                    drawLine(
+                        color = borderColor.copy(alpha = 0.3f),
+                        start = Offset(offset, 0f),
+                        end = Offset(offset + size.height, size.height),
+                        strokeWidth = stripeWidth
+                    )
+                    offset += totalSpacing
+                }
+                
+                drawContext.canvas.restore()
+            }
+        }
+    }
 
 /**
  * Visualize a bridge over a river tile
