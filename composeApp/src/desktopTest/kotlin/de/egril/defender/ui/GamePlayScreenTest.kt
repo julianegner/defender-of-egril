@@ -6,8 +6,11 @@ import de.egril.defender.game.LevelData
 import de.egril.defender.model.GameState
 import de.egril.defender.model.GamePhase
 import de.egril.defender.ui.gameplay.GamePlayScreen
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import com.hyperether.resources.AppLocale
+import com.hyperether.resources.currentLanguage
 
 /**
  * UI tests for the Game Play screen.
