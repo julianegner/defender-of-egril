@@ -19,6 +19,11 @@ class GamePlayScreenTest {
     
     @get:Rule
     val composeTestRule = createComposeRule()
+
+    @Before
+    fun setDefaultLanguage() {
+        currentLanguage.value = AppLocale.DEFAULT
+    }
     
     @Test
     fun testGamePlayScreenInitialState() {
