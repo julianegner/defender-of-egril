@@ -2,6 +2,7 @@ package de.egril.defender.ui
 
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
+import de.egril.defender.editor.EditorStorage
 import de.egril.defender.game.LevelData
 import de.egril.defender.model.GameState
 import de.egril.defender.model.GamePhase
@@ -26,6 +27,8 @@ class GamePlayScreenTest {
     @Before
     fun setDefaultLanguage() {
         currentLanguage.value = AppLocale.DEFAULT
+        // Ensure EditorStorage is initialized before tests access level data
+        EditorStorage.ensureInitialized()
     }
     
     @Test
