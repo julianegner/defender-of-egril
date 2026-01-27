@@ -51,26 +51,22 @@ object EditorStorage {
     fun ensureInitialized() {
         if (initialized) return
         
-        // Check if gamedata directory has existing user data
-        val hasUserData = hasExistingGamedataFiles()
-
-        if (!hasUserData) {
-            // No user data - try to load from repository
-            println("No gamedata found - loading from repository...")
-            if (!tryLoadRepositoryFiles()) {
-                // Repository files are missing
-                // In production, repository files are embedded in resources and will always load
-                // If we reach here, we're likely in a test environment without resources
-                println("Repository files could not be loaded - skipping initialization (test environment)")
+        // Always try to load repository files first
+        println("Initializing EditorStorage - loading repository files...")
+        val repositoryLoaded = tryLoadRepositoryFiles()
+        
+        if (!repositoryLoaded) {
+            // Repository files couldn't be loaded
+            // Check if we have existing user data as a fallback
+            val hasUserData = hasExistingGamedataFiles()
+            if (!hasUserData) {
+                // No repository files and no user data - we can't initialize
+                // This should only happen in test environments without resources
+                println("Repository files could not be loaded and no user data exists - skipping initialization (test environment)")
                 initialized = true
                 return
             }
-        } else {
-            // User data exists - also ensure official content is up to date
-            println("User data found - also loading/updating official content...")
-            // Note: In test environments, this may fail, but that's okay
-            // Tests don't need repository data
-            tryLoadRepositoryFiles()
+            println("Repository files not available, but user data exists - continuing with user data only")
         }
 
         // Validate that we have all required data categories
