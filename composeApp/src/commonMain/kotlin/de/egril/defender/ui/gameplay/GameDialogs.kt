@@ -327,7 +327,7 @@ fun ReminderDialog(
     val message = when (type) {
         ReminderType.BREAK -> {
             elapsedTime?.let { 
-                stringResource(Res.string.time_for_break_message).replace("%s", it)
+                stringResource(Res.string.time_for_break_message, it)
             } ?: ""
         }
         ReminderType.SLEEP -> timeDescription ?: ""

@@ -447,7 +447,7 @@
     <string name="tutorial_initial_building_title">Phase de construction initiale</string>
     <string name="tutorial_initial_building">Dans cette phase initiale, les tours sont construites instantanément mais ne peuvent pas encore attaquer.\nCliquez sur une tour pour voir sa portée - les tuiles du chemin obtiennent des bordures vertes.\nPlus tard dans le jeu, les tours prendront 1-2 tours pour se construire.</string>
     <string name="tutorial_undo_title">Annuler les tours</string>
-    <string name="tutorial_undo">Pendant cette phase initiale, vous pouvez annuler le placement d'une tour en la sélectionnant et en la vendant pour un remboursement complet. Après le début de la bataille, vous ne pouvez vendre les tours que pour 75% de leur valeur.</string>
+    <string name="tutorial_undo">Pendant cette phase initiale, vous pouvez annuler le placement d'une tour en la sélectionnant et en la vendant pour un remboursement complet. Après le début de la bataille, vous ne pouvez vendre les tours que pour 75%% de leur valeur.</string>
     <string name="tutorial_combat_title">Démarrer la bataille</string>
     <string name="tutorial_combat">Cliquez sur le bouton Démarrer la bataille lorsque vous êtes prêt. Votre objectif est de défendre la Cible à la fin du chemin - ne laissez pas les ennemis l'atteindre!</string>
     <string name="tutorial_enemies_title">Ennemis en approche!</string>
@@ -459,7 +459,7 @@
     <string name="tutorial_upgrade_title">Améliorer les tours</string>
     <string name="tutorial_upgrade">Sélectionnez une tour et cliquez sur Améliorer pour augmenter ses statistiques. Vous verrez les dégâts, la portée et les actions actuelles par tour, ainsi que ce qu'elles seront après l'amélioration. Les améliorations coûtent des pièces mais rendent les tours plus puissantes!</string>
     <string name="tutorial_sell_title">Vendre des tours</string>
-    <string name="tutorial_sell">Sélectionnez une tour et cliquez sur Vendre pour récupérer 75% de son investissement total (coût + améliorations). Utilisez ceci si vous avez besoin de pièces ou souhaitez repositionner votre défense.</string>
+    <string name="tutorial_sell">Sélectionnez une tour et cliquez sur Vendre pour récupérer 75%% de son investissement total (coût + améliorations). Utilisez ceci si vous avez besoin de pièces ou souhaitez repositionner votre défense.</string>
     <string name="tutorial_save_game_title">Sauvegardez votre progression</string>
     <string name="tutorial_save_game">Vous pouvez sauvegarder votre jeu à tout moment en utilisant le bouton Sauvegarder.\nCela vous permet d'essayer différentes stratégies ou de continuer plus tard.\nPour charger une partie sauvegardée, utilisez le bouton Charger sur l'écran de la carte du monde.</string>
     <string name="tutorial_complete_title">Tutoriel terminé!</string>
@@ -733,7 +733,7 @@
 
     <!-- Mining Outcome Table Headers -->
     <string name="dig_outcome_name">Nom</string>
-    <string name="dig_outcome_chance">Chance (%)</string>
+    <string name="dig_outcome_chance">Chance (%%)</string>
     <string name="dig_outcome_reward">Récompense</string>
 
     <!-- Delete Confirmation Dialog -->

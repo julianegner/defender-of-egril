@@ -445,7 +445,7 @@
     <string name="tutorial_initial_building_title">Fase de construcción inicial</string>
     <string name="tutorial_initial_building">En esta fase inicial, las torres se construyen instantáneamente pero aún no pueden atacar.\nHaz clic en una torre para ver su alcance - las casillas del camino obtienen bordes verdes.\nMás adelante en el juego, las torres tardarán 1-2 turnos en construirse.</string>
     <string name="tutorial_undo_title">Deshacer torres</string>
-    <string name="tutorial_undo">Durante esta fase inicial, puedes deshacer la colocación de torres seleccionándola y vendiéndola por un reembolso completo. Después de que comience la batalla, solo puedes vender torres por el 75% de su valor.</string>
+    <string name="tutorial_undo">Durante esta fase inicial, puedes deshacer la colocación de torres seleccionándola y vendiéndola por un reembolso completo. Después de que comience la batalla, solo puedes vender torres por el 75%% de su valor.</string>
     <string name="tutorial_combat_title">Iniciar la batalla</string>
     <string name="tutorial_combat">Haz clic en el botón Iniciar batalla cuando estés listo. Tu objetivo es defender el Objetivo al final del camino - ¡no dejes que los enemigos lo alcancen!</string>
     <string name="tutorial_enemies_title">¡Enemigos entrantes!</string>
@@ -457,7 +457,7 @@
     <string name="tutorial_upgrade_title">Mejorar torres</string>
     <string name="tutorial_upgrade">Selecciona una torre y haz clic en Mejorar para aumentar sus estadísticas. Verás daño, alcance y acciones actuales por turno, además de cómo serán después de mejorar. ¡Las mejoras cuestan monedas pero hacen las torres más poderosas!</string>
     <string name="tutorial_sell_title">Vender torres</string>
-    <string name="tutorial_sell">Selecciona una torre y haz clic en Vender para recuperar el 75% de su inversión total (costo + mejoras). Usa esto si necesitas monedas o quieres reposicionar tu defensa.</string>
+    <string name="tutorial_sell">Selecciona una torre y haz clic en Vender para recuperar el 75%% de su inversión total (costo + mejoras). Usa esto si necesitas monedas o quieres reposicionar tu defensa.</string>
     <string name="tutorial_save_game_title">Guarda tu progreso</string>
     <string name="tutorial_save_game">Puedes guardar tu juego en cualquier momento usando el botón Guardar Juego.\nEsto te permite probar diferentes estrategias o continuar más tarde.\nPara cargar una partida guardada, usa el botón Cargar Juego en la pantalla del mapa mundial.</string>
     <string name="tutorial_complete_title">¡Tutorial completado!</string>
@@ -733,7 +733,7 @@
 
     <!-- Mining Outcome Table Headers -->
     <string name="dig_outcome_name">Nombre</string>
-    <string name="dig_outcome_chance">Probabilidad (%)</string>
+    <string name="dig_outcome_chance">Probabilidad (%%)</string>
     <string name="dig_outcome_reward">Recompensa</string>
 
     <!-- Delete Confirmation Dialog -->
