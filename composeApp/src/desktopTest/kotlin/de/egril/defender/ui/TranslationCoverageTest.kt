@@ -6,17 +6,53 @@ import kotlin.test.fail
 import java.io.File
 
 /**
- * Test to ensure all user-facing strings are properly translated.
+ * Comprehensive test suite to ensure all user-facing strings are properly translated
+ * and to prevent "???" from appearing in the app due to missing or broken translations.
  * 
- * This test scans the UI code for hardcoded strings and verifies that:
- * 1. No hardcoded user-facing strings exist in UI components
- * 2. All strings use stringResource() for localization
+ * This test suite performs the following checks:
  * 
- * Exceptions:
- * - Cheat codes should NOT be translated
- * - Single-character symbols (•, X, +, -) are acceptable
- * - Variable interpolations ($variable) are acceptable
- * - stringResource() calls are acceptable
+ * 1. **testNoHardcodedStringsInUI**: Scans UI code for hardcoded strings
+ *    - Ensures all strings use stringResource() for localization
+ *    - Exceptions: cheat codes, single-character symbols, variable interpolations
+ * 
+ * 2. **testAllLanguageFilesHaveSameKeys**: Verifies key synchronization across languages
+ *    - Checks that all language files (de, es, fr, it) have the same keys as English
+ *    - Detects missing keys that would cause "???" to appear
+ *    - Detects extra keys that shouldn't exist
+ * 
+ * 3. **testNoEmptyOrWhitespaceOnlyTranslations**: Detects empty translation values
+ *    - Checks all language files for empty string values
+ *    - Empty translations display as "???" in the app
+ *    - Provides exact file location and key name for easy fixing
+ * 
+ * 4. **testAllReferencedKeysExist**: Validates code references to string keys
+ *    - Scans ALL UI files for stringResource(Res.string.xxx) calls
+ *    - Also checks LocalizationUtils, NameLocalizationUtils, and AchievementLocalization
+ *    - Ensures all referenced keys are defined in strings.xml
+ *    - Missing key definitions cause "???" to appear at runtime
+ * 
+ * 5. **testXmlFilesAreWellFormed**: Validates XML structure
+ *    - Checks for XML declaration and root element
+ *    - Verifies matching open/close tags
+ *    - Detects duplicate keys within a language file
+ *    - Malformed XML prevents translations from loading correctly
+ * 
+ * 6. **testParameterizedStringsMatchAcrossLanguages**: Validates parameter consistency
+ *    - Checks that parameterized strings use the same placeholders across all languages
+ *    - Detects mismatches like %s in English but %d in German
+ *    - Parameter mismatches can cause "???" or incorrect formatting at runtime
+ * 
+ * 7. **testNoStringResourceWithReplace**: Detects incorrect parameter passing
+ *    - Finds stringResource().replace() patterns which don't work correctly
+ *    - This pattern causes "???" because parameters aren't passed to the plugin
+ *    - Ensures parameters are passed directly: stringResource(key, param1, param2)
+ *    - Note: LocalizedStrings.get().replace() is allowed for multiplatform compatibility
+ * 
+ * When a test fails, it provides:
+ * - Clear error message explaining the issue
+ * - Exact file location and line numbers
+ * - Specific keys or strings that are problematic
+ * - Guidance on how to fix the issue
  */
 class TranslationCoverageTest {
     
@@ -189,5 +225,335 @@ class TranslationCoverageTest {
         }
         
         return keys
+    }
+    
+    @Test
+    fun testNoEmptyOrWhitespaceOnlyTranslations() {
+        val resourcesPath = File(projectRoot, "composeApp/src/commonMain/composeResources")
+        
+        if (!resourcesPath.exists()) {
+            fail("Resources path not found: ${resourcesPath.absolutePath}")
+        }
+        
+        val violations = mutableListOf<String>()
+        
+        // Check all language files for empty translations
+        listOf("values", "values-de", "values-es", "values-fr", "values-it").forEach { dir ->
+            val file = File(resourcesPath, "$dir/strings.xml")
+            if (file.exists()) {
+                checkFileForEmptyTranslations(file, dir, violations)
+            }
+        }
+        
+        if (violations.isNotEmpty()) {
+            val message = buildString {
+                appendLine("Found ${violations.size} empty or whitespace-only translation(s):")
+                appendLine("Empty translations will display as '???' in the app.")
+                appendLine()
+                violations.forEach { violation ->
+                    appendLine(violation)
+                }
+                appendLine()
+                appendLine("All translations must have non-empty values.")
+            }
+            fail(message)
+        }
+    }
+    
+    private fun checkFileForEmptyTranslations(file: File, languageDir: String, violations: MutableList<String>) {
+        val emptyStringPattern = Regex("""<string\s+name="([^"]+)"\s*>\s*</string>""")
+        
+        file.readLines().forEachIndexed { index, line ->
+            val lineNumber = index + 1
+            emptyStringPattern.find(line)?.let { match ->
+                val keyName = match.groupValues[1]
+                violations.add("  $languageDir/strings.xml:$lineNumber - Key '$keyName' has empty value")
+            }
+        }
+    }
+    
+    @Test
+    fun testAllReferencedKeysExist() {
+        val resourcesPath = File(projectRoot, "composeApp/src/commonMain/composeResources")
+        val uiSourcePath = File(projectRoot, "composeApp/src/commonMain/kotlin/de/egril/defender/ui")
+        
+        if (!resourcesPath.exists()) {
+            fail("Resources path not found: ${resourcesPath.absolutePath}")
+        }
+        
+        if (!uiSourcePath.exists()) {
+            fail("UI source path not found: ${uiSourcePath.absolutePath}")
+        }
+        
+        // Get all defined keys from English strings.xml
+        val englishFile = File(resourcesPath, "values/strings.xml")
+        val definedKeys = extractStringKeys(englishFile)
+        
+        // Find all keys referenced in ALL UI files via stringResource() calls
+        val referencedKeys = mutableSetOf<String>()
+        
+        // Scan all .kt files in the UI directory
+        uiSourcePath.walkTopDown()
+            .filter { it.isFile && it.extension == "kt" }
+            .forEach { file ->
+                extractStringResourceKeys(file, referencedKeys)
+            }
+        
+        // Also check localization utility files for keys in when statements
+        listOf("LocalizationUtils.kt", "NameLocalizationUtils.kt", "AchievementLocalization.kt").forEach { fileName ->
+            val utilFile = File(uiSourcePath, fileName)
+            if (utilFile.exists()) {
+                extractReferencedKeys(utilFile, referencedKeys)
+            }
+        }
+        
+        // Find missing keys
+        val missingKeys = referencedKeys - definedKeys
+        
+        if (missingKeys.isNotEmpty()) {
+            val message = buildString {
+                appendLine("Found ${missingKeys.size} key(s) referenced in code but not defined in strings.xml:")
+                appendLine("These will display as '???' in the app.")
+                appendLine()
+                missingKeys.sorted().forEach { key ->
+                    appendLine("  - $key")
+                }
+                appendLine()
+                appendLine("All referenced keys must be defined in values/strings.xml")
+            }
+            fail(message)
+        }
+    }
+    
+    private fun extractStringResourceKeys(file: File, keys: MutableSet<String>) {
+        // Pattern to match stringResource(Res.string.key_name) calls
+        val stringResourcePattern = Regex("""stringResource\s*\(\s*Res\.string\.([a-z_][a-z_0-9]*)\b""")
+        
+        file.readLines().forEach { line ->
+            stringResourcePattern.findAll(line).forEach { match ->
+                val key = match.groupValues[1]
+                keys.add(key)
+            }
+        }
+    }
+    
+    private fun extractReferencedKeys(file: File, keys: MutableSet<String>) {
+        // Pattern to match string literals in when statements or variable assignments
+        val keyPattern = Regex("""["']([a-z_][a-z0-9_]*)["']""")
+        
+        file.readLines().forEach { line ->
+            // Skip comments
+            val trimmedLine = line.trim()
+            if (trimmedLine.startsWith("//") || trimmedLine.startsWith("*") || trimmedLine.startsWith("/*")) {
+                return@forEach
+            }
+            
+            // Only look at lines that reference string keys (contain quotes and underscore)
+            if (line.contains("\"") || line.contains("'")) {
+                keyPattern.findAll(line).forEach { match ->
+                    val potentialKey = match.groupValues[1]
+                    // Only consider it a key if it looks like a string resource key
+                    // (lowercase with underscores, not a file path or URL)
+                    if (potentialKey.contains("_") && !potentialKey.contains("/") && !potentialKey.contains(".")) {
+                        keys.add(potentialKey)
+                    }
+                }
+            }
+        }
+    }
+    
+    @Test
+    fun testXmlFilesAreWellFormed() {
+        val resourcesPath = File(projectRoot, "composeApp/src/commonMain/composeResources")
+        
+        if (!resourcesPath.exists()) {
+            fail("Resources path not found: ${resourcesPath.absolutePath}")
+        }
+        
+        val violations = mutableListOf<String>()
+        
+        // Check all language files for XML well-formedness
+        listOf("values", "values-de", "values-es", "values-fr", "values-it").forEach { dir ->
+            val file = File(resourcesPath, "$dir/strings.xml")
+            if (file.exists()) {
+                try {
+                    validateXmlStructure(file, dir, violations)
+                } catch (e: Exception) {
+                    violations.add("  $dir/strings.xml - XML parsing error: ${e.message}")
+                }
+            }
+        }
+        
+        if (violations.isNotEmpty()) {
+            val message = buildString {
+                appendLine("Found ${violations.size} XML structure issue(s):")
+                appendLine("Malformed XML will cause translations to fail and display as '???'")
+                appendLine()
+                violations.forEach { violation ->
+                    appendLine(violation)
+                }
+            }
+            fail(message)
+        }
+    }
+    
+    private fun validateXmlStructure(file: File, languageDir: String, violations: MutableList<String>) {
+        val content = file.readText()
+        
+        // Check for basic XML structure issues
+        if (!content.contains("<?xml")) {
+            violations.add("  $languageDir/strings.xml - Missing XML declaration")
+        }
+        
+        if (!content.contains("<resources>") || !content.contains("</resources>")) {
+            violations.add("  $languageDir/strings.xml - Missing <resources> root element")
+        }
+        
+        // Check for unclosed tags
+        val openTags = Regex("""<string\s+name="[^"]+">""").findAll(content).count()
+        val closeTags = Regex("""</string>""").findAll(content).count()
+        
+        if (openTags != closeTags) {
+            violations.add("  $languageDir/strings.xml - Mismatched <string> tags (open: $openTags, close: $closeTags)")
+        }
+        
+        // Check for duplicate keys
+        val keys = mutableMapOf<String, Int>()
+        val stringPattern = Regex("""<string\s+name="([^"]+)"""")
+        
+        file.readLines().forEachIndexed { index, line ->
+            stringPattern.find(line)?.let { match ->
+                val key = match.groupValues[1]
+                if (keys.containsKey(key)) {
+                    violations.add("  $languageDir/strings.xml:${index + 1} - Duplicate key '$key' (first defined at line ${keys[key]})")
+                } else {
+                    keys[key] = index + 1
+                }
+            }
+        }
+    }
+    
+    @Test
+    fun testParameterizedStringsMatchAcrossLanguages() {
+        val resourcesPath = File(projectRoot, "composeApp/src/commonMain/composeResources")
+        
+        if (!resourcesPath.exists()) {
+            fail("Resources path not found: ${resourcesPath.absolutePath}")
+        }
+        
+        val violations = mutableListOf<String>()
+        
+        // Extract parameterized strings from English
+        val englishFile = File(resourcesPath, "values/strings.xml")
+        val englishParameters = extractParametersFromStrings(englishFile)
+        
+        // Check each language file
+        listOf("values-de", "values-es", "values-fr", "values-it").forEach { dir ->
+            val file = File(resourcesPath, "$dir/strings.xml")
+            if (file.exists()) {
+                val languageParameters = extractParametersFromStrings(file)
+                
+                // Check if parameters match for each key
+                englishParameters.forEach { (key, englishParams) ->
+                    val languageParams = languageParameters[key]
+                    if (languageParams != null && englishParams != languageParams) {
+                        violations.add("  $dir/strings.xml - Key '$key' has parameter mismatch")
+                        violations.add("    English: $englishParams")
+                        violations.add("    $dir: $languageParams")
+                    }
+                }
+            }
+        }
+        
+        if (violations.isNotEmpty()) {
+            // Count actual mismatches (every 3 lines = 1 mismatch)
+            val mismatchCount = violations.count { it.contains("has parameter mismatch") }
+            val message = buildString {
+                appendLine("Found $mismatchCount parameterized string(s) with mismatched parameters:")
+                appendLine("Parameter mismatches can cause '???' or incorrect formatting at runtime.")
+                appendLine()
+                violations.forEach { violation ->
+                    appendLine(violation)
+                }
+                appendLine()
+                appendLine("All languages must use the same parameter placeholders (e.g., %s, %d, %1\$s, %2\$d)")
+            }
+            fail(message)
+        }
+    }
+    
+    private fun extractParametersFromStrings(file: File): Map<String, List<String>> {
+        val result = mutableMapOf<String, List<String>>()
+        val stringPattern = Regex("""<string\s+name="([^"]+)"[^>]*>([^<]*)</string>""")
+        // Match format specifiers commonly used: %s (string), %d (decimal), %f (float)
+        // Also supports positional variants like %1$s, %2$d
+        val parameterPattern = Regex("""%(\d+\$)?[sdf]""")
+        
+        file.readLines().forEach { line ->
+            stringPattern.find(line)?.let { match ->
+                val key = match.groupValues[1]
+                val value = match.groupValues[2]
+                val parameters = parameterPattern.findAll(value).map { it.value }.toList()
+                if (parameters.isNotEmpty()) {
+                    result[key] = parameters
+                }
+            }
+        }
+        
+        return result
+    }
+    
+    @Test
+    fun testNoStringResourceWithReplace() {
+        val uiSourcePath = File(projectRoot, "composeApp/src/commonMain/kotlin/de/egril/defender/ui")
+        
+        if (!uiSourcePath.exists()) {
+            fail("UI source path not found: ${uiSourcePath.absolutePath}")
+        }
+        
+        val violations = mutableListOf<String>()
+        
+        // Pattern to detect stringResource(...).replace(...)
+        // Note: LocalizedStrings.get(...).replace() is acceptable in multiplatform code
+        val stringResourceReplacePattern = Regex("""stringResource\s*\([^)]+\)\s*\.\s*replace\s*\(""")
+        
+        // Scan all .kt files in the UI directory
+        uiSourcePath.walkTopDown()
+            .filter { it.isFile && it.extension == "kt" }
+            .forEach { file ->
+                val relativePath = file.relativeTo(projectRoot).path
+                file.readLines().forEachIndexed { index, line ->
+                    val lineNumber = index + 1
+                    // Skip comments
+                    val trimmedLine = line.trim()
+                    if (trimmedLine.startsWith("//") || trimmedLine.startsWith("*")) {
+                        return@forEachIndexed
+                    }
+                    
+                    if (stringResourceReplacePattern.containsMatchIn(line)) {
+                        violations.add("  $relativePath:$lineNumber")
+                        violations.add("    ${line.trim()}")
+                    }
+                }
+            }
+        
+        if (violations.isNotEmpty()) {
+            val message = buildString {
+                appendLine("Found ${violations.size / 2} case(s) of stringResource().replace() pattern:")
+                appendLine("This pattern causes '???' because parameters are not passed to the localization plugin.")
+                appendLine()
+                violations.forEach { violation ->
+                    appendLine(violation)
+                }
+                appendLine()
+                appendLine("Correct usage:")
+                appendLine("  - stringResource(Res.string.key, param1, param2)")
+                appendLine("Wrong usage:")
+                appendLine("  - stringResource(Res.string.key).replace(\"%s\", param1)")
+                appendLine()
+                appendLine("Note: LocalizedStrings.get(...).replace() is acceptable for multiplatform compatibility")
+            }
+            fail(message)
+        }
     }
 }
