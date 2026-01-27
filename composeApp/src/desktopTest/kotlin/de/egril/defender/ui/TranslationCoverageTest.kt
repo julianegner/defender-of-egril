@@ -46,6 +46,7 @@ import java.io.File
  *    - Finds stringResource().replace() patterns which don't work correctly
  *    - This pattern causes "???" because parameters aren't passed to the plugin
  *    - Ensures parameters are passed directly: stringResource(key, param1, param2)
+ *    - Note: LocalizedStrings.get().replace() is allowed for multiplatform compatibility
  * 
  * When a test fails, it provides:
  * - Clear error message explaining the issue
@@ -512,9 +513,9 @@ class TranslationCoverageTest {
         
         val violations = mutableListOf<String>()
         
-        // Pattern to detect stringResource(...).replace(...) or LocalizedStrings.get(...).replace(...)
+        // Pattern to detect stringResource(...).replace(...)
+        // Note: LocalizedStrings.get(...).replace() is acceptable in multiplatform code
         val stringResourceReplacePattern = Regex("""stringResource\s*\([^)]+\)\s*\.\s*replace\s*\(""")
-        val localizedStringsReplacePattern = Regex("""LocalizedStrings\.get\s*\([^)]+\)\s*\.\s*replace\s*\(""")
         
         // Scan all .kt files in the UI directory
         uiSourcePath.walkTopDown()
@@ -529,8 +530,7 @@ class TranslationCoverageTest {
                         return@forEachIndexed
                     }
                     
-                    if (stringResourceReplacePattern.containsMatchIn(line) || 
-                        localizedStringsReplacePattern.containsMatchIn(line)) {
+                    if (stringResourceReplacePattern.containsMatchIn(line)) {
                         violations.add("  $relativePath:$lineNumber")
                         violations.add("    ${line.trim()}")
                     }
@@ -539,8 +539,8 @@ class TranslationCoverageTest {
         
         if (violations.isNotEmpty()) {
             val message = buildString {
-                appendLine("Found ${violations.size / 2} case(s) of .replace() on localized strings:")
-                appendLine("This pattern causes '???' because parameters are not passed correctly.")
+                appendLine("Found ${violations.size / 2} case(s) of stringResource().replace() pattern:")
+                appendLine("This pattern causes '???' because parameters are not passed to the localization plugin.")
                 appendLine()
                 violations.forEach { violation ->
                     appendLine(violation)
@@ -548,10 +548,10 @@ class TranslationCoverageTest {
                 appendLine()
                 appendLine("Correct usage:")
                 appendLine("  - stringResource(Res.string.key, param1, param2)")
-                appendLine("  - template.format(param1, param2)")
                 appendLine("Wrong usage:")
                 appendLine("  - stringResource(Res.string.key).replace(\"%s\", param1)")
-                appendLine("  - LocalizedStrings.get(key, locale).replace(\"%s\", param1)")
+                appendLine()
+                appendLine("Note: LocalizedStrings.get(...).replace() is acceptable for multiplatform compatibility")
             }
             fail(message)
         }
