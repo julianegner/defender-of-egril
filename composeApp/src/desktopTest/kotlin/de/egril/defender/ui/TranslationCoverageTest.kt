@@ -512,8 +512,9 @@ class TranslationCoverageTest {
         
         val violations = mutableListOf<String>()
         
-        // Pattern to detect stringResource(...).replace(...)
+        // Pattern to detect stringResource(...).replace(...) or LocalizedStrings.get(...).replace(...)
         val stringResourceReplacePattern = Regex("""stringResource\s*\([^)]+\)\s*\.\s*replace\s*\(""")
+        val localizedStringsReplacePattern = Regex("""LocalizedStrings\.get\s*\([^)]+\)\s*\.\s*replace\s*\(""")
         
         // Scan all .kt files in the UI directory
         uiSourcePath.walkTopDown()
@@ -522,7 +523,14 @@ class TranslationCoverageTest {
                 val relativePath = file.relativeTo(projectRoot).path
                 file.readLines().forEachIndexed { index, line ->
                     val lineNumber = index + 1
-                    if (stringResourceReplacePattern.containsMatchIn(line)) {
+                    // Skip comments
+                    val trimmedLine = line.trim()
+                    if (trimmedLine.startsWith("//") || trimmedLine.startsWith("*")) {
+                        return@forEachIndexed
+                    }
+                    
+                    if (stringResourceReplacePattern.containsMatchIn(line) || 
+                        localizedStringsReplacePattern.containsMatchIn(line)) {
                         violations.add("  $relativePath:$lineNumber")
                         violations.add("    ${line.trim()}")
                     }
@@ -531,15 +539,19 @@ class TranslationCoverageTest {
         
         if (violations.isNotEmpty()) {
             val message = buildString {
-                appendLine("Found ${violations.size / 2} case(s) of stringResource().replace() pattern:")
+                appendLine("Found ${violations.size / 2} case(s) of .replace() on localized strings:")
                 appendLine("This pattern causes '???' because parameters are not passed correctly.")
                 appendLine()
                 violations.forEach { violation ->
                     appendLine(violation)
                 }
                 appendLine()
-                appendLine("Correct usage: stringResource(Res.string.key, param1, param2)")
-                appendLine("Wrong usage: stringResource(Res.string.key).replace(\"%s\", param1)")
+                appendLine("Correct usage:")
+                appendLine("  - stringResource(Res.string.key, param1, param2)")
+                appendLine("  - template.format(param1, param2)")
+                appendLine("Wrong usage:")
+                appendLine("  - stringResource(Res.string.key).replace(\"%s\", param1)")
+                appendLine("  - LocalizedStrings.get(key, locale).replace(\"%s\", param1)")
             }
             fail(message)
         }

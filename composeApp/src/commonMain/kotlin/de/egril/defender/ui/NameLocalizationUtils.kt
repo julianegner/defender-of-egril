@@ -53,7 +53,8 @@ fun EditorLevel.getLocalizedTitle(locale: AppLocale = currentLanguage.value): St
                 val baseKey = parts[0]
                 val param = parts[1]
                 val template = LocalizedStrings.get(baseKey, locale)
-                template.replace("%s", param)
+                // Use String.format for proper parameter substitution
+                template.format(param)
             } else {
                 LocalizedStrings.get(titleKey, locale)
             }
@@ -113,7 +114,8 @@ fun Level.getLocalizedTitle(locale: AppLocale = currentLanguage.value): String {
                 val baseKey = parts[0]
                 val param = parts[1]
                 val template = LocalizedStrings.get(baseKey, locale)
-                template.replace("%s", param)
+                // Use String.format for proper parameter substitution
+                template.format(param)
             } else {
                 LocalizedStrings.get(titleKey, locale)
             }
@@ -157,7 +159,8 @@ fun LevelInfoEnemiesLevelData.getLocalizedTitle(locale: AppLocale = currentLangu
                 val baseKey = parts[0]
                 val param = parts[1]
                 val template = LocalizedStrings.get(baseKey, locale)
-                template.replace("%s", param)
+                // Use String.format for proper parameter substitution
+                template.format(param)
             } else {
                 LocalizedStrings.get(titleKey, locale)
             }
