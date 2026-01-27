@@ -329,9 +329,6 @@ object EditorStorage {
     }
     
     fun getLevelSequence(): LevelSequence {
-        // Ensure initialization has happened
-        ensureInitialized()
-        
         println("EditorStorage: Retrieving level sequence...")
         if (levelSequenceCache != null) {
             return levelSequenceCache!!
