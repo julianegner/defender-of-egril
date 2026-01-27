@@ -446,7 +446,7 @@
     <string name="tutorial_initial_building_title">Initial Building Phase</string>
     <string name="tutorial_initial_building">In this initial phase, towers are built instantly but cannot attack yet.\nClick on a tower to see its range - path tiles get green borders.\nLater in the game, towers will take 1-2 turns to build.</string>
     <string name="tutorial_undo_title">Undo Towers</string>
-    <string name="tutorial_undo">During this initial phase, you can undo tower placement by selecting it and selling for a full refund. After the battle starts, you can only sell towers for 75% of their value.</string>
+    <string name="tutorial_undo">During this initial phase, you can undo tower placement by selecting it and selling for a full refund. After the battle starts, you can only sell towers for 75%% of their value.</string>
     <string name="tutorial_combat_title">Start the Battle</string>
     <string name="tutorial_combat">Click the Start Battle button when ready. Your goal is to defend the Target at the end of the path - don't let enemies reach it!</string>
     <string name="tutorial_enemies_title">Enemies Incoming!</string>
@@ -458,7 +458,7 @@
     <string name="tutorial_upgrade_title">Upgrade Towers</string>
     <string name="tutorial_upgrade">Select a tower and click Upgrade to increase its stats. You'll see current damage, range, and actions per turn, plus what they'll be after upgrading. Upgrades cost coins but make towers more powerful!</string>
     <string name="tutorial_sell_title">Sell Towers</string>
-    <string name="tutorial_sell">Select a tower and click Sell to get back 75% of its total investment (cost + upgrades). Use this if you need coins or want to reposition your defense.</string>
+    <string name="tutorial_sell">Select a tower and click Sell to get back 75%% of its total investment (cost + upgrades). Use this if you need coins or want to reposition your defense.</string>
     <string name="tutorial_save_game_title">Save Your Progress</string>
     <string name="tutorial_save_game">You can save your game at any time using the Save Game button.\nThis lets you try different strategies or continue later.\nTo load a saved game, use the Load Game button on the world map screen.</string>
     <string name="tutorial_complete_title">Tutorial Complete!</string>
@@ -733,7 +733,7 @@
 
     <!-- Mining Outcome Table Headers -->
     <string name="dig_outcome_name">Name</string>
-    <string name="dig_outcome_chance">Chance (%)</string>
+    <string name="dig_outcome_chance">Chance (%%)</string>
     <string name="dig_outcome_reward">Reward</string>
 
     <!-- Delete Confirmation Dialog -->
