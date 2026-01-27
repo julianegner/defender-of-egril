@@ -56,17 +56,8 @@ object EditorStorage {
         val repositoryLoaded = tryLoadRepositoryFiles()
         
         if (!repositoryLoaded) {
-            // Repository files couldn't be loaded
-            // Check if we have existing user data as a fallback
-            val hasUserData = hasExistingGamedataFiles()
-            if (!hasUserData) {
-                // No repository files and no user data - we can't initialize
-                // This should only happen in test environments without resources
-                println("Repository files could not be loaded and no user data exists - skipping initialization (test environment)")
-                initialized = true
-                return
-            }
-            println("Repository files not available, but user data exists - continuing with user data only")
+            println("Repository files could not be loaded - this may be a test environment")
+            // Continue anyway - we'll try to load from other paths or use defaults
         }
 
         // Validate that we have all required data categories
@@ -84,6 +75,7 @@ object EditorStorage {
         }
 
         initialized = true
+        println("EditorStorage initialized successfully. Repository loaded: $repositoryLoaded")
     }
 
     /**
