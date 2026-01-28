@@ -43,7 +43,7 @@ fun InfoPageScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 // Tab selector
-                TabRow(
+                PrimaryTabRow(
                     selectedTabIndex = selectedTab.ordinal,
                     modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
                 ) {
