@@ -51,8 +51,9 @@ fun WorldMapScreen(
     var showCheatDialog by remember { mutableStateOf(false) }
     var selectedLocation by remember { mutableStateOf<Pair<WorldMapLocation, List<WorldLevel>>?>(null) }
     
-    // Track selected tab in image map view (0 = Official/Image Map, 1 = User Levels)
-    var imageMapTabIndex by remember { mutableStateOf(0) }
+    // Track whether to show user levels tab view in image map mode
+    // false = show image map with button, true = show tab view with user levels
+    var showUserLevelsTabView by remember { mutableStateOf(false) }
     
     // Watch the setting for world map style
     val useLevelCards = AppSettings.useLevelCards.value
@@ -150,50 +151,41 @@ fun WorldMapScreen(
                         .padding(top = 80.dp, bottom = 80.dp)  // Leave space for top/bottom bars
                 )
             } else {
-                // Image Map View with tabs (on desktop/wasm)
-                if (isEditorAvailable() && hasUserLevels) {
-                    // Show tabs and content based on selection
+                // Image Map View
+                if (isEditorAvailable() && hasUserLevels && showUserLevelsTabView) {
+                    // Show tab view with Official and User Levels tabs
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(top = 80.dp, bottom = 80.dp)  // Leave space for top/bottom bars
                     ) {
                         // Tabs for Official (Image Map) and User Levels
-                        androidx.compose.material3.PrimaryTabRow(selectedTabIndex = imageMapTabIndex) {
+                        androidx.compose.material3.PrimaryTabRow(selectedTabIndex = 1) {  // Always select User Levels tab (index 1)
                             androidx.compose.material3.Tab(
-                                selected = imageMapTabIndex == 0,
-                                onClick = { imageMapTabIndex = 0 },
+                                selected = false,
+                                onClick = { 
+                                    // Switch back to image map view with button
+                                    showUserLevelsTabView = false 
+                                },
                                 text = { Text(stringResource(Res.string.official)) }
                             )
                             androidx.compose.material3.Tab(
-                                selected = imageMapTabIndex == 1,
-                                onClick = { imageMapTabIndex = 1 },
+                                selected = true,
+                                onClick = { /* Already on User Levels tab */ },
                                 text = { Text(stringResource(Res.string.user_levels)) }
                             )
                         }
                         
-                        // Content based on selected tab
-                        if (imageMapTabIndex == 0) {
-                            // Official tab: Show image-based world map
-                            ImageWorldMapView(
-                                worldLevels = visibleWorldLevels,
-                                onLocationClicked = { location, levelsAtLocation ->
-                                    selectedLocation = location to levelsAtLocation
-                                },
-                                modifier = Modifier.fillMaxSize()
-                            )
-                        } else {
-                            // User Levels tab: Show level cards grid (user levels only)
-                            LevelCardsView(
-                                worldLevels = visibleWorldLevels,
-                                onLevelSelected = onLevelSelected,
-                                filterToUserLevelsOnly = true,
-                                modifier = Modifier.fillMaxSize()
-                            )
-                        }
+                        // Show user levels grid
+                        LevelCardsView(
+                            worldLevels = visibleWorldLevels,
+                            onLevelSelected = onLevelSelected,
+                            filterToUserLevelsOnly = true,
+                            modifier = Modifier.fillMaxSize()
+                        )
                     }
                 } else {
-                    // No tabs: Just show image-based World Map
+                    // Show image-based World Map (no tabs)
                     ImageWorldMapView(
                         worldLevels = visibleWorldLevels,
                         onLocationClicked = { location, levelsAtLocation ->
@@ -438,8 +430,24 @@ fun WorldMapScreen(
                     Spacer(modifier = Modifier.weight(1f))
                 }
                 
-                // Editor Button (only on desktop/wasm)
-                if (isEditorAvailable()) {
+                // User Levels Button (only in Image Map View when not showing tab view)
+                // Show when: editor available, has user levels, NOT in level cards view, NOT showing tab view
+                if (isEditorAvailable() && hasUserLevels && !useLevelCards && !showUserLevelsTabView) {
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        horizontalAlignment = Alignment.End
+                    ) {
+                        Button(
+                            onClick = { showUserLevelsTabView = true }
+                        ) {
+                            Text(stringResource(Res.string.user_levels))
+                        }
+                        
+                        // Editor Button below User Levels button
+                        EditorButtonCard(onClick = onOpenEditor)
+                    }
+                } else if (isEditorAvailable()) {
+                    // Just Editor Button (when no user levels or already in tab view)
                     EditorButtonCard(onClick = onOpenEditor)
                 }
             }
