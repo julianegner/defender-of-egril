@@ -90,7 +90,7 @@ fun LevelInfoTab(
                         value = title,
                         onValueChange = onTitleChange,
                         label = { Text(stringResource(Res.string.level_title)) },
-                        enabled = !isOfficial,
+                        enabled = !isOfficial || de.egril.defender.OfficialEditMode.enabled,
                         modifier = Modifier.fillMaxWidth()
                     )
                     
@@ -98,7 +98,7 @@ fun LevelInfoTab(
                         value = subtitle,
                         onValueChange = onSubtitleChange,
                         label = { Text(stringResource(Res.string.subtitle_optional)) },
-                        enabled = !isOfficial,
+                        enabled = !isOfficial || de.egril.defender.OfficialEditMode.enabled,
                         modifier = Modifier.fillMaxWidth()
                     )
                 }

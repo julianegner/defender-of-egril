@@ -1072,4 +1072,11 @@
     <string name="user_level">Niveau Utilisateur</string>
     <string name="official_map_info">Ceci est une carte officielle. Vous pouvez la copier pour créer une version utilisateur.</string>
     <string name="official_level_info">Ceci est un niveau officiel. Vous pouvez le copier pour créer une version utilisateur.</string>
+    
+    <!-- Official Data Change Warning -->
+    <string name="official_data_changed_title">Données Officielles du Jeu Modifiées</string>
+    <string name="official_data_changed_message">Vous avez apporté des modifications aux données officielles du jeu (cartes ou niveaux).\n\nCes modifications seront écrasées lorsque vous redémarrerez le jeu, car le contenu officiel est restauré depuis le dépôt à chaque lancement.\n\nPour conserver vos modifications, envisagez de copier le contenu officiel pour créer des versions utilisateur à la place.</string>
+    <string name="official_data_modified_maps">Cartes modifiées : %1$s</string>
+    <string name="official_data_modified_levels">Niveaux modifiés : %1$s</string>
+    <string name="understood">Compris</string>
 </resources>

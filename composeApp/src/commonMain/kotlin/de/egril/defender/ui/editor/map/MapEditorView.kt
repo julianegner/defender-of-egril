@@ -331,7 +331,7 @@ fun MapEditorView(
                         val validatedMap = updatedMap.copy(readyToUse = updatedMap.validateReadyToUse())
                         onSave(validatedMap)
                     },
-                    enabled = !map.isOfficial,
+                    enabled = !map.isOfficial || de.egril.defender.OfficialEditMode.enabled,
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(stringResource(Res.string.save_map))

@@ -315,7 +315,7 @@ private fun LevelCard(
                 }
                 Button(
                     onClick = onDelete,
-                    enabled = !level.isOfficial,
+                    enabled = !level.isOfficial || de.egril.defender.OfficialEditMode.enabled,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.error
                     ),
@@ -576,7 +576,7 @@ fun LevelEditorView(
                         )
                         onSave(updatedLevel)
                     },
-                    enabled = !level.isOfficial,
+                    enabled = !level.isOfficial || de.egril.defender.OfficialEditMode.enabled,
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(stringResource(Res.string.save_level))

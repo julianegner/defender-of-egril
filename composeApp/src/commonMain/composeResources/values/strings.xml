@@ -1071,4 +1071,11 @@
     <string name="user_level">User Level</string>
     <string name="official_map_info">This is an official map. You can copy it to create a user version.</string>
     <string name="official_level_info">This is an official level. You can copy it to create a user version.</string>
+    
+    <!-- Official Data Change Warning -->
+    <string name="official_data_changed_title">Official Game Data Modified</string>
+    <string name="official_data_changed_message">You have made changes to official game data (maps or levels).\n\nThese changes will be overwritten when you restart the game, as official content is restored from the repository on each launch.\n\nTo preserve your changes, consider copying the official content to create user versions instead.</string>
+    <string name="official_data_modified_maps">Modified maps: %1$s</string>
+    <string name="official_data_modified_levels">Modified levels: %1$s</string>
+    <string name="understood">Understood</string>
 </resources>

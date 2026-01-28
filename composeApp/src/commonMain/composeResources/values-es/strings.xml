@@ -1072,4 +1072,11 @@
     <string name="user_level">Nivel de Usuario</string>
     <string name="official_map_info">Este es un mapa oficial. Puedes copiarlo para crear una versión de usuario.</string>
     <string name="official_level_info">Este es un nivel oficial. Puedes copiarlo para crear una versión de usuario.</string>
+    
+    <!-- Official Data Change Warning -->
+    <string name="official_data_changed_title">Datos Oficiales del Juego Modificados</string>
+    <string name="official_data_changed_message">Has realizado cambios en los datos oficiales del juego (mapas o niveles).\n\nEstos cambios se sobrescribirán cuando reinicies el juego, ya que el contenido oficial se restaura desde el repositorio en cada inicio.\n\nPara conservar tus cambios, considera copiar el contenido oficial para crear versiones de usuario en su lugar.</string>
+    <string name="official_data_modified_maps">Mapas modificados: %1$s</string>
+    <string name="official_data_modified_levels">Niveles modificados: %1$s</string>
+    <string name="understood">Entendido</string>
 </resources>
