@@ -1076,5 +1076,9 @@
     <string name="official_data_modified_maps">Geänderte Karten: %1$s</string>
     <string name="official_data_modified_levels">Geänderte Level: %1$s</string>
     <string name="understood">Verstanden</string>
+    <string name="official_level_saved_warning_title">Offizielles Level gespeichert</string>
+    <string name="official_level_saved_warning_message">Sie haben ein offizielles Level gespeichert.\n\nDiese Änderungen werden beim Neustart des Spiels überschrieben, da der offizielle Inhalt bei jedem Start aus dem Repository wiederhergestellt wird.</string>
+    <string name="user_map_not_allowed_title">Benutzerkarte nicht erlaubt</string>
+    <string name="user_map_not_allowed_message">Offizielle Level können nur offizielle Karten verwenden.\n\nUm diese Karte zu verwenden, kopieren Sie sie bitte, um eine offizielle Version zu erstellen, oder erstellen Sie stattdessen ein Benutzer-Level.</string>
 
 </resources>

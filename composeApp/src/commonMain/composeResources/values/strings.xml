@@ -1078,4 +1078,8 @@
     <string name="official_data_modified_maps">Modified maps: %1$s</string>
     <string name="official_data_modified_levels">Modified levels: %1$s</string>
     <string name="understood">Understood</string>
+    <string name="official_level_saved_warning_title">Official Level Saved</string>
+    <string name="official_level_saved_warning_message">You have saved an official level.\n\nThese changes will be overwritten when you restart the game, as official content is restored from the repository on each launch.</string>
+    <string name="user_map_not_allowed_title">User Map Not Allowed</string>
+    <string name="user_map_not_allowed_message">Official levels can only use official maps.\n\nTo use this map, please copy it to create an official version, or create a user level instead.</string>
 </resources>

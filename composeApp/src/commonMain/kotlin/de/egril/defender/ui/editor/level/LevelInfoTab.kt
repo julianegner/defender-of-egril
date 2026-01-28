@@ -41,6 +41,8 @@ import defender_of_egril.composeapp.generated.resources.start_coins
 import defender_of_egril.composeapp.generated.resources.start_hp
 import defender_of_egril.composeapp.generated.resources.subtitle_optional
 import defender_of_egril.composeapp.generated.resources.test_level
+import defender_of_egril.composeapp.generated.resources.user_map_not_allowed_title
+import defender_of_egril.composeapp.generated.resources.user_map_not_allowed_message
 
 /**
  * Tab 1: Level Info (title, subtitle, map, coins, HP)
@@ -68,6 +70,7 @@ fun LevelInfoTab(
     isOfficial: Boolean = false
 ) {
     var showAutoAttackInfo by remember { mutableStateOf(false) }
+    var showUserMapNotAllowedDialog by remember { mutableStateOf(false) }
     
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -178,10 +181,18 @@ fun LevelInfoTab(
                     contentPadding = PaddingValues(4.dp)
                 ) {
                     items(maps) { map ->
+                        // For official levels, user maps should be disabled
+                        val isMapEnabled = !isOfficial || map.isOfficial
+                        
                         MapSelectionCard(
                             map = map,
                             isSelected = selectedMapId == map.id,
-                            onClick = { onMapChange(map.id) }
+                            onClick = { onMapChange(map.id) },
+                            isEnabled = isMapEnabled,
+                            onDisabledClick = {
+                                // Show dialog when clicking on disabled user map
+                                showUserMapNotAllowedDialog = true
+                            }
                         )
                     }
                 }
@@ -218,6 +229,20 @@ fun LevelInfoTab(
             text = { Text(stringResource(Res.string.auto_attack_info_message)) },
             confirmButton = {
                 Button(onClick = { showAutoAttackInfo = false }) {
+                    Text(stringResource(Res.string.ok))
+                }
+            }
+        )
+    }
+    
+    // Dialog for user map not allowed in official levels
+    if (showUserMapNotAllowedDialog) {
+        AlertDialog(
+            onDismissRequest = { showUserMapNotAllowedDialog = false },
+            title = { Text(stringResource(Res.string.user_map_not_allowed_title)) },
+            text = { Text(stringResource(Res.string.user_map_not_allowed_message)) },
+            confirmButton = {
+                Button(onClick = { showUserMapNotAllowedDialog = false }) {
                     Text(stringResource(Res.string.ok))
                 }
             }

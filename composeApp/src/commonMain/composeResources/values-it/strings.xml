@@ -1079,4 +1079,8 @@
     <string name="official_data_modified_maps">Mappe modificate: %1$s</string>
     <string name="official_data_modified_levels">Livelli modificati: %1$s</string>
     <string name="understood">Compreso</string>
+    <string name="official_level_saved_warning_title">Livello Ufficiale Salvato</string>
+    <string name="official_level_saved_warning_message">Hai salvato un livello ufficiale.\n\nQueste modifiche verranno sovrascritte al riavvio del gioco, poiché il contenuto ufficiale viene ripristinato dal repository ad ogni avvio.</string>
+    <string name="user_map_not_allowed_title">Mappa Utente Non Consentita</string>
+    <string name="user_map_not_allowed_message">I livelli ufficiali possono utilizzare solo mappe ufficiali.\n\nPer utilizzare questa mappa, copiala per creare una versione ufficiale, oppure crea un livello utente invece.</string>
 </resources>

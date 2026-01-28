@@ -1079,4 +1079,8 @@
     <string name="official_data_modified_maps">Cartes modifiées : %1$s</string>
     <string name="official_data_modified_levels">Niveaux modifiés : %1$s</string>
     <string name="understood">Compris</string>
+    <string name="official_level_saved_warning_title">Niveau Officiel Enregistré</string>
+    <string name="official_level_saved_warning_message">Vous avez enregistré un niveau officiel.\n\nCes modifications seront écrasées lorsque vous redémarrerez le jeu, car le contenu officiel est restauré depuis le dépôt à chaque lancement.</string>
+    <string name="user_map_not_allowed_title">Carte Utilisateur Non Autorisée</string>
+    <string name="user_map_not_allowed_message">Les niveaux officiels ne peuvent utiliser que des cartes officielles.\n\nPour utiliser cette carte, copiez-la pour créer une version officielle, ou créez un niveau utilisateur à la place.</string>
 </resources>
