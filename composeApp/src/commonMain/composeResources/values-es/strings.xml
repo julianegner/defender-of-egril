@@ -1072,4 +1072,54 @@
     <string name="user_level">Nivel de Usuario</string>
     <string name="official_map_info">Este es un mapa oficial. Puedes copiarlo para crear una versión de usuario.</string>
     <string name="official_level_info">Este es un nivel oficial. Puedes copiarlo para crear una versión de usuario.</string>
+    
+    <!-- Info Page -->
+    <string name="info_tab_installation">Instalación</string>
+    <string name="info_tab_audio_licenses">Licencias de Audio</string>
+    
+    <!-- Audio Licenses -->
+    <string name="audio_licenses_title">Archivos de Audio y Licencias</string>
+    <string name="audio_background_music_title">Música de Fondo</string>
+    <string name="audio_sound_effects_title">Efectos de Sonido</string>
+    <string name="audio_tower_attacks_subtitle">Ataques de Torres</string>
+    <string name="audio_enemy_events_subtitle">Eventos de Enemigos</string>
+    <string name="audio_mine_events_subtitle">Eventos de Minas</string>
+    <string name="audio_other_events_subtitle">Otros Eventos del Juego</string>
+    
+    <!-- Background Music -->
+    <string name="audio_fantasy_ambience_name">Ambiente de Fantasía</string>
+    <string name="audio_fantasy_ambience_license">100% libre de derechos de autor, no requiere atribución. No puede revenderse como audio, debe usarse en el contexto de un proyecto.</string>
+    <string name="audio_dark_castle_name">El Castillo Oscuro</string>
+    <string name="audio_fesliyan_license">Música libre de regalías de Fesliyan Studios. Uso en videojuegos permitido.</string>
+    <string name="audio_fantasy_orchestral_name">Música Orquestal Mística de Fantasía</string>
+    <string name="audio_pixabay_license">Licencia de Contenido Pixabay - Uso gratuito, no requiere atribución</string>
+    
+    <!-- Tower Attacks -->
+    <string name="audio_melee_attack_name">Ataque Cuerpo a Cuerpo</string>
+    <string name="audio_ranged_attack_name">Ataque a Distancia</string>
+    <string name="audio_fireball_attack_name">Ataque de Bola de Fuego</string>
+    <string name="audio_acid_attack_name">Ataque de Ácido</string>
+    
+    <!-- Enemy Events -->
+    <string name="audio_enemy_spawn_name">Aparición de Enemigo</string>
+    <string name="audio_enemy_destroyed_name">Enemigo Destruido</string>
+    
+    <!-- Mine Events -->
+    <string name="audio_mine_dig_name">Excavación de Mina</string>
+    <string name="audio_mine_coin_name">Monedas Encontradas</string>
+    <string name="audio_mine_trap_name">Trampa Construida</string>
+    <string name="audio_mine_dragon_name">Despertar del Dragón</string>
+    
+    <!-- Other Events -->
+    <string name="audio_trap_trigger_name">Activación de Trampa</string>
+    <string name="audio_life_lost_name">Vida Perdida</string>
+    <string name="audio_dragon_eat_name">Dragón Comiendo</string>
+    <string name="audio_tower_upgraded_name">Torre Mejorada</string>
+    <string name="audio_battle_start_name">Inicio de Batalla</string>
+    
+    <!-- Audio Item Labels -->
+    <string name="audio_file_label">Archivo: %s</string>
+    <string name="audio_source_label">Fuente: %s</string>
+    <string name="audio_license_label">Licencia: %s</string>
+    <string name="audio_attribution_note">Todos los archivos de audio se utilizan bajo sus respectivas licencias. Se proporciona atribución cuando es requerida.</string>
 </resources>
