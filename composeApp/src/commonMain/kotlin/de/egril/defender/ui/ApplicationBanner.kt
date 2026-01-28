@@ -75,11 +75,17 @@ fun ApplicationBanner(
     val spacerWidth = if (isPlatformMobile) 80.dp else 80.dp
     val canvasWidth = if (isPlatformMobile) 80.dp else 80.dp
     
-    Row(
-        modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center
+    // Fixed width container to prevent banner stretching on different screen sizes
+    // Total width: 80 (canvas) + 80 (spacer) + ~200 (text) + 24 (spacer) + 120 (shield) = ~504dp
+    Box(
+        modifier = modifier.fillMaxWidth(),
+        contentAlignment = Alignment.Center
     ) {
+        Row(
+            modifier = Modifier.width(504.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
         // Canvas with enemy and tower symbols
         Box(
             modifier = Modifier
@@ -168,5 +174,6 @@ fun ApplicationBanner(
             contentDescription = "Defender of Egril Logo",
             modifier = Modifier.size(120.dp)
         )
+        }
     }
 }
