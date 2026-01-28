@@ -414,6 +414,7 @@
     <string name="remove_all_turns">Rimuovi tutti i turni</string>
     <string name="confirm_remove_all_turns">Sei sicuro di voler rimuovere tutti i turni di spawn?</string>
     <string name="copy_level">Copia livello</string>
+    <string name="copy_map">Copia mappa</string>
     <string name="yes">Sì</string>
     <string name="confirm_delete_level">Sei sicuro di voler eliminare questo livello?</string>
     <string name="amount">Quantità</string>
@@ -1062,4 +1063,13 @@
     <string name="achievement_build_barricade_desc">Costruisci la tua prima barricata</string>
     <string name="achievement_add_health_barricade_name">Fortificato</string>
     <string name="achievement_add_health_barricade_desc">Aggiungi punti vita a una barricata esistente</string>
+    
+    <!-- Official Content Badges -->
+    <string name="official">Ufficiale</string>
+    <string name="user_levels">Livelli Utente</string>
+    <string name="user_map">Mappa Utente</string>
+    <string name="official_level">Livello Ufficiale</string>
+    <string name="user_level">Livello Utente</string>
+    <string name="official_map_info">Questa è una mappa ufficiale. Puoi copiarla per creare una versione utente.</string>
+    <string name="official_level_info">Questo è un livello ufficiale. Puoi copiarlo per creare una versione utente.</string>
 </resources>

@@ -81,6 +81,27 @@ fun MapEditorContent() {
                         onDelete = {
                             EditorStorage.deleteMap(map.id)
                             maps.value = EditorStorage.getAllMaps()
+                        },
+                        onCopy = {
+                            // Create a copy with a new ID
+                            val sanitizedName = map.name.trim().lowercase()
+                                .replace(" ", "_")
+                                .replace(Regex("[^a-z0-9_]"), "")
+                                .replace(Regex("_+"), "_")
+                            val copyId = if (sanitizedName.isNotEmpty()) {
+                                "map_${sanitizedName}_copy_${Random.nextInt(1000, 9999)}"
+                            } else {
+                                "map_${map.id}_copy_${Random.nextInt(1000, 9999)}"
+                            }
+                            val copiedMap = map.copy(
+                                id = copyId,
+                                name = "${map.name} (Copy)",
+                                isOfficial = false  // Copied maps are never official
+                            )
+                            EditorStorage.saveMap(copiedMap)
+                            maps.value = EditorStorage.getAllMaps()
+                            selectedMapId = copyId
+                            editingMap = copiedMap
                         }
                     )
                 }

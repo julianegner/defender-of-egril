@@ -6,6 +6,7 @@ import com.hyperether.resources.AppLocale
 import com.hyperether.resources.currentLanguage
 import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.settings.InitialLanguageChooserDialog
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
@@ -19,7 +20,7 @@ class InitialLanguageChooserDialogTest {
     
     @get:Rule
     val composeTestRule = createComposeRule()
-    
+
     @Test
     fun testInitialLanguageChooserDialogRendersCorrectly() {
         var languageSelected = false

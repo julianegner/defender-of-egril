@@ -37,7 +37,8 @@ object EditorJsonSerializer {
   "name": "${map.name}"$nameKeyJson,
   "width": ${map.width},
   "height": ${map.height},
-  "readyToUse": ${map.readyToUse}$worldMapPositionJson,
+  "readyToUse": ${map.readyToUse},
+  "isOfficial": ${map.isOfficial}$worldMapPositionJson,
   "tiles": {
     $tilesJson
   }$riverTilesJson
@@ -57,6 +58,11 @@ object EditorJsonSerializer {
             val height = JsonUtils.extractValue(json, "height").toInt()
             val readyToUse = try {
                 JsonUtils.extractBooleanValue(json, "readyToUse")
+            } catch (e: Exception) {
+                false  // Default to false for backward compatibility
+            }
+            val isOfficial = try {
+                JsonUtils.extractBooleanValue(json, "isOfficial")
             } catch (e: Exception) {
                 false  // Default to false for backward compatibility
             }
@@ -140,7 +146,7 @@ object EditorJsonSerializer {
                 // River tiles are optional, continue without them
             }
             
-            return EditorMap(id, name, nameKey, width, height, tiles, readyToUse, worldMapPosition, riverTiles)
+            return EditorMap(id, name, nameKey, width, height, tiles, readyToUse, worldMapPosition, riverTiles, isOfficial)
         } catch (e: Exception) {
             println("Error deserializing map: ${e.message}")
             return null
@@ -191,6 +197,12 @@ object EditorJsonSerializer {
             ""
         }
         
+        val isOfficialJson = if (level.isOfficial) {
+            ",\n  \"isOfficial\": true"
+        } else {
+            ""
+        }
+        
         return """{
   "id": "${level.id}",
   "mapId": "${level.mapId}",
@@ -205,7 +217,7 @@ object EditorJsonSerializer {
   "waypoints": [
     $waypointsJson
   ],
-  "prerequisites": [$prerequisitesJson]$requiredCountJson$testingOnlyJson$allowAutoAttackJson
+  "prerequisites": [$prerequisitesJson]$requiredCountJson$testingOnlyJson$allowAutoAttackJson$isOfficialJson
 }"""
     }
     
@@ -394,7 +406,14 @@ object EditorJsonSerializer {
                 false
             }
             
-            return EditorLevel(id, mapId, title, titleKey, subtitle, subtitleKey, startCoins, startHealthPoints, spawns, towers, waypoints, prerequisites, requiredPrerequisiteCount, testingOnly, allowAutoAttack)
+            // Parse isOfficial (optional, defaults to false)
+            val isOfficial = try {
+                JsonUtils.extractBooleanValue(json, "isOfficial")
+            } catch (e: Exception) {
+                false  // Default to false for backward compatibility
+            }
+            
+            return EditorLevel(id, mapId, title, titleKey, subtitle, subtitleKey, startCoins, startHealthPoints, spawns, towers, waypoints, prerequisites, requiredPrerequisiteCount, testingOnly, allowAutoAttack, isOfficial)
         } catch (e: Exception) {
             println("Error deserializing level: ${e.message}")
             return null

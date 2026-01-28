@@ -29,6 +29,7 @@ import de.egril.defender.ui.editor.RiverFlowIndicator
 import de.egril.defender.utils.screenToHexGridPosition
 import com.hyperether.resources.stringResource
 import de.egril.defender.model.RiverTile
+import de.egril.defender.ui.icon.InfoIcon
 import defender_of_egril.composeapp.generated.resources.*
 
 /**
@@ -330,6 +331,7 @@ fun MapEditorView(
                         val validatedMap = updatedMap.copy(readyToUse = updatedMap.validateReadyToUse())
                         onSave(validatedMap)
                     },
+                    enabled = !map.isOfficial,
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(stringResource(Res.string.save_map))

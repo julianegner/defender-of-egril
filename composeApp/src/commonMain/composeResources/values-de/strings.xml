@@ -412,6 +412,7 @@
     <string name="remove_all_turns">Alle Runden entfernen</string>
     <string name="confirm_remove_all_turns">Sind Sie sicher, dass Sie alle Spawn-Runden entfernen möchten?</string>
     <string name="copy_level">Level kopieren</string>
+    <string name="copy_map">Karte kopieren</string>
     <string name="yes">Ja</string>
     <string name="confirm_delete_level">Sind Sie sicher, dass Sie dieses Level löschen möchten?</string>
     <string name="amount">Anzahl</string>
@@ -1059,5 +1060,14 @@
     <string name="achievement_build_barricade_desc">Baue deine erste Barrikade</string>
     <string name="achievement_add_health_barricade_name">Verstärkt</string>
     <string name="achievement_add_health_barricade_desc">Füge einer bestehenden Barrikade Lebenspunkte hinzu</string>
+    
+    <!-- Official Content Badges -->
+    <string name="official">Offiziell</string>
+    <string name="user_levels">Benutzer-Level</string>
+    <string name="user_map">Benutzerkarte</string>
+    <string name="official_level">Offizielles Level</string>
+    <string name="user_level">Benutzer-Level</string>
+    <string name="official_map_info">Dies ist eine offizielle Karte. Sie können sie kopieren, um eine Benutzerversion zu erstellen.</string>
+    <string name="official_level_info">Dies ist ein offizielles Level. Sie können es kopieren, um eine Benutzerversion zu erstellen.</string>
 
 </resources>

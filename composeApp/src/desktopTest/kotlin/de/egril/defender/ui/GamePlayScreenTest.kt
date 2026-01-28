@@ -2,12 +2,16 @@ package de.egril.defender.ui
 
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
+import de.egril.defender.editor.EditorStorage
 import de.egril.defender.game.LevelData
 import de.egril.defender.model.GameState
 import de.egril.defender.model.GamePhase
 import de.egril.defender.ui.gameplay.GamePlayScreen
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import com.hyperether.resources.AppLocale
+import com.hyperether.resources.currentLanguage
 
 /**
  * UI tests for the Game Play screen.
@@ -19,6 +23,13 @@ class GamePlayScreenTest {
     
     @get:Rule
     val composeTestRule = createComposeRule()
+
+    @Before
+    fun setDefaultLanguage() {
+        currentLanguage.value = AppLocale.DEFAULT
+        // Ensure EditorStorage is initialized before tests access level data
+        EditorStorage.ensureInitialized()
+    }
     
     @Test
     fun testGamePlayScreenInitialState() {
