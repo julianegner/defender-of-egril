@@ -25,7 +25,7 @@ import de.egril.defender.model.*
 import de.egril.defender.model.getHexNeighbors
 import de.egril.defender.ui.*
 import de.egril.defender.ui.icon.ExplosionIcon
-import de.egril.defender.ui.icon.HoleIcon
+import de.egril.defender.ui.icon.TrapIcon
 import de.egril.defender.ui.icon.WoodIcon
 import com.hyperether.resources.stringResource
 import de.egril.defender.ui.editor.map.MapControlState
@@ -885,8 +885,8 @@ private fun BoxScope.GridCellContent(
                         }
 
                         TrapType.DWARVEN -> {
-                            // Dwarven trap - show hole icon with damage
-                            HoleIcon(size = 20.dp)
+                            // Dwarven trap - show trap icon with damage
+                            TrapIcon(size = 20.dp)
                             Text(
                                 "-${trap.damage}",
                                 style = MaterialTheme.typography.labelSmall,
@@ -1042,8 +1042,8 @@ private fun BoxScope.GridCellContent(
                 // Show different icon based on trap type
                 when {
                     selectedMineAction == MineAction.BUILD_TRAP -> {
-                        // Dwarven trap - show hole icon
-                        HoleIcon(size = 24.dp)
+                        // Dwarven trap - show trap icon
+                        TrapIcon(size = 24.dp)
                     }
                     selectedWizardAction == WizardAction.PLACE_MAGICAL_TRAP -> {
                         // Magical trap - show pentagram icon
