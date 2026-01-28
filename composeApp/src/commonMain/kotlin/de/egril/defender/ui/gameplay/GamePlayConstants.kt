@@ -94,4 +94,19 @@ object GamePlayConstants {
         /** Title text */
         val Title = 18.sp
     }
+    
+    /**
+     * Icon sizes used for elements displayed on map tiles.
+     * These sizes are used for traps, barricades, and other tile-based elements.
+     */
+    object TileIconSizes {
+        /** Icon size for traps on tiles (dwarven traps, magical traps) */
+        val Trap = 48.dp
+        
+        /** Icon size for barricades on tiles */
+        val Barricade = 48.dp
+        
+        /** Icon size for trap preview when hovering during placement mode */
+        val TrapPreview = 48.dp
+    }
 }

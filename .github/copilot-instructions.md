@@ -90,6 +90,17 @@ Defender of Egril is a turn-based tower defense game built with Kotlin Multiplat
 - Modular UI structure: Extract large screens into focused component files (see `ui/gameplay/` and `ui/editor/`)
 - Manual JSON serialization for cross-platform compatibility (see `EditorJsonSerializer`, `SaveJsonSerializer`)
 
+### Tile Icon Sizes
+- **All tile-based icon sizes** must be defined in `GamePlayConstants.TileIconSizes` object
+- This includes icons for traps, barricades, and any other elements displayed on map tiles
+- Use these constants consistently across all tile rendering code (e.g., in `GameMap.kt`)
+- **When adding new tile-based elements**: Add the icon size constant to `GamePlayConstants.TileIconSizes` first, then reference it in rendering code
+- **Convention**: Trap and barricade icons on tiles should be the same size (48.dp) for visual consistency
+- **Examples**:
+  - `GamePlayConstants.TileIconSizes.Trap` - Used for dwarven and magical trap icons on tiles
+  - `GamePlayConstants.TileIconSizes.Barricade` - Used for barricade/wood icons on tiles
+  - `GamePlayConstants.TileIconSizes.TrapPreview` - Used for trap preview during placement mode
+
 ### JSON Formatting for Level Files
 - **Enemy Spawns**: Always write enemy spawn objects on a single line for compactness and readability
   ```json
