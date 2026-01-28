@@ -20,6 +20,7 @@ import de.egril.defender.ui.icon.LightningIcon
 import de.egril.defender.ui.icon.PickIcon
 import de.egril.defender.ui.icon.SwordIcon
 import de.egril.defender.ui.icon.TimerIcon
+import de.egril.defender.ui.icon.TrapIcon
 import de.egril.defender.ui.icon.WoodIcon
 import com.hyperether.resources.AppLocale
 import com.hyperether.resources.stringResource
@@ -435,7 +436,7 @@ private fun RowScope.dwarvenMineActionButtonArea(
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        HoleIcon(size = 24.dp)
+                        TrapIcon(size = 24.dp)
                         Text(stringResource(Res.string.trap), fontSize = 14.sp, fontWeight = FontWeight.Bold)
                     }
                 }
