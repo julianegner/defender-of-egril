@@ -25,7 +25,6 @@ import de.egril.defender.model.*
 import de.egril.defender.model.getHexNeighbors
 import de.egril.defender.ui.*
 import de.egril.defender.ui.icon.ExplosionIcon
-import de.egril.defender.ui.icon.HoleIcon
 import de.egril.defender.ui.icon.TrapIcon
 import de.egril.defender.ui.icon.WoodIcon
 import com.hyperether.resources.stringResource
