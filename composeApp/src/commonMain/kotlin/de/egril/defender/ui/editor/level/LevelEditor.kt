@@ -38,6 +38,9 @@ import de.egril.defender.ui.editor.level.enemies.EnemySpawnsTab
 import de.egril.defender.ui.editor.level.tower.TowersTab
 import de.egril.defender.ui.editor.level.waypoint.WaypointsTab
 import defender_of_egril.composeapp.generated.resources.*
+import defender_of_egril.composeapp.generated.resources.Res
+import defender_of_egril.composeapp.generated.resources.official_level_saved_warning_title
+import defender_of_egril.composeapp.generated.resources.official_level_saved_warning_message
 import kotlin.random.Random
 
 /**
