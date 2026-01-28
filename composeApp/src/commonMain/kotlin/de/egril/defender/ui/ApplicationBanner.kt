@@ -75,14 +75,21 @@ fun ApplicationBanner(
     val spacerWidth = if (isPlatformMobile) 80.dp else 80.dp
     val canvasWidth = if (isPlatformMobile) 80.dp else 80.dp
     
+    // Calculate banner width from component widths to prevent stretching on different screen sizes
+    // Components: Canvas (80dp) + Spacer (80dp) + Text (~200dp) + Spacer (24dp) + Shield (120dp)
+    val textApproximateWidth = 200.dp  // Approximate width for "Defender of Egril" text
+    val totalBannerWidth = canvasWidth + spacerWidth + textApproximateWidth + 24.dp + 120.dp
+    
     // Fixed width container to prevent banner stretching on different screen sizes
-    // Total width: 80 (canvas) + 80 (spacer) + ~200 (text) + 24 (spacer) + 120 (shield) = ~504dp
+    // Uses widthIn to cap maximum width while adapting to smaller screens
     Box(
         modifier = modifier.fillMaxWidth(),
         contentAlignment = Alignment.Center
     ) {
         Row(
-            modifier = Modifier.width(504.dp),
+            modifier = Modifier
+                .widthIn(max = totalBannerWidth)
+                .padding(horizontal = 8.dp),  // Prevent clipping on narrow screens
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
