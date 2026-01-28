@@ -50,7 +50,9 @@ fun WorldMapScreen(
 ) {
     var showCheatDialog by remember { mutableStateOf(false) }
     var selectedLocation by remember { mutableStateOf<Pair<WorldMapLocation, List<WorldLevel>>?>(null) }
-    var showUserLevelsDialog by remember { mutableStateOf(false) }
+    
+    // Track selected tab in image map view (0 = Official/Image Map, 1 = User Levels)
+    var imageMapTabIndex by remember { mutableStateOf(0) }
     
     // Watch the setting for world map style
     val useLevelCards = AppSettings.useLevelCards.value
@@ -148,14 +150,58 @@ fun WorldMapScreen(
                         .padding(top = 80.dp, bottom = 80.dp)  // Leave space for top/bottom bars
                 )
             } else {
-                // Image-based World Map as background with clickable locations
-                ImageWorldMapView(
-                    worldLevels = visibleWorldLevels,
-                    onLocationClicked = { location, levelsAtLocation ->
-                        selectedLocation = location to levelsAtLocation
-                    },
-                    modifier = Modifier.fillMaxSize()
-                )
+                // Image Map View with tabs (on desktop/wasm)
+                if (isEditorAvailable() && hasUserLevels) {
+                    // Show tabs and content based on selection
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(top = 80.dp, bottom = 80.dp)  // Leave space for top/bottom bars
+                    ) {
+                        // Tabs for Official (Image Map) and User Levels
+                        androidx.compose.material3.PrimaryTabRow(selectedTabIndex = imageMapTabIndex) {
+                            androidx.compose.material3.Tab(
+                                selected = imageMapTabIndex == 0,
+                                onClick = { imageMapTabIndex = 0 },
+                                text = { Text(stringResource(Res.string.official)) }
+                            )
+                            androidx.compose.material3.Tab(
+                                selected = imageMapTabIndex == 1,
+                                onClick = { imageMapTabIndex = 1 },
+                                text = { Text(stringResource(Res.string.user_levels)) }
+                            )
+                        }
+                        
+                        // Content based on selected tab
+                        if (imageMapTabIndex == 0) {
+                            // Official tab: Show image-based world map
+                            ImageWorldMapView(
+                                worldLevels = visibleWorldLevels,
+                                onLocationClicked = { location, levelsAtLocation ->
+                                    selectedLocation = location to levelsAtLocation
+                                },
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        } else {
+                            // User Levels tab: Show level cards grid (user levels only)
+                            LevelCardsView(
+                                worldLevels = visibleWorldLevels,
+                                onLevelSelected = onLevelSelected,
+                                filterToUserLevelsOnly = true,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
+                    }
+                } else {
+                    // No tabs: Just show image-based World Map
+                    ImageWorldMapView(
+                        worldLevels = visibleWorldLevels,
+                        onLocationClicked = { location, levelsAtLocation ->
+                            selectedLocation = location to levelsAtLocation
+                        },
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
             }
             
             // Top bar with title and buttons
@@ -392,24 +438,8 @@ fun WorldMapScreen(
                     Spacer(modifier = Modifier.weight(1f))
                 }
                 
-                // User Levels and Editor Buttons in a column (only on desktop/wasm, only in image map view)
-                if (isEditorAvailable() && !useLevelCards) {
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                        horizontalAlignment = Alignment.End
-                    ) {
-                        // User Levels Button - only show if there are user levels
-                        if (hasUserLevels) {
-                            Button(onClick = { showUserLevelsDialog = true }) {
-                                Text(stringResource(Res.string.user_levels))
-                            }
-                        }
-                        
-                        // Editor Button
-                        EditorButtonCard(onClick = onOpenEditor)
-                    }
-                } else if (isEditorAvailable() && useLevelCards) {
-                    // Editor Button only for level cards view (already has tabs)
+                // Editor Button (only on desktop/wasm)
+                if (isEditorAvailable()) {
                     EditorButtonCard(onClick = onOpenEditor)
                 }
             }
@@ -444,70 +474,6 @@ fun WorldMapScreen(
             platformInfo = de.egril.defender.utils.getPlatform().name,
             windowSize = windowSize,
             onDismiss = onClearPlatformInfo
-        )
-    }
-    
-    // User Levels Dialog - shows user-created levels with action buttons
-    if (showUserLevelsDialog) {
-        androidx.compose.material3.AlertDialog(
-            onDismissRequest = { showUserLevelsDialog = false },
-            title = { Text(stringResource(Res.string.user_levels)) },
-            text = {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(600.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    // Level cards grid
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(1f)
-                    ) {
-                        LevelCardsView(
-                            worldLevels = visibleWorldLevels,
-                            onLevelSelected = { levelId ->
-                                onLevelSelected(levelId)
-                                showUserLevelsDialog = false
-                            },
-                            filterToUserLevelsOnly = true,
-                            modifier = Modifier.fillMaxSize()
-                        )
-                    }
-                    
-                    // Action buttons row
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        Button(
-                            onClick = {
-                                onLoadGame()
-                                showUserLevelsDialog = false
-                            },
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            Text(stringResource(Res.string.load_game))
-                        }
-                        
-                        Button(
-                            onClick = {
-                                onShowRules()
-                                showUserLevelsDialog = false
-                            },
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            Text(stringResource(Res.string.rules))
-                        }
-                    }
-                }
-            },
-            confirmButton = {
-                Button(onClick = { showUserLevelsDialog = false }) {
-                    Text(stringResource(Res.string.close))
-                }
-            }
         )
     }
     }
