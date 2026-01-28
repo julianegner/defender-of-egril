@@ -351,6 +351,7 @@ fun LevelEditorView(
     var showEnemyDialogForTurn by remember { mutableStateOf(1) }
     var showSaveAsDialog by remember { mutableStateOf(false) }
     var showOfficialLevelSavedWarning by remember { mutableStateOf(false) }
+    var pendingLevelToSave by remember { mutableStateOf<EditorLevel?>(null) }
     var selectedTabIndex by remember { mutableStateOf(0) }
     var showRemoveAllTurnsDialog by remember { mutableStateOf(false) }
     // Track the maximum turn number explicitly to support empty turns
@@ -576,12 +577,14 @@ fun LevelEditorView(
                             allowAutoAttack = allowAutoAttack
                         )
                         
-                        // Show warning if saving an official level
+                        // Show warning dialog for official levels before saving
                         if (level.isOfficial && de.egril.defender.OfficialEditMode.enabled) {
+                            pendingLevelToSave = updatedLevel
                             showOfficialLevelSavedWarning = true
+                        } else {
+                            // Save immediately if not an official level
+                            onSave(updatedLevel)
                         }
-                        
-                        onSave(updatedLevel)
                     },
                     enabled = !level.isOfficial || de.egril.defender.OfficialEditMode.enabled,
                     modifier = Modifier.weight(1f)
@@ -672,11 +675,19 @@ fun LevelEditorView(
     // Warning dialog when saving official level
     if (showOfficialLevelSavedWarning) {
         AlertDialog(
-            onDismissRequest = { showOfficialLevelSavedWarning = false },
+            onDismissRequest = { 
+                showOfficialLevelSavedWarning = false
+                pendingLevelToSave = null
+            },
             title = { Text(stringResource(Res.string.official_level_saved_warning_title)) },
             text = { Text(stringResource(Res.string.official_level_saved_warning_message)) },
             confirmButton = {
-                Button(onClick = { showOfficialLevelSavedWarning = false }) {
+                Button(onClick = { 
+                    showOfficialLevelSavedWarning = false
+                    // Save the pending level after user acknowledges the warning
+                    pendingLevelToSave?.let { onSave(it) }
+                    pendingLevelToSave = null
+                }) {
                     Text(stringResource(Res.string.ok))
                 }
             }
