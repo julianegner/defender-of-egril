@@ -42,6 +42,9 @@ fun InfoPageScreen(
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                // Top spacer to make room for settings button
+                Spacer(modifier = Modifier.height(48.dp))
+                
                 // Tab selector
                 PrimaryTabRow(
                     selectedTabIndex = selectedTab.ordinal,
