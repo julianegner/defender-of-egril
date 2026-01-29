@@ -136,6 +136,7 @@ val generateWithImpressumConstant by tasks.registering {
 val generateOfficialEditModeConstant by tasks.registering {
     val outputDir = layout.buildDirectory.dir("generated/source/buildConfig/commonMain/kotlin").get().asFile
     outputs.dir(outputDir)
+    outputs.upToDateWhen { false } // Always regenerate to ensure latest property value
     
     doLast {
         val file = File(outputDir, "de/egril/defender/OfficialEditMode.kt")
