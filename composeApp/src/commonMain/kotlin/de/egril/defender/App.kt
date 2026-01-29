@@ -5,7 +5,7 @@ import androidx.compose.runtime.*
 import de.egril.defender.ui.*
 import de.egril.defender.ui.editor.level.LevelEditorScreen
 import de.egril.defender.ui.gameplay.GamePlayScreen
-import de.egril.defender.ui.infopage.InstallationInfoScreen
+import de.egril.defender.ui.infopage.InfoPageScreen
 import de.egril.defender.ui.loadgame.LoadGameScreen
 import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.worldmap.WorldMapScreen
@@ -236,7 +236,7 @@ fun App() {
             }
             
             is Screen.InstallationInfo -> {
-                InstallationInfoScreen(
+                InfoPageScreen(
                     onBack = { viewModel.navigateToMainMenu() }
                 )
             }

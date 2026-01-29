@@ -649,7 +649,7 @@
     <string name="build_barricade">Costruisci barricata</string>
     <string name="remove_barricade">Rimuovi barricata</string>
     <string name="barricade_info_title">Abilità barricata sbloccata!</string>
-    <string name="barricade_info_message">La tua torre di Picche o Lance ha raggiunto il livello 10 e ora può costruire barricate!\nLe barricate sono strutture di legno posizionate su caselle di percorso adiacenti che bloccano il movimento nemico.\nOgni barricata ha punti vita pari al livello della torre meno 10 (minimo 1).\nQuando i nemici raggiungono una barricata, la attaccano con danno pari al loro livello (i draghi infliggono 5× il loro livello).\nSe una barricata viene distrutta, il nemico si sposta su quella casella.\nPuoi costruire nuove barricate o rinforzare quelle esistenti e fare clic sulle barricate per rimuoverle.</string>
+    <string name="barricade_info_message">La tua torre di Lance ha raggiunto il livello 10 (o torre di Picche livello 20) e ora può costruire barricate!\nLe barricate sono strutture di legno posizionate su caselle di percorso adiacenti che bloccano il movimento nemico.\nLe barricate della torre di Lance hanno PV = livello - 10 (minimo 1). Le barricate della torre di Picche hanno PV = (livello - 20) / 2 (minimo 1).\nQuando i nemici raggiungono una barricata, la attaccano con danno pari al loro livello (i draghi infliggono 5× il loro livello).\nSe una barricata viene distrutta, il nemico si sposta su quella casella.\nPuoi costruire nuove barricate o rinforzare quelle esistenti e fare clic sulle barricate per rimuoverle.</string>
     <string name="remove_barricade_title">Rimuovere Barricata?</string>
     <string name="remove_barricade_message">Sei sicuro di voler rimuovere questa barricata?</string>
     
@@ -1083,4 +1083,53 @@
     <string name="official_level_saved_warning_message">Hai salvato un livello ufficiale.\n\nQueste modifiche verranno sovrascritte al riavvio del gioco, poiché il contenuto ufficiale viene ripristinato dal repository ad ogni avvio.</string>
     <string name="user_map_not_allowed_title">Mappa Utente Non Consentita</string>
     <string name="user_map_not_allowed_message">I livelli ufficiali possono utilizzare solo mappe ufficiali.\n\nPer utilizzare questa mappa, copiala per creare una versione ufficiale, oppure crea un livello utente invece.</string>
+    <!-- Info Page -->
+    <string name="info_tab_installation">Installazione</string>
+    <string name="info_tab_audio_licenses">Licenze Audio</string>
+    
+    <!-- Audio Licenses -->
+    <string name="audio_licenses_title">File Audio e Licenze</string>
+    <string name="audio_background_music_title">Musica di Sottofondo</string>
+    <string name="audio_sound_effects_title">Effetti Sonori</string>
+    <string name="audio_tower_attacks_subtitle">Attacchi delle Torri</string>
+    <string name="audio_enemy_events_subtitle">Eventi Nemici</string>
+    <string name="audio_mine_events_subtitle">Eventi della Miniera</string>
+    <string name="audio_other_events_subtitle">Altri Eventi di Gioco</string>
+    
+    <!-- Background Music -->
+    <string name="audio_fantasy_ambience_name">Ambiente Fantasy</string>
+    <string name="audio_fantasy_ambience_license">100% libero da copyright, nessuna attribuzione richiesta. Non può essere rivenduto come audio, deve essere utilizzato nel contesto di un progetto.</string>
+    <string name="audio_dark_castle_name">Il Castello Oscuro</string>
+    <string name="audio_fesliyan_license">Musica esente da royalty da Fesliyan Studios. Utilizzo nei videogiochi consentito.</string>
+    <string name="audio_fantasy_orchestral_name">Musica Orchestrale Fantasy Mistica</string>
+    <string name="audio_pixabay_license">Licenza Contenuti Pixabay - Utilizzo gratuito, nessuna attribuzione richiesta</string>
+    
+    <!-- Tower Attacks -->
+    <string name="audio_melee_attack_name">Attacco Ravvicinato</string>
+    <string name="audio_ranged_attack_name">Attacco a Distanza</string>
+    <string name="audio_fireball_attack_name">Attacco Palla di Fuoco</string>
+    <string name="audio_acid_attack_name">Attacco Acido</string>
+    
+    <!-- Enemy Events -->
+    <string name="audio_enemy_spawn_name">Comparsa Nemico</string>
+    <string name="audio_enemy_destroyed_name">Nemico Distrutto</string>
+    
+    <!-- Mine Events -->
+    <string name="audio_mine_dig_name">Scavo Miniera</string>
+    <string name="audio_mine_coin_name">Monete Trovate</string>
+    <string name="audio_mine_trap_name">Trappola Costruita</string>
+    <string name="audio_mine_dragon_name">Risveglio del Drago</string>
+    
+    <!-- Other Events -->
+    <string name="audio_trap_trigger_name">Attivazione Trappola</string>
+    <string name="audio_life_lost_name">Vita Persa</string>
+    <string name="audio_dragon_eat_name">Drago che Mangia</string>
+    <string name="audio_tower_upgraded_name">Torre Potenziata</string>
+    <string name="audio_battle_start_name">Inizio Battaglia</string>
+    
+    <!-- Audio Item Labels -->
+    <string name="audio_file_label">File: %s</string>
+    <string name="audio_source_label">Fonte: %s</string>
+    <string name="audio_license_label">Licenza: %s</string>
+    <string name="audio_attribution_note">Tutti i file audio sono utilizzati sotto le rispettive licenze. L\'attribuzione è fornita quando richiesta.</string>
 </resources>

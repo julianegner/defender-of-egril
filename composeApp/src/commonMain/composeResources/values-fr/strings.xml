@@ -649,7 +649,7 @@
     <string name="build_barricade">Construire une barricade</string>
     <string name="remove_barricade">Retirer la barricade</string>
     <string name="barricade_info_title">Capacité de barricade débloquée !</string>
-    <string name="barricade_info_message">Votre tour de Piques ou de Lances a atteint le niveau 10 et peut maintenant construire des barricades !\nLes barricades sont des structures en bois placées sur des cases de chemin adjacentes qui bloquent le mouvement ennemi.\nChaque barricade a des points de vie égaux au niveau de la tour moins 10 (minimum 1).\nLorsque les ennemis atteignent une barricade, ils l'attaquent avec des dégâts égaux à leur niveau (les dragons infligent 5× leur niveau).\nSi une barricade est détruite, l'ennemi se déplace sur cette case.\nVous pouvez construire de nouvelles barricades ou renforcer les existantes, et cliquer sur les barricades pour les retirer.</string>
+    <string name="barricade_info_message">Votre tour de Lances a atteint le niveau 10 (ou tour de Piques niveau 20) et peut maintenant construire des barricades !\nLes barricades sont des structures en bois placées sur des cases de chemin adjacentes qui bloquent le mouvement ennemi.\nLes barricades de tour de Lances ont PV = niveau - 10 (minimum 1). Les barricades de tour de Piques ont PV = (niveau - 20) / 2 (minimum 1).\nLorsque les ennemis atteignent une barricade, ils l'attaquent avec des dégâts égaux à leur niveau (les dragons infligent 5× leur niveau).\nSi une barricade est détruite, l'ennemi se déplace sur cette case.\nVous pouvez construire de nouvelles barricades ou renforcer les existantes, et cliquer sur les barricades pour les retirer.</string>
     <string name="remove_barricade_title">Retirer la Barricade?</string>
     <string name="remove_barricade_message">Êtes-vous sûr de vouloir retirer cette barricade?</string>
     
@@ -1083,4 +1083,53 @@
     <string name="official_level_saved_warning_message">Vous avez enregistré un niveau officiel.\n\nCes modifications seront écrasées lorsque vous redémarrerez le jeu, car le contenu officiel est restauré depuis le dépôt à chaque lancement.</string>
     <string name="user_map_not_allowed_title">Carte Utilisateur Non Autorisée</string>
     <string name="user_map_not_allowed_message">Les niveaux officiels ne peuvent utiliser que des cartes officielles.\n\nPour utiliser cette carte, copiez-la pour créer une version officielle, ou créez un niveau utilisateur à la place.</string>
+    <!-- Info Page -->
+    <string name="info_tab_installation">Installation</string>
+    <string name="info_tab_audio_licenses">Licences Audio</string>
+    
+    <!-- Audio Licenses -->
+    <string name="audio_licenses_title">Fichiers Audio et Licences</string>
+    <string name="audio_background_music_title">Musique de Fond</string>
+    <string name="audio_sound_effects_title">Effets Sonores</string>
+    <string name="audio_tower_attacks_subtitle">Attaques de Tours</string>
+    <string name="audio_enemy_events_subtitle">Événements Ennemis</string>
+    <string name="audio_mine_events_subtitle">Événements de Mine</string>
+    <string name="audio_other_events_subtitle">Autres Événements du Jeu</string>
+    
+    <!-- Background Music -->
+    <string name="audio_fantasy_ambience_name">Ambiance Fantastique</string>
+    <string name="audio_fantasy_ambience_license">100% libre de droits, aucune attribution requise. Ne peut pas être revendu en tant qu\'audio, doit être utilisé dans le contexte d\'un projet.</string>
+    <string name="audio_dark_castle_name">Le Château Sombre</string>
+    <string name="audio_fesliyan_license">Musique libre de droits de Fesliyan Studios. Utilisation dans les jeux vidéo autorisée.</string>
+    <string name="audio_fantasy_orchestral_name">Musique Orchestrale Mystique Fantastique</string>
+    <string name="audio_pixabay_license">Licence de Contenu Pixabay - Utilisation gratuite, aucune attribution requise</string>
+    
+    <!-- Tower Attacks -->
+    <string name="audio_melee_attack_name">Attaque au Corps à Corps</string>
+    <string name="audio_ranged_attack_name">Attaque à Distance</string>
+    <string name="audio_fireball_attack_name">Attaque de Boule de Feu</string>
+    <string name="audio_acid_attack_name">Attaque Acide</string>
+    
+    <!-- Enemy Events -->
+    <string name="audio_enemy_spawn_name">Apparition d\'Ennemi</string>
+    <string name="audio_enemy_destroyed_name">Ennemi Détruit</string>
+    
+    <!-- Mine Events -->
+    <string name="audio_mine_dig_name">Excavation de Mine</string>
+    <string name="audio_mine_coin_name">Pièces Trouvées</string>
+    <string name="audio_mine_trap_name">Piège Construit</string>
+    <string name="audio_mine_dragon_name">Réveil du Dragon</string>
+    
+    <!-- Other Events -->
+    <string name="audio_trap_trigger_name">Déclenchement de Piège</string>
+    <string name="audio_life_lost_name">Vie Perdue</string>
+    <string name="audio_dragon_eat_name">Dragon qui Mange</string>
+    <string name="audio_tower_upgraded_name">Tour Améliorée</string>
+    <string name="audio_battle_start_name">Début de Bataille</string>
+    
+    <!-- Audio Item Labels -->
+    <string name="audio_file_label">Fichier: %s</string>
+    <string name="audio_source_label">Source: %s</string>
+    <string name="audio_license_label">Licence: %s</string>
+    <string name="audio_attribution_note">Tous les fichiers audio sont utilisés sous leurs licences respectives. L\'attribution est fournie lorsque requise.</string>
 </resources>

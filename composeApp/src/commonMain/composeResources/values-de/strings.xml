@@ -202,7 +202,7 @@
     <string name="mine_special_desc">Spezial: grabe nach Wertsachen oder platziere Fallen auf dem Pfad</string>
     <string name="special_building">Spezialgebäude</string>
     <string name="coins_label">Münzen</string>
-    <string name="hp_label">Gesundheit</string>
+    <string name="hp_label">HP</string>
     <string name="speed_label">Geschwindigkeit</string>
     
     <!-- Status text -->
@@ -649,7 +649,7 @@
     <string name="build_barricade">Barrikade bauen</string>
     <string name="remove_barricade">Barrikade entfernen</string>
     <string name="barricade_info_title">Barrikaden-Fähigkeit freigeschaltet!</string>
-    <string name="barricade_info_message">Ihr Pike- oder Speerturm hat Stufe 10 erreicht und kann jetzt Barrikaden bauen!\nBarrikaden sind Holzkonstruktionen auf angrenzenden Pfadfeldern, die Feindbewegungen blockieren.\nJede Barrikade hat Lebenspunkte gleich der Turmstufe minus 10 (mindestens 1).\nWenn Feinde eine Barrikade erreichen, greifen sie mit Schaden gleich ihrer Stufe an (Drachen verursachen das 5-fache ihrer Stufe).\nWird eine Barrikade zerstört, bewegt sich der Feind auf dieses Feld.\nSie können neue Barrikaden bauen oder bestehende verstärken und auf Barrikaden klicken, um sie zu entfernen.</string>
+    <string name="barricade_info_message">Ihr Speerturm hat Stufe 10 erreicht (oder Pike-Turm Stufe 20) und kann jetzt Barrikaden bauen!\nBarrikaden sind Holzkonstruktionen auf angrenzenden Pfadfeldern, die Feindbewegungen blockieren.\nSpeerturm-Barrikaden haben LP = Stufe - 10 (mindestens 1). Pike-Turm-Barrikaden haben LP = (Stufe - 20) / 2 (mindestens 1).\nWenn Feinde eine Barrikade erreichen, greifen sie mit Schaden gleich ihrer Stufe an (Drachen verursachen das 5-fache ihrer Stufe).\nWird eine Barrikade zerstört, bewegt sich der Feind auf dieses Feld.\nSie können neue Barrikaden bauen oder bestehende verstärken und auf Barrikaden klicken, um sie zu entfernen.</string>
     <string name="remove_barricade_title">Barrikade entfernen?</string>
     <string name="remove_barricade_message">Möchten Sie diese Barrikade wirklich entfernen?</string>
     
@@ -1080,5 +1080,54 @@
     <string name="official_level_saved_warning_message">Sie haben ein offizielles Level gespeichert.\n\nDiese Änderungen werden beim Neustart des Spiels überschrieben, da der offizielle Inhalt bei jedem Start aus dem Repository wiederhergestellt wird.</string>
     <string name="user_map_not_allowed_title">Benutzerkarte nicht erlaubt</string>
     <string name="user_map_not_allowed_message">Offizielle Level können nur offizielle Karten verwenden.\n\nUm diese Karte zu verwenden, kopieren Sie sie bitte, um eine offizielle Version zu erstellen, oder erstellen Sie stattdessen ein Benutzer-Level.</string>
+    <!-- Info Page -->
+    <string name="info_tab_installation">Installation</string>
+    <string name="info_tab_audio_licenses">Audio-Lizenzen</string>
+    
+    <!-- Audio Licenses -->
+    <string name="audio_licenses_title">Audiodateien und Lizenzen</string>
+    <string name="audio_background_music_title">Hintergrundmusik</string>
+    <string name="audio_sound_effects_title">Soundeffekte</string>
+    <string name="audio_tower_attacks_subtitle">Turmangriffe</string>
+    <string name="audio_enemy_events_subtitle">Feind-Ereignisse</string>
+    <string name="audio_mine_events_subtitle">Minen-Ereignisse</string>
+    <string name="audio_other_events_subtitle">Andere Spiel-Ereignisse</string>
+    
+    <!-- Background Music -->
+    <string name="audio_fantasy_ambience_name">Fantasy-Ambiente</string>
+    <string name="audio_fantasy_ambience_license">100% urheberrechtsfrei, keine Namensnennung erforderlich. Darf nicht als Audio weiterverkauft werden, muss im Kontext eines Projekts verwendet werden.</string>
+    <string name="audio_dark_castle_name">Die dunkle Burg</string>
+    <string name="audio_fesliyan_license">Lizenzfreie Musik von Fesliyan Studios. Verwendung in Videospielen erlaubt.</string>
+    <string name="audio_fantasy_orchestral_name">Mystische Fantasy-Orchestermusik</string>
+    <string name="audio_pixabay_license">Pixabay-Inhaltslizenz - Kostenlos verwendbar, keine Namensnennung erforderlich</string>
+    
+    <!-- Tower Attacks -->
+    <string name="audio_melee_attack_name">Nahkampfangriff</string>
+    <string name="audio_ranged_attack_name">Fernkampfangriff</string>
+    <string name="audio_fireball_attack_name">Feuerballangriff</string>
+    <string name="audio_acid_attack_name">Säureangriff</string>
+    
+    <!-- Enemy Events -->
+    <string name="audio_enemy_spawn_name">Feinderscheinung</string>
+    <string name="audio_enemy_destroyed_name">Feind zerstört</string>
+    
+    <!-- Mine Events -->
+    <string name="audio_mine_dig_name">Minengrabung</string>
+    <string name="audio_mine_coin_name">Münzen gefunden</string>
+    <string name="audio_mine_trap_name">Falle gebaut</string>
+    <string name="audio_mine_dragon_name">Drachenerwachen</string>
+    
+    <!-- Other Events -->
+    <string name="audio_trap_trigger_name">Fallenauslösung</string>
+    <string name="audio_life_lost_name">Leben verloren</string>
+    <string name="audio_dragon_eat_name">Drache frisst</string>
+    <string name="audio_tower_upgraded_name">Turm aufgewertet</string>
+    <string name="audio_battle_start_name">Kampfbeginn</string>
+    
+    <!-- Audio Item Labels -->
+    <string name="audio_file_label">Datei: %s</string>
+    <string name="audio_source_label">Quelle: %s</string>
+    <string name="audio_license_label">Lizenz: %s</string>
+    <string name="audio_attribution_note">Alle Audiodateien werden unter ihren jeweiligen Lizenzen verwendet. Die Namensnennung wird ggf. bereitgestellt.</string>
 
 </resources>

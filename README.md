@@ -221,6 +221,14 @@ composeApp/src/
 
 GNU Affero General Public License - See LICENSE file for details
 
+## Audio Files
+
+The game uses sound effects and background music from various sources. For detailed information about the audio files, their sources, and licenses, see:
+- [Sound Effects Documentation](composeApp/src/commonMain/composeResources/files/sounds/README.md)
+- [Background Music Documentation](composeApp/src/commonMain/composeResources/files/sounds/background/README.md)
+
+All audio files are used under their respective licenses with proper attribution where required.
+
 ## Development
 
 This game is built using:

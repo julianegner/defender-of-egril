@@ -881,17 +881,18 @@ private fun BoxScope.GridCellContent(
                     when (trap.type) {
                         TrapType.MAGICAL -> {
                             // Magical trap - show pentagram (no damage display)
-                            PentagramIcon(size = 24.dp)
+                            PentagramIcon(size = GamePlayConstants.TileIconSizes.Trap)
                         }
 
                         TrapType.DWARVEN -> {
                             // Dwarven trap - show trap icon with damage
-                            TrapIcon(size = 20.dp)
+                            TrapIcon(size = GamePlayConstants.TileIconSizes.Trap)
                             Text(
                                 "-${trap.damage}",
                                 style = MaterialTheme.typography.labelSmall,
                                 color = Color.White,
-                                fontWeight = FontWeight.Bold
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.offset(y = (-6).dp)
                             )
                         }
                     }
@@ -906,7 +907,7 @@ private fun BoxScope.GridCellContent(
                         verticalArrangement = Arrangement.Center
                     ) {
                         // Show wood/barricade symbol with brown color
-                        WoodIcon(size = 48.dp)
+                        WoodIcon(size = GamePlayConstants.TileIconSizes.Barricade)
                         // Show health points - moved up for better visibility
                         Text(
                             "${barricade.healthPoints.value} HP",
@@ -960,7 +961,7 @@ private fun BoxScope.GridCellContent(
                     modifier = Modifier.graphicsLayer(alpha = 0.5f)  // Semi-transparent
                 ) {
                     // Show wood/barricade symbol with brown color
-                    WoodIcon(size = 48.dp)
+                    WoodIcon(size = GamePlayConstants.TileIconSizes.Barricade)
                     // Show "NEW" text for new barricade preview
                     Text(
                         stringResource(Res.string.barricade),
@@ -1043,11 +1044,11 @@ private fun BoxScope.GridCellContent(
                 when {
                     selectedMineAction == MineAction.BUILD_TRAP -> {
                         // Dwarven trap - show trap icon
-                        TrapIcon(size = 24.dp)
+                        TrapIcon(size = GamePlayConstants.TileIconSizes.TrapPreview)
                     }
                     selectedWizardAction == WizardAction.PLACE_MAGICAL_TRAP -> {
                         // Magical trap - show pentagram icon
-                        PentagramIcon(size = 24.dp)
+                        PentagramIcon(size = GamePlayConstants.TileIconSizes.TrapPreview)
                     }
                 }
             }
