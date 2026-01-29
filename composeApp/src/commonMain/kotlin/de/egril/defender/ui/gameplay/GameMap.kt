@@ -25,7 +25,7 @@ import de.egril.defender.model.*
 import de.egril.defender.model.getHexNeighbors
 import de.egril.defender.ui.*
 import de.egril.defender.ui.icon.ExplosionIcon
-import de.egril.defender.ui.icon.HoleIcon
+import de.egril.defender.ui.icon.TrapIcon
 import de.egril.defender.ui.icon.WoodIcon
 import com.hyperether.resources.stringResource
 import de.egril.defender.ui.editor.map.MapControlState
@@ -462,6 +462,11 @@ fun GridCell(
     
     // Show barricade preview when hovering over valid barricade placement tile
     val showBarricadePreview = isBarricadePlacement && hoveredPosition == position && cellIsInBarricadeRange
+    
+    // Check if this tile should be highlighted as buildable when a tower type is selected
+    val isBuildableAndEmpty = selectedDefenderType != null && 
+                              isBuildableTile && 
+                              !showPlacementPreview  // Don't double-highlight the hovered tile
 
     // Base background color based on area type - ALWAYS visible
     // Build islands + strips adjacent to path allow tower placement
@@ -548,6 +553,9 @@ fun GridCell(
         // Barricade placement range - yellow borders
         cellIsInBarricadeRange -> GamePlayColors.Yellow  // Yellow border for barricade placement range
         
+        // Buildable tile highlighting - lighter green borders with dashed line when tower type is selected
+        isBuildableAndEmpty -> GamePlayColors.BuildableHighlight  // Lighter green border for buildable tiles
+        
         cellIsInRange && isValidTargetTile && showRange && canPlaceTrapHere -> GamePlayColors.Success  // Green border for tiles in range (path or river for area attacks)
         isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> GamePlayColors.Yellow  // Yellow border for selected defender (not during initial building)
         isSpawnPoint -> GamePlayColors.WarningDark  // Darker orange border for spawn in dark mode
@@ -571,6 +579,7 @@ fun GridCell(
         showPlacementPreview -> 6.dp  // Double thickness for hovered build tile
         isInPreviewRange -> 3.dp  // Medium border for range preview
         cellIsInBarricadeRange -> 4.dp  // Thick border for barricade placement range
+        isBuildableAndEmpty -> 3.dp  // Medium border for buildable tiles
         isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> 5.dp  // Extra thick border for selected defender (not during initial building)
         cellIsInRange && isValidTargetTile && showRange && canPlaceTrapHere -> 4.dp  // Thick border for cells in range (path or river for area attacks)
         isSpawnPoint || isTarget -> 3.dp
@@ -581,8 +590,8 @@ fun GridCell(
         else -> 0.dp  // No border for empty cells
     }
     
-    // Flag to indicate dashed border (for preview only)
-    val useDashedBorder = showPlacementPreview || isInPreviewRange
+    // Flag to indicate dashed border (for preview and buildable tiles)
+    val useDashedBorder = showPlacementPreview || isInPreviewRange || isBuildableAndEmpty
     
     // Determine if we should use gradient blending
     val useTileImages = de.egril.defender.ui.settings.AppSettings.useTileImages.value
@@ -680,7 +689,8 @@ fun GridCell(
                 hexSize = hexSize,
                 showTrapPreview = showTrapPreview,
                 selectedMineAction = selectedMineAction,
-                selectedWizardAction = selectedWizardAction
+                selectedWizardAction = selectedWizardAction,
+                isBuildableAndEmpty = isBuildableAndEmpty
             )
         }
     } else {
@@ -716,7 +726,8 @@ fun GridCell(
                 hexSize = hexSize,
                 showTrapPreview = showTrapPreview,
                 selectedMineAction = selectedMineAction,
-                selectedWizardAction = selectedWizardAction
+                selectedWizardAction = selectedWizardAction,
+                isBuildableAndEmpty = isBuildableAndEmpty
             )
         }
     }
@@ -749,7 +760,8 @@ private fun BoxScope.GridCellContent(
     hexSize: Dp,
     showTrapPreview: Boolean = false,
     selectedMineAction: MineAction? = null,
-    selectedWizardAction: WizardAction? = null
+    selectedWizardAction: WizardAction? = null,
+    isBuildableAndEmpty: Boolean = false
 ) {
         when {
             attacker != null -> {
@@ -873,8 +885,8 @@ private fun BoxScope.GridCellContent(
                         }
 
                         TrapType.DWARVEN -> {
-                            // Dwarven trap - show hole icon with damage
-                            HoleIcon(size = 20.dp)
+                            // Dwarven trap - show trap icon with damage
+                            TrapIcon(size = 20.dp)
                             Text(
                                 "-${trap.damage}",
                                 style = MaterialTheme.typography.labelSmall,
@@ -1030,8 +1042,8 @@ private fun BoxScope.GridCellContent(
                 // Show different icon based on trap type
                 when {
                     selectedMineAction == MineAction.BUILD_TRAP -> {
-                        // Dwarven trap - show hole icon
-                        HoleIcon(size = 24.dp)
+                        // Dwarven trap - show trap icon
+                        TrapIcon(size = 24.dp)
                     }
                     selectedWizardAction == WizardAction.PLACE_MAGICAL_TRAP -> {
                         // Magical trap - show pentagram icon
@@ -1181,7 +1193,56 @@ private fun BoxScope.GridCellContent(
                 )
             }
         }
-}
+        
+        // Draw diagonal stripes for buildable tiles
+        if (isBuildableAndEmpty) {
+            Canvas(
+                modifier = Modifier
+                    .matchParentSize()
+                    .zIndex(11f)  // Below the dashed border
+            ) {
+                val sqrt3 = sqrt(3.0).toFloat()
+                val centerX = size.width / 2f
+                val centerY = size.height / 2f
+                val radius = minOf(size.width, size.height) / 2f
+
+                // Create hexagon clip path
+                val hexPath = Path().apply {
+                    moveTo(centerX, centerY - radius)
+                    lineTo(centerX + radius * sqrt3 / 2f, centerY - radius / 2f)
+                    lineTo(centerX + radius * sqrt3 / 2f, centerY + radius / 2f)
+                    lineTo(centerX, centerY + radius)
+                    lineTo(centerX - radius * sqrt3 / 2f, centerY + radius / 2f)
+                    lineTo(centerX - radius * sqrt3 / 2f, centerY - radius / 2f)
+                    close()
+                }
+                
+                // Draw diagonal stripes with clipping
+                drawContext.canvas.save()
+                drawContext.canvas.clipPath(hexPath)
+                
+                // Draw diagonal stripes
+                val stripeWidth = 8f
+                val stripeSpacing = 16f
+                val totalSpacing = stripeWidth + stripeSpacing
+                val diagonalLength = size.width + size.height
+                
+                // Start from top-right, go to bottom-left (90 degree rotation)
+                var offset = -diagonalLength
+                while (offset < diagonalLength) {
+                    drawLine(
+                        color = borderColor.copy(alpha = 0.8f),  // 80% opacity
+                        start = Offset(size.width - offset, 0f),
+                        end = Offset(size.width - offset - size.height, size.height),
+                        strokeWidth = stripeWidth
+                    )
+                    offset += totalSpacing
+                }
+                
+                drawContext.canvas.restore()
+            }
+        }
+    }
 
 /**
  * Visualize a bridge over a river tile

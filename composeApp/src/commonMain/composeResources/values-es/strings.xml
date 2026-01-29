@@ -412,6 +412,7 @@
     <string name="remove_all_turns">Eliminar todos los turnos</string>
     <string name="confirm_remove_all_turns">¿Estás seguro de que quieres eliminar todos los turnos de aparición?</string>
     <string name="copy_level">Copiar nivel</string>
+    <string name="copy_map">Copiar mapa</string>
     <string name="yes">Sí</string>
     <string name="confirm_delete_level">¿Estás seguro de que quieres eliminar este nivel?</string>
     <string name="amount">Cantidad</string>
@@ -444,7 +445,7 @@
     <string name="tutorial_initial_building_title">Fase de construcción inicial</string>
     <string name="tutorial_initial_building">En esta fase inicial, las torres se construyen instantáneamente pero aún no pueden atacar.\nHaz clic en una torre para ver su alcance - las casillas del camino obtienen bordes verdes.\nMás adelante en el juego, las torres tardarán 1-2 turnos en construirse.</string>
     <string name="tutorial_undo_title">Deshacer torres</string>
-    <string name="tutorial_undo">Durante esta fase inicial, puedes deshacer la colocación de torres seleccionándola y vendiéndola por un reembolso completo. Después de que comience la batalla, solo puedes vender torres por el 75% de su valor.</string>
+    <string name="tutorial_undo">Durante esta fase inicial, puedes deshacer la colocación de torres seleccionándola y vendiéndola por un reembolso completo. Después de que comience la batalla, solo puedes vender torres por el 75%% de su valor.</string>
     <string name="tutorial_combat_title">Iniciar la batalla</string>
     <string name="tutorial_combat">Haz clic en el botón Iniciar batalla cuando estés listo. Tu objetivo es defender el Objetivo al final del camino - ¡no dejes que los enemigos lo alcancen!</string>
     <string name="tutorial_enemies_title">¡Enemigos entrantes!</string>
@@ -456,7 +457,7 @@
     <string name="tutorial_upgrade_title">Mejorar torres</string>
     <string name="tutorial_upgrade">Selecciona una torre y haz clic en Mejorar para aumentar sus estadísticas. Verás daño, alcance y acciones actuales por turno, además de cómo serán después de mejorar. ¡Las mejoras cuestan monedas pero hacen las torres más poderosas!</string>
     <string name="tutorial_sell_title">Vender torres</string>
-    <string name="tutorial_sell">Selecciona una torre y haz clic en Vender para recuperar el 75% de su inversión total (costo + mejoras). Usa esto si necesitas monedas o quieres reposicionar tu defensa.</string>
+    <string name="tutorial_sell">Selecciona una torre y haz clic en Vender para recuperar el 75%% de su inversión total (costo + mejoras). Usa esto si necesitas monedas o quieres reposicionar tu defensa.</string>
     <string name="tutorial_save_game_title">Guarda tu progreso</string>
     <string name="tutorial_save_game">Puedes guardar tu juego en cualquier momento usando el botón Guardar Juego.\nEsto te permite probar diferentes estrategias o continuar más tarde.\nPara cargar una partida guardada, usa el botón Cargar Juego en la pantalla del mapa mundial.</string>
     <string name="tutorial_complete_title">¡Tutorial completado!</string>
@@ -732,7 +733,7 @@
 
     <!-- Mining Outcome Table Headers -->
     <string name="dig_outcome_name">Nombre</string>
-    <string name="dig_outcome_chance">Probabilidad (%)</string>
+    <string name="dig_outcome_chance">Probabilidad (%%)</string>
     <string name="dig_outcome_reward">Recompensa</string>
 
     <!-- Delete Confirmation Dialog -->
@@ -969,4 +970,106 @@
     <string name="installation_web_step1">¡No se necesita instalación!</string>
     <string name="installation_web_step2">Solo visita la URL del juego en cualquier navegador moderno (Chrome, Firefox, Safari, Edge)</string>
     <string name="installation_details_link">Para instrucciones detalladas, consulta INSTALL.md en el repositorio de GitHub.</string>
+
+    <!-- Player Profile Screen -->
+    <string name="player_profile">Perfil del Jugador</string>
+    <string name="player_created">Jugador Creado</string>
+    <string name="achievements">Logros</string>
+    <string name="achievements_earned">Logros Obtenidos</string>
+    <string name="no_achievements_yet">No hay logros aún</string>
+    <string name="earned_on">Obtenido el %1$s</string>
+    <string name="achievement_unlocked">¡Logro Desbloqueado!</string>
+
+    <!-- Achievements: Tower -->
+    <string name="achievement_build_tower_name">Primera Torre</string>
+    <string name="achievement_build_tower_desc">Construye tu primera torre</string>
+    <string name="achievement_upgrade_tower_name">Mejora de Torre</string>
+    <string name="achievement_upgrade_tower_desc">Mejora una torre al siguiente nivel</string>
+    <string name="achievement_sell_tower_name">Comerciante de Torres</string>
+    <string name="achievement_sell_tower_desc">Vende una torre por monedas</string>
+    <string name="achievement_undo_tower_name">Segundos Pensamientos</string>
+    <string name="achievement_undo_tower_desc">Deshaz la colocación de una torre</string>
+
+    <!-- Achievements: Raft -->
+    <string name="achievement_build_raft_name">Primera Balsa</string>
+    <string name="achievement_build_raft_desc">Construye tu primera balsa en un río</string>
+    <string name="achievement_upgrade_raft_name">Mejora de Balsa</string>
+    <string name="achievement_upgrade_raft_desc">Mejora una torre de balsa al siguiente nivel</string>
+    <string name="achievement_sell_raft_name">Comerciante de Balsas</string>
+    <string name="achievement_sell_raft_desc">Vende una balsa por monedas</string>
+    <string name="achievement_undo_raft_name">Recuperar Balsa</string>
+    <string name="achievement_undo_raft_desc">Deshaz la colocación de una balsa</string>
+    <string name="achievement_lose_raft_map_edge_name">Perdido en el Mar</string>
+    <string name="achievement_lose_raft_map_edge_desc">Pierde una balsa cuando fluye fuera del borde del mapa</string>
+    <string name="achievement_lose_raft_maelstrom_name">En el Remolino</string>
+    <string name="achievement_lose_raft_maelstrom_desc">Pierde una balsa cuando se hunde en un remolino</string>
+
+    <!-- Achievements: Level -->
+    <string name="achievement_win_level_name">Victoria</string>
+    <string name="achievement_win_level_desc">Gana tu primer nivel</string>
+    <string name="achievement_lose_level_name">Derrota</string>
+    <string name="achievement_lose_level_desc">Pierde un nivel</string>
+    <string name="achievement_win_level_full_hp_name">Victoria Perfecta</string>
+    <string name="achievement_win_level_full_hp_desc">Gana un nivel sin perder puntos de salud</string>
+    <string name="achievement_win_level_one_hp_name">Por los Pelos</string>
+    <string name="achievement_win_level_one_hp_desc">Gana un nivel con solo un punto de salud restante</string>
+
+    <!-- Achievements: Combat -->
+    <string name="achievement_kill_two_enemies_same_turn_name">Doble Muerte</string>
+    <string name="achievement_kill_two_enemies_same_turn_desc">Mata al menos 2 enemigos en el mismo turno</string>
+    <string name="achievement_kill_two_enemies_same_attack_name">Multi-Muerte</string>
+    <string name="achievement_kill_two_enemies_same_attack_desc">Mata al menos 2 enemigos con un solo ataque</string>
+
+    <!-- Achievements: Boss Kills -->
+    <string name="achievement_kill_ogre_name">Asesino de Ogros</string>
+    <string name="achievement_kill_ogre_desc">Mata un Ogro</string>
+    <string name="achievement_kill_evil_wizard_name">Cazador de Magos</string>
+    <string name="achievement_kill_evil_wizard_desc">Mata un Mago Malvado</string>
+    <string name="achievement_kill_demon_name">Asesino de Demonios</string>
+    <string name="achievement_kill_demon_desc">Mata un Demonio</string>
+    <string name="achievement_kill_ewhad_name">Ewhad Derrotado</string>
+    <string name="achievement_kill_ewhad_desc">Mata al jefe Ewhad</string>
+    <string name="achievement_kill_witch_name">Cazador de Brujas</string>
+    <string name="achievement_kill_witch_desc">Mata una Bruja</string>
+
+    <!-- Achievements: Mining -->
+    <string name="achievement_dig_first_time_name">Primera Excavación</string>
+    <string name="achievement_dig_first_time_desc">Excava en una mina enana por primera vez</string>
+    <string name="achievement_find_gold_name">Buscador de Oro</string>
+    <string name="achievement_find_gold_desc">Encuentra oro mientras excavas en una mina</string>
+    <string name="achievement_find_diamond_name">Cazador de Diamantes</string>
+    <string name="achievement_find_diamond_desc">Encuentra un diamante mientras excavas en una mina</string>
+
+    <!-- Achievements: Dragon -->
+    <string name="achievement_summon_dragon_name">Dragón Despertado</string>
+    <string name="achievement_summon_dragon_desc">Invoca un dragón excavando demasiado profundo</string>
+    <string name="achievement_reduce_dragon_level_name">Domador de Dragones</string>
+    <string name="achievement_reduce_dragon_level_desc">Reduce el nivel de un dragón</string>
+    <string name="achievement_increase_dragon_level_name">Dragón Potenciado</string>
+    <string name="achievement_increase_dragon_level_desc">El nivel de un dragón aumenta</string>
+    <string name="achievement_kill_dragon_name">Matadragones</string>
+    <string name="achievement_kill_dragon_desc">Mata un dragón</string>
+
+    <!-- Achievements: Milestones -->
+    <string name="achievement_build_ten_towers_name">Maestro de Torres</string>
+    <string name="achievement_build_ten_towers_desc">Construye al menos 10 torres en un solo nivel</string>
+    <string name="achievement_build_ten_rafts_name">Maestro de Balsas</string>
+    <string name="achievement_build_ten_rafts_desc">Construye al menos 10 balsas en un solo nivel</string>
+
+    <!-- Achievements: Bridge and Barricade -->
+    <string name="achievement_destroy_bridge_name">Destructor de Puentes</string>
+    <string name="achievement_destroy_bridge_desc">Destruye un puente</string>
+    <string name="achievement_build_barricade_name">Primera Barricada</string>
+    <string name="achievement_build_barricade_desc">Construye tu primera barricada</string>
+    <string name="achievement_add_health_barricade_name">Fortificado</string>
+    <string name="achievement_add_health_barricade_desc">Añade puntos de salud a una barricada existente</string>
+    
+    <!-- Official Content Badges -->
+    <string name="official">Oficial</string>
+    <string name="user_levels">Niveles de Usuario</string>
+    <string name="user_map">Mapa de Usuario</string>
+    <string name="official_level">Nivel Oficial</string>
+    <string name="user_level">Nivel de Usuario</string>
+    <string name="official_map_info">Este es un mapa oficial. Puedes copiarlo para crear una versión de usuario.</string>
+    <string name="official_level_info">Este es un nivel oficial. Puedes copiarlo para crear una versión de usuario.</string>
 </resources>

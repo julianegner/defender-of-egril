@@ -19,7 +19,6 @@ import de.egril.defender.ui.isEditorAvailable
 import de.egril.defender.ui.settings.SettingsButton
 import de.egril.defender.ui.settings.DifficultyDisplay
 import de.egril.defender.ui.settings.AppSettings
-import de.egril.defender.ui.NewRepositoryDataDialog
 import de.egril.defender.editor.RepositoryManager
 import de.egril.defender.utils.isPlatformMobile
 import com.hyperether.resources.stringResource
@@ -50,9 +49,11 @@ fun WorldMapScreen(
     onClearPlatformInfo: (() -> Unit)? = null  // Callback to clear platform info
 ) {
     var showCheatDialog by remember { mutableStateOf(false) }
-    var showNewRepoDataDialog by remember { mutableStateOf(false) }
-    var newRepoData by remember { mutableStateOf<RepositoryManager.NewRepositoryData?>(null) }
     var selectedLocation by remember { mutableStateOf<Pair<WorldMapLocation, List<WorldLevel>>?>(null) }
+    
+    // Track whether to show user levels tab view in image map mode
+    // false = show image map with button, true = show tab view with user levels
+    var showUserLevelsTabView by remember { mutableStateOf(false) }
     
     // Watch the setting for world map style
     val useLevelCards = AppSettings.useLevelCards.value
@@ -73,6 +74,14 @@ fun WorldMapScreen(
         }
     }
     
+    // Check if there are any user levels
+    val hasUserLevels = remember(worldLevels) {
+        worldLevels.any { worldLevel ->
+            val editorLevel = de.egril.defender.editor.EditorStorage.getLevel(worldLevel.level.editorLevelId ?: "")
+            editorLevel?.isOfficial == false
+        }
+    }
+    
     val scope = rememberCoroutineScope()
     
     // Start background music when entering world map
@@ -90,15 +99,23 @@ fun WorldMapScreen(
         }
     }
     
-    // Check for new repository data on first load (if enabled)
+    // Check for new repository data on first load and auto-sync (if enabled)
     LaunchedEffect(checkForNewRepositoryData) {
         if (checkForNewRepositoryData) {
             scope.launch {
                 try {
                     val detectedData = RepositoryManager.detectNewRepositoryFiles()
                     if (detectedData != null) {
-                        newRepoData = detectedData
-                        showNewRepoDataDialog = true
+                        // Automatically sync official content without asking
+                        println("Detected new official content, auto-syncing...")
+                        val success = RepositoryManager.syncNewRepositoryFiles()
+                        if (success) {
+                            println("Successfully synced new official content")
+                            // Reload the world map to show the new levels
+                            onReloadWorldMap?.invoke()
+                        } else {
+                            println("Failed to sync official content")
+                        }
                     }
                 } catch (e: Exception) {
                     // Silently ignore repository check errors to avoid disrupting the user experience
@@ -108,32 +125,75 @@ fun WorldMapScreen(
         }
     }
     
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background
+    BoxWithConstraints(
+        modifier = Modifier.fillMaxSize()
     ) {
+        val windowSize = remember(maxWidth, maxHeight) {
+            "Window: ${maxWidth.value.toInt()} x ${maxHeight.value.toInt()} dp"
+        }
+        
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = MaterialTheme.colorScheme.background
+        ) {
         Box(
             modifier = Modifier.fillMaxSize()
         ) {
             // Content area - switches between image map and level cards based on setting
             if (useLevelCards) {
-                // Level cards view - grid of level cards
+                // Level cards view - grid of level cards with tabs
                 LevelCardsView(
                     worldLevels = visibleWorldLevels,
                     onLevelSelected = onLevelSelected,
+                    showUserLevelsTab = isEditorAvailable(),  // Show tabs on desktop/wasm
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(top = 80.dp, bottom = 80.dp)  // Leave space for top/bottom bars
                 )
             } else {
-                // Image-based World Map as background with clickable locations
-                ImageWorldMapView(
-                    worldLevels = visibleWorldLevels,
-                    onLocationClicked = { location, levelsAtLocation ->
-                        selectedLocation = location to levelsAtLocation
-                    },
-                    modifier = Modifier.fillMaxSize()
-                )
+                // Image Map View
+                if (isEditorAvailable() && hasUserLevels && showUserLevelsTabView) {
+                    // Show tab view with Official and User Levels tabs
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(top = 80.dp, bottom = 80.dp)  // Leave space for top/bottom bars
+                    ) {
+                        // Tabs for Official (Image Map) and User Levels
+                        androidx.compose.material3.PrimaryTabRow(selectedTabIndex = 1) {  // Always select User Levels tab (index 1)
+                            androidx.compose.material3.Tab(
+                                selected = false,
+                                onClick = { 
+                                    // Switch back to image map view with button
+                                    showUserLevelsTabView = false 
+                                },
+                                text = { Text(stringResource(Res.string.official)) }
+                            )
+                            androidx.compose.material3.Tab(
+                                selected = true,
+                                onClick = { /* Already on User Levels tab */ },
+                                text = { Text(stringResource(Res.string.user_levels)) }
+                            )
+                        }
+                        
+                        // Show user levels grid
+                        LevelCardsView(
+                            worldLevels = visibleWorldLevels,
+                            onLevelSelected = onLevelSelected,
+                            filterToUserLevelsOnly = true,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                } else {
+                    // Show image-based World Map (no tabs)
+                    ImageWorldMapView(
+                        worldLevels = visibleWorldLevels,
+                        onLocationClicked = { location, levelsAtLocation ->
+                            selectedLocation = location to levelsAtLocation
+                        },
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
             }
             
             // Top bar with title and buttons
@@ -365,13 +425,29 @@ fun WorldMapScreen(
                     }
                 }
                 
-                // Spacer to push editor button to the right (only on desktop/wasm)
+                // Spacer to push buttons to the right (only on desktop/wasm)
                 if (!isPlatformMobile && isEditorAvailable()) {
                     Spacer(modifier = Modifier.weight(1f))
                 }
                 
-                // Editor Button at the right end (only on desktop/wasm)
-                if (isEditorAvailable()) {
+                // User Levels Button (only in Image Map View when not showing tab view)
+                // Show when: editor available, has user levels, NOT in level cards view, NOT showing tab view
+                if (isEditorAvailable() && hasUserLevels && !useLevelCards && !showUserLevelsTabView) {
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        horizontalAlignment = Alignment.End
+                    ) {
+                        Button(
+                            onClick = { showUserLevelsTabView = true }
+                        ) {
+                            Text(stringResource(Res.string.user_levels))
+                        }
+                        
+                        // Editor Button below User Levels button
+                        EditorButtonCard(onClick = onOpenEditor)
+                    }
+                } else if (isEditorAvailable()) {
+                    // Just Editor Button (when no user levels or already in tab view)
                     EditorButtonCard(onClick = onOpenEditor)
                 }
             }
@@ -404,35 +480,9 @@ fun WorldMapScreen(
     if (showPlatformInfo && onClearPlatformInfo != null) {
         de.egril.defender.ui.PlatformInfoDialog(
             platformInfo = de.egril.defender.utils.getPlatform().name,
+            windowSize = windowSize,
             onDismiss = onClearPlatformInfo
         )
     }
-    
-    // New repository data dialog
-    if (showNewRepoDataDialog && newRepoData != null) {
-        NewRepositoryDataDialog(
-            newData = newRepoData!!,
-            onAccept = {
-                scope.launch {
-                    try {
-                        val success = RepositoryManager.syncNewRepositoryFiles()
-                        if (success) {
-                            println("Successfully synced new repository files")
-                            // Reload the world map to show the new levels
-                            onReloadWorldMap?.invoke()
-                        } else {
-                            println("Failed to sync repository files")
-                        }
-                    } catch (e: Exception) {
-                        println("Error syncing repository files: ${e.message}")
-                        e.printStackTrace()
-                    }
-                    showNewRepoDataDialog = false
-                }
-            },
-            onDismiss = {
-                showNewRepoDataDialog = false
-            }
-        )
     }
 }

@@ -73,6 +73,7 @@ fun App() {
         val worldMapConflict by viewModel.worldMapConflict.collectAsState()
         val specialActionsRemaining by viewModel.specialActionsRemaining.collectAsState()
         val reminderMessage by viewModel.reminderMessage.collectAsState()
+        val newAchievement by viewModel.newAchievement.collectAsState()
         
         // Show player selection dialog if needed
         var showPlayerSelection by remember { mutableStateOf(false) }
@@ -182,6 +183,12 @@ fun App() {
             )
         }
         
+        // Achievement notification dialog
+        AchievementNotificationDialog(
+            achievement = newAchievement,
+            onDismiss = { viewModel.clearAchievementNotification() }
+        )
+        
         when (val screen = currentScreen) {
             is Screen.MainMenu -> {
                 MainMenuScreen(
@@ -189,7 +196,7 @@ fun App() {
                     onShowRules = { viewModel.navigateToRules() },
                     onShowInstallationInfo = { viewModel.navigateToInstallationInfo() },
                     onSelectPlayer = { showPlayerSelection = true },
-                    onEditPlayerName = { showEditPlayer = true },
+                    onEditPlayerName = { viewModel.navigateToPlayerProfile() },
                     currentPlayerName = currentPlayer?.name
                 )
             }
@@ -205,7 +212,7 @@ fun App() {
                     onCheatCode = { code -> viewModel.applyWorldMapCheatCode(code) },
                     onReloadWorldMap = { viewModel.reloadWorldMap() },
                     onSwitchPlayer = { showPlayerSelection = true },
-                    onEditPlayerName = { showEditPlayer = true },
+                    onEditPlayerName = { viewModel.navigateToPlayerProfile() },
                     currentPlayerName = currentPlayer?.name,
                     showPlatformInfo = showPlatformInfo,
                     onClearPlatformInfo = { viewModel.clearPlatformInfo() }
@@ -222,6 +229,16 @@ fun App() {
                 InstallationInfoScreen(
                     onBack = { viewModel.navigateToMainMenu() }
                 )
+            }
+            
+            is Screen.PlayerProfile -> {
+                currentPlayer?.let { profile ->
+                    de.egril.defender.ui.infopage.PlayerProfileScreen(
+                        playerProfile = profile,
+                        onBack = { viewModel.navigateToMainMenu() },
+                        onEditName = { showEditPlayer = true }
+                    )
+                }
             }
             
             is Screen.LevelEditor -> {

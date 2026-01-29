@@ -30,7 +30,8 @@ data class EditorMap(
     val tiles: Map<String, TileType>,  // "x,y" -> TileType
     val readyToUse: Boolean = false,  // True if map has valid path from spawn to target
     val worldMapPosition: Position? = null,  // Position on world map (x,y as permille 0-1000, null = auto-calculate)
-    val riverTiles: Map<String, de.egril.defender.model.RiverTile> = emptyMap()  // "x,y" -> RiverTile (for tiles with TileType.RIVER)
+    val riverTiles: Map<String, de.egril.defender.model.RiverTile> = emptyMap(),  // "x,y" -> RiverTile (for tiles with TileType.RIVER)
+    val isOfficial: Boolean = false  // True if map is from official repository (read-only in editor)
 ) {
     fun getTileType(x: Int, y: Int): TileType {
         return tiles["$x,$y"] ?: TileType.NO_PLAY
@@ -234,7 +235,8 @@ data class EditorLevel(
     val prerequisites: Set<String> = emptySet(),  // Level IDs that must be won to unlock this level
     val requiredPrerequisiteCount: Int? = null,  // Number of prerequisites needed (null = all required)
     val testingOnly: Boolean = false,  // If true, level is only shown when "show testing levels" setting is enabled
-    val allowAutoAttack: Boolean = false  // If true, shows auto-attack button in end turn confirmation dialog
+    val allowAutoAttack: Boolean = false,  // If true, shows auto-attack button in end turn confirmation dialog
+    val isOfficial: Boolean = false  // True if level is from official repository (read-only in editor)
 ) {
     /**
      * Get the effective required prerequisite count.

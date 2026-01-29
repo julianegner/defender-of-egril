@@ -2,7 +2,10 @@ package de.egril.defender.ui
 
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
+import com.hyperether.resources.currentLanguage
+import com.hyperether.resources.AppLocale
 import de.egril.defender.ui.editor.level.LevelEditorScreen
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
@@ -17,6 +20,11 @@ class LevelEditorScreenTest {
     
     @get:Rule
     val composeTestRule = createComposeRule()
+
+    @Before
+    fun setDefaultLanguage() {
+        currentLanguage.value = AppLocale.DEFAULT
+    }
     
     @Test
     fun testLevelEditorScreenOverview() {

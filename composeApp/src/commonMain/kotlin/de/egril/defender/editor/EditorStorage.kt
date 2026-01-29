@@ -18,13 +18,27 @@ object EditorStorage {
     private val mapsCache = mutableMapOf<String, EditorMap>()
     private val levelsCache = mutableMapOf<String, EditorLevel>()
     private var levelSequenceCache: LevelSequence? = null
+    private var userLevelSequenceCache: LevelSequence? = null
     
-    private val MAPS_DIR = "gamedata/maps"
-    private val LEVELS_DIR = "gamedata/levels"
-    private val SEQUENCE_FILE = "gamedata/sequence.json"
-    private val WORLDMAP_FILE = "gamedata/worldmap.json"
+    // Official content directories (read from repository)
+    private val OFFICIAL_MAPS_DIR = "gamedata/official/maps"
+    private val OFFICIAL_LEVELS_DIR = "gamedata/official/levels"
+    private val OFFICIAL_SEQUENCE_FILE = "gamedata/official/sequence.json"
+    private val OFFICIAL_WORLDMAP_FILE = "gamedata/official/worldmap.json"
+    
+    // User content directories (created by users in editor)
+    private val USER_MAPS_DIR = "gamedata/user/maps"
+    private val USER_LEVELS_DIR = "gamedata/user/levels"
+    private val USER_SEQUENCE_FILE = "gamedata/user/sequence.json"
+    
+    // Legacy directories (for backward compatibility)
+    private val LEGACY_MAPS_DIR = "gamedata/maps"
+    private val LEGACY_LEVELS_DIR = "gamedata/levels"
+    private val LEGACY_SEQUENCE_FILE = "gamedata/sequence.json"
+    private val LEGACY_WORLDMAP_FILE = "gamedata/worldmap.json"
+    
     private val VERSION_FILE = "gamedata/version.txt"
-    private val CURRENT_VERSION = "8" // Increment when level data format changes - v8: added translation keys (titleKey, subtitleKey, nameKey) to levels, maps, and locations
+    private val CURRENT_VERSION = "9" // Increment when level data format changes - v9: added official/user separation and isOfficial flag
     
     private var worldMapDataCache: WorldMapData? = null
     private var initialized = false
@@ -37,20 +51,13 @@ object EditorStorage {
     fun ensureInitialized() {
         if (initialized) return
         
-        // Check if gamedata directory has existing user data
-        val hasUserData = hasExistingGamedataFiles()
-
-        if (!hasUserData) {
-            // No user data - try to load from repository
-            println("No gamedata found - loading from repository...")
-            if (!tryLoadRepositoryFiles()) {
-                // Repository files are missing
-                // In production, repository files are embedded in resources and will always load
-                // If we reach here, we're likely in a test environment without resources
-                println("Repository files could not be loaded - skipping initialization (test environment)")
-                initialized = true
-                return
-            }
+        // Always try to load repository files first
+        println("Initializing EditorStorage - loading repository files...")
+        val repositoryLoaded = tryLoadRepositoryFiles()
+        
+        if (!repositoryLoaded) {
+            println("Repository files could not be loaded - this may be a test environment")
+            // Continue anyway - we'll try to load from other paths or use defaults
         }
 
         // Validate that we have all required data categories
@@ -68,6 +75,7 @@ object EditorStorage {
         }
 
         initialized = true
+        println("EditorStorage initialized successfully. Repository loaded: $repositoryLoaded")
     }
 
     /**
@@ -109,7 +117,10 @@ object EditorStorage {
         val validatedMap = map.copy(readyToUse = map.validateReadyToUse())
         mapsCache[validatedMap.id] = validatedMap
         val json = EditorJsonSerializer.serializeMap(validatedMap)
-        fileStorage.writeFile("$MAPS_DIR/${validatedMap.id}.json", json)
+        
+        // Save to appropriate directory based on isOfficial flag
+        val targetDir = if (validatedMap.isOfficial) OFFICIAL_MAPS_DIR else USER_MAPS_DIR
+        fileStorage.writeFile("$targetDir/${validatedMap.id}.json", json)
     }
     
     fun reloadMap(id: String): EditorMap? {
@@ -126,13 +137,30 @@ object EditorStorage {
             return mapsCache[id]
         }
         
-        // Try to load from file
-        val json = fileStorage.readFile("$MAPS_DIR/$id.json")
+        // Try to load from official directory first, then user, then legacy
+        var json = fileStorage.readFile("$OFFICIAL_MAPS_DIR/$id.json")
+        var isOfficial = true
+        
+        if (json == null) {
+            json = fileStorage.readFile("$USER_MAPS_DIR/$id.json")
+            isOfficial = false
+        }
+        
+        if (json == null) {
+            json = fileStorage.readFile("$LEGACY_MAPS_DIR/$id.json")
+            // For legacy files, check if it's an official map
+            isOfficial = OfficialContent.isOfficialMap(id)
+        }
+        
         if (json != null) {
             val map = EditorJsonSerializer.deserializeMap(json)
             if (map != null) {
                 // Always recalculate readyToUse when loading from file
-                val validatedMap = map.copy(readyToUse = map.validateReadyToUse())
+                // Set isOfficial flag based on which directory it was found in
+                val validatedMap = map.copy(
+                    readyToUse = map.validateReadyToUse(),
+                    isOfficial = map.isOfficial || isOfficial
+                )
                 mapsCache[id] = validatedMap
                 return validatedMap
             }
@@ -142,11 +170,24 @@ object EditorStorage {
     }
     
     fun getAllMaps(): List<EditorMap> {
-        // Load all maps from files
-        fileStorage.createDirectory(MAPS_DIR)
-        val mapFiles = fileStorage.listFiles(MAPS_DIR)
+        // Load all maps from both official and user directories
+        fileStorage.createDirectory(OFFICIAL_MAPS_DIR)
+        fileStorage.createDirectory(USER_MAPS_DIR)
         
-        for (filename in mapFiles) {
+        val officialFiles = fileStorage.listFiles(OFFICIAL_MAPS_DIR)
+        val userFiles = fileStorage.listFiles(USER_MAPS_DIR)
+        
+        // Load official maps
+        for (filename in officialFiles) {
+            if (!filename.endsWith(".json")) continue
+            val id = filename.removeSuffix(".json")
+            if (!mapsCache.containsKey(id)) {
+                getMap(id) // This will load and cache it
+            }
+        }
+        
+        // Load user maps
+        for (filename in userFiles) {
             if (!filename.endsWith(".json")) continue
             val id = filename.removeSuffix(".json")
             if (!mapsCache.containsKey(id)) {
@@ -196,13 +237,24 @@ object EditorStorage {
         
         levelsCache[levelWithSpawnPoints.id] = levelWithSpawnPoints
         val json = EditorJsonSerializer.serializeLevel(levelWithSpawnPoints)
-        fileStorage.writeFile("$LEVELS_DIR/${levelWithSpawnPoints.id}.json", json)
         
-        // Update sequence if this is a new level
-        val sequence = getLevelSequence()
-        if (!sequence.sequence.contains(levelWithSpawnPoints.id)) {
-            val newSequence = LevelSequence(sequence.sequence + levelWithSpawnPoints.id)
-            updateLevelSequence(newSequence)
+        // Save to appropriate directory based on isOfficial flag
+        val targetDir = if (levelWithSpawnPoints.isOfficial) OFFICIAL_LEVELS_DIR else USER_LEVELS_DIR
+        fileStorage.writeFile("$targetDir/${levelWithSpawnPoints.id}.json", json)
+        
+        // Update appropriate sequence if this is a new level
+        if (levelWithSpawnPoints.isOfficial) {
+            val sequence = getLevelSequence()
+            if (!sequence.sequence.contains(levelWithSpawnPoints.id)) {
+                val newSequence = LevelSequence(sequence.sequence + levelWithSpawnPoints.id)
+                updateLevelSequence(newSequence)
+            }
+        } else {
+            val sequence = getUserLevelSequence()
+            if (!sequence.sequence.contains(levelWithSpawnPoints.id)) {
+                val newSequence = LevelSequence(sequence.sequence + levelWithSpawnPoints.id)
+                updateUserLevelSequence(newSequence)
+            }
         }
     }
     
@@ -218,14 +270,29 @@ object EditorStorage {
             return levelsCache[id]
         }
         
-        // Try to load from file
-        val json = fileStorage.readFile("$LEVELS_DIR/$id.json")
+        // Try to load from official directory first, then user, then legacy
+        var json = fileStorage.readFile("$OFFICIAL_LEVELS_DIR/$id.json")
+        var isOfficial = true
+        
+        if (json == null) {
+            json = fileStorage.readFile("$USER_LEVELS_DIR/$id.json")
+            isOfficial = false
+        }
+        
+        if (json == null) {
+            json = fileStorage.readFile("$LEGACY_LEVELS_DIR/$id.json")
+            // For legacy files, check if it's an official level
+            isOfficial = OfficialContent.isOfficialLevel(id)
+        }
+        
         if (json != null) {
             val level = EditorJsonSerializer.deserializeLevel(json)
             println("EditorStorage: Deserialized level $id: $level")
             if (level != null) {
-                levelsCache[id] = level
-                return level
+                // Set isOfficial flag based on which directory it was found in
+                val levelWithFlag = level.copy(isOfficial = level.isOfficial || isOfficial)
+                levelsCache[id] = levelWithFlag
+                return levelWithFlag
             }
         }
         
@@ -233,11 +300,24 @@ object EditorStorage {
     }
     
     fun getAllLevels(): List<EditorLevel> {
-        // Load all levels from files
-        fileStorage.createDirectory(LEVELS_DIR)
-        val levelFiles = fileStorage.listFiles(LEVELS_DIR)
+        // Load all levels from both official and user directories
+        fileStorage.createDirectory(OFFICIAL_LEVELS_DIR)
+        fileStorage.createDirectory(USER_LEVELS_DIR)
         
-        for (filename in levelFiles) {
+        val officialFiles = fileStorage.listFiles(OFFICIAL_LEVELS_DIR)
+        val userFiles = fileStorage.listFiles(USER_LEVELS_DIR)
+        
+        // Load official levels
+        for (filename in officialFiles) {
+            if (!filename.endsWith(".json")) continue
+            val id = filename.removeSuffix(".json")
+            if (!levelsCache.containsKey(id)) {
+                getLevel(id) // This will load and cache it
+            }
+        }
+        
+        // Load user levels
+        for (filename in userFiles) {
             if (!filename.endsWith(".json")) continue
             val id = filename.removeSuffix(".json")
             if (!levelsCache.containsKey(id)) {
@@ -249,13 +329,18 @@ object EditorStorage {
     }
     
     fun getLevelSequence(): LevelSequence {
-        println("EditorStorage: Retrieving level sequence...${levelSequenceCache}")
+        println("EditorStorage: Retrieving level sequence...")
         if (levelSequenceCache != null) {
             return levelSequenceCache!!
         }
         
-        // Try to load from file
-        val json = fileStorage.readFile(SEQUENCE_FILE)
+        // Try to load from official sequence file first
+        var json = fileStorage.readFile(OFFICIAL_SEQUENCE_FILE)
+        
+        // Fall back to legacy sequence file for backward compatibility
+        if (json == null) {
+            json = fileStorage.readFile(LEGACY_SEQUENCE_FILE)
+        }
 
         if (json != null) {
             val sequence = EditorJsonSerializer.deserializeSequence(json)
@@ -269,29 +354,92 @@ object EditorStorage {
         return LevelSequence(emptyList())
     }
     
+    /**
+     * Get the user level sequence from USER_SEQUENCE_FILE.
+     * Returns empty sequence if file doesn't exist.
+     */
+    fun getUserLevelSequence(): LevelSequence {
+        if (userLevelSequenceCache != null) {
+            return userLevelSequenceCache!!
+        }
+        
+        // Try to load from user sequence file
+        val json = fileStorage.readFile(USER_SEQUENCE_FILE)
+        if (json != null) {
+            val sequence = EditorJsonSerializer.deserializeSequence(json)
+            if (sequence != null) {
+                userLevelSequenceCache = sequence
+                return sequence
+            }
+        }
+        
+        // Return empty sequence if not found
+        return LevelSequence(emptyList())
+    }
+    
     fun updateLevelSequence(sequence: LevelSequence) {
+        // Save to OFFICIAL_SEQUENCE_FILE
         levelSequenceCache = sequence
         val json = EditorJsonSerializer.serializeSequence(sequence)
-        fileStorage.writeFile(SEQUENCE_FILE, json)
+        fileStorage.writeFile(OFFICIAL_SEQUENCE_FILE, json)
+    }
+    
+    /**
+     * Update the user level sequence.
+     */
+    fun updateUserLevelSequence(sequence: LevelSequence) {
+        userLevelSequenceCache = sequence
+        val json = EditorJsonSerializer.serializeSequence(sequence)
+        fileStorage.writeFile(USER_SEQUENCE_FILE, json)
     }
     
     fun moveLevelUp(levelId: String) {
-        val currentSequence = getLevelSequence().sequence.toMutableList()
-        val index = currentSequence.indexOf(levelId)
-        if (index > 0) {
-            currentSequence.removeAt(index)
-            currentSequence.add(index - 1, levelId)
-            updateLevelSequence(LevelSequence(currentSequence))
+        // Determine if level is official or user
+        val level = getLevel(levelId)
+        
+        if (level?.isOfficial == true) {
+            // Move in official sequence
+            val currentSequence = getLevelSequence().sequence.toMutableList()
+            val index = currentSequence.indexOf(levelId)
+            if (index > 0) {
+                currentSequence.removeAt(index)
+                currentSequence.add(index - 1, levelId)
+                updateLevelSequence(LevelSequence(currentSequence))
+            }
+        } else {
+            // Move in user sequence
+            val currentSequence = getUserLevelSequence().sequence.toMutableList()
+            val index = currentSequence.indexOf(levelId)
+            if (index > 0) {
+                currentSequence.removeAt(index)
+                currentSequence.add(index - 1, levelId)
+                updateUserLevelSequence(LevelSequence(currentSequence))
+            }
         }
     }
     
     fun moveLevelDown(levelId: String) {
-        val currentSequence = getLevelSequence().sequence.toMutableList()
-        val index = currentSequence.indexOf(levelId)
-        if (index >= 0 && index < currentSequence.size - 1) {
-            currentSequence.removeAt(index)
-            currentSequence.add(index + 1, levelId)
-            updateLevelSequence(LevelSequence(currentSequence))
+        // Determine if level is official or user
+        val level = getLevel(levelId)
+        
+        if (level?.isOfficial == true) {
+            // Move in official sequence
+            val currentSequence = getLevelSequence().sequence.toMutableList()
+            val index = currentSequence.indexOf(levelId)
+            if (index >= 0 && index < currentSequence.size - 1) {
+                currentSequence.removeAt(index)
+                currentSequence.add(index + 1, levelId)
+                updateLevelSequence(LevelSequence(currentSequence))
+            }
+        } else {
+            // Move in user sequence
+            val currentSequence = getUserLevelSequence().sequence.toMutableList()
+            val index = currentSequence.indexOf(levelId)
+            if (index >= 0 && index < currentSequence.size - 1) {
+                currentSequence.removeAt(index)
+                currentSequence.add(index + 1, levelId)
+                updateUserLevelSequence(LevelSequence(currentSequence))
+            }
         }
     }
     
@@ -302,14 +450,31 @@ object EditorStorage {
      * @param atIndex Optional index where to insert the level. If null, adds to the end.
      */
     fun addLevelToSequence(levelId: String, atIndex: Int? = null) {
-        val currentSequence = getLevelSequence().sequence.toMutableList()
-        if (!currentSequence.contains(levelId)) {
-            if (atIndex != null && atIndex >= 0 && atIndex <= currentSequence.size) {
-                currentSequence.add(atIndex, levelId)
-            } else {
-                currentSequence.add(levelId)
+        // Determine if level is official or user
+        val level = getLevel(levelId)
+        
+        if (level?.isOfficial == true) {
+            // Add to official sequence
+            val currentSequence = getLevelSequence().sequence.toMutableList()
+            if (!currentSequence.contains(levelId)) {
+                if (atIndex != null && atIndex >= 0 && atIndex <= currentSequence.size) {
+                    currentSequence.add(atIndex, levelId)
+                } else {
+                    currentSequence.add(levelId)
+                }
+                updateLevelSequence(LevelSequence(currentSequence))
             }
-            updateLevelSequence(LevelSequence(currentSequence))
+        } else {
+            // Add to user sequence
+            val currentSequence = getUserLevelSequence().sequence.toMutableList()
+            if (!currentSequence.contains(levelId)) {
+                if (atIndex != null && atIndex >= 0 && atIndex <= currentSequence.size) {
+                    currentSequence.add(atIndex, levelId)
+                } else {
+                    currentSequence.add(levelId)
+                }
+                updateUserLevelSequence(LevelSequence(currentSequence))
+            }
         }
     }
     
@@ -319,9 +484,20 @@ object EditorStorage {
      * @param levelId The ID of the level to remove from the sequence
      */
     fun removeLevelFromSequence(levelId: String) {
-        val currentSequence = getLevelSequence().sequence.toMutableList()
-        currentSequence.remove(levelId)
-        updateLevelSequence(LevelSequence(currentSequence))
+        // Determine if level is official or user
+        val level = getLevel(levelId)
+        
+        if (level?.isOfficial == true) {
+            // Remove from official sequence
+            val currentSequence = getLevelSequence().sequence.toMutableList()
+            currentSequence.remove(levelId)
+            updateLevelSequence(LevelSequence(currentSequence))
+        } else {
+            // Remove from user sequence
+            val currentSequence = getUserLevelSequence().sequence.toMutableList()
+            currentSequence.remove(levelId)
+            updateUserLevelSequence(LevelSequence(currentSequence))
+        }
     }
     
     /**
@@ -332,20 +508,42 @@ object EditorStorage {
      * @param toIndex The target index (0-based) in the sequence
      */
     fun moveLevelToPosition(levelId: String, toIndex: Int) {
-        val currentSequence = getLevelSequence().sequence.toMutableList()
-        val fromIndex = currentSequence.indexOf(levelId)
+        // Determine if level is official or user
+        val level = getLevel(levelId)
         
-        if (fromIndex >= 0) {
-            // Level is already in sequence, move it
-            currentSequence.removeAt(fromIndex)
-            val adjustedIndex = if (fromIndex < toIndex) toIndex - 1 else toIndex
-            currentSequence.add(adjustedIndex.coerceIn(0, currentSequence.size), levelId)
+        if (level?.isOfficial == true) {
+            // Move in official sequence
+            val currentSequence = getLevelSequence().sequence.toMutableList()
+            val fromIndex = currentSequence.indexOf(levelId)
+            
+            if (fromIndex >= 0) {
+                // Level is already in sequence, move it
+                currentSequence.removeAt(fromIndex)
+                val adjustedIndex = if (fromIndex < toIndex) toIndex - 1 else toIndex
+                currentSequence.add(adjustedIndex.coerceIn(0, currentSequence.size), levelId)
+            } else {
+                // Level not in sequence, add it at the specified position
+                currentSequence.add(toIndex.coerceIn(0, currentSequence.size), levelId)
+            }
+            
+            updateLevelSequence(LevelSequence(currentSequence))
         } else {
-            // Level not in sequence, add it at the specified position
-            currentSequence.add(toIndex.coerceIn(0, currentSequence.size), levelId)
+            // Move in user sequence
+            val currentSequence = getUserLevelSequence().sequence.toMutableList()
+            val fromIndex = currentSequence.indexOf(levelId)
+            
+            if (fromIndex >= 0) {
+                // Level is already in sequence, move it
+                currentSequence.removeAt(fromIndex)
+                val adjustedIndex = if (fromIndex < toIndex) toIndex - 1 else toIndex
+                currentSequence.add(adjustedIndex.coerceIn(0, currentSequence.size), levelId)
+            } else {
+                // Level not in sequence, add it at the specified position
+                currentSequence.add(toIndex.coerceIn(0, currentSequence.size), levelId)
+            }
+            
+            updateUserLevelSequence(LevelSequence(currentSequence))
         }
-        
-        updateLevelSequence(LevelSequence(currentSequence))
     }
     
     // ==================== World Map Data ====================
@@ -359,8 +557,14 @@ object EditorStorage {
             return worldMapDataCache!!
         }
         
-        // Try to load from file
-        val json = fileStorage.readFile(WORLDMAP_FILE)
+        // Try to load from official worldmap file first
+        var json = fileStorage.readFile(OFFICIAL_WORLDMAP_FILE)
+        
+        // Fall back to legacy worldmap file for backward compatibility
+        if (json == null) {
+            json = fileStorage.readFile(LEGACY_WORLDMAP_FILE)
+        }
+        
         if (json != null) {
             val data = EditorJsonSerializer.deserializeWorldMapData(json)
             if (data != null) {
@@ -373,12 +577,12 @@ object EditorStorage {
     }
     
     /**
-     * Save the world map data.
+     * Save the world map data to OFFICIAL_WORLDMAP_FILE.
      */
     fun saveWorldMapData(data: WorldMapData) {
         worldMapDataCache = data
         val json = EditorJsonSerializer.serializeWorldMapData(data)
-        fileStorage.writeFile(WORLDMAP_FILE, json)
+        fileStorage.writeFile(OFFICIAL_WORLDMAP_FILE, json)
     }
     
     /**
@@ -677,22 +881,42 @@ object EditorStorage {
             .toSet()
     }
     
-    fun deleteMap(mapId: String) {
+    fun deleteMap(mapId: String): Boolean {
+        // Get the map to check if it's official
+        val map = getMap(mapId)
+        if (map?.isOfficial == true) {
+            println("Cannot delete official map: $mapId")
+            return false
+        }
+        
         // Remove from cache
         mapsCache.remove(mapId)
-        // Delete file
-        fileStorage.deleteFile("$MAPS_DIR/$mapId.json")
+        
+        // Delete file from user directory only
+        fileStorage.deleteFile("$USER_MAPS_DIR/$mapId.json")
+        return true
     }
     
-    fun deleteLevel(levelId: String) {
+    fun deleteLevel(levelId: String): Boolean {
+        // Get the level to check if it's official
+        val level = getLevel(levelId)
+        if (level?.isOfficial == true) {
+            println("Cannot delete official level: $levelId")
+            return false
+        }
+        
         // Remove from cache
         levelsCache.remove(levelId)
-        // Delete file
-        fileStorage.deleteFile("$LEVELS_DIR/$levelId.json")
-        // Remove from sequence
-        val currentSequence = getLevelSequence().sequence.toMutableList()
+        
+        // Delete file from user directory only
+        fileStorage.deleteFile("$USER_LEVELS_DIR/$levelId.json")
+        
+        // Remove from user sequence
+        val currentSequence = getUserLevelSequence().sequence.toMutableList()
         currentSequence.remove(levelId)
-        updateLevelSequence(LevelSequence(currentSequence))
+        updateUserLevelSequence(LevelSequence(currentSequence))
+        
+        return true
     }
     
     /**
@@ -817,23 +1041,53 @@ object EditorStorage {
      * @return true if any user data files exist, false if directory is empty
      */
     private fun hasExistingGamedataFiles(): Boolean {
-        // Check if the sequence file exists (most reliable indicator)
-        if (fileStorage.fileExists(SEQUENCE_FILE)) {
+        // Check official sequence file
+        if (fileStorage.fileExists(OFFICIAL_SEQUENCE_FILE)) {
             return true
         }
         
-        // Check if any maps exist
-        if (fileStorage.listFiles(MAPS_DIR).isNotEmpty()) {
+        // Check legacy sequence file (for backward compatibility)
+        if (fileStorage.fileExists(LEGACY_SEQUENCE_FILE)) {
             return true
         }
         
-        // Check if any levels exist
-        if (fileStorage.listFiles(LEVELS_DIR).isNotEmpty()) {
+        // Check if any official maps exist
+        if (fileStorage.listFiles(OFFICIAL_MAPS_DIR).isNotEmpty()) {
             return true
         }
         
-        // Check if world map file exists (user may have edited it)
-        if (fileStorage.fileExists(WORLDMAP_FILE)) {
+        // Check if any user maps exist
+        if (fileStorage.listFiles(USER_MAPS_DIR).isNotEmpty()) {
+            return true
+        }
+        
+        // Check legacy maps directory
+        if (fileStorage.listFiles(LEGACY_MAPS_DIR).isNotEmpty()) {
+            return true
+        }
+        
+        // Check if any official levels exist
+        if (fileStorage.listFiles(OFFICIAL_LEVELS_DIR).isNotEmpty()) {
+            return true
+        }
+        
+        // Check if any user levels exist
+        if (fileStorage.listFiles(USER_LEVELS_DIR).isNotEmpty()) {
+            return true
+        }
+        
+        // Check legacy levels directory
+        if (fileStorage.listFiles(LEGACY_LEVELS_DIR).isNotEmpty()) {
+            return true
+        }
+        
+        // Check official worldmap file
+        if (fileStorage.fileExists(OFFICIAL_WORLDMAP_FILE)) {
+            return true
+        }
+        
+        // Check legacy worldmap file (for backward compatibility)
+        if (fileStorage.fileExists(LEGACY_WORLDMAP_FILE)) {
             return true
         }
         

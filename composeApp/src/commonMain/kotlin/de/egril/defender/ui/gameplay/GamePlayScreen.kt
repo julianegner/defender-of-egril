@@ -410,16 +410,23 @@ private fun GamePlayScreenContent(
     }
 
     CompositionLocalProvider(LocalDensity provides scaledDensity) {
-        Surface(
+        BoxWithConstraints(
             modifier = Modifier
                 .fillMaxSize()
-                .onPreviewKeyEvent(keyboardHandler),
-            color = MaterialTheme.colorScheme.background
+                .onPreviewKeyEvent(keyboardHandler)
         ) {
-            Column(
-                modifier = Modifier.fillMaxSize().padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+            val windowSize = remember(maxWidth, maxHeight) {
+                "Window: ${maxWidth.value.toInt()} x ${maxHeight.value.toInt()} dp"
+            }
+            
+            Surface(
+                modifier = Modifier.fillMaxSize(),
+                color = MaterialTheme.colorScheme.background
             ) {
+                Column(
+                    modifier = Modifier.fillMaxSize().padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
         // Header with prominent phase indicator (collapsible)
         GameHeader(
             gameState = gameState,
@@ -932,6 +939,7 @@ private fun GamePlayScreenContent(
         if (showPlatformInfo && onClearPlatformInfo != null) {
             de.egril.defender.ui.PlatformInfoDialog(
                 platformInfo = de.egril.defender.utils.getPlatform().name,
+                windowSize = windowSize,
                 onDismiss = onClearPlatformInfo
             )
         }
@@ -1047,7 +1055,8 @@ private fun GamePlayScreenContent(
                 }
             )
         }
+            }
         }
-    }
+        }
     }
 }

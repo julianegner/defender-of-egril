@@ -13,6 +13,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import de.egril.defender.editor.EditorEnemySpawn
 import de.egril.defender.editor.EditorLevel
 import de.egril.defender.editor.EditorMap
@@ -112,7 +113,8 @@ fun LevelEditorContent() {
                             val newId = "${sanitizedTitle}_${Random.nextInt(1000, 9999)}"
                             val copiedLevel = level.copy(
                                 id = newId,
-                                title = copyTitle
+                                title = copyTitle,
+                                isOfficial = false  // Copied levels are always user levels
                             )
                             EditorStorage.saveLevel(copiedLevel)
                             levels.value = EditorStorage.getAllLevels()
@@ -217,29 +219,18 @@ private fun LevelCard(
                         .fillMaxWidth()
                         .clickable { onSelect() }
                         .padding(12.dp)
+                        .padding(top = 24.dp)  // Add top padding for the badges
                 ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Text(
-                            text = level.title,
-                            style = MaterialTheme.typography.titleSmall
-                        )
-                        // Add ready/not ready indicator
-                        if (EditorStorage.isLevelReadyToPlay(level)) {
-                            CheckmarkIcon(
-                                size = 16.dp,
-                                tint = Color.Green
-                            )
-                        } else {
-                            CrossIcon(
-                                size = 16.dp,
-                                tint = Color.Red
-                            )
-                        }
-                        // Add warning badge if enemies are outside spawn points
-                        if (hasEnemiesOutsideSpawnPoints) {
+                    Text(
+                        text = level.title,
+                        style = MaterialTheme.typography.titleSmall
+                    )
+                    // Add warning badge if enemies are outside spawn points
+                    if (hasEnemiesOutsideSpawnPoints) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
                             WarningBadge()
                         }
                     }
@@ -269,16 +260,47 @@ private fun LevelCard(
                 )
             }
             
-            // Test Level badge in upper right corner
-            if (level.testingOnly) {
-                Text(
-                    text = stringResource(Res.string.test_level),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = Color.Red,
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(8.dp)
-                )
+            // Badges in upper right corner
+            Column(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(8.dp),
+                horizontalAlignment = Alignment.End,
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Test Level badge
+                    if (level.testingOnly) {
+                        Text(
+                            text = stringResource(Res.string.test_level),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                    // Ready/not ready check indicator
+                    if (EditorStorage.isLevelReadyToPlay(level)) {
+                        CheckmarkIcon(
+                            size = 20.dp,
+                            tint = Color.Green
+                        )
+                    } else {
+                        CrossIcon(
+                            size = 20.dp,
+                            tint = Color.Red
+                        )
+                    }
+                }
+                // Official/User badge below the check
+                if (level.isOfficial) {
+                    Text(
+                        text = stringResource(Res.string.official_level),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
             }
         }
             Row(
@@ -293,6 +315,7 @@ private fun LevelCard(
                 }
                 Button(
                     onClick = onDelete,
+                    enabled = !level.isOfficial,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.error
                     ),
@@ -363,12 +386,57 @@ fun LevelEditorView(
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
+        // Official level info banner
+        if (level.isOfficial) {
+            Card(
+                modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer
+                )
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    InfoIcon(size = 20.dp)
+                    Text(
+                        text = stringResource(Res.string.official_level_info),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                }
+            }
+        }
+        
         // Title above tabs
-        Text(
-            text = "${stringResource(Res.string.level_title)}: ${level.title}",
-            style = MaterialTheme.typography.titleMedium,
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier.padding(bottom = 8.dp)
-        )
+        ) {
+            Text(
+                text = "${stringResource(Res.string.level_title)}: ${level.title}",
+                style = MaterialTheme.typography.titleMedium
+            )
+            // Official badge
+            if (level.isOfficial) {
+                AssistChip(
+                    onClick = { },
+                    label = {
+                        Text(
+                            text = stringResource(Res.string.official_level),
+                            fontSize = 10.sp
+                        )
+                    },
+                    colors = AssistChipDefaults.assistChipColors(
+                        containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
+                        labelColor = MaterialTheme.colorScheme.primary
+                    ),
+                    modifier = Modifier.height(24.dp)
+                )
+            }
+        }
         
         // Tab Row with badges
         PrimaryTabRow(selectedTabIndex = selectedTabIndex) {
@@ -454,7 +522,8 @@ fun LevelEditorView(
                     testingOnly = testingOnly,
                     onTestingOnlyChange = { testingOnly = it },
                     allowAutoAttack = allowAutoAttack,
-                    onAllowAutoAttackChange = { allowAutoAttack = it }
+                    onAllowAutoAttackChange = { allowAutoAttack = it },
+                    isOfficial = level.isOfficial
                 )
                 1 -> EnemySpawnsTab(
                     enemySpawns = enemySpawns,
@@ -507,6 +576,7 @@ fun LevelEditorView(
                         )
                         onSave(updatedLevel)
                     },
+                    enabled = !level.isOfficial,
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(stringResource(Res.string.save_level))

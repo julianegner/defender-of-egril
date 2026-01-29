@@ -50,6 +50,9 @@ data class Attacker(
     val mineWarningShown: MutableState<Boolean> = mutableStateOf(false),  // Track if mine warning has been shown for current target
     val isBuildingBridge: MutableState<Boolean> = mutableStateOf(false)  // Track if this unit is currently building a bridge (sacrifice units)
 ) {
+    // Callback for dragon level changes (for achievements)
+    var onDragonLevelChanged: ((oldLevel: Int, newLevel: Int) -> Unit)? = null
+    
     val maxHealth: Int get() = type.health * level.value
     
     /**
@@ -78,8 +81,14 @@ data class Attacker(
     fun updateDragonLevel() {
         if (type.isDragon && currentHealth.value > 0) {
             val baseHealth = type.health
+            val oldLevel = level.value
             val newLevel = maxOf(1, currentHealth.value / baseHealth)
-            level.value = newLevel
+            
+            if (oldLevel != newLevel) {
+                level.value = newLevel
+                // Emit event for achievement tracking
+                onDragonLevelChanged?.invoke(oldLevel, newLevel)
+            }
         }
     }
     

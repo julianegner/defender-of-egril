@@ -25,5 +25,8 @@ is used for all tile and dig_outcome images as well as for
 dragon_destroying_mine.png
 barricade.png
 fortress.png
+trap.png
+gate.png
+
 
 
