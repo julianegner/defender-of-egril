@@ -385,13 +385,14 @@ private fun GamePlayScreenContent(
     val handleBarricadeAction: (Int, BarricadeAction) -> Unit = { towerId, action ->
         when (action) {
             BarricadeAction.BUILD_BARRICADE -> {
-                // Toggle mode: if already active, deselect it
-                if (selectedBarricadeAction == BarricadeAction.BUILD_BARRICADE) {
-                    selectedBarricadeAction = null
-                } else {
-                    selectedBarricadeAction = action
-                    // The user will now click on the map to place the barricade
+                // Toggle placement mode - if already selected, deselect it
+                selectedBarricadeAction = if (selectedBarricadeAction == action) null else action
+                // Clear target selection when entering barricade placement mode
+                if (selectedBarricadeAction != null) {
+                    selectedTargetId = null
+                    selectedTargetPosition = null
                 }
+                // The user will now click on the map to place the barricade
             }
         }
     }

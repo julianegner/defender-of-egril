@@ -591,7 +591,6 @@ fun BarricadeButton(
     if (defender.isReady) {
         // Calculate HP that will be added
         val hpAmount = maxOf(1, defender.level.value - 10)
-        
         val isBarricadeModeActive = selectedBarricadeAction == BarricadeAction.BUILD_BARRICADE
         
         // Button to enter barricade placement mode - enabled when tower has actions
