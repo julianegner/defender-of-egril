@@ -25,6 +25,7 @@ import de.egril.defender.model.*
 import de.egril.defender.model.getHexNeighbors
 import de.egril.defender.ui.*
 import de.egril.defender.ui.icon.ExplosionIcon
+import de.egril.defender.ui.icon.GateIcon
 import de.egril.defender.ui.icon.TrapIcon
 import de.egril.defender.ui.icon.WoodIcon
 import com.hyperether.resources.stringResource
@@ -906,8 +907,12 @@ private fun BoxScope.GridCellContent(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ) {
-                        // Show wood/barricade symbol with brown color
-                        WoodIcon(size = GamePlayConstants.TileIconSizes.Barricade)
+                        // Show wood/barricade symbol or gate icon with brown color
+                        if (barricade.isGate) {
+                            GateIcon(size = GamePlayConstants.TileIconSizes.Barricade)
+                        } else {
+                            WoodIcon(size = GamePlayConstants.TileIconSizes.Barricade)
+                        }
                         // Show health points - moved up for better visibility
                         Text(
                             "${barricade.healthPoints.value} HP",
