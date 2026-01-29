@@ -619,12 +619,13 @@ fun BarricadeButton(
             } else null
         ) {
             Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth().padding(start = 4.dp, end = 8.dp)
             ) {
                 // Icon on the left
-                WoodIcon(size = 48.dp)
+                WoodIcon(size = 40.dp)
+                Spacer(modifier = Modifier.width(6.dp))
                 // Two rows on the right
                 Column(
                     modifier = Modifier.weight(1f),
@@ -633,13 +634,17 @@ fun BarricadeButton(
                     // Upper row: "Barricade"
                     Text(
                         stringResource(Res.string.barricade),
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 2,
+                        overflow = TextOverflow.Visible
                     )
                     // Lower row: "X HP"
                     Text(
                         "$hpAmount ${stringResource(Res.string.hp_label)}",
-                        fontSize = 14.sp
+                        fontSize = 13.sp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Visible
                     )
                 }
             }
