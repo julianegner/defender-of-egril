@@ -197,6 +197,7 @@ private fun InfoContent(infoType: InfoType, onDismiss: () -> Unit) {
         InfoType.MAGICAL_TRAP_INFO -> MagicalTrapInfoContent(onDismiss)
         InfoType.EXTENDED_AREA_INFO -> ExtendedAreaInfoContent(onDismiss)
         InfoType.BARRICADE_INFO -> BarricadeInfoContent(onDismiss)
+        InfoType.SPIKE_BARBS_INFO -> SpikeBarbsInfoContent(onDismiss)
         InfoType.WIZARD_FIRST_USE -> WizardFirstUseContent(onDismiss)
         InfoType.ALCHEMY_FIRST_USE -> AlchemyFirstUseContent(onDismiss)
         InfoType.BALLISTA_FIRST_USE -> BallistaFirstUseContent(onDismiss)
@@ -556,6 +557,37 @@ private fun BarricadeInfoContent(onDismiss: () -> Unit) {
     ) {
         Text(
             text = stringResource(Res.string.barricade_info_message),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+    }
+}
+
+/**
+ * Spike barbs info popup (spike tower level 10+)
+ */
+@Composable
+private fun SpikeBarbsInfoContent(onDismiss: () -> Unit) {
+    ScrollableInfoCard(
+        title = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                de.egril.defender.ui.icon.SwordIcon(size = 32.dp)
+                Text(
+                    text = stringResource(Res.string.spike_barbs_info_title),
+                    style = MaterialTheme.typography.titleLarge,
+                    color = Color(0xFF8B4513)  // SaddleBrown color for spikes
+                )
+            }
+        },
+        buttonColor = Color(0xFF8B4513),  // SaddleBrown button
+        width = 600.dp,  // Wide to accommodate all translations
+        onDismiss = onDismiss
+    ) {
+        Text(
+            text = stringResource(Res.string.spike_barbs_info_message),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurface
         )

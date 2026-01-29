@@ -654,6 +654,10 @@
     <string name="remove_barricade_title">Retirer la Barricade?</string>
     <string name="remove_barricade_message">Êtes-vous sûr de vouloir retirer cette barricade?</string>
     
+    <!-- Spike Barbs Feature -->
+    <string name="spike_barbs_info_title">Barbes de Piques Débloquées !</string>
+    <string name="spike_barbs_info_message">Votre tour de Piques a atteint le niveau 10 et possède maintenant des barbes !\nLorsqu'une tour de Piques de niveau 10+ attaque un ennemi, elle réduit le mouvement de l'ennemi de 1 case par attaque.\nCet effet s'accumule - plusieurs attaques de tours de Piques de niveau 10+ réduiront davantage le mouvement ennemi.\nLes ennemis se déplaceront toujours d'au moins 1 case par tour, même avec plusieurs effets de barbes.</string>
+    
     <!-- Magical Trap Feature -->
     <string name="magical_trap">Piège Magique</string>
     <string name="magical_trap_cooldown">Temps de recharge : %d tours</string>

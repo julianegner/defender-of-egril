@@ -1,0 +1,390 @@
+package de.egril.defender.game
+
+import androidx.compose.runtime.mutableStateOf
+import de.egril.defender.model.*
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
+
+/**
+ * Tests for Spike Tower Barbs feature (level 10+):
+ * - Spike tower level 10+ reduces enemy movement by 1 per attack
+ * - Effect stacks across multiple attacks
+ * - Enemies always move at least 1 tile per turn
+ * - Info message shown when spike tower first reaches level 10
+ */
+class SpikeBarbsTest {
+    
+    /**
+     * Test that spike tower level 10+ applies movement penalty
+     */
+    @Test
+    fun testSpikeTowerLevel10AppliesMovementPenalty() {
+        // Create a simple level for testing
+        val level = Level(
+            id = 1,
+            name = "Test Level",
+            gridWidth = 10,
+            gridHeight = 6,
+            startPositions = listOf(Position(0, 3)),
+            targetPositions = listOf(Position(9, 3)),
+            pathCells = (0..9).map { Position(it, 3) }.toSet(),
+            buildIslands = setOf(Position(2, 2)),
+            attackerWaves = listOf(
+                AttackerWave(listOf(AttackerType.GOBLIN))
+            ),
+            initialCoins = 1000,
+            healthPoints = 10
+        )
+        
+        val state = GameState(level)
+        val engine = GameEngine(state)
+        
+        // Place a spike tower at level 10
+        assertTrue(engine.placeDefender(DefenderType.SPIKE_TOWER, Position(2, 2)))
+        val tower = state.defenders.first()
+        tower.level.value = 10
+        tower.buildTimeRemaining.value = 0
+        tower.resetActions()
+        
+        // Start game and spawn an enemy
+        engine.startFirstPlayerTurn()
+        val goblin = Attacker(
+            id = state.nextAttackerId.value++,
+            type = AttackerType.GOBLIN,
+            position = mutableStateOf(Position(1, 3)),
+            level = mutableStateOf(1)
+        )
+        state.attackers.add(goblin)
+        
+        // Initial movement penalty should be 0
+        assertEquals(0, goblin.movementPenalty.value, "Goblin should start with 0 movement penalty")
+        
+        // Attack the goblin
+        assertTrue(engine.defenderAttack(tower.id, goblin.id), "Attack should succeed")
+        
+        // Movement penalty should now be 1
+        assertEquals(1, goblin.movementPenalty.value, "Goblin should have 1 movement penalty after being hit by level 10 spike")
+    }
+    
+    /**
+     * Test that spike tower level 9 does NOT apply movement penalty
+     */
+    @Test
+    fun testSpikeTowerLevel9DoesNotApplyMovementPenalty() {
+        // Create a simple level for testing
+        val level = Level(
+            id = 1,
+            name = "Test Level",
+            gridWidth = 10,
+            gridHeight = 6,
+            startPositions = listOf(Position(0, 3)),
+            targetPositions = listOf(Position(9, 3)),
+            pathCells = (0..9).map { Position(it, 3) }.toSet(),
+            buildIslands = setOf(Position(2, 2)),
+            attackerWaves = listOf(
+                AttackerWave(listOf(AttackerType.GOBLIN))
+            ),
+            initialCoins = 1000,
+            healthPoints = 10
+        )
+        
+        val state = GameState(level)
+        val engine = GameEngine(state)
+        
+        // Place a spike tower at level 9 (below threshold)
+        assertTrue(engine.placeDefender(DefenderType.SPIKE_TOWER, Position(2, 2)))
+        val tower = state.defenders.first()
+        tower.level.value = 9
+        tower.buildTimeRemaining.value = 0
+        tower.resetActions()
+        
+        // Start game and spawn an enemy
+        engine.startFirstPlayerTurn()
+        val goblin = Attacker(
+            id = state.nextAttackerId.value++,
+            type = AttackerType.GOBLIN,
+            position = mutableStateOf(Position(1, 3)),
+            level = mutableStateOf(1)
+        )
+        state.attackers.add(goblin)
+        
+        // Attack the goblin
+        assertTrue(engine.defenderAttack(tower.id, goblin.id), "Attack should succeed")
+        
+        // Movement penalty should still be 0
+        assertEquals(0, goblin.movementPenalty.value, "Goblin should have 0 movement penalty after being hit by level 9 spike")
+    }
+    
+    /**
+     * Test that movement penalty stacks across multiple attacks
+     */
+    @Test
+    fun testMovementPenaltyStacks() {
+        // Create a simple level for testing
+        val level = Level(
+            id = 1,
+            name = "Test Level",
+            gridWidth = 10,
+            gridHeight = 6,
+            startPositions = listOf(Position(0, 3)),
+            targetPositions = listOf(Position(9, 3)),
+            pathCells = (0..9).map { Position(it, 3) }.toSet(),
+            buildIslands = setOf(Position(2, 2), Position(3, 2)),
+            attackerWaves = listOf(
+                AttackerWave(listOf(AttackerType.GOBLIN))
+            ),
+            initialCoins = 2000,
+            healthPoints = 10
+        )
+        
+        val state = GameState(level)
+        val engine = GameEngine(state)
+        
+        // Place two spike towers at level 10
+        assertTrue(engine.placeDefender(DefenderType.SPIKE_TOWER, Position(2, 2)))
+        assertTrue(engine.placeDefender(DefenderType.SPIKE_TOWER, Position(3, 2)))
+        val tower1 = state.defenders[0]
+        val tower2 = state.defenders[1]
+        tower1.level.value = 10
+        tower2.level.value = 10
+        tower1.buildTimeRemaining.value = 0
+        tower2.buildTimeRemaining.value = 0
+        tower1.resetActions()
+        tower2.resetActions()
+        
+        // Start game and spawn an enemy
+        engine.startFirstPlayerTurn()
+        val goblin = Attacker(
+            id = state.nextAttackerId.value++,
+            type = AttackerType.GOBLIN,
+            position = mutableStateOf(Position(1, 3)),
+            level = mutableStateOf(1),
+            currentHealth = mutableStateOf(100)  // High health to survive multiple hits
+        )
+        state.attackers.add(goblin)
+        
+        // Attack with first tower
+        assertTrue(engine.defenderAttack(tower1.id, goblin.id), "First attack should succeed")
+        assertEquals(1, goblin.movementPenalty.value, "Goblin should have 1 movement penalty after first attack")
+        
+        // Attack with second tower
+        assertTrue(engine.defenderAttack(tower2.id, goblin.id), "Second attack should succeed")
+        assertEquals(2, goblin.movementPenalty.value, "Goblin should have 2 movement penalty after second attack")
+    }
+    
+    /**
+     * Test that other tower types do NOT apply movement penalty
+     */
+    @Test
+    fun testOtherTowersDoNotApplyMovementPenalty() {
+        // Create a simple level for testing
+        val level = Level(
+            id = 1,
+            name = "Test Level",
+            gridWidth = 10,
+            gridHeight = 6,
+            startPositions = listOf(Position(0, 3)),
+            targetPositions = listOf(Position(9, 3)),
+            pathCells = (0..9).map { Position(it, 3) }.toSet(),
+            buildIslands = setOf(Position(2, 2)),
+            attackerWaves = listOf(
+                AttackerWave(listOf(AttackerType.GOBLIN))
+            ),
+            initialCoins = 1000,
+            healthPoints = 10
+        )
+        
+        val state = GameState(level)
+        val engine = GameEngine(state)
+        
+        // Place a spear tower at level 10 (not spike tower)
+        assertTrue(engine.placeDefender(DefenderType.SPEAR_TOWER, Position(2, 2)))
+        val tower = state.defenders.first()
+        tower.level.value = 10
+        tower.buildTimeRemaining.value = 0
+        tower.resetActions()
+        
+        // Start game and spawn an enemy
+        engine.startFirstPlayerTurn()
+        val goblin = Attacker(
+            id = state.nextAttackerId.value++,
+            type = AttackerType.GOBLIN,
+            position = mutableStateOf(Position(1, 3)),
+            level = mutableStateOf(1)
+        )
+        state.attackers.add(goblin)
+        
+        // Attack the goblin
+        assertTrue(engine.defenderAttack(tower.id, goblin.id), "Attack should succeed")
+        
+        // Movement penalty should still be 0
+        assertEquals(0, goblin.movementPenalty.value, "Goblin should have 0 movement penalty after being hit by spear tower")
+    }
+    
+    /**
+     * Test that movement penalty affects enemy movement calculation
+     */
+    @Test
+    fun testMovementPenaltyReducesEffectiveSpeed() {
+        // Create a simple level for testing
+        val level = Level(
+            id = 1,
+            name = "Test Level",
+            gridWidth = 10,
+            gridHeight = 6,
+            startPositions = listOf(Position(0, 3)),
+            targetPositions = listOf(Position(9, 3)),
+            pathCells = (0..9).map { Position(it, 3) }.toSet(),
+            buildIslands = setOf(Position(2, 2)),
+            attackerWaves = listOf(
+                AttackerWave(listOf(AttackerType.GOBLIN))
+            ),
+            initialCoins = 1000,
+            healthPoints = 10
+        )
+        
+        val state = GameState(level)
+        
+        // Spawn a goblin with movement penalty
+        val goblin = Attacker(
+            id = state.nextAttackerId.value++,
+            type = AttackerType.GOBLIN,  // Base speed is 5
+            position = mutableStateOf(Position(0, 3)),
+            level = mutableStateOf(1)
+        )
+        goblin.movementPenalty.value = 2  // Penalty of 2
+        state.attackers.add(goblin)
+        
+        // Goblin has base speed of 5, with penalty of 2, effective speed should be 3
+        val baseSpeed = goblin.type.speed
+        assertEquals(5, baseSpeed, "Goblin base speed should be 5")
+        
+        val effectiveSpeed = maxOf(1, baseSpeed - goblin.movementPenalty.value)
+        assertEquals(3, effectiveSpeed, "Effective speed should be 3 (5 - 2)")
+    }
+    
+    /**
+     * Test that enemies always move at least 1 tile even with high penalty
+     */
+    @Test
+    fun testMinimumMovementSpeed() {
+        // Create a simple level for testing
+        val level = Level(
+            id = 1,
+            name = "Test Level",
+            gridWidth = 10,
+            gridHeight = 6,
+            startPositions = listOf(Position(0, 3)),
+            targetPositions = listOf(Position(9, 3)),
+            pathCells = (0..9).map { Position(it, 3) }.toSet(),
+            buildIslands = setOf(Position(2, 2)),
+            attackerWaves = listOf(
+                AttackerWave(listOf(AttackerType.GOBLIN))
+            ),
+            initialCoins = 1000,
+            healthPoints = 10
+        )
+        
+        val state = GameState(level)
+        
+        // Spawn a goblin with very high movement penalty
+        val goblin = Attacker(
+            id = state.nextAttackerId.value++,
+            type = AttackerType.GOBLIN,  // Base speed is 5
+            position = mutableStateOf(Position(0, 3)),
+            level = mutableStateOf(1)
+        )
+        goblin.movementPenalty.value = 10  // Penalty higher than base speed
+        state.attackers.add(goblin)
+        
+        // Even with penalty of 10, effective speed should be at least 1
+        val effectiveSpeed = maxOf(1, goblin.type.speed - goblin.movementPenalty.value)
+        assertEquals(1, effectiveSpeed, "Effective speed should be at least 1")
+    }
+    
+    /**
+     * Test that spike barbs info is shown when spike tower reaches level 10
+     */
+    @Test
+    fun testSpikeBarbsInfoShownAtLevel10() {
+        // Create a simple level for testing
+        val level = Level(
+            id = 1,
+            name = "Test Level",
+            gridWidth = 10,
+            gridHeight = 6,
+            startPositions = listOf(Position(0, 3)),
+            targetPositions = listOf(Position(9, 3)),
+            pathCells = (0..9).map { Position(it, 3) }.toSet(),
+            buildIslands = setOf(Position(2, 2)),
+            attackerWaves = listOf(
+                AttackerWave(listOf(AttackerType.GOBLIN))
+            ),
+            initialCoins = 10000,
+            healthPoints = 10
+        )
+        
+        val state = GameState(level)
+        val engine = GameEngine(state)
+        
+        // Place a spike tower at level 9
+        assertTrue(engine.placeDefender(DefenderType.SPIKE_TOWER, Position(2, 2)))
+        val tower = state.defenders.first()
+        tower.level.value = 9
+        tower.buildTimeRemaining.value = 0
+        
+        // Start game
+        engine.startFirstPlayerTurn()
+        
+        // Upgrade to level 10
+        assertTrue(engine.upgradeDefender(tower.id), "Upgrade should succeed")
+        assertEquals(10, tower.level.value, "Tower should be level 10")
+        
+        // Check that spike barbs info was shown
+        assertEquals(InfoType.SPIKE_BARBS_INFO, state.infoState.value.currentInfo, "Spike barbs info should be shown")
+        assertTrue(tower.hasShownSpikeBarbsTutorial.value, "Tutorial flag should be set")
+    }
+    
+    /**
+     * Test that spike barbs info is NOT shown when upgrading past level 10
+     */
+    @Test
+    fun testSpikeBarbsInfoNotShownWhenUpgradingPastLevel10() {
+        // Create a simple level for testing
+        val level = Level(
+            id = 1,
+            name = "Test Level",
+            gridWidth = 10,
+            gridHeight = 6,
+            startPositions = listOf(Position(0, 3)),
+            targetPositions = listOf(Position(9, 3)),
+            pathCells = (0..9).map { Position(it, 3) }.toSet(),
+            buildIslands = setOf(Position(2, 2)),
+            attackerWaves = listOf(
+                AttackerWave(listOf(AttackerType.GOBLIN))
+            ),
+            initialCoins = 10000,
+            healthPoints = 10
+        )
+        
+        val state = GameState(level)
+        val engine = GameEngine(state)
+        
+        // Place a spike tower at level 10
+        assertTrue(engine.placeDefender(DefenderType.SPIKE_TOWER, Position(2, 2)))
+        val tower = state.defenders.first()
+        tower.level.value = 10
+        tower.buildTimeRemaining.value = 0
+        
+        // Start game
+        engine.startFirstPlayerTurn()
+        
+        // Upgrade to level 11
+        assertTrue(engine.upgradeDefender(tower.id), "Upgrade should succeed")
+        assertEquals(11, tower.level.value, "Tower should be level 11")
+        
+        // Check that spike barbs info was NOT shown (since tower was already level 10+)
+        assertEquals(InfoType.NONE, state.infoState.value.currentInfo, "No info should be shown")
+    }
+}

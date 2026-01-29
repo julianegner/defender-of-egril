@@ -48,7 +48,8 @@ data class Attacker(
     val currentTarget: MutableState<Position>? = null,  // Current target position (waypoint or final target). Null means use level target.
     val targetMineId: MutableState<Int?> = mutableStateOf(null),  // ID of mine being targeted (for greedy dragons)
     val mineWarningShown: MutableState<Boolean> = mutableStateOf(false),  // Track if mine warning has been shown for current target
-    val isBuildingBridge: MutableState<Boolean> = mutableStateOf(false)  // Track if this unit is currently building a bridge (sacrifice units)
+    val isBuildingBridge: MutableState<Boolean> = mutableStateOf(false),  // Track if this unit is currently building a bridge (sacrifice units)
+    val movementPenalty: MutableState<Int> = mutableStateOf(0)  // Movement points lost due to spike tower barbs (level 10+)
 ) {
     // Callback for dragon level changes (for achievements)
     var onDragonLevelChanged: ((oldLevel: Int, newLevel: Int) -> Unit)? = null

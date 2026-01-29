@@ -54,6 +54,7 @@ data class Defender(
     val hasShownMagicalTrapTutorial: MutableState<Boolean> = mutableStateOf(false),  // Track if tutorial was shown for this wizard
     val hasShownExtendedAreaTutorial: MutableState<Boolean> = mutableStateOf(false),  // Track if extended area tutorial was shown (level 20+)
     val hasShownBarricadeTutorial: MutableState<Boolean> = mutableStateOf(false),  // Track if barricade tutorial was shown (level 20+ for Spike, level 10+ for Spear)
+    val hasShownSpikeBarbsTutorial: MutableState<Boolean> = mutableStateOf(false),  // Track if spike barbs tutorial was shown (level 10+)
     // Raft-specific properties
     val raftId: MutableState<Int?> = mutableStateOf(null)  // ID of the raft this tower is on (null if not on raft)
 ) {

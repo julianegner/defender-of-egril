@@ -654,6 +654,10 @@
     <string name="remove_barricade_title">Barrikade entfernen?</string>
     <string name="remove_barricade_message">Möchten Sie diese Barrikade wirklich entfernen?</string>
     
+    <!-- Spike Barbs Feature -->
+    <string name="spike_barbs_info_title">Pike-Widerhaken freigeschaltet!</string>
+    <string name="spike_barbs_info_message">Ihr Pike-Turm hat Stufe 10 erreicht und hat jetzt Widerhaken!\nWenn ein Pike-Turm der Stufe 10+ einen Feind angreift, reduziert er die Bewegung des Feindes um 1 Feld pro Angriff.\nDieser Effekt stapelt sich - mehrere Angriffe von Pike-Türmen der Stufe 10+ reduzieren die Feindbewegung weiter.\nFeinde bewegen sich immer mindestens 1 Feld pro Runde, auch bei mehreren Widerhaken-Effekten.</string>
+    
     <!-- Magical Trap Feature -->
     <string name="magical_trap">Magische Falle</string>
     <string name="magical_trap_cooldown">Abklingzeit: %d Runden</string>

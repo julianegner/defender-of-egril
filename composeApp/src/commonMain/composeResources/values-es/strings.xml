@@ -654,6 +654,10 @@
     <string name="remove_barricade_title">¿Eliminar Barricada?</string>
     <string name="remove_barricade_message">¿Está seguro de que desea eliminar esta barricada?</string>
     
+    <!-- Spike Barbs Feature -->
+    <string name="spike_barbs_info_title">¡Púas con Barbas Desbloqueadas!</string>
+    <string name="spike_barbs_info_message">¡Tu torre de Picas ha alcanzado el nivel 10 y ahora tiene barbas!\nCuando una torre de Picas de nivel 10+ ataca a un enemigo, reduce el movimiento del enemigo en 1 casilla por ataque.\nEste efecto se acumula: múltiples ataques de torres de Picas de nivel 10+ reducirán aún más el movimiento enemigo.\nLos enemigos siempre se moverán al menos 1 casilla por turno, incluso con múltiples efectos de barbas.</string>
+    
     <!-- Magical Trap Feature -->
     <string name="magical_trap">Trampa Mágica</string>
     <string name="magical_trap_cooldown">Enfriamiento: %d turnos</string>

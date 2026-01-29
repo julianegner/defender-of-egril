@@ -654,6 +654,10 @@
     <string name="remove_barricade_title">Rimuovere Barricata?</string>
     <string name="remove_barricade_message">Sei sicuro di voler rimuovere questa barricata?</string>
     
+    <!-- Spike Barbs Feature -->
+    <string name="spike_barbs_info_title">Aculei con Spine Sbloccati!</string>
+    <string name="spike_barbs_info_message">La tua torre di Picche ha raggiunto il livello 10 e ora ha spine!\nQuando una torre di Picche di livello 10+ attacca un nemico, riduce il movimento del nemico di 1 casella per attacco.\nQuesto effetto si accumula - attacchi multipli da torri di Picche di livello 10+ ridurranno ulteriormente il movimento nemico.\nI nemici si muoveranno sempre di almeno 1 casella per turno, anche con effetti multipli di spine.</string>
+    
     <!-- Magical Trap Feature -->
     <string name="magical_trap">Trappola Magica</string>
     <string name="magical_trap_cooldown">Ricarica: %d turni</string>

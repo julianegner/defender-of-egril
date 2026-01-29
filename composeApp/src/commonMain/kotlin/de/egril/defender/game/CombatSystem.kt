@@ -167,6 +167,11 @@ class CombatSystem(
         if (target.currentHealth.value <= 0) {
             target.isDefeated.value = true
         }
+        
+        // Apply spike barbs effect (level 10+)
+        if (defender.type == DefenderType.SPIKE_TOWER && defender.level.value >= 10) {
+            target.movementPenalty.value += 1
+        }
     }
     
     private fun areaAttack(defender: Defender, targetPosition: Position) {

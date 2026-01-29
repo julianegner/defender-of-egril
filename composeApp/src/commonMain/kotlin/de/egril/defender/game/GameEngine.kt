@@ -537,8 +537,11 @@ class GameEngine(private val state: GameState) {
             for (attacker in regularAttackers) {
                 val currentPos = currentPositions[attacker.id] ?: continue
                 
+                // Calculate effective speed by subtracting movement penalty from spike barbs
+                val effectiveSpeed = maxOf(1, attacker.type.speed - attacker.movementPenalty.value)
+                
                 // Check if this attacker has more moves left
-                if (stepIndex >= attacker.type.speed) continue
+                if (stepIndex >= effectiveSpeed) continue
                 
                 // Check if unit should build a bridge BEFORE calculating path
                 // This allows units adjacent to rivers to build bridges before moving sideways
@@ -888,8 +891,11 @@ class GameEngine(private val state: GameState) {
             for (attacker in newlySpawned) {
                 val currentPos = currentPositions[attacker.id] ?: continue
                 
+                // Calculate effective speed by subtracting movement penalty from spike barbs
+                val effectiveSpeed = maxOf(1, attacker.type.speed - attacker.movementPenalty.value)
+                
                 // Check if this attacker has more moves left
-                if (stepIndex >= attacker.type.speed) continue
+                if (stepIndex >= effectiveSpeed) continue
                 
                 // Check if unit should build a bridge BEFORE calculating path
                 // This allows units adjacent to rivers to build bridges before moving sideways
