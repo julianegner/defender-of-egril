@@ -47,8 +47,8 @@ fun AudioLicensesInfo() {
                     name = stringResource(Res.string.audio_fantasy_ambience_name),
                     file = "2021-02-23_-_Fantasy_Ambience_-_David_Fesliyan.mp3",
                     source = "https://www.fesliyanstudios.com/royalty-free-music/download/fantasy-ambience/1702",
-                    license = stringResource(Res.string.audio_fantasy_ambience_license),
-                    licenseUrl = null // No standard license URL - custom terms
+                    license = stringResource(Res.string.audio_fesliyan_license),
+                    licenseUrl = "https://www.fesliyanstudios.com/policy"
                 )
                 
                 Spacer(modifier = Modifier.height(12.dp))
