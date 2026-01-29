@@ -303,22 +303,26 @@ fun DefenderInfo(
                                 }
                             }
 
-                            // Barricade button for spike/spear tower level 10+
-                            if (isPlayerTurn &&
-                                (defender.type == DefenderType.SPIKE_TOWER || defender.type == DefenderType.SPEAR_TOWER) &&
-                                defender.level.value >= 10 &&
-                                onBarricadeAction != null) {
-
-                                Spacer(modifier = Modifier.width(horizontalSpacing))
-                                Column(modifier = Modifier.weight(1.3f)) {
-                                    BarricadeButton(
-                                        defender = defender,
-                                        onBarricadeAction = onBarricadeAction,
-                                        selectedBarricadeAction = selectedBarricadeAction,
-                                        modifier = Modifier
-                                            .width(240.dp)
-                                            .height(buttonHeight)
-                                    )
+                            // Barricade button for spike tower (level 20+) or spear tower (level 10+)
+                            if (isPlayerTurn && onBarricadeAction != null) {
+                                val canBuildBarricade = when (defender.type) {
+                                    DefenderType.SPIKE_TOWER -> defender.level.value >= 20
+                                    DefenderType.SPEAR_TOWER -> defender.level.value >= 10
+                                    else -> false
+                                }
+                                
+                                if (canBuildBarricade) {
+                                    Spacer(modifier = Modifier.width(horizontalSpacing))
+                                    Column(modifier = Modifier.weight(1.3f)) {
+                                        BarricadeButton(
+                                            defender = defender,
+                                            onBarricadeAction = onBarricadeAction,
+                                            selectedBarricadeAction = selectedBarricadeAction,
+                                            modifier = Modifier
+                                                .width(240.dp)
+                                                .height(buttonHeight)
+                                        )
+                                    }
                                 }
                             }
 
@@ -578,7 +582,9 @@ fun MagicalTrapButton(
 }
 
 /**
- * Button for spike/spear tower to place barricades (level 10+)
+ * Button for spike/spear tower to place barricades
+ * Spike Tower: level 20+ with HP = (level - 20) / 2 (minimum 1)
+ * Spear Tower: level 10+ with HP = level - 10 (minimum 1)
  * Works like wizard magical trap button - click to enter placement mode, then click on map
  */
 @Composable
@@ -589,8 +595,12 @@ fun BarricadeButton(
     modifier: Modifier = Modifier.fillMaxWidth().height(56.dp)
 ) {
     if (defender.isReady) {
-        // Calculate HP that will be added
-        val hpAmount = maxOf(1, defender.level.value - 10)
+        // Calculate HP that will be added based on tower type
+        val hpAmount = if (defender.type == DefenderType.SPIKE_TOWER) {
+            maxOf(1, (defender.level.value - 20) / 2)
+        } else {
+            maxOf(1, defender.level.value - 10)
+        }
         val isBarricadeModeActive = selectedBarricadeAction == BarricadeAction.BUILD_BARRICADE
         
         // Button to enter barricade placement mode - enabled when tower has actions
