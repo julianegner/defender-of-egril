@@ -202,7 +202,7 @@
     <string name="mine_special_desc">Spezial: grabe nach Wertsachen oder platziere Fallen auf dem Pfad</string>
     <string name="special_building">Spezialgebäude</string>
     <string name="coins_label">Münzen</string>
-    <string name="hp_label">Gesundheit</string>
+    <string name="hp_label">HP</string>
     <string name="speed_label">Geschwindigkeit</string>
     
     <!-- Status text -->
@@ -649,7 +649,7 @@
     <string name="build_barricade">Barrikade bauen</string>
     <string name="remove_barricade">Barrikade entfernen</string>
     <string name="barricade_info_title">Barrikaden-Fähigkeit freigeschaltet!</string>
-    <string name="barricade_info_message">Ihr Pike- oder Speerturm hat Stufe 10 erreicht und kann jetzt Barrikaden bauen!\nBarrikaden sind Holzkonstruktionen auf angrenzenden Pfadfeldern, die Feindbewegungen blockieren.\nJede Barrikade hat Lebenspunkte gleich der Turmstufe minus 10 (mindestens 1).\nWenn Feinde eine Barrikade erreichen, greifen sie mit Schaden gleich ihrer Stufe an (Drachen verursachen das 5-fache ihrer Stufe).\nWird eine Barrikade zerstört, bewegt sich der Feind auf dieses Feld.\nSie können neue Barrikaden bauen oder bestehende verstärken und auf Barrikaden klicken, um sie zu entfernen.</string>
+    <string name="barricade_info_message">Ihr Speerturm hat Stufe 10 erreicht (oder Pike-Turm Stufe 20) und kann jetzt Barrikaden bauen!\nBarrikaden sind Holzkonstruktionen auf angrenzenden Pfadfeldern, die Feindbewegungen blockieren.\nSpeerturm-Barrikaden haben LP = Stufe - 10 (mindestens 1). Pike-Turm-Barrikaden haben LP = (Stufe - 20) / 2 (mindestens 1).\nWenn Feinde eine Barrikade erreichen, greifen sie mit Schaden gleich ihrer Stufe an (Drachen verursachen das 5-fache ihrer Stufe).\nWird eine Barrikade zerstört, bewegt sich der Feind auf dieses Feld.\nSie können neue Barrikaden bauen oder bestehende verstärken und auf Barrikaden klicken, um sie zu entfernen.</string>
     <string name="remove_barricade_title">Barrikade entfernen?</string>
     <string name="remove_barricade_message">Möchten Sie diese Barrikade wirklich entfernen?</string>
     

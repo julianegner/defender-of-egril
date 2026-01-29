@@ -649,7 +649,7 @@
     <string name="build_barricade">Costruisci barricata</string>
     <string name="remove_barricade">Rimuovi barricata</string>
     <string name="barricade_info_title">Abilità barricata sbloccata!</string>
-    <string name="barricade_info_message">La tua torre di Picche o Lance ha raggiunto il livello 10 e ora può costruire barricate!\nLe barricate sono strutture di legno posizionate su caselle di percorso adiacenti che bloccano il movimento nemico.\nOgni barricata ha punti vita pari al livello della torre meno 10 (minimo 1).\nQuando i nemici raggiungono una barricata, la attaccano con danno pari al loro livello (i draghi infliggono 5× il loro livello).\nSe una barricata viene distrutta, il nemico si sposta su quella casella.\nPuoi costruire nuove barricate o rinforzare quelle esistenti e fare clic sulle barricate per rimuoverle.</string>
+    <string name="barricade_info_message">La tua torre di Lance ha raggiunto il livello 10 (o torre di Picche livello 20) e ora può costruire barricate!\nLe barricate sono strutture di legno posizionate su caselle di percorso adiacenti che bloccano il movimento nemico.\nLe barricate della torre di Lance hanno PV = livello - 10 (minimo 1). Le barricate della torre di Picche hanno PV = (livello - 20) / 2 (minimo 1).\nQuando i nemici raggiungono una barricata, la attaccano con danno pari al loro livello (i draghi infliggono 5× il loro livello).\nSe una barricata viene distrutta, il nemico si sposta su quella casella.\nPuoi costruire nuove barricate o rinforzare quelle esistenti e fare clic sulle barricate per rimuoverle.</string>
     <string name="remove_barricade_title">Rimuovere Barricata?</string>
     <string name="remove_barricade_message">Sei sicuro di voler rimuovere questa barricata?</string>
     

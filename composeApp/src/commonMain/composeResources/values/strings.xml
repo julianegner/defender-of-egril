@@ -652,7 +652,7 @@
     <string name="remove_barricade_title">Remove Barricade?</string>
     <string name="remove_barricade_message">Are you sure you want to remove this barricade?</string>
     <string name="barricade_info_title">Barricade Ability Unlocked!</string>
-    <string name="barricade_info_message">Your Spike or Spear tower has reached level 10 and can now build barricades!\nBarricades are wooden structures placed on adjacent path tiles that block enemy movement.\nEach barricade has health points equal to the tower level minus 10 (minimum 1).\nWhen enemies reach a barricade, they attack it with damage equal to their level (dragons deal 5× their level).\nIf a barricade is destroyed, the enemy moves to that tile.\nYou can build new barricades or reinforce existing ones, and click on barricades to remove them.</string>
+    <string name="barricade_info_message">Your Spear tower has reached level 10 (or Spike tower level 20) and can now build barricades!\nBarricades are wooden structures placed on adjacent path tiles that block enemy movement.\nSpear tower barricades have HP = level - 10 (minimum 1). Spike tower barricades have HP = (level - 20) / 2 (minimum 1).\nWhen enemies reach a barricade, they attack it with damage equal to their level (dragons deal 5× their level).\nIf a barricade is destroyed, the enemy moves to that tile.\nYou can build new barricades or reinforce existing ones, and click on barricades to remove them.</string>
     
     <!-- Magical Trap Feature -->
     <string name="magical_trap">Magical Trap</string>
