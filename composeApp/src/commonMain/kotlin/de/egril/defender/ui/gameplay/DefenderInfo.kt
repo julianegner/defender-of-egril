@@ -621,11 +621,11 @@ fun BarricadeButton(
             Row(
                 horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth().padding(start = 4.dp, end = 8.dp)
+                modifier = Modifier.fillMaxWidth().padding(start = 0.dp, end = 4.dp)
             ) {
                 // Icon on the left
                 WoodIcon(size = 40.dp)
-                Spacer(modifier = Modifier.width(6.dp))
+                Spacer(modifier = Modifier.width(4.dp))
                 // Two rows on the right
                 Column(
                     modifier = Modifier.weight(1f),
@@ -636,8 +636,8 @@ fun BarricadeButton(
                         stringResource(Res.string.barricade),
                         fontSize = 15.sp,
                         fontWeight = FontWeight.Bold,
-                        maxLines = 2,
-                        overflow = TextOverflow.Visible
+                        maxLines = 1,
+                        overflow = TextOverflow.Clip
                     )
                     // Lower row: "X HP"
                     Text(

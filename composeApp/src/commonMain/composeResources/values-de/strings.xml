@@ -202,7 +202,7 @@
     <string name="mine_special_desc">Spezial: grabe nach Wertsachen oder platziere Fallen auf dem Pfad</string>
     <string name="special_building">Spezialgebäude</string>
     <string name="coins_label">Münzen</string>
-    <string name="hp_label">Gesundheit</string>
+    <string name="hp_label">HP</string>
     <string name="speed_label">Geschwindigkeit</string>
     
     <!-- Status text -->
