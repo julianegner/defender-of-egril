@@ -385,8 +385,13 @@ private fun GamePlayScreenContent(
     val handleBarricadeAction: (Int, BarricadeAction) -> Unit = { towerId, action ->
         when (action) {
             BarricadeAction.BUILD_BARRICADE -> {
-                selectedBarricadeAction = action
-                // The user will now click on the map to place the barricade
+                // Toggle mode: if already active, deselect it
+                if (selectedBarricadeAction == BarricadeAction.BUILD_BARRICADE) {
+                    selectedBarricadeAction = null
+                } else {
+                    selectedBarricadeAction = action
+                    // The user will now click on the map to place the barricade
+                }
             }
         }
     }
@@ -484,6 +489,7 @@ private fun GamePlayScreenContent(
                             // Clear trap modes when deselecting
                             selectedMineAction = null
                             selectedWizardAction = null
+                            selectedBarricadeAction = null
                         } else {
                             // Select this defender, deselect any selected attacker
                             selectedDefenderId = defender.id
@@ -493,6 +499,7 @@ private fun GamePlayScreenContent(
                             // Clear trap modes when selecting a different defender
                             selectedMineAction = null
                             selectedWizardAction = null
+                            selectedBarricadeAction = null
                             return@GameGrid
                         }
                     }
@@ -792,6 +799,7 @@ private fun GamePlayScreenContent(
                     selectedMineAction = selectedMineAction,
                     selectedWizardAction = selectedWizardAction,
                     onBarricadeAction = handleBarricadeAction,
+                    selectedBarricadeAction = selectedBarricadeAction,
                     uiScale = uiScale,
                     onShowDragonInfo = { 
                         gameState.infoState.value = gameState.infoState.value.showInfo(InfoType.DRAGON_INFO)
@@ -871,6 +879,7 @@ private fun GamePlayScreenContent(
                     selectedMineAction = selectedMineAction,
                     selectedWizardAction = selectedWizardAction,
                     onBarricadeAction = handleBarricadeAction,
+                    selectedBarricadeAction = selectedBarricadeAction,
                     uiScale = uiScale,
                     onShowDragonInfo = { 
                         gameState.infoState.value = gameState.infoState.value.showInfo(InfoType.DRAGON_INFO)

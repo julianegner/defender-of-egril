@@ -38,6 +38,7 @@ fun DefenderInfo(
     selectedMineAction: MineAction? = null,  // Current trap placement mode
     selectedWizardAction: WizardAction? = null,  // Current wizard trap placement mode
     onBarricadeAction: ((Int, BarricadeAction) -> Unit)? = null,  // For spike/spear tower barricades - click to select action, then click map
+    selectedBarricadeAction: BarricadeAction? = null,  // Current barricade placement mode
     compactBuyPanel: Boolean = false,
     isMobile: Boolean = false,  // Add platform parameter
     selectedTargetId: Int? = null,
@@ -313,6 +314,7 @@ fun DefenderInfo(
                                     BarricadeButton(
                                         defender = defender,
                                         onBarricadeAction = onBarricadeAction,
+                                        selectedBarricadeAction = selectedBarricadeAction,
                                         modifier = Modifier
                                             .width(240.dp)
                                             .height(buttonHeight)
@@ -583,11 +585,14 @@ fun MagicalTrapButton(
 fun BarricadeButton(
     defender: Defender,
     onBarricadeAction: (Int, BarricadeAction) -> Unit,
+    selectedBarricadeAction: BarricadeAction? = null,  // Current barricade placement mode
     modifier: Modifier = Modifier.fillMaxWidth().height(56.dp)
 ) {
     if (defender.isReady) {
         // Calculate HP that will be added
         val hpAmount = maxOf(1, defender.level.value - 10)
+        
+        val isBarricadeModeActive = selectedBarricadeAction == BarricadeAction.BUILD_BARRICADE
         
         // Button to enter barricade placement mode - enabled when tower has actions
         Button(
@@ -596,7 +601,13 @@ fun BarricadeButton(
             modifier = modifier,
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFF795548)  // Brown color for wood
-            )
+            ),
+            border = if (isBarricadeModeActive) {
+                androidx.compose.foundation.BorderStroke(
+                    width = 3.dp,
+                    color = GamePlayColors.Yellow
+                )
+            } else null
         ) {
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
