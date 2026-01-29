@@ -645,6 +645,7 @@
     
     <!-- Barricade Feature -->
     <string name="barricade">Barricada</string>
+    <string name="gate">Puerta</string>
     <string name="barricade_hp">PS de barricada: %d</string>
     <string name="build_barricade">Construir barricada</string>
     <string name="remove_barricade">Quitar barricada</string>
