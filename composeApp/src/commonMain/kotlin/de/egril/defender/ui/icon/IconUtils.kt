@@ -67,6 +67,7 @@ import defender_of_egril.composeapp.generated.resources.emoji_plus
 import defender_of_egril.composeapp.generated.resources.emoji_cross
 import defender_of_egril.composeapp.generated.resources.emoji_pencil
 import defender_of_egril.composeapp.generated.resources.emoji_crown
+import defender_of_egril.composeapp.generated.resources.trap
 import org.jetbrains.compose.resources.painterResource
 import kotlin.math.PI
 import kotlin.math.cos
@@ -197,6 +198,22 @@ fun HoleIcon(
     Image(
         painter = painterResource(Res.drawable.emoji_hole),
         contentDescription = "Hole",
+        modifier = modifier.size(size)
+    )
+}
+
+/**
+ * Displays a trap icon using the trap.png resource
+ * Shows a detailed pit trap with grass and flowers
+ */
+@Composable
+fun TrapIcon(
+    modifier: Modifier = Modifier.Companion,
+    size: Dp = 24.dp
+) {
+    Image(
+        painter = painterResource(Res.drawable.trap),
+        contentDescription = "Trap",
         modifier = modifier.size(size)
     )
 }
