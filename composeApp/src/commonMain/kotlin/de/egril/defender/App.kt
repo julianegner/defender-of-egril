@@ -97,6 +97,16 @@ fun App() {
             }
         }
         
+        // Register official data change checker for window close handling
+        // This runs once at app start and checks if OfficialEditMode is enabled
+        LaunchedEffect(Unit) {
+            if (de.egril.defender.OfficialEditMode.enabled) {
+                WindowCloseHandler.setOfficialDataChangedChecker { 
+                    de.egril.defender.editor.OfficialDataChangeTracker.hasModifiedOfficialData()
+                }
+            }
+        }
+        
         // Register unsaved changes checker for window close handling
         LaunchedEffect(currentScreen) {
             when (currentScreen) {

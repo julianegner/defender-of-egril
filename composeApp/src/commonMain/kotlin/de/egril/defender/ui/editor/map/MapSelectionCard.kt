@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -30,12 +31,14 @@ import defender_of_egril.composeapp.generated.resources.user_map
 fun MapSelectionCard(
     map: EditorMap,
     isSelected: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    isEnabled: Boolean = true,
+    onDisabledClick: (() -> Unit)? = null
 ) {
     Card(
         modifier = Modifier
             .width(200.dp)
-            .clickable(onClick = onClick)
+            .clickable(onClick = if (isEnabled) onClick else { onDisabledClick ?: {} })
             .border(
                 width = if (isSelected) 3.dp else 1.dp,
                 color = if (isSelected) MaterialTheme.colorScheme.primary else Color.Gray
@@ -43,12 +46,14 @@ fun MapSelectionCard(
         colors = CardDefaults.cardColors(
             containerColor = if (isSelected) 
                 MaterialTheme.colorScheme.primaryContainer 
+            else if (!isEnabled)
+                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
             else 
                 MaterialTheme.colorScheme.surface
         )
     ) {
         Column(
-            modifier = Modifier.padding(8.dp),
+            modifier = Modifier.padding(8.dp).let { if (!isEnabled) it.alpha(0.5f) else it },
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(

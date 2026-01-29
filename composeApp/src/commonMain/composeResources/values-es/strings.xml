@@ -1073,6 +1073,16 @@
     <string name="official_map_info">Este es un mapa oficial. Puedes copiarlo para crear una versión de usuario.</string>
     <string name="official_level_info">Este es un nivel oficial. Puedes copiarlo para crear una versión de usuario.</string>
     
+    <!-- Official Data Change Warning -->
+    <string name="official_data_changed_title">Datos Oficiales del Juego Modificados</string>
+    <string name="official_data_changed_message">Has realizado cambios en los datos oficiales del juego (mapas o niveles).\n\nEstos cambios se sobrescribirán cuando reinicies el juego, ya que el contenido oficial se restaura desde el repositorio en cada inicio.\n\nPara conservar tus cambios, considera copiar el contenido oficial para crear versiones de usuario en su lugar.</string>
+    <string name="official_data_modified_maps">Mapas modificados: %1$s</string>
+    <string name="official_data_modified_levels">Niveles modificados: %1$s</string>
+    <string name="understood">Entendido</string>
+    <string name="official_level_saved_warning_title">Nivel Oficial Guardado</string>
+    <string name="official_level_saved_warning_message">Has guardado un nivel oficial.\n\nEstos cambios se sobrescribirán cuando reinicies el juego, ya que el contenido oficial se restaura desde el repositorio en cada inicio.</string>
+    <string name="user_map_not_allowed_title">Mapa de Usuario No Permitido</string>
+    <string name="user_map_not_allowed_message">Los niveles oficiales solo pueden usar mapas oficiales.\n\nPara usar este mapa, cópialo para crear una versión oficial, o crea un nivel de usuario en su lugar.</string>
     <!-- Info Page -->
     <string name="info_tab_installation">Instalación</string>
     <string name="info_tab_audio_licenses">Licencias de Audio</string>

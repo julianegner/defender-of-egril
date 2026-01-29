@@ -18,6 +18,12 @@ object WindowCloseHandler {
     private var saveGameCallback: (() -> Unit)? = null
     
     /**
+     * Callback to check if official data has been modified.
+     * Returns true if official data has been modified, false otherwise.
+     */
+    private var officialDataChangedChecker: (() -> Boolean)? = null
+    
+    /**
      * Set the callback to check for unsaved changes.
      */
     fun setUnsavedChangesChecker(checker: (() -> Boolean)?) {
@@ -29,6 +35,13 @@ object WindowCloseHandler {
      */
     fun setSaveGameCallback(callback: (() -> Unit)?) {
         saveGameCallback = callback
+    }
+    
+    /**
+     * Set the callback to check if official data has been modified.
+     */
+    fun setOfficialDataChangedChecker(checker: (() -> Boolean)?) {
+        officialDataChangedChecker = checker
     }
     
     /**
@@ -44,5 +57,13 @@ object WindowCloseHandler {
      */
     fun saveGame() {
         saveGameCallback?.invoke()
+    }
+    
+    /**
+     * Check if official data has been modified.
+     * Returns true if official data has been modified, false otherwise.
+     */
+    fun hasOfficialDataChanged(): Boolean {
+        return officialDataChangedChecker?.invoke() ?: false
     }
 }

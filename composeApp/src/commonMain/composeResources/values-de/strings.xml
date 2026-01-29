@@ -1070,6 +1070,16 @@
     <string name="official_map_info">Dies ist eine offizielle Karte. Sie können sie kopieren, um eine Benutzerversion zu erstellen.</string>
     <string name="official_level_info">Dies ist ein offizielles Level. Sie können es kopieren, um eine Benutzerversion zu erstellen.</string>
     
+    <!-- Official Data Change Warning -->
+    <string name="official_data_changed_title">Offizielle Spieldaten geändert</string>
+    <string name="official_data_changed_message">Sie haben Änderungen an offiziellen Spieldaten (Karten oder Level) vorgenommen.\n\nDiese Änderungen werden beim Neustart des Spiels überschrieben, da der offizielle Inhalt bei jedem Start aus dem Repository wiederhergestellt wird.\n\nUm Ihre Änderungen zu bewahren, kopieren Sie den offiziellen Inhalt, um stattdessen Benutzerversionen zu erstellen.</string>
+    <string name="official_data_modified_maps">Geänderte Karten: %1$s</string>
+    <string name="official_data_modified_levels">Geänderte Level: %1$s</string>
+    <string name="understood">Verstanden</string>
+    <string name="official_level_saved_warning_title">Offizielles Level gespeichert</string>
+    <string name="official_level_saved_warning_message">Sie haben ein offizielles Level gespeichert.\n\nDiese Änderungen werden beim Neustart des Spiels überschrieben, da der offizielle Inhalt bei jedem Start aus dem Repository wiederhergestellt wird.</string>
+    <string name="user_map_not_allowed_title">Benutzerkarte nicht erlaubt</string>
+    <string name="user_map_not_allowed_message">Offizielle Level können nur offizielle Karten verwenden.\n\nUm diese Karte zu verwenden, kopieren Sie sie bitte, um eine offizielle Version zu erstellen, oder erstellen Sie stattdessen ein Benutzer-Level.</string>
     <!-- Info Page -->
     <string name="info_tab_installation">Installation</string>
     <string name="info_tab_audio_licenses">Audio-Lizenzen</string>

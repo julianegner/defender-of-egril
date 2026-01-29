@@ -106,7 +106,7 @@ fun MapListCard(
                 ) {
                     Button(
                         onClick = onDelete,
-                        enabled = !map.isOfficial,
+                        enabled = !map.isOfficial || de.egril.defender.OfficialEditMode.enabled,
                         colors = ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.colorScheme.error
                         )

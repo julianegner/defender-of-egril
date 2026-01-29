@@ -1072,6 +1072,16 @@
     <string name="official_map_info">This is an official map. You can copy it to create a user version.</string>
     <string name="official_level_info">This is an official level. You can copy it to create a user version.</string>
     
+    <!-- Official Data Change Warning -->
+    <string name="official_data_changed_title">Official Game Data Modified</string>
+    <string name="official_data_changed_message">You have made changes to official game data (maps or levels).\n\nThese changes will be overwritten when you restart the game, as official content is restored from the repository on each launch.\n\nTo preserve your changes, consider copying the official content to create user versions instead.</string>
+    <string name="official_data_modified_maps">Modified maps: %1$s</string>
+    <string name="official_data_modified_levels">Modified levels: %1$s</string>
+    <string name="understood">Understood</string>
+    <string name="official_level_saved_warning_title">Official Level Saved</string>
+    <string name="official_level_saved_warning_message">You have saved an official level.\n\nThese changes will be overwritten when you restart the game, as official content is restored from the repository on each launch.</string>
+    <string name="user_map_not_allowed_title">User Map Not Allowed</string>
+    <string name="user_map_not_allowed_message">Official levels can only use official maps.\n\nTo use this map, please copy it to create an official version, or create a user level instead.</string>
     <!-- Info Page -->
     <string name="info_tab_installation">Installation</string>
     <string name="info_tab_audio_licenses">Audio Licenses</string>

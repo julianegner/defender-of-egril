@@ -1073,6 +1073,16 @@
     <string name="official_map_info">Ceci est une carte officielle. Vous pouvez la copier pour créer une version utilisateur.</string>
     <string name="official_level_info">Ceci est un niveau officiel. Vous pouvez le copier pour créer une version utilisateur.</string>
     
+    <!-- Official Data Change Warning -->
+    <string name="official_data_changed_title">Données Officielles du Jeu Modifiées</string>
+    <string name="official_data_changed_message">Vous avez apporté des modifications aux données officielles du jeu (cartes ou niveaux).\n\nCes modifications seront écrasées lorsque vous redémarrerez le jeu, car le contenu officiel est restauré depuis le dépôt à chaque lancement.\n\nPour conserver vos modifications, envisagez de copier le contenu officiel pour créer des versions utilisateur à la place.</string>
+    <string name="official_data_modified_maps">Cartes modifiées : %1$s</string>
+    <string name="official_data_modified_levels">Niveaux modifiés : %1$s</string>
+    <string name="understood">Compris</string>
+    <string name="official_level_saved_warning_title">Niveau Officiel Enregistré</string>
+    <string name="official_level_saved_warning_message">Vous avez enregistré un niveau officiel.\n\nCes modifications seront écrasées lorsque vous redémarrerez le jeu, car le contenu officiel est restauré depuis le dépôt à chaque lancement.</string>
+    <string name="user_map_not_allowed_title">Carte Utilisateur Non Autorisée</string>
+    <string name="user_map_not_allowed_message">Les niveaux officiels ne peuvent utiliser que des cartes officielles.\n\nPour utiliser cette carte, copiez-la pour créer une version officielle, ou créez un niveau utilisateur à la place.</string>
     <!-- Info Page -->
     <string name="info_tab_installation">Installation</string>
     <string name="info_tab_audio_licenses">Licences Audio</string>
