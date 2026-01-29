@@ -891,7 +891,8 @@ private fun BoxScope.GridCellContent(
                                 "-${trap.damage}",
                                 style = MaterialTheme.typography.labelSmall,
                                 color = Color.White,
-                                fontWeight = FontWeight.Bold
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.offset(y = (-6).dp)
                             )
                         }
                     }
