@@ -1071,4 +1071,54 @@
     <string name="user_level">User Level</string>
     <string name="official_map_info">This is an official map. You can copy it to create a user version.</string>
     <string name="official_level_info">This is an official level. You can copy it to create a user version.</string>
+    
+    <!-- Info Page -->
+    <string name="info_tab_installation">Installation</string>
+    <string name="info_tab_audio_licenses">Audio Licenses</string>
+    
+    <!-- Audio Licenses -->
+    <string name="audio_licenses_title">Audio Files and Licenses</string>
+    <string name="audio_background_music_title">Background Music</string>
+    <string name="audio_sound_effects_title">Sound Effects</string>
+    <string name="audio_tower_attacks_subtitle">Tower Attacks</string>
+    <string name="audio_enemy_events_subtitle">Enemy Events</string>
+    <string name="audio_mine_events_subtitle">Mine Events</string>
+    <string name="audio_other_events_subtitle">Other Game Events</string>
+    
+    <!-- Background Music -->
+    <string name="audio_fantasy_ambience_name">Fantasy Ambience</string>
+    <string name="audio_fantasy_ambience_license">100% copyright free, no attribution required. Cannot be re-sold as audio, must be used in context of a project.</string>
+    <string name="audio_dark_castle_name">The Dark Castle</string>
+    <string name="audio_fesliyan_license">Royalty-free music from Fesliyan Studios. Video game use permitted.</string>
+    <string name="audio_fantasy_orchestral_name">Mystic Fantasy Orchestral Music</string>
+    <string name="audio_pixabay_license">Pixabay Content License - Free to use, no attribution required</string>
+    
+    <!-- Tower Attacks -->
+    <string name="audio_melee_attack_name">Melee Attack</string>
+    <string name="audio_ranged_attack_name">Ranged Attack</string>
+    <string name="audio_fireball_attack_name">Fireball Attack</string>
+    <string name="audio_acid_attack_name">Acid Attack</string>
+    
+    <!-- Enemy Events -->
+    <string name="audio_enemy_spawn_name">Enemy Spawn</string>
+    <string name="audio_enemy_destroyed_name">Enemy Destroyed</string>
+    
+    <!-- Mine Events -->
+    <string name="audio_mine_dig_name">Mine Digging</string>
+    <string name="audio_mine_coin_name">Coins Found</string>
+    <string name="audio_mine_trap_name">Trap Built</string>
+    <string name="audio_mine_dragon_name">Dragon Awakening</string>
+    
+    <!-- Other Events -->
+    <string name="audio_trap_trigger_name">Trap Trigger</string>
+    <string name="audio_life_lost_name">Life Lost</string>
+    <string name="audio_dragon_eat_name">Dragon Eating</string>
+    <string name="audio_tower_upgraded_name">Tower Upgraded</string>
+    <string name="audio_battle_start_name">Battle Start</string>
+    
+    <!-- Audio Item Labels -->
+    <string name="audio_file_label">File: %s</string>
+    <string name="audio_source_label">Source: %s</string>
+    <string name="audio_license_label">License: %s</string>
+    <string name="audio_attribution_note">All audio files are used under their respective licenses. Attribution is provided where required.</string>
 </resources>
