@@ -19,6 +19,9 @@ val buildConfigOutputDir = layout.buildDirectory.dir("generated/source/buildConf
 // Impressum flag - can be set via gradle.properties or command line: -PwithImpressum=true
 val withImpressum: Boolean = project.findProperty("withImpressum")?.toString()?.toBoolean() ?: false
 
+// Official editing flag - can be set via gradle.properties or command line: -Pofficial=true
+val official: Boolean = project.findProperty("official")?.toString()?.toBoolean() ?: false
+
 // Task to generate BuildConfig with current commit hash
 val generateBuildConfig by tasks.registering {
     val outputFile = buildConfigOutputDir.get().file("de/egril/defender/BuildConfig.kt")
@@ -123,6 +126,37 @@ val generateWithImpressumConstant by tasks.registering {
             | */
             |object WithImpressum {
             |    const val withImpressum: Boolean = $withImpressum
+            |}
+            |""".trimMargin()
+        )
+    }
+}
+
+// Task to generate OfficialEditMode constant based on project property
+val generateOfficialEditModeConstant by tasks.registering {
+    val outputDir = layout.buildDirectory.dir("generated/source/buildConfig/commonMain/kotlin").get().asFile
+    outputs.dir(outputDir)
+    outputs.upToDateWhen { false } // Always regenerate to ensure latest property value
+    
+    doLast {
+        val file = File(outputDir, "de/egril/defender/OfficialEditMode.kt")
+        logger.info("Generating OfficialEditMode.kt with official: $official")
+        logger.info("Output file: $file")
+        file.parentFile.mkdirs()
+        file.writeText(
+            """
+            |package de.egril.defender
+            |
+            |/**
+            | * Official editing mode configuration flag
+            | * This file is auto-generated during build
+            | * Set via gradle property: -Pofficial=true
+            | * 
+            | * When enabled, allows editing of official game data (maps and levels) directly.
+            | * A warning will be shown on game close if official data has been modified.
+            | */
+            |object OfficialEditMode {
+            |    const val enabled: Boolean = $official
             |}
             |""".trimMargin()
         )
@@ -256,10 +290,11 @@ kotlin {
     }
 }
 
-// Make all Kotlin compilation tasks depend on generateBuildConfig and generateWithImpressumConstant
+// Make all Kotlin compilation tasks depend on generateBuildConfig, generateWithImpressumConstant, and generateOfficialEditModeConstant
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask<*>> {
     dependsOn(generateBuildConfig)
     dependsOn(generateWithImpressumConstant)
+    dependsOn(generateOfficialEditModeConstant)
 }
 
 android {

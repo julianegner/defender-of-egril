@@ -182,7 +182,7 @@ private fun ExpandedMapEditorHeader(
                 value = mapName,
                 onValueChange = onMapNameChange,
                 label = { Text(stringResource(Res.string.map_name)) },
-                enabled = !map.isOfficial,
+                enabled = !map.isOfficial || de.egril.defender.OfficialEditMode.enabled,
                 modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
             )
             

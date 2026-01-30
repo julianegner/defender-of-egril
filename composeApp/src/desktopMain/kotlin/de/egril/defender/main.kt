@@ -39,10 +39,16 @@ fun main() = application {
     // State to control whether to show unsaved changes dialog
     var showUnsavedChangesDialog by remember { mutableStateOf(false) }
     
+    // State to control whether to show official data changed dialog
+    var showOfficialDataChangedDialog by remember { mutableStateOf(false) }
+    
     Window(
         onCloseRequest = {
-            // Check for unsaved changes before closing
-            if (WindowCloseHandler.hasUnsavedChanges()) {
+            // Check for official data changes first (if OfficialEditMode is enabled)
+            if (de.egril.defender.OfficialEditMode.enabled && WindowCloseHandler.hasOfficialDataChanged()) {
+                showOfficialDataChangedDialog = true
+            } else if (WindowCloseHandler.hasUnsavedChanges()) {
+                // Check for unsaved changes before closing
                 showUnsavedChangesDialog = true
             } else {
                 exitApplication()
@@ -106,6 +112,26 @@ fun main() = application {
                         ) {
                             Text(stringResource(Res.string.save_and_exit))
                         }
+                    }
+                }
+            )
+        }
+        
+        // Show official data changed dialog when closing with modified official data
+        if (showOfficialDataChangedDialog) {
+            val modifiedMaps = de.egril.defender.editor.OfficialDataChangeTracker.getModifiedOfficialMaps()
+            val modifiedLevels = de.egril.defender.editor.OfficialDataChangeTracker.getModifiedOfficialLevels()
+            
+            de.egril.defender.ui.editor.OfficialDataChangedDialog(
+                modifiedMaps = modifiedMaps,
+                modifiedLevels = modifiedLevels,
+                onDismiss = {
+                    showOfficialDataChangedDialog = false
+                    // After acknowledging, check for unsaved changes or exit
+                    if (WindowCloseHandler.hasUnsavedChanges()) {
+                        showUnsavedChangesDialog = true
+                    } else {
+                        exitApplication()
                     }
                 }
             )

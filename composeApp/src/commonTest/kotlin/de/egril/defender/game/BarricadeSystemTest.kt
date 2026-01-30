@@ -335,4 +335,118 @@ class BarricadeSystemTest {
         assertEquals(10, spearTower.level.value, "Spear tower should be level 10")
         assertTrue(spearTower.hasShownBarricadeTutorial.value, "Barricade tutorial should be shown for spear tower at level 10")
     }
+    
+    @Test
+    fun testGateDetectionWithTwoTowers() {
+        // Create a test level with build islands
+        // Position(2, 0) has these neighbors (even row):
+        // E: (3, 0), NE: (2, -1), NW: (1, -1), W: (1, 0), SW: (1, 1), SE: (2, 1)
+        val pathCells = setOf(
+            Position(0, 0), Position(1, 0), Position(2, 0), Position(3, 0)
+        )
+        val buildIslands = setOf(
+            Position(1, 1), Position(1, 2),  // First island (adjacent to barricade at (2, 0) via SW)
+            Position(2, 1), Position(3, 1)   // Second island (adjacent to barricade at (2, 0) via SE)
+        )
+        
+        val level = Level(
+            id = 1,
+            name = "Gate Test Level",
+            subtitle = "Test",
+            gridWidth = 10,
+            gridHeight = 10,
+            startPositions = listOf(Position(0, 0)),
+            targetPositions = listOf(Position(3, 0)),
+            pathCells = pathCells,
+            buildIslands = buildIslands,
+            attackerWaves = emptyList(),
+            initialCoins = 1000,
+            healthPoints = 10,
+            availableTowers = setOf(DefenderType.SPIKE_TOWER, DefenderType.SPEAR_TOWER)
+        )
+        
+        val gameState = GameState(level)
+        val barricadeSystem = BarricadeSystem(gameState)
+        
+        // Place two towers on build islands that are neighbors of (2, 0)
+        val tower1 = Defender(
+            id = 1,
+            type = DefenderType.SPEAR_TOWER,
+            position = mutableStateOf(Position(1, 1)),  // SW neighbor of (2, 0)
+            level = mutableStateOf(10)
+        )
+        tower1.buildTimeRemaining.value = 0
+        tower1.actionsRemaining.value = 1
+        gameState.defenders.add(tower1)
+        
+        val tower2 = Defender(
+            id = 2,
+            type = DefenderType.SPEAR_TOWER,
+            position = mutableStateOf(Position(2, 1)),  // SE neighbor of (2, 0)
+            level = mutableStateOf(10)
+        )
+        tower2.buildTimeRemaining.value = 0
+        gameState.defenders.add(tower2)
+        
+        // Build a barricade between the two towers at Position(2, 0)
+        val barricadePos = Position(2, 0)
+        val success = barricadeSystem.performBuildBarricade(tower1.id, barricadePos)
+        
+        assertTrue(success, "Barricade building should succeed")
+        assertEquals(1, gameState.barricades.size, "Should have 1 barricade")
+        
+        val barricade = gameState.barricades.first()
+        assertTrue(barricade.isGate, "Barricade should be detected as a gate (has 2 neighbors with towers)")
+    }
+    
+    @Test
+    fun testNonGateBarricade() {
+        // Create a test level
+        val pathCells = setOf(
+            Position(0, 0), Position(1, 0), Position(2, 0), Position(3, 0)
+        )
+        val buildIslands = setOf(
+            Position(1, 1), Position(1, 2)  // Only one island
+        )
+        
+        val level = Level(
+            id = 1,
+            name = "Non-Gate Test Level",
+            subtitle = "Test",
+            gridWidth = 10,
+            gridHeight = 10,
+            startPositions = listOf(Position(0, 0)),
+            targetPositions = listOf(Position(3, 0)),
+            pathCells = pathCells,
+            buildIslands = buildIslands,
+            attackerWaves = emptyList(),
+            initialCoins = 1000,
+            healthPoints = 10,
+            availableTowers = setOf(DefenderType.SPIKE_TOWER, DefenderType.SPEAR_TOWER)
+        )
+        
+        val gameState = GameState(level)
+        val barricadeSystem = BarricadeSystem(gameState)
+        
+        // Place only one tower
+        val tower = Defender(
+            id = 1,
+            type = DefenderType.SPEAR_TOWER,
+            position = mutableStateOf(Position(1, 1)),
+            level = mutableStateOf(10)
+        )
+        tower.buildTimeRemaining.value = 0
+        tower.actionsRemaining.value = 1
+        gameState.defenders.add(tower)
+        
+        // Build a barricade adjacent to the tower
+        val barricadePos = Position(2, 0)
+        val success = barricadeSystem.performBuildBarricade(tower.id, barricadePos)
+        
+        assertTrue(success, "Barricade building should succeed")
+        assertEquals(1, gameState.barricades.size, "Should have 1 barricade")
+        
+        val barricade = gameState.barricades.first()
+        assertFalse(barricade.isGate, "Barricade should NOT be detected as a gate (only one tower)")
+    }
 }

@@ -272,7 +272,7 @@ fun EnemiesList(
                         UnitEntry(
                             icon = { 
                                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                                    de.egril.defender.ui.icon.HoleIcon(size = 20.dp)
+                                    de.egril.defender.ui.icon.TrapIcon(size = 20.dp)
                                 }
                             },
                             name = stringResource(Res.string.trap),

@@ -6,11 +6,13 @@ import androidx.compose.runtime.mutableStateOf
 /**
  * Represents a barricade placed by Spike Tower (level 20+) or Spear Tower (level 10+).
  * Barricades block enemy movement and take damage when enemies are adjacent.
+ * When placed between two buildable tiles with towers, it becomes a gate (different visual).
  */
 data class Barricade(
     val position: Position,
     val healthPoints: MutableState<Int>,
-    val defenderId: Int  // Track which defender created this barricade
+    val defenderId: Int,  // Track which defender created this barricade
+    val isGate: Boolean = false  // True if barricade is between two buildable tiles with towers
 ) {
     /**
      * Check if the barricade is destroyed (health points < 1)

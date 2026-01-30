@@ -38,6 +38,7 @@ fun DefenderInfo(
     selectedMineAction: MineAction? = null,  // Current trap placement mode
     selectedWizardAction: WizardAction? = null,  // Current wizard trap placement mode
     onBarricadeAction: ((Int, BarricadeAction) -> Unit)? = null,  // For spike/spear tower barricades - click to select action, then click map
+    selectedBarricadeAction: BarricadeAction? = null,  // Current barricade placement mode
     compactBuyPanel: Boolean = false,
     isMobile: Boolean = false,  // Add platform parameter
     selectedTargetId: Int? = null,
@@ -302,21 +303,26 @@ fun DefenderInfo(
                                 }
                             }
 
-                            // Barricade button for spike/spear tower level 10+
-                            if (isPlayerTurn &&
-                                (defender.type == DefenderType.SPIKE_TOWER || defender.type == DefenderType.SPEAR_TOWER) &&
-                                defender.level.value >= 10 &&
-                                onBarricadeAction != null) {
-
-                                Spacer(modifier = Modifier.width(horizontalSpacing))
-                                Column(modifier = Modifier.weight(1.3f)) {
-                                    BarricadeButton(
-                                        defender = defender,
-                                        onBarricadeAction = onBarricadeAction,
-                                        modifier = Modifier
-                                            .width(240.dp)
-                                            .height(buttonHeight)
-                                    )
+                            // Barricade button for spike tower (level 20+) or spear tower (level 10+)
+                            if (isPlayerTurn && onBarricadeAction != null) {
+                                val canBuildBarricade = when (defender.type) {
+                                    DefenderType.SPIKE_TOWER -> defender.level.value >= 20
+                                    DefenderType.SPEAR_TOWER -> defender.level.value >= 10
+                                    else -> false
+                                }
+                                
+                                if (canBuildBarricade) {
+                                    Spacer(modifier = Modifier.width(horizontalSpacing))
+                                    Column(modifier = Modifier.weight(1.3f)) {
+                                        BarricadeButton(
+                                            defender = defender,
+                                            onBarricadeAction = onBarricadeAction,
+                                            selectedBarricadeAction = selectedBarricadeAction,
+                                            modifier = Modifier
+                                                .width(240.dp)
+                                                .height(buttonHeight)
+                                        )
+                                    }
                                 }
                             }
 
@@ -576,18 +582,26 @@ fun MagicalTrapButton(
 }
 
 /**
- * Button for spike/spear tower to place barricades (level 10+)
+ * Button for spike/spear tower to place barricades
+ * Spike Tower: level 20+ with HP = (level - 20) / 2 (minimum 1)
+ * Spear Tower: level 10+ with HP = level - 10 (minimum 1)
  * Works like wizard magical trap button - click to enter placement mode, then click on map
  */
 @Composable
 fun BarricadeButton(
     defender: Defender,
     onBarricadeAction: (Int, BarricadeAction) -> Unit,
+    selectedBarricadeAction: BarricadeAction? = null,  // Current barricade placement mode
     modifier: Modifier = Modifier.fillMaxWidth().height(56.dp)
 ) {
     if (defender.isReady) {
-        // Calculate HP that will be added
-        val hpAmount = maxOf(1, defender.level.value - 10)
+        // Calculate HP that will be added based on tower type
+        val hpAmount = if (defender.type == DefenderType.SPIKE_TOWER) {
+            maxOf(1, (defender.level.value - 20) / 2)
+        } else {
+            maxOf(1, defender.level.value - 10)
+        }
+        val isBarricadeModeActive = selectedBarricadeAction == BarricadeAction.BUILD_BARRICADE
         
         // Button to enter barricade placement mode - enabled when tower has actions
         Button(
@@ -596,31 +610,43 @@ fun BarricadeButton(
             modifier = modifier,
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFF795548)  // Brown color for wood
-            )
+            ),
+            border = if (isBarricadeModeActive) {
+                androidx.compose.foundation.BorderStroke(
+                    width = 3.dp,
+                    color = GamePlayColors.Yellow
+                )
+            } else null
         ) {
             Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth().padding(start = 0.dp, end = 4.dp)
             ) {
-                WoodIcon(size = 48.dp)
+                // Icon on the left
+                WoodIcon(size = 40.dp)
+                Spacer(modifier = Modifier.width(4.dp))
+                // Two rows on the right
                 Column(
                     modifier = Modifier.weight(1f),
                     horizontalAlignment = Alignment.Start
                 ) {
+                    // Upper row: "Barricade"
                     Text(
-                        stringResource(Res.string.build_barricade),
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold
+                        stringResource(Res.string.barricade),
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Clip
+                    )
+                    // Lower row: "X HP"
+                    Text(
+                        "$hpAmount ${stringResource(Res.string.hp_label)}",
+                        fontSize = 13.sp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Visible
                     )
                 }
-                // Show HP amount in white on the right side
-                Text(
-                    "HP$hpAmount",
-                    fontSize = 16.sp,
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold
-                )
             }
         }
     }

@@ -159,4 +159,111 @@ class MinimapNavigationTest {
         assertTrue(movableAreaX > 99f, "Movable area should be large when zoomed in")
         assertTrue(movableAreaY > 99f, "Movable area should be large when zoomed in")
     }
+    
+    @Test
+    fun testMinimapDragOnSmallMap_OnlyWidthScrollable() {
+        // Simulates the "straight map" scenario (45 wide × 11 tall)
+        // Where width extends beyond viewport but height fits fully
+        // This is the reported bug case
+        val containerSize = IntSize(800, 600)
+        val contentSize = IntSize(2000, 400)  // Wide but short content
+        val scale = 1.0f
+        val minimapSizeDp = 120f
+        
+        val scaledContentWidth = contentSize.width * scale
+        val scaledContentHeight = contentSize.height * scale
+        val viewportWidthRatio = (containerSize.width.toFloat() / scaledContentWidth).coerceAtMost(1f)
+        val viewportHeightRatio = (containerSize.height.toFloat() / scaledContentHeight).coerceAtMost(1f)
+        
+        // Width should need scrolling (ratio < 1.0)
+        assertTrue(viewportWidthRatio < 1.0f, "Width should be partially visible: $viewportWidthRatio")
+        assertEquals(0.4f, viewportWidthRatio, 0.001f, "Width ratio should be 800/2000 = 0.4")
+        
+        // Height should fit fully (ratio = 1.0)
+        assertEquals(1.0f, viewportHeightRatio, 0.001f, "Height should be fully visible")
+        
+        // Max offsets
+        val maxOffsetX = ((scaledContentWidth - containerSize.width) / 2).coerceAtLeast(0.01f)
+        val maxOffsetY = ((scaledContentHeight - containerSize.height) / 2).coerceAtLeast(0.01f)
+        
+        // X offset should be substantial (content wider than container)
+        assertEquals(600f, maxOffsetX, 0.001f, "Max X offset should be (2000-800)/2 = 600")
+        
+        // Y offset should be minimal (content fits in container)
+        assertEquals(0.01f, maxOffsetY, 0.001f, "Max Y offset should be minimal (coerceAtLeast)")
+        
+        // Test drag navigation in X direction should work
+        val dragAmountX = 30f
+        val currentOffsetX = maxOffsetX  // Start at left edge
+        
+        val movableX = (1f - viewportWidthRatio).coerceAtLeast(0.001f)
+        val dragXFraction = dragAmountX / (minimapSizeDp * movableX)
+        
+        // Movable area in X should be (1.0 - 0.4) * 120 = 72dp
+        assertEquals(72f, minimapSizeDp * movableX, 0.001f, "Movable X area should be 72dp")
+        
+        // Dragging 30px on 72px movable area = 0.4166 fraction
+        assertTrue(dragXFraction > 0.4f && dragXFraction < 0.42f, "Drag fraction should be ~0.416")
+        
+        val deltaNormalizedX = dragXFraction * 2f
+        val deltaOffsetX = -deltaNormalizedX * maxOffsetX
+        val newOffsetX = currentOffsetX + deltaOffsetX
+        
+        // Should move from 600 towards center
+        assertTrue(newOffsetX < currentOffsetX, "Offset should decrease (move right)")
+        assertTrue(newOffsetX > 0f, "Offset should still be positive")
+    }
+    
+    @Test
+    fun testMinimapDragOnSmallMap_OnlyHeightScrollable() {
+        // Test the opposite case: height scrollable but width fits fully
+        // This ensures symmetry in the fix
+        val containerSize = IntSize(800, 600)
+        val contentSize = IntSize(600, 2000)  // Tall but narrow content
+        val scale = 1.0f
+        val minimapSizeDp = 120f
+        
+        val scaledContentWidth = contentSize.width * scale
+        val scaledContentHeight = contentSize.height * scale
+        val viewportWidthRatio = (containerSize.width.toFloat() / scaledContentWidth).coerceAtMost(1f)
+        val viewportHeightRatio = (containerSize.height.toFloat() / scaledContentHeight).coerceAtMost(1f)
+        
+        // Width should fit fully (ratio = 1.0)
+        assertEquals(1.0f, viewportWidthRatio, 0.001f, "Width should be fully visible")
+        
+        // Height should need scrolling (ratio < 1.0)
+        assertTrue(viewportHeightRatio < 1.0f, "Height should be partially visible: $viewportHeightRatio")
+        assertEquals(0.3f, viewportHeightRatio, 0.001f, "Height ratio should be 600/2000 = 0.3")
+        
+        // Max offsets
+        val maxOffsetX = ((scaledContentWidth - containerSize.width) / 2).coerceAtLeast(0.01f)
+        val maxOffsetY = ((scaledContentHeight - containerSize.height) / 2).coerceAtLeast(0.01f)
+        
+        // X offset should be minimal (content fits in container)
+        assertEquals(0.01f, maxOffsetX, 0.001f, "Max X offset should be minimal (coerceAtLeast)")
+        
+        // Y offset should be substantial (content taller than container)
+        assertEquals(700f, maxOffsetY, 0.001f, "Max Y offset should be (2000-600)/2 = 700")
+        
+        // Test drag navigation in Y direction should work
+        val dragAmountY = 30f
+        val currentOffsetY = maxOffsetY  // Start at top edge
+        
+        val movableY = (1f - viewportHeightRatio).coerceAtLeast(0.001f)
+        val dragYFraction = dragAmountY / (minimapSizeDp * movableY)
+        
+        // Movable area in Y should be (1.0 - 0.3) * 120 = 84dp
+        assertEquals(84f, minimapSizeDp * movableY, 0.001f, "Movable Y area should be 84dp")
+        
+        // Dragging 30px on 84px movable area ≈ 0.357 fraction
+        assertTrue(dragYFraction > 0.35f && dragYFraction < 0.36f, "Drag fraction should be ~0.357")
+        
+        val deltaNormalizedY = dragYFraction * 2f
+        val deltaOffsetY = -deltaNormalizedY * maxOffsetY
+        val newOffsetY = currentOffsetY + deltaOffsetY
+        
+        // Should move from 700 towards center
+        assertTrue(newOffsetY < currentOffsetY, "Offset should decrease (move down)")
+        assertTrue(newOffsetY > 0f, "Offset should still be positive")
+    }
 }

@@ -38,6 +38,9 @@ import de.egril.defender.ui.editor.level.enemies.EnemySpawnsTab
 import de.egril.defender.ui.editor.level.tower.TowersTab
 import de.egril.defender.ui.editor.level.waypoint.WaypointsTab
 import defender_of_egril.composeapp.generated.resources.*
+import defender_of_egril.composeapp.generated.resources.Res
+import defender_of_egril.composeapp.generated.resources.official_level_saved_warning_title
+import defender_of_egril.composeapp.generated.resources.official_level_saved_warning_message
 import kotlin.random.Random
 
 /**
@@ -315,7 +318,7 @@ private fun LevelCard(
                 }
                 Button(
                     onClick = onDelete,
-                    enabled = !level.isOfficial,
+                    enabled = !level.isOfficial || de.egril.defender.OfficialEditMode.enabled,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.error
                     ),
@@ -350,6 +353,8 @@ fun LevelEditorView(
     var showEnemyDialog by remember { mutableStateOf(false) }
     var showEnemyDialogForTurn by remember { mutableStateOf(1) }
     var showSaveAsDialog by remember { mutableStateOf(false) }
+    var showOfficialLevelSavedWarning by remember { mutableStateOf(false) }
+    var pendingLevelToSave by remember { mutableStateOf<EditorLevel?>(null) }
     var selectedTabIndex by remember { mutableStateOf(0) }
     var showRemoveAllTurnsDialog by remember { mutableStateOf(false) }
     // Track the maximum turn number explicitly to support empty turns
@@ -574,9 +579,17 @@ fun LevelEditorView(
                             testingOnly = testingOnly,
                             allowAutoAttack = allowAutoAttack
                         )
-                        onSave(updatedLevel)
+                        
+                        // Show warning dialog for official levels before saving
+                        if (level.isOfficial && de.egril.defender.OfficialEditMode.enabled) {
+                            pendingLevelToSave = updatedLevel
+                            showOfficialLevelSavedWarning = true
+                        } else {
+                            // Save immediately if not an official level
+                            onSave(updatedLevel)
+                        }
                     },
-                    enabled = !level.isOfficial,
+                    enabled = !level.isOfficial || de.egril.defender.OfficialEditMode.enabled,
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(stringResource(Res.string.save_level))
@@ -658,6 +671,28 @@ fun LevelEditorView(
                 )
                 onSave(newLevel)
                 showSaveAsDialog = false
+            }
+        )
+    }
+    
+    // Warning dialog when saving official level
+    if (showOfficialLevelSavedWarning) {
+        AlertDialog(
+            onDismissRequest = { 
+                showOfficialLevelSavedWarning = false
+                pendingLevelToSave = null
+            },
+            title = { Text(stringResource(Res.string.official_level_saved_warning_title)) },
+            text = { Text(stringResource(Res.string.official_level_saved_warning_message)) },
+            confirmButton = {
+                Button(onClick = { 
+                    showOfficialLevelSavedWarning = false
+                    // Save the pending level after user acknowledges the warning
+                    pendingLevelToSave?.let { onSave(it) }
+                    pendingLevelToSave = null
+                }) {
+                    Text(stringResource(Res.string.ok))
+                }
             }
         )
     }

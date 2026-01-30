@@ -378,7 +378,7 @@ private fun HexagonMinimapContent(
                             clip = true
                         }
                         .then(
-                            if (onViewportDrag != null && viewportWidthRatio < 1.0f && viewportHeightRatio < 1.0f) {
+                            if (onViewportDrag != null && (viewportWidthRatio < 1.0f || viewportHeightRatio < 1.0f)) {
                                 Modifier.pointerInput(Unit) {
                                     var dragStartOffsetX = 0f
                                     var dragStartOffsetY = 0f

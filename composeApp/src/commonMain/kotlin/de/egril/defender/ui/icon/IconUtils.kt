@@ -54,6 +54,7 @@ import defender_of_egril.composeapp.generated.resources.emoji_unlock
 import defender_of_egril.composeapp.generated.resources.emoji_up_arrow
 import defender_of_egril.composeapp.generated.resources.emoji_warning
 import defender_of_egril.composeapp.generated.resources.barricade
+import defender_of_egril.composeapp.generated.resources.gate
 import defender_of_egril.composeapp.generated.resources.emoji_right_arrow
 import defender_of_egril.composeapp.generated.resources.emoji_red_circle
 import defender_of_egril.composeapp.generated.resources.emoji_map
@@ -859,6 +860,22 @@ fun WoodIcon(
     Image(
         painter = painterResource(Res.drawable.barricade),
         contentDescription = "Wood",
+        modifier = modifier.size(size)
+    )
+}
+
+/**
+ * Displays a gate icon using Image for cross-platform compatibility
+ * Source: Custom gate icon for barricades between two towers
+ */
+@Composable
+fun GateIcon(
+    modifier: Modifier = Modifier.Companion,
+    size: Dp = 24.dp
+) {
+    Image(
+        painter = painterResource(Res.drawable.gate),
+        contentDescription = "Gate",
         modifier = modifier.size(size)
     )
 }

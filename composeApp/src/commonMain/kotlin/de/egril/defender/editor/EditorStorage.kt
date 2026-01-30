@@ -121,6 +121,11 @@ object EditorStorage {
         // Save to appropriate directory based on isOfficial flag
         val targetDir = if (validatedMap.isOfficial) OFFICIAL_MAPS_DIR else USER_MAPS_DIR
         fileStorage.writeFile("$targetDir/${validatedMap.id}.json", json)
+        
+        // Track changes to official data
+        if (validatedMap.isOfficial) {
+            OfficialDataChangeTracker.trackMapModified(validatedMap.id)
+        }
     }
     
     fun reloadMap(id: String): EditorMap? {
@@ -241,6 +246,11 @@ object EditorStorage {
         // Save to appropriate directory based on isOfficial flag
         val targetDir = if (levelWithSpawnPoints.isOfficial) OFFICIAL_LEVELS_DIR else USER_LEVELS_DIR
         fileStorage.writeFile("$targetDir/${levelWithSpawnPoints.id}.json", json)
+        
+        // Track changes to official data
+        if (levelWithSpawnPoints.isOfficial) {
+            OfficialDataChangeTracker.trackLevelModified(levelWithSpawnPoints.id)
+        }
         
         // Update appropriate sequence if this is a new level
         if (levelWithSpawnPoints.isOfficial) {

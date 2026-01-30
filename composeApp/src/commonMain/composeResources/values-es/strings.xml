@@ -645,11 +645,12 @@
     
     <!-- Barricade Feature -->
     <string name="barricade">Barricada</string>
+    <string name="gate">Puerta</string>
     <string name="barricade_hp">PS de barricada: %d</string>
     <string name="build_barricade">Construir barricada</string>
     <string name="remove_barricade">Quitar barricada</string>
     <string name="barricade_info_title">¡Habilidad de barricada desbloqueada!</string>
-    <string name="barricade_info_message">¡Tu torre de Picas o Lanzas ha alcanzado el nivel 10 y ahora puede construir barricadas!\nLas barricadas son estructuras de madera colocadas en casillas de camino adyacentes que bloquean el movimiento enemigo.\nCada barricada tiene puntos de salud iguales al nivel de la torre menos 10 (mínimo 1).\nCuando los enemigos alcanzan una barricada, la atacan con daño igual a su nivel (los dragones causan 5× su nivel).\nSi se destruye una barricada, el enemigo se mueve a esa casilla.\nPuedes construir nuevas barricadas o reforzar las existentes, y hacer clic en las barricadas para quitarlas.</string>
+    <string name="barricade_info_message">¡Tu torre de Lanzas ha alcanzado el nivel 10 (o torre de Picas nivel 20) y ahora puede construir barricadas!\nLas barricadas son estructuras de madera colocadas en casillas de camino adyacentes que bloquean el movimiento enemigo.\nLas barricadas de torre de Lanzas tienen PS = nivel - 10 (mínimo 1). Las barricadas de torre de Picas tienen PS = (nivel - 20) / 2 (mínimo 1).\nCuando los enemigos alcanzan una barricada, la atacan con daño igual a su nivel (los dragones causan 5× su nivel).\nSi se destruye una barricada, el enemigo se mueve a esa casilla.\nPuedes construir nuevas barricadas o reforzar las existentes, y hacer clic en las barricadas para quitarlas.</string>
     <string name="remove_barricade_title">¿Eliminar Barricada?</string>
     <string name="remove_barricade_message">¿Está seguro de que desea eliminar esta barricada?</string>
     
@@ -1072,4 +1073,64 @@
     <string name="user_level">Nivel de Usuario</string>
     <string name="official_map_info">Este es un mapa oficial. Puedes copiarlo para crear una versión de usuario.</string>
     <string name="official_level_info">Este es un nivel oficial. Puedes copiarlo para crear una versión de usuario.</string>
+    
+    <!-- Official Data Change Warning -->
+    <string name="official_data_changed_title">Datos Oficiales del Juego Modificados</string>
+    <string name="official_data_changed_message">Has realizado cambios en los datos oficiales del juego (mapas o niveles).\n\nEstos cambios se sobrescribirán cuando reinicies el juego, ya que el contenido oficial se restaura desde el repositorio en cada inicio.\n\nPara conservar tus cambios, considera copiar el contenido oficial para crear versiones de usuario en su lugar.</string>
+    <string name="official_data_modified_maps">Mapas modificados: %1$s</string>
+    <string name="official_data_modified_levels">Niveles modificados: %1$s</string>
+    <string name="understood">Entendido</string>
+    <string name="official_level_saved_warning_title">Nivel Oficial Guardado</string>
+    <string name="official_level_saved_warning_message">Has guardado un nivel oficial.\n\nEstos cambios se sobrescribirán cuando reinicies el juego, ya que el contenido oficial se restaura desde el repositorio en cada inicio.</string>
+    <string name="user_map_not_allowed_title">Mapa de Usuario No Permitido</string>
+    <string name="user_map_not_allowed_message">Los niveles oficiales solo pueden usar mapas oficiales.\n\nPara usar este mapa, cópialo para crear una versión oficial, o crea un nivel de usuario en su lugar.</string>
+    <!-- Info Page -->
+    <string name="info_tab_installation">Instalación</string>
+    <string name="info_tab_audio_licenses">Licencias de Audio</string>
+    
+    <!-- Audio Licenses -->
+    <string name="audio_licenses_title">Archivos de Audio y Licencias</string>
+    <string name="audio_background_music_title">Música de Fondo</string>
+    <string name="audio_sound_effects_title">Efectos de Sonido</string>
+    <string name="audio_tower_attacks_subtitle">Ataques de Torres</string>
+    <string name="audio_enemy_events_subtitle">Eventos de Enemigos</string>
+    <string name="audio_mine_events_subtitle">Eventos de Minas</string>
+    <string name="audio_other_events_subtitle">Otros Eventos del Juego</string>
+    
+    <!-- Background Music -->
+    <string name="audio_fantasy_ambience_name">Ambiente de Fantasía</string>
+    <string name="audio_fantasy_ambience_license">100% libre de derechos de autor, no requiere atribución. No puede revenderse como audio, debe usarse en el contexto de un proyecto.</string>
+    <string name="audio_dark_castle_name">El Castillo Oscuro</string>
+    <string name="audio_fesliyan_license">Música libre de regalías de Fesliyan Studios. Uso en videojuegos permitido.</string>
+    <string name="audio_fantasy_orchestral_name">Música Orquestal Mística de Fantasía</string>
+    <string name="audio_pixabay_license">Licencia de Contenido Pixabay - Uso gratuito, no requiere atribución</string>
+    
+    <!-- Tower Attacks -->
+    <string name="audio_melee_attack_name">Ataque Cuerpo a Cuerpo</string>
+    <string name="audio_ranged_attack_name">Ataque a Distancia</string>
+    <string name="audio_fireball_attack_name">Ataque de Bola de Fuego</string>
+    <string name="audio_acid_attack_name">Ataque de Ácido</string>
+    
+    <!-- Enemy Events -->
+    <string name="audio_enemy_spawn_name">Aparición de Enemigo</string>
+    <string name="audio_enemy_destroyed_name">Enemigo Destruido</string>
+    
+    <!-- Mine Events -->
+    <string name="audio_mine_dig_name">Excavación de Mina</string>
+    <string name="audio_mine_coin_name">Monedas Encontradas</string>
+    <string name="audio_mine_trap_name">Trampa Construida</string>
+    <string name="audio_mine_dragon_name">Despertar del Dragón</string>
+    
+    <!-- Other Events -->
+    <string name="audio_trap_trigger_name">Activación de Trampa</string>
+    <string name="audio_life_lost_name">Vida Perdida</string>
+    <string name="audio_dragon_eat_name">Dragón Comiendo</string>
+    <string name="audio_tower_upgraded_name">Torre Mejorada</string>
+    <string name="audio_battle_start_name">Inicio de Batalla</string>
+    
+    <!-- Audio Item Labels -->
+    <string name="audio_file_label">Archivo: %s</string>
+    <string name="audio_source_label">Fuente: %s</string>
+    <string name="audio_license_label">Licencia: %s</string>
+    <string name="audio_attribution_note">Todos los archivos de audio se utilizan bajo sus respectivas licencias. Se proporciona atribución cuando es requerida.</string>
 </resources>
