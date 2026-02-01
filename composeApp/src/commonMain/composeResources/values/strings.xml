@@ -204,6 +204,7 @@
     <string name="coins_label">coins</string>
     <string name="hp_label">HP</string>
     <string name="speed_label">Speed</string>
+    <string name="slowed_by_barbs">Slowed by barbs</string>
     
     <!-- Status text -->
     <string name="available">Available</string>

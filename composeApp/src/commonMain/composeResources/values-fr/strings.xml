@@ -204,6 +204,7 @@
     <string name="coins_label">pièces</string>
     <string name="hp_label">PV</string>
     <string name="speed_label">Vitesse</string>
+    <string name="slowed_by_barbs">Ralenti par les barbes</string>
     
     <!-- Status text -->
     <string name="available">Disponible</string>

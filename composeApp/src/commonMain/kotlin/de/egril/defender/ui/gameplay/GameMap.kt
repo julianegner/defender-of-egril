@@ -767,13 +767,14 @@ private fun BoxScope.GridCellContent(
         when {
             attacker != null -> {
                 // Use graphical icon for enemy units
-                // Key by id, position, level, and currentHealth to force recomposition when any changes
+                // Key by id, position, level, currentHealth, and movementPenalty to force recomposition when any changes
                 key(
                     attacker.id,
                     attacker.position.value.x,
                     attacker.position.value.y,
                     attacker.level,
-                    attacker.currentHealth.value
+                    attacker.currentHealth.value,
+                    attacker.movementPenalty.value
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         EnemyIcon(attacker = attacker)
@@ -807,6 +808,20 @@ private fun BoxScope.GridCellContent(
                                     color = Color(0xFF4CAF50), // Green
                                     fontWeight = FontWeight.Bold,
                                     modifier = Modifier.offset(x = 12.dp, y = (-16).dp)
+                                )
+                            }
+                        }
+                        // Show slow effect indicator if affected by barbs
+                        if (attacker.movementPenalty.value > 0) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .offset(x = 16.dp, y = (-12).dp),
+                                contentAlignment = Alignment.TopEnd
+                            ) {
+                                de.egril.defender.ui.icon.DownArrowIcon(
+                                    size = 20.dp,
+                                    tint = Color.Red
                                 )
                             }
                         }

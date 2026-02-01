@@ -38,7 +38,8 @@ fun AttackerInfo(
         attacker.currentHealth.value,
         attacker.position.value.x,
         attacker.position.value.y,
-        attacker.greed
+        attacker.greed,
+        attacker.movementPenalty.value
     ) {
         Card(
             modifier = Modifier
@@ -97,16 +98,52 @@ fun AttackerInfo(
                             "${stringResource(Res.string.hp_short)}: ${attacker.currentHealth.value}/${attacker.maxHealth}",
                             style = MaterialTheme.typography.bodySmall
                         )
-                        Text(
-                            "${stringResource(Res.string.speed_label)}: ${attacker.type.speed}",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = Color.Gray
-                        )
+                        
+                        // Speed display - show base speed and current speed if affected by barbs
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                "${stringResource(Res.string.speed_label)}: ${attacker.type.speed}",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color.Gray
+                            )
+                            
+                            // If affected by barbs, show current speed in red
+                            if (attacker.movementPenalty.value > 0) {
+                                val currentSpeed = maxOf(1, attacker.type.speed - attacker.movementPenalty.value)
+                                Text(
+                                    "→ $currentSpeed",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.Red
+                                )
+                            }
+                        }
+                        
                         Text(
                             "${stringResource(Res.string.position_label)}: (${attacker.position.value.x},${attacker.position.value.y})",
                             style = MaterialTheme.typography.bodySmall,
                             color = Color.Gray
                         )
+                    }
+                    
+                    // Show barbs effect explanation if affected
+                    if (attacker.movementPenalty.value > 0) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            modifier = Modifier.padding(top = 4.dp)
+                        ) {
+                            de.egril.defender.ui.icon.DownArrowIcon(size = 14.dp)
+                            Text(
+                                stringResource(Res.string.slowed_by_barbs),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color.Red,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
                     }
                     
                     // Dragon-specific information

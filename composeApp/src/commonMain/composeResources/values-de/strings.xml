@@ -204,6 +204,7 @@
     <string name="coins_label">Münzen</string>
     <string name="hp_label">HP</string>
     <string name="speed_label">Geschwindigkeit</string>
+    <string name="slowed_by_barbs">Verlangsamt durch Widerhaken</string>
     
     <!-- Status text -->
     <string name="available">Verfügbar</string>

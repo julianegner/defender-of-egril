@@ -204,6 +204,7 @@
     <string name="coins_label">monedas</string>
     <string name="hp_label">PS</string>
     <string name="speed_label">Velocidad</string>
+    <string name="slowed_by_barbs">Ralentizado por púas</string>
     
     <!-- Status text -->
     <string name="available">Disponible</string>
