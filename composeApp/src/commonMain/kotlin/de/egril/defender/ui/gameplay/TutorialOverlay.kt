@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.sp
 import de.egril.defender.model.TutorialStep
 import de.egril.defender.model.InfoType
 import de.egril.defender.ui.icon.WoodIcon
+import de.egril.defender.utils.isPlatformMobile
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
 
@@ -120,6 +121,7 @@ fun TutorialOverlay(
 private fun getTutorialTitle(step: TutorialStep): String {
     return when (step) {
         TutorialStep.WELCOME -> stringResource(Res.string.tutorial_welcome_title)
+        TutorialStep.MAP_NAVIGATION -> stringResource(Res.string.tutorial_map_navigation_title)
         TutorialStep.RESOURCES -> stringResource(Res.string.tutorial_resources_title)
         TutorialStep.TOWER_TYPES -> stringResource(Res.string.tutorial_towers_title)
         TutorialStep.LEGEND_INFO -> stringResource(Res.string.tutorial_legend_title)
@@ -143,6 +145,13 @@ private fun getTutorialTitle(step: TutorialStep): String {
 private fun getTutorialContent(step: TutorialStep): String {
     return when (step) {
         TutorialStep.WELCOME -> stringResource(Res.string.tutorial_welcome)
+        TutorialStep.MAP_NAVIGATION -> {
+            if (isPlatformMobile) {
+                stringResource(Res.string.tutorial_map_navigation_mobile)
+            } else {
+                stringResource(Res.string.tutorial_map_navigation_desktop)
+            }
+        }
         TutorialStep.RESOURCES -> stringResource(Res.string.tutorial_resources)
         TutorialStep.TOWER_TYPES -> stringResource(Res.string.tutorial_towers)
         TutorialStep.LEGEND_INFO -> stringResource(Res.string.tutorial_legend)
@@ -173,6 +182,7 @@ private fun getButtonText(step: TutorialStep): String {
 private fun shouldShowSkipButton(step: TutorialStep): Boolean {
     return step in listOf(
         TutorialStep.WELCOME,
+        TutorialStep.MAP_NAVIGATION,
         TutorialStep.RESOURCES,
         TutorialStep.TOWER_TYPES,
         TutorialStep.LEGEND_INFO,

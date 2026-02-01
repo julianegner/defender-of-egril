@@ -432,6 +432,9 @@
     <!-- Tutorial -->
     <string name="tutorial_welcome_title">¡Bienvenido a Defender of Egril!</string>
     <string name="tutorial_welcome">Este es un juego de defensa de torres. Tu objetivo es evitar que los enemigos lleguen al objetivo construyendo torres defensivas.</string>
+    <string name="tutorial_map_navigation_title">Navegación del Mapa</string>
+    <string name="tutorial_map_navigation_mobile">Puedes moverte por el mapa usando gestos de deslizamiento con dos dedos o tocando la cruz de navegación (flechas) en la pantalla.\n\nTambién puedes hacer clic en el minimapa para saltar rápidamente a diferentes áreas del campo de batalla.\n\nUsa gestos de pellizco para acercar y alejar la vista.</string>
+    <string name="tutorial_map_navigation_desktop">Puedes moverte por el mapa usando las teclas WASD, las teclas de flecha o arrastrando con el ratón.\n\nTambién puedes hacer clic en el minimapa para saltar rápidamente a diferentes áreas del campo de batalla.\n\nUsa la rueda del ratón para acercar y alejar la vista.</string>
     <string name="tutorial_resources_title">Recursos</string>
     <string name="tutorial_resources">Tienes monedas para construir torres y puntos de salud.\nCuando derrotas enemigos, ganas monedas iguales a su recompensa base multiplicada por su nivel.\nLos enemigos débiles cuestan 1 PS, pero los enemigos poderosos (magos, brujas, magos malvados, demonios, dragones) cuestan PS igual a su nivel.\n¡Ewhad cuesta todos tus PS!</string>
     <string name="tutorial_towers_title">Torres disponibles</string>
