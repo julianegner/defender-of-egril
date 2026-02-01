@@ -447,7 +447,8 @@ private fun GamePlayScreenContent(
                 }
             },
             onSaveGame = if (onSaveGame != null) {{ showSaveDialog = true }} else null,
-            onCheatCode = if (onCheatCode != null) {{ showCheatDialog = true }} else null
+            onCheatCode = if (onCheatCode != null) {{ showCheatDialog = true }} else null,
+            onEnemyCountClick = { showOverlay = !showOverlay }
         )
 
         Spacer(modifier = Modifier.height(8.dp))

@@ -131,7 +131,8 @@ fun GameStatsDisplay(
     remainingEnemyCount: Int,
     iconSize: Dp = GamePlayConstants.IconSizes.Large,
     textStyle: TextStyle = MaterialTheme.typography.bodyLarge,
-    onCoinsClick: (() -> Unit)? = null
+    onCoinsClick: (() -> Unit)? = null,
+    onEnemyCountClick: (() -> Unit)? = null
 ) {
 
     // Coins (clickable if callback provided)
@@ -162,7 +163,15 @@ fun GameStatsDisplay(
         Text("$turn", style = textStyle)
     }
 
-    Row(verticalAlignment = Alignment.CenterVertically) {
+    // Enemy count (clickable if callback provided)
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = if (onEnemyCountClick != null) {
+            Modifier.clickable(onClick = onEnemyCountClick)
+        } else {
+            Modifier
+        }
+    ) {
         EnemyTypeIcon(AttackerType.GOBLIN, modifier = Modifier.size(iconSize + 4.dp))
         Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
         Text("$activeEnemyCount | $remainingEnemyCount", style = textStyle)
