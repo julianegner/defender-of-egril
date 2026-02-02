@@ -600,20 +600,20 @@
     <string name="drag_to_add">Zum Hinzufügen ziehen</string>
     <string name="show_all_towers">Alle Türme anzeigen</string>
     <string name="select_position_on_map">Position auf Karte wählen</string>
-    <string name="initial_setup_map">Map</string>
-    <string name="initial_setup_click_to_place">Click on the map to place the selected element</string>
-    <string name="initial_setup_configuration">Configuration</string>
-    <string name="element_type">Element Type</string>
-    <string name="selection_mode">Selection Mode</string>
-    <string name="selection_mode_info">Click on an element on the map to select and remove it</string>
-    <string name="placed_elements">Placed Elements</string>
-    <string name="tower_configuration">Tower Configuration</string>
-    <string name="enemy_configuration">Enemy Configuration</string>
-    <string name="trap_configuration">Trap Configuration</string>
-    <string name="barricade_configuration">Barricade Configuration</string>
-    <string name="selected_element">Selected Element</string>
-    <string name="no_map_selected">No map selected. Please select or create a map first.</string>
-    <string name="deselect">Deselect</string>
+    <string name="initial_setup_map">Karte</string>
+    <string name="initial_setup_click_to_place">Klicke auf die Karte um das ausgewählte Element zu platzieren</string>
+    <string name="initial_setup_configuration">Konfiguration</string>
+    <string name="element_type">Elementtyp</string>
+    <string name="selection_mode">Auswahlmodus</string>
+    <string name="selection_mode_info">Klicke auf ein Element auf der Karte um es auszuwählen und zu entfernen</string>
+    <string name="placed_elements">Platzierte Elemente</string>
+    <string name="tower_configuration">Turmkonfiguration</string>
+    <string name="enemy_configuration">Gegnerkonfiguration</string>
+    <string name="trap_configuration">Fallenkonfiguration</string>
+    <string name="barricade_configuration">Barrikadenkonfiguration</string>
+    <string name="selected_element">Ausgewähltes Element</string>
+    <string name="no_map_selected">Keine Karte ausgewählt. Bitte wähle zuerst eine Karte aus oder erstelle eine neue.</string>
+    <string name="deselect">Abwählen</string>
     
     <!-- Plurals -->
     <plurals name="enemy_count">
@@ -1155,7 +1155,7 @@
     <string name="audio_license_label">Lizenz: %s</string>
     <string name="audio_attribution_note">Alle Audiodateien werden unter ihren jeweiligen Lizenzen verwendet. Die Namensnennung wird ggf. bereitgestellt.</string>
 
-    <string name="towers">Towers</string>
-    <string name="traps">Traps</string>
-    <string name="barricades">Barricades</string>
+    <string name="towers">Türme</string>
+    <string name="traps">Fallen</string>
+    <string name="barricades">Barrikaden</string>
 </resources>

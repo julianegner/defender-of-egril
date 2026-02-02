@@ -600,20 +600,20 @@
     <string name="cancel_connection">Annulla</string>
     <string name="show_all_towers">Mostra tutte le torri</string>
     <string name="select_position_on_map">Seleziona posizione sulla mappa</string>
-    <string name="initial_setup_map">Map</string>
-    <string name="initial_setup_click_to_place">Click on the map to place the selected element</string>
-    <string name="initial_setup_configuration">Configuration</string>
-    <string name="element_type">Element Type</string>
-    <string name="selection_mode">Selection Mode</string>
-    <string name="selection_mode_info">Click on an element on the map to select and remove it</string>
-    <string name="placed_elements">Placed Elements</string>
-    <string name="tower_configuration">Tower Configuration</string>
-    <string name="enemy_configuration">Enemy Configuration</string>
-    <string name="trap_configuration">Trap Configuration</string>
-    <string name="barricade_configuration">Barricade Configuration</string>
-    <string name="selected_element">Selected Element</string>
-    <string name="no_map_selected">No map selected. Please select or create a map first.</string>
-    <string name="deselect">Deselect</string>
+    <string name="initial_setup_map">Mappa</string>
+    <string name="initial_setup_click_to_place">Clicca sulla mappa per posizionare l'elemento selezionato</string>
+    <string name="initial_setup_configuration">Configurazione</string>
+    <string name="element_type">Tipo di Elemento</string>
+    <string name="selection_mode">Modalità di Selezione</string>
+    <string name="selection_mode_info">Clicca su un elemento sulla mappa per selezionarlo e rimuoverlo</string>
+    <string name="placed_elements">Elementi Posizionati</string>
+    <string name="tower_configuration">Configurazione Torre</string>
+    <string name="enemy_configuration">Configurazione Nemico</string>
+    <string name="trap_configuration">Configurazione Trappola</string>
+    <string name="barricade_configuration">Configurazione Barricata</string>
+    <string name="selected_element">Elemento Selezionato</string>
+    <string name="no_map_selected">Nessuna mappa selezionata. Seleziona o crea prima una mappa.</string>
+    <string name="deselect">Deseleziona</string>
 
     <!-- Plurals -->
     <plurals name="enemy_count">
@@ -1158,7 +1158,7 @@
     <string name="audio_license_label">Licenza: %s</string>
     <string name="audio_attribution_note">Tutti i file audio sono utilizzati sotto le rispettive licenze. L\'attribuzione è fornita quando richiesta.</string>
 
-    <string name="towers">Towers</string>
-    <string name="traps">Traps</string>
-    <string name="barricades">Barricades</string>
+    <string name="towers">Torri</string>
+    <string name="traps">Trappole</string>
+    <string name="barricades">Barricate</string>
 </resources>

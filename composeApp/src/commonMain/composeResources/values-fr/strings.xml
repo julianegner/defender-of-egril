@@ -600,20 +600,20 @@
     <string name="cancel_connection">Annuler</string>
     <string name="show_all_towers">Afficher toutes les tours</string>
     <string name="select_position_on_map">Sélectionner une position sur la carte</string>
-    <string name="initial_setup_map">Map</string>
-    <string name="initial_setup_click_to_place">Click on the map to place the selected element</string>
+    <string name="initial_setup_map">Carte</string>
+    <string name="initial_setup_click_to_place">Cliquez sur la carte pour placer l'élément sélectionné</string>
     <string name="initial_setup_configuration">Configuration</string>
-    <string name="element_type">Element Type</string>
-    <string name="selection_mode">Selection Mode</string>
-    <string name="selection_mode_info">Click on an element on the map to select and remove it</string>
-    <string name="placed_elements">Placed Elements</string>
-    <string name="tower_configuration">Tower Configuration</string>
-    <string name="enemy_configuration">Enemy Configuration</string>
-    <string name="trap_configuration">Trap Configuration</string>
-    <string name="barricade_configuration">Barricade Configuration</string>
-    <string name="selected_element">Selected Element</string>
-    <string name="no_map_selected">No map selected. Please select or create a map first.</string>
-    <string name="deselect">Deselect</string>
+    <string name="element_type">Type d'Élément</string>
+    <string name="selection_mode">Mode de Sélection</string>
+    <string name="selection_mode_info">Cliquez sur un élément de la carte pour le sélectionner et le supprimer</string>
+    <string name="placed_elements">Éléments Placés</string>
+    <string name="tower_configuration">Configuration de Tour</string>
+    <string name="enemy_configuration">Configuration d'Ennemi</string>
+    <string name="trap_configuration">Configuration de Piège</string>
+    <string name="barricade_configuration">Configuration de Barricade</string>
+    <string name="selected_element">Élément Sélectionné</string>
+    <string name="no_map_selected">Aucune carte sélectionnée. Veuillez d'abord sélectionner ou créer une carte.</string>
+    <string name="deselect">Désélectionner</string>
     
     <!-- Plurals -->
     <plurals name="enemy_count">
@@ -1157,7 +1157,7 @@
     <string name="audio_source_label">Source: %s</string>
     <string name="audio_license_label">Licence: %s</string>
     <string name="audio_attribution_note">Tous les fichiers audio sont utilisés sous leurs licences respectives. L\'attribution est fournie lorsque requise.</string>
-    <string name="towers">Towers</string>
-    <string name="traps">Traps</string>
+    <string name="towers">Tours</string>
+    <string name="traps">Pièges</string>
     <string name="barricades">Barricades</string>
 </resources>
