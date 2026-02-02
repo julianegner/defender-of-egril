@@ -74,7 +74,14 @@ fun InitialSetupTab(
                                 MaterialTheme.colorScheme.secondary
                         )
                     ) {
-                        Text(type.displayName)
+                        Text(
+                            when (type) {
+                                InitialElementType.DEFENDER -> stringResource(Res.string.initial_setup_towers)
+                                InitialElementType.ATTACKER -> stringResource(Res.string.initial_setup_enemies)
+                                InitialElementType.TRAP -> stringResource(Res.string.initial_setup_traps)
+                                InitialElementType.BARRICADE -> stringResource(Res.string.initial_setup_barricades)
+                            }
+                        )
                     }
                 }
             }
@@ -120,9 +127,9 @@ fun InitialSetupTab(
 /**
  * Types of initial elements that can be placed
  */
-enum class InitialElementType(val displayName: String) {
-    DEFENDER("Towers"),
-    ATTACKER("Enemies"),
-    TRAP("Traps"),
-    BARRICADE("Barricades")
+enum class InitialElementType {
+    DEFENDER,
+    ATTACKER,
+    TRAP,
+    BARRICADE
 }
