@@ -27,7 +27,8 @@ fun GameHeader(
     onShowOverlayChange: (Boolean) -> Unit,
     onBackToMap: () -> Unit,
     onSaveGame: (() -> Unit)?,
-    onCheatCode: (() -> Unit)?
+    onCheatCode: (() -> Unit)?,
+    onEnemyCountClick: (() -> Unit)? = null
 ) {
     val headerTextSize = de.egril.defender.ui.settings.AppSettings.headerTextSize.value
     
@@ -52,7 +53,8 @@ fun GameHeader(
                 GameStats(
                     gameState = gameState,
                     onCheatCode = onCheatCode,
-                    headerTextSize = headerTextSize
+                    headerTextSize = headerTextSize,
+                    onEnemyCountClick = onEnemyCountClick
                 )
             }
 
@@ -149,7 +151,8 @@ fun GameHeader(
 private fun GameStats(
     gameState: GameState,
     onCheatCode: (() -> Unit)?,
-    headerTextSize: de.egril.defender.ui.settings.HeaderTextSize
+    headerTextSize: de.egril.defender.ui.settings.HeaderTextSize,
+    onEnemyCountClick: (() -> Unit)? = null
 ) {
     val iconSize = when (headerTextSize) {
         de.egril.defender.ui.settings.HeaderTextSize.SMALL -> GamePlayConstants.IconSizes.Large
@@ -170,6 +173,7 @@ private fun GameStats(
         remainingEnemyCount = gameState.getRemainingEnemyCount(),
         iconSize = iconSize,
         textStyle = textStyle,
-        onCoinsClick = onCheatCode
+        onCoinsClick = onCheatCode,
+        onEnemyCountClick = onEnemyCountClick
     )
 }
