@@ -102,7 +102,7 @@ fun InitialSetupMinimap(
     val isDarkMode = AppSettings.isDarkMode.value
 
     Canvas(modifier = Modifier.fillMaxSize()
-        .pointerInput(Unit) {
+        .pointerInput(placementMode) {
             awaitPointerEventScope {
                 while (true) {
                     val event = awaitPointerEvent()
@@ -113,7 +113,7 @@ fun InitialSetupMinimap(
                             val geometry = calculateHexGeometry(map.width, map.height, size.width.toFloat(), size.height.toFloat())
 
                             var hoveredPosition: Position? = null
-                            var minDistance = Float.MAX_VALUE
+                            var minDistanceSquared = Float.MAX_VALUE
 
                             for (row in 0 until map.height) {
                                 for (col in 0 until map.width) {
@@ -124,10 +124,11 @@ fun InitialSetupMinimap(
                                         val centerY = geometry.offsetYCanvas + row * geometry.verticalSpacing + geometry.hexHeight / 2
                                         val dx = offset.x - centerX
                                         val dy = offset.y - centerY
-                                        val distance = sqrt(dx * dx + dy * dy)
+                                        val distanceSquared = dx * dx + dy * dy
                                         val hitRadius = geometry.hexHeight / 2
-                                        if (distance < hitRadius && distance < minDistance) {
-                                            minDistance = distance
+                                        val hitRadiusSquared = hitRadius * hitRadius
+                                        if (distanceSquared < hitRadiusSquared && distanceSquared < minDistanceSquared) {
+                                            minDistanceSquared = distanceSquared
                                             hoveredPosition = pos
                                         }
                                     }
@@ -147,7 +148,7 @@ fun InitialSetupMinimap(
                 val geometry = calculateHexGeometry(map.width, map.height, size.width.toFloat(), size.height.toFloat())
 
                 var clickedPosition: Position? = null
-                var minDistance = Float.MAX_VALUE
+                var minDistanceSquared = Float.MAX_VALUE
 
                 for (row in 0 until map.height) {
                     for (col in 0 until map.width) {
@@ -160,11 +161,12 @@ fun InitialSetupMinimap(
 
                             val dx = offset.x - centerX
                             val dy = offset.y - centerY
-                            val distance = sqrt(dx * dx + dy * dy)
+                            val distanceSquared = dx * dx + dy * dy
 
                             val hitRadius = geometry.hexHeight / 2
-                            if (distance < hitRadius && distance < minDistance) {
-                                minDistance = distance
+                            val hitRadiusSquared = hitRadius * hitRadius
+                            if (distanceSquared < hitRadiusSquared && distanceSquared < minDistanceSquared) {
+                                minDistanceSquared = distanceSquared
                                 clickedPosition = pos
                             }
                         }
