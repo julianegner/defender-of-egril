@@ -493,4 +493,49 @@ class SpikeBarbsTest {
         // Check that Green Witch removed all 2 barbs
         assertEquals(0, goblin.movementPenalty.value, "Goblin should have 0 barbs remaining after Green Witch removes all")
     }
+    
+    /**
+     * Test that movement penalty is saved and restored correctly in SavedAttacker
+     */
+    @Test
+    fun testMovementPenaltySavedInSavedAttacker() {
+        // Create an attacker with movement penalty
+        val attacker = Attacker(
+            id = 1,
+            type = AttackerType.GOBLIN,
+            position = mutableStateOf(Position(2, 3)),
+            level = mutableStateOf(1)
+        )
+        attacker.movementPenalty.value = 3  // 3 barbs
+        
+        // Create a SavedAttacker from the attacker
+        val savedAttacker = de.egril.defender.save.SavedAttacker(
+            id = attacker.id,
+            type = attacker.type,
+            position = attacker.position.value,
+            level = attacker.level.value,
+            currentHealth = attacker.currentHealth.value,
+            isDefeated = attacker.isDefeated.value,
+            dragonName = attacker.dragonName,
+            movementPenalty = attacker.movementPenalty.value
+        )
+        
+        // Verify the movement penalty was saved
+        assertEquals(3, savedAttacker.movementPenalty, "SavedAttacker should have movementPenalty of 3")
+        
+        // Create a new attacker from the saved attacker
+        val restoredAttacker = Attacker(
+            id = savedAttacker.id,
+            type = savedAttacker.type,
+            position = mutableStateOf(savedAttacker.position),
+            level = mutableStateOf(savedAttacker.level),
+            dragonName = savedAttacker.dragonName
+        )
+        restoredAttacker.currentHealth.value = savedAttacker.currentHealth
+        restoredAttacker.isDefeated.value = savedAttacker.isDefeated
+        restoredAttacker.movementPenalty.value = savedAttacker.movementPenalty
+        
+        // Verify the movement penalty was restored
+        assertEquals(3, restoredAttacker.movementPenalty.value, "Restored attacker should have movementPenalty of 3")
+    }
 }

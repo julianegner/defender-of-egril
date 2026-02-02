@@ -73,7 +73,8 @@ object SaveJsonSerializer {
       "level": ${attacker.level},
       "currentHealth": ${attacker.currentHealth},
       "isDefeated": ${attacker.isDefeated},
-      "dragonName": $dragonNameStr
+      "dragonName": $dragonNameStr,
+      "movementPenalty": ${attacker.movementPenalty}
     }"""
         }
         
@@ -417,8 +418,14 @@ object SaveJsonSerializer {
         } catch (e: Exception) {
             null
         }
+        // Backward compatibility: default to 0 if field doesn't exist in old saves
+        val movementPenalty = try {
+            JsonUtils.extractValue(json, "movementPenalty").toInt()
+        } catch (e: Exception) {
+            0
+        }
         
-        return SavedAttacker(id, type, position, level, currentHealth, isDefeated, dragonName)
+        return SavedAttacker(id, type, position, level, currentHealth, isDefeated, dragonName, movementPenalty)
     }
     
     private fun parseSavedFieldEffect(json: String): SavedFieldEffect {
