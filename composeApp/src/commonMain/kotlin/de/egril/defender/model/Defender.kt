@@ -12,11 +12,12 @@ enum class DefenderType(
     val actionsPerTurn: Int,
     val buildTime: Int,  // Turns needed to build (0 = instant in initial phase)
     val minRange: Int = 0,  // Minimum range for attacks (0 = can attack adjacent)
+    val maxRange: Int? = null,  // Maximum range cap (null = unlimited growth with level)
     val isMine: Boolean = false  // Special flag for dwarven mine
 ) {
     SPIKE_TOWER("Spike Tower", baseCost = 10, baseDamage = 5, baseRange = 1, attackType = AttackType.MELEE, actionsPerTurn = 1, buildTime = 1),
-    SPEAR_TOWER("Spear Tower", baseCost = 15, baseDamage = 8, baseRange = 2, attackType = AttackType.RANGED, actionsPerTurn = 1, buildTime = 1),
-    BOW_TOWER("Bow Tower", baseCost = 20, baseDamage = 10, baseRange = 3, attackType = AttackType.RANGED, actionsPerTurn = 1, buildTime = 1),
+    SPEAR_TOWER("Spear Tower", baseCost = 15, baseDamage = 8, baseRange = 2, attackType = AttackType.RANGED, actionsPerTurn = 1, buildTime = 1, maxRange = 5),
+    BOW_TOWER("Bow Tower", baseCost = 20, baseDamage = 10, baseRange = 3, attackType = AttackType.RANGED, actionsPerTurn = 1, buildTime = 1, maxRange = 20),
     WIZARD_TOWER("Wizard Tower", baseCost = 50, baseDamage = 30, baseRange = 3, attackType = AttackType.AREA, actionsPerTurn = 1, buildTime = 2),
     ALCHEMY_TOWER("Alchemy Tower", baseCost = 40, baseDamage = 15, baseRange = 2, attackType = AttackType.LASTING, actionsPerTurn = 1, buildTime = 1),
     BALLISTA_TOWER("Ballista Tower", baseCost = 60, baseDamage = 50, baseRange = 5, attackType = AttackType.RANGED, actionsPerTurn = 1, buildTime = 2, minRange = 3),
@@ -70,7 +71,12 @@ data class Defender(
             val mineReach = 3 + (level.value / 5)
             return minOf(mineReach, 10)
         }
-        return baseCalculatedRange
+        // Apply maxRange cap if defined for this tower type
+        return if (type.maxRange != null) {
+            minOf(baseCalculatedRange, type.maxRange)
+        } else {
+            baseCalculatedRange
+        }
     }
     val upgradeCost: Int get() = type.baseCost * level.value
     val isReady: Boolean get() = buildTimeRemaining.value == 0
