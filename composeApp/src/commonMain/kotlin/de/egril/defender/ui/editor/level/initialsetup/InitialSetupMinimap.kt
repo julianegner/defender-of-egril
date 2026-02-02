@@ -20,7 +20,7 @@ import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
 
-private const val MINIMAP_HEX_SIZE = 2.0f
+private const val MINIMAP_HEX_RADIUS = 2.0f
 
 /**
  * Placement mode for initial setup elements
@@ -46,6 +46,49 @@ fun isValidPlacement(position: Position, mode: PlacementMode, map: EditorMap): B
 }
 
 /**
+ * Data class to hold hexagon geometry calculations
+ */
+private data class HexGeometry(
+    val hexSize: Float,
+    val hexWidth: Float,
+    val hexHeight: Float,
+    val verticalSpacing: Float,
+    val offsetXCanvas: Float,
+    val offsetYCanvas: Float
+)
+
+/**
+ * Calculate hexagon geometry for the minimap
+ */
+private fun calculateHexGeometry(
+    mapWidth: Int,
+    mapHeight: Int,
+    canvasWidth: Float,
+    canvasHeight: Float
+): HexGeometry {
+    val baseHexSize = MINIMAP_HEX_RADIUS
+    val baseHexWidth = (sqrt(3.0) * baseHexSize).toFloat()
+    val baseHexHeight = 2.0f * baseHexSize
+    val baseVerticalSpacing = baseHexHeight * 0.75f
+    val totalMapWidth = (mapWidth) * baseHexWidth + baseHexWidth / 2
+    val totalMapHeight = (mapHeight - 1) * baseVerticalSpacing + baseHexHeight
+    val padding = 4f
+    val scaleX = (canvasWidth - padding * 2) / totalMapWidth
+    val scaleY = (canvasHeight - padding * 2) / totalMapHeight
+    val mapScale = minOf(scaleX, scaleY)
+    val hexSize = baseHexSize * mapScale
+    val hexWidth = baseHexWidth * mapScale
+    val hexHeight = baseHexHeight * mapScale
+    val verticalSpacing = baseVerticalSpacing * mapScale
+    val scaledMapWidth = totalMapWidth * mapScale
+    val scaledMapHeight = totalMapHeight * mapScale
+    val offsetXCanvas = (canvasWidth - scaledMapWidth) / 2
+    val offsetYCanvas = (canvasHeight - scaledMapHeight) / 2
+    
+    return HexGeometry(hexSize, hexWidth, hexHeight, verticalSpacing, offsetXCanvas, offsetYCanvas)
+}
+
+/**
  * Minimap for selecting positions in initial setup
  */
 @Composable
@@ -67,25 +110,7 @@ fun InitialSetupMinimap(
                     
                     when (event.type) {
                         PointerEventType.Move, PointerEventType.Enter -> {
-                            val mapWidth = map.width
-                            val mapHeight = map.height
-                            val baseHexSize = MINIMAP_HEX_SIZE
-                            val baseHexWidth = (sqrt(3.0) * baseHexSize).toFloat()
-                            val baseHexHeight = 2.0f * baseHexSize
-                            val baseVerticalSpacing = baseHexHeight * 0.75f
-                            val totalMapWidth = (mapWidth) * baseHexWidth + baseHexWidth / 2
-                            val totalMapHeight = (mapHeight - 1) * baseVerticalSpacing + baseHexHeight
-                            val padding = 4f
-                            val scaleX = (size.width - padding * 2) / totalMapWidth
-                            val scaleY = (size.height - padding * 2) / totalMapHeight
-                            val mapScale = minOf(scaleX, scaleY)
-                            val hexWidth = baseHexWidth * mapScale
-                            val hexHeight = baseHexHeight * mapScale
-                            val verticalSpacing = baseVerticalSpacing * mapScale
-                            val scaledMapWidth = totalMapWidth * mapScale
-                            val scaledMapHeight = totalMapHeight * mapScale
-                            val offsetXCanvas = (size.width - scaledMapWidth) / 2
-                            val offsetYCanvas = (size.height - scaledMapHeight) / 2
+                            val geometry = calculateHexGeometry(map.width, map.height, size.width.toFloat(), size.height.toFloat())
 
                             var hoveredPosition: Position? = null
                             var minDistance = Float.MAX_VALUE
@@ -94,13 +119,13 @@ fun InitialSetupMinimap(
                                 for (col in 0 until map.width) {
                                     val pos = Position(col, row)
                                     if (isValidPlacement(pos, placementMode, map)) {
-                                        val offsetXHex = if (row % 2 == 1) hexWidth / 2 else 0.0f
-                                        val centerX = offsetXCanvas + col * hexWidth + offsetXHex + hexWidth / 2
-                                        val centerY = offsetYCanvas + row * verticalSpacing + hexHeight / 2
+                                        val offsetXHex = if (row % 2 == 1) geometry.hexWidth / 2 else 0.0f
+                                        val centerX = geometry.offsetXCanvas + col * geometry.hexWidth + offsetXHex + geometry.hexWidth / 2
+                                        val centerY = geometry.offsetYCanvas + row * geometry.verticalSpacing + geometry.hexHeight / 2
                                         val dx = offset.x - centerX
                                         val dy = offset.y - centerY
                                         val distance = sqrt(dx * dx + dy * dy)
-                                        val hitRadius = hexHeight / 2
+                                        val hitRadius = geometry.hexHeight / 2
                                         if (distance < hitRadius && distance < minDistance) {
                                             minDistance = distance
                                             hoveredPosition = pos
@@ -119,30 +144,7 @@ fun InitialSetupMinimap(
         }
         .pointerInput(placementMode) {
             detectTapGestures { offset ->
-                val mapWidth = map.width
-                val mapHeight = map.height
-
-                val baseHexSize = MINIMAP_HEX_SIZE
-                val baseHexWidth = (sqrt(3.0) * baseHexSize).toFloat()
-                val baseHexHeight = 2.0f * baseHexSize
-                val baseVerticalSpacing = baseHexHeight * 0.75f
-
-                val totalMapWidth = (mapWidth) * baseHexWidth + baseHexWidth / 2
-                val totalMapHeight = (mapHeight - 1) * baseVerticalSpacing + baseHexHeight
-
-                val padding = 4f
-                val scaleX = (size.width - padding * 2) / totalMapWidth
-                val scaleY = (size.height - padding * 2) / totalMapHeight
-                val mapScale = minOf(scaleX, scaleY)
-
-                val hexWidth = baseHexWidth * mapScale
-                val hexHeight = baseHexHeight * mapScale
-                val verticalSpacing = baseVerticalSpacing * mapScale
-
-                val scaledMapWidth = totalMapWidth * mapScale
-                val scaledMapHeight = totalMapHeight * mapScale
-                val offsetXCanvas = (size.width - scaledMapWidth) / 2
-                val offsetYCanvas = (size.height - scaledMapHeight) / 2
+                val geometry = calculateHexGeometry(map.width, map.height, size.width.toFloat(), size.height.toFloat())
 
                 var clickedPosition: Position? = null
                 var minDistance = Float.MAX_VALUE
@@ -152,15 +154,15 @@ fun InitialSetupMinimap(
                         val pos = Position(col, row)
                         
                         if (isValidPlacement(pos, placementMode, map)) {
-                            val offsetXHex = if (row % 2 == 1) hexWidth / 2 else 0.0f
-                            val centerX = offsetXCanvas + col * hexWidth + offsetXHex + hexWidth / 2
-                            val centerY = offsetYCanvas + row * verticalSpacing + hexHeight / 2
+                            val offsetXHex = if (row % 2 == 1) geometry.hexWidth / 2 else 0.0f
+                            val centerX = geometry.offsetXCanvas + col * geometry.hexWidth + offsetXHex + geometry.hexWidth / 2
+                            val centerY = geometry.offsetYCanvas + row * geometry.verticalSpacing + geometry.hexHeight / 2
 
                             val dx = offset.x - centerX
                             val dy = offset.y - centerY
                             val distance = sqrt(dx * dx + dy * dy)
 
-                            val hitRadius = hexHeight / 2
+                            val hitRadius = geometry.hexHeight / 2
                             if (distance < hitRadius && distance < minDistance) {
                                 minDistance = distance
                                 clickedPosition = pos
@@ -173,40 +175,16 @@ fun InitialSetupMinimap(
             }
         }
     ) {
-        val mapWidth = map.width
-        val mapHeight = map.height
-
-        val baseHexSize = MINIMAP_HEX_SIZE
-        val baseHexWidth = (sqrt(3.0) * baseHexSize).toFloat()
-        val baseHexHeight = 2.0f * baseHexSize
-        val baseVerticalSpacing = baseHexHeight * 0.75f
-
-        val totalMapWidth = (mapWidth) * baseHexWidth + baseHexWidth / 2
-        val totalMapHeight = (mapHeight - 1) * baseVerticalSpacing + baseHexHeight
-
-        val padding = 4f
-        val scaleX = (size.width - padding * 2) / totalMapWidth
-        val scaleY = (size.height - padding * 2) / totalMapHeight
-        val mapScale = minOf(scaleX, scaleY)
-
-        val hexSize = baseHexSize * mapScale
-        val hexWidth = baseHexWidth * mapScale
-        val hexHeight = baseHexHeight * mapScale
-        val verticalSpacing = baseVerticalSpacing * mapScale
-
-        val scaledMapWidth = totalMapWidth * mapScale
-        val scaledMapHeight = totalMapHeight * mapScale
-        val offsetXCanvas = (size.width - scaledMapWidth) / 2
-        val offsetYCanvas = (size.height - scaledMapHeight) / 2
+        val geometry = calculateHexGeometry(map.width, map.height, size.width, size.height)
 
         for (row in 0 until map.height) {
             for (col in 0 until map.width) {
                 val tileType = map.tiles.getOrElse("$col,$row") { TileType.NO_PLAY }
                 val pos = Position(col, row)
 
-                val offsetXHex = if (row % 2 == 1) hexWidth / 2 else 0.0f
-                val centerX = offsetXCanvas + col * hexWidth + offsetXHex + hexWidth / 2
-                val centerY = offsetYCanvas + row * verticalSpacing + hexHeight / 2
+                val offsetXHex = if (row % 2 == 1) geometry.hexWidth / 2 else 0.0f
+                val centerX = geometry.offsetXCanvas + col * geometry.hexWidth + offsetXHex + geometry.hexWidth / 2
+                val centerY = geometry.offsetYCanvas + row * geometry.verticalSpacing + geometry.hexHeight / 2
 
                 val isValidForPlacement = isValidPlacement(pos, placementMode, map)
                 val isSelected = pos == selectedPosition
@@ -222,7 +200,7 @@ fun InitialSetupMinimap(
                     else -> if (isDarkMode) Color(0xFF2C2C2C) else Color(0xFF808080)
                 }
 
-                drawHexagon(centerX, centerY, hexSize, color)
+                drawHexagon(centerX, centerY, geometry.hexSize, color)
             }
         }
     }
