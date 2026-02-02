@@ -51,11 +51,12 @@ Complete refactoring of the Initial Setup tab in the level editor to provide a b
 5. No dialogs needed for normal operation
 
 #### 4. Validation Rules
-- **Towers**: Cannot overlap with other towers
-- **Traps**: Cannot overlap with traps or barricades
-- **Barricades**: Cannot overlap with traps or barricades
-- **Enemies**: Can overlap (they're mobile)
-- **Tile restrictions**: Each element type has valid tile types (e.g., towers on BUILD_AREA/ISLAND)
+- **Universal rule**: Only one element (tower, enemy, trap, or barricade) is possible on a tile
+- **Tile restrictions**: Each element type has valid tile types:
+  - Towers: BUILD_AREA or ISLAND
+  - Enemies: PATH or SPAWN_POINT
+  - Traps: PATH
+  - Barricades: PATH
 
 #### 5. Configuration Panels
 Each element type has a dedicated configuration panel:

@@ -105,7 +105,7 @@ fun InitialSetupTab(
                         onTileClick = { position ->
                             when (placementMode) {
                                 PlacementMode.DEFENDER -> {
-                                    if (canPlaceDefender(position, initialDefenders)) {
+                                    if (canPlaceDefender(position, initialDefenders, initialAttackers, initialTraps, initialBarricades)) {
                                         val newDefender = InitialDefender(
                                             type = selectedDefenderType,
                                             position = position,
@@ -116,17 +116,19 @@ fun InitialSetupTab(
                                     }
                                 }
                                 PlacementMode.ATTACKER -> {
-                                    val newAttacker = InitialAttacker(
-                                        type = selectedAttackerType,
-                                        position = position,
-                                        level = selectedAttackerLevel,
-                                        currentHealth = customHealth,
-                                        dragonName = if (selectedAttackerType == AttackerType.DRAGON && attackerDragonName.isNotBlank()) attackerDragonName else null
-                                    )
-                                    onInitialAttackersChange(initialAttackers + newAttacker)
+                                    if (canPlaceAttacker(position, initialDefenders, initialAttackers, initialTraps, initialBarricades)) {
+                                        val newAttacker = InitialAttacker(
+                                            type = selectedAttackerType,
+                                            position = position,
+                                            level = selectedAttackerLevel,
+                                            currentHealth = customHealth,
+                                            dragonName = if (selectedAttackerType == AttackerType.DRAGON && attackerDragonName.isNotBlank()) attackerDragonName else null
+                                        )
+                                        onInitialAttackersChange(initialAttackers + newAttacker)
+                                    }
                                 }
                                 PlacementMode.TRAP -> {
-                                    if (canPlaceTrap(position, initialTraps, initialBarricades)) {
+                                    if (canPlaceTrap(position, initialDefenders, initialAttackers, initialTraps, initialBarricades)) {
                                         val newTrap = InitialTrap(
                                             position = position,
                                             damage = trapDamage,
@@ -136,7 +138,7 @@ fun InitialSetupTab(
                                     }
                                 }
                                 PlacementMode.BARRICADE -> {
-                                    if (canPlaceBarricade(position, initialTraps, initialBarricades)) {
+                                    if (canPlaceBarricade(position, initialDefenders, initialAttackers, initialTraps, initialBarricades)) {
                                         val newBarricade = InitialBarricade(
                                             position = position,
                                             healthPoints = barricadeHealthPoints
@@ -230,16 +232,61 @@ fun InitialSetupTab(
  * Validation functions
  */
 
-private fun canPlaceDefender(position: Position, existingDefenders: List<InitialDefender>): Boolean {
-    return existingDefenders.none { it.position == position }
+/**
+ * Check if a position is occupied by ANY element type.
+ * Rule: Only one element (tower, trap, barricade, OR unit) is possible on a tile.
+ */
+private fun isPositionOccupied(
+    position: Position,
+    existingDefenders: List<InitialDefender>,
+    existingAttackers: List<InitialAttacker>,
+    existingTraps: List<InitialTrap>,
+    existingBarricades: List<InitialBarricade>
+): Boolean {
+    return existingDefenders.any { it.position == position } ||
+           existingAttackers.any { it.position == position } ||
+           existingTraps.any { it.position == position } ||
+           existingBarricades.any { it.position == position }
 }
 
-private fun canPlaceTrap(position: Position, existingTraps: List<InitialTrap>, existingBarricades: List<InitialBarricade>): Boolean {
-    return existingTraps.none { it.position == position } && existingBarricades.none { it.position == position }
+private fun canPlaceDefender(
+    position: Position,
+    existingDefenders: List<InitialDefender>,
+    existingAttackers: List<InitialAttacker>,
+    existingTraps: List<InitialTrap>,
+    existingBarricades: List<InitialBarricade>
+): Boolean {
+    return !isPositionOccupied(position, existingDefenders, existingAttackers, existingTraps, existingBarricades)
 }
 
-private fun canPlaceBarricade(position: Position, existingTraps: List<InitialTrap>, existingBarricades: List<InitialBarricade>): Boolean {
-    return existingTraps.none { it.position == position } && existingBarricades.none { it.position == position }
+private fun canPlaceAttacker(
+    position: Position,
+    existingDefenders: List<InitialDefender>,
+    existingAttackers: List<InitialAttacker>,
+    existingTraps: List<InitialTrap>,
+    existingBarricades: List<InitialBarricade>
+): Boolean {
+    return !isPositionOccupied(position, existingDefenders, existingAttackers, existingTraps, existingBarricades)
+}
+
+private fun canPlaceTrap(
+    position: Position,
+    existingDefenders: List<InitialDefender>,
+    existingAttackers: List<InitialAttacker>,
+    existingTraps: List<InitialTrap>,
+    existingBarricades: List<InitialBarricade>
+): Boolean {
+    return !isPositionOccupied(position, existingDefenders, existingAttackers, existingTraps, existingBarricades)
+}
+
+private fun canPlaceBarricade(
+    position: Position,
+    existingDefenders: List<InitialDefender>,
+    existingAttackers: List<InitialAttacker>,
+    existingTraps: List<InitialTrap>,
+    existingBarricades: List<InitialBarricade>
+): Boolean {
+    return !isPositionOccupied(position, existingDefenders, existingAttackers, existingTraps, existingBarricades)
 }
 
 /**

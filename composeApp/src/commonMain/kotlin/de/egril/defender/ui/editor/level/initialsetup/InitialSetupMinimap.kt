@@ -209,9 +209,10 @@ fun InitialSetupMinimap(
                 }
                 
                 // Validation checks for placement conflicts
+                // Rule: Only one element (tower, trap, barricade, OR unit) is possible on a tile
+                val hasAnyElement = hasDefender || hasAttacker || hasTrap || hasBarricade
                 val hasConflict = when (placementMode) {
-                    PlacementMode.DEFENDER -> hasDefender
-                    PlacementMode.TRAP, PlacementMode.BARRICADE -> hasTrap || hasBarricade
+                    PlacementMode.DEFENDER, PlacementMode.ATTACKER, PlacementMode.TRAP, PlacementMode.BARRICADE -> hasAnyElement
                     else -> false
                 }
 
