@@ -292,7 +292,7 @@ fun InitialSetupMinimap(
             drawRect(
                 color = Color(0xFF8D6E63),
                 topLeft = Offset(centerX - iconSize / 2, centerY - iconSize / 2),
-                size = androidx.compose.ui.geometry.Size(iconSize, iconSize)
+                size = Size(iconSize, iconSize)
             )
         }
     }

@@ -281,13 +281,3 @@ private fun findElementAtPosition(
     }
     return null
 }
-
-/**
- * Types of initial elements that can be placed (kept for potential future use)
- */
-enum class InitialElementType {
-    DEFENDER,
-    ATTACKER,
-    TRAP,
-    BARRICADE
-}
