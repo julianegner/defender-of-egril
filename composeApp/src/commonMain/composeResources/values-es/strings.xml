@@ -602,6 +602,11 @@
     <string name="select_position_on_map">Seleccionar posición en el mapa</string>
     <string name="initial_setup_map">Mapa</string>
     <string name="initial_setup_click_to_place">Haz clic en el mapa para colocar el elemento seleccionado</string>
+    <string name="initial_setup_info">Coloca torres, enemigos, trampas y barricadas en el mapa antes de que comience el nivel (opcional)</string>
+    <string name="initial_setup_towers">Torres</string>
+    <string name="initial_setup_enemies">Enemigos</string>
+    <string name="initial_setup_traps">Trampas</string>
+    <string name="initial_setup_barricades">Barricadas</string>
     <string name="initial_setup_configuration">Configuración</string>
     <string name="element_type">Tipo de Elemento</string>
     <string name="selection_mode">Modo de Selección</string>
