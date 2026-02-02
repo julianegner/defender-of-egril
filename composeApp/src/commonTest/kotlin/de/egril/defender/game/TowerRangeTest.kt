@@ -115,20 +115,68 @@ class TowerRangeTest {
     }
     
     @Test
-    fun testOtherTowersNoMaxRange() {
-        // Spike, Wizard, and Alchemy towers should not have maxRange caps
-        assertEquals(null, DefenderType.SPIKE_TOWER.maxRange, "Spike tower should have no max range cap")
-        assertEquals(null, DefenderType.WIZARD_TOWER.maxRange, "Wizard tower should have no max range cap")
-        assertEquals(null, DefenderType.ALCHEMY_TOWER.maxRange, "Alchemy tower should have no max range cap")
-        
-        // Note: Spike tower has a special case max range of 2 at level 5+ (hardcoded)
+    fun testSpikeTowerMaxRange() {
+        // Spike tower has base range 1, max range 2
+        // Range formula: baseRange + (level - 1) / 2
+        // Level 1: 1 + (1-1)/2 = 1 + 0 = 1
+        // Level 3: 1 + (3-1)/2 = 1 + 1 = 2 (at max)
+        // Level 5: 1 + (5-1)/2 = 1 + 2 = 3 (capped at maxRange 2)
         val spikeTower = Defender(
             id = 1,
             type = DefenderType.SPIKE_TOWER,
             position = mutableStateOf(Position(5, 5)),
-            level = mutableStateOf(5)
+            level = mutableStateOf(1)
         )
-        assertEquals(2, spikeTower.range, "Level 5+ spike tower should have max range 2 (special case)")
+        
+        assertEquals(2, spikeTower.type.maxRange, "Spike tower should have max range of 2")
+        assertEquals(1, spikeTower.range, "Level 1 spike tower should have range 1")
+        
+        spikeTower.level.value = 3
+        assertEquals(2, spikeTower.range, "Level 3 spike tower should have range 2 (at max)")
+        
+        spikeTower.level.value = 5
+        assertEquals(2, spikeTower.range, "Level 5 spike tower should have range 2 (capped)")
+        
+        spikeTower.level.value = 10
+        assertEquals(2, spikeTower.range, "Level 10 spike tower should have range 2 (capped)")
+    }
+    
+    @Test
+    fun testDwarvenMineMaxRange() {
+        // Dwarven mine has special growth: 3 base + 1 every 5 levels, max 10
+        // Level 1: 3 + (1/5) = 3 + 0 = 3
+        // Level 5: 3 + (5/5) = 3 + 1 = 4
+        // Level 10: 3 + (10/5) = 3 + 2 = 5
+        // Level 35: 3 + (35/5) = 3 + 7 = 10 (at max)
+        // Level 40: 3 + (40/5) = 3 + 8 = 11 (capped at maxRange 10)
+        val mine = Defender(
+            id = 1,
+            type = DefenderType.DWARVEN_MINE,
+            position = mutableStateOf(Position(5, 5)),
+            level = mutableStateOf(1)
+        )
+        
+        assertEquals(10, mine.type.maxRange, "Dwarven mine should have max range of 10")
+        assertEquals(3, mine.range, "Level 1 mine should have range 3")
+        
+        mine.level.value = 5
+        assertEquals(4, mine.range, "Level 5 mine should have range 4")
+        
+        mine.level.value = 10
+        assertEquals(5, mine.range, "Level 10 mine should have range 5")
+        
+        mine.level.value = 35
+        assertEquals(10, mine.range, "Level 35 mine should have range 10 (at max)")
+        
+        mine.level.value = 40
+        assertEquals(10, mine.range, "Level 40 mine should have range 10 (capped)")
+    }
+    
+    @Test
+    fun testOtherTowersNoMaxRange() {
+        // Wizard and Alchemy towers should not have maxRange caps
+        assertEquals(null, DefenderType.WIZARD_TOWER.maxRange, "Wizard tower should have no max range cap")
+        assertEquals(null, DefenderType.ALCHEMY_TOWER.maxRange, "Alchemy tower should have no max range cap")
     }
     
     @Test

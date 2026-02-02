@@ -685,18 +685,19 @@ private fun calculateTrapDamage(defender: Defender, level: Int): Int {
  * Calculate the range for a defender at a specific level
  */
 private fun calculateRange(defender: Defender, level: Int): Int {
-    val baseCalculatedRange = defender.type.baseRange + (level - 1) / 2
-
-    if (defender.type == DefenderType.SPIKE_TOWER && level >= 5) {
-        return minOf(baseCalculatedRange, 2)
+    val baseCalculatedRange = if (defender.type == DefenderType.DWARVEN_MINE) {
+        // Dwarven mine has special growth: 3 base + 1 every 5 levels
+        3 + (level / 5)
+    } else {
+        // Standard growth: baseRange + (level - 1) / 2
+        defender.type.baseRange + (level - 1) / 2
     }
-
-    if (defender.type == DefenderType.DWARVEN_MINE) {
-        val mineReach = 3 + (level / 5)
-        return minOf(mineReach, 10)
+    // Apply maxRange cap if defined for this tower type
+    return if (defender.type.maxRange != null) {
+        minOf(baseCalculatedRange, defender.type.maxRange)
+    } else {
+        baseCalculatedRange
     }
-
-    return baseCalculatedRange
 }
 
 /**
