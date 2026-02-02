@@ -108,4 +108,42 @@ class UpgradePreviewTest {
         mine.level.value = 36
         assertEquals(10, mine.range, "Level 36: range should be 10 (capped)")
     }
+    
+    @Test
+    fun testWizardTowerUpgradePreview() {
+        val wizardTower = Defender(
+            id = 1,
+            type = DefenderType.WIZARD_TOWER,
+            position = mutableStateOf(Position(5, 5)),
+            level = mutableStateOf(24)
+        )
+        
+        // Wizard tower should cap at 15
+        assertEquals(14, wizardTower.range, "Level 24: range should be 14")
+        wizardTower.level.value = 25
+        assertEquals(15, wizardTower.range, "Level 25: range should be 15 (at max)")
+        
+        // Level 25 -> 26: range should stay at 15 (capped)
+        wizardTower.level.value = 26
+        assertEquals(15, wizardTower.range, "Level 26: range should be 15 (capped)")
+    }
+    
+    @Test
+    fun testAlchemyTowerUpgradePreview() {
+        val alchemyTower = Defender(
+            id = 1,
+            type = DefenderType.ALCHEMY_TOWER,
+            position = mutableStateOf(Position(5, 5)),
+            level = mutableStateOf(16)
+        )
+        
+        // Alchemy tower should cap at 10
+        assertEquals(9, alchemyTower.range, "Level 16: range should be 9")
+        alchemyTower.level.value = 17
+        assertEquals(10, alchemyTower.range, "Level 17: range should be 10 (at max)")
+        
+        // Level 17 -> 18: range should stay at 10 (capped)
+        alchemyTower.level.value = 18
+        assertEquals(10, alchemyTower.range, "Level 18: range should be 10 (capped)")
+    }
 }

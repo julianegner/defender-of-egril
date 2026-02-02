@@ -173,10 +173,67 @@ class TowerRangeTest {
     }
     
     @Test
-    fun testOtherTowersNoMaxRange() {
-        // Wizard and Alchemy towers should not have maxRange caps
-        assertEquals(null, DefenderType.WIZARD_TOWER.maxRange, "Wizard tower should have no max range cap")
-        assertEquals(null, DefenderType.ALCHEMY_TOWER.maxRange, "Alchemy tower should have no max range cap")
+    fun testWizardTowerMaxRange() {
+        // Wizard tower has base range 3, max range 15
+        // Range formula: baseRange + (level - 1) / 2
+        // Level 1: 3 + (1-1)/2 = 3 + 0 = 3
+        // Level 10: 3 + (10-1)/2 = 3 + 4 = 7
+        // Level 20: 3 + (20-1)/2 = 3 + 9 = 12
+        // Level 25: 3 + (25-1)/2 = 3 + 12 = 15 (at max)
+        // Level 30: 3 + (30-1)/2 = 3 + 14 = 17 (capped at maxRange 15)
+        val wizardTower = Defender(
+            id = 1,
+            type = DefenderType.WIZARD_TOWER,
+            position = mutableStateOf(Position(5, 5)),
+            level = mutableStateOf(1)
+        )
+        
+        assertEquals(15, wizardTower.type.maxRange, "Wizard tower should have max range of 15")
+        assertEquals(3, wizardTower.range, "Level 1 wizard tower should have range 3")
+        
+        wizardTower.level.value = 10
+        assertEquals(7, wizardTower.range, "Level 10 wizard tower should have range 7")
+        
+        wizardTower.level.value = 20
+        assertEquals(12, wizardTower.range, "Level 20 wizard tower should have range 12")
+        
+        wizardTower.level.value = 25
+        assertEquals(15, wizardTower.range, "Level 25 wizard tower should have range 15 (at max)")
+        
+        wizardTower.level.value = 30
+        assertEquals(15, wizardTower.range, "Level 30 wizard tower should have range 15 (capped)")
+    }
+    
+    @Test
+    fun testAlchemyTowerMaxRange() {
+        // Alchemy tower has base range 2, max range 10
+        // Range formula: baseRange + (level - 1) / 2
+        // Level 1: 2 + (1-1)/2 = 2 + 0 = 2
+        // Level 5: 2 + (5-1)/2 = 2 + 2 = 4
+        // Level 10: 2 + (10-1)/2 = 2 + 4 = 6
+        // Level 17: 2 + (17-1)/2 = 2 + 8 = 10 (at max)
+        // Level 20: 2 + (20-1)/2 = 2 + 9 = 11 (capped at maxRange 10)
+        val alchemyTower = Defender(
+            id = 1,
+            type = DefenderType.ALCHEMY_TOWER,
+            position = mutableStateOf(Position(5, 5)),
+            level = mutableStateOf(1)
+        )
+        
+        assertEquals(10, alchemyTower.type.maxRange, "Alchemy tower should have max range of 10")
+        assertEquals(2, alchemyTower.range, "Level 1 alchemy tower should have range 2")
+        
+        alchemyTower.level.value = 5
+        assertEquals(4, alchemyTower.range, "Level 5 alchemy tower should have range 4")
+        
+        alchemyTower.level.value = 10
+        assertEquals(6, alchemyTower.range, "Level 10 alchemy tower should have range 6")
+        
+        alchemyTower.level.value = 17
+        assertEquals(10, alchemyTower.range, "Level 17 alchemy tower should have range 10 (at max)")
+        
+        alchemyTower.level.value = 20
+        assertEquals(10, alchemyTower.range, "Level 20 alchemy tower should have range 10 (capped)")
     }
     
     @Test

@@ -18,8 +18,8 @@ enum class DefenderType(
     SPIKE_TOWER("Spike Tower", baseCost = 10, baseDamage = 5, baseRange = 1, attackType = AttackType.MELEE, actionsPerTurn = 1, buildTime = 1, maxRange = 2),
     SPEAR_TOWER("Spear Tower", baseCost = 15, baseDamage = 8, baseRange = 2, attackType = AttackType.RANGED, actionsPerTurn = 1, buildTime = 1, maxRange = 5),
     BOW_TOWER("Bow Tower", baseCost = 20, baseDamage = 10, baseRange = 3, attackType = AttackType.RANGED, actionsPerTurn = 1, buildTime = 1, maxRange = 20),
-    WIZARD_TOWER("Wizard Tower", baseCost = 50, baseDamage = 30, baseRange = 3, attackType = AttackType.AREA, actionsPerTurn = 1, buildTime = 2),
-    ALCHEMY_TOWER("Alchemy Tower", baseCost = 40, baseDamage = 15, baseRange = 2, attackType = AttackType.LASTING, actionsPerTurn = 1, buildTime = 1),
+    WIZARD_TOWER("Wizard Tower", baseCost = 50, baseDamage = 30, baseRange = 3, attackType = AttackType.AREA, actionsPerTurn = 1, buildTime = 2, maxRange = 15),
+    ALCHEMY_TOWER("Alchemy Tower", baseCost = 40, baseDamage = 15, baseRange = 2, attackType = AttackType.LASTING, actionsPerTurn = 1, buildTime = 1, maxRange = 10),
     BALLISTA_TOWER("Ballista Tower", baseCost = 60, baseDamage = 50, baseRange = 5, attackType = AttackType.RANGED, actionsPerTurn = 1, buildTime = 2, minRange = 3),
     DWARVEN_MINE("Mine", baseCost = 100, baseDamage = 0, baseRange = 3, attackType = AttackType.NONE, actionsPerTurn = 0, buildTime = 3, isMine = true, maxRange = 10),
     DRAGONS_LAIR("Dragon's Lair", baseCost = 0, baseDamage = 0, baseRange = 0, attackType = AttackType.NONE, actionsPerTurn = 0, buildTime = 0)
