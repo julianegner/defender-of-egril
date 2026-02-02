@@ -598,6 +598,8 @@
     <string name="cancel_connection">Cancelar</string>
     <string name="drag_to_reorder">Arrastra para reordenar</string>
     <string name="drag_to_add">Arrastra para agregar</string>
+    <string name="show_all_towers">Mostrar todas las torres</string>
+    <string name="select_position_on_map">Seleccionar posición en el mapa</string>
     
     <!-- Plurals -->
     <plurals name="enemy_count">

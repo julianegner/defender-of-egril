@@ -598,6 +598,8 @@
     <string name="click_target_waypoint">2. Cliquez sur une cible (point de passage ou cible)</string>
     <string name="connection_mode_active">Mode connexion actif</string>
     <string name="cancel_connection">Annuler</string>
+    <string name="show_all_towers">Afficher toutes les tours</string>
+    <string name="select_position_on_map">Sélectionner une position sur la carte</string>
     
     <!-- Plurals -->
     <plurals name="enemy_count">

@@ -153,8 +153,7 @@ fun AddEditTrapDialog(
 ) {
     var trapType by remember { mutableStateOf(existingTrap?.type ?: "DWARVEN") }
     var damage by remember { mutableStateOf(existingTrap?.damage?.toString() ?: "10") }
-    var x by remember { mutableStateOf(existingTrap?.position?.x?.toString() ?: "0") }
-    var y by remember { mutableStateOf(existingTrap?.position?.y?.toString() ?: "0") }
+    var selectedPosition by remember { mutableStateOf(existingTrap?.position ?: Position(0, 0)) }
     
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -210,22 +209,31 @@ fun AddEditTrapDialog(
                     modifier = Modifier.fillMaxWidth()
                 )
                 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    OutlinedTextField(
-                        value = x,
-                        onValueChange = { if (it.all { c -> c.isDigit() } && it.length <= 3) x = it },
-                        label = { Text("X") },
-                        modifier = Modifier.weight(1f)
+                // Position selection with map
+                if (map != null) {
+                    Text(
+                        text = stringResource(Res.string.select_position_on_map),
+                        style = MaterialTheme.typography.bodyMedium
                     )
-                    OutlinedTextField(
-                        value = y,
-                        onValueChange = { if (it.all { c -> c.isDigit() } && it.length <= 3) y = it },
-                        label = { Text("Y") },
-                        modifier = Modifier.weight(1f)
+                    
+                    Text(
+                        text = "${stringResource(Res.string.position_label)}: (${selectedPosition.x}, ${selectedPosition.y})",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
+                    
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(300.dp)
+                    ) {
+                        InitialSetupMinimap(
+                            map = map,
+                            placementMode = PlacementMode.TRAP,
+                            selectedPosition = selectedPosition,
+                            onTileClick = { selectedPosition = it }
+                        )
+                    }
                 }
             }
         },
@@ -233,12 +241,10 @@ fun AddEditTrapDialog(
             Button(
                 onClick = {
                     val damageValue = damage.toIntOrNull() ?: 10
-                    val xValue = x.toIntOrNull() ?: 0
-                    val yValue = y.toIntOrNull() ?: 0
                     
                     onConfirm(
                         InitialTrap(
-                            position = Position(xValue, yValue),
+                            position = selectedPosition,
                             damage = damageValue,
                             type = trapType
                         )
@@ -387,8 +393,7 @@ fun AddEditBarricadeDialog(
     onConfirm: (InitialBarricade) -> Unit
 ) {
     var healthPoints by remember { mutableStateOf(existingBarricade?.healthPoints?.toString() ?: "10") }
-    var x by remember { mutableStateOf(existingBarricade?.position?.x?.toString() ?: "0") }
-    var y by remember { mutableStateOf(existingBarricade?.position?.y?.toString() ?: "0") }
+    var selectedPosition by remember { mutableStateOf(existingBarricade?.position ?: Position(0, 0)) }
     
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -412,22 +417,31 @@ fun AddEditBarricadeDialog(
                     modifier = Modifier.fillMaxWidth()
                 )
                 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    OutlinedTextField(
-                        value = x,
-                        onValueChange = { if (it.all { c -> c.isDigit() } && it.length <= 3) x = it },
-                        label = { Text("X") },
-                        modifier = Modifier.weight(1f)
+                // Position selection with map
+                if (map != null) {
+                    Text(
+                        text = stringResource(Res.string.select_position_on_map),
+                        style = MaterialTheme.typography.bodyMedium
                     )
-                    OutlinedTextField(
-                        value = y,
-                        onValueChange = { if (it.all { c -> c.isDigit() } && it.length <= 3) y = it },
-                        label = { Text("Y") },
-                        modifier = Modifier.weight(1f)
+                    
+                    Text(
+                        text = "${stringResource(Res.string.position_label)}: (${selectedPosition.x}, ${selectedPosition.y})",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
+                    
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(300.dp)
+                    ) {
+                        InitialSetupMinimap(
+                            map = map,
+                            placementMode = PlacementMode.BARRICADE,
+                            selectedPosition = selectedPosition,
+                            onTileClick = { selectedPosition = it }
+                        )
+                    }
                 }
             }
         },
@@ -435,12 +449,10 @@ fun AddEditBarricadeDialog(
             Button(
                 onClick = {
                     val hpValue = healthPoints.toIntOrNull() ?: 10
-                    val xValue = x.toIntOrNull() ?: 0
-                    val yValue = y.toIntOrNull() ?: 0
                     
                     onConfirm(
                         InitialBarricade(
-                            position = Position(xValue, yValue),
+                            position = selectedPosition,
                             healthPoints = hpValue
                         )
                     )

@@ -628,6 +628,8 @@
     <string name="no_initial_traps">No traps placed initially</string>
     <string name="no_initial_barricades">No barricades placed initially</string>
     <string name="custom_health_optional">Custom Health (optional)</string>
+    <string name="show_all_towers">Show all towers</string>
+    <string name="select_position_on_map">Select position on map</string>
     
     <!-- Plurals -->
     <plurals name="enemy_count">

@@ -155,8 +155,7 @@ fun AddEditAttackerDialog(
 ) {
     var selectedType by remember { mutableStateOf(existingAttacker?.type ?: AttackerType.GOBLIN) }
     var level by remember { mutableStateOf(existingAttacker?.level?.toString() ?: "1") }
-    var x by remember { mutableStateOf(existingAttacker?.position?.x?.toString() ?: "0") }
-    var y by remember { mutableStateOf(existingAttacker?.position?.y?.toString() ?: "0") }
+    var selectedPosition by remember { mutableStateOf(existingAttacker?.position ?: Position(0, 0)) }
     var customHealth by remember { mutableStateOf(existingAttacker?.currentHealth?.toString() ?: "") }
     var dragonName by remember { mutableStateOf(existingAttacker?.dragonName ?: "") }
     
@@ -209,23 +208,36 @@ fun AddEditAttackerDialog(
                     )
                 }
                 
-                item {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        OutlinedTextField(
-                            value = x,
-                            onValueChange = { if (it.all { c -> c.isDigit() } && it.length <= 3) x = it },
-                            label = { Text("X") },
-                            modifier = Modifier.weight(1f)
+                // Position selection with map
+                if (map != null) {
+                    item {
+                        Text(
+                            text = stringResource(Res.string.select_position_on_map),
+                            style = MaterialTheme.typography.bodyMedium
                         )
-                        OutlinedTextField(
-                            value = y,
-                            onValueChange = { if (it.all { c -> c.isDigit() } && it.length <= 3) y = it },
-                            label = { Text("Y") },
-                            modifier = Modifier.weight(1f)
+                    }
+                    
+                    item {
+                        Text(
+                            text = "${stringResource(Res.string.position_label)}: (${selectedPosition.x}, ${selectedPosition.y})",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
+                    }
+                    
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(300.dp)
+                        ) {
+                            InitialSetupMinimap(
+                                map = map,
+                                placementMode = PlacementMode.ATTACKER,
+                                selectedPosition = selectedPosition,
+                                onTileClick = { selectedPosition = it }
+                            )
+                        }
                     }
                 }
                 
@@ -254,14 +266,12 @@ fun AddEditAttackerDialog(
             Button(
                 onClick = {
                     val levelValue = level.toIntOrNull() ?: 1
-                    val xValue = x.toIntOrNull() ?: 0
-                    val yValue = y.toIntOrNull() ?: 0
                     val healthValue = customHealth.toIntOrNull()
                     
                     onConfirm(
                         InitialAttacker(
                             type = selectedType,
-                            position = Position(xValue, yValue),
+                            position = selectedPosition,
                             level = levelValue,
                             currentHealth = healthValue,
                             dragonName = if (selectedType == AttackerType.DRAGON && dragonName.isNotBlank()) dragonName else null

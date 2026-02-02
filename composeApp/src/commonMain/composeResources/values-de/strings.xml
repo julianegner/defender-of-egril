@@ -598,6 +598,8 @@
     <string name="cancel_connection">Abbrechen</string>
     <string name="drag_to_reorder">Zum Neuordnen ziehen</string>
     <string name="drag_to_add">Zum Hinzufügen ziehen</string>
+    <string name="show_all_towers">Alle Türme anzeigen</string>
+    <string name="select_position_on_map">Position auf Karte wählen</string>
     
     <!-- Plurals -->
     <plurals name="enemy_count">

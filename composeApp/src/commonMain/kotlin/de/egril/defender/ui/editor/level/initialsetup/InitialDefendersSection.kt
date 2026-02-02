@@ -28,11 +28,28 @@ fun InitialDefendersSection(
 ) {
     var showAddDialog by remember { mutableStateOf(false) }
     var editingDefender by remember { mutableStateOf<Pair<Int, InitialDefender>?>(null) }
+    var showAllTowers by remember { mutableStateOf(false) }
     
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
+        // Toggle for showing all towers
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(
+                text = stringResource(Res.string.show_all_towers),
+                modifier = Modifier.weight(1f)
+            )
+            Switch(
+                checked = showAllTowers,
+                onCheckedChange = { showAllTowers = it }
+            )
+        }
+        
         // Add button
         Button(
             onClick = { showAddDialog = true },
@@ -78,7 +95,7 @@ fun InitialDefendersSection(
         AddEditDefenderDialog(
             existingDefender = editingDefender?.second,
             map = map,
-            availableTowers = availableTowers,
+            availableTowers = if (showAllTowers) DefenderType.entries.toSet() else availableTowers,
             onDismiss = {
                 showAddDialog = false
                 editingDefender = null
@@ -174,8 +191,7 @@ fun AddEditDefenderDialog(
 ) {
     var selectedType by remember { mutableStateOf(existingDefender?.type ?: DefenderType.SPIKE_TOWER) }
     var level by remember { mutableStateOf(existingDefender?.level?.toString() ?: "1") }
-    var x by remember { mutableStateOf(existingDefender?.position?.x?.toString() ?: "0") }
-    var y by remember { mutableStateOf(existingDefender?.position?.y?.toString() ?: "0") }
+    var selectedPosition by remember { mutableStateOf(existingDefender?.position ?: Position(0, 0)) }
     var dragonName by remember { mutableStateOf(existingDefender?.dragonName ?: "") }
     
     AlertDialog(
@@ -201,10 +217,8 @@ fun AddEditDefenderDialog(
                     )
                 }
                 
-                // Show only available towers
-                val towerTypes = DefenderType.entries.filter { 
-                    it != DefenderType.DRAGONS_LAIR && availableTowers.contains(it) 
-                }
+                // Show available towers
+                val towerTypes = availableTowers.filter { it != DefenderType.DRAGONS_LAIR }.toList()
                 
                 items(towerTypes.size) { index ->
                     val type = towerTypes[index]
@@ -232,24 +246,36 @@ fun AddEditDefenderDialog(
                     )
                 }
                 
-                // Position inputs
-                item {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        OutlinedTextField(
-                            value = x,
-                            onValueChange = { if (it.all { c -> c.isDigit() } && it.length <= 3) x = it },
-                            label = { Text("X") },
-                            modifier = Modifier.weight(1f)
+                // Position selection with map
+                if (map != null) {
+                    item {
+                        Text(
+                            text = stringResource(Res.string.select_position_on_map),
+                            style = MaterialTheme.typography.bodyMedium
                         )
-                        OutlinedTextField(
-                            value = y,
-                            onValueChange = { if (it.all { c -> c.isDigit() } && it.length <= 3) y = it },
-                            label = { Text("Y") },
-                            modifier = Modifier.weight(1f)
+                    }
+                    
+                    item {
+                        Text(
+                            text = "${stringResource(Res.string.position_label)}: (${selectedPosition.x}, ${selectedPosition.y})",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
+                    }
+                    
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(300.dp)
+                        ) {
+                            InitialSetupMinimap(
+                                map = map,
+                                placementMode = PlacementMode.DEFENDER,
+                                selectedPosition = selectedPosition,
+                                onTileClick = { selectedPosition = it }
+                            )
+                        }
                     }
                 }
                 
@@ -270,13 +296,11 @@ fun AddEditDefenderDialog(
             Button(
                 onClick = {
                     val levelValue = level.toIntOrNull() ?: 1
-                    val xValue = x.toIntOrNull() ?: 0
-                    val yValue = y.toIntOrNull() ?: 0
                     
                     onConfirm(
                         InitialDefender(
                             type = selectedType,
-                            position = Position(xValue, yValue),
+                            position = selectedPosition,
                             level = levelValue,
                             dragonName = if (selectedType == DefenderType.DRAGONS_LAIR && dragonName.isNotBlank()) dragonName else null
                         )
