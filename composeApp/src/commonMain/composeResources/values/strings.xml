@@ -600,6 +600,26 @@
     <string name="connection_mode_active">Connection mode active</string>
     <string name="cancel_connection">Cancel</string>
     
+    <!-- Initial Setup Tab -->
+    <string name="initial_setup_info">Place towers, enemies, traps, and barricades on the map before the level starts (optional)</string>
+    <string name="initial_defenders">Initial Towers</string>
+    <string name="initial_attackers">Initial Enemies</string>
+    <string name="initial_traps">Initial Traps</string>
+    <string name="initial_barricades">Initial Barricades</string>
+    <string name="add_initial_defender">Add Tower</string>
+    <string name="add_initial_attacker">Add Enemy</string>
+    <string name="add_initial_trap">Add Trap</string>
+    <string name="add_initial_barricade">Add Barricade</string>
+    <string name="edit_initial_defender">Edit Tower</string>
+    <string name="edit_initial_attacker">Edit Enemy</string>
+    <string name="edit_initial_trap">Edit Trap</string>
+    <string name="edit_initial_barricade">Edit Barricade</string>
+    <string name="no_initial_defenders">No towers placed initially</string>
+    <string name="no_initial_attackers">No enemies placed initially</string>
+    <string name="no_initial_traps">No traps placed initially</string>
+    <string name="no_initial_barricades">No barricades placed initially</string>
+    <string name="custom_health_optional">Custom Health (optional)</string>
+    
     <!-- Plurals -->
     <plurals name="enemy_count">
         <item quantity="one">%d enemy</item>
