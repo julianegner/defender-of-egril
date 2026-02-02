@@ -85,6 +85,13 @@ class EnemyAbilitySystem(private val state: GameState) {
                                 )
                                 println("DEBUG: Healed ${adjacentEnemy.type} for $healAmount HP (new HP: ${adjacentEnemy.currentHealth.value})")
                             }
+                            
+                            // Remove up to 3 barbs from adjacent enemy
+                            if (adjacentEnemy.movementPenalty.value > 0) {
+                                val barbsToRemove = minOf(3, adjacentEnemy.movementPenalty.value)
+                                adjacentEnemy.movementPenalty.value -= barbsToRemove
+                                println("DEBUG: Green witch removed $barbsToRemove barbs from ${adjacentEnemy.type}, remaining penalty: ${adjacentEnemy.movementPenalty.value}")
+                            }
                         }
                     }
                     if (healedCount > 0) {

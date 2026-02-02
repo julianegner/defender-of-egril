@@ -811,18 +811,30 @@ private fun BoxScope.GridCellContent(
                                 )
                             }
                         }
-                        // Show slow effect indicator if affected by barbs
+                        // Show barb effect indicators if affected (show up to 5 arrows in center)
                         if (attacker.movementPenalty.value > 0) {
+                            val barbCount = minOf(attacker.movementPenalty.value, 5)
                             Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .offset(x = 16.dp, y = (-12).dp),
-                                contentAlignment = Alignment.TopEnd
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
                             ) {
-                                de.egril.defender.ui.icon.DownArrowIcon(
-                                    size = 20.dp,
-                                    tint = Color.Red
-                                )
+                                Row(
+                                    horizontalArrangement = Arrangement.spacedBy(2.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    repeat(barbCount) {
+                                        Box(
+                                            modifier = Modifier.graphicsLayer {
+                                                rotationZ = 10f  // Tilt +10 degrees
+                                            }
+                                        ) {
+                                            de.egril.defender.ui.icon.DownArrowIcon(
+                                                size = 12.dp,
+                                                tint = Color.Red
+                                            )
+                                        }
+                                    }
+                                }
                             }
                         }
                     }

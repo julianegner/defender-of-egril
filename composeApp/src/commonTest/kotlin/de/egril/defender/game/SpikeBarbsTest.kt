@@ -387,4 +387,110 @@ class SpikeBarbsTest {
         // Check that spike barbs info was NOT shown (since tower was already level 10+)
         assertEquals(InfoType.NONE, state.infoState.value.currentInfo, "No info should be shown")
     }
+    
+    /**
+     * Test that Green Witch removes up to 3 barbs from adjacent enemies
+     */
+    @Test
+    fun testGreenWitchRemovesBarbs() {
+        // Create a simple level for testing
+        val level = Level(
+            id = 1,
+            name = "Test Level",
+            gridWidth = 10,
+            gridHeight = 6,
+            startPositions = listOf(Position(0, 3)),
+            targetPositions = listOf(Position(9, 3)),
+            pathCells = (0..9).map { Position(it, 3) }.toSet(),
+            buildIslands = setOf(Position(2, 2)),
+            attackerWaves = listOf(
+                AttackerWave(listOf(AttackerType.GOBLIN))
+            ),
+            initialCoins = 1000,
+            healthPoints = 10
+        )
+        
+        val state = GameState(level)
+        val engine = GameEngine(state)
+        
+        // Start game and spawn a goblin with barbs
+        engine.startFirstPlayerTurn()
+        val goblin = Attacker(
+            id = state.nextAttackerId.value++,
+            type = AttackerType.GOBLIN,
+            position = mutableStateOf(Position(2, 3)),
+            level = mutableStateOf(1)
+        )
+        goblin.movementPenalty.value = 5  // 5 barbs
+        state.attackers.add(goblin)
+        
+        // Spawn a Green Witch next to the goblin
+        val greenWitch = Attacker(
+            id = state.nextAttackerId.value++,
+            type = AttackerType.GREEN_WITCH,
+            position = mutableStateOf(Position(3, 3)),  // Adjacent to goblin
+            level = mutableStateOf(1)
+        )
+        state.attackers.add(greenWitch)
+        
+        // Process enemy abilities (Green Witch should remove barbs)
+        val abilitySystem = EnemyAbilitySystem(state)
+        abilitySystem.processEnemyAbilities()
+        
+        // Check that Green Witch removed 3 barbs (5 - 3 = 2 remaining)
+        assertEquals(2, goblin.movementPenalty.value, "Goblin should have 2 barbs remaining after Green Witch removes 3")
+    }
+    
+    /**
+     * Test that Green Witch removes all barbs if fewer than 3
+     */
+    @Test
+    fun testGreenWitchRemovesAllBarbsWhenFewerThan3() {
+        // Create a simple level for testing
+        val level = Level(
+            id = 1,
+            name = "Test Level",
+            gridWidth = 10,
+            gridHeight = 6,
+            startPositions = listOf(Position(0, 3)),
+            targetPositions = listOf(Position(9, 3)),
+            pathCells = (0..9).map { Position(it, 3) }.toSet(),
+            buildIslands = setOf(Position(2, 2)),
+            attackerWaves = listOf(
+                AttackerWave(listOf(AttackerType.GOBLIN))
+            ),
+            initialCoins = 1000,
+            healthPoints = 10
+        )
+        
+        val state = GameState(level)
+        val engine = GameEngine(state)
+        
+        // Start game and spawn a goblin with 2 barbs
+        engine.startFirstPlayerTurn()
+        val goblin = Attacker(
+            id = state.nextAttackerId.value++,
+            type = AttackerType.GOBLIN,
+            position = mutableStateOf(Position(2, 3)),
+            level = mutableStateOf(1)
+        )
+        goblin.movementPenalty.value = 2  // Only 2 barbs
+        state.attackers.add(goblin)
+        
+        // Spawn a Green Witch next to the goblin
+        val greenWitch = Attacker(
+            id = state.nextAttackerId.value++,
+            type = AttackerType.GREEN_WITCH,
+            position = mutableStateOf(Position(3, 3)),  // Adjacent to goblin
+            level = mutableStateOf(1)
+        )
+        state.attackers.add(greenWitch)
+        
+        // Process enemy abilities (Green Witch should remove all barbs)
+        val abilitySystem = EnemyAbilitySystem(state)
+        abilitySystem.processEnemyAbilities()
+        
+        // Check that Green Witch removed all 2 barbs
+        assertEquals(0, goblin.movementPenalty.value, "Goblin should have 0 barbs remaining after Green Witch removes all")
+    }
 }
