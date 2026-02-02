@@ -111,6 +111,8 @@ fun InitialSetupMinimap(
                     when (event.type) {
                         PointerEventType.Move, PointerEventType.Enter -> {
                             val geometry = calculateHexGeometry(map.width, map.height, size.width.toFloat(), size.height.toFloat())
+                            val hitRadius = geometry.hexHeight / 2
+                            val hitRadiusSquared = hitRadius * hitRadius
 
                             var hoveredPosition: Position? = null
                             var minDistanceSquared = Float.MAX_VALUE
@@ -125,8 +127,6 @@ fun InitialSetupMinimap(
                                         val dx = offset.x - centerX
                                         val dy = offset.y - centerY
                                         val distanceSquared = dx * dx + dy * dy
-                                        val hitRadius = geometry.hexHeight / 2
-                                        val hitRadiusSquared = hitRadius * hitRadius
                                         if (distanceSquared < hitRadiusSquared && distanceSquared < minDistanceSquared) {
                                             minDistanceSquared = distanceSquared
                                             hoveredPosition = pos
@@ -146,6 +146,8 @@ fun InitialSetupMinimap(
         .pointerInput(placementMode) {
             detectTapGestures { offset ->
                 val geometry = calculateHexGeometry(map.width, map.height, size.width.toFloat(), size.height.toFloat())
+                val hitRadius = geometry.hexHeight / 2
+                val hitRadiusSquared = hitRadius * hitRadius
 
                 var clickedPosition: Position? = null
                 var minDistanceSquared = Float.MAX_VALUE
@@ -163,8 +165,6 @@ fun InitialSetupMinimap(
                             val dy = offset.y - centerY
                             val distanceSquared = dx * dx + dy * dy
 
-                            val hitRadius = geometry.hexHeight / 2
-                            val hitRadiusSquared = hitRadius * hitRadius
                             if (distanceSquared < hitRadiusSquared && distanceSquared < minDistanceSquared) {
                                 minDistanceSquared = distanceSquared
                                 clickedPosition = pos
