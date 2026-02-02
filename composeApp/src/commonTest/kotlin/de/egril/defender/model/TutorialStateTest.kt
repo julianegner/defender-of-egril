@@ -75,7 +75,11 @@ class TutorialStateTest {
     fun testStepProgression() {
         var state = TutorialState(isActive = true, currentStep = TutorialStep.WELCOME)
         
-        // WELCOME -> RESOURCES
+        // WELCOME -> MAP_NAVIGATION
+        state = state.advanceStep()
+        assertEquals(TutorialStep.MAP_NAVIGATION, state.currentStep, "Should advance to MAP_NAVIGATION")
+        
+        // MAP_NAVIGATION -> RESOURCES
         state = state.advanceStep()
         assertEquals(TutorialStep.RESOURCES, state.currentStep, "Should advance to RESOURCES")
         

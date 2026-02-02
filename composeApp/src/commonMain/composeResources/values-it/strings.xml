@@ -434,6 +434,9 @@
     <!-- Tutorial -->
     <string name="tutorial_welcome_title">Benvenuto in Defender of Egril!</string>
     <string name="tutorial_welcome">Questo è un gioco di difesa delle torri. Il tuo obiettivo è impedire ai nemici di raggiungere il bersaglio costruendo torri difensive.</string>
+    <string name="tutorial_map_navigation_title">Navigazione della Mappa</string>
+    <string name="tutorial_map_navigation_mobile">Puoi muoverti sulla mappa usando gesti di scorrimento con due dita o toccando la croce di navigazione (frecce) sullo schermo.\n\nPuoi anche navigare trascinando il riquadro sulla minimappa che mostra la sezione visibile della mappa.\n\nUsa gesti di pizzico per ingrandire e ridurre per una vista migliore.</string>
+    <string name="tutorial_map_navigation_desktop">Puoi muoverti sulla mappa usando i tasti WASD, i tasti freccia o trascinando con il mouse.\n\nPuoi anche navigare trascinando il riquadro sulla minimappa che mostra la sezione visibile della mappa.\n\nUsa la rotella del mouse per ingrandire e ridurre per una vista migliore.</string>
     <string name="tutorial_resources_title">Risorse</string>
     <string name="tutorial_resources">Hai monete per costruire torri e punti vita.\nQuando sconfiggi i nemici, guadagni monete pari alla loro ricompensa base moltiplicata per il loro livello.\nI nemici deboli costano 1 PV, ma i nemici potenti (maghi, streghe, maghi malvagi, demoni, draghi) costano PV pari al loro livello.\nEwhad costa tutti i tuoi PV!</string>
     <string name="tutorial_towers_title">Torri disponibili</string>

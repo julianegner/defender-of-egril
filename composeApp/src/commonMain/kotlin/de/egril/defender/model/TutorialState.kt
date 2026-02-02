@@ -5,6 +5,7 @@ package de.egril.defender.model
  */
 enum class TutorialStep {
     WELCOME,                // Introduction to the game
+    MAP_NAVIGATION,         // Explain map navigation controls
     RESOURCES,              // Explain coins and health
     TOWER_TYPES,            // Explain available towers first
     LEGEND_INFO,            // Explain the legend and what it shows
@@ -59,7 +60,8 @@ data class TutorialState(
      */
     fun getNextStep(): TutorialStep {
         return when (currentStep) {
-            TutorialStep.WELCOME -> TutorialStep.RESOURCES
+            TutorialStep.WELCOME -> TutorialStep.MAP_NAVIGATION
+            TutorialStep.MAP_NAVIGATION -> TutorialStep.RESOURCES
             TutorialStep.RESOURCES -> TutorialStep.TOWER_TYPES
             TutorialStep.TOWER_TYPES -> TutorialStep.LEGEND_INFO
             TutorialStep.LEGEND_INFO -> TutorialStep.ENEMY_LIST_INFO
