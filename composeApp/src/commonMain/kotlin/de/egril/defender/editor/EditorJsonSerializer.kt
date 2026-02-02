@@ -203,6 +203,47 @@ object EditorJsonSerializer {
             ""
         }
         
+        // Serialize initial defenders (optional)
+        val initialDefendersJson = if (level.initialDefenders.isNotEmpty()) {
+            val defendersData = level.initialDefenders.joinToString(",\n    ") { defender ->
+                val dragonNameJson = if (defender.dragonName != null) {
+                    """, "dragonName": "${defender.dragonName}""""
+                } else ""
+                """{"type": "${defender.type.name}", "position": {"x": ${defender.position.x}, "y": ${defender.position.y}}, "level": ${defender.level}$dragonNameJson}"""
+            }
+            ",\n  \"initialDefenders\": [\n    $defendersData\n  ]"
+        } else ""
+        
+        // Serialize initial attackers (optional)
+        val initialAttackersJson = if (level.initialAttackers.isNotEmpty()) {
+            val attackersData = level.initialAttackers.joinToString(",\n    ") { attacker ->
+                val healthJson = if (attacker.currentHealth != null) {
+                    """, "currentHealth": ${attacker.currentHealth}"""
+                } else ""
+                val dragonNameJson = if (attacker.dragonName != null) {
+                    """, "dragonName": "${attacker.dragonName}""""
+                } else ""
+                """{"type": "${attacker.type.name}", "position": {"x": ${attacker.position.x}, "y": ${attacker.position.y}}, "level": ${attacker.level}$healthJson$dragonNameJson}"""
+            }
+            ",\n  \"initialAttackers\": [\n    $attackersData\n  ]"
+        } else ""
+        
+        // Serialize initial traps (optional)
+        val initialTrapsJson = if (level.initialTraps.isNotEmpty()) {
+            val trapsData = level.initialTraps.joinToString(",\n    ") { trap ->
+                """{"position": {"x": ${trap.position.x}, "y": ${trap.position.y}}, "damage": ${trap.damage}, "type": "${trap.type}"}"""
+            }
+            ",\n  \"initialTraps\": [\n    $trapsData\n  ]"
+        } else ""
+        
+        // Serialize initial barricades (optional)
+        val initialBarricadesJson = if (level.initialBarricades.isNotEmpty()) {
+            val barricadesData = level.initialBarricades.joinToString(",\n    ") { barricade ->
+                """{"position": {"x": ${barricade.position.x}, "y": ${barricade.position.y}}, "healthPoints": ${barricade.healthPoints}}"""
+            }
+            ",\n  \"initialBarricades\": [\n    $barricadesData\n  ]"
+        } else ""
+        
         return """{
   "id": "${level.id}",
   "mapId": "${level.mapId}",
@@ -217,7 +258,7 @@ object EditorJsonSerializer {
   "waypoints": [
     $waypointsJson
   ],
-  "prerequisites": [$prerequisitesJson]$requiredCountJson$testingOnlyJson$allowAutoAttackJson$isOfficialJson
+  "prerequisites": [$prerequisitesJson]$requiredCountJson$testingOnlyJson$allowAutoAttackJson$isOfficialJson$initialDefendersJson$initialAttackersJson$initialTrapsJson$initialBarricadesJson
 }"""
     }
     
@@ -413,7 +454,123 @@ object EditorJsonSerializer {
                 false  // Default to false for backward compatibility
             }
             
-            return EditorLevel(id, mapId, title, titleKey, subtitle, subtitleKey, startCoins, startHealthPoints, spawns, towers, waypoints, prerequisites, requiredPrerequisiteCount, testingOnly, allowAutoAttack, isOfficial)
+            // Parse initial defenders (optional)
+            val initialDefenders = mutableListOf<InitialDefender>()
+            if (json.contains("\"initialDefenders\"")) {
+                try {
+                    val defendersSection = json.substringAfter("\"initialDefenders\": [").substringBefore("],")
+                    if (defendersSection.isNotBlank()) {
+                        val defenderEntries = defendersSection.split("},").map { it.trim() + "}" }
+                        for (entry in defenderEntries) {
+                            if (!entry.contains("type")) continue
+                            val type = DefenderType.valueOf(JsonUtils.extractValue(entry, "type"))
+                            val posSection = entry.substringAfter("\"position\": {").substringBefore("}")
+                            val x = JsonUtils.extractValue("{$posSection}", "x").toInt()
+                            val y = JsonUtils.extractValue("{$posSection}", "y").toInt()
+                            val position = Position(x, y)
+                            val level = JsonUtils.extractValue(entry, "level").toInt()
+                            val dragonName = try {
+                                JsonUtils.extractValue(entry, "dragonName").takeIf { it.isNotEmpty() }
+                            } catch (e: Exception) {
+                                null
+                            }
+                            initialDefenders.add(InitialDefender(type, position, level, dragonName))
+                        }
+                    }
+                } catch (e: Exception) {
+                    println("Error parsing initial defenders (continuing without them): ${e.message}")
+                }
+            }
+            
+            // Parse initial attackers (optional)
+            val initialAttackers = mutableListOf<InitialAttacker>()
+            if (json.contains("\"initialAttackers\"")) {
+                try {
+                    val attackersSection = json.substringAfter("\"initialAttackers\": [").substringBefore("],")
+                    if (attackersSection.isNotBlank()) {
+                        val attackerEntries = attackersSection.split("},").map { it.trim() + "}" }
+                        for (entry in attackerEntries) {
+                            if (!entry.contains("type")) continue
+                            val type = AttackerType.valueOf(JsonUtils.extractValue(entry, "type"))
+                            val posSection = entry.substringAfter("\"position\": {").substringBefore("}")
+                            val x = JsonUtils.extractValue("{$posSection}", "x").toInt()
+                            val y = JsonUtils.extractValue("{$posSection}", "y").toInt()
+                            val position = Position(x, y)
+                            val level = JsonUtils.extractValue(entry, "level").toInt()
+                            val currentHealth = try {
+                                JsonUtils.extractValue(entry, "currentHealth").toIntOrNull()
+                            } catch (e: Exception) {
+                                null
+                            }
+                            val dragonName = try {
+                                JsonUtils.extractValue(entry, "dragonName").takeIf { it.isNotEmpty() }
+                            } catch (e: Exception) {
+                                null
+                            }
+                            initialAttackers.add(InitialAttacker(type, position, level, currentHealth, dragonName))
+                        }
+                    }
+                } catch (e: Exception) {
+                    println("Error parsing initial attackers (continuing without them): ${e.message}")
+                }
+            }
+            
+            // Parse initial traps (optional)
+            val initialTraps = mutableListOf<InitialTrap>()
+            if (json.contains("\"initialTraps\"")) {
+                try {
+                    val trapsSection = json.substringAfter("\"initialTraps\": [").substringBefore("],")
+                    if (trapsSection.isNotBlank()) {
+                        val trapEntries = trapsSection.split("},").map { it.trim() + "}" }
+                        for (entry in trapEntries) {
+                            if (!entry.contains("position")) continue
+                            val posSection = entry.substringAfter("\"position\": {").substringBefore("}")
+                            val x = JsonUtils.extractValue("{$posSection}", "x").toInt()
+                            val y = JsonUtils.extractValue("{$posSection}", "y").toInt()
+                            val position = Position(x, y)
+                            val damage = JsonUtils.extractValue(entry, "damage").toInt()
+                            val type = try {
+                                JsonUtils.extractValue(entry, "type")
+                            } catch (e: Exception) {
+                                "DWARVEN"
+                            }
+                            initialTraps.add(InitialTrap(position, damage, type))
+                        }
+                    }
+                } catch (e: Exception) {
+                    println("Error parsing initial traps (continuing without them): ${e.message}")
+                }
+            }
+            
+            // Parse initial barricades (optional)
+            val initialBarricades = mutableListOf<InitialBarricade>()
+            if (json.contains("\"initialBarricades\"")) {
+                try {
+                    val barricadesSection = json.substringAfter("\"initialBarricades\": [").substringBefore("],")
+                    if (barricadesSection.isNotBlank()) {
+                        val barricadeEntries = barricadesSection.split("},").map { it.trim() + "}" }
+                        for (entry in barricadeEntries) {
+                            if (!entry.contains("position")) continue
+                            val posSection = entry.substringAfter("\"position\": {").substringBefore("}")
+                            val x = JsonUtils.extractValue("{$posSection}", "x").toInt()
+                            val y = JsonUtils.extractValue("{$posSection}", "y").toInt()
+                            val position = Position(x, y)
+                            val healthPoints = JsonUtils.extractValue(entry, "healthPoints").toInt()
+                            initialBarricades.add(InitialBarricade(position, healthPoints))
+                        }
+                    }
+                } catch (e: Exception) {
+                    println("Error parsing initial barricades (continuing without them): ${e.message}")
+                }
+            }
+            
+            return EditorLevel(
+                id, mapId, title, titleKey, subtitle, subtitleKey, 
+                startCoins, startHealthPoints, spawns, towers, waypoints, 
+                prerequisites, requiredPrerequisiteCount, testingOnly, 
+                allowAutoAttack, isOfficial,
+                initialDefenders, initialAttackers, initialTraps, initialBarricades
+            )
         } catch (e: Exception) {
             println("Error deserializing level: ${e.message}")
             return null

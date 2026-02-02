@@ -189,6 +189,44 @@ data class EditorEnemySpawn(
 }
 
 /**
+ * Initial defender (tower) placement for level start
+ */
+data class InitialDefender(
+    val type: DefenderType,
+    val position: Position,
+    val level: Int = 1,
+    val dragonName: String? = null  // Dragon's name (for dragon's lair only)
+)
+
+/**
+ * Initial attacker (enemy) placement for level start
+ */
+data class InitialAttacker(
+    val type: AttackerType,
+    val position: Position,
+    val level: Int = 1,
+    val currentHealth: Int? = null,  // Optional custom health (null = full health)
+    val dragonName: String? = null  // Dragon's name (for dragons only)
+)
+
+/**
+ * Initial trap placement for level start
+ */
+data class InitialTrap(
+    val position: Position,
+    val damage: Int,
+    val type: String = "DWARVEN"  // Trap type as string for serialization ("DWARVEN" or "MAGICAL")
+)
+
+/**
+ * Initial barricade placement for level start
+ */
+data class InitialBarricade(
+    val position: Position,
+    val healthPoints: Int
+)
+
+/**
  * Waypoint configuration for the editor
  * Stores waypoint position and the next target position (another waypoint or final target)
  */
@@ -236,7 +274,12 @@ data class EditorLevel(
     val requiredPrerequisiteCount: Int? = null,  // Number of prerequisites needed (null = all required)
     val testingOnly: Boolean = false,  // If true, level is only shown when "show testing levels" setting is enabled
     val allowAutoAttack: Boolean = false,  // If true, shows auto-attack button in end turn confirmation dialog
-    val isOfficial: Boolean = false  // True if level is from official repository (read-only in editor)
+    val isOfficial: Boolean = false,  // True if level is from official repository (read-only in editor)
+    // Initial placements (optional)
+    val initialDefenders: List<InitialDefender> = emptyList(),  // Pre-placed towers
+    val initialAttackers: List<InitialAttacker> = emptyList(),  // Pre-placed enemies
+    val initialTraps: List<InitialTrap> = emptyList(),  // Pre-placed traps
+    val initialBarricades: List<InitialBarricade> = emptyList()  // Pre-placed barricades
 ) {
     /**
      * Get the effective required prerequisite count.
