@@ -12,6 +12,9 @@ import com.hyperether.resources.stringResource
 import de.egril.defender.editor.*
 import de.egril.defender.model.Position
 import de.egril.defender.model.TrapType
+import de.egril.defender.ui.icon.TrapIcon
+import de.egril.defender.ui.icon.PentagramIcon
+import de.egril.defender.ui.icon.WoodIcon
 import defender_of_egril.composeapp.generated.resources.*
 
 /**
@@ -106,7 +109,11 @@ fun InitialTrapCard(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             // Trap icon
-            de.egril.defender.ui.icon.TrapIcon(size = 40.dp, isMagical = trap.type == "MAGICAL")
+            if (trap.type == "MAGICAL") {
+                PentagramIcon(size = 40.dp)
+            } else {
+                TrapIcon(size = 40.dp)
+            }
             
             Column(modifier = Modifier.weight(1f)) {
                 Text(
@@ -179,7 +186,7 @@ fun AddEditTrapDialog(
                         selected = trapType == "DWARVEN",
                         onClick = { trapType = "DWARVEN" }
                     )
-                    de.egril.defender.ui.icon.TrapIcon(size = 24.dp, isMagical = false)
+                    TrapIcon(size = 24.dp)
                     Text(stringResource(Res.string.dwarven_trap))
                 }
                 
@@ -192,7 +199,7 @@ fun AddEditTrapDialog(
                         selected = trapType == "MAGICAL",
                         onClick = { trapType = "MAGICAL" }
                     )
-                    de.egril.defender.ui.icon.TrapIcon(size = 24.dp, isMagical = true)
+                    PentagramIcon(size = 24.dp)
                     Text(stringResource(Res.string.magical_trap))
                 }
                 
@@ -341,7 +348,7 @@ fun InitialBarricadeCard(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             // Barricade icon
-            de.egril.defender.ui.icon.WoodIcon(size = 40.dp)
+            WoodIcon(size = 40.dp)
             
             Column(modifier = Modifier.weight(1f)) {
                 Text(

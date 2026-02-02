@@ -13,7 +13,7 @@ import de.egril.defender.editor.*
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.Position
 import de.egril.defender.ui.getLocalizedName
-import de.egril.defender.ui.icon.enemy.getEnemyIcon
+import de.egril.defender.ui.icon.enemy.EnemyTypeIcon
 import defender_of_egril.composeapp.generated.resources.*
 
 /**
@@ -107,7 +107,7 @@ fun InitialAttackerCard(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            getEnemyIcon(attacker.type, size = 40.dp)
+            EnemyTypeIcon(attacker.type, modifier = Modifier.size(40.dp))
             
             Column(modifier = Modifier.weight(1f)) {
                 Text(
@@ -193,7 +193,9 @@ fun AddEditAttackerDialog(
                             selected = selectedType == type,
                             onClick = { selectedType = type }
                         )
-                        getEnemyIcon(type, size = 24.dp)
+                        Box(modifier = Modifier.size(24.dp)) {
+                            EnemyTypeIcon(type, modifier = Modifier.fillMaxSize())
+                        }
                         Text(type.getLocalizedName())
                     }
                 }

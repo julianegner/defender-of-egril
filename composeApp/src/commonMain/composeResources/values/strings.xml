@@ -71,8 +71,10 @@
     <!-- Game Play -->
     <string name="coins">Coins</string>
     <string name="health">Health</string>
+    <string name="health_points">Health Points</string>
     <string name="turn">Turn</string>
     <string name="level">Level</string>
+    <string name="level_label">Level</string>
     <string name="upgrade">Upgrade</string>
     <string name="sell">Sell</string>
     <string name="selected">Selected</string>
@@ -151,6 +153,7 @@
     <string name="win_condition">Win: Eliminate all enemies before they breach your defenses</string>
     <string name="lose_condition">Lose: Your health reaches 0</string>
     <string name="tower_types">Tower Types</string>
+    <string name="tower_type">Tower Type</string>
     <string name="spike_tower">Spike Tower (Pike): Melee defense, cheapest option</string>
     <string name="spear_tower">Spear Tower: Medium range piercing attacks</string>
     <string name="bow_tower">Bow Tower: Long range archery</string>
@@ -240,7 +243,8 @@
     <string name="green_witch_name">Green Witch</string>
     <string name="ewhad_name">Ewhad</string>
     <string name="dragon_name">Dragon</string>
-    
+    <string name="dragon_name_label">Dragon Name</string>
+
     <!-- SavedGameCard strings -->
     <string name="enemies_on_map">Enemies on Map:</string>
     <string name="enemies_to_come">Enemies to Come:</string>
@@ -401,6 +405,7 @@
     <string name="start_hp">Start HP</string>
     <string name="cost_label">Cost</string>
     <string name="damage_label">Damage</string>
+    <string name="trap_type">Trap Type</string>
     <string name="hp_with_level">HP: %d</string>
     <string name="add_enemy_button">Add Enemy to Turn %d</string>
     <string name="add_all_towers">Add All</string>
@@ -684,6 +689,7 @@
     <string name="spike_barbs_info_message">Your Spike tower has reached level 10 and now has barbs!\nWhen a level 10+ Spike tower attacks an enemy, it reduces the enemy\'s movement by 1 tile per attack.\nThis effect stacks - multiple attacks from any level 10+ Spike towers will further reduce enemy movement.\nEnemies will always move at least 1 tile per turn, even with multiple barb effects.</string>
     
     <!-- Magical Trap Feature -->
+    <string name="dwarven_trap">Dwarven Trap</string>
     <string name="magical_trap">Magical Trap</string>
     <string name="magical_trap_cooldown">Cooldown: %d turns</string>
     <string name="magical_trap_available">Magical Trap Available</string>
