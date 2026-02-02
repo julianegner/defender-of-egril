@@ -58,7 +58,8 @@ data class SavedAttacker(
     val level: Int,
     val currentHealth: Int,
     val isDefeated: Boolean,
-    val dragonName: String? = null  // Dragon's name (for dragons only)
+    val dragonName: String? = null,  // Dragon's name (for dragons only)
+    val movementPenalty: Int = 0  // Movement points lost due to spike tower barbs (default 0 for backward compatibility)
 )
 
 data class SavedFieldEffect(

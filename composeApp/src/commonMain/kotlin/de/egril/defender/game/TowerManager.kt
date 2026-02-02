@@ -74,6 +74,16 @@ class TowerManager(private val state: GameState) {
         // Play tower upgraded sound
         GlobalSoundManager.playSound(SoundEvent.TOWER_UPGRADED)
         
+        // Check if spike tower just reached level 10 (spike barbs ability)
+        if (defender.type == DefenderType.SPIKE_TOWER && 
+            oldLevel < 10 && 
+            defender.level.value >= 10 &&
+            !defender.hasShownSpikeBarbsTutorial.value) {
+            // Show spike barbs tutorial
+            state.infoState.value = state.infoState.value.showInfo(InfoType.SPIKE_BARBS_INFO)
+            defender.hasShownSpikeBarbsTutorial.value = true
+        }
+        
         // Check if spike tower just reached level 20 or spear tower just reached level 10 (barricade ability)
         val showBarricadeTutorial = when (defender.type) {
             DefenderType.SPIKE_TOWER -> oldLevel < 20 && defender.level.value >= 20

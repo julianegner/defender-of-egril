@@ -341,8 +341,8 @@ class EnemyMovementSystem(
             // Check if goblin is at a spawn point
             if (!state.level.isSpawnPoint(attacker.position.value)) continue
 
-            // Move goblin using their speed
-            var remainingSpeed = attacker.type.speed
+            // Calculate effective speed by subtracting movement penalty from spike barbs
+            var remainingSpeed = maxOf(1, attacker.type.speed - attacker.movementPenalty.value)
 
             while (remainingSpeed > 0) {
                 // Re-calculate path with current target for each step

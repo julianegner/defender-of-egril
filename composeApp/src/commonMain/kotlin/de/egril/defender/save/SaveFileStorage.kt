@@ -288,7 +288,8 @@ object SaveFileStorage {
                 level = attacker.level.value,
                 currentHealth = attacker.currentHealth.value,
                 isDefeated = attacker.isDefeated.value,
-                dragonName = attacker.dragonName
+                dragonName = attacker.dragonName,
+                movementPenalty = attacker.movementPenalty.value
             )
         }
         
@@ -412,6 +413,7 @@ object SaveFileStorage {
             )
             attacker.currentHealth.value = savedAttacker.currentHealth
             attacker.isDefeated.value = savedAttacker.isDefeated
+            attacker.movementPenalty.value = savedAttacker.movementPenalty
             gameState.attackers.add(attacker)
         }
         

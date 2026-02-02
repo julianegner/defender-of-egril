@@ -767,13 +767,14 @@ private fun BoxScope.GridCellContent(
         when {
             attacker != null -> {
                 // Use graphical icon for enemy units
-                // Key by id, position, level, and currentHealth to force recomposition when any changes
+                // Key by id, position, level, currentHealth, and movementPenalty to force recomposition when any changes
                 key(
                     attacker.id,
                     attacker.position.value.x,
                     attacker.position.value.y,
                     attacker.level,
-                    attacker.currentHealth.value
+                    attacker.currentHealth.value,
+                    attacker.movementPenalty.value
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         EnemyIcon(attacker = attacker)
@@ -808,6 +809,32 @@ private fun BoxScope.GridCellContent(
                                     fontWeight = FontWeight.Bold,
                                     modifier = Modifier.offset(x = 12.dp, y = (-16).dp)
                                 )
+                            }
+                        }
+                        // Show barb effect indicators if affected (show up to 5 arrows in center)
+                        if (attacker.movementPenalty.value > 0) {
+                            val barbCount = minOf(attacker.movementPenalty.value, 5)
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Row(
+                                    horizontalArrangement = Arrangement.spacedBy(2.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    repeat(barbCount) {
+                                        Box(
+                                            modifier = Modifier.graphicsLayer {
+                                                rotationZ = 10f  // Tilt +10 degrees
+                                            }
+                                        ) {
+                                            de.egril.defender.ui.icon.DownArrowIcon(
+                                                size = 12.dp,
+                                                tint = Color.Red
+                                            )
+                                        }
+                                    }
+                                }
                             }
                         }
                     }

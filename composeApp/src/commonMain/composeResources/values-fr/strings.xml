@@ -204,6 +204,7 @@
     <string name="coins_label">pièces</string>
     <string name="hp_label">PV</string>
     <string name="speed_label">Vitesse</string>
+    <string name="slowed_by_barbs">Ralenti par les barbes</string>
     
     <!-- Status text -->
     <string name="available">Disponible</string>
@@ -656,6 +657,10 @@
     <string name="barricade_info_message">Votre tour de Lances a atteint le niveau 10 (ou tour de Piques niveau 20) et peut maintenant construire des barricades !\nLes barricades sont des structures en bois placées sur des cases de chemin adjacentes qui bloquent le mouvement ennemi.\nLes barricades de tour de Lances ont PV = niveau - 10 (minimum 1). Les barricades de tour de Piques ont PV = (niveau - 20) / 2 (minimum 1).\nLorsque les ennemis atteignent une barricade, ils l'attaquent avec des dégâts égaux à leur niveau (les dragons infligent 5× leur niveau).\nSi une barricade est détruite, l'ennemi se déplace sur cette case.\nVous pouvez construire de nouvelles barricades ou renforcer les existantes, et cliquer sur les barricades pour les retirer.</string>
     <string name="remove_barricade_title">Retirer la Barricade?</string>
     <string name="remove_barricade_message">Êtes-vous sûr de vouloir retirer cette barricade?</string>
+    
+    <!-- Spike Barbs Feature -->
+    <string name="spike_barbs_info_title">Barbes de Piques Débloquées !</string>
+    <string name="spike_barbs_info_message">Votre tour de Piques a atteint le niveau 10 et possède maintenant des barbes !\nLorsqu'une tour de Piques de niveau 10+ attaque un ennemi, elle réduit le mouvement de l'ennemi de 1 case par attaque.\nCet effet s'accumule - plusieurs attaques de tours de Piques de niveau 10+ réduiront davantage le mouvement ennemi.\nLes ennemis se déplaceront toujours d'au moins 1 case par tour, même avec plusieurs effets de barbes.</string>
     
     <!-- Magical Trap Feature -->
     <string name="magical_trap">Piège Magique</string>
