@@ -24,6 +24,8 @@ import androidx.compose.ui.zIndex
 import de.egril.defender.model.*
 import de.egril.defender.model.getHexNeighbors
 import de.egril.defender.ui.*
+import de.egril.defender.ui.animations.AnimationType
+import de.egril.defender.ui.animations.LottieAnimation
 import de.egril.defender.ui.icon.ExplosionIcon
 import de.egril.defender.ui.icon.GateIcon
 import de.egril.defender.ui.icon.TrapIcon
@@ -781,36 +783,12 @@ private fun BoxScope.GridCellContent(
                         EnemyIcon(attacker = attacker)
                         // Show healing effect overlay if present
                         if (healingEffect != null) {
-                            // Show 3 green "+" symbols in different sizes
-                            // Positioned with smaller symbols higher than larger ones
-                            Box(
+                            // Show Lottie animation for green witch healing
+                            LottieAnimation(
+                                animationType = AnimationType.GREEN_WITCH_HEALING,
                                 modifier = Modifier.fillMaxSize(),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                // Large + symbol at center
-                                Text(
-                                    "+",
-                                    style = MaterialTheme.typography.headlineLarge,
-                                    color = Color(0xFF4CAF50), // Green
-                                    fontWeight = FontWeight.Bold
-                                )
-                                // Medium + symbol - offset left and higher
-                                Text(
-                                    "+",
-                                    style = MaterialTheme.typography.headlineMedium,
-                                    color = Color(0xFF4CAF50), // Green
-                                    fontWeight = FontWeight.Bold,
-                                    modifier = Modifier.offset(x = (-12).dp, y = (-8).dp)
-                                )
-                                // Small + symbol - offset right and even higher
-                                Text(
-                                    "+",
-                                    style = MaterialTheme.typography.headlineSmall,
-                                    color = Color(0xFF4CAF50), // Green
-                                    fontWeight = FontWeight.Bold,
-                                    modifier = Modifier.offset(x = 12.dp, y = (-16).dp)
-                                )
-                            }
+                                iterations = 1
+                            )
                         }
                         // Show barb effect indicators if affected (show up to 5 arrows in center)
                         if (attacker.movementPenalty.value > 0) {
@@ -952,36 +930,12 @@ private fun BoxScope.GridCellContent(
                     }
                     // Show damage effect overlay if present
                     if (damageEffect != null) {
-                        // Show 3 red "-" symbols in different sizes
-                        // Positioned with smaller symbols higher than larger ones
-                        Box(
+                        // Show Lottie animation for barricade damage
+                        LottieAnimation(
+                            animationType = AnimationType.BARRICADE_DAMAGE,
                             modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            // Large - symbol at center
-                            Text(
-                                "-",
-                                style = MaterialTheme.typography.headlineLarge,
-                                color = Color.Red,
-                                fontWeight = FontWeight.Bold
-                            )
-                            // Medium - symbol - offset left and higher
-                            Text(
-                                "-",
-                                style = MaterialTheme.typography.titleMedium,
-                                color = Color.Red,
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier.offset(x = (-10).dp, y = (-12).dp)
-                            )
-                            // Small - symbol - offset right and higher
-                            Text(
-                                "-",
-                                style = MaterialTheme.typography.titleSmall,
-                                color = Color.Red,
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier.offset(x = 8.dp, y = (-15).dp)
-                            )
-                        }
+                            iterations = 1
+                        )
                     }
                 }
             }
