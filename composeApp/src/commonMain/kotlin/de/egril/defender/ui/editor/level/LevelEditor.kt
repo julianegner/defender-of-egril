@@ -354,6 +354,14 @@ fun LevelEditorView(
     var initialBarricadesState by remember { mutableStateOf(level.initialBarricades.toMutableList()) }
     var testingOnly by remember { mutableStateOf(level.testingOnly) }
     var allowAutoAttack by remember { mutableStateOf(level.allowAutoAttack) }
+    
+    // Update state when level changes (e.g., after reload from disk)
+    LaunchedEffect(level.id, level.initialDefenders, level.initialAttackers, level.initialTraps, level.initialBarricades) {
+        initialDefendersState = level.initialDefenders.toMutableList()
+        initialAttackersState = level.initialAttackers.toMutableList()
+        initialTrapsState = level.initialTraps.toMutableList()
+        initialBarricadesState = level.initialBarricades.toMutableList()
+    }
     var showEnemyDialog by remember { mutableStateOf(false) }
     var showEnemyDialogForTurn by remember { mutableStateOf(1) }
     var showSaveAsDialog by remember { mutableStateOf(false) }
