@@ -484,22 +484,18 @@ object EditorJsonSerializer {
             if (json.contains("\"initialData\"")) {
                 try {
                     println("EditorJsonSerializer: Found initialData in JSON")
-                    // Extract initialData section - handle various whitespace formats
-                    // Try different patterns: "initialData": {, "initialData" : {, "initialData":{
-                    val afterInitialData = when {
-                        json.contains("\"initialData\": {") -> json.substringAfter("\"initialData\": {")
-                        json.contains("\"initialData\" : {") -> json.substringAfter("\"initialData\" : {")
-                        json.contains("\"initialData\":{") -> json.substringAfter("\"initialData\":{")
-                        else -> {
-                            println("EditorJsonSerializer: ERROR - Could not find initialData start pattern")
-                            ""
-                        }
-                    }
+                    // Extract initialData section - find opening brace after "initialData":
+                    val afterKey = json.substringAfter("\"initialData\"")
                     
-                    if (afterInitialData.isEmpty()) {
-                        println("EditorJsonSerializer: afterInitialData is empty, skipping")
+                    // Find the first { after the key (skipping the colon and any whitespace)
+                    val openBraceIndex = afterKey.indexOf('{')
+                    if (openBraceIndex == -1) {
+                        println("EditorJsonSerializer: ERROR - No opening brace found after initialData")
                         return@try
                     }
+                    
+                    val afterInitialData = afterKey.substring(openBraceIndex + 1)
+                    println("EditorJsonSerializer: Found opening brace at index $openBraceIndex")
                     
                     // Find the closing } that matches the opening {
                     var braceCount = 1
