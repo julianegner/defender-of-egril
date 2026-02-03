@@ -783,11 +783,11 @@ private fun BoxScope.GridCellContent(
                         EnemyIcon(attacker = attacker)
                         // Show healing effect overlay if present
                         if (healingEffect != null) {
-                            // Show Lottie animation for green witch healing
+                            // Show Lottie animation for green witch healing - repeats until turn ends
                             LottieAnimation(
                                 animationType = AnimationType.GREEN_WITCH_HEALING,
                                 modifier = Modifier.fillMaxSize(),
-                                iterations = 1
+                                iterations = Int.MAX_VALUE
                             )
                         }
                         // Show barb effect indicators if affected (show up to 5 arrows in center)
@@ -930,11 +930,11 @@ private fun BoxScope.GridCellContent(
                     }
                     // Show damage effect overlay if present
                     if (damageEffect != null) {
-                        // Show Lottie animation for barricade damage
+                        // Show Lottie animation for barricade damage - repeats until turn ends
                         LottieAnimation(
                             animationType = AnimationType.BARRICADE_DAMAGE,
                             modifier = Modifier.fillMaxSize(),
-                            iterations = 1
+                            iterations = Int.MAX_VALUE
                         )
                     }
                 }
