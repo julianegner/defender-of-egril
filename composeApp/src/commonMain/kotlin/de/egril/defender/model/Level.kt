@@ -49,7 +49,7 @@ data class Level(
     /**
      * Get effective initial data, handling both new and legacy formats
      */
-    fun getInitialData(): de.egril.defender.editor.InitialData {
+    fun getEffectiveInitialData(): de.egril.defender.editor.InitialData {
         // If new format exists, use it
         if (initialData != null) {
             return initialData

@@ -204,7 +204,7 @@ object EditorJsonSerializer {
         }
         
         // Serialize initial data in new nested format (optional)
-        val initialData = level.getInitialData()
+        val initialData = level.getEffectiveInitialData()
         val initialDataJson = if (initialData.defenders.isNotEmpty() || 
                                    initialData.attackers.isNotEmpty() || 
                                    initialData.traps.isNotEmpty() || 

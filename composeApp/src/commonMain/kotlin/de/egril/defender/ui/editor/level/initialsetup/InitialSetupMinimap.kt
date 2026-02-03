@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
 import de.egril.defender.editor.EditorMap
+import de.egril.defender.editor.InitialData
 import de.egril.defender.editor.TileType
 import de.egril.defender.model.Position
 import de.egril.defender.ui.settings.AppSettings
@@ -101,10 +102,7 @@ private fun calculateHexGeometry(
 fun InitialSetupMinimap(
     map: EditorMap,
     placementMode: PlacementMode?,
-    existingDefenders: List<de.egril.defender.editor.InitialDefender> = emptyList(),
-    existingAttackers: List<de.egril.defender.editor.InitialAttacker> = emptyList(),
-    existingTraps: List<de.egril.defender.editor.InitialTrap> = emptyList(),
-    existingBarricades: List<de.egril.defender.editor.InitialBarricade> = emptyList(),
+    initialData: InitialData = InitialData.EMPTY,
     selectedElement: de.egril.defender.ui.editor.level.initialsetup.SelectedElement? = null,
     onTileClick: (Position) -> Unit = {}
 ) {
@@ -112,7 +110,7 @@ fun InitialSetupMinimap(
     var hoveredPosition by remember { mutableStateOf<Position?>(null) }
 
     Canvas(modifier = Modifier.fillMaxSize()
-        .pointerInput(placementMode, existingDefenders, existingAttackers, existingTraps, existingBarricades) {
+        .pointerInput(placementMode, initialData) {
             awaitPointerEventScope {
                 while (true) {
                     val event = awaitPointerEvent()
@@ -151,7 +149,7 @@ fun InitialSetupMinimap(
                 }
             }
         }
-        .pointerInput(placementMode, existingDefenders, existingAttackers, existingTraps, existingBarricades) {
+        .pointerInput(placementMode, initialData) {
             detectTapGestures { offset ->
                 val geometry = calculateHexGeometry(map.width, map.height, size.width.toFloat(), size.height.toFloat())
                 val hitRadius = geometry.hexHeight / 2
@@ -196,10 +194,10 @@ fun InitialSetupMinimap(
 
                 val isValidForPlacement = placementMode?.let { isValidPlacement(pos, it, map) } ?: false
                 val isHovered = pos == hoveredPosition
-                val hasDefender = existingDefenders.any { it.position == pos }
-                val hasAttacker = existingAttackers.any { it.position == pos }
-                val hasTrap = existingTraps.any { it.position == pos }
-                val hasBarricade = existingBarricades.any { it.position == pos }
+                val hasDefender = initialData.defenders.any { it.position == pos }
+                val hasAttacker = initialData.attackers.any { it.position == pos }
+                val hasTrap = initialData.traps.any { it.position == pos }
+                val hasBarricade = initialData.barricades.any { it.position == pos }
                 val isSelected = when (selectedElement) {
                     is de.egril.defender.ui.editor.level.initialsetup.SelectedElement.Defender -> selectedElement.defender.position == pos
                     is de.egril.defender.ui.editor.level.initialsetup.SelectedElement.Attacker -> selectedElement.attacker.position == pos
@@ -221,10 +219,10 @@ fun InitialSetupMinimap(
                     hasConflict && isHovered && placementMode != null -> Color(0xFFFF4444) // Red for invalid placement
                     isHovered && isValidForPlacement -> Color(0xFF00FFFF) // Cyan for valid hover
                     isValidForPlacement && placementMode != null -> if (isDarkMode) Color(0xFF2E5C1A) else Color(0xFF90EE90) // Green for valid
+                    tileType == TileType.BUILD_AREA -> if (isDarkMode) Color(0xFF2E5C1A) else Color(0xFF90EE90) // Always show BUILD_AREA in green
                     tileType == TileType.SPAWN_POINT -> if (isDarkMode) Color(0xFF8B0000) else Color(0xFFDC143C)
                     tileType == TileType.TARGET -> if (isDarkMode) Color(0xFF1E3A8A) else Color(0xFF4169E1)
                     tileType == TileType.PATH -> if (isDarkMode) Color(0xFF3E3528) else Color(0xFF8B4513)
-                    tileType == TileType.BUILD_AREA -> if (isDarkMode) Color(0xFF2E5C1A) else Color(0xFF90EE90)
                     tileType == TileType.ISLAND -> if (isDarkMode) Color(0xFF1B4D0E) else Color(0xFF228B22)
                     else -> if (isDarkMode) Color(0xFF2C2C2C) else Color(0xFF808080)
                 }
@@ -237,7 +235,7 @@ fun InitialSetupMinimap(
         val iconSize = geometry.hexSize * 1.2f
         
         // Draw defenders (towers)
-        existingDefenders.forEach { defender ->
+        initialData.defenders.forEach { defender ->
             val offsetXHex = if (defender.position.y % 2 == 1) geometry.hexWidth / 2 else 0.0f
             val centerX = geometry.offsetXCanvas + defender.position.x * geometry.hexWidth + offsetXHex + geometry.hexWidth / 2
             val centerY = geometry.offsetYCanvas + defender.position.y * geometry.verticalSpacing + geometry.hexHeight / 2
@@ -251,7 +249,7 @@ fun InitialSetupMinimap(
         }
         
         // Draw attackers (enemies)
-        existingAttackers.forEach { attacker ->
+        initialData.attackers.forEach { attacker ->
             val offsetXHex = if (attacker.position.y % 2 == 1) geometry.hexWidth / 2 else 0.0f
             val centerX = geometry.offsetXCanvas + attacker.position.x * geometry.hexWidth + offsetXHex + geometry.hexWidth / 2
             val centerY = geometry.offsetYCanvas + attacker.position.y * geometry.verticalSpacing + geometry.hexHeight / 2
@@ -265,7 +263,7 @@ fun InitialSetupMinimap(
         }
         
         // Draw traps
-        existingTraps.forEach { trap ->
+        initialData.traps.forEach { trap ->
             val offsetXHex = if (trap.position.y % 2 == 1) geometry.hexWidth / 2 else 0.0f
             val centerX = geometry.offsetXCanvas + trap.position.x * geometry.hexWidth + offsetXHex + geometry.hexWidth / 2
             val centerY = geometry.offsetYCanvas + trap.position.y * geometry.verticalSpacing + geometry.hexHeight / 2
@@ -284,7 +282,7 @@ fun InitialSetupMinimap(
         }
         
         // Draw barricades
-        existingBarricades.forEach { barricade ->
+        initialData.barricades.forEach { barricade ->
             val offsetXHex = if (barricade.position.y % 2 == 1) geometry.hexWidth / 2 else 0.0f
             val centerX = geometry.offsetXCanvas + barricade.position.x * geometry.hexWidth + offsetXHex + geometry.hexWidth / 2
             val centerY = geometry.offsetYCanvas + barricade.position.y * geometry.verticalSpacing + geometry.hexHeight / 2

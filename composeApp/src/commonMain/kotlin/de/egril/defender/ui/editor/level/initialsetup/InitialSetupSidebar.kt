@@ -51,13 +51,10 @@ fun InitialSetupSidebar(
     barricadeHealthPoints: Int,
     onBarricadeHealthPointsChange: (Int) -> Unit,
     availableTowers: Set<DefenderType>,
-    initialDefenders: List<InitialDefender>,
+    initialData: InitialData,
     onRemoveDefender: (Int) -> Unit,
-    initialAttackers: List<InitialAttacker>,
     onRemoveAttacker: (Int) -> Unit,
-    initialTraps: List<InitialTrap>,
     onRemoveTrap: (Int) -> Unit,
-    initialBarricades: List<InitialBarricade>,
     onRemoveBarricade: (Int) -> Unit,
     selectedElement: SelectedElement?,
     onSelectedElementChange: (SelectedElement?) -> Unit
@@ -291,10 +288,10 @@ fun InitialSetupSidebar(
             
             item {
                 PlacedElementsSummary(
-                    defenders = initialDefenders,
-                    attackers = initialAttackers,
-                    traps = initialTraps,
-                    barricades = initialBarricades
+                    defenders = initialData.defenders,
+                    attackers = initialData.attackers,
+                    traps = initialData.traps,
+                    barricades = initialData.barricades
                 )
             }
         }

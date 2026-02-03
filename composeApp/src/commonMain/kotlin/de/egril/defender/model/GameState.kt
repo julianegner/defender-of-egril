@@ -257,7 +257,7 @@ data class GameState(
      */
     fun initializePrePlacedElements() {
         // Get initial data using the helper method that handles both old and new formats
-        val initialData = level.getInitialData()
+        val initialData = level.getEffectiveInitialData()
         
         // Place initial defenders
         for (initialDefender in initialData.defenders) {

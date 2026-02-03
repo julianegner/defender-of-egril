@@ -19,14 +19,8 @@ import defender_of_egril.composeapp.generated.resources.*
  */
 @Composable
 fun InitialSetupTab(
-    initialDefenders: List<InitialDefender>,
-    onInitialDefendersChange: (List<InitialDefender>) -> Unit,
-    initialAttackers: List<InitialAttacker>,
-    onInitialAttackersChange: (List<InitialAttacker>) -> Unit,
-    initialTraps: List<InitialTrap>,
-    onInitialTrapsChange: (List<InitialTrap>) -> Unit,
-    initialBarricades: List<InitialBarricade>,
-    onInitialBarricadesChange: (List<InitialBarricade>) -> Unit,
+    initialData: InitialData,
+    onInitialDataChange: (InitialData) -> Unit,
     map: EditorMap?,
     availableTowers: Set<DefenderType>
 ) {
@@ -97,26 +91,23 @@ fun InitialSetupTab(
                     InitialSetupMinimap(
                         map = map,
                         placementMode = placementMode,
-                        existingDefenders = initialDefenders,
-                        existingAttackers = initialAttackers,
-                        existingTraps = initialTraps,
-                        existingBarricades = initialBarricades,
+                        initialData = initialData,
                         selectedElement = selectedElement,
                         onTileClick = { position ->
                             when (placementMode) {
                                 PlacementMode.DEFENDER -> {
-                                    if (canPlaceDefender(position, initialDefenders, initialAttackers, initialTraps, initialBarricades, map)) {
+                                    if (canPlaceDefender(position, initialData, map)) {
                                         val newDefender = InitialDefender(
                                             type = selectedDefenderType,
                                             position = position,
                                             level = selectedDefenderLevel,
                                             dragonName = if (selectedDefenderType == DefenderType.DRAGONS_LAIR && dragonName.isNotBlank()) dragonName else null
                                         )
-                                        onInitialDefendersChange(initialDefenders + newDefender)
+                                        onInitialDataChange(initialData.copy(defenders = initialData.defenders + newDefender))
                                     }
                                 }
                                 PlacementMode.ATTACKER -> {
-                                    if (canPlaceAttacker(position, initialDefenders, initialAttackers, initialTraps, initialBarricades, map)) {
+                                    if (canPlaceAttacker(position, initialData, map)) {
                                         val newAttacker = InitialAttacker(
                                             type = selectedAttackerType,
                                             position = position,
@@ -124,36 +115,33 @@ fun InitialSetupTab(
                                             currentHealth = customHealth,
                                             dragonName = if (selectedAttackerType == AttackerType.DRAGON && attackerDragonName.isNotBlank()) attackerDragonName else null
                                         )
-                                        onInitialAttackersChange(initialAttackers + newAttacker)
+                                        onInitialDataChange(initialData.copy(attackers = initialData.attackers + newAttacker))
                                     }
                                 }
                                 PlacementMode.TRAP -> {
-                                    if (canPlaceTrap(position, initialDefenders, initialAttackers, initialTraps, initialBarricades, map)) {
+                                    if (canPlaceTrap(position, initialData, map)) {
                                         val newTrap = InitialTrap(
                                             position = position,
                                             damage = trapDamage,
                                             type = selectedTrapType
                                         )
-                                        onInitialTrapsChange(initialTraps + newTrap)
+                                        onInitialDataChange(initialData.copy(traps = initialData.traps + newTrap))
                                     }
                                 }
                                 PlacementMode.BARRICADE -> {
-                                    if (canPlaceBarricade(position, initialDefenders, initialAttackers, initialTraps, initialBarricades, map)) {
+                                    if (canPlaceBarricade(position, initialData, map)) {
                                         val newBarricade = InitialBarricade(
                                             position = position,
                                             healthPoints = barricadeHealthPoints
                                         )
-                                        onInitialBarricadesChange(initialBarricades + newBarricade)
+                                        onInitialDataChange(initialData.copy(barricades = initialData.barricades + newBarricade))
                                     }
                                 }
                                 null -> {
                                     // Selection mode - find clicked element
                                     val clickedElement = findElementAtPosition(
                                         position,
-                                        initialDefenders,
-                                        initialAttackers,
-                                        initialTraps,
-                                        initialBarricades
+                                        initialData
                                     )
                                     selectedElement = clickedElement
                                 }
@@ -194,32 +182,29 @@ fun InitialSetupTab(
             barricadeHealthPoints = barricadeHealthPoints,
             onBarricadeHealthPointsChange = { barricadeHealthPoints = it },
             availableTowers = availableTowers,
-            initialDefenders = initialDefenders,
+            initialData = initialData,
             onRemoveDefender = { index ->
-                val newList = initialDefenders.toMutableList()
+                val newList = initialData.defenders.toMutableList()
                 newList.removeAt(index)
-                onInitialDefendersChange(newList)
+                onInitialDataChange(initialData.copy(defenders = newList))
                 selectedElement = null
             },
-            initialAttackers = initialAttackers,
             onRemoveAttacker = { index ->
-                val newList = initialAttackers.toMutableList()
+                val newList = initialData.attackers.toMutableList()
                 newList.removeAt(index)
-                onInitialAttackersChange(newList)
+                onInitialDataChange(initialData.copy(attackers = newList))
                 selectedElement = null
             },
-            initialTraps = initialTraps,
             onRemoveTrap = { index ->
-                val newList = initialTraps.toMutableList()
+                val newList = initialData.traps.toMutableList()
                 newList.removeAt(index)
-                onInitialTrapsChange(newList)
+                onInitialDataChange(initialData.copy(traps = newList))
                 selectedElement = null
             },
-            initialBarricades = initialBarricades,
             onRemoveBarricade = { index ->
-                val newList = initialBarricades.toMutableList()
+                val newList = initialData.barricades.toMutableList()
                 newList.removeAt(index)
-                onInitialBarricadesChange(newList)
+                onInitialDataChange(initialData.copy(barricades = newList))
                 selectedElement = null
             },
             selectedElement = selectedElement,
@@ -238,23 +223,17 @@ fun InitialSetupTab(
  */
 private fun isPositionOccupied(
     position: Position,
-    existingDefenders: List<InitialDefender>,
-    existingAttackers: List<InitialAttacker>,
-    existingTraps: List<InitialTrap>,
-    existingBarricades: List<InitialBarricade>
+    initialData: InitialData
 ): Boolean {
-    return existingDefenders.any { it.position == position } ||
-           existingAttackers.any { it.position == position } ||
-           existingTraps.any { it.position == position } ||
-           existingBarricades.any { it.position == position }
+    return initialData.defenders.any { it.position == position } ||
+           initialData.attackers.any { it.position == position } ||
+           initialData.traps.any { it.position == position } ||
+           initialData.barricades.any { it.position == position }
 }
 
 private fun canPlaceDefender(
     position: Position,
-    existingDefenders: List<InitialDefender>,
-    existingAttackers: List<InitialAttacker>,
-    existingTraps: List<InitialTrap>,
-    existingBarricades: List<InitialBarricade>,
+    initialData: InitialData,
     map: EditorMap
 ): Boolean {
     // Must be valid tile type for defenders
@@ -262,15 +241,12 @@ private fun canPlaceDefender(
         return false
     }
     // Must not be occupied by any element
-    return !isPositionOccupied(position, existingDefenders, existingAttackers, existingTraps, existingBarricades)
+    return !isPositionOccupied(position, initialData)
 }
 
 private fun canPlaceAttacker(
     position: Position,
-    existingDefenders: List<InitialDefender>,
-    existingAttackers: List<InitialAttacker>,
-    existingTraps: List<InitialTrap>,
-    existingBarricades: List<InitialBarricade>,
+    initialData: InitialData,
     map: EditorMap
 ): Boolean {
     // Must be valid tile type for attackers
@@ -278,15 +254,12 @@ private fun canPlaceAttacker(
         return false
     }
     // Must not be occupied by any element
-    return !isPositionOccupied(position, existingDefenders, existingAttackers, existingTraps, existingBarricades)
+    return !isPositionOccupied(position, initialData)
 }
 
 private fun canPlaceTrap(
     position: Position,
-    existingDefenders: List<InitialDefender>,
-    existingAttackers: List<InitialAttacker>,
-    existingTraps: List<InitialTrap>,
-    existingBarricades: List<InitialBarricade>,
+    initialData: InitialData,
     map: EditorMap
 ): Boolean {
     // Must be valid tile type for traps (PATH only)
@@ -294,15 +267,12 @@ private fun canPlaceTrap(
         return false
     }
     // Must not be occupied by any element
-    return !isPositionOccupied(position, existingDefenders, existingAttackers, existingTraps, existingBarricades)
+    return !isPositionOccupied(position, initialData)
 }
 
 private fun canPlaceBarricade(
     position: Position,
-    existingDefenders: List<InitialDefender>,
-    existingAttackers: List<InitialAttacker>,
-    existingTraps: List<InitialTrap>,
-    existingBarricades: List<InitialBarricade>,
+    initialData: InitialData,
     map: EditorMap
 ): Boolean {
     // Must be valid tile type for barricades (PATH only)
@@ -310,7 +280,7 @@ private fun canPlaceBarricade(
         return false
     }
     // Must not be occupied by any element
-    return !isPositionOccupied(position, existingDefenders, existingAttackers, existingTraps, existingBarricades)
+    return !isPositionOccupied(position, initialData)
 }
 
 /**
@@ -325,27 +295,24 @@ sealed class SelectedElement {
 
 private fun findElementAtPosition(
     position: Position,
-    defenders: List<InitialDefender>,
-    attackers: List<InitialAttacker>,
-    traps: List<InitialTrap>,
-    barricades: List<InitialBarricade>
+    initialData: InitialData
 ): SelectedElement? {
-    defenders.forEachIndexed { index, defender ->
+    initialData.defenders.forEachIndexed { index, defender ->
         if (defender.position == position) {
             return SelectedElement.Defender(index, defender)
         }
     }
-    attackers.forEachIndexed { index, attacker ->
+    initialData.attackers.forEachIndexed { index, attacker ->
         if (attacker.position == position) {
             return SelectedElement.Attacker(index, attacker)
         }
     }
-    traps.forEachIndexed { index, trap ->
+    initialData.traps.forEachIndexed { index, trap ->
         if (trap.position == position) {
             return SelectedElement.Trap(index, trap)
         }
     }
-    barricades.forEachIndexed { index, barricade ->
+    initialData.barricades.forEachIndexed { index, barricade ->
         if (barricade.position == position) {
             return SelectedElement.Barricade(index, barricade)
         }

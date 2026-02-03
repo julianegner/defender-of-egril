@@ -301,7 +301,7 @@ data class EditorLevel(
     /**
      * Get effective initial data, handling both new and legacy formats
      */
-    fun getInitialData(): InitialData {
+    fun getEffectiveInitialData(): InitialData {
         // If new format exists, use it
         if (initialData != null) {
             return initialData

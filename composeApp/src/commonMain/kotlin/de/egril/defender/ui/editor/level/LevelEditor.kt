@@ -349,19 +349,13 @@ fun LevelEditorView(
     var enemySpawns by remember { mutableStateOf(level.enemySpawns.toMutableList()) }
     var availableTowersState by remember { mutableStateOf(level.availableTowers.toSet()) }
     var waypointsState by remember { mutableStateOf(level.waypoints.toMutableList()) }
-    var initialDefendersState by remember { mutableStateOf(level.initialDefenders.toMutableList()) }
-    var initialAttackersState by remember { mutableStateOf(level.initialAttackers.toMutableList()) }
-    var initialTrapsState by remember { mutableStateOf(level.initialTraps.toMutableList()) }
-    var initialBarricadesState by remember { mutableStateOf(level.initialBarricades.toMutableList()) }
+    var initialDataState by remember { mutableStateOf(level.getEffectiveInitialData()) }
     var testingOnly by remember { mutableStateOf(level.testingOnly) }
     var allowAutoAttack by remember { mutableStateOf(level.allowAutoAttack) }
     
     // Update state when level changes (e.g., after reload from disk)
-    LaunchedEffect(level.id, level.initialDefenders, level.initialAttackers, level.initialTraps, level.initialBarricades) {
-        initialDefendersState = level.initialDefenders.toMutableList()
-        initialAttackersState = level.initialAttackers.toMutableList()
-        initialTrapsState = level.initialTraps.toMutableList()
-        initialBarricadesState = level.initialBarricades.toMutableList()
+    LaunchedEffect(level.id, level.initialData) {
+        initialDataState = level.getEffectiveInitialData()
     }
     var showEnemyDialog by remember { mutableStateOf(false) }
     var showEnemyDialogForTurn by remember { mutableStateOf(1) }
@@ -579,14 +573,8 @@ fun LevelEditorView(
                     isValid = isWaypointsValid
                 )
                 4 -> de.egril.defender.ui.editor.level.initialsetup.InitialSetupTab(
-                    initialDefenders = initialDefendersState.toList(),
-                    onInitialDefendersChange = { initialDefendersState = it.toMutableList() },
-                    initialAttackers = initialAttackersState.toList(),
-                    onInitialAttackersChange = { initialAttackersState = it.toMutableList() },
-                    initialTraps = initialTrapsState.toList(),
-                    onInitialTrapsChange = { initialTrapsState = it.toMutableList() },
-                    initialBarricades = initialBarricadesState.toList(),
-                    onInitialBarricadesChange = { initialBarricadesState = it.toMutableList() },
+                    initialData = initialDataState,
+                    onInitialDataChange = { initialDataState = it },
                     map = currentMap,
                     availableTowers = availableTowersState
                 )
@@ -615,10 +603,7 @@ fun LevelEditorView(
                             waypoints = waypointsState.toList(),
                             testingOnly = testingOnly,
                             allowAutoAttack = allowAutoAttack,
-                            initialDefenders = initialDefendersState.toList(),
-                            initialAttackers = initialAttackersState.toList(),
-                            initialTraps = initialTrapsState.toList(),
-                            initialBarricades = initialBarricadesState.toList()
+                            initialData = initialDataState
                         )
                         
                         // Show warning dialog for official levels before saving

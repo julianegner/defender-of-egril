@@ -1019,7 +1019,7 @@ object EditorStorage {
             mapId = editorLevel.mapId,  // Store map ID for save/load verification
             riverTiles = map.getRiverTilesMap(),  // Add river tiles with flow direction and speed
             allowAutoAttack = editorLevel.allowAutoAttack,  // Allow auto-attack option
-            initialData = editorLevel.getInitialData()  // Pre-placed elements using new structure
+            initialData = editorLevel.getEffectiveInitialData()  // Pre-placed elements using new structure
         )
         
         println("=== CREATED LEVEL ===")
