@@ -354,7 +354,9 @@ fun LevelEditorView(
     var allowAutoAttack by remember { mutableStateOf(level.allowAutoAttack) }
     
     // Update state when level changes (e.g., after reload from disk)
-    LaunchedEffect(level.id, level.initialData) {
+    LaunchedEffect(level.id, level.initialData, level.hashCode()) {
+        println("LevelEditor LaunchedEffect triggered: levelId=${level.id}, initialData=${level.initialData}, effectiveData=${level.getEffectiveInitialData()}")
+        println("  Defenders: ${level.getEffectiveInitialData().defenders.size}, Attackers: ${level.getEffectiveInitialData().attackers.size}")
         initialDataState = level.getEffectiveInitialData()
     }
     var showEnemyDialog by remember { mutableStateOf(false) }
