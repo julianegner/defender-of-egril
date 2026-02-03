@@ -429,7 +429,8 @@ fun GridCell(
         // Check if this tile is in range of the hovered position (same logic as cellIsInRange)
         val distance = hoveredPosition.distanceTo(position)
         val minRange = selectedDefenderType.minRange
-        val maxRange = selectedDefenderType.baseRange
+        // For preview, use the actual range at level 1 (baseRange, capped by maxRange if set)
+        val maxRange = selectedDefenderType.maxRange?.let { minOf(selectedDefenderType.baseRange, it) } ?: selectedDefenderType.baseRange
         
         // Only show range on valid target tiles (path or river for area attacks, path only for single-target)
         val hasAreaAttackPreview = selectedDefenderType.attackType == AttackType.AREA || 
