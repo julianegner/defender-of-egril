@@ -105,7 +105,7 @@ fun InitialSetupTab(
                         onTileClick = { position ->
                             when (placementMode) {
                                 PlacementMode.DEFENDER -> {
-                                    if (canPlaceDefender(position, initialDefenders, initialAttackers, initialTraps, initialBarricades)) {
+                                    if (canPlaceDefender(position, initialDefenders, initialAttackers, initialTraps, initialBarricades, map)) {
                                         val newDefender = InitialDefender(
                                             type = selectedDefenderType,
                                             position = position,
@@ -116,7 +116,7 @@ fun InitialSetupTab(
                                     }
                                 }
                                 PlacementMode.ATTACKER -> {
-                                    if (canPlaceAttacker(position, initialDefenders, initialAttackers, initialTraps, initialBarricades)) {
+                                    if (canPlaceAttacker(position, initialDefenders, initialAttackers, initialTraps, initialBarricades, map)) {
                                         val newAttacker = InitialAttacker(
                                             type = selectedAttackerType,
                                             position = position,
@@ -128,7 +128,7 @@ fun InitialSetupTab(
                                     }
                                 }
                                 PlacementMode.TRAP -> {
-                                    if (canPlaceTrap(position, initialDefenders, initialAttackers, initialTraps, initialBarricades)) {
+                                    if (canPlaceTrap(position, initialDefenders, initialAttackers, initialTraps, initialBarricades, map)) {
                                         val newTrap = InitialTrap(
                                             position = position,
                                             damage = trapDamage,
@@ -138,7 +138,7 @@ fun InitialSetupTab(
                                     }
                                 }
                                 PlacementMode.BARRICADE -> {
-                                    if (canPlaceBarricade(position, initialDefenders, initialAttackers, initialTraps, initialBarricades)) {
+                                    if (canPlaceBarricade(position, initialDefenders, initialAttackers, initialTraps, initialBarricades, map)) {
                                         val newBarricade = InitialBarricade(
                                             position = position,
                                             healthPoints = barricadeHealthPoints
@@ -254,8 +254,14 @@ private fun canPlaceDefender(
     existingDefenders: List<InitialDefender>,
     existingAttackers: List<InitialAttacker>,
     existingTraps: List<InitialTrap>,
-    existingBarricades: List<InitialBarricade>
+    existingBarricades: List<InitialBarricade>,
+    map: EditorMap
 ): Boolean {
+    // Must be valid tile type for defenders
+    if (!isValidPlacement(position, PlacementMode.DEFENDER, map)) {
+        return false
+    }
+    // Must not be occupied by any element
     return !isPositionOccupied(position, existingDefenders, existingAttackers, existingTraps, existingBarricades)
 }
 
@@ -264,8 +270,14 @@ private fun canPlaceAttacker(
     existingDefenders: List<InitialDefender>,
     existingAttackers: List<InitialAttacker>,
     existingTraps: List<InitialTrap>,
-    existingBarricades: List<InitialBarricade>
+    existingBarricades: List<InitialBarricade>,
+    map: EditorMap
 ): Boolean {
+    // Must be valid tile type for attackers
+    if (!isValidPlacement(position, PlacementMode.ATTACKER, map)) {
+        return false
+    }
+    // Must not be occupied by any element
     return !isPositionOccupied(position, existingDefenders, existingAttackers, existingTraps, existingBarricades)
 }
 
@@ -274,8 +286,14 @@ private fun canPlaceTrap(
     existingDefenders: List<InitialDefender>,
     existingAttackers: List<InitialAttacker>,
     existingTraps: List<InitialTrap>,
-    existingBarricades: List<InitialBarricade>
+    existingBarricades: List<InitialBarricade>,
+    map: EditorMap
 ): Boolean {
+    // Must be valid tile type for traps (PATH only)
+    if (!isValidPlacement(position, PlacementMode.TRAP, map)) {
+        return false
+    }
+    // Must not be occupied by any element
     return !isPositionOccupied(position, existingDefenders, existingAttackers, existingTraps, existingBarricades)
 }
 
@@ -284,8 +302,14 @@ private fun canPlaceBarricade(
     existingDefenders: List<InitialDefender>,
     existingAttackers: List<InitialAttacker>,
     existingTraps: List<InitialTrap>,
-    existingBarricades: List<InitialBarricade>
+    existingBarricades: List<InitialBarricade>,
+    map: EditorMap
 ): Boolean {
+    // Must be valid tile type for barricades (PATH only)
+    if (!isValidPlacement(position, PlacementMode.BARRICADE, map)) {
+        return false
+    }
+    // Must not be occupied by any element
     return !isPositionOccupied(position, existingDefenders, existingAttackers, existingTraps, existingBarricades)
 }
 
