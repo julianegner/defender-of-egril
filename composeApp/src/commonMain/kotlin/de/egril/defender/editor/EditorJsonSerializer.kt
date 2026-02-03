@@ -483,10 +483,33 @@ object EditorJsonSerializer {
             // Try new nested format first
             if (json.contains("\"initialData\"")) {
                 try {
-                    val initialDataSection = json.substringAfter("\"initialData\": {").substringBefore("\n  }")
+                    println("EditorJsonSerializer: Found initialData in JSON")
+                    // Extract initialData section - find the closing } that matches the opening {
+                    val afterInitialData = json.substringAfter("\"initialData\": {")
+                    var braceCount = 1
+                    var endIndex = 0
+                    for (i in afterInitialData.indices) {
+                        when (afterInitialData[i]) {
+                            '{' -> braceCount++
+                            '}' -> {
+                                braceCount--
+                                if (braceCount == 0) {
+                                    endIndex = i
+                                    break
+                                }
+                            }
+                        }
+                    }
+                    val initialDataSection = if (endIndex > 0) {
+                        afterInitialData.substring(0, endIndex)
+                    } else {
+                        afterInitialData.substringBefore("\n  }")  // Fallback to old method
+                    }
+                    println("EditorJsonSerializer: initialDataSection length = ${initialDataSection.length}")
                     
                     // Parse defenders from new format
                     if (initialDataSection.contains("\"defenders\"")) {
+                        println("EditorJsonSerializer: Found defenders in initialDataSection")
                         val afterKey = initialDataSection.substringAfter("\"defenders\": [")
                         val defendersSection = if (afterKey.contains("],")) {
                             afterKey.substringBefore("],")
