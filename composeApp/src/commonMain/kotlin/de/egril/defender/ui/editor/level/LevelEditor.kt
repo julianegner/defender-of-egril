@@ -519,7 +519,7 @@ fun LevelEditorView(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
-                        Text("Initial Setup")
+                        Text(stringResource(Res.string.initial_setup))
                     }
                 }
             )

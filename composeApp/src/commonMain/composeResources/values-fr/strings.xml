@@ -602,6 +602,7 @@
     <string name="select_position_on_map">Sélectionner une position sur la carte</string>
     <string name="initial_setup_map">Carte</string>
     <string name="initial_setup_click_to_place">Cliquez sur la carte pour placer l'élément sélectionné</string>
+    <string name="initial_setup">Configuration Initiale</string>
     <string name="initial_setup_info">Placez des tours, des ennemis, des pièges et des barricades sur la carte avant que le niveau ne commence (optionnel)</string>
     <string name="initial_setup_towers">Tours</string>
     <string name="initial_setup_enemies">Ennemis</string>

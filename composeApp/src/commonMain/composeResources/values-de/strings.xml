@@ -602,6 +602,7 @@
     <string name="select_position_on_map">Position auf Karte wählen</string>
     <string name="initial_setup_map">Karte</string>
     <string name="initial_setup_click_to_place">Klicke auf die Karte um das ausgewählte Element zu platzieren</string>
+    <string name="initial_setup">Anfangsaufbau</string>
     <string name="initial_setup_info">Platziere Türme, Gegner, Fallen und Barrikaden auf der Karte bevor das Level startet (optional)</string>
     <string name="initial_setup_towers">Türme</string>
     <string name="initial_setup_enemies">Gegner</string>
