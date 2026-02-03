@@ -227,6 +227,21 @@ data class InitialBarricade(
 )
 
 /**
+ * Wrapper for all initial placement data
+ * This groups defenders, attackers, traps, and barricades in a single object
+ */
+data class InitialData(
+    val defenders: List<InitialDefender> = emptyList(),
+    val attackers: List<InitialAttacker> = emptyList(),
+    val traps: List<InitialTrap> = emptyList(),
+    val barricades: List<InitialBarricade> = emptyList()
+) {
+    companion object {
+        val EMPTY = InitialData()
+    }
+}
+
+/**
  * Waypoint configuration for the editor
  * Stores waypoint position and the next target position (another waypoint or final target)
  */
@@ -275,12 +290,31 @@ data class EditorLevel(
     val testingOnly: Boolean = false,  // If true, level is only shown when "show testing levels" setting is enabled
     val allowAutoAttack: Boolean = false,  // If true, shows auto-attack button in end turn confirmation dialog
     val isOfficial: Boolean = false,  // True if level is from official repository (read-only in editor)
-    // Initial placements (optional)
-    val initialDefenders: List<InitialDefender> = emptyList(),  // Pre-placed towers
-    val initialAttackers: List<InitialAttacker> = emptyList(),  // Pre-placed enemies
-    val initialTraps: List<InitialTrap> = emptyList(),  // Pre-placed traps
-    val initialBarricades: List<InitialBarricade> = emptyList()  // Pre-placed barricades
+    // Initial placements (optional) - new nested structure
+    val initialData: InitialData? = null,
+    // Legacy fields for backward compatibility (deprecated - use initialData instead)
+    @Deprecated("Use initialData.defenders instead") val initialDefenders: List<InitialDefender> = emptyList(),
+    @Deprecated("Use initialData.attackers instead") val initialAttackers: List<InitialAttacker> = emptyList(),
+    @Deprecated("Use initialData.traps instead") val initialTraps: List<InitialTrap> = emptyList(),
+    @Deprecated("Use initialData.barricades instead") val initialBarricades: List<InitialBarricade> = emptyList()
 ) {
+    /**
+     * Get effective initial data, handling both new and legacy formats
+     */
+    fun getInitialData(): InitialData {
+        // If new format exists, use it
+        if (initialData != null) {
+            return initialData
+        }
+        // Fall back to legacy format
+        @Suppress("DEPRECATION")
+        return InitialData(
+            defenders = initialDefenders,
+            attackers = initialAttackers,
+            traps = initialTraps,
+            barricades = initialBarricades
+        )
+    }
     /**
      * Get the effective required prerequisite count.
      * Returns the size of prerequisites if requiredPrerequisiteCount is null or larger than prerequisites size.

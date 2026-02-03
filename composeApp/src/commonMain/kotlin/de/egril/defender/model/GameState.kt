@@ -256,8 +256,11 @@ data class GameState(
      * This should be called right after GameState creation to set up the initial level state.
      */
     fun initializePrePlacedElements() {
+        // Get initial data using the helper method that handles both old and new formats
+        val initialData = level.getInitialData()
+        
         // Place initial defenders
-        for (initialDefender in level.initialDefenders) {
+        for (initialDefender in initialData.defenders) {
             val defender = Defender(
                 id = nextDefenderId.value,
                 type = initialDefender.type,
@@ -273,7 +276,7 @@ data class GameState(
         }
         
         // Place initial attackers
-        for (initialAttacker in level.initialAttackers) {
+        for (initialAttacker in initialData.attackers) {
             val attacker = Attacker(
                 id = nextAttackerId.value,
                 type = initialAttacker.type,
@@ -290,7 +293,7 @@ data class GameState(
         }
         
         // Place initial traps
-        for (initialTrap in level.initialTraps) {
+        for (initialTrap in initialData.traps) {
             val trapType = try {
                 TrapType.valueOf(initialTrap.type)
             } catch (e: Exception) {
@@ -308,7 +311,7 @@ data class GameState(
         }
         
         // Place initial barricades
-        for (initialBarricade in level.initialBarricades) {
+        for (initialBarricade in initialData.barricades) {
             val barricade = Barricade(
                 position = initialBarricade.position,
                 healthPoints = mutableStateOf(initialBarricade.healthPoints),

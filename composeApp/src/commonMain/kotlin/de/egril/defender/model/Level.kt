@@ -38,12 +38,31 @@ data class Level(
     val mapId: String? = null,  // ID of the map this level uses
     val riverTiles: Map<Position, RiverTile> = emptyMap(),  // River tiles with flow direction and speed (not walkable in gameplay, but treated as walkable during map validation for levels with ORK, EVIL_WIZARD, or EWHAD enemies)
     val allowAutoAttack: Boolean = false,  // If true, shows auto-attack button in end turn confirmation dialog
-    // Initial placements (optional)
-    val initialDefenders: List<de.egril.defender.editor.InitialDefender> = emptyList(),  // Pre-placed towers
-    val initialAttackers: List<de.egril.defender.editor.InitialAttacker> = emptyList(),  // Pre-placed enemies
-    val initialTraps: List<de.egril.defender.editor.InitialTrap> = emptyList(),  // Pre-placed traps
-    val initialBarricades: List<de.egril.defender.editor.InitialBarricade> = emptyList()  // Pre-placed barricades
+    // Initial placements (optional) - new nested structure
+    val initialData: de.egril.defender.editor.InitialData? = null,
+    // Legacy fields for backward compatibility (deprecated - use initialData instead)
+    @Deprecated("Use initialData.defenders instead") val initialDefenders: List<de.egril.defender.editor.InitialDefender> = emptyList(),
+    @Deprecated("Use initialData.attackers instead") val initialAttackers: List<de.egril.defender.editor.InitialAttacker> = emptyList(),
+    @Deprecated("Use initialData.traps instead") val initialTraps: List<de.egril.defender.editor.InitialTrap> = emptyList(),
+    @Deprecated("Use initialData.barricades instead") val initialBarricades: List<de.egril.defender.editor.InitialBarricade> = emptyList()
 ) {
+    /**
+     * Get effective initial data, handling both new and legacy formats
+     */
+    fun getInitialData(): de.egril.defender.editor.InitialData {
+        // If new format exists, use it
+        if (initialData != null) {
+            return initialData
+        }
+        // Fall back to legacy format
+        @Suppress("DEPRECATION")
+        return de.egril.defender.editor.InitialData(
+            defenders = initialDefenders,
+            attackers = initialAttackers,
+            traps = initialTraps,
+            barricades = initialBarricades
+        )
+    }
     fun isOnPath(position: Position): Boolean {
         return pathCells.contains(position)
     }
