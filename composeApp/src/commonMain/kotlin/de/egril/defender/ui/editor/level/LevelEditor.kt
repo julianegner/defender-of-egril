@@ -61,7 +61,8 @@ fun LevelEditorContent() {
             onSave = { updatedLevel ->
                 EditorStorage.saveLevel(updatedLevel)
                 levels.value = EditorStorage.getAllLevels()
-                editingLevel = null
+                // Reload the level from storage to trigger UI updates
+                editingLevel = EditorStorage.getLevel(updatedLevel.id)
             },
             onCancel = { editingLevel = null }
         )
