@@ -484,8 +484,24 @@ object EditorJsonSerializer {
             if (json.contains("\"initialData\"")) {
                 try {
                     println("EditorJsonSerializer: Found initialData in JSON")
-                    // Extract initialData section - find the closing } that matches the opening {
-                    val afterInitialData = json.substringAfter("\"initialData\": {")
+                    // Extract initialData section - handle various whitespace formats
+                    // Try different patterns: "initialData": {, "initialData" : {, "initialData":{
+                    val afterInitialData = when {
+                        json.contains("\"initialData\": {") -> json.substringAfter("\"initialData\": {")
+                        json.contains("\"initialData\" : {") -> json.substringAfter("\"initialData\" : {")
+                        json.contains("\"initialData\":{") -> json.substringAfter("\"initialData\":{")
+                        else -> {
+                            println("EditorJsonSerializer: ERROR - Could not find initialData start pattern")
+                            ""
+                        }
+                    }
+                    
+                    if (afterInitialData.isEmpty()) {
+                        println("EditorJsonSerializer: afterInitialData is empty, skipping")
+                        return@try
+                    }
+                    
+                    // Find the closing } that matches the opening {
                     var braceCount = 1
                     var endIndex = 0
                     for (i in afterInitialData.indices) {
@@ -503,9 +519,11 @@ object EditorJsonSerializer {
                     val initialDataSection = if (endIndex > 0) {
                         afterInitialData.substring(0, endIndex)
                     } else {
+                        println("EditorJsonSerializer: ERROR - Could not find matching closing brace, endIndex=$endIndex")
                         afterInitialData.substringBefore("\n  }")  // Fallback to old method
                     }
                     println("EditorJsonSerializer: initialDataSection length = ${initialDataSection.length}")
+                    println("EditorJsonSerializer: initialDataSection first 100 chars = ${initialDataSection.take(100)}")
                     
                     // Parse defenders from new format
                     if (initialDataSection.contains("\"defenders\"")) {
