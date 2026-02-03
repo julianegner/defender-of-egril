@@ -524,11 +524,17 @@ object EditorJsonSerializer {
                     // Parse defenders from new format
                     if (initialDataSection.contains("\"defenders\"")) {
                         println("EditorJsonSerializer: Found defenders in initialDataSection")
-                        val afterKey = initialDataSection.substringAfter("\"defenders\": [")
-                        val defendersSection = if (afterKey.contains("],")) {
-                            afterKey.substringBefore("],")
+                        val afterKey = initialDataSection.substringAfter("\"defenders\"")
+                        // Find the opening [ bracket (skip colon and whitespace)
+                        val openBracketIndex = afterKey.indexOf('[')
+                        if (openBracketIndex == -1) {
+                            println("EditorJsonSerializer: ERROR - No opening bracket found after defenders")
+                        }
+                        val afterBracket = afterKey.substring(openBracketIndex + 1)
+                        val defendersSection = if (afterBracket.contains("],")) {
+                            afterBracket.substringBefore("],")
                         } else {
-                            afterKey.substringBefore("]")
+                            afterBracket.substringBefore("]")
                         }
                         if (defendersSection.isNotBlank()) {
                             val defenderEntries = defendersSection.split("},").map { it.trim() + "}" }
@@ -552,11 +558,18 @@ object EditorJsonSerializer {
                     
                     // Parse attackers from new format
                     if (initialDataSection.contains("\"attackers\"")) {
-                        val afterKey = initialDataSection.substringAfter("\"attackers\": [")
-                        val attackersSection = if (afterKey.contains("],")) {
-                            afterKey.substringBefore("],")
+                        println("EditorJsonSerializer: Found attackers in initialDataSection")
+                        val afterKey = initialDataSection.substringAfter("\"attackers\"")
+                        // Find the opening [ bracket (skip colon and whitespace)
+                        val openBracketIndex = afterKey.indexOf('[')
+                        if (openBracketIndex == -1) {
+                            println("EditorJsonSerializer: ERROR - No opening bracket found after attackers")
+                        }
+                        val afterBracket = afterKey.substring(openBracketIndex + 1)
+                        val attackersSection = if (afterBracket.contains("],")) {
+                            afterBracket.substringBefore("],")
                         } else {
-                            afterKey.substringBefore("]")
+                            afterBracket.substringBefore("]")
                         }
                         if (attackersSection.isNotBlank()) {
                             val attackerEntries = attackersSection.split("},").map { it.trim() + "}" }
@@ -585,11 +598,18 @@ object EditorJsonSerializer {
                     
                     // Parse traps from new format
                     if (initialDataSection.contains("\"traps\"")) {
-                        val afterKey = initialDataSection.substringAfter("\"traps\": [")
-                        val trapsSection = if (afterKey.contains("],")) {
-                            afterKey.substringBefore("],")
+                        println("EditorJsonSerializer: Found traps in initialDataSection")
+                        val afterKey = initialDataSection.substringAfter("\"traps\"")
+                        // Find the opening [ bracket (skip colon and whitespace)
+                        val openBracketIndex = afterKey.indexOf('[')
+                        if (openBracketIndex == -1) {
+                            println("EditorJsonSerializer: ERROR - No opening bracket found after traps")
+                        }
+                        val afterBracket = afterKey.substring(openBracketIndex + 1)
+                        val trapsSection = if (afterBracket.contains("],")) {
+                            afterBracket.substringBefore("],")
                         } else {
-                            afterKey.substringBefore("]")
+                            afterBracket.substringBefore("]")
                         }
                         if (trapsSection.isNotBlank()) {
                             val trapEntries = trapsSection.split("},").map { it.trim() + "}" }
@@ -612,11 +632,18 @@ object EditorJsonSerializer {
                     
                     // Parse barricades from new format
                     if (initialDataSection.contains("\"barricades\"")) {
-                        val afterKey = initialDataSection.substringAfter("\"barricades\": [")
-                        val barricadesSection = if (afterKey.contains("],")) {
-                            afterKey.substringBefore("],")
+                        println("EditorJsonSerializer: Found barricades in initialDataSection")
+                        val afterKey = initialDataSection.substringAfter("\"barricades\"")
+                        // Find the opening [ bracket (skip colon and whitespace)
+                        val openBracketIndex = afterKey.indexOf('[')
+                        if (openBracketIndex == -1) {
+                            println("EditorJsonSerializer: ERROR - No opening bracket found after barricades")
+                        }
+                        val afterBracket = afterKey.substring(openBracketIndex + 1)
+                        val barricadesSection = if (afterBracket.contains("],")) {
+                            afterBracket.substringBefore("],")
                         } else {
-                            afterKey.substringBefore("]")
+                            afterBracket.substringBefore("]")
                         }
                         if (barricadesSection.isNotBlank()) {
                             val barricadeEntries = barricadesSection.split("},").map { it.trim() + "}" }
