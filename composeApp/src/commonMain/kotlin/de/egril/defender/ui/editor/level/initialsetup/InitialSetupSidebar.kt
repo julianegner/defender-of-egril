@@ -23,6 +23,7 @@ import defender_of_egril.composeapp.generated.resources.*
 /**
  * Sidebar for configuring and placing initial setup elements
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InitialSetupSidebar(
     placementMode: PlacementMode?,
@@ -300,6 +301,7 @@ fun InitialSetupSidebar(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DefenderConfigPanel(
     selectedType: DefenderType,
@@ -312,6 +314,8 @@ fun DefenderConfigPanel(
     onDragonNameChange: (String) -> Unit,
     availableTowers: Set<DefenderType>
 ) {
+    var expanded by remember { mutableStateOf(false) }
+    
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -338,31 +342,42 @@ fun DefenderConfigPanel(
             )
         }
         
-        // Tower type selector (scrollable)
+        // Tower type dropdown
         val towersToShow = if (showAllTowers) DefenderType.entries.filter { it != DefenderType.DRAGONS_LAIR } else availableTowers.filter { it != DefenderType.DRAGONS_LAIR }.toList()
         
-        Card(
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surface
-            )
+        ExposedDropdownMenuBox(
+            expanded = expanded,
+            onExpandedChange = { expanded = it }
         ) {
-            Column(
-                modifier = Modifier.padding(8.dp).heightIn(max = 200.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
+            OutlinedTextField(
+                value = selectedType.getLocalizedName(),
+                onValueChange = {},
+                readOnly = true,
+                label = { Text(stringResource(Res.string.tower_type)) },
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                modifier = Modifier.fillMaxWidth().menuAnchor(),
+                colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors()
+            )
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
             ) {
                 towersToShow.forEach { type ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        RadioButton(
-                            selected = selectedType == type,
-                            onClick = { onTypeChange(type) }
-                        )
-                        TowerIconOnHexagon(defenderType = type, size = 24.dp)
-                        Text(type.getLocalizedName(), style = MaterialTheme.typography.bodySmall)
-                    }
+                    DropdownMenuItem(
+                        text = {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                TowerIconOnHexagon(defenderType = type, size = 24.dp)
+                                Text(type.getLocalizedName())
+                            }
+                        },
+                        onClick = {
+                            onTypeChange(type)
+                            expanded = false
+                        }
+                    )
                 }
             }
         }
@@ -392,6 +407,7 @@ fun DefenderConfigPanel(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AttackerConfigPanel(
     selectedType: AttackerType,
@@ -403,6 +419,8 @@ fun AttackerConfigPanel(
     dragonName: String,
     onDragonNameChange: (String) -> Unit
 ) {
+    var expanded by remember { mutableStateOf(false) }
+    
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -412,31 +430,42 @@ fun AttackerConfigPanel(
             style = MaterialTheme.typography.bodyMedium
         )
         
-        // Enemy type selector (scrollable)
-        Card(
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surface
-            )
+        // Enemy type dropdown
+        ExposedDropdownMenuBox(
+            expanded = expanded,
+            onExpandedChange = { expanded = it }
         ) {
-            Column(
-                modifier = Modifier.padding(8.dp).heightIn(max = 200.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
+            OutlinedTextField(
+                value = selectedType.getLocalizedName(),
+                onValueChange = {},
+                readOnly = true,
+                label = { Text(stringResource(Res.string.enemy_type)) },
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                modifier = Modifier.fillMaxWidth().menuAnchor(),
+                colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors()
+            )
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
             ) {
                 AttackerType.entries.forEach { type ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        RadioButton(
-                            selected = selectedType == type,
-                            onClick = { onTypeChange(type) }
-                        )
-                        Box(modifier = Modifier.size(24.dp)) {
-                            EnemyTypeIcon(type, modifier = Modifier.fillMaxSize())
+                    DropdownMenuItem(
+                        text = {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Box(modifier = Modifier.size(24.dp)) {
+                                    EnemyTypeIcon(type, modifier = Modifier.fillMaxSize())
+                                }
+                                Text(type.getLocalizedName())
+                            }
+                        },
+                        onClick = {
+                            onTypeChange(type)
+                            expanded = false
                         }
-                        Text(type.getLocalizedName(), style = MaterialTheme.typography.bodySmall)
-                    }
+                    )
                 }
             }
         }
@@ -526,18 +555,20 @@ fun TrapConfigPanel(
             Text(stringResource(Res.string.magical_trap))
         }
         
-        // Damage input
-        OutlinedTextField(
-            value = damage.toString(),
-            onValueChange = {
-                val newDamage = it.toIntOrNull()
-                if (newDamage != null && newDamage > 0 && newDamage <= 9999) {
-                    onDamageChange(newDamage)
-                }
-            },
-            label = { Text(stringResource(Res.string.damage_label)) },
-            modifier = Modifier.fillMaxWidth()
-        )
+        // Damage input - only show for Dwarven traps (magical traps do no damage)
+        if (selectedType == "DWARVEN") {
+            OutlinedTextField(
+                value = damage.toString(),
+                onValueChange = {
+                    val newDamage = it.toIntOrNull()
+                    if (newDamage != null && newDamage > 0 && newDamage <= 9999) {
+                        onDamageChange(newDamage)
+                    }
+                },
+                label = { Text(stringResource(Res.string.damage_label)) },
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
     }
 }
 
@@ -652,10 +683,13 @@ fun SelectedElementPanel(
                                 text = if (selectedElement.trap.type == "MAGICAL") stringResource(Res.string.magical_trap) else stringResource(Res.string.dwarven_trap),
                                 style = MaterialTheme.typography.bodyLarge
                             )
-                            Text(
-                                text = "${stringResource(Res.string.damage_label)}: ${selectedElement.trap.damage}",
-                                style = MaterialTheme.typography.bodySmall
-                            )
+                            // Only show damage for Dwarven traps (magical traps do no damage)
+                            if (selectedElement.trap.type == "DWARVEN") {
+                                Text(
+                                    text = "${stringResource(Res.string.damage_label)}: ${selectedElement.trap.damage}",
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            }
                             Text(
                                 text = "${stringResource(Res.string.position_label)}: (${selectedElement.trap.position.x}, ${selectedElement.trap.position.y})",
                                 style = MaterialTheme.typography.bodySmall
