@@ -588,6 +588,8 @@ object EditorJsonSerializer {
                 }
             }
             
+            println("EditorJsonSerializer.deserializeLevel: Parsed level $id with ${initialDefenders.size} defenders, ${initialAttackers.size} attackers, ${initialTraps.size} traps, ${initialBarricades.size} barricades")
+            
             return EditorLevel(
                 id, mapId, title, titleKey, subtitle, subtitleKey, 
                 startCoins, startHealthPoints, spawns, towers, waypoints, 
