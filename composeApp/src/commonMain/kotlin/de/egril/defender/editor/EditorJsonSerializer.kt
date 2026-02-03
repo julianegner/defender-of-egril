@@ -458,7 +458,13 @@ object EditorJsonSerializer {
             val initialDefenders = mutableListOf<InitialDefender>()
             if (json.contains("\"initialDefenders\"")) {
                 try {
-                    val defendersSection = json.substringAfter("\"initialDefenders\": [").substringBefore("],")
+                    // Extract array - handle both `],` and `]` at end
+                    val afterKey = json.substringAfter("\"initialDefenders\": [")
+                    val defendersSection = if (afterKey.contains("],")) {
+                        afterKey.substringBefore("],")
+                    } else {
+                        afterKey.substringBefore("]")
+                    }
                     if (defendersSection.isNotBlank()) {
                         val defenderEntries = defendersSection.split("},").map { it.trim() + "}" }
                         for (entry in defenderEntries) {
@@ -486,7 +492,13 @@ object EditorJsonSerializer {
             val initialAttackers = mutableListOf<InitialAttacker>()
             if (json.contains("\"initialAttackers\"")) {
                 try {
-                    val attackersSection = json.substringAfter("\"initialAttackers\": [").substringBefore("],")
+                    // Extract array - handle both `],` and `]` at end
+                    val afterKey = json.substringAfter("\"initialAttackers\": [")
+                    val attackersSection = if (afterKey.contains("],")) {
+                        afterKey.substringBefore("],")
+                    } else {
+                        afterKey.substringBefore("]")
+                    }
                     if (attackersSection.isNotBlank()) {
                         val attackerEntries = attackersSection.split("},").map { it.trim() + "}" }
                         for (entry in attackerEntries) {
@@ -519,7 +531,13 @@ object EditorJsonSerializer {
             val initialTraps = mutableListOf<InitialTrap>()
             if (json.contains("\"initialTraps\"")) {
                 try {
-                    val trapsSection = json.substringAfter("\"initialTraps\": [").substringBefore("],")
+                    // Extract array - handle both `],` and `]` at end
+                    val afterKey = json.substringAfter("\"initialTraps\": [")
+                    val trapsSection = if (afterKey.contains("],")) {
+                        afterKey.substringBefore("],")
+                    } else {
+                        afterKey.substringBefore("]")
+                    }
                     if (trapsSection.isNotBlank()) {
                         val trapEntries = trapsSection.split("},").map { it.trim() + "}" }
                         for (entry in trapEntries) {
@@ -546,7 +564,13 @@ object EditorJsonSerializer {
             val initialBarricades = mutableListOf<InitialBarricade>()
             if (json.contains("\"initialBarricades\"")) {
                 try {
-                    val barricadesSection = json.substringAfter("\"initialBarricades\": [").substringBefore("],")
+                    // Extract array - handle both `],` and `]` at end
+                    val afterKey = json.substringAfter("\"initialBarricades\": [")
+                    val barricadesSection = if (afterKey.contains("],")) {
+                        afterKey.substringBefore("],")
+                    } else {
+                        afterKey.substringBefore("]")
+                    }
                     if (barricadesSection.isNotBlank()) {
                         val barricadeEntries = barricadesSection.split("},").map { it.trim() + "}" }
                         for (entry in barricadeEntries) {
