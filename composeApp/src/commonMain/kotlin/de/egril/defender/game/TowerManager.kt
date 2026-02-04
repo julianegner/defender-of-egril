@@ -155,6 +155,17 @@ class TowerManager(private val state: GameState) {
         if (defender.placedOnTurn != state.turnNumber.value) return false
         if (defender.hasBeenUsed.value) return false
         
+        // If tower is on a tower base, clear the barricade's tower reference
+        if (defender.isOnTowerBase) {
+            val barricadeId = defender.towerBaseBarricadeId.value
+            if (barricadeId != null) {
+                val barricade = state.barricades.find { it.id == barricadeId }
+                if (barricade != null) {
+                    barricade.supportedTowerId.value = null
+                }
+            }
+        }
+        
         // Refund full cost
         state.coins.value += defender.totalCost
         state.defenders.remove(defender)
