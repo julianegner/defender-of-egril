@@ -57,7 +57,9 @@ data class Defender(
     val hasShownBarricadeTutorial: MutableState<Boolean> = mutableStateOf(false),  // Track if barricade tutorial was shown (level 20+ for Spike, level 10+ for Spear)
     val hasShownSpikeBarbsTutorial: MutableState<Boolean> = mutableStateOf(false),  // Track if spike barbs tutorial was shown (level 10+)
     // Raft-specific properties
-    val raftId: MutableState<Int?> = mutableStateOf(null)  // ID of the raft this tower is on (null if not on raft)
+    val raftId: MutableState<Int?> = mutableStateOf(null),  // ID of the raft this tower is on (null if not on raft)
+    // Tower base properties
+    val towerBaseBarricadeId: MutableState<Int?> = mutableStateOf(null)  // ID of barricade this tower is on (null if not on tower base)
 ) {
     val damage: Int get() = type.baseDamage + (level.value - 1) * 5
     val range: Int get() {
@@ -144,6 +146,9 @@ data class Defender(
     val hasExtendedAreaEffect: Boolean get() {
         return (type.attackType == AttackType.AREA || type.attackType == AttackType.LASTING) && level.value >= 20
     }
+    
+    // Check if the tower is on a tower base
+    val isOnTowerBase: Boolean get() = towerBaseBarricadeId.value != null
     
     fun canAttack(attacker: Attacker): Boolean {
         if (!isReady || actionsRemaining.value <= 0 || isDisabled.value) return false

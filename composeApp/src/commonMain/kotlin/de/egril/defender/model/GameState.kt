@@ -53,6 +53,7 @@ data class GameState(
     val nextDefenderId: MutableState<Int> = mutableStateOf(1),
     val nextAttackerId: MutableState<Int> = mutableStateOf(1),
     val nextRaftId: MutableState<Int> = mutableStateOf(1),
+    val nextBarricadeId: MutableState<Int> = mutableStateOf(1),
     val currentWaveIndex: MutableState<Int> = mutableStateOf(0),
     val spawnCounter: MutableState<Int> = mutableStateOf(0),
     val attackersToSpawn: SnapshotStateList<AttackerType> = mutableStateListOf(),
@@ -313,6 +314,7 @@ data class GameState(
         // Place initial barricades
         for (initialBarricade in initialData.barricades) {
             val barricade = Barricade(
+                id = nextBarricadeId.value++,
                 position = initialBarricade.position,
                 healthPoints = mutableStateOf(initialBarricade.healthPoints),
                 defenderId = 0  // Pre-placed barricades don't belong to any specific defender

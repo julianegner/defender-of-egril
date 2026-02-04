@@ -100,6 +100,7 @@ class BarricadeSystem(private val state: GameState) {
             
             // Build new barricade
             val barricade = Barricade(
+                id = state.nextBarricadeId.value++,
                 position = barricadePosition,
                 healthPoints = mutableStateOf(hpToAdd),
                 defenderId = towerId,
@@ -137,8 +138,12 @@ class BarricadeSystem(private val state: GameState) {
     /**
      * Handle enemy attacking a barricade.
      * Returns true if barricade is destroyed, false otherwise.
+     * If the barricade falls below 100 HP and has a tower on it, the tower is destroyed.
      */
     fun handleEnemyAttackBarricade(enemy: Attacker, barricade: Barricade, damage: Int): Boolean {
+        // Check if barricade had tower support before damage
+        val hadTowerSupport = barricade.canSupportTower() && barricade.hasTower()
+        
         // Apply damage to barricade
         val wasDestroyed = barricade.takeDamage(damage)
         
@@ -151,7 +156,32 @@ class BarricadeSystem(private val state: GameState) {
             )
         )
         
+        // Check if tower base was compromised (fell below 100 HP)
+        if (hadTowerSupport && !barricade.canSupportTower() && barricade.hasTower()) {
+            // Destroy the tower on this base
+            val towerId = barricade.supportedTowerId.value
+            if (towerId != null) {
+                val tower = state.defenders.find { it.id == towerId }
+                if (tower != null) {
+                    // Remove tower from game
+                    state.defenders.remove(tower)
+                    // Clear the reference in barricade
+                    barricade.supportedTowerId.value = null
+                }
+            }
+        }
+        
         if (wasDestroyed) {
+            // If barricade is destroyed and had a tower, remove the tower too
+            if (barricade.hasTower()) {
+                val towerId = barricade.supportedTowerId.value
+                if (towerId != null) {
+                    val tower = state.defenders.find { it.id == towerId }
+                    if (tower != null) {
+                        state.defenders.remove(tower)
+                    }
+                }
+            }
             // Remove destroyed barricade
             state.barricades.remove(barricade)
         }

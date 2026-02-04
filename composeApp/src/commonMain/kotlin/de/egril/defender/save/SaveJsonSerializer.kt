@@ -51,6 +51,7 @@ object SaveJsonSerializer {
         val defendersJson = savedGame.defenders.joinToString(",\n    ") { defender ->
             val dragonNameStr = if (defender.dragonName != null) "\"${defender.dragonName}\"" else "null"
             val raftIdStr = defender.raftId?.toString() ?: "null"
+            val towerBaseBarricadeIdStr = defender.towerBaseBarricadeId?.toString() ?: "null"
             """{
       "id": ${defender.id},
       "type": "${defender.type.name}",
@@ -60,7 +61,8 @@ object SaveJsonSerializer {
       "placedOnTurn": ${defender.placedOnTurn},
       "actionsRemaining": ${defender.actionsRemaining},
       "dragonName": $dragonNameStr,
-      "raftId": $raftIdStr
+      "raftId": $raftIdStr,
+      "towerBaseBarricadeId": $towerBaseBarricadeIdStr
     }"""
         }
         
@@ -110,10 +112,13 @@ object SaveJsonSerializer {
         }
         
         val barricadesJson = savedGame.barricades.joinToString(",\n    ") { barricade ->
+            val supportedTowerIdStr = barricade.supportedTowerId?.toString() ?: "null"
             """{
       "position": {"x": ${barricade.position.x}, "y": ${barricade.position.y}},
       "healthPoints": ${barricade.healthPoints},
-      "defenderId": ${barricade.defenderId}
+      "defenderId": ${barricade.defenderId},
+      "id": ${barricade.id},
+      "supportedTowerId": $supportedTowerIdStr
     }"""
         }
         
@@ -387,7 +392,15 @@ object SaveJsonSerializer {
             null
         }
         
-        return SavedDefender(id, type, position, level, buildTimeRemaining, placedOnTurn, actionsRemaining, dragonName, raftId)
+        // Backward compatibility: default to null if field doesn't exist in old saves
+        val towerBaseBarricadeId = try {
+            val value = JsonUtils.extractValue(json, "towerBaseBarricadeId")
+            if (value == "null") null else value.toIntOrNull()
+        } catch (e: Exception) {
+            null
+        }
+        
+        return SavedDefender(id, type, position, level, buildTimeRemaining, placedOnTurn, actionsRemaining, dragonName, raftId, towerBaseBarricadeId)
     }
     
     private fun parseSavedRaft(json: String): SavedRaft {
@@ -401,7 +414,23 @@ object SaveJsonSerializer {
         val position = parsePosition(json)
         val healthPoints = JsonUtils.extractValue(json, "healthPoints").toInt()
         val defenderId = JsonUtils.extractValue(json, "defenderId").toInt()
-        return SavedBarricade(position, healthPoints, defenderId)
+        
+        // Backward compatibility: default to 0 if field doesn't exist in old saves
+        val id = try {
+            JsonUtils.extractValue(json, "id").toIntOrNull() ?: 0
+        } catch (e: Exception) {
+            0
+        }
+        
+        // Backward compatibility: default to null if field doesn't exist in old saves
+        val supportedTowerId = try {
+            val value = JsonUtils.extractValue(json, "supportedTowerId")
+            if (value == "null") null else value.toIntOrNull()
+        } catch (e: Exception) {
+            null
+        }
+        
+        return SavedBarricade(position, healthPoints, defenderId, id, supportedTowerId)
     }
     
     private fun parseSavedAttacker(json: String): SavedAttacker {
