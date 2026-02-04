@@ -4,6 +4,7 @@
     <string name="app_name">Verteidiger von Egril</string>
     <string name="app_subtitle">Verteidige die Wiesen von Egril gegen die Horden von Gleid Thyae unter der Flagge des bösen Ewhad</string>
     <string name="start_game">Spiel starten</string>
+    <string name="continue_game">Spiel fortsetzen</string>
     <string name="rules">Regeln</string>
     <string name="exit_game">Spiel beenden</string>
     <string name="exit_game_confirm_title">Spiel beenden?</string>

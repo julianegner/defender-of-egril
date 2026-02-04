@@ -37,6 +37,8 @@ import org.jetbrains.compose.resources.painterResource
 @Composable
 fun MainMenuScreen(
     onStartGame: () -> Unit,
+    onContinueGame: () -> Unit,
+    hasAutosave: Boolean,
     onShowRules: () -> Unit,
     onShowInstallationInfo: () -> Unit,
     onSelectPlayer: () -> Unit,
@@ -166,31 +168,68 @@ fun MainMenuScreen(
                 
                 Spacer(modifier = Modifier.height(48.dp))
                 
-                // On mobile, buttons are in a row; on desktop, in a column
+                // On mobile, buttons are in a column; on desktop, in a column as well
                 if (isPlatformMobile) {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 32.dp)
                     ) {
-                        Button(
-                            onClick = onStartGame,
-                            modifier = Modifier.weight(1f).height(60.dp)
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(16.dp),
+                            modifier = Modifier.fillMaxWidth()
                         ) {
-                            Text(stringResource(Res.string.start_game), style = MaterialTheme.typography.titleMedium)
+                            Button(
+                                onClick = onStartGame,
+                                modifier = Modifier.weight(1f).height(60.dp)
+                            ) {
+                                Text(stringResource(Res.string.start_game), style = MaterialTheme.typography.titleMedium)
+                            }
+                            
+                            // Continue Game button (only visible if autosave exists)
+                            if (hasAutosave) {
+                                Button(
+                                    onClick = onContinueGame,
+                                    modifier = Modifier.weight(1f).height(60.dp),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = MaterialTheme.colorScheme.secondary
+                                    )
+                                ) {
+                                    Text(stringResource(Res.string.continue_game), style = MaterialTheme.typography.titleMedium)
+                                }
+                            }
                         }
                         
                         Button(
                             onClick = onShowRules,
-                            modifier = Modifier.weight(1f).height(60.dp)
+                            modifier = Modifier.fillMaxWidth().height(60.dp)
                         ) {
                             Text(stringResource(Res.string.rules), style = MaterialTheme.typography.titleMedium)
                         }
                     }
                 } else {
-                    Button(
-                        onClick = onStartGame,
-                        modifier = Modifier.width(200.dp).height(60.dp)
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        Text(stringResource(Res.string.start_game), style = MaterialTheme.typography.titleMedium)
+                        Button(
+                            onClick = onStartGame,
+                            modifier = Modifier.width(200.dp).height(60.dp)
+                        ) {
+                            Text(stringResource(Res.string.start_game), style = MaterialTheme.typography.titleMedium)
+                        }
+                        
+                        // Continue Game button (only visible if autosave exists)
+                        if (hasAutosave) {
+                            Button(
+                                onClick = onContinueGame,
+                                modifier = Modifier.width(200.dp).height(60.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.secondary
+                                )
+                            ) {
+                                Text(stringResource(Res.string.continue_game), style = MaterialTheme.typography.titleMedium)
+                            }
+                        }
                     }
                     
                     Spacer(modifier = Modifier.height(16.dp))

@@ -786,6 +786,20 @@ class GameViewModel {
     }
     
     /**
+     * Check if an autosave exists
+     */
+    fun hasAutosave(): Boolean {
+        return de.egril.defender.save.SaveFileStorage.loadGameState("autosave_game") != null
+    }
+    
+    /**
+     * Load the autosave and start playing
+     */
+    fun continueFromAutosave() {
+        loadGame("autosave_game")
+    }
+    
+    /**
      * Create a snapshot of the current game state for change detection
      */
     private fun createGameStateSnapshot(state: GameState): String {

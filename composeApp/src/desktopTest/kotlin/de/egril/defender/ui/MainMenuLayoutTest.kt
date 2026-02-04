@@ -24,6 +24,8 @@ class MainMenuLayoutTest {
         composeTestRule.setContent {
             MainMenuScreen(
                 onStartGame = {},
+                onContinueGame = {},
+                hasAutosave = false,  // No autosave in tests
                 onShowRules = {},
                 onShowInstallationInfo = {},
                 onSelectPlayer = {},

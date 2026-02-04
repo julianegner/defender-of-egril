@@ -4,6 +4,7 @@
     <string name="app_name">Defensor de Egril</string>
     <string name="app_subtitle">Defiende los prados de Egril contra las Hordas de Gleid Thyae bajo la Bandera del malvado Ewhad</string>
     <string name="start_game">Iniciar juego</string>
+    <string name="continue_game">Continuar juego</string>
     <string name="rules">Reglas</string>
     <string name="exit_game">Salir del juego</string>
     <string name="exit_game_confirm_title">¿Salir del juego?</string>
