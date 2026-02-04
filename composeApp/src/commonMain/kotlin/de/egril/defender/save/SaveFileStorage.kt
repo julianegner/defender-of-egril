@@ -278,7 +278,8 @@ object SaveFileStorage {
                 placedOnTurn = defender.placedOnTurn,
                 actionsRemaining = defender.actionsRemaining.value,
                 dragonName = defender.dragonName,
-                raftId = defender.raftId.value
+                raftId = defender.raftId.value,
+                towerBaseBarricadeId = defender.towerBaseBarricadeId.value
             )
         }
         
@@ -327,7 +328,9 @@ object SaveFileStorage {
             SavedBarricade(
                 position = barricade.position,
                 healthPoints = barricade.healthPoints.value,
-                defenderId = barricade.defenderId
+                defenderId = barricade.defenderId,
+                id = barricade.id,
+                supportedTowerId = barricade.supportedTowerId.value
             )
         }
         
@@ -400,6 +403,7 @@ object SaveFileStorage {
             defender.buildTimeRemaining.value = savedDefender.buildTimeRemaining
             defender.actionsRemaining.value = savedDefender.actionsRemaining
             defender.raftId.value = savedDefender.raftId  // Restore raft linkage
+            defender.towerBaseBarricadeId.value = savedDefender.towerBaseBarricadeId  // Restore tower base linkage
             gameState.defenders.add(defender)
         }
         
@@ -449,11 +453,23 @@ object SaveFileStorage {
         
         // Restore barricades
         gameState.barricades.clear()
+        
+        // First pass: determine the max barricade ID from saved data
+        val maxSavedBarricadeId = savedGame.barricades.maxOfOrNull { it.id } ?: 0
+        
+        // Set nextBarricadeId to be higher than any existing ID
+        if (maxSavedBarricadeId >= gameState.nextBarricadeId.value) {
+            gameState.nextBarricadeId.value = maxSavedBarricadeId + 1
+        }
+        
+        // Second pass: restore barricades, assigning new IDs to those with ID <= 0 (old saves)
         gameState.barricades.addAll(savedGame.barricades.map { barricade ->
             Barricade(
+                id = if (barricade.id > 0) barricade.id else gameState.nextBarricadeId.value++,
                 position = barricade.position,
                 healthPoints = mutableStateOf(barricade.healthPoints),
-                defenderId = barricade.defenderId
+                defenderId = barricade.defenderId,
+                supportedTowerId = mutableStateOf(barricade.supportedTowerId)
             )
         })
         

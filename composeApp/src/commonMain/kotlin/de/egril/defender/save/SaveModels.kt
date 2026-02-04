@@ -48,7 +48,8 @@ data class SavedDefender(
     val placedOnTurn: Int,
     val actionsRemaining: Int = 0,  // Default to 0 for backward compatibility with old saves
     val dragonName: String? = null,  // Dragon's name (for dragon's lair only)
-    val raftId: Int? = null  // ID of the raft this tower is on (null if not on raft)
+    val raftId: Int? = null,  // ID of the raft this tower is on (null if not on raft)
+    val towerBaseBarricadeId: Int? = null  // ID of barricade this tower is on (null if not on tower base)
 )
 
 data class SavedAttacker(
@@ -87,7 +88,9 @@ data class SavedRaft(
 data class SavedBarricade(
     val position: Position,
     val healthPoints: Int,
-    val defenderId: Int  // The tower that built this barricade
+    val defenderId: Int,  // The tower that built this barricade
+    val id: Int = 0,  // Barricade ID (0 for old saves)
+    val supportedTowerId: Int? = null  // ID of tower on this barricade (null if none)
 )
 
 /**

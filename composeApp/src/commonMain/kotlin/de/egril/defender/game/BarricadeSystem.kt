@@ -80,19 +80,21 @@ class BarricadeSystem(private val state: GameState) {
         val distance = tower.position.value.distanceTo(barricadePosition)
         if (distance > getBarricadeRange()) return false
         
-        // Check if position is empty (no attacker, no defender, no existing barricade without reinforcement)
+        // Check if position is empty (no attacker, no existing barricade without reinforcement)
+        // Allow defenders on tower bases (barricades with towers on them)
         val hasAttacker = state.attackers.any { !it.isDefeated.value && it.position.value == barricadePosition }
-        val hasDefender = state.defenders.any { it.position.value == barricadePosition }
-        if (hasAttacker || hasDefender) return false
+        val existingBarricade = state.barricades.find { it.position == barricadePosition }
+        val hasDefenderNotOnTowerBase = state.defenders.any { defender ->
+            defender.position.value == barricadePosition && defender.towerBaseBarricadeId.value == null
+        }
+        if (hasAttacker || hasDefenderNotOnTowerBase) return false
         
         // Calculate HP to add
         val hpToAdd = calculateBarricadeHP(tower)
         
         // Check if there's already a barricade at this position
-        val existingBarricade = state.barricades.find { it.position == barricadePosition }
-        
         if (existingBarricade != null) {
-            // Reinforce existing barricade
+            // Reinforce existing barricade (including tower bases)
             existingBarricade.reinforce(hpToAdd)
         } else {
             // Check if this should be a gate
@@ -100,6 +102,7 @@ class BarricadeSystem(private val state: GameState) {
             
             // Build new barricade
             val barricade = Barricade(
+                id = state.nextBarricadeId.value++,
                 position = barricadePosition,
                 healthPoints = mutableStateOf(hpToAdd),
                 defenderId = towerId,
@@ -120,11 +123,29 @@ class BarricadeSystem(private val state: GameState) {
     
     /**
      * Remove a barricade (player-initiated removal)
+     * If the barricade has a tower on it, also removes the tower and returns the sell value
+     * Returns the coin refund amount (0 if just barricade, tower sell value if tower present)
      */
-    fun removeBarricade(position: Position): Boolean {
-        val barricade = state.barricades.find { it.position == position } ?: return false
+    fun removeBarricade(position: Position): Int {
+        val barricade = state.barricades.find { it.position == position } ?: return 0
+        
+        var coinRefund = 0
+        
+        // If barricade has a tower on it, remove the tower and calculate refund
+        if (barricade.hasTower()) {
+            val towerId = barricade.supportedTowerId.value
+            if (towerId != null) {
+                val tower = state.defenders.find { it.id == towerId }
+                if (tower != null) {
+                    // Calculate 75% refund of total cost (same as selling)
+                    coinRefund = (tower.totalCost * 0.75).toInt()
+                    state.defenders.remove(tower)
+                }
+            }
+        }
+        
         state.barricades.remove(barricade)
-        return true
+        return coinRefund
     }
     
     /**
@@ -137,8 +158,12 @@ class BarricadeSystem(private val state: GameState) {
     /**
      * Handle enemy attacking a barricade.
      * Returns true if barricade is destroyed, false otherwise.
+     * If the barricade falls below 100 HP and has a tower on it, the tower is destroyed.
      */
     fun handleEnemyAttackBarricade(enemy: Attacker, barricade: Barricade, damage: Int): Boolean {
+        // Check if barricade had tower support before damage
+        val hadTowerSupport = barricade.canSupportTower() && barricade.hasTower()
+        
         // Apply damage to barricade
         val wasDestroyed = barricade.takeDamage(damage)
         
@@ -151,7 +176,32 @@ class BarricadeSystem(private val state: GameState) {
             )
         )
         
+        // Check if tower base was compromised (fell below 100 HP)
+        if (hadTowerSupport && !barricade.canSupportTower() && barricade.hasTower()) {
+            // Destroy the tower on this base
+            val towerId = barricade.supportedTowerId.value
+            if (towerId != null) {
+                val tower = state.defenders.find { it.id == towerId }
+                if (tower != null) {
+                    // Remove tower from game
+                    state.defenders.remove(tower)
+                    // Clear the reference in barricade
+                    barricade.supportedTowerId.value = null
+                }
+            }
+        }
+        
         if (wasDestroyed) {
+            // If barricade is destroyed and had a tower, remove the tower too
+            if (barricade.hasTower()) {
+                val towerId = barricade.supportedTowerId.value
+                if (towerId != null) {
+                    val tower = state.defenders.find { it.id == towerId }
+                    if (tower != null) {
+                        state.defenders.remove(tower)
+                    }
+                }
+            }
             // Remove destroyed barricade
             state.barricades.remove(barricade)
         }

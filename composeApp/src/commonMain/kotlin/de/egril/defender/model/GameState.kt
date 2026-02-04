@@ -53,6 +53,7 @@ data class GameState(
     val nextDefenderId: MutableState<Int> = mutableStateOf(1),
     val nextAttackerId: MutableState<Int> = mutableStateOf(1),
     val nextRaftId: MutableState<Int> = mutableStateOf(1),
+    val nextBarricadeId: MutableState<Int> = mutableStateOf(1),
     val currentWaveIndex: MutableState<Int> = mutableStateOf(0),
     val spawnCounter: MutableState<Int> = mutableStateOf(0),
     val attackersToSpawn: SnapshotStateList<AttackerType> = mutableStateListOf(),
@@ -259,6 +260,17 @@ data class GameState(
         // Get initial data using the helper method that handles both old and new formats
         val initialData = level.getEffectiveInitialData()
         
+        // Place initial barricades FIRST (before defenders so we can link them)
+        for (initialBarricade in initialData.barricades) {
+            val barricade = Barricade(
+                id = nextBarricadeId.value++,
+                position = initialBarricade.position,
+                healthPoints = mutableStateOf(initialBarricade.healthPoints),
+                defenderId = 0  // Pre-placed barricades don't belong to any specific defender
+            )
+            barricades.add(barricade)
+        }
+        
         // Place initial defenders
         for (initialDefender in initialData.defenders) {
             val defender = Defender(
@@ -271,6 +283,16 @@ data class GameState(
             defender.level.value = initialDefender.level
             defender.buildTimeRemaining.value = 0  // Already built
             defender.actionsRemaining.value = 0  // No actions in initial phase
+            
+            // If this defender should be on a tower base, find the barricade at the same position
+            if (initialDefender.onTowerBase) {
+                val barricadeAtPosition = barricades.find { it.position == initialDefender.position }
+                if (barricadeAtPosition != null && barricadeAtPosition.canSupportTower()) {
+                    defender.towerBaseBarricadeId.value = barricadeAtPosition.id
+                    barricadeAtPosition.supportedTowerId.value = defender.id
+                }
+            }
+            
             defenders.add(defender)
             nextDefenderId.value++
         }
@@ -308,16 +330,6 @@ data class GameState(
                 type = trapType
             )
             traps.add(trap)
-        }
-        
-        // Place initial barricades
-        for (initialBarricade in initialData.barricades) {
-            val barricade = Barricade(
-                position = initialBarricade.position,
-                healthPoints = mutableStateOf(initialBarricade.healthPoints),
-                defenderId = 0  // Pre-placed barricades don't belong to any specific defender
-            )
-            barricades.add(barricade)
         }
     }
 }

@@ -41,7 +41,7 @@ fun GamePlayScreen(
     onMineBuildTrap: ((Int, Position) -> Boolean)? = null,  // Add mine build trap callback
     onWizardPlaceMagicalTrap: ((Int, Position) -> Boolean)? = null,  // Add wizard magical trap callback
     onBuildBarricade: ((Int, Position) -> Boolean)? = null,  // Add barricade building callback
-    onRemoveBarricade: ((Position) -> Boolean)? = null,  // Add barricade removal callback
+    onRemoveBarricade: ((Position) -> Int)? = null,  // Add barricade removal callback - returns coin refund
     cheatDigOutcome: DigOutcome? = null,  // Dig outcome from cheat code
     onClearCheatDigOutcome: (() -> Unit)? = null,  // Callback to clear cheat dig outcome
     showPlatformInfo: Boolean = false,  // Show platform info from cheat code
@@ -102,7 +102,7 @@ private fun GamePlayScreenContent(
     onMineBuildTrap: ((Int, Position) -> Boolean)? = null,
     onWizardPlaceMagicalTrap: ((Int, Position) -> Boolean)? = null,  // Add wizard magical trap callback
     onBuildBarricade: ((Int, Position) -> Boolean)? = null,  // Add barricade building callback
-    onRemoveBarricade: ((Position) -> Boolean)? = null,  // Add barricade removal callback
+    onRemoveBarricade: ((Position) -> Int)? = null,  // Add barricade removal callback - returns coin refund
     cheatDigOutcome: DigOutcome? = null,  // Dig outcome from cheat code
     onClearCheatDigOutcome: (() -> Unit)? = null,  // Callback to clear cheat dig outcome
     showPlatformInfo: Boolean = false,  // Show platform info from cheat code
@@ -522,9 +522,10 @@ private fun GamePlayScreenContent(
                         }
                     }
 
-                    // Check if there's a barricade at this position - show removal confirmation
+                    // Check if there's a barricade at this position
+                    // Don't show removal dialog if barricade has a tower - player must sell tower first
                     val barricade = gameState.barricades.find { it.position == position }
-                    if (barricade != null && selectedDefenderId == null && selectedAttackerId == null) {
+                    if (barricade != null && !barricade.hasTower() && selectedDefenderId == null && selectedAttackerId == null) {
                         barricadeToRemove = position
                         showRemoveBarricadeDialog = true
                         return@GameGrid
@@ -956,12 +957,17 @@ private fun GamePlayScreenContent(
         }
         
         // Remove barricade confirmation dialog
+        // Note: This dialog only shows for barricades without towers
         if (showRemoveBarricadeDialog && barricadeToRemove != null) {
             ConfirmationDialog(
                 title = stringResource(Res.string.remove_barricade_title),
                 message = stringResource(Res.string.remove_barricade_message),
                 onConfirm = {
-                    onRemoveBarricade?.invoke(barricadeToRemove!!)
+                    val actualRefund = onRemoveBarricade?.invoke(barricadeToRemove!!) ?: 0
+                    if (actualRefund > 0) {
+                        // Add coins back to player (should be 0 for barricades without towers)
+                        gameState.coins.value += actualRefund
+                    }
                     showRemoveBarricadeDialog = false
                     barricadeToRemove = null
                 },

@@ -703,6 +703,7 @@
     <string name="barricade_info_message">Votre tour de Lances a atteint le niveau 10 (ou tour de Piques niveau 20) et peut maintenant construire des barricades !\nLes barricades sont des structures en bois placées sur des cases de chemin adjacentes qui bloquent le mouvement ennemi.\nLes barricades de tour de Lances ont PV = niveau - 10 (minimum 1). Les barricades de tour de Piques ont PV = (niveau - 20) / 2 (minimum 1).\nLorsque les ennemis atteignent une barricade, ils l'attaquent avec des dégâts égaux à leur niveau (les dragons infligent 5× leur niveau).\nSi une barricade est détruite, l'ennemi se déplace sur cette case.\nVous pouvez construire de nouvelles barricades ou renforcer les existantes, et cliquer sur les barricades pour les retirer.</string>
     <string name="remove_barricade_title">Retirer la Barricade?</string>
     <string name="remove_barricade_message">Êtes-vous sûr de vouloir retirer cette barricade?</string>
+    <string name="remove_barricade_with_tower_message">Cette barricade est une base de tour. La retirer détruira également la tour et vous recevrez la valeur de vente de la tour (%d pièces). Êtes-vous sûr?</string>
     
     <!-- Spike Barbs Feature -->
     <string name="spike_barbs_info_title">Barbes de Piques Débloquées !</string>
@@ -1190,4 +1191,8 @@
     <string name="towers">Tours</string>
     <string name="traps">Pièges</string>
     <string name="barricades">Barricades</string>
+    
+    <!-- Tower Base -->
+    <string name="tower_base_hp_label">Base: %d PV</string>
+    <string name="tower_base_info">Tour sur base (destructible à &lt;100 PV)</string>
 </resources>

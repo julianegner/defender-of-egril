@@ -471,6 +471,13 @@ fun GridCell(
     val isBuildableAndEmpty = selectedDefenderType != null && 
                               isBuildableTile && 
                               !showPlacementPreview  // Don't double-highlight the hovered tile
+    
+    // Check if this tile has a barricade that can be used as tower base (HP >= 100)
+    val canBeUsedAsTowerBase = selectedDefenderType != null && 
+                               barricade != null && 
+                               barricade.canSupportTower() && 
+                               !barricade.hasTower() &&
+                               !showPlacementPreview  // Don't double-highlight the hovered tile
 
     // Base background color based on area type - ALWAYS visible
     // Build islands + strips adjacent to path allow tower placement
@@ -558,7 +565,7 @@ fun GridCell(
         cellIsInBarricadeRange -> GamePlayColors.Yellow  // Yellow border for barricade placement range
         
         // Buildable tile highlighting - lighter green borders with dashed line when tower type is selected
-        isBuildableAndEmpty -> GamePlayColors.BuildableHighlight  // Lighter green border for buildable tiles
+        isBuildableAndEmpty || canBeUsedAsTowerBase -> GamePlayColors.BuildableHighlight  // Lighter green border for buildable tiles and tower bases
         
         cellIsInRange && isValidTargetTile && showRange && canPlaceTrapHere -> GamePlayColors.Success  // Green border for tiles in range (path or river for area attacks)
         isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> GamePlayColors.Yellow  // Yellow border for selected defender (not during initial building)
@@ -583,7 +590,7 @@ fun GridCell(
         showPlacementPreview -> 6.dp  // Double thickness for hovered build tile
         isInPreviewRange -> 3.dp  // Medium border for range preview
         cellIsInBarricadeRange -> 4.dp  // Thick border for barricade placement range
-        isBuildableAndEmpty -> 3.dp  // Medium border for buildable tiles
+        isBuildableAndEmpty || canBeUsedAsTowerBase -> 3.dp  // Medium border for buildable tiles and tower bases
         isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> 5.dp  // Extra thick border for selected defender (not during initial building)
         cellIsInRange && isValidTargetTile && showRange && canPlaceTrapHere -> 4.dp  // Thick border for cells in range (path or river for area attacks)
         isSpawnPoint || isTarget -> 3.dp
@@ -595,7 +602,7 @@ fun GridCell(
     }
     
     // Flag to indicate dashed border (for preview and buildable tiles)
-    val useDashedBorder = showPlacementPreview || isInPreviewRange || isBuildableAndEmpty
+    val useDashedBorder = showPlacementPreview || isInPreviewRange || isBuildableAndEmpty || canBeUsedAsTowerBase
     
     // Determine if we should use gradient blending
     val useTileImages = de.egril.defender.ui.settings.AppSettings.useTileImages.value
@@ -694,7 +701,8 @@ fun GridCell(
                 showTrapPreview = showTrapPreview,
                 selectedMineAction = selectedMineAction,
                 selectedWizardAction = selectedWizardAction,
-                isBuildableAndEmpty = isBuildableAndEmpty
+                isBuildableAndEmpty = isBuildableAndEmpty,
+                canBeUsedAsTowerBase = canBeUsedAsTowerBase
             )
         }
     } else {
@@ -731,7 +739,8 @@ fun GridCell(
                 showTrapPreview = showTrapPreview,
                 selectedMineAction = selectedMineAction,
                 selectedWizardAction = selectedWizardAction,
-                isBuildableAndEmpty = isBuildableAndEmpty
+                isBuildableAndEmpty = isBuildableAndEmpty,
+                canBeUsedAsTowerBase = canBeUsedAsTowerBase
             )
         }
     }
@@ -765,7 +774,8 @@ private fun BoxScope.GridCellContent(
     showTrapPreview: Boolean = false,
     selectedMineAction: MineAction? = null,
     selectedWizardAction: WizardAction? = null,
-    isBuildableAndEmpty: Boolean = false
+    isBuildableAndEmpty: Boolean = false,
+    canBeUsedAsTowerBase: Boolean = false
 ) {
         when {
             attacker != null -> {
@@ -1182,8 +1192,8 @@ private fun BoxScope.GridCellContent(
             }
         }
         
-        // Draw diagonal stripes for buildable tiles
-        if (isBuildableAndEmpty) {
+        // Draw diagonal stripes for buildable tiles and tower bases
+        if (isBuildableAndEmpty || canBeUsedAsTowerBase) {
             Canvas(
                 modifier = Modifier
                     .matchParentSize()

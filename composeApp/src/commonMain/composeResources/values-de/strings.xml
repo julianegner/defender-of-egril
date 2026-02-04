@@ -703,6 +703,7 @@
     <string name="barricade_info_message">Ihr Speerturm hat Stufe 10 erreicht (oder Pike-Turm Stufe 20) und kann jetzt Barrikaden bauen!\nBarrikaden sind Holzkonstruktionen auf angrenzenden Pfadfeldern, die Feindbewegungen blockieren.\nSpeerturm-Barrikaden haben LP = Stufe - 10 (mindestens 1). Pike-Turm-Barrikaden haben LP = (Stufe - 20) / 2 (mindestens 1).\nWenn Feinde eine Barrikade erreichen, greifen sie mit Schaden gleich ihrer Stufe an (Drachen verursachen das 5-fache ihrer Stufe).\nWird eine Barrikade zerstört, bewegt sich der Feind auf dieses Feld.\nSie können neue Barrikaden bauen oder bestehende verstärken und auf Barrikaden klicken, um sie zu entfernen.</string>
     <string name="remove_barricade_title">Barrikade entfernen?</string>
     <string name="remove_barricade_message">Möchten Sie diese Barrikade wirklich entfernen?</string>
+    <string name="remove_barricade_with_tower_message">Diese Barrikade ist eine Turmbasis. Beim Entfernen wird auch der Turm zerstört und Sie erhalten den Verkaufswert des Turms (%d Münzen). Sind Sie sicher?</string>
     
     <!-- Spike Barbs Feature -->
     <string name="spike_barbs_info_title">Pike-Widerhaken freigeschaltet!</string>
@@ -1188,4 +1189,8 @@
     <string name="towers">Türme</string>
     <string name="traps">Fallen</string>
     <string name="barricades">Barrikaden</string>
+    
+    <!-- Tower Base -->
+    <string name="tower_base_hp_label">Basis: %d TP</string>
+    <string name="tower_base_info">Turm auf Basis (zerstörbar bei &lt;100 TP)</string>
 </resources>
