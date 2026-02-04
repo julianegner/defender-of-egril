@@ -90,6 +90,10 @@ fun TowerIcon(
     modifier: Modifier = Modifier,
     gameState: GameState? = null
 ) {
+    // Check if tower is on a tower base
+    val towerBase = gameState?.barricades?.find { it.id == defender.towerBaseBarricadeId.value }
+    val isOnTowerBase = towerBase != null
+    
     Box(
         modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
@@ -100,24 +104,36 @@ fun TowerIcon(
             val centerY = size.height / 2
             val iconSize = minOf(size.width, size.height)
             
+            // Adjust center Y position if on tower base to move tower upward
+            val adjustedCenterY = if (isOnTowerBase) {
+                centerY - iconSize * 0.15f  // Move tower up by 15% of icon size
+            } else {
+                centerY
+            }
+            
+            // Draw tower base wood platform if on tower base
+            if (isOnTowerBase) {
+                drawTowerBasePlatform(centerX, centerY, iconSize * 0.9f)
+            }
+            
             // Draw raft base OR tower base (not both)
             if (defender.raftId.value != null) {
                 // If on a raft, draw only the raft base
-                drawRaftBase(centerX, centerY, iconSize * 0.9f)
+                drawRaftBase(centerX, adjustedCenterY, iconSize * 0.9f)
             } else if (defender.type != DefenderType.DRAGONS_LAIR && defender.type != DefenderType.DWARVEN_MINE) {
                 // If not on a raft, draw tower base (trapezoid shape) - except for dragon's lair and dwarven mine
-                drawTowerBase(centerX, centerY, iconSize * 0.8f)
+                drawTowerBase(centerX, adjustedCenterY, iconSize * 0.8f)
             }
             
             // Draw tower type symbol inside
             when (defender.type) {
-                DefenderType.SPIKE_TOWER -> drawSpikeSymbol(centerX, centerY, iconSize * 0.4f)
-                DefenderType.SPEAR_TOWER -> drawSpearSymbol(centerX, centerY + iconSize * 0.15f, iconSize * 0.5f)  // Move down 30% for better positioning
-                DefenderType.BOW_TOWER -> drawBowSymbol(centerX, centerY, iconSize * 0.45f)
-                DefenderType.WIZARD_TOWER -> drawWizardSymbol(centerX, centerY, iconSize * 0.4f)
-                DefenderType.ALCHEMY_TOWER -> drawAlchemySymbol(centerX, centerY, iconSize * 0.4f)
-                DefenderType.BALLISTA_TOWER -> drawBallistaSymbol(centerX, centerY, iconSize * 0.5f)
-                DefenderType.DWARVEN_MINE -> drawMineSymbol(centerX, centerY, iconSize * 0.4f)
+                DefenderType.SPIKE_TOWER -> drawSpikeSymbol(centerX, adjustedCenterY, iconSize * 0.4f)
+                DefenderType.SPEAR_TOWER -> drawSpearSymbol(centerX, adjustedCenterY + iconSize * 0.15f, iconSize * 0.5f)  // Move down 30% for better positioning
+                DefenderType.BOW_TOWER -> drawBowSymbol(centerX, adjustedCenterY, iconSize * 0.45f)
+                DefenderType.WIZARD_TOWER -> drawWizardSymbol(centerX, adjustedCenterY, iconSize * 0.4f)
+                DefenderType.ALCHEMY_TOWER -> drawAlchemySymbol(centerX, adjustedCenterY, iconSize * 0.4f)
+                DefenderType.BALLISTA_TOWER -> drawBallistaSymbol(centerX, adjustedCenterY, iconSize * 0.5f)
+                DefenderType.DWARVEN_MINE -> drawMineSymbol(centerX, adjustedCenterY, iconSize * 0.4f)
                 DefenderType.DRAGONS_LAIR -> {
                     // Check if the specific dragon from this lair is still alive
                     val dragonAlive = defender.dragonId.value?.let { dragonId ->
@@ -125,7 +141,7 @@ fun TowerIcon(
                             it.id == dragonId && !it.isDefeated.value 
                         } ?: false
                     } ?: true
-                    drawDragonLairSymbol(centerX, centerY, iconSize * 0.6f, dragonAlive)
+                    drawDragonLairSymbol(centerX, adjustedCenterY, iconSize * 0.6f, dragonAlive)
                 }
             }
         }
@@ -153,17 +169,31 @@ fun TowerIcon(
             }
         }
         
-        // Level indicator at bottom center - 10dp from bottom edge
-        Text(
-            text = "L${defender.level.value}",
-            style = MaterialTheme.typography.labelSmall,
-            fontSize = 11.sp,
-            color = Color.White,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = 10.dp)  // 10dp from bottom as requested
-        )
+        // Tower base HP indicator at bottom center (if on tower base)
+        if (isOnTowerBase && towerBase != null) {
+            Text(
+                text = "${towerBase.healthPoints.value} HP",
+                style = MaterialTheme.typography.labelSmall,
+                fontSize = 10.sp,
+                color = Color.White,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 2.dp)
+            )
+        } else {
+            // Level indicator at bottom center - 10dp from bottom edge (only if not on tower base)
+            Text(
+                text = "L${defender.level.value}",
+                style = MaterialTheme.typography.labelSmall,
+                fontSize = 11.sp,
+                color = Color.White,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 10.dp)  // 10dp from bottom as requested
+            )
+        }
         
         // Build time indicator at bottom center (only if not ready)
         if (!defender.isReady) {
@@ -233,6 +263,34 @@ private fun DrawScope.drawTowerBase(centerX: Float, centerY: Float, size: Float,
 /**
  * Draw a raft base in the shape \__/ beneath towers on rafts
  */
+/**
+ * Draw a wooden platform at the bottom for towers on tower bases (barricades with 100+ HP)
+ */
+private fun DrawScope.drawTowerBasePlatform(centerX: Float, centerY: Float, size: Float) {
+    // Brown color for wooden platform
+    val woodColor = Color(0xFF8B4513)  // Saddle brown color for wood
+    
+    // Draw thick brown line at the bottom representing wood platform
+    val platformWidth = size * 0.7f
+    val platformHeight = size * 0.12f  // Thicker than normal
+    val platformBottom = centerY + size * 0.45f  // Position at the bottom
+    
+    // Draw filled rectangle for wood platform
+    drawRect(
+        color = woodColor,
+        topLeft = Offset(centerX - platformWidth / 2, platformBottom - platformHeight),
+        size = Size(platformWidth, platformHeight)
+    )
+    
+    // Draw darker outline for definition
+    drawRect(
+        color = Color(0xFF654321),  // Dark brown for outline
+        topLeft = Offset(centerX - platformWidth / 2, platformBottom - platformHeight),
+        size = Size(platformWidth, platformHeight),
+        style = Stroke(width = 2f)
+    )
+}
+
 private fun DrawScope.drawRaftBase(centerX: Float, centerY: Float, size: Float) {
     // Brown color for wooden raft
     val raftColor = Color(0xFF8B7355)  // Brown/tan color for wood

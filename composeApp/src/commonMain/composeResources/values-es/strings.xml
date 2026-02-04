@@ -1189,4 +1189,8 @@
     <string name="towers">Torres</string>
     <string name="traps">Trampas</string>
     <string name="barricades">Barricadas</string>
+    
+    <!-- Tower Base -->
+    <string name="tower_base_hp_label">Base: %d PV</string>
+    <string name="tower_base_info">Torre sobre base (destructible a &lt;100 PV)</string>
 </resources>

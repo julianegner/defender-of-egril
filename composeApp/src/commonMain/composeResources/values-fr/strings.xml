@@ -1189,4 +1189,8 @@
     <string name="towers">Tours</string>
     <string name="traps">Pièges</string>
     <string name="barricades">Barricades</string>
+    
+    <!-- Tower Base -->
+    <string name="tower_base_hp_label">Base: %d PV</string>
+    <string name="tower_base_info">Tour sur base (destructible à &lt;100 PV)</string>
 </resources>

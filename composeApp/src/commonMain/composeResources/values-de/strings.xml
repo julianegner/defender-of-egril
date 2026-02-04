@@ -1187,4 +1187,8 @@
     <string name="towers">Türme</string>
     <string name="traps">Fallen</string>
     <string name="barricades">Barrikaden</string>
+    
+    <!-- Tower Base -->
+    <string name="tower_base_hp_label">Basis: %d TP</string>
+    <string name="tower_base_info">Turm auf Basis (zerstörbar bei &lt;100 TP)</string>
 </resources>

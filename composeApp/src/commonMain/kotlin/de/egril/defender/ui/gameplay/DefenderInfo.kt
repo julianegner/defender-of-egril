@@ -139,6 +139,22 @@ fun DefenderInfo(
                                 )
                             }
                         }
+                        // Show tower base info if on tower base
+                        val towerBase = gameState.barricades.find { it.id == defender.towerBaseBarricadeId.value }
+                        if (towerBase != null) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                modifier = Modifier.padding(top = 4.dp)
+                            ) {
+                                WoodIcon(size = 12.dp)
+                                Text(
+                                    stringResource(Res.string.tower_base_hp_label, towerBase.healthPoints.value),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = if (towerBase.healthPoints.value < 100) GamePlayColors.Warning else GamePlayColors.Success
+                                )
+                            }
+                        }
                         Row {
                             DefenderActionsInfo(defender)
                             dwarvenMineInfoButtonArea(defender)

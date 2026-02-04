@@ -1190,4 +1190,8 @@
     <string name="towers">Towers</string>
     <string name="traps">Traps</string>
     <string name="barricades">Barricades</string>
+    
+    <!-- Tower Base -->
+    <string name="tower_base_hp_label">Base: %d HP</string>
+    <string name="tower_base_info">Tower on base (destructible at &lt;100 HP)</string>
 </resources>
