@@ -471,6 +471,13 @@ fun GridCell(
     val isBuildableAndEmpty = selectedDefenderType != null && 
                               isBuildableTile && 
                               !showPlacementPreview  // Don't double-highlight the hovered tile
+    
+    // Check if this tile has a barricade that can be used as tower base (HP >= 100)
+    val canBeUsedAsTowerBase = selectedDefenderType != null && 
+                               barricade != null && 
+                               barricade.canSupportTower() && 
+                               !barricade.hasTower() &&
+                               !showPlacementPreview  // Don't double-highlight the hovered tile
 
     // Base background color based on area type - ALWAYS visible
     // Build islands + strips adjacent to path allow tower placement
@@ -558,7 +565,7 @@ fun GridCell(
         cellIsInBarricadeRange -> GamePlayColors.Yellow  // Yellow border for barricade placement range
         
         // Buildable tile highlighting - lighter green borders with dashed line when tower type is selected
-        isBuildableAndEmpty -> GamePlayColors.BuildableHighlight  // Lighter green border for buildable tiles
+        isBuildableAndEmpty || canBeUsedAsTowerBase -> GamePlayColors.BuildableHighlight  // Lighter green border for buildable tiles and tower bases
         
         cellIsInRange && isValidTargetTile && showRange && canPlaceTrapHere -> GamePlayColors.Success  // Green border for tiles in range (path or river for area attacks)
         isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> GamePlayColors.Yellow  // Yellow border for selected defender (not during initial building)

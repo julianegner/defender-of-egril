@@ -504,8 +504,8 @@ class GameViewModel {
         return result
     }
     
-    fun performRemoveBarricade(barricadePosition: Position): Boolean {
-        return gameEngine?.removeBarricade(barricadePosition) ?: false
+    fun performRemoveBarricade(barricadePosition: Position): Int {
+        return gameEngine?.removeBarricade(barricadePosition) ?: 0
     }
     
     fun performMineDigWithOutcome(outcome: DigOutcome): DigOutcome? {

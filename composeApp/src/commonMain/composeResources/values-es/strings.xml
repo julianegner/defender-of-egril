@@ -702,6 +702,7 @@
     <string name="barricade_info_message">¡Tu torre de Lanzas ha alcanzado el nivel 10 (o torre de Picas nivel 20) y ahora puede construir barricadas!\nLas barricadas son estructuras de madera colocadas en casillas de camino adyacentes que bloquean el movimiento enemigo.\nLas barricadas de torre de Lanzas tienen PS = nivel - 10 (mínimo 1). Las barricadas de torre de Picas tienen PS = (nivel - 20) / 2 (mínimo 1).\nCuando los enemigos alcanzan una barricada, la atacan con daño igual a su nivel (los dragones causan 5× su nivel).\nSi se destruye una barricada, el enemigo se mueve a esa casilla.\nPuedes construir nuevas barricadas o reforzar las existentes, y hacer clic en las barricadas para quitarlas.</string>
     <string name="remove_barricade_title">¿Eliminar Barricada?</string>
     <string name="remove_barricade_message">¿Está seguro de que desea eliminar esta barricada?</string>
+    <string name="remove_barricade_with_tower_message">Esta barricada es una base de torre. Quitarla también destruirá la torre y recibirás el valor de venta de la torre (%d monedas). ¿Estás seguro?</string>
     
     <!-- Spike Barbs Feature -->
     <string name="spike_barbs_info_title">¡Púas con Barbas Desbloqueadas!</string>

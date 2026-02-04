@@ -80,19 +80,21 @@ class BarricadeSystem(private val state: GameState) {
         val distance = tower.position.value.distanceTo(barricadePosition)
         if (distance > getBarricadeRange()) return false
         
-        // Check if position is empty (no attacker, no defender, no existing barricade without reinforcement)
+        // Check if position is empty (no attacker, no existing barricade without reinforcement)
+        // Allow defenders on tower bases (barricades with towers on them)
         val hasAttacker = state.attackers.any { !it.isDefeated.value && it.position.value == barricadePosition }
-        val hasDefender = state.defenders.any { it.position.value == barricadePosition }
-        if (hasAttacker || hasDefender) return false
+        val existingBarricade = state.barricades.find { it.position == barricadePosition }
+        val hasDefenderNotOnTowerBase = state.defenders.any { defender ->
+            defender.position.value == barricadePosition && defender.towerBaseBarricadeId.value == null
+        }
+        if (hasAttacker || hasDefenderNotOnTowerBase) return false
         
         // Calculate HP to add
         val hpToAdd = calculateBarricadeHP(tower)
         
         // Check if there's already a barricade at this position
-        val existingBarricade = state.barricades.find { it.position == barricadePosition }
-        
         if (existingBarricade != null) {
-            // Reinforce existing barricade
+            // Reinforce existing barricade (including tower bases)
             existingBarricade.reinforce(hpToAdd)
         } else {
             // Check if this should be a gate
@@ -121,11 +123,29 @@ class BarricadeSystem(private val state: GameState) {
     
     /**
      * Remove a barricade (player-initiated removal)
+     * If the barricade has a tower on it, also removes the tower and returns the sell value
+     * Returns the coin refund amount (0 if just barricade, tower sell value if tower present)
      */
-    fun removeBarricade(position: Position): Boolean {
-        val barricade = state.barricades.find { it.position == position } ?: return false
+    fun removeBarricade(position: Position): Int {
+        val barricade = state.barricades.find { it.position == position } ?: return 0
+        
+        var coinRefund = 0
+        
+        // If barricade has a tower on it, remove the tower and calculate refund
+        if (barricade.hasTower()) {
+            val towerId = barricade.supportedTowerId.value
+            if (towerId != null) {
+                val tower = state.defenders.find { it.id == towerId }
+                if (tower != null) {
+                    // Calculate 75% refund of total cost (same as selling)
+                    coinRefund = (tower.totalCost * 0.75).toInt()
+                    state.defenders.remove(tower)
+                }
+            }
+        }
+        
         state.barricades.remove(barricade)
-        return true
+        return coinRefund
     }
     
     /**

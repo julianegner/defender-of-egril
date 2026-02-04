@@ -1,6 +1,7 @@
 package de.egril.defender.ui
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -13,10 +14,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.egril.defender.model.*
+import de.egril.defender.ui.gameplay.GamePlayColors
 import de.egril.defender.ui.icon.LightningIcon
 import de.egril.defender.ui.icon.TimerIcon
 import de.egril.defender.ui.icon.defender.*
@@ -104,9 +107,10 @@ fun TowerIcon(
             val centerY = size.height / 2
             val iconSize = minOf(size.width, size.height)
             
-            // Adjust center Y position if on tower base to move tower upward
+            // Adjust center Y position if on tower base
+            // Move tower down slightly so top is still visible, but base platform is visible
             val adjustedCenterY = if (isOnTowerBase) {
-                centerY - iconSize * 0.15f  // Move tower up by 15% of icon size
+                centerY - iconSize * 0.05f  // Move tower up only 5% (reduced from 15%)
             } else {
                 centerY
             }
@@ -147,24 +151,40 @@ fun TowerIcon(
         }
         
         // Actions indicator at center left (lightning bolts for remaining actions)
+        // Add semi-transparent blue background for better visibility on path tiles
         if (defender.isReady && defender.actionsRemaining.value > 0) {
             Box(
                 modifier = Modifier
                     .align(Alignment.CenterStart)
                     .padding(start = 6.dp)  // 6dp from left edge
             ) {
-                if (defender.actionsRemaining.value == 1) {
-                    LightningIcon(
-                        size = 16.dp
-                    )
-                } else {
-                    Text(
-                        text = defender.actionsRemaining.value.toString(),
-                        style = MaterialTheme.typography.labelSmall,
-                        fontSize = 16.sp,
-                        color = Color.Yellow,
-                        fontWeight = FontWeight.Normal
-                    )
+                // Semi-transparent blue background for better visibility
+                Box(
+                    modifier = Modifier
+                        .size(20.dp)
+                        .background(
+                            color = if (defender.isOnTowerBase) {
+                                GamePlayColors.Info.copy(alpha = 0.6f)  // More visible on path tiles
+                            } else {
+                                Color.Transparent  // No background on build tiles
+                            },
+                            shape = androidx.compose.foundation.shape.RoundedCornerShape(4.dp)
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (defender.actionsRemaining.value == 1) {
+                        LightningIcon(
+                            size = 16.dp
+                        )
+                    } else {
+                        Text(
+                            text = defender.actionsRemaining.value.toString(),
+                            style = MaterialTheme.typography.labelSmall,
+                            fontSize = 16.sp,
+                            color = Color.Yellow,
+                            fontWeight = FontWeight.Normal
+                        )
+                    }
                 }
             }
         }
@@ -271,9 +291,10 @@ private fun DrawScope.drawTowerBasePlatform(centerX: Float, centerY: Float, size
     val woodColor = Color(0xFF8B4513)  // Saddle brown color for wood
     
     // Draw thick brown line at the bottom representing wood platform
+    // Move up by 1/6 of tile height as requested
     val platformWidth = size * 0.7f
     val platformHeight = size * 0.12f  // Thicker than normal
-    val platformBottom = centerY + size * 0.45f  // Position at the bottom
+    val platformBottom = centerY + size * 0.28f  // Position moved up from 0.45 (moved up by ~1/6)
     
     // Draw filled rectangle for wood platform
     drawRect(

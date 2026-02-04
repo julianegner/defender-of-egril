@@ -62,7 +62,7 @@ class GameEngine(private val state: GameState) {
     fun performBuildBarricade(towerId: Int, barricadePosition: Position): Boolean =
         barricadeSystem.performBuildBarricade(towerId, barricadePosition)
     
-    fun removeBarricade(position: Position): Boolean =
+    fun removeBarricade(position: Position): Int =
         barricadeSystem.removeBarricade(position)
 
     fun autoDefenderAttacks() {

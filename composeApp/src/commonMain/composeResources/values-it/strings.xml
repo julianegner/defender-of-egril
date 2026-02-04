@@ -702,6 +702,7 @@
     <string name="barricade_info_message">La tua torre di Lance ha raggiunto il livello 10 (o torre di Picche livello 20) e ora può costruire barricate!\nLe barricate sono strutture di legno posizionate su caselle di percorso adiacenti che bloccano il movimento nemico.\nLe barricate della torre di Lance hanno PV = livello - 10 (minimo 1). Le barricate della torre di Picche hanno PV = (livello - 20) / 2 (minimo 1).\nQuando i nemici raggiungono una barricata, la attaccano con danno pari al loro livello (i draghi infliggono 5× il loro livello).\nSe una barricata viene distrutta, il nemico si sposta su quella casella.\nPuoi costruire nuove barricate o rinforzare quelle esistenti e fare clic sulle barricate per rimuoverle.</string>
     <string name="remove_barricade_title">Rimuovere Barricata?</string>
     <string name="remove_barricade_message">Sei sicuro di voler rimuovere questa barricata?</string>
+    <string name="remove_barricade_with_tower_message">Questa barricata è una base della torre. Rimuoverla distruggerà anche la torre e riceverai il valore di vendita della torre (%d monete). Sei sicuro?</string>
     
     <!-- Spike Barbs Feature -->
     <string name="spike_barbs_info_title">Aculei con Spine Sbloccati!</string>
