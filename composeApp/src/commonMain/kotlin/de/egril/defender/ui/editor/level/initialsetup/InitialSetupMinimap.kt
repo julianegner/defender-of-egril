@@ -218,7 +218,6 @@ fun InitialSetupMinimap(
                     isSelected -> Color(0xFFFFD700) // Gold for selected element
                     hasConflict && isHovered && placementMode != null -> Color(0xFFFF4444) // Red for invalid placement
                     isHovered && isValidForPlacement -> Color(0xFF00FFFF) // Cyan for valid hover
-                    isValidForPlacement && placementMode != null -> if (isDarkMode) Color(0xFF2E5C1A) else Color(0xFF90EE90) // Green for valid
                     tileType == TileType.BUILD_AREA -> if (isDarkMode) Color(0xFF2E5C1A) else Color(0xFF90EE90) // Always show BUILD_AREA in green (same as tower placement)
                     tileType == TileType.SPAWN_POINT -> if (isDarkMode) Color(0xFF8B0000) else Color(0xFFDC143C)
                     tileType == TileType.TARGET -> if (isDarkMode) Color(0xFF1E3A8A) else Color(0xFF4169E1)
