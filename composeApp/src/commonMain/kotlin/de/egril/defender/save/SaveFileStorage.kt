@@ -451,6 +451,16 @@ object SaveFileStorage {
         
         // Restore barricades
         gameState.barricades.clear()
+        
+        // First pass: determine the max barricade ID from saved data
+        val maxSavedBarricadeId = savedGame.barricades.maxOfOrNull { it.id } ?: 0
+        
+        // Set nextBarricadeId to be higher than any existing ID
+        if (maxSavedBarricadeId >= gameState.nextBarricadeId.value) {
+            gameState.nextBarricadeId.value = maxSavedBarricadeId + 1
+        }
+        
+        // Second pass: restore barricades, assigning new IDs to those with ID <= 0 (old saves)
         gameState.barricades.addAll(savedGame.barricades.map { barricade ->
             Barricade(
                 id = if (barricade.id > 0) barricade.id else gameState.nextBarricadeId.value++,
@@ -460,12 +470,6 @@ object SaveFileStorage {
                 supportedTowerId = mutableStateOf(barricade.supportedTowerId)
             )
         })
-        
-        // Update nextBarricadeId to be higher than all loaded barricade IDs
-        val maxBarricadeId = gameState.barricades.maxOfOrNull { it.id } ?: 0
-        if (maxBarricadeId >= gameState.nextBarricadeId.value) {
-            gameState.nextBarricadeId.value = maxBarricadeId + 1
-        }
         
         return gameState
     }

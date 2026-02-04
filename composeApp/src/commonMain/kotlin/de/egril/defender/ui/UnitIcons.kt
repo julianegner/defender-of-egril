@@ -170,9 +170,9 @@ fun TowerIcon(
         }
         
         // Tower base HP indicator at bottom center (if on tower base)
-        if (isOnTowerBase) {
+        if (towerBase != null) {
             Text(
-                text = "${towerBase!!.healthPoints.value} HP",
+                text = "${towerBase.healthPoints.value} HP",
                 style = MaterialTheme.typography.labelSmall,
                 fontSize = 10.sp,
                 color = Color.White,
