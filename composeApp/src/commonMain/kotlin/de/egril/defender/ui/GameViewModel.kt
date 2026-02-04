@@ -525,9 +525,6 @@ class GameViewModel {
             // The UI immediately shows "ENEMY TURN" indicator when phase changes
             engine.startEnemyTurn()
             
-            // Autosave at the beginning of the new turn (after turn number increments)
-            autoSaveGame()
-            
             // Calculate all movement steps for existing units
             val movementSteps = engine.calculateEnemyTurnMovements()
             
@@ -569,6 +566,10 @@ class GameViewModel {
             
             // Complete enemy turn: apply effects and return to player turn
             engine.completeEnemyTurn()
+            
+            // Autosave at the beginning of the new player turn (after enemy turn completes)
+            // This ensures the phase is PLAYER_TURN when the save is created
+            autoSaveGame()
             
             // Check win/loss conditions
             val updatedState = _gameState.value ?: return@launch
