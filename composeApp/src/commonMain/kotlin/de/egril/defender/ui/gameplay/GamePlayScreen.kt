@@ -522,9 +522,10 @@ private fun GamePlayScreenContent(
                         }
                     }
 
-                    // Check if there's a barricade at this position - show removal confirmation
+                    // Check if there's a barricade at this position
+                    // Don't show removal dialog if barricade has a tower - player must sell tower first
                     val barricade = gameState.barricades.find { it.position == position }
-                    if (barricade != null && selectedDefenderId == null && selectedAttackerId == null) {
+                    if (barricade != null && !barricade.hasTower() && selectedDefenderId == null && selectedAttackerId == null) {
                         barricadeToRemove = position
                         showRemoveBarricadeDialog = true
                         return@GameGrid
@@ -956,27 +957,15 @@ private fun GamePlayScreenContent(
         }
         
         // Remove barricade confirmation dialog
+        // Note: This dialog only shows for barricades without towers
         if (showRemoveBarricadeDialog && barricadeToRemove != null) {
-            // Check if barricade has a tower on it and calculate refund
-            val barricade = gameState.barricades.find { it.position == barricadeToRemove }
-            val tower = barricade?.supportedTowerId?.value?.let { towerId ->
-                gameState.defenders.find { it.id == towerId }
-            }
-            val coinRefund = tower?.let { (it.totalCost * 0.75).toInt() } ?: 0
-            
-            val message = if (tower != null) {
-                stringResource(Res.string.remove_barricade_with_tower_message, coinRefund)
-            } else {
-                stringResource(Res.string.remove_barricade_message)
-            }
-            
             ConfirmationDialog(
                 title = stringResource(Res.string.remove_barricade_title),
-                message = message,
+                message = stringResource(Res.string.remove_barricade_message),
                 onConfirm = {
                     val actualRefund = onRemoveBarricade?.invoke(barricadeToRemove!!) ?: 0
                     if (actualRefund > 0) {
-                        // Add coins back to player
+                        // Add coins back to player (should be 0 for barricades without towers)
                         gameState.coins.value += actualRefund
                     }
                     showRemoveBarricadeDialog = false

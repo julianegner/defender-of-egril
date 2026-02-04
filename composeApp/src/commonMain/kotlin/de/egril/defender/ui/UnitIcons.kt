@@ -190,6 +190,7 @@ fun TowerIcon(
         }
         
         // Tower base HP indicator at bottom center (if on tower base)
+        // Position higher up so it's visible above the brown wood platform
         if (towerBase != null) {
             Text(
                 text = "${towerBase.healthPoints.value} HP",
@@ -199,7 +200,7 @@ fun TowerIcon(
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
-                    .padding(bottom = 2.dp)
+                    .padding(bottom = 18.dp)  // Moved up from 2dp to 18dp for visibility
             )
         } else {
             // Level indicator at bottom center - 10dp from bottom edge (only if not on tower base)
