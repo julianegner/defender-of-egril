@@ -61,7 +61,8 @@ fun LevelEditorContent() {
             onSave = { updatedLevel ->
                 EditorStorage.saveLevel(updatedLevel)
                 levels.value = EditorStorage.getAllLevels()
-                editingLevel = null
+                // Reload the level from storage to trigger UI updates
+                editingLevel = EditorStorage.getLevel(updatedLevel.id)
             },
             onCancel = { editingLevel = null }
         )
@@ -348,8 +349,19 @@ fun LevelEditorView(
     var enemySpawns by remember { mutableStateOf(level.enemySpawns.toMutableList()) }
     var availableTowersState by remember { mutableStateOf(level.availableTowers.toSet()) }
     var waypointsState by remember { mutableStateOf(level.waypoints.toMutableList()) }
+    var initialDataState by remember { mutableStateOf(level.getEffectiveInitialData()) }
     var testingOnly by remember { mutableStateOf(level.testingOnly) }
     var allowAutoAttack by remember { mutableStateOf(level.allowAutoAttack) }
+    
+    // Update state when level changes (e.g., after reload from disk)
+    LaunchedEffect(level.id, level.initialData, level.hashCode()) {
+        println("LevelEditor LaunchedEffect triggered: levelId=${level.id}, initialData=${level.initialData}, effectiveData=${level.getEffectiveInitialData()}")
+        println("  Defenders: ${level.getEffectiveInitialData().defenders.size}, Attackers: ${level.getEffectiveInitialData().attackers.size}")
+        println("level data: $level")
+
+
+        initialDataState = level.getEffectiveInitialData()
+    }
     var showEnemyDialog by remember { mutableStateOf(false) }
     var showEnemyDialogForTurn by remember { mutableStateOf(1) }
     var showSaveAsDialog by remember { mutableStateOf(false) }
@@ -507,6 +519,18 @@ fun LevelEditorView(
                     }
                 }
             )
+            Tab(
+                selected = selectedTabIndex == 4,
+                onClick = { selectedTabIndex = 4 },
+                text = { 
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Text(stringResource(Res.string.initial_setup))
+                    }
+                }
+            )
         }
         
         // Tab Content
@@ -553,6 +577,12 @@ fun LevelEditorView(
                     map = currentMap,
                     isValid = isWaypointsValid
                 )
+                4 -> de.egril.defender.ui.editor.level.initialsetup.InitialSetupTab(
+                    initialData = initialDataState,
+                    onInitialDataChange = { initialDataState = it },
+                    map = currentMap,
+                    availableTowers = availableTowersState
+                )
             }
         }
         
@@ -577,7 +607,8 @@ fun LevelEditorView(
                             availableTowers = availableTowersState,
                             waypoints = waypointsState.toList(),
                             testingOnly = testingOnly,
-                            allowAutoAttack = allowAutoAttack
+                            allowAutoAttack = allowAutoAttack,
+                            initialData = initialDataState
                         )
                         
                         // Show warning dialog for official levels before saving

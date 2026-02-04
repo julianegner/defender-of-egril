@@ -71,8 +71,10 @@
     <!-- Game Play -->
     <string name="coins">Coins</string>
     <string name="health">Health</string>
+    <string name="health_points">Health Points</string>
     <string name="turn">Turn</string>
     <string name="level">Level</string>
+    <string name="level_label">Level</string>
     <string name="upgrade">Upgrade</string>
     <string name="sell">Sell</string>
     <string name="selected">Selected</string>
@@ -151,6 +153,7 @@
     <string name="win_condition">Win: Eliminate all enemies before they breach your defenses</string>
     <string name="lose_condition">Lose: Your health reaches 0</string>
     <string name="tower_types">Tower Types</string>
+    <string name="tower_type">Tower Type</string>
     <string name="spike_tower">Spike Tower (Pike): Melee defense, cheapest option</string>
     <string name="spear_tower">Spear Tower: Medium range piercing attacks</string>
     <string name="bow_tower">Bow Tower: Long range archery</string>
@@ -240,7 +243,8 @@
     <string name="green_witch_name">Green Witch</string>
     <string name="ewhad_name">Ewhad</string>
     <string name="dragon_name">Dragon</string>
-    
+    <string name="dragon_name_label">Dragon Name</string>
+
     <!-- SavedGameCard strings -->
     <string name="enemies_on_map">Enemies on Map:</string>
     <string name="enemies_to_come">Enemies to Come:</string>
@@ -401,6 +405,7 @@
     <string name="start_hp">Start HP</string>
     <string name="cost_label">Cost</string>
     <string name="damage_label">Damage</string>
+    <string name="trap_type">Trap Type</string>
     <string name="hp_with_level">HP: %d</string>
     <string name="add_enemy_button">Add Enemy to Turn %d</string>
     <string name="add_all_towers">Add All</string>
@@ -600,6 +605,47 @@
     <string name="connection_mode_active">Connection mode active</string>
     <string name="cancel_connection">Cancel</string>
     
+    <!-- Initial Setup Tab -->
+    <string name="initial_setup">Initial Setup</string>
+    <string name="initial_setup_info">Place towers, enemies, traps, and barricades on the map before the level starts (optional)</string>
+    <string name="initial_setup_towers">Towers</string>
+    <string name="initial_setup_enemies">Enemies</string>
+    <string name="initial_setup_traps">Traps</string>
+    <string name="initial_setup_barricades">Barricades</string>
+    <string name="initial_defenders">Initial Towers</string>
+    <string name="initial_attackers">Initial Enemies</string>
+    <string name="initial_traps">Initial Traps</string>
+    <string name="initial_barricades">Initial Barricades</string>
+    <string name="add_initial_defender">Add Tower</string>
+    <string name="add_initial_attacker">Add Enemy</string>
+    <string name="add_initial_trap">Add Trap</string>
+    <string name="add_initial_barricade">Add Barricade</string>
+    <string name="edit_initial_defender">Edit Tower</string>
+    <string name="edit_initial_attacker">Edit Enemy</string>
+    <string name="edit_initial_trap">Edit Trap</string>
+    <string name="edit_initial_barricade">Edit Barricade</string>
+    <string name="no_initial_defenders">No towers placed initially</string>
+    <string name="no_initial_attackers">No enemies placed initially</string>
+    <string name="no_initial_traps">No traps placed initially</string>
+    <string name="no_initial_barricades">No barricades placed initially</string>
+    <string name="custom_health_optional">Custom Health (optional)</string>
+    <string name="show_all_towers">Show all towers</string>
+    <string name="select_position_on_map">Select position on map</string>
+    <string name="initial_setup_map">Map</string>
+    <string name="initial_setup_click_to_place">Click on the map to place the selected element</string>
+    <string name="initial_setup_configuration">Configuration</string>
+    <string name="element_type">Element Type</string>
+    <string name="selection_mode">Selection Mode</string>
+    <string name="selection_mode_info">Click on an element on the map to select and remove it</string>
+    <string name="placed_elements">Placed Elements</string>
+    <string name="tower_configuration">Tower Configuration</string>
+    <string name="enemy_configuration">Enemy Configuration</string>
+    <string name="trap_configuration">Trap Configuration</string>
+    <string name="barricade_configuration">Barricade Configuration</string>
+    <string name="selected_element">Selected Element</string>
+    <string name="no_map_selected">No map selected. Please select or create a map first.</string>
+    <string name="deselect">Deselect</string>
+    
     <!-- Plurals -->
     <plurals name="enemy_count">
         <item quantity="one">%d enemy</item>
@@ -664,6 +710,7 @@
     <string name="spike_barbs_info_message">Your Spike tower has reached level 10 and now has barbs!\nWhen a level 10+ Spike tower attacks an enemy, it reduces the enemy\'s movement by 1 tile per attack.\nThis effect stacks - multiple attacks from any level 10+ Spike towers will further reduce enemy movement.\nEnemies will always move at least 1 tile per turn, even with multiple barb effects.</string>
     
     <!-- Magical Trap Feature -->
+    <string name="dwarven_trap">Dwarven Trap</string>
     <string name="magical_trap">Magical Trap</string>
     <string name="magical_trap_cooldown">Cooldown: %d turns</string>
     <string name="magical_trap_available">Magical Trap Available</string>
@@ -1140,4 +1187,7 @@
     <string name="audio_source_label">Source: %s</string>
     <string name="audio_license_label">License: %s</string>
     <string name="audio_attribution_note">All audio files are used under their respective licenses. Attribution is provided where required.</string>
+    <string name="towers">Towers</string>
+    <string name="traps">Traps</string>
+    <string name="barricades">Barricades</string>
 </resources>

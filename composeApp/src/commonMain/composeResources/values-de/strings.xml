@@ -598,6 +598,51 @@
     <string name="cancel_connection">Abbrechen</string>
     <string name="drag_to_reorder">Zum Neuordnen ziehen</string>
     <string name="drag_to_add">Zum Hinzufügen ziehen</string>
+    <string name="show_all_towers">Alle Türme anzeigen</string>
+    <string name="select_position_on_map">Position auf Karte wählen</string>
+    <string name="initial_setup_map">Karte</string>
+    <string name="initial_setup_click_to_place">Klicke auf die Karte um das ausgewählte Element zu platzieren</string>
+    <string name="initial_setup">Anfangsaufbau</string>
+    <string name="initial_setup_info">Platziere Türme, Gegner, Fallen und Barrikaden auf der Karte bevor das Level startet (optional)</string>
+    <string name="initial_setup_towers">Türme</string>
+    <string name="initial_setup_enemies">Gegner</string>
+    <string name="initial_setup_traps">Fallen</string>
+    <string name="initial_setup_barricades">Barrikaden</string>
+    <string name="initial_setup_configuration">Konfiguration</string>
+    <string name="element_type">Elementtyp</string>
+    <string name="selection_mode">Auswahlmodus</string>
+    <string name="selection_mode_info">Klicke auf ein Element auf der Karte um es auszuwählen und zu entfernen</string>
+    <string name="placed_elements">Platzierte Elemente</string>
+    <string name="tower_configuration">Turmkonfiguration</string>
+    <string name="enemy_configuration">Gegnerkonfiguration</string>
+    <string name="trap_configuration">Fallenkonfiguration</string>
+    <string name="barricade_configuration">Barrikadenkonfiguration</string>
+    <string name="selected_element">Ausgewähltes Element</string>
+    <string name="health_points">Lebenspunkte</string>
+    <string name="level_label">Level</string>
+    <string name="tower_type">Turmtyp</string>
+    <string name="dragon_name_label">Drachenname</string>
+    <string name="trap_type">Fallentyp</string>
+    <string name="initial_defenders">Anfangstürme</string>
+    <string name="initial_attackers">Anfangsgegner</string>
+    <string name="initial_traps">Anfangsfallen</string>
+    <string name="initial_barricades">Anfangsbarrikaden</string>
+    <string name="add_initial_defender">Turm hinzufügen</string>
+    <string name="add_initial_attacker">Gegner hinzufügen</string>
+    <string name="add_initial_trap">Falle hinzufügen</string>
+    <string name="add_initial_barricade">Barrikade hinzufügen</string>
+    <string name="edit_initial_defender">Turm bearbeiten</string>
+    <string name="edit_initial_attacker">Gegner bearbeiten</string>
+    <string name="edit_initial_trap">Falle bearbeiten</string>
+    <string name="edit_initial_barricade">Barrikade bearbeiten</string>
+    <string name="no_initial_defenders">Keine Türme anfangs platziert</string>
+    <string name="no_initial_attackers">Keine Gegner anfangs platziert</string>
+    <string name="no_initial_traps">Keine Fallen anfangs platziert</string>
+    <string name="no_initial_barricades">Keine Barrikaden anfangs platziert</string>
+    <string name="custom_health_optional">Benutzerdefinierte Lebenspunkte (optional)</string>
+    <string name="dwarven_trap">Zwergenfalle</string>
+    <string name="no_map_selected">Keine Karte ausgewählt. Bitte wähle zuerst eine Karte aus oder erstelle eine neue.</string>
+    <string name="deselect">Abwählen</string>
     
     <!-- Plurals -->
     <plurals name="enemy_count">
@@ -1139,4 +1184,7 @@
     <string name="audio_license_label">Lizenz: %s</string>
     <string name="audio_attribution_note">Alle Audiodateien werden unter ihren jeweiligen Lizenzen verwendet. Die Namensnennung wird ggf. bereitgestellt.</string>
 
+    <string name="towers">Türme</string>
+    <string name="traps">Fallen</string>
+    <string name="barricades">Barrikaden</string>
 </resources>

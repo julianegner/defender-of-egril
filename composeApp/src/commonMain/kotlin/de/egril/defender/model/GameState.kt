@@ -250,4 +250,74 @@ data class GameState(
         
         return typesWithActions.toList()
     }
+    
+    /**
+     * Initialize pre-placed defenders, attackers, traps, and barricades from level configuration.
+     * This should be called right after GameState creation to set up the initial level state.
+     */
+    fun initializePrePlacedElements() {
+        // Get initial data using the helper method that handles both old and new formats
+        val initialData = level.getEffectiveInitialData()
+        
+        // Place initial defenders
+        for (initialDefender in initialData.defenders) {
+            val defender = Defender(
+                id = nextDefenderId.value,
+                type = initialDefender.type,
+                position = mutableStateOf(initialDefender.position),
+                placedOnTurn = 0,  // Placed before the game starts
+                dragonName = initialDefender.dragonName
+            )
+            defender.level.value = initialDefender.level
+            defender.buildTimeRemaining.value = 0  // Already built
+            defender.actionsRemaining.value = 0  // No actions in initial phase
+            defenders.add(defender)
+            nextDefenderId.value++
+        }
+        
+        // Place initial attackers
+        for (initialAttacker in initialData.attackers) {
+            val attacker = Attacker(
+                id = nextAttackerId.value,
+                type = initialAttacker.type,
+                position = mutableStateOf(initialAttacker.position),
+                level = mutableStateOf(initialAttacker.level),
+                dragonName = initialAttacker.dragonName
+            )
+            // Set custom health if specified, otherwise use default for level
+            val health = initialAttacker.currentHealth ?: (initialAttacker.type.health * initialAttacker.level)
+            attacker.currentHealth.value = health
+            attacker.isDefeated.value = false
+            attackers.add(attacker)
+            nextAttackerId.value++
+        }
+        
+        // Place initial traps
+        for (initialTrap in initialData.traps) {
+            val trapType = try {
+                TrapType.valueOf(initialTrap.type)
+            } catch (e: Exception) {
+                TrapType.DWARVEN
+            }
+            // We need a defender ID for the trap, but there may not be one
+            // Use defenderId = 0 to indicate it's a pre-placed trap
+            val trap = Trap(
+                position = initialTrap.position,
+                damage = initialTrap.damage,
+                defenderId = 0,  // Pre-placed traps don't belong to any specific defender
+                type = trapType
+            )
+            traps.add(trap)
+        }
+        
+        // Place initial barricades
+        for (initialBarricade in initialData.barricades) {
+            val barricade = Barricade(
+                position = initialBarricade.position,
+                healthPoints = mutableStateOf(initialBarricade.healthPoints),
+                defenderId = 0  // Pre-placed barricades don't belong to any specific defender
+            )
+            barricades.add(barricade)
+        }
+    }
 }

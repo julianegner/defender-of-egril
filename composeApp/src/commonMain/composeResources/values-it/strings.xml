@@ -598,6 +598,51 @@
     <string name="click_target_waypoint">2. Fai clic su un obiettivo (punto di passaggio o obiettivo)</string>
     <string name="connection_mode_active">Modalità connessione attiva</string>
     <string name="cancel_connection">Annulla</string>
+    <string name="show_all_towers">Mostra tutte le torri</string>
+    <string name="select_position_on_map">Seleziona posizione sulla mappa</string>
+    <string name="initial_setup_map">Mappa</string>
+    <string name="initial_setup_click_to_place">Clicca sulla mappa per posizionare l'elemento selezionato</string>
+    <string name="initial_setup">Configurazione Iniziale</string>
+    <string name="initial_setup_info">Posiziona torri, nemici, trappole e barricate sulla mappa prima che inizi il livello (opzionale)</string>
+    <string name="initial_setup_towers">Torri</string>
+    <string name="initial_setup_enemies">Nemici</string>
+    <string name="initial_setup_traps">Trappole</string>
+    <string name="initial_setup_barricades">Barricate</string>
+    <string name="initial_setup_configuration">Configurazione</string>
+    <string name="element_type">Tipo di Elemento</string>
+    <string name="selection_mode">Modalità di Selezione</string>
+    <string name="selection_mode_info">Clicca su un elemento sulla mappa per selezionarlo e rimuoverlo</string>
+    <string name="placed_elements">Elementi Posizionati</string>
+    <string name="tower_configuration">Configurazione Torre</string>
+    <string name="enemy_configuration">Configurazione Nemico</string>
+    <string name="trap_configuration">Configurazione Trappola</string>
+    <string name="barricade_configuration">Configurazione Barricata</string>
+    <string name="selected_element">Elemento Selezionato</string>
+    <string name="health_points">Punti Vita</string>
+    <string name="level_label">Livello</string>
+    <string name="tower_type">Tipo di Torre</string>
+    <string name="dragon_name_label">Nome del Drago</string>
+    <string name="trap_type">Tipo di Trappola</string>
+    <string name="initial_defenders">Torri Iniziali</string>
+    <string name="initial_attackers">Nemici Iniziali</string>
+    <string name="initial_traps">Trappole Iniziali</string>
+    <string name="initial_barricades">Barricate Iniziali</string>
+    <string name="add_initial_defender">Aggiungi Torre</string>
+    <string name="add_initial_attacker">Aggiungi Nemico</string>
+    <string name="add_initial_trap">Aggiungi Trappola</string>
+    <string name="add_initial_barricade">Aggiungi Barricata</string>
+    <string name="edit_initial_defender">Modifica Torre</string>
+    <string name="edit_initial_attacker">Modifica Nemico</string>
+    <string name="edit_initial_trap">Modifica Trappola</string>
+    <string name="edit_initial_barricade">Modifica Barricata</string>
+    <string name="no_initial_defenders">Nessuna torre posizionata inizialmente</string>
+    <string name="no_initial_attackers">Nessun nemico posizionato inizialmente</string>
+    <string name="no_initial_traps">Nessuna trappola posizionata inizialmente</string>
+    <string name="no_initial_barricades">Nessuna barricata posizionata inizialmente</string>
+    <string name="custom_health_optional">Salute Personalizzata (opzionale)</string>
+    <string name="dwarven_trap">Trappola Nanica</string>
+    <string name="no_map_selected">Nessuna mappa selezionata. Seleziona o crea prima una mappa.</string>
+    <string name="deselect">Deseleziona</string>
 
     <!-- Plurals -->
     <plurals name="enemy_count">
@@ -1141,4 +1186,8 @@
     <string name="audio_source_label">Fonte: %s</string>
     <string name="audio_license_label">Licenza: %s</string>
     <string name="audio_attribution_note">Tutti i file audio sono utilizzati sotto le rispettive licenze. L\'attribuzione è fornita quando richiesta.</string>
+
+    <string name="towers">Torri</string>
+    <string name="traps">Trappole</string>
+    <string name="barricades">Barricate</string>
 </resources>

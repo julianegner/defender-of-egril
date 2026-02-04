@@ -294,6 +294,9 @@ class GameViewModel {
                 spawnPlan = modifiedSpawnPlan
             )
             
+            // Initialize pre-placed elements if any
+            newGameState.initializePrePlacedElements()
+            
             _gameState.value = newGameState
             gameEngine = GameEngine(newGameState)
             _currentScreen.value = Screen.GamePlay(levelId)

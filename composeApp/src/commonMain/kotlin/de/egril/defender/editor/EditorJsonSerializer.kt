@@ -203,6 +203,67 @@ object EditorJsonSerializer {
             ""
         }
         
+        // Serialize initial data in new nested format (optional)
+        val initialData = level.getEffectiveInitialData()
+        val initialDataJson = if (initialData.defenders.isNotEmpty() || 
+                                   initialData.attackers.isNotEmpty() || 
+                                   initialData.traps.isNotEmpty() || 
+                                   initialData.barricades.isNotEmpty()) {
+            val parts = mutableListOf<String>()
+            
+            // Defenders
+            if (initialData.defenders.isNotEmpty()) {
+                val defendersData = initialData.defenders.joinToString(",\n      ") { defender ->
+                    val dragonNameJson = if (defender.dragonName != null) {
+                        """, "dragonName": "${defender.dragonName}""""
+                    } else ""
+                    """{"type": "${defender.type.name}", "position": {"x": ${defender.position.x}, "y": ${defender.position.y}}, "level": ${defender.level}$dragonNameJson}"""
+                }
+                parts.add(""""defenders": [
+      $defendersData
+    ]""")
+            }
+            
+            // Attackers
+            if (initialData.attackers.isNotEmpty()) {
+                val attackersData = initialData.attackers.joinToString(",\n      ") { attacker ->
+                    val healthJson = if (attacker.currentHealth != null) {
+                        """, "currentHealth": ${attacker.currentHealth}"""
+                    } else ""
+                    val dragonNameJson = if (attacker.dragonName != null) {
+                        """, "dragonName": "${attacker.dragonName}""""
+                    } else ""
+                    """{"type": "${attacker.type.name}", "position": {"x": ${attacker.position.x}, "y": ${attacker.position.y}}, "level": ${attacker.level}$healthJson$dragonNameJson}"""
+                }
+                parts.add(""""attackers": [
+      $attackersData
+    ]""")
+            }
+            
+            // Traps
+            if (initialData.traps.isNotEmpty()) {
+                val trapsData = initialData.traps.joinToString(",\n      ") { trap ->
+                    """{"position": {"x": ${trap.position.x}, "y": ${trap.position.y}}, "damage": ${trap.damage}, "type": "${trap.type}"}"""
+                }
+                parts.add(""""traps": [
+      $trapsData
+    ]""")
+            }
+            
+            // Barricades
+            if (initialData.barricades.isNotEmpty()) {
+                val barricadesData = initialData.barricades.joinToString(",\n      ") { barricade ->
+                    """{"position": {"x": ${barricade.position.x}, "y": ${barricade.position.y}}, "healthPoints": ${barricade.healthPoints}}"""
+                }
+                parts.add(""""barricades": [
+      $barricadesData
+    ]""")
+            }
+            
+            val allParts = parts.joinToString(",\n    ")
+            ",\n  \"initialData\": {\n    $allParts\n  }"
+        } else ""
+        
         return """{
   "id": "${level.id}",
   "mapId": "${level.mapId}",
@@ -217,7 +278,7 @@ object EditorJsonSerializer {
   "waypoints": [
     $waypointsJson
   ],
-  "prerequisites": [$prerequisitesJson]$requiredCountJson$testingOnlyJson$allowAutoAttackJson$isOfficialJson
+  "prerequisites": [$prerequisitesJson]$requiredCountJson$testingOnlyJson$allowAutoAttackJson$isOfficialJson$initialDataJson
 }"""
     }
     
@@ -413,7 +474,383 @@ object EditorJsonSerializer {
                 false  // Default to false for backward compatibility
             }
             
-            return EditorLevel(id, mapId, title, titleKey, subtitle, subtitleKey, startCoins, startHealthPoints, spawns, towers, waypoints, prerequisites, requiredPrerequisiteCount, testingOnly, allowAutoAttack, isOfficial)
+            // Parse initial data (new nested format preferred, with backward compatibility for old flat format)
+            var initialDefenders = mutableListOf<InitialDefender>()
+            var initialAttackers = mutableListOf<InitialAttacker>()
+            var initialTraps = mutableListOf<InitialTrap>()
+            var initialBarricades = mutableListOf<InitialBarricade>()
+
+
+            if (id == "t3") {
+                println("")
+                println("---------------------------------- DEBUG DESERIALIZE LEVEL ----------------------------------")
+                println("")
+                println("Comeplete JSON Data")
+                println(json)
+                println("")
+                println("------------------------------------------------------------------------------------------------------")
+                println("")
+
+
+                if (json.contains("\"initialData\"")) {
+                    println("EditorJsonSerializer: initialData found in JSON")
+                } else {
+                    println("EditorJsonSerializer: initialData NOT found in JSON")
+                }
+
+                println("---------------------------------- END DEBUG DESERIALIZE LEVEL ----------------------------------")
+            }
+
+            // Try new nested format first
+            if (json.contains("\"initialData\"")) {
+                try {
+                    println("EditorJsonSerializer: Found initialData in JSON")
+                    // Extract initialData section - find opening brace after "initialData":
+                    val afterKey = json.substringAfter("\"initialData\"")
+                    
+                    // Find the first { after the key (skipping the colon and any whitespace)
+                    val openBraceIndex = afterKey.indexOf('{')
+                    val initialDataSection = if (openBraceIndex == -1) {
+                        println("EditorJsonSerializer: ERROR - No opening brace found after initialData")
+                        ""
+                    } else {
+                        println("EditorJsonSerializer: Found opening brace at index $openBraceIndex")
+                        val afterInitialData = afterKey.substring(openBraceIndex + 1)
+                        
+                        // Find the closing } that matches the opening {
+                        var braceCount = 1
+                        var endIndex = 0
+                        for (i in afterInitialData.indices) {
+                            when (afterInitialData[i]) {
+                                '{' -> braceCount++
+                                '}' -> {
+                                    braceCount--
+                                    if (braceCount == 0) {
+                                        endIndex = i
+                                        break
+                                    }
+                                }
+                            }
+                        }
+                        if (endIndex > 0) {
+                            afterInitialData.substring(0, endIndex)
+                        } else {
+                            println("EditorJsonSerializer: ERROR - Could not find matching closing brace, endIndex=$endIndex")
+                            afterInitialData.substringBefore("\n  }")  // Fallback to old method
+                        }
+                    }
+                    println("EditorJsonSerializer: initialDataSection length = ${initialDataSection.length}")
+                    // println("EditorJsonSerializer: initialDataSection first 100 chars = ${initialDataSection.take(100)}")
+
+                    println("EditorJsonSerializer: initialDataSection = ${initialDataSection}")
+                    
+                    // Parse defenders from new format
+                    if (initialDataSection.contains("\"defenders\"")) {
+                        println("EditorJsonSerializer: Found defenders in initialDataSection")
+                        val afterKey = initialDataSection.substringAfter("\"defenders\"")
+
+                        // Find the opening [ bracket (skip colon and whitespace)
+                        val openBracketIndex = afterKey.indexOf('[')
+                        if (openBracketIndex == -1) {
+                            println("EditorJsonSerializer: ERROR - No opening bracket found after defenders")
+                        }
+                        val afterBracket = afterKey.substring(openBracketIndex + 1)
+                        val defendersSection = if (afterBracket.contains("],")) {
+                            afterBracket.substringBefore("],")
+                        } else {
+                            afterBracket.substringBefore("]")
+                        }
+
+                        println("EditorJsonSerializer: defendersSection = ${defendersSection}")
+
+                        if (defendersSection.isNotBlank()) {
+                            val defenderEntries = splitJsonArrayObjects(defendersSection)
+                            for (entry in defenderEntries) {
+                                if (!entry.contains("type")) continue
+                                val type = DefenderType.valueOf(JsonUtils.extractValue(entry, "type"))
+                                val posSection = entry.substringAfter("\"position\": {").substringBefore("}")
+                                val x = JsonUtils.extractValue("{$posSection}", "x").toInt()
+                                val y = JsonUtils.extractValue("{$posSection}", "y").toInt()
+                                val position = Position(x, y)
+                                val level = JsonUtils.extractValue(entry, "level").toInt()
+                                val dragonName = try {
+                                    JsonUtils.extractValue(entry, "dragonName").takeIf { it.isNotEmpty() }
+                                } catch (e: Exception) {
+                                    null
+                                }
+                                initialDefenders.add(InitialDefender(type, position, level, dragonName))
+                                println("EditorJsonSerializer: Added InitialDefender(type=$type, position=$position, level=$level, dragonName=$dragonName)")
+                            }
+                            println("EditorJsonSerializer: Parsed ${initialDefenders.size} initial defenders")
+                            println("EditorJsonSerializer: initialDefenders = $initialDefenders")
+                        }
+                    }
+                    
+                    // Parse attackers from new format
+                    if (initialDataSection.contains("\"attackers\"")) {
+                        println("EditorJsonSerializer: Found attackers in initialDataSection")
+                        val afterKey = initialDataSection.substringAfter("\"attackers\"")
+                        // Find the opening [ bracket (skip colon and whitespace)
+                        val openBracketIndex = afterKey.indexOf('[')
+                        if (openBracketIndex == -1) {
+                            println("EditorJsonSerializer: ERROR - No opening bracket found after attackers")
+                        }
+                        val afterBracket = afterKey.substring(openBracketIndex + 1)
+                        val attackersSection = if (afterBracket.contains("],")) {
+                            afterBracket.substringBefore("],")
+                        } else {
+                            afterBracket.substringBefore("]")
+                        }
+                        if (attackersSection.isNotBlank()) {
+                            val attackerEntries = splitJsonArrayObjects(attackersSection)
+                            for (entry in attackerEntries) {
+                                if (!entry.contains("type")) continue
+                                val type = AttackerType.valueOf(JsonUtils.extractValue(entry, "type"))
+                                val posSection = entry.substringAfter("\"position\": {").substringBefore("}")
+                                val x = JsonUtils.extractValue("{$posSection}", "x").toInt()
+                                val y = JsonUtils.extractValue("{$posSection}", "y").toInt()
+                                val position = Position(x, y)
+                                val level = JsonUtils.extractValue(entry, "level").toInt()
+                                val currentHealth = try {
+                                    JsonUtils.extractValue(entry, "currentHealth").toIntOrNull()
+                                } catch (e: Exception) {
+                                    null
+                                }
+                                val dragonName = try {
+                                    JsonUtils.extractValue(entry, "dragonName").takeIf { it.isNotEmpty() }
+                                } catch (e: Exception) {
+                                    null
+                                }
+                                initialAttackers.add(InitialAttacker(type, position, level, currentHealth, dragonName))
+                            }
+                            println("EditorJsonSerializer: Parsed ${initialAttackers.size} initial attackers")
+                            println("EditorJsonSerializer: initialAttackers = $initialAttackers")
+                        }
+                    }
+                    
+                    // Parse traps from new format
+                    if (initialDataSection.contains("\"traps\"")) {
+                        println("EditorJsonSerializer: Found traps in initialDataSection")
+                        val afterKey = initialDataSection.substringAfter("\"traps\"")
+                        // Find the opening [ bracket (skip colon and whitespace)
+                        val openBracketIndex = afterKey.indexOf('[')
+                        if (openBracketIndex == -1) {
+                            println("EditorJsonSerializer: ERROR - No opening bracket found after traps")
+                        }
+                        val afterBracket = afterKey.substring(openBracketIndex + 1)
+                        val trapsSection = if (afterBracket.contains("],")) {
+                            afterBracket.substringBefore("],")
+                        } else {
+                            afterBracket.substringBefore("]")
+                        }
+                        if (trapsSection.isNotBlank()) {
+                            val trapEntries = splitJsonArrayObjects(trapsSection)
+                            for (entry in trapEntries) {
+                                if (!entry.contains("position")) continue
+                                val posSection = entry.substringAfter("\"position\": {").substringBefore("}")
+                                val x = JsonUtils.extractValue("{$posSection}", "x").toInt()
+                                val y = JsonUtils.extractValue("{$posSection}", "y").toInt()
+                                val position = Position(x, y)
+                                val damage = JsonUtils.extractValue(entry, "damage").toInt()
+                                val type = try {
+                                    JsonUtils.extractValue(entry, "type")
+                                } catch (e: Exception) {
+                                    "DWARVEN"
+                                }
+                                initialTraps.add(InitialTrap(position, damage, type))
+                            }
+                            println("EditorJsonSerializer: Parsed ${initialTraps.size} initial traps")
+                            println("EditorJsonSerializer: initialTraps = $initialTraps")
+                        }
+                    }
+                    
+                    // Parse barricades from new format
+                    if (initialDataSection.contains("\"barricades\"")) {
+                        println("EditorJsonSerializer: Found barricades in initialDataSection")
+                        val afterKey = initialDataSection.substringAfter("\"barricades\"")
+                        // Find the opening [ bracket (skip colon and whitespace)
+                        val openBracketIndex = afterKey.indexOf('[')
+                        if (openBracketIndex == -1) {
+                            println("EditorJsonSerializer: ERROR - No opening bracket found after barricades")
+                        }
+                        val afterBracket = afterKey.substring(openBracketIndex + 1)
+                        val barricadesSection = if (afterBracket.contains("],")) {
+                            afterBracket.substringBefore("],")
+                        } else {
+                            afterBracket.substringBefore("]")
+                        }
+                        if (barricadesSection.isNotBlank()) {
+                            val barricadeEntries = splitJsonArrayObjects(barricadesSection)
+                            for (entry in barricadeEntries) {
+                                if (!entry.contains("position")) continue
+                                val posSection = entry.substringAfter("\"position\": {").substringBefore("}")
+                                val x = JsonUtils.extractValue("{$posSection}", "x").toInt()
+                                val y = JsonUtils.extractValue("{$posSection}", "y").toInt()
+                                val position = Position(x, y)
+                                val healthPoints = JsonUtils.extractValue(entry, "healthPoints").toInt()
+                                initialBarricades.add(InitialBarricade(position, healthPoints))
+                            }
+                            println("EditorJsonSerializer: Parsed ${initialBarricades.size} initial barricades")
+                            println("EditorJsonSerializer: initialBarricades = $initialBarricades")
+                        }
+                    }
+                } catch (e: Exception) {
+                    println("Error parsing initial data (new format): ${e.message}")
+                }
+            }
+            
+            // Fall back to old flat format if new format wasn't found or was empty
+            if (initialDefenders.isEmpty() && initialAttackers.isEmpty() && 
+                initialTraps.isEmpty() && initialBarricades.isEmpty()) {
+                
+                // Parse initial defenders (legacy flat format)
+                if (json.contains("\"initialDefenders\"")) {
+                try {
+                    // Extract array - handle both `],` and `]` at end
+                    val afterKey = json.substringAfter("\"initialDefenders\": [")
+                    val defendersSection = if (afterKey.contains("],")) {
+                        afterKey.substringBefore("],")
+                    } else {
+                        afterKey.substringBefore("]")
+                    }
+                    if (defendersSection.isNotBlank()) {
+                        val defenderEntries = defendersSection.split("},").map { it.trim() + "}" }
+                        for (entry in defenderEntries) {
+                            if (!entry.contains("type")) continue
+                            val type = DefenderType.valueOf(JsonUtils.extractValue(entry, "type"))
+                            val posSection = entry.substringAfter("\"position\": {").substringBefore("}")
+                            val x = JsonUtils.extractValue("{$posSection}", "x").toInt()
+                            val y = JsonUtils.extractValue("{$posSection}", "y").toInt()
+                            val position = Position(x, y)
+                            val level = JsonUtils.extractValue(entry, "level").toInt()
+                            val dragonName = try {
+                                JsonUtils.extractValue(entry, "dragonName").takeIf { it.isNotEmpty() }
+                            } catch (e: Exception) {
+                                null
+                            }
+                            initialDefenders.add(InitialDefender(type, position, level, dragonName))
+                        }
+                    }
+                } catch (e: Exception) {
+                    println("Error parsing initial defenders (continuing without them): ${e.message}")
+                }
+            }
+            
+                // Parse initial attackers (legacy flat format)
+                if (json.contains("\"initialAttackers\"")) {
+                try {
+                    // Extract array - handle both `],` and `]` at end
+                    val afterKey = json.substringAfter("\"initialAttackers\": [")
+                    val attackersSection = if (afterKey.contains("],")) {
+                        afterKey.substringBefore("],")
+                    } else {
+                        afterKey.substringBefore("]")
+                    }
+                    if (attackersSection.isNotBlank()) {
+                        val attackerEntries = attackersSection.split("},").map { it.trim() + "}" }
+                        for (entry in attackerEntries) {
+                            if (!entry.contains("type")) continue
+                            val type = AttackerType.valueOf(JsonUtils.extractValue(entry, "type"))
+                            val posSection = entry.substringAfter("\"position\": {").substringBefore("}")
+                            val x = JsonUtils.extractValue("{$posSection}", "x").toInt()
+                            val y = JsonUtils.extractValue("{$posSection}", "y").toInt()
+                            val position = Position(x, y)
+                            val level = JsonUtils.extractValue(entry, "level").toInt()
+                            val currentHealth = try {
+                                JsonUtils.extractValue(entry, "currentHealth").toIntOrNull()
+                            } catch (e: Exception) {
+                                null
+                            }
+                            val dragonName = try {
+                                JsonUtils.extractValue(entry, "dragonName").takeIf { it.isNotEmpty() }
+                            } catch (e: Exception) {
+                                null
+                            }
+                            initialAttackers.add(InitialAttacker(type, position, level, currentHealth, dragonName))
+                        }
+                    }
+                } catch (e: Exception) {
+                    println("Error parsing initial attackers (continuing without them): ${e.message}")
+                }
+            }
+            
+                // Parse initial traps (legacy flat format)
+                if (json.contains("\"initialTraps\"")) {
+                try {
+                    // Extract array - handle both `],` and `]` at end
+                    val afterKey = json.substringAfter("\"initialTraps\": [")
+                    val trapsSection = if (afterKey.contains("],")) {
+                        afterKey.substringBefore("],")
+                    } else {
+                        afterKey.substringBefore("]")
+                    }
+                    if (trapsSection.isNotBlank()) {
+                        val trapEntries = trapsSection.split("},").map { it.trim() + "}" }
+                        for (entry in trapEntries) {
+                            if (!entry.contains("position")) continue
+                            val posSection = entry.substringAfter("\"position\": {").substringBefore("}")
+                            val x = JsonUtils.extractValue("{$posSection}", "x").toInt()
+                            val y = JsonUtils.extractValue("{$posSection}", "y").toInt()
+                            val position = Position(x, y)
+                            val damage = JsonUtils.extractValue(entry, "damage").toInt()
+                            val type = try {
+                                JsonUtils.extractValue(entry, "type")
+                            } catch (e: Exception) {
+                                "DWARVEN"
+                            }
+                            initialTraps.add(InitialTrap(position, damage, type))
+                        }
+                    }
+                } catch (e: Exception) {
+                    println("Error parsing initial traps (continuing without them): ${e.message}")
+                }
+            }
+            
+                // Parse initial barricades (legacy flat format)
+                if (json.contains("\"initialBarricades\"")) {
+                try {
+                    // Extract array - handle both `],` and `]` at end
+                    val afterKey = json.substringAfter("\"initialBarricades\": [")
+                    val barricadesSection = if (afterKey.contains("],")) {
+                        afterKey.substringBefore("],")
+                    } else {
+                        afterKey.substringBefore("]")
+                    }
+                    if (barricadesSection.isNotBlank()) {
+                        val barricadeEntries = barricadesSection.split("},").map { it.trim() + "}" }
+                        for (entry in barricadeEntries) {
+                            if (!entry.contains("position")) continue
+                            val posSection = entry.substringAfter("\"position\": {").substringBefore("}")
+                            val x = JsonUtils.extractValue("{$posSection}", "x").toInt()
+                            val y = JsonUtils.extractValue("{$posSection}", "y").toInt()
+                            val position = Position(x, y)
+                            val healthPoints = JsonUtils.extractValue(entry, "healthPoints").toInt()
+                            initialBarricades.add(InitialBarricade(position, healthPoints))
+                        }
+                    }
+                } catch (e: Exception) {
+                    println("Error parsing initial barricades (continuing without them): ${e.message}")
+                }
+            }
+            }  // End of legacy format fallback
+            
+            println("EditorJsonSerializer.deserializeLevel: Parsed level $id with ${initialDefenders.size} defenders, ${initialAttackers.size} attackers, ${initialTraps.size} traps, ${initialBarricades.size} barricades")
+            
+            // Create InitialData object from parsed data
+            val initialData = if (initialDefenders.isNotEmpty() || initialAttackers.isNotEmpty() || 
+                                   initialTraps.isNotEmpty() || initialBarricades.isNotEmpty()) {
+                InitialData(initialDefenders, initialAttackers, initialTraps, initialBarricades)
+            } else {
+                null
+            }
+            
+            return EditorLevel(
+                id, mapId, title, titleKey, subtitle, subtitleKey, 
+                startCoins, startHealthPoints, spawns, towers, waypoints, 
+                prerequisites, requiredPrerequisiteCount, testingOnly, 
+                allowAutoAttack, isOfficial,
+                initialData  // Pass the new InitialData object
+            )
         } catch (e: Exception) {
             println("Error deserializing level: ${e.message}")
             return null
