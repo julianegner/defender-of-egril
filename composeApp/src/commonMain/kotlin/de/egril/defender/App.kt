@@ -203,6 +203,8 @@ fun App() {
             is Screen.MainMenu -> {
                 MainMenuScreen(
                     onStartGame = { viewModel.navigateToWorldMap() },
+                    onContinueGame = { viewModel.continueFromAutosave() },
+                    hasAutosave = viewModel.hasAutosave(),
                     onShowRules = { viewModel.navigateToRules() },
                     onShowInstallationInfo = { viewModel.navigateToInstallationInfo() },
                     onSelectPlayer = { showPlayerSelection = true },

@@ -34,6 +34,8 @@ class SettingsHintBoxTest {
         composeTestRule.setContent {
             MainMenuScreen(
                 onStartGame = {},
+                onContinueGame = {},
+                hasAutosave = false,
                 onShowRules = {},
                 onShowInstallationInfo = {},
                 onSelectPlayer = {},
@@ -66,6 +68,8 @@ class SettingsHintBoxTest {
         composeTestRule.setContent {
             MainMenuScreen(
                 onStartGame = {},
+                onContinueGame = {},
+                hasAutosave = false,
                 onShowRules = {},
                 onShowInstallationInfo = {},
                 onSelectPlayer = {},
@@ -102,6 +106,8 @@ class SettingsHintBoxTest {
         composeTestRule.setContent {
             MainMenuScreen(
                 onStartGame = {},
+                onContinueGame = {},
+                hasAutosave = false,
                 onShowRules = {},
                 onShowInstallationInfo = {},
                 onSelectPlayer = {},
@@ -128,6 +134,8 @@ class SettingsHintBoxTest {
         composeTestRule.setContent {
             MainMenuScreen(
                 onStartGame = { startGameClicked = true },
+                onContinueGame = {},
+                hasAutosave = false,
                 onShowRules = { showRulesClicked = true },
                 onShowInstallationInfo = {},
                 onSelectPlayer = {},
@@ -165,6 +173,8 @@ class SettingsHintBoxTest {
         composeTestRule.setContent {
             MainMenuScreen(
                 onStartGame = {},
+                onContinueGame = {},
+                hasAutosave = false,
                 onShowRules = {},
                 onShowInstallationInfo = {},
                 onSelectPlayer = {},

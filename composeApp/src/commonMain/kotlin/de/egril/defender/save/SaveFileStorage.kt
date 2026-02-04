@@ -91,13 +91,15 @@ object SaveFileStorage {
     
     /**
      * Save current game state
+     * @param saveId Optional save ID. If not provided, generates a timestamp-based ID.
+     *               Use fixed ID like "autosave_game" for autosaves to overwrite previous autosaves.
      */
-    fun saveGameState(gameState: GameState, comment: String? = null): String {
-        val saveId = "savegame_${currentTimeMillis()}"
-        val savedGame = convertGameStateToSavedGame(gameState, saveId, comment)
+    fun saveGameState(gameState: GameState, comment: String? = null, saveId: String? = null): String {
+        val actualSaveId = saveId ?: "savegame_${currentTimeMillis()}"
+        val savedGame = convertGameStateToSavedGame(gameState, actualSaveId, comment)
         val json = SaveJsonSerializer.serializeSavedGame(savedGame)
-        fileStorage.writeFile("${getSavefilesDir()}/$saveId.json", json)
-        return saveId
+        fileStorage.writeFile("${getSavefilesDir()}/$actualSaveId.json", json)
+        return actualSaveId
     }
     
     /**

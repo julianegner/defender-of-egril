@@ -28,6 +28,8 @@ class ApplicationBannerTest {
         composeTestRule.setContent {
             MainMenuScreen(
                 onStartGame = {},
+                onContinueGame = {},
+                hasAutosave = false,
                 onShowRules = {},
                 onShowInstallationInfo = {},
                 onSelectPlayer = {},

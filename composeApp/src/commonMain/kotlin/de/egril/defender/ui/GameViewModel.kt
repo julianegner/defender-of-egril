@@ -567,6 +567,10 @@ class GameViewModel {
             // Complete enemy turn: apply effects and return to player turn
             engine.completeEnemyTurn()
             
+            // Autosave at the beginning of the new player turn (after enemy turn completes)
+            // This ensures the phase is PLAYER_TURN when the save is created
+            autoSaveGame()
+            
             // Check win/loss conditions
             val updatedState = _gameState.value ?: return@launch
             if (updatedState.isLevelWon()) {
@@ -767,6 +771,32 @@ class GameViewModel {
         // Update the last save snapshot
         lastSaveSnapshot = createGameStateSnapshot(state)
         return saveId
+    }
+    
+    /**
+     * Create an autosave at the beginning of a new turn.
+     * Autosaves always use the fixed ID "autosave_game" so they overwrite previous autosaves.
+     */
+    private fun autoSaveGame() {
+        val state = _gameState.value ?: return
+        // Use fixed ID "autosave_game" and add "Autosave" as comment
+        de.egril.defender.save.SaveFileStorage.saveGameState(state, comment = "Autosave", saveId = "autosave_game")
+        refreshSavedGames()
+        // Don't update lastSaveSnapshot for autosaves - we still want to track manual saves separately
+    }
+    
+    /**
+     * Check if an autosave exists
+     */
+    fun hasAutosave(): Boolean {
+        return de.egril.defender.save.SaveFileStorage.loadGameState("autosave_game") != null
+    }
+    
+    /**
+     * Load the autosave and start playing
+     */
+    fun continueFromAutosave() {
+        loadGame("autosave_game")
     }
     
     /**
