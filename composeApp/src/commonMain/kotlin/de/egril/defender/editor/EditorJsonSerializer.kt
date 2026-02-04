@@ -479,7 +479,28 @@ object EditorJsonSerializer {
             var initialAttackers = mutableListOf<InitialAttacker>()
             var initialTraps = mutableListOf<InitialTrap>()
             var initialBarricades = mutableListOf<InitialBarricade>()
-            
+
+
+            if (id == "t3") {
+                println("")
+                println("---------------------------------- DEBUG DESERIALIZE LEVEL ----------------------------------")
+                println("")
+                println("Comeplete JSON Data")
+                println(json)
+                println("")
+                println("------------------------------------------------------------------------------------------------------")
+                println("")
+
+
+                if (json.contains("\"initialData\"")) {
+                    println("EditorJsonSerializer: initialData found in JSON")
+                } else {
+                    println("EditorJsonSerializer: initialData NOT found in JSON")
+                }
+
+                println("---------------------------------- END DEBUG DESERIALIZE LEVEL ----------------------------------")
+            }
+
             // Try new nested format first
             if (json.contains("\"initialData\"")) {
                 try {
@@ -519,12 +540,15 @@ object EditorJsonSerializer {
                         }
                     }
                     println("EditorJsonSerializer: initialDataSection length = ${initialDataSection.length}")
-                    println("EditorJsonSerializer: initialDataSection first 100 chars = ${initialDataSection.take(100)}")
+                    // println("EditorJsonSerializer: initialDataSection first 100 chars = ${initialDataSection.take(100)}")
+
+                    println("EditorJsonSerializer: initialDataSection = ${initialDataSection}")
                     
                     // Parse defenders from new format
                     if (initialDataSection.contains("\"defenders\"")) {
                         println("EditorJsonSerializer: Found defenders in initialDataSection")
                         val afterKey = initialDataSection.substringAfter("\"defenders\"")
+
                         // Find the opening [ bracket (skip colon and whitespace)
                         val openBracketIndex = afterKey.indexOf('[')
                         if (openBracketIndex == -1) {
@@ -536,8 +560,11 @@ object EditorJsonSerializer {
                         } else {
                             afterBracket.substringBefore("]")
                         }
+
+                        println("EditorJsonSerializer: defendersSection = ${defendersSection}")
+
                         if (defendersSection.isNotBlank()) {
-                            val defenderEntries = defendersSection.split("},").map { it.trim() + "}" }
+                            val defenderEntries = splitJsonArrayObjects(defendersSection)
                             for (entry in defenderEntries) {
                                 if (!entry.contains("type")) continue
                                 val type = DefenderType.valueOf(JsonUtils.extractValue(entry, "type"))
@@ -552,7 +579,10 @@ object EditorJsonSerializer {
                                     null
                                 }
                                 initialDefenders.add(InitialDefender(type, position, level, dragonName))
+                                println("EditorJsonSerializer: Added InitialDefender(type=$type, position=$position, level=$level, dragonName=$dragonName)")
                             }
+                            println("EditorJsonSerializer: Parsed ${initialDefenders.size} initial defenders")
+                            println("EditorJsonSerializer: initialDefenders = $initialDefenders")
                         }
                     }
                     
@@ -572,7 +602,7 @@ object EditorJsonSerializer {
                             afterBracket.substringBefore("]")
                         }
                         if (attackersSection.isNotBlank()) {
-                            val attackerEntries = attackersSection.split("},").map { it.trim() + "}" }
+                            val attackerEntries = splitJsonArrayObjects(attackersSection)
                             for (entry in attackerEntries) {
                                 if (!entry.contains("type")) continue
                                 val type = AttackerType.valueOf(JsonUtils.extractValue(entry, "type"))
@@ -593,6 +623,8 @@ object EditorJsonSerializer {
                                 }
                                 initialAttackers.add(InitialAttacker(type, position, level, currentHealth, dragonName))
                             }
+                            println("EditorJsonSerializer: Parsed ${initialAttackers.size} initial attackers")
+                            println("EditorJsonSerializer: initialAttackers = $initialAttackers")
                         }
                     }
                     
@@ -612,7 +644,7 @@ object EditorJsonSerializer {
                             afterBracket.substringBefore("]")
                         }
                         if (trapsSection.isNotBlank()) {
-                            val trapEntries = trapsSection.split("},").map { it.trim() + "}" }
+                            val trapEntries = splitJsonArrayObjects(trapsSection)
                             for (entry in trapEntries) {
                                 if (!entry.contains("position")) continue
                                 val posSection = entry.substringAfter("\"position\": {").substringBefore("}")
@@ -627,6 +659,8 @@ object EditorJsonSerializer {
                                 }
                                 initialTraps.add(InitialTrap(position, damage, type))
                             }
+                            println("EditorJsonSerializer: Parsed ${initialTraps.size} initial traps")
+                            println("EditorJsonSerializer: initialTraps = $initialTraps")
                         }
                     }
                     
@@ -646,7 +680,7 @@ object EditorJsonSerializer {
                             afterBracket.substringBefore("]")
                         }
                         if (barricadesSection.isNotBlank()) {
-                            val barricadeEntries = barricadesSection.split("},").map { it.trim() + "}" }
+                            val barricadeEntries = splitJsonArrayObjects(barricadesSection)
                             for (entry in barricadeEntries) {
                                 if (!entry.contains("position")) continue
                                 val posSection = entry.substringAfter("\"position\": {").substringBefore("}")
@@ -656,6 +690,8 @@ object EditorJsonSerializer {
                                 val healthPoints = JsonUtils.extractValue(entry, "healthPoints").toInt()
                                 initialBarricades.add(InitialBarricade(position, healthPoints))
                             }
+                            println("EditorJsonSerializer: Parsed ${initialBarricades.size} initial barricades")
+                            println("EditorJsonSerializer: initialBarricades = $initialBarricades")
                         }
                     }
                 } catch (e: Exception) {
