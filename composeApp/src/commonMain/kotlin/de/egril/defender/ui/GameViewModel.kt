@@ -525,6 +525,9 @@ class GameViewModel {
             // The UI immediately shows "ENEMY TURN" indicator when phase changes
             engine.startEnemyTurn()
             
+            // Autosave at the beginning of the new turn (after turn number increments)
+            autoSaveGame()
+            
             // Calculate all movement steps for existing units
             val movementSteps = engine.calculateEnemyTurnMovements()
             
@@ -767,6 +770,18 @@ class GameViewModel {
         // Update the last save snapshot
         lastSaveSnapshot = createGameStateSnapshot(state)
         return saveId
+    }
+    
+    /**
+     * Create an autosave at the beginning of a new turn.
+     * Autosaves always use the fixed ID "autosave_game" so they overwrite previous autosaves.
+     */
+    private fun autoSaveGame() {
+        val state = _gameState.value ?: return
+        // Use fixed ID "autosave_game" and add "Autosave" as comment
+        de.egril.defender.save.SaveFileStorage.saveGameState(state, comment = "Autosave", saveId = "autosave_game")
+        refreshSavedGames()
+        // Don't update lastSaveSnapshot for autosaves - we still want to track manual saves separately
     }
     
     /**
