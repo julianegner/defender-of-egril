@@ -195,7 +195,8 @@ data class InitialDefender(
     val type: DefenderType,
     val position: Position,
     val level: Int = 1,
-    val dragonName: String? = null  // Dragon's name (for dragon's lair only)
+    val dragonName: String? = null,  // Dragon's name (for dragon's lair only)
+    val onTowerBase: Boolean = false  // True if this tower should be placed on a barricade at this position
 )
 
 /**
@@ -223,7 +224,8 @@ data class InitialTrap(
  */
 data class InitialBarricade(
     val position: Position,
-    val healthPoints: Int
+    val healthPoints: Int,
+    val supportsTower: Boolean = false  // True if this barricade should support a tower (HP >= 100)
 )
 
 /**

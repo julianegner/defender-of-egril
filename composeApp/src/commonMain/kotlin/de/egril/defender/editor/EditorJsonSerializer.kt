@@ -217,7 +217,10 @@ object EditorJsonSerializer {
                     val dragonNameJson = if (defender.dragonName != null) {
                         """, "dragonName": "${defender.dragonName}""""
                     } else ""
-                    """{"type": "${defender.type.name}", "position": {"x": ${defender.position.x}, "y": ${defender.position.y}}, "level": ${defender.level}$dragonNameJson}"""
+                    val onTowerBaseJson = if (defender.onTowerBase) {
+                        """, "onTowerBase": true"""
+                    } else ""
+                    """{"type": "${defender.type.name}", "position": {"x": ${defender.position.x}, "y": ${defender.position.y}}, "level": ${defender.level}$dragonNameJson$onTowerBaseJson}"""
                 }
                 parts.add(""""defenders": [
       $defendersData
@@ -578,8 +581,13 @@ object EditorJsonSerializer {
                                 } catch (e: Exception) {
                                     null
                                 }
-                                initialDefenders.add(InitialDefender(type, position, level, dragonName))
-                                println("EditorJsonSerializer: Added InitialDefender(type=$type, position=$position, level=$level, dragonName=$dragonName)")
+                                val onTowerBase = try {
+                                    JsonUtils.extractValue(entry, "onTowerBase").toBoolean()
+                                } catch (e: Exception) {
+                                    false
+                                }
+                                initialDefenders.add(InitialDefender(type, position, level, dragonName, onTowerBase))
+                                println("EditorJsonSerializer: Added InitialDefender(type=$type, position=$position, level=$level, dragonName=$dragonName, onTowerBase=$onTowerBase)")
                             }
                             println("EditorJsonSerializer: Parsed ${initialDefenders.size} initial defenders")
                             println("EditorJsonSerializer: initialDefenders = $initialDefenders")
@@ -728,7 +736,12 @@ object EditorJsonSerializer {
                             } catch (e: Exception) {
                                 null
                             }
-                            initialDefenders.add(InitialDefender(type, position, level, dragonName))
+                            val onTowerBase = try {
+                                JsonUtils.extractValue(entry, "onTowerBase").toBoolean()
+                            } catch (e: Exception) {
+                                false
+                            }
+                            initialDefenders.add(InitialDefender(type, position, level, dragonName, onTowerBase))
                         }
                     }
                 } catch (e: Exception) {
