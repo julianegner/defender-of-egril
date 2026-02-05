@@ -60,6 +60,11 @@ fun InfoPageScreen(
                         onClick = { selectedTab = InfoTab.AUDIO_LICENSES },
                         text = { Text(stringResource(Res.string.info_tab_audio_licenses)) }
                     )
+                    Tab(
+                        selected = selectedTab == InfoTab.LICENSE,
+                        onClick = { selectedTab = InfoTab.LICENSE },
+                        text = { Text(stringResource(Res.string.info_tab_license)) }
+                    )
                 }
                 
                 // Content area
@@ -71,6 +76,7 @@ fun InfoPageScreen(
                     when (selectedTab) {
                         InfoTab.INSTALLATION -> InstallationInfo()
                         InfoTab.AUDIO_LICENSES -> AudioLicensesInfo()
+                        InfoTab.LICENSE -> LicenseInfo()
                     }
                 }
                 
@@ -93,5 +99,6 @@ fun InfoPageScreen(
  */
 enum class InfoTab {
     INSTALLATION,
-    AUDIO_LICENSES
+    AUDIO_LICENSES,
+    LICENSE
 }
