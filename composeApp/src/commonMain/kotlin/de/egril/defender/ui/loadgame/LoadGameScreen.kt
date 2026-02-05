@@ -17,6 +17,7 @@ import de.egril.defender.save.SaveFileStorage
 import de.egril.defender.editor.getFileStorage
 import de.egril.defender.ui.settings.SettingsButton
 import com.hyperether.resources.stringResource
+import de.egril.defender.utils.isPlatformMobile
 import defender_of_egril.composeapp.generated.resources.*
 import defender_of_egril.composeapp.generated.resources.Res
 import kotlinx.coroutines.launch
@@ -101,37 +102,33 @@ fun LoadGameScreen(
         }
     }
     
-    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
-        val isMobileLayout = maxWidth < 600.dp
-        
-        if (isMobileLayout) {
-            LoadGameScreenMobile(
-                savedGames = savedGames,
-                gameDataTransferEnabled = gameDataTransferEnabled,
-                onGameDataTransferToggle = { gameDataTransferEnabled = it },
-                onLoadGame = onLoadGame,
-                onDeleteGame = { showDeleteDialog = it },
-                onDownloadGame = onDownloadGame,
-                onDownloadAll = onDownloadAll,
-                onExportGameProgress = onExportGameProgress,
-                handleUpload = handleUpload,
-                onBack = onBack
-            )
-        } else {
-            LoadGameScreenDesktop(
-                savedGames = savedGames,
-                gameDataTransferEnabled = gameDataTransferEnabled,
-                onGameDataTransferToggle = { gameDataTransferEnabled = it },
-                onLoadGame = onLoadGame,
-                onDeleteGame = { showDeleteDialog = it },
-                onDownloadGame = onDownloadGame,
-                onDownloadAll = onDownloadAll,
-                onExportGameProgress = onExportGameProgress,
-                handleUpload = handleUpload,
-                onBack = onBack
-            )
-        }
-        
+    if (isPlatformMobile) {
+        LoadGameScreenMobile(
+            savedGames = savedGames,
+            gameDataTransferEnabled = gameDataTransferEnabled,
+            onGameDataTransferToggle = { gameDataTransferEnabled = it },
+            onLoadGame = onLoadGame,
+            onDeleteGame = { showDeleteDialog = it },
+            onDownloadGame = onDownloadGame,
+            onDownloadAll = onDownloadAll,
+            onExportGameProgress = onExportGameProgress,
+            handleUpload = handleUpload,
+            onBack = onBack
+        )
+    } else {
+        LoadGameScreenDesktop(
+            savedGames = savedGames,
+            gameDataTransferEnabled = gameDataTransferEnabled,
+            onGameDataTransferToggle = { gameDataTransferEnabled = it },
+            onLoadGame = onLoadGame,
+            onDeleteGame = { showDeleteDialog = it },
+            onDownloadGame = onDownloadGame,
+            onDownloadAll = onDownloadAll,
+            onExportGameProgress = onExportGameProgress,
+            handleUpload = handleUpload,
+            onBack = onBack
+        )
+
         val handleOverrideDecision: (Boolean) -> Unit = { override ->
             scope.launch {
                 if (currentImportIndex < pendingImports.size) {
