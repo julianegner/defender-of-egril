@@ -381,7 +381,7 @@ private fun LoadGameScreenDesktop(
                 Spacer(modifier = Modifier.height(8.dp))
             
                 // Display savegame folder path at the bottom
-                val savegamePath = getSavegamePath()
+                val savegamePath = rememberSavegamePath()
             
                 Text(
                     text = "${stringResource(Res.string.savegame_folder)} $savegamePath",
@@ -395,7 +395,7 @@ private fun LoadGameScreenDesktop(
 }
 
 @Composable
-private fun getSavegamePath(): String {
+private fun rememberSavegamePath(): String {
     val fileStorage = remember { getFileStorage() }
     return remember {
         // Get the path for the savefiles directory
@@ -552,7 +552,7 @@ private fun LoadGameScreenMobile(
                 }
                 
                 // Display savegame folder path at the bottom
-                val savegamePath = getSavegamePath()
+                val savegamePath = rememberSavegamePath()
                 
                 Text(
                     text = "${stringResource(Res.string.savegame_folder)}\n$savegamePath",

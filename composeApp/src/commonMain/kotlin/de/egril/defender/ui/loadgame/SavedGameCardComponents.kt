@@ -26,6 +26,8 @@ import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
 import defender_of_egril.composeapp.generated.resources.Res
 
+// Constants for mobile display limits
+private const val MOBILE_MAX_ENEMIES_DISPLAYED = 2
 
 @Composable
 fun SavedGameCardHeader(
@@ -285,7 +287,7 @@ fun EnemiesList(
                 )
                 Spacer(modifier = Modifier.height(2.dp))
                 Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                    attackerCounts.entries.take(2).forEach { (type, count) ->  // Only show first 2 on mobile
+                    attackerCounts.entries.take(MOBILE_MAX_ENEMIES_DISPLAYED).forEach { (type, count) ->
                         UnitEntry(
                             icon = { EnemyTypeIcon(attackerType = type) },
                             name = type.getLocalizedName(locale),
@@ -293,7 +295,7 @@ fun EnemiesList(
                             isMobile = true
                         )
                     }
-                    if (attackerCounts.size > 2) {
+                    if (attackerCounts.size > MOBILE_MAX_ENEMIES_DISPLAYED) {
                         Text(
                             text = "...",
                             style = MaterialTheme.typography.bodySmall,
