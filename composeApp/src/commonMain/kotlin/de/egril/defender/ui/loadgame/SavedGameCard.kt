@@ -71,49 +71,60 @@ fun SavedGameCard(
         }
     }
     
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onLoad() },
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-    ) {
-        Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
-            // Get localized level name if level is available
-            val locale = com.hyperether.resources.currentLanguage.value
-            val displayName = if (level != null) {
-                level.getLocalizedTitle(locale)
-            } else {
-                saveGame.levelName  // Fallback to saved name if level not found
+    BoxWithConstraints {
+        val isMobileCard = maxWidth < 600.dp
+        val cardPadding = if (isMobileCard) 8.dp else 16.dp
+        
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { onLoad() },
+            elevation = CardDefaults.cardElevation(defaultElevation = if (isMobileCard) 2.dp else 4.dp)
+        ) {
+            Column(modifier = Modifier.fillMaxWidth().padding(cardPadding)) {
+                // Get localized level name if level is available
+                val locale = com.hyperether.resources.currentLanguage.value
+                val displayName = if (level != null) {
+                    level.getLocalizedTitle(locale)
+                } else {
+                    saveGame.levelName  // Fallback to saved name if level not found
+                }
+                
+                SavedGameCardHeader(
+                    levelName = displayName,
+                    dateStr = dateStr,
+                    isMobile = isMobileCard
+                )
+                
+                Spacer(modifier = Modifier.height(if (isMobileCard) 4.dp else 8.dp))
+                
+                SavedGameCardStats(
+                    turnNumber = saveGame.turnNumber,
+                    coins = saveGame.coins,
+                    healthPoints = saveGame.healthPoints,
+                    isMobile = isMobileCard
+                )
+                
+                // Display comment if present
+                if (!saveGame.comment.isNullOrBlank()) {
+                    Spacer(modifier = Modifier.height(if (isMobileCard) 4.dp else 8.dp))
+                    SavedGameCardComment(
+                        comment = saveGame.comment,
+                        isMobile = isMobileCard
+                    )
+                }
+                
+                Spacer(modifier = Modifier.height(if (isMobileCard) 6.dp else 12.dp))
+                
+                SavedGameCardUnitsAndMinimap(
+                    saveGame = saveGame,
+                    level = level,
+                    minimapGameState = minimapGameState,
+                    onDelete = onDelete,
+                    onDownload = onDownload,
+                    isMobile = isMobileCard
+                )
             }
-            
-            SavedGameCardHeader(
-                levelName = displayName,
-                dateStr = dateStr
-            )
-            
-            Spacer(modifier = Modifier.height(8.dp))
-            
-            SavedGameCardStats(
-                turnNumber = saveGame.turnNumber,
-                coins = saveGame.coins,
-                healthPoints = saveGame.healthPoints
-            )
-            
-            // Display comment if present
-            if (!saveGame.comment.isNullOrBlank()) {
-                Spacer(modifier = Modifier.height(8.dp))
-                SavedGameCardComment(comment = saveGame.comment)
-            }
-            
-            Spacer(modifier = Modifier.height(12.dp))
-            
-            SavedGameCardUnitsAndMinimap(
-                saveGame = saveGame,
-                level = level,
-                minimapGameState = minimapGameState,
-                onDelete = onDelete,
-                onDownload = onDownload
-            )
         }
     }
 }
