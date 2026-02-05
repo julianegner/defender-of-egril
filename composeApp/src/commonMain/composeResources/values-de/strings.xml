@@ -1211,4 +1211,7 @@
     <!-- Tower Base -->
     <string name="tower_base_hp_label">Basis: %d TP</string>
     <string name="tower_base_info">Turm auf Basis (zerstörbar bei &lt;100 TP)</string>
+    
+    <!-- Tower Info Dialog -->
+    <string name="tower_info_title">Turminformationen</string>
 </resources>

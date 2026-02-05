@@ -2,6 +2,8 @@ package de.egril.defender.ui.gameplay
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -158,6 +160,7 @@ fun DefenderInfo(
                         Row {
                             DefenderActionsInfo(defender)
                             dwarvenMineInfoButtonArea(defender)
+                            TowerInfoButtonArea(defender)
                         }
                     }
                 
@@ -728,4 +731,205 @@ private fun calculateActionsPerTurn(defender: Defender, level: Int): Int {
     } else {
         defender.type.actionsPerTurn
     }
+}
+
+/**
+ * Info message data for displaying in combined tower info dialog
+ */
+private data class TowerInfoMessage(
+    val title: String,
+    val message: String,
+    val icon: @Composable () -> Unit,
+    val color: Color
+)
+
+/**
+ * Get all relevant info messages for a specific tower
+ */
+@Composable
+private fun getTowerInfoMessages(defender: Defender): List<TowerInfoMessage> {
+    val messages = mutableListOf<TowerInfoMessage>()
+    
+    // Add first-use info message for the tower type
+    when (defender.type) {
+        DefenderType.WIZARD_TOWER -> {
+            messages.add(
+                TowerInfoMessage(
+                    title = stringResource(Res.string.wizard_first_use_title),
+                    message = stringResource(Res.string.wizard_first_use_message),
+                    icon = { de.egril.defender.ui.icon.ExplosionIcon(size = 32.dp) },
+                    color = Color(0xFF9C27B0)  // Purple
+                )
+            )
+        }
+        DefenderType.ALCHEMY_TOWER -> {
+            messages.add(
+                TowerInfoMessage(
+                    title = stringResource(Res.string.alchemy_first_use_title),
+                    message = stringResource(Res.string.alchemy_first_use_message),
+                    icon = { de.egril.defender.ui.icon.TestTubeIcon(size = 32.dp) },
+                    color = Color(0xFF4CAF50)  // Green
+                )
+            )
+        }
+        DefenderType.BALLISTA_TOWER -> {
+            messages.add(
+                TowerInfoMessage(
+                    title = stringResource(Res.string.ballista_first_use_title),
+                    message = stringResource(Res.string.ballista_first_use_message),
+                    icon = { de.egril.defender.ui.icon.TargetIcon(size = 32.dp) },
+                    color = Color(0xFF795548)  // Brown
+                )
+            )
+        }
+        DefenderType.DWARVEN_MINE -> {
+            messages.add(
+                TowerInfoMessage(
+                    title = stringResource(Res.string.mine_first_use_title),
+                    message = stringResource(Res.string.mine_first_use_message),
+                    icon = { de.egril.defender.ui.icon.MoneyIcon(size = 32.dp) },
+                    color = Color(0xFFFFD700)  // Gold
+                )
+            )
+        }
+        else -> {}
+    }
+    
+    // Add ability info messages based on tower level
+    
+    // Spike barbs info (spike tower level 10+)
+    if (defender.type == DefenderType.SPIKE_TOWER && defender.level.value >= 10) {
+        messages.add(
+            TowerInfoMessage(
+                title = stringResource(Res.string.spike_barbs_info_title),
+                message = stringResource(Res.string.spike_barbs_info_message),
+                icon = { SwordIcon(size = 32.dp) },
+                color = Color(0xFF8B4513)  // SaddleBrown
+            )
+        )
+    }
+    
+    // Barricade info (spike tower level 20+ or spear tower level 10+)
+    val hasBarricadeAbility = when (defender.type) {
+        DefenderType.SPIKE_TOWER -> defender.level.value >= 20
+        DefenderType.SPEAR_TOWER -> defender.level.value >= 10
+        else -> false
+    }
+    if (hasBarricadeAbility) {
+        messages.add(
+            TowerInfoMessage(
+                title = stringResource(Res.string.barricade_info_title),
+                message = stringResource(Res.string.barricade_info_message),
+                icon = { WoodIcon(size = 32.dp) },
+                color = Color(0xFF795548)  // Brown
+            )
+        )
+    }
+    
+    // Magical trap info (wizard tower level 10+)
+    if (defender.type == DefenderType.WIZARD_TOWER && defender.level.value >= 10) {
+        messages.add(
+            TowerInfoMessage(
+                title = stringResource(Res.string.magical_trap_tutorial_title),
+                message = stringResource(Res.string.magical_trap_tutorial_message),
+                icon = { de.egril.defender.ui.icon.PentagramIcon(size = 32.dp) },
+                color = Color(0xFF9C27B0)  // Purple
+            )
+        )
+    }
+    
+    // Extended area info (wizard or alchemy tower level 20+)
+    if ((defender.type == DefenderType.WIZARD_TOWER || defender.type == DefenderType.ALCHEMY_TOWER) && 
+        defender.level.value >= 20) {
+        messages.add(
+            TowerInfoMessage(
+                title = stringResource(Res.string.extended_area_tutorial_title),
+                message = stringResource(Res.string.extended_area_tutorial_message),
+                icon = { de.egril.defender.ui.icon.ExplosionIcon(size = 32.dp) },
+                color = Color(0xFFFF5722)  // Deep orange
+            )
+        )
+    }
+    
+    return messages
+}
+
+/**
+ * Tower info icon and dialog component (similar to mine info icon)
+ */
+@Composable
+private fun TowerInfoButtonArea(defender: Defender) {
+    val messages = getTowerInfoMessages(defender)
+    
+    // Only show info icon if there are info messages for this tower
+    if (messages.isEmpty()) {
+        return
+    }
+    
+    var showTowerInfoDialog by remember { mutableStateOf(false) }
+    
+    // Tower info dialog with all relevant info messages
+    if (showTowerInfoDialog) {
+        AlertDialog(
+            onDismissRequest = { showTowerInfoDialog = false },
+            title = {
+                Text(
+                    text = stringResource(Res.string.tower_info_title),
+                    style = MaterialTheme.typography.titleLarge
+                )
+            },
+            text = {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    messages.forEachIndexed { index, info ->
+                        if (index > 0) {
+                            HorizontalDivider(
+                                modifier = Modifier.padding(vertical = 8.dp),
+                                color = MaterialTheme.colorScheme.outline
+                            )
+                        }
+                        
+                        // Subtitle with icon
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        ) {
+                            info.icon()
+                            Text(
+                                text = info.title,
+                                style = MaterialTheme.typography.titleMedium,
+                                color = info.color,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                        
+                        // Message content
+                        Text(
+                            text = info.message,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showTowerInfoDialog = false }) {
+                    Text(stringResource(Res.string.close))
+                }
+            }
+        )
+    }
+    
+    // Info icon button
+    InfoIcon(
+        size = 16.dp,
+        modifier = Modifier
+            .clickable { showTowerInfoDialog = true }
+            .padding(4.dp)
+    )
 }

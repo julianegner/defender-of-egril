@@ -1214,4 +1214,7 @@
     <!-- Tower Base -->
     <string name="tower_base_hp_label">Base: %d HP</string>
     <string name="tower_base_info">Tower on base (destructible at &lt;100 HP)</string>
+    
+    <!-- Tower Info Dialog -->
+    <string name="tower_info_title">Tower Information</string>
 </resources>

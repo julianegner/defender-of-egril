@@ -1213,4 +1213,7 @@
     <!-- Tower Base -->
     <string name="tower_base_hp_label">Base: %d PV</string>
     <string name="tower_base_info">Torre sobre base (destructible a &lt;100 PV)</string>
+    
+    <!-- Tower Info Dialog -->
+    <string name="tower_info_title">Información de la Torre</string>
 </resources>
