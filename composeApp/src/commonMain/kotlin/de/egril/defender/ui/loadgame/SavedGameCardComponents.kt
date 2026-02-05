@@ -287,6 +287,7 @@ fun EnemiesList(
                 )
                 Spacer(modifier = Modifier.height(2.dp))
                 Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    // Display first MOBILE_MAX_ENEMIES_DISPLAYED enemies to save space on mobile
                     attackerCounts.entries.take(MOBILE_MAX_ENEMIES_DISPLAYED).forEach { (type, count) ->
                         UnitEntry(
                             icon = { EnemyTypeIcon(attackerType = type) },
