@@ -1142,6 +1142,24 @@
     <!-- Info Page -->
     <string name="info_tab_installation">Installation</string>
     <string name="info_tab_audio_licenses">Licences Audio</string>
+    <string name="info_tab_license">Licence</string>
+    
+    <!-- License Info -->
+    <string name="license_info_title">Informations sur la Licence</string>
+    <string name="license_github_project_title">Projet GitHub</string>
+    <string name="license_github_project_description">Defender of Egril est un projet open source. Vous pouvez consulter le code source, contribuer, signaler des problèmes et suivre le développement sur GitHub.</string>
+    <string name="license_github_project_link_label">Dépôt du Projet:</string>
+    <string name="license_agpl_title">Licence Publique Générale Affero GNU v3.0 (AGPL-3.0)</string>
+    <string name="license_agpl_description">Ce jeu est sous licence GNU Affero General Public License version 3.0 (AGPL-3.0). L\'AGPL est une licence libre de type copyleft conçue pour garantir que le logiciel reste libre et ouvert pour tous les utilisateurs, même lorsqu\'il est utilisé sur un réseau.</string>
+    <string name="license_agpl_freedoms_title">Libertés Principales:</string>
+    <string name="license_agpl_freedom_run">Liberté d\'exécuter le programme à n\'importe quelle fin</string>
+    <string name="license_agpl_freedom_study">Liberté d\'étudier le fonctionnement du programme et de le modifier</string>
+    <string name="license_agpl_freedom_redistribute">Liberté de redistribuer des copies</string>
+    <string name="license_agpl_freedom_modify">Liberté de distribuer des versions modifiées</string>
+    <string name="license_agpl_network_clause_title">Clause d\'Utilisation Réseau:</string>
+    <string name="license_agpl_network_clause_description">L\'AGPL étend la GPL avec une clause spéciale : si vous exécutez une version modifiée de ce programme sur un serveur et permettez aux utilisateurs d\'interagir avec lui via un réseau, vous devez leur fournir l\'accès au code source de votre version modifiée.</string>
+    <string name="license_agpl_full_text_label">Texte Complet de la Licence:</string>
+    <string name="license_agpl_attribution_note">Ce logiciel est fourni selon les termes de la licence AGPL-3.0. Pour les termes et conditions complets, veuillez consulter le texte complet de la licence.</string>
     
     <!-- Audio Licenses -->
     <string name="audio_licenses_title">Fichiers Audio et Licences</string>
