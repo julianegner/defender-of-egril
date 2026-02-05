@@ -47,6 +47,60 @@ fun LoadGameScreen(
     
     val scope = rememberCoroutineScope()
     
+    // Extract upload handler to avoid duplication
+    val handleUpload: () -> Unit = {
+        scope.launch {
+            val fileExportImport = getFileExportImport()
+            val importedFiles = fileExportImport.importFiles()
+            
+            if (importedFiles != null && importedFiles.isNotEmpty()) {
+                var successCount = 0
+                val conflicts = mutableListOf<Pair<String, String>>()
+                
+                // First pass: Check file types and import
+                importedFiles.forEach { file ->
+                    // Check if this is a game progress file (contains only levelStatuses)
+                    val isGameProgressFile = file.content.contains("\"levelStatuses\"") && 
+                                           !file.content.contains("\"levelId\"") &&
+                                           !file.content.contains("\"defenders\"")
+                    
+                    if (isGameProgressFile) {
+                        // This is a game progress file - import it via the callback
+                        onImportGameProgress(file.content)
+                        successCount++
+                    } else {
+                        // This is a save game file
+                        if (SaveFileStorage.saveGameExists(file.filename)) {
+                            conflicts.add(Pair(file.filename, file.content))
+                        } else {
+                            if (SaveFileStorage.importSaveGame(file.filename, file.content, overwrite = false)) {
+                                successCount++
+                            }
+                        }
+                    }
+                }
+                
+                if (conflicts.isNotEmpty()) {
+                    // Show override dialog for first conflict
+                    pendingImports = conflicts
+                    currentImportIndex = 0
+                    overrideAll = false
+                    showFileOverrideDialog = conflicts[0].first
+                } else if (successCount > 0) {
+                    filesImported = successCount
+                    showImportSuccess = true
+                } else {
+                    showImportError = true
+                }
+                
+                if (successCount > 0) {
+                    // Refresh the list to show newly imported saves
+                    onUpload() // This triggers a refresh in the parent
+                }
+            }
+        }
+    }
+    
     BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
         val isMobileLayout = maxWidth < 600.dp
         
@@ -60,58 +114,7 @@ fun LoadGameScreen(
                 onDownloadGame = onDownloadGame,
                 onDownloadAll = onDownloadAll,
                 onExportGameProgress = onExportGameProgress,
-                handleUpload = {
-                    scope.launch {
-                        val fileExportImport = getFileExportImport()
-                        val importedFiles = fileExportImport.importFiles()
-                        
-                        if (importedFiles != null && importedFiles.isNotEmpty()) {
-                            var successCount = 0
-                            val conflicts = mutableListOf<Pair<String, String>>()
-                            
-                            // First pass: Check file types and import
-                            importedFiles.forEach { file ->
-                                // Check if this is a game progress file (contains only levelStatuses)
-                                val isGameProgressFile = file.content.contains("\"levelStatuses\"") && 
-                                                       !file.content.contains("\"levelId\"") &&
-                                                       !file.content.contains("\"defenders\"")
-                                
-                                if (isGameProgressFile) {
-                                    // This is a game progress file - import it via the callback
-                                    onImportGameProgress(file.content)
-                                    successCount++
-                                } else {
-                                    // This is a save game file
-                                    if (SaveFileStorage.saveGameExists(file.filename)) {
-                                        conflicts.add(Pair(file.filename, file.content))
-                                    } else {
-                                        if (SaveFileStorage.importSaveGame(file.filename, file.content, overwrite = false)) {
-                                            successCount++
-                                        }
-                                    }
-                                }
-                            }
-                            
-                            if (conflicts.isNotEmpty()) {
-                                // Show override dialog for first conflict
-                                pendingImports = conflicts
-                                currentImportIndex = 0
-                                overrideAll = false
-                                showFileOverrideDialog = conflicts[0].first
-                            } else if (successCount > 0) {
-                                filesImported = successCount
-                                showImportSuccess = true
-                            } else {
-                                showImportError = true
-                            }
-                            
-                            if (successCount > 0) {
-                                // Refresh the list to show newly imported saves
-                                onUpload() // This triggers a refresh in the parent
-                            }
-                        }
-                    }
-                },
+                handleUpload = handleUpload,
                 onBack = onBack
             )
         } else {
@@ -124,58 +127,7 @@ fun LoadGameScreen(
                 onDownloadGame = onDownloadGame,
                 onDownloadAll = onDownloadAll,
                 onExportGameProgress = onExportGameProgress,
-                handleUpload = {
-                    scope.launch {
-                        val fileExportImport = getFileExportImport()
-                        val importedFiles = fileExportImport.importFiles()
-                        
-                        if (importedFiles != null && importedFiles.isNotEmpty()) {
-                            var successCount = 0
-                            val conflicts = mutableListOf<Pair<String, String>>()
-                            
-                            // First pass: Check file types and import
-                            importedFiles.forEach { file ->
-                                // Check if this is a game progress file (contains only levelStatuses)
-                                val isGameProgressFile = file.content.contains("\"levelStatuses\"") && 
-                                                       !file.content.contains("\"levelId\"") &&
-                                                       !file.content.contains("\"defenders\"")
-                                
-                                if (isGameProgressFile) {
-                                    // This is a game progress file - import it via the callback
-                                    onImportGameProgress(file.content)
-                                    successCount++
-                                } else {
-                                    // This is a save game file
-                                    if (SaveFileStorage.saveGameExists(file.filename)) {
-                                        conflicts.add(Pair(file.filename, file.content))
-                                    } else {
-                                        if (SaveFileStorage.importSaveGame(file.filename, file.content, overwrite = false)) {
-                                            successCount++
-                                        }
-                                    }
-                                }
-                            }
-                            
-                            if (conflicts.isNotEmpty()) {
-                                // Show override dialog for first conflict
-                                pendingImports = conflicts
-                                currentImportIndex = 0
-                                overrideAll = false
-                                showFileOverrideDialog = conflicts[0].first
-                            } else if (successCount > 0) {
-                                filesImported = successCount
-                                showImportSuccess = true
-                            } else {
-                                showImportError = true
-                            }
-                            
-                            if (successCount > 0) {
-                                // Refresh the list to show newly imported saves
-                                onUpload() // This triggers a refresh in the parent
-                            }
-                        }
-                    }
-                },
+                handleUpload = handleUpload,
                 onBack = onBack
             )
         }
@@ -429,17 +381,7 @@ private fun LoadGameScreenDesktop(
                 Spacer(modifier = Modifier.height(8.dp))
             
                 // Display savegame folder path at the bottom
-                val fileStorage = remember { getFileStorage() }
-                val savegamePath = remember {
-                    // Get the path for the savefiles directory
-                    val playerId = SaveFileStorage.getCurrentPlayer()
-                    val savefilesPath = if (playerId != null) {
-                        "players/$playerId/savefiles"
-                    } else {
-                        "savefiles"
-                    }
-                    fileStorage.getAbsolutePath(savefilesPath)
-                }
+                val savegamePath = getSavegamePath()
             
                 Text(
                     text = "${stringResource(Res.string.savegame_folder)} $savegamePath",
@@ -449,6 +391,21 @@ private fun LoadGameScreenDesktop(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun getSavegamePath(): String {
+    val fileStorage = remember { getFileStorage() }
+    return remember {
+        // Get the path for the savefiles directory
+        val playerId = SaveFileStorage.getCurrentPlayer()
+        val savefilesPath = if (playerId != null) {
+            "players/$playerId/savefiles"
+        } else {
+            "savefiles"
+        }
+        fileStorage.getAbsolutePath(savefilesPath)
     }
 }
 
@@ -595,17 +552,7 @@ private fun LoadGameScreenMobile(
                 }
                 
                 // Display savegame folder path at the bottom
-                val fileStorage = remember { getFileStorage() }
-                val savegamePath = remember {
-                    // Get the path for the savefiles directory
-                    val playerId = SaveFileStorage.getCurrentPlayer()
-                    val savefilesPath = if (playerId != null) {
-                        "players/$playerId/savefiles"
-                    } else {
-                        "savefiles"
-                    }
-                    fileStorage.getAbsolutePath(savefilesPath)
-                }
+                val savegamePath = getSavegamePath()
                 
                 Text(
                     text = "${stringResource(Res.string.savegame_folder)}\n$savegamePath",
