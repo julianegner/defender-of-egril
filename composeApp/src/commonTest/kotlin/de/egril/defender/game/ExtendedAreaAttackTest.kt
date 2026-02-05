@@ -255,10 +255,11 @@ class ExtendedAreaAttackTest {
         assertTrue(towerManager.upgradeDefender(wizard.id), "Upgrade should succeed")
         assertEquals(20, wizard.level.value, "Tower should be level 20")
         
-        // Verify tutorial was triggered
-        assertEquals(InfoType.EXTENDED_AREA_INFO, state.infoState.value.currentInfo, 
-            "Extended area info should be shown")
+        // Verify tutorial flag was set (but info NOT automatically shown)
         assertTrue(wizard.hasShownExtendedAreaTutorial.value, "Tutorial should be marked as shown")
+        // Info is now shown via tower info icon, not automatically
+        assertEquals(InfoType.NONE, state.infoState.value.currentInfo,
+            "Info should NOT be shown automatically (available via tower info icon)")
     }
     
     @Test
