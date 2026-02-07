@@ -838,15 +838,8 @@ private fun GamePlayScreenContent(
                         if (onDefenderAttack(defenderId, targetId)) {
                             // Check if we should keep the selection active:
                             // - Tower still has actions remaining
-                            // - Enemy at the selected position is still alive
-                            val defender = gameState.defenders.find { it.id == defenderId }
-                            val target = gameState.attackers.find { it.id == targetId }
-                            val shouldKeepSelection = defender != null && 
-                                                     target != null && 
-                                                     defender.actionsRemaining.value > 0 && 
-                                                     !target.isDefeated.value
-                            
-                            if (!shouldKeepSelection) {
+                            // - Enemy is still alive
+                            if (!shouldKeepTargetSelection(gameState, defenderId, targetId)) {
                                 selectedTargetId = null
                                 selectedTargetPosition = null
                             }
@@ -865,12 +858,13 @@ private fun GamePlayScreenContent(
                         if (onDefenderAttackPosition(defenderId, targetPos)) {
                             // Check if we should keep the selection active:
                             // - Tower still has actions remaining
-                            // - Enemy at the selected position is still alive
+                            // - There's still a living enemy at the target position
                             val defender = gameState.defenders.find { it.id == defenderId }
-                            val target = gameState.attackers.find { it.position.value == targetPos && !it.isDefeated.value }
+                            val target = gameState.attackers.find { it.position.value == targetPos }
                             val shouldKeepSelection = defender != null && 
                                                      target != null && 
-                                                     defender.actionsRemaining.value > 0
+                                                     defender.actionsRemaining.value > 0 && 
+                                                     !target.isDefeated.value
                             
                             if (!shouldKeepSelection) {
                                 selectedTargetId = null
@@ -1101,4 +1095,23 @@ private fun GamePlayScreenContent(
         }
         }
     }
+}
+
+/**
+ * Helper function to determine if target selection should be preserved after an attack.
+ * Selection is kept active if:
+ * - The tower still has action points remaining after the attack
+ * - The target enemy is still alive (not defeated)
+ * 
+ * This allows players to continue attacking the same target with multi-action towers.
+ */
+private fun shouldKeepTargetSelection(
+    gameState: GameState,
+    defenderId: Int,
+    targetId: Int
+): Boolean {
+    val defender = gameState.defenders.find { it.id == defenderId } ?: return false
+    val target = gameState.attackers.find { it.id == targetId } ?: return false
+    
+    return defender.actionsRemaining.value > 0 && !target.isDefeated.value
 }
