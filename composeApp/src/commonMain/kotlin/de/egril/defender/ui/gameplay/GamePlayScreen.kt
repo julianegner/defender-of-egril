@@ -859,14 +859,7 @@ private fun GamePlayScreenContent(
                             // Check if we should keep the selection active:
                             // - Tower still has actions remaining
                             // - There's still a living enemy at the target position
-                            val defender = gameState.defenders.find { it.id == defenderId }
-                            val target = gameState.attackers.find { it.position.value == targetPos }
-                            val shouldKeepSelection = defender != null && 
-                                                     target != null && 
-                                                     defender.actionsRemaining.value > 0 && 
-                                                     !target.isDefeated.value
-                            
-                            if (!shouldKeepSelection) {
+                            if (!shouldKeepTargetSelectionForPosition(gameState, defenderId, targetPos)) {
                                 selectedTargetId = null
                                 selectedTargetPosition = null
                             }
@@ -1112,6 +1105,21 @@ private fun shouldKeepTargetSelection(
 ): Boolean {
     val defender = gameState.defenders.find { it.id == defenderId } ?: return false
     val target = gameState.attackers.find { it.id == targetId } ?: return false
+    
+    return defender.actionsRemaining.value > 0 && !target.isDefeated.value
+}
+
+/**
+ * Helper function to determine if target selection should be preserved after a position-based attack.
+ * Same logic as shouldKeepTargetSelection but uses position instead of ID to find the target.
+ */
+private fun shouldKeepTargetSelectionForPosition(
+    gameState: GameState,
+    defenderId: Int,
+    targetPosition: Position
+): Boolean {
+    val defender = gameState.defenders.find { it.id == defenderId } ?: return false
+    val target = gameState.attackers.find { it.position.value == targetPosition } ?: return false
     
     return defender.actionsRemaining.value > 0 && !target.isDefeated.value
 }
