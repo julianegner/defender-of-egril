@@ -836,8 +836,21 @@ private fun GamePlayScreenContent(
                     },
                     onDefenderAttack = { defenderId, targetId ->
                         if (onDefenderAttack(defenderId, targetId)) {
-                            selectedTargetId = null
-                            selectedTargetPosition = null
+                            // Check if we should keep the selection active:
+                            // - Tower still has actions remaining
+                            // - Enemy at the selected position is still alive
+                            val defender = gameState.defenders.find { it.id == defenderId }
+                            val target = gameState.attackers.find { it.id == targetId }
+                            val shouldKeepSelection = defender != null && 
+                                                     target != null && 
+                                                     defender.actionsRemaining.value > 0 && 
+                                                     !target.isDefeated.value
+                            
+                            if (!shouldKeepSelection) {
+                                selectedTargetId = null
+                                selectedTargetPosition = null
+                            }
+                            
                             // Track tutorial progress
                             if (gameState.tutorialState.value.isActive && 
                                 !gameState.tutorialState.value.hasAttackedEnemy) {
@@ -850,8 +863,20 @@ private fun GamePlayScreenContent(
                     },
                     onDefenderAttackPosition = { defenderId, targetPos ->
                         if (onDefenderAttackPosition(defenderId, targetPos)) {
-                            selectedTargetId = null
-                            selectedTargetPosition = null
+                            // Check if we should keep the selection active:
+                            // - Tower still has actions remaining
+                            // - Enemy at the selected position is still alive
+                            val defender = gameState.defenders.find { it.id == defenderId }
+                            val target = gameState.attackers.find { it.position.value == targetPos && !it.isDefeated.value }
+                            val shouldKeepSelection = defender != null && 
+                                                     target != null && 
+                                                     defender.actionsRemaining.value > 0
+                            
+                            if (!shouldKeepSelection) {
+                                selectedTargetId = null
+                                selectedTargetPosition = null
+                            }
+                            
                             // Track tutorial progress
                             if (gameState.tutorialState.value.isActive && 
                                 !gameState.tutorialState.value.hasAttackedEnemy) {
