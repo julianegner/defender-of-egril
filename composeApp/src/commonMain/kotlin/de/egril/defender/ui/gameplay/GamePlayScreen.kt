@@ -730,6 +730,20 @@ private fun GamePlayScreenContent(
                                 gameState.infoState.value = dismissedInfo
                             }
                         )
+                    } else if (gameState.infoState.value.currentInfo == InfoType.TOWER_INFO) {
+                        // Special case for TOWER_INFO - show tower-specific info dialog
+                        val towerId = gameState.infoState.value.towerInfoId
+                        val defender = towerId?.let { id -> gameState.defenders.find { it.id == id } }
+                        if (defender != null) {
+                            TowerInfoDialog(
+                                defender = defender,
+                                onDismiss = {
+                                    val currentInfoState = gameState.infoState.value
+                                    val dismissedInfo = currentInfoState.dismissInfo()
+                                    gameState.infoState.value = dismissedInfo
+                                }
+                            )
+                        }
                     } else {
                         // Show info or tutorial in the tutorial overlay
                         TutorialOverlay(

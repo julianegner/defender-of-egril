@@ -217,6 +217,7 @@ private fun InfoContent(infoType: InfoType, onDismiss: () -> Unit) {
         InfoType.MINE_ON_RIVER_WARNING -> MineOnRiverWarningContent(onDismiss)
         InfoType.AUTO_ATTACK_INFO -> AutoAttackInfoContent(onDismiss)
         InfoType.SPECIAL_TOWERS_INFO -> { /* Handled specially in GamePlayScreen */ }
+        InfoType.TOWER_INFO -> { /* Handled specially in GamePlayScreen */ }
         InfoType.NONE -> { /* No content to show */ }
     }
 }

@@ -14,7 +14,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.zIndex
 import de.egril.defender.model.*
 import de.egril.defender.ui.*
 import de.egril.defender.ui.icon.HoleIcon
@@ -161,7 +160,7 @@ fun DefenderInfo(
                         Row {
                             DefenderActionsInfo(defender)
                             dwarvenMineInfoButtonArea(defender)
-                            TowerInfoButtonArea(defender)
+                            TowerInfoButtonArea(defender, gameState)
                         }
                     }
                 
@@ -854,10 +853,10 @@ private fun getTowerInfoMessages(defender: Defender): List<TowerInfoMessage> {
 
 /**
  * Tower info icon and dialog component (similar to mine info icon)
- * Shows dialog as centered overlay to avoid breaking UI layout
+ * Triggers InfoState to show dialog as proper overlay
  */
 @Composable
-private fun TowerInfoButtonArea(defender: Defender) {
+private fun TowerInfoButtonArea(defender: Defender, gameState: GameState) {
     val messages = getTowerInfoMessages(defender)
     
     // Only show info icon if there are info messages for this tower
@@ -865,70 +864,74 @@ private fun TowerInfoButtonArea(defender: Defender) {
         return
     }
     
-    var showTowerInfoDialog by remember { mutableStateOf(false) }
-    
-    // Tower info dialog with all relevant info messages using ScrollableInfoCard style
-    // Shown as overlay to avoid breaking UI layout
-    if (showTowerInfoDialog) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .zIndex(100f),
-            contentAlignment = Alignment.Center
-        ) {
-            ScrollableInfoCard(
-                title = {
-                    Text(
-                        text = stringResource(Res.string.tower_info_title),
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold
-                    )
-                },
-                width = 600.dp,
-                maxHeight = 500.dp,
-                onDismiss = { showTowerInfoDialog = false }
-            ) {
-                messages.forEachIndexed { index, info ->
-                    if (index > 0) {
-                        HorizontalDivider(
-                            modifier = Modifier.padding(vertical = 8.dp),
-                            color = MaterialTheme.colorScheme.outline
-                        )
-                    }
-                    
-                    // Subtitle with icon (doubled in size)
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier.padding(bottom = 8.dp)
-                    ) {
-                        Box(modifier = Modifier.size(64.dp)) {  // Doubled from 32.dp
-                            info.icon()
-                        }
-                        Text(
-                            text = info.title,
-                            style = MaterialTheme.typography.titleMedium,
-                            color = info.color,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                    
-                    // Message content
-                    Text(
-                        text = info.message,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                }
-            }
-        }
-    }
-    
-    // Info icon button
+    // Info icon button - triggers InfoState to show dialog as overlay
     InfoIcon(
         size = 16.dp,
         modifier = Modifier
-            .clickable { showTowerInfoDialog = true }
+            .clickable {
+                gameState.infoState.value = gameState.infoState.value.showInfo(
+                    type = InfoType.TOWER_INFO,
+                    towerId = defender.id
+                )
+            }
             .padding(4.dp)
     )
+}
+
+/**
+ * Tower info dialog displayed as overlay (accessed by GamePlayScreen)
+ * Shows all relevant info for the specified tower
+ */
+@Composable
+internal fun TowerInfoDialog(
+    defender: Defender,
+    onDismiss: () -> Unit
+) {
+    val messages = getTowerInfoMessages(defender)
+    
+    ScrollableInfoCard(
+        title = {
+            Text(
+                text = stringResource(Res.string.tower_info_title),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold
+            )
+        },
+        width = 600.dp,
+        maxHeight = 500.dp,
+        onDismiss = onDismiss
+    ) {
+        messages.forEachIndexed { index, info ->
+            if (index > 0) {
+                HorizontalDivider(
+                    modifier = Modifier.padding(vertical = 8.dp),
+                    color = MaterialTheme.colorScheme.outline
+                )
+            }
+            
+            // Subtitle with icon (doubled in size)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.padding(bottom = 8.dp)
+            ) {
+                Box(modifier = Modifier.size(64.dp)) {  // Doubled from 32.dp
+                    info.icon()
+                }
+                Text(
+                    text = info.title,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = info.color,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            
+            // Message content
+            Text(
+                text = info.message,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        }
+    }
 }
