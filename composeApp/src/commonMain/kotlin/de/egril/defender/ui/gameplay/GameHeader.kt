@@ -272,15 +272,15 @@ private fun LevelHeaderIcons(
     if (hasSpecialTowers) {
         de.egril.defender.ui.icon.TowerIcon(
             size = iconSize,
-            tint = Color(0xFF2196F3),  // Blue color like in-game towers
+            lineColor = MaterialTheme.colorScheme.onSurface,  // Use header text color
             modifier = Modifier.clickable { 
-                // Check if special towers info has been seen
                 val infoState = gameState.infoState.value
-                if (!infoState.hasSeen(InfoType.SPECIAL_TOWERS_INFO)) {
-                    // Show the info for first time
-                    gameState.infoState.value = infoState.showInfo(InfoType.SPECIAL_TOWERS_INFO)
+                // Toggle behavior: if already showing, close it; otherwise show it
+                if (infoState.currentInfo == InfoType.SPECIAL_TOWERS_INFO) {
+                    // Close the dialog
+                    gameState.infoState.value = infoState.dismissInfo()
                 } else {
-                    // Already seen, just show the dialog without marking as new info
+                    // Show the info dialog
                     gameState.infoState.value = infoState.showInfo(InfoType.SPECIAL_TOWERS_INFO)
                 }
             }
@@ -328,13 +328,14 @@ internal fun LevelSpecialTowersInfoDialog(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Tower-specific icon
-                when (towerType) {
-                    DefenderType.WIZARD_TOWER -> de.egril.defender.ui.icon.ExplosionIcon(size = 24.dp)
-                    DefenderType.ALCHEMY_TOWER -> de.egril.defender.ui.icon.TestTubeIcon(size = 24.dp)
-                    DefenderType.BALLISTA_TOWER -> de.egril.defender.ui.icon.TargetIcon(size = 24.dp)
-                    DefenderType.DWARVEN_MINE -> de.egril.defender.ui.icon.MoneyIcon(size = 24.dp)
-                    else -> {}
+                // Tower-specific icon using in-game tower representation
+                Box(
+                    modifier = Modifier.size(32.dp)
+                ) {
+                    de.egril.defender.ui.TowerTypeIcon(
+                        defenderType = towerType,
+                        modifier = Modifier.fillMaxSize()
+                    )
                 }
                 
                 Text(

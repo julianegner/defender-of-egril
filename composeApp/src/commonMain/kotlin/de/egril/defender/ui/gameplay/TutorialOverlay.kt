@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.egril.defender.model.TutorialStep
 import de.egril.defender.model.InfoType
+import de.egril.defender.model.DefenderType
 import de.egril.defender.ui.icon.WoodIcon
 import de.egril.defender.utils.isPlatformMobile
 import com.hyperether.resources.stringResource
@@ -616,7 +617,12 @@ private fun WizardFirstUseContent(onDismiss: () -> Unit) {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                de.egril.defender.ui.icon.ExplosionIcon(size = 32.dp)
+                Box(modifier = Modifier.size(32.dp)) {
+                    de.egril.defender.ui.TowerTypeIcon(
+                        defenderType = DefenderType.WIZARD_TOWER,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
                 Text(
                     text = stringResource(Res.string.wizard_first_use_title),
                     style = MaterialTheme.typography.titleLarge,
@@ -647,7 +653,12 @@ private fun AlchemyFirstUseContent(onDismiss: () -> Unit) {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                de.egril.defender.ui.icon.TestTubeIcon(size = 32.dp)
+                Box(modifier = Modifier.size(32.dp)) {
+                    de.egril.defender.ui.TowerTypeIcon(
+                        defenderType = DefenderType.ALCHEMY_TOWER,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
                 Text(
                     text = stringResource(Res.string.alchemy_first_use_title),
                     style = MaterialTheme.typography.titleLarge,
@@ -678,7 +689,12 @@ private fun BallistaFirstUseContent(onDismiss: () -> Unit) {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                de.egril.defender.ui.icon.TargetIcon(size = 32.dp)
+                Box(modifier = Modifier.size(32.dp)) {
+                    de.egril.defender.ui.TowerTypeIcon(
+                        defenderType = DefenderType.BALLISTA_TOWER,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
                 Text(
                     text = stringResource(Res.string.ballista_first_use_title),
                     style = MaterialTheme.typography.titleLarge,
@@ -709,7 +725,12 @@ private fun MineFirstUseContent(onDismiss: () -> Unit) {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                de.egril.defender.ui.icon.MoneyIcon(size = 32.dp)
+                Box(modifier = Modifier.size(32.dp)) {
+                    de.egril.defender.ui.TowerTypeIcon(
+                        defenderType = DefenderType.DWARVEN_MINE,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
                 Text(
                     text = stringResource(Res.string.mine_first_use_title),
                     style = MaterialTheme.typography.titleLarge,

@@ -242,7 +242,7 @@ fun TowerIcon(
 /**
  * Draw the base tower structure (trapezoid)
  */
-private fun DrawScope.drawTowerBase(centerX: Float, centerY: Float, size: Float, lineColor: Color = Color.White) {
+internal fun DrawScope.drawTowerBase(centerX: Float, centerY: Float, size: Float, lineColor: Color = Color.White) {
     // Use provided lineColor for tower bases to ensure visibility in both dark and light modes
     val baseColor = lineColor
     

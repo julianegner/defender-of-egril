@@ -13,10 +13,12 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import de.egril.defender.model.DigOutcome
+import de.egril.defender.ui.drawTowerBase
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.dig_outcome_brass
 import defender_of_egril.composeapp.generated.resources.dig_outcome_diamond
@@ -977,21 +979,23 @@ fun ChevronRightIcon(
 }
 
 /**
- * Displays a simple tower icon drawn as a hexagon (like in-game tiles)
+ * Displays a simple tower icon using drawTowerBase
  * Represents a generic tower for level header, without type-specific icon inside
  */
 @Composable
 fun TowerIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp,
-    tint: Color = Color.Gray
+    lineColor: Color = Color.Gray
 ) {
-    Box(
-        modifier = modifier
-            .size(size)
-            .clip(de.egril.defender.ui.hexagon.HexagonShape())
-            .background(tint)
-    )
+    Canvas(modifier = modifier.size(size)) {
+        val centerX = this.size.width / 2
+        val centerY = this.size.height / 2
+        val iconSize = minOf(this.size.width, this.size.height)
+        
+        // Draw tower base using the same function as in-game towers
+        drawTowerBase(centerX, centerY, iconSize * 0.8f, lineColor)
+    }
 }
 
 /**
