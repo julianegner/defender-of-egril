@@ -526,6 +526,9 @@ class GameEngine(private val state: GameState) {
         val currentPositions = mutableMapOf<Int, Position>()
         regularAttackers.forEach { currentPositions[it.id] = it.position.value }
         
+        // Track which attackers encountered a barricade and should stop moving
+        val attackersStoppedByBarricade = mutableSetOf<Int>()
+        
         // Find the maximum speed to know how many steps to simulate
         val maxSpeed = regularAttackers.maxOfOrNull { it.type.speed } ?: 0
         
@@ -536,6 +539,9 @@ class GameEngine(private val state: GameState) {
             
             for (attacker in regularAttackers) {
                 val currentPos = currentPositions[attacker.id] ?: continue
+                
+                // Skip if this attacker already encountered a barricade
+                if (attackersStoppedByBarricade.contains(attacker.id)) continue
                 
                 // Calculate effective speed by subtracting movement penalty from spike barbs
                 val effectiveSpeed = maxOf(1, attacker.type.speed - attacker.movementPenalty.value)
@@ -612,6 +618,17 @@ class GameEngine(private val state: GameState) {
                 if (path.size < 2) continue  // No movement possible even after bridge attempts
                 
                 val newPos = path[1]  // Next position in path
+                
+                // Check if there's a barricade at the new position (non-flying units only)
+                // If so, this unit will attack the barricade and stop moving for the rest of this turn
+                val isFlying = attacker.isFlying?.value == true
+                if (!isFlying) {
+                    val barricadeAtNewPos = barricadeSystem.getBarricadeAt(newPos)
+                    if (barricadeAtNewPos != null && !barricadeAtNewPos.isDestroyed()) {
+                        // Mark this attacker as stopped - it will attack the barricade in applyMovement
+                        attackersStoppedByBarricade.add(attacker.id)
+                    }
+                }
                 
                 // Check if this position is already occupied or will be occupied by another unit in this step
                 // Exception: Allow multiple units to move to the target position (they get defeated immediately)
@@ -910,6 +927,9 @@ class GameEngine(private val state: GameState) {
         val currentPositions = mutableMapOf<Int, Position>()
         newlySpawned.forEach { currentPositions[it.id] = it.position.value }
         
+        // Track which attackers encountered a barricade and should stop moving
+        val attackersStoppedByBarricade = mutableSetOf<Int>()
+        
         // Find the maximum speed to know how many steps to simulate
         val maxSpeed = newlySpawned.maxOfOrNull { it.type.speed } ?: 0
         
@@ -920,6 +940,9 @@ class GameEngine(private val state: GameState) {
             
             for (attacker in newlySpawned) {
                 val currentPos = currentPositions[attacker.id] ?: continue
+                
+                // Skip if this attacker already encountered a barricade
+                if (attackersStoppedByBarricade.contains(attacker.id)) continue
                 
                 // Calculate effective speed by subtracting movement penalty from spike barbs
                 val effectiveSpeed = maxOf(1, attacker.type.speed - attacker.movementPenalty.value)
@@ -988,6 +1011,17 @@ class GameEngine(private val state: GameState) {
                 if (path.size < 2) continue  // No movement possible even after bridge attempts
                 
                 val newPos = path[1]  // Next position in path
+                
+                // Check if there's a barricade at the new position (non-flying units only)
+                // If so, this unit will attack the barricade and stop moving for the rest of this turn
+                val isFlying = attacker.isFlying?.value == true
+                if (!isFlying) {
+                    val barricadeAtNewPos = barricadeSystem.getBarricadeAt(newPos)
+                    if (barricadeAtNewPos != null && !barricadeAtNewPos.isDestroyed()) {
+                        // Mark this attacker as stopped - it will attack the barricade in applyMovement
+                        attackersStoppedByBarricade.add(attacker.id)
+                    }
+                }
                 
                 // Check if this position is already occupied or will be occupied by another unit in this step
                 // Exception: Allow multiple units to move to the target position (they get defeated immediately)
