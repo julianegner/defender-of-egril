@@ -839,10 +839,13 @@ class GameEngine(private val state: GameState) {
         
         // Only move if position is not occupied
         if (!isOccupied) {
+            val oldPosition = attacker.position.value
             attacker.position.value = newPosition
             
-            // Check for traps at the new position
-            mineOperations.checkAndActivateTrapForAttacker(attacker)
+            // Check for traps at the new position (only if enemy actually moved)
+            if (oldPosition != newPosition) {
+                mineOperations.checkAndActivateTrapForAttacker(attacker)
+            }
             
             // Only continue if enemy was not defeated by trap
             if (!attacker.isDefeated.value) {
