@@ -495,13 +495,19 @@ class GameEngine(private val state: GameState) {
         // Move goblins immediately after initial spawning (this is not during enemy turn)
         enemyMovement.moveGoblinsAfterSpawn()
     }
-    
+
+
+    data class EnemyTurnMovements(
+        val allMovementSteps: List<List<Pair<Int, Position>>>,
+        val attackersStoppedByBarricade: Set<Pair<Attacker, Position>>
+    )
+
     /**
      * Calculate all movement steps for attackers during enemy turn without applying them.
      * Returns a list of movement steps, where each step contains all movements that should happen together.
      * Uses a simulated approach to handle collisions between units moving simultaneously.
      */
-    fun calculateEnemyTurnMovements(): List<List<Pair<Int, Position>>> {
+    fun calculateEnemyTurnMovements(): EnemyTurnMovements {
         val allMovementSteps = mutableListOf<List<Pair<Int, Position>>>()
         
         // Get all non-defeated attackers, separating dragons from regular units
@@ -509,7 +515,7 @@ class GameEngine(private val state: GameState) {
         val dragons = allAttackers.filter { it.type.isDragon }
         val regularAttackers = allAttackers.filter { !it.type.isDragon }.toMutableList()
         
-        if (allAttackers.isEmpty()) return allMovementSteps
+        if (allAttackers.isEmpty()) return EnemyTurnMovements(allMovementSteps, emptySet())
         
         // Handle dragon movement separately (they have special alternating walk/fly behavior)
         for (dragon in dragons) {
@@ -520,14 +526,14 @@ class GameEngine(private val state: GameState) {
         }
         
         // Handle regular attacker movement
-        if (regularAttackers.isEmpty()) return allMovementSteps
+        if (regularAttackers.isEmpty()) return EnemyTurnMovements(allMovementSteps, emptySet())
         
         // Track current positions for collision detection during simulation
         val currentPositions = mutableMapOf<Int, Position>()
         regularAttackers.forEach { currentPositions[it.id] = it.position.value }
         
         // Track which attackers encountered a barricade and should stop moving
-        val attackersStoppedByBarricade = mutableSetOf<Int>()
+        val attackersStoppedByBarricade = mutableSetOf<Pair<Attacker, Position>>()
         
         // Find the maximum speed to know how many steps to simulate
         val maxSpeed = regularAttackers.maxOfOrNull { it.type.speed } ?: 0
@@ -541,7 +547,10 @@ class GameEngine(private val state: GameState) {
                 val currentPos = currentPositions[attacker.id] ?: continue
                 
                 // Skip if this attacker already encountered a barricade
-                if (attackersStoppedByBarricade.contains(attacker.id)) continue
+                if (attackersStoppedByBarricade
+                        .map { it.first }
+                        .map { it.id }
+                        .contains(attacker.id)) continue
                 
                 // Calculate effective speed by subtracting movement penalty from spike barbs
                 val effectiveSpeed = maxOf(1, attacker.type.speed - attacker.movementPenalty.value)
@@ -618,6 +627,7 @@ class GameEngine(private val state: GameState) {
                 if (path.size < 2) continue  // No movement possible even after bridge attempts
                 
                 val newPos = path[1]  // Next position in path
+                println("CETM ----------------------- Unit ${attacker.id} (${attacker.type}) at $currentPos wants to move to $newPos towards target $target")
                 
                 // Check if there's a barricade at the new position (non-flying units only)
                 // If so, this unit will attack the barricade and stop moving for the rest of this turn
@@ -626,7 +636,11 @@ class GameEngine(private val state: GameState) {
                     val barricadeAtNewPos = barricadeSystem.getBarricadeAt(newPos)
                     if (barricadeAtNewPos != null && !barricadeAtNewPos.isDestroyed()) {
                         // Mark this attacker as stopped - it will attack the barricade in applyMovement
-                        attackersStoppedByBarricade.add(attacker.id)
+                        attackersStoppedByBarricade.add(Pair(attacker, newPos))
+
+                        println("CETM ----------------------- Unit ${attacker.id} (${attacker.type}) at $currentPos cannot move to $newPos due to barricade, will attack barricade instead")
+
+                        continue
                     }
                 }
                 
@@ -637,8 +651,12 @@ class GameEngine(private val state: GameState) {
                 } else {
                     currentPositions.any { (id, pos) ->
                         id != attacker.id && pos == newPos
-                    } || positionsToOccupy.contains(newPos)
+                    }
+                            || positionsToOccupy.contains(newPos)
+                            || barricadeSystem.getBarricadeAt(newPos) != null
                 }
+
+                println("CETM ----------------------- Unit ${attacker.id} (${attacker.type}) at $currentPos trying to move to $newPos. Occupied: $isOccupied")
                 
                 if (!isOccupied) {
                     movementsInThisStep.add(Pair(attacker.id, newPos))
@@ -651,22 +669,36 @@ class GameEngine(private val state: GameState) {
                     // If optimal path is blocked, try to find an alternative position
                     val alternativePos = findAlternativePosition(currentPos, target, attacker.id, currentPositions, positionsToOccupy)
                     if (alternativePos != null) {
-                        movementsInThisStep.add(Pair(attacker.id, alternativePos))
-                        if (!state.level.isTargetPosition(alternativePos)) {
-                            positionsToOccupy.add(alternativePos)
+                        if (barricadeSystem.getBarricadeAt(alternativePos) == null) {
+                            movementsInThisStep.add(Pair(attacker.id, alternativePos))
+                            if (!state.level.isTargetPosition(alternativePos)) {
+                                positionsToOccupy.add(alternativePos)
+                            }
+                            currentPositions[attacker.id] = alternativePos
+                        } else {
+                            // Alternative position has a barricade, mark attacker as stopped to handle barricade attack in applyMovement
+                            attackersStoppedByBarricade.add(Pair(attacker, alternativePos))
+                            println("CETM ----------------------- Unit ${attacker.id} (${attacker.type}) at $currentPos also cannot move to alternative position $alternativePos due to barricade, will attack barricade instead")
                         }
-                        currentPositions[attacker.id] = alternativePos
                     }
                     // If no alternative found, unit stays in place for this step
+
+                    if (barricadeSystem.getBarricadeAt(newPos) != null) {
+                        // If the original newPos has a barricade, mark attacker as stopped to handle barricade attack in applyMovement
+                        attackersStoppedByBarricade.add(Pair(attacker, newPos))
+                        println("CETM ----------------------- Unit ${attacker.id} (${attacker.type}) at $currentPos cannot move to $newPos due to barricade, will attack barricade instead")
+                    }
                 }
             }
+            println("CETM ----------------------- End of step $stepIndex, movements planned: ${movementsInThisStep.size}, positions to occupy next: $positionsToOccupy")
+            println("CETM -- barricade-stopped attackers so far: $attackersStoppedByBarricade")
             
             if (movementsInThisStep.isNotEmpty()) {
                 allMovementSteps.add(movementsInThisStep)
             }
         }
         
-        return allMovementSteps
+        return EnemyTurnMovements(allMovementSteps, attackersStoppedByBarricade)
     }
     
     /**
@@ -685,52 +717,10 @@ class GameEngine(private val state: GameState) {
      */
     fun applyMovement(attackerId: Int, newPosition: Position) {
         val attacker = state.attackers.find { it.id == attackerId } ?: return
-        if (attacker.isDefeated.value) return
-        
-        // Check if there's a barricade AT the new position
-        // Flying dragons can fly over barricades (like they fly over non-playable tiles)
-        val barricadeAtPosition = barricadeSystem.getBarricadeAt(newPosition)
-        val isFlying = attacker.isFlying.value
-        
-        if (barricadeAtPosition != null && !barricadeAtPosition.isDestroyed() && !isFlying) {
-            // Non-flying enemy encounters barricade - attack it instead of moving
-            val damage = if (attacker.type.isDragon) {
-                attacker.level.value * 5
-            } else {
-                attacker.level.value
-            }
-            
-            val wasDestroyed = barricadeSystem.handleEnemyAttackBarricade(attacker, barricadeAtPosition, damage)
-            if (wasDestroyed) {
-                // Barricade was destroyed, enemy moves to barricade position
-                attacker.position.value = newPosition
-                
-                // Check for traps at the new position
-                mineOperations.checkAndActivateTrapForAttacker(attacker)
-                
-                // Only continue if enemy was not defeated by trap
-                if (!attacker.isDefeated.value) {
-                    // Check waypoint and target after moving to barricade position
-                    if (state.level.isWaypoint(newPosition) && attacker.currentTarget?.value == newPosition) {
-                        val waypoint = state.level.getWaypointAt(newPosition)
-                        if (waypoint != null) {
-                            attacker.currentTarget.value = waypoint.nextTarget
-                        }
-                    }
-                    
-                    // Check if reached target
-                    if (state.level.isTargetPosition(newPosition)) {
-                        applyTargetDamage(attacker)
-                    }
-                }
-            }
-            // If barricade not destroyed, enemy doesn't move (stays at current position)
-            return
+        if (attacker.isDefeated.value)  {
+            if (attackBarricade(newPosition, attacker)) return
         }
-        
-        // Flying dragons can move over barricades without attacking them
-        // (They pass over barricades just like they pass over non-playable tiles)
-        
+
         // Special handling for dragons - they can eat other units
         if (attacker.type.isDragon) {
             // Check if landing on another unit
@@ -876,7 +866,57 @@ class GameEngine(private val state: GameState) {
             }
         }
     }
-    
+
+    fun attackBarricade(
+        newPosition: Position,
+        attacker: Attacker
+    ): Boolean {
+        // Check if there's a barricade AT the new position
+        // Flying dragons can fly over barricades (like they fly over non-playable tiles)
+
+        // Flying dragons can move over barricades without attacking them
+        // (They pass over barricades just like they pass over non-playable tiles)
+        val barricadeAtPosition = barricadeSystem.getBarricadeAt(newPosition)
+        val isFlying = attacker.isFlying.value
+
+        if (barricadeAtPosition != null && !barricadeAtPosition.isDestroyed() && !isFlying) {
+            // Non-flying enemy encounters barricade - attack it instead of moving
+            val damage = if (attacker.type.isDragon) {
+                attacker.level.value * 5
+            } else {
+                attacker.level.value
+            }
+
+            val wasDestroyed = barricadeSystem.handleEnemyAttackBarricade(attacker, barricadeAtPosition, damage)
+            if (wasDestroyed) {
+                // Barricade was destroyed, enemy moves to barricade position
+                attacker.position.value = newPosition
+
+                // Check for traps at the new position
+                mineOperations.checkAndActivateTrapForAttacker(attacker)
+
+                // Only continue if enemy was not defeated by trap
+                if (!attacker.isDefeated.value) {
+                    // Check waypoint and target after moving to barricade position
+                    if (state.level.isWaypoint(newPosition) && attacker.currentTarget?.value == newPosition) {
+                        val waypoint = state.level.getWaypointAt(newPosition)
+                        if (waypoint != null) {
+                            attacker.currentTarget.value = waypoint.nextTarget
+                        }
+                    }
+
+                    // Check if reached target
+                    if (state.level.isTargetPosition(newPosition)) {
+                        applyTargetDamage(attacker)
+                    }
+                }
+            }
+            // If barricade not destroyed, enemy doesn't move (stays at current position)
+            return true
+        }
+        return false
+    }
+
     /**
      * Prepare for enemy turn: set phase but don't spawn yet.
      * Spawning happens after movements to ensure spawn points are clear.
