@@ -717,7 +717,8 @@ private data class TowerInfoMessage(
     val title: String,
     val message: String,
     val icon: @Composable () -> Unit,
-    val color: Color
+    val color: Color,
+    val extraContent: (@Composable () -> Unit)? = null  // Optional additional content after message
 )
 
 /**
@@ -735,8 +736,8 @@ private fun getTowerInfoMessages(defender: Defender): List<TowerInfoMessage> {
                     title = stringResource(Res.string.wizard_first_use_title),
                     message = stringResource(Res.string.wizard_first_use_message),
                     icon = { 
-                        de.egril.defender.ui.TowerTypeIcon(
-                            defenderType = DefenderType.WIZARD_TOWER,
+                        de.egril.defender.ui.TowerIcon(
+                            defender = defender,
                             modifier = Modifier.fillMaxSize()
                         )
                     },
@@ -750,8 +751,8 @@ private fun getTowerInfoMessages(defender: Defender): List<TowerInfoMessage> {
                     title = stringResource(Res.string.alchemy_first_use_title),
                     message = stringResource(Res.string.alchemy_first_use_message),
                     icon = { 
-                        de.egril.defender.ui.TowerTypeIcon(
-                            defenderType = DefenderType.ALCHEMY_TOWER,
+                        de.egril.defender.ui.TowerIcon(
+                            defender = defender,
                             modifier = Modifier.fillMaxSize()
                         )
                     },
@@ -765,8 +766,8 @@ private fun getTowerInfoMessages(defender: Defender): List<TowerInfoMessage> {
                     title = stringResource(Res.string.ballista_first_use_title),
                     message = stringResource(Res.string.ballista_first_use_message),
                     icon = { 
-                        de.egril.defender.ui.TowerTypeIcon(
-                            defenderType = DefenderType.BALLISTA_TOWER,
+                        de.egril.defender.ui.TowerIcon(
+                            defender = defender,
                             modifier = Modifier.fillMaxSize()
                         )
                     },
@@ -780,12 +781,24 @@ private fun getTowerInfoMessages(defender: Defender): List<TowerInfoMessage> {
                     title = stringResource(Res.string.mine_first_use_title),
                     message = stringResource(Res.string.mine_first_use_message),
                     icon = { 
-                        de.egril.defender.ui.TowerTypeIcon(
-                            defenderType = DefenderType.DWARVEN_MINE,
+                        de.egril.defender.ui.TowerIcon(
+                            defender = defender,
                             modifier = Modifier.fillMaxSize()
                         )
                     },
-                    color = Color(0xFFFFD700)  // Gold
+                    color = Color(0xFFFFD700),  // Gold
+                    extraContent = {
+                        // Add mining probabilities section
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = stringResource(Res.string.mining_probabilities),
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFFFFD700)
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        MiningOutcomeGrid()
+                    }
                 )
             )
         }
@@ -932,6 +945,9 @@ internal fun TowerInfoDialog(
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface
             )
+            
+            // Extra content (if any)
+            info.extraContent?.invoke()
         }
     }
 }

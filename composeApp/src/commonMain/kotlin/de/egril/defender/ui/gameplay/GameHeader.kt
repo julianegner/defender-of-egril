@@ -202,69 +202,22 @@ private fun LevelHeaderIcons(
     }
     val hasSpecialTowers = specialTowers.isNotEmpty()
     
-    var showRiverInfo by remember { mutableStateOf(false) }
-    
-    // River info dialog - shown as overlay
-    if (showRiverInfo) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .zIndex(100f),
-            contentAlignment = Alignment.Center
-        ) {
-            ScrollableInfoCard(
-                width = 500.dp,
-                maxHeight = 500.dp,
-                onDismiss = { showRiverInfo = false },
-                buttonColor = Color(0xFF2196F3)
-            ) {
-                // Title on the right side
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    Text(
-                        text = stringResource(Res.string.river_info_title),
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF2196F3)  // Blue
-                    )
-                }
-                Spacer(modifier = Modifier.height(8.dp))
-                
-                Text(
-                    text = stringResource(Res.string.river_info_placement),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = stringResource(Res.string.river_info_movement),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = stringResource(Res.string.river_info_destruction),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = stringResource(Res.string.river_info_bridges),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            }
-        }
-    }
-    
-    // Water icon (if level has river)
+    // Water icon (if level has river) - blue color
     if (hasRiver) {
         de.egril.defender.ui.icon.WaterIcon(
             size = iconSize,
-            tint = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.clickable { showRiverInfo = true }
+            tint = Color(0xFF2196F3),  // Blue color
+            modifier = Modifier.clickable {
+                val infoState = gameState.infoState.value
+                // Toggle behavior: if already showing, close it; otherwise show it
+                if (infoState.currentInfo == InfoType.RIVER_INFO) {
+                    // Close the dialog
+                    gameState.infoState.value = infoState.dismissInfo()
+                } else {
+                    // Show the info dialog
+                    gameState.infoState.value = infoState.showInfo(InfoType.RIVER_INFO)
+                }
+            }
         )
     }
     
