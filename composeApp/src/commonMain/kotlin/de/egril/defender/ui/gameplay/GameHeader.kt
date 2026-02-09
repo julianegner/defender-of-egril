@@ -69,24 +69,13 @@ fun GameHeader(
                 de.egril.defender.ui.settings.HeaderTextSize.LARGE -> GamePlayConstants.TextSizes.Large
             }
             
-            Row(
+            Text(
+                text = gameState.level.getLocalizedTitle(locale),
+                fontSize = titleFontSize,
+                fontWeight = FontWeight.Bold,
                 modifier = Modifier.weight(1f),
-                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // Level header icons (water and/or tower) before title
-                LevelHeaderIcons(
-                    gameState = gameState,
-                    iconSize = titleFontSize.value.dp * 0.8f  // Make icons slightly smaller than text
-                )
-                
-                Text(
-                    text = gameState.level.getLocalizedTitle(locale),
-                    fontSize = titleFontSize,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center
-                )
-            }
+                textAlign = TextAlign.Center
+            )
 
             // Buttons and difficulty at far right
             val buttonHeight = when (headerTextSize) {
@@ -108,6 +97,12 @@ fun GameHeader(
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                // Level header icons (water and/or tower) before difficulty
+                LevelHeaderIcons(
+                    gameState = gameState,
+                    iconSize = buttonHeight  // Use button height for larger icons (double size)
+                )
+                
                 // Difficulty display (non-clickable on gameplay screen)
                 DifficultyDisplay(
                     isClickable = false
@@ -213,19 +208,25 @@ private fun LevelHeaderIcons(
     // River info dialog
     if (showRiverInfo) {
         ScrollableInfoCard(
-            title = {
+            width = 500.dp,
+            maxHeight = 500.dp,
+            onDismiss = { showRiverInfo = false },
+            buttonColor = Color(0xFF2196F3)
+        ) {
+            // Title on the right side
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
+            ) {
                 Text(
                     text = stringResource(Res.string.river_info_title),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF2196F3)  // Blue
                 )
-            },
-            width = 500.dp,
-            maxHeight = 500.dp,
-            onDismiss = { showRiverInfo = false },
-            buttonColor = Color(0xFF2196F3)
-        ) {
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            
             Text(
                 text = stringResource(Res.string.river_info_placement),
                 style = MaterialTheme.typography.bodyMedium,
@@ -290,17 +291,23 @@ private fun LevelSpecialTowersInfoDialog(
     var expandedTower by remember { mutableStateOf<DefenderType?>(specialTowers.firstOrNull()) }
     
     ScrollableInfoCard(
-        title = {
+        width = 600.dp,
+        maxHeight = 600.dp,
+        onDismiss = onDismiss
+    ) {
+        // Title on the right side
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.End
+        ) {
             Text(
                 text = stringResource(Res.string.special_towers_info_title),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold
             )
-        },
-        width = 600.dp,
-        maxHeight = 600.dp,
-        onDismiss = onDismiss
-    ) {
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        
         specialTowers.forEach { towerType ->
             val isExpanded = expandedTower == towerType
             
