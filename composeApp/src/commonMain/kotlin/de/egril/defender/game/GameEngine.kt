@@ -688,17 +688,23 @@ class GameEngine(private val state: GameState) {
                 // Barricade was destroyed, enemy moves to barricade position
                 attacker.position.value = newPosition
                 
-                // Check waypoint and target after moving to barricade position
-                if (state.level.isWaypoint(newPosition) && attacker.currentTarget?.value == newPosition) {
-                    val waypoint = state.level.getWaypointAt(newPosition)
-                    if (waypoint != null) {
-                        attacker.currentTarget.value = waypoint.nextTarget
-                    }
-                }
+                // Check for traps at the new position
+                mineOperations.checkAndActivateTrapForAttacker(attacker)
                 
-                // Check if reached target
-                if (state.level.isTargetPosition(newPosition)) {
-                    applyTargetDamage(attacker)
+                // Only continue if enemy was not defeated by trap
+                if (!attacker.isDefeated.value) {
+                    // Check waypoint and target after moving to barricade position
+                    if (state.level.isWaypoint(newPosition) && attacker.currentTarget?.value == newPosition) {
+                        val waypoint = state.level.getWaypointAt(newPosition)
+                        if (waypoint != null) {
+                            attacker.currentTarget.value = waypoint.nextTarget
+                        }
+                    }
+                    
+                    // Check if reached target
+                    if (state.level.isTargetPosition(newPosition)) {
+                        applyTargetDamage(attacker)
+                    }
                 }
             }
             // If barricade not destroyed, enemy doesn't move (stays at current position)
@@ -723,13 +729,19 @@ class GameEngine(private val state: GameState) {
                 unitAtPosition.isDefeated.value = true
                 attacker.position.value = newPosition
                 
-                // Check if reached a waypoint and update target
-                // Only update if the waypoint position is the current target
-                if (state.level.isWaypoint(newPosition) && attacker.currentTarget?.value == newPosition) {
-                    val waypoint = state.level.getWaypointAt(newPosition)
-                    if (waypoint != null) {
-                        attacker.currentTarget.value = waypoint.nextTarget
-                        println("Dragon ${attacker.id} reached waypoint at $newPosition, next target: ${waypoint.nextTarget}")
+                // Check for traps at the new position
+                mineOperations.checkAndActivateTrapForAttacker(attacker)
+                
+                // Only continue if dragon was not defeated by trap
+                if (!attacker.isDefeated.value) {
+                    // Check if reached a waypoint and update target
+                    // Only update if the waypoint position is the current target
+                    if (state.level.isWaypoint(newPosition) && attacker.currentTarget?.value == newPosition) {
+                        val waypoint = state.level.getWaypointAt(newPosition)
+                        if (waypoint != null) {
+                            attacker.currentTarget.value = waypoint.nextTarget
+                            println("Dragon ${attacker.id} reached waypoint at $newPosition, next target: ${waypoint.nextTarget}")
+                        }
                     }
                 }
             } else if (unitAtPosition != null && unitAtPosition.type == AttackerType.EWHAD) {
@@ -745,13 +757,19 @@ class GameEngine(private val state: GameState) {
                     println("Dragon ${attacker.id} can't land on Ewhad, moving to alternate position $alternatePos")
                     attacker.position.value = alternatePos
                     
-                    // Check if reached a waypoint and update target
-                    // Only update if the waypoint position is the current target
-                    if (state.level.isWaypoint(alternatePos) && attacker.currentTarget?.value == alternatePos) {
-                        val waypoint = state.level.getWaypointAt(alternatePos)
-                        if (waypoint != null) {
-                            attacker.currentTarget.value = waypoint.nextTarget
-                            println("Dragon ${attacker.id} reached waypoint at $alternatePos, next target: ${waypoint.nextTarget}")
+                    // Check for traps at the alternate position
+                    mineOperations.checkAndActivateTrapForAttacker(attacker)
+                    
+                    // Only continue if dragon was not defeated by trap
+                    if (!attacker.isDefeated.value) {
+                        // Check if reached a waypoint and update target
+                        // Only update if the waypoint position is the current target
+                        if (state.level.isWaypoint(alternatePos) && attacker.currentTarget?.value == alternatePos) {
+                            val waypoint = state.level.getWaypointAt(alternatePos)
+                            if (waypoint != null) {
+                                attacker.currentTarget.value = waypoint.nextTarget
+                                println("Dragon ${attacker.id} reached waypoint at $alternatePos, next target: ${waypoint.nextTarget}")
+                            }
                         }
                     }
                 } else {
@@ -761,6 +779,9 @@ class GameEngine(private val state: GameState) {
             } else {
                 // No unit at target position, move normally
                 attacker.position.value = newPosition
+                
+                // Check for traps at the new position
+                mineOperations.checkAndActivateTrapForAttacker(attacker)
             }
             
             // Check if reached a waypoint and update target
@@ -772,6 +793,14 @@ class GameEngine(private val state: GameState) {
                     attacker.currentTarget.value = waypoint.nextTarget
                     println("Dragon ${attacker.id} reached waypoint at ${attacker.position.value}, next target: ${waypoint.nextTarget}")
                 }
+            }
+            
+            // Check for traps at dragon's position (after movement)
+            mineOperations.checkAndActivateTrapForAttacker(attacker)
+            
+            // Only continue if dragon was not defeated by trap
+            if (attacker.isDefeated.value) {
+                return
             }
             
             // Check if reached any target
@@ -812,20 +841,26 @@ class GameEngine(private val state: GameState) {
         if (!isOccupied) {
             attacker.position.value = newPosition
             
-            // Check if reached a waypoint and update target
-            // Only update if the waypoint position is the current target
-            if (state.level.isWaypoint(newPosition) && attacker.currentTarget?.value == newPosition) {
-                val waypoint = state.level.getWaypointAt(newPosition)
-                if (waypoint != null) {
-                    // Update target to the next waypoint or final target
-                    attacker.currentTarget.value = waypoint.nextTarget
-                    println("Attacker ${attacker.id} reached waypoint at $newPosition, next target: ${waypoint.nextTarget}")
-                }
-            }
+            // Check for traps at the new position
+            mineOperations.checkAndActivateTrapForAttacker(attacker)
             
-            // Check if reached any target
-            if (state.level.isTargetPosition(newPosition)) {
-                applyTargetDamage(attacker)
+            // Only continue if enemy was not defeated by trap
+            if (!attacker.isDefeated.value) {
+                // Check if reached a waypoint and update target
+                // Only update if the waypoint position is the current target
+                if (state.level.isWaypoint(newPosition) && attacker.currentTarget?.value == newPosition) {
+                    val waypoint = state.level.getWaypointAt(newPosition)
+                    if (waypoint != null) {
+                        // Update target to the next waypoint or final target
+                        attacker.currentTarget.value = waypoint.nextTarget
+                        println("Attacker ${attacker.id} reached waypoint at $newPosition, next target: ${waypoint.nextTarget}")
+                    }
+                }
+                
+                // Check if reached any target
+                if (state.level.isTargetPosition(newPosition)) {
+                    applyTargetDamage(attacker)
+                }
             }
         }
     }
