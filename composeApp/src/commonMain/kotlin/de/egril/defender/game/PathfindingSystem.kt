@@ -246,8 +246,8 @@ class PathfindingSystem(private val state: GameState) {
             
             if (neighborsWithBarricades.isNotEmpty()) {
                 // Calculate which barricade is fastest to break through and reach the goal
-                // When adjacent barricades have same distance to target, prefer weaker one
-                // Special rule: Tower bases get priority if (towerBaseHP - 100) < otherBarricadeHP
+                // Formula: turns_to_destroy + distance_to_target
+                // This considers both barricade strength and position optimally
                 return neighborsWithBarricades.minWithOrNull(
                     compareBy<Position> { pos ->
                         val barricade = state.barricades.find { it.position == pos && !it.isDestroyed() }
@@ -267,27 +267,9 @@ class PathfindingSystem(private val state: GameState) {
                         val distanceAfter = pos.distanceTo(to)
                         
                         // Total cost: turns to destroy + distance to goal
+                        // Example: 25 HP barricade at distance 42 with 1 damage = 25 + 42 = 67
+                        // Example: 98 HP barricade at distance 40 with 100 damage = 1 + 40 = 41 (better)
                         turnsToDestroy + distanceAfter
-                    }.thenBy { pos ->
-                        // When costs are equal (e.g., adjacent barricades), use secondary criteria
-                        val barricade = state.barricades.find { it.position == pos && !it.isDestroyed() }
-                        if (barricade == null) {
-                            return@thenBy Int.MAX_VALUE
-                        }
-                        
-                        // Check if this is a tower base
-                        val isTowerBase = barricade.hasTower()
-                        
-                        // If it's a tower base, apply special priority rule
-                        // Priority if (towerBaseHP - 100) < otherBarricadeHP
-                        if (isTowerBase) {
-                            val adjustedHP = barricade.healthPoints.value - 100
-                            // Return adjusted HP for comparison (lower is better)
-                            adjustedHP
-                        } else {
-                            // For non-tower bases, just return HP (lower is better)
-                            barricade.healthPoints.value
-                        }
                     }
                 ) ?: from
             }
