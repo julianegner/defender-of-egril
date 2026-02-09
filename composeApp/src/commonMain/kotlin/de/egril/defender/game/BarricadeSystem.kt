@@ -208,4 +208,16 @@ class BarricadeSystem(private val state: GameState) {
         
         return wasDestroyed
     }
+    
+    /**
+     * Find the weakest barricade near the given position, within the specified range.
+     * "Weak" is defined as having the lowest health points.
+     * "Near" is defined as being within the specified distance (hexagonal distance).
+     * Returns null if no barricades are found within range.
+     */
+    fun findWeakestBarricadeNear(position: Position, maxDistance: Int = 3): Barricade? {
+        return state.barricades
+            .filter { !it.isDestroyed() && position.distanceTo(it.position) <= maxDistance }
+            .minByOrNull { it.healthPoints.value }
+    }
 }

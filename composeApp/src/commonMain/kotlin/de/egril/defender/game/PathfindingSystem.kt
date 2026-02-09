@@ -216,24 +216,47 @@ class PathfindingSystem(private val state: GameState) {
         // Use hexagonal neighbors to find the best next position
         val hexNeighbors = from.getHexNeighbors()
         
-        // Filter to valid neighbors (on path or target, within bounds, not blocked)
-        val validNeighbors = hexNeighbors.filter { neighbor ->
+        // Filter to valid neighbors (on path or target, within bounds)
+        val pathNeighbors = hexNeighbors.filter { neighbor ->
             neighbor.x >= 0 && neighbor.x < state.level.gridWidth &&
             neighbor.y >= 0 && neighbor.y < state.level.gridHeight &&
             (state.level.isOnPath(neighbor) || 
              state.level.isTargetPosition(neighbor) || 
              isGoalMineForDragon(neighbor, to, attacker) ||
              isDestroyedMinePosition(neighbor) ||
-             state.isBridgeAt(neighbor)) &&  // Bridges are walkable for enemies
-            !isBlocked(neighbor, attacker)
+             state.isBridgeAt(neighbor))  // Bridges are walkable for enemies
         }
         
-        if (validNeighbors.isEmpty()) {
-            // No valid moves, stay in place
-            return from
+        // Filter to non-blocked neighbors
+        val validNeighbors = pathNeighbors.filter { !isBlocked(it, attacker) }
+        
+        if (validNeighbors.isNotEmpty()) {
+            // Return the neighbor closest to the goal
+            return validNeighbors.minByOrNull { it.distanceTo(to) } ?: from
         }
         
-        // Return the neighbor closest to the goal
-        return validNeighbors.minByOrNull { it.distanceTo(to) } ?: from
+        // No valid neighbors without barricades, check if there are neighbors with barricades
+        // Flying dragons can move over barricades, so this only applies to non-flying units
+        val isFlying = attacker?.isFlying?.value == true
+        if (!isFlying) {
+            val neighborsWithBarricades = pathNeighbors.filter { neighbor ->
+                // Check if neighbor has a barricade
+                state.barricades.any { it.position == neighbor && !it.isDestroyed() }
+            }
+            
+            if (neighborsWithBarricades.isNotEmpty()) {
+                // Find the neighbor with the weakest barricade
+                // Prioritize: 1) Weakest HP, 2) Closest to goal
+                return neighborsWithBarricades.minWithOrNull(
+                    compareBy<Position> { pos ->
+                        // Find barricade at this position and get its HP
+                        state.barricades.find { it.position == pos && !it.isDestroyed() }?.healthPoints?.value ?: Int.MAX_VALUE
+                    }.thenBy { it.distanceTo(to) }
+                ) ?: from
+            }
+        }
+        
+        // No valid moves at all, stay in place
+        return from
     }
 }
