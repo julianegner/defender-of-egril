@@ -624,7 +624,21 @@ class GameEngine(private val state: GameState) {
                     }
                 }
                 
-                if (path.size < 2) continue  // No movement possible even after bridge attempts
+                if (path.size < 2) {
+                    // No path found - check if we should attack a barricade
+                    val nextPos = pathfinding.moveTowards(currentPos, target, attacker)
+                    if (nextPos != currentPos) {
+                        // moveTowards found a barricade to attack
+                        val barricadeAtPos = barricadeSystem.getBarricadeAt(nextPos)
+                        if (barricadeAtPos != null && !barricadeAtPos.isDestroyed()) {
+                            attackersStoppedByBarricade.add(Pair(attacker, nextPos))
+                            println("CETM ----------------------- Unit ${attacker.id} (${attacker.type}) at $currentPos will attack barricade at $nextPos (HP: ${barricadeAtPos.healthPoints.value})")
+                            continue
+                        }
+                    }
+                    // No movement possible
+                    continue
+                }
                 
                 val newPos = path[1]  // Next position in path
                 println("CETM ----------------------- Unit ${attacker.id} (${attacker.type}) at $currentPos wants to move to $newPos towards target $target")
@@ -1048,7 +1062,21 @@ class GameEngine(private val state: GameState) {
                     }
                 }
                 
-                if (path.size < 2) continue  // No movement possible even after bridge attempts
+                if (path.size < 2) {
+                    // No path found - check if we should attack a barricade
+                    val nextPos = pathfinding.moveTowards(currentPos, target, attacker)
+                    if (nextPos != currentPos) {
+                        // moveTowards found a barricade to attack
+                        val barricadeAtPos = barricadeSystem.getBarricadeAt(nextPos)
+                        if (barricadeAtPos != null && !barricadeAtPos.isDestroyed()) {
+                            attackersStoppedByBarricade.add(attacker.id)
+                            println("CETM ----------------------- Newly spawned unit ${attacker.id} (${attacker.type}) at $currentPos will attack barricade at $nextPos (HP: ${barricadeAtPos.healthPoints.value})")
+                            continue
+                        }
+                    }
+                    // No movement possible
+                    continue
+                }
                 
                 val newPos = path[1]  // Next position in path
                 
