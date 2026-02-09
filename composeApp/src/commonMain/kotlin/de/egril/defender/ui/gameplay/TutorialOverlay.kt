@@ -1,7 +1,9 @@
 package de.egril.defender.ui.gameplay
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
@@ -16,24 +18,10 @@ import androidx.compose.ui.unit.sp
 import de.egril.defender.model.TutorialStep
 import de.egril.defender.model.InfoType
 import de.egril.defender.model.DefenderType
-import de.egril.defender.model.Defender
-import de.egril.defender.model.Position
 import de.egril.defender.ui.icon.WoodIcon
 import de.egril.defender.utils.isPlatformMobile
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
-
-/**
- * Creates a minimal defender for display purposes in info messages
- */
-private fun createDisplayDefender(type: DefenderType): Defender {
-    return Defender(
-        id = -1,
-        type = type,
-        position = mutableStateOf(Position(0, 0)),
-        level = mutableStateOf(1)
-    )
-}
 
 /**
  * Tutorial card that shows step-by-step instructions in the upper right corner
@@ -632,10 +620,15 @@ private fun WizardFirstUseContent(onDismiss: () -> Unit) {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Box(modifier = Modifier.size(64.dp)) {  // Doubled from 32.dp
-                    de.egril.defender.ui.TowerIcon(
-                        defender = createDisplayDefender(DefenderType.WIZARD_TOWER),
-                        modifier = Modifier.fillMaxSize()
+                Box(
+                    modifier = Modifier
+                        .size(64.dp)  // Doubled from 32.dp
+                        .background(Color.Gray, CircleShape),  // Gray background for visibility
+                    contentAlignment = Alignment.Center
+                ) {
+                    de.egril.defender.ui.TowerTypeIcon(
+                        defenderType = DefenderType.WIZARD_TOWER,
+                        modifier = Modifier.size(56.dp)  // Slightly smaller than container
                     )
                 }
                 Text(
@@ -668,10 +661,15 @@ private fun AlchemyFirstUseContent(onDismiss: () -> Unit) {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Box(modifier = Modifier.size(64.dp)) {  // Doubled from 32.dp
-                    de.egril.defender.ui.TowerIcon(
-                        defender = createDisplayDefender(DefenderType.ALCHEMY_TOWER),
-                        modifier = Modifier.fillMaxSize()
+                Box(
+                    modifier = Modifier
+                        .size(64.dp)  // Doubled from 32.dp
+                        .background(Color.Gray, CircleShape),  // Gray background for visibility
+                    contentAlignment = Alignment.Center
+                ) {
+                    de.egril.defender.ui.TowerTypeIcon(
+                        defenderType = DefenderType.ALCHEMY_TOWER,
+                        modifier = Modifier.size(56.dp)  // Slightly smaller than container
                     )
                 }
                 Text(
@@ -704,10 +702,15 @@ private fun BallistaFirstUseContent(onDismiss: () -> Unit) {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Box(modifier = Modifier.size(64.dp)) {  // Doubled from 32.dp
-                    de.egril.defender.ui.TowerIcon(
-                        defender = createDisplayDefender(DefenderType.BALLISTA_TOWER),
-                        modifier = Modifier.fillMaxSize()
+                Box(
+                    modifier = Modifier
+                        .size(64.dp)  // Doubled from 32.dp
+                        .background(Color.Gray, CircleShape),  // Gray background for visibility
+                    contentAlignment = Alignment.Center
+                ) {
+                    de.egril.defender.ui.TowerTypeIcon(
+                        defenderType = DefenderType.BALLISTA_TOWER,
+                        modifier = Modifier.size(56.dp)  // Slightly smaller than container
                     )
                 }
                 Text(
@@ -740,10 +743,15 @@ private fun MineFirstUseContent(onDismiss: () -> Unit) {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Box(modifier = Modifier.size(64.dp)) {  // Doubled from 32.dp
-                    de.egril.defender.ui.TowerIcon(
-                        defender = createDisplayDefender(DefenderType.DWARVEN_MINE),
-                        modifier = Modifier.fillMaxSize()
+                Box(
+                    modifier = Modifier
+                        .size(64.dp)  // Doubled from 32.dp
+                        .background(Color.Gray, CircleShape),  // Gray background for visibility
+                    contentAlignment = Alignment.Center
+                ) {
+                    de.egril.defender.ui.TowerTypeIcon(
+                        defenderType = DefenderType.DWARVEN_MINE,
+                        modifier = Modifier.size(56.dp)  // Slightly smaller than container
                     )
                 }
                 Text(

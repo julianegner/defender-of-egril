@@ -1,8 +1,10 @@
 package de.egril.defender.ui.gameplay
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -736,10 +738,17 @@ private fun getTowerInfoMessages(defender: Defender): List<TowerInfoMessage> {
                     title = stringResource(Res.string.wizard_first_use_title),
                     message = stringResource(Res.string.wizard_first_use_message),
                     icon = { 
-                        de.egril.defender.ui.TowerIcon(
-                            defender = defender,
-                            modifier = Modifier.fillMaxSize()
-                        )
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(Color.Gray, CircleShape),  // Gray background for visibility
+                            contentAlignment = Alignment.Center
+                        ) {
+                            de.egril.defender.ui.TowerTypeIcon(
+                                defenderType = DefenderType.WIZARD_TOWER,
+                                modifier = Modifier.size(56.dp)  // Slightly smaller than container
+                            )
+                        }
                     },
                     color = Color(0xFF9C27B0)  // Purple
                 )
@@ -751,10 +760,17 @@ private fun getTowerInfoMessages(defender: Defender): List<TowerInfoMessage> {
                     title = stringResource(Res.string.alchemy_first_use_title),
                     message = stringResource(Res.string.alchemy_first_use_message),
                     icon = { 
-                        de.egril.defender.ui.TowerIcon(
-                            defender = defender,
-                            modifier = Modifier.fillMaxSize()
-                        )
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(Color.Gray, CircleShape),  // Gray background for visibility
+                            contentAlignment = Alignment.Center
+                        ) {
+                            de.egril.defender.ui.TowerTypeIcon(
+                                defenderType = DefenderType.ALCHEMY_TOWER,
+                                modifier = Modifier.size(56.dp)  // Slightly smaller than container
+                            )
+                        }
                     },
                     color = Color(0xFF4CAF50)  // Green
                 )
@@ -766,10 +782,17 @@ private fun getTowerInfoMessages(defender: Defender): List<TowerInfoMessage> {
                     title = stringResource(Res.string.ballista_first_use_title),
                     message = stringResource(Res.string.ballista_first_use_message),
                     icon = { 
-                        de.egril.defender.ui.TowerIcon(
-                            defender = defender,
-                            modifier = Modifier.fillMaxSize()
-                        )
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(Color.Gray, CircleShape),  // Gray background for visibility
+                            contentAlignment = Alignment.Center
+                        ) {
+                            de.egril.defender.ui.TowerTypeIcon(
+                                defenderType = DefenderType.BALLISTA_TOWER,
+                                modifier = Modifier.size(56.dp)  // Slightly smaller than container
+                            )
+                        }
                     },
                     color = Color(0xFF795548)  // Brown
                 )
@@ -781,10 +804,17 @@ private fun getTowerInfoMessages(defender: Defender): List<TowerInfoMessage> {
                     title = stringResource(Res.string.mine_first_use_title),
                     message = stringResource(Res.string.mine_first_use_message),
                     icon = { 
-                        de.egril.defender.ui.TowerIcon(
-                            defender = defender,
-                            modifier = Modifier.fillMaxSize()
-                        )
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(Color.Gray, CircleShape),  // Gray background for visibility
+                            contentAlignment = Alignment.Center
+                        ) {
+                            de.egril.defender.ui.TowerTypeIcon(
+                                defenderType = DefenderType.DWARVEN_MINE,
+                                modifier = Modifier.size(56.dp)  // Slightly smaller than container
+                            )
+                        }
                     },
                     color = Color(0xFFFFD700),  // Gold
                     extraContent = {
