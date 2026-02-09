@@ -248,6 +248,26 @@ class PathfindingSystem(private val state: GameState) {
                 // Calculate which barricade is fastest to break through and reach the goal
                 // Formula: turns_to_destroy + distance_to_target
                 // This considers both barricade strength and position optimally
+                
+                // Debug logging to understand barricade selection
+                if (attacker != null) {
+                    println("Barricade selection for ${attacker.type} (damage: ${if (attacker.type.isDragon) attacker.level.value * 5 else attacker.level.value}) at $from to $to:")
+                    neighborsWithBarricades.forEach { pos ->
+                        val barricade = state.barricades.find { it.position == pos && !it.isDestroyed() }
+                        if (barricade != null) {
+                            val attackerDamage = if (attacker.type.isDragon) {
+                                attacker.level.value * 5
+                            } else {
+                                attacker.level.value
+                            }
+                            val turnsToDestroy = (barricade.healthPoints.value + attackerDamage - 1) / attackerDamage
+                            val distanceAfter = pos.distanceTo(to)
+                            val totalCost = turnsToDestroy + distanceAfter
+                            println("  Barricade at $pos: HP=${barricade.healthPoints.value}, turns=$turnsToDestroy, dist=$distanceAfter, total=$totalCost")
+                        }
+                    }
+                }
+                
                 return neighborsWithBarricades.minWithOrNull(
                     compareBy<Position> { pos ->
                         val barricade = state.barricades.find { it.position == pos && !it.isDestroyed() }
