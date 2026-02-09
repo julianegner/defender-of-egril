@@ -328,9 +328,9 @@ internal fun LevelSpecialTowersInfoDialog(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Tower-specific icon using in-game tower representation
+                // Tower-specific icon using in-game tower representation (doubled in size)
                 Box(
-                    modifier = Modifier.size(32.dp)
+                    modifier = Modifier.size(64.dp)  // Doubled from 32.dp
                 ) {
                     de.egril.defender.ui.TowerTypeIcon(
                         defenderType = towerType,

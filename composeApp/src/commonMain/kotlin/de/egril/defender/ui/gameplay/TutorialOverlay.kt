@@ -617,7 +617,7 @@ private fun WizardFirstUseContent(onDismiss: () -> Unit) {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Box(modifier = Modifier.size(32.dp)) {
+                Box(modifier = Modifier.size(64.dp)) {  // Doubled from 32.dp
                     de.egril.defender.ui.TowerTypeIcon(
                         defenderType = DefenderType.WIZARD_TOWER,
                         modifier = Modifier.fillMaxSize()
@@ -653,7 +653,7 @@ private fun AlchemyFirstUseContent(onDismiss: () -> Unit) {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Box(modifier = Modifier.size(32.dp)) {
+                Box(modifier = Modifier.size(64.dp)) {  // Doubled from 32.dp
                     de.egril.defender.ui.TowerTypeIcon(
                         defenderType = DefenderType.ALCHEMY_TOWER,
                         modifier = Modifier.fillMaxSize()
@@ -689,7 +689,7 @@ private fun BallistaFirstUseContent(onDismiss: () -> Unit) {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Box(modifier = Modifier.size(32.dp)) {
+                Box(modifier = Modifier.size(64.dp)) {  // Doubled from 32.dp
                     de.egril.defender.ui.TowerTypeIcon(
                         defenderType = DefenderType.BALLISTA_TOWER,
                         modifier = Modifier.fillMaxSize()
@@ -725,7 +725,7 @@ private fun MineFirstUseContent(onDismiss: () -> Unit) {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Box(modifier = Modifier.size(32.dp)) {
+                Box(modifier = Modifier.size(64.dp)) {  // Doubled from 32.dp
                     de.egril.defender.ui.TowerTypeIcon(
                         defenderType = DefenderType.DWARVEN_MINE,
                         modifier = Modifier.fillMaxSize()
@@ -747,6 +747,17 @@ private fun MineFirstUseContent(onDismiss: () -> Unit) {
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurface
         )
+        
+        // Add mining probabilities section
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = stringResource(Res.string.mining_probabilities),
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            color = Color(0xFFFFD700)
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        MiningOutcomeGrid()
     }
 }
 

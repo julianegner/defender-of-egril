@@ -14,6 +14,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import de.egril.defender.model.*
 import de.egril.defender.ui.*
 import de.egril.defender.ui.icon.HoleIcon
@@ -364,31 +365,8 @@ fun DefenderInfo(
 
 @Composable
 private fun dwarvenMineInfoButtonArea(defender: Defender) {
-    if (defender.type == DefenderType.DWARVEN_MINE) {
-        // Mine-specific UI with info dialog
-        var showMiningInfoDialog by remember { mutableStateOf(false) }
-
-        // Mining info dialog
-        if (showMiningInfoDialog) {
-            AlertDialog(
-                onDismissRequest = { showMiningInfoDialog = false },
-                title = { Text(stringResource(Res.string.mining_probabilities)) },
-                text = { MiningOutcomeGrid() },
-                confirmButton = {
-                    TextButton(onClick = { showMiningInfoDialog = false }) {
-                        Text(stringResource(Res.string.close))
-                    }
-                }
-            )
-        }
-
-        InfoIcon(
-            size = 16.dp,
-            modifier = Modifier
-                .clickable { showMiningInfoDialog = true }
-                .padding(4.dp)
-        )
-    }
+    // Mine info is now handled by the combined TowerInfoButtonArea
+    // This function is kept for compatibility but does nothing
 }
 
 @Composable
@@ -757,7 +735,12 @@ private fun getTowerInfoMessages(defender: Defender): List<TowerInfoMessage> {
                 TowerInfoMessage(
                     title = stringResource(Res.string.wizard_first_use_title),
                     message = stringResource(Res.string.wizard_first_use_message),
-                    icon = { de.egril.defender.ui.icon.ExplosionIcon(size = 32.dp) },
+                    icon = { 
+                        de.egril.defender.ui.TowerTypeIcon(
+                            defenderType = DefenderType.WIZARD_TOWER,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    },
                     color = Color(0xFF9C27B0)  // Purple
                 )
             )
@@ -767,7 +750,12 @@ private fun getTowerInfoMessages(defender: Defender): List<TowerInfoMessage> {
                 TowerInfoMessage(
                     title = stringResource(Res.string.alchemy_first_use_title),
                     message = stringResource(Res.string.alchemy_first_use_message),
-                    icon = { de.egril.defender.ui.icon.TestTubeIcon(size = 32.dp) },
+                    icon = { 
+                        de.egril.defender.ui.TowerTypeIcon(
+                            defenderType = DefenderType.ALCHEMY_TOWER,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    },
                     color = Color(0xFF4CAF50)  // Green
                 )
             )
@@ -777,7 +765,12 @@ private fun getTowerInfoMessages(defender: Defender): List<TowerInfoMessage> {
                 TowerInfoMessage(
                     title = stringResource(Res.string.ballista_first_use_title),
                     message = stringResource(Res.string.ballista_first_use_message),
-                    icon = { de.egril.defender.ui.icon.TargetIcon(size = 32.dp) },
+                    icon = { 
+                        de.egril.defender.ui.TowerTypeIcon(
+                            defenderType = DefenderType.BALLISTA_TOWER,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    },
                     color = Color(0xFF795548)  // Brown
                 )
             )
@@ -787,7 +780,12 @@ private fun getTowerInfoMessages(defender: Defender): List<TowerInfoMessage> {
                 TowerInfoMessage(
                     title = stringResource(Res.string.mine_first_use_title),
                     message = stringResource(Res.string.mine_first_use_message),
-                    icon = { de.egril.defender.ui.icon.MoneyIcon(size = 32.dp) },
+                    icon = { 
+                        de.egril.defender.ui.TowerTypeIcon(
+                            defenderType = DefenderType.DWARVEN_MINE,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    },
                     color = Color(0xFFFFD700)  // Gold
                 )
             )
@@ -856,6 +854,7 @@ private fun getTowerInfoMessages(defender: Defender): List<TowerInfoMessage> {
 
 /**
  * Tower info icon and dialog component (similar to mine info icon)
+ * Shows dialog as centered overlay to avoid breaking UI layout
  */
 @Composable
 private fun TowerInfoButtonArea(defender: Defender) {
@@ -869,48 +868,58 @@ private fun TowerInfoButtonArea(defender: Defender) {
     var showTowerInfoDialog by remember { mutableStateOf(false) }
     
     // Tower info dialog with all relevant info messages using ScrollableInfoCard style
+    // Shown as overlay to avoid breaking UI layout
     if (showTowerInfoDialog) {
-        ScrollableInfoCard(
-            title = {
-                Text(
-                    text = stringResource(Res.string.tower_info_title),
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold
-                )
-            },
-            width = 600.dp,
-            maxHeight = 500.dp,
-            onDismiss = { showTowerInfoDialog = false }
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .zIndex(100f),
+            contentAlignment = Alignment.Center
         ) {
-            messages.forEachIndexed { index, info ->
-                if (index > 0) {
-                    HorizontalDivider(
-                        modifier = Modifier.padding(vertical = 8.dp),
-                        color = MaterialTheme.colorScheme.outline
-                    )
-                }
-                
-                // Subtitle with icon
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.padding(bottom = 8.dp)
-                ) {
-                    info.icon()
+            ScrollableInfoCard(
+                title = {
                     Text(
-                        text = info.title,
-                        style = MaterialTheme.typography.titleMedium,
-                        color = info.color,
+                        text = stringResource(Res.string.tower_info_title),
+                        style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold
                     )
+                },
+                width = 600.dp,
+                maxHeight = 500.dp,
+                onDismiss = { showTowerInfoDialog = false }
+            ) {
+                messages.forEachIndexed { index, info ->
+                    if (index > 0) {
+                        HorizontalDivider(
+                            modifier = Modifier.padding(vertical = 8.dp),
+                            color = MaterialTheme.colorScheme.outline
+                        )
+                    }
+                    
+                    // Subtitle with icon (doubled in size)
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    ) {
+                        Box(modifier = Modifier.size(64.dp)) {  // Doubled from 32.dp
+                            info.icon()
+                        }
+                        Text(
+                            text = info.title,
+                            style = MaterialTheme.typography.titleMedium,
+                            color = info.color,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    
+                    // Message content
+                    Text(
+                        text = info.message,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
                 }
-                
-                // Message content
-                Text(
-                    text = info.message,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
             }
         }
     }
