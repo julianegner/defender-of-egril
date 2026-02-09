@@ -246,7 +246,8 @@ class PathfindingSystem(private val state: GameState) {
             
             if (neighborsWithBarricades.isNotEmpty()) {
                 // Calculate which barricade is fastest to break through and reach the goal
-                // Consider both the time to destroy the barricade and the distance after
+                // When adjacent barricades have same distance to target, prefer weaker one
+                // Special rule: Tower bases get priority if (towerBaseHP - 100) < otherBarricadeHP
                 return neighborsWithBarricades.minWithOrNull(
                     compareBy<Position> { pos ->
                         val barricade = state.barricades.find { it.position == pos && !it.isDestroyed() }
@@ -267,6 +268,26 @@ class PathfindingSystem(private val state: GameState) {
                         
                         // Total cost: turns to destroy + distance to goal
                         turnsToDestroy + distanceAfter
+                    }.thenBy { pos ->
+                        // When costs are equal (e.g., adjacent barricades), use secondary criteria
+                        val barricade = state.barricades.find { it.position == pos && !it.isDestroyed() }
+                        if (barricade == null) {
+                            return@thenBy Int.MAX_VALUE
+                        }
+                        
+                        // Check if this is a tower base
+                        val isTowerBase = barricade.hasTower()
+                        
+                        // If it's a tower base, apply special priority rule
+                        // Priority if (towerBaseHP - 100) < otherBarricadeHP
+                        if (isTowerBase) {
+                            val adjustedHP = barricade.healthPoints.value - 100
+                            // Return adjusted HP for comparison (lower is better)
+                            adjustedHP
+                        } else {
+                            // For non-tower bases, just return HP (lower is better)
+                            barricade.healthPoints.value
+                        }
                     }
                 ) ?: from
             }
