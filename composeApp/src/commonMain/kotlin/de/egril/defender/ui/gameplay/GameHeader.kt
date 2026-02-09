@@ -203,62 +203,60 @@ private fun LevelHeaderIcons(
     val hasSpecialTowers = specialTowers.isNotEmpty()
     
     var showRiverInfo by remember { mutableStateOf(false) }
-    var showTowerInfo by remember { mutableStateOf(false) }
     
-    // River info dialog
+    // River info dialog - shown as overlay
     if (showRiverInfo) {
-        ScrollableInfoCard(
-            width = 500.dp,
-            maxHeight = 500.dp,
-            onDismiss = { showRiverInfo = false },
-            buttonColor = Color(0xFF2196F3)
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .zIndex(100f),
+            contentAlignment = Alignment.Center
         ) {
-            // Title on the right side
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
+            ScrollableInfoCard(
+                width = 500.dp,
+                maxHeight = 500.dp,
+                onDismiss = { showRiverInfo = false },
+                buttonColor = Color(0xFF2196F3)
             ) {
+                // Title on the right side
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    Text(
+                        text = stringResource(Res.string.river_info_title),
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF2196F3)  // Blue
+                    )
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+                
                 Text(
-                    text = stringResource(Res.string.river_info_title),
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF2196F3)  // Blue
+                    text = stringResource(Res.string.river_info_placement),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = stringResource(Res.string.river_info_movement),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = stringResource(Res.string.river_info_destruction),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = stringResource(Res.string.river_info_bridges),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
-            Spacer(modifier = Modifier.height(8.dp))
-            
-            Text(
-                text = stringResource(Res.string.river_info_placement),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = stringResource(Res.string.river_info_movement),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = stringResource(Res.string.river_info_destruction),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = stringResource(Res.string.river_info_bridges),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface
-            )
         }
-    }
-    
-    // Tower info dialog with collapsible sections
-    if (showTowerInfo) {
-        LevelSpecialTowersInfoDialog(
-            specialTowers = specialTowers,
-            onDismiss = { showTowerInfo = false }
-        )
     }
     
     // Water icon (if level has river)
@@ -274,8 +272,18 @@ private fun LevelHeaderIcons(
     if (hasSpecialTowers) {
         de.egril.defender.ui.icon.TowerIcon(
             size = iconSize,
-            tint = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.clickable { showTowerInfo = true }
+            tint = Color(0xFF2196F3),  // Blue color like in-game towers
+            modifier = Modifier.clickable { 
+                // Check if special towers info has been seen
+                val infoState = gameState.infoState.value
+                if (!infoState.hasSeen(InfoType.SPECIAL_TOWERS_INFO)) {
+                    // Show the info for first time
+                    gameState.infoState.value = infoState.showInfo(InfoType.SPECIAL_TOWERS_INFO)
+                } else {
+                    // Already seen, just show the dialog without marking as new info
+                    gameState.infoState.value = infoState.showInfo(InfoType.SPECIAL_TOWERS_INFO)
+                }
+            }
         )
     }
 }
@@ -284,7 +292,7 @@ private fun LevelHeaderIcons(
  * Dialog showing info for all special towers in the level with collapsible sections
  */
 @Composable
-private fun LevelSpecialTowersInfoDialog(
+internal fun LevelSpecialTowersInfoDialog(
     specialTowers: List<DefenderType>,
     onDismiss: () -> Unit
 ) {

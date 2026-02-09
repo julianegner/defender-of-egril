@@ -717,29 +717,44 @@ private fun GamePlayScreenContent(
                         .align(tutorialAlignment)
                         .padding(top = 8.dp, end = tutorialPaddingEnd, start = 8.dp, bottom = 8.dp)
                 ) {
-                    // Show info or tutorial in the tutorial overlay
-                    TutorialOverlay(
-                        currentStep = gameState.tutorialState.value.currentStep,
-                        isNextEnabled = gameState.tutorialState.value.isNextEnabled(gameState.defenders.size),
-                        onNext = {
-                            val currentTutorialState = gameState.tutorialState.value
-                            gameState.tutorialState.value = currentTutorialState.advanceStep()
-                        },
-                        onSkip = {
-                            gameState.tutorialState.value = gameState.tutorialState.value.skip()
-                        },
-                        currentInfo = gameState.infoState.value.currentInfo,
-                        onDismissInfo = {
-                            val currentInfoState = gameState.infoState.value
-                            val dismissedInfo = currentInfoState.dismissInfo()
-                            gameState.infoState.value = dismissedInfo
-                            
-                            // Remove mine warning from the list if it was a mine warning
-                            if (currentInfoState.currentInfo == InfoType.MINE_WARNING) {
-                                currentInfoState.mineWarningId?.let { gameState.mineWarnings.remove(it) }
-                            }
+                    // Special case for SPECIAL_TOWERS_INFO - show as a separate dialog
+                    if (gameState.infoState.value.currentInfo == InfoType.SPECIAL_TOWERS_INFO) {
+                        val specialTowers = gameState.level.availableTowers.filter {
+                            it in listOf(DefenderType.WIZARD_TOWER, DefenderType.ALCHEMY_TOWER, DefenderType.BALLISTA_TOWER, DefenderType.DWARVEN_MINE)
                         }
-                    )
+                        LevelSpecialTowersInfoDialog(
+                            specialTowers = specialTowers,
+                            onDismiss = {
+                                val currentInfoState = gameState.infoState.value
+                                val dismissedInfo = currentInfoState.dismissInfo()
+                                gameState.infoState.value = dismissedInfo
+                            }
+                        )
+                    } else {
+                        // Show info or tutorial in the tutorial overlay
+                        TutorialOverlay(
+                            currentStep = gameState.tutorialState.value.currentStep,
+                            isNextEnabled = gameState.tutorialState.value.isNextEnabled(gameState.defenders.size),
+                            onNext = {
+                                val currentTutorialState = gameState.tutorialState.value
+                                gameState.tutorialState.value = currentTutorialState.advanceStep()
+                            },
+                            onSkip = {
+                                gameState.tutorialState.value = gameState.tutorialState.value.skip()
+                            },
+                            currentInfo = gameState.infoState.value.currentInfo,
+                            onDismissInfo = {
+                                val currentInfoState = gameState.infoState.value
+                                val dismissedInfo = currentInfoState.dismissInfo()
+                                gameState.infoState.value = dismissedInfo
+                                
+                                // Remove mine warning from the list if it was a mine warning
+                                if (currentInfoState.currentInfo == InfoType.MINE_WARNING) {
+                                    currentInfoState.mineWarningId?.let { gameState.mineWarnings.remove(it) }
+                                }
+                            }
+                        )
+                    }
                 }
             }
         }

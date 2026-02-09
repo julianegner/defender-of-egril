@@ -2,9 +2,12 @@ package de.egril.defender.ui.icon
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Path
@@ -974,8 +977,8 @@ fun ChevronRightIcon(
 }
 
 /**
- * Displays a simple tower icon drawn with Canvas
- * Represents a generic tower/castle for level header
+ * Displays a simple tower icon drawn as a hexagon (like in-game tiles)
+ * Represents a generic tower for level header, without type-specific icon inside
  */
 @Composable
 fun TowerIcon(
@@ -983,27 +986,12 @@ fun TowerIcon(
     size: Dp = 16.dp,
     tint: Color = Color.Gray
 ) {
-    Canvas(modifier = modifier.size(size)) {
-        val width = size.toPx()
-        val height = size.toPx()
-        
-        // Draw main tower body (rectangle)
-        drawRect(
-            color = tint,
-            topLeft = androidx.compose.ui.geometry.Offset(width * 0.25f, height * 0.3f),
-            size = androidx.compose.ui.geometry.Size(width * 0.5f, height * 0.7f)
-        )
-        
-        // Draw battlement (crenellations) at top
-        val battlementWidth = width * 0.15f
-        for (i in 0..2) {
-            drawRect(
-                color = tint,
-                topLeft = androidx.compose.ui.geometry.Offset(width * 0.25f + i * battlementWidth * 1.5f, height * 0.15f),
-                size = androidx.compose.ui.geometry.Size(battlementWidth, height * 0.15f)
-            )
-        }
-    }
+    Box(
+        modifier = modifier
+            .size(size)
+            .clip(de.egril.defender.ui.hexagon.HexagonShape())
+            .background(tint)
+    )
 }
 
 /**

@@ -22,6 +22,7 @@ enum class InfoType {
     GREEN_WITCH_INFO,   // Green witch healing ability explanation
     RED_WITCH_INFO,     // Red witch tower disabling ability explanation
     AUTO_ATTACK_INFO,   // Auto-attack feature explanation (first time available)
+    SPECIAL_TOWERS_INFO, // Special towers info from level header (shown once per game)
     NONE                // No info to show
 }
 
