@@ -341,11 +341,9 @@ class SpikeBarbsTest {
         assertTrue(engine.upgradeDefender(tower.id), "Upgrade should succeed")
         assertEquals(10, tower.level.value, "Tower should be level 10")
         
-        // Check that spike barbs tutorial flag was set (but info NOT automatically shown)
+        // Check that spike barbs info was shown
+        assertEquals(InfoType.SPIKE_BARBS_INFO, state.infoState.value.currentInfo, "Spike barbs info should be shown")
         assertTrue(tower.hasShownSpikeBarbsTutorial.value, "Tutorial flag should be set")
-        // Info is now shown via tower info icon, not automatically
-        assertEquals(InfoType.NONE, state.infoState.value.currentInfo,
-            "Info should NOT be shown automatically (available via tower info icon)")
     }
     
     /**

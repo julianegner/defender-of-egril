@@ -98,7 +98,8 @@ class TowerManager(private val state: GameState) {
             oldLevel < 10 && 
             defender.level.value >= 10 &&
             !defender.hasShownSpikeBarbsTutorial.value) {
-            // Mark tutorial as shown (info available via tower info icon)
+            // Show spike barbs tutorial
+            state.infoState.value = state.infoState.value.showInfo(InfoType.SPIKE_BARBS_INFO)
             defender.hasShownSpikeBarbsTutorial.value = true
         }
         
@@ -110,7 +111,8 @@ class TowerManager(private val state: GameState) {
         }
         
         if (showBarricadeTutorial && !defender.hasShownBarricadeTutorial.value) {
-            // Mark tutorial as shown (info available via tower info icon)
+            // Show barricade tutorial
+            state.infoState.value = state.infoState.value.showInfo(InfoType.BARRICADE_INFO)
             defender.hasShownBarricadeTutorial.value = true
         }
         
@@ -119,7 +121,8 @@ class TowerManager(private val state: GameState) {
             oldLevel < 10 && 
             defender.level.value >= 10 &&
             !defender.hasShownMagicalTrapTutorial.value) {
-            // Mark tutorial as shown (info available via tower info icon)
+            // Show magical trap tutorial
+            state.infoState.value = state.infoState.value.showInfo(InfoType.MAGICAL_TRAP_INFO)
             defender.hasShownMagicalTrapTutorial.value = true
         }
         
@@ -128,7 +131,8 @@ class TowerManager(private val state: GameState) {
             oldLevel < 20 && 
             defender.level.value >= 20 &&
             !defender.hasShownExtendedAreaTutorial.value) {
-            // Mark tutorial as shown (info available via tower info icon)
+            // Show extended area attack tutorial
+            state.infoState.value = state.infoState.value.showInfo(InfoType.EXTENDED_AREA_INFO)
             defender.hasShownExtendedAreaTutorial.value = true
         }
         

@@ -868,61 +868,51 @@ private fun TowerInfoButtonArea(defender: Defender) {
     
     var showTowerInfoDialog by remember { mutableStateOf(false) }
     
-    // Tower info dialog with all relevant info messages
+    // Tower info dialog with all relevant info messages using ScrollableInfoCard style
     if (showTowerInfoDialog) {
-        AlertDialog(
-            onDismissRequest = { showTowerInfoDialog = false },
+        ScrollableInfoCard(
             title = {
                 Text(
                     text = stringResource(Res.string.tower_info_title),
-                    style = MaterialTheme.typography.titleLarge
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold
                 )
             },
-            text = {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .verticalScroll(rememberScrollState()),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+            width = 600.dp,
+            maxHeight = 500.dp,
+            onDismiss = { showTowerInfoDialog = false }
+        ) {
+            messages.forEachIndexed { index, info ->
+                if (index > 0) {
+                    HorizontalDivider(
+                        modifier = Modifier.padding(vertical = 8.dp),
+                        color = MaterialTheme.colorScheme.outline
+                    )
+                }
+                
+                // Subtitle with icon
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.padding(bottom = 8.dp)
                 ) {
-                    messages.forEachIndexed { index, info ->
-                        if (index > 0) {
-                            HorizontalDivider(
-                                modifier = Modifier.padding(vertical = 8.dp),
-                                color = MaterialTheme.colorScheme.outline
-                            )
-                        }
-                        
-                        // Subtitle with icon
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            modifier = Modifier.padding(bottom = 8.dp)
-                        ) {
-                            info.icon()
-                            Text(
-                                text = info.title,
-                                style = MaterialTheme.typography.titleMedium,
-                                color = info.color,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                        
-                        // Message content
-                        Text(
-                            text = info.message,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
+                    info.icon()
+                    Text(
+                        text = info.title,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = info.color,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
-            },
-            confirmButton = {
-                TextButton(onClick = { showTowerInfoDialog = false }) {
-                    Text(stringResource(Res.string.close))
-                }
+                
+                // Message content
+                Text(
+                    text = info.message,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
             }
-        )
+        }
     }
     
     // Info icon button
