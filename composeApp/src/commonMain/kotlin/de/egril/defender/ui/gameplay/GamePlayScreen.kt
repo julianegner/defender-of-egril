@@ -549,8 +549,11 @@ private fun GamePlayScreenContent(
                                 val distance = selectedDefender.position.value.distanceTo(position)
                                 if (gameState.level.isOnPath(position) && distance <= selectedDefender.range) {
                                     if (onMineBuildTrap?.invoke(selectedDefender.id, position) == true) {
-                                        selectedMineAction = null
-                                        showMineActionDialog = false
+                                        // Keep trap placement mode active if tower has actions remaining
+                                        if (!shouldKeepTrapPlacementMode(gameState, selectedDefender.id)) {
+                                            selectedMineAction = null
+                                            showMineActionDialog = false
+                                        }
                                     }
                                 }
                                 return@GameGrid
@@ -589,7 +592,10 @@ private fun GamePlayScreenContent(
                                     !hasDefender &&
                                     !hasEnemy) {
                                     if (onBuildBarricade?.invoke(selectedDefender.id, position) == true) {
-                                        selectedBarricadeAction = null
+                                        // Keep barricade placement mode active if tower has actions remaining
+                                        if (!shouldKeepBarricadePlacementMode(gameState, selectedDefender.id)) {
+                                            selectedBarricadeAction = null
+                                        }
                                     }
                                 }
                                 return@GameGrid
@@ -1122,4 +1128,32 @@ private fun shouldKeepTargetSelectionForPosition(
     val target = gameState.attackers.find { it.position.value == targetPosition } ?: return false
     
     return defender.actionsRemaining.value > 0 && !target.isDefeated.value
+}
+
+/**
+ * Helper function to determine if trap placement mode should be preserved after placing a trap.
+ * Trap placement mode is kept active if the tower still has action points remaining.
+ * 
+ * This allows players to place multiple traps with towers that have multiple actions per turn.
+ */
+private fun shouldKeepTrapPlacementMode(
+    gameState: GameState,
+    defenderId: Int
+): Boolean {
+    val defender = gameState.defenders.find { it.id == defenderId } ?: return false
+    return defender.actionsRemaining.value > 0
+}
+
+/**
+ * Helper function to determine if barricade placement mode should be preserved after placing a barricade.
+ * Barricade placement mode is kept active if the tower still has action points remaining.
+ * 
+ * This allows players to place or upgrade multiple barricades with towers that have multiple actions per turn.
+ */
+private fun shouldKeepBarricadePlacementMode(
+    gameState: GameState,
+    defenderId: Int
+): Boolean {
+    val defender = gameState.defenders.find { it.id == defenderId } ?: return false
+    return defender.actionsRemaining.value > 0
 }
