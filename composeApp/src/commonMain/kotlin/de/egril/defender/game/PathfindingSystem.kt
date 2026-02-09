@@ -245,13 +245,29 @@ class PathfindingSystem(private val state: GameState) {
             }
             
             if (neighborsWithBarricades.isNotEmpty()) {
-                // Find the neighbor with the weakest barricade
-                // Prioritize: 1) Weakest HP, 2) Closest to goal
+                // Calculate which barricade is fastest to break through and reach the goal
+                // Consider both the time to destroy the barricade and the distance after
                 return neighborsWithBarricades.minWithOrNull(
                     compareBy<Position> { pos ->
-                        // Find barricade at this position and get its HP
-                        state.barricades.find { it.position == pos && !it.isDestroyed() }?.healthPoints?.value ?: Int.MAX_VALUE
-                    }.thenBy { it.distanceTo(to) }
+                        val barricade = state.barricades.find { it.position == pos && !it.isDestroyed() }
+                        if (barricade == null) {
+                            return@compareBy Int.MAX_VALUE
+                        }
+                        
+                        // Calculate turns needed to destroy this barricade
+                        val attackerDamage = if (attacker?.type?.isDragon == true) {
+                            attacker.level.value * 5
+                        } else {
+                            attacker?.level?.value ?: 1
+                        }
+                        val turnsToDestroy = (barricade.healthPoints.value + attackerDamage - 1) / attackerDamage // Ceiling division
+                        
+                        // Distance from this barricade position to the goal
+                        val distanceAfter = pos.distanceTo(to)
+                        
+                        // Total cost: turns to destroy + distance to goal
+                        turnsToDestroy + distanceAfter
+                    }
                 ) ?: from
             }
         }
