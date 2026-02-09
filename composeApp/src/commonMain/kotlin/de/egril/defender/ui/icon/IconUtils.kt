@@ -972,3 +972,80 @@ fun ChevronRightIcon(
         )
     }
 }
+
+/**
+ * Displays a simple tower icon drawn with Canvas
+ * Represents a generic tower/castle for level header
+ */
+@Composable
+fun TowerIcon(
+    modifier: Modifier = Modifier.Companion,
+    size: Dp = 16.dp,
+    tint: Color = Color.Gray
+) {
+    Canvas(modifier = modifier.size(size)) {
+        val width = size.toPx()
+        val height = size.toPx()
+        
+        // Draw main tower body (rectangle)
+        drawRect(
+            color = tint,
+            topLeft = androidx.compose.ui.geometry.Offset(width * 0.25f, height * 0.3f),
+            size = androidx.compose.ui.geometry.Size(width * 0.5f, height * 0.7f)
+        )
+        
+        // Draw battlement (crenellations) at top
+        val battlementWidth = width * 0.15f
+        for (i in 0..2) {
+            drawRect(
+                color = tint,
+                topLeft = androidx.compose.ui.geometry.Offset(width * 0.25f + i * battlementWidth * 1.5f, height * 0.15f),
+                size = androidx.compose.ui.geometry.Size(battlementWidth, height * 0.15f)
+            )
+        }
+    }
+}
+
+/**
+ * Displays a simple water/wave icon drawn with Canvas
+ * Represents water/river for level header
+ */
+@Composable
+fun WaterIcon(
+    modifier: Modifier = Modifier.Companion,
+    size: Dp = 16.dp,
+    tint: Color = Color(0xFF2196F3)  // Blue color
+) {
+    Canvas(modifier = modifier.size(size)) {
+        val width = size.toPx()
+        val height = size.toPx()
+        
+        // Draw wave pattern
+        val wavePath = Path().apply {
+            moveTo(0f, height * 0.5f)
+            // First wave
+            cubicTo(
+                width * 0.15f, height * 0.3f,
+                width * 0.25f, height * 0.7f,
+                width * 0.4f, height * 0.5f
+            )
+            // Second wave
+            cubicTo(
+                width * 0.55f, height * 0.3f,
+                width * 0.65f, height * 0.7f,
+                width * 0.8f, height * 0.5f
+            )
+            // Third wave
+            cubicTo(
+                width * 0.9f, height * 0.4f,
+                width * 0.95f, height * 0.5f,
+                width, height * 0.5f
+            )
+        }
+        drawPath(
+            path = wavePath,
+            color = tint,
+            style = Stroke(width = width * 0.1f, cap = StrokeCap.Round, join = StrokeJoin.Round)
+        )
+    }
+}

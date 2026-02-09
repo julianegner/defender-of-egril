@@ -1214,4 +1214,5 @@
     
     <!-- Tower Info Dialog -->
     <string name="tower_info_title">Turminformationen</string>
+    <string name="special_towers_info_title">Spezielle Türme</string>
 </resources>

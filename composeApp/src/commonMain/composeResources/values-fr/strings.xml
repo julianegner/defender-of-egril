@@ -1216,4 +1216,5 @@
     
     <!-- Tower Info Dialog -->
     <string name="tower_info_title">Informations sur la Tour</string>
+    <string name="special_towers_info_title">Tours Spéciales</string>
 </resources>
