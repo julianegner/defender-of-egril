@@ -795,14 +795,6 @@ class GameEngine(private val state: GameState) {
                 }
             }
             
-            // Check for traps at dragon's position (after movement)
-            mineOperations.checkAndActivateTrapForAttacker(attacker)
-            
-            // Only continue if dragon was not defeated by trap
-            if (attacker.isDefeated.value) {
-                return
-            }
-            
             // Check if reached any target
             if (state.level.isTargetPosition(attacker.position.value)) {
                 applyTargetDamage(attacker)
