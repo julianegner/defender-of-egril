@@ -542,6 +542,8 @@ class GameViewModel {
             }
 
             attackersStoppedByBarricade.forEach { it ->
+                println("attackBarricade B")
+                // fixit HERE
                 engine.attackBarricade(it.second, it.first)
             }
             
