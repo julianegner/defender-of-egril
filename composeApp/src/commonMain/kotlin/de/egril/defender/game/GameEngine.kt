@@ -609,6 +609,7 @@ class GameEngine(private val state: GameState) {
                     println("Enemy turn: Attacker ${attacker.id} (${attacker.type}) at $currentPos pathing to target: $target")
                 }
                 var path = pathfinding.findPath(currentPos, target, attacker)
+                println("CETM ----------------------- Unit ${attacker.id} (${attacker.type}) at $currentPos: findPath returned path of size ${path.size}")
                 
                 // If still no path after bridge attempt, try one more time
                 if (path.size < 2 && attacker.type.canBuildBridge && !attacker.isBuildingBridge.value) {
@@ -641,7 +642,8 @@ class GameEngine(private val state: GameState) {
                 }
                 
                 val newPos = path[1]  // Next position in path
-                println("CETM ----------------------- Unit ${attacker.id} (${attacker.type}) at $currentPos wants to move to $newPos towards target $target")
+                val barricadeAtPath1 = barricadeSystem.getBarricadeAt(newPos)
+                println("CETM ----------------------- Unit ${attacker.id} (${attacker.type}) at $currentPos wants to move to $newPos towards target $target (barricade at newPos: ${barricadeAtPath1 != null && !barricadeAtPath1.isDestroyed()})")
                 
                 // Check if there's a barricade at the new position (non-flying units only)
                 // If so, this unit will attack the barricade and stop moving for the rest of this turn
