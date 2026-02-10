@@ -3,6 +3,8 @@ package de.egril.defender.ui.gameplay
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -269,6 +271,30 @@ internal fun LevelSpecialTowersInfoDialog(
         }
         Spacer(modifier = Modifier.height(8.dp))
         
+        // Info section at top showing how to reopen
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.surfaceVariant, androidx.compose.foundation.shape.RoundedCornerShape(8.dp))
+                .padding(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Tower icon (same as in header)
+            de.egril.defender.ui.icon.TowerIcon(
+                size = 32.dp,
+                lineColor = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            
+            Text(
+                text = stringResource(Res.string.special_towers_info_reopen),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        
+        Spacer(modifier = Modifier.height(16.dp))
+        
         specialTowers.forEach { towerType ->
             val isExpanded = expandedTower == towerType
             
@@ -281,9 +307,12 @@ internal fun LevelSpecialTowersInfoDialog(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Tower-specific icon using in-game tower representation (doubled in size)
+                // Tower-specific icon using in-game tower representation with gray background
                 Box(
-                    modifier = Modifier.size(64.dp)  // Doubled from 32.dp
+                    modifier = Modifier
+                        .size(64.dp)
+                        .background(Color.Gray, androidx.compose.foundation.shape.CircleShape),
+                    contentAlignment = Alignment.Center
                 ) {
                     de.egril.defender.ui.TowerTypeIcon(
                         defenderType = towerType,

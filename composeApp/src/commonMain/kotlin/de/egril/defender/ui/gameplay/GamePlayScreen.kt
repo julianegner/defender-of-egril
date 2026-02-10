@@ -291,7 +291,7 @@ private fun GamePlayScreenContent(
         }
     }
 
-    // Check for first-time tower availability and show info dialogs
+    // Check for first-time special tower availability and show combined info dialog
     LaunchedEffect(gameState.level.availableTowers, gameState.infoState.value) {
         val infoState = gameState.infoState.value
 
@@ -300,22 +300,13 @@ private fun GamePlayScreenContent(
             return@LaunchedEffect
         }
 
-        // Check each advanced tower type and show info if available but not seen
-        val availableTowers = gameState.level.availableTowers
-
-        when {
-            availableTowers.contains(DefenderType.WIZARD_TOWER) && !infoState.hasSeen(InfoType.WIZARD_FIRST_USE) -> {
-                gameState.infoState.value = infoState.showInfo(InfoType.WIZARD_FIRST_USE)
-            }
-            availableTowers.contains(DefenderType.ALCHEMY_TOWER) && !infoState.hasSeen(InfoType.ALCHEMY_FIRST_USE) -> {
-                gameState.infoState.value = infoState.showInfo(InfoType.ALCHEMY_FIRST_USE)
-            }
-            availableTowers.contains(DefenderType.BALLISTA_TOWER) && !infoState.hasSeen(InfoType.BALLISTA_FIRST_USE) -> {
-                gameState.infoState.value = infoState.showInfo(InfoType.BALLISTA_FIRST_USE)
-            }
-            availableTowers.contains(DefenderType.DWARVEN_MINE) && !infoState.hasSeen(InfoType.MINE_FIRST_USE) -> {
-                gameState.infoState.value = infoState.showInfo(InfoType.MINE_FIRST_USE)
-            }
+        // Check if level has special towers and we haven't shown the info yet
+        val specialTowers = gameState.level.availableTowers.filter {
+            it in listOf(DefenderType.WIZARD_TOWER, DefenderType.ALCHEMY_TOWER, DefenderType.BALLISTA_TOWER, DefenderType.DWARVEN_MINE)
+        }
+        
+        if (specialTowers.isNotEmpty() && !infoState.hasSeen(InfoType.SPECIAL_TOWERS_INFO)) {
+            gameState.infoState.value = infoState.showInfo(InfoType.SPECIAL_TOWERS_INFO)
         }
     }
 

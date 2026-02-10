@@ -1218,4 +1218,5 @@
     <!-- Tower Info Dialog -->
     <string name="tower_info_title">Tower Information</string>
     <string name="special_towers_info_title">Special Towers</string>
+    <string name="special_towers_info_reopen">You can reopen this information at any time by clicking the tower icon in the level header.</string>
 </resources>
