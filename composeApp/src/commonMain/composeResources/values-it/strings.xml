@@ -1214,4 +1214,9 @@
     <!-- Tower Base -->
     <string name="tower_base_hp_label">Base: %d PV</string>
     <string name="tower_base_info">Torre su base (distruttibile a &lt;100 PV)</string>
+    
+    <!-- Tower Info Dialog -->
+    <string name="tower_info_title">Informazioni sulla Torre</string>
+    <string name="special_towers_info_title">Torri Speciali</string>
+    <string name="special_towers_info_reopen">Puoi riaprire queste informazioni in qualsiasi momento cliccando sull\'icona della torre nell\'intestazione del livello.</string>
 </resources>

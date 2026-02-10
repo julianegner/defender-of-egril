@@ -291,7 +291,7 @@ private fun GamePlayScreenContent(
         }
     }
 
-    // Check for first-time tower availability and show info dialogs
+    // Check for first-time special tower availability and show combined info dialog
     LaunchedEffect(gameState.level.availableTowers, gameState.infoState.value) {
         val infoState = gameState.infoState.value
 
@@ -300,22 +300,13 @@ private fun GamePlayScreenContent(
             return@LaunchedEffect
         }
 
-        // Check each advanced tower type and show info if available but not seen
-        val availableTowers = gameState.level.availableTowers
-
-        when {
-            availableTowers.contains(DefenderType.WIZARD_TOWER) && !infoState.hasSeen(InfoType.WIZARD_FIRST_USE) -> {
-                gameState.infoState.value = infoState.showInfo(InfoType.WIZARD_FIRST_USE)
-            }
-            availableTowers.contains(DefenderType.ALCHEMY_TOWER) && !infoState.hasSeen(InfoType.ALCHEMY_FIRST_USE) -> {
-                gameState.infoState.value = infoState.showInfo(InfoType.ALCHEMY_FIRST_USE)
-            }
-            availableTowers.contains(DefenderType.BALLISTA_TOWER) && !infoState.hasSeen(InfoType.BALLISTA_FIRST_USE) -> {
-                gameState.infoState.value = infoState.showInfo(InfoType.BALLISTA_FIRST_USE)
-            }
-            availableTowers.contains(DefenderType.DWARVEN_MINE) && !infoState.hasSeen(InfoType.MINE_FIRST_USE) -> {
-                gameState.infoState.value = infoState.showInfo(InfoType.MINE_FIRST_USE)
-            }
+        // Check if level has special towers and we haven't shown the info yet
+        val specialTowers = gameState.level.availableTowers.filter {
+            it in listOf(DefenderType.WIZARD_TOWER, DefenderType.ALCHEMY_TOWER, DefenderType.BALLISTA_TOWER, DefenderType.DWARVEN_MINE)
+        }
+        
+        if (specialTowers.isNotEmpty() && !infoState.hasSeen(InfoType.SPECIAL_TOWERS_INFO)) {
+            gameState.infoState.value = infoState.showInfo(InfoType.SPECIAL_TOWERS_INFO)
         }
     }
 
@@ -723,29 +714,58 @@ private fun GamePlayScreenContent(
                         .align(tutorialAlignment)
                         .padding(top = 8.dp, end = tutorialPaddingEnd, start = 8.dp, bottom = 8.dp)
                 ) {
-                    // Show info or tutorial in the tutorial overlay
-                    TutorialOverlay(
-                        currentStep = gameState.tutorialState.value.currentStep,
-                        isNextEnabled = gameState.tutorialState.value.isNextEnabled(gameState.defenders.size),
-                        onNext = {
-                            val currentTutorialState = gameState.tutorialState.value
-                            gameState.tutorialState.value = currentTutorialState.advanceStep()
-                        },
-                        onSkip = {
-                            gameState.tutorialState.value = gameState.tutorialState.value.skip()
-                        },
-                        currentInfo = gameState.infoState.value.currentInfo,
-                        onDismissInfo = {
-                            val currentInfoState = gameState.infoState.value
-                            val dismissedInfo = currentInfoState.dismissInfo()
-                            gameState.infoState.value = dismissedInfo
-                            
-                            // Remove mine warning from the list if it was a mine warning
-                            if (currentInfoState.currentInfo == InfoType.MINE_WARNING) {
-                                currentInfoState.mineWarningId?.let { gameState.mineWarnings.remove(it) }
-                            }
+                    // Special case for SPECIAL_TOWERS_INFO - show as a separate dialog
+                    if (gameState.infoState.value.currentInfo == InfoType.SPECIAL_TOWERS_INFO) {
+                        val specialTowers = gameState.level.availableTowers.filter {
+                            it in listOf(DefenderType.WIZARD_TOWER, DefenderType.ALCHEMY_TOWER, DefenderType.BALLISTA_TOWER, DefenderType.DWARVEN_MINE)
                         }
-                    )
+                        LevelSpecialTowersInfoDialog(
+                            specialTowers = specialTowers,
+                            onDismiss = {
+                                val currentInfoState = gameState.infoState.value
+                                val dismissedInfo = currentInfoState.dismissInfo()
+                                gameState.infoState.value = dismissedInfo
+                            }
+                        )
+                    } else if (gameState.infoState.value.currentInfo == InfoType.TOWER_INFO) {
+                        // Special case for TOWER_INFO - show tower-specific info dialog
+                        val towerId = gameState.infoState.value.towerInfoId
+                        val defender = towerId?.let { id -> gameState.defenders.find { it.id == id } }
+                        if (defender != null) {
+                            TowerInfoDialog(
+                                defender = defender,
+                                onDismiss = {
+                                    val currentInfoState = gameState.infoState.value
+                                    val dismissedInfo = currentInfoState.dismissInfo()
+                                    gameState.infoState.value = dismissedInfo
+                                }
+                            )
+                        }
+                    } else {
+                        // Show info or tutorial in the tutorial overlay
+                        TutorialOverlay(
+                            currentStep = gameState.tutorialState.value.currentStep,
+                            isNextEnabled = gameState.tutorialState.value.isNextEnabled(gameState.defenders.size),
+                            onNext = {
+                                val currentTutorialState = gameState.tutorialState.value
+                                gameState.tutorialState.value = currentTutorialState.advanceStep()
+                            },
+                            onSkip = {
+                                gameState.tutorialState.value = gameState.tutorialState.value.skip()
+                            },
+                            currentInfo = gameState.infoState.value.currentInfo,
+                            onDismissInfo = {
+                                val currentInfoState = gameState.infoState.value
+                                val dismissedInfo = currentInfoState.dismissInfo()
+                                gameState.infoState.value = dismissedInfo
+                                
+                                // Remove mine warning from the list if it was a mine warning
+                                if (currentInfoState.currentInfo == InfoType.MINE_WARNING) {
+                                    currentInfoState.mineWarningId?.let { gameState.mineWarnings.remove(it) }
+                                }
+                            }
+                        )
+                    }
                 }
             }
         }

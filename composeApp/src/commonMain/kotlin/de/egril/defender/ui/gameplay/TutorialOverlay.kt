@@ -1,7 +1,9 @@
 package de.egril.defender.ui.gameplay
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
@@ -15,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.egril.defender.model.TutorialStep
 import de.egril.defender.model.InfoType
+import de.egril.defender.model.DefenderType
 import de.egril.defender.ui.icon.WoodIcon
 import de.egril.defender.utils.isPlatformMobile
 import com.hyperether.resources.stringResource
@@ -215,6 +218,8 @@ private fun InfoContent(infoType: InfoType, onDismiss: () -> Unit) {
         InfoType.RIVER_INFO -> RiverInfoContent(onDismiss)
         InfoType.MINE_ON_RIVER_WARNING -> MineOnRiverWarningContent(onDismiss)
         InfoType.AUTO_ATTACK_INFO -> AutoAttackInfoContent(onDismiss)
+        InfoType.SPECIAL_TOWERS_INFO -> { /* Handled specially in GamePlayScreen */ }
+        InfoType.TOWER_INFO -> { /* Handled specially in GamePlayScreen */ }
         InfoType.NONE -> { /* No content to show */ }
     }
 }
@@ -615,7 +620,17 @@ private fun WizardFirstUseContent(onDismiss: () -> Unit) {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                de.egril.defender.ui.icon.ExplosionIcon(size = 32.dp)
+                Box(
+                    modifier = Modifier
+                        .size(64.dp)  // Doubled from 32.dp
+                        .background(Color.Gray, CircleShape),  // Gray background for visibility
+                    contentAlignment = Alignment.Center
+                ) {
+                    de.egril.defender.ui.TowerTypeIcon(
+                        defenderType = DefenderType.WIZARD_TOWER,
+                        modifier = Modifier.size(56.dp)  // Slightly smaller than container
+                    )
+                }
                 Text(
                     text = stringResource(Res.string.wizard_first_use_title),
                     style = MaterialTheme.typography.titleLarge,
@@ -646,7 +661,17 @@ private fun AlchemyFirstUseContent(onDismiss: () -> Unit) {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                de.egril.defender.ui.icon.TestTubeIcon(size = 32.dp)
+                Box(
+                    modifier = Modifier
+                        .size(64.dp)  // Doubled from 32.dp
+                        .background(Color.Gray, CircleShape),  // Gray background for visibility
+                    contentAlignment = Alignment.Center
+                ) {
+                    de.egril.defender.ui.TowerTypeIcon(
+                        defenderType = DefenderType.ALCHEMY_TOWER,
+                        modifier = Modifier.size(56.dp)  // Slightly smaller than container
+                    )
+                }
                 Text(
                     text = stringResource(Res.string.alchemy_first_use_title),
                     style = MaterialTheme.typography.titleLarge,
@@ -677,7 +702,17 @@ private fun BallistaFirstUseContent(onDismiss: () -> Unit) {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                de.egril.defender.ui.icon.TargetIcon(size = 32.dp)
+                Box(
+                    modifier = Modifier
+                        .size(64.dp)  // Doubled from 32.dp
+                        .background(Color.Gray, CircleShape),  // Gray background for visibility
+                    contentAlignment = Alignment.Center
+                ) {
+                    de.egril.defender.ui.TowerTypeIcon(
+                        defenderType = DefenderType.BALLISTA_TOWER,
+                        modifier = Modifier.size(56.dp)  // Slightly smaller than container
+                    )
+                }
                 Text(
                     text = stringResource(Res.string.ballista_first_use_title),
                     style = MaterialTheme.typography.titleLarge,
@@ -708,7 +743,17 @@ private fun MineFirstUseContent(onDismiss: () -> Unit) {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                de.egril.defender.ui.icon.MoneyIcon(size = 32.dp)
+                Box(
+                    modifier = Modifier
+                        .size(64.dp)  // Doubled from 32.dp
+                        .background(Color.Gray, CircleShape),  // Gray background for visibility
+                    contentAlignment = Alignment.Center
+                ) {
+                    de.egril.defender.ui.TowerTypeIcon(
+                        defenderType = DefenderType.DWARVEN_MINE,
+                        modifier = Modifier.size(56.dp)  // Slightly smaller than container
+                    )
+                }
                 Text(
                     text = stringResource(Res.string.mine_first_use_title),
                     style = MaterialTheme.typography.titleLarge,
@@ -725,6 +770,17 @@ private fun MineFirstUseContent(onDismiss: () -> Unit) {
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurface
         )
+        
+        // Add mining probabilities section
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = stringResource(Res.string.mining_probabilities),
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            color = Color(0xFFFFD700)
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        MiningOutcomeGrid()
     }
 }
 

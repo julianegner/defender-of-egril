@@ -1214,4 +1214,9 @@
     <!-- Tower Base -->
     <string name="tower_base_hp_label">Base: %d HP</string>
     <string name="tower_base_info">Tower on base (destructible at &lt;100 HP)</string>
+    
+    <!-- Tower Info Dialog -->
+    <string name="tower_info_title">Tower Information</string>
+    <string name="special_towers_info_title">Special Towers</string>
+    <string name="special_towers_info_reopen">You can reopen this information at any time by clicking the tower icon in the level header.</string>
 </resources>

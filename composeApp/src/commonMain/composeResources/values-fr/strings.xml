@@ -1213,4 +1213,9 @@
     <!-- Tower Base -->
     <string name="tower_base_hp_label">Base: %d PV</string>
     <string name="tower_base_info">Tour sur base (destructible à &lt;100 PV)</string>
+    
+    <!-- Tower Info Dialog -->
+    <string name="tower_info_title">Informations sur la Tour</string>
+    <string name="special_towers_info_title">Tours Spéciales</string>
+    <string name="special_towers_info_reopen">Vous pouvez rouvrir ces informations à tout moment en cliquant sur l\'icône de tour dans l\'en-tête du niveau.</string>
 </resources>

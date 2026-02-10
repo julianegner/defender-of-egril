@@ -22,6 +22,8 @@ enum class InfoType {
     GREEN_WITCH_INFO,   // Green witch healing ability explanation
     RED_WITCH_INFO,     // Red witch tower disabling ability explanation
     AUTO_ATTACK_INFO,   // Auto-attack feature explanation (first time available)
+    SPECIAL_TOWERS_INFO, // Special towers info from level header (shown once per game)
+    TOWER_INFO,         // Tower info dialog (shown for selected tower)
     NONE                // No info to show
 }
 
@@ -32,7 +34,8 @@ enum class InfoType {
 data class InfoState(
     val currentInfo: InfoType = InfoType.NONE,
     val seenInfos: Set<InfoType> = emptySet(),
-    val mineWarningId: Int? = null  // For mine warnings, track which mine
+    val mineWarningId: Int? = null,  // For mine warnings, track which mine
+    val towerInfoId: Int? = null     // For tower info dialog, track which tower
 ) {
     /**
      * Check if we should show the info overlay
@@ -51,10 +54,11 @@ data class InfoState(
     /**
      * Show a specific info type
      */
-    fun showInfo(type: InfoType, mineId: Int? = null): InfoState {
+    fun showInfo(type: InfoType, mineId: Int? = null, towerId: Int? = null): InfoState {
         return copy(
             currentInfo = type,
-            mineWarningId = if (type == InfoType.MINE_WARNING) mineId else null
+            mineWarningId = if (type == InfoType.MINE_WARNING) mineId else null,
+            towerInfoId = if (type == InfoType.TOWER_INFO) towerId else null
         )
     }
     
@@ -70,7 +74,8 @@ data class InfoState(
         return copy(
             currentInfo = InfoType.NONE,
             seenInfos = updatedSeen,
-            mineWarningId = null
+            mineWarningId = null,
+            towerInfoId = null
         )
     }
     

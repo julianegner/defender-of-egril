@@ -1211,4 +1211,9 @@
     <!-- Tower Base -->
     <string name="tower_base_hp_label">Basis: %d TP</string>
     <string name="tower_base_info">Turm auf Basis (zerstörbar bei &lt;100 TP)</string>
+    
+    <!-- Tower Info Dialog -->
+    <string name="tower_info_title">Turminformationen</string>
+    <string name="special_towers_info_title">Spezielle Türme</string>
+    <string name="special_towers_info_reopen">Sie können diese Information jederzeit erneut öffnen, indem Sie auf das Turmsymbol im Level-Header klicken.</string>
 </resources>

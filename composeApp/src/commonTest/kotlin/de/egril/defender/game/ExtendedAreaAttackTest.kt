@@ -256,7 +256,7 @@ class ExtendedAreaAttackTest {
         assertEquals(20, wizard.level.value, "Tower should be level 20")
         
         // Verify tutorial was triggered
-        assertEquals(InfoType.EXTENDED_AREA_INFO, state.infoState.value.currentInfo, 
+        assertEquals(InfoType.EXTENDED_AREA_INFO, state.infoState.value.currentInfo,
             "Extended area info should be shown")
         assertTrue(wizard.hasShownExtendedAreaTutorial.value, "Tutorial should be marked as shown")
     }

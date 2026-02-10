@@ -2,18 +2,23 @@ package de.egril.defender.ui.icon
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import de.egril.defender.model.DigOutcome
+import de.egril.defender.ui.drawTowerBase
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.dig_outcome_brass
 import defender_of_egril.composeapp.generated.resources.dig_outcome_diamond
@@ -969,6 +974,70 @@ fun ChevronRightIcon(
             path = arrowPath,
             color = tint,
             style = Stroke(width = width * 0.15f, cap = StrokeCap.Round, join = StrokeJoin.Round)
+        )
+    }
+}
+
+/**
+ * Displays a simple tower icon using drawTowerBase
+ * Represents a generic tower for level header, without type-specific icon inside
+ */
+@Composable
+fun TowerIcon(
+    modifier: Modifier = Modifier.Companion,
+    size: Dp = 16.dp,
+    lineColor: Color = Color.Gray
+) {
+    Canvas(modifier = modifier.size(size)) {
+        val centerX = this.size.width / 2
+        val centerY = this.size.height / 2
+        val iconSize = minOf(this.size.width, this.size.height)
+        
+        // Draw tower base using the same function as in-game towers
+        drawTowerBase(centerX, centerY, iconSize * 0.8f, lineColor)
+    }
+}
+
+/**
+ * Displays a simple water/wave icon drawn with Canvas
+ * Represents water/river for level header
+ */
+@Composable
+fun WaterIcon(
+    modifier: Modifier = Modifier.Companion,
+    size: Dp = 16.dp,
+    tint: Color = Color(0xFF2196F3)  // Blue color
+) {
+    Canvas(modifier = modifier.size(size)) {
+        val width = size.toPx()
+        val height = size.toPx()
+        
+        // Draw wave pattern
+        val wavePath = Path().apply {
+            moveTo(0f, height * 0.5f)
+            // First wave
+            cubicTo(
+                width * 0.15f, height * 0.3f,
+                width * 0.25f, height * 0.7f,
+                width * 0.4f, height * 0.5f
+            )
+            // Second wave
+            cubicTo(
+                width * 0.55f, height * 0.3f,
+                width * 0.65f, height * 0.7f,
+                width * 0.8f, height * 0.5f
+            )
+            // Third wave
+            cubicTo(
+                width * 0.9f, height * 0.4f,
+                width * 0.95f, height * 0.5f,
+                width, height * 0.5f
+            )
+        }
+        drawPath(
+            path = wavePath,
+            color = tint,
+            style = Stroke(width = width * 0.1f, cap = StrokeCap.Round, join = StrokeJoin.Round)
         )
     }
 }
