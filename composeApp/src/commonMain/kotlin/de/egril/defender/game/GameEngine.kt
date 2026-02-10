@@ -696,8 +696,20 @@ class GameEngine(private val state: GameState) {
                             attackersStoppedByBarricade.add(Pair(attacker, alternativePos))
                             println("CETM ----------------------- Unit ${attacker.id} (${attacker.type}) at $currentPos also cannot move to alternative position $alternativePos due to barricade, will attack barricade instead")
                         }
+                    } else {
+                        // No alternative position found - check if there are nearby barricades to attack
+                        // Use moveTowards() to select the optimal barricade
+                        val barricadePos = pathfinding.moveTowards(currentPos, target, attacker)
+                        if (barricadePos != currentPos) {
+                            // moveTowards found a barricade to attack
+                            val barricadeAtPos = barricadeSystem.getBarricadeAt(barricadePos)
+                            if (barricadeAtPos != null && !barricadeAtPos.isDestroyed()) {
+                                attackersStoppedByBarricade.add(Pair(attacker, barricadePos))
+                                println("CETM ----------------------- Unit ${attacker.id} (${attacker.type}) at $currentPos blocked by other units, will attack optimal barricade at $barricadePos (HP: ${barricadeAtPos.healthPoints.value})")
+                            }
+                        }
                     }
-                    // If no alternative found, unit stays in place for this step
+                    // If still no movement, unit stays in place for this step
 
                     if (barricadeSystem.getBarricadeAt(newPos) != null) {
                         // If the original newPos has a barricade, mark attacker as stopped to handle barricade attack in applyMovement
@@ -1143,8 +1155,20 @@ class GameEngine(private val state: GameState) {
                                 println("Attacker ${attacker.id} reached waypoint at $alternativePos during spawn movement, next target: ${waypoint.nextTarget}")
                             }
                         }
+                    } else {
+                        // No alternative position found - check if there are nearby barricades to attack
+                        // Use moveTowards() to select the optimal barricade
+                        val barricadePos = pathfinding.moveTowards(currentPos, target, attacker)
+                        if (barricadePos != currentPos) {
+                            // moveTowards found a barricade to attack
+                            val barricadeAtPos = barricadeSystem.getBarricadeAt(barricadePos)
+                            if (barricadeAtPos != null && !barricadeAtPos.isDestroyed()) {
+                                attackersStoppedByBarricade.add(attacker.id)
+                                println("CETM ----------------------- Newly spawned unit ${attacker.id} (${attacker.type}) at $currentPos blocked by other units, will attack optimal barricade at $barricadePos (HP: ${barricadeAtPos.healthPoints.value})")
+                            }
+                        }
                     }
-                    // If no alternative found, unit stays in place for this step
+                    // If still no movement, unit stays in place for this step
                 }
             }
             
