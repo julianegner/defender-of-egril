@@ -633,7 +633,7 @@ class GameEngine(private val state: GameState) {
                         val barricadeAtPos = barricadeSystem.getBarricadeAt(nextPos)
                         if (barricadeAtPos != null && !barricadeAtPos.isDestroyed()) {
                             attackersStoppedByBarricade.add(Pair(attacker, nextPos))
-                            // println("CETM ----------------------- Unit ${attacker.id} (${attacker.type}) at $currentPos will attack barricade at $nextPos (HP: ${barricadeAtPos.healthPoints.value})")
+                            println("CETM -A---------------------- attackersStoppedByBarricade Unit ${attacker.id} (${attacker.type}) at $currentPos will attack barricade at $nextPos (HP: ${barricadeAtPos.healthPoints.value})")
                             continue
                         }
                     }
@@ -643,7 +643,7 @@ class GameEngine(private val state: GameState) {
                 
                 val newPos = path[1]  // Next position in path
                 val barricadeAtPath1 = barricadeSystem.getBarricadeAt(newPos)
-                println("CETM ----------------------- Unit ${attacker.id} (${attacker.type}) at $currentPos wants to move to $newPos towards target $target (barricade at newPos: ${barricadeAtPath1 != null && !barricadeAtPath1.isDestroyed()})")
+                // println("CETM ----------------------- Unit ${attacker.id} (${attacker.type}) at $currentPos wants to move to $newPos towards target $target (barricade at newPos: ${barricadeAtPath1 != null && !barricadeAtPath1.isDestroyed()})")
                 
                 // Check if there's a barricade at the new position (non-flying units only)
                 // If so, this unit will attack the barricade and stop moving for the rest of this turn
@@ -705,7 +705,7 @@ class GameEngine(private val state: GameState) {
                             val barricadeAtPos = barricadeSystem.getBarricadeAt(barricadePos)
                             if (barricadeAtPos != null && !barricadeAtPos.isDestroyed()) {
                                 attackersStoppedByBarricade.add(Pair(attacker, barricadePos))
-                                println("CETM ----------------------- Unit ${attacker.id} (${attacker.type}) at $currentPos blocked by other units, will attack optimal barricade at $barricadePos (HP: ${barricadeAtPos.healthPoints.value})")
+                                println("CETM -B---------------------- attackersStoppedByBarricade Unit ${attacker.id} (${attacker.type}) at $currentPos blocked by other units, will attack optimal barricade at $barricadePos (HP: ${barricadeAtPos.healthPoints.value})")
                             }
                         }
                     }
@@ -908,6 +908,7 @@ class GameEngine(private val state: GameState) {
         val isFlying = attacker.isFlying.value
 
         if (barricadeAtPosition != null && !barricadeAtPosition.isDestroyed() && !isFlying) {
+            println("Attack barricade: Attacker ${attacker.id} (${attacker.type}) at ${attacker.position.value} attacks barricade at $newPosition (HP: ${barricadeAtPosition.healthPoints.value})")
             // Non-flying enemy encounters barricade - attack it instead of moving
             val damage = if (attacker.type.isDragon) {
                 attacker.level.value * 5
@@ -1164,7 +1165,7 @@ class GameEngine(private val state: GameState) {
                             val barricadeAtPos = barricadeSystem.getBarricadeAt(barricadePos)
                             if (barricadeAtPos != null && !barricadeAtPos.isDestroyed()) {
                                 attackersStoppedByBarricade.add(attacker.id)
-                                println("CETM ----------------------- Newly spawned unit ${attacker.id} (${attacker.type}) at $currentPos blocked by other units, will attack optimal barricade at $barricadePos (HP: ${barricadeAtPos.healthPoints.value})")
+                                println("CETM -C---------------------- attackersStoppedByBarricade Newly spawned unit ${attacker.id} (${attacker.type}) at $currentPos blocked by other units, will attack optimal barricade at $barricadePos (HP: ${barricadeAtPos.healthPoints.value})")
                             }
                         }
                     }

@@ -229,11 +229,18 @@ class PathfindingSystem(private val state: GameState) {
         
         // Filter to non-blocked neighbors
         val validNeighbors = pathNeighbors.filter { !isBlocked(it, attacker) }
-        
+
+        // println("Barricade selection VV ${attacker?.id} $validNeighbors")
+
+        /*
+         * If there are valid neighbors without barricades, choose the one closest to the goal.
+         */
         if (validNeighbors.isNotEmpty()) {
             // Return the neighbor closest to the goal
             return validNeighbors.minByOrNull { it.distanceTo(to) } ?: from
         }
+
+        println("Barricade selection XX")
         
         // No valid neighbors without barricades, check if there are neighbors with barricades
         // Flying dragons can move over barricades, so this only applies to non-flying units
