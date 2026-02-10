@@ -12,7 +12,7 @@ class PathfindingSystem(private val state: GameState) {
         private const val LASTING_DAMAGE_DIVISOR = 2
     }
     
-    fun findPath(start: Position, goal: Position, attacker: Attacker? = null): List<Position> {
+    fun findPath(start: Position, goal: Position, attacker: Attacker? = null, excludedPositions: Set<Position> = emptySet()): List<Position> {
         if (start == goal) return listOf(start)
         
         val openSet = mutableSetOf(start)
@@ -37,7 +37,7 @@ class PathfindingSystem(private val state: GameState) {
             
             openSet.remove(current)
             
-            for (neighbor in getNeighbors(current, goal, attacker)) {
+            for (neighbor in getNeighbors(current, goal, attacker, excludedPositions)) {
                 val moveCost = calculateMoveCost(neighbor, attacker)
                 val tentativeGScore = (gScore[current] ?: Int.MAX_VALUE) + moveCost
                 
@@ -54,7 +54,7 @@ class PathfindingSystem(private val state: GameState) {
         }
         
         // No path found or max iterations reached, return simple path towards goal
-        return listOf(start, moveTowards(start, goal, attacker))
+        return listOf(start, moveTowards(start, goal, attacker, excludedPositions))
     }
     
     /**
@@ -157,7 +157,7 @@ class PathfindingSystem(private val state: GameState) {
         return path
     }
     
-    private fun getNeighbors(pos: Position, goal: Position, attacker: Attacker?): List<Position> {
+    private fun getNeighbors(pos: Position, goal: Position, attacker: Attacker?, excludedPositions: Set<Position> = emptySet()): List<Position> {
         // Use hexagonal neighbors instead of square grid
         return pos.getHexNeighbors().filter { neighbor ->
             neighbor.x >= 0 && neighbor.x < state.level.gridWidth &&
@@ -167,7 +167,8 @@ class PathfindingSystem(private val state: GameState) {
              isGoalMineForDragon(neighbor, goal, attacker) ||
              isDestroyedMinePosition(neighbor) ||
              state.isBridgeAt(neighbor)) &&  // Bridges are walkable for enemies
-            !isBlocked(neighbor, attacker)
+            !isBlocked(neighbor, attacker) &&
+            !excludedPositions.contains(neighbor)  // Exclude specified positions
         }
     }
     
@@ -212,7 +213,7 @@ class PathfindingSystem(private val state: GameState) {
         return false
     }
     
-    fun moveTowards(from: Position, to: Position, attacker: Attacker? = null): Position {
+    fun moveTowards(from: Position, to: Position, attacker: Attacker? = null, excludedPositions: Set<Position> = emptySet()): Position {
         // Use hexagonal neighbors to find the best next position
         val hexNeighbors = from.getHexNeighbors()
         
@@ -224,7 +225,8 @@ class PathfindingSystem(private val state: GameState) {
              state.level.isTargetPosition(neighbor) || 
              isGoalMineForDragon(neighbor, to, attacker) ||
              isDestroyedMinePosition(neighbor) ||
-             state.isBridgeAt(neighbor))  // Bridges are walkable for enemies
+             state.isBridgeAt(neighbor)) &&  // Bridges are walkable for enemies
+            !excludedPositions.contains(neighbor)  // Exclude specified positions
         }
         
         // Filter to non-blocked neighbors
