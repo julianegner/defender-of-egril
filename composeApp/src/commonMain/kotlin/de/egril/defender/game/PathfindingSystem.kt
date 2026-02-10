@@ -239,11 +239,7 @@ class PathfindingSystem(private val state: GameState) {
         // Flying dragons can move over barricades, so this only applies to non-flying units
         val isFlying = attacker?.isFlying?.value == true
         if (!isFlying) {
-            // Check ALL neighbors within bounds for barricades, not just path neighbors
-            // Barricades can be placed anywhere (build areas, paths, etc.)
-            val neighborsWithBarricades = hexNeighbors.filter { neighbor ->
-                neighbor.x >= 0 && neighbor.x < state.level.gridWidth &&
-                neighbor.y >= 0 && neighbor.y < state.level.gridHeight &&
+            val neighborsWithBarricades = pathNeighbors.filter { neighbor ->
                 // Check if neighbor has a barricade
                 state.barricades.any { it.position == neighbor && !it.isDestroyed() }
             }
