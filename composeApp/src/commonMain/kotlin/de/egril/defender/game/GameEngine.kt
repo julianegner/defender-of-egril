@@ -699,8 +699,28 @@ class GameEngine(private val state: GameState) {
                                 val barricadeAtOptimal = barricadeSystem.getBarricadeAt(optimalBarricadePos)
                                 if (barricadeAtOptimal != null && !barricadeAtOptimal.isDestroyed()) {
                                     attackersStoppedByBarricade.add(Pair(attacker, optimalBarricadePos))
-                                    println("CETM -E---------------------- attackersStoppedByBarricade Unit ${attacker.id} (${attacker.type}) at $currentPos blocked by barricades, will attack optimal barricade at $optimalBarricadePos (HP: ${barricadeAtOptimal.healthPoints.value})")
+                                    println("CETM -EEEE---------------------- attackersStoppedByBarricade Unit ${attacker.id} (${attacker.type}) at $currentPos blocked by barricades, will attack optimal barricade at $optimalBarricadePos (HP: ${barricadeAtOptimal.healthPoints.value})")
                                 }
+                            }
+
+
+                            println("CETM -E---------------------- attackersStoppedByBarricade Unit ${attacker.id} (${attacker.type}) at $currentPos also cannot move to alternative position $alternativePos due to barricade, will attack barricade instead")
+                            println("")
+                            println("")
+                            // original step or alternative step
+                            println("step options: $newPos or $alternativePos")
+                            // barricades at original and alternative step
+                            val b1 = barricadeSystem.getBarricadeAt(newPos)
+                            val b2 = barricadeSystem.getBarricadeAt(alternativePos)
+                            val b3 = barricadeSystem.getBarricadeAt(optimalBarricadePos)
+                            println("barricade at original step: ${b1 != null && !b1.isDestroyed()} (HP: ${b1?.healthPoints?.value}), barricade at alternative step: ${b2 != null && !b2.isDestroyed()} (HP: ${b2?.healthPoints?.value})")
+                            println("")
+                            println("$optimalBarricadePos, step: ${b3 != null && !b3.isDestroyed()} (HP: ${b3?.healthPoints?.value}) tower base: ${b3?.supportedTowerId?.value != null}")
+                            println("")
+                            println("")
+                            println("")
+                            state.barricades.forEach { b ->
+                                println("All barricades: Barricade at ${b.position} (HP: ${b.healthPoints.value}) tower base: ${b.supportedTowerId.value != null}")
                             }
                         }
                     } else {
