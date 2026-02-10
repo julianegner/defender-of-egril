@@ -609,8 +609,8 @@ class GameEngine(private val state: GameState) {
                     println("Enemy turn: Attacker ${attacker.id} (${attacker.type}) at $currentPos pathing to target: $target")
                 }
                 var path = pathfinding.findPath(currentPos, target, attacker)
-                println("CETM ----------------------- Unit ${attacker.id} (${attacker.type}) at $currentPos: findPath returned path of size ${path.size}")
-                
+                // println("CETM ----------------------- Unit ${attacker.id} (${attacker.type}) at $currentPos: findPath returned path of size ${path.size}")
+
                 // If still no path after bridge attempt, try one more time
                 if (path.size < 2 && attacker.type.canBuildBridge && !attacker.isBuildingBridge.value) {
                     if (bridgeSystem.shouldAutoBuildBridge(attacker)) {
@@ -633,7 +633,7 @@ class GameEngine(private val state: GameState) {
                         val barricadeAtPos = barricadeSystem.getBarricadeAt(nextPos)
                         if (barricadeAtPos != null && !barricadeAtPos.isDestroyed()) {
                             attackersStoppedByBarricade.add(Pair(attacker, nextPos))
-                            println("CETM ----------------------- Unit ${attacker.id} (${attacker.type}) at $currentPos will attack barricade at $nextPos (HP: ${barricadeAtPos.healthPoints.value})")
+                            // println("CETM ----------------------- Unit ${attacker.id} (${attacker.type}) at $currentPos will attack barricade at $nextPos (HP: ${barricadeAtPos.healthPoints.value})")
                             continue
                         }
                     }
@@ -654,7 +654,7 @@ class GameEngine(private val state: GameState) {
                         // Mark this attacker as stopped - it will attack the barricade in applyMovement
                         attackersStoppedByBarricade.add(Pair(attacker, newPos))
 
-                        println("CETM ----------------------- Unit ${attacker.id} (${attacker.type}) at $currentPos cannot move to $newPos due to barricade, will attack barricade instead")
+                        // println("CETM ----------------------- Unit ${attacker.id} (${attacker.type}) at $currentPos cannot move to $newPos due to barricade, will attack barricade instead")
 
                         continue
                     }
@@ -672,7 +672,7 @@ class GameEngine(private val state: GameState) {
                             || barricadeSystem.getBarricadeAt(newPos) != null
                 }
 
-                println("CETM ----------------------- Unit ${attacker.id} (${attacker.type}) at $currentPos trying to move to $newPos. Occupied: $isOccupied")
+                // println("CETM ----------------------- Unit ${attacker.id} (${attacker.type}) at $currentPos trying to move to $newPos. Occupied: $isOccupied")
                 
                 if (!isOccupied) {
                     movementsInThisStep.add(Pair(attacker.id, newPos))
@@ -694,7 +694,7 @@ class GameEngine(private val state: GameState) {
                         } else {
                             // Alternative position has a barricade, mark attacker as stopped to handle barricade attack in applyMovement
                             attackersStoppedByBarricade.add(Pair(attacker, alternativePos))
-                            println("CETM ----------------------- Unit ${attacker.id} (${attacker.type}) at $currentPos also cannot move to alternative position $alternativePos due to barricade, will attack barricade instead")
+                            // println("CETM ----------------------- Unit ${attacker.id} (${attacker.type}) at $currentPos also cannot move to alternative position $alternativePos due to barricade, will attack barricade instead")
                         }
                     } else {
                         // No alternative position found - check if there are nearby barricades to attack
@@ -714,12 +714,12 @@ class GameEngine(private val state: GameState) {
                     if (barricadeSystem.getBarricadeAt(newPos) != null) {
                         // If the original newPos has a barricade, mark attacker as stopped to handle barricade attack in applyMovement
                         attackersStoppedByBarricade.add(Pair(attacker, newPos))
-                        println("CETM ----------------------- Unit ${attacker.id} (${attacker.type}) at $currentPos cannot move to $newPos due to barricade, will attack barricade instead")
+                        // println("CETM ----------------------- Unit ${attacker.id} (${attacker.type}) at $currentPos cannot move to $newPos due to barricade, will attack barricade instead")
                     }
                 }
             }
-            println("CETM ----------------------- End of step $stepIndex, movements planned: ${movementsInThisStep.size}, positions to occupy next: $positionsToOccupy")
-            println("CETM -- barricade-stopped attackers so far: $attackersStoppedByBarricade")
+            // println("CETM ----------------------- End of step $stepIndex, movements planned: ${movementsInThisStep.size}, positions to occupy next: $positionsToOccupy")
+            // println("CETM -- barricade-stopped attackers so far: $attackersStoppedByBarricade")
             
             if (movementsInThisStep.isNotEmpty()) {
                 allMovementSteps.add(movementsInThisStep)
@@ -1084,7 +1084,7 @@ class GameEngine(private val state: GameState) {
                         val barricadeAtPos = barricadeSystem.getBarricadeAt(nextPos)
                         if (barricadeAtPos != null && !barricadeAtPos.isDestroyed()) {
                             attackersStoppedByBarricade.add(attacker.id)
-                            println("CETM ----------------------- Newly spawned unit ${attacker.id} (${attacker.type}) at $currentPos will attack barricade at $nextPos (HP: ${barricadeAtPos.healthPoints.value})")
+                            // println("CETM ----------------------- Newly spawned unit ${attacker.id} (${attacker.type}) at $currentPos will attack barricade at $nextPos (HP: ${barricadeAtPos.healthPoints.value})")
                             continue
                         }
                     }
