@@ -61,6 +61,8 @@ fun SavedGameCard(
                 )
             }
             // Create minimal Barricade objects for minimap display
+            // Note: Using mutableStateOf for consistency with the Barricade model,
+            // even though these values won't be updated in the minimap context
             val barricades = saveGame.barricadePositions.map { saved ->
                 Barricade(
                     id = saved.id,

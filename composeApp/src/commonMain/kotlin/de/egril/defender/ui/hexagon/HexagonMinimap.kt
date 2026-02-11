@@ -291,7 +291,8 @@ private fun HexagonMinimapContent(
                 }
                 
                 // Draw barricades (only if they don't have a tower on them)
-                // If a barricade has a tower, the tower is already shown above
+                // Note: If a barricade has a tower, the tower is already shown in the defenders loop above,
+                // so we skip rendering the barricade to avoid double-rendering
                 gameState.barricades.forEach { barricade ->
                     if (!barricade.hasTower()) {
                         val center = getHexCenterPosition(barricade.position)
