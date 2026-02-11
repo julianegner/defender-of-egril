@@ -115,11 +115,6 @@ fun TowerIcon(
                 centerY
             }
             
-            // Draw tower base wood platform if on tower base
-            if (isOnTowerBase) {
-                drawTowerBasePlatform(centerX, centerY, iconSize * 0.9f)
-            }
-            
             // Draw raft base OR tower base (not both)
             if (defender.raftId.value != null) {
                 // If on a raft, draw only the raft base
@@ -147,6 +142,10 @@ fun TowerIcon(
                     } ?: true
                     drawDragonLairSymbol(centerX, adjustedCenterY, iconSize * 0.6f, dragonAlive)
                 }
+            }
+            // Draw tower base wood platform if on tower base
+            if (isOnTowerBase) {
+                drawTowerBasePlatform(centerX, centerY, iconSize * 0.9f)
             }
         }
         
