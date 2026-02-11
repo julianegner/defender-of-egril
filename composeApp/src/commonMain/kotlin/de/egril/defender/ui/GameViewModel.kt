@@ -3,6 +3,7 @@ package de.egril.defender.ui
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import de.egril.defender.game.GameEngine
+import de.egril.defender.game.GameEngine.EnemyTurnMovements
 import de.egril.defender.game.LevelData
 import de.egril.defender.model.*
 import de.egril.defender.model.DifficultyModifiers
@@ -526,7 +527,9 @@ class GameViewModel {
             engine.startEnemyTurn()
             
             // Calculate all movement steps for existing units
-            val movementSteps = engine.calculateEnemyTurnMovements()
+            val enemyTurnMovements = engine.calculateEnemyTurnMovements()
+            val movementSteps = enemyTurnMovements.allMovementSteps
+            val attackersStoppedByBarricade = enemyTurnMovements.attackersStoppedByBarricade
             
             // Apply each movement step with a delay between steps
             for (stepMovements in movementSteps) {
@@ -537,12 +540,18 @@ class GameViewModel {
                 // Delay between movement steps so user can see the animation (reduced from 400ms to 200ms)
                 delay(200)
             }
+
+            attackersStoppedByBarricade.forEach { it ->
+                println("attackBarricade B")
+                // fixit HERE
+                engine.attackBarricade(it.second, it.first)
+            }
             
             // Add a small delay to see final positions before spawning new units (reduced from 300ms to 150ms)
             if (movementSteps.isNotEmpty()) {
                 delay(150)
             }
-            
+
             // Now spawn new units (spawn points should be clear after movements)
             engine.spawnEnemyTurnAttackers()
             

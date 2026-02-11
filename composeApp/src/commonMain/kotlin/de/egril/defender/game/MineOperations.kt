@@ -350,4 +350,43 @@ class MineOperations(private val state: GameState) {
         // Fallback: return spawn point even if occupied (enemies will overlap)
         return targetSpawnPoint
     }
+    
+    /**
+     * Check and activate trap at a specific position for a specific attacker.
+     * This is called during movement when an enemy steps onto a trap position.
+     * Returns true if a trap was activated.
+     */
+    fun checkAndActivateTrapForAttacker(attacker: Attacker): Boolean {
+        val trapAtPosition = state.traps.find { it.position == attacker.position.value }
+        
+        if (trapAtPosition != null) {
+            // Play trap trigger sound
+            GlobalSoundManager.playSound(SoundEvent.TRAP_TRIGGERED)
+            
+            when (trapAtPosition.type) {
+                TrapType.DWARVEN -> {
+                    // Deal damage to enemy
+                    attacker.currentHealth.value -= trapAtPosition.damage
+                    
+                    // Check if defeated
+                    if (attacker.currentHealth.value <= 0) {
+                        attacker.isDefeated.value = true
+                    }
+                }
+                TrapType.MAGICAL -> {
+                    // Teleport enemy back to spawn point
+                    val spawnPoint = findSpawnPointForEnemy(attacker)
+                    if (spawnPoint != null) {
+                        attacker.position.value = spawnPoint
+                    }
+                }
+            }
+            
+            // Remove activated trap (both types are single-use)
+            state.traps.remove(trapAtPosition)
+            return true
+        }
+        
+        return false
+    }
 }

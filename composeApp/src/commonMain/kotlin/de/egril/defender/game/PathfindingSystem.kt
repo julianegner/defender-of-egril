@@ -12,7 +12,7 @@ class PathfindingSystem(private val state: GameState) {
         private const val LASTING_DAMAGE_DIVISOR = 2
     }
     
-    fun findPath(start: Position, goal: Position, attacker: Attacker? = null): List<Position> {
+    fun findPath(start: Position, goal: Position, attacker: Attacker? = null, excludedPositions: Set<Position> = emptySet(), ignoreBarricades: Boolean = false): List<Position> {
         if (start == goal) return listOf(start)
         
         val openSet = mutableSetOf(start)
@@ -37,7 +37,7 @@ class PathfindingSystem(private val state: GameState) {
             
             openSet.remove(current)
             
-            for (neighbor in getNeighbors(current, goal, attacker)) {
+            for (neighbor in getNeighbors(current, goal, attacker, excludedPositions, ignoreBarricades)) {
                 val moveCost = calculateMoveCost(neighbor, attacker)
                 val tentativeGScore = (gScore[current] ?: Int.MAX_VALUE) + moveCost
                 
@@ -54,7 +54,7 @@ class PathfindingSystem(private val state: GameState) {
         }
         
         // No path found or max iterations reached, return simple path towards goal
-        return listOf(start, moveTowards(start, goal, attacker))
+        return listOf(start, moveTowards(start, goal, attacker, excludedPositions))
     }
     
     /**
@@ -157,7 +157,7 @@ class PathfindingSystem(private val state: GameState) {
         return path
     }
     
-    private fun getNeighbors(pos: Position, goal: Position, attacker: Attacker?): List<Position> {
+    private fun getNeighbors(pos: Position, goal: Position, attacker: Attacker?, excludedPositions: Set<Position> = emptySet(), ignoreBarricades: Boolean = false): List<Position> {
         // Use hexagonal neighbors instead of square grid
         return pos.getHexNeighbors().filter { neighbor ->
             neighbor.x >= 0 && neighbor.x < state.level.gridWidth &&
@@ -167,7 +167,8 @@ class PathfindingSystem(private val state: GameState) {
              isGoalMineForDragon(neighbor, goal, attacker) ||
              isDestroyedMinePosition(neighbor) ||
              state.isBridgeAt(neighbor)) &&  // Bridges are walkable for enemies
-            !isBlocked(neighbor, attacker)
+            !isBlocked(neighbor, attacker, ignoreBarricades) &&
+            !excludedPositions.contains(neighbor)  // Exclude specified positions
         }
     }
     
@@ -197,14 +198,14 @@ class PathfindingSystem(private val state: GameState) {
         return state.destroyedMinePositions.contains(pos)
     }
     
-    private fun isBlocked(pos: Position, attacker: Attacker? = null): Boolean {
+    private fun isBlocked(pos: Position, attacker: Attacker? = null, ignoreBarricades: Boolean = false): Boolean {
         // Check if position has a build island (these block enemies)
         if (state.level.isBuildIsland(pos)) return true
         
         // Check if position has a barricade
         // Flying dragons can move over barricades (like they can fly over non-playable tiles)
         val isFlying = attacker?.isFlying?.value == true
-        if (!isFlying) {
+        if (!isFlying and !ignoreBarricades) {
             val hasBarricade = state.barricades.any { it.position == pos && !it.isDestroyed() }
             if (hasBarricade) return true
         }
@@ -212,12 +213,12 @@ class PathfindingSystem(private val state: GameState) {
         return false
     }
     
-    fun moveTowards(from: Position, to: Position, attacker: Attacker? = null): Position {
+    fun moveTowards(from: Position, to: Position, attacker: Attacker? = null, excludedPositions: Set<Position> = emptySet()): Position {
         // Use hexagonal neighbors to find the best next position
         val hexNeighbors = from.getHexNeighbors()
         
-        // Filter to valid neighbors (on path or target, within bounds, not blocked)
-        val validNeighbors = hexNeighbors.filter { neighbor ->
+        // Filter to valid neighbors (on path or target, within bounds)
+        val pathNeighbors = hexNeighbors.filter { neighbor ->
             neighbor.x >= 0 && neighbor.x < state.level.gridWidth &&
             neighbor.y >= 0 && neighbor.y < state.level.gridHeight &&
             (state.level.isOnPath(neighbor) || 
@@ -225,15 +226,63 @@ class PathfindingSystem(private val state: GameState) {
              isGoalMineForDragon(neighbor, to, attacker) ||
              isDestroyedMinePosition(neighbor) ||
              state.isBridgeAt(neighbor)) &&  // Bridges are walkable for enemies
-            !isBlocked(neighbor, attacker)
+            !excludedPositions.contains(neighbor)  // Exclude specified positions
         }
         
-        if (validNeighbors.isEmpty()) {
-            // No valid moves, stay in place
-            return from
+        // Filter to non-blocked neighbors
+        val validNeighbors = pathNeighbors.filter { !isBlocked(it, attacker) }
+
+        // println("Barricade selection VV ${attacker?.id} $validNeighbors")
+
+        /*
+         * If there are valid neighbors without barricades, choose the one closest to the goal.
+         */
+        if (validNeighbors.isNotEmpty()) {
+            // Return the neighbor closest to the goal
+            return validNeighbors.minByOrNull { it.distanceTo(to) } ?: from
+        }
+
+        println("Barricade selection XX")
+        
+        // No valid neighbors without barricades, check if there are neighbors with barricades
+        // Flying dragons can move over barricades, so this only applies to non-flying units
+        val isFlying = attacker?.isFlying?.value == true
+        if (!isFlying) {
+            val neighborsWithBarricades = pathNeighbors.filter { neighbor ->
+                // Check if neighbor has a barricade
+                state.barricades.any { it.position == neighbor && !it.isDestroyed() }
+            }
+            
+            if (neighborsWithBarricades.isNotEmpty()) {
+                // Calculate which barricade is fastest to break through and reach the goal
+                // Formula: turns_to_destroy + distance_to_target
+                // This considers both barricade strength and position optimally
+                
+                return neighborsWithBarricades.minWithOrNull(
+                    compareBy<Position> { pos ->
+                        val barricade = state.barricades.find { it.position == pos && !it.isDestroyed() }
+                        if (barricade == null) {
+                            return@compareBy Int.MAX_VALUE
+                        }
+
+                        // Calculate turns needed to destroy this barricade
+                        val attackerDamage = if (attacker?.type?.isDragon == true) {
+                            attacker.level.value * 5
+                        } else {
+                            attacker?.level?.value ?: 1
+                        }
+                        val turnsToDestroy = (barricade.healthPoints.value + attackerDamage - 1) / attackerDamage // Ceiling division
+
+                        val distanceAfter = pos.distanceTo(to)
+                        val preferTowerBase = if (barricade.hasTower()) -100 else 0 // Prefer barricades with towers on them (like gate bases) if all else is equal
+                        val totalCost = turnsToDestroy + distanceAfter + preferTowerBase
+                        totalCost
+                    }
+                ) ?: from
+            }
         }
         
-        // Return the neighbor closest to the goal
-        return validNeighbors.minByOrNull { it.distanceTo(to) } ?: from
+        // No valid moves at all, stay in place
+        return from
     }
 }
