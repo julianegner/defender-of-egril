@@ -35,7 +35,7 @@ fun SavedGameCard(
     
     // Create a minimal GameState for minimap rendering
     val minimapGameState = remember(saveGame.id) {
-        if (level != null && (saveGame.defenderPositions.isNotEmpty() || saveGame.attackerPositions.isNotEmpty())) {
+        if (level != null && (saveGame.defenderPositions.isNotEmpty() || saveGame.attackerPositions.isNotEmpty() || saveGame.barricadePositions.isNotEmpty())) {
             // Create minimal Defender/Attacker objects for minimap display
             val defenders = saveGame.defenderPositions.map { saved ->
                 Defender(
@@ -60,11 +60,22 @@ fun SavedGameCard(
                     isDefeated = mutableStateOf(false)
                 )
             }
+            // Create minimal Barricade objects for minimap display
+            val barricades = saveGame.barricadePositions.map { saved ->
+                Barricade(
+                    id = saved.id,
+                    position = saved.position,
+                    healthPoints = mutableStateOf(saved.healthPoints),
+                    defenderId = saved.defenderId,
+                    supportedTowerId = mutableStateOf(saved.supportedTowerId)
+                )
+            }
             // Create a minimal GameState with just the data needed for rendering
             GameState(
                 level = level,
                 defenders = androidx.compose.runtime.snapshots.SnapshotStateList<Defender>().apply { addAll(defenders) },
-                attackers = androidx.compose.runtime.snapshots.SnapshotStateList<Attacker>().apply { addAll(attackers) }
+                attackers = androidx.compose.runtime.snapshots.SnapshotStateList<Attacker>().apply { addAll(attackers) },
+                barricades = androidx.compose.runtime.snapshots.SnapshotStateList<Barricade>().apply { addAll(barricades) }
             )
         } else {
             null
