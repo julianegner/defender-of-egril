@@ -787,8 +787,6 @@ class GameEngine(private val state: GameState) {
          */
 
         // First, check the direct path (ignoring barricades) separately
-        // IMPORTANT: This path is added to the set but NOT excluded from subsequent pathfinding
-        // This preserves the original behavior where pathIgnoringBarricades is checked independently
         val pathIgnoringBarricades = pathfinding.findPath(currentPos, target, attacker, ignoreBarricades = true)
         if (pathIgnoringBarricades.size > 1) {
             val barricadeAtPath = barricadeSystem.getBarricadeAt(pathIgnoringBarricades[1])
@@ -798,16 +796,15 @@ class GameEngine(private val state: GameState) {
         }
         
         // Now loop through alternative paths, progressively excluding positions found
-        // This replaces the hardcoded path1, path2, path3 approach with a general loop
-        // The key is that we only exclude positions from THIS loop, not from pathIgnoringBarricades
+        // This replaces the hardcoded path1, path2, path3 approach
         val excludedPositions = mutableSetOf<Position>()
-        var maxIterations = 10  // Safety limit
+        var maxIterations = 10  // Safety limit (original code had 3, but we support more)
         var iteration = 0
         
         while (iteration < maxIterations) {
             iteration++
             
-            // Find path excluding previously found barricade positions (from the loop only)
+            // Find path excluding previously found barricade positions
             val currentPath = pathfinding.findPath(currentPos, target, attacker, excludedPositions)
             
             // Check if path is valid and reaches target
@@ -833,6 +830,8 @@ class GameEngine(private val state: GameState) {
         var min = Int.MAX_VALUE
         var pathOfLeastEffort: Pair<Barricade, List<Position>>? = null
 
+        println("[REFACTORED] barricadePathSet size: ${barricadePathSet.size}")
+        
         barricadePathSet.forEach { (barricade, path) ->
             val hp = if (barricade.hasTower()) {
                 barricade.healthPoints.value - 100
@@ -842,6 +841,8 @@ class GameEngine(private val state: GameState) {
             val pathSteps = path.size - 1
             val effort = (hp / getBarricadeDamageForEnemyUnit(attacker)) + pathSteps
 
+            println("[REFACTORED] Barricade at ${barricade.position}, HP=${barricade.healthPoints.value}, hasTower=${barricade.hasTower()}, effectiveHP=$hp, pathSteps=$pathSteps, effort=$effort")
+
             if (effort < min) {
                 min = effort
                 pathOfLeastEffort = Pair(barricade, path)
@@ -849,6 +850,7 @@ class GameEngine(private val state: GameState) {
         }
 
         if (pathOfLeastEffort != null) {
+            println("[REFACTORED] SELECTED: Barricade at ${pathOfLeastEffort.first.position}, HP=${pathOfLeastEffort.first.healthPoints.value}")
             attackersStoppedByBarricade.add(Pair(attacker, pathOfLeastEffort.first.position))
         }
     }
