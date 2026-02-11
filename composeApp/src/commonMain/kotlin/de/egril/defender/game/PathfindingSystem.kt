@@ -12,7 +12,7 @@ class PathfindingSystem(private val state: GameState) {
         private const val LASTING_DAMAGE_DIVISOR = 2
     }
     
-    fun findPath(start: Position, goal: Position, attacker: Attacker? = null, excludedPositions: Set<Position> = emptySet()): List<Position> {
+    fun findPath(start: Position, goal: Position, attacker: Attacker? = null, excludedPositions: Set<Position> = emptySet(), ignoreBarricades: Boolean = false): List<Position> {
         if (start == goal) return listOf(start)
         
         val openSet = mutableSetOf(start)
@@ -37,7 +37,7 @@ class PathfindingSystem(private val state: GameState) {
             
             openSet.remove(current)
             
-            for (neighbor in getNeighbors(current, goal, attacker, excludedPositions)) {
+            for (neighbor in getNeighbors(current, goal, attacker, excludedPositions, ignoreBarricades)) {
                 val moveCost = calculateMoveCost(neighbor, attacker)
                 val tentativeGScore = (gScore[current] ?: Int.MAX_VALUE) + moveCost
                 
@@ -157,7 +157,7 @@ class PathfindingSystem(private val state: GameState) {
         return path
     }
     
-    private fun getNeighbors(pos: Position, goal: Position, attacker: Attacker?, excludedPositions: Set<Position> = emptySet()): List<Position> {
+    private fun getNeighbors(pos: Position, goal: Position, attacker: Attacker?, excludedPositions: Set<Position> = emptySet(), ignoreBarricades: Boolean = false): List<Position> {
         // Use hexagonal neighbors instead of square grid
         return pos.getHexNeighbors().filter { neighbor ->
             neighbor.x >= 0 && neighbor.x < state.level.gridWidth &&
@@ -167,7 +167,7 @@ class PathfindingSystem(private val state: GameState) {
              isGoalMineForDragon(neighbor, goal, attacker) ||
              isDestroyedMinePosition(neighbor) ||
              state.isBridgeAt(neighbor)) &&  // Bridges are walkable for enemies
-            !isBlocked(neighbor, attacker) &&
+            !isBlocked(neighbor, attacker, ignoreBarricades) &&
             !excludedPositions.contains(neighbor)  // Exclude specified positions
         }
     }
@@ -198,14 +198,14 @@ class PathfindingSystem(private val state: GameState) {
         return state.destroyedMinePositions.contains(pos)
     }
     
-    private fun isBlocked(pos: Position, attacker: Attacker? = null): Boolean {
+    private fun isBlocked(pos: Position, attacker: Attacker? = null, ignoreBarricades: Boolean = false): Boolean {
         // Check if position has a build island (these block enemies)
         if (state.level.isBuildIsland(pos)) return true
         
         // Check if position has a barricade
         // Flying dragons can move over barricades (like they can fly over non-playable tiles)
         val isFlying = attacker?.isFlying?.value == true
-        if (!isFlying) {
+        if (!isFlying and !ignoreBarricades) {
             val hasBarricade = state.barricades.any { it.position == pos && !it.isDestroyed() }
             if (hasBarricade) return true
         }
@@ -258,32 +258,13 @@ class PathfindingSystem(private val state: GameState) {
                 // Formula: turns_to_destroy + distance_to_target
                 // This considers both barricade strength and position optimally
                 
-                // Debug logging to understand barricade selection
-                if (attacker != null) {
-                    println("Barricade selection for ${attacker.type} (damage: ${if (attacker.type.isDragon) attacker.level.value * 5 else attacker.level.value}) at $from to $to:")
-                    neighborsWithBarricades.forEach { pos ->
-                        val barricade = state.barricades.find { it.position == pos && !it.isDestroyed() }
-                        if (barricade != null) {
-                            val attackerDamage = if (attacker.type.isDragon) {
-                                attacker.level.value * 5
-                            } else {
-                                attacker.level.value
-                            }
-                            val turnsToDestroy = (barricade.healthPoints.value + attackerDamage - 1) / attackerDamage
-                            val distanceAfter = pos.distanceTo(to)
-                            val totalCost = turnsToDestroy + distanceAfter
-                            println("  Barricade at $pos: HP=${barricade.healthPoints.value}, turns=$turnsToDestroy, dist=$distanceAfter, total=$totalCost")
-                        }
-                    }
-                }
-                
                 return neighborsWithBarricades.minWithOrNull(
                     compareBy<Position> { pos ->
                         val barricade = state.barricades.find { it.position == pos && !it.isDestroyed() }
                         if (barricade == null) {
                             return@compareBy Int.MAX_VALUE
                         }
-                        
+
                         // Calculate turns needed to destroy this barricade
                         val attackerDamage = if (attacker?.type?.isDragon == true) {
                             attacker.level.value * 5
@@ -291,14 +272,11 @@ class PathfindingSystem(private val state: GameState) {
                             attacker?.level?.value ?: 1
                         }
                         val turnsToDestroy = (barricade.healthPoints.value + attackerDamage - 1) / attackerDamage // Ceiling division
-                        
-                        // Distance from this barricade position to the goal
+
                         val distanceAfter = pos.distanceTo(to)
-                        
-                        // Total cost: turns to destroy + distance to goal
-                        // Example: 25 HP barricade at distance 42 with 1 damage = 25 + 42 = 67
-                        // Example: 98 HP barricade at distance 40 with 100 damage = 1 + 40 = 41 (better)
-                        turnsToDestroy + distanceAfter
+                        val preferTowerBase = if (barricade.hasTower()) -100 else 0 // Prefer barricades with towers on them (like gate bases) if all else is equal
+                        val totalCost = turnsToDestroy + distanceAfter + preferTowerBase
+                        totalCost
                     }
                 ) ?: from
             }
