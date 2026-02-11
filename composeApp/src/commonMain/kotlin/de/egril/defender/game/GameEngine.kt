@@ -784,8 +784,6 @@ class GameEngine(private val state: GameState) {
         var min = Int.MAX_VALUE
         var pathOfLeastEffort: Pair<Barricade, List<Position>>? = null
         
-        println("barricadePathSet size: ${barricadePathSet.size}")
-        
         barricadePathSet.forEach { (barricade, path) ->
             val hp = if (barricade.hasTower()) {
                 barricade.healthPoints.value - 100
@@ -795,9 +793,6 @@ class GameEngine(private val state: GameState) {
             val pathSteps = path.size - 1
             val effort = (hp / getBarricadeDamageForEnemyUnit(attacker)) + pathSteps
             
-            println("$hp $pathSteps $effort")
-            println("..................... ")
-            
             if (effort < min) {
                 min = effort
                 pathOfLeastEffort = Pair(barricade, path)
@@ -806,10 +801,6 @@ class GameEngine(private val state: GameState) {
         
         if (pathOfLeastEffort != null) {
             attackersStoppedByBarricade.add(Pair(attacker, pathOfLeastEffort.first.position))
-        }
-        
-        state.barricades.forEach { b ->
-            println("All barricades: Barricade at ${b.position} (HP: ${b.healthPoints.value}) tower base: ${b.supportedTowerId.value != null}")
         }
     }
 
