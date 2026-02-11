@@ -75,11 +75,21 @@ fun SavedGameCard(
         val isMobileCard = maxWidth < 600.dp
         val cardPadding = if (isMobileCard) 8.dp else 16.dp
         
+        // Check if this is an autosave
+        val isAutosave = saveGame.id == "autosave_game"
+        
         Card(
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable { onLoad() },
-            elevation = CardDefaults.cardElevation(defaultElevation = if (isMobileCard) 2.dp else 4.dp)
+            elevation = CardDefaults.cardElevation(defaultElevation = if (isMobileCard) 2.dp else 4.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = if (isAutosave) {
+                    MaterialTheme.colorScheme.tertiaryContainer
+                } else {
+                    MaterialTheme.colorScheme.surface
+                }
+            )
         ) {
             Column(modifier = Modifier.fillMaxWidth().padding(cardPadding)) {
                 // Get localized level name if level is available
