@@ -693,107 +693,7 @@ class GameEngine(private val state: GameState) {
                             }
                             currentPositions[attacker.id] = alternativePos
                         } else {
-                            // Both primary and alternative positions have barricades
-                            // Use optimal barricade selection to choose the best one to attack
-                            // val optimalBarricadePos = pathfinding.moveTowards(currentPos, target, attacker)
-                            // if (optimalBarricadePos != currentPos) {
-                            //     val barricadeAtOptimal = barricadeSystem.getBarricadeAt(optimalBarricadePos)
-                            //     if (barricadeAtOptimal != null && !barricadeAtOptimal.isDestroyed()) {
-                            //         attackersStoppedByBarricade.add(Pair(attacker, optimalBarricadePos))
-                            //         println("CETM -EEEE---------------------- attackersStoppedByBarricade Unit ${attacker.id} (${attacker.type}) at $currentPos blocked by barricades, will attack optimal barricade at $optimalBarricadePos (HP: ${barricadeAtOptimal.healthPoints.value})")
-                            //     }
-                            // }
-
-                            // handleBarricades
-
-                            // var path = pathfinding.findPath(currentPos, target, attacker)
-                            println("")
-                            println("")
-                            println("path $path")
-                            val barricadePathSet = mutableSetOf<Pair<Barricade,List<Position>>>()
-                            val path1 = pathfinding.findPath(currentPos, target, attacker)
-                            println("path1 $path1")
-
-                            val pathIgnoringBarricades = pathfinding.findPath(currentPos, target, attacker, ignoreBarricades = true)
-                            println("pathIgnoringBarricades $pathIgnoringBarricades")
-                            val barricadeAtPpathIgnoringBarricades = barricadeSystem.getBarricadeAt(pathIgnoringBarricades[1])
-                            println("BBB $pathIgnoringBarricades $barricadeAtPpathIgnoringBarricades")
-                            if(barricadeAtPpathIgnoringBarricades != null) barricadePathSet.add(Pair(barricadeAtPpathIgnoringBarricades, pathIgnoringBarricades))
-
-                            // attacker.currentTarget?.value ?: state.level.targetPositions.first()
-                            println("")
-                            println("")
-                            val barricadeAtPath1 = barricadeSystem.getBarricadeAt(path1[1])
-                            println("BBB $path1 $barricadeAtPath1")
-                            if (barricadeAtPath1 != null) barricadePathSet.add(Pair(barricadeAtPath1, path1))
-                            val path2 = pathfinding.findPath(currentPos, target, attacker, setOf(path1[1]))
-                            val barricadeAtPath2 = barricadeSystem.getBarricadeAt(path2[1])
-                            println("BBB $path2 $barricadeAtPath2")
-                            if (barricadeAtPath2 != null) barricadePathSet.add(Pair(barricadeAtPath2, path2))
-                            val path3 = pathfinding.findPath(currentPos, target, attacker, setOf(path1[1], path2[1]))
-                            val barricadeAtPath3 = barricadeSystem.getBarricadeAt(path3[1])
-                            println("BBB $path3 $barricadeAtPath3")
-                            if (barricadeAtPath3 != null) barricadePathSet.add(Pair(barricadeAtPath3, path3))
-
-                            // todo repeat until the last position is no more the target
-                            //  then compare barricades at all these positions and select the best one to attack
-
-                            var min = Int.MAX_VALUE
-                            var pathOfLeastEffort: Pair<Barricade,List<Position>>? = null
-
-                            barricadePathSet.forEach { (barricade, path) ->
-
-
-                                println("..................... ${barricade}")
-
-                                val hp = if (barricade.hasTower()) {
-                                        barricade.healthPoints.value - 100
-                                    } else {
-                                        barricade.healthPoints.value
-                                    }
-                                val pathSteps = path.size - 1
-                                val effort = (hp / getBarricadeDamageForEnemyUnit(attacker)) + pathSteps
-
-                                println("$hp $pathSteps $effort")
-                                println("..................... ")
-
-                                if (effort < min) {
-                                    min = effort
-                                    pathOfLeastEffort = Pair(barricade, path)
-                                }
-                            }
-
-                            if (pathOfLeastEffort != null) {
-                                println("")
-                                println("")
-                                println("WOOOOOHOOOO---------------------- Unit ${attacker.id} (${attacker.type}) at $currentPos has multiple barricades blocking its path. Selected barricade at ${pathOfLeastEffort.first.position} with HP ${pathOfLeastEffort.first.healthPoints.value} as optimal target to attack (effort: $min)")
-                                println("")
-                                println("")
-                                attackersStoppedByBarricade.add(Pair(attacker, pathOfLeastEffort.first.position))
-                            }
-
-
-
-/*
-                            println("CETM -E---------------------- attackersStoppedByBarricade Unit ${attacker.id} (${attacker.type}) at $currentPos also cannot move to alternative position $alternativePos due to barricade, will attack barricade instead")
-                            println("")
-                            println("")
-                            // original step or alternative step
-                            println("step options: $newPos or $alternativePos")
-                            // barricades at original and alternative step
-                            val b1 = barricadeSystem.getBarricadeAt(newPos)
-                            val b2 = barricadeSystem.getBarricadeAt(alternativePos)
-                            // val b3 = barricadeSystem.getBarricadeAt(optimalBarricadePos)
-                            println("barricade at original step: ${b1 != null && !b1.isDestroyed()} (HP: ${b1?.healthPoints?.value}), barricade at alternative step: ${b2 != null && !b2.isDestroyed()} (HP: ${b2?.healthPoints?.value})")
-                            println("")
-                            // println("$optimalBarricadePos, step: ${b3 != null && !b3.isDestroyed()} (HP: ${b3?.healthPoints?.value}) tower base: ${b3?.supportedTowerId?.value != null}")
-                            println("")
-                            println("")
-                            println("")
- */
-                            state.barricades.forEach { b ->
-                                println("All barricades: Barricade at ${b.position} (HP: ${b.healthPoints.value}) tower base: ${b.supportedTowerId.value != null}")
-                            }
+                            handleBarricades(path, currentPos, target, attacker, attackersStoppedByBarricade)
                         }
                     } else {
                         // No alternative position found - check if there are nearby barricades to attack
@@ -827,7 +727,121 @@ class GameEngine(private val state: GameState) {
         
         return EnemyTurnMovements(allMovementSteps, attackersStoppedByBarricade)
     }
-    
+
+    private fun handleBarricades(
+        path: List<Position>,
+        currentPos: Position,
+        target: Position,
+        attacker: Attacker,
+        attackersStoppedByBarricade: MutableSet<Pair<Attacker, Position>>
+    ) {
+        // Both primary and alternative positions have barricades
+        // Use optimal barricade selection to choose the best one to attack
+        // val optimalBarricadePos = pathfinding.moveTowards(currentPos, target, attacker)
+        // if (optimalBarricadePos != currentPos) {
+        //     val barricadeAtOptimal = barricadeSystem.getBarricadeAt(optimalBarricadePos)
+        //     if (barricadeAtOptimal != null && !barricadeAtOptimal.isDestroyed()) {
+        //         attackersStoppedByBarricade.add(Pair(attacker, optimalBarricadePos))
+        //         println("CETM -EEEE---------------------- attackersStoppedByBarricade Unit ${attacker.id} (${attacker.type}) at $currentPos blocked by barricades, will attack optimal barricade at $optimalBarricadePos (HP: ${barricadeAtOptimal.healthPoints.value})")
+        //     }
+        // }
+
+        // handleBarricades
+
+        // var path = pathfinding.findPath(currentPos, target, attacker)
+        println("")
+        println("")
+        println("path $path")
+        val barricadePathSet = mutableSetOf<Pair<Barricade, List<Position>>>()
+        val path1 = pathfinding.findPath(currentPos, target, attacker)
+        println("path1 $path1")
+
+        val pathIgnoringBarricades = pathfinding.findPath(currentPos, target, attacker, ignoreBarricades = true)
+        println("pathIgnoringBarricades $pathIgnoringBarricades")
+        val barricadeAtPpathIgnoringBarricades = barricadeSystem.getBarricadeAt(pathIgnoringBarricades[1])
+        println("BBB $pathIgnoringBarricades $barricadeAtPpathIgnoringBarricades")
+        if (barricadeAtPpathIgnoringBarricades != null) barricadePathSet.add(
+            Pair(
+                barricadeAtPpathIgnoringBarricades,
+                pathIgnoringBarricades
+            )
+        )
+
+        // attacker.currentTarget?.value ?: state.level.targetPositions.first()
+        println("")
+        println("")
+        val barricadeAtPath1 = barricadeSystem.getBarricadeAt(path1[1])
+        println("BBB $path1 $barricadeAtPath1")
+        if (barricadeAtPath1 != null) barricadePathSet.add(Pair(barricadeAtPath1, path1))
+        val path2 = pathfinding.findPath(currentPos, target, attacker, setOf(path1[1]))
+        val barricadeAtPath2 = barricadeSystem.getBarricadeAt(path2[1])
+        println("BBB $path2 $barricadeAtPath2")
+        if (barricadeAtPath2 != null) barricadePathSet.add(Pair(barricadeAtPath2, path2))
+        val path3 = pathfinding.findPath(currentPos, target, attacker, setOf(path1[1], path2[1]))
+        val barricadeAtPath3 = barricadeSystem.getBarricadeAt(path3[1])
+        println("BBB $path3 $barricadeAtPath3")
+        if (barricadeAtPath3 != null) barricadePathSet.add(Pair(barricadeAtPath3, path3))
+
+        // todo repeat until the last position is no more the target
+        //  then compare barricades at all these positions and select the best one to attack
+
+        var min = Int.MAX_VALUE
+        var pathOfLeastEffort: Pair<Barricade, List<Position>>? = null
+
+        barricadePathSet.forEach { (barricade, path) ->
+
+
+            println("..................... ${barricade}")
+
+            val hp = if (barricade.hasTower()) {
+                barricade.healthPoints.value - 100
+            } else {
+                barricade.healthPoints.value
+            }
+            val pathSteps = path.size - 1
+            val effort = (hp / getBarricadeDamageForEnemyUnit(attacker)) + pathSteps
+
+            println("$hp $pathSteps $effort")
+            println("..................... ")
+
+            if (effort < min) {
+                min = effort
+                pathOfLeastEffort = Pair(barricade, path)
+            }
+        }
+
+        if (pathOfLeastEffort != null) {
+            println("")
+            println("")
+            println("WOOOOOHOOOO---------------------- Unit ${attacker.id} (${attacker.type}) at $currentPos has multiple barricades blocking its path. Selected barricade at ${pathOfLeastEffort.first.position} with HP ${pathOfLeastEffort.first.healthPoints.value} as optimal target to attack (effort: $min)")
+            println("")
+            println("")
+            attackersStoppedByBarricade.add(Pair(attacker, pathOfLeastEffort.first.position))
+        }
+
+
+        /*
+                            println("CETM -E---------------------- attackersStoppedByBarricade Unit ${attacker.id} (${attacker.type}) at $currentPos also cannot move to alternative position $alternativePos due to barricade, will attack barricade instead")
+                            println("")
+                            println("")
+                            // original step or alternative step
+                            println("step options: $newPos or $alternativePos")
+                            // barricades at original and alternative step
+                            val b1 = barricadeSystem.getBarricadeAt(newPos)
+                            val b2 = barricadeSystem.getBarricadeAt(alternativePos)
+                            // val b3 = barricadeSystem.getBarricadeAt(optimalBarricadePos)
+                            println("barricade at original step: ${b1 != null && !b1.isDestroyed()} (HP: ${b1?.healthPoints?.value}), barricade at alternative step: ${b2 != null && !b2.isDestroyed()} (HP: ${b2?.healthPoints?.value})")
+                            println("")
+                            // println("$optimalBarricadePos, step: ${b3 != null && !b3.isDestroyed()} (HP: ${b3?.healthPoints?.value}) tower base: ${b3?.supportedTowerId?.value != null}")
+                            println("")
+                            println("")
+                            println("")
+ */
+        state.barricades.forEach { b ->
+            println("All barricades: Barricade at ${b.position} (HP: ${b.healthPoints.value}) tower base: ${b.supportedTowerId.value != null}")
+        }
+    }
+
     /**
      * Apply damage to health points when an enemy reaches the target.
      * Handles variable damage based on enemy type and marks the attacker as defeated.
