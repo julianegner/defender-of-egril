@@ -736,79 +736,56 @@ class GameEngine(private val state: GameState) {
     ) {
         // Both primary and alternative positions have barricades
         val barricadePathSet = mutableSetOf<Pair<Barricade, List<Position>>>()
-        /*
-        val excludedBarricadePositions = mutableSetOf<Position>()
-
+        val excludedPositions = mutableSetOf<Position>()
+        
+        // First, try path ignoring barricades to get the direct route
         val pathIgnoringBarricades = pathfinding.findPath(currentPos, target, attacker, ignoreBarricades = true)
-        val barricadeAtPpathIgnoringBarricades = barricadeSystem.getBarricadeAt(pathIgnoringBarricades[1])
-        if (barricadeAtPpathIgnoringBarricades != null) {
-            excludedBarricadePositions.add(pathIgnoringBarricades[1])
-            barricadePathSet.add(
-                Pair(
-                    barricadeAtPpathIgnoringBarricades,
-                    pathIgnoringBarricades
-                )
-            )
-        }
-
-        val path1 = pathfinding.findPath(currentPos, target, attacker)
-        val barricadeAtPath1 = barricadeSystem.getBarricadeAt(path1[1])
-        if (barricadeAtPath1 != null) {
-            excludedBarricadePositions.add(path1[1])
-            barricadePathSet.add(Pair(barricadeAtPath1, path1))
-        }
-
-        // Loop to find all barricade options until we can reach the target
-        var interator = 0
-        while (true) {
-            interator++
-            val currentPath = pathfinding.findPath(currentPos, target, attacker, excludedBarricadePositions)
-            val barricadeAtPath = barricadeSystem.getBarricadeAt(currentPath[1])
-            println("currentPAth: $currentPath, barricadeAtPath: ${barricadeAtPath != null}")
+        if (pathIgnoringBarricades.size > 1) {
+            val barricadeAtPath = barricadeSystem.getBarricadeAt(pathIgnoringBarricades[1])
             if (barricadeAtPath != null) {
-                excludedBarricadePositions.add(currentPath[1])
-                barricadePathSet.add(Pair(barricadeAtPath, currentPath))
+                barricadePathSet.add(Pair(barricadeAtPath, pathIgnoringBarricades))
+                excludedPositions.add(pathIgnoringBarricades[1])
             }
-
-            println("excludedBarricadePositions after iteration $interator: $excludedBarricadePositions")
-            val pathToTargetWithoutFoundBarricades = pathfinding.findPath(currentPos, target, attacker, excludedBarricadePositions, ignoreBarricades = true)
-
-            println("kkkkkkkkkkk $interator ${pathToTargetWithoutFoundBarricades.last()} $target")
-
-            if (target != pathToTargetWithoutFoundBarricades.last()) {
+        }
+        
+        // Loop to find all accessible barricade paths by progressively excluding found barricade positions
+        var maxIterations = 10  // Safety limit to prevent infinite loops
+        var iteration = 0
+        
+        while (iteration < maxIterations) {
+            iteration++
+            
+            // Find path to target, excluding all previously found barricade positions
+            val currentPath = pathfinding.findPath(currentPos, target, attacker, excludedPositions)
+            
+            // Check if path is valid and reaches the target
+            if (currentPath.size < 2 || currentPath.last() != target) {
+                // Can't find a valid path to target anymore, stop looking
                 break
             }
-            if (interator > 10) {
-                println("Too many iterations finding barricade paths, breaking loop")
+            
+            // Check if the next position on this path has a barricade
+            val nextPos = currentPath[1]
+            val barricadeAtNextPos = barricadeSystem.getBarricadeAt(nextPos)
+            
+            if (barricadeAtNextPos != null) {
+                // Found a barricade on this path
+                barricadePathSet.add(Pair(barricadeAtNextPos, currentPath))
+                // Exclude this position to find alternative routes in next iteration
+                excludedPositions.add(nextPos)
+            } else {
+                // No barricade at next position - we found a clear path
+                // (This shouldn't happen in handleBarricades context, but handle it)
                 break
             }
         }
-
-         */
-
-        val pathIgnoringBarricades = pathfinding.findPath(currentPos, target, attacker, ignoreBarricades = true)
-        val barricadeAtPpathIgnoringBarricades = barricadeSystem.getBarricadeAt(pathIgnoringBarricades[1])
-        if (barricadeAtPpathIgnoringBarricades != null) barricadePathSet.add(
-            Pair(
-                barricadeAtPpathIgnoringBarricades,
-                pathIgnoringBarricades
-            )
-        )
-        val path1 = pathfinding.findPath(currentPos, target, attacker)
-        val barricadeAtPath1 = barricadeSystem.getBarricadeAt(path1[1])
-        if (barricadeAtPath1 != null) barricadePathSet.add(Pair(barricadeAtPath1, path1))
-        val path2 = pathfinding.findPath(currentPos, target, attacker, setOf(path1[1]))
-        val barricadeAtPath2 = barricadeSystem.getBarricadeAt(path2[1])
-        if (barricadeAtPath2 != null) barricadePathSet.add(Pair(barricadeAtPath2, path2))
-        val path3 = pathfinding.findPath(currentPos, target, attacker, setOf(path1[1], path2[1]))
-        val barricadeAtPath3 = barricadeSystem.getBarricadeAt(path3[1])
-        if (barricadeAtPath3 != null) barricadePathSet.add(Pair(barricadeAtPath3, path3))
-
+        
+        // Now select the barricade with minimum effort
         var min = Int.MAX_VALUE
         var pathOfLeastEffort: Pair<Barricade, List<Position>>? = null
-
+        
         println("barricadePathSet size: ${barricadePathSet.size}")
-
+        
         barricadePathSet.forEach { (barricade, path) ->
             val hp = if (barricade.hasTower()) {
                 barricade.healthPoints.value - 100
@@ -817,20 +794,20 @@ class GameEngine(private val state: GameState) {
             }
             val pathSteps = path.size - 1
             val effort = (hp / getBarricadeDamageForEnemyUnit(attacker)) + pathSteps
-
+            
             println("$hp $pathSteps $effort")
             println("..................... ")
-
+            
             if (effort < min) {
                 min = effort
                 pathOfLeastEffort = Pair(barricade, path)
             }
         }
-
+        
         if (pathOfLeastEffort != null) {
             attackersStoppedByBarricade.add(Pair(attacker, pathOfLeastEffort.first.position))
         }
-
+        
         state.barricades.forEach { b ->
             println("All barricades: Barricade at ${b.position} (HP: ${b.healthPoints.value}) tower base: ${b.supportedTowerId.value != null}")
         }
