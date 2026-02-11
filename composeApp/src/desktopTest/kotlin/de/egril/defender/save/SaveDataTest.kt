@@ -65,6 +65,40 @@ class SaveDataTest {
     }
     
     @Test
+    fun testSavedGameMetadataWithBarricades() {
+        val barricade = SavedBarricade(
+            position = Position(3, 4),
+            healthPoints = 50,
+            defenderId = 1,
+            id = 1,
+            supportedTowerId = null
+        )
+        
+        val metadata = SaveGameMetadata(
+            id = "save_456",
+            timestamp = 1234567890L,
+            levelId = 2,
+            levelName = "Test Level with Barricades",
+            turnNumber = 10,
+            coins = 200,
+            healthPoints = 8,
+            towerCount = 2,
+            enemyCount = 5,
+            defenderCounts = mapOf(DefenderType.SPIKE_TOWER to 2),
+            attackerCounts = mapOf(AttackerType.GOBLIN to 5),
+            remainingSpawnCounts = emptyMap(),
+            barricadeCount = 1,
+            barricadePositions = listOf(barricade)
+        )
+        
+        assertEquals(1, metadata.barricadeCount)
+        assertEquals(1, metadata.barricadePositions.size)
+        assertEquals(Position(3, 4), metadata.barricadePositions[0].position)
+        assertEquals(50, metadata.barricadePositions[0].healthPoints)
+        assertEquals(1, metadata.barricadePositions[0].defenderId)
+    }
+    
+    @Test
     fun testSavedDefenderStructure() {
         val defender = SavedDefender(
             id = 1,

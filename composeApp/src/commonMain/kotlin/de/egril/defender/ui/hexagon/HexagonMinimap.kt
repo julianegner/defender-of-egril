@@ -290,6 +290,20 @@ private fun HexagonMinimapContent(
                     }
                 }
                 
+                // Draw barricades (only if they don't have a tower on them)
+                // Note: If a barricade has a tower, the tower is already shown in the defenders loop above,
+                // so we skip rendering the barricade to avoid double-rendering
+                gameState.barricades.forEach { barricade ->
+                    if (!barricade.hasTower()) {
+                        val center = getHexCenterPosition(barricade.position)
+                        drawCircle(
+                            color = Color(0xFF8B4513),  // Brown - wood color for barricades
+                            radius = hexSize / 2.5f,
+                            center = center
+                        )
+                    }
+                }
+                
                 // Draw rafts specifically (to ensure they're visible even if towers config is off)
                 gameState.rafts.filter { it.isActive }.forEach { raft ->
                     val center = getHexCenterPosition(raft.currentPosition.value)

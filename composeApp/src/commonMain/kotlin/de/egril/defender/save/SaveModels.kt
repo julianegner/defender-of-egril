@@ -115,5 +115,6 @@ data class SaveGameMetadata(
     val comment: String? = null,  // Optional player comment
     val defenderPositions: List<SavedDefender> = emptyList(),  // Positions for minimap display
     val attackerPositions: List<SavedAttacker> = emptyList(),  // Positions for minimap display
+    val barricadePositions: List<SavedBarricade> = emptyList(),  // Barricade positions for minimap display
     val mapId: String? = null  // Map identifier (for minimap display)
 )

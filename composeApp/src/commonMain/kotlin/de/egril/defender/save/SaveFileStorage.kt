@@ -184,6 +184,7 @@ object SaveFileStorage {
                             comment = savedGame.comment,
                             defenderPositions = savedGame.defenders,
                             attackerPositions = savedGame.attackers,
+                            barricadePositions = savedGame.barricades,  // Include barricade positions for minimap display
                             mapId = savedGame.mapId  // Include map ID for minimap display
                         )
                     )

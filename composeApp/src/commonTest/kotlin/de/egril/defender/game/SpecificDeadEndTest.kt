@@ -75,7 +75,7 @@ class SpecificDeadEndTest {
         repeat(maxTurns) { turnNum ->
             val movements = engine.calculateEnemyTurnMovements()
             
-            for (movementStep in movements) {
+            for (movementStep in movements.allMovementSteps) {
                 for ((attackerId, newPosition) in movementStep) {
                     engine.applyMovement(attackerId, newPosition)
                 }
@@ -166,7 +166,7 @@ class SpecificDeadEndTest {
         
         // Simulate first turn (walking)
         val movements1 = engine.calculateEnemyTurnMovements()
-        for (movementStep in movements1) {
+        for (movementStep in movements1.allMovementSteps) {
             for ((attackerId, newPosition) in movementStep) {
                 engine.applyMovement(attackerId, newPosition)
             }
