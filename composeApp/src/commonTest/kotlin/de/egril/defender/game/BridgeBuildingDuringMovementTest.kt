@@ -72,7 +72,7 @@ class BridgeBuildingDuringMovementTest {
         val movements = engine.calculateEnemyTurnMovements()
         
         // Apply movements
-        for (movementStep in movements) {
+        for (movementStep in movements.allMovementSteps) {
             for ((attackerId, newPosition) in movementStep) {
                 engine.applyMovement(attackerId, newPosition)
             }
@@ -140,7 +140,7 @@ class BridgeBuildingDuringMovementTest {
         
         // Execute enemy turn
         val movements = engine.calculateEnemyTurnMovements()
-        for (movementStep in movements) {
+        for (movementStep in movements.allMovementSteps) {
             for ((attackerId, newPosition) in movementStep) {
                 engine.applyMovement(attackerId, newPosition)
             }

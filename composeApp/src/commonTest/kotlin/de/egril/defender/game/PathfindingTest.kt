@@ -57,7 +57,7 @@ class PathfindingTest {
         val movements = engine.calculateEnemyTurnMovements()
         
         // Apply movements
-        for (movementStep in movements) {
+        for (movementStep in movements.allMovementSteps) {
             for ((attackerId, newPosition) in movementStep) {
                 engine.applyMovement(attackerId, newPosition)
             }
@@ -131,7 +131,7 @@ class PathfindingTest {
         val movements = engine.calculateEnemyTurnMovements()
         
         // Apply movements (ork has speed 1)
-        for (movementStep in movements) {
+        for (movementStep in movements.allMovementSteps) {
             for ((attackerId, newPosition) in movementStep) {
                 engine.applyMovement(attackerId, newPosition)
             }
@@ -206,7 +206,7 @@ class PathfindingTest {
             
             // Record path taken
             val path = mutableListOf(Position(0, 2))
-            for (movementStep in movements) {
+            for (movementStep in movements.allMovementSteps) {
                 for ((attackerId, newPosition) in movementStep) {
                     path.add(newPosition)
                 }

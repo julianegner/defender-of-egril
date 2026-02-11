@@ -57,7 +57,7 @@ class MultipleTargetEntryTest {
         // Calculate and apply movements
         val movements = engine.calculateEnemyTurnMovements()
         
-        for (movementStep in movements) {
+        for (movementStep in movements.allMovementSteps) {
             for ((attackerId, newPosition) in movementStep) {
                 engine.applyMovement(attackerId, newPosition)
             }
@@ -128,7 +128,7 @@ class MultipleTargetEntryTest {
         // Calculate and apply movements
         val movements = engine.calculateEnemyTurnMovements()
         
-        for (movementStep in movements) {
+        for (movementStep in movements.allMovementSteps) {
             for ((attackerId, newPosition) in movementStep) {
                 engine.applyMovement(attackerId, newPosition)
             }
