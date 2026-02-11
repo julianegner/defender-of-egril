@@ -735,9 +735,56 @@ class GameEngine(private val state: GameState) {
         attackersStoppedByBarricade: MutableSet<Pair<Attacker, Position>>
     ) {
         // Both primary and alternative positions have barricades
-
         val barricadePathSet = mutableSetOf<Pair<Barricade, List<Position>>>()
+        /*
+        val excludedBarricadePositions = mutableSetOf<Position>()
+
+        val pathIgnoringBarricades = pathfinding.findPath(currentPos, target, attacker, ignoreBarricades = true)
+        val barricadeAtPpathIgnoringBarricades = barricadeSystem.getBarricadeAt(pathIgnoringBarricades[1])
+        if (barricadeAtPpathIgnoringBarricades != null) {
+            excludedBarricadePositions.add(pathIgnoringBarricades[1])
+            barricadePathSet.add(
+                Pair(
+                    barricadeAtPpathIgnoringBarricades,
+                    pathIgnoringBarricades
+                )
+            )
+        }
+
         val path1 = pathfinding.findPath(currentPos, target, attacker)
+        val barricadeAtPath1 = barricadeSystem.getBarricadeAt(path1[1])
+        if (barricadeAtPath1 != null) {
+            excludedBarricadePositions.add(path1[1])
+            barricadePathSet.add(Pair(barricadeAtPath1, path1))
+        }
+
+        // Loop to find all barricade options until we can reach the target
+        var interator = 0
+        while (true) {
+            interator++
+            val currentPath = pathfinding.findPath(currentPos, target, attacker, excludedBarricadePositions)
+            val barricadeAtPath = barricadeSystem.getBarricadeAt(currentPath[1])
+            println("currentPAth: $currentPath, barricadeAtPath: ${barricadeAtPath != null}")
+            if (barricadeAtPath != null) {
+                excludedBarricadePositions.add(currentPath[1])
+                barricadePathSet.add(Pair(barricadeAtPath, currentPath))
+            }
+
+            println("excludedBarricadePositions after iteration $interator: $excludedBarricadePositions")
+            val pathToTargetWithoutFoundBarricades = pathfinding.findPath(currentPos, target, attacker, excludedBarricadePositions, ignoreBarricades = true)
+
+            println("kkkkkkkkkkk $interator ${pathToTargetWithoutFoundBarricades.last()} $target")
+
+            if (target != pathToTargetWithoutFoundBarricades.last()) {
+                break
+            }
+            if (interator > 10) {
+                println("Too many iterations finding barricade paths, breaking loop")
+                break
+            }
+        }
+
+         */
 
         val pathIgnoringBarricades = pathfinding.findPath(currentPos, target, attacker, ignoreBarricades = true)
         val barricadeAtPpathIgnoringBarricades = barricadeSystem.getBarricadeAt(pathIgnoringBarricades[1])
@@ -747,7 +794,7 @@ class GameEngine(private val state: GameState) {
                 pathIgnoringBarricades
             )
         )
-
+        val path1 = pathfinding.findPath(currentPos, target, attacker)
         val barricadeAtPath1 = barricadeSystem.getBarricadeAt(path1[1])
         if (barricadeAtPath1 != null) barricadePathSet.add(Pair(barricadeAtPath1, path1))
         val path2 = pathfinding.findPath(currentPos, target, attacker, setOf(path1[1]))
@@ -759,6 +806,8 @@ class GameEngine(private val state: GameState) {
 
         var min = Int.MAX_VALUE
         var pathOfLeastEffort: Pair<Barricade, List<Position>>? = null
+
+        println("barricadePathSet size: ${barricadePathSet.size}")
 
         barricadePathSet.forEach { (barricade, path) ->
             val hp = if (barricade.hasTower()) {
@@ -786,6 +835,7 @@ class GameEngine(private val state: GameState) {
             println("All barricades: Barricade at ${b.position} (HP: ${b.healthPoints.value}) tower base: ${b.supportedTowerId.value != null}")
         }
 
+        /* ------------------------------------------------------------------------------------ */
         /*
         // Find all barricades blocking different paths to the target
         // Keep finding alternative paths until we reach the target or run out of alternatives
@@ -852,7 +902,7 @@ class GameEngine(private val state: GameState) {
             println("Unit ${attacker.id} (${attacker.type}) at $currentPos selected optimal barricade at ${pathOfLeastEffort.first.position} (HP: ${pathOfLeastEffort.first.healthPoints.value}, effort: $min)")
             attackersStoppedByBarricade.add(Pair(attacker, pathOfLeastEffort.first.position))
         }
-        */
+         */
     }
 
     /**
