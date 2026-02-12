@@ -788,8 +788,10 @@ class GameEngine(private val state: GameState) {
 
         // First, check the direct path (ignoring barricades) separately
         val pathIgnoringBarricades = pathfinding.findPath(currentPos, target, attacker, ignoreBarricades = true)
+        println("[DEBUG] pathIgnoringBarricades: $pathIgnoringBarricades")
         if (pathIgnoringBarricades.size > 1) {
             val barricadeAtPath = barricadeSystem.getBarricadeAt(pathIgnoringBarricades[1])
+            println("[DEBUG] pathIgnoringBarricades[1]=${pathIgnoringBarricades[1]}, barricade=${barricadeAtPath?.let { "HP=${it.healthPoints.value} at ${it.position}" } ?: "null"}")
             if (barricadeAtPath != null) {
                 barricadePathSet.add(Pair(barricadeAtPath, pathIgnoringBarricades))
             }
@@ -806,15 +808,18 @@ class GameEngine(private val state: GameState) {
             
             // Find path excluding previously found barricade positions
             val currentPath = pathfinding.findPath(currentPos, target, attacker, excludedPositions)
+            println("[DEBUG] Iteration $iteration: excludedPositions=$excludedPositions, currentPath=$currentPath")
             
             // Check if path is valid and reaches target
             if (currentPath.size < 2 || currentPath.last() != target) {
+                println("[DEBUG] Iteration $iteration: Breaking - invalid path or doesn't reach target")
                 break
             }
             
             // Check if next position has a barricade
             val nextPos = currentPath[1]
             val barricadeAtNextPos = barricadeSystem.getBarricadeAt(nextPos)
+            println("[DEBUG] Iteration $iteration: nextPos=$nextPos, barricade=${barricadeAtNextPos?.let { "HP=${it.healthPoints.value} at ${it.position}" } ?: "null"}")
             
             if (barricadeAtNextPos != null) {
                 // Found a barricade - add to set
@@ -823,6 +828,7 @@ class GameEngine(private val state: GameState) {
                 excludedPositions.add(nextPos)
             } else {
                 // No barricade at next position - found a clear path
+                println("[DEBUG] Iteration $iteration: Breaking - no barricade at next position")
                 break
             }
         }
