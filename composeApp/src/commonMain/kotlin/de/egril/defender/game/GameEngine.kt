@@ -810,9 +810,9 @@ class GameEngine(private val state: GameState) {
             val currentPath = pathfinding.findPath(currentPos, target, attacker, excludedPositions)
             println("[DEBUG] Iteration $iteration: excludedPositions=$excludedPositions, currentPath=$currentPath")
             
-            // Check if path is valid and reaches target
-            if (currentPath.size < 2 || currentPath.last() != target) {
-                println("[DEBUG] Iteration $iteration: Breaking - invalid path or doesn't reach target")
+            // Check if path has at least 2 positions (current + next)
+            if (currentPath.size < 2) {
+                println("[DEBUG] Iteration $iteration: Breaking - path too short (size=${currentPath.size})")
                 break
             }
             
@@ -826,10 +826,20 @@ class GameEngine(private val state: GameState) {
                 barricadePathSet.add(Pair(barricadeAtNextPos, currentPath))
                 // Exclude this position for next iteration
                 excludedPositions.add(nextPos)
+                // Continue loop to find more barricades
             } else {
-                // No barricade at next position - found a clear path
-                println("[DEBUG] Iteration $iteration: Breaking - no barricade at next position")
-                break
+                // No barricade at next position
+                // Check if this path reaches the target - if so, we found a clear path
+                if (currentPath.last() == target) {
+                    println("[DEBUG] Iteration $iteration: Breaking - found clear path to target")
+                    break
+                } else {
+                    // Path doesn't have a barricade at [1] AND doesn't reach target
+                    // This means pathfinding is routing around something, exclude this position too
+                    println("[DEBUG] Iteration $iteration: No barricade at nextPos, but path doesn't reach target. Excluding $nextPos and continuing.")
+                    excludedPositions.add(nextPos)
+                    // Continue to try finding another path
+                }
             }
         }
 
