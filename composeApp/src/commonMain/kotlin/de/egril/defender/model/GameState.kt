@@ -83,7 +83,8 @@ data class GameState(
     val currentMana: MutableState<Int> = mutableStateOf(0),  // Current mana (for spellcasting)
     val maxMana: MutableState<Int> = mutableStateOf(0),  // Maximum mana (based on player stats)
     val activeSpellEffects: SnapshotStateList<ActiveSpellEffect> = mutableStateListOf(),  // Active spell effects
-    val incomeMultiplier: Double = 1.0  // Income multiplier from player stats (default 1.0, e.g. 1.2 for 20% bonus)
+    val incomeMultiplier: Double = 1.0,  // Income multiplier from player stats (default 1.0, e.g. 1.2 for 20% bonus)
+    val constructionLevel: Int = 0  // Construction level from player stats (0-3+, gates tower abilities)
 ) {
     fun isLevelWon(): Boolean {
         // Check if all planned spawns have occurred and all enemies are defeated

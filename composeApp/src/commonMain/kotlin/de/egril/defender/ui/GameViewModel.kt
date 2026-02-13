@@ -303,6 +303,7 @@ class GameViewModel {
             
             val maxMana = playerStats.getMaxMana()
             val incomeMultiplier = playerStats.getIncomeMultiplier()
+            val constructionLevel = playerStats.constructionStat
             
             // Create GameState with difficulty-modified and stats-bonus values
             val newGameState = GameState(
@@ -313,7 +314,8 @@ class GameViewModel {
                 spawnPlan = modifiedSpawnPlan,
                 maxMana = mutableStateOf(maxMana),
                 currentMana = mutableStateOf(maxMana),  // Start with full mana
-                incomeMultiplier = incomeMultiplier
+                incomeMultiplier = incomeMultiplier,
+                constructionLevel = constructionLevel
             )
             
             // Initialize pre-placed elements if any
