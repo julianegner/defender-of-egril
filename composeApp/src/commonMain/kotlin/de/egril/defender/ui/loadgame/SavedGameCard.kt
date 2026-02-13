@@ -35,7 +35,7 @@ fun SavedGameCard(
     
     // Create a minimal GameState for minimap rendering
     val minimapGameState = remember(saveGame.id) {
-        if (level != null && (saveGame.defenderPositions.isNotEmpty() || saveGame.attackerPositions.isNotEmpty())) {
+        if (level != null && (saveGame.defenderPositions.isNotEmpty() || saveGame.attackerPositions.isNotEmpty() || saveGame.barricadePositions.isNotEmpty())) {
             // Create minimal Defender/Attacker objects for minimap display
             val defenders = saveGame.defenderPositions.map { saved ->
                 Defender(
@@ -60,11 +60,24 @@ fun SavedGameCard(
                     isDefeated = mutableStateOf(false)
                 )
             }
+            // Create minimal Barricade objects for minimap display
+            // Note: Using mutableStateOf for consistency with the Barricade model,
+            // even though these values won't be updated in the minimap context
+            val barricades = saveGame.barricadePositions.map { saved ->
+                Barricade(
+                    id = saved.id,
+                    position = saved.position,
+                    healthPoints = mutableStateOf(saved.healthPoints),
+                    defenderId = saved.defenderId,
+                    supportedTowerId = mutableStateOf(saved.supportedTowerId)
+                )
+            }
             // Create a minimal GameState with just the data needed for rendering
             GameState(
                 level = level,
                 defenders = androidx.compose.runtime.snapshots.SnapshotStateList<Defender>().apply { addAll(defenders) },
-                attackers = androidx.compose.runtime.snapshots.SnapshotStateList<Attacker>().apply { addAll(attackers) }
+                attackers = androidx.compose.runtime.snapshots.SnapshotStateList<Attacker>().apply { addAll(attackers) },
+                barricades = androidx.compose.runtime.snapshots.SnapshotStateList<Barricade>().apply { addAll(barricades) }
             )
         } else {
             null
@@ -75,11 +88,21 @@ fun SavedGameCard(
         val isMobileCard = maxWidth < 600.dp
         val cardPadding = if (isMobileCard) 8.dp else 16.dp
         
+        // Check if this is an autosave
+        val isAutosave = saveGame.id == "autosave_game"
+        
         Card(
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable { onLoad() },
-            elevation = CardDefaults.cardElevation(defaultElevation = if (isMobileCard) 2.dp else 4.dp)
+            elevation = CardDefaults.cardElevation(defaultElevation = if (isMobileCard) 2.dp else 4.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = if (isAutosave) {
+                    MaterialTheme.colorScheme.tertiaryContainer
+                } else {
+                    MaterialTheme.colorScheme.surface
+                }
+            )
         ) {
             Column(modifier = Modifier.fillMaxWidth().padding(cardPadding)) {
                 // Get localized level name if level is available
