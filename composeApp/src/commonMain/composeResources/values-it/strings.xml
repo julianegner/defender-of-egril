@@ -4,6 +4,7 @@
     <string name="app_name">Difensore di Egril</string>
     <string name="app_subtitle">Difendi i prati di Egril contro le Orde di Gleid Thyae sotto la Bandiera del malvagio Ewhad</string>
     <string name="start_game">Inizia partita</string>
+    <string name="continue_game">Continua partita</string>
     <string name="rules">Regole</string>
     <string name="exit_game">Esci dal gioco</string>
     <string name="exit_game_confirm_title">Uscire dal gioco?</string>
@@ -204,6 +205,7 @@
     <string name="coins_label">monete</string>
     <string name="hp_label">PS</string>
     <string name="speed_label">Velocità</string>
+    <string name="slowed_by_barbs">Rallentato da spine</string>
     
     <!-- Status text -->
     <string name="available">Disponibile</string>
@@ -434,6 +436,9 @@
     <!-- Tutorial -->
     <string name="tutorial_welcome_title">Benvenuto in Defender of Egril!</string>
     <string name="tutorial_welcome">Questo è un gioco di difesa delle torri. Il tuo obiettivo è impedire ai nemici di raggiungere il bersaglio costruendo torri difensive.</string>
+    <string name="tutorial_map_navigation_title">Navigazione della Mappa</string>
+    <string name="tutorial_map_navigation_mobile">Puoi muoverti sulla mappa usando gesti di scorrimento con due dita o toccando la croce di navigazione (frecce) sullo schermo.\n\nPuoi anche navigare trascinando il riquadro sulla minimappa che mostra la sezione visibile della mappa.\n\nUsa gesti di pizzico per ingrandire e ridurre per una vista migliore.</string>
+    <string name="tutorial_map_navigation_desktop">Puoi muoverti sulla mappa usando i tasti WASD, i tasti freccia o trascinando con il mouse.\n\nPuoi anche navigare trascinando il riquadro sulla minimappa che mostra la sezione visibile della mappa.\n\nUsa la rotella del mouse per ingrandire e ridurre per una vista migliore.</string>
     <string name="tutorial_resources_title">Risorse</string>
     <string name="tutorial_resources">Hai monete per costruire torri e punti vita.\nQuando sconfiggi i nemici, guadagni monete pari alla loro ricompensa base moltiplicata per il loro livello.\nI nemici deboli costano 1 PV, ma i nemici potenti (maghi, streghe, maghi malvagi, demoni, draghi) costano PV pari al loro livello.\nEwhad costa tutti i tuoi PV!</string>
     <string name="tutorial_towers_title">Torri disponibili</string>
@@ -594,6 +599,51 @@
     <string name="click_target_waypoint">2. Fai clic su un obiettivo (punto di passaggio o obiettivo)</string>
     <string name="connection_mode_active">Modalità connessione attiva</string>
     <string name="cancel_connection">Annulla</string>
+    <string name="show_all_towers">Mostra tutte le torri</string>
+    <string name="select_position_on_map">Seleziona posizione sulla mappa</string>
+    <string name="initial_setup_map">Mappa</string>
+    <string name="initial_setup_click_to_place">Clicca sulla mappa per posizionare l'elemento selezionato</string>
+    <string name="initial_setup">Configurazione Iniziale</string>
+    <string name="initial_setup_info">Posiziona torri, nemici, trappole e barricate sulla mappa prima che inizi il livello (opzionale)</string>
+    <string name="initial_setup_towers">Torri</string>
+    <string name="initial_setup_enemies">Nemici</string>
+    <string name="initial_setup_traps">Trappole</string>
+    <string name="initial_setup_barricades">Barricate</string>
+    <string name="initial_setup_configuration">Configurazione</string>
+    <string name="element_type">Tipo di Elemento</string>
+    <string name="selection_mode">Modalità di Selezione</string>
+    <string name="selection_mode_info">Clicca su un elemento sulla mappa per selezionarlo e rimuoverlo</string>
+    <string name="placed_elements">Elementi Posizionati</string>
+    <string name="tower_configuration">Configurazione Torre</string>
+    <string name="enemy_configuration">Configurazione Nemico</string>
+    <string name="trap_configuration">Configurazione Trappola</string>
+    <string name="barricade_configuration">Configurazione Barricata</string>
+    <string name="selected_element">Elemento Selezionato</string>
+    <string name="health_points">Punti Vita</string>
+    <string name="level_label">Livello</string>
+    <string name="tower_type">Tipo di Torre</string>
+    <string name="dragon_name_label">Nome del Drago</string>
+    <string name="trap_type">Tipo di Trappola</string>
+    <string name="initial_defenders">Torri Iniziali</string>
+    <string name="initial_attackers">Nemici Iniziali</string>
+    <string name="initial_traps">Trappole Iniziali</string>
+    <string name="initial_barricades">Barricate Iniziali</string>
+    <string name="add_initial_defender">Aggiungi Torre</string>
+    <string name="add_initial_attacker">Aggiungi Nemico</string>
+    <string name="add_initial_trap">Aggiungi Trappola</string>
+    <string name="add_initial_barricade">Aggiungi Barricata</string>
+    <string name="edit_initial_defender">Modifica Torre</string>
+    <string name="edit_initial_attacker">Modifica Nemico</string>
+    <string name="edit_initial_trap">Modifica Trappola</string>
+    <string name="edit_initial_barricade">Modifica Barricata</string>
+    <string name="no_initial_defenders">Nessuna torre posizionata inizialmente</string>
+    <string name="no_initial_attackers">Nessun nemico posizionato inizialmente</string>
+    <string name="no_initial_traps">Nessuna trappola posizionata inizialmente</string>
+    <string name="no_initial_barricades">Nessuna barricata posizionata inizialmente</string>
+    <string name="custom_health_optional">Salute Personalizzata (opzionale)</string>
+    <string name="dwarven_trap">Trappola Nanica</string>
+    <string name="no_map_selected">Nessuna mappa selezionata. Seleziona o crea prima una mappa.</string>
+    <string name="deselect">Deseleziona</string>
 
     <!-- Plurals -->
     <plurals name="enemy_count">
@@ -653,6 +703,11 @@
     <string name="barricade_info_message">La tua torre di Lance ha raggiunto il livello 10 (o torre di Picche livello 20) e ora può costruire barricate!\nLe barricate sono strutture di legno posizionate su caselle di percorso adiacenti che bloccano il movimento nemico.\nLe barricate della torre di Lance hanno PV = livello - 10 (minimo 1). Le barricate della torre di Picche hanno PV = (livello - 20) / 2 (minimo 1).\nQuando i nemici raggiungono una barricata, la attaccano con danno pari al loro livello (i draghi infliggono 5× il loro livello).\nSe una barricata viene distrutta, il nemico si sposta su quella casella.\nPuoi costruire nuove barricate o rinforzare quelle esistenti e fare clic sulle barricate per rimuoverle.</string>
     <string name="remove_barricade_title">Rimuovere Barricata?</string>
     <string name="remove_barricade_message">Sei sicuro di voler rimuovere questa barricata?</string>
+    <string name="remove_barricade_with_tower_message">Questa barricata è una base della torre. Rimuoverla distruggerà anche la torre e riceverai il valore di vendita della torre (%d monete). Sei sicuro?</string>
+    
+    <!-- Spike Barbs Feature -->
+    <string name="spike_barbs_info_title">Aculei con Spine Sbloccati!</string>
+    <string name="spike_barbs_info_message">La tua torre di Picche ha raggiunto il livello 10 e ora ha spine!\nQuando una torre di Picche di livello 10+ attacca un nemico, riduce il movimento del nemico di 1 casella per attacco.\nQuesto effetto si accumula - attacchi multipli da torri di Picche di livello 10+ ridurranno ulteriormente il movimento nemico.\nI nemici si muoveranno sempre di almeno 1 casella per turno, anche con effetti multipli di spine.</string>
     
     <!-- Magical Trap Feature -->
     <string name="magical_trap">Trappola Magica</string>
@@ -1087,6 +1142,24 @@
     <!-- Info Page -->
     <string name="info_tab_installation">Installazione</string>
     <string name="info_tab_audio_licenses">Licenze Audio</string>
+    <string name="info_tab_license">Licenza</string>
+    
+    <!-- License Info -->
+    <string name="license_info_title">Informazioni sulla Licenza</string>
+    <string name="license_github_project_title">Progetto GitHub</string>
+    <string name="license_github_project_description">Defender of Egril è un progetto open source. Puoi visualizzare il codice sorgente, contribuire, segnalare problemi e seguire lo sviluppo su GitHub.</string>
+    <string name="license_github_project_link_label">Repository del Progetto:</string>
+    <string name="license_agpl_title">Licenza Pubblica Generale Affero GNU v3.0 (AGPL-3.0)</string>
+    <string name="license_agpl_description">Questo gioco è concesso in licenza secondo la GNU Affero General Public License versione 3.0 (AGPL-3.0). L\'AGPL è una licenza copyleft libera progettata per garantire che il software rimanga libero e aperto per tutti gli utenti, anche quando utilizzato tramite una rete.</string>
+    <string name="license_agpl_freedoms_title">Libertà Principali:</string>
+    <string name="license_agpl_freedom_run">Libertà di eseguire il programma per qualsiasi scopo</string>
+    <string name="license_agpl_freedom_study">Libertà di studiare come funziona il programma e modificarlo</string>
+    <string name="license_agpl_freedom_redistribute">Libertà di ridistribuire copie</string>
+    <string name="license_agpl_freedom_modify">Libertà di distribuire versioni modificate</string>
+    <string name="license_agpl_network_clause_title">Clausola di Utilizzo in Rete:</string>
+    <string name="license_agpl_network_clause_description">L\'AGPL estende la GPL con una clausola speciale: se esegui una versione modificata di questo programma su un server e permetti agli utenti di interagire con esso tramite una rete, devi fornire loro l\'accesso al codice sorgente della tua versione modificata.</string>
+    <string name="license_agpl_full_text_label">Testo Completo della Licenza:</string>
+    <string name="license_agpl_attribution_note">Questo software è fornito secondo i termini della licenza AGPL-3.0. Per i termini e le condizioni complete, si prega di consultare il testo completo della licenza.</string>
     
     <!-- Audio Licenses -->
     <string name="audio_licenses_title">File Audio e Licenze</string>
@@ -1133,4 +1206,17 @@
     <string name="audio_source_label">Fonte: %s</string>
     <string name="audio_license_label">Licenza: %s</string>
     <string name="audio_attribution_note">Tutti i file audio sono utilizzati sotto le rispettive licenze. L\'attribuzione è fornita quando richiesta.</string>
+
+    <string name="towers">Torri</string>
+    <string name="traps">Trappole</string>
+    <string name="barricades">Barricate</string>
+    
+    <!-- Tower Base -->
+    <string name="tower_base_hp_label">Base: %d PV</string>
+    <string name="tower_base_info">Torre su base (distruttibile a &lt;100 PV)</string>
+    
+    <!-- Tower Info Dialog -->
+    <string name="tower_info_title">Informazioni sulla Torre</string>
+    <string name="special_towers_info_title">Torri Speciali</string>
+    <string name="special_towers_info_reopen">Puoi riaprire queste informazioni in qualsiasi momento cliccando sull\'icona della torre nell\'intestazione del livello.</string>
 </resources>

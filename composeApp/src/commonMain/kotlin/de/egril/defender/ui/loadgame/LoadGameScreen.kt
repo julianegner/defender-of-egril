@@ -10,12 +10,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import de.egril.defender.save.SaveGameMetadata
 import de.egril.defender.save.getFileExportImport
 import de.egril.defender.save.SaveFileStorage
 import de.egril.defender.editor.getFileStorage
 import de.egril.defender.ui.settings.SettingsButton
 import com.hyperether.resources.stringResource
+import de.egril.defender.utils.isPlatformMobile
 import defender_of_egril.composeapp.generated.resources.*
 import defender_of_egril.composeapp.generated.resources.Res
 import kotlinx.coroutines.launch
@@ -46,6 +48,7 @@ fun LoadGameScreen(
     
     val scope = rememberCoroutineScope()
     
+    // Extract upload handler to avoid duplication
     val handleUpload: () -> Unit = {
         scope.launch {
             val fileExportImport = getFileExportImport()
@@ -99,37 +102,127 @@ fun LoadGameScreen(
         }
     }
     
-    val handleOverrideDecision: (Boolean) -> Unit = { override ->
-        scope.launch {
-            if (currentImportIndex < pendingImports.size) {
-                val (filename, content) = pendingImports[currentImportIndex]
-                
-                if (override || overrideAll) {
-                    if (SaveFileStorage.importSaveGame(filename, content, overwrite = true)) {
-                        filesImported++
+    if (isPlatformMobile) {
+        LoadGameScreenMobile(
+            savedGames = savedGames,
+            gameDataTransferEnabled = gameDataTransferEnabled,
+            onGameDataTransferToggle = { gameDataTransferEnabled = it },
+            onLoadGame = onLoadGame,
+            onDeleteGame = { showDeleteDialog = it },
+            onDownloadGame = onDownloadGame,
+            onDownloadAll = onDownloadAll,
+            onExportGameProgress = onExportGameProgress,
+            handleUpload = handleUpload,
+            onBack = onBack
+        )
+    } else {
+        LoadGameScreenDesktop(
+            savedGames = savedGames,
+            gameDataTransferEnabled = gameDataTransferEnabled,
+            onGameDataTransferToggle = { gameDataTransferEnabled = it },
+            onLoadGame = onLoadGame,
+            onDeleteGame = { showDeleteDialog = it },
+            onDownloadGame = onDownloadGame,
+            onDownloadAll = onDownloadAll,
+            onExportGameProgress = onExportGameProgress,
+            handleUpload = handleUpload,
+            onBack = onBack
+        )
+
+        val handleOverrideDecision: (Boolean) -> Unit = { override ->
+            scope.launch {
+                if (currentImportIndex < pendingImports.size) {
+                    val (filename, content) = pendingImports[currentImportIndex]
+                    
+                    if (override || overrideAll) {
+                        if (SaveFileStorage.importSaveGame(filename, content, overwrite = true)) {
+                            filesImported++
+                        }
                     }
-                }
-                
-                currentImportIndex++
-                
-                // Check if there are more conflicts
-                if (currentImportIndex < pendingImports.size && !overrideAll) {
-                    showFileOverrideDialog = pendingImports[currentImportIndex].first
-                } else {
-                    // Done with all imports
-                    showFileOverrideDialog = null
-                    if (filesImported > 0) {
-                        showImportSuccess = true
-                        onUpload() // Refresh
+                    
+                    currentImportIndex++
+                    
+                    // Check if there are more conflicts
+                    if (currentImportIndex < pendingImports.size && !overrideAll) {
+                        showFileOverrideDialog = pendingImports[currentImportIndex].first
+                    } else {
+                        // Done with all imports
+                        showFileOverrideDialog = null
+                        if (filesImported > 0) {
+                            showImportSuccess = true
+                            onUpload() // Refresh
+                        }
+                        // Reset state
+                        pendingImports = emptyList()
+                        currentImportIndex = 0
                     }
-                    // Reset state
-                    pendingImports = emptyList()
-                    currentImportIndex = 0
                 }
             }
         }
+        
+        // Delete confirmation dialog
+        DeleteConfirmationDialog(
+            saveIdToDelete = showDeleteDialog,
+            onConfirmDelete = { saveId ->
+                onDeleteGame(saveId)
+                showDeleteDialog = null
+            },
+            onDismiss = { showDeleteDialog = null }
+        )
+        
+        // File override dialog
+        FileOverrideDialog(
+            filename = showFileOverrideDialog,
+            onSkip = {
+                handleOverrideDecision(false)
+            },
+            onOverride = {
+                handleOverrideDecision(true)
+            },
+            onOverrideAll = {
+                overrideAll = true
+                handleOverrideDecision(true)
+            },
+            onDismiss = {
+                showFileOverrideDialog = null
+                pendingImports = emptyList()
+                currentImportIndex = 0
+                if (filesImported > 0) {
+                    showImportSuccess = true
+                }
+            }
+        )
+        
+        // Import success dialog
+        ImportSuccessDialog(
+            filesImported = if (showImportSuccess) filesImported else 0,
+            onDismiss = {
+                showImportSuccess = false
+                filesImported = 0
+            }
+        )
+        
+        // Import error dialog
+        ImportErrorDialog(
+            showError = showImportError,
+            onDismiss = { showImportError = false }
+        )
     }
-    
+}
+
+@Composable
+private fun LoadGameScreenDesktop(
+    savedGames: List<SaveGameMetadata>,
+    gameDataTransferEnabled: Boolean,
+    onGameDataTransferToggle: (Boolean) -> Unit,
+    onLoadGame: (String) -> Unit,
+    onDeleteGame: (String) -> Unit,
+    onDownloadGame: (String, Boolean) -> Unit,
+    onDownloadAll: (Boolean) -> Unit,
+    onExportGameProgress: () -> Unit,
+    handleUpload: () -> Unit,
+    onBack: () -> Unit
+) {
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
@@ -185,7 +278,7 @@ fun LoadGameScreen(
                             }
                             Switch(
                                 checked = gameDataTransferEnabled,
-                                onCheckedChange = { gameDataTransferEnabled = it }
+                                onCheckedChange = onGameDataTransferToggle
                             )
                         }
                         
@@ -238,120 +331,278 @@ fun LoadGameScreen(
                     }
                 }
             
-            if (savedGames.isEmpty()) {
-                Box(
-                    modifier = Modifier.weight(1f).fillMaxWidth(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
+                if (savedGames.isEmpty()) {
+                    Box(
+                        modifier = Modifier.weight(1f).fillMaxWidth(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Text(
+                                text = stringResource(Res.string.no_saved_games),
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            // Show upload button even when no saves exist
+                            Button(onClick = handleUpload) {
+                                de.egril.defender.ui.icon.UploadIcon(size = 16.dp)
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(stringResource(Res.string.upload_savefiles))
+                            }
+                        }
+                    }
+                } else {
+                    LazyColumn(
+                        modifier = Modifier.weight(1f).fillMaxWidth(),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Text(
-                            text = stringResource(Res.string.no_saved_games),
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        // Show upload button even when no saves exist
-                        Button(onClick = handleUpload) {
-                            de.egril.defender.ui.icon.UploadIcon(size = 16.dp)
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(stringResource(Res.string.upload_savefiles))
+                        items(savedGames) { saveGame ->
+                            SavedGameCard(
+                                saveGame = saveGame,
+                                onLoad = { onLoadGame(saveGame.id) },
+                                onDelete = { onDeleteGame(saveGame.id) },
+                                onDownload = { onDownloadGame(saveGame.id, gameDataTransferEnabled) }
+                            )
                         }
                     }
                 }
-            } else {
-                LazyColumn(
-                    modifier = Modifier.weight(1f).fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+            
+                Spacer(modifier = Modifier.height(16.dp))
+            
+                Button(onClick = onBack) {
+                    Text(stringResource(Res.string.back))
+                }
+            
+                Spacer(modifier = Modifier.height(8.dp))
+            
+                // Display savegame folder path at the bottom
+                val savegamePath = rememberSavegamePath()
+            
+                Text(
+                    text = "${stringResource(Res.string.savegame_folder)} $savegamePath",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun rememberSavegamePath(): String {
+    val fileStorage = remember { getFileStorage() }
+    return remember {
+        // Get the path for the savefiles directory
+        val playerId = SaveFileStorage.getCurrentPlayer()
+        val savefilesPath = if (playerId != null) {
+            "players/$playerId/savefiles"
+        } else {
+            "savefiles"
+        }
+        fileStorage.getAbsolutePath(savefilesPath)
+    }
+}
+
+@Composable
+private fun LoadGameScreenMobile(
+    savedGames: List<SaveGameMetadata>,
+    gameDataTransferEnabled: Boolean,
+    onGameDataTransferToggle: (Boolean) -> Unit,
+    onLoadGame: (String) -> Unit,
+    onDeleteGame: (String) -> Unit,
+    onDownloadGame: (String, Boolean) -> Unit,
+    onDownloadAll: (Boolean) -> Unit,
+    onExportGameProgress: () -> Unit,
+    handleUpload: () -> Unit,
+    onBack: () -> Unit
+) {
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
+    ) {
+        Row(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            // Left sidebar with controls
+            Column(
+                modifier = Modifier
+                    .width(200.dp)
+                    .fillMaxHeight()
+                    .padding(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                // Title (smaller on mobile)
+                Text(
+                    text = stringResource(Res.string.load_game),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+                
+                // Game Data Transfer toggle
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                    )
                 ) {
-                    items(savedGames) { saveGame ->
-                        SavedGameCard(
-                            saveGame = saveGame,
-                            onLoad = { onLoadGame(saveGame.id) },
-                            onDelete = { showDeleteDialog = saveGame.id },
-                            onDownload = { onDownloadGame(saveGame.id, gameDataTransferEnabled) }
+                    Column(
+                        modifier = Modifier.fillMaxWidth().padding(8.dp)
+                    ) {
+                        Text(
+                            text = stringResource(Res.string.game_data_transfer),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Switch(
+                            checked = gameDataTransferEnabled,
+                            onCheckedChange = onGameDataTransferToggle,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        
+                        // Export Game Progress button - only show when toggle is enabled
+                        if (gameDataTransferEnabled) {
+                            Spacer(modifier = Modifier.height(4.dp))
+                            
+                            Button(
+                                onClick = onExportGameProgress,
+                                modifier = Modifier.fillMaxWidth(),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.tertiary
+                                ),
+                                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+                            ) {
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    de.egril.defender.ui.icon.DownloadIcon(size = 14.dp)
+                                    Text(
+                                        text = stringResource(Res.string.export_game_progress),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        fontSize = 10.sp
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                // Download All button
+                if (savedGames.isNotEmpty()) {
+                    Button(
+                        onClick = { onDownloadAll(gameDataTransferEnabled) },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary
+                        ),
+                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            de.egril.defender.ui.icon.DownloadIcon(size = 14.dp)
+                            Text(
+                                text = stringResource(Res.string.download_all_savefiles),
+                                style = MaterialTheme.typography.bodySmall,
+                                fontSize = 10.sp
+                            )
+                        }
+                    }
+                }
+                
+                // Upload button
+                Button(
+                    onClick = handleUpload,
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.secondary
+                    ),
+                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        de.egril.defender.ui.icon.UploadIcon(size = 14.dp)
+                        Text(
+                            text = stringResource(Res.string.upload_savefiles),
+                            style = MaterialTheme.typography.bodySmall,
+                            fontSize = 10.sp
                         )
                     }
                 }
-            }
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            Button(onClick = onBack) {
-                Text(stringResource(Res.string.back))
-            }
-            
-            Spacer(modifier = Modifier.height(8.dp))
-            
-            // Display savegame folder path at the bottom
-            val fileStorage = remember { getFileStorage() }
-            val savegamePath = remember {
-                // Get the path for the savefiles directory
-                val playerId = SaveFileStorage.getCurrentPlayer()
-                val savefilesPath = if (playerId != null) {
-                    "players/$playerId/savefiles"
-                } else {
-                    "savefiles"
+                
+                Spacer(modifier = Modifier.weight(1f))
+                
+                // Back button at bottom
+                Button(
+                    onClick = onBack,
+                    modifier = Modifier.fillMaxWidth(),
+                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+                ) {
+                    Text(
+                        text = stringResource(Res.string.back),
+                        style = MaterialTheme.typography.bodySmall
+                    )
                 }
-                fileStorage.getAbsolutePath(savefilesPath)
+                
+                // Display savegame folder path at the bottom
+                val savegamePath = rememberSavegamePath()
+                
+                Text(
+                    text = "${stringResource(Res.string.savegame_folder)}\n$savegamePath",
+                    style = MaterialTheme.typography.bodySmall,
+                    fontSize = 8.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    lineHeight = 10.sp
+                )
             }
             
-            Text(
-                text = "${stringResource(Res.string.savegame_folder)} $savegamePath",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = 4.dp)
-            )
-        }
+            // Right side with saved games list
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+                    .padding(8.dp)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.End)
+                        .padding(bottom = 8.dp)
+                ) {
+                    // Settings button in top-right corner
+                    SettingsButton()
+                }
+                
+                if (savedGames.isEmpty()) {
+                    Box(
+                        modifier = Modifier.weight(1f).fillMaxWidth(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = stringResource(Res.string.no_saved_games),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                } else {
+                    LazyColumn(
+                        modifier = Modifier.weight(1f).fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        items(savedGames) { saveGame ->
+                            SavedGameCard(
+                                saveGame = saveGame,
+                                onLoad = { onLoadGame(saveGame.id) },
+                                onDelete = { onDeleteGame(saveGame.id) },
+                                onDownload = { onDownloadGame(saveGame.id, gameDataTransferEnabled) }
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
-    
-    // Delete confirmation dialog
-    DeleteConfirmationDialog(
-        saveIdToDelete = showDeleteDialog,
-        onConfirmDelete = { saveId ->
-            onDeleteGame(saveId)
-            showDeleteDialog = null
-        },
-        onDismiss = { showDeleteDialog = null }
-    )
-    
-    // File override dialog
-    FileOverrideDialog(
-        filename = showFileOverrideDialog,
-        onSkip = {
-            handleOverrideDecision(false)
-        },
-        onOverride = {
-            handleOverrideDecision(true)
-        },
-        onOverrideAll = {
-            overrideAll = true
-            handleOverrideDecision(true)
-        },
-        onDismiss = {
-            showFileOverrideDialog = null
-            pendingImports = emptyList()
-            currentImportIndex = 0
-            if (filesImported > 0) {
-                showImportSuccess = true
-            }
-        }
-    )
-    
-    // Import success dialog
-    ImportSuccessDialog(
-        filesImported = if (showImportSuccess) filesImported else 0,
-        onDismiss = {
-            showImportSuccess = false
-            filesImported = 0
-        }
-    )
-    
-    // Import error dialog
-    ImportErrorDialog(
-        showError = showImportError,
-        onDismiss = { showImportError = false }
-    )
 }

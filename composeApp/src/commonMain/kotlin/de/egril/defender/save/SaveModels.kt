@@ -48,7 +48,8 @@ data class SavedDefender(
     val placedOnTurn: Int,
     val actionsRemaining: Int = 0,  // Default to 0 for backward compatibility with old saves
     val dragonName: String? = null,  // Dragon's name (for dragon's lair only)
-    val raftId: Int? = null  // ID of the raft this tower is on (null if not on raft)
+    val raftId: Int? = null,  // ID of the raft this tower is on (null if not on raft)
+    val towerBaseBarricadeId: Int? = null  // ID of barricade this tower is on (null if not on tower base)
 )
 
 data class SavedAttacker(
@@ -58,7 +59,8 @@ data class SavedAttacker(
     val level: Int,
     val currentHealth: Int,
     val isDefeated: Boolean,
-    val dragonName: String? = null  // Dragon's name (for dragons only)
+    val dragonName: String? = null,  // Dragon's name (for dragons only)
+    val movementPenalty: Int = 0  // Movement points lost due to spike tower barbs (default 0 for backward compatibility)
 )
 
 data class SavedFieldEffect(
@@ -86,7 +88,9 @@ data class SavedRaft(
 data class SavedBarricade(
     val position: Position,
     val healthPoints: Int,
-    val defenderId: Int  // The tower that built this barricade
+    val defenderId: Int,  // The tower that built this barricade
+    val id: Int = 0,  // Barricade ID (0 for old saves)
+    val supportedTowerId: Int? = null  // ID of tower on this barricade (null if none)
 )
 
 /**
@@ -111,5 +115,6 @@ data class SaveGameMetadata(
     val comment: String? = null,  // Optional player comment
     val defenderPositions: List<SavedDefender> = emptyList(),  // Positions for minimap display
     val attackerPositions: List<SavedAttacker> = emptyList(),  // Positions for minimap display
+    val barricadePositions: List<SavedBarricade> = emptyList(),  // Barricade positions for minimap display
     val mapId: String? = null  // Map identifier (for minimap display)
 )

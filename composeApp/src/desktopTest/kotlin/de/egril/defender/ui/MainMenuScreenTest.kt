@@ -27,6 +27,8 @@ class MainMenuScreenTest {
         composeTestRule.setContent {
             MainMenuScreen(
                 onStartGame = { startGameClicked = true },
+                onContinueGame = {},
+                hasAutosave = false,
                 onShowRules = { showRulesClicked = true },
                 onShowInstallationInfo = {},
                 onSelectPlayer = {},
@@ -83,6 +85,8 @@ class MainMenuScreenTest {
         composeTestRule.setContent {
             MainMenuScreen(
                 onStartGame = { startGameClicked = true },
+                onContinueGame = {},
+                hasAutosave = false,
                 onShowRules = { showRulesClicked = true },
                 onShowInstallationInfo = {},
                 onSelectPlayer = {},
@@ -116,6 +120,8 @@ class MainMenuScreenTest {
         composeTestRule.setContent {
             MainMenuScreen(
                 onStartGame = {},
+                onContinueGame = {},
+                hasAutosave = false,
                 onShowRules = {},
                 onShowInstallationInfo = {},
                 onSelectPlayer = {},
@@ -136,6 +142,8 @@ class MainMenuScreenTest {
         composeTestRule.setContent {
             MainMenuScreen(
                 onStartGame = {},
+                onContinueGame = {},
+                hasAutosave = false,
                 onShowRules = {},
                 onShowInstallationInfo = {},
                 onSelectPlayer = {},
@@ -157,6 +165,8 @@ class MainMenuScreenTest {
         composeTestRule.setContent {
             MainMenuScreen(
                 onStartGame = {},
+                onContinueGame = {},
+                hasAutosave = false,
                 onShowRules = {},
                 onShowInstallationInfo = {},
                 onSelectPlayer = {},
@@ -196,6 +206,8 @@ class MainMenuScreenTest {
         composeTestRule.setContent {
             MainMenuScreen(
                 onStartGame = {},
+                onContinueGame = {},
+                hasAutosave = false,
                 onShowRules = {},
                 onShowInstallationInfo = {},
                 onSelectPlayer = {},
@@ -228,6 +240,8 @@ class MainMenuScreenTest {
         composeTestRule.setContent {
             MainMenuScreen(
                 onStartGame = {},
+                onContinueGame = {},
+                hasAutosave = false,
                 onShowRules = {},
                 onShowInstallationInfo = {},
                 onSelectPlayer = {},
@@ -258,6 +272,8 @@ class MainMenuScreenTest {
         composeTestRule.setContent {
             MainMenuScreen(
                 onStartGame = {},
+                onContinueGame = {},
+                hasAutosave = false,
                 onShowRules = {},
                 onShowInstallationInfo = {},
                 onSelectPlayer = {},

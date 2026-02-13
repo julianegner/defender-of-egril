@@ -24,6 +24,8 @@ import androidx.compose.ui.zIndex
 import de.egril.defender.model.*
 import de.egril.defender.model.getHexNeighbors
 import de.egril.defender.ui.*
+import de.egril.defender.ui.animations.AnimationType
+import de.egril.defender.ui.animations.LottieAnimation
 import de.egril.defender.ui.icon.ExplosionIcon
 import de.egril.defender.ui.icon.GateIcon
 import de.egril.defender.ui.icon.TrapIcon
@@ -429,7 +431,8 @@ fun GridCell(
         // Check if this tile is in range of the hovered position (same logic as cellIsInRange)
         val distance = hoveredPosition.distanceTo(position)
         val minRange = selectedDefenderType.minRange
-        val maxRange = selectedDefenderType.baseRange
+        // For preview, use the actual range at level 1 (baseRange, capped by maxRange if set)
+        val maxRange = selectedDefenderType.maxRange?.let { minOf(selectedDefenderType.baseRange, it) } ?: selectedDefenderType.baseRange
         
         // Only show range on valid target tiles (path or river for area attacks, path only for single-target)
         val hasAreaAttackPreview = selectedDefenderType.attackType == AttackType.AREA || 
@@ -468,6 +471,13 @@ fun GridCell(
     val isBuildableAndEmpty = selectedDefenderType != null && 
                               isBuildableTile && 
                               !showPlacementPreview  // Don't double-highlight the hovered tile
+    
+    // Check if this tile has a barricade that can be used as tower base (HP >= 100)
+    val canBeUsedAsTowerBase = selectedDefenderType != null && 
+                               barricade != null && 
+                               barricade.canSupportTower() && 
+                               !barricade.hasTower() &&
+                               !showPlacementPreview  // Don't double-highlight the hovered tile
 
     // Base background color based on area type - ALWAYS visible
     // Build islands + strips adjacent to path allow tower placement
@@ -555,7 +565,7 @@ fun GridCell(
         cellIsInBarricadeRange -> GamePlayColors.Yellow  // Yellow border for barricade placement range
         
         // Buildable tile highlighting - lighter green borders with dashed line when tower type is selected
-        isBuildableAndEmpty -> GamePlayColors.BuildableHighlight  // Lighter green border for buildable tiles
+        isBuildableAndEmpty || canBeUsedAsTowerBase -> GamePlayColors.BuildableHighlight  // Lighter green border for buildable tiles and tower bases
         
         cellIsInRange && isValidTargetTile && showRange && canPlaceTrapHere -> GamePlayColors.Success  // Green border for tiles in range (path or river for area attacks)
         isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> GamePlayColors.Yellow  // Yellow border for selected defender (not during initial building)
@@ -580,7 +590,7 @@ fun GridCell(
         showPlacementPreview -> 6.dp  // Double thickness for hovered build tile
         isInPreviewRange -> 3.dp  // Medium border for range preview
         cellIsInBarricadeRange -> 4.dp  // Thick border for barricade placement range
-        isBuildableAndEmpty -> 3.dp  // Medium border for buildable tiles
+        isBuildableAndEmpty || canBeUsedAsTowerBase -> 3.dp  // Medium border for buildable tiles and tower bases
         isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> 5.dp  // Extra thick border for selected defender (not during initial building)
         cellIsInRange && isValidTargetTile && showRange && canPlaceTrapHere -> 4.dp  // Thick border for cells in range (path or river for area attacks)
         isSpawnPoint || isTarget -> 3.dp
@@ -592,7 +602,7 @@ fun GridCell(
     }
     
     // Flag to indicate dashed border (for preview and buildable tiles)
-    val useDashedBorder = showPlacementPreview || isInPreviewRange || isBuildableAndEmpty
+    val useDashedBorder = showPlacementPreview || isInPreviewRange || isBuildableAndEmpty || canBeUsedAsTowerBase
     
     // Determine if we should use gradient blending
     val useTileImages = de.egril.defender.ui.settings.AppSettings.useTileImages.value
@@ -691,7 +701,8 @@ fun GridCell(
                 showTrapPreview = showTrapPreview,
                 selectedMineAction = selectedMineAction,
                 selectedWizardAction = selectedWizardAction,
-                isBuildableAndEmpty = isBuildableAndEmpty
+                isBuildableAndEmpty = isBuildableAndEmpty,
+                canBeUsedAsTowerBase = canBeUsedAsTowerBase
             )
         }
     } else {
@@ -728,7 +739,8 @@ fun GridCell(
                 showTrapPreview = showTrapPreview,
                 selectedMineAction = selectedMineAction,
                 selectedWizardAction = selectedWizardAction,
-                isBuildableAndEmpty = isBuildableAndEmpty
+                isBuildableAndEmpty = isBuildableAndEmpty,
+                canBeUsedAsTowerBase = canBeUsedAsTowerBase
             )
         }
     }
@@ -762,52 +774,56 @@ private fun BoxScope.GridCellContent(
     showTrapPreview: Boolean = false,
     selectedMineAction: MineAction? = null,
     selectedWizardAction: WizardAction? = null,
-    isBuildableAndEmpty: Boolean = false
+    isBuildableAndEmpty: Boolean = false,
+    canBeUsedAsTowerBase: Boolean = false
 ) {
         when {
             attacker != null -> {
                 // Use graphical icon for enemy units
-                // Key by id, position, level, and currentHealth to force recomposition when any changes
+                // Key by id, position, level, currentHealth, and movementPenalty to force recomposition when any changes
                 key(
                     attacker.id,
                     attacker.position.value.x,
                     attacker.position.value.y,
                     attacker.level,
-                    attacker.currentHealth.value
+                    attacker.currentHealth.value,
+                    attacker.movementPenalty.value
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         EnemyIcon(attacker = attacker)
                         // Show healing effect overlay if present
                         if (healingEffect != null) {
-                            // Show 3 green "+" symbols in different sizes
-                            // Positioned with smaller symbols higher than larger ones
+                            // Show Lottie animation for green witch healing - repeats until turn ends
+                            LottieAnimation(
+                                animationType = AnimationType.GREEN_WITCH_HEALING,
+                                modifier = Modifier.fillMaxSize(),
+                                iterations = Int.MAX_VALUE
+                            )
+                        }
+                        // Show barb effect indicators if affected (show up to 5 arrows in center)
+                        if (attacker.movementPenalty.value > 0) {
+                            val barbCount = minOf(attacker.movementPenalty.value, 5)
                             Box(
                                 modifier = Modifier.fillMaxSize(),
                                 contentAlignment = Alignment.Center
                             ) {
-                                // Large + symbol at center
-                                Text(
-                                    "+",
-                                    style = MaterialTheme.typography.headlineLarge,
-                                    color = Color(0xFF4CAF50), // Green
-                                    fontWeight = FontWeight.Bold
-                                )
-                                // Medium + symbol - offset left and higher
-                                Text(
-                                    "+",
-                                    style = MaterialTheme.typography.headlineMedium,
-                                    color = Color(0xFF4CAF50), // Green
-                                    fontWeight = FontWeight.Bold,
-                                    modifier = Modifier.offset(x = (-12).dp, y = (-8).dp)
-                                )
-                                // Small + symbol - offset right and even higher
-                                Text(
-                                    "+",
-                                    style = MaterialTheme.typography.headlineSmall,
-                                    color = Color(0xFF4CAF50), // Green
-                                    fontWeight = FontWeight.Bold,
-                                    modifier = Modifier.offset(x = 12.dp, y = (-16).dp)
-                                )
+                                Row(
+                                    horizontalArrangement = Arrangement.spacedBy(2.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    repeat(barbCount) {
+                                        Box(
+                                            modifier = Modifier.graphicsLayer {
+                                                rotationZ = 10f  // Tilt +10 degrees
+                                            }
+                                        ) {
+                                            de.egril.defender.ui.icon.DownArrowIcon(
+                                                size = 12.dp,
+                                                tint = Color.Red
+                                            )
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
@@ -924,36 +940,12 @@ private fun BoxScope.GridCellContent(
                     }
                     // Show damage effect overlay if present
                     if (damageEffect != null) {
-                        // Show 3 red "-" symbols in different sizes
-                        // Positioned with smaller symbols higher than larger ones
-                        Box(
+                        // Show Lottie animation for barricade damage - repeats until turn ends
+                        LottieAnimation(
+                            animationType = AnimationType.BARRICADE_DAMAGE,
                             modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            // Large - symbol at center
-                            Text(
-                                "-",
-                                style = MaterialTheme.typography.headlineLarge,
-                                color = Color.Red,
-                                fontWeight = FontWeight.Bold
-                            )
-                            // Medium - symbol - offset left and higher
-                            Text(
-                                "-",
-                                style = MaterialTheme.typography.titleMedium,
-                                color = Color.Red,
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier.offset(x = (-10).dp, y = (-12).dp)
-                            )
-                            // Small - symbol - offset right and higher
-                            Text(
-                                "-",
-                                style = MaterialTheme.typography.titleSmall,
-                                color = Color.Red,
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier.offset(x = 8.dp, y = (-15).dp)
-                            )
-                        }
+                            iterations = Int.MAX_VALUE
+                        )
                     }
                 }
             }
@@ -1200,8 +1192,8 @@ private fun BoxScope.GridCellContent(
             }
         }
         
-        // Draw diagonal stripes for buildable tiles
-        if (isBuildableAndEmpty) {
+        // Draw diagonal stripes for buildable tiles and tower bases
+        if (isBuildableAndEmpty || canBeUsedAsTowerBase) {
             Canvas(
                 modifier = Modifier
                     .matchParentSize()

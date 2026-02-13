@@ -4,6 +4,7 @@
     <string name="app_name">Défenseur d'Egril</string>
     <string name="app_subtitle">Défendez les prairies d'Egril contre les Hordes de Gleid Thyae sous la Bannière du maléfique Ewhad</string>
     <string name="start_game">Commencer le jeu</string>
+    <string name="continue_game">Continuer le jeu</string>
     <string name="rules">Règles</string>
     <string name="exit_game">Quitter le jeu</string>
     <string name="exit_game_confirm_title">Quitter le jeu ?</string>
@@ -204,6 +205,7 @@
     <string name="coins_label">pièces</string>
     <string name="hp_label">PV</string>
     <string name="speed_label">Vitesse</string>
+    <string name="slowed_by_barbs">Ralenti par les barbes</string>
     
     <!-- Status text -->
     <string name="available">Disponible</string>
@@ -434,6 +436,9 @@
     <!-- Tutorial -->
     <string name="tutorial_welcome_title">Bienvenue dans Defender of Egril!</string>
     <string name="tutorial_welcome">Ceci est un jeu de défense de tours. Votre objectif est d'empêcher les ennemis d'atteindre la cible en construisant des tours défensives.</string>
+    <string name="tutorial_map_navigation_title">Navigation sur la Carte</string>
+    <string name="tutorial_map_navigation_mobile">Vous pouvez vous déplacer sur la carte en utilisant des gestes de balayage à deux doigts ou en appuyant sur la croix de navigation (flèches) à l\'écran.\n\nVous pouvez également naviguer en faisant glisser la zone sur la mini-carte qui montre la section visible de la carte.\n\nUtilisez les gestes de pincement pour zoomer et dézoomer pour une meilleure vue.</string>
+    <string name="tutorial_map_navigation_desktop">Vous pouvez vous déplacer sur la carte en utilisant les touches WASD, les touches fléchées ou en faisant glisser avec la souris.\n\nVous pouvez également naviguer en faisant glisser la zone sur la mini-carte qui montre la section visible de la carte.\n\nUtilisez la molette de la souris pour zoomer et dézoomer pour une meilleure vue.</string>
     <string name="tutorial_resources_title">Ressources</string>
     <string name="tutorial_resources">Vous avez des pièces pour construire des tours et des points de vie.\nLorsque vous battez des ennemis, vous gagnez des pièces égales à leur récompense de base multipliée par leur niveau.\nLes ennemis faibles coûtent 1 PV, mais les ennemis puissants (sorciers, sorcières, mages maléfiques, démons, dragons) coûtent des PV égaux à leur niveau.\nEwhad coûte tous vos PV!</string>
     <string name="tutorial_towers_title">Tours disponibles</string>
@@ -594,6 +599,51 @@
     <string name="click_target_waypoint">2. Cliquez sur une cible (point de passage ou cible)</string>
     <string name="connection_mode_active">Mode connexion actif</string>
     <string name="cancel_connection">Annuler</string>
+    <string name="show_all_towers">Afficher toutes les tours</string>
+    <string name="select_position_on_map">Sélectionner une position sur la carte</string>
+    <string name="initial_setup_map">Carte</string>
+    <string name="initial_setup_click_to_place">Cliquez sur la carte pour placer l'élément sélectionné</string>
+    <string name="initial_setup">Configuration Initiale</string>
+    <string name="initial_setup_info">Placez des tours, des ennemis, des pièges et des barricades sur la carte avant que le niveau ne commence (optionnel)</string>
+    <string name="initial_setup_towers">Tours</string>
+    <string name="initial_setup_enemies">Ennemis</string>
+    <string name="initial_setup_traps">Pièges</string>
+    <string name="initial_setup_barricades">Barricades</string>
+    <string name="initial_setup_configuration">Configuration</string>
+    <string name="element_type">Type d'Élément</string>
+    <string name="selection_mode">Mode de Sélection</string>
+    <string name="selection_mode_info">Cliquez sur un élément de la carte pour le sélectionner et le supprimer</string>
+    <string name="placed_elements">Éléments Placés</string>
+    <string name="tower_configuration">Configuration de Tour</string>
+    <string name="enemy_configuration">Configuration d'Ennemi</string>
+    <string name="trap_configuration">Configuration de Piège</string>
+    <string name="barricade_configuration">Configuration de Barricade</string>
+    <string name="selected_element">Élément Sélectionné</string>
+    <string name="health_points">Points de Vie</string>
+    <string name="level_label">Niveau</string>
+    <string name="tower_type">Type de Tour</string>
+    <string name="dragon_name_label">Nom du Dragon</string>
+    <string name="trap_type">Type de Piège</string>
+    <string name="initial_defenders">Tours Initiales</string>
+    <string name="initial_attackers">Ennemis Initiaux</string>
+    <string name="initial_traps">Pièges Initiaux</string>
+    <string name="initial_barricades">Barricades Initiales</string>
+    <string name="add_initial_defender">Ajouter une Tour</string>
+    <string name="add_initial_attacker">Ajouter un Ennemi</string>
+    <string name="add_initial_trap">Ajouter un Piège</string>
+    <string name="add_initial_barricade">Ajouter une Barricade</string>
+    <string name="edit_initial_defender">Modifier la Tour</string>
+    <string name="edit_initial_attacker">Modifier l'Ennemi</string>
+    <string name="edit_initial_trap">Modifier le Piège</string>
+    <string name="edit_initial_barricade">Modifier la Barricade</string>
+    <string name="no_initial_defenders">Aucune tour placée initialement</string>
+    <string name="no_initial_attackers">Aucun ennemi placé initialement</string>
+    <string name="no_initial_traps">Aucun piège placé initialement</string>
+    <string name="no_initial_barricades">Aucune barricade placée initialement</string>
+    <string name="custom_health_optional">Santé Personnalisée (optionnel)</string>
+    <string name="dwarven_trap">Piège Nain</string>
+    <string name="no_map_selected">Aucune carte sélectionnée. Veuillez d'abord sélectionner ou créer une carte.</string>
+    <string name="deselect">Désélectionner</string>
     
     <!-- Plurals -->
     <plurals name="enemy_count">
@@ -653,6 +703,11 @@
     <string name="barricade_info_message">Votre tour de Lances a atteint le niveau 10 (ou tour de Piques niveau 20) et peut maintenant construire des barricades !\nLes barricades sont des structures en bois placées sur des cases de chemin adjacentes qui bloquent le mouvement ennemi.\nLes barricades de tour de Lances ont PV = niveau - 10 (minimum 1). Les barricades de tour de Piques ont PV = (niveau - 20) / 2 (minimum 1).\nLorsque les ennemis atteignent une barricade, ils l'attaquent avec des dégâts égaux à leur niveau (les dragons infligent 5× leur niveau).\nSi une barricade est détruite, l'ennemi se déplace sur cette case.\nVous pouvez construire de nouvelles barricades ou renforcer les existantes, et cliquer sur les barricades pour les retirer.</string>
     <string name="remove_barricade_title">Retirer la Barricade?</string>
     <string name="remove_barricade_message">Êtes-vous sûr de vouloir retirer cette barricade?</string>
+    <string name="remove_barricade_with_tower_message">Cette barricade est une base de tour. La retirer détruira également la tour et vous recevrez la valeur de vente de la tour (%d pièces). Êtes-vous sûr?</string>
+    
+    <!-- Spike Barbs Feature -->
+    <string name="spike_barbs_info_title">Barbes de Piques Débloquées !</string>
+    <string name="spike_barbs_info_message">Votre tour de Piques a atteint le niveau 10 et possède maintenant des barbes !\nLorsqu'une tour de Piques de niveau 10+ attaque un ennemi, elle réduit le mouvement de l'ennemi de 1 case par attaque.\nCet effet s'accumule - plusieurs attaques de tours de Piques de niveau 10+ réduiront davantage le mouvement ennemi.\nLes ennemis se déplaceront toujours d'au moins 1 case par tour, même avec plusieurs effets de barbes.</string>
     
     <!-- Magical Trap Feature -->
     <string name="magical_trap">Piège Magique</string>
@@ -1087,6 +1142,24 @@
     <!-- Info Page -->
     <string name="info_tab_installation">Installation</string>
     <string name="info_tab_audio_licenses">Licences Audio</string>
+    <string name="info_tab_license">Licence</string>
+    
+    <!-- License Info -->
+    <string name="license_info_title">Informations sur la Licence</string>
+    <string name="license_github_project_title">Projet GitHub</string>
+    <string name="license_github_project_description">Defender of Egril est un projet open source. Vous pouvez consulter le code source, contribuer, signaler des problèmes et suivre le développement sur GitHub.</string>
+    <string name="license_github_project_link_label">Dépôt du Projet:</string>
+    <string name="license_agpl_title">Licence Publique Générale Affero GNU v3.0 (AGPL-3.0)</string>
+    <string name="license_agpl_description">Ce jeu est sous licence GNU Affero General Public License version 3.0 (AGPL-3.0). L\'AGPL est une licence libre de type copyleft conçue pour garantir que le logiciel reste libre et ouvert pour tous les utilisateurs, même lorsqu\'il est utilisé sur un réseau.</string>
+    <string name="license_agpl_freedoms_title">Libertés Principales:</string>
+    <string name="license_agpl_freedom_run">Liberté d\'exécuter le programme à n\'importe quelle fin</string>
+    <string name="license_agpl_freedom_study">Liberté d\'étudier le fonctionnement du programme et de le modifier</string>
+    <string name="license_agpl_freedom_redistribute">Liberté de redistribuer des copies</string>
+    <string name="license_agpl_freedom_modify">Liberté de distribuer des versions modifiées</string>
+    <string name="license_agpl_network_clause_title">Clause d\'Utilisation Réseau:</string>
+    <string name="license_agpl_network_clause_description">L\'AGPL étend la GPL avec une clause spéciale : si vous exécutez une version modifiée de ce programme sur un serveur et permettez aux utilisateurs d\'interagir avec lui via un réseau, vous devez leur fournir l\'accès au code source de votre version modifiée.</string>
+    <string name="license_agpl_full_text_label">Texte Complet de la Licence:</string>
+    <string name="license_agpl_attribution_note">Ce logiciel est fourni selon les termes de la licence AGPL-3.0. Pour les termes et conditions complets, veuillez consulter le texte complet de la licence.</string>
     
     <!-- Audio Licenses -->
     <string name="audio_licenses_title">Fichiers Audio et Licences</string>
@@ -1133,4 +1206,16 @@
     <string name="audio_source_label">Source: %s</string>
     <string name="audio_license_label">Licence: %s</string>
     <string name="audio_attribution_note">Tous les fichiers audio sont utilisés sous leurs licences respectives. L\'attribution est fournie lorsque requise.</string>
+    <string name="towers">Tours</string>
+    <string name="traps">Pièges</string>
+    <string name="barricades">Barricades</string>
+    
+    <!-- Tower Base -->
+    <string name="tower_base_hp_label">Base: %d PV</string>
+    <string name="tower_base_info">Tour sur base (destructible à &lt;100 PV)</string>
+    
+    <!-- Tower Info Dialog -->
+    <string name="tower_info_title">Informations sur la Tour</string>
+    <string name="special_towers_info_title">Tours Spéciales</string>
+    <string name="special_towers_info_reopen">Vous pouvez rouvrir ces informations à tout moment en cliquant sur l\'icône de tour dans l\'en-tête du niveau.</string>
 </resources>

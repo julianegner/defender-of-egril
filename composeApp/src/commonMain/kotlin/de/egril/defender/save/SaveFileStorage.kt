@@ -91,13 +91,15 @@ object SaveFileStorage {
     
     /**
      * Save current game state
+     * @param saveId Optional save ID. If not provided, generates a timestamp-based ID.
+     *               Use fixed ID like "autosave_game" for autosaves to overwrite previous autosaves.
      */
-    fun saveGameState(gameState: GameState, comment: String? = null): String {
-        val saveId = "savegame_${currentTimeMillis()}"
-        val savedGame = convertGameStateToSavedGame(gameState, saveId, comment)
+    fun saveGameState(gameState: GameState, comment: String? = null, saveId: String? = null): String {
+        val actualSaveId = saveId ?: "savegame_${currentTimeMillis()}"
+        val savedGame = convertGameStateToSavedGame(gameState, actualSaveId, comment)
         val json = SaveJsonSerializer.serializeSavedGame(savedGame)
-        fileStorage.writeFile("${getSavefilesDir()}/$saveId.json", json)
-        return saveId
+        fileStorage.writeFile("${getSavefilesDir()}/$actualSaveId.json", json)
+        return actualSaveId
     }
     
     /**
@@ -182,6 +184,7 @@ object SaveFileStorage {
                             comment = savedGame.comment,
                             defenderPositions = savedGame.defenders,
                             attackerPositions = savedGame.attackers,
+                            barricadePositions = savedGame.barricades,  // Include barricade positions for minimap display
                             mapId = savedGame.mapId  // Include map ID for minimap display
                         )
                     )
@@ -276,7 +279,8 @@ object SaveFileStorage {
                 placedOnTurn = defender.placedOnTurn,
                 actionsRemaining = defender.actionsRemaining.value,
                 dragonName = defender.dragonName,
-                raftId = defender.raftId.value
+                raftId = defender.raftId.value,
+                towerBaseBarricadeId = defender.towerBaseBarricadeId.value
             )
         }
         
@@ -288,7 +292,8 @@ object SaveFileStorage {
                 level = attacker.level.value,
                 currentHealth = attacker.currentHealth.value,
                 isDefeated = attacker.isDefeated.value,
-                dragonName = attacker.dragonName
+                dragonName = attacker.dragonName,
+                movementPenalty = attacker.movementPenalty.value
             )
         }
         
@@ -324,7 +329,9 @@ object SaveFileStorage {
             SavedBarricade(
                 position = barricade.position,
                 healthPoints = barricade.healthPoints.value,
-                defenderId = barricade.defenderId
+                defenderId = barricade.defenderId,
+                id = barricade.id,
+                supportedTowerId = barricade.supportedTowerId.value
             )
         }
         
@@ -397,6 +404,7 @@ object SaveFileStorage {
             defender.buildTimeRemaining.value = savedDefender.buildTimeRemaining
             defender.actionsRemaining.value = savedDefender.actionsRemaining
             defender.raftId.value = savedDefender.raftId  // Restore raft linkage
+            defender.towerBaseBarricadeId.value = savedDefender.towerBaseBarricadeId  // Restore tower base linkage
             gameState.defenders.add(defender)
         }
         
@@ -412,6 +420,7 @@ object SaveFileStorage {
             )
             attacker.currentHealth.value = savedAttacker.currentHealth
             attacker.isDefeated.value = savedAttacker.isDefeated
+            attacker.movementPenalty.value = savedAttacker.movementPenalty
             gameState.attackers.add(attacker)
         }
         
@@ -445,11 +454,23 @@ object SaveFileStorage {
         
         // Restore barricades
         gameState.barricades.clear()
+        
+        // First pass: determine the max barricade ID from saved data
+        val maxSavedBarricadeId = savedGame.barricades.maxOfOrNull { it.id } ?: 0
+        
+        // Set nextBarricadeId to be higher than any existing ID
+        if (maxSavedBarricadeId >= gameState.nextBarricadeId.value) {
+            gameState.nextBarricadeId.value = maxSavedBarricadeId + 1
+        }
+        
+        // Second pass: restore barricades, assigning new IDs to those with ID <= 0 (old saves)
         gameState.barricades.addAll(savedGame.barricades.map { barricade ->
             Barricade(
+                id = if (barricade.id > 0) barricade.id else gameState.nextBarricadeId.value++,
                 position = barricade.position,
                 healthPoints = mutableStateOf(barricade.healthPoints),
-                defenderId = barricade.defenderId
+                defenderId = barricade.defenderId,
+                supportedTowerId = mutableStateOf(barricade.supportedTowerId)
             )
         })
         

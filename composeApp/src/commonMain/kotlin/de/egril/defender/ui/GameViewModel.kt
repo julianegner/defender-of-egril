@@ -3,6 +3,7 @@ package de.egril.defender.ui
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import de.egril.defender.game.GameEngine
+import de.egril.defender.game.GameEngine.EnemyTurnMovements
 import de.egril.defender.game.LevelData
 import de.egril.defender.model.*
 import de.egril.defender.model.DifficultyModifiers
@@ -294,6 +295,9 @@ class GameViewModel {
                 spawnPlan = modifiedSpawnPlan
             )
             
+            // Initialize pre-placed elements if any
+            newGameState.initializePrePlacedElements()
+            
             _gameState.value = newGameState
             gameEngine = GameEngine(newGameState)
             _currentScreen.value = Screen.GamePlay(levelId)
@@ -501,8 +505,8 @@ class GameViewModel {
         return result
     }
     
-    fun performRemoveBarricade(barricadePosition: Position): Boolean {
-        return gameEngine?.removeBarricade(barricadePosition) ?: false
+    fun performRemoveBarricade(barricadePosition: Position): Int {
+        return gameEngine?.removeBarricade(barricadePosition) ?: 0
     }
     
     fun performMineDigWithOutcome(outcome: DigOutcome): DigOutcome? {
@@ -523,7 +527,9 @@ class GameViewModel {
             engine.startEnemyTurn()
             
             // Calculate all movement steps for existing units
-            val movementSteps = engine.calculateEnemyTurnMovements()
+            val enemyTurnMovements = engine.calculateEnemyTurnMovements()
+            val movementSteps = enemyTurnMovements.allMovementSteps
+            val attackersStoppedByBarricade = enemyTurnMovements.attackersStoppedByBarricade
             
             // Apply each movement step with a delay between steps
             for (stepMovements in movementSteps) {
@@ -534,12 +540,18 @@ class GameViewModel {
                 // Delay between movement steps so user can see the animation (reduced from 400ms to 200ms)
                 delay(200)
             }
+
+            attackersStoppedByBarricade.forEach { it ->
+                println("attackBarricade B")
+                // fixit HERE
+                engine.attackBarricade(it.second, it.first)
+            }
             
             // Add a small delay to see final positions before spawning new units (reduced from 300ms to 150ms)
             if (movementSteps.isNotEmpty()) {
                 delay(150)
             }
-            
+
             // Now spawn new units (spawn points should be clear after movements)
             engine.spawnEnemyTurnAttackers()
             
@@ -563,6 +575,10 @@ class GameViewModel {
             
             // Complete enemy turn: apply effects and return to player turn
             engine.completeEnemyTurn()
+            
+            // Autosave at the beginning of the new player turn (after enemy turn completes)
+            // This ensures the phase is PLAYER_TURN when the save is created
+            autoSaveGame()
             
             // Check win/loss conditions
             val updatedState = _gameState.value ?: return@launch
@@ -764,6 +780,32 @@ class GameViewModel {
         // Update the last save snapshot
         lastSaveSnapshot = createGameStateSnapshot(state)
         return saveId
+    }
+    
+    /**
+     * Create an autosave at the beginning of a new turn.
+     * Autosaves always use the fixed ID "autosave_game" so they overwrite previous autosaves.
+     */
+    private fun autoSaveGame() {
+        val state = _gameState.value ?: return
+        // Use fixed ID "autosave_game" and add "Autosave" as comment
+        de.egril.defender.save.SaveFileStorage.saveGameState(state, comment = "Autosave", saveId = "autosave_game")
+        refreshSavedGames()
+        // Don't update lastSaveSnapshot for autosaves - we still want to track manual saves separately
+    }
+    
+    /**
+     * Check if an autosave exists
+     */
+    fun hasAutosave(): Boolean {
+        return de.egril.defender.save.SaveFileStorage.loadGameState("autosave_game") != null
+    }
+    
+    /**
+     * Load the autosave and start playing
+     */
+    fun continueFromAutosave() {
+        loadGame("autosave_game")
     }
     
     /**

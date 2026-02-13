@@ -13,7 +13,19 @@ class TowerManager(private val state: GameState) {
     
     fun placeDefender(type: DefenderType, position: Position): Boolean {
         if (!state.canPlaceDefender(type)) return false
-        if (isPositionOccupied(position)) return false
+        
+        // Check if position is on a barricade with at least 100 HP (tower base)
+        val barricadeAtPosition = state.barricades.find { it.position == position }
+        val isOnTowerBase = barricadeAtPosition != null && barricadeAtPosition.canSupportTower()
+        
+        // If placing on a tower base, allow placement even if position would normally be occupied
+        if (!isOnTowerBase) {
+            if (isPositionOccupied(position)) return false
+        } else {
+            // On tower base, check if there's already a tower on this barricade
+            if (barricadeAtPosition.hasTower()) return false
+        }
+        
         // Cannot place on spawn points or any target
         if (state.level.isSpawnPoint(position) || state.level.isTargetPosition(position)) return false
         
@@ -27,8 +39,8 @@ class TowerManager(private val state: GameState) {
             return false
         }
         
-        // Can place in build areas OR on river tiles (for rafts, except mines)
-        if (!state.level.isBuildArea(position) && !isRiverPlacement) return false
+        // Can place in build areas OR on river tiles (for rafts, except mines) OR on tower bases
+        if (!state.level.isBuildArea(position) && !isRiverPlacement && !isOnTowerBase) return false
         
         val buildTime = if (state.phase.value == GamePhase.INITIAL_BUILDING) 0 else type.buildTime
         
@@ -43,11 +55,18 @@ class TowerManager(private val state: GameState) {
             buildTimeRemaining = mutableStateOf(buildTime),
             placedOnTurn = state.turnNumber.value
         )
+        
+        // If placed on tower base, link the tower and barricade
+        if (isOnTowerBase) {
+            defender.towerBaseBarricadeId.value = barricadeAtPosition!!.id
+            barricadeAtPosition.supportedTowerId.value = defender.id
+        }
+        
         state.defenders.add(defender)
         state.coins.value -= type.baseCost
         
-        // Create a raft if placed on river tile
-        if (isRiverPlacement) {
+        // Create a raft if placed on river tile (and not on tower base)
+        if (isRiverPlacement && !isOnTowerBase) {
             val raftId = createRaft(defender)
             defender.raftId.value = raftId
         }
@@ -73,6 +92,16 @@ class TowerManager(private val state: GameState) {
         
         // Play tower upgraded sound
         GlobalSoundManager.playSound(SoundEvent.TOWER_UPGRADED)
+        
+        // Check if spike tower just reached level 10 (spike barbs ability)
+        if (defender.type == DefenderType.SPIKE_TOWER && 
+            oldLevel < 10 && 
+            defender.level.value >= 10 &&
+            !defender.hasShownSpikeBarbsTutorial.value) {
+            // Show spike barbs tutorial
+            state.infoState.value = state.infoState.value.showInfo(InfoType.SPIKE_BARBS_INFO)
+            defender.hasShownSpikeBarbsTutorial.value = true
+        }
         
         // Check if spike tower just reached level 20 or spear tower just reached level 10 (barricade ability)
         val showBarricadeTutorial = when (defender.type) {
@@ -126,6 +155,17 @@ class TowerManager(private val state: GameState) {
         if (defender.placedOnTurn != state.turnNumber.value) return false
         if (defender.hasBeenUsed.value) return false
         
+        // If tower is on a tower base, clear the barricade's tower reference
+        if (defender.isOnTowerBase) {
+            val barricadeId = defender.towerBaseBarricadeId.value
+            if (barricadeId != null) {
+                val barricade = state.barricades.find { it.id == barricadeId }
+                if (barricade != null) {
+                    barricade.supportedTowerId.value = null
+                }
+            }
+        }
+        
         // Refund full cost
         state.coins.value += defender.totalCost
         state.defenders.remove(defender)
@@ -142,6 +182,17 @@ class TowerManager(private val state: GameState) {
         // Can only sell if tower is ready and has actions remaining
         if (!defender.isReady) return false
         if (defender.actionsRemaining.value <= 0) return false
+        
+        // If tower is on a tower base, clear the barricade's tower reference
+        if (defender.isOnTowerBase) {
+            val barricadeId = defender.towerBaseBarricadeId.value
+            if (barricadeId != null) {
+                val barricade = state.barricades.find { it.id == barricadeId }
+                if (barricade != null) {
+                    barricade.supportedTowerId.value = null
+                }
+            }
+        }
         
         // Refund 75% of total cost
         val refund = (defender.totalCost * 0.75).toInt()

@@ -12,15 +12,16 @@ enum class DefenderType(
     val actionsPerTurn: Int,
     val buildTime: Int,  // Turns needed to build (0 = instant in initial phase)
     val minRange: Int = 0,  // Minimum range for attacks (0 = can attack adjacent)
+    val maxRange: Int? = null,  // Maximum range cap (null = unlimited growth with level)
     val isMine: Boolean = false  // Special flag for dwarven mine
 ) {
-    SPIKE_TOWER("Spike Tower", baseCost = 10, baseDamage = 5, baseRange = 1, attackType = AttackType.MELEE, actionsPerTurn = 1, buildTime = 1),
-    SPEAR_TOWER("Spear Tower", baseCost = 15, baseDamage = 8, baseRange = 2, attackType = AttackType.RANGED, actionsPerTurn = 1, buildTime = 1),
-    BOW_TOWER("Bow Tower", baseCost = 20, baseDamage = 10, baseRange = 3, attackType = AttackType.RANGED, actionsPerTurn = 1, buildTime = 1),
-    WIZARD_TOWER("Wizard Tower", baseCost = 50, baseDamage = 30, baseRange = 3, attackType = AttackType.AREA, actionsPerTurn = 1, buildTime = 2),
-    ALCHEMY_TOWER("Alchemy Tower", baseCost = 40, baseDamage = 15, baseRange = 2, attackType = AttackType.LASTING, actionsPerTurn = 1, buildTime = 1),
+    SPIKE_TOWER("Spike Tower", baseCost = 10, baseDamage = 5, baseRange = 1, attackType = AttackType.MELEE, actionsPerTurn = 1, buildTime = 1, maxRange = 2),
+    SPEAR_TOWER("Spear Tower", baseCost = 15, baseDamage = 8, baseRange = 2, attackType = AttackType.RANGED, actionsPerTurn = 1, buildTime = 1, maxRange = 5),
+    BOW_TOWER("Bow Tower", baseCost = 20, baseDamage = 10, baseRange = 3, attackType = AttackType.RANGED, actionsPerTurn = 1, buildTime = 1, maxRange = 20),
+    WIZARD_TOWER("Wizard Tower", baseCost = 50, baseDamage = 30, baseRange = 3, attackType = AttackType.AREA, actionsPerTurn = 1, buildTime = 2, maxRange = 15),
+    ALCHEMY_TOWER("Alchemy Tower", baseCost = 40, baseDamage = 15, baseRange = 2, attackType = AttackType.LASTING, actionsPerTurn = 1, buildTime = 1, maxRange = 10),
     BALLISTA_TOWER("Ballista Tower", baseCost = 60, baseDamage = 50, baseRange = 5, attackType = AttackType.RANGED, actionsPerTurn = 1, buildTime = 2, minRange = 3),
-    DWARVEN_MINE("Mine", baseCost = 100, baseDamage = 0, baseRange = 3, attackType = AttackType.NONE, actionsPerTurn = 0, buildTime = 3, isMine = true),
+    DWARVEN_MINE("Mine", baseCost = 100, baseDamage = 0, baseRange = 3, attackType = AttackType.NONE, actionsPerTurn = 0, buildTime = 3, isMine = true, maxRange = 10),
     DRAGONS_LAIR("Dragon's Lair", baseCost = 0, baseDamage = 0, baseRange = 0, attackType = AttackType.NONE, actionsPerTurn = 0, buildTime = 0)
 }
 
@@ -54,22 +55,27 @@ data class Defender(
     val hasShownMagicalTrapTutorial: MutableState<Boolean> = mutableStateOf(false),  // Track if tutorial was shown for this wizard
     val hasShownExtendedAreaTutorial: MutableState<Boolean> = mutableStateOf(false),  // Track if extended area tutorial was shown (level 20+)
     val hasShownBarricadeTutorial: MutableState<Boolean> = mutableStateOf(false),  // Track if barricade tutorial was shown (level 20+ for Spike, level 10+ for Spear)
+    val hasShownSpikeBarbsTutorial: MutableState<Boolean> = mutableStateOf(false),  // Track if spike barbs tutorial was shown (level 10+)
     // Raft-specific properties
-    val raftId: MutableState<Int?> = mutableStateOf(null)  // ID of the raft this tower is on (null if not on raft)
+    val raftId: MutableState<Int?> = mutableStateOf(null),  // ID of the raft this tower is on (null if not on raft)
+    // Tower base properties
+    val towerBaseBarricadeId: MutableState<Int?> = mutableStateOf(null)  // ID of barricade this tower is on (null if not on tower base)
 ) {
     val damage: Int get() = type.baseDamage + (level.value - 1) * 5
     val range: Int get() {
-        val baseCalculatedRange = type.baseRange + (level.value - 1) / 2
-        // Pike (Spike) tower has a maximum range of 2 at level 5+
-        if (type == DefenderType.SPIKE_TOWER && level.value >= 5) {
-            return minOf(baseCalculatedRange, 2)
+        val baseCalculatedRange = if (type == DefenderType.DWARVEN_MINE) {
+            // Dwarven mine has special growth: 3 base + 1 every 5 levels
+            3 + (level.value / 5)
+        } else {
+            // Standard growth: baseRange + (level - 1) / 2
+            type.baseRange + (level.value - 1) / 2
         }
-        // Dwarven mine reach: 3 base, +1 every 5 levels, max 10
-        if (type == DefenderType.DWARVEN_MINE) {
-            val mineReach = 3 + (level.value / 5)
-            return minOf(mineReach, 10)
+        // Apply maxRange cap if defined for this tower type
+        return if (type.maxRange != null) {
+            minOf(baseCalculatedRange, type.maxRange)
+        } else {
+            baseCalculatedRange
         }
-        return baseCalculatedRange
     }
     val upgradeCost: Int get() = type.baseCost * level.value
     val isReady: Boolean get() = buildTimeRemaining.value == 0
@@ -140,6 +146,9 @@ data class Defender(
     val hasExtendedAreaEffect: Boolean get() {
         return (type.attackType == AttackType.AREA || type.attackType == AttackType.LASTING) && level.value >= 20
     }
+    
+    // Check if the tower is on a tower base
+    val isOnTowerBase: Boolean get() = towerBaseBarricadeId.value != null
     
     fun canAttack(attacker: Attacker): Boolean {
         if (!isReady || actionsRemaining.value <= 0 || isDisabled.value) return false

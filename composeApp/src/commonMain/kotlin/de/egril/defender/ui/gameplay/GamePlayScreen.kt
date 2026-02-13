@@ -41,7 +41,7 @@ fun GamePlayScreen(
     onMineBuildTrap: ((Int, Position) -> Boolean)? = null,  // Add mine build trap callback
     onWizardPlaceMagicalTrap: ((Int, Position) -> Boolean)? = null,  // Add wizard magical trap callback
     onBuildBarricade: ((Int, Position) -> Boolean)? = null,  // Add barricade building callback
-    onRemoveBarricade: ((Position) -> Boolean)? = null,  // Add barricade removal callback
+    onRemoveBarricade: ((Position) -> Int)? = null,  // Add barricade removal callback - returns coin refund
     cheatDigOutcome: DigOutcome? = null,  // Dig outcome from cheat code
     onClearCheatDigOutcome: (() -> Unit)? = null,  // Callback to clear cheat dig outcome
     showPlatformInfo: Boolean = false,  // Show platform info from cheat code
@@ -102,7 +102,7 @@ private fun GamePlayScreenContent(
     onMineBuildTrap: ((Int, Position) -> Boolean)? = null,
     onWizardPlaceMagicalTrap: ((Int, Position) -> Boolean)? = null,  // Add wizard magical trap callback
     onBuildBarricade: ((Int, Position) -> Boolean)? = null,  // Add barricade building callback
-    onRemoveBarricade: ((Position) -> Boolean)? = null,  // Add barricade removal callback
+    onRemoveBarricade: ((Position) -> Int)? = null,  // Add barricade removal callback - returns coin refund
     cheatDigOutcome: DigOutcome? = null,  // Dig outcome from cheat code
     onClearCheatDigOutcome: (() -> Unit)? = null,  // Callback to clear cheat dig outcome
     showPlatformInfo: Boolean = false,  // Show platform info from cheat code
@@ -291,7 +291,7 @@ private fun GamePlayScreenContent(
         }
     }
 
-    // Check for first-time tower availability and show info dialogs
+    // Check for first-time special tower availability and show combined info dialog
     LaunchedEffect(gameState.level.availableTowers, gameState.infoState.value) {
         val infoState = gameState.infoState.value
 
@@ -300,22 +300,13 @@ private fun GamePlayScreenContent(
             return@LaunchedEffect
         }
 
-        // Check each advanced tower type and show info if available but not seen
-        val availableTowers = gameState.level.availableTowers
-
-        when {
-            availableTowers.contains(DefenderType.WIZARD_TOWER) && !infoState.hasSeen(InfoType.WIZARD_FIRST_USE) -> {
-                gameState.infoState.value = infoState.showInfo(InfoType.WIZARD_FIRST_USE)
-            }
-            availableTowers.contains(DefenderType.ALCHEMY_TOWER) && !infoState.hasSeen(InfoType.ALCHEMY_FIRST_USE) -> {
-                gameState.infoState.value = infoState.showInfo(InfoType.ALCHEMY_FIRST_USE)
-            }
-            availableTowers.contains(DefenderType.BALLISTA_TOWER) && !infoState.hasSeen(InfoType.BALLISTA_FIRST_USE) -> {
-                gameState.infoState.value = infoState.showInfo(InfoType.BALLISTA_FIRST_USE)
-            }
-            availableTowers.contains(DefenderType.DWARVEN_MINE) && !infoState.hasSeen(InfoType.MINE_FIRST_USE) -> {
-                gameState.infoState.value = infoState.showInfo(InfoType.MINE_FIRST_USE)
-            }
+        // Check if level has special towers and we haven't shown the info yet
+        val specialTowers = gameState.level.availableTowers.filter {
+            it in listOf(DefenderType.WIZARD_TOWER, DefenderType.ALCHEMY_TOWER, DefenderType.BALLISTA_TOWER, DefenderType.DWARVEN_MINE)
+        }
+        
+        if (specialTowers.isNotEmpty() && !infoState.hasSeen(InfoType.SPECIAL_TOWERS_INFO)) {
+            gameState.infoState.value = infoState.showInfo(InfoType.SPECIAL_TOWERS_INFO)
         }
     }
 
@@ -447,7 +438,8 @@ private fun GamePlayScreenContent(
                 }
             },
             onSaveGame = if (onSaveGame != null) {{ showSaveDialog = true }} else null,
-            onCheatCode = if (onCheatCode != null) {{ showCheatDialog = true }} else null
+            onCheatCode = if (onCheatCode != null) {{ showCheatDialog = true }} else null,
+            onEnemyCountClick = { showOverlay = !showOverlay }
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -521,9 +513,10 @@ private fun GamePlayScreenContent(
                         }
                     }
 
-                    // Check if there's a barricade at this position - show removal confirmation
+                    // Check if there's a barricade at this position
+                    // Don't show removal dialog if barricade has a tower - player must sell tower first
                     val barricade = gameState.barricades.find { it.position == position }
-                    if (barricade != null && selectedDefenderId == null && selectedAttackerId == null) {
+                    if (barricade != null && !barricade.hasTower() && selectedDefenderId == null && selectedAttackerId == null) {
                         barricadeToRemove = position
                         showRemoveBarricadeDialog = true
                         return@GameGrid
@@ -547,8 +540,11 @@ private fun GamePlayScreenContent(
                                 val distance = selectedDefender.position.value.distanceTo(position)
                                 if (gameState.level.isOnPath(position) && distance <= selectedDefender.range) {
                                     if (onMineBuildTrap?.invoke(selectedDefender.id, position) == true) {
-                                        selectedMineAction = null
-                                        showMineActionDialog = false
+                                        // Keep trap placement mode active if tower has actions remaining
+                                        if (!shouldKeepPlacementMode(gameState, selectedDefender.id)) {
+                                            selectedMineAction = null
+                                            showMineActionDialog = false
+                                        }
                                     }
                                 }
                                 return@GameGrid
@@ -587,7 +583,10 @@ private fun GamePlayScreenContent(
                                     !hasDefender &&
                                     !hasEnemy) {
                                     if (onBuildBarricade?.invoke(selectedDefender.id, position) == true) {
-                                        selectedBarricadeAction = null
+                                        // Keep barricade placement mode active if tower has actions remaining
+                                        if (!shouldKeepPlacementMode(gameState, selectedDefender.id)) {
+                                            selectedBarricadeAction = null
+                                        }
                                     }
                                 }
                                 return@GameGrid
@@ -715,29 +714,58 @@ private fun GamePlayScreenContent(
                         .align(tutorialAlignment)
                         .padding(top = 8.dp, end = tutorialPaddingEnd, start = 8.dp, bottom = 8.dp)
                 ) {
-                    // Show info or tutorial in the tutorial overlay
-                    TutorialOverlay(
-                        currentStep = gameState.tutorialState.value.currentStep,
-                        isNextEnabled = gameState.tutorialState.value.isNextEnabled(gameState.defenders.size),
-                        onNext = {
-                            val currentTutorialState = gameState.tutorialState.value
-                            gameState.tutorialState.value = currentTutorialState.advanceStep()
-                        },
-                        onSkip = {
-                            gameState.tutorialState.value = gameState.tutorialState.value.skip()
-                        },
-                        currentInfo = gameState.infoState.value.currentInfo,
-                        onDismissInfo = {
-                            val currentInfoState = gameState.infoState.value
-                            val dismissedInfo = currentInfoState.dismissInfo()
-                            gameState.infoState.value = dismissedInfo
-                            
-                            // Remove mine warning from the list if it was a mine warning
-                            if (currentInfoState.currentInfo == InfoType.MINE_WARNING) {
-                                currentInfoState.mineWarningId?.let { gameState.mineWarnings.remove(it) }
-                            }
+                    // Special case for SPECIAL_TOWERS_INFO - show as a separate dialog
+                    if (gameState.infoState.value.currentInfo == InfoType.SPECIAL_TOWERS_INFO) {
+                        val specialTowers = gameState.level.availableTowers.filter {
+                            it in listOf(DefenderType.WIZARD_TOWER, DefenderType.ALCHEMY_TOWER, DefenderType.BALLISTA_TOWER, DefenderType.DWARVEN_MINE)
                         }
-                    )
+                        LevelSpecialTowersInfoDialog(
+                            specialTowers = specialTowers,
+                            onDismiss = {
+                                val currentInfoState = gameState.infoState.value
+                                val dismissedInfo = currentInfoState.dismissInfo()
+                                gameState.infoState.value = dismissedInfo
+                            }
+                        )
+                    } else if (gameState.infoState.value.currentInfo == InfoType.TOWER_INFO) {
+                        // Special case for TOWER_INFO - show tower-specific info dialog
+                        val towerId = gameState.infoState.value.towerInfoId
+                        val defender = towerId?.let { id -> gameState.defenders.find { it.id == id } }
+                        if (defender != null) {
+                            TowerInfoDialog(
+                                defender = defender,
+                                onDismiss = {
+                                    val currentInfoState = gameState.infoState.value
+                                    val dismissedInfo = currentInfoState.dismissInfo()
+                                    gameState.infoState.value = dismissedInfo
+                                }
+                            )
+                        }
+                    } else {
+                        // Show info or tutorial in the tutorial overlay
+                        TutorialOverlay(
+                            currentStep = gameState.tutorialState.value.currentStep,
+                            isNextEnabled = gameState.tutorialState.value.isNextEnabled(gameState.defenders.size),
+                            onNext = {
+                                val currentTutorialState = gameState.tutorialState.value
+                                gameState.tutorialState.value = currentTutorialState.advanceStep()
+                            },
+                            onSkip = {
+                                gameState.tutorialState.value = gameState.tutorialState.value.skip()
+                            },
+                            currentInfo = gameState.infoState.value.currentInfo,
+                            onDismissInfo = {
+                                val currentInfoState = gameState.infoState.value
+                                val dismissedInfo = currentInfoState.dismissInfo()
+                                gameState.infoState.value = dismissedInfo
+                                
+                                // Remove mine warning from the list if it was a mine warning
+                                if (currentInfoState.currentInfo == InfoType.MINE_WARNING) {
+                                    currentInfoState.mineWarningId?.let { gameState.mineWarnings.remove(it) }
+                                }
+                            }
+                        )
+                    }
                 }
             }
         }
@@ -834,8 +862,14 @@ private fun GamePlayScreenContent(
                     },
                     onDefenderAttack = { defenderId, targetId ->
                         if (onDefenderAttack(defenderId, targetId)) {
-                            selectedTargetId = null
-                            selectedTargetPosition = null
+                            // Check if we should keep the selection active:
+                            // - Tower still has actions remaining
+                            // - Enemy is still alive
+                            if (!shouldKeepTargetSelection(gameState, defenderId, targetId)) {
+                                selectedTargetId = null
+                                selectedTargetPosition = null
+                            }
+                            
                             // Track tutorial progress
                             if (gameState.tutorialState.value.isActive && 
                                 !gameState.tutorialState.value.hasAttackedEnemy) {
@@ -848,8 +882,14 @@ private fun GamePlayScreenContent(
                     },
                     onDefenderAttackPosition = { defenderId, targetPos ->
                         if (onDefenderAttackPosition(defenderId, targetPos)) {
-                            selectedTargetId = null
-                            selectedTargetPosition = null
+                            // Check if we should keep the selection active:
+                            // - Tower still has actions remaining
+                            // - There's still a living enemy at the target position
+                            if (!shouldKeepTargetSelectionForPosition(gameState, defenderId, targetPos)) {
+                                selectedTargetId = null
+                                selectedTargetPosition = null
+                            }
+                            
                             // Track tutorial progress
                             if (gameState.tutorialState.value.isActive && 
                                 !gameState.tutorialState.value.hasAttackedEnemy) {
@@ -955,12 +995,17 @@ private fun GamePlayScreenContent(
         }
         
         // Remove barricade confirmation dialog
+        // Note: This dialog only shows for barricades without towers
         if (showRemoveBarricadeDialog && barricadeToRemove != null) {
             ConfirmationDialog(
                 title = stringResource(Res.string.remove_barricade_title),
                 message = stringResource(Res.string.remove_barricade_message),
                 onConfirm = {
-                    onRemoveBarricade?.invoke(barricadeToRemove!!)
+                    val actualRefund = onRemoveBarricade?.invoke(barricadeToRemove!!) ?: 0
+                    if (actualRefund > 0) {
+                        // Add coins back to player (should be 0 for barricades without towers)
+                        gameState.coins.value += actualRefund
+                    }
                     showRemoveBarricadeDialog = false
                     barricadeToRemove = null
                 },
@@ -1069,4 +1114,52 @@ private fun GamePlayScreenContent(
         }
         }
     }
+}
+
+/**
+ * Helper function to determine if target selection should be preserved after an attack.
+ * Selection is kept active if:
+ * - The tower still has action points remaining after the attack
+ * - The target enemy is still alive (not defeated)
+ * 
+ * This allows players to continue attacking the same target with multi-action towers.
+ */
+private fun shouldKeepTargetSelection(
+    gameState: GameState,
+    defenderId: Int,
+    targetId: Int
+): Boolean {
+    val defender = gameState.defenders.find { it.id == defenderId } ?: return false
+    val target = gameState.attackers.find { it.id == targetId } ?: return false
+    
+    return defender.actionsRemaining.value > 0 && !target.isDefeated.value
+}
+
+/**
+ * Helper function to determine if target selection should be preserved after a position-based attack.
+ * Same logic as shouldKeepTargetSelection but uses position instead of ID to find the target.
+ */
+private fun shouldKeepTargetSelectionForPosition(
+    gameState: GameState,
+    defenderId: Int,
+    targetPosition: Position
+): Boolean {
+    val defender = gameState.defenders.find { it.id == defenderId } ?: return false
+    val target = gameState.attackers.find { it.position.value == targetPosition } ?: return false
+    
+    return defender.actionsRemaining.value > 0 && !target.isDefeated.value
+}
+
+/**
+ * Helper function to determine if a placement mode should be preserved after placing a trap or barricade.
+ * Placement mode is kept active if the tower still has action points remaining.
+ * 
+ * This allows players to place multiple traps or barricades with towers that have multiple actions per turn.
+ */
+private fun shouldKeepPlacementMode(
+    gameState: GameState,
+    defenderId: Int
+): Boolean {
+    val defender = gameState.defenders.find { it.id == defenderId } ?: return false
+    return defender.actionsRemaining.value > 0
 }

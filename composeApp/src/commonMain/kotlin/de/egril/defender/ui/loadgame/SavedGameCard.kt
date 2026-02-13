@@ -35,7 +35,7 @@ fun SavedGameCard(
     
     // Create a minimal GameState for minimap rendering
     val minimapGameState = remember(saveGame.id) {
-        if (level != null && (saveGame.defenderPositions.isNotEmpty() || saveGame.attackerPositions.isNotEmpty())) {
+        if (level != null && (saveGame.defenderPositions.isNotEmpty() || saveGame.attackerPositions.isNotEmpty() || saveGame.barricadePositions.isNotEmpty())) {
             // Create minimal Defender/Attacker objects for minimap display
             val defenders = saveGame.defenderPositions.map { saved ->
                 Defender(
@@ -60,60 +60,94 @@ fun SavedGameCard(
                     isDefeated = mutableStateOf(false)
                 )
             }
+            // Create minimal Barricade objects for minimap display
+            // Note: Using mutableStateOf for consistency with the Barricade model,
+            // even though these values won't be updated in the minimap context
+            val barricades = saveGame.barricadePositions.map { saved ->
+                Barricade(
+                    id = saved.id,
+                    position = saved.position,
+                    healthPoints = mutableStateOf(saved.healthPoints),
+                    defenderId = saved.defenderId,
+                    supportedTowerId = mutableStateOf(saved.supportedTowerId)
+                )
+            }
             // Create a minimal GameState with just the data needed for rendering
             GameState(
                 level = level,
                 defenders = androidx.compose.runtime.snapshots.SnapshotStateList<Defender>().apply { addAll(defenders) },
-                attackers = androidx.compose.runtime.snapshots.SnapshotStateList<Attacker>().apply { addAll(attackers) }
+                attackers = androidx.compose.runtime.snapshots.SnapshotStateList<Attacker>().apply { addAll(attackers) },
+                barricades = androidx.compose.runtime.snapshots.SnapshotStateList<Barricade>().apply { addAll(barricades) }
             )
         } else {
             null
         }
     }
     
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onLoad() },
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-    ) {
-        Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
-            // Get localized level name if level is available
-            val locale = com.hyperether.resources.currentLanguage.value
-            val displayName = if (level != null) {
-                level.getLocalizedTitle(locale)
-            } else {
-                saveGame.levelName  // Fallback to saved name if level not found
+    BoxWithConstraints {
+        val isMobileCard = maxWidth < 600.dp
+        val cardPadding = if (isMobileCard) 8.dp else 16.dp
+        
+        // Check if this is an autosave
+        val isAutosave = saveGame.id == "autosave_game"
+        
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { onLoad() },
+            elevation = CardDefaults.cardElevation(defaultElevation = if (isMobileCard) 2.dp else 4.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = if (isAutosave) {
+                    MaterialTheme.colorScheme.tertiaryContainer
+                } else {
+                    MaterialTheme.colorScheme.surface
+                }
+            )
+        ) {
+            Column(modifier = Modifier.fillMaxWidth().padding(cardPadding)) {
+                // Get localized level name if level is available
+                val locale = com.hyperether.resources.currentLanguage.value
+                val displayName = if (level != null) {
+                    level.getLocalizedTitle(locale)
+                } else {
+                    saveGame.levelName  // Fallback to saved name if level not found
+                }
+                
+                SavedGameCardHeader(
+                    levelName = displayName,
+                    dateStr = dateStr,
+                    isMobile = isMobileCard
+                )
+                
+                Spacer(modifier = Modifier.height(if (isMobileCard) 4.dp else 8.dp))
+                
+                SavedGameCardStats(
+                    turnNumber = saveGame.turnNumber,
+                    coins = saveGame.coins,
+                    healthPoints = saveGame.healthPoints,
+                    isMobile = isMobileCard
+                )
+                
+                // Display comment if present
+                if (!saveGame.comment.isNullOrBlank()) {
+                    Spacer(modifier = Modifier.height(if (isMobileCard) 4.dp else 8.dp))
+                    SavedGameCardComment(
+                        comment = saveGame.comment,
+                        isMobile = isMobileCard
+                    )
+                }
+                
+                Spacer(modifier = Modifier.height(if (isMobileCard) 6.dp else 12.dp))
+                
+                SavedGameCardUnitsAndMinimap(
+                    saveGame = saveGame,
+                    level = level,
+                    minimapGameState = minimapGameState,
+                    onDelete = onDelete,
+                    onDownload = onDownload,
+                    isMobile = isMobileCard
+                )
             }
-            
-            SavedGameCardHeader(
-                levelName = displayName,
-                dateStr = dateStr
-            )
-            
-            Spacer(modifier = Modifier.height(8.dp))
-            
-            SavedGameCardStats(
-                turnNumber = saveGame.turnNumber,
-                coins = saveGame.coins,
-                healthPoints = saveGame.healthPoints
-            )
-            
-            // Display comment if present
-            if (!saveGame.comment.isNullOrBlank()) {
-                Spacer(modifier = Modifier.height(8.dp))
-                SavedGameCardComment(comment = saveGame.comment)
-            }
-            
-            Spacer(modifier = Modifier.height(12.dp))
-            
-            SavedGameCardUnitsAndMinimap(
-                saveGame = saveGame,
-                level = level,
-                minimapGameState = minimapGameState,
-                onDelete = onDelete,
-                onDownload = onDownload
-            )
         }
     }
 }

@@ -211,6 +211,16 @@ Defender of Egril is a turn-based tower defense game built with Kotlin Multiplat
   3. Add it as `emoji_*.png` in `composeResources/drawable/`
   4. Create an Icon component in `ui/icon/IconUtils.kt`
 
+### Tower Info Messages
+- **Display Pattern**: Tower info messages are NEVER shown automatically during gameplay
+- **Info Icon**: Each tower has a clickable info icon in DefenderInfo.kt (same position for all towers)
+- **Combined Dialog**: Clicking the icon opens a single dialog showing ALL relevant info messages for that tower:
+  - First-use info message (e.g., WIZARD_FIRST_USE, ALCHEMY_FIRST_USE, BALLISTA_FIRST_USE, MINE_FIRST_USE)
+  - Ability unlock info messages based on tower level (e.g., MAGICAL_TRAP_INFO, EXTENDED_AREA_INFO, BARRICADE_INFO, SPIKE_BARBS_INFO)
+- **Message Format**: Messages use existing text elements with message titles as subtitles in the dialog
+- **Tracking Flags**: Tutorial tracking flags (hasShownMagicalTrapTutorial, etc.) are still set when abilities unlock, but info is not shown automatically
+- **Implementation**: See `getTowerInfoMessages()` and `TowerInfoButtonArea()` in DefenderInfo.kt
+
 ### Grid System
 - **Hexagonal Grid**: Uses offset coordinate system (even-q vertical layout)
 - **HexUtils**: Provides neighbor detection, distance calculation, and line-of-sight

@@ -76,7 +76,7 @@ class DeadEndPathfindingTest {
         repeat(10) {
             val movements = engine.calculateEnemyTurnMovements()
             
-            for (movementStep in movements) {
+            for (movementStep in movements.allMovementSteps) {
                 for ((attackerId, newPosition) in movementStep) {
                     engine.applyMovement(attackerId, newPosition)
                 }

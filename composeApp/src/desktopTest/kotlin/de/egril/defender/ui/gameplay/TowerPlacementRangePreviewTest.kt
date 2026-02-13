@@ -41,10 +41,39 @@ class TowerPlacementRangePreviewTest {
     }
     
     @Test
+    fun testSpearTowerRangePreview() {
+        // Spear tower has base range 2, max range 5
+        val towerType = DefenderType.SPEAR_TOWER
+        val hoverPosition = Position(5, 5)
+        
+        assertEquals(2, towerType.baseRange, "Spear should have base range of 2")
+        assertEquals(5, towerType.maxRange, "Spear should have max range of 5")
+        
+        // Test position 2 tiles away (should be in range at level 1)
+        val inRangePosition = Position(7, 5)
+        val distance = hoverPosition.distanceTo(inRangePosition)
+        assertTrue(
+            distance >= towerType.minRange && distance <= towerType.baseRange,
+            "Position at $inRangePosition (distance=$distance) should be in range of Spear Tower"
+        )
+        
+        // Test position 3 tiles away (should NOT be in range at level 1)
+        val outOfRangePosition = Position(8, 5)
+        val outDistance = hoverPosition.distanceTo(outOfRangePosition)
+        assertFalse(
+            outDistance <= towerType.baseRange,
+            "Position at $outOfRangePosition (distance=$outDistance) should NOT be in range at level 1"
+        )
+    }
+    
+    @Test
     fun testBowTowerRangePreview() {
-        // Bow tower has range 3
+        // Bow tower has base range 3, max range 20
         val towerType = DefenderType.BOW_TOWER
         val hoverPosition = Position(5, 5)
+        
+        assertEquals(3, towerType.baseRange, "Bow should have base range of 3")
+        assertEquals(20, towerType.maxRange, "Bow should have max range of 20")
         
         // Test position 3 tiles away (should be in range)
         val nearPosition = Position(8, 5)
@@ -54,23 +83,24 @@ class TowerPlacementRangePreviewTest {
             "Position at $nearPosition (distance=$distance) should be in range of Bow Tower"
         )
         
-        // Test position 4 tiles away (should NOT be in range)
+        // Test position 4 tiles away (should NOT be in range at level 1)
         val farPosition = Position(9, 5)
         val farDistance = hoverPosition.distanceTo(farPosition)
         assertFalse(
             farDistance <= towerType.baseRange,
-            "Position at $farPosition (distance=$farDistance) should NOT be in range of Bow Tower"
+            "Position at $farPosition (distance=$farDistance) should NOT be in range at level 1"
         )
     }
     
     @Test
     fun testBallistaTowerMinRangeRestriction() {
-        // Ballista has min range 3, max range 5
+        // Ballista has min range 3, no max range cap (grows with level)
         val towerType = DefenderType.BALLISTA_TOWER
         val hoverPosition = Position(5, 5)
         
         assertEquals(3, towerType.minRange, "Ballista should have min range of 3")
-        assertEquals(5, towerType.baseRange, "Ballista should have max range of 5")
+        assertEquals(5, towerType.baseRange, "Ballista should have base range of 5")
+        assertEquals(null, towerType.maxRange, "Ballista should have no max range cap")
         
         // Test position 2 tiles away (should NOT be in range - below minimum)
         val tooClose = Position(7, 5)
@@ -88,7 +118,7 @@ class TowerPlacementRangePreviewTest {
             "Position at $minRangePos (distance=$minDistance) should be in range of Ballista"
         )
         
-        // Test position 5 tiles away (should be in range - at maximum)
+        // Test position 5 tiles away (should be in range - at base range)
         val maxRangePos = Position(10, 5)
         val maxDistance = hoverPosition.distanceTo(maxRangePos)
         assertTrue(
@@ -96,12 +126,13 @@ class TowerPlacementRangePreviewTest {
             "Position at $maxRangePos (distance=$maxDistance) should be in range of Ballista"
         )
         
-        // Test position 6 tiles away (should NOT be in range - above maximum)
-        val tooFar = Position(11, 5)
-        val farDistance = hoverPosition.distanceTo(tooFar)
+        // For level 1 ballista, position 6 tiles away is out of range
+        // But as ballista levels up, range will increase without cap
+        val beyondBase = Position(11, 5)
+        val beyondDistance = hoverPosition.distanceTo(beyondBase)
         assertFalse(
-            farDistance <= towerType.baseRange,
-            "Position at $tooFar (distance=$farDistance) should be above max range of Ballista"
+            beyondDistance <= towerType.baseRange,
+            "Position at $beyondBase (distance=$beyondDistance) should be beyond base range at level 1"
         )
     }
     

@@ -47,8 +47,8 @@ class DragonMovementIntegrationTest {
         
         // Turn 1: Walk (2 tiles based on new speed)
         val movements1 = engine.calculateEnemyTurnMovements()
-        assertTrue(movements1.isNotEmpty(), "Turn 1: Should have movements")
-        for (stepMovements in movements1) {
+        assertTrue(movements1.allMovementSteps.isNotEmpty(), "Turn 1: Should have movements")
+        for (stepMovements in movements1.allMovementSteps) {
             for ((attackerId, newPosition) in stepMovements) {
                 engine.applyMovement(attackerId, newPosition)
             }
@@ -60,8 +60,8 @@ class DragonMovementIntegrationTest {
         // Turn 2: Fly (up to 10 tiles)
         val positionAfterTurn1 = dragon.position.value
         val movements2 = engine.calculateEnemyTurnMovements()
-        assertTrue(movements2.isNotEmpty(), "Turn 2: Should have movements")
-        for (stepMovements in movements2) {
+        assertTrue(movements2.allMovementSteps.isNotEmpty(), "Turn 2: Should have movements")
+        for (stepMovements in movements2.allMovementSteps) {
             for ((attackerId, newPosition) in stepMovements) {
                 engine.applyMovement(attackerId, newPosition)
             }
@@ -76,8 +76,8 @@ class DragonMovementIntegrationTest {
         // Turn 3: Walk (2 tiles)
         val positionAfterTurn2 = dragon.position.value
         val movements3 = engine.calculateEnemyTurnMovements()
-        assertTrue(movements3.isNotEmpty(), "Turn 3: Should have movements")
-        for (stepMovements in movements3) {
+        assertTrue(movements3.allMovementSteps.isNotEmpty(), "Turn 3: Should have movements")
+        for (stepMovements in movements3.allMovementSteps) {
             for ((attackerId, newPosition) in stepMovements) {
                 engine.applyMovement(attackerId, newPosition)
             }
@@ -90,8 +90,8 @@ class DragonMovementIntegrationTest {
         // Turn 4: Fly (up to 10 tiles)
         val positionAfterTurn3 = dragon.position.value
         val movements4 = engine.calculateEnemyTurnMovements()
-        assertTrue(movements4.isNotEmpty(), "Turn 4: Should have movements")
-        for (stepMovements in movements4) {
+        assertTrue(movements4.allMovementSteps.isNotEmpty(), "Turn 4: Should have movements")
+        for (stepMovements in movements4.allMovementSteps) {
             for ((attackerId, newPosition) in stepMovements) {
                 engine.applyMovement(attackerId, newPosition)
             }
@@ -149,7 +149,7 @@ class DragonMovementIntegrationTest {
         
         // Turn 1: Dragon walks to (2,3) and should eat the goblin
         val movements = engine.calculateEnemyTurnMovements()
-        for (stepMovements in movements) {
+        for (stepMovements in movements.allMovementSteps) {
             for ((attackerId, newPosition) in stepMovements) {
                 engine.applyMovement(attackerId, newPosition)
             }
@@ -201,7 +201,7 @@ class DragonMovementIntegrationTest {
         
         // Turn 1: Dragon tries to walk to (2,3) but Ewhad blocks
         val movements = engine.calculateEnemyTurnMovements()
-        for (stepMovements in movements) {
+        for (stepMovements in movements.allMovementSteps) {
             for ((attackerId, newPosition) in stepMovements) {
                 engine.applyMovement(attackerId, newPosition)
             }
@@ -254,7 +254,7 @@ class DragonMovementIntegrationTest {
         
         // Turn 1: Walk
         val movements1 = engine.calculateEnemyTurnMovements()
-        for (stepMovements in movements1) {
+        for (stepMovements in movements1.allMovementSteps) {
             for ((attackerId, newPosition) in stepMovements) {
                 engine.applyMovement(attackerId, newPosition)
             }
@@ -264,7 +264,7 @@ class DragonMovementIntegrationTest {
         // Turn 2: Fly - should be able to fly up to 10 tiles even with islands nearby
         val positionBeforeFly = dragon.position.value
         val movements2 = engine.calculateEnemyTurnMovements()
-        for (stepMovements in movements2) {
+        for (stepMovements in movements2.allMovementSteps) {
             for ((attackerId, newPosition) in stepMovements) {
                 engine.applyMovement(attackerId, newPosition)
             }

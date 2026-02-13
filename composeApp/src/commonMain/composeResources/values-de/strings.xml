@@ -4,6 +4,7 @@
     <string name="app_name">Verteidiger von Egril</string>
     <string name="app_subtitle">Verteidige die Wiesen von Egril gegen die Horden von Gleid Thyae unter der Flagge des bösen Ewhad</string>
     <string name="start_game">Spiel starten</string>
+    <string name="continue_game">Spiel fortsetzen</string>
     <string name="rules">Regeln</string>
     <string name="exit_game">Spiel beenden</string>
     <string name="exit_game_confirm_title">Spiel beenden?</string>
@@ -204,6 +205,7 @@
     <string name="coins_label">Münzen</string>
     <string name="hp_label">HP</string>
     <string name="speed_label">Geschwindigkeit</string>
+    <string name="slowed_by_barbs">Verlangsamt durch Widerhaken</string>
     
     <!-- Status text -->
     <string name="available">Verfügbar</string>
@@ -432,6 +434,9 @@
     <!-- Tutorial -->
     <string name="tutorial_welcome_title">Willkommen bei Defender of Egril!</string>
     <string name="tutorial_welcome">Dies ist ein Tower-Defense-Spiel. Ihr Ziel ist es, Feinde daran zu hindern, das Ziel zu erreichen, indem Sie Verteidigungstürme bauen.</string>
+    <string name="tutorial_map_navigation_title">Kartennavigation</string>
+    <string name="tutorial_map_navigation_mobile">Sie können sich auf der Karte mit Zwei-Finger-Wischgesten bewegen oder das Navigationskreuz (Pfeile) auf dem Bildschirm antippen.\n\nSie können auch navigieren, indem Sie das Kästchen auf der Minikarte ziehen, das den sichtbaren Bereich der Karte anzeigt.\n\nVerwenden Sie Pinch-Gesten zum Hinein- und Herauszoomen für eine bessere Sicht.</string>
+    <string name="tutorial_map_navigation_desktop">Sie können sich auf der Karte mit den WASD-Tasten, Pfeiltasten oder durch Ziehen mit der Maus bewegen.\n\nSie können auch navigieren, indem Sie das Kästchen auf der Minikarte ziehen, das den sichtbaren Bereich der Karte anzeigt.\n\nVerwenden Sie das Mausrad zum Hinein- und Herauszoomen für eine bessere Sicht.</string>
     <string name="tutorial_resources_title">Ressourcen</string>
     <string name="tutorial_resources">Sie haben Münzen zum Bauen von Türmen und Lebenspunkte.\nWenn Sie Feinde besiegen, erhalten Sie Münzen entsprechend ihrer Grundbelohnung multipliziert mit ihrer Stufe.\nSchwache Feinde kosten 1 LP, aber mächtige Feinde (Zauberer, Hexen, Magier, Dämonen, Drachen) kosten LP gleich ihrer Stufe.\nEwhad kostet alle LP!</string>
     <string name="tutorial_towers_title">Verfügbare Türme</string>
@@ -594,6 +599,51 @@
     <string name="cancel_connection">Abbrechen</string>
     <string name="drag_to_reorder">Zum Neuordnen ziehen</string>
     <string name="drag_to_add">Zum Hinzufügen ziehen</string>
+    <string name="show_all_towers">Alle Türme anzeigen</string>
+    <string name="select_position_on_map">Position auf Karte wählen</string>
+    <string name="initial_setup_map">Karte</string>
+    <string name="initial_setup_click_to_place">Klicke auf die Karte um das ausgewählte Element zu platzieren</string>
+    <string name="initial_setup">Anfangsaufbau</string>
+    <string name="initial_setup_info">Platziere Türme, Gegner, Fallen und Barrikaden auf der Karte bevor das Level startet (optional)</string>
+    <string name="initial_setup_towers">Türme</string>
+    <string name="initial_setup_enemies">Gegner</string>
+    <string name="initial_setup_traps">Fallen</string>
+    <string name="initial_setup_barricades">Barrikaden</string>
+    <string name="initial_setup_configuration">Konfiguration</string>
+    <string name="element_type">Elementtyp</string>
+    <string name="selection_mode">Auswahlmodus</string>
+    <string name="selection_mode_info">Klicke auf ein Element auf der Karte um es auszuwählen und zu entfernen</string>
+    <string name="placed_elements">Platzierte Elemente</string>
+    <string name="tower_configuration">Turmkonfiguration</string>
+    <string name="enemy_configuration">Gegnerkonfiguration</string>
+    <string name="trap_configuration">Fallenkonfiguration</string>
+    <string name="barricade_configuration">Barrikadenkonfiguration</string>
+    <string name="selected_element">Ausgewähltes Element</string>
+    <string name="health_points">Lebenspunkte</string>
+    <string name="level_label">Level</string>
+    <string name="tower_type">Turmtyp</string>
+    <string name="dragon_name_label">Drachenname</string>
+    <string name="trap_type">Fallentyp</string>
+    <string name="initial_defenders">Anfangstürme</string>
+    <string name="initial_attackers">Anfangsgegner</string>
+    <string name="initial_traps">Anfangsfallen</string>
+    <string name="initial_barricades">Anfangsbarrikaden</string>
+    <string name="add_initial_defender">Turm hinzufügen</string>
+    <string name="add_initial_attacker">Gegner hinzufügen</string>
+    <string name="add_initial_trap">Falle hinzufügen</string>
+    <string name="add_initial_barricade">Barrikade hinzufügen</string>
+    <string name="edit_initial_defender">Turm bearbeiten</string>
+    <string name="edit_initial_attacker">Gegner bearbeiten</string>
+    <string name="edit_initial_trap">Falle bearbeiten</string>
+    <string name="edit_initial_barricade">Barrikade bearbeiten</string>
+    <string name="no_initial_defenders">Keine Türme anfangs platziert</string>
+    <string name="no_initial_attackers">Keine Gegner anfangs platziert</string>
+    <string name="no_initial_traps">Keine Fallen anfangs platziert</string>
+    <string name="no_initial_barricades">Keine Barrikaden anfangs platziert</string>
+    <string name="custom_health_optional">Benutzerdefinierte Lebenspunkte (optional)</string>
+    <string name="dwarven_trap">Zwergenfalle</string>
+    <string name="no_map_selected">Keine Karte ausgewählt. Bitte wähle zuerst eine Karte aus oder erstelle eine neue.</string>
+    <string name="deselect">Abwählen</string>
     
     <!-- Plurals -->
     <plurals name="enemy_count">
@@ -653,6 +703,11 @@
     <string name="barricade_info_message">Ihr Speerturm hat Stufe 10 erreicht (oder Pike-Turm Stufe 20) und kann jetzt Barrikaden bauen!\nBarrikaden sind Holzkonstruktionen auf angrenzenden Pfadfeldern, die Feindbewegungen blockieren.\nSpeerturm-Barrikaden haben LP = Stufe - 10 (mindestens 1). Pike-Turm-Barrikaden haben LP = (Stufe - 20) / 2 (mindestens 1).\nWenn Feinde eine Barrikade erreichen, greifen sie mit Schaden gleich ihrer Stufe an (Drachen verursachen das 5-fache ihrer Stufe).\nWird eine Barrikade zerstört, bewegt sich der Feind auf dieses Feld.\nSie können neue Barrikaden bauen oder bestehende verstärken und auf Barrikaden klicken, um sie zu entfernen.</string>
     <string name="remove_barricade_title">Barrikade entfernen?</string>
     <string name="remove_barricade_message">Möchten Sie diese Barrikade wirklich entfernen?</string>
+    <string name="remove_barricade_with_tower_message">Diese Barrikade ist eine Turmbasis. Beim Entfernen wird auch der Turm zerstört und Sie erhalten den Verkaufswert des Turms (%d Münzen). Sind Sie sicher?</string>
+    
+    <!-- Spike Barbs Feature -->
+    <string name="spike_barbs_info_title">Pike-Widerhaken freigeschaltet!</string>
+    <string name="spike_barbs_info_message">Ihr Pike-Turm hat Stufe 10 erreicht und hat jetzt Widerhaken!\nWenn ein Pike-Turm der Stufe 10+ einen Feind angreift, reduziert er die Bewegung des Feindes um 1 Feld pro Angriff.\nDieser Effekt stapelt sich - mehrere Angriffe von Pike-Türmen der Stufe 10+ reduzieren die Feindbewegung weiter.\nFeinde bewegen sich immer mindestens 1 Feld pro Runde, auch bei mehreren Widerhaken-Effekten.</string>
     
     <!-- Magical Trap Feature -->
     <string name="magical_trap">Magische Falle</string>
@@ -1084,6 +1139,24 @@
     <!-- Info Page -->
     <string name="info_tab_installation">Installation</string>
     <string name="info_tab_audio_licenses">Audio-Lizenzen</string>
+    <string name="info_tab_license">Lizenz</string>
+    
+    <!-- License Info -->
+    <string name="license_info_title">Lizenzinformationen</string>
+    <string name="license_github_project_title">GitHub-Projekt</string>
+    <string name="license_github_project_description">Defender of Egril ist ein Open-Source-Projekt. Sie können den Quellcode einsehen, beitragen, Probleme melden und die Entwicklung auf GitHub verfolgen.</string>
+    <string name="license_github_project_link_label">Projekt-Repository:</string>
+    <string name="license_agpl_title">GNU Affero General Public License v3.0 (AGPL-3.0)</string>
+    <string name="license_agpl_description">Dieses Spiel ist unter der GNU Affero General Public License Version 3.0 (AGPL-3.0) lizenziert. Die AGPL ist eine freie Copyleft-Lizenz, die sicherstellt, dass Software für alle Benutzer frei und offen bleibt, auch wenn sie über ein Netzwerk verwendet wird.</string>
+    <string name="license_agpl_freedoms_title">Wichtige Freiheiten:</string>
+    <string name="license_agpl_freedom_run">Freiheit, das Programm für jeden Zweck auszuführen</string>
+    <string name="license_agpl_freedom_study">Freiheit, die Funktionsweise des Programms zu studieren und es zu modifizieren</string>
+    <string name="license_agpl_freedom_redistribute">Freiheit, Kopien weiterzuverbreiten</string>
+    <string name="license_agpl_freedom_modify">Freiheit, modifizierte Versionen zu verbreiten</string>
+    <string name="license_agpl_network_clause_title">Netzwerknutzungsklausel:</string>
+    <string name="license_agpl_network_clause_description">Die AGPL erweitert die GPL um eine spezielle Klausel: Wenn Sie eine modifizierte Version dieses Programms auf einem Server ausführen und Benutzern die Interaktion darüber ermöglichen, müssen Sie ihnen Zugriff auf den Quellcode Ihrer modifizierten Version gewähren.</string>
+    <string name="license_agpl_full_text_label">Vollständiger Lizenztext:</string>
+    <string name="license_agpl_attribution_note">Diese Software wird unter den Bedingungen der AGPL-3.0-Lizenz bereitgestellt. Für vollständige Bedingungen verweisen wir auf den vollständigen Lizenztext.</string>
     
     <!-- Audio Licenses -->
     <string name="audio_licenses_title">Audiodateien und Lizenzen</string>
@@ -1131,4 +1204,16 @@
     <string name="audio_license_label">Lizenz: %s</string>
     <string name="audio_attribution_note">Alle Audiodateien werden unter ihren jeweiligen Lizenzen verwendet. Die Namensnennung wird ggf. bereitgestellt.</string>
 
+    <string name="towers">Türme</string>
+    <string name="traps">Fallen</string>
+    <string name="barricades">Barrikaden</string>
+    
+    <!-- Tower Base -->
+    <string name="tower_base_hp_label">Basis: %d TP</string>
+    <string name="tower_base_info">Turm auf Basis (zerstörbar bei &lt;100 TP)</string>
+    
+    <!-- Tower Info Dialog -->
+    <string name="tower_info_title">Turminformationen</string>
+    <string name="special_towers_info_title">Spezielle Türme</string>
+    <string name="special_towers_info_reopen">Sie können diese Information jederzeit erneut öffnen, indem Sie auf das Turmsymbol im Level-Header klicken.</string>
 </resources>

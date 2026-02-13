@@ -240,12 +240,16 @@ object EditorStorage {
         // Ensure all enemy spawns have spawn points
         val levelWithSpawnPoints = ensureSpawnPoints(level)
         
+        println("EditorStorage.saveLevel: Saving level ${levelWithSpawnPoints.id} with ${levelWithSpawnPoints.initialDefenders.size} defenders, ${levelWithSpawnPoints.initialAttackers.size} attackers, ${levelWithSpawnPoints.initialTraps.size} traps, ${levelWithSpawnPoints.initialBarricades.size} barricades")
+        
         levelsCache[levelWithSpawnPoints.id] = levelWithSpawnPoints
         val json = EditorJsonSerializer.serializeLevel(levelWithSpawnPoints)
         
         // Save to appropriate directory based on isOfficial flag
         val targetDir = if (levelWithSpawnPoints.isOfficial) OFFICIAL_LEVELS_DIR else USER_LEVELS_DIR
         fileStorage.writeFile("$targetDir/${levelWithSpawnPoints.id}.json", json)
+        
+        println("EditorStorage.saveLevel: Saved to $targetDir/${levelWithSpawnPoints.id}.json")
         
         // Track changes to official data
         if (levelWithSpawnPoints.isOfficial) {
@@ -1014,7 +1018,8 @@ object EditorStorage {
             editorLevelId = editorLevel.id,  // Store editor level ID for minimap lookup
             mapId = editorLevel.mapId,  // Store map ID for save/load verification
             riverTiles = map.getRiverTilesMap(),  // Add river tiles with flow direction and speed
-            allowAutoAttack = editorLevel.allowAutoAttack  // Allow auto-attack option
+            allowAutoAttack = editorLevel.allowAutoAttack,  // Allow auto-attack option
+            initialData = editorLevel.getEffectiveInitialData()  // Pre-placed elements using new structure
         )
         
         println("=== CREATED LEVEL ===")

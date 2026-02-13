@@ -4,6 +4,7 @@
     <string name="app_name">Defender of Egril</string>
     <string name="app_subtitle">Defend the meadows of Egril against the Hordes of Gleid Thyae under the Banner of the evil Ewhad</string>
     <string name="start_game">Start Game</string>
+    <string name="continue_game">Continue Game</string>
     <string name="rules">Rules</string>
     <string name="exit_game">Exit Game</string>
     <string name="exit_game_confirm_title">Exit Game?</string>
@@ -71,8 +72,10 @@
     <!-- Game Play -->
     <string name="coins">Coins</string>
     <string name="health">Health</string>
+    <string name="health_points">Health Points</string>
     <string name="turn">Turn</string>
     <string name="level">Level</string>
+    <string name="level_label">Level</string>
     <string name="upgrade">Upgrade</string>
     <string name="sell">Sell</string>
     <string name="selected">Selected</string>
@@ -151,6 +154,7 @@
     <string name="win_condition">Win: Eliminate all enemies before they breach your defenses</string>
     <string name="lose_condition">Lose: Your health reaches 0</string>
     <string name="tower_types">Tower Types</string>
+    <string name="tower_type">Tower Type</string>
     <string name="spike_tower">Spike Tower (Pike): Melee defense, cheapest option</string>
     <string name="spear_tower">Spear Tower: Medium range piercing attacks</string>
     <string name="bow_tower">Bow Tower: Long range archery</string>
@@ -204,6 +208,7 @@
     <string name="coins_label">coins</string>
     <string name="hp_label">HP</string>
     <string name="speed_label">Speed</string>
+    <string name="slowed_by_barbs">Slowed by barbs</string>
     
     <!-- Status text -->
     <string name="available">Available</string>
@@ -239,7 +244,8 @@
     <string name="green_witch_name">Green Witch</string>
     <string name="ewhad_name">Ewhad</string>
     <string name="dragon_name">Dragon</string>
-    
+    <string name="dragon_name_label">Dragon Name</string>
+
     <!-- SavedGameCard strings -->
     <string name="enemies_on_map">Enemies on Map:</string>
     <string name="enemies_to_come">Enemies to Come:</string>
@@ -400,6 +406,7 @@
     <string name="start_hp">Start HP</string>
     <string name="cost_label">Cost</string>
     <string name="damage_label">Damage</string>
+    <string name="trap_type">Trap Type</string>
     <string name="hp_with_level">HP: %d</string>
     <string name="add_enemy_button">Add Enemy to Turn %d</string>
     <string name="add_all_towers">Add All</string>
@@ -434,6 +441,9 @@
     <!-- Tutorial -->
     <string name="tutorial_welcome_title">Welcome to Defender of Egril!</string>
     <string name="tutorial_welcome">This is a tower defense game. Your goal is to stop enemies from reaching the target by building defensive towers.</string>
+    <string name="tutorial_map_navigation_title">Map Navigation</string>
+    <string name="tutorial_map_navigation_mobile">You can move around the map using two-finger swipe gestures or by tapping the navigation cross (arrows) on the screen.\n\nYou can also navigate by dragging the box on the minimap that shows the visible section of the map.\n\nUse pinch gestures to zoom in and out for a better view.</string>
+    <string name="tutorial_map_navigation_desktop">You can move around the map using WASD keys, arrow keys, or by dragging with the mouse.\n\nYou can also navigate by dragging the box on the minimap that shows the visible section of the map.\n\nUse the mouse wheel to zoom in and out for a better view.</string>
     <string name="tutorial_resources_title">Resources</string>
     <string name="tutorial_resources">You have coins to build towers and health points.\nWhen you defeat enemies, you earn coins equal to their base reward multiplied by their level.\nWeak enemies cost 1 HP, but mighty enemies (wizards, witches, mages, demons, dragons) cost HP equal to their level.\nEwhad costs all your HP!</string>
     <string name="tutorial_towers_title">Available Towers</string>
@@ -596,6 +606,47 @@
     <string name="connection_mode_active">Connection mode active</string>
     <string name="cancel_connection">Cancel</string>
     
+    <!-- Initial Setup Tab -->
+    <string name="initial_setup">Initial Setup</string>
+    <string name="initial_setup_info">Place towers, enemies, traps, and barricades on the map before the level starts (optional)</string>
+    <string name="initial_setup_towers">Towers</string>
+    <string name="initial_setup_enemies">Enemies</string>
+    <string name="initial_setup_traps">Traps</string>
+    <string name="initial_setup_barricades">Barricades</string>
+    <string name="initial_defenders">Initial Towers</string>
+    <string name="initial_attackers">Initial Enemies</string>
+    <string name="initial_traps">Initial Traps</string>
+    <string name="initial_barricades">Initial Barricades</string>
+    <string name="add_initial_defender">Add Tower</string>
+    <string name="add_initial_attacker">Add Enemy</string>
+    <string name="add_initial_trap">Add Trap</string>
+    <string name="add_initial_barricade">Add Barricade</string>
+    <string name="edit_initial_defender">Edit Tower</string>
+    <string name="edit_initial_attacker">Edit Enemy</string>
+    <string name="edit_initial_trap">Edit Trap</string>
+    <string name="edit_initial_barricade">Edit Barricade</string>
+    <string name="no_initial_defenders">No towers placed initially</string>
+    <string name="no_initial_attackers">No enemies placed initially</string>
+    <string name="no_initial_traps">No traps placed initially</string>
+    <string name="no_initial_barricades">No barricades placed initially</string>
+    <string name="custom_health_optional">Custom Health (optional)</string>
+    <string name="show_all_towers">Show all towers</string>
+    <string name="select_position_on_map">Select position on map</string>
+    <string name="initial_setup_map">Map</string>
+    <string name="initial_setup_click_to_place">Click on the map to place the selected element</string>
+    <string name="initial_setup_configuration">Configuration</string>
+    <string name="element_type">Element Type</string>
+    <string name="selection_mode">Selection Mode</string>
+    <string name="selection_mode_info">Click on an element on the map to select and remove it</string>
+    <string name="placed_elements">Placed Elements</string>
+    <string name="tower_configuration">Tower Configuration</string>
+    <string name="enemy_configuration">Enemy Configuration</string>
+    <string name="trap_configuration">Trap Configuration</string>
+    <string name="barricade_configuration">Barricade Configuration</string>
+    <string name="selected_element">Selected Element</string>
+    <string name="no_map_selected">No map selected. Please select or create a map first.</string>
+    <string name="deselect">Deselect</string>
+    
     <!-- Plurals -->
     <plurals name="enemy_count">
         <item quantity="one">%d enemy</item>
@@ -652,10 +703,16 @@
     <string name="remove_barricade">Remove Barricade</string>
     <string name="remove_barricade_title">Remove Barricade?</string>
     <string name="remove_barricade_message">Are you sure you want to remove this barricade?</string>
+    <string name="remove_barricade_with_tower_message">This barricade is a tower base. Removing it will also destroy the tower and you will receive the tower\'s sell value (%d coins). Are you sure?</string>
     <string name="barricade_info_title">Barricade Ability Unlocked!</string>
     <string name="barricade_info_message">Your Spear tower has reached level 10 (or Spike tower level 20) and can now build barricades!\nBarricades are wooden structures placed on adjacent path tiles that block enemy movement.\nSpear tower barricades have HP = level - 10 (minimum 1). Spike tower barricades have HP = (level - 20) / 2 (minimum 1).\nWhen enemies reach a barricade, they attack it with damage equal to their level (dragons deal 5× their level).\nIf a barricade is destroyed, the enemy moves to that tile.\nYou can build new barricades or reinforce existing ones, and click on barricades to remove them.</string>
     
+    <!-- Spike Barbs Feature -->
+    <string name="spike_barbs_info_title">Spike Barbs Unlocked!</string>
+    <string name="spike_barbs_info_message">Your Spike tower has reached level 10 and now has barbs!\nWhen a level 10+ Spike tower attacks an enemy, it reduces the enemy\'s movement by 1 tile per attack.\nThis effect stacks - multiple attacks from any level 10+ Spike towers will further reduce enemy movement.\nEnemies will always move at least 1 tile per turn, even with multiple barb effects.</string>
+    
     <!-- Magical Trap Feature -->
+    <string name="dwarven_trap">Dwarven Trap</string>
     <string name="magical_trap">Magical Trap</string>
     <string name="magical_trap_cooldown">Cooldown: %d turns</string>
     <string name="magical_trap_available">Magical Trap Available</string>
@@ -1086,6 +1143,24 @@
     <!-- Info Page -->
     <string name="info_tab_installation">Installation</string>
     <string name="info_tab_audio_licenses">Audio Licenses</string>
+    <string name="info_tab_license">License</string>
+    
+    <!-- License Info -->
+    <string name="license_info_title">License Information</string>
+    <string name="license_github_project_title">GitHub Project</string>
+    <string name="license_github_project_description">Defender of Egril is an open-source project. You can view the source code, contribute, report issues, and follow development on GitHub.</string>
+    <string name="license_github_project_link_label">Project Repository:</string>
+    <string name="license_agpl_title">GNU Affero General Public License v3.0 (AGPL-3.0)</string>
+    <string name="license_agpl_description">This game is licensed under the GNU Affero General Public License version 3.0 (AGPL-3.0). The AGPL is a free, copyleft license designed to ensure that software remains free and open for all users, even when used over a network.</string>
+    <string name="license_agpl_freedoms_title">Key Freedoms:</string>
+    <string name="license_agpl_freedom_run">Freedom to run the program for any purpose</string>
+    <string name="license_agpl_freedom_study">Freedom to study how the program works and modify it</string>
+    <string name="license_agpl_freedom_redistribute">Freedom to redistribute copies</string>
+    <string name="license_agpl_freedom_modify">Freedom to distribute modified versions</string>
+    <string name="license_agpl_network_clause_title">Network Use Provision:</string>
+    <string name="license_agpl_network_clause_description">The AGPL extends the GPL with a special clause: if you run a modified version of this program on a server and let users interact with it over a network, you must provide them with access to the source code of your modified version.</string>
+    <string name="license_agpl_full_text_label">Full License Text:</string>
+    <string name="license_agpl_attribution_note">This software is provided under the terms of the AGPL-3.0 license. For complete terms and conditions, please refer to the full license text.</string>
     
     <!-- Audio Licenses -->
     <string name="audio_licenses_title">Audio Files and Licenses</string>
@@ -1132,4 +1207,16 @@
     <string name="audio_source_label">Source: %s</string>
     <string name="audio_license_label">License: %s</string>
     <string name="audio_attribution_note">All audio files are used under their respective licenses. Attribution is provided where required.</string>
+    <string name="towers">Towers</string>
+    <string name="traps">Traps</string>
+    <string name="barricades">Barricades</string>
+    
+    <!-- Tower Base -->
+    <string name="tower_base_hp_label">Base: %d HP</string>
+    <string name="tower_base_info">Tower on base (destructible at &lt;100 HP)</string>
+    
+    <!-- Tower Info Dialog -->
+    <string name="tower_info_title">Tower Information</string>
+    <string name="special_towers_info_title">Special Towers</string>
+    <string name="special_towers_info_reopen">You can reopen this information at any time by clicking the tower icon in the level header.</string>
 </resources>
