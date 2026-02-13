@@ -18,7 +18,7 @@ class SavedGameCardColorTest {
         // Create an autosave metadata
         val autosaveMetadata = SaveGameMetadata(
             id = "autosave_game",
-            timestamp = System.currentTimeMillis(),
+            timestamp = 1234567890L,  // Fixed timestamp for testing
             levelId = 1,
             levelName = "Test Level",
             turnNumber = 5,
@@ -38,7 +38,7 @@ class SavedGameCardColorTest {
         // Create a regular save metadata
         val regularSaveMetadata = SaveGameMetadata(
             id = "savegame_1234567890",
-            timestamp = System.currentTimeMillis(),
+            timestamp = 1234567890L,  // Fixed timestamp for testing
             levelId = 1,
             levelName = "Test Level",
             turnNumber = 5,
@@ -53,7 +53,7 @@ class SavedGameCardColorTest {
         )
         
         // Verify regular save ID is not autosave
-        assert(regularSaveMetadata.id != "autosave_game")
+        assertEquals(false, regularSaveMetadata.id == "autosave_game")
     }
     
     /**
