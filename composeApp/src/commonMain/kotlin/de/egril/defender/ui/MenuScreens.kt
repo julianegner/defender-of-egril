@@ -403,6 +403,16 @@ fun LevelCompleteScreen(
                         textAlign = TextAlign.Center,
                         color = Color.Gray
                     )
+                    
+                    Spacer(modifier = Modifier.height(8.dp))
+                    
+                    // Brief info about XP system
+                    Text(
+                        text = "Earn XP by defeating enemies.\nLevel up to gain stat points and unlock powerful abilities!",
+                        style = MaterialTheme.typography.bodySmall,
+                        textAlign = TextAlign.Center,
+                        color = Color.Gray.copy(alpha = 0.8f)
+                    )
                 }
                 
                 // Check if this is level 5 (Dark Magic Rises) to show XP system unlock message
