@@ -786,29 +786,68 @@ class GameEngine(private val state: GameState) {
 
          */
 
+        // First, check the direct path (ignoring barricades) separately
         val pathIgnoringBarricades = pathfinding.findPath(currentPos, target, attacker, ignoreBarricades = true)
-        val barricadeAtPpathIgnoringBarricades = barricadeSystem.getBarricadeAt(pathIgnoringBarricades[1])
-        if (barricadeAtPpathIgnoringBarricades != null) barricadePathSet.add(
-            Pair(
-                barricadeAtPpathIgnoringBarricades,
-                pathIgnoringBarricades
-            )
-        )
-        val path1 = pathfinding.findPath(currentPos, target, attacker)
-        val barricadeAtPath1 = barricadeSystem.getBarricadeAt(path1[1])
-        if (barricadeAtPath1 != null) barricadePathSet.add(Pair(barricadeAtPath1, path1))
-        val path2 = pathfinding.findPath(currentPos, target, attacker, setOf(path1[1]))
-        val barricadeAtPath2 = barricadeSystem.getBarricadeAt(path2[1])
-        if (barricadeAtPath2 != null) barricadePathSet.add(Pair(barricadeAtPath2, path2))
-        val path3 = pathfinding.findPath(currentPos, target, attacker, setOf(path1[1], path2[1]))
-        val barricadeAtPath3 = barricadeSystem.getBarricadeAt(path3[1])
-        if (barricadeAtPath3 != null) barricadePathSet.add(Pair(barricadeAtPath3, path3))
+        println("[DEBUG] pathIgnoringBarricades: $pathIgnoringBarricades")
+        if (pathIgnoringBarricades.size > 1) {
+            val barricadeAtPath = barricadeSystem.getBarricadeAt(pathIgnoringBarricades[1])
+            println("[DEBUG] pathIgnoringBarricades[1]=${pathIgnoringBarricades[1]}, barricade=${barricadeAtPath?.let { "HP=${it.healthPoints.value} at ${it.position}" } ?: "null"}")
+            if (barricadeAtPath != null) {
+                barricadePathSet.add(Pair(barricadeAtPath, pathIgnoringBarricades))
+            }
+        }
+        
+        // Now loop through alternative paths, progressively excluding positions found
+        // This replaces the hardcoded path1, path2, path3 approach
+        val excludedPositions = mutableSetOf<Position>()
+        var maxIterations = 10  // Safety limit (original code had 3, but we support more)
+        var iteration = 0
+        
+        while (iteration < maxIterations) {
+            iteration++
+            
+            // Find path excluding previously found barricade positions
+            val currentPath = pathfinding.findPath(currentPos, target, attacker, excludedPositions)
+            println("[DEBUG] Iteration $iteration: excludedPositions=$excludedPositions, currentPath=$currentPath")
+            
+            // Check if path has at least 2 positions (current + next)
+            if (currentPath.size < 2) {
+                println("[DEBUG] Iteration $iteration: Breaking - path too short (size=${currentPath.size})")
+                break
+            }
+            
+            // Check if next position has a barricade
+            val nextPos = currentPath[1]
+            val barricadeAtNextPos = barricadeSystem.getBarricadeAt(nextPos)
+            println("[DEBUG] Iteration $iteration: nextPos=$nextPos, barricade=${barricadeAtNextPos?.let { "HP=${it.healthPoints.value} at ${it.position}" } ?: "null"}")
+            
+            if (barricadeAtNextPos != null) {
+                // Found a barricade - add to set
+                barricadePathSet.add(Pair(barricadeAtNextPos, currentPath))
+                // Exclude this position for next iteration
+                excludedPositions.add(nextPos)
+                // Continue loop to find more barricades
+            } else {
+                // No barricade at next position
+                // Check if this path reaches the target - if so, we found a clear path
+                if (currentPath.last() == target) {
+                    println("[DEBUG] Iteration $iteration: Breaking - found clear path to target")
+                    break
+                } else {
+                    // Path doesn't have a barricade at [1] AND doesn't reach target
+                    // This means pathfinding is routing around something, exclude this position too
+                    println("[DEBUG] Iteration $iteration: No barricade at nextPos, but path doesn't reach target. Excluding $nextPos and continuing.")
+                    excludedPositions.add(nextPos)
+                    // Continue to try finding another path
+                }
+            }
+        }
 
         var min = Int.MAX_VALUE
         var pathOfLeastEffort: Pair<Barricade, List<Position>>? = null
 
-        println("barricadePathSet size: ${barricadePathSet.size}")
-
+        println("[REFACTORED] barricadePathSet size: ${barricadePathSet.size}")
+        
         barricadePathSet.forEach { (barricade, path) ->
             val hp = if (barricade.hasTower()) {
                 barricade.healthPoints.value - 100
@@ -818,8 +857,7 @@ class GameEngine(private val state: GameState) {
             val pathSteps = path.size - 1
             val effort = (hp / getBarricadeDamageForEnemyUnit(attacker)) + pathSteps
 
-            println("$hp $pathSteps $effort")
-            println("..................... ")
+            println("[REFACTORED] Barricade at ${barricade.position}, HP=${barricade.healthPoints.value}, hasTower=${barricade.hasTower()}, effectiveHP=$hp, pathSteps=$pathSteps, effort=$effort")
 
             if (effort < min) {
                 min = effort
@@ -828,11 +866,8 @@ class GameEngine(private val state: GameState) {
         }
 
         if (pathOfLeastEffort != null) {
+            println("[REFACTORED] SELECTED: Barricade at ${pathOfLeastEffort.first.position}, HP=${pathOfLeastEffort.first.healthPoints.value}")
             attackersStoppedByBarricade.add(Pair(attacker, pathOfLeastEffort.first.position))
-        }
-
-        state.barricades.forEach { b ->
-            println("All barricades: Barricade at ${b.position} (HP: ${b.healthPoints.value}) tower base: ${b.supportedTowerId.value != null}")
         }
     }
 
