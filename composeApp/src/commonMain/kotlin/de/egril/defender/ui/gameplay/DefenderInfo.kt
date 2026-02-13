@@ -732,7 +732,7 @@ private data class TowerInfoMessage(
  * Get all relevant info messages for a specific tower
  */
 @Composable
-private fun getTowerInfoMessages(defender: Defender): List<TowerInfoMessage> {
+private fun getTowerInfoMessages(defender: Defender, gameState: GameState): List<TowerInfoMessage> {
     val messages = mutableListOf<TowerInfoMessage>()
     
     // Add first-use info message for the tower type
@@ -911,7 +911,7 @@ private fun getTowerInfoMessages(defender: Defender): List<TowerInfoMessage> {
  */
 @Composable
 private fun TowerInfoButtonArea(defender: Defender, gameState: GameState) {
-    val messages = getTowerInfoMessages(defender)
+    val messages = getTowerInfoMessages(defender, gameState)
     
     // Only show info icon if there are info messages for this tower
     if (messages.isEmpty()) {
@@ -939,9 +939,10 @@ private fun TowerInfoButtonArea(defender: Defender, gameState: GameState) {
 @Composable
 internal fun TowerInfoDialog(
     defender: Defender,
+    gameState: GameState,
     onDismiss: () -> Unit
 ) {
-    val messages = getTowerInfoMessages(defender)
+    val messages = getTowerInfoMessages(defender, gameState)
     
     ScrollableInfoCard(
         title = {

@@ -734,6 +734,7 @@ private fun GamePlayScreenContent(
                         if (defender != null) {
                             TowerInfoDialog(
                                 defender = defender,
+                                gameState = gameState,
                                 onDismiss = {
                                     val currentInfoState = gameState.infoState.value
                                     val dismissedInfo = currentInfoState.dismissInfo()

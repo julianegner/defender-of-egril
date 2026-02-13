@@ -108,6 +108,23 @@ object PlayerProfileStorage {
     }
     
     /**
+     * Update a player profile (for stats changes)
+     */
+    fun updateProfile(updatedProfile: PlayerProfile) {
+        val profiles = getAllProfiles()
+        val updatedProfiles = profiles.copy(
+            profiles = profiles.profiles.map { profile ->
+                if (profile.id == updatedProfile.id) {
+                    updatedProfile
+                } else {
+                    profile
+                }
+            }
+        )
+        saveProfiles(updatedProfiles)
+    }
+    
+    /**
      * Rename a player profile
      * @param playerId The ID of the player to rename
      * @param newName The new display name

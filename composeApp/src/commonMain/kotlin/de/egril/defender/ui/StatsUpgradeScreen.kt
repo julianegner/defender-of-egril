@@ -18,7 +18,7 @@ import de.egril.defender.model.StatType
 import de.egril.defender.model.SpellType
 import de.egril.defender.save.PlayerProfile
 import de.egril.defender.ui.icon.HeartIcon
-import de.egril.defender.ui.icon.CoinIcon
+import de.egril.defender.ui.icon.MoneyIcon
 import de.egril.defender.ui.icon.HammerIcon
 import de.egril.defender.ui.icon.StarIcon
 import de.egril.defender.ui.settings.SettingsButton
@@ -114,7 +114,7 @@ fun StatsUpgradeScreen(
                         effect = "+${stats.getBonusStartCoins()} coins",
                         canUpgrade = stats.availableStatPoints > 0,
                         onUpgrade = { onUpgradeStat(StatType.TREASURY) },
-                        icon = { CoinIcon(size = 32.dp) }
+                        icon = { MoneyIcon(size = 32.dp) }
                     )
                     
                     Spacer(modifier = Modifier.height(8.dp))
@@ -126,7 +126,7 @@ fun StatsUpgradeScreen(
                         effect = "+${(stats.incomeStat * 10)}%",
                         canUpgrade = stats.availableStatPoints > 0,
                         onUpgrade = { onUpgradeStat(StatType.INCOME) },
-                        icon = { CoinIcon(size = 32.dp) }
+                        icon = { MoneyIcon(size = 32.dp) }
                     )
                     
                     Spacer(modifier = Modifier.height(8.dp))

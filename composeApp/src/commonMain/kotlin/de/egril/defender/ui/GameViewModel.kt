@@ -287,7 +287,7 @@ class GameViewModel {
         val updatedStats = currentPlayer.stats.spendStatPoint(statType) ?: return
         val updatedPlayer = currentPlayer.copy(stats = updatedStats)
         _currentPlayer.value = updatedPlayer
-        de.egril.defender.save.PlayerProfileStorage.saveProfile(updatedPlayer)
+        de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
     }
     
     fun unlockSpell(spell: de.egril.defender.model.SpellType) {
@@ -295,7 +295,7 @@ class GameViewModel {
         val updatedStats = currentPlayer.stats.unlockSpell(spell) ?: return
         val updatedPlayer = currentPlayer.copy(stats = updatedStats)
         _currentPlayer.value = updatedPlayer
-        de.egril.defender.save.PlayerProfileStorage.saveProfile(updatedPlayer)
+        de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
     }
     
     fun startLevel(levelId: Int) {
@@ -674,7 +674,7 @@ class GameViewModel {
                 val updatedStats = currentPlayer.stats.addXP(xpEarned)
                 val updatedPlayer = currentPlayer.copy(stats = updatedStats)
                 _currentPlayer.value = updatedPlayer
-                de.egril.defender.save.PlayerProfileStorage.saveProfile(updatedPlayer)
+                de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
             }
         } else {
             achievementManager?.onLoseLevel()
