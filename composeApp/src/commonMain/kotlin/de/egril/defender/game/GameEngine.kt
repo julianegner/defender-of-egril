@@ -1518,13 +1518,25 @@ class GameEngine(private val state: GameState) {
     }
     
     /**
-     * Set callback for dragon level changes (for achievements)
+     * Set callback for dragon level changes (for achievements and XP)
      */
     fun setDragonLevelChangeCallback(callback: (oldLevel: Int, newLevel: Int) -> Unit) {
-        dragonLevelChangeCallback = callback
+        val wrappedCallback: (oldLevel: Int, newLevel: Int) -> Unit = { oldLevel, newLevel ->
+            // Track XP for dragon level loss (not multiplied by level)
+            if (oldLevel > newLevel) {
+                // Dragon lost levels - award XP for each level lost
+                val levelsLost = oldLevel - newLevel
+                val xpPerLevel = AttackerType.DRAGON.xp  // 50 XP per level lost
+                val xpEarned = xpPerLevel * levelsLost
+                state.xpEarnedThisLevel.value += xpEarned
+            }
+            // Call the original callback for achievements
+            callback(oldLevel, newLevel)
+        }
+        dragonLevelChangeCallback = wrappedCallback
         // Set callback for all existing dragons
         state.attackers.filter { it.type.isDragon }.forEach { dragon ->
-            dragon.onDragonLevelChanged = callback
+            dragon.onDragonLevelChanged = wrappedCallback
         }
     }
     

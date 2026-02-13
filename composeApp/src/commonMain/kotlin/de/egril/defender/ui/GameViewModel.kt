@@ -27,7 +27,12 @@ sealed class Screen {
     object Sticker : Screen()
     object PlayerProfile : Screen()
     data class GamePlay(val levelId: Int) : Screen()
-    data class LevelComplete(val levelId: Int, val won: Boolean, val isLastLevel: Boolean) : Screen()
+    data class LevelComplete(
+        val levelId: Int, 
+        val won: Boolean, 
+        val isLastLevel: Boolean,
+        val xpEarned: Int = 0
+    ) : Screen()
 }
 
 /**
@@ -277,6 +282,7 @@ class GameViewModel {
         if (worldLevel != null && worldLevel.status != LevelStatus.LOCKED) {
             val difficulty = AppSettings.difficulty.value
             val level = worldLevel.level
+            val playerStats = _currentPlayer.value?.stats ?: PlayerStats()
             
             // Apply difficulty modifiers to spawn plan
             val modifiedSpawnPlan = if (level.directSpawnPlan != null) {
@@ -286,13 +292,26 @@ class GameViewModel {
                 DifficultyModifiers.applySpawnPlanModifier(basePlan, difficulty)
             }
             
-            // Create GameState with difficulty-modified values
+            // Apply player stats bonuses
+            val baseCoins = DifficultyModifiers.applyCoinsModifier(level.initialCoins, difficulty)
+            val bonusCoins = playerStats.getBonusStartCoins()
+            val totalCoins = baseCoins + bonusCoins
+            
+            val baseHealth = DifficultyModifiers.applyHealthPointsModifier(level.healthPoints, difficulty)
+            val bonusHealth = playerStats.getBonusHealth()
+            val totalHealth = baseHealth + bonusHealth
+            
+            val maxMana = playerStats.getMaxMana()
+            
+            // Create GameState with difficulty-modified and stats-bonus values
             val newGameState = GameState(
                 level = level,
                 difficulty = difficulty,
-                coins = mutableStateOf(DifficultyModifiers.applyCoinsModifier(level.initialCoins, difficulty)),
-                healthPoints = mutableStateOf(DifficultyModifiers.applyHealthPointsModifier(level.healthPoints, difficulty)),
-                spawnPlan = modifiedSpawnPlan
+                coins = mutableStateOf(totalCoins),
+                healthPoints = mutableStateOf(totalHealth),
+                spawnPlan = modifiedSpawnPlan,
+                maxMana = mutableStateOf(maxMana),
+                currentMana = mutableStateOf(maxMana)  // Start with full mana
             )
             
             // Initialize pre-placed elements if any
@@ -618,10 +637,20 @@ class GameViewModel {
 
     private fun completeLevel(levelId: Int, won: Boolean) {
         val currentHP = _gameState.value?.healthPoints?.value ?: 0
+        val xpEarned = _gameState.value?.xpEarnedThisLevel?.value ?: 0
         
         // Track achievement for level completion
         if (won) {
             achievementManager?.onWinLevel(currentHP)
+            
+            // Award XP to player profile
+            val currentPlayer = _currentPlayer.value
+            if (currentPlayer != null) {
+                val updatedStats = currentPlayer.stats.addXP(xpEarned)
+                val updatedPlayer = currentPlayer.copy(stats = updatedStats)
+                _currentPlayer.value = updatedPlayer
+                de.egril.defender.save.PlayerProfileStorage.saveProfile(updatedPlayer)
+            }
         } else {
             achievementManager?.onLoseLevel()
         }
@@ -654,7 +683,7 @@ class GameViewModel {
                 saveWorldMapStatus()
             }
         }
-        _currentScreen.value = Screen.LevelComplete(levelId, won, isLastLevel)
+        _currentScreen.value = Screen.LevelComplete(levelId, won, isLastLevel, xpEarned)
     }
     
     fun restartLevel() {

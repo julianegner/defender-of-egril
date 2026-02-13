@@ -393,8 +393,16 @@ class CombatSystem(
             )
         }
         
+        // Calculate XP and coins for defeated enemies
         for (attacker in defeated) {
-            state.coins.value += attacker.type.reward * attacker.level.value
+            // Award coins (with income multiplier if player has income stats)
+            val baseCoins = attacker.type.reward * attacker.level.value
+            state.coins.value += baseCoins
+            
+            // Award XP (multiplied by level for non-dragons)
+            val xpEarned = attacker.type.xp * attacker.level.value
+            state.xpEarnedThisLevel.value += xpEarned
+            
             // Play enemy destroyed sound only if not building a bridge
             if (!attacker.isBuildingBridge.value) {
                 GlobalSoundManager.playSound(SoundEvent.ENEMY_DESTROYED)

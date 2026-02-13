@@ -315,6 +315,7 @@ fun App() {
                     levelId = screen.levelId,
                     won = screen.won,
                     isLastLevel = screen.isLastLevel,
+                    xpEarned = screen.xpEarned,
                     onRestart = { viewModel.restartLevel() },
                     onBackToMap = { viewModel.navigateToWorldMap() }
                 )

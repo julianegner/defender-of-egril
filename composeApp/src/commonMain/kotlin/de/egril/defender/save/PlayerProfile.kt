@@ -1,6 +1,7 @@
 package de.egril.defender.save
 
 import de.egril.defender.model.Achievement
+import de.egril.defender.model.PlayerStats
 
 /**
  * Represents a player profile
@@ -11,7 +12,8 @@ data class PlayerProfile(
     val name: String,  // Display name entered by player
     val createdAt: Long,  // Timestamp when profile was created
     val lastPlayedAt: Long,  // Timestamp when profile was last used
-    val achievements: List<Achievement> = emptyList()  // List of earned achievements
+    val achievements: List<Achievement> = emptyList(),  // List of earned achievements
+    val stats: PlayerStats = PlayerStats()  // Player stats and XP progression
 )
 
 /**
