@@ -1041,3 +1041,100 @@ fun WaterIcon(
         )
     }
 }
+
+/**
+ * Displays a simple star icon using Canvas
+ */
+@Composable
+fun StarIcon(
+    modifier: Modifier = Modifier.Companion,
+    size: Dp = 24.dp,
+    color: Color = Color(0xFFFFD700)  // Gold color
+) {
+    Canvas(
+        modifier = modifier.size(size)
+    ) {
+        val canvasWidth = this.size.width
+        val canvasHeight = this.size.height
+        val centerX = canvasWidth / 2f
+        val centerY = canvasHeight / 2f
+        val outerRadius = minOf(canvasWidth, canvasHeight) / 2f * 0.9f
+        val innerRadius = outerRadius * 0.4f
+        
+        // Calculate the 5 points of the star (outer and inner)
+        val points = mutableListOf<Offset>()
+        for (i in 0 until 10) {
+            val angle = (i * 36 - 90) * (PI / 180.0)  // Convert degrees to radians
+            val radius = if (i % 2 == 0) outerRadius else innerRadius
+            val x = centerX + (radius * cos(angle)).toFloat()
+            val y = centerY + (radius * sin(angle)).toFloat()
+            points.add(Offset(x, y))
+        }
+        
+        // Draw the star
+        val path = Path().apply {
+            moveTo(points[0].x, points[0].y)
+            for (i in 1 until points.size) {
+                lineTo(points[i].x, points[i].y)
+            }
+            close()
+        }
+        
+        // Fill the star
+        drawPath(
+            path = path,
+            color = color,
+            alpha = 0.3f
+        )
+        
+        // Draw the outline
+        drawPath(
+            path = path,
+            color = color,
+            style = Stroke(width = 2f)
+        )
+    }
+}
+
+/**
+ * Displays a simple hammer icon using Canvas for construction/building
+ */
+@Composable
+fun HammerIcon(
+    modifier: Modifier = Modifier.Companion,
+    size: Dp = 24.dp,
+    color: Color = Color(0xFF795548)  // Brown color
+) {
+    Canvas(
+        modifier = modifier.size(size)
+    ) {
+        val canvasWidth = this.size.width
+        val canvasHeight = this.size.height
+        
+        // Draw hammer head (rectangle)
+        val headWidth = canvasWidth * 0.5f
+        val headHeight = canvasHeight * 0.2f
+        val headLeft = canvasWidth * 0.1f
+        val headTop = canvasHeight * 0.15f
+        
+        drawRect(
+            color = color,
+            topLeft = Offset(headLeft, headTop),
+            size = Size(headWidth, headHeight)
+        )
+        
+        // Draw hammer handle (line)
+        val handleStartX = canvasWidth * 0.5f
+        val handleStartY = headTop + headHeight
+        val handleEndX = canvasWidth * 0.8f
+        val handleEndY = canvasHeight * 0.85f
+        
+        drawLine(
+            color = color,
+            start = Offset(handleStartX, handleStartY),
+            end = Offset(handleEndX, handleEndY),
+            strokeWidth = canvasWidth * 0.1f,
+            cap = StrokeCap.Round
+        )
+    }
+}

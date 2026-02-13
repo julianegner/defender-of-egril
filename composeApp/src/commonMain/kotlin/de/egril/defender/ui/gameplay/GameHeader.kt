@@ -183,10 +183,13 @@ private fun GameStats(
         turn = gameState.turnNumber.value,
         activeEnemyCount = gameState.getActiveEnemyCount(),
         remainingEnemyCount = gameState.getRemainingEnemyCount(),
+        currentMana = if (gameState.maxMana.value > 0) gameState.currentMana.value else null,
+        maxMana = if (gameState.maxMana.value > 0) gameState.maxMana.value else null,
         iconSize = iconSize,
         textStyle = textStyle,
         onCoinsClick = onCheatCode,
-        onEnemyCountClick = onEnemyCountClick
+        onEnemyCountClick = onEnemyCountClick,
+        onManaClick = null  // TODO: Add magic panel callback
     )
 }
 
