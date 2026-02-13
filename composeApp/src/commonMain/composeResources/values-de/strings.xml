@@ -1216,4 +1216,11 @@
     <string name="tower_info_title">Turminformationen</string>
     <string name="special_towers_info_title">Spezielle Türme</string>
     <string name="special_towers_info_reopen">Sie können diese Information jederzeit erneut öffnen, indem Sie auf das Turmsymbol im Level-Header klicken.</string>
+    
+    <!-- XP System -->
+    <string name="xp_earned">Verdiente XP: %d</string>
+    <string name="xp_info_brief">Verdienen Sie XP durch das Besiegen von Feinden.\nLeveln Sie auf, um Stat-Punkte zu erhalten und mächtige Fähigkeiten freizuschalten!</string>
+    <string name="xp_system_unlocked">XP-System freigeschaltet!</string>
+    <string name="xp_system_unlock_message">Sie können jetzt XP verwenden, um Ihre Statistiken zu verbessern und mächtige Fähigkeiten freizuschalten!\n\nGreifen Sie auf den Upgrade-Bildschirm über das Spielerprofil zu.</string>
+
 </resources>

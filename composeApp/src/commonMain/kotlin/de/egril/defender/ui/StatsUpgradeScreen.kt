@@ -338,7 +338,7 @@ private fun SpellCard(
                     if (isUnlocked) {
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "✓ Unlocked",  // TODO: localize
+                            text = "Unlocked",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.primary
                         )

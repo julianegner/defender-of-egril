@@ -398,7 +398,7 @@ fun LevelCompleteScreen(
                     Spacer(modifier = Modifier.height(24.dp))
                     
                     Text(
-                        text = "XP Earned: $xpEarned",
+                        text = stringResource(Res.string.xp_earned, xpEarned),
                         style = MaterialTheme.typography.bodyMedium,
                         textAlign = TextAlign.Center,
                         color = Color.Gray
@@ -408,7 +408,7 @@ fun LevelCompleteScreen(
                     
                     // Brief info about XP system
                     Text(
-                        text = "Earn XP by defeating enemies.\nLevel up to gain stat points and unlock powerful abilities!",
+                        text = stringResource(Res.string.xp_info_brief),
                         style = MaterialTheme.typography.bodySmall,
                         textAlign = TextAlign.Center,
                         color = Color.Gray.copy(alpha = 0.8f)
@@ -421,7 +421,7 @@ fun LevelCompleteScreen(
                     Spacer(modifier = Modifier.height(16.dp))
                     
                     Text(
-                        text = "XP System Unlocked!",
+                        text = stringResource(Res.string.xp_system_unlocked),
                         style = MaterialTheme.typography.titleMedium,
                         textAlign = TextAlign.Center,
                         color = MaterialTheme.colorScheme.primary,
@@ -431,7 +431,7 @@ fun LevelCompleteScreen(
                     Spacer(modifier = Modifier.height(8.dp))
                     
                     Text(
-                        text = "You can now use XP to upgrade your stats and unlock powerful abilities!\n\nAccess the upgrade screen from the Player Profile.",
+                        text = stringResource(Res.string.xp_system_unlock_message),
                         style = MaterialTheme.typography.bodyMedium,
                         textAlign = TextAlign.Center,
                         color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f)

@@ -37,7 +37,7 @@ class SpikeBarbsTest {
             healthPoints = 10
         )
         
-        val state = GameState(level)
+        val state = GameState(level, constructionLevel = 1)  // Set construction level to enable spike barbs
         val engine = GameEngine(state)
         
         // Place a spike tower at level 10
@@ -138,7 +138,7 @@ class SpikeBarbsTest {
             healthPoints = 10
         )
         
-        val state = GameState(level)
+        val state = GameState(level, constructionLevel = 1)  // Set construction level to enable spike barbs
         val engine = GameEngine(state)
         
         // Place two spike towers at level 10

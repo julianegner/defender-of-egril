@@ -1218,4 +1218,11 @@
     <string name="tower_info_title">Informations sur la Tour</string>
     <string name="special_towers_info_title">Tours Spéciales</string>
     <string name="special_towers_info_reopen">Vous pouvez rouvrir ces informations à tout moment en cliquant sur l\'icône de tour dans l\'en-tête du niveau.</string>
+    
+    <!-- XP System -->
+    <string name="xp_earned">XP Gagnée: %d</string>
+    <string name="xp_info_brief">Gagnez de l\'XP en battant des ennemis.\nMontez de niveau pour obtenir des points de statistiques et débloquer des capacités puissantes!</string>
+    <string name="xp_system_unlocked">Système d\'XP Débloqué!</string>
+    <string name="xp_system_unlock_message">Vous pouvez maintenant utiliser l\'XP pour améliorer vos statistiques et débloquer des capacités puissantes!\n\nAccédez à l\'écran d\'amélioration depuis le Profil du Joueur.</string>
+
 </resources>

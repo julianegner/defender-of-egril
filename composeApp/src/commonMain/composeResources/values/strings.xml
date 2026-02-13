@@ -1219,4 +1219,11 @@
     <string name="tower_info_title">Tower Information</string>
     <string name="special_towers_info_title">Special Towers</string>
     <string name="special_towers_info_reopen">You can reopen this information at any time by clicking the tower icon in the level header.</string>
+    
+    <!-- XP System -->
+    <string name="xp_earned">XP Earned: %d</string>
+    <string name="xp_info_brief">Earn XP by defeating enemies.\nLevel up to gain stat points and unlock powerful abilities!</string>
+    <string name="xp_system_unlocked">XP System Unlocked!</string>
+    <string name="xp_system_unlock_message">You can now use XP to upgrade your stats and unlock powerful abilities!\n\nAccess the upgrade screen from the Player Profile.</string>
+
 </resources>

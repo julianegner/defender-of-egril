@@ -1219,4 +1219,11 @@
     <string name="tower_info_title">Informazioni sulla Torre</string>
     <string name="special_towers_info_title">Torri Speciali</string>
     <string name="special_towers_info_reopen">Puoi riaprire queste informazioni in qualsiasi momento cliccando sull\'icona della torre nell\'intestazione del livello.</string>
+    
+    <!-- XP System -->
+    <string name="xp_earned">XP Guadagnati: %d</string>
+    <string name="xp_info_brief">Guadagna XP sconfiggendo i nemici.\nSali di livello per ottenere punti statistiche e sbloccare abilità potenti!</string>
+    <string name="xp_system_unlocked">Sistema XP Sbloccato!</string>
+    <string name="xp_system_unlock_message">Ora puoi usare XP per migliorare le tue statistiche e sbloccare abilità potenti!\n\nAccedi alla schermata di potenziamento dal Profilo Giocatore.</string>
+
 </resources>
