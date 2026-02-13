@@ -395,9 +395,10 @@ class CombatSystem(
         
         // Calculate XP and coins for defeated enemies
         for (attacker in defeated) {
-            // Award coins (with income multiplier if player has income stats)
+            // Award coins (with income multiplier from player stats)
             val baseCoins = attacker.type.reward * attacker.level.value
-            state.coins.value += baseCoins
+            val modifiedCoins = (baseCoins * state.incomeMultiplier).toInt()
+            state.coins.value += modifiedCoins
             
             // Award XP (multiplied by level for non-dragons)
             val xpEarned = attacker.type.xp * attacker.level.value

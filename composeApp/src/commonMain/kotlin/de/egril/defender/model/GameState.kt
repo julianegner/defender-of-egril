@@ -82,7 +82,8 @@ data class GameState(
     val xpEarnedThisLevel: MutableState<Int> = mutableStateOf(0),  // XP earned during this level (awarded on win)
     val currentMana: MutableState<Int> = mutableStateOf(0),  // Current mana (for spellcasting)
     val maxMana: MutableState<Int> = mutableStateOf(0),  // Maximum mana (based on player stats)
-    val activeSpellEffects: SnapshotStateList<ActiveSpellEffect> = mutableStateListOf()  // Active spell effects
+    val activeSpellEffects: SnapshotStateList<ActiveSpellEffect> = mutableStateListOf(),  // Active spell effects
+    val incomeMultiplier: Double = 1.0  // Income multiplier from player stats (default 1.0, e.g. 1.2 for 20% bonus)
 ) {
     fun isLevelWon(): Boolean {
         // Check if all planned spawns have occurred and all enemies are defeated

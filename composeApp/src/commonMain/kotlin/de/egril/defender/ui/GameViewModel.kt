@@ -302,6 +302,7 @@ class GameViewModel {
             val totalHealth = baseHealth + bonusHealth
             
             val maxMana = playerStats.getMaxMana()
+            val incomeMultiplier = playerStats.getIncomeMultiplier()
             
             // Create GameState with difficulty-modified and stats-bonus values
             val newGameState = GameState(
@@ -311,7 +312,8 @@ class GameViewModel {
                 healthPoints = mutableStateOf(totalHealth),
                 spawnPlan = modifiedSpawnPlan,
                 maxMana = mutableStateOf(maxMana),
-                currentMana = mutableStateOf(maxMana)  // Start with full mana
+                currentMana = mutableStateOf(maxMana),  // Start with full mana
+                incomeMultiplier = incomeMultiplier
             )
             
             // Initialize pre-placed elements if any
