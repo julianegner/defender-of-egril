@@ -248,7 +248,19 @@ fun App() {
                     de.egril.defender.ui.infopage.PlayerProfileScreen(
                         playerProfile = profile,
                         onBack = { viewModel.navigateToMainMenu() },
-                        onEditName = { showEditPlayer = true }
+                        onEditName = { showEditPlayer = true },
+                        onNavigateToStats = { viewModel.navigateToStatsUpgrade() }
+                    )
+                }
+            }
+            
+            is Screen.StatsUpgrade -> {
+                currentPlayer?.let { profile ->
+                    StatsUpgradeScreen(
+                        playerProfile = profile,
+                        onUpgradeStat = { statType -> viewModel.upgradeStat(statType) },
+                        onUnlockSpell = { spell -> viewModel.unlockSpell(spell) },
+                        onBack = { viewModel.navigateToPlayerProfile() }
                     )
                 }
             }

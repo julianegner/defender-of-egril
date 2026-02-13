@@ -38,7 +38,8 @@ import defender_of_egril.composeapp.generated.resources.*
 fun PlayerProfileScreen(
     playerProfile: PlayerProfile,
     onBack: () -> Unit,
-    onEditName: () -> Unit
+    onEditName: () -> Unit,
+    onNavigateToStats: (() -> Unit)? = null  // Optional callback to navigate to stats screen
 ) {
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -87,6 +88,23 @@ fun PlayerProfileScreen(
                         playerProfile = playerProfile,
                         onEditName = onEditName
                     )
+                    
+                    // Stats/Abilities button (if callback provided)
+                    if (onNavigateToStats != null) {
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Button(
+                            onClick = onNavigateToStats,
+                            modifier = Modifier.fillMaxWidth().height(56.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.secondary
+                            )
+                        ) {
+                            Text(
+                                text = "Stats & Abilities",  // TODO: localize
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                        }
+                    }
                     
                     Spacer(modifier = Modifier.height(24.dp))
                     

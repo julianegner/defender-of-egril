@@ -26,6 +26,7 @@ sealed class Screen {
     object LoadGame : Screen()
     object Sticker : Screen()
     object PlayerProfile : Screen()
+    object StatsUpgrade : Screen()  // New screen for stats/spells upgrade
     data class GamePlay(val levelId: Int) : Screen()
     data class LevelComplete(
         val levelId: Int, 
@@ -275,6 +276,26 @@ class GameViewModel {
     
     fun navigateToPlayerProfile() {
         _currentScreen.value = Screen.PlayerProfile
+    }
+    
+    fun navigateToStatsUpgrade() {
+        _currentScreen.value = Screen.StatsUpgrade
+    }
+    
+    fun upgradeStat(statType: de.egril.defender.model.StatType) {
+        val currentPlayer = _currentPlayer.value ?: return
+        val updatedStats = currentPlayer.stats.spendStatPoint(statType) ?: return
+        val updatedPlayer = currentPlayer.copy(stats = updatedStats)
+        _currentPlayer.value = updatedPlayer
+        de.egril.defender.save.PlayerProfileStorage.saveProfile(updatedPlayer)
+    }
+    
+    fun unlockSpell(spell: de.egril.defender.model.SpellType) {
+        val currentPlayer = _currentPlayer.value ?: return
+        val updatedStats = currentPlayer.stats.unlockSpell(spell) ?: return
+        val updatedPlayer = currentPlayer.copy(stats = updatedStats)
+        _currentPlayer.value = updatedPlayer
+        de.egril.defender.save.PlayerProfileStorage.saveProfile(updatedPlayer)
     }
     
     fun startLevel(levelId: Int) {
