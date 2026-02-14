@@ -15,7 +15,12 @@ class GameEngine(private val state: GameState) {
     private val towerManager = TowerManager(state)
     private val pathfinding = PathfindingSystem(state)
     private val bridgeSystem = BridgeSystem(state)
-    private val combatSystem = CombatSystem(state, bridgeSystem)
+    private val combatSystem = CombatSystem(
+        state, 
+        bridgeSystem,
+        getEffectiveLevel = { defender -> getEffectiveLevel(defender) },
+        getEffectiveRange = { defender -> getEffectiveRange(defender) }
+    )
     private val enemyMovement = EnemyMovementSystem(state, pathfinding)
     private val enemyAbilities = EnemyAbilitySystem(state)
     private val mineOperations = MineOperations(state)
@@ -1403,6 +1408,9 @@ class GameEngine(private val state: GameState) {
         // Update field effects
         enemyMovement.updateFieldEffects()
 
+        // Update spell buff effects (decrement turns remaining, remove expired)
+        updateSpellBuffs()
+
         // Process special enemy abilities
         enemyAbilities.processEnemyAbilities()
         
@@ -1442,6 +1450,53 @@ class GameEngine(private val state: GameState) {
                 defender.trapCooldownRemaining.value--
             }
         }
+    }
+    
+    /**
+     * Update spell buffs: decrement turns remaining and remove expired buffs
+     */
+    private fun updateSpellBuffs() {
+        // Create a list of indices to remove (iterate backwards to avoid index issues)
+        val toRemove = mutableListOf<Int>()
+        
+        state.activeSpellEffects.forEachIndexed { index, effect ->
+            // Decrement turns remaining
+            val newTurnsRemaining = effect.turnsRemaining - 1
+            
+            if (newTurnsRemaining <= 0) {
+                // Buff expired, mark for removal
+                toRemove.add(index)
+                println("Spell buff ${effect.spell.displayName} expired")
+            } else {
+                // Update the effect with decremented turns
+                state.activeSpellEffects[index] = effect.copy(turnsRemaining = newTurnsRemaining)
+            }
+        }
+        
+        // Remove expired buffs (iterate backwards)
+        toRemove.reversed().forEach { index ->
+            state.activeSpellEffects.removeAt(index)
+        }
+    }
+    
+    /**
+     * Get effective level for a defender, accounting for active spell buffs
+     */
+    fun getEffectiveLevel(defender: Defender): Int {
+        val hasDoubleLevelBuff = state.activeSpellEffects.any {
+            it.spell == SpellType.DOUBLE_TOWER_LEVEL && it.defenderId == defender.id
+        }
+        return if (hasDoubleLevelBuff) defender.level.value * 2 else defender.level.value
+    }
+    
+    /**
+     * Get effective range for a defender, accounting for active spell buffs
+     */
+    fun getEffectiveRange(defender: Defender): Int {
+        val hasDoubleRangeBuff = state.activeSpellEffects.any {
+            it.spell == SpellType.DOUBLE_TOWER_REACH && it.defenderId == defender.id
+        }
+        return if (hasDoubleRangeBuff) defender.range * 2 else defender.range
     }
     
     // Cheat code support for testing

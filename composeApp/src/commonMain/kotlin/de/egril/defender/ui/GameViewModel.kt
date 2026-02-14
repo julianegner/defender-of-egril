@@ -1497,6 +1497,57 @@ class GameViewModel {
                 gameState.health.value = newHP
                 println("Heal: Restored health to $newHP/$maxHP")
             }
+            SpellType.AREA_ATTACK -> {
+                // Attack Area: Deal 50 damage to all enemies within 2 hex range of position
+                val position = target as? Position
+                if (position != null) {
+                    var damagedCount = 0
+                    gameState.attackers.forEach { attacker ->
+                        val distance = attacker.position.value.hexDistanceTo(position)
+                        if (distance <= 2) {
+                            attacker.health.value = (attacker.health.value - 50).coerceAtLeast(0)
+                            damagedCount++
+                        }
+                    }
+                    println("Attack Area: Dealt 50 damage to $damagedCount enemies within 2 hex range of $position")
+                }
+            }
+            SpellType.INSTANT_TOWER -> {
+                // Instant Tower: Skip build time for one tower under construction
+                val defender = target as? Defender
+                if (defender != null && defender.turnsUntilReady.value > 0) {
+                    defender.turnsUntilReady.value = 0
+                    println("Instant Tower: ${defender.defenderType.name} at ${defender.position.value} is now ready!")
+                }
+            }
+            SpellType.DOUBLE_TOWER_LEVEL -> {
+                // Double Tower Level: Double tower level for 1 turn
+                val defender = target as? Defender
+                if (defender != null) {
+                    val effect = ActiveSpellEffect(
+                        spell = SpellType.DOUBLE_TOWER_LEVEL,
+                        defenderId = defender.id,
+                        turnsRemaining = 1,
+                        castTurn = gameState.turnNumber.value
+                    )
+                    gameState.activeSpellEffects.add(effect)
+                    println("Double Tower Level: ${defender.defenderType.name} level doubled for 1 turn!")
+                }
+            }
+            SpellType.DOUBLE_TOWER_REACH -> {
+                // Double Tower Reach: Double tower range for 1 turn
+                val defender = target as? Defender
+                if (defender != null) {
+                    val effect = ActiveSpellEffect(
+                        spell = SpellType.DOUBLE_TOWER_REACH,
+                        defenderId = defender.id,
+                        turnsRemaining = 1,
+                        castTurn = gameState.turnNumber.value
+                    )
+                    gameState.activeSpellEffects.add(effect)
+                    println("Double Tower Reach: ${defender.defenderType.name} range doubled for 1 turn!")
+                }
+            }
             else -> {
                 // Other spells not yet implemented
                 println("Cast ${spell.displayName} - Effect not yet implemented")
