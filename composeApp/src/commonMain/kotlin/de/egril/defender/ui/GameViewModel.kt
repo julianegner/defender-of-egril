@@ -1465,8 +1465,8 @@ class GameViewModel {
         // Deduct mana cost
         gameState.currentMana.value -= spell.manaCost
         
-        // TODO: Implement spell effects in Phase 4
-        println("Cast ${spell.displayName} (cost: ${spell.manaCost} mana, remaining: ${gameState.currentMana.value})")
+        // Execute spell effect
+        executeSpellEffect(spell, target, gameState)
         
         // Clear pending spell and targeting state
         _pendingSpellCast.value = null
@@ -1474,6 +1474,34 @@ class GameViewModel {
         
         // Close magic panel after casting
         closeMagicPanel()
+    }
+    
+    /**
+     * Execute the effect of a cast spell
+     */
+    private fun executeSpellEffect(spell: SpellType, target: Any?, gameState: GameState) {
+        when (spell) {
+            SpellType.AIMED_ATTACK -> {
+                // Attack Aimed: Deal 80 damage to single enemy
+                val attacker = target as? Attacker
+                if (attacker != null) {
+                    attacker.health.value = (attacker.health.value - 80).coerceAtLeast(0)
+                    println("Attack Aimed: Dealt 80 damage to ${attacker.attackerType.name} (HP: ${attacker.health.value})")
+                }
+            }
+            SpellType.HEAL_SELF -> {
+                // Heal: Restore 3 health points (cap at max)
+                val currentHP = gameState.health.value
+                val maxHP = gameState.level.maxHealth + (_currentPlayer.value?.stats?.health ?: 0)
+                val newHP = (currentHP + 3).coerceAtMost(maxHP)
+                gameState.health.value = newHP
+                println("Heal: Restored health to $newHP/$maxHP")
+            }
+            else -> {
+                // Other spells not yet implemented
+                println("Cast ${spell.displayName} - Effect not yet implemented")
+            }
+        }
     }
     
     /**
