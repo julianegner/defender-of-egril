@@ -503,6 +503,35 @@ class GameViewModel {
         return result
     }
     
+    /**
+     * Generate mana using a wizard tower
+     * - Costs 1 action
+     * - Generates base 5 mana + (wizard level / 5) bonus mana
+     * - Cannot exceed max mana
+     */
+    fun generateMana(wizardId: Int): Boolean {
+        val state = _gameState.value ?: return false
+        val wizard = state.defenders.find { it.id == wizardId } ?: return false
+        
+        // Validate: must be wizard tower, must be ready, must have actions, not at max mana
+        if (wizard.type != DefenderType.WIZARD_TOWER) return false
+        if (!wizard.isReady) return false
+        if (wizard.actionsRemaining.value <= 0) return false
+        if (state.currentMana.value >= state.maxMana) return false
+        
+        // Calculate mana amount: base 5 + (level / 5)
+        val manaAmount = 5 + (wizard.level.value / 5)
+        
+        // Add mana (capped at max)
+        val newMana = minOf(state.currentMana.value + manaAmount, state.maxMana)
+        state.currentMana.value = newMana
+        
+        // Consume action
+        wizard.actionsRemaining.value -= 1
+        
+        return true
+    }
+    
     fun startFirstPlayerTurn() {
         println("DEBUG: startFirstPlayerTurn called")
         val stateBefore = _gameState.value

@@ -103,6 +103,11 @@ data class PlayerStats(
     fun isSpellUnlocked(spell: SpellType): Boolean = unlockedSpells.contains(spell)
     
     /**
+     * Check if player has unlocked any spells
+     */
+    fun hasAnySpellUnlocked(): Boolean = unlockedSpells.isNotEmpty()
+    
+    /**
      * Add XP and return updated stats with new level and stat points if leveled up
      */
     fun addXP(xp: Int): PlayerStats {

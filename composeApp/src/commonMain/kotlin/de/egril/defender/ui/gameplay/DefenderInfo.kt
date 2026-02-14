@@ -305,6 +305,25 @@ fun DefenderInfo(
                                 }
                             }
 
+                            // Generate Mana button for wizard tower (only if player has unlocked spells)
+                            if (isPlayerTurn &&
+                                defender.type == DefenderType.WIZARD_TOWER &&
+                                gameState.playerProfile.stats.hasAnySpellUnlocked() &&
+                                onWizardAction != null) {
+
+                                Spacer(modifier = Modifier.width(horizontalSpacing))
+                                Column(modifier = Modifier.weight(1.3f)) {
+                                    GenerateManaButton(
+                                        defender = defender,
+                                        gameState = gameState,
+                                        onWizardAction = onWizardAction,
+                                        modifier = Modifier
+                                            .width(240.dp)
+                                            .height(buttonHeight)
+                                    )
+                                }
+                            }
+
                             // Magical trap button for wizard tower level 10+
                             if (isPlayerTurn &&
                                 defender.type == DefenderType.WIZARD_TOWER &&
@@ -521,6 +540,66 @@ fun DefenderActionsInfo(defender: Defender) {
                 "${defender.actionsRemaining.value}/${defender.actionsPerTurnCalculated}",
                 style = MaterialTheme.typography.titleMedium,
             )
+        }
+    }
+}
+
+/**
+ * Button for wizard tower to generate mana
+ * Generates base 5 mana + (level / 5) bonus mana
+ * Always available when wizard has actions
+ */
+@Composable
+fun GenerateManaButton(
+    defender: Defender,
+    gameState: GameState,
+    onWizardAction: (Int, WizardAction) -> Unit,
+    modifier: Modifier = Modifier.fillMaxWidth().height(56.dp)
+) {
+    if (defender.isReady) {
+        // Calculate mana generation amount
+        val manaAmount = 5 + (defender.level.value / 5)
+        val isAtMaxMana = gameState.currentMana.value >= gameState.maxMana
+        
+        // Button to generate mana - enabled when wizard has actions and not at max mana
+        Button(
+            onClick = { onWizardAction(defender.id, WizardAction.GENERATE_MANA) },
+            enabled = defender.actionsRemaining.value > 0 && !isAtMaxMana,
+            modifier = modifier,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color(0xFF9C27B0)  // Purple color for mana
+            )
+        ) {
+            Row(
+                horizontalArrangement = Arrangement.Start,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth().padding(start = 0.dp, end = 4.dp)
+            ) {
+                // Mana icon on the left
+                de.egril.defender.ui.icon.PentagramIcon(size = 40.dp)
+                Spacer(modifier = Modifier.width(4.dp))
+                // Two rows on the right
+                Column(
+                    modifier = Modifier.weight(1f),
+                    horizontalAlignment = Alignment.Start
+                ) {
+                    // Upper row: "Generate Mana"
+                    Text(
+                        stringResource(Res.string.generate_mana),
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Clip
+                    )
+                    // Lower row: "+X Mana"
+                    Text(
+                        "+$manaAmount ${stringResource(Res.string.mana_label)}",
+                        fontSize = 13.sp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Visible
+                    )
+                }
+            }
         }
     }
 }

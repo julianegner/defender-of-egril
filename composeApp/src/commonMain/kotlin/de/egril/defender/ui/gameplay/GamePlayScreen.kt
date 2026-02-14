@@ -359,6 +359,10 @@ private fun GamePlayScreenContent(
     // Wizard action handler - similar to mine action, click button first then select on map
     val handleWizardAction: (Int, WizardAction) -> Unit = { wizardId, action ->
         when (action) {
+            WizardAction.GENERATE_MANA -> {
+                // Generate mana - immediate action
+                viewModel.generateMana(wizardId)
+            }
             WizardAction.PLACE_MAGICAL_TRAP -> {
                 // Toggle trap placement mode - if already selected, deselect it
                 selectedWizardAction = if (selectedWizardAction == action) null else action

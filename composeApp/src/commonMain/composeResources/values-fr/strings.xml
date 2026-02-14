@@ -1266,5 +1266,7 @@
     <string name="player_level">Niveau %d</string>
     <string name="xp_progress">%d / %d XP</string>
     <string name="stat_level_effect">Niveau %d: %s</string>
+    <string name="generate_mana">Générer Mana</string>
+    <string name="mana_label">Mana</string>
 
 </resources>
