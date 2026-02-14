@@ -1268,5 +1268,13 @@
     <string name="stat_level_effect">Nivel %d: %s</string>
     <string name="generate_mana">Generar Maná</string>
     <string name="mana_label">Maná</string>
+    <string name="magic_panel_title">Hechizos Mágicos</string>
+    <string name="magic_panel_description">Selecciona un hechizo para lanzar en batalla</string>
+    <string name="no_spells_unlocked">Aún no hay hechizos desbloqueados. ¡Mejora tus estadísticas para desbloquear hechizos!</string>
+    <string name="cast">Lanzar</string>
+    <string name="confirm_spell_cast">Confirmar Hechizo</string>
+    <string name="cast_spell_confirmation">¿Lanzar %s?</string>
+    <string name="mana_cost_label">Coste de Maná:</string>
+    <string name="remaining_mana_label">Restante:</string>
 
 </resources>

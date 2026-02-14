@@ -1266,5 +1266,13 @@
     <string name="stat_level_effect">Level %d: %s</string>
     <string name="generate_mana">Mana erzeugen</string>
     <string name="mana_label">Mana</string>
+    <string name="magic_panel_title">Magische Zauber</string>
+    <string name="magic_panel_description">Wähle einen Zauber für die Schlacht</string>
+    <string name="no_spells_unlocked">Noch keine Zauber freigeschaltet. Verbessere deine Werte, um Zauber freizuschalten!</string>
+    <string name="cast">Wirken</string>
+    <string name="confirm_spell_cast">Zauber bestätigen</string>
+    <string name="cast_spell_confirmation">%s wirken?</string>
+    <string name="mana_cost_label">Manakosten:</string>
+    <string name="remaining_mana_label">Verbleibend:</string>
 
 </resources>

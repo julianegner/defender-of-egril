@@ -1270,5 +1270,13 @@
     <string name="stat_level_effect">Level %d: %s</string>
     <string name="generate_mana">Generate Mana</string>
     <string name="mana_label">Mana</string>
+    <string name="magic_panel_title">Magic Spells</string>
+    <string name="magic_panel_description">Select a spell to cast during battle</string>
+    <string name="no_spells_unlocked">No spells unlocked yet. Upgrade your stats to unlock spells!</string>
+    <string name="cast">Cast</string>
+    <string name="confirm_spell_cast">Confirm Spell</string>
+    <string name="cast_spell_confirmation">Cast %s?</string>
+    <string name="mana_cost_label">Mana Cost:</string>
+    <string name="remaining_mana_label">Remaining:</string>
 
 </resources>

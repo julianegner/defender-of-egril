@@ -99,6 +99,13 @@ class GameViewModel {
     private val _newAchievement = MutableStateFlow<Achievement?>(null)
     val newAchievement: StateFlow<Achievement?> = _newAchievement.asStateFlow()
     
+    // Magic panel state
+    private val _showMagicPanel = MutableStateFlow(false)
+    val showMagicPanel: StateFlow<Boolean> = _showMagicPanel.asStateFlow()
+    
+    private val _pendingSpellCast = MutableStateFlow<SpellType?>(null)
+    val pendingSpellCast: StateFlow<SpellType?> = _pendingSpellCast.asStateFlow()
+    
     // Track game session time
     private var gameSessionStartTime: Long? = null
     private var lastBreakReminderTime: Long? = null
@@ -1389,5 +1396,80 @@ class GameViewModel {
      */
     private fun getLocalHour(timestamp: Long): Int {
         return de.egril.defender.utils.getLocalHour(timestamp)
+    }
+    
+    /**
+     * Toggle magic panel display
+     */
+    fun toggleMagicPanel() {
+        _showMagicPanel.value = !_showMagicPanel.value
+    }
+    
+    /**
+     * Open magic panel
+     */
+    fun openMagicPanel() {
+        _showMagicPanel.value = true
+    }
+    
+    /**
+     * Close magic panel
+     */
+    fun closeMagicPanel() {
+        _showMagicPanel.value = false
+        _pendingSpellCast.value = null
+    }
+    
+    /**
+     * Set pending spell to cast
+     * Opens confirmation dialog
+     */
+    fun setPendingSpell(spell: SpellType) {
+        val gameState = _gameState.value
+        if (gameState != null && gameState.currentMana.value >= spell.manaCost) {
+            _pendingSpellCast.value = spell
+        }
+    }
+    
+    /**
+     * Cancel pending spell cast
+     */
+    fun cancelPendingSpell() {
+        _pendingSpellCast.value = null
+    }
+    
+    /**
+     * Cast a spell (called after targeting is complete)
+     * For non-targeting spells, this is called immediately after confirmation
+     */
+    fun castSpell(spell: SpellType, target: Any? = null) {
+        val gameState = _gameState.value ?: return
+        val currentPlayer = _currentPlayer.value ?: return
+        
+        // Validate mana cost
+        if (gameState.currentMana.value < spell.manaCost) {
+            println("Not enough mana to cast ${spell.displayName}")
+            return
+        }
+        
+        // Validate spell is unlocked
+        if (!currentPlayer.stats.unlockedSpells.contains(spell)) {
+            println("Spell ${spell.displayName} is not unlocked")
+            return
+        }
+        
+        // Deduct mana cost
+        gameState.currentMana.value -= spell.manaCost
+        
+        // TODO: Implement spell effects in Phase 4
+        println("Cast ${spell.displayName} (cost: ${spell.manaCost} mana, remaining: ${gameState.currentMana.value})")
+        
+        // Clear pending spell
+        _pendingSpellCast.value = null
+        
+        // For non-targeting spells, close magic panel
+        if (!spell.requiresTarget) {
+            closeMagicPanel()
+        }
     }
 }

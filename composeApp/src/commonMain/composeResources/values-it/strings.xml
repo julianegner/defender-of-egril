@@ -1269,5 +1269,13 @@
     <string name="stat_level_effect">Livello %d: %s</string>
     <string name="generate_mana">Genera Mana</string>
     <string name="mana_label">Mana</string>
+    <string name="magic_panel_title">Incantesimi Magici</string>
+    <string name="magic_panel_description">Seleziona un incantesimo da lanciare in battaglia</string>
+    <string name="no_spells_unlocked">Nessun incantesimo sbloccato. Migliora le tue statistiche per sbloccare gli incantesimi!</string>
+    <string name="cast">Lancia</string>
+    <string name="confirm_spell_cast">Conferma Incantesimo</string>
+    <string name="cast_spell_confirmation">Lanciare %s?</string>
+    <string name="mana_cost_label">Costo Mana:</string>
+    <string name="remaining_mana_label">Rimanente:</string>
 
 </resources>

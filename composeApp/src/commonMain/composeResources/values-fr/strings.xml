@@ -1268,5 +1268,13 @@
     <string name="stat_level_effect">Niveau %d: %s</string>
     <string name="generate_mana">Générer Mana</string>
     <string name="mana_label">Mana</string>
+    <string name="magic_panel_title">Sorts Magiques</string>
+    <string name="magic_panel_description">Sélectionnez un sort à lancer pendant la bataille</string>
+    <string name="no_spells_unlocked">Aucun sort débloqué pour l\'instant. Améliorez vos statistiques pour débloquer des sorts!</string>
+    <string name="cast">Lancer</string>
+    <string name="confirm_spell_cast">Confirmer le Sort</string>
+    <string name="cast_spell_confirmation">Lancer %s?</string>
+    <string name="mana_cost_label">Coût en Mana:</string>
+    <string name="remaining_mana_label">Restant:</string>
 
 </resources>
