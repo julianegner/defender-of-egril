@@ -33,7 +33,8 @@ fun GameHeader(
     onBackToMap: () -> Unit,
     onSaveGame: (() -> Unit)?,
     onCheatCode: (() -> Unit)?,
-    onEnemyCountClick: (() -> Unit)? = null
+    onEnemyCountClick: (() -> Unit)? = null,
+    onManaClick: (() -> Unit)? = null
 ) {
     val headerTextSize = de.egril.defender.ui.settings.AppSettings.headerTextSize.value
     
@@ -59,7 +60,8 @@ fun GameHeader(
                     gameState = gameState,
                     onCheatCode = onCheatCode,
                     headerTextSize = headerTextSize,
-                    onEnemyCountClick = onEnemyCountClick
+                    onEnemyCountClick = onEnemyCountClick,
+                    onManaClick = onManaClick
                 )
             }
 
@@ -164,7 +166,8 @@ private fun GameStats(
     gameState: GameState,
     onCheatCode: (() -> Unit)?,
     headerTextSize: de.egril.defender.ui.settings.HeaderTextSize,
-    onEnemyCountClick: (() -> Unit)? = null
+    onEnemyCountClick: (() -> Unit)? = null,
+    onManaClick: (() -> Unit)? = null
 ) {
     val iconSize = when (headerTextSize) {
         de.egril.defender.ui.settings.HeaderTextSize.SMALL -> GamePlayConstants.IconSizes.Large
@@ -189,7 +192,7 @@ private fun GameStats(
         textStyle = textStyle,
         onCoinsClick = onCheatCode,
         onEnemyCountClick = onEnemyCountClick,
-        onManaClick = null  // TODO: Add magic panel callback
+        onManaClick = onManaClick
     )
 }
 

@@ -301,8 +301,7 @@ class GameViewModel {
         val playerId = currentPlayer.id
         val tempAchievementManager = de.egril.defender.game.AchievementManager(playerId)
         tempAchievementManager.onAchievementEarned = { achievement ->
-            _showAchievementNotification.value = true
-            _currentAchievement.value = achievement
+            _newAchievement.value = achievement
         }
         
         // First stat upgrade achievement
@@ -339,8 +338,7 @@ class GameViewModel {
         val playerId = currentPlayer.id
         val tempAchievementManager = de.egril.defender.game.AchievementManager(playerId)
         tempAchievementManager.onAchievementEarned = { achievement ->
-            _showAchievementNotification.value = true
-            _currentAchievement.value = achievement
+            _newAchievement.value = achievement
         }
         
         if (oldStats.unlockedSpells.isEmpty()) {
@@ -524,13 +522,13 @@ class GameViewModel {
         if (wizard.type != DefenderType.WIZARD_TOWER) return false
         if (!wizard.isReady) return false
         if (wizard.actionsRemaining.value <= 0) return false
-        if (state.currentMana.value >= state.maxMana) return false
+        if (state.currentMana.value >= state.maxMana.value) return false
         
         // Calculate mana amount: base 5 + (level / 5)
         val manaAmount = 5 + (wizard.level.value / 5)
         
         // Add mana (capped at max)
-        val newMana = minOf(state.currentMana.value + manaAmount, state.maxMana)
+        val newMana = minOf(state.currentMana.value + manaAmount, state.maxMana.value)
         state.currentMana.value = newMana
         
         // Consume action

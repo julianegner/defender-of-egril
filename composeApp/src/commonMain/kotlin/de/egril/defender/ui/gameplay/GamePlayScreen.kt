@@ -1,6 +1,7 @@
 package de.egril.defender.ui.gameplay
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -40,6 +41,7 @@ fun GamePlayScreen(
     onMineDig: ((Int) -> DigOutcome?)? = null,  // Add mine dig callback
     onMineBuildTrap: ((Int, Position) -> Boolean)? = null,  // Add mine build trap callback
     onWizardPlaceMagicalTrap: ((Int, Position) -> Boolean)? = null,  // Add wizard magical trap callback
+    onWizardGenerateMana: ((Int) -> Boolean)? = null,  // Add wizard mana generation callback
     onBuildBarricade: ((Int, Position) -> Boolean)? = null,  // Add barricade building callback
     onRemoveBarricade: ((Position) -> Int)? = null,  // Add barricade removal callback - returns coin refund
     cheatDigOutcome: DigOutcome? = null,  // Dig outcome from cheat code
@@ -50,7 +52,16 @@ fun GamePlayScreen(
     specialActionsRemaining: List<DefenderType> = emptyList(),  // List of defender types with remaining special actions
     onClearSpecialActionsWarning: (() -> Unit)? = null,  // Callback to clear special actions warning
     reminderMessage: ReminderMessage? = null,  // Time reminder message
-    onClearReminderMessage: (() -> Unit)? = null  // Callback to clear reminder message
+    onClearReminderMessage: (() -> Unit)? = null,  // Callback to clear reminder message
+    // Magic panel parameters
+    showMagicPanel: Boolean = false,  // Show magic panel overlay
+    playerStats: PlayerStats? = null,  // Player stats for spell list
+    onOpenMagicPanel: (() -> Unit)? = null,  // Callback to open magic panel
+    onCloseMagicPanel: (() -> Unit)? = null,  // Callback to close magic panel
+    onCastSpell: ((SpellType) -> Unit)? = null,  // Callback to cast spell
+    pendingSpellCast: SpellType? = null,  // Spell awaiting confirmation
+    onConfirmSpellCast: (() -> Unit)? = null,  // Callback to confirm spell cast
+    onCancelSpellCast: (() -> Unit)? = null  // Callback to cancel spell cast
 ) {
     GamePlayScreenContent(
         gameState = gameState,
@@ -69,6 +80,7 @@ fun GamePlayScreen(
         onMineDig = onMineDig,
         onMineBuildTrap = onMineBuildTrap,
         onWizardPlaceMagicalTrap = onWizardPlaceMagicalTrap,
+        onWizardGenerateMana = onWizardGenerateMana,
         onBuildBarricade = onBuildBarricade,
         onRemoveBarricade = onRemoveBarricade,
         cheatDigOutcome = cheatDigOutcome,
@@ -79,7 +91,15 @@ fun GamePlayScreen(
         specialActionsRemaining = specialActionsRemaining,
         onClearSpecialActionsWarning = onClearSpecialActionsWarning,
         reminderMessage = reminderMessage,
-        onClearReminderMessage = onClearReminderMessage
+        onClearReminderMessage = onClearReminderMessage,
+        showMagicPanel = showMagicPanel,
+        playerStats = playerStats,
+        onOpenMagicPanel = onOpenMagicPanel,
+        onCloseMagicPanel = onCloseMagicPanel,
+        onCastSpell = onCastSpell,
+        pendingSpellCast = pendingSpellCast,
+        onConfirmSpellCast = onConfirmSpellCast,
+        onCancelSpellCast = onCancelSpellCast
     )
 }
 
@@ -101,6 +121,7 @@ private fun GamePlayScreenContent(
     onMineDig: ((Int) -> DigOutcome?)? = null,
     onMineBuildTrap: ((Int, Position) -> Boolean)? = null,
     onWizardPlaceMagicalTrap: ((Int, Position) -> Boolean)? = null,  // Add wizard magical trap callback
+    onWizardGenerateMana: ((Int) -> Boolean)? = null,  // Add wizard mana generation callback
     onBuildBarricade: ((Int, Position) -> Boolean)? = null,  // Add barricade building callback
     onRemoveBarricade: ((Position) -> Int)? = null,  // Add barricade removal callback - returns coin refund
     cheatDigOutcome: DigOutcome? = null,  // Dig outcome from cheat code
@@ -111,7 +132,16 @@ private fun GamePlayScreenContent(
     specialActionsRemaining: List<DefenderType> = emptyList(),  // List of defender types with remaining special actions
     onClearSpecialActionsWarning: (() -> Unit)? = null,  // Callback to clear special actions warning
     reminderMessage: ReminderMessage? = null,  // Time reminder message
-    onClearReminderMessage: (() -> Unit)? = null  // Callback to clear reminder message
+    onClearReminderMessage: (() -> Unit)? = null,  // Callback to clear reminder message
+    // Magic panel parameters
+    showMagicPanel: Boolean = false,
+    playerStats: PlayerStats? = null,
+    onOpenMagicPanel: (() -> Unit)? = null,
+    onCloseMagicPanel: (() -> Unit)? = null,
+    onCastSpell: ((SpellType) -> Unit)? = null,
+    pendingSpellCast: SpellType? = null,
+    onConfirmSpellCast: (() -> Unit)? = null,
+    onCancelSpellCast: (() -> Unit)? = null
 ) {
     var selectedDefenderType by remember { mutableStateOf<DefenderType?>(null) }
     var selectedDefenderId by remember { mutableStateOf<Int?>(null) }
@@ -361,7 +391,7 @@ private fun GamePlayScreenContent(
         when (action) {
             WizardAction.GENERATE_MANA -> {
                 // Generate mana - immediate action
-                viewModel.generateMana(wizardId)
+                onWizardGenerateMana?.invoke(wizardId)
             }
             WizardAction.PLACE_MAGICAL_TRAP -> {
                 // Toggle trap placement mode - if already selected, deselect it
@@ -443,7 +473,10 @@ private fun GamePlayScreenContent(
             },
             onSaveGame = if (onSaveGame != null) {{ showSaveDialog = true }} else null,
             onCheatCode = if (onCheatCode != null) {{ showCheatDialog = true }} else null,
-            onEnemyCountClick = { showOverlay = !showOverlay }
+            onEnemyCountClick = { showOverlay = !showOverlay },
+            onManaClick = if (onOpenMagicPanel != null && gameState.maxMana.value > 0) {
+                { onOpenMagicPanel.invoke() }
+            } else null
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -1113,6 +1146,41 @@ private fun GamePlayScreenContent(
                 onDismiss = {
                     onClearReminderMessage?.invoke()
                 }
+            )
+        }
+        
+        // Magic panel overlay
+        if (showMagicPanel && playerStats != null && onCloseMagicPanel != null && onCastSpell != null) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.5f))
+                    .clickable(onClick = { onCloseMagicPanel.invoke() })
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(0.9f)
+                        .align(Alignment.Center)
+                        .clickable(onClick = {})  // Prevent clicks from passing through
+                ) {
+                    MagicPanel(
+                        playerStats = playerStats,
+                        currentMana = gameState.currentMana.value,
+                        maxMana = gameState.maxMana.value,
+                        onCastSpell = onCastSpell,
+                        onClose = { onCloseMagicPanel.invoke() }
+                    )
+                }
+            }
+        }
+        
+        // Spell confirmation dialog
+        if (pendingSpellCast != null && onConfirmSpellCast != null && onCancelSpellCast != null) {
+            SpellConfirmationDialog(
+                spell = pendingSpellCast,
+                currentMana = gameState.currentMana.value,
+                onConfirm = { onConfirmSpellCast.invoke() },
+                onDismiss = { onCancelSpellCast.invoke() }
             )
         }
             }

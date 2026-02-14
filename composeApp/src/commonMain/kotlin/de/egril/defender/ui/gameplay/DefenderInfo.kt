@@ -49,7 +49,8 @@ fun DefenderInfo(
     selectedTargetPosition: Position? = null,
     onDefenderAttack: ((Int, Int) -> Boolean)? = null,
     onDefenderAttackPosition: ((Int, Position) -> Boolean)? = null,
-    isPlayerTurn: Boolean = false
+    isPlayerTurn: Boolean = false,
+    hasUnlockedSpells: Boolean = false  // Whether player has unlocked any spells
 ) {
     val locale = com.hyperether.resources.currentLanguage.value
     val buttonHeight = if (isMobile) 100.dp else 60.dp
@@ -308,7 +309,7 @@ fun DefenderInfo(
                             // Generate Mana button for wizard tower (only if player has unlocked spells)
                             if (isPlayerTurn &&
                                 defender.type == DefenderType.WIZARD_TOWER &&
-                                gameState.playerProfile.stats.hasAnySpellUnlocked() &&
+                                hasUnlockedSpells &&
                                 onWizardAction != null) {
 
                                 Spacer(modifier = Modifier.width(horizontalSpacing))
@@ -559,7 +560,7 @@ fun GenerateManaButton(
     if (defender.isReady) {
         // Calculate mana generation amount
         val manaAmount = 5 + (defender.level.value / 5)
-        val isAtMaxMana = gameState.currentMana.value >= gameState.maxMana
+        val isAtMaxMana = gameState.currentMana.value >= gameState.maxMana.value
         
         // Button to generate mana - enabled when wizard has actions and not at max mana
         Button(

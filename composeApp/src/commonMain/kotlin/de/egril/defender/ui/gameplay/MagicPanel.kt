@@ -165,12 +165,7 @@ private fun SpellCard(
         ) {
             // Spell icon
             LightningIcon(
-                size = 32.dp,
-                color = if (canCast) {
-                    MaterialTheme.colorScheme.primary
-                } else {
-                    MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
-                }
+                size = 32.dp
             )
             
             // Spell info
