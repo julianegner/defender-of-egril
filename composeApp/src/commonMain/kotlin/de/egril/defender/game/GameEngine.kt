@@ -551,6 +551,15 @@ class GameEngine(private val state: GameState) {
             for (attacker in regularAttackers) {
                 val currentPos = currentPositions[attacker.id] ?: continue
                 
+                // Check if attacker is frozen
+                val isFrozen = state.activeSpellEffects.any {
+                    it.spell == SpellType.FREEZE_SPELL && it.attackerId == attacker.id
+                }
+                if (isFrozen) {
+                    println("Attacker ${attacker.id} (${attacker.type}) is frozen, skipping movement")
+                    continue
+                }
+                
                 // Skip if this attacker already encountered a barricade
                 if (attackersStoppedByBarricade
                         .map { it.first }
@@ -558,7 +567,20 @@ class GameEngine(private val state: GameState) {
                         .contains(attacker.id)) continue
                 
                 // Calculate effective speed by subtracting movement penalty from spike barbs
-                val effectiveSpeed = maxOf(1, attacker.type.speed - attacker.movementPenalty.value)
+                var effectiveSpeed = maxOf(1, attacker.type.speed - attacker.movementPenalty.value)
+                
+                // Check if attacker is in a cooling area (reduces speed by 1)
+                val isInCoolingArea = state.activeSpellEffects.any { effect ->
+                    effect.spell == SpellType.COOLING_SPELL && 
+                    effect.position != null &&
+                    currentPos.hexDistanceTo(effect.position) <= 2
+                }
+                if (isInCoolingArea) {
+                    effectiveSpeed = maxOf(1, effectiveSpeed - 1)
+                    if (stepIndex == 0) {
+                        println("Attacker ${attacker.id} (${attacker.type}) is in cooling area, speed reduced to $effectiveSpeed")
+                    }
+                }
                 
                 // Check if this attacker has more moves left
                 if (stepIndex >= effectiveSpeed) continue
@@ -1453,7 +1475,7 @@ class GameEngine(private val state: GameState) {
     }
     
     /**
-     * Update spell buffs: decrement turns remaining and remove expired buffs
+     * Update spell buffs: decrement turns remaining, handle special effects, and remove expired buffs
      */
     private fun updateSpellBuffs() {
         // Create a list of indices to remove (iterate backwards to avoid index issues)
@@ -1464,9 +1486,22 @@ class GameEngine(private val state: GameState) {
             val newTurnsRemaining = effect.turnsRemaining - 1
             
             if (newTurnsRemaining <= 0) {
+                // Handle special effects before expiration
+                when (effect.spell) {
+                    SpellType.BOMB -> {
+                        // Bomb explodes! Deal damage to enemies, barricades, and bridges
+                        if (effect.position != null) {
+                            executeBombExplosion(effect.position)
+                        }
+                    }
+                    else -> {
+                        // Other spells just expire
+                    }
+                }
+                
                 // Buff expired, mark for removal
                 toRemove.add(index)
-                println("Spell buff ${effect.spell.displayName} expired")
+                println("Spell effect ${effect.spell.displayName} expired")
             } else {
                 // Update the effect with decremented turns
                 state.activeSpellEffects[index] = effect.copy(turnsRemaining = newTurnsRemaining)
@@ -1477,6 +1512,52 @@ class GameEngine(private val state: GameState) {
         toRemove.reversed().forEach { index ->
             state.activeSpellEffects.removeAt(index)
         }
+    }
+    
+    /**
+     * Execute bomb explosion: damage enemies, barricades, and bridges in 2-hex range
+     */
+    private fun executeBombExplosion(position: Position) {
+        val explosionDamage = 100
+        val explosionRange = 2
+        var enemiesDamaged = 0
+        var barricadesDamaged = 0
+        var bridgesDestroyed = 0
+        
+        // Damage enemies in range
+        state.attackers.forEach { attacker ->
+            val distance = attacker.position.value.hexDistanceTo(position)
+            if (distance <= explosionRange) {
+                attacker.currentHealth.value = (attacker.currentHealth.value - explosionDamage).coerceAtLeast(0)
+                enemiesDamaged++
+                // Update dragon level if it's a dragon
+                if (attacker.type.isDragon) {
+                    attacker.updateDragonLevel()
+                }
+            }
+        }
+        
+        // Damage barricades in range
+        state.barricades.forEach { barricade ->
+            val distance = barricade.position.hexDistanceTo(position)
+            if (distance <= explosionRange) {
+                barricade.health.value = (barricade.health.value - explosionDamage).coerceAtLeast(0)
+                barricadesDamaged++
+            }
+        }
+        
+        // Destroy bridges in range
+        val bridgesToRemove = state.bridges.filter { bridge ->
+            val distance = bridge.position.hexDistanceTo(position)
+            distance <= explosionRange
+        }
+        bridgesDestroyed = bridgesToRemove.size
+        bridgesToRemove.forEach { bridge ->
+            state.bridges.remove(bridge)
+        }
+        
+        println("Bomb exploded at $position! Damaged $enemiesDamaged enemies, $barricadesDamaged barricades, destroyed $bridgesDestroyed bridges")
+        GlobalSoundManager.playSound(SoundEvent.EXPLOSION)
     }
     
     /**

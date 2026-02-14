@@ -1548,6 +1548,60 @@ class GameViewModel {
                     println("Double Tower Reach: ${defender.defenderType.name} range doubled for 1 turn!")
                 }
             }
+            SpellType.BOMB -> {
+                // Bomb: Place bomb at position, explodes after 2 turns
+                val position = target as? Position
+                if (position != null) {
+                    val effect = ActiveSpellEffect(
+                        spell = SpellType.BOMB,
+                        position = position,
+                        turnsRemaining = 3,  // Explodes at the start of turn 3 (2 full turns + explosion)
+                        castTurn = gameState.turnNumber.value
+                    )
+                    gameState.activeSpellEffects.add(effect)
+                    println("Bomb: Placed at $position, will explode in 2 turns!")
+                }
+            }
+            SpellType.FREEZE_SPELL -> {
+                // Freeze: Freeze enemy for 1+ turns (base 1 turn for 10 mana)
+                val attacker = target as? Attacker
+                if (attacker != null) {
+                    // Check immunity: Does not work on Demons, Dragons, Ewhad
+                    val isImmune = attacker.type.isDragon || 
+                                   attacker.type == AttackerType.BLUE_DEMON ||
+                                   attacker.type == AttackerType.RED_DEMON ||
+                                   attacker.type == AttackerType.EWHAD
+                    
+                    if (isImmune) {
+                        println("Freeze Spell: ${attacker.type.displayName} is immune to freeze!")
+                    } else {
+                        // For now, freeze for 1 turn (base cost)
+                        // TODO: Add duration selection dialog for spending more mana
+                        val effect = ActiveSpellEffect(
+                            spell = SpellType.FREEZE_SPELL,
+                            attackerId = attacker.id,
+                            turnsRemaining = 1,
+                            castTurn = gameState.turnNumber.value
+                        )
+                        gameState.activeSpellEffects.add(effect)
+                        println("Freeze Spell: Froze ${attacker.type.displayName} for 1 turn!")
+                    }
+                }
+            }
+            SpellType.COOLING_SPELL -> {
+                // Cooling Spell: Create area that slows enemies for 3 turns
+                val position = target as? Position
+                if (position != null) {
+                    val effect = ActiveSpellEffect(
+                        spell = SpellType.COOLING_SPELL,
+                        position = position,
+                        turnsRemaining = 3,
+                        castTurn = gameState.turnNumber.value
+                    )
+                    gameState.activeSpellEffects.add(effect)
+                    println("Cooling Spell: Created cooling area at $position for 3 turns!")
+                }
+            }
             else -> {
                 // Other spells not yet implemented
                 println("Cast ${spell.displayName} - Effect not yet implemented")
