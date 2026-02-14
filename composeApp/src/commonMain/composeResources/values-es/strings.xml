@@ -1228,6 +1228,9 @@
     <!-- Stats Upgrade Screen -->
     <string name="stats_and_abilities">Estadísticas y Habilidades</string>
     <string name="available_stat_points">Puntos de Estadísticas Disponibles: %d</string>
+    <string name="stats">Estadísticas</string>
+    <string name="spells">Hechizos</string>
+    <string name="unlock">Desbloquear</string>
     <string name="stat_health">Salud</string>
     <string name="stat_health_desc">+1 PV de bonificación por nivel</string>
     <string name="stat_health_effect">+%d PV</string>

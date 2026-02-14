@@ -1229,6 +1229,9 @@
     <!-- Stats Upgrade Screen -->
     <string name="stats_and_abilities">Stats &amp; Abilities</string>
     <string name="available_stat_points">Available Stat Points: %d</string>
+    <string name="stats">Stats</string>
+    <string name="spells">Spells</string>
+    <string name="unlock">Unlock</string>
     <string name="stat_health">Health</string>
     <string name="stat_health_desc">+1 bonus HP per level</string>
     <string name="stat_health_effect">+%d HP</string>

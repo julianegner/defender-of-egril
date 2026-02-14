@@ -1226,6 +1226,9 @@
     <!-- Stats Upgrade Screen -->
     <string name="stats_and_abilities">Statistiken &amp; Fähigkeiten</string>
     <string name="available_stat_points">Verfügbare Stat-Punkte: %d</string>
+    <string name="stats">Statistiken</string>
+    <string name="spells">Zauber</string>
+    <string name="unlock">Freischalten</string>
     <string name="stat_health">Gesundheit</string>
     <string name="stat_health_desc">+1 Bonus-LP pro Level</string>
     <string name="stat_health_effect">+%d LP</string>
