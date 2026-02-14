@@ -21,6 +21,14 @@ enum class HealingEffectType {
     GREEN_WITCH    // Visual effect for green witch healing
 }
 
+/**
+ * Spell targeting mode state
+ */
+data class SpellTargetingState(
+    val activeSpell: SpellType,
+    val validTargets: Set<Any> = emptySet()  // Can be Position, Attacker, or Defender depending on spell type
+)
+
 data class FieldEffect(
     val position: Position,
     val type: FieldEffectType,
@@ -84,7 +92,8 @@ data class GameState(
     val maxMana: MutableState<Int> = mutableStateOf(0),  // Maximum mana (based on player stats)
     val activeSpellEffects: SnapshotStateList<ActiveSpellEffect> = mutableStateListOf(),  // Active spell effects
     val incomeMultiplier: Double = 1.0,  // Income multiplier from player stats (default 1.0, e.g. 1.2 for 20% bonus)
-    val constructionLevel: Int = 0  // Construction level from player stats (0-3+, gates tower abilities)
+    val constructionLevel: Int = 0,  // Construction level from player stats (0-3+, gates tower abilities)
+    val spellTargeting: MutableState<SpellTargetingState?> = mutableStateOf(null)  // Active spell targeting state (null when not targeting)
 ) {
     fun isLevelWon(): Boolean {
         // Check if all planned spawns have occurred and all enemies are defeated

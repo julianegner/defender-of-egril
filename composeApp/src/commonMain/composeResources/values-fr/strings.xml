@@ -1276,5 +1276,9 @@
     <string name="cast_spell_confirmation">Lancer %s?</string>
     <string name="mana_cost_label">Coût en Mana:</string>
     <string name="remaining_mana_label">Restant:</string>
+    <string name="spell_targeting_position">Sélectionnez une position sur la carte</string>
+    <string name="spell_targeting_enemy">Sélectionnez un ennemi à cibler</string>
+    <string name="spell_targeting_tower">Sélectionnez une tour à améliorer</string>
+    <string name="spell_targeting_cancel">Cliquez ici pour annuler</string>
 
 </resources>

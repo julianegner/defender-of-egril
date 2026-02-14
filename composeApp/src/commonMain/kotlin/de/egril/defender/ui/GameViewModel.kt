@@ -1456,18 +1456,87 @@ class GameViewModel {
             return
         }
         
+        // If spell requires targeting and no target provided, enter targeting mode
+        if (spell.requiresTarget && target == null) {
+            enterSpellTargetingMode(spell)
+            return
+        }
+        
         // Deduct mana cost
         gameState.currentMana.value -= spell.manaCost
         
         // TODO: Implement spell effects in Phase 4
         println("Cast ${spell.displayName} (cost: ${spell.manaCost} mana, remaining: ${gameState.currentMana.value})")
         
-        // Clear pending spell
+        // Clear pending spell and targeting state
         _pendingSpellCast.value = null
+        exitSpellTargetingMode()
         
-        // For non-targeting spells, close magic panel
-        if (!spell.requiresTarget) {
-            closeMagicPanel()
+        // Close magic panel after casting
+        closeMagicPanel()
+    }
+    
+    /**
+     * Enter spell targeting mode
+     */
+    fun enterSpellTargetingMode(spell: SpellType) {
+        val gameState = _gameState.value ?: return
+        
+        // Calculate valid targets based on spell type
+        val validTargets: Set<Any> = when (spell.targetType) {
+            SpellTargetType.POSITION -> {
+                // All tiles on the map are valid positions
+                val positions = mutableSetOf<Position>()
+                for (x in 0 until gameState.level.width) {
+                    for (y in 0 until gameState.level.height) {
+                        positions.add(Position(x, y))
+                    }
+                }
+                positions
+            }
+            SpellTargetType.ENEMY -> {
+                // All active (non-defeated) enemies are valid targets
+                gameState.attackers.filter { !it.isDefeated.value }.toSet()
+            }
+            SpellTargetType.TOWER -> {
+                // All placed defenders are valid targets
+                gameState.defenders.toSet()
+            }
+            SpellTargetType.NONE -> emptySet()
         }
+        
+        // Set targeting state
+        gameState.spellTargeting.value = SpellTargetingState(
+            activeSpell = spell,
+            validTargets = validTargets
+        )
+        
+        // Clear pending spell cast (we're now in targeting mode)
+        _pendingSpellCast.value = null
+    }
+    
+    /**
+     * Exit spell targeting mode (cancel)
+     */
+    fun exitSpellTargetingMode() {
+        val gameState = _gameState.value ?: return
+        gameState.spellTargeting.value = null
+    }
+    
+    /**
+     * Select a target and cast the spell
+     */
+    fun selectSpellTarget(target: Any) {
+        val gameState = _gameState.value ?: return
+        val targeting = gameState.spellTargeting.value ?: return
+        
+        // Validate target is in valid targets set
+        if (!targeting.validTargets.contains(target)) {
+            println("Invalid target for spell")
+            return
+        }
+        
+        // Cast the spell with the selected target
+        castSpell(targeting.activeSpell, target)
     }
 }

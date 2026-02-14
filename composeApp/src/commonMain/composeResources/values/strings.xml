@@ -1278,5 +1278,9 @@
     <string name="cast_spell_confirmation">Cast %s?</string>
     <string name="mana_cost_label">Mana Cost:</string>
     <string name="remaining_mana_label">Remaining:</string>
+    <string name="spell_targeting_position">Select a position on the map</string>
+    <string name="spell_targeting_enemy">Select an enemy to target</string>
+    <string name="spell_targeting_tower">Select a tower to enhance</string>
+    <string name="spell_targeting_cancel">Click here to cancel</string>
 
 </resources>

@@ -1276,5 +1276,9 @@
     <string name="cast_spell_confirmation">¿Lanzar %s?</string>
     <string name="mana_cost_label">Coste de Maná:</string>
     <string name="remaining_mana_label">Restante:</string>
+    <string name="spell_targeting_position">Selecciona una posición en el mapa</string>
+    <string name="spell_targeting_enemy">Selecciona un enemigo como objetivo</string>
+    <string name="spell_targeting_tower">Selecciona una torre para mejorar</string>
+    <string name="spell_targeting_cancel">Haz clic aquí para cancelar</string>
 
 </resources>

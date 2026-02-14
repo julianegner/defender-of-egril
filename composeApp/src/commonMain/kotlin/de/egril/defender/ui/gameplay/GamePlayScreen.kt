@@ -494,6 +494,36 @@ private fun GamePlayScreenContent(
                 selectedWizardAction = selectedWizardAction,
                 selectedBarricadeAction = selectedBarricadeAction,
                 onCellClick = { position ->
+                    // Handle spell targeting mode first
+                    val targeting = gameState.spellTargeting.value
+                    if (targeting != null) {
+                        // Check if this position is a valid target
+                        when (targeting.activeSpell.targetType) {
+                            de.egril.defender.model.SpellTargetType.POSITION -> {
+                                // Position click - cast spell on position
+                                viewModel.selectSpellTarget(position)
+                            }
+                            de.egril.defender.model.SpellTargetType.ENEMY -> {
+                                // Check if there's an enemy at this position
+                                val enemy = gameState.attackers.find { it.position.value == position && !it.isDefeated.value }
+                                if (enemy != null && targeting.validTargets.contains(enemy)) {
+                                    viewModel.selectSpellTarget(enemy)
+                                }
+                            }
+                            de.egril.defender.model.SpellTargetType.TOWER -> {
+                                // Check if there's a tower at this position
+                                val tower = gameState.defenders.find { it.position.value == position }
+                                if (tower != null && targeting.validTargets.contains(tower)) {
+                                    viewModel.selectSpellTarget(tower)
+                                }
+                            }
+                            else -> {
+                                // Invalid targeting type, should not happen
+                            }
+                        }
+                        return@GameGrid
+                    }
+                    
                     // Try to place defender if one is selected
                     selectedDefenderType?.let { type ->
                         if (onPlaceDefender(type, position)) {
@@ -1182,6 +1212,61 @@ private fun GamePlayScreenContent(
                 onConfirm = { onConfirmSpellCast.invoke() },
                 onDismiss = { onCancelSpellCast.invoke() }
             )
+        }
+        
+        // Spell targeting overlay
+        gameState.spellTargeting.value?.let { targeting ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.3f))
+                    .clickable(onClick = { viewModel.exitSpellTargetingMode() }),
+                contentAlignment = Alignment.TopCenter
+            ) {
+                // Targeting instruction banner
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth(0.9f)
+                        .padding(16.dp)
+                        .clickable(onClick = {}),  // Prevent clicks from passing through
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer
+                    ),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = targeting.activeSpell.displayName,
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = when (targeting.activeSpell.targetType) {
+                                de.egril.defender.model.SpellTargetType.POSITION -> 
+                                    stringResource(Res.string.spell_targeting_position)
+                                de.egril.defender.model.SpellTargetType.ENEMY -> 
+                                    stringResource(Res.string.spell_targeting_enemy)
+                                de.egril.defender.model.SpellTargetType.TOWER -> 
+                                    stringResource(Res.string.spell_targeting_tower)
+                                else -> ""
+                            },
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = stringResource(Res.string.spell_targeting_cancel),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
+                        )
+                    }
+                }
+            }
         }
             }
         }

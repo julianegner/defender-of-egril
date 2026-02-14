@@ -1274,5 +1274,9 @@
     <string name="cast_spell_confirmation">%s wirken?</string>
     <string name="mana_cost_label">Manakosten:</string>
     <string name="remaining_mana_label">Verbleibend:</string>
+    <string name="spell_targeting_position">Wähle eine Position auf der Karte</string>
+    <string name="spell_targeting_enemy">Wähle einen Feind als Ziel</string>
+    <string name="spell_targeting_tower">Wähle einen Turm zum Verstärken</string>
+    <string name="spell_targeting_cancel">Hier klicken zum Abbrechen</string>
 
 </resources>

@@ -1277,5 +1277,9 @@
     <string name="cast_spell_confirmation">Lanciare %s?</string>
     <string name="mana_cost_label">Costo Mana:</string>
     <string name="remaining_mana_label">Rimanente:</string>
+    <string name="spell_targeting_position">Seleziona una posizione sulla mappa</string>
+    <string name="spell_targeting_enemy">Seleziona un nemico da bersagliare</string>
+    <string name="spell_targeting_tower">Seleziona una torre da potenziare</string>
+    <string name="spell_targeting_cancel">Clicca qui per annullare</string>
 
 </resources>
