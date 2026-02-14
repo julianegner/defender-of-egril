@@ -1117,6 +1117,17 @@
     <string name="achievement_add_health_barricade_name">Verstärkt</string>
     <string name="achievement_add_health_barricade_desc">Füge einer bestehenden Barrikade Lebenspunkte hinzu</string>
     
+    <string name="achievement_first_stat_upgrade_name">Erstes Upgrade</string>
+    <string name="achievement_first_stat_upgrade_desc">Gib deinen ersten Stat-Punkt aus, um einen Stat zu verbessern</string>
+    <string name="achievement_first_spell_unlock_name">Zauberer</string>
+    <string name="achievement_first_spell_unlock_desc">Schalte deinen ersten Zauber mit Stat-Punkten frei</string>
+    <string name="achievement_construction_level_3_name">Meisterbaumeister</string>
+    <string name="achievement_construction_level_3_desc">Erreiche Bau-Level 3, um Turmbasen freizuschalten</string>
+    <string name="achievement_player_level_10_name">Erfahrener Verteidiger</string>
+    <string name="achievement_player_level_10_desc">Erreiche Spieler-Level 10 durch das Sammeln von EP</string>
+    <string name="achievement_player_level_100_name">Legendärer Verteidiger</string>
+    <string name="achievement_player_level_100_desc">Erreiche Spieler-Level 100 durch das Sammeln von EP</string>
+    
     <!-- Official Content Badges -->
     <string name="official">Offiziell</string>
     <string name="user_levels">Benutzer-Level</string>

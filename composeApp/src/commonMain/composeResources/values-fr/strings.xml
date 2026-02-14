@@ -1120,6 +1120,17 @@
     <string name="achievement_add_health_barricade_name">Fortifié</string>
     <string name="achievement_add_health_barricade_desc">Ajoutez des points de vie à une barricade existante</string>
     
+    <string name="achievement_first_stat_upgrade_name">Première Amélioration</string>
+    <string name="achievement_first_stat_upgrade_desc">Dépensez votre premier point de statistique pour améliorer une statistique</string>
+    <string name="achievement_first_spell_unlock_name">Sorcier</string>
+    <string name="achievement_first_spell_unlock_desc">Débloquez votre premier sort en utilisant des points de statistique</string>
+    <string name="achievement_construction_level_3_name">Maître Constructeur</string>
+    <string name="achievement_construction_level_3_desc">Atteignez le niveau 3 de Construction pour débloquer les Bases de Tours</string>
+    <string name="achievement_player_level_10_name">Défenseur Expérimenté</string>
+    <string name="achievement_player_level_10_desc">Atteignez le niveau 10 de joueur en gagnant de l\'XP</string>
+    <string name="achievement_player_level_100_name">Défenseur Légendaire</string>
+    <string name="achievement_player_level_100_desc">Atteignez le niveau 100 de joueur en gagnant de l\'XP</string>
+    
     <!-- Official Content Badges -->
     <string name="official">Officiel</string>
     <string name="user_levels">Niveaux Utilisateur</string>

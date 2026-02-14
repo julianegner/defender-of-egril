@@ -1120,6 +1120,17 @@
     <string name="achievement_add_health_barricade_name">Fortificato</string>
     <string name="achievement_add_health_barricade_desc">Aggiungi punti vita a una barricata esistente</string>
     
+    <string name="achievement_first_stat_upgrade_name">Primo Potenziamento</string>
+    <string name="achievement_first_stat_upgrade_desc">Spendi il tuo primo punto statistica per potenziare una statistica</string>
+    <string name="achievement_first_spell_unlock_name">Incantatore</string>
+    <string name="achievement_first_spell_unlock_desc">Sblocca il tuo primo incantesimo usando punti statistica</string>
+    <string name="achievement_construction_level_3_name">Maestro Costruttore</string>
+    <string name="achievement_construction_level_3_desc">Raggiungi il livello 3 di Costruzione per sbloccare le Basi delle Torri</string>
+    <string name="achievement_player_level_10_name">Difensore Esperto</string>
+    <string name="achievement_player_level_10_desc">Raggiungi il livello giocatore 10 guadagnando XP</string>
+    <string name="achievement_player_level_100_name">Difensore Leggendario</string>
+    <string name="achievement_player_level_100_desc">Raggiungi il livello giocatore 100 guadagnando XP</string>
+    
     <!-- Official Content Badges -->
     <string name="official">Ufficiale</string>
     <string name="user_levels">Livelli Utente</string>

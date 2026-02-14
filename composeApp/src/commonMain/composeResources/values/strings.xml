@@ -1079,6 +1079,12 @@
     <string name="achievement_build_barricade_name">First Barricade</string>
     <string name="achievement_add_health_barricade_name">Fortified</string>
     
+    <string name="achievement_first_stat_upgrade_name">First Upgrade</string>
+    <string name="achievement_first_spell_unlock_name">Spellcaster</string>
+    <string name="achievement_construction_level_3_name">Master Builder</string>
+    <string name="achievement_player_level_10_name">Experienced Defender</string>
+    <string name="achievement_player_level_100_name">Legendary Defender</string>
+    
     <!-- Achievement Descriptions -->
     <string name="achievement_build_tower_desc">Build your first tower</string>
     <string name="achievement_upgrade_tower_desc">Upgrade a tower to the next level</string>
@@ -1120,6 +1126,12 @@
     <string name="achievement_destroy_bridge_desc">Destroy a bridge</string>
     <string name="achievement_build_barricade_desc">Build your first barricade</string>
     <string name="achievement_add_health_barricade_desc">Add health points to an existing barricade</string>
+    
+    <string name="achievement_first_stat_upgrade_desc">Spend your first stat point to upgrade a stat</string>
+    <string name="achievement_first_spell_unlock_desc">Unlock your first spell using stat points</string>
+    <string name="achievement_construction_level_3_desc">Reach Construction level 3 to unlock Tower Bases</string>
+    <string name="achievement_player_level_10_desc">Reach player level 10 through earning XP</string>
+    <string name="achievement_player_level_100_desc">Reach player level 100 through earning XP</string>
     
     <!-- Official Content Badges -->
     <string name="official">Official</string>

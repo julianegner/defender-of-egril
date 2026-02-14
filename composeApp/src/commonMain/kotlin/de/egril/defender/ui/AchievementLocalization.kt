@@ -59,6 +59,13 @@ fun AchievementId.getLocalizedName(): String {
         AchievementId.DESTROY_BRIDGE -> stringResource(Res.string.achievement_destroy_bridge_name)
         AchievementId.BUILD_BARRICADE -> stringResource(Res.string.achievement_build_barricade_name)
         AchievementId.ADD_HEALTH_BARRICADE -> stringResource(Res.string.achievement_add_health_barricade_name)
+        
+        // XP and stat achievements
+        AchievementId.FIRST_STAT_UPGRADE -> stringResource(Res.string.achievement_first_stat_upgrade_name)
+        AchievementId.FIRST_SPELL_UNLOCK -> stringResource(Res.string.achievement_first_spell_unlock_name)
+        AchievementId.CONSTRUCTION_LEVEL_3 -> stringResource(Res.string.achievement_construction_level_3_name)
+        AchievementId.PLAYER_LEVEL_10 -> stringResource(Res.string.achievement_player_level_10_name)
+        AchievementId.PLAYER_LEVEL_100 -> stringResource(Res.string.achievement_player_level_100_name)
     }
 }
 
@@ -116,5 +123,12 @@ fun AchievementId.getLocalizedDescription(): String {
         AchievementId.DESTROY_BRIDGE -> stringResource(Res.string.achievement_destroy_bridge_desc)
         AchievementId.BUILD_BARRICADE -> stringResource(Res.string.achievement_build_barricade_desc)
         AchievementId.ADD_HEALTH_BARRICADE -> stringResource(Res.string.achievement_add_health_barricade_desc)
+        
+        // XP and stat achievements
+        AchievementId.FIRST_STAT_UPGRADE -> stringResource(Res.string.achievement_first_stat_upgrade_desc)
+        AchievementId.FIRST_SPELL_UNLOCK -> stringResource(Res.string.achievement_first_spell_unlock_desc)
+        AchievementId.CONSTRUCTION_LEVEL_3 -> stringResource(Res.string.achievement_construction_level_3_desc)
+        AchievementId.PLAYER_LEVEL_10 -> stringResource(Res.string.achievement_player_level_10_desc)
+        AchievementId.PLAYER_LEVEL_100 -> stringResource(Res.string.achievement_player_level_100_desc)
     }
 }

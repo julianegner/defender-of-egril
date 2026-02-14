@@ -284,18 +284,61 @@ class GameViewModel {
     
     fun upgradeStat(statType: de.egril.defender.model.StatType) {
         val currentPlayer = _currentPlayer.value ?: return
-        val updatedStats = currentPlayer.stats.spendStatPoint(statType) ?: return
+        val oldStats = currentPlayer.stats
+        val updatedStats = oldStats.spendStatPoint(statType) ?: return
         val updatedPlayer = currentPlayer.copy(stats = updatedStats)
         _currentPlayer.value = updatedPlayer
         de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
+        
+        // Check for achievements
+        val playerId = currentPlayer.id
+        val tempAchievementManager = de.egril.defender.game.AchievementManager(playerId)
+        tempAchievementManager.onAchievementEarned = { achievement ->
+            _showAchievementNotification.value = true
+            _currentAchievement.value = achievement
+        }
+        
+        // First stat upgrade achievement
+        val totalSpentBefore = oldStats.healthStat + oldStats.treasuryStat + oldStats.incomeStat + 
+                               oldStats.constructionStat + oldStats.manaStat
+        if (totalSpentBefore == 0) {
+            tempAchievementManager.onFirstStatUpgrade()
+        }
+        
+        // Construction level 3 achievement
+        if (statType == de.egril.defender.model.StatType.CONSTRUCTION && updatedStats.constructionStat >= 3) {
+            tempAchievementManager.onConstructionLevel3()
+        }
+        
+        // Player level achievements
+        val playerLevel = de.egril.defender.model.PlayerStats.calculateLevel(updatedStats.totalXP)
+        if (playerLevel >= 10) {
+            tempAchievementManager.onPlayerLevel10()
+        }
+        if (playerLevel >= 100) {
+            tempAchievementManager.onPlayerLevel100()
+        }
     }
     
     fun unlockSpell(spell: de.egril.defender.model.SpellType) {
         val currentPlayer = _currentPlayer.value ?: return
-        val updatedStats = currentPlayer.stats.unlockSpell(spell) ?: return
+        val oldStats = currentPlayer.stats
+        val updatedStats = oldStats.unlockSpell(spell) ?: return
         val updatedPlayer = currentPlayer.copy(stats = updatedStats)
         _currentPlayer.value = updatedPlayer
         de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
+        
+        // Check for first spell unlock achievement
+        val playerId = currentPlayer.id
+        val tempAchievementManager = de.egril.defender.game.AchievementManager(playerId)
+        tempAchievementManager.onAchievementEarned = { achievement ->
+            _showAchievementNotification.value = true
+            _currentAchievement.value = achievement
+        }
+        
+        if (oldStats.unlockedSpells.isEmpty()) {
+            tempAchievementManager.onFirstSpellUnlock()
+        }
     }
     
     fun startLevel(levelId: Int) {
