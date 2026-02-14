@@ -81,8 +81,8 @@ class TranslationCoverageTest {
     )
     
     // Files with TODO localization (temporary exclusion until localization is complete)
-    private val todoLocalizationFiles = listOf(
-        "StatsUpgradeScreen.kt"  // ~30+ strings pending localization across 5 languages
+    private val todoLocalizationFiles = listOf<String>(
+        // StatsUpgradeScreen.kt localization completed - removed from exclusion list
     )
     
     @Test

@@ -1222,5 +1222,33 @@
     <string name="xp_info_brief">Verdienen Sie XP durch das Besiegen von Feinden.\nLeveln Sie auf, um Stat-Punkte zu erhalten und mächtige Fähigkeiten freizuschalten!</string>
     <string name="xp_system_unlocked">XP-System freigeschaltet!</string>
     <string name="xp_system_unlock_message">Sie können jetzt XP verwenden, um Ihre Statistiken zu verbessern und mächtige Fähigkeiten freizuschalten!\n\nGreifen Sie auf den Upgrade-Bildschirm über das Spielerprofil zu.</string>
+    
+    <!-- Stats Upgrade Screen -->
+    <string name="stats_and_abilities">Statistiken &amp; Fähigkeiten</string>
+    <string name="available_stat_points">Verfügbare Stat-Punkte: %d</string>
+    <string name="stat_health">Gesundheit</string>
+    <string name="stat_health_desc">+1 Bonus-LP pro Level</string>
+    <string name="stat_health_effect">+%d LP</string>
+    <string name="stat_treasury">Schatzkammer</string>
+    <string name="stat_treasury_desc">+50 Startmünzen pro Level</string>
+    <string name="stat_treasury_effect">+%d Münzen</string>
+    <string name="stat_income">Einkommen</string>
+    <string name="stat_income_desc">+10%% Münzen aus allen Quellen</string>
+    <string name="stat_income_effect">+%d%%</string>
+    <string name="stat_construction">Konstruktion</string>
+    <string name="stat_construction_desc">Schaltet Turmfähigkeiten frei</string>
+    <string name="stat_construction_effect_none">Keine Fähigkeiten</string>
+    <string name="stat_construction_effect_level1">Speer-Barrikaden, Stachel-Widerhaken</string>
+    <string name="stat_construction_effect_level2">Stachel-Barrikaden</string>
+    <string name="stat_construction_effect_level3">Alle Fähigkeiten freigeschaltet</string>
+    <string name="stat_mana">Mana</string>
+    <string name="stat_mana_desc">+5 max Mana pro Level</string>
+    <string name="stat_mana_effect">%d max Mana</string>
+    <string name="spells_description">Schalten Sie mächtige Zauber frei, um sie im Kampf einzusetzen</string>
+    <string name="spell_unlocked">Freigeschaltet</string>
+    <string name="spell_mana_cost">%d Mana</string>
+    <string name="player_level">Level %d</string>
+    <string name="xp_progress">%d / %d XP</string>
+    <string name="stat_level_effect">Level %d: %s</string>
 
 </resources>

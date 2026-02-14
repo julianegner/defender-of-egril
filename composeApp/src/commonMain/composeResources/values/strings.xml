@@ -1225,5 +1225,33 @@
     <string name="xp_info_brief">Earn XP by defeating enemies.\nLevel up to gain stat points and unlock powerful abilities!</string>
     <string name="xp_system_unlocked">XP System Unlocked!</string>
     <string name="xp_system_unlock_message">You can now use XP to upgrade your stats and unlock powerful abilities!\n\nAccess the upgrade screen from the Player Profile.</string>
+    
+    <!-- Stats Upgrade Screen -->
+    <string name="stats_and_abilities">Stats &amp; Abilities</string>
+    <string name="available_stat_points">Available Stat Points: %d</string>
+    <string name="stat_health">Health</string>
+    <string name="stat_health_desc">+1 bonus HP per level</string>
+    <string name="stat_health_effect">+%d HP</string>
+    <string name="stat_treasury">Treasury</string>
+    <string name="stat_treasury_desc">+50 start coins per level</string>
+    <string name="stat_treasury_effect">+%d coins</string>
+    <string name="stat_income">Income</string>
+    <string name="stat_income_desc">+10%% coins from all sources</string>
+    <string name="stat_income_effect">+%d%%</string>
+    <string name="stat_construction">Construction</string>
+    <string name="stat_construction_desc">Unlocks tower abilities</string>
+    <string name="stat_construction_effect_none">No abilities</string>
+    <string name="stat_construction_effect_level1">Spear barricades, Spike barbs</string>
+    <string name="stat_construction_effect_level2">Spike barricades</string>
+    <string name="stat_construction_effect_level3">All abilities unlocked</string>
+    <string name="stat_mana">Mana</string>
+    <string name="stat_mana_desc">+5 max mana per level</string>
+    <string name="stat_mana_effect">%d max mana</string>
+    <string name="spells_description">Unlock powerful spells to cast during battle</string>
+    <string name="spell_unlocked">Unlocked</string>
+    <string name="spell_mana_cost">%d Mana</string>
+    <string name="player_level">Level %d</string>
+    <string name="xp_progress">%d / %d XP</string>
+    <string name="stat_level_effect">Level %d: %s</string>
 
 </resources>

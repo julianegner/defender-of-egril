@@ -1224,5 +1224,33 @@
     <string name="xp_info_brief">Gagnez de l\'XP en battant des ennemis.\nMontez de niveau pour obtenir des points de statistiques et débloquer des capacités puissantes!</string>
     <string name="xp_system_unlocked">Système d\'XP Débloqué!</string>
     <string name="xp_system_unlock_message">Vous pouvez maintenant utiliser l\'XP pour améliorer vos statistiques et débloquer des capacités puissantes!\n\nAccédez à l\'écran d\'amélioration depuis le Profil du Joueur.</string>
+    
+    <!-- Stats Upgrade Screen -->
+    <string name="stats_and_abilities">Statistiques et Capacités</string>
+    <string name="available_stat_points">Points de Statistiques Disponibles: %d</string>
+    <string name="stat_health">Santé</string>
+    <string name="stat_health_desc">+1 PV bonus par niveau</string>
+    <string name="stat_health_effect">+%d PV</string>
+    <string name="stat_treasury">Trésorerie</string>
+    <string name="stat_treasury_desc">+50 pièces de départ par niveau</string>
+    <string name="stat_treasury_effect">+%d pièces</string>
+    <string name="stat_income">Revenus</string>
+    <string name="stat_income_desc">+10%% de pièces de toutes les sources</string>
+    <string name="stat_income_effect">+%d%%</string>
+    <string name="stat_construction">Construction</string>
+    <string name="stat_construction_desc">Débloque les capacités des tours</string>
+    <string name="stat_construction_effect_none">Aucune capacité</string>
+    <string name="stat_construction_effect_level1">Barricades de lance, Barbelés à pointes</string>
+    <string name="stat_construction_effect_level2">Barricades à pointes</string>
+    <string name="stat_construction_effect_level3">Toutes les capacités débloquées</string>
+    <string name="stat_mana">Mana</string>
+    <string name="stat_mana_desc">+5 de mana maximum par niveau</string>
+    <string name="stat_mana_effect">%d de mana maximum</string>
+    <string name="spells_description">Débloquez des sorts puissants à lancer pendant la bataille</string>
+    <string name="spell_unlocked">Débloqué</string>
+    <string name="spell_mana_cost">%d Mana</string>
+    <string name="player_level">Niveau %d</string>
+    <string name="xp_progress">%d / %d XP</string>
+    <string name="stat_level_effect">Niveau %d: %s</string>
 
 </resources>

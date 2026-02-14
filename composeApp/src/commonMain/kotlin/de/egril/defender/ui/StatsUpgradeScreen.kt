@@ -56,7 +56,7 @@ fun StatsUpgradeScreen(
             ) {
                 // Header
                 Text(
-                    text = "Stats & Abilities",  // TODO: localize
+                    text = stringResource(Res.string.stats_and_abilities),
                     style = MaterialTheme.typography.displayMedium,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onBackground
@@ -79,7 +79,7 @@ fun StatsUpgradeScreen(
                     // Available stat points
                     if (stats.availableStatPoints > 0) {
                         Text(
-                            text = "Available Stat Points: ${stats.availableStatPoints}",  // TODO: localize
+                            text = stringResource(Res.string.available_stat_points, stats.availableStatPoints),
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.primary,
@@ -89,17 +89,17 @@ fun StatsUpgradeScreen(
                     
                     // Stats Section
                     Text(
-                        text = "Stats",  // TODO: localize
+                        text = stringResource(Res.string.stats),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
                     
                     StatCard(
-                        name = "Health",  // TODO: localize
-                        description = "+1 bonus HP per level",  // TODO: localize
+                        name = stringResource(Res.string.stat_health),
+                        description = stringResource(Res.string.stat_health_desc),
                         currentLevel = stats.healthStat,
-                        effect = "+${stats.getBonusHealth()} HP",
+                        effect = stringResource(Res.string.stat_health_effect, stats.getBonusHealth()),
                         canUpgrade = stats.availableStatPoints > 0,
                         onUpgrade = { onUpgradeStat(StatType.HEALTH) },
                         icon = { HeartIcon(size = 32.dp) }
@@ -108,10 +108,10 @@ fun StatsUpgradeScreen(
                     Spacer(modifier = Modifier.height(8.dp))
                     
                     StatCard(
-                        name = "Treasury",  // TODO: localize
-                        description = "+50 start coins per level",  // TODO: localize
+                        name = stringResource(Res.string.stat_treasury),
+                        description = stringResource(Res.string.stat_treasury_desc),
                         currentLevel = stats.treasuryStat,
-                        effect = "+${stats.getBonusStartCoins()} coins",
+                        effect = stringResource(Res.string.stat_treasury_effect, stats.getBonusStartCoins()),
                         canUpgrade = stats.availableStatPoints > 0,
                         onUpgrade = { onUpgradeStat(StatType.TREASURY) },
                         icon = { MoneyIcon(size = 32.dp) }
@@ -120,10 +120,10 @@ fun StatsUpgradeScreen(
                     Spacer(modifier = Modifier.height(8.dp))
                     
                     StatCard(
-                        name = "Income",  // TODO: localize
-                        description = "+10% coins from all sources",  // TODO: localize
+                        name = stringResource(Res.string.stat_income),
+                        description = stringResource(Res.string.stat_income_desc),
                         currentLevel = stats.incomeStat,
-                        effect = "+${(stats.incomeStat * 10)}%",
+                        effect = stringResource(Res.string.stat_income_effect, stats.incomeStat * 10),
                         canUpgrade = stats.availableStatPoints > 0,
                         onUpgrade = { onUpgradeStat(StatType.INCOME) },
                         icon = { MoneyIcon(size = 32.dp) }
@@ -132,8 +132,8 @@ fun StatsUpgradeScreen(
                     Spacer(modifier = Modifier.height(8.dp))
                     
                     StatCard(
-                        name = "Construction",  // TODO: localize
-                        description = "Unlocks tower abilities",  // TODO: localize
+                        name = stringResource(Res.string.stat_construction),
+                        description = stringResource(Res.string.stat_construction_desc),
                         currentLevel = stats.constructionStat,
                         effect = buildConstructionEffect(stats.constructionStat),
                         canUpgrade = stats.availableStatPoints > 0,
@@ -144,10 +144,10 @@ fun StatsUpgradeScreen(
                     Spacer(modifier = Modifier.height(8.dp))
                     
                     StatCard(
-                        name = "Mana",  // TODO: localize
-                        description = "+5 max mana per level",  // TODO: localize
+                        name = stringResource(Res.string.stat_mana),
+                        description = stringResource(Res.string.stat_mana_desc),
                         currentLevel = stats.manaStat,
-                        effect = "${stats.getMaxMana()} max mana",
+                        effect = stringResource(Res.string.stat_mana_effect, stats.getMaxMana()),
                         canUpgrade = stats.availableStatPoints > 0,
                         onUpgrade = { onUpgradeStat(StatType.MANA) },
                         icon = { StarIcon(size = 32.dp) }
@@ -157,14 +157,14 @@ fun StatsUpgradeScreen(
                     
                     // Spells Section
                     Text(
-                        text = "Spells",  // TODO: localize
+                        text = stringResource(Res.string.spells),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
                     
                     Text(
-                        text = "Unlock powerful spells to cast during battle",  // TODO: localize
+                        text = stringResource(Res.string.spells_description),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(bottom = 16.dp)
@@ -188,7 +188,7 @@ fun StatsUpgradeScreen(
                     onClick = onBack,
                     modifier = Modifier.width(200.dp).height(50.dp)
                 ) {
-                    Text("Back")  // TODO: localize
+                    Text(stringResource(Res.string.back))
                 }
                 Spacer(modifier = Modifier.height(8.dp))
             }
@@ -209,7 +209,7 @@ private fun PlayerLevelInfo(stats: PlayerStats) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Level ${stats.level}",  // TODO: localize
+                text = stringResource(Res.string.player_level, stats.level),
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold
             )
@@ -232,7 +232,7 @@ private fun PlayerLevelInfo(stats: PlayerStats) {
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "$progressInLevel / $requiredForLevel XP",  // TODO: localize
+                    text = stringResource(Res.string.xp_progress, progressInLevel, requiredForLevel),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onPrimaryContainer
                 )
@@ -283,7 +283,7 @@ private fun StatCard(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
-                    text = "Level $currentLevel: $effect",
+                    text = stringResource(Res.string.stat_level_effect, currentLevel, effect),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.primary
                 )
@@ -338,14 +338,14 @@ private fun SpellCard(
                     if (isUnlocked) {
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "Unlocked",
+                            text = stringResource(Res.string.spell_unlocked),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.primary
                         )
                     }
                 }
                 Text(
-                    text = "${spell.manaCost} Mana",
+                    text = stringResource(Res.string.spell_mana_cost, spell.manaCost),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -362,18 +362,19 @@ private fun SpellCard(
                     enabled = canUnlock,
                     modifier = Modifier.width(100.dp)
                 ) {
-                    Text("Unlock")  // TODO: localize
+                    Text(stringResource(Res.string.unlock))
                 }
             }
         }
     }
 }
 
+@Composable
 private fun buildConstructionEffect(level: Int): String {
     return when {
-        level >= 3 -> "All abilities unlocked"  // TODO: localize
-        level >= 2 -> "Spike barricades"  // TODO: localize
-        level >= 1 -> "Spear barricades, Spike barbs"  // TODO: localize
-        else -> "No abilities"  // TODO: localize
+        level >= 3 -> stringResource(Res.string.stat_construction_effect_level3)
+        level >= 2 -> stringResource(Res.string.stat_construction_effect_level2)
+        level >= 1 -> stringResource(Res.string.stat_construction_effect_level1)
+        else -> stringResource(Res.string.stat_construction_effect_none)
     }
 }
