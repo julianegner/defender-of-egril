@@ -1282,5 +1282,36 @@
     <string name="spell_targeting_enemy">Select an enemy to target</string>
     <string name="spell_targeting_tower">Select a tower to enhance</string>
     <string name="spell_targeting_cancel">Click here to cancel</string>
+    
+    <!-- Spell Names -->
+    <string name="spell_attack_area_name">Attack Area</string>
+    <string name="spell_attack_aimed_name">Attack Aimed</string>
+    <string name="spell_heal_name">Heal</string>
+    <string name="spell_instant_tower_name">Instant Tower</string>
+    <string name="spell_bomb_name">Bomb</string>
+    <string name="spell_double_tower_level_name">Double Tower Level</string>
+    <string name="spell_cooling_spell_name">Cooling Spell</string>
+    <string name="spell_freeze_spell_name">Freeze Spell</string>
+    <string name="spell_double_tower_reach_name">Double Tower Reach</string>
+    
+    <!-- Spell Descriptions -->
+    <string name="spell_attack_area_desc">Deal 50 damage to all enemies within 2 hex range</string>
+    <string name="spell_attack_aimed_desc">Deal 80 damage to a single enemy</string>
+    <string name="spell_heal_desc">Restore 3 health points</string>
+    <string name="spell_instant_tower_desc">Skip build time for a tower under construction</string>
+    <string name="spell_bomb_desc">Place a bomb that explodes after 2 turns, dealing 100 damage to enemies and structures in range</string>
+    <string name="spell_double_tower_level_desc">Double a tower's damage output for 1 turn</string>
+    <string name="spell_cooling_spell_desc">Create an area that reduces enemy movement speed by 1 for 3 turns</string>
+    <string name="spell_freeze_spell_desc">Freeze an enemy for 1 turn (immunity: Demons, Dragons, Ewhad)</string>
+    <string name="spell_double_tower_reach_desc">Double a tower's attack range for 1 turn</string>
+    
+    <!-- Construction Info -->
+    <string name="construction_info_intro">Each Construction level unlocks powerful tower abilities:</string>
+    <string name="construction_level_1_title">Construction Level 1</string>
+    <string name="construction_level_1_desc">Spear Tower (level 10+): Build barricades\nSpike Tower (level 10+): Spike barbs (enemies lose 1 movement point)</string>
+    <string name="construction_level_2_title">Construction Level 2</string>
+    <string name="construction_level_2_desc">Spike Tower (level 20+): Build barricades</string>
+    <string name="construction_level_3_title">Construction Level 3</string>
+    <string name="construction_level_3_desc">Tower Base: Barricades level 100+ can hold towers</string>
 
 </resources>

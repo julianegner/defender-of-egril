@@ -317,7 +317,18 @@ fun App() {
                         specialActionsRemaining = specialActionsRemaining,
                         onClearSpecialActionsWarning = { viewModel.clearSpecialActionsWarning() },
                         reminderMessage = reminderMessage,
-                        onClearReminderMessage = { viewModel.clearReminderMessage() }
+                        onClearReminderMessage = { viewModel.clearReminderMessage() },
+                        // Magic panel callbacks
+                        showMagicPanel = viewModel.showMagicPanel.value,
+                        playerStats = viewModel.getPlayerStats(),
+                        onOpenMagicPanel = { viewModel.openMagicPanel() },
+                        onCloseMagicPanel = { viewModel.closeMagicPanel() },
+                        onCastSpell = { spell -> viewModel.setPendingSpell(spell) },
+                        pendingSpellCast = viewModel.pendingSpellCast.value,
+                        onConfirmSpellCast = { viewModel.castSpell() },
+                        onCancelSpellCast = { viewModel.cancelPendingSpell() },
+                        onSelectSpellTarget = { target -> viewModel.selectSpellTarget(target) },
+                        onExitSpellTargeting = { viewModel.exitSpellTargetingMode() }
                     )
                 }
             }

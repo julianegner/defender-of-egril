@@ -1280,5 +1280,36 @@
     <string name="spell_targeting_enemy">Selecciona un enemigo como objetivo</string>
     <string name="spell_targeting_tower">Selecciona una torre para mejorar</string>
     <string name="spell_targeting_cancel">Haz clic aquí para cancelar</string>
+    
+    <!-- Spell Names -->
+    <string name="spell_attack_area_name">Ataque de Área</string>
+    <string name="spell_attack_aimed_name">Ataque Dirigido</string>
+    <string name="spell_heal_name">Curación</string>
+    <string name="spell_instant_tower_name">Torre Instantánea</string>
+    <string name="spell_bomb_name">Bomba</string>
+    <string name="spell_double_tower_level_name">Duplicar Nivel de Torre</string>
+    <string name="spell_cooling_spell_name">Hechizo de Enfriamiento</string>
+    <string name="spell_freeze_spell_name">Hechizo de Congelación</string>
+    <string name="spell_double_tower_reach_name">Duplicar Alcance de Torre</string>
+    
+    <!-- Spell Descriptions -->
+    <string name="spell_attack_area_desc">Inflige 50 de daño a todos los enemigos en un rango de 2 hexágonos</string>
+    <string name="spell_attack_aimed_desc">Inflige 80 de daño a un solo enemigo</string>
+    <string name="spell_heal_desc">Restaura 3 puntos de salud</string>
+    <string name="spell_instant_tower_desc">Omite el tiempo de construcción de una torre en construcción</string>
+    <string name="spell_bomb_desc">Coloca una bomba que explota después de 2 turnos, infligiendo 100 de daño a enemigos y estructuras</string>
+    <string name="spell_double_tower_level_desc">Duplica el daño de una torre durante 1 turno</string>
+    <string name="spell_cooling_spell_desc">Crea un área que reduce la velocidad de movimiento del enemigo en 1 durante 3 turnos</string>
+    <string name="spell_freeze_spell_desc">Congela a un enemigo durante 1 turno (inmunidad: Demonios, Dragones, Ewhad)</string>
+    <string name="spell_double_tower_reach_desc">Duplica el alcance de ataque de una torre durante 1 turno</string>
+    
+    <!-- Construction Info -->
+    <string name="construction_info_intro">Cada nivel de Construcción desbloquea poderosas habilidades de torre:</string>
+    <string name="construction_level_1_title">Construcción Nivel 1</string>
+    <string name="construction_level_1_desc">Torre de Lanza (nivel 10+): Construir barricadas\nTorre de Pinchos (nivel 10+): Púas con púas (los enemigos pierden 1 punto de movimiento)</string>
+    <string name="construction_level_2_title">Construcción Nivel 2</string>
+    <string name="construction_level_2_desc">Torre de Pinchos (nivel 20+): Construir barricadas</string>
+    <string name="construction_level_3_title">Construcción Nivel 3</string>
+    <string name="construction_level_3_desc">Base de Torre: Las barricadas de nivel 100+ pueden sostener torres</string>
 
 </resources>

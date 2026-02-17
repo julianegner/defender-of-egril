@@ -1278,5 +1278,36 @@
     <string name="spell_targeting_enemy">Wähle einen Feind als Ziel</string>
     <string name="spell_targeting_tower">Wähle einen Turm zum Verstärken</string>
     <string name="spell_targeting_cancel">Hier klicken zum Abbrechen</string>
+    
+    <!-- Spell Names -->
+    <string name="spell_attack_area_name">Flächenangriff</string>
+    <string name="spell_attack_aimed_name">Gezielter Angriff</string>
+    <string name="spell_heal_name">Heilung</string>
+    <string name="spell_instant_tower_name">Sofortiger Turm</string>
+    <string name="spell_bomb_name">Bombe</string>
+    <string name="spell_double_tower_level_name">Turmstärke verdoppeln</string>
+    <string name="spell_cooling_spell_name">Verlangsamungszauber</string>
+    <string name="spell_freeze_spell_name">Eingefrierende</string>
+    <string name="spell_double_tower_reach_name">Turmreichweite verdoppeln</string>
+    
+    <!-- Spell Descriptions -->
+    <string name="spell_attack_area_desc">Fügt allen Feinden in 2 Hex-Reichweite 50 Schaden zu</string>
+    <string name="spell_attack_aimed_desc">Fügt einem einzelnen Feind 80 Schaden zu</string>
+    <string name="spell_heal_desc">Stellt 3 Gesundheitspunkte wieder her</string>
+    <string name="spell_instant_tower_desc">Überspringe Bauzeit für einen im Bau befindlichen Turm</string>
+    <string name="spell_bomb_desc">Platziere eine Bombe, die nach 2 Runden explodiert und Feinden und Strukturen 100 Schaden zufügt</string>
+    <string name="spell_double_tower_level_desc">Verdoppelt die Schadensleistung eines Turms für 1 Runde</string>
+    <string name="spell_cooling_spell_desc">Erzeugt ein Gebiet, das die Bewegungsgeschwindigkeit von Feinden für 3 Runden um 1 verringert</string>
+    <string name="spell_freeze_spell_desc">Friert einen Feind für 1 Runde ein (Immunität: Dämonen, Drachen, Ewhad)</string>
+    <string name="spell_double_tower_reach_desc">Verdoppelt die Angriffsreichweite eines Turms für 1 Runde</string>
+    
+    <!-- Construction Info -->
+    <string name="construction_info_intro">Jede Konstruktionsstufe schaltet mächtige Turmfähigkeiten frei:</string>
+    <string name="construction_level_1_title">Konstruktion Stufe 1</string>
+    <string name="construction_level_1_desc">Speerturm (Level 10+): Barrikaden bauen\nStachelturm (Level 10+): Stachelwiderhaken (Feinde verlieren 1 Bewegungspunkt)</string>
+    <string name="construction_level_2_title">Konstruktion Stufe 2</string>
+    <string name="construction_level_2_desc">Stachelturm (Level 20+): Barrikaden bauen</string>
+    <string name="construction_level_3_title">Konstruktion Stufe 3</string>
+    <string name="construction_level_3_desc">Turmbasis: Barrikaden Level 100+ können Türme tragen</string>
 
 </resources>

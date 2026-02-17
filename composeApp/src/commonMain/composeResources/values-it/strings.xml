@@ -1281,5 +1281,36 @@
     <string name="spell_targeting_enemy">Seleziona un nemico da bersagliare</string>
     <string name="spell_targeting_tower">Seleziona una torre da potenziare</string>
     <string name="spell_targeting_cancel">Clicca qui per annullare</string>
+    
+    <!-- Spell Names -->
+    <string name="spell_attack_area_name">Attacco ad Area</string>
+    <string name="spell_attack_aimed_name">Attacco Mirato</string>
+    <string name="spell_heal_name">Guarigione</string>
+    <string name="spell_instant_tower_name">Torre Istantanea</string>
+    <string name="spell_bomb_name">Bomba</string>
+    <string name="spell_double_tower_level_name">Raddoppia Livello Torre</string>
+    <string name="spell_cooling_spell_name">Incantesimo di Raffreddamento</string>
+    <string name="spell_freeze_spell_name">Incantesimo di Congelamento</string>
+    <string name="spell_double_tower_reach_name">Raddoppia Portata Torre</string>
+    
+    <!-- Spell Descriptions -->
+    <string name="spell_attack_area_desc">Infligge 50 danni a tutti i nemici entro 2 esagoni</string>
+    <string name="spell_attack_aimed_desc">Infligge 80 danni a un singolo nemico</string>
+    <string name="spell_heal_desc">Ripristina 3 punti vita</string>
+    <string name="spell_instant_tower_desc">Salta il tempo di costruzione per una torre in costruzione</string>
+    <string name="spell_bomb_desc">Piazza una bomba che esplode dopo 2 turni, infliggendo 100 danni a nemici e strutture</string>
+    <string name="spell_double_tower_level_desc">Raddoppia i danni di una torre per 1 turno</string>
+    <string name="spell_cooling_spell_desc">Crea un\'area che riduce la velocità di movimento dei nemici di 1 per 3 turni</string>
+    <string name="spell_freeze_spell_desc">Congela un nemico per 1 turno (immunità: Demoni, Draghi, Ewhad)</string>
+    <string name="spell_double_tower_reach_desc">Raddoppia la portata di attacco di una torre per 1 turno</string>
+    
+    <!-- Construction Info -->
+    <string name="construction_info_intro">Ogni livello di Costruzione sblocca potenti abilità delle torri:</string>
+    <string name="construction_level_1_title">Costruzione Livello 1</string>
+    <string name="construction_level_1_desc">Torre Lancia (livello 10+): Costruire barricate\nTorre Picche (livello 10+): Picche barbute (i nemici perdono 1 punto movimento)</string>
+    <string name="construction_level_2_title">Costruzione Livello 2</string>
+    <string name="construction_level_2_desc">Torre Picche (livello 20+): Costruire barricate</string>
+    <string name="construction_level_3_title">Costruzione Livello 3</string>
+    <string name="construction_level_3_desc">Base Torre: Le barricate livello 100+ possono sostenere torri</string>
 
 </resources>

@@ -21,7 +21,9 @@ import de.egril.defender.ui.icon.HeartIcon
 import de.egril.defender.ui.icon.MoneyIcon
 import de.egril.defender.ui.icon.HammerIcon
 import de.egril.defender.ui.icon.StarIcon
+import de.egril.defender.ui.icon.InfoIcon
 import de.egril.defender.ui.settings.SettingsButton
+import de.egril.defender.ui.gameplay.ScrollableInfoCard
 import defender_of_egril.composeapp.generated.resources.*
 
 /**
@@ -131,15 +133,24 @@ fun StatsUpgradeScreen(
                     
                     Spacer(modifier = Modifier.height(8.dp))
                     
-                    StatCard(
+                    // Construction stat with info icon
+                    var showConstructionInfo by remember { mutableStateOf(false) }
+                    StatCardWithInfo(
                         name = stringResource(Res.string.stat_construction),
                         description = stringResource(Res.string.stat_construction_desc),
                         currentLevel = stats.constructionStat,
                         effect = buildConstructionEffect(stats.constructionStat),
                         canUpgrade = stats.availableStatPoints > 0,
                         onUpgrade = { onUpgradeStat(StatType.CONSTRUCTION) },
-                        icon = { HammerIcon(size = 32.dp) }
+                        icon = { HammerIcon(size = 32.dp) },
+                        onShowInfo = { showConstructionInfo = true }
                     )
+                    
+                    if (showConstructionInfo) {
+                        ConstructionInfoDialog(
+                            onDismiss = { showConstructionInfo = false }
+                        )
+                    }
                     
                     Spacer(modifier = Modifier.height(8.dp))
                     
@@ -304,6 +315,167 @@ private fun StatCard(
 }
 
 @Composable
+private fun StatCardWithInfo(
+    name: String,
+    description: String,
+    currentLevel: Int,
+    effect: String,
+    canUpgrade: Boolean,
+    onUpgrade: () -> Unit,
+    icon: @Composable () -> Unit,
+    onShowInfo: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp).fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Icon
+            Box(
+                modifier = Modifier.size(48.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                icon()
+            }
+            
+            Spacer(modifier = Modifier.width(16.dp))
+            
+            // Info
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = name,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    // Info icon button
+                    IconButton(
+                        onClick = onShowInfo,
+                        modifier = Modifier.size(24.dp)
+                    ) {
+                        InfoIcon(size = 16.dp)
+                    }
+                }
+                Text(
+                    text = description,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text = stringResource(Res.string.stat_level_effect, currentLevel, effect),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+            
+            Spacer(modifier = Modifier.width(8.dp))
+            
+            // Upgrade button
+            Button(
+                onClick = onUpgrade,
+                enabled = canUpgrade,
+                modifier = Modifier.width(80.dp)
+            ) {
+                Text("+")
+            }
+        }
+    }
+}
+
+@Composable
+private fun ConstructionInfoDialog(
+    onDismiss: () -> Unit
+) {
+    ScrollableInfoCard(
+        title = {
+            Text(
+                text = stringResource(Res.string.stat_construction),
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold
+            )
+        },
+        onDismiss = onDismiss
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Text(
+                text = stringResource(Res.string.construction_info_intro),
+                style = MaterialTheme.typography.bodyMedium
+            )
+            
+            // Level 1
+            Row(verticalAlignment = Alignment.Top) {
+                Text(
+                    text = "• ",
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Column {
+                    Text(
+                        text = stringResource(Res.string.construction_level_1_title),
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = stringResource(Res.string.construction_level_1_desc),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+            }
+            
+            // Level 2
+            Row(verticalAlignment = Alignment.Top) {
+                Text(
+                    text = "• ",
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Column {
+                    Text(
+                        text = stringResource(Res.string.construction_level_2_title),
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = stringResource(Res.string.construction_level_2_desc),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+            }
+            
+            // Level 3
+            Row(verticalAlignment = Alignment.Top) {
+                Text(
+                    text = "• ",
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Column {
+                    Text(
+                        text = stringResource(Res.string.construction_level_3_title),
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = stringResource(Res.string.construction_level_3_desc),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
 private fun SpellCard(
     spell: SpellType,
     isUnlocked: Boolean,
@@ -331,7 +503,7 @@ private fun SpellCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = spell.displayName,
+                        text = spell.getLocalizedName(),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
@@ -350,7 +522,7 @@ private fun SpellCard(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
-                    text = spell.description,
+                    text = spell.getLocalizedDescription(),
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
