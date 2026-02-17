@@ -320,12 +320,16 @@ fun App() {
                         onClearReminderMessage = { viewModel.clearReminderMessage() },
                         // Magic panel callbacks
                         showMagicPanel = viewModel.showMagicPanel.value,
-                        playerStats = viewModel.getPlayerStats(),
+                        playerStats = viewModel.currentPlayer.value?.stats ?: de.egril.defender.model.PlayerStats(),
                         onOpenMagicPanel = { viewModel.openMagicPanel() },
                         onCloseMagicPanel = { viewModel.closeMagicPanel() },
                         onCastSpell = { spell -> viewModel.setPendingSpell(spell) },
                         pendingSpellCast = viewModel.pendingSpellCast.value,
-                        onConfirmSpellCast = { viewModel.castSpell() },
+                        onConfirmSpellCast = { 
+                            viewModel.pendingSpellCast.value?.let { spell ->
+                                viewModel.castSpell(spell)
+                            }
+                        },
                         onCancelSpellCast = { viewModel.cancelPendingSpell() },
                         onSelectSpellTarget = { target -> viewModel.selectSpellTarget(target) },
                         onExitSpellTargeting = { viewModel.exitSpellTargetingMode() }
