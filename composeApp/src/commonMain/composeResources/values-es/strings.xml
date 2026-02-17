@@ -1311,8 +1311,6 @@
     <string name="construction_level_2_desc">Torre de Pinchos (nivel 20+): Construir barricadas</string>
     <string name="construction_level_3_title">Construcción Nivel 3</string>
     <string name="construction_level_3_desc">Base de Torre: Las barricadas de nivel 100+ pueden sostener torres</string>
-
-</resources>
     
     <!-- Cheat Codes -->
     <string name="cheat_codes_title">Códigos de trucos</string>
