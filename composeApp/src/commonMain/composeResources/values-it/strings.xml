@@ -1314,3 +1314,43 @@
     <string name="construction_level_3_desc">Base Torre: Le barricate livello 100+ possono sostenere torri</string>
 
 </resources>
+    
+    <!-- Cheat Codes -->
+    <string name="cheat_codes_title">Codici cheat</string>
+    <string name="cheat_section_general">Generale</string>
+    <string name="cheat_section_coins">Monete e risorse</string>
+    <string name="cheat_section_mana">Mana (durante il livello)</string>
+    <string name="cheat_section_enemies">Nemici</string>
+    <string name="cheat_section_mining">Estrazione mineraria</string>
+    <string name="cheat_section_xp_stats">XP e statistiche</string>
+    <string name="cheat_section_spells">Incantesimi</string>
+    <string name="cheat_section_levels">Sblocco livelli</string>
+    
+    <!-- Cheat code descriptions -->
+    <string name="cheat_help_desc">Mostra questa schermata di aiuto</string>
+    <string name="cheat_platform_desc">Mostra informazioni sulla piattaforma</string>
+    <string name="cheat_cash_desc">Aggiungi 1.000 monete</string>
+    <string name="cheat_mmmoney_desc">Aggiungi 1.000.000 di monete</string>
+    <string name="cheat_emptypocket_desc">Imposta monete a 0</string>
+    <string name="cheat_addmana_desc">Aggiungi mana (es. addmana 50)</string>
+    <string name="cheat_removemana_desc">Rimuovi mana (es. removemana 20)</string>
+    <string name="cheat_spawn_desc">Genera nemico (es. spawn goblin 5)</string>
+    <string name="cheat_spawn_types">Tipi di nemici: goblin, ork, ogre, skeleton, wizard, greenwitch, redwitch</string>
+    <string name="cheat_dig_nothing_desc">Risultato scavo: niente</string>
+    <string name="cheat_dig_treasure_desc">Risultato scavo: tesoro</string>
+    <string name="cheat_dig_gems_desc">Risultato scavo: gemme/diamante</string>
+    <string name="cheat_dig_dragon_desc">Risultato scavo: drago</string>
+    <string name="cheat_addxp_desc">Aggiungi XP (es. addxp 500)</string>
+    <string name="cheat_removexp_desc">Rimuovi XP (es. removexp 100)</string>
+    <string name="cheat_addstat_desc">Aggiungi livelli di statistica (es. addstat health 5)</string>
+    <string name="cheat_removestat_desc">Rimuovi livelli di statistica (es. removestat mana 2)</string>
+    <string name="cheat_stat_types">Statistiche: health, treasury, income, construction, mana</string>
+    <string name="cheat_unlockspell_desc">Sblocca un incantesimo (es. unlockspell fireball)</string>
+    <string name="cheat_lockspell_desc">Blocca un incantesimo (es. lockspell heal)</string>
+    <string name="cheat_spell_types">Incantesimi: attack_aimed, attack_area, heal, instant_tower, bomb, double_level, cooling, freeze, double_reach</string>
+    <string name="cheat_unlockall_desc">Sblocca tutti i livelli</string>
+    <string name="cheat_unlock_desc">Sblocca livello specifico</string>
+    <string name="cheat_lockall_desc">Blocca tutti i livelli</string>
+    <string name="cheat_lock_desc">Blocca livello specifico</string>
+
+</resources>

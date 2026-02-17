@@ -10,6 +10,8 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import defenderofegril.composeapp.generated.resources.Res
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * Unified cheat code dialog used in both WorldMapScreen and GamePlayScreen.
@@ -143,7 +145,7 @@ fun CheatCodeHelpScreen(
     de.egril.defender.ui.gameplay.ScrollableInfoCard(
         title = {
             Text(
-                text = "Cheat Codes",
+                text = stringResource(Res.string.cheat_codes_title),
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
             )
@@ -157,62 +159,62 @@ fun CheatCodeHelpScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             // General cheat codes
-            CheatSection("General") {
-                CheatCodeItem("cheat / cheats / help", "Show this help screen")
-                CheatCodeItem("platform", "Show platform information")
+            CheatSection(stringResource(Res.string.cheat_section_general)) {
+                CheatCodeItem("cheat / cheats / help", stringResource(Res.string.cheat_help_desc))
+                CheatCodeItem("platform", stringResource(Res.string.cheat_platform_desc))
             }
             
             if (isInGameplay) {
                 // Gameplay cheat codes
-                CheatSection("Coins & Resources") {
-                    CheatCodeItem("cash", "Add 1,000 coins")
-                    CheatCodeItem("mmmoney", "Add 1,000,000 coins")
-                    CheatCodeItem("emptypocket", "Set coins to 0")
+                CheatSection(stringResource(Res.string.cheat_section_coins)) {
+                    CheatCodeItem("cash", stringResource(Res.string.cheat_cash_desc))
+                    CheatCodeItem("mmmoney", stringResource(Res.string.cheat_mmmoney_desc))
+                    CheatCodeItem("emptypocket", stringResource(Res.string.cheat_emptypocket_desc))
                 }
                 
-                CheatSection("Mana (During Level)") {
-                    CheatCodeItem("addmana <amount>", "Add mana (e.g., addmana 50)")
-                    CheatCodeItem("removemana <amount>", "Remove mana (e.g., removemana 20)")
+                CheatSection(stringResource(Res.string.cheat_section_mana)) {
+                    CheatCodeItem("addmana <amount>", stringResource(Res.string.cheat_addmana_desc))
+                    CheatCodeItem("removemana <amount>", stringResource(Res.string.cheat_removemana_desc))
                 }
                 
-                CheatSection("Enemies") {
-                    CheatCodeItem("spawn <type> <level>", "Spawn enemy (e.g., spawn goblin 5)")
-                    Text("Enemy types: goblin, ork, ogre, skeleton, wizard, greenwitch, redwitch", 
+                CheatSection(stringResource(Res.string.cheat_section_enemies)) {
+                    CheatCodeItem("spawn <type> <level>", stringResource(Res.string.cheat_spawn_desc))
+                    Text(stringResource(Res.string.cheat_spawn_types), 
                          style = MaterialTheme.typography.bodySmall,
                          modifier = Modifier.padding(start = 16.dp))
                 }
                 
-                CheatSection("Mining") {
-                    CheatCodeItem("dig nothing / dig rubble", "Dig outcome: nothing")
-                    CheatCodeItem("dig brass / silver / gold", "Dig outcome: treasure")
-                    CheatCodeItem("dig gems / diamond", "Dig outcome: gems/diamond")
-                    CheatCodeItem("dig dragon / dragon", "Dig outcome: dragon")
+                CheatSection(stringResource(Res.string.cheat_section_mining)) {
+                    CheatCodeItem("dig nothing / dig rubble", stringResource(Res.string.cheat_dig_nothing_desc))
+                    CheatCodeItem("dig brass / silver / gold", stringResource(Res.string.cheat_dig_treasure_desc))
+                    CheatCodeItem("dig gems / diamond", stringResource(Res.string.cheat_dig_gems_desc))
+                    CheatCodeItem("dig dragon / dragon", stringResource(Res.string.cheat_dig_dragon_desc))
                 }
             } else {
                 // World map cheat codes
-                CheatSection("XP & Stats") {
-                    CheatCodeItem("addxp <amount>", "Add XP (e.g., addxp 500)")
-                    CheatCodeItem("removexp <amount>", "Remove XP (e.g., removexp 100)")
-                    CheatCodeItem("addstat <stat> <amount>", "Add stat levels (e.g., addstat health 5)")
-                    CheatCodeItem("removestat <stat> <amount>", "Remove stat levels (e.g., removestat mana 2)")
-                    Text("Stats: health, treasury, income, construction, mana", 
+                CheatSection(stringResource(Res.string.cheat_section_xp_stats)) {
+                    CheatCodeItem("addxp <amount>", stringResource(Res.string.cheat_addxp_desc))
+                    CheatCodeItem("removexp <amount>", stringResource(Res.string.cheat_removexp_desc))
+                    CheatCodeItem("addstat <stat> <amount>", stringResource(Res.string.cheat_addstat_desc))
+                    CheatCodeItem("removestat <stat> <amount>", stringResource(Res.string.cheat_removestat_desc))
+                    Text(stringResource(Res.string.cheat_stat_types), 
                          style = MaterialTheme.typography.bodySmall,
                          modifier = Modifier.padding(start = 16.dp))
                 }
                 
-                CheatSection("Spells") {
-                    CheatCodeItem("unlockspell <spell>", "Unlock a spell (e.g., unlockspell fireball)")
-                    CheatCodeItem("lockspell <spell>", "Lock a spell (e.g., lockspell heal)")
-                    Text("Spells: attack_aimed, attack_area, heal, instant_tower, bomb, double_level, cooling, freeze, double_reach", 
+                CheatSection(stringResource(Res.string.cheat_section_spells)) {
+                    CheatCodeItem("unlockspell <spell>", stringResource(Res.string.cheat_unlockspell_desc))
+                    CheatCodeItem("lockspell <spell>", stringResource(Res.string.cheat_lockspell_desc))
+                    Text(stringResource(Res.string.cheat_spell_types), 
                          style = MaterialTheme.typography.bodySmall,
                          modifier = Modifier.padding(start = 16.dp))
                 }
                 
-                CheatSection("Level Unlocking") {
-                    CheatCodeItem("unlockall / unlock all", "Unlock all levels")
-                    CheatCodeItem("unlock / unlock <level>", "Unlock specific level")
-                    CheatCodeItem("lockall / lock all", "Lock all levels")
-                    CheatCodeItem("lock <level>", "Lock specific level")
+                CheatSection(stringResource(Res.string.cheat_section_levels)) {
+                    CheatCodeItem("unlockall / unlock all", stringResource(Res.string.cheat_unlockall_desc))
+                    CheatCodeItem("unlock / unlock <level>", stringResource(Res.string.cheat_unlock_desc))
+                    CheatCodeItem("lockall / lock all", stringResource(Res.string.cheat_lockall_desc))
+                    CheatCodeItem("lock <level>", stringResource(Res.string.cheat_lock_desc))
                 }
             }
         }

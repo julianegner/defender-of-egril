@@ -1313,3 +1313,43 @@
     <string name="construction_level_3_desc">Base de Tour: Les barricades de niveau 100+ peuvent supporter des tours</string>
 
 </resources>
+    
+    <!-- Cheat Codes -->
+    <string name="cheat_codes_title">Codes de triche</string>
+    <string name="cheat_section_general">Général</string>
+    <string name="cheat_section_coins">Pièces et ressources</string>
+    <string name="cheat_section_mana">Mana (pendant le niveau)</string>
+    <string name="cheat_section_enemies">Ennemis</string>
+    <string name="cheat_section_mining">Exploitation minière</string>
+    <string name="cheat_section_xp_stats">XP et statistiques</string>
+    <string name="cheat_section_spells">Sorts</string>
+    <string name="cheat_section_levels">Déverrouillage de niveaux</string>
+    
+    <!-- Cheat code descriptions -->
+    <string name="cheat_help_desc">Afficher cet écran d\'aide</string>
+    <string name="cheat_platform_desc">Afficher les informations de la plateforme</string>
+    <string name="cheat_cash_desc">Ajouter 1 000 pièces</string>
+    <string name="cheat_mmmoney_desc">Ajouter 1 000 000 de pièces</string>
+    <string name="cheat_emptypocket_desc">Mettre les pièces à 0</string>
+    <string name="cheat_addmana_desc">Ajouter du mana (ex. addmana 50)</string>
+    <string name="cheat_removemana_desc">Retirer du mana (ex. removemana 20)</string>
+    <string name="cheat_spawn_desc">Générer un ennemi (ex. spawn goblin 5)</string>
+    <string name="cheat_spawn_types">Types d\'ennemis: goblin, ork, ogre, skeleton, wizard, greenwitch, redwitch</string>
+    <string name="cheat_dig_nothing_desc">Résultat de creusement: rien</string>
+    <string name="cheat_dig_treasure_desc">Résultat de creusement: trésor</string>
+    <string name="cheat_dig_gems_desc">Résultat de creusement: gemmes/diamant</string>
+    <string name="cheat_dig_dragon_desc">Résultat de creusement: dragon</string>
+    <string name="cheat_addxp_desc">Ajouter de l\'XP (ex. addxp 500)</string>
+    <string name="cheat_removexp_desc">Retirer de l\'XP (ex. removexp 100)</string>
+    <string name="cheat_addstat_desc">Ajouter des niveaux de statistique (ex. addstat health 5)</string>
+    <string name="cheat_removestat_desc">Retirer des niveaux de statistique (ex. removestat mana 2)</string>
+    <string name="cheat_stat_types">Statistiques: health, treasury, income, construction, mana</string>
+    <string name="cheat_unlockspell_desc">Déverrouiller un sort (ex. unlockspell fireball)</string>
+    <string name="cheat_lockspell_desc">Verrouiller un sort (ex. lockspell heal)</string>
+    <string name="cheat_spell_types">Sorts: attack_aimed, attack_area, heal, instant_tower, bomb, double_level, cooling, freeze, double_reach</string>
+    <string name="cheat_unlockall_desc">Déverrouiller tous les niveaux</string>
+    <string name="cheat_unlock_desc">Déverrouiller un niveau spécifique</string>
+    <string name="cheat_lockall_desc">Verrouiller tous les niveaux</string>
+    <string name="cheat_lock_desc">Verrouiller un niveau spécifique</string>
+
+</resources>

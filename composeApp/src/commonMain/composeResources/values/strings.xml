@@ -1315,3 +1315,43 @@
     <string name="construction_level_3_desc">Tower Base: Barricades level 100+ can hold towers</string>
 
 </resources>
+    
+    <!-- Cheat Codes -->
+    <string name="cheat_codes_title">Cheat Codes</string>
+    <string name="cheat_section_general">General</string>
+    <string name="cheat_section_coins">Coins &amp; Resources</string>
+    <string name="cheat_section_mana">Mana (During Level)</string>
+    <string name="cheat_section_enemies">Enemies</string>
+    <string name="cheat_section_mining">Mining</string>
+    <string name="cheat_section_xp_stats">XP &amp; Stats</string>
+    <string name="cheat_section_spells">Spells</string>
+    <string name="cheat_section_levels">Level Unlocking</string>
+    
+    <!-- Cheat code descriptions -->
+    <string name="cheat_help_desc">Show this help screen</string>
+    <string name="cheat_platform_desc">Show platform information</string>
+    <string name="cheat_cash_desc">Add 1,000 coins</string>
+    <string name="cheat_mmmoney_desc">Add 1,000,000 coins</string>
+    <string name="cheat_emptypocket_desc">Set coins to 0</string>
+    <string name="cheat_addmana_desc">Add mana (e.g., addmana 50)</string>
+    <string name="cheat_removemana_desc">Remove mana (e.g., removemana 20)</string>
+    <string name="cheat_spawn_desc">Spawn enemy (e.g., spawn goblin 5)</string>
+    <string name="cheat_spawn_types">Enemy types: goblin, ork, ogre, skeleton, wizard, greenwitch, redwitch</string>
+    <string name="cheat_dig_nothing_desc">Dig outcome: nothing</string>
+    <string name="cheat_dig_treasure_desc">Dig outcome: treasure</string>
+    <string name="cheat_dig_gems_desc">Dig outcome: gems/diamond</string>
+    <string name="cheat_dig_dragon_desc">Dig outcome: dragon</string>
+    <string name="cheat_addxp_desc">Add XP (e.g., addxp 500)</string>
+    <string name="cheat_removexp_desc">Remove XP (e.g., removexp 100)</string>
+    <string name="cheat_addstat_desc">Add stat levels (e.g., addstat health 5)</string>
+    <string name="cheat_removestat_desc">Remove stat levels (e.g., removestat mana 2)</string>
+    <string name="cheat_stat_types">Stats: health, treasury, income, construction, mana</string>
+    <string name="cheat_unlockspell_desc">Unlock a spell (e.g., unlockspell fireball)</string>
+    <string name="cheat_lockspell_desc">Lock a spell (e.g., lockspell heal)</string>
+    <string name="cheat_spell_types">Spells: attack_aimed, attack_area, heal, instant_tower, bomb, double_level, cooling, freeze, double_reach</string>
+    <string name="cheat_unlockall_desc">Unlock all levels</string>
+    <string name="cheat_unlock_desc">Unlock specific level</string>
+    <string name="cheat_lockall_desc">Lock all levels</string>
+    <string name="cheat_lock_desc">Lock specific level</string>
+
+</resources>

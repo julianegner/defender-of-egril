@@ -306,10 +306,10 @@ fun DefenderInfo(
                                 }
                             }
 
-                            // Generate Mana button for wizard tower (only if player has unlocked spells)
+                            // Generate Mana button for wizard tower (when mana is below max)
                             if (isPlayerTurn &&
                                 defender.type == DefenderType.WIZARD_TOWER &&
-                                hasUnlockedSpells &&
+                                gameState.currentMana.value < gameState.maxMana.value &&
                                 onWizardAction != null) {
 
                                 Spacer(modifier = Modifier.width(horizontalSpacing))

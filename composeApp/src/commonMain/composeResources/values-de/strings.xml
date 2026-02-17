@@ -1311,3 +1311,43 @@
     <string name="construction_level_3_desc">Turmbasis: Barrikaden Level 100+ können Türme tragen</string>
 
 </resources>
+    
+    <!-- Cheat Codes -->
+    <string name="cheat_codes_title">Cheat-Codes</string>
+    <string name="cheat_section_general">Allgemein</string>
+    <string name="cheat_section_coins">Münzen &amp; Ressourcen</string>
+    <string name="cheat_section_mana">Mana (während des Levels)</string>
+    <string name="cheat_section_enemies">Gegner</string>
+    <string name="cheat_section_mining">Bergbau</string>
+    <string name="cheat_section_xp_stats">XP &amp; Statistiken</string>
+    <string name="cheat_section_spells">Zauber</string>
+    <string name="cheat_section_levels">Level-Freischaltung</string>
+    
+    <!-- Cheat code descriptions -->
+    <string name="cheat_help_desc">Diese Hilfe anzeigen</string>
+    <string name="cheat_platform_desc">Plattforminformationen anzeigen</string>
+    <string name="cheat_cash_desc">1.000 Münzen hinzufügen</string>
+    <string name="cheat_mmmoney_desc">1.000.000 Münzen hinzufügen</string>
+    <string name="cheat_emptypocket_desc">Münzen auf 0 setzen</string>
+    <string name="cheat_addmana_desc">Mana hinzufügen (z.B. addmana 50)</string>
+    <string name="cheat_removemana_desc">Mana entfernen (z.B. removemana 20)</string>
+    <string name="cheat_spawn_desc">Gegner erschaffen (z.B. spawn goblin 5)</string>
+    <string name="cheat_spawn_types">Gegnertypen: goblin, ork, ogre, skeleton, wizard, greenwitch, redwitch</string>
+    <string name="cheat_dig_nothing_desc">Grabungsergebnis: nichts</string>
+    <string name="cheat_dig_treasure_desc">Grabungsergebnis: Schatz</string>
+    <string name="cheat_dig_gems_desc">Grabungsergebnis: Edelsteine/Diamant</string>
+    <string name="cheat_dig_dragon_desc">Grabungsergebnis: Drache</string>
+    <string name="cheat_addxp_desc">XP hinzufügen (z.B. addxp 500)</string>
+    <string name="cheat_removexp_desc">XP entfernen (z.B. removexp 100)</string>
+    <string name="cheat_addstat_desc">Statistik-Level hinzufügen (z.B. addstat health 5)</string>
+    <string name="cheat_removestat_desc">Statistik-Level entfernen (z.B. removestat mana 2)</string>
+    <string name="cheat_stat_types">Statistiken: health, treasury, income, construction, mana</string>
+    <string name="cheat_unlockspell_desc">Zauber freischalten (z.B. unlockspell fireball)</string>
+    <string name="cheat_lockspell_desc">Zauber sperren (z.B. lockspell heal)</string>
+    <string name="cheat_spell_types">Zauber: attack_aimed, attack_area, heal, instant_tower, bomb, double_level, cooling, freeze, double_reach</string>
+    <string name="cheat_unlockall_desc">Alle Level freischalten</string>
+    <string name="cheat_unlock_desc">Bestimmtes Level freischalten</string>
+    <string name="cheat_lockall_desc">Alle Level sperren</string>
+    <string name="cheat_lock_desc">Bestimmtes Level sperren</string>
+
+</resources>
