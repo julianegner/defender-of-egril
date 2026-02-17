@@ -1541,15 +1541,16 @@ class GameEngine(private val state: GameState) {
         state.barricades.forEach { barricade ->
             val distance = barricade.position.hexDistanceTo(position)
             if (distance <= explosionRange) {
-                barricade.health.value = (barricade.health.value - explosionDamage).coerceAtLeast(0)
+                barricade.healthPoints.value = (barricade.healthPoints.value - explosionDamage).coerceAtLeast(0)
                 barricadesDamaged++
             }
         }
         
         // Destroy bridges in range
         val bridgesToRemove = state.bridges.filter { bridge ->
-            val distance = bridge.position.hexDistanceTo(position)
-            distance <= explosionRange
+            bridge.positions.any { bridgePos ->
+                bridgePos.hexDistanceTo(position) <= explosionRange
+            }
         }
         bridgesDestroyed = bridgesToRemove.size
         bridgesToRemove.forEach { bridge ->
@@ -1557,7 +1558,7 @@ class GameEngine(private val state: GameState) {
         }
         
         println("Bomb exploded at $position! Damaged $enemiesDamaged enemies, $barricadesDamaged barricades, destroyed $bridgesDestroyed bridges")
-        GlobalSoundManager.playSound(SoundEvent.EXPLOSION)
+        GlobalSoundManager.playSound(SoundEvent.ATTACK_AREA)
     }
     
     /**

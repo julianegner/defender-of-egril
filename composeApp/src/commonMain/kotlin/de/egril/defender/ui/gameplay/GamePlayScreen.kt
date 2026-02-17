@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -61,7 +62,9 @@ fun GamePlayScreen(
     onCastSpell: ((SpellType) -> Unit)? = null,  // Callback to cast spell
     pendingSpellCast: SpellType? = null,  // Spell awaiting confirmation
     onConfirmSpellCast: (() -> Unit)? = null,  // Callback to confirm spell cast
-    onCancelSpellCast: (() -> Unit)? = null  // Callback to cancel spell cast
+    onCancelSpellCast: (() -> Unit)? = null,  // Callback to cancel spell cast
+    onSelectSpellTarget: ((Any) -> Unit)? = null,  // Callback to select spell target
+    onExitSpellTargeting: (() -> Unit)? = null  // Callback to exit targeting mode
 ) {
     GamePlayScreenContent(
         gameState = gameState,
@@ -99,7 +102,9 @@ fun GamePlayScreen(
         onCastSpell = onCastSpell,
         pendingSpellCast = pendingSpellCast,
         onConfirmSpellCast = onConfirmSpellCast,
-        onCancelSpellCast = onCancelSpellCast
+        onCancelSpellCast = onCancelSpellCast,
+        onSelectSpellTarget = onSelectSpellTarget,
+        onExitSpellTargeting = onExitSpellTargeting
     )
 }
 
@@ -141,7 +146,9 @@ private fun GamePlayScreenContent(
     onCastSpell: ((SpellType) -> Unit)? = null,
     pendingSpellCast: SpellType? = null,
     onConfirmSpellCast: (() -> Unit)? = null,
-    onCancelSpellCast: (() -> Unit)? = null
+    onCancelSpellCast: (() -> Unit)? = null,
+    onSelectSpellTarget: ((Any) -> Unit)? = null,
+    onExitSpellTargeting: (() -> Unit)? = null
 ) {
     var selectedDefenderType by remember { mutableStateOf<DefenderType?>(null) }
     var selectedDefenderId by remember { mutableStateOf<Int?>(null) }
@@ -501,20 +508,20 @@ private fun GamePlayScreenContent(
                         when (targeting.activeSpell.targetType) {
                             de.egril.defender.model.SpellTargetType.POSITION -> {
                                 // Position click - cast spell on position
-                                viewModel.selectSpellTarget(position)
+                                onSelectSpellTarget?.invoke(position)
                             }
                             de.egril.defender.model.SpellTargetType.ENEMY -> {
                                 // Check if there's an enemy at this position
                                 val enemy = gameState.attackers.find { it.position.value == position && !it.isDefeated.value }
                                 if (enemy != null && targeting.validTargets.contains(enemy)) {
-                                    viewModel.selectSpellTarget(enemy)
+                                    onSelectSpellTarget?.invoke(enemy)
                                 }
                             }
                             de.egril.defender.model.SpellTargetType.TOWER -> {
                                 // Check if there's a tower at this position
                                 val tower = gameState.defenders.find { it.position.value == position }
                                 if (tower != null && targeting.validTargets.contains(tower)) {
-                                    viewModel.selectSpellTarget(tower)
+                                    onSelectSpellTarget?.invoke(tower)
                                 }
                             }
                             else -> {
@@ -1220,7 +1227,7 @@ private fun GamePlayScreenContent(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(Color.Black.copy(alpha = 0.3f))
-                    .clickable(onClick = { viewModel.exitSpellTargetingMode() }),
+                    .clickable(onClick = { onExitSpellTargeting?.invoke() }),
                 contentAlignment = Alignment.TopCenter
             ) {
                 // Targeting instruction banner

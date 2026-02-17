@@ -1481,23 +1481,23 @@ class GameViewModel {
      */
     private fun executeSpellEffect(spell: SpellType, target: Any?, gameState: GameState) {
         when (spell) {
-            SpellType.AIMED_ATTACK -> {
+            SpellType.ATTACK_AIMED -> {
                 // Attack Aimed: Deal 80 damage to single enemy
                 val attacker = target as? Attacker
                 if (attacker != null) {
-                    attacker.health.value = (attacker.health.value - 80).coerceAtLeast(0)
-                    println("Attack Aimed: Dealt 80 damage to ${attacker.attackerType.name} (HP: ${attacker.health.value})")
+                    attacker.currentHealth.value = (attacker.currentHealth.value - 80).coerceAtLeast(0)
+                    println("Attack Aimed: Dealt 80 damage to ${attacker.type.displayName} (HP: ${attacker.currentHealth.value})")
                 }
             }
-            SpellType.HEAL_SELF -> {
+            SpellType.HEAL -> {
                 // Heal: Restore 3 health points (cap at max)
-                val currentHP = gameState.health.value
-                val maxHP = gameState.level.maxHealth + (_currentPlayer.value?.stats?.health ?: 0)
+                val currentHP = gameState.healthPoints.value
+                val maxHP = gameState.level.healthPoints + (_currentPlayer.value?.stats?.healthStat ?: 0)
                 val newHP = (currentHP + 3).coerceAtMost(maxHP)
-                gameState.health.value = newHP
+                gameState.healthPoints.value = newHP
                 println("Heal: Restored health to $newHP/$maxHP")
             }
-            SpellType.AREA_ATTACK -> {
+            SpellType.ATTACK_AREA -> {
                 // Attack Area: Deal 50 damage to all enemies within 2 hex range of position
                 val position = target as? Position
                 if (position != null) {
@@ -1505,7 +1505,7 @@ class GameViewModel {
                     gameState.attackers.forEach { attacker ->
                         val distance = attacker.position.value.hexDistanceTo(position)
                         if (distance <= 2) {
-                            attacker.health.value = (attacker.health.value - 50).coerceAtLeast(0)
+                            attacker.currentHealth.value = (attacker.currentHealth.value - 50).coerceAtLeast(0)
                             damagedCount++
                         }
                     }
@@ -1515,9 +1515,9 @@ class GameViewModel {
             SpellType.INSTANT_TOWER -> {
                 // Instant Tower: Skip build time for one tower under construction
                 val defender = target as? Defender
-                if (defender != null && defender.turnsUntilReady.value > 0) {
-                    defender.turnsUntilReady.value = 0
-                    println("Instant Tower: ${defender.defenderType.name} at ${defender.position.value} is now ready!")
+                if (defender != null && defender.buildTimeRemaining.value > 0) {
+                    defender.buildTimeRemaining.value = 0
+                    println("Instant Tower: ${defender.type.displayName} at ${defender.position.value} is now ready!")
                 }
             }
             SpellType.DOUBLE_TOWER_LEVEL -> {
@@ -1531,7 +1531,7 @@ class GameViewModel {
                         castTurn = gameState.turnNumber.value
                     )
                     gameState.activeSpellEffects.add(effect)
-                    println("Double Tower Level: ${defender.defenderType.name} level doubled for 1 turn!")
+                    println("Double Tower Level: ${defender.type.displayName} level doubled for 1 turn!")
                 }
             }
             SpellType.DOUBLE_TOWER_REACH -> {
@@ -1545,7 +1545,7 @@ class GameViewModel {
                         castTurn = gameState.turnNumber.value
                     )
                     gameState.activeSpellEffects.add(effect)
-                    println("Double Tower Reach: ${defender.defenderType.name} range doubled for 1 turn!")
+                    println("Double Tower Reach: ${defender.type.displayName} range doubled for 1 turn!")
                 }
             }
             SpellType.BOMB -> {
@@ -1620,8 +1620,8 @@ class GameViewModel {
             SpellTargetType.POSITION -> {
                 // All tiles on the map are valid positions
                 val positions = mutableSetOf<Position>()
-                for (x in 0 until gameState.level.width) {
-                    for (y in 0 until gameState.level.height) {
+                for (x in 0 until gameState.level.gridWidth) {
+                    for (y in 0 until gameState.level.gridHeight) {
                         positions.add(Position(x, y))
                     }
                 }
