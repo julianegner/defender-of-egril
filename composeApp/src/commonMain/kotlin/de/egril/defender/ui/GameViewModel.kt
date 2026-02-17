@@ -72,6 +72,9 @@ class GameViewModel {
     private val _showPlatformInfo = MutableStateFlow(false)
     val showPlatformInfo: StateFlow<Boolean> = _showPlatformInfo.asStateFlow()
     
+    private val _showCheatHelp = MutableStateFlow(false)
+    val showCheatHelp: StateFlow<Boolean> = _showCheatHelp.asStateFlow()
+    
     // Player profile state
     private val _currentPlayer = MutableStateFlow<de.egril.defender.save.PlayerProfile?>(null)
     val currentPlayer: StateFlow<de.egril.defender.save.PlayerProfile?> = _currentPlayer.asStateFlow()
@@ -834,7 +837,10 @@ class GameViewModel {
             setCoins = { amount -> gameEngine?.setCoins(amount) },
             performMineDigWithOutcome = { outcome -> performMineDigWithOutcome(outcome) },
             spawnEnemy = { attackerType, level -> gameEngine?.spawnEnemy(attackerType, level) },
-            showPlatformInfo = { _showPlatformInfo.value = true }
+            showPlatformInfo = { _showPlatformInfo.value = true },
+            addMana = { amount -> gameEngine?.addMana(amount) },
+            removeMana = { amount -> gameEngine?.removeMana(amount) },
+            showCheatHelp = { _showCheatHelp.value = true }
         )
         
         if (digOutcome != null) {
@@ -852,6 +858,113 @@ class GameViewModel {
         _showPlatformInfo.value = false
     }
     
+    fun clearCheatHelp() {
+        _showCheatHelp.value = false
+    }
+    
+    // Player stat/XP/spell cheat methods
+    private fun addPlayerXP(amount: Int) {
+        val currentPlayer = _currentPlayer.value ?: return
+        val updatedStats = currentPlayer.stats.addXP(amount)
+        val updatedPlayer = currentPlayer.copy(stats = updatedStats)
+        _currentPlayer.value = updatedPlayer
+        de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
+    }
+    
+    private fun removePlayerXP(amount: Int) {
+        val currentPlayer = _currentPlayer.value ?: return
+        val currentXP = currentPlayer.stats.totalXP
+        val newXP = maxOf(0, currentXP - amount)
+        val updatedStats = currentPlayer.stats.copy(totalXP = newXP)
+        val updatedPlayer = currentPlayer.copy(stats = updatedStats)
+        _currentPlayer.value = updatedPlayer
+        de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
+    }
+    
+    private fun addPlayerStat(statName: String, amount: Int) {
+        val currentPlayer = _currentPlayer.value ?: return
+        val oldStats = currentPlayer.stats
+        
+        val updatedStats = when (statName.lowercase()) {
+            "health" -> oldStats.copy(healthStat = oldStats.healthStat + amount)
+            "treasury" -> oldStats.copy(treasuryStat = oldStats.treasuryStat + amount)
+            "income" -> oldStats.copy(incomeStat = oldStats.incomeStat + amount)
+            "construction" -> oldStats.copy(constructionStat = oldStats.constructionStat + amount)
+            "mana" -> oldStats.copy(manaStat = oldStats.manaStat + amount)
+            else -> return  // Invalid stat name
+        }
+        
+        val updatedPlayer = currentPlayer.copy(stats = updatedStats)
+        _currentPlayer.value = updatedPlayer
+        de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
+    }
+    
+    private fun removePlayerStat(statName: String, amount: Int) {
+        val currentPlayer = _currentPlayer.value ?: return
+        val oldStats = currentPlayer.stats
+        
+        val updatedStats = when (statName.lowercase()) {
+            "health" -> oldStats.copy(healthStat = maxOf(0, oldStats.healthStat - amount))
+            "treasury" -> oldStats.copy(treasuryStat = maxOf(0, oldStats.treasuryStat - amount))
+            "income" -> oldStats.copy(incomeStat = maxOf(0, oldStats.incomeStat - amount))
+            "construction" -> oldStats.copy(constructionStat = maxOf(0, oldStats.constructionStat - amount))
+            "mana" -> oldStats.copy(manaStat = maxOf(0, oldStats.manaStat - amount))
+            else -> return  // Invalid stat name
+        }
+        
+        val updatedPlayer = currentPlayer.copy(stats = updatedStats)
+        _currentPlayer.value = updatedPlayer
+        de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
+    }
+    
+    private fun unlockPlayerSpell(spellName: String) {
+        val currentPlayer = _currentPlayer.value ?: return
+        val oldStats = currentPlayer.stats
+        
+        // Parse spell name to SpellType
+        val spell = when (spellName.lowercase().replace(" ", "_")) {
+            "attack_aimed", "attackaimed" -> de.egril.defender.model.SpellType.ATTACK_AIMED
+            "attack_area", "attackarea", "fireball" -> de.egril.defender.model.SpellType.ATTACK_AREA
+            "heal" -> de.egril.defender.model.SpellType.HEAL
+            "instant_tower", "instanttower" -> de.egril.defender.model.SpellType.INSTANT_TOWER
+            "bomb" -> de.egril.defender.model.SpellType.BOMB
+            "double_level", "doublelevel", "double_tower_level", "doubletowerlevel" -> de.egril.defender.model.SpellType.DOUBLE_TOWER_LEVEL
+            "cooling", "cooling_spell", "coolingspell" -> de.egril.defender.model.SpellType.COOLING_SPELL
+            "freeze", "freeze_spell", "freezespell" -> de.egril.defender.model.SpellType.FREEZE_SPELL
+            "double_reach", "doublereach", "double_tower_reach", "doubletowerreach" -> de.egril.defender.model.SpellType.DOUBLE_TOWER_REACH
+            else -> return  // Invalid spell name
+        }
+        
+        val updatedStats = oldStats.copy(unlockedSpells = oldStats.unlockedSpells + spell)
+        val updatedPlayer = currentPlayer.copy(stats = updatedStats)
+        _currentPlayer.value = updatedPlayer
+        de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
+    }
+    
+    private fun lockPlayerSpell(spellName: String) {
+        val currentPlayer = _currentPlayer.value ?: return
+        val oldStats = currentPlayer.stats
+        
+        // Parse spell name to SpellType
+        val spell = when (spellName.lowercase().replace(" ", "_")) {
+            "attack_aimed", "attackaimed" -> de.egril.defender.model.SpellType.ATTACK_AIMED
+            "attack_area", "attackarea", "fireball" -> de.egril.defender.model.SpellType.ATTACK_AREA
+            "heal" -> de.egril.defender.model.SpellType.HEAL
+            "instant_tower", "instanttower" -> de.egril.defender.model.SpellType.INSTANT_TOWER
+            "bomb" -> de.egril.defender.model.SpellType.BOMB
+            "double_level", "doublelevel", "double_tower_level", "doubletowerlevel" -> de.egril.defender.model.SpellType.DOUBLE_TOWER_LEVEL
+            "cooling", "cooling_spell", "coolingspell" -> de.egril.defender.model.SpellType.COOLING_SPELL
+            "freeze", "freeze_spell", "freezespell" -> de.egril.defender.model.SpellType.FREEZE_SPELL
+            "double_reach", "doublereach", "double_tower_reach", "doubletowerreach" -> de.egril.defender.model.SpellType.DOUBLE_TOWER_REACH
+            else -> return  // Invalid spell name
+        }
+        
+        val updatedStats = oldStats.copy(unlockedSpells = oldStats.unlockedSpells - spell)
+        val updatedPlayer = currentPlayer.copy(stats = updatedStats)
+        _currentPlayer.value = updatedPlayer
+        de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
+    }
+    
     fun applyWorldMapCheatCode(code: String): Boolean {
         // Check for "sticker" cheat code first (navigation cheat)
         if (code.lowercase().trim() == "sticker") {
@@ -866,7 +979,14 @@ class GameViewModel {
             lockAllLevels = { lockAllLevels() },
             lockLevel = { editorLevelId -> lockLevel(editorLevelId) },
             worldLevels = _worldLevels.value,
-            showPlatformInfo = { _showPlatformInfo.value = true }
+            showPlatformInfo = { _showPlatformInfo.value = true },
+            addXP = { amount -> addPlayerXP(amount) },
+            removeXP = { amount -> removePlayerXP(amount) },
+            addStatLevel = { statName, amount -> addPlayerStat(statName, amount) },
+            removeStatLevel = { statName, amount -> removePlayerStat(statName, amount) },
+            unlockSpell = { spellName -> unlockPlayerSpell(spellName) },
+            lockSpell = { spellName -> lockPlayerSpell(spellName) },
+            showCheatHelp = { _showCheatHelp.value = true }
         )
     }
     

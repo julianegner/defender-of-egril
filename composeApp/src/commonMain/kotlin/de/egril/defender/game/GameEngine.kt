@@ -1590,6 +1590,14 @@ class GameEngine(private val state: GameState) {
         state.coins.value = amount
     }
     
+    fun addMana(amount: Int) {
+        state.currentMana.value = minOf(state.maxMana.value, state.currentMana.value + amount)
+    }
+    
+    fun removeMana(amount: Int) {
+        state.currentMana.value = maxOf(0, state.currentMana.value - amount)
+    }
+    
     fun spawnEnemy(type: AttackerType, level: Int = 1) {
         // Find a free spawn position
         val spawnPos = enemyMovement.findFreeSpawnPosition() ?: return

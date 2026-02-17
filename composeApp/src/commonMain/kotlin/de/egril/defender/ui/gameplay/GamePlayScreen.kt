@@ -49,6 +49,8 @@ fun GamePlayScreen(
     onClearCheatDigOutcome: (() -> Unit)? = null,  // Callback to clear cheat dig outcome
     showPlatformInfo: Boolean = false,  // Show platform info from cheat code
     onClearPlatformInfo: (() -> Unit)? = null,  // Callback to clear platform info
+    showCheatHelp: Boolean = false,  // Show cheat code help screen
+    onClearCheatHelp: (() -> Unit)? = null,  // Callback to clear cheat help
     hasUnsavedChanges: (() -> Boolean)? = null,  // Callback to check for unsaved changes
     specialActionsRemaining: List<DefenderType> = emptyList(),  // List of defender types with remaining special actions
     onClearSpecialActionsWarning: (() -> Unit)? = null,  // Callback to clear special actions warning
@@ -90,6 +92,8 @@ fun GamePlayScreen(
         onClearCheatDigOutcome = onClearCheatDigOutcome,
         showPlatformInfo = showPlatformInfo,
         onClearPlatformInfo = onClearPlatformInfo,
+        showCheatHelp = showCheatHelp,
+        onClearCheatHelp = onClearCheatHelp,
         hasUnsavedChanges = hasUnsavedChanges,
         specialActionsRemaining = specialActionsRemaining,
         onClearSpecialActionsWarning = onClearSpecialActionsWarning,
@@ -133,6 +137,8 @@ private fun GamePlayScreenContent(
     onClearCheatDigOutcome: (() -> Unit)? = null,  // Callback to clear cheat dig outcome
     showPlatformInfo: Boolean = false,  // Show platform info from cheat code
     onClearPlatformInfo: (() -> Unit)? = null,  // Callback to clear platform info
+    showCheatHelp: Boolean = false,  // Show cheat code help screen
+    onClearCheatHelp: (() -> Unit)? = null,  // Callback to clear cheat help
     hasUnsavedChanges: (() -> Boolean)? = null,  // Callback to check for unsaved changes
     specialActionsRemaining: List<DefenderType> = emptyList(),  // List of defender types with remaining special actions
     onClearSpecialActionsWarning: (() -> Unit)? = null,  // Callback to clear special actions warning
@@ -1066,6 +1072,14 @@ private fun GamePlayScreenContent(
                 platformInfo = de.egril.defender.utils.getPlatform().name,
                 windowSize = windowSize,
                 onDismiss = onClearPlatformInfo
+            )
+        }
+        
+        // Cheat code help screen (from cheat/cheats/help cheat code)
+        if (showCheatHelp && onClearCheatHelp != null) {
+            de.egril.defender.ui.CheatCodeHelpScreen(
+                onDismiss = onClearCheatHelp,
+                isInGameplay = true
             )
         }
         

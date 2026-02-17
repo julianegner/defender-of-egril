@@ -67,6 +67,7 @@ fun App() {
         val savedGames by viewModel.savedGames.collectAsState()
         val cheatDigOutcome by viewModel.cheatDigOutcome.collectAsState()
         val showPlatformInfo by viewModel.showPlatformInfo.collectAsState()
+        val showCheatHelp by viewModel.showCheatHelp.collectAsState()
         val needsPlayerSelection by viewModel.needsPlayerSelection.collectAsState()
         val currentPlayer by viewModel.currentPlayer.collectAsState()
         val allPlayers by viewModel.allPlayers.collectAsState()
@@ -227,7 +228,9 @@ fun App() {
                     onEditPlayerName = { viewModel.navigateToPlayerProfile() },
                     currentPlayerName = currentPlayer?.name,
                     showPlatformInfo = showPlatformInfo,
-                    onClearPlatformInfo = { viewModel.clearPlatformInfo() }
+                    onClearPlatformInfo = { viewModel.clearPlatformInfo() },
+                    showCheatHelp = showCheatHelp,
+                    onClearCheatHelp = { viewModel.clearCheatHelp() }
                 )
             }
             
@@ -313,6 +316,8 @@ fun App() {
                         onClearCheatDigOutcome = { viewModel.clearCheatDigOutcome() },
                         showPlatformInfo = showPlatformInfo,
                         onClearPlatformInfo = { viewModel.clearPlatformInfo() },
+                        showCheatHelp = showCheatHelp,
+                        onClearCheatHelp = { viewModel.clearCheatHelp() },
                         hasUnsavedChanges = { viewModel.hasUnsavedChanges() },
                         specialActionsRemaining = specialActionsRemaining,
                         onClearSpecialActionsWarning = { viewModel.clearSpecialActionsWarning() },

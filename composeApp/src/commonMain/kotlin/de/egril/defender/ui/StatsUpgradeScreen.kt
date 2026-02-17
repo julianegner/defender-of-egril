@@ -401,7 +401,8 @@ private fun ConstructionInfoDialog(
                 fontWeight = FontWeight.Bold
             )
         },
-        onDismiss = onDismiss
+        onDismiss = onDismiss,
+        width = 900.dp  // 3x wider than default (300dp)
     ) {
         Column(
             modifier = Modifier.padding(16.dp),

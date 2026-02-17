@@ -130,3 +130,135 @@ fun CheatCodeDialog(
         }
     )
 }
+
+/**
+ * Cheat code help screen showing all available cheat codes.
+ * Opens when user enters "cheat", "cheats", or "help" as a cheat code.
+ */
+@Composable
+fun CheatCodeHelpScreen(
+    onDismiss: () -> Unit,
+    isInGameplay: Boolean = false
+) {
+    de.egril.defender.ui.gameplay.ScrollableInfoCard(
+        title = {
+            Text(
+                text = "Cheat Codes",
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+            )
+        },
+        onDismiss = onDismiss,
+        width = 600.dp,
+        maxHeight = 600.dp
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            // General cheat codes
+            CheatSection("General") {
+                CheatCodeItem("cheat / cheats / help", "Show this help screen")
+                CheatCodeItem("platform", "Show platform information")
+            }
+            
+            if (isInGameplay) {
+                // Gameplay cheat codes
+                CheatSection("Coins & Resources") {
+                    CheatCodeItem("cash", "Add 1,000 coins")
+                    CheatCodeItem("mmmoney", "Add 1,000,000 coins")
+                    CheatCodeItem("emptypocket", "Set coins to 0")
+                }
+                
+                CheatSection("Mana (During Level)") {
+                    CheatCodeItem("addmana <amount>", "Add mana (e.g., addmana 50)")
+                    CheatCodeItem("removemana <amount>", "Remove mana (e.g., removemana 20)")
+                }
+                
+                CheatSection("Enemies") {
+                    CheatCodeItem("spawn <type> <level>", "Spawn enemy (e.g., spawn goblin 5)")
+                    Text("Enemy types: goblin, ork, ogre, skeleton, wizard, greenwitch, redwitch", 
+                         style = MaterialTheme.typography.bodySmall,
+                         modifier = Modifier.padding(start = 16.dp))
+                }
+                
+                CheatSection("Mining") {
+                    CheatCodeItem("dig nothing / dig rubble", "Dig outcome: nothing")
+                    CheatCodeItem("dig brass / silver / gold", "Dig outcome: treasure")
+                    CheatCodeItem("dig gems / diamond", "Dig outcome: gems/diamond")
+                    CheatCodeItem("dig dragon / dragon", "Dig outcome: dragon")
+                }
+            } else {
+                // World map cheat codes
+                CheatSection("XP & Stats") {
+                    CheatCodeItem("addxp <amount>", "Add XP (e.g., addxp 500)")
+                    CheatCodeItem("removexp <amount>", "Remove XP (e.g., removexp 100)")
+                    CheatCodeItem("addstat <stat> <amount>", "Add stat levels (e.g., addstat health 5)")
+                    CheatCodeItem("removestat <stat> <amount>", "Remove stat levels (e.g., removestat mana 2)")
+                    Text("Stats: health, treasury, income, construction, mana", 
+                         style = MaterialTheme.typography.bodySmall,
+                         modifier = Modifier.padding(start = 16.dp))
+                }
+                
+                CheatSection("Spells") {
+                    CheatCodeItem("unlockspell <spell>", "Unlock a spell (e.g., unlockspell fireball)")
+                    CheatCodeItem("lockspell <spell>", "Lock a spell (e.g., lockspell heal)")
+                    Text("Spells: attack_aimed, attack_area, heal, instant_tower, bomb, double_level, cooling, freeze, double_reach", 
+                         style = MaterialTheme.typography.bodySmall,
+                         modifier = Modifier.padding(start = 16.dp))
+                }
+                
+                CheatSection("Level Unlocking") {
+                    CheatCodeItem("unlockall / unlock all", "Unlock all levels")
+                    CheatCodeItem("unlock / unlock <level>", "Unlock specific level")
+                    CheatCodeItem("lockall / lock all", "Lock all levels")
+                    CheatCodeItem("lock <level>", "Lock specific level")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun CheatSection(
+    title: String,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary
+        )
+        Divider(modifier = Modifier.padding(vertical = 4.dp))
+        Column(
+            verticalArrangement = Arrangement.spacedBy(6.dp),
+            content = content
+        )
+    }
+}
+
+@Composable
+private fun CheatCodeItem(
+    code: String,
+    description: String
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = code,
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+            color = MaterialTheme.colorScheme.secondary,
+            modifier = Modifier.weight(0.5f)
+        )
+        Text(
+            text = description,
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.weight(0.5f)
+        )
+    }
+}

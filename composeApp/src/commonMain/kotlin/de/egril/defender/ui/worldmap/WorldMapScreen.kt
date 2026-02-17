@@ -46,7 +46,9 @@ fun WorldMapScreen(
     onEditPlayerName: (() -> Unit)? = null,  // Callback to edit player name
     currentPlayerName: String? = null,  // Current player name for display
     showPlatformInfo: Boolean = false,  // Show platform info from cheat code
-    onClearPlatformInfo: (() -> Unit)? = null  // Callback to clear platform info
+    onClearPlatformInfo: (() -> Unit)? = null,  // Callback to clear platform info
+    showCheatHelp: Boolean = false,  // Show cheat code help screen
+    onClearCheatHelp: (() -> Unit)? = null  // Callback to clear cheat help
 ) {
     var showCheatDialog by remember { mutableStateOf(false) }
     var selectedLocation by remember { mutableStateOf<Pair<WorldMapLocation, List<WorldLevel>>?>(null) }
@@ -482,6 +484,14 @@ fun WorldMapScreen(
             platformInfo = de.egril.defender.utils.getPlatform().name,
             windowSize = windowSize,
             onDismiss = onClearPlatformInfo
+        )
+    }
+    
+    // Cheat code help screen (from cheat/cheats/help cheat code)
+    if (showCheatHelp && onClearCheatHelp != null) {
+        de.egril.defender.ui.CheatCodeHelpScreen(
+            onDismiss = onClearCheatHelp,
+            isInGameplay = false
         )
     }
     }
