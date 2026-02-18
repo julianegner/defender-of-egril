@@ -611,7 +611,7 @@ object SaveJsonSerializer {
       "healthStat": ${stats.healthStat},
       "treasuryStat": ${stats.treasuryStat},
       "incomeStat": ${stats.incomeStat},
-      "constructionLevel": ${stats.constructionLevel},
+      "constructionStat": ${stats.constructionStat},
       "manaStat": ${stats.manaStat},
       "unlockedSpells": [$unlockedSpellsJson]
     }"""
@@ -694,7 +694,7 @@ object SaveJsonSerializer {
             val healthStat = JsonUtils.extractValue(json, "healthStat").toInt()
             val treasuryStat = JsonUtils.extractValue(json, "treasuryStat").toInt()
             val incomeStat = JsonUtils.extractValue(json, "incomeStat").toInt()
-            val constructionLevel = JsonUtils.extractValue(json, "constructionLevel").toInt()
+            val constructionStat = JsonUtils.extractValue(json, "constructionStat").toInt()
             val manaStat = JsonUtils.extractValue(json, "manaStat").toInt()
             
             // Parse unlocked spells
@@ -718,7 +718,7 @@ object SaveJsonSerializer {
                 healthStat = healthStat,
                 treasuryStat = treasuryStat,
                 incomeStat = incomeStat,
-                constructionLevel = constructionLevel,
+                constructionStat = constructionStat,
                 manaStat = manaStat,
                 unlockedSpells = unlockedSpells
             )
