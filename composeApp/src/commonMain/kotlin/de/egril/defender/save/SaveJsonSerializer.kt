@@ -720,7 +720,7 @@ object SaveJsonSerializer {
                 incomeStat = incomeStat,
                 constructionStat = constructionStat,
                 manaStat = manaStat,
-                unlockedSpells = unlockedSpells
+                unlockedSpells = unlockedSpells.toSet()
             )
         } catch (e: Exception) {
             println("Error deserializing player stats: ${e.message}")
