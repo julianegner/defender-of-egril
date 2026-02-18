@@ -672,16 +672,17 @@ object SaveJsonSerializer {
                                 }
                             }
                             val statsJson = if (endIndex > 0) jsonAfterStats.substring(0, endIndex) else jsonAfterStats
-                            println("DEBUG: Deserializing stats JSON: $statsJson")
+                            System.err.println("=== XP DEBUG: Deserializing stats JSON: $statsJson")
                             val result = deserializePlayerStats(statsJson)
-                            println("DEBUG: Deserialized stats: totalXP=${result.totalXP}, healthStat=${result.healthStat}")
+                            System.err.println("=== XP DEBUG: Deserialized stats: totalXP=${result.totalXP}, healthStat=${result.healthStat}, level=${result.level}")
                             result
                         } else {
                             PlayerStats()
                         }
                     } catch (e: Exception) {
-                        println("DEBUG: Error parsing stats: ${e.message}")
+                        System.err.println("=== XP DEBUG ERROR: Failed to parse stats: ${e.message}")
                         e.printStackTrace()
+                        System.err.println("=== XP DEBUG: Returning default PlayerStats() with totalXP=0")
                         PlayerStats() // Default stats for backward compatibility
                     }
                     
@@ -713,9 +714,9 @@ object SaveJsonSerializer {
     
     private fun deserializePlayerStats(json: String): PlayerStats {
         try {
-            println("DEBUG: deserializePlayerStats called with: $json")
+            System.err.println("=== XP DEBUG: deserializePlayerStats called with: $json")
             val totalXP = JsonUtils.extractValue(json, "totalXP").toInt()
-            println("DEBUG: Extracted totalXP = $totalXP")
+            System.err.println("=== XP DEBUG: Extracted totalXP = $totalXP")
             val healthStat = JsonUtils.extractValue(json, "healthStat").toInt()
             val treasuryStat = JsonUtils.extractValue(json, "treasuryStat").toInt()
             val incomeStat = JsonUtils.extractValue(json, "incomeStat").toInt()
@@ -748,11 +749,12 @@ object SaveJsonSerializer {
                 manaStat = manaStat,
                 unlockedSpells = unlockedSpells.toSet()
             )
-            println("DEBUG: Created PlayerStats with totalXP = ${result.totalXP}")
+            System.err.println("=== XP DEBUG: Created PlayerStats with totalXP = ${result.totalXP}, level = ${result.level}")
             return result
         } catch (e: Exception) {
-            println("ERROR deserializing player stats: ${e.message}")
+            System.err.println("=== XP DEBUG ERROR: Failed to deserialize PlayerStats: ${e.message}")
             e.printStackTrace()
+            System.err.println("=== XP DEBUG: Returning default PlayerStats() with totalXP=0")
             return PlayerStats()
         }
     }
