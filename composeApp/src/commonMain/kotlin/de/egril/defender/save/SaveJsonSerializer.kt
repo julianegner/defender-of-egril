@@ -674,11 +674,11 @@ object SaveJsonSerializer {
                             }
                             val statsJson = if (endIndex > 0) jsonAfterStats.substring(0, endIndex) else jsonAfterStats
                             if (LogConfig.ENABLE_XP_LOGGING) {
-                                System.err.println("=== XP DEBUG: Deserializing stats JSON: $statsJson")
+                                println("=== XP DEBUG: Deserializing stats JSON: $statsJson")
                             }
                             val result = deserializePlayerStats(statsJson)
                             if (LogConfig.ENABLE_XP_LOGGING) {
-                                System.err.println("=== XP DEBUG: Deserialized stats: totalXP=${result.totalXP}, healthStat=${result.healthStat}, level=${result.level}")
+                                println("=== XP DEBUG: Deserialized stats: totalXP=${result.totalXP}, healthStat=${result.healthStat}, level=${result.level}")
                             }
                             result
                         } else {
@@ -686,9 +686,9 @@ object SaveJsonSerializer {
                         }
                     } catch (e: Exception) {
                         if (LogConfig.ENABLE_XP_LOGGING) {
-                            System.err.println("=== XP DEBUG ERROR: Failed to parse stats: ${e.message}")
+                            println("=== XP DEBUG ERROR: Failed to parse stats: ${e.message}")
                             e.printStackTrace()
-                            System.err.println("=== XP DEBUG: Returning default PlayerStats() with totalXP=0")
+                            println("=== XP DEBUG: Returning default PlayerStats() with totalXP=0")
                         }
                         PlayerStats() // Default stats for backward compatibility
                     }
@@ -722,11 +722,11 @@ object SaveJsonSerializer {
     private fun deserializePlayerStats(json: String): PlayerStats {
         try {
             if (LogConfig.ENABLE_XP_LOGGING) {
-                System.err.println("=== XP DEBUG: deserializePlayerStats called with: $json")
+                println("=== XP DEBUG: deserializePlayerStats called with: $json")
             }
             val totalXP = JsonUtils.extractValue(json, "totalXP").toInt()
             if (LogConfig.ENABLE_XP_LOGGING) {
-                System.err.println("=== XP DEBUG: Extracted totalXP = $totalXP")
+                println("=== XP DEBUG: Extracted totalXP = $totalXP")
             }
             val healthStat = JsonUtils.extractValue(json, "healthStat").toInt()
             val treasuryStat = JsonUtils.extractValue(json, "treasuryStat").toInt()
@@ -761,14 +761,14 @@ object SaveJsonSerializer {
                 unlockedSpells = unlockedSpells.toSet()
             )
             if (LogConfig.ENABLE_XP_LOGGING) {
-                System.err.println("=== XP DEBUG: Created PlayerStats with totalXP = ${result.totalXP}, level = ${result.level}")
+                println("=== XP DEBUG: Created PlayerStats with totalXP = ${result.totalXP}, level = ${result.level}")
             }
             return result
         } catch (e: Exception) {
             if (LogConfig.ENABLE_XP_LOGGING) {
-                System.err.println("=== XP DEBUG ERROR: Failed to deserialize PlayerStats: ${e.message}")
+                println("=== XP DEBUG ERROR: Failed to deserialize PlayerStats: ${e.message}")
                 e.printStackTrace()
-                System.err.println("=== XP DEBUG: Returning default PlayerStats() with totalXP=0")
+                println("=== XP DEBUG: Returning default PlayerStats() with totalXP=0")
             }
             return PlayerStats()
         }
