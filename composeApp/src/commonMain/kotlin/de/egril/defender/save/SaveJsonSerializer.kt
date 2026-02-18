@@ -652,13 +652,21 @@ object SaveJsonSerializer {
                     
                     // Parse stats (if present, for backward compatibility)
                     val stats = try {
-                        val statsSection = entry.substringAfter("\"stats\": {").substringBefore("}")
-                        if (statsSection.isNotBlank()) {
-                            deserializePlayerStats("{$statsSection}")
+                        // Extract the stats object more carefully to handle nested arrays
+                        val statsStart = entry.indexOf("\"stats\": {")
+                        if (statsStart >= 0) {
+                            val jsonAfterStats = entry.substring(statsStart + "\"stats\": ".length)
+                            val statsJson = JsonUtils.extractJsonObject(jsonAfterStats)
+                            println("DEBUG: Deserializing stats JSON: $statsJson")
+                            val result = deserializePlayerStats(statsJson)
+                            println("DEBUG: Deserialized stats: totalXP=${result.totalXP}, healthStat=${result.healthStat}")
+                            result
                         } else {
                             PlayerStats()
                         }
                     } catch (e: Exception) {
+                        println("DEBUG: Error parsing stats: ${e.message}")
+                        e.printStackTrace()
                         PlayerStats() // Default stats for backward compatibility
                     }
                     
@@ -690,7 +698,9 @@ object SaveJsonSerializer {
     
     private fun deserializePlayerStats(json: String): PlayerStats {
         try {
+            println("DEBUG: deserializePlayerStats called with: $json")
             val totalXP = JsonUtils.extractValue(json, "totalXP").toInt()
+            println("DEBUG: Extracted totalXP = $totalXP")
             val healthStat = JsonUtils.extractValue(json, "healthStat").toInt()
             val treasuryStat = JsonUtils.extractValue(json, "treasuryStat").toInt()
             val incomeStat = JsonUtils.extractValue(json, "incomeStat").toInt()
@@ -711,9 +721,10 @@ object SaveJsonSerializer {
                 }
             } catch (e: Exception) {
                 // Ignore spell parsing errors
+                println("DEBUG: Error parsing spells: ${e.message}")
             }
             
-            return PlayerStats(
+            val result = PlayerStats(
                 totalXP = totalXP,
                 healthStat = healthStat,
                 treasuryStat = treasuryStat,
@@ -722,8 +733,11 @@ object SaveJsonSerializer {
                 manaStat = manaStat,
                 unlockedSpells = unlockedSpells.toSet()
             )
+            println("DEBUG: Created PlayerStats with totalXP = ${result.totalXP}")
+            return result
         } catch (e: Exception) {
-            println("Error deserializing player stats: ${e.message}")
+            println("ERROR deserializing player stats: ${e.message}")
+            e.printStackTrace()
             return PlayerStats()
         }
     }
