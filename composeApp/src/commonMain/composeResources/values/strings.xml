@@ -1240,7 +1240,6 @@
     <string name="xp_system_unlock_message">You can now use XP to upgrade your stats and unlock powerful abilities!\n\nAccess the upgrade screen from the Player Profile.</string>
     
     <!-- Stats Upgrade Screen -->
-    <string name="stats_and_abilities">Stats &amp; Abilities</string>
     <string name="available_stat_points">Available Stat Points: %d</string>
     <string name="stats">Stats</string>
     <string name="spells">Spells</string>
