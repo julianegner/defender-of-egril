@@ -253,7 +253,7 @@ private fun PlayerLevelInfo(stats: PlayerStats) {
 }
 
 @Composable
-private fun StatCard(
+internal fun StatCard(
     name: String,
     description: String,
     currentLevel: Int,
@@ -315,7 +315,7 @@ private fun StatCard(
 }
 
 @Composable
-private fun StatCardWithInfo(
+internal fun StatCardWithInfo(
     name: String,
     description: String,
     currentLevel: Int,
@@ -390,7 +390,7 @@ private fun StatCardWithInfo(
 }
 
 @Composable
-private fun ConstructionInfoDialog(
+internal fun ConstructionInfoDialog(
     onDismiss: () -> Unit
 ) {
     ScrollableInfoCard(
@@ -477,7 +477,7 @@ private fun ConstructionInfoDialog(
 }
 
 @Composable
-private fun SpellCard(
+internal fun SpellCard(
     spell: SpellType,
     isUnlocked: Boolean,
     canUnlock: Boolean,
@@ -543,7 +543,7 @@ private fun SpellCard(
 }
 
 @Composable
-private fun buildConstructionEffect(level: Int): String {
+internal fun buildConstructionEffect(level: Int): String {
     return when {
         level >= 3 -> stringResource(Res.string.stat_construction_effect_level3)
         level >= 2 -> stringResource(Res.string.stat_construction_effect_level2)
