@@ -137,7 +137,7 @@ fun PlayerProfileScreen(
                                             )
                                         ) {
                                             Text(
-                                                text = stringResource(Res.string.stats_and_abilities),
+                                                text = stringResource(Res.string.abilities),
                                                 style = MaterialTheme.typography.titleMedium
                                             )
                                         }

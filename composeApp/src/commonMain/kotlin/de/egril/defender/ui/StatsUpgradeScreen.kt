@@ -58,7 +58,7 @@ fun StatsUpgradeScreen(
             ) {
                 // Header
                 Text(
-                    text = stringResource(Res.string.stats_and_abilities),
+                    text = stringResource(Res.string.abilities),
                     style = MaterialTheme.typography.displayMedium,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onBackground
