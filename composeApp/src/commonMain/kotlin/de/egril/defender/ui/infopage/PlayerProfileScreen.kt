@@ -399,7 +399,7 @@ private fun StatsAndAbilitiesContent(
         Card(modifier = Modifier.fillMaxWidth()) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(
-                    text = "Total XP: ${stats.totalXP}",
+                    text = "Total XP: " + stats.totalXP.toString(),
                     style = MaterialTheme.typography.bodyLarge
                 )
                 Spacer(modifier = Modifier.height(8.dp))
