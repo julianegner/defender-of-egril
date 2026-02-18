@@ -252,7 +252,9 @@ fun App() {
                         playerProfile = profile,
                         onBack = { viewModel.navigateToMainMenu() },
                         onEditName = { showEditPlayer = true },
-                        onNavigateToStats = { viewModel.navigateToStatsUpgrade() }
+                        onNavigateToStats = { viewModel.navigateToStatsUpgrade() },
+                        onUpgradeStat = { statType -> viewModel.upgradeStat(statType) },
+                        onUnlockSpell = { spell -> viewModel.unlockSpell(spell) }
                     )
                 }
             }
