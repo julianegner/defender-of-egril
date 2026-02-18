@@ -172,6 +172,12 @@ class GameViewModel {
                 _currentPlayer.value = playerToUse
                 de.egril.defender.save.SaveFileStorage.setCurrentPlayer(playerToUse.id)
                 de.egril.defender.save.PlayerProfileStorage.updateLastPlayed(playerToUse.id)
+                
+                // Reload the player profile after updateLastPlayed to ensure we have the latest data
+                val reloadedProfile = de.egril.defender.save.PlayerProfileStorage.getProfile(playerToUse.id)
+                if (reloadedProfile != null) {
+                    _currentPlayer.value = reloadedProfile
+                }
             } else {
                 // Shouldn't happen, but handle gracefully
                 _needsPlayerSelection.value = true
