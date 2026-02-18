@@ -1030,7 +1030,7 @@
     <!-- Player Profile Screen -->
     <string name="player_profile">Profilo Giocatore</string>
     <string name="player_created">Giocatore Creato</string>
-    <string name="stats_and_abilities">Statistiche e Abilità</string>
+    <string name="abilities">Abilità</string>
     <string name="achievements">Risultati</string>
     <string name="achievements_earned">Risultati Ottenuti</string>
     <string name="no_achievements_yet">Nessun risultato ancora</string>

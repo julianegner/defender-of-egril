@@ -1029,7 +1029,7 @@
     <!-- Player Profile Screen -->
     <string name="player_profile">Spielerprofil</string>
     <string name="player_created">Erstellt</string>
-    <string name="stats_and_abilities">Statistiken &amp; Fähigkeiten</string>
+    <string name="abilities">Fähigkeiten</string>
     <string name="achievements">Errungenschaften</string>
     <string name="achievements_earned">Errungenschaften erhalten</string>
     <string name="no_achievements_yet">Noch keine Errungenschaften erhalten. Spiele das Spiel, um Errungenschaften zu erhalten!</string>

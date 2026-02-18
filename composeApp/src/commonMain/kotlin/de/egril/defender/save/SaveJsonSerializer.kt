@@ -3,6 +3,7 @@ package de.egril.defender.save
 import androidx.compose.runtime.mutableStateOf
 import de.egril.defender.model.*
 import de.egril.defender.utils.JsonUtils
+import de.egril.defender.config.LogConfig
 
 /**
  * JSON serialization for save data
@@ -672,17 +673,23 @@ object SaveJsonSerializer {
                                 }
                             }
                             val statsJson = if (endIndex > 0) jsonAfterStats.substring(0, endIndex) else jsonAfterStats
-                            System.err.println("=== XP DEBUG: Deserializing stats JSON: $statsJson")
+                            if (LogConfig.ENABLE_XP_LOGGING) {
+                                System.err.println("=== XP DEBUG: Deserializing stats JSON: $statsJson")
+                            }
                             val result = deserializePlayerStats(statsJson)
-                            System.err.println("=== XP DEBUG: Deserialized stats: totalXP=${result.totalXP}, healthStat=${result.healthStat}, level=${result.level}")
+                            if (LogConfig.ENABLE_XP_LOGGING) {
+                                System.err.println("=== XP DEBUG: Deserialized stats: totalXP=${result.totalXP}, healthStat=${result.healthStat}, level=${result.level}")
+                            }
                             result
                         } else {
                             PlayerStats()
                         }
                     } catch (e: Exception) {
-                        System.err.println("=== XP DEBUG ERROR: Failed to parse stats: ${e.message}")
-                        e.printStackTrace()
-                        System.err.println("=== XP DEBUG: Returning default PlayerStats() with totalXP=0")
+                        if (LogConfig.ENABLE_XP_LOGGING) {
+                            System.err.println("=== XP DEBUG ERROR: Failed to parse stats: ${e.message}")
+                            e.printStackTrace()
+                            System.err.println("=== XP DEBUG: Returning default PlayerStats() with totalXP=0")
+                        }
                         PlayerStats() // Default stats for backward compatibility
                     }
                     
@@ -714,9 +721,13 @@ object SaveJsonSerializer {
     
     private fun deserializePlayerStats(json: String): PlayerStats {
         try {
-            System.err.println("=== XP DEBUG: deserializePlayerStats called with: $json")
+            if (LogConfig.ENABLE_XP_LOGGING) {
+                System.err.println("=== XP DEBUG: deserializePlayerStats called with: $json")
+            }
             val totalXP = JsonUtils.extractValue(json, "totalXP").toInt()
-            System.err.println("=== XP DEBUG: Extracted totalXP = $totalXP")
+            if (LogConfig.ENABLE_XP_LOGGING) {
+                System.err.println("=== XP DEBUG: Extracted totalXP = $totalXP")
+            }
             val healthStat = JsonUtils.extractValue(json, "healthStat").toInt()
             val treasuryStat = JsonUtils.extractValue(json, "treasuryStat").toInt()
             val incomeStat = JsonUtils.extractValue(json, "incomeStat").toInt()
@@ -749,12 +760,16 @@ object SaveJsonSerializer {
                 manaStat = manaStat,
                 unlockedSpells = unlockedSpells.toSet()
             )
-            System.err.println("=== XP DEBUG: Created PlayerStats with totalXP = ${result.totalXP}, level = ${result.level}")
+            if (LogConfig.ENABLE_XP_LOGGING) {
+                System.err.println("=== XP DEBUG: Created PlayerStats with totalXP = ${result.totalXP}, level = ${result.level}")
+            }
             return result
         } catch (e: Exception) {
-            System.err.println("=== XP DEBUG ERROR: Failed to deserialize PlayerStats: ${e.message}")
-            e.printStackTrace()
-            System.err.println("=== XP DEBUG: Returning default PlayerStats() with totalXP=0")
+            if (LogConfig.ENABLE_XP_LOGGING) {
+                System.err.println("=== XP DEBUG ERROR: Failed to deserialize PlayerStats: ${e.message}")
+                e.printStackTrace()
+                System.err.println("=== XP DEBUG: Returning default PlayerStats() with totalXP=0")
+            }
             return PlayerStats()
         }
     }
