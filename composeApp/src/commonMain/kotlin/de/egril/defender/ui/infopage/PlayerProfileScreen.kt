@@ -405,7 +405,7 @@ private fun StatsAndAbilitiesContent(
             icon = { de.egril.defender.ui.icon.HeartIcon(size = 32.dp) }
         )
         
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(1.dp))
         
         de.egril.defender.ui.StatCard(
             name = stringResource(Res.string.stat_treasury),
@@ -417,7 +417,7 @@ private fun StatsAndAbilitiesContent(
             icon = { de.egril.defender.ui.icon.MoneyIcon(size = 32.dp) }
         )
         
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.height(1.dp))
         
         de.egril.defender.ui.StatCard(
             name = stringResource(Res.string.stat_income),
@@ -429,7 +429,7 @@ private fun StatsAndAbilitiesContent(
             icon = { de.egril.defender.ui.icon.MoneyIcon(size = 32.dp) }
         )
         
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.height(1.dp))
         
         // Construction stat with info icon
         var showConstructionInfo by remember { mutableStateOf(false) }
@@ -450,7 +450,7 @@ private fun StatsAndAbilitiesContent(
             )
         }
         
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.height(1.dp))
         
         de.egril.defender.ui.StatCard(
             name = stringResource(Res.string.stat_mana),
@@ -462,7 +462,7 @@ private fun StatsAndAbilitiesContent(
             icon = { de.egril.defender.ui.icon.StarIcon(size = 32.dp) }
         )
         
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(4.dp))
         
         // Spells Section
         Text(
@@ -475,7 +475,7 @@ private fun StatsAndAbilitiesContent(
             text = stringResource(Res.string.spells_description),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(bottom = 8.dp)
+            modifier = Modifier.padding(bottom = 3.dp)
         )
         
         de.egril.defender.model.SpellType.values().forEach { spell ->
@@ -486,7 +486,7 @@ private fun StatsAndAbilitiesContent(
                 canUnlock = !isUnlocked && stats.availableStatPoints > 0,
                 onUnlock = { onUnlockSpell(spell) }
             )
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(1.dp))
         }
     }
 }

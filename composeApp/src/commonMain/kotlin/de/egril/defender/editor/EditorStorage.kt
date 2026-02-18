@@ -1,5 +1,6 @@
 package de.egril.defender.editor
 
+import de.egril.defender.config.LogConfig
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.DefenderType
 import de.egril.defender.model.AttackerWave
@@ -937,15 +938,19 @@ object EditorStorage {
      * Convert an EditorLevel to a Level for gameplay
      */
     fun convertToGameLevel(editorLevel: EditorLevel, numericId: Int): Level? {
-        println("Converting EditorLevel ${editorLevel.id} to game Level with numeric ID $numericId")
+        if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+            println("Converting EditorLevel ${editorLevel.id} to game Level with numeric ID $numericId")
+        }
         // Force reload the map from disk to get latest changes
         val map = reloadMap(editorLevel.mapId) ?: getMap(editorLevel.mapId) ?: return null
-        println("Using map: ${map.id} (${map.width}x${map.height})")
-        
-        // Convert enemy spawns directly to PlannedEnemySpawn
-        println("-------------------------------")
-        println("enemySpawns: ${editorLevel.enemySpawns}")
-        println("-------------------------------")
+        if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+            println("Using map: ${map.id} (${map.width}x${map.height})")
+            
+            // Convert enemy spawns directly to PlannedEnemySpawn
+            println("-------------------------------")
+            println("enemySpawns: ${editorLevel.enemySpawns}")
+            println("-------------------------------")
+        }
 
         val directSpawnPlan = editorLevel.enemySpawns.map { spawn ->
             PlannedEnemySpawn(
@@ -1022,12 +1027,14 @@ object EditorStorage {
             initialData = editorLevel.getEffectiveInitialData()  // Pre-placed elements using new structure
         )
         
-        println("=== CREATED LEVEL ===")
-        println("Level: ${level.name} (ID: ${level.id})")
-        println("Target positions: ${level.targetPositions}")
-        println("Waypoints count: ${level.waypoints.size}")
-        println("Start positions: ${level.startPositions}")
-        println("=== END CREATED LEVEL ===")
+        if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+            println("=== CREATED LEVEL ===")
+            println("Level: ${level.name} (ID: ${level.id})")
+            println("Target positions: ${level.targetPositions}")
+            println("Waypoints count: ${level.waypoints.size}")
+            println("Start positions: ${level.startPositions}")
+            println("=== END CREATED LEVEL ===")
+        }
         
         return level
     }
