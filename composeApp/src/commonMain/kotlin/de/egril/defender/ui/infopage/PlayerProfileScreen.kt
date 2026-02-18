@@ -399,12 +399,12 @@ private fun StatsAndAbilitiesContent(
         Card(modifier = Modifier.fillMaxWidth()) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(
-                    text = stringResource(Res.string.total_xp, stats.totalXP),
+                    text = "Total XP: ${stats.totalXP}",
                     style = MaterialTheme.typography.bodyLarge
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = stringResource(Res.string.stat_points_available, stats.availableStatPoints),
+                    text = stringResource(Res.string.available_stat_points, stats.availableStatPoints),
                     style = MaterialTheme.typography.bodyLarge
                 )
             }
