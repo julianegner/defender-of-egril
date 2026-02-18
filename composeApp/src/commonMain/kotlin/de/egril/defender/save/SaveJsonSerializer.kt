@@ -652,11 +652,26 @@ object SaveJsonSerializer {
                     
                     // Parse stats (if present, for backward compatibility)
                     val stats = try {
-                        // Extract the stats object more carefully to handle nested arrays
+                        // Extract the stats object - find the opening brace and match it
                         val statsStart = entry.indexOf("\"stats\": {")
                         if (statsStart >= 0) {
                             val jsonAfterStats = entry.substring(statsStart + "\"stats\": ".length)
-                            val statsJson = JsonUtils.extractJsonObject(jsonAfterStats)
+                            // Find matching closing brace
+                            var depth = 0
+                            var endIndex = -1
+                            for (i in jsonAfterStats.indices) {
+                                when (jsonAfterStats[i]) {
+                                    '{' -> depth++
+                                    '}' -> {
+                                        depth--
+                                        if (depth == 0) {
+                                            endIndex = i + 1
+                                            break
+                                        }
+                                    }
+                                }
+                            }
+                            val statsJson = if (endIndex > 0) jsonAfterStats.substring(0, endIndex) else jsonAfterStats
                             println("DEBUG: Deserializing stats JSON: $statsJson")
                             val result = deserializePlayerStats(statsJson)
                             println("DEBUG: Deserialized stats: totalXP=${result.totalXP}, healthStat=${result.healthStat}")
