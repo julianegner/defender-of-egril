@@ -36,7 +36,17 @@ data class SavedGame(
     val rafts: List<SavedRaft> = emptyList(),  // Rafts on river tiles
     val nextRaftId: Int = 1,  // Next raft ID to use
     val barricades: List<SavedBarricade> = emptyList(),  // Barricades placed by spike/spear towers
-    val worldMapSave: WorldMapSave? = null  // World map progress at the time of saving (for conflict detection on load)
+    val worldMapSave: WorldMapSave? = null,  // World map progress at the time of saving (for conflict detection on load)
+    val playerProfileData: PlayerProfileData? = null  // Player profile data (achievements, XP, stats) when game data transfer is ON
+)
+
+/**
+ * Player profile data for export/import with save files
+ * Includes achievements, XP, and stats
+ */
+data class PlayerProfileData(
+    val achievements: List<Achievement>,
+    val stats: PlayerStats
 )
 
 data class SavedDefender(

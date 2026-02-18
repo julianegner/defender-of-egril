@@ -1031,6 +1031,7 @@
     <!-- Player Profile Screen -->
     <string name="player_profile">Player Profile</string>
     <string name="player_created">Created</string>
+    <string name="stats_and_abilities">Stats &amp; Abilities</string>
     <string name="achievements">Achievements</string>
     <string name="achievements_earned">Achievements Earned</string>
     <string name="no_achievements_yet">No achievements earned yet. Play the game to earn achievements!</string>

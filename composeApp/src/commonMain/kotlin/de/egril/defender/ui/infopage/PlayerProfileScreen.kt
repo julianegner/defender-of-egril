@@ -76,10 +76,11 @@ fun PlayerProfileScreen(
                 }
                 
                 // Scrollable content
+                var selectedTabIndex by remember { mutableStateOf(0) }
+                
                 Column(
                     modifier = Modifier
                         .weight(1f)
-                        .verticalScroll(rememberScrollState())
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp)
                 ) {
@@ -89,27 +90,69 @@ fun PlayerProfileScreen(
                         onEditName = onEditName
                     )
                     
-                    // Stats/Abilities button (if callback provided)
-                    if (onNavigateToStats != null) {
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Button(
-                            onClick = onNavigateToStats,
-                            modifier = Modifier.fillMaxWidth().height(56.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.secondary
-                            )
-                        ) {
-                            Text(
-                                text = "Stats & Abilities",  // TODO: localize
-                                style = MaterialTheme.typography.titleMedium
-                            )
-                        }
-                    }
-                    
                     Spacer(modifier = Modifier.height(24.dp))
                     
-                    // Achievements Section
-                    AchievementsSection(achievements = playerProfile.achievements)
+                    // Tabs (only show if stats callback is provided)
+                    if (onNavigateToStats != null) {
+                        TabRow(
+                            selectedTabIndex = selectedTabIndex,
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                            contentColor = MaterialTheme.colorScheme.onSurface
+                        ) {
+                            Tab(
+                                selected = selectedTabIndex == 0,
+                                onClick = { selectedTabIndex = 0 },
+                                text = { Text(stringResource(Res.string.achievements)) }
+                            )
+                            Tab(
+                                selected = selectedTabIndex == 1,
+                                onClick = { selectedTabIndex = 1 },
+                                text = { Text(stringResource(Res.string.stats_and_abilities)) }
+                            )
+                        }
+                        
+                        Spacer(modifier = Modifier.height(16.dp))
+                        
+                        // Tab content (scrollable)
+                        Column(
+                            modifier = Modifier
+                                .weight(1f)
+                                .verticalScroll(rememberScrollState())
+                                .fillMaxWidth()
+                        ) {
+                            when (selectedTabIndex) {
+                                0 -> {
+                                    // Achievements tab
+                                    AchievementsSection(achievements = playerProfile.achievements)
+                                }
+                                1 -> {
+                                    // Stats & Abilities tab - navigate to stats screen
+                                    Button(
+                                        onClick = onNavigateToStats,
+                                        modifier = Modifier.fillMaxWidth().height(56.dp),
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = MaterialTheme.colorScheme.secondary
+                                        )
+                                    ) {
+                                        Text(
+                                            text = stringResource(Res.string.stats_and_abilities),
+                                            style = MaterialTheme.typography.titleMedium
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        // No stats callback - just show achievements (old behavior)
+                        Column(
+                            modifier = Modifier
+                                .weight(1f)
+                                .verticalScroll(rememberScrollState())
+                                .fillMaxWidth()
+                        ) {
+                            AchievementsSection(achievements = playerProfile.achievements)
+                        }
+                    }
                 }
                 
                 // Back button

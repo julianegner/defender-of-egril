@@ -583,12 +583,14 @@ object SaveJsonSerializer {
             val achievementsJson = profile.achievements.joinToString(", ") { achievement ->
                 """{"id": "${achievement.id.name}", "earnedAt": ${achievement.earnedAt}}"""
             }
+            val statsJson = serializePlayerStats(profile.stats)
             """{
       "id": "${profile.id}",
       "name": "${profile.name}",
       "createdAt": ${profile.createdAt},
       "lastPlayedAt": ${profile.lastPlayedAt},
-      "achievements": [$achievementsJson]
+      "achievements": [$achievementsJson],
+      "stats": $statsJson
     }"""
         }
         
@@ -600,6 +602,19 @@ object SaveJsonSerializer {
   ],
   "lastUsedPlayerId": $lastUsedPlayerIdJson
 }"""
+    }
+    
+    private fun serializePlayerStats(stats: PlayerStats): String {
+        val unlockedSpellsJson = stats.unlockedSpells.joinToString(", ") { "\"${it.name}\"" }
+        return """{
+      "totalXP": ${stats.totalXP},
+      "healthStat": ${stats.healthStat},
+      "treasuryStat": ${stats.treasuryStat},
+      "incomeStat": ${stats.incomeStat},
+      "constructionLevel": ${stats.constructionLevel},
+      "manaStat": ${stats.manaStat},
+      "unlockedSpells": [$unlockedSpellsJson]
+    }"""
     }
     
     fun deserializePlayerProfiles(json: String): PlayerProfiles? {
@@ -635,12 +650,25 @@ object SaveJsonSerializer {
                         // Ignore achievement parsing errors for backward compatibility
                     }
                     
+                    // Parse stats (if present, for backward compatibility)
+                    val stats = try {
+                        val statsSection = entry.substringAfter("\"stats\": {").substringBefore("}")
+                        if (statsSection.isNotBlank()) {
+                            deserializePlayerStats("{$statsSection}")
+                        } else {
+                            PlayerStats()
+                        }
+                    } catch (e: Exception) {
+                        PlayerStats() // Default stats for backward compatibility
+                    }
+                    
                     profiles.add(PlayerProfile(
                         id = id,
                         name = name,
                         createdAt = createdAt,
                         lastPlayedAt = lastPlayedAt,
-                        achievements = achievements
+                        achievements = achievements,
+                        stats = stats
                     ))
                 }
             }
@@ -657,6 +685,46 @@ object SaveJsonSerializer {
         } catch (e: Exception) {
             println("Error deserializing player profiles: ${e.message}")
             return null
+        }
+    }
+    
+    private fun deserializePlayerStats(json: String): PlayerStats {
+        try {
+            val totalXP = JsonUtils.extractValue(json, "totalXP").toInt()
+            val healthStat = JsonUtils.extractValue(json, "healthStat").toInt()
+            val treasuryStat = JsonUtils.extractValue(json, "treasuryStat").toInt()
+            val incomeStat = JsonUtils.extractValue(json, "incomeStat").toInt()
+            val constructionLevel = JsonUtils.extractValue(json, "constructionLevel").toInt()
+            val manaStat = JsonUtils.extractValue(json, "manaStat").toInt()
+            
+            // Parse unlocked spells
+            val unlockedSpells = mutableListOf<SpellType>()
+            try {
+                val spellsSection = json.substringAfter("\"unlockedSpells\": [").substringBefore("]")
+                if (spellsSection.isNotBlank()) {
+                    val spellNames = spellsSection.split(",").map { it.trim().removeSurrounding("\"") }
+                    for (spellName in spellNames) {
+                        if (spellName.isNotBlank()) {
+                            unlockedSpells.add(SpellType.valueOf(spellName))
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                // Ignore spell parsing errors
+            }
+            
+            return PlayerStats(
+                totalXP = totalXP,
+                healthStat = healthStat,
+                treasuryStat = treasuryStat,
+                incomeStat = incomeStat,
+                constructionLevel = constructionLevel,
+                manaStat = manaStat,
+                unlockedSpells = unlockedSpells
+            )
+        } catch (e: Exception) {
+            println("Error deserializing player stats: ${e.message}")
+            return PlayerStats()
         }
     }
 }
