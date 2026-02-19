@@ -43,7 +43,9 @@ object SaveJsonSerializer {
             
             return WorldMapSave(statuses)
         } catch (e: Exception) {
+            if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
             println("Error deserializing world map save: ${e.message}")
+            }
             return null
         }
     }
@@ -328,7 +330,9 @@ object SaveJsonSerializer {
                     null  // Field doesn't exist in old saves
                 }
             } catch (e: Exception) {
+                if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
                 println("Warning: Failed to parse worldMapSave: ${e.message}")
+                }
                 null  // If worldMapSave field doesn't exist or is malformed, default to null
             }
             
@@ -358,7 +362,9 @@ object SaveJsonSerializer {
                 worldMapSave = worldMapSave
             )
         } catch (e: Exception) {
+            if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
             println("Error deserializing saved game: ${e.message}")
+            }
             e.printStackTrace()
             return null
         }
@@ -688,7 +694,9 @@ object SaveJsonSerializer {
                         if (LogConfig.ENABLE_XP_LOGGING) {
                             println("=== XP DEBUG ERROR: Failed to parse stats: ${e.message}")
                             e.printStackTrace()
+                            if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
                             println("=== XP DEBUG: Returning default PlayerStats() with totalXP=0")
+                            }
                         }
                         PlayerStats() // Default stats for backward compatibility
                     }
@@ -714,7 +722,9 @@ object SaveJsonSerializer {
             
             return PlayerProfiles(profiles, lastUsedPlayerId)
         } catch (e: Exception) {
+            if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
             println("Error deserializing player profiles: ${e.message}")
+            }
             return null
         }
     }
@@ -748,7 +758,9 @@ object SaveJsonSerializer {
                 }
             } catch (e: Exception) {
                 // Ignore spell parsing errors
+                if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
                 println("DEBUG: Error parsing spells: ${e.message}")
+                }
             }
             
             val result = PlayerStats(
@@ -768,7 +780,9 @@ object SaveJsonSerializer {
             if (LogConfig.ENABLE_XP_LOGGING) {
                 println("=== XP DEBUG ERROR: Failed to deserialize PlayerStats: ${e.message}")
                 e.printStackTrace()
+                if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
                 println("=== XP DEBUG: Returning default PlayerStats() with totalXP=0")
+                }
             }
             return PlayerStats()
         }

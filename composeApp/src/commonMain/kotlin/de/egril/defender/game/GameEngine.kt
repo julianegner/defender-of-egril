@@ -4,6 +4,7 @@ import androidx.compose.runtime.mutableStateOf
 import de.egril.defender.audio.GlobalSoundManager
 import de.egril.defender.audio.SoundEvent
 import de.egril.defender.model.*
+import de.egril.defender.config.LogConfig
 
 /**
  * Main game engine that coordinates all game systems.
@@ -276,7 +277,9 @@ class GameEngine(private val state: GameState) {
         val unitsToEat = adjacentUnits.sortedBy { it.currentHealth.value }.take(dragon.greed)
         
         for (unit in unitsToEat) {
+            if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
             println("Dragon ${dragon.id} (greed ${dragon.greed}) eating adjacent ${unit.type} at ${unit.position.value}, gaining ${unit.currentHealth.value} HP")
+            }
             dragon.currentHealth.value += unit.currentHealth.value
             unit.isDefeated.value = true
         }
@@ -342,7 +345,9 @@ class GameEngine(private val state: GameState) {
                 dragon.targetMineId.value = mine.id
                 dragon.currentTarget?.value = mine.position.value
                 dragon.mineWarningShown.value = false
+                if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
                 println("Dragon ${dragon.id} (greed ${dragon.greed}) now targeting mine ${mine.id} at ${mine.position.value}")
+                }
             }
         } else {
             // No mines left, go back to closest target
@@ -355,7 +360,9 @@ class GameEngine(private val state: GameState) {
                 } else {
                     findClosestTargetPosition(dragon.position.value)
                 }
+                if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
                 println("Dragon ${dragon.id} no more mines, returning to closest target")
+                }
             }
         }
     }
@@ -389,7 +396,9 @@ class GameEngine(private val state: GameState) {
                 state.mineWarnings.add(targetMine.id)
             }
             dragon.mineWarningShown.value = true
+            if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
             println("Warning: Dragon ${dragon.id} can reach mine ${targetMine.id} next turn! (distance: $distance, next speed: $nextTurnSpeed)")
+            }
         }
     }
     
@@ -408,7 +417,9 @@ class GameEngine(private val state: GameState) {
         
         if (isAtMine && dragon.mineWarningShown.value) {
             // Destroy the mine - dragon has reached it and warning was already shown
+            if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
             println("Dragon ${dragon.id} destroys mine ${targetMine.id} at ${targetMine.position.value}")
+            }
             
             // Add health (same as new dragon base health: 500)
             val healthGain = AttackerType.DRAGON.health
@@ -494,7 +505,9 @@ class GameEngine(private val state: GameState) {
                 currentTarget = mutableStateOf(initialTarget)
             )
             state.attackers.add(attacker)
+            if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
             println("Spawned attacker ${attacker.id} at $spawnPos (preferred: $preferredSpawnPoint) with initial target: $initialTarget")
+            }
         }
 
         // Move goblins immediately after initial spawning (this is not during enemy turn)
@@ -636,7 +649,9 @@ class GameEngine(private val state: GameState) {
                     println("Enemy turn: Attacker ${attacker.id} (${attacker.type}) at $currentPos pathing to target: $target")
                 }
                 var path = pathfinding.findPath(currentPos, target, attacker)
+                if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
                 println("path: $path")
+                }
                 // println("CETM ----------------------- Unit ${attacker.id} (${attacker.type}) at $currentPos: findPath returned path of size ${path.size}")
 
                 // If still no path after bridge attempt, try one more time
@@ -661,7 +676,9 @@ class GameEngine(private val state: GameState) {
                         val barricadeAtPos = barricadeSystem.getBarricadeAt(nextPos)
                         if (barricadeAtPos != null && !barricadeAtPos.isDestroyed()) {
                             attackersStoppedByBarricade.add(Pair(attacker, nextPos))
+                            if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
                             println("CETM -A---------------------- attackersStoppedByBarricade Unit ${attacker.id} (${attacker.type}) at $currentPos will attack barricade at $nextPos (HP: ${barricadeAtPos.healthPoints.value})")
+                            }
                             continue
                         }
                     }
@@ -682,7 +699,9 @@ class GameEngine(private val state: GameState) {
                         // Mark this attacker as stopped - it will attack the barricade in applyMovement
                         attackersStoppedByBarricade.add(Pair(attacker, newPos))
 
+                        if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
                         println("CETM -D---------------------- attackersStoppedByBarricade Unit ${attacker.id} (${attacker.type}) at $currentPos cannot move to $newPos due to barricade, will attack barricade instead")
+                        }
 
                         continue
                     }
@@ -731,7 +750,9 @@ class GameEngine(private val state: GameState) {
                             val barricadeAtPos = barricadeSystem.getBarricadeAt(barricadePos)
                             if (barricadeAtPos != null && !barricadeAtPos.isDestroyed()) {
                                 attackersStoppedByBarricade.add(Pair(attacker, barricadePos))
+                                if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
                                 println("CETM -B---------------------- attackersStoppedByBarricade Unit ${attacker.id} (${attacker.type}) at $currentPos blocked by other units, will attack optimal barricade at $barricadePos (HP: ${barricadeAtPos.healthPoints.value})")
+                                }
                             }
                         }
                     }
@@ -740,7 +761,9 @@ class GameEngine(private val state: GameState) {
                     if (barricadeSystem.getBarricadeAt(newPos) != null) {
                         // If the original newPos has a barricade, mark attacker as stopped to handle barricade attack in applyMovement
                         attackersStoppedByBarricade.add(Pair(attacker, newPos))
+                        if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
                         println("CETM -F---------------------- attackersStoppedByBarricade Unit ${attacker.id} (${attacker.type}) at $currentPos cannot move to $newPos due to barricade, will attack barricade instead")
+                        }
                     }
                 }
             }
@@ -791,16 +814,22 @@ class GameEngine(private val state: GameState) {
             interator++
             val currentPath = pathfinding.findPath(currentPos, target, attacker, excludedBarricadePositions)
             val barricadeAtPath = barricadeSystem.getBarricadeAt(currentPath[1])
+            if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
             println("currentPAth: $currentPath, barricadeAtPath: ${barricadeAtPath != null}")
+            }
             if (barricadeAtPath != null) {
                 excludedBarricadePositions.add(currentPath[1])
                 barricadePathSet.add(Pair(barricadeAtPath, currentPath))
             }
 
+            if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
             println("excludedBarricadePositions after iteration $interator: $excludedBarricadePositions")
+            }
             val pathToTargetWithoutFoundBarricades = pathfinding.findPath(currentPos, target, attacker, excludedBarricadePositions, ignoreBarricades = true)
 
+            if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
             println("kkkkkkkkkkk $interator ${pathToTargetWithoutFoundBarricades.last()} $target")
+            }
 
             if (target != pathToTargetWithoutFoundBarricades.last()) {
                 break
@@ -815,10 +844,14 @@ class GameEngine(private val state: GameState) {
 
         // First, check the direct path (ignoring barricades) separately
         val pathIgnoringBarricades = pathfinding.findPath(currentPos, target, attacker, ignoreBarricades = true)
+        if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
         println("[DEBUG] pathIgnoringBarricades: $pathIgnoringBarricades")
+        }
         if (pathIgnoringBarricades.size > 1) {
             val barricadeAtPath = barricadeSystem.getBarricadeAt(pathIgnoringBarricades[1])
+            if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
             println("[DEBUG] pathIgnoringBarricades[1]=${pathIgnoringBarricades[1]}, barricade=${barricadeAtPath?.let { "HP=${it.healthPoints.value} at ${it.position}" } ?: "null"}")
+            }
             if (barricadeAtPath != null) {
                 barricadePathSet.add(Pair(barricadeAtPath, pathIgnoringBarricades))
             }
@@ -835,7 +868,9 @@ class GameEngine(private val state: GameState) {
             
             // Find path excluding previously found barricade positions
             val currentPath = pathfinding.findPath(currentPos, target, attacker, excludedPositions)
+            if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
             println("[DEBUG] Iteration $iteration: excludedPositions=$excludedPositions, currentPath=$currentPath")
+            }
             
             // Check if path has at least 2 positions (current + next)
             if (currentPath.size < 2) {
@@ -846,7 +881,9 @@ class GameEngine(private val state: GameState) {
             // Check if next position has a barricade
             val nextPos = currentPath[1]
             val barricadeAtNextPos = barricadeSystem.getBarricadeAt(nextPos)
+            if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
             println("[DEBUG] Iteration $iteration: nextPos=$nextPos, barricade=${barricadeAtNextPos?.let { "HP=${it.healthPoints.value} at ${it.position}" } ?: "null"}")
+            }
             
             if (barricadeAtNextPos != null) {
                 // Found a barricade - add to set
@@ -863,7 +900,9 @@ class GameEngine(private val state: GameState) {
                 } else {
                     // Path doesn't have a barricade at [1] AND doesn't reach target
                     // This means pathfinding is routing around something, exclude this position too
+                    if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
                     println("[DEBUG] Iteration $iteration: No barricade at nextPos, but path doesn't reach target. Excluding $nextPos and continuing.")
+                    }
                     excludedPositions.add(nextPos)
                     // Continue to try finding another path
                 }
@@ -873,7 +912,9 @@ class GameEngine(private val state: GameState) {
         var min = Int.MAX_VALUE
         var pathOfLeastEffort: Pair<Barricade, List<Position>>? = null
 
+        if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
         println("[REFACTORED] barricadePathSet size: ${barricadePathSet.size}")
+        }
         
         barricadePathSet.forEach { (barricade, path) ->
             val hp = if (barricade.hasTower()) {
@@ -884,7 +925,9 @@ class GameEngine(private val state: GameState) {
             val pathSteps = path.size - 1
             val effort = (hp / getBarricadeDamageForEnemyUnit(attacker)) + pathSteps
 
+            if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
             println("[REFACTORED] Barricade at ${barricade.position}, HP=${barricade.healthPoints.value}, hasTower=${barricade.hasTower()}, effectiveHP=$hp, pathSteps=$pathSteps, effort=$effort")
+            }
 
             if (effort < min) {
                 min = effort
@@ -904,7 +947,9 @@ class GameEngine(private val state: GameState) {
      */
     private fun applyTargetDamage(attacker: Attacker) {
         val damage = attacker.calculateTargetDamage()
+        if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
         println("!!! ENEMY ENTERED TARGET !!! Turn ${state.turnNumber.value}: ${attacker.type} (ID ${attacker.id}) at ${attacker.position.value} dealt $damage damage. HP: ${state.healthPoints.value} -> ${state.healthPoints.value - damage}")
+        }
         state.healthPoints.value = maxOf(0, state.healthPoints.value - damage)
         attacker.isDefeated.value = true
     }
@@ -928,7 +973,9 @@ class GameEngine(private val state: GameState) {
             
             if (unitAtPosition != null && unitAtPosition.type != AttackerType.EWHAD) {
                 // Dragon eats the unit and gains its health
+                if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
                 println("Dragon ${attacker.id} eating ${unitAtPosition.type} at $newPosition, gaining ${unitAtPosition.currentHealth.value} HP")
+                }
                 attacker.currentHealth.value += unitAtPosition.currentHealth.value
                 attacker.updateDragonLevel()  // Update level based on new health
                 unitAtPosition.isDefeated.value = true
@@ -945,7 +992,9 @@ class GameEngine(private val state: GameState) {
                         val waypoint = state.level.getWaypointAt(newPosition)
                         if (waypoint != null) {
                             attacker.currentTarget.value = waypoint.nextTarget
+                            if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
                             println("Dragon ${attacker.id} reached waypoint at $newPosition, next target: ${waypoint.nextTarget}")
+                            }
                         }
                     }
                 }
@@ -973,12 +1022,16 @@ class GameEngine(private val state: GameState) {
                             val waypoint = state.level.getWaypointAt(alternatePos)
                             if (waypoint != null) {
                                 attacker.currentTarget.value = waypoint.nextTarget
+                                if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
                                 println("Dragon ${attacker.id} reached waypoint at $alternatePos, next target: ${waypoint.nextTarget}")
+                                }
                             }
                         }
                     }
                 } else {
+                    if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
                     println("Dragon ${attacker.id} blocked by Ewhad at $newPosition, staying in place")
+                    }
                     // Stay in current position
                 }
             } else {
@@ -996,7 +1049,9 @@ class GameEngine(private val state: GameState) {
                 if (waypoint != null) {
                     // Update target to the next waypoint or final target
                     attacker.currentTarget.value = waypoint.nextTarget
+                    if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
                     println("Dragon ${attacker.id} reached waypoint at ${attacker.position.value}, next target: ${waypoint.nextTarget}")
+                    }
                 }
             }
             
@@ -1053,7 +1108,9 @@ class GameEngine(private val state: GameState) {
                     if (waypoint != null) {
                         // Update target to the next waypoint or final target
                         attacker.currentTarget.value = waypoint.nextTarget
+                        if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
                         println("Attacker ${attacker.id} reached waypoint at $newPosition, next target: ${waypoint.nextTarget}")
+                        }
                     }
                 }
                 
@@ -1126,7 +1183,9 @@ class GameEngine(private val state: GameState) {
      * Spawning happens after movements to ensure spawn points are clear.
      */
     fun startEnemyTurn() {
+        if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
         println("GameEngine.startEnemyTurn: phase=${state.phase.value}")
+        }
         if (state.phase.value != GamePhase.PLAYER_TURN) {
             println("GameEngine.startEnemyTurn: Not in PLAYER_TURN phase, returning")
             return
@@ -1134,13 +1193,19 @@ class GameEngine(private val state: GameState) {
         
         state.turnNumber.value++
         state.phase.value = GamePhase.ENEMY_TURN
+        if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
         println("GameEngine.startEnemyTurn: Changed phase to ENEMY_TURN, turn=${state.turnNumber.value}")
+        }
         
         // Process raft movements on rivers at the start of enemy turn
         // This happens immediately when player presses "Next Turn"
+        if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
         println("GameEngine.startEnemyTurn: About to call raftSystem.processRaftMovements()")
+        }
         raftSystem.processRaftMovements()
+        if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
         println("GameEngine.startEnemyTurn: Completed raft movement processing")
+        }
     }
     
     /**
@@ -1235,7 +1300,9 @@ class GameEngine(private val state: GameState) {
                 } else {
                     attacker.currentTarget?.value ?: state.level.targetPositions.first()
                 }
+                if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
                 println("Newly spawned attacker ${attacker.id} at $currentPos pathing to target: $target (currentTarget: ${attacker.currentTarget?.value})")
+                }
                 var path = pathfinding.findPath(currentPos, target, attacker)
                 
                 // If still no path after bridge attempt, try one more time
@@ -1308,7 +1375,9 @@ class GameEngine(private val state: GameState) {
                         val waypoint = state.level.getWaypointAt(newPos)
                         if (waypoint != null) {
                             attacker.currentTarget.value = waypoint.nextTarget
+                            if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
                             println("Attacker ${attacker.id} reached waypoint at $newPos during spawn movement, next target: ${waypoint.nextTarget}")
+                            }
                         }
                     }
                 } else {
@@ -1328,7 +1397,9 @@ class GameEngine(private val state: GameState) {
                             val waypoint = state.level.getWaypointAt(alternativePos)
                             if (waypoint != null) {
                                 attacker.currentTarget.value = waypoint.nextTarget
+                                if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
                                 println("Attacker ${attacker.id} reached waypoint at $alternativePos during spawn movement, next target: ${waypoint.nextTarget}")
+                                }
                             }
                         }
                     } else {
@@ -1340,7 +1411,9 @@ class GameEngine(private val state: GameState) {
                             val barricadeAtPos = barricadeSystem.getBarricadeAt(barricadePos)
                             if (barricadeAtPos != null && !barricadeAtPos.isDestroyed()) {
                                 attackersStoppedByBarricade.add(attacker.id)
+                                if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
                                 println("CETM -C---------------------- attackersStoppedByBarricade Newly spawned unit ${attacker.id} (${attacker.type}) at $currentPos blocked by other units, will attack optimal barricade at $barricadePos (HP: ${barricadeAtPos.healthPoints.value})")
+                                }
                             }
                         }
                     }
@@ -1501,7 +1574,9 @@ class GameEngine(private val state: GameState) {
                 
                 // Buff expired, mark for removal
                 toRemove.add(index)
+                if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
                 println("Spell effect ${effect.spell.displayName} expired")
+                }
             } else {
                 // Update the effect with decremented turns
                 state.activeSpellEffects[index] = effect.copy(turnsRemaining = newTurnsRemaining)
@@ -1557,7 +1632,9 @@ class GameEngine(private val state: GameState) {
             state.bridges.remove(bridge)
         }
         
+        if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
         println("Bomb exploded at $position! Damaged $enemiesDamaged enemies, $barricadesDamaged barricades, destroyed $bridgesDestroyed bridges")
+        }
         GlobalSoundManager.playSound(SoundEvent.ATTACK_AREA)
     }
     

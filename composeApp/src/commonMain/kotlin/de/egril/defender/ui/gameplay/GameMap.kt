@@ -45,6 +45,7 @@ import de.egril.defender.ui.hexagon.MinimapConfig
 import de.egril.defender.ui.icon.PentagramIcon
 import de.egril.defender.ui.settings.AppSettings
 import kotlin.math.sqrt
+import de.egril.defender.config.LogConfig
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -195,7 +196,9 @@ fun GameGrid(
                                 }
                             }
                         }
+                        if (LogConfig.ENABLE_UI_LOGGING) {
                         println("Target circle map: $result")
+                        }
                         result
                     }
                 }

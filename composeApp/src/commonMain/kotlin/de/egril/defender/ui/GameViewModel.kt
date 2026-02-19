@@ -16,6 +16,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import de.egril.defender.config.LogConfig
 
 sealed class Screen {
     object MainMenu : Screen()
@@ -151,7 +152,9 @@ class GameViewModel {
             val migratedProfile = de.egril.defender.save.PlayerProfileStorage.migrateExistingSaves()
             if (migratedProfile != null) {
                 // Migration successful, use the migrated profile
+                if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
                 println("Migrated existing saves to player profile: ${migratedProfile.name}")
+                }
                 _currentPlayer.value = migratedProfile
                 de.egril.defender.save.SaveFileStorage.setCurrentPlayer(migratedProfile.id)
                 _allPlayers.value = listOf(migratedProfile)
@@ -188,7 +191,9 @@ class GameViewModel {
     private fun initializeWorldMap() {
         // Load official levels
         val officialLevels = LevelData.createLevels()
+        if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
         println("DEBUG: Total official levels loaded: ${officialLevels.size}")
+        }
         
         // Load user levels from user sequence
         val userSequence = de.egril.defender.editor.EditorStorage.getUserLevelSequence()
@@ -209,7 +214,9 @@ class GameViewModel {
                 null
             }
         }
+        if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
         println("DEBUG: Total user levels loaded: ${userLevels.size}")
+        }
         
         // Combine official and user levels
         val allLevels = officialLevels + userLevels
@@ -221,7 +228,9 @@ class GameViewModel {
         val wonLevelIds = savedStatuses?.filter { it.value == LevelStatus.WON }?.keys?.toSet() ?: emptySet()
         
         _worldLevels.value = allLevels.mapIndexed { index, level ->
+            if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
             println("DEBUG: Loaded Level ${level.id} - Name: ${level.name} - Path Cells: ${level.pathCells.size} - Build Islands: ${level.buildIslands.size}")
+            }
 
             // Look up status by editorLevelId if available
             val status = if (level.editorLevelId != null) {
@@ -245,7 +254,9 @@ class GameViewModel {
                 }
             } else {
                 // Fallback for legacy levels or levels created without editor (shouldn't happen in normal gameplay)
+                if (LogConfig.ENABLE_UI_LOGGING) {
                 println("WARNING: Level ${level.id} (${level.name}) has no editorLevelId - using fallback status")
+                }
                 if (index == 0) LevelStatus.UNLOCKED else LevelStatus.LOCKED
             }
             
@@ -258,7 +269,9 @@ class GameViewModel {
     
     fun reloadWorldMap() {
         // Reload levels from disk to get latest changes
+        if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
         println("Reloading world map from disk...")
+        }
         initializeWorldMap()
     }
     
@@ -547,10 +560,16 @@ class GameViewModel {
     }
     
     fun startFirstPlayerTurn() {
+        if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
         println("DEBUG: startFirstPlayerTurn called")
+        }
         val stateBefore = _gameState.value
+        if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
         println("DEBUG: Phase before: ${stateBefore?.phase?.value}")
+        }
+        if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
         println("DEBUG: Attackers before: ${stateBefore?.attackers?.size}")
+        }
         
         gameEngine?.startFirstPlayerTurn()
         
@@ -559,13 +578,21 @@ class GameViewModel {
         gameEngine?.startTurnTracking()
         
         val stateAfter = _gameState.value
+        if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
         println("DEBUG: Phase after: ${stateAfter?.phase?.value}")
+        }
+        if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
         println("DEBUG: Attackers after: ${stateAfter?.attackers?.size}")
+        }
         stateAfter?.attackers?.forEach { attacker ->
+            if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
             println("DEBUG: Enemy ${attacker.id} - Type: ${attacker.type}, Position: (${attacker.position.value.x}, ${attacker.position.value.y})")
+            }
         }
         
+        if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
         println("DEBUG: startFirstPlayerTurn completed")
+        }
     }
     
     fun defenderAttack(defenderId: Int, targetId: Int): Boolean {
@@ -672,7 +699,9 @@ class GameViewModel {
             }
 
             attackersStoppedByBarricade.forEach { it ->
+                if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
                 println("attackBarricade B")
+                }
                 // fixit HERE
                 engine.attackBarricade(it.second, it.first)
             }
@@ -1108,8 +1137,12 @@ class GameViewModel {
         if (level != null && savedGame.mapId != null && level.mapId != null) {
             if (savedGame.mapId != level.mapId) {
                 // Map mismatch - the level at this numeric ID now uses a different map
+                if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
                 println("WARNING: Save file has different map ID (saved: ${savedGame.mapId}, current: ${level.mapId})")
+                }
+                if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
                 println("Level sequence may have changed. Attempting to find level with matching map ID...")
+                }
                 
                 // Try to find any level that uses the same map as the saved game
                 val levelWithCorrectMap = _worldLevels.value
@@ -1130,7 +1163,9 @@ class GameViewModel {
                     startTimeTracking()
                     return
                 } else {
+                    if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
                     println("ERROR: Could not find any level with map ID ${savedGame.mapId}. Save file may be incompatible.")
+                    }
                     // TODO: Show error dialog to user
                     return
                 }
@@ -1612,7 +1647,9 @@ class GameViewModel {
                 val attacker = target as? Attacker
                 if (attacker != null) {
                     attacker.currentHealth.value = (attacker.currentHealth.value - 80).coerceAtLeast(0)
+                    if (LogConfig.ENABLE_SPELL_LOGGING) {
                     println("Attack Aimed: Dealt 80 damage to ${attacker.type.displayName} (HP: ${attacker.currentHealth.value})")
+                    }
                 }
             }
             SpellType.HEAL -> {
@@ -1621,7 +1658,9 @@ class GameViewModel {
                 val maxHP = gameState.level.healthPoints + (_currentPlayer.value?.stats?.healthStat ?: 0)
                 val newHP = (currentHP + 3).coerceAtMost(maxHP)
                 gameState.healthPoints.value = newHP
+                if (LogConfig.ENABLE_SPELL_LOGGING) {
                 println("Heal: Restored health to $newHP/$maxHP")
+                }
             }
             SpellType.ATTACK_AREA -> {
                 // Attack Area: Deal 50 damage to all enemies within 2 hex range of position
@@ -1635,7 +1674,9 @@ class GameViewModel {
                             damagedCount++
                         }
                     }
+                    if (LogConfig.ENABLE_SPELL_LOGGING) {
                     println("Attack Area: Dealt 50 damage to $damagedCount enemies within 2 hex range of $position")
+                    }
                 }
             }
             SpellType.INSTANT_TOWER -> {
@@ -1643,7 +1684,9 @@ class GameViewModel {
                 val defender = target as? Defender
                 if (defender != null && defender.buildTimeRemaining.value > 0) {
                     defender.buildTimeRemaining.value = 0
+                    if (LogConfig.ENABLE_SPELL_LOGGING) {
                     println("Instant Tower: ${defender.type.displayName} at ${defender.position.value} is now ready!")
+                    }
                 }
             }
             SpellType.DOUBLE_TOWER_LEVEL -> {
@@ -1657,7 +1700,9 @@ class GameViewModel {
                         castTurn = gameState.turnNumber.value
                     )
                     gameState.activeSpellEffects.add(effect)
+                    if (LogConfig.ENABLE_SPELL_LOGGING) {
                     println("Double Tower Level: ${defender.type.displayName} level doubled for 1 turn!")
+                    }
                 }
             }
             SpellType.DOUBLE_TOWER_REACH -> {
@@ -1671,7 +1716,9 @@ class GameViewModel {
                         castTurn = gameState.turnNumber.value
                     )
                     gameState.activeSpellEffects.add(effect)
+                    if (LogConfig.ENABLE_SPELL_LOGGING) {
                     println("Double Tower Reach: ${defender.type.displayName} range doubled for 1 turn!")
+                    }
                 }
             }
             SpellType.BOMB -> {
@@ -1685,7 +1732,9 @@ class GameViewModel {
                         castTurn = gameState.turnNumber.value
                     )
                     gameState.activeSpellEffects.add(effect)
+                    if (LogConfig.ENABLE_SPELL_LOGGING) {
                     println("Bomb: Placed at $position, will explode in 2 turns!")
+                    }
                 }
             }
             SpellType.FREEZE_SPELL -> {
@@ -1710,7 +1759,9 @@ class GameViewModel {
                             castTurn = gameState.turnNumber.value
                         )
                         gameState.activeSpellEffects.add(effect)
+                        if (LogConfig.ENABLE_SPELL_LOGGING) {
                         println("Freeze Spell: Froze ${attacker.type.displayName} for 1 turn!")
+                        }
                     }
                 }
             }
@@ -1725,12 +1776,16 @@ class GameViewModel {
                         castTurn = gameState.turnNumber.value
                     )
                     gameState.activeSpellEffects.add(effect)
+                    if (LogConfig.ENABLE_SPELL_LOGGING) {
                     println("Cooling Spell: Created cooling area at $position for 3 turns!")
+                    }
                 }
             }
             else -> {
                 // Other spells not yet implemented
+                if (LogConfig.ENABLE_SPELL_LOGGING) {
                 println("Cast ${spell.displayName} - Effect not yet implemented")
+                }
             }
         }
     }

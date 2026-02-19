@@ -2,6 +2,7 @@ package de.egril.defender.editor
 
 import de.egril.defender.utils.JsonUtils
 import defender_of_egril.composeapp.generated.resources.Res
+import de.egril.defender.config.LogConfig
 
 /**
  * Loads pre-built maps and levels from the repository directory in resources.
@@ -18,7 +19,9 @@ object RepositoryLoader {
             val bytes = Res.readBytes("files/repository/sequence.json")
             bytes.isNotEmpty()
         } catch (e: Exception) {
+            if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
             println("Repository files not found: ${e.message}")
+            }
             false
         }
     }
@@ -32,7 +35,9 @@ object RepositoryLoader {
             val json = bytes.decodeToString()
             EditorJsonSerializer.deserializeSequence(json)
         } catch (e: Exception) {
+            if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
             println("Could not load sequence from repository: ${e.message}")
+            }
             null
         }
     }
@@ -46,7 +51,9 @@ object RepositoryLoader {
             val json = bytes.decodeToString()
             EditorJsonSerializer.deserializeMap(json)
         } catch (e: Exception) {
+            if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
             println("Could not load map $mapId from repository: ${e.message}")
+            }
             null
         }
     }
@@ -60,7 +67,9 @@ object RepositoryLoader {
             val json = bytes.decodeToString()
             EditorJsonSerializer.deserializeLevel(json)
         } catch (e: Exception) {
+            if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
             println("Could not load level $levelId from repository: ${e.message}")
+            }
             null
         }
     }
@@ -74,7 +83,9 @@ object RepositoryLoader {
             val json = bytes.decodeToString()
             parseDragonNames(json)
         } catch (e: Exception) {
+            if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
             println("Could not load dragon names from repository: ${e.message}")
+            }
             null
         }
     }
@@ -88,7 +99,9 @@ object RepositoryLoader {
             val json = bytes.decodeToString()
             EditorJsonSerializer.deserializeWorldMapData(json)
         } catch (e: Exception) {
+            if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
             println("Could not load worldmap.json from repository: ${e.message}")
+            }
             null
         }
     }
@@ -106,7 +119,9 @@ object RepositoryLoader {
             
             if (names.isEmpty()) null else names
         } catch (e: Exception) {
+            if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
             println("Error parsing dragon names: ${e.message}")
+            }
             null
         }
     }
@@ -117,7 +132,9 @@ object RepositoryLoader {
      */
     suspend fun loadAndSaveRepositoryFiles(storage: FileStorage): Boolean {
         return try {
+            if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
             println("Loading repository files...")
+            }
             
             // Load sequence first
             val sequence = loadSequence()
@@ -126,7 +143,9 @@ object RepositoryLoader {
                 return false
             }
             
+            if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
             println("Found ${sequence.sequence.size} levels in repository sequence")
+            }
             
             // Track which maps we need to load
             val mapsToLoad = mutableSetOf<String>()
@@ -140,13 +159,17 @@ object RepositoryLoader {
                     val officialLevel = level.copy(isOfficial = true)
                     val levelJson = EditorJsonSerializer.serializeLevel(officialLevel)
                     storage.writeFile("gamedata/official/levels/$levelId.json", levelJson)
+                    if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                     println("Loaded and saved official level: $levelId")
+                    }
                     
                     // Track the map ID
                     mapsToLoad.add(level.mapId)
                     successCount++
                 } else {
+                    if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                     println("WARNING: Could not load level $levelId from repository")
+                    }
                 }
             }
             
@@ -159,35 +182,49 @@ object RepositoryLoader {
                     val officialMap = map.copy(isOfficial = true)
                     val mapJson = EditorJsonSerializer.serializeMap(officialMap)
                     storage.writeFile("gamedata/official/maps/$mapId.json", mapJson)
+                    if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                     println("Loaded and saved official map: $mapId")
+                    }
                     mapCount++
                 } else {
+                    if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                     println("WARNING: Could not load map $mapId from repository")
+                    }
                 }
             }
             
             // Save sequence to official directory
             val sequenceJson = EditorJsonSerializer.serializeSequence(sequence)
             storage.writeFile("gamedata/official/sequence.json", sequenceJson)
+            if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
             println("Saved official sequence")
+            }
             
             // Load and save world map data from repository to official directory
             val worldMapData = loadWorldMapData()
             if (worldMapData != null) {
                 val worldMapJson = EditorJsonSerializer.serializeWorldMapData(worldMapData)
                 storage.writeFile("gamedata/official/worldmap.json", worldMapJson)
+                if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                 println("Loaded and saved official worldmap.json from repository")
+                }
             } else {
+                if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                 println("No worldmap.json in repository, skipping")
+                }
             }
             
             // Save version file
             storage.writeFile("gamedata/version.txt", "9")
             
+            if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
             println("Repository files loaded successfully: $successCount levels, $mapCount maps")
+            }
             successCount > 0
         } catch (e: Exception) {
+            if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
             println("Error loading repository files: ${e.message}")
+            }
             e.printStackTrace()
             false
         }

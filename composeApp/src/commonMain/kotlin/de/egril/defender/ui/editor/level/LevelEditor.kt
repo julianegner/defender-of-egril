@@ -42,6 +42,7 @@ import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.official_level_saved_warning_title
 import defender_of_egril.composeapp.generated.resources.official_level_saved_warning_message
 import kotlin.random.Random
+import de.egril.defender.config.LogConfig
 
 /**
  * Main content for the Level Editor tab
@@ -355,9 +356,15 @@ fun LevelEditorView(
     
     // Update state when level changes (e.g., after reload from disk)
     LaunchedEffect(level.id, level.initialData, level.hashCode()) {
+        if (LogConfig.ENABLE_UI_LOGGING) {
         println("LevelEditor LaunchedEffect triggered: levelId=${level.id}, initialData=${level.initialData}, effectiveData=${level.getEffectiveInitialData()}")
+        }
+        if (LogConfig.ENABLE_UI_LOGGING) {
         println("  Defenders: ${level.getEffectiveInitialData().defenders.size}, Attackers: ${level.getEffectiveInitialData().attackers.size}")
+        }
+        if (LogConfig.ENABLE_UI_LOGGING) {
         println("level data: $level")
+        }
 
 
         initialDataState = level.getEffectiveInitialData()

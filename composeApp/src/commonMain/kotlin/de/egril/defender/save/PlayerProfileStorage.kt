@@ -2,6 +2,7 @@ package de.egril.defender.save
 
 import de.egril.defender.editor.getFileStorage
 import de.egril.defender.utils.currentTimeMillis
+import de.egril.defender.config.LogConfig
 
 /**
  * Manages player profiles and storage
@@ -156,7 +157,9 @@ object PlayerProfileStorage {
             try {
                 fileStorage.renameDirectory(oldDir, newDir)
             } catch (e: Exception) {
+                if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
                 println("Error renaming player directory: ${e.message}")
+                }
                 return null
             }
         }
@@ -303,7 +306,9 @@ object PlayerProfileStorage {
                 fileStorage.writeFile(getPlayerLevelProgressFile(defaultProfile.id), existingProgress)
             }
         } catch (e: Exception) {
+            if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
             println("Error migrating level progress: ${e.message}")
+            }
         }
         
         // Move existing save files
@@ -317,7 +322,9 @@ object PlayerProfileStorage {
                 }
             }
         } catch (e: Exception) {
+            if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
             println("Error migrating save files: ${e.message}")
+            }
         }
         
         return defaultProfile

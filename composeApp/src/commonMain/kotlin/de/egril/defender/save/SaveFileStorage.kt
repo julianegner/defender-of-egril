@@ -5,6 +5,7 @@ import de.egril.defender.editor.getFileStorage
 import de.egril.defender.game.LevelData
 import de.egril.defender.model.*
 import de.egril.defender.utils.currentTimeMillis
+import de.egril.defender.config.LogConfig
 
 /**
  * File-based storage for save games
@@ -252,7 +253,9 @@ object SaveFileStorage {
             fileStorage.writeFile(targetPath, jsonContent)
             true
         } catch (e: Exception) {
+            if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
             println("Error importing save game $filename: ${e.message}")
+            }
             e.printStackTrace()
             false
         }
