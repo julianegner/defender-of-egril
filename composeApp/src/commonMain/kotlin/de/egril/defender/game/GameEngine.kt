@@ -64,6 +64,44 @@ class GameEngine(private val state: GameState) {
     fun performWizardPlaceMagicalTrap(wizardId: Int, trapPosition: Position): Boolean =
         mineOperations.performWizardPlaceMagicalTrap(wizardId, trapPosition)
     
+    /**
+     * Perform wizard mana generation action
+     * Generates base 5 mana + (wizard level / 5) bonus mana
+     * Consumes one wizard action
+     * Returns true if mana was generated successfully
+     */
+    fun performWizardGenerateMana(wizardId: Int): Boolean {
+        // Find the wizard tower
+        val wizard = state.defenders.find { it.id == wizardId } ?: return false
+        
+        // Verify it's a wizard tower
+        if (wizard.type != DefenderType.WIZARD_TOWER) return false
+        
+        // Check if wizard has actions remaining
+        if (wizard.actionsRemaining.value <= 0) return false
+        
+        // Check if mana is already at max
+        if (state.currentMana.value >= state.maxMana.value) return false
+        
+        // Calculate mana generation amount
+        val manaAmount = 5 + (wizard.level.value / 5)
+        
+        // Add mana (capped at max)
+        val newMana = minOf(state.currentMana.value + manaAmount, state.maxMana.value)
+        val actualManaGenerated = newMana - state.currentMana.value
+        state.currentMana.value = newMana
+        
+        // Consume one action
+        wizard.actionsRemaining.value -= 1
+        
+        // Log mana generation
+        if (LogConfig.ENABLE_SPELL_LOGGING) {
+            println("=== SPELL: Wizard tower $wizardId generated $actualManaGenerated mana (${state.currentMana.value}/${state.maxMana.value})")
+        }
+        
+        return true
+    }
+    
     // Barricade Operations - delegated to BarricadeSystem
     fun performBuildBarricade(towerId: Int, barricadePosition: Position): Boolean =
         barricadeSystem.performBuildBarricade(towerId, barricadePosition)

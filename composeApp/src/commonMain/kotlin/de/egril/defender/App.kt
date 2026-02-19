@@ -314,6 +314,7 @@ fun App() {
                         onMineDig = { mineId -> viewModel.performMineDig(mineId) },
                         onMineBuildTrap = { mineId, trapPos -> viewModel.performMineBuildTrap(mineId, trapPos) },
                         onWizardPlaceMagicalTrap = { wizardId, trapPos -> viewModel.performWizardPlaceMagicalTrap(wizardId, trapPos) },
+                        onWizardGenerateMana = { wizardId -> viewModel.performWizardGenerateMana(wizardId) },
                         onBuildBarricade = { towerId, barricadePos -> viewModel.performBuildBarricade(towerId, barricadePos) },
                         onRemoveBarricade = { barricadePos -> viewModel.performRemoveBarricade(barricadePos) },
                         cheatDigOutcome = cheatDigOutcome,

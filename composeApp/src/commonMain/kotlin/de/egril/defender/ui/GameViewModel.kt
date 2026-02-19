@@ -646,6 +646,15 @@ class GameViewModel {
         return gameEngine?.performWizardPlaceMagicalTrap(wizardId, trapPosition) ?: false
     }
     
+    /**
+     * Perform wizard mana generation
+     * Called when player clicks the "Generate Mana" button on a wizard tower
+     * Returns true if mana was generated successfully
+     */
+    fun performWizardGenerateMana(wizardId: Int): Boolean {
+        return gameEngine?.performWizardGenerateMana(wizardId) ?: false
+    }
+    
     fun performBuildBarricade(towerId: Int, barricadePosition: Position): Boolean {
         val result = gameEngine?.performBuildBarricade(towerId, barricadePosition) ?: false
         if (result) {
