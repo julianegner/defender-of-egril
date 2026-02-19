@@ -75,6 +75,8 @@ fun App() {
         val specialActionsRemaining by viewModel.specialActionsRemaining.collectAsState()
         val reminderMessage by viewModel.reminderMessage.collectAsState()
         val newAchievement by viewModel.newAchievement.collectAsState()
+        val showMagicPanel by viewModel.showMagicPanel.collectAsState()
+        val pendingSpellCast by viewModel.pendingSpellCast.collectAsState()
         
         // Show player selection dialog if needed
         var showPlayerSelection by remember { mutableStateOf(false) }
@@ -326,12 +328,12 @@ fun App() {
                         reminderMessage = reminderMessage,
                         onClearReminderMessage = { viewModel.clearReminderMessage() },
                         // Magic panel callbacks
-                        showMagicPanel = viewModel.showMagicPanel.value,
-                        playerStats = viewModel.currentPlayer.value?.stats ?: de.egril.defender.model.PlayerStats(),
+                        showMagicPanel = showMagicPanel,
+                        playerStats = currentPlayer?.stats ?: de.egril.defender.model.PlayerStats(),
                         onOpenMagicPanel = { viewModel.openMagicPanel() },
                         onCloseMagicPanel = { viewModel.closeMagicPanel() },
                         onCastSpell = { spell -> viewModel.setPendingSpell(spell) },
-                        pendingSpellCast = viewModel.pendingSpellCast.value,
+                        pendingSpellCast = pendingSpellCast,
                         onConfirmSpellCast = { 
                             viewModel.pendingSpellCast.value?.let { spell ->
                                 viewModel.castSpell(spell)
