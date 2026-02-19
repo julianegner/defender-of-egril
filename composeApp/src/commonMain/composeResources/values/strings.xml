@@ -1352,5 +1352,9 @@
     <string name="cheat_unlock_desc">Unlock specific level</string>
     <string name="cheat_lockall_desc">Lock all levels</string>
     <string name="cheat_lock_desc">Lock specific level</string>
+    
+    <!-- Freeze status labels -->
+    <string name="frozen_label">Frozen</string>
+    <string name="frozen_turns_remaining">Frozen: %d turns remaining</string>
 
 </resources>

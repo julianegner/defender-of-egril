@@ -141,6 +141,7 @@ fun GameControlsPanel(
                         Box(modifier = Modifier.weight(1f)) {
                             AttackerInfo(
                                 attacker = attacker,
+                                activeSpellEffects = gameState.activeSpellEffects,
                                 isMobile = uiScale < 1f,
                                 onShowDragonInfo = onShowDragonInfo
                             )

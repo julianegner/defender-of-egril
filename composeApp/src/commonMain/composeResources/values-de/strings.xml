@@ -1348,5 +1348,9 @@
     <string name="cheat_unlock_desc">Bestimmtes Level freischalten</string>
     <string name="cheat_lockall_desc">Alle Level sperren</string>
     <string name="cheat_lock_desc">Bestimmtes Level sperren</string>
+    
+    <!-- Freeze status labels -->
+    <string name="frozen_label">Eingefroren</string>
+    <string name="frozen_turns_remaining">Eingefroren: %d Runden verbleibend</string>
 
 </resources>

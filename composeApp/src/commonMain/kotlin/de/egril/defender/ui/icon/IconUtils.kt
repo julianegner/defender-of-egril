@@ -1140,3 +1140,74 @@ fun HammerIcon(
         )
     }
 }
+
+/**
+ * Displays a snowflake icon using Canvas for freeze effects
+ */
+@Composable
+fun SnowflakeIcon(
+    modifier: Modifier = Modifier.Companion,
+    size: Dp = 24.dp,
+    tint: Color = Color.Cyan
+) {
+    Canvas(
+        modifier = modifier.size(size)
+    ) {
+        val center = Offset(this.size.width / 2f, this.size.height / 2f)
+        val radius = this.size.minDimension / 2.5f
+        val strokeWidth = this.size.minDimension * 0.08f
+        
+        // Draw 6 arms of the snowflake (60 degrees apart)
+        for (i in 0 until 6) {
+            val angle = i * PI.toFloat() / 3f
+            val cos = kotlin.math.cos(angle)
+            val sin = kotlin.math.sin(angle)
+            
+            // Main arm
+            drawLine(
+                color = tint,
+                start = center,
+                end = Offset(
+                    center.x + cos * radius,
+                    center.y + sin * radius
+                ),
+                strokeWidth = strokeWidth,
+                cap = StrokeCap.Round
+            )
+            
+            // Small branches on each arm
+            val branchLength = radius * 0.3f
+            val branchPos = radius * 0.7f
+            
+            // Branch point
+            val branchX = center.x + cos * branchPos
+            val branchY = center.y + sin * branchPos
+            
+            // Left branch
+            val leftAngle = angle - PI.toFloat() / 6f
+            drawLine(
+                color = tint,
+                start = Offset(branchX, branchY),
+                end = Offset(
+                    branchX + kotlin.math.cos(leftAngle) * branchLength,
+                    branchY + kotlin.math.sin(leftAngle) * branchLength
+                ),
+                strokeWidth = strokeWidth * 0.7f,
+                cap = StrokeCap.Round
+            )
+            
+            // Right branch
+            val rightAngle = angle + PI.toFloat() / 6f
+            drawLine(
+                color = tint,
+                start = Offset(branchX, branchY),
+                end = Offset(
+                    branchX + kotlin.math.cos(rightAngle) * branchLength,
+                    branchY + kotlin.math.sin(rightAngle) * branchLength
+                ),
+                strokeWidth = strokeWidth * 0.7f,
+                cap = StrokeCap.Round
+            )
+        }
+    }
+}

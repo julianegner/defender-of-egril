@@ -1350,5 +1350,9 @@
     <string name="cheat_unlock_desc">Déverrouiller un niveau spécifique</string>
     <string name="cheat_lockall_desc">Verrouiller tous les niveaux</string>
     <string name="cheat_lock_desc">Verrouiller un niveau spécifique</string>
+    
+    <!-- Freeze status labels -->
+    <string name="frozen_label">Gelé</string>
+    <string name="frozen_turns_remaining">Gelé: %d tours restants</string>
 
 </resources>

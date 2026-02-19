@@ -1349,5 +1349,9 @@
     <string name="cheat_unlock_desc">Desbloquear nivel específico</string>
     <string name="cheat_lockall_desc">Bloquear todos los niveles</string>
     <string name="cheat_lock_desc">Bloquear nivel específico</string>
+    
+    <!-- Freeze status labels -->
+    <string name="frozen_label">Congelado</string>
+    <string name="frozen_turns_remaining">Congelado: %d turnos restantes</string>
 
 </resources>

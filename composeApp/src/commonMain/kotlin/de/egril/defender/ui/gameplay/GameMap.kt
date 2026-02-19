@@ -803,6 +803,15 @@ private fun BoxScope.GridCellContent(
                                 iterations = Int.MAX_VALUE
                             )
                         }
+                        // Show snowflake animation if enemy is frozen
+                        val freezeEffect = gameState.activeSpellEffects.find {
+                            it.spell == SpellType.FREEZE_SPELL && it.attackerId == attacker.id
+                        }
+                        if (freezeEffect != null) {
+                            SnowflakeAnimation(
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
                         // Show barb effect indicators if affected (show up to 5 arrows in center)
                         if (attacker.movementPenalty.value > 0) {
                             val barbCount = minOf(attacker.movementPenalty.value, 5)
