@@ -46,7 +46,7 @@ object LogConfig {
      * Enable spell system debug logs.
      * Shows spell casting, mana usage, spell effects, targeting.
      */
-    var ENABLE_SPELL_LOGGING = false
+    var ENABLE_SPELL_LOGGING = true
     
     /**
      * Enable enemy AI debug logs.

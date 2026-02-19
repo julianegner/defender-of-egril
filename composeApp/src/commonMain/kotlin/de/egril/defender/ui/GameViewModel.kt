@@ -1562,6 +1562,9 @@ class GameViewModel {
      */
     fun toggleMagicPanel() {
         _showMagicPanel.value = !_showMagicPanel.value
+        if (LogConfig.ENABLE_SPELL_LOGGING) {
+            println("=== SPELL: Magic panel toggled - now ${if (_showMagicPanel.value) "OPEN" else "CLOSED"}")
+        }
     }
     
     /**
@@ -1569,6 +1572,13 @@ class GameViewModel {
      */
     fun openMagicPanel() {
         _showMagicPanel.value = true
+        if (LogConfig.ENABLE_SPELL_LOGGING) {
+            val gameState = _gameState.value
+            println("=== SPELL: Magic panel OPENED - Current mana: ${gameState?.currentMana?.value}/${gameState?.maxMana?.value}")
+            val playerStats = _currentPlayer.value?.stats
+            val unlockedSpells = playerStats?.unlockedSpells?.size ?: 0
+            println("=== SPELL: Player has $unlockedSpells unlocked spell(s)")
+        }
     }
     
     /**
@@ -1577,6 +1587,9 @@ class GameViewModel {
     fun closeMagicPanel() {
         _showMagicPanel.value = false
         _pendingSpellCast.value = null
+        if (LogConfig.ENABLE_SPELL_LOGGING) {
+            println("=== SPELL: Magic panel CLOSED")
+        }
     }
     
     /**
@@ -1587,6 +1600,14 @@ class GameViewModel {
         val gameState = _gameState.value
         if (gameState != null && gameState.currentMana.value >= spell.manaCost) {
             _pendingSpellCast.value = spell
+            if (LogConfig.ENABLE_SPELL_LOGGING) {
+                println("=== SPELL: Spell selected for casting - ${spell.displayName} (Cost: ${spell.manaCost} mana)")
+                println("=== SPELL: Showing confirmation dialog")
+            }
+        } else {
+            if (LogConfig.ENABLE_SPELL_LOGGING) {
+                println("=== SPELL: Cannot cast ${spell.displayName} - Insufficient mana (Need: ${spell.manaCost}, Have: ${gameState?.currentMana?.value ?: 0})")
+            }
         }
     }
     
@@ -1594,6 +1615,12 @@ class GameViewModel {
      * Cancel pending spell cast
      */
     fun cancelPendingSpell() {
+        if (LogConfig.ENABLE_SPELL_LOGGING) {
+            val spell = _pendingSpellCast.value
+            if (spell != null) {
+                println("=== SPELL: Spell cast CANCELLED - ${spell.displayName}")
+            }
+        }
         _pendingSpellCast.value = null
     }
     
@@ -1605,26 +1632,42 @@ class GameViewModel {
         val gameState = _gameState.value ?: return
         val currentPlayer = _currentPlayer.value ?: return
         
+        if (LogConfig.ENABLE_SPELL_LOGGING) {
+            println("=== SPELL: Cast spell called - ${spell.displayName}")
+            println("=== SPELL: Current mana: ${gameState.currentMana.value}/${gameState.maxMana.value}")
+        }
+        
         // Validate mana cost
         if (gameState.currentMana.value < spell.manaCost) {
-            println("Not enough mana to cast ${spell.displayName}")
+            if (LogConfig.ENABLE_SPELL_LOGGING) {
+                println("=== SPELL: FAILED - Not enough mana to cast ${spell.displayName}")
+            }
             return
         }
         
         // Validate spell is unlocked
         if (!currentPlayer.stats.unlockedSpells.contains(spell)) {
-            println("Spell ${spell.displayName} is not unlocked")
+            if (LogConfig.ENABLE_SPELL_LOGGING) {
+                println("=== SPELL: FAILED - Spell ${spell.displayName} is not unlocked")
+            }
             return
         }
         
         // If spell requires targeting and no target provided, enter targeting mode
         if (spell.requiresTarget && target == null) {
+            if (LogConfig.ENABLE_SPELL_LOGGING) {
+                println("=== SPELL: Spell requires targeting - Entering targeting mode")
+            }
             enterSpellTargetingMode(spell)
             return
         }
         
         // Deduct mana cost
+        val previousMana = gameState.currentMana.value
         gameState.currentMana.value -= spell.manaCost
+        if (LogConfig.ENABLE_SPELL_LOGGING) {
+            println("=== SPELL: Mana deducted - ${previousMana} -> ${gameState.currentMana.value}")
+        }
         
         // Execute spell effect
         executeSpellEffect(spell, target, gameState)
@@ -1635,6 +1678,10 @@ class GameViewModel {
         
         // Close magic panel after casting
         closeMagicPanel()
+        
+        if (LogConfig.ENABLE_SPELL_LOGGING) {
+            println("=== SPELL: Spell cast COMPLETE - ${spell.displayName}")
+        }
     }
     
     /**
