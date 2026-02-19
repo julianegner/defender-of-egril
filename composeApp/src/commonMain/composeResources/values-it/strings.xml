@@ -1356,4 +1356,15 @@
     <string name="frozen_label">Congelato</string>
     <string name="frozen_turns_remaining">Congelato: %d turni rimanenti</string>
 
+
+    <!-- Task 3: Post-target spell confirmation -->
+    <string name="cast_spell_on_target">Lancia %1$s</string>
+    <string name="target_enemy_details">Nemico bersaglio:</string>
+    <string name="target_tower_details">Torre bersaglio:</string>
+    <string name="target_position">Posizione bersaglio:</string>
+    <string name="enemy_type_level_hp">%1$s (Livello %2$s, PF: %3$s)</string>
+    <string name="tower_type_level">%1$s (Livello %2$s)</string>
+    <string name="freeze_immune_warning_title">Impossibile congelare il nemico</string>
+    <string name="freeze_immune_warning_message">%1$s è immune all'incantesimo di congelamento!</string>
+
 </resources>

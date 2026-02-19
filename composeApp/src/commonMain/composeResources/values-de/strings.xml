@@ -1353,4 +1353,15 @@
     <string name="frozen_label">Eingefroren</string>
     <string name="frozen_turns_remaining">Eingefroren: %d Runden verbleibend</string>
 
+
+    <!-- Task 3: Post-target spell confirmation -->
+    <string name="cast_spell_on_target">%1$s wirken</string>
+    <string name="target_enemy_details">Ziel-Gegner:</string>
+    <string name="target_tower_details">Ziel-Turm:</string>
+    <string name="target_position">Zielposition:</string>
+    <string name="enemy_type_level_hp">%1$s (Stufe %2$s, LP: %3$s)</string>
+    <string name="tower_type_level">%1$s (Stufe %2$s)</string>
+    <string name="freeze_immune_warning_title">Gegner kann nicht eingefroren werden</string>
+    <string name="freeze_immune_warning_message">%1$s ist immun gegen den Gefrierzauber!</string>
+
 </resources>

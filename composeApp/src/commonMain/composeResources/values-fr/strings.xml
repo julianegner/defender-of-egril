@@ -1355,4 +1355,15 @@
     <string name="frozen_label">Gelé</string>
     <string name="frozen_turns_remaining">Gelé: %d tours restants</string>
 
+
+    <!-- Task 3: Post-target spell confirmation -->
+    <string name="cast_spell_on_target">Lancer %1$s</string>
+    <string name="target_enemy_details">Ennemi ciblé:</string>
+    <string name="target_tower_details">Tour ciblée:</string>
+    <string name="target_position">Position ciblée:</string>
+    <string name="enemy_type_level_hp">%1$s (Niveau %2$s, PV: %3$s)</string>
+    <string name="tower_type_level">%1$s (Niveau %2$s)</string>
+    <string name="freeze_immune_warning_title">Impossible de geler l'ennemi</string>
+    <string name="freeze_immune_warning_message">%1$s est immunisé contre le sort de gel!</string>
+
 </resources>

@@ -59,14 +59,21 @@ fun GamePlayScreen(
     // Magic panel parameters
     showMagicPanel: Boolean = false,  // Show magic panel overlay
     playerStats: PlayerStats? = null,  // Player stats for spell list
+    selectedSpell: SpellType? = null,  // Currently selected spell (highlighted with border)
     onOpenMagicPanel: (() -> Unit)? = null,  // Callback to open magic panel
     onCloseMagicPanel: (() -> Unit)? = null,  // Callback to close magic panel
-    onCastSpell: ((SpellType) -> Unit)? = null,  // Callback to cast spell
+    onCastSpell: ((SpellType) -> Unit)? = null,  // Callback to cast/select spell
     pendingSpellCast: SpellType? = null,  // Spell awaiting confirmation
     onConfirmSpellCast: (() -> Unit)? = null,  // Callback to confirm spell cast
     onCancelSpellCast: (() -> Unit)? = null,  // Callback to cancel spell cast
     onSelectSpellTarget: ((Any) -> Unit)? = null,  // Callback to select spell target
-    onExitSpellTargeting: (() -> Unit)? = null  // Callback to exit targeting mode
+    onExitSpellTargeting: (() -> Unit)? = null,  // Callback to exit targeting mode
+    // Post-target confirmation dialogs
+    showSpellTargetConfirmation: Pair<SpellType, Any>? = null,  // Show confirmation after target selected
+    onConfirmTargetSpell: (() -> Unit)? = null,  // Callback to confirm spell on target
+    onDismissTargetConfirmation: (() -> Unit)? = null,  // Callback to dismiss target confirmation
+    showFreezeImmuneWarning: de.egril.defender.model.Attacker? = null,  // Show warning for immune enemy
+    onDismissFreezeWarning: (() -> Unit)? = null  // Callback to dismiss freeze warning
 ) {
     GamePlayScreenContent(
         gameState = gameState,
@@ -101,6 +108,7 @@ fun GamePlayScreen(
         onClearReminderMessage = onClearReminderMessage,
         showMagicPanel = showMagicPanel,
         playerStats = playerStats,
+        selectedSpell = selectedSpell,
         onOpenMagicPanel = onOpenMagicPanel,
         onCloseMagicPanel = onCloseMagicPanel,
         onCastSpell = onCastSpell,
@@ -108,7 +116,12 @@ fun GamePlayScreen(
         onConfirmSpellCast = onConfirmSpellCast,
         onCancelSpellCast = onCancelSpellCast,
         onSelectSpellTarget = onSelectSpellTarget,
-        onExitSpellTargeting = onExitSpellTargeting
+        onExitSpellTargeting = onExitSpellTargeting,
+        showSpellTargetConfirmation = showSpellTargetConfirmation,
+        onConfirmTargetSpell = onConfirmTargetSpell,
+        onDismissTargetConfirmation = onDismissTargetConfirmation,
+        showFreezeImmuneWarning = showFreezeImmuneWarning,
+        onDismissFreezeWarning = onDismissFreezeWarning
     )
 }
 
@@ -147,6 +160,7 @@ private fun GamePlayScreenContent(
     // Magic panel parameters
     showMagicPanel: Boolean = false,
     playerStats: PlayerStats? = null,
+    selectedSpell: SpellType? = null,
     onOpenMagicPanel: (() -> Unit)? = null,
     onCloseMagicPanel: (() -> Unit)? = null,
     onCastSpell: ((SpellType) -> Unit)? = null,
@@ -154,7 +168,12 @@ private fun GamePlayScreenContent(
     onConfirmSpellCast: (() -> Unit)? = null,
     onCancelSpellCast: (() -> Unit)? = null,
     onSelectSpellTarget: ((Any) -> Unit)? = null,
-    onExitSpellTargeting: (() -> Unit)? = null
+    onExitSpellTargeting: (() -> Unit)? = null,
+    showSpellTargetConfirmation: Pair<SpellType, Any>? = null,
+    onConfirmTargetSpell: (() -> Unit)? = null,
+    onDismissTargetConfirmation: (() -> Unit)? = null,
+    showFreezeImmuneWarning: de.egril.defender.model.Attacker? = null,
+    onDismissFreezeWarning: (() -> Unit)? = null
 ) {
     var selectedDefenderType by remember { mutableStateOf<DefenderType?>(null) }
     var selectedDefenderId by remember { mutableStateOf<Int?>(null) }
@@ -1219,6 +1238,7 @@ private fun GamePlayScreenContent(
                         currentMana = gameState.currentMana.value,
                         maxMana = gameState.maxMana.value,
                         gamePhase = gameState.phase.value,
+                        selectedSpell = selectedSpell,
                         onCastSpell = onCastSpell,
                         onClose = { onCloseMagicPanel.invoke() }
                     )
@@ -1226,13 +1246,23 @@ private fun GamePlayScreenContent(
             }
         }
         
-        // Spell confirmation dialog
-        if (pendingSpellCast != null && onConfirmSpellCast != null && onCancelSpellCast != null) {
-            SpellConfirmationDialog(
-                spell = pendingSpellCast,
+        // Post-target spell confirmation dialog (shows after target is selected)
+        if (showSpellTargetConfirmation != null && onConfirmTargetSpell != null && onDismissTargetConfirmation != null) {
+            val (spell, target) = showSpellTargetConfirmation
+            SpellTargetConfirmationDialog(
+                spell = spell,
+                target = target,
                 currentMana = gameState.currentMana.value,
-                onConfirm = { onConfirmSpellCast.invoke() },
-                onDismiss = { onCancelSpellCast.invoke() }
+                onConfirm = { onConfirmTargetSpell.invoke() },
+                onDismiss = { onDismissTargetConfirmation.invoke() }
+            )
+        }
+        
+        // Freeze immune warning dialog
+        if (showFreezeImmuneWarning != null && onDismissFreezeWarning != null) {
+            FreezeImmuneWarningDialog(
+                enemy = showFreezeImmuneWarning,
+                onDismiss = { onDismissFreezeWarning.invoke() }
             )
         }
         
@@ -1241,8 +1271,8 @@ private fun GamePlayScreenContent(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.3f))
-                    .clickable(onClick = { onExitSpellTargeting?.invoke() }),
+                    // Removed semi-transparent overlay - keep map fully clickable
+                    .clickable(enabled = false, onClick = {}),  // Disable background click to exit
                 contentAlignment = Alignment.TopCenter
             ) {
                 // Targeting instruction banner

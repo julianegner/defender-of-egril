@@ -1357,4 +1357,15 @@
     <string name="frozen_label">Frozen</string>
     <string name="frozen_turns_remaining">Frozen: %d turns remaining</string>
 
+
+    <!-- Task 3: Post-target spell confirmation -->
+    <string name="cast_spell_on_target">Cast %1$s</string>
+    <string name="target_enemy_details">Target Enemy:</string>
+    <string name="target_tower_details">Target Tower:</string>
+    <string name="target_position">Target Position:</string>
+    <string name="enemy_type_level_hp">%1$s (Level %2$s, HP: %3$s)</string>
+    <string name="tower_type_level">%1$s (Level %2$s)</string>
+    <string name="freeze_immune_warning_title">Cannot Freeze Enemy</string>
+    <string name="freeze_immune_warning_message">%1$s is immune to the Freeze spell!</string>
+
 </resources>

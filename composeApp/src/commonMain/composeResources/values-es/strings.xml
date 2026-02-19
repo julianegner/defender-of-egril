@@ -1354,4 +1354,15 @@
     <string name="frozen_label">Congelado</string>
     <string name="frozen_turns_remaining">Congelado: %d turnos restantes</string>
 
+
+    <!-- Task 3: Post-target spell confirmation -->
+    <string name="cast_spell_on_target">Lanzar %1$s</string>
+    <string name="target_enemy_details">Enemigo objetivo:</string>
+    <string name="target_tower_details">Torre objetivo:</string>
+    <string name="target_position">Posición objetivo:</string>
+    <string name="enemy_type_level_hp">%1$s (Nivel %2$s, PV: %3$s)</string>
+    <string name="tower_type_level">%1$s (Nivel %2$s)</string>
+    <string name="freeze_immune_warning_title">No se puede congelar al enemigo</string>
+    <string name="freeze_immune_warning_message">¡%1$s es inmune al hechizo de congelación!</string>
+
 </resources>

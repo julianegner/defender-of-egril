@@ -76,7 +76,10 @@ fun App() {
         val reminderMessage by viewModel.reminderMessage.collectAsState()
         val newAchievement by viewModel.newAchievement.collectAsState()
         val showMagicPanel by viewModel.showMagicPanel.collectAsState()
+        val selectedSpell by viewModel.selectedSpell.collectAsState()
         val pendingSpellCast by viewModel.pendingSpellCast.collectAsState()
+        val showSpellTargetConfirmation by viewModel.showSpellTargetConfirmation.collectAsState()
+        val showFreezeImmuneWarning by viewModel.showFreezeImmuneWarning.collectAsState()
         
         // Show player selection dialog if needed
         var showPlayerSelection by remember { mutableStateOf(false) }
@@ -331,6 +334,7 @@ fun App() {
                         // Magic panel callbacks
                         showMagicPanel = showMagicPanel,
                         playerStats = currentPlayer?.stats ?: de.egril.defender.model.PlayerStats(),
+                        selectedSpell = selectedSpell,
                         onOpenMagicPanel = { viewModel.openMagicPanel() },
                         onCloseMagicPanel = { viewModel.closeMagicPanel() },
                         onCastSpell = { spell -> viewModel.setPendingSpell(spell) },
@@ -342,7 +346,13 @@ fun App() {
                         },
                         onCancelSpellCast = { viewModel.cancelPendingSpell() },
                         onSelectSpellTarget = { target -> viewModel.selectSpellTarget(target) },
-                        onExitSpellTargeting = { viewModel.exitSpellTargetingMode() }
+                        onExitSpellTargeting = { viewModel.exitSpellTargetingMode() },
+                        // Post-target confirmation callbacks
+                        showSpellTargetConfirmation = showSpellTargetConfirmation,
+                        onConfirmTargetSpell = { viewModel.confirmSpellCast() },
+                        onDismissTargetConfirmation = { viewModel.dismissSpellConfirmation() },
+                        showFreezeImmuneWarning = showFreezeImmuneWarning,
+                        onDismissFreezeWarning = { viewModel.dismissFreezeImmuneWarning() }
                     )
                 }
             }

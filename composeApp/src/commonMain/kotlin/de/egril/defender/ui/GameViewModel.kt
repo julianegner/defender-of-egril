@@ -107,8 +107,18 @@ class GameViewModel {
     private val _showMagicPanel = MutableStateFlow(false)
     val showMagicPanel: StateFlow<Boolean> = _showMagicPanel.asStateFlow()
     
+    private val _selectedSpell = MutableStateFlow<SpellType?>(null)
+    val selectedSpell: StateFlow<SpellType?> = _selectedSpell.asStateFlow()
+    
     private val _pendingSpellCast = MutableStateFlow<SpellType?>(null)
     val pendingSpellCast: StateFlow<SpellType?> = _pendingSpellCast.asStateFlow()
+    
+    // Post-target confirmation dialog state
+    private val _showSpellTargetConfirmation = MutableStateFlow<Pair<SpellType, Any>?>(null)
+    val showSpellTargetConfirmation: StateFlow<Pair<SpellType, Any>?> = _showSpellTargetConfirmation.asStateFlow()
+    
+    private val _showFreezeImmuneWarning = MutableStateFlow<Attacker?>(null)
+    val showFreezeImmuneWarning: StateFlow<Attacker?> = _showFreezeImmuneWarning.asStateFlow()
     
     // Track game session time
     private var gameSessionStartTime: Long? = null
@@ -1602,16 +1612,36 @@ class GameViewModel {
     }
     
     /**
-     * Set pending spell to cast
-     * Opens confirmation dialog
+     * Toggle spell selection (select or deselect)
+     * No confirmation dialog - enters targeting mode directly
      */
     fun setPendingSpell(spell: SpellType) {
         val gameState = _gameState.value
         if (gameState != null && gameState.currentMana.value >= spell.manaCost) {
-            _pendingSpellCast.value = spell
-            if (LogConfig.ENABLE_SPELL_LOGGING) {
-                println("=== SPELL: Spell selected for casting - ${spell.displayName} (Cost: ${spell.manaCost} mana)")
-                println("=== SPELL: Showing confirmation dialog")
+            // Toggle selection: if same spell clicked again, deselect it
+            if (_selectedSpell.value == spell) {
+                _selectedSpell.value = null
+                _pendingSpellCast.value = null
+                exitSpellTargetingMode()
+                if (LogConfig.ENABLE_SPELL_LOGGING) {
+                    println("=== SPELL: Spell deselected - ${spell.displayName}")
+                }
+            } else {
+                _selectedSpell.value = spell
+                _pendingSpellCast.value = spell
+                if (LogConfig.ENABLE_SPELL_LOGGING) {
+                    println("=== SPELL: Spell selected - ${spell.displayName} (Cost: ${spell.manaCost} mana)")
+                }
+                // For targeting spells, enter targeting mode immediately
+                if (spell.requiresTarget) {
+                    enterSpellTargetingMode(spell)
+                    if (LogConfig.ENABLE_SPELL_LOGGING) {
+                        println("=== SPELL: Entered targeting mode for ${spell.displayName}")
+                    }
+                } else {
+                    // For non-targeting spells, show confirmation with spell details
+                    _showSpellTargetConfirmation.value = Pair(spell, Unit)
+                }
             }
         } else {
             if (LogConfig.ENABLE_SPELL_LOGGING) {
@@ -1631,6 +1661,71 @@ class GameViewModel {
             }
         }
         _pendingSpellCast.value = null
+        _selectedSpell.value = null
+    }
+    
+    /**
+     * Handle target selection for spell (called when player clicks a target)
+     * Shows confirmation or warning dialog based on target validity
+     */
+    fun onSpellTargetSelected(target: Any) {
+        val spell = _pendingSpellCast.value ?: return
+        
+        // Check for freeze immunity
+        if (spell == SpellType.FREEZE_SPELL && target is Attacker) {
+            if (isImmuneToFreeze(target.type)) {
+                _showFreezeImmuneWarning.value = target
+                if (LogConfig.ENABLE_SPELL_LOGGING) {
+                    println("=== SPELL: ${target.type.displayName} is immune to Freeze!")
+                }
+                return
+            }
+        }
+        
+        // Show confirmation dialog with target details
+        _showSpellTargetConfirmation.value = Pair(spell, target)
+        if (LogConfig.ENABLE_SPELL_LOGGING) {
+            println("=== SPELL: Target selected for ${spell.displayName}")
+        }
+    }
+    
+    /**
+     * Confirm spell cast after target selection
+     */
+    fun confirmSpellCast() {
+        val confirmation = _showSpellTargetConfirmation.value
+        if (confirmation != null) {
+            val (spell, target) = confirmation
+            castSpell(spell, target)
+            _showSpellTargetConfirmation.value = null
+            _selectedSpell.value = null
+        }
+    }
+    
+    /**
+     * Dismiss spell target confirmation dialog
+     */
+    fun dismissSpellConfirmation() {
+        _showSpellTargetConfirmation.value = null
+        // Keep spell selected and targeting mode active
+    }
+    
+    /**
+     * Dismiss freeze immune warning
+     */
+    fun dismissFreezeImmuneWarning() {
+        _showFreezeImmuneWarning.value = null
+        // Keep spell selected and targeting mode active
+    }
+    
+    /**
+     * Check if an enemy type is immune to freeze spell
+     */
+    private fun isImmuneToFreeze(type: AttackerType): Boolean {
+        return type == AttackerType.BLUE_DEMON ||
+               type == AttackerType.RED_DEMON ||
+               type == AttackerType.DRAGON ||
+               type == AttackerType.EWHAD
     }
     
     /**
@@ -1906,7 +2001,7 @@ class GameViewModel {
             return
         }
         
-        // Cast the spell with the selected target
-        castSpell(targeting.activeSpell, target)
+        // Show confirmation dialog with target details (or warning for immune enemies)
+        onSpellTargetSelected(target)
     }
 }
