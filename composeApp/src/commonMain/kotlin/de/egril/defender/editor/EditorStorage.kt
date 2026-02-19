@@ -961,17 +961,10 @@ object EditorStorage {
         val map = reloadMap(editorLevel.mapId) ?: getMap(editorLevel.mapId) ?: return null
         if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
             println("Using map: ${map.id} (${map.width}x${map.height})")
-            
             // Convert enemy spawns directly to PlannedEnemySpawn
-            if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
             println("-------------------------------")
-            }
-            if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
             println("enemySpawns: ${editorLevel.enemySpawns}")
-            }
-            if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
             println("-------------------------------")
-            }
         }
 
         val directSpawnPlan = editorLevel.enemySpawns.map { spawn ->
@@ -984,13 +977,13 @@ object EditorStorage {
         }.sortedBy { it.spawnTurn }
         
         if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-        println("Created direct spawn plan with ${directSpawnPlan.size} spawns")
+            println("Created direct spawn plan with ${directSpawnPlan.size} spawns")
         }
         
         // Still create AttackerWaves for backward compatibility
         val spawnsByTurn = editorLevel.enemySpawns.groupBy { it.spawnTurn }
         if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-        println("Enemy spawns grouped by turn: ${spawnsByTurn.keys.sorted()}")
+            println("Enemy spawns grouped by turn: ${spawnsByTurn.keys.sorted()}")
         }
         val waves = spawnsByTurn.entries.sortedBy { it.key }.map { (_, spawns) ->
             AttackerWave(
@@ -999,15 +992,16 @@ object EditorStorage {
             )
         }
         if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-        println("Converted to ${waves.size} attacker waves for compatibility.")
+            println("Converted to ${waves.size} attacker waves for compatibility.")
         }
 
         // Get all target positions from the map
         val targets = map.getTargets()
         if (targets.isEmpty()) return null
-        println("=== LEVEL CONVERSION DEBUG ===")
+
         if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-        println("Target positions from map: $targets")
+            println("=== LEVEL CONVERSION DEBUG ===")
+            println("Target positions from map: $targets")
         }
         
         // Convert editor waypoints to game waypoints
@@ -1018,11 +1012,9 @@ object EditorStorage {
             )
         }
         if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-        println("Converted ${gameWaypoints.size} waypoints:")
-        }
-        gameWaypoints.forEach { wp ->
-            if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-            println("  Waypoint: ${wp.position} -> ${wp.nextTarget}")
+            println("Converted ${gameWaypoints.size} waypoints:")
+            gameWaypoints.forEach { wp ->
+                println("  Waypoint: ${wp.position} -> ${wp.nextTarget}")
             }
         }
         
@@ -1032,13 +1024,9 @@ object EditorStorage {
             pathCellsWithWaypoints.add(waypoint.position)
         }
         if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-        println("Path cells: ${map.getPathCells().size}, with waypoints: ${pathCellsWithWaypoints.size}")
-        }
-        if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-        println("Spawn points: ${map.getSpawnPoints()}")
-        }
-        if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-        println("=== END LEVEL CONVERSION DEBUG ===")
+            println("Path cells: ${map.getPathCells().size}, with waypoints: ${pathCellsWithWaypoints.size}")
+            println("Spawn points: ${map.getSpawnPoints()}")
+            println("=== END LEVEL CONVERSION DEBUG ===")
         }
         
         val level = Level(
@@ -1069,21 +1057,11 @@ object EditorStorage {
         
         if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
             println("=== CREATED LEVEL ===")
-            if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
             println("Level: ${level.name} (ID: ${level.id})")
-            }
-            if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
             println("Target positions: ${level.targetPositions}")
-            }
-            if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
             println("Waypoints count: ${level.waypoints.size}")
-            }
-            if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
             println("Start positions: ${level.startPositions}")
-            }
-            if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
             println("=== END CREATED LEVEL ===")
-            }
         }
         
         return level
