@@ -615,6 +615,8 @@ object SaveJsonSerializer {
         val unlockedSpellsJson = stats.unlockedSpells.joinToString(", ") { "\"${it.name}\"" }
         return """{
       "totalXP": ${stats.totalXP},
+      "level": ${stats.level},
+      "availableStatPoints": ${stats.availableStatPoints},
       "healthStat": ${stats.healthStat},
       "treasuryStat": ${stats.treasuryStat},
       "incomeStat": ${stats.incomeStat},
@@ -743,6 +745,20 @@ object SaveJsonSerializer {
             if (LogConfig.ENABLE_XP_LOGGING) {
                 println("=== XP DEBUG: Extracted totalXP = $totalXP")
             }
+            
+            // Try to extract level and availableStatPoints, fallback to calculated/default for backward compatibility
+            val level = try {
+                JsonUtils.extractValue(json, "level").toInt()
+            } catch (e: Exception) {
+                PlayerStats.calculateLevel(totalXP)  // Backward compatibility: calculate from XP
+            }
+            
+            val availableStatPoints = try {
+                JsonUtils.extractValue(json, "availableStatPoints").toInt()
+            } catch (e: Exception) {
+                0  // Backward compatibility: default to 0
+            }
+            
             val healthStat = JsonUtils.extractValue(json, "healthStat").toInt()
             val treasuryStat = JsonUtils.extractValue(json, "treasuryStat").toInt()
             val incomeStat = JsonUtils.extractValue(json, "incomeStat").toInt()
@@ -770,6 +786,8 @@ object SaveJsonSerializer {
             
             val result = PlayerStats(
                 totalXP = totalXP,
+                level = level,
+                availableStatPoints = availableStatPoints,
                 healthStat = healthStat,
                 treasuryStat = treasuryStat,
                 incomeStat = incomeStat,
@@ -778,7 +796,7 @@ object SaveJsonSerializer {
                 unlockedSpells = unlockedSpells.toSet()
             )
             if (LogConfig.ENABLE_XP_LOGGING) {
-                println("=== XP DEBUG: Created PlayerStats with totalXP = ${result.totalXP}, level = ${result.level}")
+                println("=== XP DEBUG: Created PlayerStats with totalXP=${result.totalXP}, level=${result.level}, availableStatPoints=${result.availableStatPoints}")
             }
             return result
         } catch (e: Exception) {
@@ -786,7 +804,7 @@ object SaveJsonSerializer {
                 println("=== XP DEBUG ERROR: Failed to deserialize PlayerStats: ${e.message}")
                 e.printStackTrace()
                 if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
-                println("=== XP DEBUG: Returning default PlayerStats() with totalXP=0")
+                println("=== XP DEBUG: Returning default PlayerStats() with totalXP=0, level=1, availableStatPoints=0")
                 }
             }
             return PlayerStats()
