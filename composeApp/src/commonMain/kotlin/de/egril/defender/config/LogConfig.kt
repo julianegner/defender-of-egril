@@ -16,7 +16,7 @@ object LogConfig {
      * Enable XP (experience points) persistence and loading debug logs.
      * Shows JSON parsing, serialization/deserialization of XP and stats.
      */
-    var ENABLE_XP_LOGGING = false
+    var ENABLE_XP_LOGGING = true
     
     /**
      * Enable level loading debug logs.

@@ -627,9 +627,10 @@ object SaveJsonSerializer {
     fun deserializePlayerProfiles(json: String): PlayerProfiles? {
         try {
             val profiles = mutableListOf<PlayerProfile>()
-            
-            // Parse profiles array
-            val profilesSection = json.substringAfter("\"profiles\": [").substringBefore("],")
+
+            // Parse profiles
+            val profilesSection = JsonUtils.extractJsonArraySection(json, "\"profiles\": [")
+
             if (profilesSection.isNotBlank()) {
                 val profileEntries = JsonUtils.splitJsonArray(profilesSection)
                 for (entry in profileEntries) {
@@ -656,7 +657,11 @@ object SaveJsonSerializer {
                     } catch (e: Exception) {
                         // Ignore achievement parsing errors for backward compatibility
                     }
-                    
+
+                    // if (LogConfig.ENABLE_XP_LOGGING) {
+                    //     println("=== XP DEBUG: Deserializing player entry JSON: $entry")
+                    // }
+
                     // Parse stats (if present, for backward compatibility)
                     val stats = try {
                         // Extract the stats object - find the opening brace and match it

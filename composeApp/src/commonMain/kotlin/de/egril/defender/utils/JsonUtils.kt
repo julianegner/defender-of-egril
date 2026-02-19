@@ -91,4 +91,20 @@ object JsonUtils {
         
         return elements
     }
+
+    fun extractJsonArraySection(json: String, arrayKey: String): String {
+        val startIdx = json.indexOf(arrayKey)
+        if (startIdx == -1) return ""
+        var pos = startIdx + arrayKey.length
+        var openBrackets = 1
+        val sb = StringBuilder()
+        while (pos < json.length && openBrackets > 0) {
+            val c = json[pos]
+            if (c == '[') openBrackets++
+            if (c == ']') openBrackets--
+            if (openBrackets > 0) sb.append(c)
+            pos++
+        }
+        return sb.toString()
+    }
 }
