@@ -13,6 +13,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import de.egril.defender.model.PlayerStats
 import de.egril.defender.model.SpellType
+import de.egril.defender.model.GamePhase
 import de.egril.defender.ui.icon.LightningIcon
 import de.egril.defender.ui.icon.PentagramIcon
 import com.hyperether.resources.stringResource
@@ -27,6 +28,7 @@ fun MagicPanel(
     playerStats: PlayerStats,
     currentMana: Int,
     maxMana: Int,
+    gamePhase: GamePhase,
     onCastSpell: (SpellType) -> Unit,
     onClose: () -> Unit,
     modifier: Modifier = Modifier
@@ -114,6 +116,7 @@ fun MagicPanel(
                         SpellCard(
                             spell = spell,
                             currentMana = currentMana,
+                            gamePhase = gamePhase,
                             onCast = { onCastSpell(spell) }
                         )
                     }
@@ -140,9 +143,11 @@ fun MagicPanel(
 private fun SpellCard(
     spell: SpellType,
     currentMana: Int,
+    gamePhase: GamePhase,
     onCast: () -> Unit
 ) {
-    val canCast = currentMana >= spell.manaCost
+    // Spells can only be cast when the level has started (not during initial build phase)
+    val canCast = currentMana >= spell.manaCost && gamePhase != GamePhase.INITIAL_BUILDING
     
     Card(
         modifier = Modifier.fillMaxWidth(),

@@ -1218,6 +1218,7 @@ private fun GamePlayScreenContent(
                         playerStats = playerStats,
                         currentMana = gameState.currentMana.value,
                         maxMana = gameState.maxMana.value,
+                        gamePhase = gameState.phase.value,
                         onCastSpell = onCastSpell,
                         onClose = { onCloseMagicPanel.invoke() }
                     )
