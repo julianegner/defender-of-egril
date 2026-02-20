@@ -210,7 +210,7 @@ class TowerPlacementRangePreviewTest {
         assertTrue(buildAreaFound, "Level should have buildable tiles")
         
         // Preview should only show on buildable tiles that:
-        // 1. Are build areas or build islands
+        // 1. Are build areas
         // 2. Don't have an existing tower
         // 3. Don't have an enemy
     }
