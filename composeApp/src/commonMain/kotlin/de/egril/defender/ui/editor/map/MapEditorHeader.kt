@@ -197,9 +197,7 @@ private fun ExpandedMapEditorHeader(
                 modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                // All tile types except deprecated ISLAND are selectable
-                @Suppress("DEPRECATION")
-                items(TileType.entries.filter { it != TileType.ISLAND }) { tileType ->
+                items(TileType.entries.toList()) { tileType ->
                     TileTypeButton(
                         tileType = tileType,
                         selected = selectedTileType == tileType,
@@ -385,8 +383,7 @@ private fun CollapsedMapEditorHeader(
                     expanded = expanded,
                     onDismissRequest = { expanded = false }
                 ) {
-                    @Suppress("DEPRECATION")
-                    TileType.entries.filter { it != TileType.ISLAND }.forEach { tileType ->
+                    TileType.entries.forEach { tileType ->
                         DropdownMenuItem(
                             text = {
                                 Row(

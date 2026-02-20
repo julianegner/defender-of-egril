@@ -37,8 +37,6 @@ object TileImageProvider {
         return when (tileType) {
             TileType.PATH -> painterResource(Res.drawable.tile_path)
             TileType.BUILD_AREA -> painterResource(Res.drawable.tile_build_area)
-            @Suppress("DEPRECATION")
-            TileType.ISLAND -> painterResource(Res.drawable.tile_build_area)  // Deprecated: treat as BUILD_AREA
             TileType.NO_PLAY -> painterResource(Res.drawable.tile_no_play)
             TileType.RIVER -> if (isMaelstrom) {
                 painterResource(Res.drawable.tile_river_maelstrom)

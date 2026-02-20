@@ -27,7 +27,6 @@ class DragonMovementIntegrationTest {
             startPositions = listOf(Position(0, 3)),
             targetPositions = listOf(Position(20, 3)),
             pathCells = pathCells,
-            buildIslands = emptySet(),
             attackerWaves = emptyList(),
             initialCoins = 100,
             healthPoints = 10
@@ -116,7 +115,6 @@ class DragonMovementIntegrationTest {
             startPositions = listOf(Position(0, 3)),
             targetPositions = listOf(Position(15, 3)),
             pathCells = pathCells,
-            buildIslands = emptySet(),
             attackerWaves = emptyList(),
             initialCoins = 100,
             healthPoints = 10
@@ -172,7 +170,6 @@ class DragonMovementIntegrationTest {
             startPositions = listOf(Position(0, 3)),
             targetPositions = listOf(Position(15, 3)),
             pathCells = pathCells,
-            buildIslands = emptySet(),
             attackerWaves = emptyList(),
             initialCoins = 100,
             healthPoints = 10
@@ -219,7 +216,7 @@ class DragonMovementIntegrationTest {
         for (x in 0..12) pathCells.add(Position(x, 3))
         
         // Add some islands that would block walking but not flying
-        val buildIslands = setOf(
+        val buildAreas = setOf(
             Position(2, 2),
             Position(3, 2),
             Position(2, 4),
@@ -234,7 +231,7 @@ class DragonMovementIntegrationTest {
             startPositions = listOf(Position(0, 3)),
             targetPositions = listOf(Position(12, 3)),
             pathCells = pathCells,
-            buildIslands = buildIslands,
+            buildAreas = buildAreas,
             attackerWaves = emptyList(),
             initialCoins = 100,
             healthPoints = 10

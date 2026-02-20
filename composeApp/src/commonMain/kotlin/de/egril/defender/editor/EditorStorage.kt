@@ -1007,7 +1007,6 @@ object EditorStorage {
             startPositions = map.getSpawnPoints(),
             targetPositions = targets,
             pathCells = pathCellsWithWaypoints,
-            buildIslands = map.getBuildIslands(),
             buildAreas = map.getBuildAreas(),
             attackerWaves = waves,
             initialCoins = editorLevel.startCoins,

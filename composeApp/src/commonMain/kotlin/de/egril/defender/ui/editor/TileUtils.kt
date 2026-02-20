@@ -44,8 +44,6 @@ fun getTileColor(tileType: TileType): Color {
     return when (tileType) {
         TileType.PATH -> if (isDarkMode) Color(0xFF4A2F1A) else Color(0xFF8B4513)  // Darker brown
         TileType.BUILD_AREA -> if (isDarkMode) Color(0xFF456C2E) else Color(0xFF90EE90)  // Much darker green
-        @Suppress("DEPRECATION")
-        TileType.ISLAND -> if (isDarkMode) Color(0xFF456C2E) else Color(0xFF90EE90)  // Deprecated: same as BUILD_AREA
         TileType.NO_PLAY -> if (isDarkMode) Color(0xFF1A1A1A) else Color(0xFF404040)  // Much darker gray
         TileType.SPAWN_POINT -> if (isDarkMode) Color(0xFF8B0000) else Color(0xFFFF0000)  // Dark red
         TileType.TARGET -> if (isDarkMode) Color(0xFF00008B) else Color(0xFF0000FF)  // Dark blue

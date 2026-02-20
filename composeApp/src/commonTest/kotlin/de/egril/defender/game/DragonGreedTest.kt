@@ -64,7 +64,6 @@ class DragonGreedTest {
             startPositions = listOf(Position(0, 3)),
             targetPositions = listOf(Position(20, 3)),
             pathCells = pathCells,
-            buildIslands = emptySet(),
             attackerWaves = emptyList(),
             initialCoins = 100,
             healthPoints = 10
@@ -128,7 +127,6 @@ class DragonGreedTest {
             startPositions = listOf(Position(0, 3)),
             targetPositions = listOf(Position(20, 3)),
             pathCells = pathCells,
-            buildIslands = emptySet(),
             attackerWaves = emptyList(),
             initialCoins = 100,
             healthPoints = 10
@@ -179,7 +177,6 @@ class DragonGreedTest {
             startPositions = listOf(Position(0, 3)),
             targetPositions = listOf(Position(20, 3)),
             pathCells = pathCells,
-            buildIslands = emptySet(),
             attackerWaves = emptyList(),
             initialCoins = 100,
             healthPoints = 10
@@ -230,7 +227,6 @@ class DragonGreedTest {
             startPositions = listOf(Position(0, 3)),
             targetPositions = listOf(Position(20, 3)),
             pathCells = pathCells,
-            buildIslands = emptySet(),
             buildAreas = buildAreas,
             attackerWaves = emptyList(),
             initialCoins = 100,
@@ -284,7 +280,6 @@ class DragonGreedTest {
             startPositions = listOf(Position(0, 3)),
             targetPositions = listOf(Position(20, 3)),
             pathCells = pathCells,
-            buildIslands = emptySet(),
             buildAreas = buildAreas,
             attackerWaves = emptyList(),
             initialCoins = 100,

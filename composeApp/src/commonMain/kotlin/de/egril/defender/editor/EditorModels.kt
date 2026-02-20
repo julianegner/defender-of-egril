@@ -11,8 +11,6 @@ import de.egril.defender.ui.common.LevelInfoEnemiesLevelData
 enum class TileType {
     PATH,           // Path where enemies walk
     BUILD_AREA,     // Area where towers can be built (adjacent to path)
-    @Deprecated("Use BUILD_AREA instead. Island tiles are treated as buildable tiles.")
-    ISLAND,         // Deprecated: Build islands (treated as BUILD_AREA)
     NO_PLAY,        // Not playable area
     SPAWN_POINT,    // Enemy spawn points
     TARGET,         // Target position
@@ -60,15 +58,6 @@ data class EditorMap(
     
     fun getPathCells(): Set<Position> {
         return tiles.filter { it.value == TileType.PATH }
-            .map { 
-                val parts = it.key.split(",")
-                Position(parts[0].toInt(), parts[1].toInt())
-            }
-            .toSet()
-    }
-    
-    fun getBuildIslands(): Set<Position> {
-        return tiles.filter { it.value == TileType.ISLAND }
             .map { 
                 val parts = it.key.split(",")
                 Position(parts[0].toInt(), parts[1].toInt())

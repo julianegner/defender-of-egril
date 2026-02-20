@@ -31,7 +31,6 @@ class CheatCodeHandlerTest {
             startPositions = listOf(Position(0, 3)),
             targetPositions = listOf(Position(9, 3)),
             pathCells = (0..9).map { Position(it, 3) }.toSet(),
-            buildIslands = emptySet(),
             attackerWaves = listOf(AttackerWave(listOf(AttackerType.GOBLIN))),
             initialCoins = 100,
             healthPoints = 10,
@@ -365,7 +364,6 @@ class CheatCodeHandlerTest {
             startPositions = listOf(Position(0, 3)),
             targetPositions = listOf(Position(9, 3)),
             pathCells = (0..9).map { Position(it, 3) }.toSet(),
-            buildIslands = emptySet(),
             attackerWaves = listOf(AttackerWave(listOf(AttackerType.GOBLIN))),
             initialCoins = 100,
             healthPoints = 10

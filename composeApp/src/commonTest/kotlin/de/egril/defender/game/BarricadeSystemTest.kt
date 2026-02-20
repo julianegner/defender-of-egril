@@ -22,7 +22,7 @@ class BarricadeSystemTest {
             Position(0, 0), Position(1, 0), Position(2, 0), Position(3, 0), 
             Position(4, 0), Position(5, 0), Position(6, 0)
         )
-        val buildIslands = setOf(Position(2, 2), Position(2, 3), Position(3, 2), Position(3, 3))
+        val buildAreas = setOf(Position(2, 2), Position(2, 3), Position(3, 2), Position(3, 3))
         
         return Level(
             id = 1,
@@ -33,7 +33,7 @@ class BarricadeSystemTest {
             startPositions = listOf(Position(0, 0)),
             targetPositions = listOf(Position(6, 0)),
             pathCells = pathCells,
-            buildIslands = buildIslands,
+            buildAreas = buildAreas,
             attackerWaves = emptyList(),
             initialCoins = 1000,
             healthPoints = 10,
@@ -344,7 +344,7 @@ class BarricadeSystemTest {
         val pathCells = setOf(
             Position(0, 0), Position(1, 0), Position(2, 0), Position(3, 0)
         )
-        val buildIslands = setOf(
+        val buildAreas = setOf(
             Position(1, 1), Position(1, 2),  // First island (adjacent to barricade at (2, 0) via SW)
             Position(2, 1), Position(3, 1)   // Second island (adjacent to barricade at (2, 0) via SE)
         )
@@ -358,7 +358,7 @@ class BarricadeSystemTest {
             startPositions = listOf(Position(0, 0)),
             targetPositions = listOf(Position(3, 0)),
             pathCells = pathCells,
-            buildIslands = buildIslands,
+            buildAreas = buildAreas,
             attackerWaves = emptyList(),
             initialCoins = 1000,
             healthPoints = 10,
@@ -405,7 +405,7 @@ class BarricadeSystemTest {
         val pathCells = setOf(
             Position(0, 0), Position(1, 0), Position(2, 0), Position(3, 0)
         )
-        val buildIslands = setOf(
+        val buildAreas = setOf(
             Position(1, 1), Position(1, 2)  // Only one island
         )
         
@@ -418,7 +418,7 @@ class BarricadeSystemTest {
             startPositions = listOf(Position(0, 0)),
             targetPositions = listOf(Position(3, 0)),
             pathCells = pathCells,
-            buildIslands = buildIslands,
+            buildAreas = buildAreas,
             attackerWaves = emptyList(),
             initialCoins = 1000,
             healthPoints = 10,

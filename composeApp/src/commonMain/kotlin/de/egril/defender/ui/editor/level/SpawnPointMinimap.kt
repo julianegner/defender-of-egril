@@ -81,8 +81,6 @@ fun SpawnPointMinimap(
                     tileType == TileType.TARGET -> if (isDarkMode) Color(0xFF1E3A8A) else Color(0xFF4169E1)
                     tileType == TileType.PATH -> if (isDarkMode) Color(0xFF3E3528) else Color(0xFF8B4513)
                     tileType == TileType.BUILD_AREA -> if (isDarkMode) Color(0xFF2E5C1A) else Color(0xFF90EE90)
-                    @Suppress("DEPRECATION")
-                    tileType == TileType.ISLAND -> if (isDarkMode) Color(0xFF2E5C1A) else Color(0xFF90EE90) // Deprecated: same as BUILD_AREA
                     else -> if (isDarkMode) Color(0xFF2C2C2C) else Color(0xFF808080)
                 }
 

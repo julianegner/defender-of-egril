@@ -83,7 +83,6 @@ class RiverInfoTest {
             id = 1,
             name = "Test River Level",
             pathCells = setOf(Position(0, 0), Position(1, 0)),
-            buildIslands = emptySet(),
             attackerWaves = emptyList(),
             riverTiles = riverTiles
         )
@@ -102,7 +101,6 @@ class RiverInfoTest {
             id = 1,
             name = "Test Normal Level",
             pathCells = setOf(Position(0, 0), Position(1, 0)),
-            buildIslands = emptySet(),
             attackerWaves = emptyList(),
             riverTiles = emptyMap()
         )

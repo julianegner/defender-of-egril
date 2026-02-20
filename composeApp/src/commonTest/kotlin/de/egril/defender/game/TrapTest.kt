@@ -15,7 +15,7 @@ class TrapTest {
     private fun createTestLevel(): Level {
         // Create a simple level with minimal required data
         val pathCells = setOf(Position(0, 0), Position(1, 0), Position(2, 0), Position(3, 0), Position(4, 0), Position(5, 5))
-        val buildIslands = setOf(Position(2, 2), Position(2, 3), Position(3, 2), Position(3, 3))
+        val buildAreas = setOf(Position(2, 2), Position(2, 3), Position(3, 2), Position(3, 3))
         
         return Level(
             id = 1,
@@ -26,7 +26,7 @@ class TrapTest {
             startPositions = listOf(Position(0, 0)),
             targetPositions = listOf(Position(5, 5)),
             pathCells = pathCells,
-            buildIslands = buildIslands,
+            buildAreas = buildAreas,
             attackerWaves = emptyList(),
             initialCoins = 100,
             healthPoints = 10,
