@@ -12,7 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import de.egril.defender.model.PlayerStats
+import de.egril.defender.model.PlayerAbilities
 import de.egril.defender.model.SpellType
 import de.egril.defender.model.GamePhase
 import de.egril.defender.model.Position
@@ -27,7 +27,7 @@ import defender_of_egril.composeapp.generated.resources.*
  */
 @Composable
 fun MagicPanel(
-    playerStats: PlayerStats,
+    playerStats: PlayerAbilities,
     currentMana: Int,
     maxMana: Int,
     gamePhase: GamePhase,

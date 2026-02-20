@@ -32,7 +32,7 @@ fun PlayerProfileScreen(
     onBack: () -> Unit,
     onEditName: () -> Unit,
     onNavigateToStats: (() -> Unit)? = null,  // Optional callback to navigate to stats screen
-    onUpgradeStat: ((de.egril.defender.model.StatType) -> Unit)? = null,  // Optional callback for stat upgrades
+    onUpgradeAbility: ((de.egril.defender.model.AbilityType) -> Unit)? = null,  // Optional callback for ability upgrades
     onUnlockSpell: ((de.egril.defender.model.SpellType) -> Unit)? = null  // Optional callback for unlocking spells
 ) {
     Surface(
@@ -121,10 +121,10 @@ fun PlayerProfileScreen(
                                 }
                                 1 -> {
                                     // Stats & Abilities tab - show stats directly if callbacks provided
-                                    if (onUpgradeStat != null && onUnlockSpell != null) {
+                                    if (onUpgradeAbility != null && onUnlockSpell != null) {
                                         StatsAndAbilitiesContent(
                                             playerProfile = playerProfile,
-                                            onUpgradeStat = onUpgradeStat,
+                                            onUpgradeAbility = onUpgradeAbility,
                                             onUnlockSpell = onUnlockSpell
                                         )
                                     } else if (onNavigateToStats != null) {
@@ -327,10 +327,10 @@ private fun AchievementsListDirect(achievements: List<Achievement>) {
 @Composable
 private fun StatsAndAbilitiesContent(
     playerProfile: PlayerProfile,
-    onUpgradeStat: (de.egril.defender.model.StatType) -> Unit,
+    onUpgradeAbility: (de.egril.defender.model.AbilityType) -> Unit,
     onUnlockSpell: (de.egril.defender.model.SpellType) -> Unit
 ) {
-    val stats = playerProfile.stats
+    val stats = playerProfile.abilities
     
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -356,8 +356,8 @@ private fun StatsAndAbilitiesContent(
                 Spacer(modifier = Modifier.height(8.dp))
                 
                 // XP Progress
-                val currentLevelXP = de.egril.defender.model.PlayerStats.getXPForLevel(stats.level)
-                val nextLevelXP = de.egril.defender.model.PlayerStats.getXPForNextLevel(stats.level)
+                val currentLevelXP = de.egril.defender.model.PlayerAbilities.getXPForLevel(stats.level)
+                val nextLevelXP = de.egril.defender.model.PlayerAbilities.getXPForNextLevel(stats.level)
                 val progressInLevel = stats.totalXP - currentLevelXP
                 val requiredForLevel = nextLevelXP - currentLevelXP
                 val progress = if (requiredForLevel > 0) progressInLevel.toFloat() / requiredForLevel.toFloat() else 1f
@@ -378,9 +378,9 @@ private fun StatsAndAbilitiesContent(
         }
         
         // Available stat points
-        if (stats.availableStatPoints > 0) {
+        if (stats.availableAbilityPoints > 0) {
             Text(
-                text = stringResource(Res.string.available_stat_points, stats.availableStatPoints),
+                text = stringResource(Res.string.available_stat_points, stats.availableAbilityPoints),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary
@@ -389,43 +389,43 @@ private fun StatsAndAbilitiesContent(
         
         // Stats Section Header
         Text(
-            text = stringResource(Res.string.stats),
+            text = stringResource(Res.string.abilities),
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold
         )
         
         // Stat Cards (same as StatsUpgradeScreen)
-        de.egril.defender.ui.StatCard(
+        de.egril.defender.ui.AbilityCard(
             name = stringResource(Res.string.stat_health),
             description = stringResource(Res.string.stat_health_desc),
-            currentLevel = stats.healthStat,
+            currentLevel = stats.healthAbility,
             effect = stringResource(Res.string.stat_health_effect, stats.getBonusHealth()),
-            canUpgrade = stats.availableStatPoints > 0,
-            onUpgrade = { onUpgradeStat(de.egril.defender.model.StatType.HEALTH) },
+            canUpgrade = stats.availableAbilityPoints > 0,
+            onUpgrade = { onUpgradeAbility(de.egril.defender.model.AbilityType.HEALTH) },
             icon = { de.egril.defender.ui.icon.HeartIcon(size = 32.dp) }
         )
         
         Spacer(modifier = Modifier.height(1.dp))
         
-        de.egril.defender.ui.StatCard(
+        de.egril.defender.ui.AbilityCard(
             name = stringResource(Res.string.stat_treasury),
             description = stringResource(Res.string.stat_treasury_desc),
-            currentLevel = stats.treasuryStat,
+            currentLevel = stats.treasuryAbility,
             effect = stringResource(Res.string.stat_treasury_effect, stats.getBonusStartCoins()),
-            canUpgrade = stats.availableStatPoints > 0,
-            onUpgrade = { onUpgradeStat(de.egril.defender.model.StatType.TREASURY) },
+            canUpgrade = stats.availableAbilityPoints > 0,
+            onUpgrade = { onUpgradeAbility(de.egril.defender.model.AbilityType.TREASURY) },
             icon = { de.egril.defender.ui.icon.MoneyIcon(size = 32.dp) }
         )
         
         Spacer(modifier = Modifier.height(1.dp))
         
-        de.egril.defender.ui.StatCard(
+        de.egril.defender.ui.AbilityCard(
             name = stringResource(Res.string.stat_income),
             description = stringResource(Res.string.stat_income_desc),
-            currentLevel = stats.incomeStat,
-            effect = stringResource(Res.string.stat_income_effect, stats.incomeStat * 10),
-            canUpgrade = stats.availableStatPoints > 0,
-            onUpgrade = { onUpgradeStat(de.egril.defender.model.StatType.INCOME) },
+            currentLevel = stats.incomeAbility,
+            effect = stringResource(Res.string.stat_income_effect, stats.incomeAbility * 10),
+            canUpgrade = stats.availableAbilityPoints > 0,
+            onUpgrade = { onUpgradeAbility(de.egril.defender.model.AbilityType.INCOME) },
             icon = { de.egril.defender.ui.icon.MoneyIcon(size = 32.dp) }
         )
         
@@ -433,13 +433,13 @@ private fun StatsAndAbilitiesContent(
         
         // Construction stat with info icon
         var showConstructionInfo by remember { mutableStateOf(false) }
-        de.egril.defender.ui.StatCardWithInfo(
+        de.egril.defender.ui.AbilityCardWithInfo(
             name = stringResource(Res.string.stat_construction),
             description = stringResource(Res.string.stat_construction_desc),
-            currentLevel = stats.constructionStat,
-            effect = de.egril.defender.ui.buildConstructionEffect(stats.constructionStat),
-            canUpgrade = stats.availableStatPoints > 0,
-            onUpgrade = { onUpgradeStat(de.egril.defender.model.StatType.CONSTRUCTION) },
+            currentLevel = stats.constructionAbility,
+            effect = de.egril.defender.ui.buildConstructionEffect(stats.constructionAbility),
+            canUpgrade = stats.availableAbilityPoints > 0,
+            onUpgrade = { onUpgradeAbility(de.egril.defender.model.AbilityType.CONSTRUCTION) },
             icon = { de.egril.defender.ui.icon.HammerIcon(size = 32.dp) },
             onShowInfo = { showConstructionInfo = true }
         )
@@ -452,13 +452,13 @@ private fun StatsAndAbilitiesContent(
         
         Spacer(modifier = Modifier.height(1.dp))
         
-        de.egril.defender.ui.StatCard(
+        de.egril.defender.ui.AbilityCard(
             name = stringResource(Res.string.stat_mana),
             description = stringResource(Res.string.stat_mana_desc),
-            currentLevel = stats.manaStat,
+            currentLevel = stats.manaAbility,
             effect = stringResource(Res.string.stat_mana_effect, stats.getMaxMana()),
-            canUpgrade = stats.availableStatPoints > 0,
-            onUpgrade = { onUpgradeStat(de.egril.defender.model.StatType.MANA) },
+            canUpgrade = stats.availableAbilityPoints > 0,
+            onUpgrade = { onUpgradeAbility(de.egril.defender.model.AbilityType.MANA) },
             icon = { de.egril.defender.ui.icon.StarIcon(size = 32.dp) }
         )
         
@@ -483,7 +483,7 @@ private fun StatsAndAbilitiesContent(
             de.egril.defender.ui.SpellCard(
                 spell = spell,
                 isUnlocked = isUnlocked,
-                canUnlock = !isUnlocked && stats.availableStatPoints > 0,
+                canUnlock = !isUnlocked && stats.availableAbilityPoints > 0,
                 onUnlock = { onUnlockSpell(spell) }
             )
             Spacer(modifier = Modifier.height(1.dp))

@@ -42,11 +42,11 @@ data class SavedGame(
 
 /**
  * Player profile data for export/import with save files
- * Includes achievements, XP, and stats
+ * Includes achievements, XP, and abilities
  */
 data class PlayerProfileData(
     val achievements: List<Achievement>,
-    val stats: PlayerStats
+    val abilities: PlayerAbilities
 )
 
 data class SavedDefender(

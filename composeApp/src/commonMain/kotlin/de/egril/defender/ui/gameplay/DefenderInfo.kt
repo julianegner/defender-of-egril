@@ -350,10 +350,10 @@ fun DefenderInfo(
                                 val canBuildBarricade = when (defender.type) {
                                     DefenderType.SPIKE_TOWER -> 
                                         defender.level.value >= 20 && 
-                                        gameState.constructionLevel >= PlayerStats.CONSTRUCTION_LEVEL_2
+                                        gameState.constructionLevel >= PlayerAbilities.CONSTRUCTION_LEVEL_2
                                     DefenderType.SPEAR_TOWER -> 
                                         defender.level.value >= 10 && 
-                                        gameState.constructionLevel >= PlayerStats.CONSTRUCTION_LEVEL_1
+                                        gameState.constructionLevel >= PlayerAbilities.CONSTRUCTION_LEVEL_1
                                     else -> false
                                 }
                                 
@@ -925,7 +925,7 @@ private fun getTowerInfoMessages(defender: Defender, gameState: GameState): List
     // Spike barbs info (spike tower level 10+ AND Construction level 1+)
     if (defender.type == DefenderType.SPIKE_TOWER && 
         defender.level.value >= 10 && 
-        gameState.constructionLevel >= PlayerStats.CONSTRUCTION_LEVEL_1) {
+        gameState.constructionLevel >= PlayerAbilities.CONSTRUCTION_LEVEL_1) {
         messages.add(
             TowerInfoMessage(
                 title = stringResource(Res.string.spike_barbs_info_title),
@@ -940,10 +940,10 @@ private fun getTowerInfoMessages(defender: Defender, gameState: GameState): List
     val hasBarricadeAbility = when (defender.type) {
         DefenderType.SPIKE_TOWER -> 
             defender.level.value >= 20 && 
-            gameState.constructionLevel >= PlayerStats.CONSTRUCTION_LEVEL_2
+            gameState.constructionLevel >= PlayerAbilities.CONSTRUCTION_LEVEL_2
         DefenderType.SPEAR_TOWER -> 
             defender.level.value >= 10 && 
-            gameState.constructionLevel >= PlayerStats.CONSTRUCTION_LEVEL_1
+            gameState.constructionLevel >= PlayerAbilities.CONSTRUCTION_LEVEL_1
         else -> false
     }
     if (hasBarricadeAbility) {

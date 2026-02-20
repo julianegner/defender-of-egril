@@ -258,7 +258,7 @@ fun App() {
                         onBack = { viewModel.navigateToMainMenu() },
                         onEditName = { showEditPlayer = true },
                         onNavigateToStats = { viewModel.navigateToStatsUpgrade() },
-                        onUpgradeStat = { statType -> viewModel.upgradeStat(statType) },
+                        onUpgradeAbility = { abilityType -> viewModel.upgradeAbility(abilityType) },
                         onUnlockSpell = { spell -> viewModel.unlockSpell(spell) }
                     )
                 }
@@ -266,9 +266,9 @@ fun App() {
             
             is Screen.StatsUpgrade -> {
                 currentPlayer?.let { profile ->
-                    StatsUpgradeScreen(
+                    AbilitiesUpgradeScreen(
                         playerProfile = profile,
-                        onUpgradeStat = { statType -> viewModel.upgradeStat(statType) },
+                        onUpgradeAbility = { abilityType -> viewModel.upgradeAbility(abilityType) },
                         onUnlockSpell = { spell -> viewModel.unlockSpell(spell) },
                         onBack = { viewModel.navigateToPlayerProfile() }
                     )
@@ -333,7 +333,7 @@ fun App() {
                         onClearReminderMessage = { viewModel.clearReminderMessage() },
                         // Magic panel callbacks
                         showMagicPanel = showMagicPanel,
-                        playerStats = currentPlayer?.stats ?: de.egril.defender.model.PlayerStats(),
+                        playerStats = currentPlayer?.abilities ?: de.egril.defender.model.PlayerAbilities(),
                         selectedSpell = selectedSpell,
                         onOpenMagicPanel = { viewModel.openMagicPanel() },
                         onCloseMagicPanel = { viewModel.closeMagicPanel() },

@@ -58,7 +58,7 @@ fun GamePlayScreen(
     onClearReminderMessage: (() -> Unit)? = null,  // Callback to clear reminder message
     // Magic panel parameters
     showMagicPanel: Boolean = false,  // Show magic panel overlay
-    playerStats: PlayerStats? = null,  // Player stats for spell list
+    playerStats: PlayerAbilities? = null,  // Player stats for spell list
     selectedSpell: SpellType? = null,  // Currently selected spell (highlighted with border)
     onOpenMagicPanel: (() -> Unit)? = null,  // Callback to open magic panel
     onCloseMagicPanel: (() -> Unit)? = null,  // Callback to close magic panel
@@ -159,7 +159,7 @@ private fun GamePlayScreenContent(
     onClearReminderMessage: (() -> Unit)? = null,  // Callback to clear reminder message
     // Magic panel parameters
     showMagicPanel: Boolean = false,
-    playerStats: PlayerStats? = null,
+    playerStats: PlayerAbilities? = null,
     selectedSpell: SpellType? = null,
     onOpenMagicPanel: (() -> Unit)? = null,
     onCloseMagicPanel: (() -> Unit)? = null,

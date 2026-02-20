@@ -590,14 +590,14 @@ object SaveJsonSerializer {
             val achievementsJson = profile.achievements.joinToString(", ") { achievement ->
                 """{"id": "${achievement.id.name}", "earnedAt": ${achievement.earnedAt}}"""
             }
-            val statsJson = serializePlayerStats(profile.stats)
+            val abilitiesJson = serializePlayerAbilities(profile.abilities)
             """{
       "id": "${profile.id}",
       "name": "${profile.name}",
       "createdAt": ${profile.createdAt},
       "lastPlayedAt": ${profile.lastPlayedAt},
       "achievements": [$achievementsJson],
-      "stats": $statsJson
+      "abilities": $abilitiesJson
     }"""
         }
         
@@ -611,17 +611,17 @@ object SaveJsonSerializer {
 }"""
     }
     
-    private fun serializePlayerStats(stats: PlayerStats): String {
-        val unlockedSpellsJson = stats.unlockedSpells.joinToString(", ") { "\"${it.name}\"" }
+    private fun serializePlayerAbilities(abilities: PlayerAbilities): String {
+        val unlockedSpellsJson = abilities.unlockedSpells.joinToString(", ") { "\"${it.name}\"" }
         return """{
-      "totalXP": ${stats.totalXP},
-      "level": ${stats.level},
-      "availableStatPoints": ${stats.availableStatPoints},
-      "healthStat": ${stats.healthStat},
-      "treasuryStat": ${stats.treasuryStat},
-      "incomeStat": ${stats.incomeStat},
-      "constructionStat": ${stats.constructionStat},
-      "manaStat": ${stats.manaStat},
+      "totalXP": ${abilities.totalXP},
+      "level": ${abilities.level},
+      "availableAbilityPoints": ${abilities.availableAbilityPoints},
+      "healthAbility": ${abilities.healthAbility},
+      "treasuryAbility": ${abilities.treasuryAbility},
+      "incomeAbility": ${abilities.incomeAbility},
+      "constructionAbility": ${abilities.constructionAbility},
+      "manaAbility": ${abilities.manaAbility},
       "unlockedSpells": [$unlockedSpellsJson]
     }"""
     }
@@ -664,17 +664,17 @@ object SaveJsonSerializer {
                     //     println("=== XP DEBUG: Deserializing player entry JSON: $entry")
                     // }
 
-                    // Parse stats (if present, for backward compatibility)
-                    val stats = try {
-                        // Extract the stats object - find the opening brace and match it
-                        val statsStart = entry.indexOf("\"stats\": {")
-                        if (statsStart >= 0) {
-                            val jsonAfterStats = entry.substring(statsStart + "\"stats\": ".length)
+                    // Parse abilities (if present, for backward compatibility)
+                    val abilities = try {
+                        // Extract the abilities object - find the opening brace and match it
+                        val abilitiesStart = entry.indexOf("\"abilities\": {")
+                        if (abilitiesStart >= 0) {
+                            val jsonAfterAbilities = entry.substring(abilitiesStart + "\"abilities\": ".length)
                             // Find matching closing brace
                             var depth = 0
                             var endIndex = -1
-                            for (i in jsonAfterStats.indices) {
-                                when (jsonAfterStats[i]) {
+                            for (i in jsonAfterAbilities.indices) {
+                                when (jsonAfterAbilities[i]) {
                                     '{' -> depth++
                                     '}' -> {
                                         depth--
@@ -685,27 +685,27 @@ object SaveJsonSerializer {
                                     }
                                 }
                             }
-                            val statsJson = if (endIndex > 0) jsonAfterStats.substring(0, endIndex) else jsonAfterStats
+                            val abilitiesJson = if (endIndex > 0) jsonAfterAbilities.substring(0, endIndex) else jsonAfterAbilities
                             if (LogConfig.ENABLE_XP_LOGGING) {
-                                println("=== XP DEBUG: Deserializing stats JSON: $statsJson")
+                                println("=== XP DEBUG: Deserializing abilities JSON: $abilitiesJson")
                             }
-                            val result = deserializePlayerStats(statsJson)
+                            val result = deserializePlayerAbilities(abilitiesJson)
                             if (LogConfig.ENABLE_XP_LOGGING) {
-                                println("=== XP DEBUG: Deserialized stats: totalXP=${result.totalXP}, healthStat=${result.healthStat}, level=${result.level}")
+                                println("=== XP DEBUG: Deserialized abilities: totalXP=${result.totalXP}, healthAbility=${result.healthAbility}, level=${result.level}")
                             }
                             result
                         } else {
-                            PlayerStats()
+                            PlayerAbilities()
                         }
                     } catch (e: Exception) {
                         if (LogConfig.ENABLE_XP_LOGGING) {
-                            println("=== XP DEBUG ERROR: Failed to parse stats: ${e.message}")
+                            println("=== XP DEBUG ERROR: Failed to parse abilities: ${e.message}")
                             e.printStackTrace()
                             if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
-                            println("=== XP DEBUG: Returning default PlayerStats() with totalXP=0")
+                            println("=== XP DEBUG: Returning default PlayerAbilities() with totalXP=0")
                             }
                         }
-                        PlayerStats() // Default stats for backward compatibility
+                        PlayerAbilities() // Default abilities for backward compatibility
                     }
                     
                     profiles.add(PlayerProfile(
@@ -714,7 +714,7 @@ object SaveJsonSerializer {
                         createdAt = createdAt,
                         lastPlayedAt = lastPlayedAt,
                         achievements = achievements,
-                        stats = stats
+                        abilities = abilities
                     ))
                 }
             }
@@ -736,34 +736,34 @@ object SaveJsonSerializer {
         }
     }
     
-    private fun deserializePlayerStats(json: String): PlayerStats {
+    private fun deserializePlayerAbilities(json: String): PlayerAbilities {
         try {
             if (LogConfig.ENABLE_XP_LOGGING) {
-                println("=== XP DEBUG: deserializePlayerStats called with: $json")
+                println("=== XP DEBUG: deserializePlayerAbilities called with: $json")
             }
             val totalXP = JsonUtils.extractValue(json, "totalXP").toInt()
             if (LogConfig.ENABLE_XP_LOGGING) {
                 println("=== XP DEBUG: Extracted totalXP = $totalXP")
             }
             
-            // Try to extract level and availableStatPoints, fallback to calculated/default for backward compatibility
+            // Try to extract level and availableAbilityPoints, fallback to calculated/default for backward compatibility
             val level = try {
                 JsonUtils.extractValue(json, "level").toInt()
             } catch (e: Exception) {
-                PlayerStats.calculateLevel(totalXP)  // Backward compatibility: calculate from XP
+                PlayerAbilities.calculateLevel(totalXP)  // Backward compatibility: calculate from XP
             }
             
-            val availableStatPoints = try {
-                JsonUtils.extractValue(json, "availableStatPoints").toInt()
+            val availableAbilityPoints = try {
+                JsonUtils.extractValue(json, "availableAbilityPoints").toInt()
             } catch (e: Exception) {
                 0  // Backward compatibility: default to 0
             }
             
-            val healthStat = JsonUtils.extractValue(json, "healthStat").toInt()
-            val treasuryStat = JsonUtils.extractValue(json, "treasuryStat").toInt()
-            val incomeStat = JsonUtils.extractValue(json, "incomeStat").toInt()
-            val constructionStat = JsonUtils.extractValue(json, "constructionStat").toInt()
-            val manaStat = JsonUtils.extractValue(json, "manaStat").toInt()
+            val healthAbility = JsonUtils.extractValue(json, "healthAbility").toInt()
+            val treasuryAbility = JsonUtils.extractValue(json, "treasuryAbility").toInt()
+            val incomeAbility = JsonUtils.extractValue(json, "incomeAbility").toInt()
+            val constructionAbility = JsonUtils.extractValue(json, "constructionAbility").toInt()
+            val manaAbility = JsonUtils.extractValue(json, "manaAbility").toInt()
             
             // Parse unlocked spells
             val unlockedSpells = mutableListOf<SpellType>()
@@ -784,30 +784,30 @@ object SaveJsonSerializer {
                 }
             }
             
-            val result = PlayerStats(
+            val result = PlayerAbilities(
                 totalXP = totalXP,
                 level = level,
-                availableStatPoints = availableStatPoints,
-                healthStat = healthStat,
-                treasuryStat = treasuryStat,
-                incomeStat = incomeStat,
-                constructionStat = constructionStat,
-                manaStat = manaStat,
+                availableAbilityPoints = availableAbilityPoints,
+                healthAbility = healthAbility,
+                treasuryAbility = treasuryAbility,
+                incomeAbility = incomeAbility,
+                constructionAbility = constructionAbility,
+                manaAbility = manaAbility,
                 unlockedSpells = unlockedSpells.toSet()
             )
             if (LogConfig.ENABLE_XP_LOGGING) {
-                println("=== XP DEBUG: Created PlayerStats with totalXP=${result.totalXP}, level=${result.level}, availableStatPoints=${result.availableStatPoints}")
+                println("=== XP DEBUG: Created PlayerAbilities with totalXP=${result.totalXP}, level=${result.level}, availableAbilityPoints=${result.availableAbilityPoints}")
             }
             return result
         } catch (e: Exception) {
             if (LogConfig.ENABLE_XP_LOGGING) {
-                println("=== XP DEBUG ERROR: Failed to deserialize PlayerStats: ${e.message}")
+                println("=== XP DEBUG ERROR: Failed to deserialize PlayerAbilities: ${e.message}")
                 e.printStackTrace()
                 if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
-                println("=== XP DEBUG: Returning default PlayerStats() with totalXP=0, level=1, availableStatPoints=0")
+                println("=== XP DEBUG: Returning default PlayerAbilities() with totalXP=0, level=1, availableAbilityPoints=0")
                 }
             }
-            return PlayerStats()
+            return PlayerAbilities()
         }
     }
 }

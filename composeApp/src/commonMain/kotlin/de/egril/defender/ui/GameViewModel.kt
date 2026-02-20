@@ -321,11 +321,11 @@ class GameViewModel {
         _currentScreen.value = Screen.StatsUpgrade
     }
     
-    fun upgradeStat(statType: de.egril.defender.model.StatType) {
+    fun upgradeAbility(statType: de.egril.defender.model.AbilityType) {
         val currentPlayer = _currentPlayer.value ?: return
-        val oldStats = currentPlayer.stats
-        val updatedStats = oldStats.spendStatPoint(statType) ?: return
-        val updatedPlayer = currentPlayer.copy(stats = updatedStats)
+        val oldStats = currentPlayer.abilities
+        val updatedStats = oldStats.spendAbilityPoint(statType) ?: return
+        val updatedPlayer = currentPlayer.copy(abilities = updatedStats)
         _currentPlayer.value = updatedPlayer
         de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
         
@@ -337,19 +337,19 @@ class GameViewModel {
         }
         
         // First stat upgrade achievement
-        val totalSpentBefore = oldStats.healthStat + oldStats.treasuryStat + oldStats.incomeStat + 
-                               oldStats.constructionStat + oldStats.manaStat
+        val totalSpentBefore = oldStats.healthAbility + oldStats.treasuryAbility + oldStats.incomeAbility + 
+                               oldStats.constructionAbility + oldStats.manaAbility
         if (totalSpentBefore == 0) {
             tempAchievementManager.onFirstStatUpgrade()
         }
         
         // Construction level 3 achievement
-        if (statType == de.egril.defender.model.StatType.CONSTRUCTION && updatedStats.constructionStat >= 3) {
+        if (statType == de.egril.defender.model.AbilityType.CONSTRUCTION && updatedStats.constructionAbility >= 3) {
             tempAchievementManager.onConstructionLevel3()
         }
         
         // Player level achievements
-        val playerLevel = de.egril.defender.model.PlayerStats.calculateLevel(updatedStats.totalXP)
+        val playerLevel = de.egril.defender.model.PlayerAbilities.calculateLevel(updatedStats.totalXP)
         if (playerLevel >= 10) {
             tempAchievementManager.onPlayerLevel10()
         }
@@ -360,9 +360,9 @@ class GameViewModel {
     
     fun unlockSpell(spell: de.egril.defender.model.SpellType) {
         val currentPlayer = _currentPlayer.value ?: return
-        val oldStats = currentPlayer.stats
+        val oldStats = currentPlayer.abilities
         val updatedStats = oldStats.unlockSpell(spell) ?: return
-        val updatedPlayer = currentPlayer.copy(stats = updatedStats)
+        val updatedPlayer = currentPlayer.copy(abilities = updatedStats)
         _currentPlayer.value = updatedPlayer
         de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
         
@@ -383,7 +383,7 @@ class GameViewModel {
         if (worldLevel != null && worldLevel.status != LevelStatus.LOCKED) {
             val difficulty = AppSettings.difficulty.value
             val level = worldLevel.level
-            val playerStats = _currentPlayer.value?.stats ?: PlayerStats()
+            val playerStats = _currentPlayer.value?.abilities ?: PlayerAbilities()
             
             // Apply difficulty modifiers to spawn plan
             val modifiedSpawnPlan = if (level.directSpawnPlan != null) {
@@ -404,7 +404,7 @@ class GameViewModel {
             
             val maxMana = playerStats.getMaxMana()
             val incomeMultiplier = playerStats.getIncomeMultiplier()
-            val constructionLevel = playerStats.constructionStat
+            val constructionLevel = playerStats.constructionAbility
             
             // Create GameState with difficulty-modified and stats-bonus values
             val newGameState = GameState(
@@ -805,8 +805,8 @@ class GameViewModel {
             // Award XP to player profile
             val currentPlayer = _currentPlayer.value
             if (currentPlayer != null) {
-                val updatedStats = currentPlayer.stats.addXP(xpEarned)
-                val updatedPlayer = currentPlayer.copy(stats = updatedStats)
+                val updatedStats = currentPlayer.abilities.addXP(xpEarned)
+                val updatedPlayer = currentPlayer.copy(abilities = updatedStats)
                 _currentPlayer.value = updatedPlayer
                 de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
             }
@@ -919,61 +919,61 @@ class GameViewModel {
     // Player stat/XP/spell cheat methods
     private fun addPlayerXP(amount: Int) {
         val currentPlayer = _currentPlayer.value ?: return
-        val updatedStats = currentPlayer.stats.addXP(amount)
-        val updatedPlayer = currentPlayer.copy(stats = updatedStats)
+        val updatedStats = currentPlayer.abilities.addXP(amount)
+        val updatedPlayer = currentPlayer.copy(abilities = updatedStats)
         _currentPlayer.value = updatedPlayer
         de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
     }
     
     private fun removePlayerXP(amount: Int) {
         val currentPlayer = _currentPlayer.value ?: return
-        val currentXP = currentPlayer.stats.totalXP
+        val currentXP = currentPlayer.abilities.totalXP
         val newXP = maxOf(0, currentXP - amount)
-        val updatedStats = currentPlayer.stats.copy(totalXP = newXP)
-        val updatedPlayer = currentPlayer.copy(stats = updatedStats)
+        val updatedStats = currentPlayer.abilities.copy(totalXP = newXP)
+        val updatedPlayer = currentPlayer.copy(abilities = updatedStats)
         _currentPlayer.value = updatedPlayer
         de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
     }
     
     private fun addPlayerStat(statName: String, amount: Int) {
         val currentPlayer = _currentPlayer.value ?: return
-        val oldStats = currentPlayer.stats
+        val oldStats = currentPlayer.abilities
         
         val updatedStats = when (statName.lowercase()) {
-            "health" -> oldStats.copy(healthStat = oldStats.healthStat + amount)
-            "treasury" -> oldStats.copy(treasuryStat = oldStats.treasuryStat + amount)
-            "income" -> oldStats.copy(incomeStat = oldStats.incomeStat + amount)
-            "construction" -> oldStats.copy(constructionStat = oldStats.constructionStat + amount)
-            "mana" -> oldStats.copy(manaStat = oldStats.manaStat + amount)
+            "health" -> oldStats.copy(healthAbility = oldStats.healthAbility + amount)
+            "treasury" -> oldStats.copy(treasuryAbility = oldStats.treasuryAbility + amount)
+            "income" -> oldStats.copy(incomeAbility = oldStats.incomeAbility + amount)
+            "construction" -> oldStats.copy(constructionAbility = oldStats.constructionAbility + amount)
+            "mana" -> oldStats.copy(manaAbility = oldStats.manaAbility + amount)
             else -> return  // Invalid stat name
         }
         
-        val updatedPlayer = currentPlayer.copy(stats = updatedStats)
+        val updatedPlayer = currentPlayer.copy(abilities = updatedStats)
         _currentPlayer.value = updatedPlayer
         de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
     }
     
     private fun removePlayerStat(statName: String, amount: Int) {
         val currentPlayer = _currentPlayer.value ?: return
-        val oldStats = currentPlayer.stats
+        val oldStats = currentPlayer.abilities
         
         val updatedStats = when (statName.lowercase()) {
-            "health" -> oldStats.copy(healthStat = maxOf(0, oldStats.healthStat - amount))
-            "treasury" -> oldStats.copy(treasuryStat = maxOf(0, oldStats.treasuryStat - amount))
-            "income" -> oldStats.copy(incomeStat = maxOf(0, oldStats.incomeStat - amount))
-            "construction" -> oldStats.copy(constructionStat = maxOf(0, oldStats.constructionStat - amount))
-            "mana" -> oldStats.copy(manaStat = maxOf(0, oldStats.manaStat - amount))
+            "health" -> oldStats.copy(healthAbility = maxOf(0, oldStats.healthAbility - amount))
+            "treasury" -> oldStats.copy(treasuryAbility = maxOf(0, oldStats.treasuryAbility - amount))
+            "income" -> oldStats.copy(incomeAbility = maxOf(0, oldStats.incomeAbility - amount))
+            "construction" -> oldStats.copy(constructionAbility = maxOf(0, oldStats.constructionAbility - amount))
+            "mana" -> oldStats.copy(manaAbility = maxOf(0, oldStats.manaAbility - amount))
             else -> return  // Invalid stat name
         }
         
-        val updatedPlayer = currentPlayer.copy(stats = updatedStats)
+        val updatedPlayer = currentPlayer.copy(abilities = updatedStats)
         _currentPlayer.value = updatedPlayer
         de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
     }
     
     private fun unlockPlayerSpell(spellName: String) {
         val currentPlayer = _currentPlayer.value ?: return
-        val oldStats = currentPlayer.stats
+        val oldStats = currentPlayer.abilities
         
         // Parse spell name to SpellType
         val spell = when (spellName.lowercase().replace(" ", "_")) {
@@ -990,14 +990,14 @@ class GameViewModel {
         }
         
         val updatedStats = oldStats.copy(unlockedSpells = oldStats.unlockedSpells + spell)
-        val updatedPlayer = currentPlayer.copy(stats = updatedStats)
+        val updatedPlayer = currentPlayer.copy(abilities = updatedStats)
         _currentPlayer.value = updatedPlayer
         de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
     }
     
     private fun lockPlayerSpell(spellName: String) {
         val currentPlayer = _currentPlayer.value ?: return
-        val oldStats = currentPlayer.stats
+        val oldStats = currentPlayer.abilities
         
         // Parse spell name to SpellType
         val spell = when (spellName.lowercase().replace(" ", "_")) {
@@ -1014,7 +1014,7 @@ class GameViewModel {
         }
         
         val updatedStats = oldStats.copy(unlockedSpells = oldStats.unlockedSpells - spell)
-        val updatedPlayer = currentPlayer.copy(stats = updatedStats)
+        val updatedPlayer = currentPlayer.copy(abilities = updatedStats)
         _currentPlayer.value = updatedPlayer
         de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
     }
@@ -1594,7 +1594,7 @@ class GameViewModel {
         if (LogConfig.ENABLE_SPELL_LOGGING) {
             val gameState = _gameState.value
             println("=== SPELL: Magic panel OPENED - Current mana: ${gameState?.currentMana?.value}/${gameState?.maxMana?.value}")
-            val playerStats = _currentPlayer.value?.stats
+            val playerStats = _currentPlayer.value?.abilities
             val unlockedSpells = playerStats?.unlockedSpells?.size ?: 0
             println("=== SPELL: Player has $unlockedSpells unlocked spell(s)")
         }
@@ -1750,7 +1750,7 @@ class GameViewModel {
         }
         
         // Validate spell is unlocked
-        if (!currentPlayer.stats.unlockedSpells.contains(spell)) {
+        if (!currentPlayer.abilities.unlockedSpells.contains(spell)) {
             if (LogConfig.ENABLE_SPELL_LOGGING) {
                 println("=== SPELL: FAILED - Spell ${spell.displayName} is not unlocked")
             }
@@ -1806,7 +1806,7 @@ class GameViewModel {
             SpellType.HEAL -> {
                 // Heal: Restore 3 health points (cap at max)
                 val currentHP = gameState.healthPoints.value
-                val maxHP = gameState.level.healthPoints + (_currentPlayer.value?.stats?.healthStat ?: 0)
+                val maxHP = gameState.level.healthPoints + (_currentPlayer.value?.abilities?.healthAbility ?: 0)
                 val newHP = (currentHP + 3).coerceAtMost(maxHP)
                 gameState.healthPoints.value = newHP
                 if (LogConfig.ENABLE_SPELL_LOGGING) {

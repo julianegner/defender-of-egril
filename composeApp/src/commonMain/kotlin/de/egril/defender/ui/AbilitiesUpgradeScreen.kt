@@ -13,8 +13,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hyperether.resources.stringResource
-import de.egril.defender.model.PlayerStats
-import de.egril.defender.model.StatType
+import de.egril.defender.model.PlayerAbilities
+import de.egril.defender.model.AbilityType
 import de.egril.defender.model.SpellType
 import de.egril.defender.save.PlayerProfile
 import de.egril.defender.ui.icon.HeartIcon
@@ -30,13 +30,13 @@ import defender_of_egril.composeapp.generated.resources.*
  * Screen for upgrading player stats and unlocking spells
  */
 @Composable
-fun StatsUpgradeScreen(
+fun AbilitiesUpgradeScreen(
     playerProfile: PlayerProfile,
-    onUpgradeStat: (StatType) -> Unit,
+    onUpgradeAbility: (AbilityType) -> Unit,
     onUnlockSpell: (SpellType) -> Unit,
     onBack: () -> Unit
 ) {
-    val stats = playerProfile.stats
+    val abilities = playerProfile.abilities
     
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -67,7 +67,7 @@ fun StatsUpgradeScreen(
                 Spacer(modifier = Modifier.height(16.dp))
                 
                 // XP and Level Info
-                PlayerLevelInfo(stats)
+                PlayerLevelInfo(abilities)
                 
                 Spacer(modifier = Modifier.height(24.dp))
                 
@@ -79,9 +79,9 @@ fun StatsUpgradeScreen(
                         .fillMaxWidth()
                 ) {
                     // Available stat points
-                    if (stats.availableStatPoints > 0) {
+                    if (abilities.availableAbilityPoints > 0) {
                         Text(
-                            text = stringResource(Res.string.available_stat_points, stats.availableStatPoints),
+                            text = stringResource(Res.string.available_stat_points, abilities.availableAbilityPoints),
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.primary,
@@ -91,43 +91,43 @@ fun StatsUpgradeScreen(
                     
                     // Stats Section
                     Text(
-                        text = stringResource(Res.string.stats),
+                        text = stringResource(Res.string.abilities),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
                     
-                    StatCard(
+                    AbilityCard(
                         name = stringResource(Res.string.stat_health),
                         description = stringResource(Res.string.stat_health_desc),
-                        currentLevel = stats.healthStat,
-                        effect = stringResource(Res.string.stat_health_effect, stats.getBonusHealth()),
-                        canUpgrade = stats.availableStatPoints > 0,
-                        onUpgrade = { onUpgradeStat(StatType.HEALTH) },
+                        currentLevel = abilities.healthAbility,
+                        effect = stringResource(Res.string.stat_health_effect, abilities.getBonusHealth()),
+                        canUpgrade = abilities.availableAbilityPoints > 0,
+                        onUpgrade = { onUpgradeAbility(AbilityType.HEALTH) },
                         icon = { HeartIcon(size = 32.dp) }
                     )
                     
                     Spacer(modifier = Modifier.height(8.dp))
                     
-                    StatCard(
+                    AbilityCard(
                         name = stringResource(Res.string.stat_treasury),
                         description = stringResource(Res.string.stat_treasury_desc),
-                        currentLevel = stats.treasuryStat,
-                        effect = stringResource(Res.string.stat_treasury_effect, stats.getBonusStartCoins()),
-                        canUpgrade = stats.availableStatPoints > 0,
-                        onUpgrade = { onUpgradeStat(StatType.TREASURY) },
+                        currentLevel = abilities.treasuryAbility,
+                        effect = stringResource(Res.string.stat_treasury_effect, abilities.getBonusStartCoins()),
+                        canUpgrade = abilities.availableAbilityPoints > 0,
+                        onUpgrade = { onUpgradeAbility(AbilityType.TREASURY) },
                         icon = { MoneyIcon(size = 32.dp) }
                     )
                     
                     Spacer(modifier = Modifier.height(8.dp))
                     
-                    StatCard(
+                    AbilityCard(
                         name = stringResource(Res.string.stat_income),
                         description = stringResource(Res.string.stat_income_desc),
-                        currentLevel = stats.incomeStat,
-                        effect = stringResource(Res.string.stat_income_effect, stats.incomeStat * 10),
-                        canUpgrade = stats.availableStatPoints > 0,
-                        onUpgrade = { onUpgradeStat(StatType.INCOME) },
+                        currentLevel = abilities.incomeAbility,
+                        effect = stringResource(Res.string.stat_income_effect, abilities.incomeAbility * 10),
+                        canUpgrade = abilities.availableAbilityPoints > 0,
+                        onUpgrade = { onUpgradeAbility(AbilityType.INCOME) },
                         icon = { MoneyIcon(size = 32.dp) }
                     )
                     
@@ -135,13 +135,13 @@ fun StatsUpgradeScreen(
                     
                     // Construction stat with info icon
                     var showConstructionInfo by remember { mutableStateOf(false) }
-                    StatCardWithInfo(
+                    AbilityCardWithInfo(
                         name = stringResource(Res.string.stat_construction),
                         description = stringResource(Res.string.stat_construction_desc),
-                        currentLevel = stats.constructionStat,
-                        effect = buildConstructionEffect(stats.constructionStat),
-                        canUpgrade = stats.availableStatPoints > 0,
-                        onUpgrade = { onUpgradeStat(StatType.CONSTRUCTION) },
+                        currentLevel = abilities.constructionAbility,
+                        effect = buildConstructionEffect(abilities.constructionAbility),
+                        canUpgrade = abilities.availableAbilityPoints > 0,
+                        onUpgrade = { onUpgradeAbility(AbilityType.CONSTRUCTION) },
                         icon = { HammerIcon(size = 32.dp) },
                         onShowInfo = { showConstructionInfo = true }
                     )
@@ -154,13 +154,13 @@ fun StatsUpgradeScreen(
                     
                     Spacer(modifier = Modifier.height(8.dp))
                     
-                    StatCard(
+                    AbilityCard(
                         name = stringResource(Res.string.stat_mana),
                         description = stringResource(Res.string.stat_mana_desc),
-                        currentLevel = stats.manaStat,
-                        effect = stringResource(Res.string.stat_mana_effect, stats.getMaxMana()),
-                        canUpgrade = stats.availableStatPoints > 0,
-                        onUpgrade = { onUpgradeStat(StatType.MANA) },
+                        currentLevel = abilities.manaAbility,
+                        effect = stringResource(Res.string.stat_mana_effect, abilities.getMaxMana()),
+                        canUpgrade = abilities.availableAbilityPoints > 0,
+                        onUpgrade = { onUpgradeAbility(AbilityType.MANA) },
                         icon = { StarIcon(size = 32.dp) }
                     )
                     
@@ -182,11 +182,11 @@ fun StatsUpgradeScreen(
                     )
                     
                     SpellType.values().forEach { spell ->
-                        val isUnlocked = stats.isSpellUnlocked(spell)
+                        val isUnlocked = abilities.isSpellUnlocked(spell)
                         SpellCard(
                             spell = spell,
                             isUnlocked = isUnlocked,
-                            canUnlock = !isUnlocked && stats.availableStatPoints > 0,
+                            canUnlock = !isUnlocked && abilities.availableAbilityPoints > 0,
                             onUnlock = { onUnlockSpell(spell) }
                         )
                         Spacer(modifier = Modifier.height(8.dp))
@@ -208,7 +208,7 @@ fun StatsUpgradeScreen(
 }
 
 @Composable
-private fun PlayerLevelInfo(stats: PlayerStats) {
+private fun PlayerLevelInfo(abilities: PlayerAbilities) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
@@ -220,7 +220,7 @@ private fun PlayerLevelInfo(stats: PlayerStats) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = stringResource(Res.string.player_level, stats.level),
+                text = stringResource(Res.string.player_level, abilities.level),
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold
             )
@@ -228,9 +228,9 @@ private fun PlayerLevelInfo(stats: PlayerStats) {
             Spacer(modifier = Modifier.height(8.dp))
             
             // XP Progress Bar
-            val currentLevelXP = PlayerStats.getXPForLevel(stats.level)
-            val nextLevelXP = PlayerStats.getXPForNextLevel(stats.level)
-            val progressInLevel = stats.totalXP - currentLevelXP
+            val currentLevelXP = PlayerAbilities.getXPForLevel(abilities.level)
+            val nextLevelXP = PlayerAbilities.getXPForNextLevel(abilities.level)
+            val progressInLevel = abilities.totalXP - currentLevelXP
             val requiredForLevel = nextLevelXP - currentLevelXP
             val progress = if (requiredForLevel > 0) progressInLevel.toFloat() / requiredForLevel.toFloat() else 1f
             
@@ -253,7 +253,7 @@ private fun PlayerLevelInfo(stats: PlayerStats) {
 }
 
 @Composable
-internal fun StatCard(
+internal fun AbilityCard(
     name: String,
     description: String,
     currentLevel: Int,
@@ -315,7 +315,7 @@ internal fun StatCard(
 }
 
 @Composable
-internal fun StatCardWithInfo(
+internal fun AbilityCardWithInfo(
     name: String,
     description: String,
     currentLevel: Int,

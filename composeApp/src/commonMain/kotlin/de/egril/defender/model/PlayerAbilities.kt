@@ -1,19 +1,19 @@
 package de.egril.defender.model
 
 /**
- * Player statistics and progression system
+ * Player abilities and progression system
  */
-data class PlayerStats(
+data class PlayerAbilities(
     val totalXP: Int = 0,  // Total XP earned across all levels
     val level: Int = 1,  // Player level (based on XP)
-    val availableStatPoints: Int = 0,  // Unspent stat points
+    val availableAbilityPoints: Int = 0,  // Unspent ability points
     
-    // Stat allocations
-    val healthStat: Int = 0,  // Each point gives bonus health
-    val treasuryStat: Int = 0,  // Each point gives +50 start coins
-    val incomeStat: Int = 0,  // Each point gives +10% coins from enemies
-    val constructionStat: Int = 0,  // Enables tower special abilities
-    val manaStat: Int = 0,  // Each point gives +5 max mana
+    // Ability allocations
+    val healthAbility: Int = 0,  // Each point gives bonus health
+    val treasuryAbility: Int = 0,  // Each point gives +50 start coins
+    val incomeAbility: Int = 0,  // Each point gives +10% coins from enemies
+    val constructionAbility: Int = 0,  // Enables tower special abilities
+    val manaAbility: Int = 0,  // Each point gives +5 max mana
     
     // Unlocked spells (spell IDs)
     val unlockedSpells: Set<SpellType> = emptySet()
@@ -72,30 +72,30 @@ data class PlayerStats(
     }
     
     /**
-     * Calculate bonus health from health stat
+     * Calculate bonus health from health ability
      */
-    fun getBonusHealth(): Int = healthStat
+    fun getBonusHealth(): Int = healthAbility
     
     /**
-     * Calculate bonus start coins from treasury stat
+     * Calculate bonus start coins from treasury ability
      */
-    fun getBonusStartCoins(): Int = treasuryStat * 50
+    fun getBonusStartCoins(): Int = treasuryAbility * 50
     
     /**
-     * Calculate income multiplier from income stat
+     * Calculate income multiplier from income ability
      * Returns a multiplier (e.g., 1.2 for 20% bonus)
      */
-    fun getIncomeMultiplier(): Double = 1.0 + (incomeStat * 0.1)
+    fun getIncomeMultiplier(): Double = 1.0 + (incomeAbility * 0.1)
     
     /**
-     * Calculate max mana from mana stat
+     * Calculate max mana from mana ability
      */
-    fun getMaxMana(): Int = manaStat * 5
+    fun getMaxMana(): Int = manaAbility * 5
     
     /**
      * Check if a construction level is unlocked
      */
-    fun isConstructionLevelUnlocked(level: Int): Boolean = constructionStat >= level
+    fun isConstructionLevelUnlocked(level: Int): Boolean = constructionAbility >= level
     
     /**
      * Check if a spell is unlocked
@@ -108,69 +108,69 @@ data class PlayerStats(
     fun hasAnySpellUnlocked(): Boolean = unlockedSpells.isNotEmpty()
     
     /**
-     * Add XP and return updated stats with new level and stat points if leveled up
+     * Add XP and return updated abilities with new level and ability points if leveled up
      */
-    fun addXP(xp: Int): PlayerStats {
+    fun addXP(xp: Int): PlayerAbilities {
         val newTotalXP = totalXP + xp
         val newLevel = calculateLevel(newTotalXP)
         val levelDifference = newLevel - level
-        val newStatPoints = availableStatPoints + levelDifference
+        val newAbilityPoints = availableAbilityPoints + levelDifference
         
         return copy(
             totalXP = newTotalXP,
             level = newLevel,
-            availableStatPoints = newStatPoints
+            availableAbilityPoints = newAbilityPoints
         )
     }
     
     /**
-     * Spend a stat point on a specific stat
+     * Spend an ability point on a specific ability
      */
-    fun spendStatPoint(stat: StatType): PlayerStats? {
-        if (availableStatPoints <= 0) return null
+    fun spendAbilityPoint(ability: AbilityType): PlayerAbilities? {
+        if (availableAbilityPoints <= 0) return null
         
-        return when (stat) {
-            StatType.HEALTH -> copy(
-                healthStat = healthStat + 1,
-                availableStatPoints = availableStatPoints - 1
+        return when (ability) {
+            AbilityType.HEALTH -> copy(
+                healthAbility = healthAbility + 1,
+                availableAbilityPoints = availableAbilityPoints - 1
             )
-            StatType.TREASURY -> copy(
-                treasuryStat = treasuryStat + 1,
-                availableStatPoints = availableStatPoints - 1
+            AbilityType.TREASURY -> copy(
+                treasuryAbility = treasuryAbility + 1,
+                availableAbilityPoints = availableAbilityPoints - 1
             )
-            StatType.INCOME -> copy(
-                incomeStat = incomeStat + 1,
-                availableStatPoints = availableStatPoints - 1
+            AbilityType.INCOME -> copy(
+                incomeAbility = incomeAbility + 1,
+                availableAbilityPoints = availableAbilityPoints - 1
             )
-            StatType.CONSTRUCTION -> copy(
-                constructionStat = constructionStat + 1,
-                availableStatPoints = availableStatPoints - 1
+            AbilityType.CONSTRUCTION -> copy(
+                constructionAbility = constructionAbility + 1,
+                availableAbilityPoints = availableAbilityPoints - 1
             )
-            StatType.MANA -> copy(
-                manaStat = manaStat + 1,
-                availableStatPoints = availableStatPoints - 1
+            AbilityType.MANA -> copy(
+                manaAbility = manaAbility + 1,
+                availableAbilityPoints = availableAbilityPoints - 1
             )
         }
     }
     
     /**
-     * Unlock a spell by spending a stat point
+     * Unlock a spell by spending an ability point
      */
-    fun unlockSpell(spell: SpellType): PlayerStats? {
-        if (availableStatPoints <= 0) return null
+    fun unlockSpell(spell: SpellType): PlayerAbilities? {
+        if (availableAbilityPoints <= 0) return null
         if (unlockedSpells.contains(spell)) return null
         
         return copy(
             unlockedSpells = unlockedSpells + spell,
-            availableStatPoints = availableStatPoints - 1
+            availableAbilityPoints = availableAbilityPoints - 1
         )
     }
 }
 
 /**
- * Stat types that can be upgraded
+ * Ability types that can be upgraded
  */
-enum class StatType {
+enum class AbilityType {
     HEALTH,
     TREASURY,
     INCOME,

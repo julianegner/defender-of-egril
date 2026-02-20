@@ -181,7 +181,7 @@ class CombatSystem(
         // Apply spike barbs effect (level 10+ with Construction level 1+)
         if (defender.type == DefenderType.SPIKE_TOWER && 
             defender.level.value >= 10 && 
-            state.constructionLevel >= PlayerStats.CONSTRUCTION_LEVEL_1) {
+            state.constructionLevel >= PlayerAbilities.CONSTRUCTION_LEVEL_1) {
             target.movementPenalty.value += 1
         }
     }
