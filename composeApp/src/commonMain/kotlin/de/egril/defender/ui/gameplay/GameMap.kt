@@ -348,7 +348,7 @@ fun GridCell(
         isTarget -> de.egril.defender.editor.TileType.TARGET
         isRiverTile -> de.egril.defender.editor.TileType.RIVER
         isOnPath -> de.egril.defender.editor.TileType.PATH
-        isBuildIsland -> de.egril.defender.editor.TileType.ISLAND
+        isBuildIsland -> de.egril.defender.editor.TileType.BUILD_AREA  // Deprecated: treat as BUILD_AREA
         isBuildArea -> de.egril.defender.editor.TileType.BUILD_AREA
         else -> de.egril.defender.editor.TileType.NO_PLAY
     }
@@ -482,7 +482,7 @@ fun GridCell(
     // Base background color based on area type - ALWAYS visible
     // Build islands + strips adjacent to path allow tower placement
     val baseBackgroundColor = when {
-        isBuildIsland -> GamePlayColors.BuildIsland  // Light green for build islands
+        isBuildIsland -> GamePlayColors.BuildStrip  // Deprecated island: same color as BUILD_AREA
         isBuildArea -> GamePlayColors.BuildStrip  // Medium green for strips adjacent to path
         isOnPath -> GamePlayColors.Path  // Cream/beige for enemy path
         isRiverTile -> GamePlayColors.River  // Blue for river tiles
@@ -620,7 +620,7 @@ fun GridCell(
                 gameState.level.isTargetPosition(pos) -> de.egril.defender.editor.TileType.TARGET
                 gameState.level.isRiverTile(pos) -> de.egril.defender.editor.TileType.RIVER
                 gameState.level.isOnPath(pos) -> de.egril.defender.editor.TileType.PATH
-                gameState.level.isBuildIsland(pos) -> de.egril.defender.editor.TileType.ISLAND
+                gameState.level.isBuildIsland(pos) -> de.egril.defender.editor.TileType.BUILD_AREA  // Deprecated: treat as BUILD_AREA
                 gameState.level.isBuildArea(pos) -> de.egril.defender.editor.TileType.BUILD_AREA
                 else -> de.egril.defender.editor.TileType.NO_PLAY
             }

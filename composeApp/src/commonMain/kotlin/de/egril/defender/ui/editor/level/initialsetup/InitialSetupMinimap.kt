@@ -44,7 +44,8 @@ enum class PlacementMode {
 fun isValidPlacement(position: Position, mode: PlacementMode, map: EditorMap): Boolean {
     val tileType = map.getTileType(position.x, position.y)
     return when (mode) {
-        PlacementMode.DEFENDER -> tileType == TileType.BUILD_AREA || tileType == TileType.ISLAND
+        @Suppress("DEPRECATION")
+        PlacementMode.DEFENDER -> tileType == TileType.BUILD_AREA || tileType == TileType.ISLAND  // ISLAND deprecated, treated as BUILD_AREA
         PlacementMode.ATTACKER -> tileType == TileType.PATH || tileType == TileType.SPAWN_POINT
         PlacementMode.TRAP -> tileType == TileType.PATH
         PlacementMode.BARRICADE -> tileType == TileType.PATH
@@ -222,7 +223,8 @@ fun InitialSetupMinimap(
                     tileType == TileType.SPAWN_POINT -> if (isDarkMode) Color(0xFF8B0000) else Color(0xFFDC143C)
                     tileType == TileType.TARGET -> if (isDarkMode) Color(0xFF1E3A8A) else Color(0xFF4169E1)
                     tileType == TileType.PATH -> if (isDarkMode) Color(0xFF3E3528) else Color(0xFF8B4513)
-                    tileType == TileType.ISLAND -> if (isDarkMode) Color(0xFF1B4D0E) else Color(0xFF228B22)
+                    @Suppress("DEPRECATION")
+                    tileType == TileType.ISLAND -> if (isDarkMode) Color(0xFF2E5C1A) else Color(0xFF90EE90) // Deprecated: same as BUILD_AREA
                     else -> if (isDarkMode) Color(0xFF2C2C2C) else Color(0xFF808080)
                 }
 

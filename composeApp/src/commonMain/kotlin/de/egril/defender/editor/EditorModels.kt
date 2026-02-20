@@ -11,7 +11,8 @@ import de.egril.defender.ui.common.LevelInfoEnemiesLevelData
 enum class TileType {
     PATH,           // Path where enemies walk
     BUILD_AREA,     // Area where towers can be built (adjacent to path)
-    ISLAND,         // Build islands
+    @Deprecated("Use BUILD_AREA instead. Island tiles are treated as buildable tiles.")
+    ISLAND,         // Deprecated: Build islands (treated as BUILD_AREA)
     NO_PLAY,        // Not playable area
     SPAWN_POINT,    // Enemy spawn points
     TARGET,         // Target position

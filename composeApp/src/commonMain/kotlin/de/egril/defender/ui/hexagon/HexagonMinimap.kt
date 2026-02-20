@@ -241,7 +241,8 @@ private fun HexagonMinimapContent(
                     val color = when (tileType) {
                         TileType.PATH -> if (isDarkMode) Color(0xFF3E3528) else Color(0xFF8B4513)
                         TileType.BUILD_AREA -> if (isDarkMode) Color(0xFF2E5C1A) else Color(0xFF90EE90)
-                        TileType.ISLAND -> if (isDarkMode) Color(0xFF1B4D0E) else Color(0xFF228B22)
+                        @Suppress("DEPRECATION")
+                        TileType.ISLAND -> if (isDarkMode) Color(0xFF2E5C1A) else Color(0xFF90EE90) // Deprecated: same as BUILD_AREA
                         TileType.SPAWN_POINT -> if (config.showSpawnPoints) {
                             if (isDarkMode) Color(0xFF8B0000) else Color(0xFFDC143C)
                         } else {
